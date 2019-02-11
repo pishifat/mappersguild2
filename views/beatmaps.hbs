@@ -1,0 +1,365 @@
+<div id="app">
+
+<div class="row">
+    {{!-- WIP Beatmaps --}}
+    <div class="col-md-8">
+        <div class="row">
+            <h2>Work-in-progress <button class="btn btn-mg" data-toggle="modal" data-target="#addBeatmap" @click="resetArtist()">Add beatmap</button></h2>
+        </div>
+        <div class="row mb-3">
+            <small>
+                Filter: <a href="#" @click.prevent>My maps</a> | <a href="#" @click.prevent>Search mapper</a> | <a href="#" @click.prevent>Accepting guest difficulties</a>
+                 -- Collapse: <a href="#" @click.prevent="collapseAll()">Collapse all</a> | <a href="#" @click.prevent="uncollapseAll()">Expand all</a> 
+            </small>
+        </div>
+
+        <template v-for="quest in wipQuests">
+            <div class="col-md-12" :key="quest.id" v-if="hasBeatmaps(quest, 'WIP')">
+                <a data-toggle="collapse" :href="'#' + createCollapseId(quest.name) + 'Wip'">
+                    <img v-if="quest.art" class="rounded-circle" style="height:24px; width: 24px;" :src="'https://assets.ppy.sh/artists/' + quest.art + '/cover.jpg'"> 
+                    Quest: \{{quest.name}}
+                </a> 
+            </div>
+            <transition-group :id="createCollapseId(quest.name) + 'Wip'" name="list" tag="div" class="row collapse show map-collapse">
+                <beatmap-card
+                    v-for="beatmap in beatmaps"
+                    v-if="beatmap.quest && quest.id == beatmap.quest._id && beatmap.status == 'WIP'"
+                    :key="beatmap.id"
+                    :beatmap="beatmap"
+                    :extended-info="extendedInfo"
+                ></beatmap-card>
+            </transition-group>
+        </template>
+
+        <a class="ml-3" data-toggle="collapse" href="#othersWip">No associated quest</a>
+        <transition-group id="othersWip" name="list" tag="div" class="row collapse show map-collapse">
+            <beatmap-card
+                v-for="beatmap in beatmaps"
+                v-if="!beatmap.quest && beatmap.status == 'WIP'"
+                :key="beatmap.id"
+                :beatmap="beatmap"
+                :extended-info="extendedInfo"
+            ></beatmap-card>
+        </transition-group>
+    </div>
+
+    {{!-- Pending Beatmaps --}}
+    <div class="col-md-4">
+        <div class="row">
+            <h2>Pending</h2>
+        </div>
+        <div class="row mb-3">
+            <small>Filter: <a href="#">My maps</a> | <a href="#">Search mapper</a></small>
+        </div>
+
+        <template v-for="quest in wipQuests">
+            <div class="col-md-12" :key="quest.id" v-if="hasBeatmaps(quest, 'Done')">
+                <a data-toggle="collapse" :href="'#' + createCollapseId(quest.name) + 'done'">
+                    <img v-if="quest.art" class="rounded-circle" style="height:24px; width: 24px;" :src="'https://assets.ppy.sh/artists/' + quest.art + '/cover.jpg'"> 
+                    Quest: \{{quest.name}}
+                </a> 
+            </div>
+            <transition-group :id="createCollapseId(quest.name) + 'done'" name="list" tag="div" class="row collapse show map-collapse">
+                <beatmap-card
+                    v-for="beatmap in beatmaps"
+                    v-if="beatmap.quest && quest.id == beatmap.quest._id && beatmap.status == 'Done'"
+                    :key="beatmap.id"
+                    :beatmap="beatmap"
+                    :extended-info="extendedInfo"
+                ></beatmap-card>
+            </transition-group>
+        </template>
+
+        <a class="ml-3" data-toggle="collapse" href="#othersDone">No associated quest</a>
+        <transition-group id="othersDone" name="list" tag="div" class="row collapse show map-collapse">
+            <beatmap-card
+                v-for="beatmap in beatmaps"
+                v-if="!beatmap.quest && beatmap.status == 'Done'"
+                :key="beatmap.id"
+                :beatmap="beatmap"
+                :extended-info="extendedInfo"
+            ></beatmap-card>
+        </transition-group>
+    </div>
+</div>
+    
+<div id="editBeatmap" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content custom-bg-dark" v-if="selectedMap">
+            <div class="modal-header text-dark" :class="'bg-' + selectedMap.status.toLowerCase()">
+                <h5 class="modal-title">\{{selectedMap.song.artist}} - \{{selectedMap.song.title}} (\{{selectedMap.host.username}})</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="overflow: hidden;">
+                <img src="../images/the_A.png" class="the-a-background">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div id="newHost" v-if="isHost">
+                                <div class="input-group input-group-sm mb-3" id="setNewHost">
+                                    <div class="input-group-prepend">
+                                        <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg" type="submit" @click="transferHost(selectedMap.id, $event)">Transfer Host</button>
+                                    </div>
+                                    <input class="form-control form-control-sm" type="text" placeholder="username..." id="hostEntry" style="border-radius: 0 100px 100px 0" v-model="selectedMap.host.username" maxlength="16" @keyup.enter="transferHost(selectedMap.id, $event)"></input>
+                                </div>
+                            </div>
+                            <table class="small table text-shadow">
+                                <thead>
+                                    <th scope="col" style="padding: 2px;">Difficulty</th>
+                                    <th scope="col" style="padding: 2px;">Mapper(s)</th>
+                                    <th scope="col" style="padding: 2px;">Status</th>
+                                    <th scope="col" style="padding: 2px;"></th>
+                                </thead>
+                                <transition-group tag="tbody" name="list" id="difficulties">
+                                    <tr v-for="task in selectedMap.tasks" :key="task.id" :id="task.id + 'Row'">
+                                        <td scope="row" style="padding: 1px;">\{{task.name}}</td>
+                                        <td scope="row" style="padding: 1px;"><template v-for="(mapper, i) in task.mappers"><a :href="'https://osu.ppy.sh/users/' + mapper.osuId" target="_blank">\{{ mapper.username + (i < task.mappers.length - 1 ? ', ' : '') }}</a></template>
+                                            <a href='#' v-if="(isOwner(task.mappers) || isHost)" :id="task.id + 'Collab'" :class="task.status == 'Done' || addCollabInput == task.id || selectedMap.status == 'Done' ? 'fake-button-disable' : ''" class='icon-valid' @click.prevent="setCollab(task)" data-toggle="tooltip" data-placement="top" title="add collaborator"><i class="fas fa-plus-square"></i></a>
+                                            <a href='#' v-if="(isOwner(task.mappers) || isHost) && task.mappers.length > 1" class='icon-used' :class="task.status == 'Done' || removeCollabInput == task.id || selectedMap.status == 'Done' ? 'fake-button-disable' : ''" @click.prevent="unsetCollab(task)" data-toggle="tooltip" data-placement="top" title="remove collaborator"><i class="fas fa-minus-square"></i></a>
+                                        </td>
+                                        <td scope="row" :class="task.status.toLowerCase()" style="padding: 1px;">\{{task.status}}</td>
+                                        <td scope="row" style="padding: 1px;">
+                                            <a href='#' v-if="isOwner(task.mappers) || isHost" class='icon-used' :class="fakeButton == task.id ? 'fake-button-disable' : ''" @click.prevent="removeTask(task.id)" data-toggle="tooltip" data-placement="top" title="delete"><i class="fas fa-minus-square"></i></a>
+                                            <span data-toggle="tooltip" data-placement="top" title="set status">
+                                                <a href='#' v-if="(isOwner(task.mappers) || isHost) && task.status == 'WIP'" :class="fakeButton == task.id ? 'fake-button-disable' : ''" class='icon-done' @click.prevent="setTaskStatus(task.id, 'Done')"><i class="fas fa-check"></i></a>
+                                                <a href='#' v-if="(isOwner(task.mappers) || isHost) && task.status == 'Done'" :class="selectedMap.status == 'Done' || fakeButton == task.id ? 'fake-button-disable' : ''" class='icon-wip' @click.prevent="setTaskStatus(task.id, 'WIP')"><i class="fas fa-ellipsis-h"></i></a>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </transition-group>
+                            </table>
+                            <div id="newDifficulty" v-if="selectedMap.status == 'WIP'" :class="selectedMap.tasksLocked.length == 6 ? 'fake-button-disable' : ''">
+                                <div class="input-group input-group-sm mb-3">
+                                    <div class="input-group-prepend">
+                                        <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg" id="addTask" @click="addTask(selectedMap.id, $event);" data-toggle="tooltip" data-placement="left" title="add difficulty"><i style="padding-left: 4px" class="fas fa-plus"></i></button>
+                                    </div>
+                                    <select class="custom-select select-arrow small" id="diffSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 0 100px 100px 0">
+                                        <option v-if="selectedMap.tasksLocked.indexOf('Easy') < 0 || isHost" value="Easy">Easy</option>
+                                        <option v-if="selectedMap.tasksLocked.indexOf('Normal') < 0 || isHost" value="Normal">Normal</option>
+                                        <option v-if="selectedMap.tasksLocked.indexOf('Hard') < 0 || isHost" value="Hard">Hard</option>
+                                        <option v-if="selectedMap.tasksLocked.indexOf('Insane') < 0 || isHost" value="Insane">Insane</option>
+                                        <option v-if="selectedMap.tasksLocked.indexOf('Expert') < 0 || isHost" value="Expert">Expert</option>
+                                        <option v-if="selectedMap.tasksLocked.indexOf('Storyboard') < 0 || isHost" value="Storyboard">Storyboard</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="newCollaborator">
+                                <div v-if="addCollabInput" class="input-group input-group-sm mb-3">
+                                    <div class="input-group-prepend">
+                                        <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg" @click="addCollab($event)">Add to \{{collabTask.name}}</button>
+                                    </div>
+                                    <input class="form-control form-control-sm" type="text" placeholder="collaborative mapper..." id="collabMapperToAdd" style="border-radius: 0 100px 100px 0"></input>
+                                </div>
+                                <div v-if="removeCollabInput" class="input-group input-group-sm mb-3">
+                                    <div class="input-group-prepend">
+                                        <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg-used" @click="removeCollab($event)">Remove from \{{collabTask.name}}</button>
+                                    </div>
+                                    <input class="form-control form-control-sm" type="text" placeholder="collaborative mapper..." id="collabMapperToRemove" style="border-radius: 0 100px 100px 0"></input>
+                                </div>
+                            </div>
+                            <div v-if="isHost" id="mapsetStatus">
+                                <p class="text-shadow">Mapset status:</p>
+                                <button class="btn btn-sm btn-mg-done" :disabled="selectedMap.status == 'Done'" @click="setStatus('Done', $event);">Complete</button>
+                                <button class="btn btn-sm btn-mg-wip" :disabled="selectedMap.status == 'WIP'" @click="setStatus('WIP', $event);">Work-in-progress</button>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6 bm-col-separator-left">
+                            <p id="quest" class="text-shadow">
+                                Quest: 
+                                <small>
+                                    <span v-if="selectedMap.quest">\{{selectedMap.quest.name}}</span>
+                                    <span v-else><i>none</i></span>
+                                </small>
+                                <span data-toggle="tooltip" data-placement="right" title="connect mapset to quest">
+                                    <a href='#' v-if="isHost && !selectedMap.quest" id='editQuest' :class="fakeButton == selectedMap.id + 'quest' ? 'fake-button-disable' : ''" class='icon-valid' @click.prevent="setQuest()"><i class="fas fa-plus-square"></i></a>
+                                    <a href='#' v-if="isHost && selectedMap.quest" id='editQuest' :class="fakeButton == selectedMap.id + 'quest' ? 'fake-button-disable' : ''" class='icon-used' @click.prevent="unsetQuest()"><i class="fas fa-minus-square"></i></a>
+                                </span>
+                            </p>
+                            <p id="modders" class="text-shadow">
+                                Modders (\{{selectedMap.modders.length}}): 
+                                <span v-if="selectedMap.modders.length == 0" class="small text-shadow"><i>none</i></span>
+                                <span v-else class="small text-shadow"><template v-for="(modder, i) in selectedMap.modders"><a :href="'https://osu.ppy.sh/users/' + modder.osuId" target="_blank">\{{ modder.username + (i < selectedMap.modders.length - 1 ? ', ' : '') }}</a></template></span>
+                                <span data-toggle="tooltip" data-placement="right" title="add/remove yourself from modder list">
+                                    <a href="#" v-if="isModder() && !isHost" class="mod-button icon-used" :class="fakeButton == selectedMap.id + 'mod' ? 'fake-button-disable' : ''" @click.stop.prevent="updateModder()"><i class="fas fa-minus-square"></i></a>
+                                    <a href="#" v-if="!isModder() && !isHost" class="icon-valid mod-button" :class="fakeButton == selectedMap.id + 'mod' ? 'fake-button-disable' : ''" @click.stop.prevent="updateModder()"><i class="fas fa-plus-square"></i></a>
+                                </span>
+                            </p>
+                            <p id="bns" class="text-shadow">
+                                Potential Nominators (\{{selectedMap.bns.length}}): 
+                                <span v-if="selectedMap.bns.length == 0" class="small text-shadow"><i>none</i></span>
+                                <span v-else class="small text-shadow"><template v-for="(bn, i) in selectedMap.bns"><a :href="'https://osu.ppy.sh/users/' + bn.osuId" target="_blank">\{{ bn.username + (i < selectedMap.bns.length - 1 ? ', ' : '') }}</a></template></span>
+                                <span data-toggle="tooltip" data-placement="right" title="add/remove yourself from potential BN list">
+                                    <a href="#" v-if="isBn() && !isHost" class="icon-used" :class="fakeButton == selectedMap.id + 'bn' ? 'fake-button-disable' : ''" @click.prevent="updateBn()"><i class="fas fa-minus-square"></i></a>
+                                    <a href="#" v-if="!isBn() && !isHost && selectedMap.bns.length < 2" :class="fakeButton == selectedMap.id + 'bn' ? 'fake-button-disable' : ''" class="icon-valid" @click.prevent="updateBn()"><i class="fas fa-plus-square"></i></a>
+                                </span>
+                            </p>
+                            <p id="mapLink" class="text-shadow">
+                                Link: 
+                                <a v-if="selectedMap.url" class="small" :href="selectedMap.url" target="_blank"><b>\{{urlLength(selectedMap.url)}}</b></a>
+                                <i v-else class="small">none</i>
+                                <a v-if="isHost" href="#" id='editLink' :class="editLinkInput ? 'icon-used' : ''" class="icon-valid" @click.prevent="editLinkInput ? unsetLink() : setLink()"  data-toggle="tooltip" data-placement="right" title="edit link"><i class="fas fa-edit"></i></a>
+                            </p>
+                            <p  id="linkInput">
+                                <div v-if="editLinkInput" class="input-group input-group-sm mb-3">
+                                    <div class="input-group-prepend">
+                                        <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg" type="submit" id="addLinkButton" @click="saveLink($event)">Save link</button>
+                                    </div>
+                                    <input class="form-control form-control-sm" type="text" placeholder="URL" id="newLink" style="border-radius: 0 100px 100px 0" v-model="selectedMap.url" @keyup.enter="saveLink($event)"></input>
+                                </div>
+                            </p>
+                            <div id="locks" v-if="isHost">
+                                <p class="text-shadow">Locked: <i v-if="selectedMap.tasksLocked.length == 0" class="small">none</i></p>
+                                <div id="lockedDiffs" class="text-shadow">
+                                    <div class='ml-3 small' v-for="task in selectedMap.tasksLocked">
+                                        <a href='#' class="icon-used" @click.prevent="unlockTask(task)" :class="fakeButton == task ? 'fake-button-disable' : ''"  data-toggle="tooltip" data-placement="left" title="unlock"><i class="fas fa-minus-square"></i></a> 
+                                        \{{task}}
+                                    </div>
+                                </div>
+                                <div id="newLock" v-if="selectedMap.tasksLocked.length != 6">
+                                    <br v-if="selectedMap.tasksLocked.length > 0">
+                                    <div class="input-group input-group-sm mb-3">
+                                        <div class="input-group-prepend">
+                                            <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg" id="lockTask" @click="lockTask($event);" data-toggle="tooltip" data-placement="left" title="prevent other mappers from claiming a difficulty">Lock</button>
+                                        </div>
+                                        <select class="custom-select select-arrow small" id="lockDiffSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 0 100px 100px 0">
+                                            <option v-if="selectedMap.tasksLocked.indexOf('Easy') < 0" value="Easy">Easy</option>
+                                            <option v-if="selectedMap.tasksLocked.indexOf('Normal') < 0" value="Normal">Normal</option>
+                                            <option v-if="selectedMap.tasksLocked.indexOf('Hard') < 0" value="Hard">Hard</option>
+                                            <option v-if="selectedMap.tasksLocked.indexOf('Insane') < 0" value="Insane">Insane</option>
+                                            <option v-if="selectedMap.tasksLocked.indexOf('Expert') < 0" value="Expert">Expert</option>
+                                            <option v-if="selectedMap.tasksLocked.indexOf('Storyboard') < 0" value="Storyboard">Storyboard</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <hr>
+                            <p id="delete">
+                                <p class="text-shadow" :class="isHost ? 'float-left' : 'float-right'">Created: \{{selectedMap.createdAt.slice(0,10)}}</p>
+                                <button v-if="isHost" id="deleteButton" class="btn btn-sm btn-mg-used float-right" @click="deleteMap($event)">Delete</button>
+                            </p>
+                        </div>
+                        <p class="errors text-shadow" id="errors">\{{ info }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="addBeatmap" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content custom-bg-dark" v-if="featuredArtists">
+            <div class="modal-header bg-rest">
+                <h5 class="modal-title text-dark">Add Beatmap</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="overflow: hidden">
+                <img src="../images/the_A.png" class="the-a-background">
+                <div class="container">
+                    <div class="form-group row">
+                        <div class="input-group input-group-sm mb-3" id="artistForm">
+                            <div class="input-group-prepend">
+                                <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg" id="artistButton" @click="setArtist($event);">Select Artist</button>
+                            </div>
+                            <select class="custom-select select-arrow small" id="artistSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 0 100px 100px 0">
+                                <option v-for="featuredArtist in featuredArtists" :value="featuredArtist.id">\{{featuredArtist.label}}</option>
+                            </select>
+                        </div>
+                        <div class="input-group input-group-sm mb-3" id="songForm">
+                            <select class="custom-select select-arrow small" :disabled="!featuredSongs" id="songSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 100px 100px 100px 100px">
+                                <option v-if="!featuredSongs">Select an artist to view song select</option>
+                                <option v-for="featuredSong in featuredSongs" :value="featuredSong.id">\{{featuredSong.artist}} - \{{featuredSong.title}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <p class="text-shadow">Select one or more difficulties <i>you plan on mapping</i>. These can be changed later:</p>
+                    <div class="form-group row">
+                        <div class="col-sm-10">
+                            <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="Easy">
+                            <label class="form-check-label text-shadow" for="Easy">
+                                Easy
+                            </label>
+                            </div>
+                            <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="Normal">
+                            <label class="form-check-label text-shadow" for="Normal">
+                                Normal
+                            </label>
+                            </div>
+                            <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="Hard">
+                            <label class="form-check-label text-shadow" for="Hard">
+                                Hard
+                            </label>
+                            </div>
+                            <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="Insane">
+                            <label class="form-check-label text-shadow" for="Insane">
+                                Insane
+                            </label>
+                            </div>
+                            <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="Expert">
+                            <label class="form-check-label text-shadow" for="Expert">
+                                Expert
+                            </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p class="text-shadow">Select one or more difficulties <i>you don't want anyone else to claim</i>. These can be changed later: <br><small class="text-shadow">For example, if you don't want any guest difficulties, you should mark everything</small></p>
+                    <div class="form-group row">
+                        <div class="col-sm-10">
+                            <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="lock-Easy">
+                            <label class="form-check-label text-shadow" for="lock-Easy">
+                                Easy
+                            </label>
+                            </div>
+                            <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="lock-Normal">
+                            <label class="form-check-label text-shadow" for="lock-Normal">
+                                Normal
+                            </label>
+                            </div>
+                            <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="lock-Hard">
+                            <label class="form-check-label text-shadow" for="lock-Hard">
+                                Hard
+                            </label>
+                            </div>
+                            <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="lock-Insane">
+                            <label class="form-check-label text-shadow" for="lock-Insane">
+                                Insane
+                            </label>
+                            </div>
+                            <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="lock-Expert">
+                            <label class="form-check-label text-shadow" for="lock-Expert">
+                                Expert
+                            </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p class="errors" id="addBeatmapErrors">\{{ info }}</p>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-mg" @click="saveNewMap($event)">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>

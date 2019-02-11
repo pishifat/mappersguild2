@@ -1,0 +1,104 @@
+<div id="app">
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="row"><h2>Ranked</div>
+        <div class="row"><small>Filter: <a href="#" id="byMostRecent">Most recent</a> | <a href="#" id="byMyMaps">My maps</a> | <a href="#" id="byQuest">Quest</a></small></div>
+        <div id="pendingBeatmaps">
+            <template v-for="quest in completeQuests">
+            <div class="col-md-12" :key="quest.id" v-if="hasBeatmaps(quest, 'Ranked')">
+                <a data-toggle="collapse" :href="'#' + createCollapseId(quest.name) + 'Wip'">
+                    <img v-if="quest.art" class="rounded-circle" style="height:24px; width: 24px;" :src="'https://assets.ppy.sh/artists/' + quest.art + '/cover.jpg'"> 
+                    Quest: \{{quest.name}}
+                </a> 
+            </div>
+            <transition-group :id="createCollapseId(quest.name) + 'Wip'" name="list" tag="div" class="row collapse show map-collapse">
+                <beatmap-card
+                    v-for="beatmap in beatmaps"
+                    v-if="beatmap.quest && quest.id == beatmap.quest._id"
+                    :key="beatmap.id"
+                    :beatmap="beatmap"
+                    :extended-info="extendedInfo"
+                ></beatmap-card>
+            </transition-group>
+        </template>
+
+        <a class="ml-3" data-toggle="collapse" href="#othersWip">No associated quest</a>
+        <transition-group id="othersWip" name="list" tag="div" class="row collapse show map-collapse">
+            <beatmap-card
+                v-for="beatmap in beatmaps"
+                v-if="!beatmap.quest"
+                :key="beatmap.id"
+                :beatmap="beatmap"
+                :extended-info="extendedInfo"
+            ></beatmap-card>
+        </transition-group>
+        </div>
+    </div>
+</div>
+    
+<div id="editBeatmap" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content custom-bg-dark" v-if="selectedMap">
+            <div class="modal-header text-dark" :class="'bg-' + selectedMap.status.toLowerCase()">
+                <h5 class="modal-title">\{{selectedMap.song.artist}} - \{{selectedMap.song.title}} (\{{selectedMap.host.username}})</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="overflow: hidden;">
+                <img src="../images/the_A.png" class="the-a-background">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <table class="small table text-shadow">
+                                <thead>
+                                    <th scope="col" style="padding: 2px;">Difficulty</th>
+                                    <th scope="col" style="padding: 2px;">Mapper(s)</th>
+                                </thead>
+                                <transition-group tag="tbody" name="list" id="difficulties">
+                                    <tr v-for="task in selectedMap.tasks" :key="task.id" :id="task.id + 'Row'">
+                                        <td scope="row" style="padding: 1px;">\{{task.name}}</td>
+                                        <td scope="row" style="padding: 1px;">
+                                            <template v-for="(mapper, i) in task.mappers"><a :href="'https://osu.ppy.sh/users/' + mapper.osuId" target="_blank">\{{ mapper.username + (i < task.mappers.length - 1 ? ', ' : '') }}</a></template>
+                                        </td>
+                                    </tr>
+                                </transition-group>
+                            </table>
+                        </div>
+
+                        <div class="col-sm-6 bm-col-separator-left">
+                            <p v-if="selectedMap.quest" id="quest" class="text-shadow">
+                                Quest: 
+                                <small>
+                                    <span v-if="selectedMap.quest">\{{selectedMap.quest.name}}</span>
+                                    <span v-else><i>none</i></span>
+                                </small>
+                            </p>
+                            <p id="modders" class="text-shadow">
+                                Modders (\{{selectedMap.modders.length}}): 
+                                <span v-if="selectedMap.modders.length == 0" class="small text-shadow"><i>none</i></span>
+                                <span v-else class="small text-shadow"><template v-for="(modder, i) in selectedMap.modders"><a :href="'https://osu.ppy.sh/users/' + modder.osuId" target="_blank">\{{ modder.username + (i < selectedMap.modders.length - 1 ? ', ' : '') }}</a></template></span>
+                            </p>
+                            <p id="mapLink" class="text-shadow">
+                                Link: 
+                                <a v-if="selectedMap.url" class="small" :href="selectedMap.url" target="_blank"><b>\{{urlLength(selectedMap.url)}}</b></a>
+                                <i v-else class="small">none</i>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <hr>
+                            <p id="delete">
+                                <p class="text-shadow float-right">Created: \{{selectedMap.createdAt.slice(0,10)}}</p>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>

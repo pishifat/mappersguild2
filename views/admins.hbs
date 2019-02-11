@@ -1,0 +1,390 @@
+<div class="row">
+    <div class="col-md-12">
+        <h2>Beatmaps</h2> 
+        <table class="small table">
+            <thead>
+                <th scope="col" style="padding: 2px;">id</th>
+                <th scope="col" style="padding: 2px;">artist - title</th>
+                <th scope="col" style="padding: 2px;">edit</th>
+                
+            </thead>
+            <tbody>
+                {{#each beatmaps}}
+                <tr>
+                    <th scope="row" style="padding: 1px;">{{_id}}</th>
+                    <th scope="row" style="padding: 1px;">{{song.artist}} - {{song.title}}</th>
+                    <th scope="row" style="padding: 1px;" data-toggle="modal" data-target="#editMap" data-mapid="{{id}}"><a href="#">edit</a></th>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+
+        <h2>Quests <button class="btn btn-mg btn-sm temp float-right" data-toggle="modal" data-target="#createQuest">new quest</button></h2> 
+        <table class="small table">
+            <thead>
+                <th scope="col" style="padding: 2px;">id</th>
+                <th scope="col" style="padding: 2px;">name</th>
+                <th scope="col" style="padding: 2px;">edit</th>
+            </thead>
+            <tbody>
+                {{#each quests}}
+                <tr>
+                    <th scope="row" style="padding: 1px;">{{_id}}</th>
+                    <th scope="row" style="padding: 1px;">{{name}}</th>
+                    <th scope="row" style="padding: 1px;" data-toggle="modal" data-target="#editQuest" data-questid="{{id}}" onclick="event.preventDefault();"><a href="#">edit</a></th>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+        <h2>Parties <button class="btn btn-mg btn-sm temp float-right" onclick="updatePartyRanks(); event.preventDefault();">refresh party ranks</button></h2>
+        <table class="small table">
+            <thead>
+                <th scope="col" style="padding: 2px;">id</th>
+                <th scope="col" style="padding: 2px;">name</th>
+                <th scope="col" style="padding: 2px;">edit</th>
+            </thead>
+            <tbody>
+                {{#each parties}}
+                <tr>
+                    <th scope="row" style="padding: 1px;">{{_id}}</th>
+                    <th scope="row" style="padding: 1px;">{{name}}</a></th>
+                    <th scope="row" style="padding: 1px;" data-toggle="modal" data-target="#editParty" data-partyid="{{id}}" onclick="event.preventDefault();"><a href="#">edit</a></th>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+        <h2>Users 
+            <button class="btn btn-mg btn-sm temp float-right" onclick="updateUserPoints();">refresh user points</button>
+            <button class="btn btn-mg btn-sm temp float-right" onclick="updateUsernames();">account for username changes</button>
+        </h2>
+        <table class="small table">
+            <thead>
+                <th scope="col" style="padding: 2px;">id</th>
+                <th scope="col" style="padding: 2px;">name</th>
+                <th scope="col" style="padding: 2px;">group</th>
+            </thead>
+            <tbody>
+                {{#each users}}
+                <tr>
+                    <th scope="row" style="padding: 1px;">{{_id}}</th>
+                    <th scope="row" style="padding: 1px;">{{username}}</th>
+                    <th scope="row" style="padding: 1px;" data-toggle="modal" data-target="#editUserGroup" data-userid="{{id}}" onclick="event.preventDefault();"><a href="#">{{group}}</a></th>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+        <h2>Featured Artists <button class="btn btn-mg btn-sm temp float-right" data-toggle="modal" data-target="#newArtist">new artist</button></h2>
+        <table class="small table">
+            <thead>
+                <th scope="col" style="padding: 2px;">id</th>
+                <th scope="col" style="padding: 2px;">artist</th>
+                <th scope="col" style="padding: 2px;">edit</th>
+            </thead>
+            <tbody>
+                {{#each featuredArtists}}
+                <tr>
+                    <th scope="row" style="padding: 1px;">{{_id}}</th>
+                    <th scope="row" style="padding: 1px;">{{label}}</th>
+                    <th scope="row" style="padding: 1px;" data-toggle="modal" data-target="#editSongs" data-artistid="{{id}}" onclick="event.preventDefault();"><a href="#">edit</a></th>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="createQuest" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content custom-bg-dark">
+            <div class="modal-header text-dark bg-rest">
+                <h5 class="modal-title">Create quest</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div class="form-group row">
+                        <label class="col-sm-4" for="questName"> Quest name:</label><input class="col-sm-8 form-control" type="text" id="questName">
+                        <label class="col-sm-4" for="questReward"> Reward:</label><input class="col-sm-8 form-control" type="text" id="questReward">
+                        <label class="col-sm-4" for="questDescriptionMain"> Objective:</label><input class="col-sm-8 form-control" type="text" id="questDescriptionMain">
+                        <label class="col-sm-4" for="questDescriptionFluff"> Flavor text:</label><input class="col-sm-8 form-control" type="text" id="questDescriptionFluff">
+                        <label class="col-sm-4" for="questTimeframe"> Timeframe:</label><input class="col-sm-8 form-control" type="text" id="questTimeframe">
+                        <label class="col-sm-4" for="questMinParty"> Min Party:</label><input class="col-sm-8 form-control" type="text" id="questMinParty">
+                        <label class="col-sm-4" for="questMaxParty"> Max Party:</label><input class="col-sm-8 form-control" type="text" id="questMaxParty">
+                        <label class="col-sm-4" for="questMinRank"> Min Rank:</label><input class="col-sm-8 form-control" type="text" id="questMinRank">
+                        <label class="col-sm-4" for="art"> FA id:</label><input class="col-sm-8 form-control" type="text" id="art">
+                        <label class="col-sm-4" for="exclusive"> Exclusive?:</label><input class="col-sm-8 form-control" type="text" id="exclusive">
+                        <label class="col-sm-4" for="medal"> Medal?:</label><input class="col-sm-8 form-control" type="text" id="medal">
+                        
+                    </div>
+                    <p id="errors"></p>
+                </div>
+                    
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-mg" id="saveQuest">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="editPartyName" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content custom-bg-dark">
+            <div class="modal-header text-dark bg-rest">
+                <h5 class="modal-title">Edit Party Name</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div class="input-group input-group-sm mb-3">
+                        <input class="form-control" id="partyRenameInput" placeholder="new name...">
+                    </div>
+                    <p id="errors"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-mg" id="savePartyName">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="editUserGroup" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content custom-bg-dark">
+            <div class="modal-header text-dark bg-rest">
+                <h5 class="modal-title">Edit User Group</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div class="input-group input-group-sm mb-3">
+                        <select class="custom-select select-arrow small" id="userGroupSelect" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 100px 100px 100px 100px">
+                            <option selected value="user">user</option>
+                            <option value="hidden">hidden</option>
+                            <option value="admin">admin</option>
+                        </select>
+                    </div>
+                    <p id="errors"></p>
+                </div>
+                    
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-mg" id="saveUserGroup">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="newArtist" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content custom-bg-dark">
+            <div class="modal-header text-dark bg-rest">
+                <h5 class="modal-title">New Artist</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div class="input-group input-group-sm mb-3">
+                        <input class="form-control" id="newArtistInput" placeholder="new artist (as written on FA listing)...">
+                    </div>
+                    <p id="errors"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-mg" id="saveArtist">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="editMap" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content custom-bg-dark">
+            <div class="modal-header text-dark bg-rest">
+                <h5 class="modal-title"></h5>
+                <button type="button" class="close" data-dismiss="modal">
+                <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div>status
+                        <div class="input-group input-group-sm mb-3">
+                            <select class="custom-select select-arrow small" id="mapStatusSelect" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 100px 100px 100px 100px">
+                                <option selected value="WIP">WIP</option>
+                                <option value="Done">Done</option>
+                                <option value="Ranked">Ranked</option>
+                            </select>
+                        </div>
+                        <button type="button" class="btn btn-mg" id="saveMapStatus">set status</button>
+                    </div>
+                    <hr>
+                    <div>remove diff
+                        <span id="diffList"></span>
+                    </div>
+                    <hr>
+                    <div>modder
+                        <span id="modderList"></span>
+                    </div>
+                    <hr>
+                    <div>bn
+                        <span id="bnList"></span>
+                    </div>
+                    <hr>
+                    <div>
+                        <span id="currentLink"></span>
+                        <div class="input-group input-group-sm mb-3" id="setLink">
+                            <div class="input-group-prepend">
+                                <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg" type="submit" id="addLinkButton">save link</button>
+                            </div>
+                                <input class="form-control form-control-sm" type="text" placeholder="URL" id="newLink" style="border-radius: 0 100px 100px 0"></input>
+                        </div>
+                    </div>
+                    <hr>
+                    <div>
+                        <button type="button" class="btn btn-mg-used" id="deleteMap">delete</button>
+                    </div>
+                    
+                    <p id="errors"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="editQuest" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content custom-bg-dark">
+            <div class="modal-header text-dark bg-rest">
+                <h5 class="modal-title"></h5>
+                <button type="button" class="close" data-dismiss="modal">
+                <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div>
+                        <button type="button" class="btn btn-mg btn-sm" id="dropQuest">force drop (hide)</button>
+                    </div>
+                    <hr>
+                    <div>
+                        <button type="button" class="btn btn-mg btn-sm" id="completeQuest">mark as complete</button>
+                    </div>
+                    <hr>
+                    <div>
+                        <button type="button" class="btn btn-mg btn-sm" id="hideQuest">hide (for open quests)</button>
+                    </div>
+                    <hr>
+                    <div>
+                        <button type="button" class="btn btn-mg btn-sm" id="unhideQuest">unhide</button>
+                    </div>
+                    <hr>
+                    <div>
+                        <button type="button" class="btn btn-mg-used btn-sm" id="deleteQuest">delete</button>
+                    </div>
+                    <p id="errors"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="editParty" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content custom-bg-dark">
+            <div class="modal-header text-dark bg-rest">
+                <h5 class="modal-title"></h5>
+                <button type="button" class="close" data-dismiss="modal">
+                <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div>rename
+                        <div class="input-group input-group-sm mb-3" id="setLink">
+                            <div class="input-group-prepend">
+                                <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg" type="submit" id="renameButton">save name</button>
+                            </div>
+                                <input class="form-control form-control-sm" type="text" placeholder="new name" id="newLink" style="border-radius: 0 100px 100px 0"></input>
+                        </div>
+                    </div>
+                    <hr>
+                    
+                    <p id="errors"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="editSongs" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content custom-bg-dark">
+            <div class="modal-header text-dark bg-rest">
+                <h5 class="modal-title"></h5>
+                <button type="button" class="close" data-dismiss="modal">
+                <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div>
+                        <p class="text-shadow">rename:</p>
+                        <div class="input-group input-group-sm mb-3">
+                            <div class="input-group-prepend">
+                                <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg" type="submit" id="renameArtistButton">save name</button>
+                            </div>
+                                <input class="form-control form-control-sm" type="text" placeholder="name" id="newName" style="border-radius: 0 100px 100px 0"></input>
+                        </div>
+                    </div>
+                    <hr>
+                    <div>
+                        <div class="form-group row">
+                        <label class="col-sm-3 text-shadow" for="artist"> Artist:</label><input class="col-sm-9 form-control" type="text" id="artist">
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-3 text-shadow" for="title"> Title:</label><input class="col-sm-9 form-control" type="text" id="title">
+                        </div>
+                        <button type="button" class="btn btn-mg" id="addSong">add song</button>
+                    </div>
+                    <hr>
+                    <div>
+                        <p class="text-shadow">remove song:</p>
+                        <div class="input-group input-group-sm mb-3" id="removeSongForm">
+                            <div class="input-group-prepend">
+                                <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg-used" id="removeSong" onclick="removeSong('${a._id}');"><i style="padding-left: 4px" class="fas fa-minus"></i></button>
+                            </div>
+                            <select class="custom-select select-arrow small" id="removeSongSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 0 100px 100px 0">
+                                
+                            </select>
+                        </div>
+                    </div>
+                    <hr>
+                    <div>
+                        <select class="custom-select select-arrow small" id="editSongSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 100px 100px 100px 100px; width:100%">
+            
+                        </select>
+                        
+                        <div class="form-group row">
+                        <label class="col-sm-3 text-shadow" for="editedArtist">edited artist:</label><input class="col-sm-9 form-control" type="text" id="editedArtist">
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-3 text-shadow" for="editedTitle">edited title:</label><input class="col-sm-9 form-control" type="text" id="editedTitle">
+                        </div>
+                        <button type="button" class="btn btn-mg" id="editMetadata">edit metadata</button>
+                    </div>
+                    <p id="errors"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

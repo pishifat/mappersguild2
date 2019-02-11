@@ -1,0 +1,74 @@
+<div id="app">
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>Completed</h2>
+        <small>Sort: 
+            <a href="#" @click.prevent="sort('createdAt')">Date added <i class="fas" :class="sortedByDate ? 'fa-angle-up' : 'fa-angle-down'" v-if="sortedByDate !== null"></i></a> | 
+            <a href="#" @click.prevent="sort('reward')">Reward <i class="fas" :class="sortedByReward ? 'fa-angle-up' : 'fa-angle-down'" v-if="sortedByReward !== null"></i></a> | 
+            <a href="#" @click.prevent="sort('minParty')">Required party size <i class="fas" :class="sortedBySize ? 'fa-angle-up' : 'fa-angle-down'" v-if="sortedBySize !== null"></i></a>
+        </small>
+        <div id="completeQuests">
+            <transition-group name="list" tag="div" class="row">
+                <div class='col-lg-6 my-2' :class="quest.id + '-card'" v-for="quest in completeQuests" :key="quest.id" @click="extendedInfo(quest)">
+                    <div class='card quest-card custom-bg-dark border-status-ranked' style='height: 100%' data-toggle='modal' data-target='#extendedInfo' :data-user="quest.id">
+                        <img :src="quest.art ? 'https://assets.ppy.sh/artists/' + quest.art + '/header.jpg' : '../images/no-art.png'" style='right:250px;'>
+                        <div class='card-img-overlay' style='padding: 0 0 0 0'>
+                            <div class='card-header text-shadow'>
+                                <big>\{{quest.name}}</big>
+                            </div>
+                            <div class='card-body overwrite-card-spacing'>
+                                <p class='card-text text-shadow small'>Objective: <p class='indent text-shadow small'>\{{quest.descriptionMain}}</p></p>
+                                <p class='card-text text-shadow small'>Completed on \{{quest.completed.slice(0,10)}} by:
+                                    <template v-for="(member, i) in quest.completedMembers"><a :href="'https://osu.ppy.sh/users/' + member.osuId" target="_blank">\{{ member.username + (i < quest.completedMembers.length - 1 ? ', ' : '') }}</a></template>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </transition-group>
+        </div>
+    </div>
+</div>
+
+<div id="extendedInfo" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content custom-bg-dark" v-if="selectedQuest">
+            <div class="modal-header modal-header-card text-dark" :class="'bg-' + selectedQuest.status">
+                <h5 class="modal-title modal-title-card">\{{selectedQuest.name}}</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body modal-body-card" style="overflow: hidden;">
+                <img src="../images/the_A.png" class="the-a-background">
+                <div class="row" v-if="selectedQuest.art">
+                    <p class="col-4"><a :href="'https://osu.ppy.sh/beatmaps/artists/' + selectedQuest.art"><img class='rounded-circle float-right quest-art-thumb' :src="'https://assets.ppy.sh/artists/' + selectedQuest.art + '/cover.jpg'"></a></p>
+                    <p class="small col-8 text-shadow">\{{selectedQuest.descriptionFluff}}</p>
+                </div>
+                <p v-else class="text-shadow small">\{{selectedQuest.descriptionFluff}}</p>
+
+                <p class="text-shadow">Objective: \{{selectedQuest.descriptionMain}}</p>
+                <p class="text-shadow">Reward: \{{selectedQuest.reward}} bonus points for each user <span v-if="selectedQuest.medal">+ a pack-exclusive medal</span></p>
+                <p class='card-text text-shadow'>Completed on \{{selectedQuest.completed.slice(0,10)}} by:
+                    <ul style="list-style-type: none" v-for="member in selectedQuest.completedMembers">
+                        <li class="text-shadow"><a :href="'https://osu.ppy.sh/users/' + member.osuId" target="_blank">\{{ member.username }}</a></li>
+                    </ul>
+                </p>
+                <p class="text-shadow"><b></b>Associated maps:</b></p>
+                <ul style="list-style-type: none;">
+                    <li class="small text-shadow" v-for="map in selectedQuest.associatedMaps">
+                        <template v-if="map.url">
+                            <a :href="map.url" target="_blank">\{{map.song.artist}} - \{{map.song.title}}</a> by <a :href="'https://osu.ppy.sh/users/' + map.host.osuId" target="_blank">\{{map.host.username}}</a>
+                        </template>
+                        <template v-else>
+                            \{{map.song.artist}} - \{{map.song.title}} by <a :href="'https://osu.ppy.sh/users/' + map.host.osuId" target="_blank">\{{map.host.username}}</a>
+                        </template>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>

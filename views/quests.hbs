@@ -1,0 +1,128 @@
+<div id="app">
+
+<div class="row">
+    <div class="col-lg-9">
+        <h2>Available</h2>
+        <small>Sort: 
+            <a href="#" @click.prevent="sort('createdAt')">Date added <i class="fas" :class="sortedByDate ? 'fa-angle-up' : 'fa-angle-down'" v-if="sortedByDate !== null"></i></a> | 
+            <a href="#" @click.prevent="sort('reward')">Reward <i class="fas" :class="sortedByReward ? 'fa-angle-up' : 'fa-angle-down'" v-if="sortedByReward !== null"></i></a> | 
+            <a href="#" @click.prevent="sort('minParty')">Required party size <i class="fas" :class="sortedBySize ? 'fa-angle-up' : 'fa-angle-down'" v-if="sortedBySize !== null"></i></a>
+        </small>
+        <div id="openQuests">
+            <transition-group name="list" tag="div" class="row">
+                <div class='col-lg-6 my-2' :class="quest.id + '-card'" v-for="quest in openQuests" :key="quest.id" @click="extendedInfo(quest)">
+                    <div class='card quest-card custom-bg-dark border-status-done' style='height: 100%' data-toggle='modal' data-target='#extendedInfo' :data-user="quest.id">
+                        <img :src="quest.art ? 'https://assets.ppy.sh/artists/' + quest.art + '/header.jpg' : '../images/no-art.png'" style='right:300px;'>
+                        <div class='card-img-overlay' style='padding: 0 0 0 0'>
+                            <div class='card-header text-shadow'>
+                                <big>\{{quest.name}}</big>
+                                <span v-if="!partyQuest && partyRank >= quest.minRank && partySize <= quest.maxParty && partySize >= quest.minParty">
+                                    <button class="btn btn-mg btn-sm float-right accept" @click.stop="acceptQuest(quest.id, $event)">Accept</button>
+                                </span>
+                            </div>
+                            <div class='card-body overwrite-card-spacing'>
+                                <p class='card-text text-shadow small'>Objective: <p class='indent text-shadow small'>\{{quest.descriptionMain}}</p></p>
+                                <p class='card-text text-shadow small text-shadow' style='margin-top:0.5rem'>Reward: \{{quest.reward}} bonus points for each user <span v-if="quest.medal">+ a pack-exclusive medal"</span></p>
+                                <p class='card-text text-shadow small'>Party: \{{quest.minParty}}-\{{quest.maxParty}} members, rank \{{quest.minRank}}+</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </transition-group>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <h2>In progress</h2>
+        <small>Sort: <a href="#">Date added</a> | <a href="#">Time remaining</a></small>
+        <div id="wipQuests">
+            <transition-group name="list" tag="div" class="row">
+                <div class='col-lg-12 my-2' :class="quest.id + '-card'" v-for="quest in wipQuests" :key="quest.id" @click="extendedInfo(quest)">
+                    <div class='card quest-card custom-bg-dark quest-wip-card' :class="'border-status-' + quest.status" style='height: 100%' data-toggle='modal' data-target='#extendedInfo' :data-user="quest.id">
+                        <img :src="quest.art ? 'https://assets.ppy.sh/artists/' + quest.art + '/header.jpg' : '../images/no-art.png'" style='right:366px; bottom: 20px;'>
+                        <div class='card-img-overlay' style='padding: 0 0 0 0'>
+                            <div class='card-header text-shadow'>
+                                \{{quest.name}}
+                                <span v-if="partyQuest == quest.id">
+                                    <button class="btn btn-mg-used btn-sm float-right drop" @click.stop="dropQuest(quest.id, $event)">Drop</button>
+                                </span>
+                            </div>
+                            <div class='card-body overwrite-card-spacing'>
+                                <p class='card-text text-shadow small'>Current Party:</p> <p class='indent text-shadow small'>\{{quest.assignedParty.name}}</p>
+                                <p class='card-text text-shadow small' style='margin-top:0.5rem'>Deadline:</p> <p class="text-shadow indent small">\{{quest.deadline.slice(0,10)}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </transition-group>
+        </div>
+    </div>
+</div>
+
+<div id="extendedInfo" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content custom-bg-dark" v-if="selectedQuest">
+            <div class="modal-header modal-header-card text-dark" :class="'bg-' + selectedQuest.status">
+                <h5 class="modal-title modal-title-card">\{{selectedQuest.name}}</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body modal-body-card" style="overflow: hidden;">
+                <img src="../images/the_A.png" class="the-a-background">
+                <div class="row" v-if="selectedQuest.art">
+                    <p class="col-4"><a :href="'https://osu.ppy.sh/beatmaps/artists/' + selectedQuest.art"><img class='rounded-circle float-right quest-art-thumb' :src="'https://assets.ppy.sh/artists/' + selectedQuest.art + '/cover.jpg'"></a></p>
+                    <p class="small col-8 text-shadow">\{{selectedQuest.descriptionFluff}}</p>
+                </div>
+                <p v-else class="text-shadow small">\{{selectedQuest.descriptionFluff}}</p>
+
+                <p class="text-shadow">Objective: \{{selectedQuest.descriptionMain}}</p>
+                <hr>
+                <span v-if="selectedQuest.status == 'open'">
+                    <p class="text-shadow">Reward: \{{selectedQuest.reward}} bonus points for each user <span v-if="selectedQuest.medal">+ a pack-exclusive medal</span></p>
+                    <p class="text-shadow">Party size: \{{selectedQuest.minParty}}-\{{selectedQuest.maxParty}} members</p>
+                    <p class="text-shadow">Required Rank: \{{selectedQuest.minRank}}</p>
+                    <p class="text-shadow">Timeframe: \{{timeframe}} days</p>
+                    <p v-if="selectedQuest.exclusive" class="small text-shadow">Because this quest involves an unannounced Featured Artist, dropping it will make it unobtainable by any other party. If you've recently done a new FA quest, maybe give other mappers a chance!</p>
+                    <hr>
+                    <div v-if="!(!partyQuest && partyRank >= selectedQuest.minRank && partySize <= selectedQuest.maxParty && partySize >= selectedQuest.minParty)">
+                        <p class="small text-shadow">You're unable to accept this quest because:</p>
+                        <ul style="list-style-type: none" class="small text-shadow">
+                            <li v-if="!partyName">You're not the leader of a party</li>
+                            <li v-if="partyQuest && partyName">You can only handle one quest at a time</li>
+                            <li v-if="partyRank < selectedQuest.minRank && partyName">Your party is below the quest's required rank</li>
+                            <li v-if="partySize > selectedQuest.maxParty && partyName">Your party has too many members</li>
+                            <li v-if="partySize < selectedQuest.minParty && partyName">Your party has too few members</li>
+                        </ul>
+                    </div>
+                    <div v-if="!partyQuest && partyRank >= selectedQuest.minRank && partySize <= selectedQuest.maxParty && partySize >= selectedQuest.minParty">
+                        <button class="btn btn-mg btn-sm accept float-right" @click="acceptQuest(selectedQuest.id, $event)">Accept</button>
+                    </div>
+                </span>
+                <span v-if="selectedQuest.status == 'wip'">
+                    <p class="text-shadow">Reward: \{{selectedQuest.reward}} bonus points for each user <span v-if="selectedQuest.medal">+ a pack-exclusive medal</span></p>
+                    <p class="text-shadow">Current Party: \{{selectedQuest.assignedParty.name}}</p>
+                    <p class='card-text text-shadow' style='margin-top:0.5rem'>Deadline: \{{selectedQuest.deadline.slice(0,10)}}</p>
+                    <span v-if="selectedQuest.associatedMaps.length">
+                        <p class="text-shadow">Associated maps:</p>
+                        <ul style="list-style-type: none;">
+                            <li class="small text-shadow" v-for="map in selectedQuest.associatedMaps">
+                                <template v-if="map.url">
+                                    <a :href="map.url" target="_blank">\{{map.song.artist}} - \{{map.song.title}}</a> by <a :href="'https://osu.ppy.sh/users/' + map.host.osuId" target="_blank">\{{map.host.username}}</a>
+                                </template>
+                                <template v-else>
+                                   \{{map.song.artist}} - \{{map.song.title}} by <a :href="'https://osu.ppy.sh/users/' + map.host.osuId" target="_blank">\{{map.host.username}}</a>
+                                </template>
+                            </li>
+                        </ul>
+                    </span>
+                    <div v-if="selectedQuest.id == partyQuest">
+                        <hr>
+                        <button class="btn btn-mg-used btn-sm float-right drop" @click="dropQuest(selectedQuest.id, $event)">Drop</button>
+                    </div>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
