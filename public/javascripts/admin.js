@@ -1,392 +1,349 @@
-//beatmap
+const adminVue = new Vue({
+    el: '#app',
+    methods: {
+        extendedMap: function (map) {
+            this.selectedMap = map;
+        },
+        extendedQuest: function (quest) {
+            this.selectedQuest = quest;
+        },
+        extendedParty: function (party) {
+            this.selectedParty = party;
+        },
+        extendedUser: function (user) {
+            this.selectedUser = user;
+        },
+        extendedArtist: function (artist) {
+            this.selectedArtist = artist;
+        },
+        updateMap: function(bm) {
+			const i = this.beatmaps.findIndex(b => b.id == bm.id);
+			this.beatmaps[i] = bm;
+            this.selectedMap = bm;
+        },
+        updateQuest: function(q) {
+			const i = this.quests.findIndex(quest => quest.id == q.id);
+			this.quests[i] = q;
+            this.selectedQuest = q;
+        },
+        updateParty: function(p) {
+			const i = this.parties.findIndex(party => party.id == p.id);
+			this.parties[i] = p;
+            this.selectedParty = p;
+        },
+        updateUser: function(u) {
+			const i = this.users.findIndex(user => user.id == u.id);
+			this.users[i] = u;
+            this.selectedUser = u;
+        },
+        updateArtist: function(fa) {
+			const i = this.featuredArtists.findIndex(a => a.id == fa.id);
+			this.featuredArtists[i] = fa;
+            this.selectedArtist = fa;
+            this.info = null;
+		},
+        executePost: async function (path, data, e) {
+            if (e) e.target.disabled = true;
 
-function deleteMap(id) {
-    var result = confirm(`Are you sure?`);
-    if (result) {
-        $.post(`/admin/deleteMap/${id}`, function (msg) {
-            createAlert(msg);
-        });
-    }
-}
+            try {
+                const res = await axios.post(path, data)
+                console.log(res);
 
-//party
-
-function deleteParty(id) {
-    var result = confirm(`Are you sure?`);
-    if (result) {
-        $.post(`/admin/deleteParty/${id}`, function (msg) {
-            createAlert(msg);
-        });
-    }
-}
-
-function updatePartyRanks() {
-    var result = confirm(`Are you sure?`);
-    if (result) {
-        $.post(`/admin/updatePartyRanks/`, function (msg) {
-            createAlert(msg);
-        });
-    }
-}
-
-
-//user
-
-function hideUser(id) {
-    var result = confirm(`Are you sure?`);
-    if (result) {
-        $.post(`/admin/hideUser/${id}`, function (msg) {
-            createAlert(msg);
-        });
-    }
-}
-
-function unhideUser(id) {
-    var result = confirm(`Are you sure?`);
-    if (result) {
-        $.post(`/admin/unhideUser/${id}`, function (msg) {
-            createAlert(msg);
-        });
-    }
-}
-
-function updateUserPoints() {
-    var result = confirm(`Are you sure?`);
-    if (result) {
-        $.post(`/admin/updateUserPoints/`, function (msg) {
-            createAlert(msg);
-        });
-    }
-}
-
-function updateUsernames() {
-    var result = confirm(`Are you sure?`);
-    if (result) {
-        $.post(`/admin/updateUsernames/`, function (msg) {
-            createAlert(msg);
-        });
-    }
-}
-
-function addSong(labelId) {
-    var artist = $("#artist").val();
-    var title = $("#title").val();
-    $.post(`/admin/addSong/`, { labelId: labelId, artist: artist, title: title }, function (msg) {
-        createAlert(msg);
-    });
-}
-
-function removeSong(labelId) {
-    var songId = $("#removeSongSelection").val();
-    $.post(`/admin/removeSong/`, { labelId: labelId, songId: songId }, function (msg) {
-        createAlert(msg);
-    });
-}
-
-//other
-function printUserSelect(users) {
-    var printedUsers = '';
-    users.forEach(user => {
-        printedUsers += `<option value="${user._id}">${user.username}</option>`
-    });
-    return printedUsers;
-}
-
-function printSongSelect(songs) {
-    var printedSongs = '';
-    songs.forEach(song => {
-        printedSongs += `<option value="${song._id}">${song.artist} - ${song.title}</option>`
-    });
-    return printedSongs;
-}
-
-function printDiffSelect(tasks) {
-    var printedTasks = '';
-    tasks.forEach(task => {
-        printedTasks += `<option value="${task._id}">${task.name} - ${task.mappers[0].username}</option>`
-    });
-    return printedTasks;
-}
-
-
-
-//page
-
-$(function () {
-
-    //beatmap
-    $('#editMap').on('show.bs.modal', function (e) {
-        const id = $(e.relatedTarget).data('mapid');
-        $('#editMap .modal-title').text('');
-        $('#modderList').text('');
-        $('#bnList').text('');
-        $('#currentLink').text('');
-        $('#diffList').text('');
-
-        $.getJSON('/beatmaps/beatmap/' + id).done(function (b) {
-            $('#editMap .modal-title').text(`${b.song.artist} - ${b.song.title} (${b.status})`);
-
-            let diffSelect = printDiffSelect(b.tasks);
-
-            $('#diffList').append(
-                `<div class="input-group input-group-sm mb-3">
-                    <div class="input-group-prepend">
-                        <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg-used" id="removeDiff"><i style="padding-left: 4px" class="fas fa-minus"></i></button>
-                    </div>
-                        <select class="custom-select select-arrow small" id="removeDiffSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 0 100px 100px 0">
-                            ${diffSelect}
-                        </select>
-                    </div>`);
-
-            let modderSelect = printUserSelect(b.modders);
-
-            $('#modderList').append(
-                `<div class="input-group input-group-sm mb-3">
-                    <div class="input-group-prepend">
-                        <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg-used" id="removeModder"><i style="padding-left: 4px" class="fas fa-minus"></i></button>
-                    </div>
-                        <select class="custom-select select-arrow small" id="removeModderSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 0 100px 100px 0">
-                            ${modderSelect}
-                        </select>
-                    </div>`);
-
-            let bnSelect = printUserSelect(b.bns);
-
-            $('#bnList').append(
-                `<div class="input-group input-group-sm mb-3">
-                    <div class="input-group-prepend">
-                        <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg-used" id="removeNominator"><i style="padding-left: 4px" class="fas fa-minus"></i></button>
-                    </div>
-                        <select class="custom-select select-arrow small" id="removeNominatorSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 0 100px 100px 0">
-                            ${bnSelect}
-                        </select>
-                    </div>`);
-
-            if (b.url) {
-                $('#currentLink').append(`<a href="${b.url}">${b.url}</a>`)
+                if (res.data.error) {
+                    this.info = res.data.error;
+                } else {
+                    if (e) e.target.disabled = false;
+                    return res.data;
+                }
+            } catch (error) {
+                console.log(error)
             }
 
+            if (e) e.target.disabled = false;
+        },
 
-            $('#editMap #saveMapStatus').click(function () {
-                var status = $("#editMap #mapStatusSelect").val();
-                var result = confirm(`Are you sure?`);
-                if (result) {
-                    $.post(`/admin/updateMapStatus/`, { id: id, status: status }, function (msg) {
-                        $('#editMap').modal('hide');
-                        createAlert(msg);
-                    });
-                }
-            });
-
-            $('#editMap #removeModder').click(function () {
-                var userId = $("#editMap #removeModderSelection").val();
-                var result = confirm(`Are you sure?`);
-                if (result) {
-                    $.post(`/admin/removeModder/`, { id: id, userId: userId }, function (msg) {
-                        $('#editMap').modal('hide');
-                        createAlert(msg);
-                    });
-                }
-            });
-
-            $('#editMap #removeNominator').click(function () {
-                var userId = $("#editMap #removeNominatorSelection").val();
-                var result = confirm(`Are you sure?`);
-                if (result) {
-                    $.post(`/admin/removeNominator/`, { id: id, userId: userId }, function (msg) {
-                        $('#editMap').modal('hide');
-                        createAlert(msg);
-                    });
-                }
-            });
-
-            $('#editMap #removeDiff').click(function () {
-                var taskId = $("#editMap #removeDiffSelection").val();
-                var result = confirm(`Are you sure?`);
-                if (result) {
-                    $.post(`/admin/removeDiff/`, { id: id, taskId: taskId }, function (msg) {
-                        $('#editMap').modal('hide');
-                        createAlert(msg);
-                    });
-                }
-            });
-
-            $('#editMap #addLinkButton').click(function () {
-                var link = $("#editMap #newLink").val();
-                var result = confirm(`Are you sure?`);
-                if (result) {
-                    $.post(`/admin/updateMapUrl/`, { id: id, link: link }, function (msg) {
-                        $('#editMap').modal('hide');
-                        createAlert(msg);
-                    });
-                }
-            });
-
-            $('#editMap #deleteMap').click(function () {
-                var result = confirm(`Are you sure?`);
-                if (result) {
-                    $.post(`/admin/deleteMap/${id}`, function (msg) {
-                        $('#editQuest').modal('hide');
-                        createAlert(msg);
-                    });
-                }
-            });
-        });
-    });
-
-    //quest
-    $('#saveQuest').click(function () {
-        var name = $("#questName").val();
-        var reward = $("#questReward").val();
-        var descriptionMain = $("#questDescriptionMain").val();
-        var descriptionFluff = $("#questDescriptionFluff").val();
-        var timeframe = $("#questTimeframe").val();
-        var minParty = $("#questMinParty").val();
-        var maxParty = $("#questMaxParty").val();
-        var minRank = $("#questMinRank").val();
-        var art = $("#art").val();
-        var exclusive = $("#exclusive").val();
-        var medal = $("#medal").val();
-        $.post("/admin/createQuest", { name: name, reward: reward, descriptionMain: descriptionMain, descriptionFluff: descriptionFluff, timeframe: timeframe, minParty: minParty, maxParty: maxParty, minRank: minRank, art: art, exclusive: exclusive, medal: medal }, function (quest) {
-            $('#errors').text(`${quest.name} quest created!`);
-        });
-    });
-
-    $('#editQuest').on('show.bs.modal', function (e) {
-        const id = $(e.relatedTarget).data('questid');
-        $('#editQuest .modal-title').text('');
-
-        $.getJSON('/quests/quest/' + id).done(function (q) {
-            $('#editQuest .modal-title').text(`${q.name} - (${q.status})`);
-
-            $('#editQuest #dropQuest').click(function () {
-                var result = confirm(`Are you sure?`);
-                if (result) {
-                    $.post(`/admin/forceDropQuest/${id}`, function (msg) {
-                        $('#editQuest').modal('hide');
-                        createAlert(msg);
-                    });
-                }
-            });
-
-            $('#editQuest #completeQuest').click(function () {
-                var result = confirm(`Are you sure?`);
-                if (result) {
-                    $.post(`/admin/completeQuest/${id}`, function (msg) {
-                        $('#editQuest').modal('hide');
-                        createAlert(msg);
-                    });
-                }
-            });
-
-            $('#editQuest #deleteQuest').click(function () {
-                var result = confirm(`Are you sure?`);
-                if (result) {
-                    $.post(`/admin/deleteQuest/${id}`, function (msg) {
-                        $('#editQuest').modal('hide');
-                        createAlert(msg);
-                    });
-                }
-            });
-
-            $('#editQuest #hideQuest').click(function () {
-                var result = confirm(`Are you sure?`);
-                if (result) {
-                    $.post(`/admin/hideQuest/${id}`, function (msg) {
-                        $('#editQuest').modal('hide');
-                        createAlert(msg);
-                    });
-                }
-            });
-
-            $('#editQuest #unhideQuest').click(function () {
-                var result = confirm(`Are you sure?`);
-                if (result) {
-                    $.post(`/admin/unhideQuest/${id}`, function (msg) {
-                        $('#editQuest').modal('hide');
-                        createAlert(msg);
-                    });
-                }
-            });
-        });
-
-    })
-
-    //party
-    $('#editParty').on('show.bs.modal', function (e) {
-        $('#editQuest .modal-title').text('');
-        const id = $(e.relatedTarget).data('partyid');
-
-        $.getJSON('/parties/party/' + id).done(function (p) {
-            $('#editQuest .modal-title').text(`${p.name} - (${p.leader.username})`);
-
-        });
-    });
-
-    $('#editPartyName').on('show.bs.modal', function (e) {
-        const id = $(e.relatedTarget).data('partyid');
-
-        $('#savePartyName').click(function () {
-            var name = $("#partyRenameInput").val();
-            var result = confirm(`Are you sure?`);
-            if (result) {
-                $.post(`/admin/updatePartyName/`, { id: id, name: name }, function (msg) {
-                    $('#editPartyName').modal('hide');
-                    createAlert(msg);
-                });
+        //beatmaps
+        setStatus: async function(id, e){
+            const status = $('#mapStatusSelect').val();
+            const bm = await this.executePost('/admin/updateMapStatus/' + id, {status: status}, e);
+            if(bm){
+                this.updateMap(bm);
             }
-        });
-    })
+        },
+        removeDiff: async function(id, e){
+            const taskId = $("#removeDiffSelection").val();
+            const bm = await this.executePost('/admin/removeDiff/' + id, {taskId: taskId}, e);
+            if(bm){
+                this.updateMap(bm);
+            }
+        },
+        removeModder: async function(id, e){
+            var userId = $("#removeModderSelection").val();
+            const bm = await this.executePost('/admin/removeModder/' + id, {userId: userId}, e);
+            if(bm){
+                this.updateMap(bm);
+            }
+        },
+        removeNominator: async function(id, e){
+            var userId = $("#removeNominatorSelection").val();
+            const bm = await this.executePost('/admin/removeNominator/' + id, {userId: userId}, e);
+            if(bm){
+                this.updateMap(bm);
+            }
+        },
+        updateMapUrl: async function(id, e){
+            var link = $("#newLink").val()
+            const bm = await this.executePost('/admin/updateMapUrl/' + id, {link: link}, e);
+            if(bm){
+                this.updateMap(bm);
+            }
+        },
+        deleteMap: async function(id, e){
+            const bm = await this.executePost('/admin/deleteMap/' + id, {}, e);
+            if(bm){
+                $('#editMap').modal('hide');
+                axios
+                    .get('/admin/relevantInfo')
+                    .then(response => {
+                        this.beatmaps = response.data.b;
+                        this.quests = response.data.q;
+                        this.parties = response.data.p;
+                        this.users = response.data.u;
+                        this.featuredArtists = response.data.fa;
+                    });   
+            }
+        },
 
-    //user
-    $('#editUserGroup').on('show.bs.modal', function (e) {
-        const id = $(e.relatedTarget).data('userid');
+        //quest
+        dropQuest: async function(id, e){
+            const q = await this.executePost('/admin/forceDropQuest/' + id, {}, e);
+            if(q){
+                this.updateQuest(q);
+            }
+        },
+        completeQuest: async function(id, e){
+            const q = await this.executePost('/admin/completeQuest/' + id, {}, e);
+            if(q){
+                this.updateQuest(q);
+            }
+        },
+        hideQuest: async function(id, e){
+            const q = await this.executePost('/admin/hideQuest/' + id, {}, e);
+            if(q){
+                this.updateQuest(q);
+            }
+        },
+        unhideQuest: async function(id, e){
+            const q = await this.executePost('/admin/unhideQuest/' + id, {}, e);
+            if(q){
+                this.updateQuest(q);
+            }
+        },
+        deleteQuest: async function(id, e){
+            const q = await this.executePost('/admin/deleteQuest/' + id, {}, e);
+            if(q){
+                $('#editQuest').modal('hide');
+                axios
+                    .get('/admin/relevantInfo')
+                    .then(response => {
+                        this.beatmaps = response.data.b;
+                        this.quests = response.data.q;
+                        this.parties = response.data.p;
+                        this.users = response.data.u;
+                        this.featuredArtists = response.data.fa;
+                    });   
+            }
+        },
+        createQuest: async function(e){
+            let name = $("#questName").val();
+            let reward = $("#questReward").val();
+            let descriptionMain = $("#questDescriptionMain").val();
+            let descriptionFluff = $("#questDescriptionFluff").val();
+            let timeframe = $("#questTimeframe").val();
+            let minParty = $("#questMinParty").val();
+            let maxParty = $("#questMaxParty").val();
+            let minRank = $("#questMinRank").val();
+            let art = $("#art").val();
+            let exclusive = $("#exclusive").val();
+            let medal = $("#medal").val();
+            const q = await this.executePost('/admin/createQuest/', { 
+                name: name, 
+                reward: reward, 
+                descriptionMain: descriptionMain, 
+                descriptionFluff: descriptionFluff, 
+                timeframe: timeframe, 
+                minParty: minParty, 
+                maxParty: maxParty, 
+                minRank: minRank, 
+                art: art, 
+                exclusive: exclusive, 
+                medal: medal 
+            }, e);
+            if(q){
+                $('#createQuest').modal('hide');
+                axios
+                    .get('/admin/relevantInfo')
+                    .then(response => {
+                        this.beatmaps = response.data.b;
+                        this.quests = response.data.q;
+                        this.parties = response.data.p;
+                        this.users = response.data.u;
+                        this.featuredArtists = response.data.fa;
+                    });   
+            }
+        },
 
-        $('#saveUserGroup').click(function () {
+        //party
+
+        renameParty: async function(id, e){
+            var name = $("#newName").val()
+            const p = await this.executePost('/admin/renameParty/' + id, {name: name}, e);
+            if(p){
+                this.updateParty(p);
+            }
+        },
+        removeMember: async function(id, e){
+            var userId = $("#removeMemberSelection").val();
+            const p = await this.executePost('/admin/removeMember/' + id, {userId: userId}, e);
+            if(p){
+                this.updateParty(p);
+            }
+        },
+        transferLeader: async function(id, e){
+            var userId = $("#transferLeaderSelection").val();
+            const p = await this.executePost('/admin/transferLeader/' + id, {userId: userId}, e);
+            if(p){
+                this.updateParty(p);
+            }
+        },
+        editBanner: async function(id, e){
+            var banner = $("#bannerInput").val();
+            const p = await this.executePost('/admin/editBanner/' + id, {banner: banner}, e);
+            if(p){
+                this.updateParty(p);
+            }
+        },
+        deleteParty: async function(id, e){
+            const p = await this.executePost('/admin/deleteParty/' + id, {}, e);
+            if(p){
+                $('#editParty').modal('hide');
+                axios
+                    .get('/admin/relevantInfo')
+                    .then(response => {
+                        this.beatmaps = response.data.b;
+                        this.quests = response.data.q;
+                        this.parties = response.data.p;
+                        this.users = response.data.u;
+                        this.featuredArtists = response.data.fa;
+                    });   
+            }
+        },
+        updatePartyRanks: async function(e){
+            const success = await this.executePost('/admin/updatePartyRanks/', {}, e);
+            if(success){
+                createAlert(success);
+            }
+        },
+
+        //users
+
+        updateUserGroup: async function(id, e){
             var group = $("#userGroupSelect").val();
-            var result = confirm(`Are you sure?`);
-            if (result) {
-                $.post(`/admin/updateUserGroup/`, { id: id, group: group }, function (msg) {
-                    $('#editUserGroup').modal('hide');
-                    createAlert(msg);
-                });
+            const u = await this.executePost('/admin/updateUserGroup/' + id, {group: group}, e);
+            if(u){
+                this.updateUser(u);
             }
-        });
-    })
+        },
+        updateUserPoints: async function(e){
+            const success = await this.executePost('/admin/updateUserPoints/', {}, e);
+            if(success){
+                createAlert(success);
+            }
+        },
 
+        //featured artist
 
-    //featured artist
-    $('#saveArtist').click(function () {
-        var artist = $("#newArtistInput").val();
-        $.post(`/admin/addArtist/${artist}`, function (msg) {
-            $('#newArtist').modal('hide');
-            createAlert(msg);
-        });
-    });
+        addArtist: async function(e){
+            let label = $("#newArtistInput").val();
+            let osuId = $("#artistId").val();
+            const fa = await this.executePost('/admin/addArtist/' + label, {osuId: osuId}, e);
+            if(fa){
+                $('#newArtist').modal('hide');
+                axios
+                    .get('/admin/relevantInfo')
+                    .then(response => {
+                        this.beatmaps = response.data.b;
+                        this.quests = response.data.q;
+                        this.parties = response.data.p;
+                        this.users = response.data.u;
+                        this.featuredArtists = response.data.fa;
+                    });   
+            }
 
-    $('#editSongs').on('show.bs.modal', function (e) {
-        $('#editSongs .modal-title').text('');
-        $('#editSongSelect').text('');
-        $('#removeSongSelect').text('');
-        const id = $(e.relatedTarget).data('artistid');
+        },
 
-        $.getJSON('/admin/artist/' + id).done(function (a) {
-            $('#editSongs .modal-title').text(a.label);
-
-            $('#addSong').attr("onclick", `addSong('${a._id}')`);
-
-            let songSelect = printSongSelect(a.songs);
-            console.log(songSelect)
-            $('#editSongs #removeSong').attr("onclick", `removeSong('${a._id}');`)
-
-            $('#editSongs #removeSongSelection').html(songSelect);
-            $('#editSongSelection').html(songSelect);
-
-        });
-
-
-    });
-
+        renameLabel: async function(id, e){
+            let name = $("#newLabelName").val();
+            const fa = await this.executePost('/admin/renameLabel/' + id, {name: name}, e);
+            if(fa){
+                this.updateArtist(fa);
+            }
+        },
+        addSong: async function(id, e){
+            let artist = $("#artist").val();
+            let title = $("#title").val();
+            const fa = await this.executePost('/admin/addSong/' + id, {artist: artist, title: title}, e);
+            if(fa){
+                this.updateArtist(fa);
+                this.info = `song added`
+            }
+        },
+        removeSong: async function(id, e){
+            let songId = $("#removeSongSelection").val();
+            const fa = await this.executePost('/admin/removeSong/' + id, {songId: songId}, e);
+            if(fa){
+                this.updateArtist(fa);
+                this.info = `song removed`
+            }
+        },
+        updateMetadata: async function(id, e){
+            let artist = $("#editedArtist").val();
+            let title = $("#editedTitle").val();
+            let songId = $("#editSongSelection").val();
+            const fa = await this.executePost('/admin/updateMetadata/' + id, {artist: artist, title: title, songId: songId}, e);
+            if(fa){
+                console.log(fa);
+                this.updateArtist(fa);
+                this.info = `edited metadata`
+            }
+        }
+    },
+    data() {
+        return {
+            beatmaps: null,
+            quests: null,
+            parties: null,
+            users: null,
+            featuredArtists: null,
+            selectedMap: null,
+            selectedQuest: null,
+            selectedParty: null,
+            selectedUser: null,
+            selectedArtist: null,
+            info: null
+        }
+    },
+    mounted() {
+        axios
+            .get('/admin/relevantInfo')
+            .then(response => {
+                this.beatmaps = response.data.b;
+                this.quests = response.data.q;
+                this.parties = response.data.p;
+                this.users = response.data.u;
+                this.featuredArtists = response.data.fa;
+            });
+    }
 });
 
 function createAlert(message) {
@@ -411,4 +368,4 @@ function createAlert(message) {
     $div.appendTo("body").fadeTo(1200, 1).slideUp(500, function () {
         $(this).alert("close")
     });
-};
+}

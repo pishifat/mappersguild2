@@ -51,8 +51,8 @@
                 <p class="text-shadow">Objective: \{{selectedQuest.descriptionMain}}</p>
                 <p class="text-shadow">Reward: \{{selectedQuest.reward}} bonus points for each user <span v-if="selectedQuest.medal">+ a pack-exclusive medal</span></p>
                 <p class='card-text text-shadow'>Completed on \{{selectedQuest.completed.slice(0,10)}} by:
-                    <ul style="list-style-type: none" v-for="member in selectedQuest.completedMembers">
-                        <li class="text-shadow"><a :href="'https://osu.ppy.sh/users/' + member.osuId" target="_blank">\{{ member.username }}</a></li>
+                    <ul style="list-style-type: none">
+                        <li class="text-shadow small" v-for="member in selectedQuest.completedMembers"><a :href="'https://osu.ppy.sh/users/' + member.osuId" target="_blank">\{{ member.username }}</a></li>
                     </ul>
                 </p>
                 <p class="text-shadow"><b></b>Associated maps:</b></p>

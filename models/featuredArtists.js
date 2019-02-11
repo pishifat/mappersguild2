@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const featuredArtistSchema = new mongoose.Schema({
     label: { type: String, required: true },
+    osuId: { type: Number },
     songs: [{ type: 'ObjectId', ref: 'FeaturedSong' }],
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
@@ -88,6 +89,14 @@ class FeaturedArtistService
         }
     }
 
+    async updateSong(id, update) {
+        try {
+            return await FeaturedSong.findByIdAndUpdate(id, update, { 'new': true });
+        } catch(error) {
+            return { error: error._message };
+        }
+    }
+
     async remove(id) {
         try {
             return await FeaturedArtist.findByIdAndRemove(id);
@@ -104,10 +113,11 @@ class FeaturedArtistService
         }
     }
 
-    async createArtist(label) {
+    async createArtist(label, osuId) {
         try {
             return await FeaturedArtist.create({ 
-                label: label
+                label: label,
+                osuId: osuId
             });
         } catch(error) {
             return { error: error._message };

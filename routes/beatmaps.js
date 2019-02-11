@@ -276,7 +276,6 @@ router.post("/task/:taskId/removeCollab", async (req, res) => {
 router.post('/setStatus/:mapId', isBeatmapHost, async (req, res) => {
     let b = await bm.service.update(req.params.mapId, { status: req.body.status });
     if(req.body.status == "Done"){
-        console.log(b.tasks);
         if(b.tasks.length == 0){
             return res.json({error: "You can't mark an empty mapset as complete!"})
         }

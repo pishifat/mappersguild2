@@ -26,44 +26,125 @@ router.use(async (req, res, next) => {
 });
 
 const defaultMapPopulate = [
-    { populate: 'song',  display: 'artist title' }
+    { populate: 'host',  display: '_id osuId username' },
+    { populate: 'bns',  display: '_id osuId username' },
+    { populate: 'modders',  display: '_id osuId username' },
+    { populate: 'quest',  display: '_id name' },
+    { populate: 'song',  display: 'artist title' },
+    { innerPopulate: 'tasks',  populate: { path: 'mappers' } },
+];
+const defaultMapSort = {status: -1};
+
+const defaultPartyPopulate = [
+    { populate: 'leader',  display: 'username osuId' },
+    { populate: 'members',  display: 'username' }
+];
+
+const defaultUserPopulate = [
+    { populate: 'currentParty',  display: 'name' },
+    { populate: 'completedQuests',  display: 'name' },
+];
+
+const defaultArtistPopulate = [
+        { populate: 'songs',  display: 'artist title' }
 ];
 
 /* GET admin page */
 router.get('/', async (req, res, next) => {
     if(req.session.osuId == 3178418 || req.session.osuId == 1052994){
-        const userPopulate = [
-            { populate: 'currentParty',  display: 'name' },
-            { populate: 'completedQuests',  display: 'name' },
-        ];
-        const partyPopulate = [
-            { populate: 'leader',  display: 'username' }
-        ];
+        
 
         res.render('admins', { 
             title: 'Admin', 
             script: '../javascripts/admin.js', 
-            beatmaps: await beatmaps.service.query({}, defaultMapPopulate, {}, true), 
-            quests: await quests.service.query({}, {}, {name: 1}, true), 
-            parties: await parties.service.query({}, partyPopulate, {name: 1}, true), 
-            users: await users.service.query({}, userPopulate, {username: 1}, true), 
-            featuredArtists: await featuredArtists.service.query({}, {}, {artist: 1}, true), 
             loggedInAs: req.session.username });
+    }
+});
+
+/* GET relevant info for page load */
+router.get('/relevantInfo/', async (req, res) => {
+    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
+
+        const [b, q, p, u, fa] = await Promise.all([
+            beatmaps.service.query({}, defaultMapPopulate, defaultMapSort, true), 
+            quests.service.query({}, {}, {name: 1}, true), 
+            parties.service.query({}, defaultPartyPopulate, {name: 1}, true), 
+            users.service.query({}, defaultUserPopulate, {username: 1}, true), 
+            featuredArtists.service.query({}, defaultArtistPopulate, {artist: 1}, true), 
+        ]);
+    
+        res.json({b: b, q: q, p: p, u: u, fa: fa});   
     }
 });
 
 //beatmap
 
 /* POST update map status */
-router.post('/updateMapStatus/', async (req, res) => {
+router.post('/updateMapStatus/:id', async (req, res) => {
     if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
-        let b = await beatmaps.service.update(req.body.id, {status: req.body.status});
+        let b = await beatmaps.service.update(req.params.id, {status: req.body.status});
+        if(req.body.status == "Done"){
+            for (let i = 0; i < b.tasks.length; i++) {
+                await tasks.service.update(b.tasks[i], {status: "Done"});
+            }
+        }
+        b = await beatmaps.service.query({_id: req.params.id}, defaultMapPopulate);
+        res.json(b);
         
-        res.json(`status changed to ${req.body.status}`);
-        
-        b = await beatmaps.service.query({_id: req.body.id}, defaultMapPopulate);
+        logs.service.create(req.session.osuId, `set status of "${b.song.artist} - ${b.song.title}" to "${req.body.status}"`, req.params.id, 'beatmap' );
+    }
+});
 
-        logs.service.create(req.session.osuId, `set status of "${b.song.artist} - ${b.song.title}" to "${req.body.status}"`, req.body.id, 'beatmap' );
+/* POST remove diff */
+router.post('/removeDiff/:id', async (req, res) => {
+    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
+        let t = await tasks.service.query({_id: req.body.taskId});
+        let b = await beatmaps.service.update(req.params.id, { $pull: { tasks: req.body.taskId } });
+        
+        await tasks.service.remove(req.body.taskId);
+
+        b = await beatmaps.service.query({ _id: req.params.id }, defaultMapPopulate);
+        res.json(b);
+        
+        logs.service.create(req.session.osuId, `removed "${t.name}" from "${b.song.artist} - ${b.song.title}"`, req.body.id, 'beatmap' );
+    }
+});
+
+/* POST remove modder */
+router.post('/removeModder/:id', async (req, res) => {
+    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
+        let u = await users.service.query({_id: req.body.userId});
+        let b = await beatmaps.service.update(req.params.id, { $pull: { modders: req.body.userId } });
+
+        b = await beatmaps.service.query({_id: req.params.id}, defaultMapPopulate);
+        res.json(b);
+        
+        logs.service.create(req.session.osuId, `removed "${u.username}" from modders on "${b.song.artist} - ${b.song.title}"`, req.body.id, 'beatmap' );
+    }
+});
+
+
+/* POST remove BN */
+router.post('/removeNominator/:id', async (req, res) => {
+    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
+        let u = await users.service.query({_id: req.body.userId});
+        let b = await beatmaps.service.update(req.params.id, { $pull: { bns: req.body.userId } });
+
+        b = await beatmaps.service.query({_id: req.params.id}, defaultMapPopulate);
+        res.json(b);
+        
+        logs.service.create(req.session.osuId, `removed "${u.username}" from Nominators on "${b.song.artist} - ${b.song.title}"`, req.body.id, 'beatmap' );
+    }
+});
+
+/* POST update map url */
+router.post('/updateMapUrl/:id', async (req, res) => {
+    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
+        let b = await beatmaps.service.update(req.params.id, {url: req.body.link});
+        b = await beatmaps.service.query({_id: req.params.id}, defaultMapPopulate);
+        res.json(b);
+        
+        logs.service.create(req.session.osuId, `updated link on "${b.song.artist} - ${b.song.title}"`, req.body.id, 'beatmap' );
     }
 });
 
@@ -79,57 +160,6 @@ router.post('/deleteMap/:id', async (req, res) => {
     }
 });
 
-/* POST remove modder */
-router.post('/removeModder', async (req, res) => {
-    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
-        let u = await users.service.query({_id: req.body.userId});
-        let b = await beatmaps.service.update(req.body.id, { $pull: { modders: req.body.userId } });
-
-        b = await beatmaps.service.query({_id: req.params.id}, defaultMapPopulate);
-        res.json(`removed modder from "${b.song.artist} - ${b.song.title}"`);
-        
-        logs.service.create(req.session.osuId, `removed "${u.username}" from modders on "${b.song.artist} - ${b.song.title}"`, req.body.id, 'beatmap' );
-    }
-});
-
-/* POST remove BN */
-router.post('/removeNominator', async (req, res) => {
-    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
-        let u = await users.service.query({_id: req.body.userId});
-        let b = await beatmaps.service.update(req.body.id, { $pull: { bns: req.body.userId } });
-        b = await beatmaps.service.query({_id: req.params.id}, defaultMapPopulate);
-        res.json(`removed Nominator from "${b.song.artist} - ${b.song.title}"`);
-        
-        logs.service.create(req.session.osuId, `removed "${u.username}" from Nominators on "${b.song.artist} - ${b.song.title}"`, req.body.id, 'beatmap' );
-    }
-});
-
-/* POST remove diff */
-router.post('/removeDiff', async (req, res) => {
-    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
-        let t = await tasks.service.query({_id: req.body.taskId});
-        let b = await beatmaps.service.update(req.body.id, { $pull: { tasks: req.body.taskId } });
-        await tasks.service.remove(req.body.taskId);
-
-        b = await beatmaps.service.query({_id: req.params.id}, defaultMapPopulate);
-        res.json(`removed ${t.name} from "${b.song.artist} - ${b.song.title}"`);
-        
-        logs.service.create(req.session.osuId, `removed "${t.name}" from "${b.song.artist} - ${b.song.title}"`, req.body.id, 'beatmap' );
-    }
-});
-
-
-/* POST update map url */
-router.post('/updateMapUrl', async (req, res) => {
-    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
-        let b = await beatmaps.service.update(req.body.id, {url: req.body.link});
-        b = await beatmaps.service.query({_id: req.params.id}, defaultMapPopulate);
-        res.json(`updated link on "${b.song.artist} - ${b.song.title}"`);
-        
-        logs.service.create(req.session.osuId, `updated link on "${b.song.artist} - ${b.song.title}"`, req.body.id, 'beatmap' );
-    }
-});
-
 
 //quest
 
@@ -139,40 +169,12 @@ router.post('/createQuest', async (req, res) => {
         var quest = await quests.service.create(req.body);
         if (quest) {
             logs.service.create(req.session.osuId, `created quest ${quest.name}`, quest._id, 'quest' );
-            res.send("created quest");
+            res.send(quest);
         }
     }
 });
 
-/* POST delete quest */
-router.post('/deleteQuest/:id', async (req, res) => {
-    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
-        await quests.service.remove(req.params.id);
-        res.json("deleted quest");
-        
-        logs.service.create(req.session.osuId, `deleted a quest`, req.params.id, 'quest' );
-    }
-});
 
-/* POST hide open quest */
-router.post('/hideQuest/:id', async (req, res) => {
-    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
-        await quests.service.update(req.params.id, {status: "hidden"});
-        res.json("hid quest");
-        
-        logs.service.create(req.session.osuId, `hid a quest`, req.params.id, 'quest' );
-    }
-});
-
-/* POST unhide quest */
-router.post('/unhideQuest/:id', async (req, res) => {
-    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
-        await quests.service.update(req.params.id, {status: "open"});
-        res.json("opened quest");
-        
-        logs.service.create(req.session.osuId, `opened a quest`, req.params.id, 'quest' );
-    }
-});
 
 /* POST force drop quest */
 router.post('/forceDropQuest/:id', async (req, res) => {
@@ -183,7 +185,7 @@ router.post('/forceDropQuest/:id', async (req, res) => {
             if(quest.exclusive){
                 await quests.service.update(req.params.id, {status: "hidden"});
             }else{
-                await quests.service.update(req.params.id, {status: "hidden"});
+                await quests.service.update(req.params.id, {status: "open"});
             }
         }
         await parties.service.update(party._id, {currentQuest: undefined});
@@ -199,13 +201,12 @@ router.post('/forceDropQuest/:id', async (req, res) => {
                 beatmaps.service.update(maps[i]._id, {quest: undefined});
             }
         }
-
-        logs.service.create(req.session.osuId, `forced a party to drop a quest`, req.params.id, 'quest' );
+        quest = await quests.service.query({_id: req.params.id});
+        logs.service.create(req.session.osuId, `forced party "${party.name}" to drop quest "${quest.name}"`, req.params.id, 'quest' );
         
-        res.json("force dropped quest");
+        res.json(quest);
     }
 });
-
 
 /* POST mark quest as complete */
 router.post('/completeQuest/:id', async (req, res) => {
@@ -218,41 +219,52 @@ router.post('/completeQuest/:id', async (req, res) => {
             await quests.service.update(quest._id, {completed: new Date()});
             await parties.service.update(party._id, {currentQuest: undefined});
             
-            logs.service.create(req.session.osuId, `forced a party to drop a quest`, req.params.id, 'quest' );
+            logs.service.create(req.session.osuId, `marked quest "${quest.name}" as complete`, req.params.id, 'quest' );
+            quest = await quests.service.query({_id: req.params.id});
+            res.json(quest);
+        }
+    }
+});
+
+/* POST hide open quest */
+router.post('/hideQuest/:id', async (req, res) => {
+    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
+        await quests.service.update(req.params.id, {status: "hidden"});
+        let quest = await quests.service.query({_id: req.params.id});
+        res.json(quest);
         
-            res.json("confirmed completed quest");
+        logs.service.create(req.session.osuId, `hid a quest`, req.params.id, 'quest' );
+    }
+});
+
+/* POST unhide quest */
+router.post('/unhideQuest/:id', async (req, res) => {
+    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
+        await quests.service.update(req.params.id, {status: "open"});
+        let quest = await quests.service.query({_id: req.params.id});
+        res.json(quest);
+        
+        logs.service.create(req.session.osuId, `opened a quest`, req.params.id, 'quest' );
+    }
+});
+
+/* POST delete quest */
+router.post('/deleteQuest/:id', async (req, res) => {
+    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
+        let q = await quests.service.query({_id: req.params.id});
+        if(q.status == "open"){
+            await quests.service.remove(req.params.id);
+            res.json("deleted quest");
+            
+            logs.service.create(req.session.osuId, `deleted a quest`, req.params.id, 'quest' );
+        }else{
+            res.json({})
         }
     }
 });
 
 
 //party
-
-/* POST rename party */
-router.post('/updatePartyName/', async (req, res) => {
-    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
-        let p = await parties.service.query({_id: req.body.id});
-        await parties.service.update(p._id, {name: req.body.name});
-
-        logs.service.create(req.session.osuId, `renamed party from "${p.name}" to "${req.body.name}"`, req.body.id, 'party' );
-        res.json(`party renamed to "${req.body.name}"`);
-    }
-});
-
-/* POST delete party */
-router.post('/deleteParty/:id', async (req, res) => {
-    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
-        let party = parties.service.query({_id: req.params.id});
-        if(party.currentQuest){
-            await quests.service.update(party.currentQuest, {assignedParty: undefined});
-            await quests.service.update(party.currentQuest, {status: "open"});
-        }
-        
-        await parties.service.remove(req.params.id);
-        logs.service.create(req.session.osuId, `deleted party "${party.name}"`, req.params.id, 'party' );
-        res.json("Party deleted");
-    }
-});
 
 /* POST update party ranks */
 router.post('/updatePartyRanks', async (req, res) => {
@@ -275,17 +287,115 @@ router.post('/updatePartyRanks', async (req, res) => {
 });
 
 
+/* POST rename party */
+router.post('/renameParty/:id', async (req, res) => {
+    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
+        let p = await parties.service.update(req.params.id, {name: req.body.name});
+        p = await parties.service.query({_id: req.params.id}, defaultPartyPopulate)
+
+        logs.service.create(req.session.osuId, `renamed party from "${p.name}" to "${req.body.name}"`, req.params.id, 'party' );
+        res.json(p);
+    }
+});
+
+/* POST remove member from party */
+router.post('/removeMember/:id', async (req, res) => {
+    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
+        let p = await parties.service.query({_id: req.params.id}, defaultPartyPopulate);
+        let u = await users.service.query({_id: req.body.userId});
+        if(u._id.toString() == p.leader._id.toString()){
+            return res.json(p);
+        }
+
+        if(p.currentQuest){
+            const quest = await quests.service.query({_id: p.currentQuest});
+            if(quest.minParty == party.members.length){
+                await Promise.all([
+                    quests.service.update(quest._id, {assignedParty: undefined}),
+                    quests.service.update(quest._id, {status: "open"}),
+                    parties.service.update(p._id, {currentQuest: undefined})
+                ]);
+                if(quest.exclusive){
+                    await quests.service.update(quest._id, {status: "hidden"});
+                }
+                for (let i = 0; i < p.members.length; i++) {
+                    let u = await users.service.query({_id: p.members[i]._id});
+                    let penalty = (u.penaltyPoints + quest.reward);
+                    await users.service.update(u._id, {penaltyPoints: penalty});
+                }
+            }else{
+                let penalty = (user.penaltyPoints + quest.reward);
+                await users.service.update(user._id, {penaltyPoints: penalty});
+            }
+        }
+        await Promise.all([
+            parties.service.update(p._id, {$pull: {members: req.body.userId}}),
+            users.service.update(req.body.userId, {currentParty: undefined})
+        ]);   
+
+        p = await parties.service.query({_id: req.params.id}, defaultPartyPopulate);
+
+        logs.service.create(req.session.osuId, `removed "${u.username}" from party "${p.name}"`, req.params.id, 'party' );
+        res.json(p);
+    }
+});
+
+/* POST transfer leader of party */
+router.post('/transferLeader/:id', async (req, res) => {
+    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
+        let p = await parties.service.update(req.params.id, {leader: req.body.userId});
+        p = await parties.service.query({_id: req.params.id}, defaultPartyPopulate)
+
+        logs.service.create(req.session.osuId, `transferred leader of "${p.name}" to "${p.leader.username}"`, req.params.id, 'party' );
+        res.json(p);
+    }
+});
+
+/* POST edit party banner */
+router.post('/editBanner/:id', async (req, res) => {
+    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
+        let p = await parties.service.update(req.params.id, {art: req.body.banner});
+        p = await parties.service.query({_id: req.params.id}, defaultPartyPopulate)
+
+        logs.service.create(req.session.osuId, `edited banner of party "${p.name}"`, req.params.id, 'party' );
+        res.json(p);
+    }
+});
+
+/* POST delete party */
+router.post('/deleteParty/:id', async (req, res) => {
+    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
+        let party = await parties.service.query({_id: req.params.id});
+        if(party.currentQuest){
+            await quests.service.update(party.currentQuest, {assignedParty: undefined});
+            await quests.service.update(party.currentQuest, {status: "open"});
+        }
+
+        party.members.forEach(member => {
+            users.service.update(member._id, {currentParty: undefined});
+        });
+        
+        await parties.service.remove(req.params.id);
+        logs.service.create(req.session.osuId, `deleted party "${party.name}"`, req.params.id, 'party' );
+        res.json("Party deleted");
+    }
+});
+
+
+
+
 //user
 
 /* POST update user group */
-router.post('/updateUserGroup/', async (req, res) => {
+router.post('/updateUserGroup/:id', async (req, res) => {
     if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
-        let user = await users.service.query({_id: req.body.id});
-        let success = await users.service.update(req.body.id, {group: req.body.group});
+        let user = await users.service.query({_id: req.params.id});
+        let success = await users.service.update(req.params.id, {group: req.body.group});
         if(success){
-            logs.service.create(req.session.osuId, `user group of "${user.username}" set to "${req.body.group}"`, req.body.id, 'user' );
-            res.json(`"${user.username}" set to "${req.body.group}"`);
-        }
+            logs.service.create(req.session.osuId, `user group of "${user.username}" set to "${req.body.group}"`, req.params.id, 'user' );
+            user = await users.service.query({_id: req.params.id}, defaultUserPopulate)
+            res.json(user);
+        } 
     }
 });
 
@@ -403,22 +513,10 @@ router.post('/updateUserPoints', async (req, res) => {
 
 //featured artists
 
-/* GET artist for extended view. */
-router.get("/artist/:labelId", async (req, res) => {
-    const params = { _id: req.params.labelId };
-    const populate = [
-        { populate: 'songs',  display: 'artist title' }
-    ];
-    const sort = {};
-    const artist = await featuredArtists.service.query(params, populate, sort);
-    
-    res.json(artist);
-});
-
 /* POST add artist to db */
 router.post('/addArtist/:label', async (req, res) => {
     if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
-        let fa = await featuredArtists.service.createArtist(req.params.label);
+        let fa = await featuredArtists.service.createArtist(req.params.label, req.body.osuId);
 
         res.json(`${fa.label} added`);
 
@@ -426,22 +524,51 @@ router.post('/addArtist/:label', async (req, res) => {
     }
 });
 
+/* POST rename artist */
+router.post('/renameLabel/:id', async (req, res) => {
+    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
+        let fa = await featuredArtists.service.update(req.params.id, {label: req.body.name});
+        fa = await featuredArtists.service.query({_id: req.params.id}, defaultArtistPopulate)
+
+        res.json(fa);
+        logs.service.create(req.session.osuId, `renamed a featured artist`, fa._id, 'artist' );
+    }
+});
+
 /* POST add song to artist */
-router.post('/addSong', async (req, res) => {
+router.post('/addSong/:id', async (req, res) => {
     if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
         let song = await featuredArtists.service.createSong(req.body.artist, req.body.title);
-        let fa = await featuredArtists.service.update(req.body.labelId, { $push: { songs: song } })
+        let fa = await featuredArtists.service.update(req.params.id, { $push: { songs: song } })
+        fa = await featuredArtists.service.query({_id: req.params.id}, defaultArtistPopulate);
 
-        res.json(`${req.body.title} added`);
+        res.json(fa);
+        logs.service.create(req.session.osuId, `added "${req.body.artist} - ${req.body.title}" to the Featured Artist songs database`, fa._id, 'artist' );
     }
 });
 
 /* POST remove song from artist */
-router.post('/removeSong', async (req, res) => {
+router.post('/removeSong/:id', async (req, res) => {
     if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
-        await featuredArtists.service.update(req.body.labelId, { $pull: {songs: req.body.songId} });
+        await featuredArtists.service.update(req.params.id, { $pull: {songs: req.body.songId} });
         await featuredArtists.service.removeSong(req.body.songId);
-        res.json("deleted song");
+        let fa = await featuredArtists.service.query({_id: req.params.id}, defaultArtistPopulate);
+        res.json(fa);
+
+        logs.service.create(req.session.osuId, `removed a song from the Featured Artist database`, fa._id, 'artist' );
+    }
+});
+
+/* POST edit metadata */
+router.post('/updateMetadata/:id', async (req, res) => {
+    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
+        await featuredArtists.service.updateSong(req.body.songId, {artist: req.body.artist});
+        await featuredArtists.service.updateSong(req.body.songId, {title: req.body.title});
+       
+        let fa = await featuredArtists.service.query({_id: req.params.id}, defaultArtistPopulate);
+        res.json(fa);
+
+        logs.service.create(req.session.osuId, `edited a song's metadata`, fa._id, 'artist' );
     }
 });
 

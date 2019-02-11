@@ -104,6 +104,9 @@ router.post('/leave', async (req, res) => {
                 quests.service.update(quest._id, {status: "open"}),
                 parties.service.update(party._id, {currentQuest: undefined})
             ]);
+            if(quest.exclusive){
+                await quests.service.update(quest._id, {status: "hidden"});
+            }
             for (let i = 0; i < party.members.length; i++) {
                 let u = await users.service.query({_id: party.members[i]._id});
                 let penalty = (u.penaltyPoints + quest.reward);
@@ -136,6 +139,7 @@ router.post('/delete', async (req, res) => {
                 quests.service.update(party.currentQuest, {status: "open"})
             ]);
         }
+        await users.service.update(user._id, {currentParty: undefined});
 
         const success = await parties.service.remove(party._id);
         if (success.error) {

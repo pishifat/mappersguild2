@@ -10,7 +10,7 @@ var userSchema = new mongoose.Schema({
     normalPoints: { type: Number, default: 0 },
     hardPoints: { type: Number, default: 0 },
     insanePoints: { type: Number, default: 0 },
-    extraPoints: { type: Number, default: 0 },
+    expertPoints: { type: Number, default: 0 },
     storyboardPoints: { type: Number, default: 0 },
     questPoints: { type: Number, default: 0 },
     modPoints: { type: Number, default: 0 },
@@ -21,8 +21,8 @@ var userSchema = new mongoose.Schema({
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 userSchema.virtual('totalPoints').get(function() {
-    return this.easyPoints + this.normalPoints + this.hardPoints + this.insanePoints + this.expertPoints +
-        this.storyboardPoints + this.questPoints + this.modPoints + this.hostPoints - this.penaltyPoints;
+    return Math.round((this.easyPoints + this.normalPoints + this.hardPoints + this.insanePoints + this.expertPoints +
+        this.storyboardPoints + this.questPoints + this.modPoints + this.hostPoints - this.penaltyPoints)*10)/10;
 });
 
 var User = mongoose.model('User', userSchema);
