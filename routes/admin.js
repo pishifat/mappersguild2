@@ -301,42 +301,60 @@ router.post('/renameParty/:id', async (req, res) => {
 /* POST remove member from party */
 router.post('/removeMember/:id', async (req, res) => {
     if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
-        let p = await parties.service.query({_id: req.params.id}, defaultPartyPopulate);
-        let u = await users.service.query({_id: req.body.userId});
-        if(u._id.toString() == p.leader._id.toString()){
-            return res.json(p);
+        let party = await parties.service.query({_id: req.params.id}, defaultPartyPopulate);
+        let user = await users.service.query({_id: req.body.userId});
+        if(user._id.toString() == party.leader._id.toString()){
+            return res.json(party);
         }
 
-        if(p.currentQuest){
-            const quest = await quests.service.query({_id: p.currentQuest});
+        if(party.currentQuest){
+            const quest = await quests.service.query({_id: party.currentQuest});
+            const questMaps = await beatmaps.service.query({quest: party.currentQuest}, [{ innerPopulate: 'tasks', populate: { path: 'mappers' } }], {}, true);
+            
             if(quest.minParty == party.members.length){
                 await Promise.all([
                     quests.service.update(quest._id, {assignedParty: undefined}),
                     quests.service.update(quest._id, {status: "open"}),
-                    parties.service.update(p._id, {currentQuest: undefined})
+                    parties.service.update(party._id, {currentQuest: undefined})
                 ]);
                 if(quest.exclusive){
                     await quests.service.update(quest._id, {status: "hidden"});
                 }
-                for (let i = 0; i < p.members.length; i++) {
-                    let u = await users.service.query({_id: p.members[i]._id});
+                for (let i = 0; i < party.members.length; i++) {
+                    let u = await users.service.query({_id: party.members[i]._id});
                     let penalty = (u.penaltyPoints + quest.reward);
                     await users.service.update(u._id, {penaltyPoints: penalty});
                 }
+                questMaps.forEach(map => {
+                    beatmaps.service.update(map._id, {quest: undefined}); 
+                });
             }else{
                 let penalty = (user.penaltyPoints + quest.reward);
                 await users.service.update(user._id, {penaltyPoints: penalty});
+                questMaps.forEach(map => {
+                    let invalid = false;
+                    map.tasks.forEach(task => {
+                        task.mappers.forEach(mapper => {
+                            if(mapper.id == user.id){
+                                invalid = true;
+                            }
+                        });
+                    });
+                    if(invalid){
+                        beatmaps.service.update(map._id, {quest: undefined});
+                    }
+                });
             }
         }
         await Promise.all([
-            parties.service.update(p._id, {$pull: {members: req.body.userId}}),
-            users.service.update(req.body.userId, {currentParty: undefined})
-        ]);   
+            parties.service.update(party._id, {$pull: {members: user._id}}),
+            users.service.update(user._id, {currentParty: undefined})
+        ]);
 
-        p = await parties.service.query({_id: req.params.id}, defaultPartyPopulate);
+        party = await parties.service.query({_id: req.params.id}, defaultPartyPopulate);
 
-        logs.service.create(req.session.osuId, `removed "${u.username}" from party "${p.name}"`, req.params.id, 'party' );
-        res.json(p);
+        logs.service.create(req.session.osuId, `removed "${user.username}" from party "${party.name}"`, req.params.id, 'party' );
+        res.json(party);
     }
 });
 

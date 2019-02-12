@@ -9,7 +9,7 @@ $(function () {
 
             $.each(logs, function (k, log) {
                 $(`<tr>
-                    <td scope="row" style="padding: 1px;">${new Date(log.createdAt)}</td>
+                    <td scope="row" style="padding: 1px;">${new Date(log.createdAt).toString().slice(4,24)}</td>
                     <td scope="row" style="padding: 1px;">${log.user.username}</td>
                     <td scope="row" style="padding: 1px;">${log.action}</td>
                 </tr>`).hide().appendTo('tbody').fadeIn();

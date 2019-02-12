@@ -77,4 +77,9 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
+//handlebar helper
+hbs.registerHelper('shortDate', function(date) {
+  return date.toString().slice(4,24);
+});
+
 module.exports = app;

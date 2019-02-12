@@ -225,7 +225,7 @@ const beatmapsVue = new Vue({
             this.fakeButton = id;
             this.addCollabInput = null;
             this.removeCollabInput = null;
-            const bm = await this.executePost('/beatmaps/removeTask/' + id);
+            const bm = await this.executePost('/beatmaps/removeTask/' + id, {beatmapId: this.selectedMap._id});
             if(bm){
                 this.updateMap(bm);
             }

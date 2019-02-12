@@ -63,7 +63,11 @@ router.post('/acceptQuest/:id', async (req, res) => {
             res.json(await quests.service.query({_id: quest._id}, defaultPopulate));
 
             logs.service.create(req.session.osuId, `party "${party.name}" accepted quest "${quest.name}"`, quest._id, 'quest' );
+        }else{
+            return res.json({error: "Something went wrong!"})
         }
+    }else{
+        return res.json({error: "Something went wrong!"})
     }
 });
 

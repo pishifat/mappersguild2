@@ -210,15 +210,15 @@
                                     <input class="form-control form-control-sm" type="text" placeholder="URL" id="newLink" style="border-radius: 0 100px 100px 0" v-model="selectedMap.url" @keyup.enter="saveLink($event)"></input>
                                 </div>
                             </p>
-                            <div id="locks" v-if="isHost">
+                            <div id="locks">
                                 <p class="text-shadow">Locked: <i v-if="selectedMap.tasksLocked.length == 0" class="small">none</i></p>
                                 <div id="lockedDiffs" class="text-shadow">
                                     <div class='ml-3 small' v-for="task in selectedMap.tasksLocked">
-                                        <a href='#' class="icon-used" @click.prevent="unlockTask(task)" :class="fakeButton == task ? 'fake-button-disable' : ''"  data-toggle="tooltip" data-placement="left" title="unlock"><i class="fas fa-minus-square"></i></a> 
+                                        <a href='#' v-if="isHost" class="icon-used" @click.prevent="unlockTask(task)" :class="fakeButton == task ? 'fake-button-disable' : ''"  data-toggle="tooltip" data-placement="left" title="unlock"><i class="fas fa-minus-square"></i></a> 
                                         \{{task}}
                                     </div>
                                 </div>
-                                <div id="newLock" v-if="selectedMap.tasksLocked.length != 6">
+                                <div id="newLock" v-if="selectedMap.tasksLocked.length != 6 && isHost">
                                     <br v-if="selectedMap.tasksLocked.length > 0">
                                     <div class="input-group input-group-sm mb-3">
                                         <div class="input-group-prepend">
@@ -277,7 +277,7 @@
                         <div class="input-group input-group-sm mb-3" id="songForm">
                             <select class="custom-select select-arrow small" :disabled="!featuredSongs" id="songSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 100px 100px 100px 100px">
                                 <option v-if="!featuredSongs">Select an artist to view song select</option>
-                                <option v-for="featuredSong in featuredSongs" :value="featuredSong.id">\{{featuredSong.artist}} - \{{featuredSong.title}}</option>
+                                <option v-for="featuredSong in featuredSongs" :value="featuredSong.id">\{{featuredSong.title}} --- (\{{featuredSong.artist}})</option>
                             </select>
                         </div>
                     </div>

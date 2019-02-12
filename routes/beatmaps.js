@@ -53,13 +53,13 @@ router.get("/relevantInfo", async (req, res, next) => {
 
 /* GET artists for new map entry */
 router.get("/artists", async (req, res, next) => {
-    res.json(await featuredArtists.service.query({}, {}, {}, true));
+    res.json(await featuredArtists.service.query({}, {}, {label: 1}, true));
 });
 
 /* GET songs for new map entry */
 router.get("/songs/:labelId", async (req, res, next) => {
     const populate = [{ populate: 'songs',  display: 'artist title' }];
-    let fa = await featuredArtists.service.query({_id: req.params.labelId}, populate);
+    let fa = await featuredArtists.service.query({_id: req.params.labelId}, populate, {title: -1});
     res.json(fa.songs);
 });
 
@@ -132,6 +132,10 @@ router.post("/transferHost/:mapId", async (req, res) => {
         return res.json({ error: 'Something went wrong!' });
     }
 
+    if(beatmap.quest){
+        return res.json({ error: "Disconnect your map from its quest before transferring host!" });
+    }
+
     const isAlreadyModder = await bm.service.query({ _id: req.params.mapId, modders: u._id });
     if (isAlreadyModder) {
         let update = { $pull: { modders: u._id } };
@@ -166,6 +170,17 @@ router.post("/addTask/:mapId", async (req, res) => {
             return res.json({error: "This mapset is part of a quest, so only members of the host's party can add difficulties."})
         }
     }
+    if(b.tasksLocked){
+        let locked = false;
+        b.tasksLocked.forEach(task => {
+            if(req.body.difficulty == task){
+               locked = true;
+            }
+        });
+        if(locked){
+            return res.json({error: "This task is locked by the mapset host"})
+        }
+    }
     if(req.body.difficulty == "Storyboard"){
         let sb = false;
         b.tasks.forEach(task => {
@@ -198,9 +213,10 @@ router.post("/addTask/:mapId", async (req, res) => {
 /* POST delete task from extended view. */
 router.post("/removeTask/:id", async (req, res) => {
     let t = await task.service.query({_id: req.params.id});
+    let b = await bm.service.update(req.body.beatmapId, { $pull: { tasks: t._id } });
     await task.service.remove(req.params.id);
 
-    let b = await bm.service.query({ tasks: t._id }, defaultPopulate);
+    b = await bm.service.query({_id: req.body.beatmapId}, defaultPopulate);
 
     res.json(b);
 
@@ -303,18 +319,32 @@ router.post('/setTaskStatus/:taskId', async (req, res) => {
 router.post('/setQuest/:mapId', isBeatmapHost, async (req, res) => {
     let q;
     let u = await user.service.query({osuId: req.session.osuId});
-    if(u){
-        let p = await party.service.query({_id: u.currentParty});
-        if(p){
-            q = p.currentQuest;
-        }
+    let p = await party.service.query({_id: u.currentParty});
+    if(p){
+        q = p.currentQuest;
     }
-    if(!q){
+    
+    if(!q || !u){
         return res.json({error: "You're not assigned to a quest!"});
     }
+    let b = await bm.service.query({ _id: req.params.mapId }, defaultPopulate);
 
-    let b = await bm.service.update(req.params.mapId, { quest: q });
-    b = await bm.service.query({ _id: req.params.mapId }, defaultPopulate)
+    let invalid = false;
+    for (let i = 0; i < b.tasks.length; i++) {
+        for (let j = 0; j < b.tasks[i].mappers.length; j++) {
+            let u = await user.service.query({_id: b.tasks[i].mappers[j]._id});
+            if(!u.currentParty || u.currentParty.toString() != p._id.toString()){
+                invalid = true;
+            }
+        }
+    }
+    if(invalid){
+        return res.json({error: "Some of this mapset's mappers are not assigned to your quest!"});
+    }
+    
+    await bm.service.update(req.params.mapId, { quest: q });
+    b = await bm.service.query({ _id: req.params.mapId }, defaultPopulate);
+    
     res.json(b);
 
     logs.service.create(req.session.osuId, `linked quest to "${b.song.artist} - ${b.song.title}"`, b._id, 'beatmap' );

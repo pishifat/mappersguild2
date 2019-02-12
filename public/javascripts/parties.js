@@ -5,6 +5,9 @@ const partiesVue = new Vue({
 			this.selectedParty = party;
 			this.info = null;
 		},
+		newPartyInfo: function(){
+			this.info = null;
+		},
 		executePost: async function (path, data, e) {
 			if (e) e.target.disabled = true;
 
