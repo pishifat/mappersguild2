@@ -93,7 +93,7 @@ Vue.component("beatmap-card", {
         },
     },
     template: 
-        `<div class='my-2' :class='beatmap.status == "WIP" ? "col-sm-6" : "col-sm-12"' @click="extendedInfo(beatmap)">
+        `<div class='my-2 col-sm-12' :class='beatmap.status == "WIP" ? "col-md-6" : ""' @click="extendedInfo(beatmap)">
             <div class='card map-card custom-bg-dark' :class='beatmap.status == "WIP" ? " border-status-wip" : "border-status-done"' data-toggle='modal' data-target='#editBeatmap' :data-mapid="beatmap.id">
                 <img class='card-img' :src="processUrl(beatmap.url)" style='opacity:0.5; overflow:hidden'> 
                 <div class='card-img-overlay' style='padding: 0.50rem 0.50rem 0 0.50rem'>
@@ -440,12 +440,7 @@ const beatmapsVue = new Vue({
             fakeButton: null,
 		}
     },
-    mounted () {
-		axios
-      		.get('/beatmaps/artists')
-      		.then(response => {
-                this.featuredArtists = response.data;
-            });
+    created () {
 		axios
       		.get('/beatmaps/relevantInfo')
       		.then(response => {
@@ -453,6 +448,13 @@ const beatmapsVue = new Vue({
                 this.wipQuests = response.data.wipQuests;
                 this.userOsuId = response.data.userId;
               });
+    },
+    mounted() {
+        axios
+      		.get('/beatmaps/artists')
+      		.then(response => {
+                this.featuredArtists = response.data;
+            });
 	}
 });
 
