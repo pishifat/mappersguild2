@@ -65,14 +65,15 @@ const questsVue = new Vue({
                 $('.card-body').attr("data-toggle", "modal");
             }
         },
-        sort: function (field) {
-			if (field == 'createdAt') {
-				this.sortedByDate = this.sortedByDate === null ? true : !this.sortedByDate;
-				this.sortedByReward = null;
-				this.sortedBySize = null;
+        sortOpenQuests: function (field, keepOrder) {
+            this.sortByOpen = field;
+			if (!keepOrder) {
+				this.ascOpen = !this.ascOpen;
+            }
 
+			if (field == 'createdAt') {
 				this.openQuests.sort((a, b) => {
-					if (this.sortedByDate) {
+					if (this.ascOpen) {
 						if (a.createdAt > b.createdAt) return 1;
 						if (a.createdAt < b.createdAt) return -1;
 					} else {
@@ -82,12 +83,8 @@ const questsVue = new Vue({
 					return 0;
 				});
 			} else if (field == 'reward') {
-				this.sortedByReward = this.sortedByReward === null ? true : !this.sortedByReward;
-				this.sortedByDate = null;
-				this.sortedBySize = null;
-
 				this.openQuests.sort((a, b) => {
-					if (this.sortedByReward) {
+					if (this.ascOpen) {
 						if (a.reward > b.reward) return 1;
 						if (a.reward < b.reward) return -1;
 					} else {
@@ -97,12 +94,8 @@ const questsVue = new Vue({
 					return 0;
 				});
 			} else if (field == 'minParty') {
-				this.sortedBySize = this.sortedBySize === null ? true : !this.sortedBySize;
-				this.sortedByDate = null;
-				this.sortedByReward = null;
-
 				this.openQuests.sort((a, b) => {
-					if (this.sortedBySize) {
+					if (this.ascOpen) {
 						if (a.minParty > b.minParty) return 1;
 						if (a.minParty < b.minParty) return -1;
 					} else {
@@ -112,7 +105,37 @@ const questsVue = new Vue({
 					return 0;
 				});
 			}
-		}
+        },
+        sortWipQuests: function (field, keepOrder) {
+            this.sortByWip = field;
+			if (!keepOrder) {
+				this.ascWip = !this.ascWip;
+            }
+
+			if (field == 'createdAt') {
+				this.wipQuests.sort((a, b) => {
+					if (this.ascWip) {
+						if (a.createdAt > b.createdAt) return 1;
+						if (a.createdAt < b.createdAt) return -1;
+					} else {
+						if (a.createdAt < b.createdAt) return 1;
+						if (a.createdAt > b.createdAt) return -1
+					}
+					return 0;
+				});
+			} else if (field == 'deadline') {
+				this.wipQuests.sort((a, b) => {
+					if (this.ascWip) {
+						if (a.deadline > b.deadline) return 1;
+						if (a.deadline < b.deadline) return -1;
+					} else {
+						if (a.deadline < b.deadline) return 1;
+						if (a.deadline > b.deadline) return -1
+					}
+					return 0;
+				});
+			}
+		},
     },
     data() {
         return {
@@ -124,10 +147,10 @@ const questsVue = new Vue({
             partySize: null,
             partyName: null,
             timeframe: null,
-            remainingTime: null,
-            sortedByDate: null,
-            sortedByReward: null,
-            sortedBySize: null,
+			sortByOpen: null,
+            ascOpen: false,
+            sortByWip: null,
+			ascWip: false,
         }
     },
     mounted() {
@@ -154,17 +177,8 @@ setInterval(() => {
         .then(response => {
             questsVue.openQuests = response.data.openQuests;
             questsVue.wipQuests = response.data.wipQuests;
-
-            if (questsVue.sortedByDate !== null) {
-				questsVue.sortedByDate = !questsVue.sortedByDate;
-				questsVue.sort('createdAt');
-			} else if (questsVue.sortedByReward !== null) {
-				questsVue.sortedByReward = !questsVue.sortedByReward;
-				questsVue.sort('reward');
-			} else if (questsVue.sortedBySize !== null) {
-				questsVue.sortedBySize = !questsVue.sortedBySize;
-				questsVue.sort('minParty');
-			}
+            questsVue.sortOpenQuests(questsVue.sortByOpen, true);
+            questsVue.sortWipQuests(questsVue.sortByWip, true);
         });
 }, 30000);
 

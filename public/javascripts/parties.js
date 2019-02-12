@@ -135,14 +135,15 @@ const partiesVue = new Vue({
 				}
 			}
 		},
-		sort: function (field) {
+		sort: function (field, keepOrder) {
+			this.sortBy = field;
+			if (!keepOrder) {
+				this.asc = !this.asc;
+			}
+			
 			if (field == 'rank') {
-				this.sortedByRank = this.sortedByRank === null ? true : !this.sortedByRank;
-				this.sortedByCreated = null;
-				this.sortedByMembers = null;
-
 				this.parties.sort((a, b) => {
-					if (this.sortedByRank) {
+					if (this.asc) {
 						if (a.rank > b.rank) return 1;
 						if (a.rank < b.rank) return -1;
 					} else {
@@ -152,12 +153,9 @@ const partiesVue = new Vue({
 					return 0;
 				});
 			} else if (field == 'members') {
-				this.sortedByMembers = this.sortedByMembers === null ? true : !this.sortedByMembers;
-				this.sortedByCreated = null;
-				this.sortedByRank = null;
 
 				this.parties.sort((a, b) => {
-					if (this.sortedByMembers) {
+					if (this.asc) {
 						if (a.members.length > b.members.length) return 1;
 						if (a.members.length < b.members.length) return -1;
 					} else {
@@ -167,12 +165,8 @@ const partiesVue = new Vue({
 					return 0;
 				});
 			} else if (field == 'createdAt') {
-				this.sortedByCreated = this.sortedByCreated === null ? true : !this.sortedByCreated;
-				this.sortedByMembers = null;
-				this.sortedByRank = null;
-
 				this.parties.sort((a, b) => {
-					if (this.sortedByCreated) {
+					if (this.asc) {
 						if (a.createdAt > b.createdAt) return 1;
 						if (a.createdAt < b.createdAt) return -1;
 					} else {
@@ -191,9 +185,8 @@ const partiesVue = new Vue({
 			userId: null,
 			userPartyId: null,
 			info: '',
-			sortedByRank: null,
-			sortedByMembers: null,
-			sortedByCreated: null,
+			sortBy: null,
+			asc: false,
 		}
 	},
 	mounted() {
@@ -214,16 +207,6 @@ setInterval(() => {
 		.get('/parties/parties')
 		.then(response => {
 			partiesVue.parties = response.data;
-
-			if (partiesVue.sortedByRank !== null) {
-				partiesVue.sortedByRank = !partiesVue.sortedByRank;
-				partiesVue.sort('rank');
-			} else if (partiesVue.sortedByMembers !== null) {
-				partiesVue.sortedByMembers = !partiesVue.sortedByMembers;
-				partiesVue.sort('members');
-			} else if (partiesVue.sortedByCreated !== null) {
-				partiesVue.sortedByCreated = !partiesVue.sortedByCreated;
-				partiesVue.sort('createdAt');
-			}
+			partiesVue.sort(partiesVue.sortBy, true);
 		});
 }, 30000);

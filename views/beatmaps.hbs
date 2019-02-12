@@ -7,8 +7,10 @@
             <h2>Work-in-progress <button class="btn btn-mg" data-toggle="modal" data-target="#addBeatmap" @click="resetArtist()">Add beatmap</button></h2>
         </div>
         <div class="row mb-3">
-            <small>
-                Filter: <a href="#" @click.prevent>My maps</a> | <a href="#" @click.prevent>Search mapper</a> | <a href="#" @click.prevent>Accepting guest difficulties</a>
+            <small>Filter: 
+                <a :class="filterBy === 'myMaps' ? 'sorted' : ''"href="#" @click.prevent="filter('myMaps')">My maps</a> | 
+                <a :class="filterBy === 'mapper' ? 'sorted' : ''"href="#" @click.prevent="searchMapper = !searchMapper">Search mapper</a><input type="text" @keyup.enter="filter('mapper', $event)" v-if="searchMapper"></input> | 
+                <a :class="filterBy === 'gds' ? 'sorted' : ''"href="#" @click.prevent="filter('gds')">Accepting guest difficulties</a>
                  -- Collapse: <a href="#" @click.prevent="collapseAll()">Collapse all</a> | <a href="#" @click.prevent="uncollapseAll()">Expand all</a> 
             </small>
         </div>
@@ -49,7 +51,7 @@
             <h2>Pending</h2>
         </div>
         <div class="row mb-3">
-            <small>Filter: <a href="#">My maps</a> | <a href="#">Search mapper</a></small>
+            <small style="color:transparent">free points</small>
         </div>
 
         <template v-for="quest in wipQuests">

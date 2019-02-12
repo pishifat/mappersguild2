@@ -4,15 +4,9 @@
     <div class="col-md-12">
         <h2>Users listing</h2>
         <small>Sort: 
-            <a href="#" @click.prevent="sort('username')">
-                Name <i class="fas":class="sortedByUsername ? 'fa-angle-up' : 'fa-angle-down'" v-if="sortedByUsername !== null"></i>
-            </a> | 
-            <a href="#" @click.prevent="sort('rank')">
-                Rank <i class="fas":class="sortedByRank ? 'fa-angle-up' : 'fa-angle-down'" v-if="sortedByRank !== null"></i>
-            </a> | 
-            <a href="#" @click.prevent="sort('createdAt')">
-                Joined <i class="fas" :class="sortedByJoin ? 'fa-angle-up' : 'fa-angle-down'" v-if="sortedByJoin !== null"></i>
-            </a>
+            <a :class="sortBy === 'username' ? 'sorted' : ''" href="#" @click.prevent="sort('username')">Name</a> | 
+            <a :class="sortBy === 'rank' ? 'sorted' : ''" href="#" @click.prevent="sort('rank')">Rank</a> | 
+            <a :class="sortBy === 'createdAt' ? 'sorted' : ''" href="#" @click.prevent="sort('createdAt')">Joined</a>
         </small>
         
         <transition-group name="list" tag="div" class="row">

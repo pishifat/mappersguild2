@@ -4,9 +4,9 @@
     <div class="col-lg-12">
         <h2>Completed</h2>
         <small>Sort: 
-            <a href="#" @click.prevent="sort('createdAt')">Date added <i class="fas" :class="sortedByDate ? 'fa-angle-up' : 'fa-angle-down'" v-if="sortedByDate !== null"></i></a> | 
-            <a href="#" @click.prevent="sort('reward')">Reward <i class="fas" :class="sortedByReward ? 'fa-angle-up' : 'fa-angle-down'" v-if="sortedByReward !== null"></i></a> | 
-            <a href="#" @click.prevent="sort('minParty')">Required party size <i class="fas" :class="sortedBySize ? 'fa-angle-up' : 'fa-angle-down'" v-if="sortedBySize !== null"></i></a>
+            <a :class="sortBy === 'createdAt' ? 'sorted' : ''" href="#" @click.prevent="sort('createdAt')">Date added</a> | 
+            <a :class="sortBy === 'reward' ? 'sorted' : ''" href="#" @click.prevent="sort('reward')">Reward</a> | 
+            <a :class="sortBy === 'minParty' ? 'sorted' : ''" href="#" @click.prevent="sort('minParty')">Required party size</a>
         </small>
         <div id="completeQuests">
             <transition-group name="list" tag="div" class="row">

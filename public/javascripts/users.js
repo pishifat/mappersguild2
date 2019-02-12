@@ -27,14 +27,15 @@ const usersVue = new Vue({
 
             if (e) e.target.disabled = false;
         },
-        sort: function (field) {
+        sort: function (field, keepOrder) {
+            this.sortBy = field;
+			if (!keepOrder) {
+				this.asc = !this.asc;
+            }
+            
             if (field == 'rank') {
-                this.sortedByRank = this.sortedByRank === null ? true : !this.sortedByRank;
-				this.sortedByUsername = null;
-                this.sortedByJoin = null;
-                
                 this.users.sort((a, b) => {
-                    if (this.sortedByRank) {
+                    if (this.asc) {
                         if (a.totalPoints > b.totalPoints) return 1;
                         if (a.totalPoints < b.totalPoints) return -1;
                     } else {
@@ -44,27 +45,16 @@ const usersVue = new Vue({
                     return 0;
                 });
             } else if (field == 'username') {
-                this.sortedByUsername = this.sortedByUsername === null ? true : !this.sortedByUsername;
-				this.sortedByRank = null;
-                this.sortedByJoin = null;
-
                 this.users.sort((a, b) => {
-                    if (this.sortedByUsername) {
-                        if (a.username > b.username) return 1;
-                        if (a.username < b.username) return -1;
+                    if (this.asc) {
+                        return a.username.localeCompare(b.username);
                     } else {
-                        if (a.username < b.username) return 1;
-                        if (a.username > b.username) return -1
+                        return b.username.localeCompare(a.username);
                     }
-                    return 0;
                 });
             } else if (field == 'createdAt') {
-                this.sortedByJoin = this.sortedByJoin === null ? true : !this.sortedByJoin;
-				this.sortedByRank = null;
-                this.sortedByUsername = null;
-
                 this.users.sort((a, b) => {
-                    if (this.sortedByJoin) {
+                    if (this.asc) {
                         if (a.createdAt > b.createdAt) return 1;
                         if (a.createdAt < b.createdAt) return -1;
                     } else {
@@ -104,9 +94,8 @@ const usersVue = new Vue({
             users: null,
             beatmaps: null,
             selectedUser: null,
-            sortedByRank: null,
-            sortedByUsername: null,
-            sortedByJoin: null,
+			sortBy: null,
+			asc: false,
         }
     },
     mounted() {
@@ -125,16 +114,6 @@ setInterval(() => {
         .then(response => {
             usersVue.users = response.data.users;
             usersVue.beatmaps = response.data.beatmaps;
-
-            if (usersVue.sortedByRank !== null) {
-				usersVue.sortedByRank = !usersVue.sortedByRank;
-				usersVue.sort('rank');
-			} else if (usersVue.sortedByUsername !== null) {
-				usersVue.sortedByUsername = !usersVue.sortedByUsername;
-				usersVue.sort('members');
-			} else if (usersVue.sortedByJoin !== null) {
-				usersVue.sortedByJoin = !usersVue.sortedByJoin;
-				usersVue.sort('createdAt');
-			}
+			usersVue.sort(usersVue.sortBy, true);
         });
 }, 30000);

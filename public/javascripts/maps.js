@@ -93,7 +93,7 @@ Vue.component("beatmap-card", {
         },
     },
     template: 
-        `<div class='my-2' :class='beatmap.status == "WIP" ? "col-sm-6" : "col-sm-12"' @click="extendedInfo(beatmap)">
+        `<div class='my-2 col-sm-12' :class='beatmap.status == "WIP" ? "col-md-6" : ""' @click="extendedInfo(beatmap)">
             <div class='card map-card custom-bg-dark' :class='beatmap.status == "WIP" ? " border-status-wip" : "border-status-done"' data-toggle='modal' data-target='#editBeatmap' :data-mapid="beatmap.id">
                 <img class='card-img' :src="processUrl(beatmap.url)" style='opacity:0.5; overflow:hidden'> 
                 <div class='card-img-overlay' style='padding: 0.50rem 0.50rem 0 0.50rem'>
@@ -422,6 +422,34 @@ const beatmapsVue = new Vue({
             });
             return difficulties.slice(0, -1);
         },
+        filter: function (field, e, keepFilter) {            
+            if (this.filterBy === field && !keepFilter) {
+                this.filterBy = null;
+                this.beatmaps = this.tempBeatmaps;
+                return;
+            }
+
+            this.filterBy = field;
+
+            if (this.tempBeatmaps) {
+                this.beatmaps = this.tempBeatmaps;
+            }
+
+            if (field == 'myMaps') {
+                this.tempBeatmaps = this.beatmaps;
+                this.beatmaps = this.beatmaps.filter(b => b.host.osuId === this.userOsuId);
+            } else if (field == 'mapper') {
+                if (e) {
+                    this.filterValue = e.target.value;
+                }
+
+                this.tempBeatmaps = this.beatmaps;
+                this.beatmaps = this.beatmaps.filter(b => b.host.username == this.filterValue);
+            } else if (field == 'gds') {
+                this.tempBeatmaps = this.beatmaps;
+                this.beatmaps = this.beatmaps.filter(b => b.tasksLocked.length < 1);
+            }
+        },
     },
     data () {
 		return { 
@@ -438,14 +466,13 @@ const beatmapsVue = new Vue({
             editLinkInput: null,
             collabTask: null,
             fakeButton: null,
+            searchMapper: null,
+            filterBy: null,
+            filterValue: null,
+            tempBeatmaps: null,
 		}
     },
-    mounted () {
-		axios
-      		.get('/beatmaps/artists')
-      		.then(response => {
-                this.featuredArtists = response.data;
-            });
+    created () {
 		axios
       		.get('/beatmaps/relevantInfo')
       		.then(response => {
@@ -453,6 +480,13 @@ const beatmapsVue = new Vue({
                 this.wipQuests = response.data.wipQuests;
                 this.userOsuId = response.data.userId;
               });
+    },
+    mounted() {
+        axios
+      		.get('/beatmaps/artists')
+      		.then(response => {
+                this.featuredArtists = response.data;
+            });
 	}
 });
 
@@ -463,5 +497,6 @@ setInterval(() => {
             beatmapsVue.beatmaps = response.data.beatmaps;
             beatmapsVue.wipQuests = response.data.wipQuests;
             beatmapsVue.userOsuId = response.data.userId;
+            beatmapsVue.filter(beatmapsVue.filterBy, null, true);
         });
 }, 30000);
