@@ -246,6 +246,10 @@ footer {
     background-color: var(--open);
 }
 
+.bg-hidden {
+    background-color: var(--blocked);
+}
+
 .bg-rank-0 {
     background-color: var(--rank-0-bg);
 }

@@ -11,7 +11,7 @@
         <div id="openQuests">
             <transition-group name="list" tag="div" class="row">
                 <div class='col-lg-6 my-2' :class="quest.id + '-card'" v-for="quest in openQuests" :key="quest.id" @click="extendedInfo(quest)">
-                    <div class='card quest-card custom-bg-dark border-status-done' style='height: 100%' data-toggle='modal' data-target='#extendedInfo' :data-user="quest.id">
+                    <div class='card quest-card custom-bg-dark border-status-open' style='height: 100%' data-toggle='modal' data-target='#extendedInfo' :data-user="quest.id">
                         <img :src="quest.art ? 'https://assets.ppy.sh/artists/' + quest.art + '/header.jpg' : '../images/no-art.png'" style='right:300px;'>
                         <div class='card-img-overlay' style='padding: 0 0 0 0'>
                             <div class='card-header text-shadow'>
