@@ -4,14 +4,15 @@ const questsVue = new Vue({
         extendedInfo: function (quest) {
             this.selectedQuest = quest;
         },
-        sort: function (field) {
+        sort: function (field, keepOrder) {
+			this.sortBy = field;
+			if (!keepOrder) {
+				this.asc = !this.asc;
+			}
+			
 			if (field == 'createdAt') {
-				this.sortedByDate = this.sortedByDate === null ? true : !this.sortedByDate;
-				this.sortedByReward = null;
-				this.sortedBySize = null;
-
 				this.completeQuests.sort((a, b) => {
-					if (this.sortedByDate) {
+					if (this.asc) {
 						if (a.createdAt > b.createdAt) return 1;
 						if (a.createdAt < b.createdAt) return -1;
 					} else {
@@ -21,12 +22,8 @@ const questsVue = new Vue({
 					return 0;
 				});
 			} else if (field == 'reward') {
-				this.sortedByReward = this.sortedByReward === null ? true : !this.sortedByReward;
-				this.sortedByDate = null;
-				this.sortedBySize = null;
-
 				this.completeQuests.sort((a, b) => {
-					if (this.sortedByReward) {
+					if (this.asc) {
 						if (a.reward > b.reward) return 1;
 						if (a.reward < b.reward) return -1;
 					} else {
@@ -36,12 +33,8 @@ const questsVue = new Vue({
 					return 0;
 				});
 			} else if (field == 'minParty') {
-				this.sortedBySize = this.sortedBySize === null ? true : !this.sortedBySize;
-				this.sortedByDate = null;
-				this.sortedByReward = null;
-
 				this.completeQuests.sort((a, b) => {
-					if (this.sortedBySize) {
+					if (this.asc) {
 						if (a.minParty > b.minParty) return 1;
 						if (a.minParty < b.minParty) return -1;
 					} else {
@@ -57,9 +50,8 @@ const questsVue = new Vue({
         return {
             completeQuests: null,
             selectedQuest: null,
-            sortedByDate: null,
-            sortedByReward: null,
-            sortedBySize: null,
+			sortBy: null,
+			asc: false,
         }
     },
     mounted() {
@@ -76,16 +68,6 @@ setInterval(() => {
         .get('/questsarchive/quests')
         .then(response => {
             questsVue.completeQuests = response.data;
-
-            if (questsVue.sortedByDate !== null) {
-				questsVue.sortedByDate = !questsVue.sortedByDate;
-				questsVue.sort('createdAt');
-			} else if (questsVue.sortedByReward !== null) {
-				questsVue.sortedByReward = !questsVue.sortedByReward;
-				questsVue.sort('reward');
-			} else if (questsVue.sortedBySize !== null) {
-				questsVue.sortedBySize = !questsVue.sortedBySize;
-				questsVue.sort('minParty');
-			}
+            questsVue.sort(questsVue.sortBy, true);
         });
 }, 30000);

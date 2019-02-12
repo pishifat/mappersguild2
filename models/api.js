@@ -113,12 +113,13 @@ async function isBn(req, res, next) {
 }
 
 async function isLoggedIn(req, res, next) {
-    if(config.osuId){
+    if (config.osuId) {
         req.session.username = config.username;
         req.session.osuId = config.osuId;
         req.session.accessToken = config.accessToken;
         req.session.refreshToken = config.refreshToken;
     }
+    
     if (req.session.osuId) {
         const u = await users.service.query({ osuId: req.session.osuId });
         
