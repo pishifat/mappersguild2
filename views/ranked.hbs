@@ -1,9 +1,20 @@
 <div id="app">
 
 <div class="row">
+    <div class="row col-md-12">
+        <small>Filter: 
+            <a :class="filterBy === 'myMaps' ? 'sorted' : ''"href="#" @click.prevent="filter('myMaps')">My maps</a> | 
+            <a :class="filterBy === 'gds' ? 'sorted' : ''"href="#" @click.prevent="filter('gds')">Accepting guest difficulties</a> | 
+            <a :class="filterBy === 'mapper' ? 'sorted' : ''"href="#" @click.prevent="filter('mapper')">Search mapper: </a> <input id="mapperFilter" type="text" @keyup.enter="filter('mapper', $event)" style="border-radius: 5px 5px 5px 5px; filter: drop-shadow(1px 1px 1px #000000);"></input> 
+        </small>
+    </div>
+    <div class="row mb-3 col-md-12">
+        <small>
+            Collapse: <a href="#" @click.prevent="collapseAll()">Collapse all</a> | <a href="#" @click.prevent="uncollapseAll()">Expand all</a> 
+        </small>
+    </div>
     <div class="col-md-12">
         <div class="row"><h2>Ranked</div>
-        <div class="row"><small>Filter: <a href="#" id="byMostRecent">Most recent</a> | <a href="#" id="byMyMaps">My maps</a> | <a href="#" id="byQuest">Quest</a></small></div>
         <div id="pendingBeatmaps">
             <template v-for="quest in completeQuests">
             <div class="col-md-12" :key="quest.id" v-if="hasBeatmaps(quest, 'Ranked')">

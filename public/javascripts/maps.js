@@ -99,7 +99,10 @@ Vue.component("beatmap-card", {
                 <div class='card-img-overlay' style='padding: 0.50rem 0.50rem 0 0.50rem'>
                     <p class='card-title mb-1 text-shadow'>{{ formatMetadata(beatmap.song.artist, beatmap.song.title) }}</p>
                 <small class='card-text text-shadow'>
-                    Hosted by <a :href="'https://osu.ppy.sh/users/' + beatmap.host.osuId" target="_blank" @click.stop>{{beatmap.host.username}}</a>
+                    Hosted by <a :href="'https://osu.ppy.sh/users/' + beatmap.host.osuId" target="_blank" @click.stop>{{beatmap.host.username}}</a> 
+                    <i v-if="beatmap.mode == 'taiko'" class="fas fa-drum"></i>
+                    <i v-else-if="beatmap.mode == 'catch'" class="fas fa-apple-alt"></i>
+                    <i v-else-if="beatmap.mode == 'mania'" class="fas fa-stream"></i>
                     <span class='font-weight-bold float-right' style='text-shadow: 1px 1px 3px black;' v-html="processDiffs(beatmap.tasks, beatmap.tasksLocked)"></span>
                 </small> 
                 </div>
@@ -118,6 +121,7 @@ const beatmapsVue = new Vue({
             this.removeCollabInput = null;
             this.editLinkInput = null;
             this.collabTask = null;
+            this.sortDiffs();
         },
         resetArtist: function(){
             this.featuredSongs = null;
@@ -146,7 +150,14 @@ const beatmapsVue = new Vue({
 			this.beatmaps[i] = bm;
             this.selectedMap = bm;
             this.info = null;
-		},
+            this.sortDiffs();
+        },
+        sortDiffs: function(){
+            let sortOrder = ["Easy", "Normal", "Hard", "Insane", "Expert", "Storyboard"]
+            this.selectedMap.tasks.sort(function(a, b) {
+                return sortOrder.indexOf(a.name) - sortOrder.indexOf(b.name);
+            });
+        },
 
         //display methods
         createCollapseId(name){
@@ -199,6 +210,14 @@ const beatmapsVue = new Vue({
         },
 
         //real methods
+
+        //mode
+        setMode: async function(id, mode, e){
+            const bm = await this.executePost('/beatmaps/setMode/' + id, {mode: mode}, e);
+            if(bm){
+                this.updateMap(bm);
+            }
+        },
 
         //host
         transferHost: async function(id, e){
@@ -441,13 +460,15 @@ const beatmapsVue = new Vue({
             } else if (field == 'mapper') {
                 if (e) {
                     this.filterValue = e.target.value;
+                }else{
+                    this.filterValue = $("#mapperFilter").val();
                 }
 
                 this.tempBeatmaps = this.beatmaps;
                 this.beatmaps = this.beatmaps.filter(b => b.host.username == this.filterValue);
             } else if (field == 'gds') {
                 this.tempBeatmaps = this.beatmaps;
-                this.beatmaps = this.beatmaps.filter(b => b.tasksLocked.length < 1);
+                this.beatmaps = this.beatmaps.filter(b => (b.tasksLocked.length < 6 && b.status == "WIP"));
             }
         },
     },
@@ -479,15 +500,9 @@ const beatmapsVue = new Vue({
                 this.beatmaps = response.data.beatmaps;
                 this.wipQuests = response.data.wipQuests;
                 this.userOsuId = response.data.userId;
+                this.featuredArtists = response.data.fa;
               });
     },
-    mounted() {
-        axios
-      		.get('/beatmaps/artists')
-      		.then(response => {
-                this.featuredArtists = response.data;
-            });
-	}
 });
 
 setInterval(() => {

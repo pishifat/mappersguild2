@@ -604,5 +604,5 @@ hr{
 }
 
 .sorted {
-    border-bottom: 2px solid var(--rest);
+    border-bottom: 1px solid white;
 }

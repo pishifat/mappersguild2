@@ -110,29 +110,35 @@ const rankedVue = new Vue({
             this.featuredSongs = null;
             this.info = null;
         },
-        executePost: async function (path, data, e) {
-            if (e) e.target.disabled = true;
-            $("[data-toggle='tooltip']").tooltip('hide');
-            try {
-                const res = await axios.post(path, data)
-
-                if (res.data.error) {
-                    this.info = res.data.error;
-                } else {
-                    if (e) e.target.disabled = false;
-                    return res.data;
-                }
-            } catch (error) {
-                console.log(error)
+        filter: function (field, e, keepFilter) {            
+            if (this.filterBy === field && !keepFilter) {
+                this.filterBy = null;
+                this.beatmaps = this.tempBeatmaps;
+                return;
             }
 
-            if (e) e.target.disabled = false;
-        },
-        updateMap: function (bm) {
-            const i = this.beatmaps.findIndex(b => b.id == bm.id);
-            this.beatmaps[i] = bm;
-            this.selectedMap = bm;
-            this.info = null;
+            this.filterBy = field;
+
+            if (this.tempBeatmaps) {
+                this.beatmaps = this.tempBeatmaps;
+            }
+
+            if (field == 'myMaps') {
+                this.tempBeatmaps = this.beatmaps;
+                this.beatmaps = this.beatmaps.filter(b => b.host.osuId === this.userOsuId);
+            } else if (field == 'mapper') {
+                if (e) {
+                    this.filterValue = e.target.value;
+                }else{
+                    this.filterValue = $("#mapperFilter").val();
+                }
+
+                this.tempBeatmaps = this.beatmaps;
+                this.beatmaps = this.beatmaps.filter(b => b.host.username == this.filterValue);
+            } else if (field == 'gds') {
+                this.tempBeatmaps = this.beatmaps;
+                this.beatmaps = this.beatmaps.filter(b => (b.tasksLocked.length < 6 && b.status == "WIP"));
+            }
         },
 
         //display methods
@@ -182,6 +188,10 @@ const rankedVue = new Vue({
             beatmaps: null,
             completeQuests: null,
             selectedMap: null,
+            searchMapper: null,
+            filterBy: null,
+            filterValue: null,
+            tempBeatmaps: null,
         }
     },
     mounted() {

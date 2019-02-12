@@ -42,18 +42,19 @@ router.get("/relevantInfo", async (req, res, next) => {
         { innerPopulate: 'associatedMaps', populate: { path: 'host bns modders song tasks' } },
     ];
     const sort = {createdAt: -1};
-    const [beatmaps, wipQuests, u] = await Promise.all([
+    const [beatmaps, wipQuests, u, fa] = await Promise.all([
         bm.service.query({status: { $ne: 'Ranked'}}, defaultPopulate, sort, true),
         quest.service.query({status: 'wip'}, questPopulate, sort, true),
-        user.service.query({osuId: req.session.osuId})
+        user.service.query({osuId: req.session.osuId}),
+        featuredArtists.service.query({}, {}, {label: 1}, true)
     ]);
 
-    res.json({beatmaps: beatmaps, wipQuests: wipQuests, userId: u.osuId});
+    res.json({beatmaps: beatmaps, wipQuests: wipQuests, userId: u.osuId, fa: fa});
 });
 
 /* GET artists for new map entry */
 router.get("/artists", async (req, res, next) => {
-    res.json(await featuredArtists.service.query({}, {}, {label: 1}, true));
+    
 });
 
 /* GET songs for new map entry */
@@ -110,6 +111,15 @@ router.post('/create', async (req, res) => {
     res.json(b);
 
     logs.service.create(req.session.osuId, `created new map "${b.song.artist} - ${b.song.title}"`, b._id, 'beatmap' );
+});
+
+/* POST set game mode. */
+router.post("/setMode/:id", async (req, res) => {
+    let b = await bm.service.update(req.params.id, {mode: req.body.mode});
+    b = await bm.service.query({_id: req.params.id}, defaultPopulate);
+    res.json(b);
+
+    logs.service.create(req.session.osuId, `changed mode of "${b.song.artist} - ${b.song.title}" to "${req.body.mode}"`, b._id, 'beatmap' );
 });
 
 /* POST transfer host */
@@ -290,15 +300,20 @@ router.post("/task/:taskId/removeCollab", async (req, res) => {
 
 /* POST set status of the beatmapset from extended view. */
 router.post('/setStatus/:mapId', isBeatmapHost, async (req, res) => {
-    let b = await bm.service.update(req.params.mapId, { status: req.body.status });
+    let b = await bm.service.query({_id: req.params.mapId}, defaultPopulate);
     if(req.body.status == "Done"){
         if(b.tasks.length == 0){
-            return res.json({error: "You can't mark an empty mapset as complete!"})
+            return res.json({error: "You can't mark an empty mapset as complete!"});
+        }
+        if(b.tasks.length == 1 && b.tasks[0].name == "Storyboard"){
+            return res.json({error: "You can't mark an empty mapset as complete!"});
         }
         for (let i = 0; i < b.tasks.length; i++) {
             await task.service.update(b.tasks[i], {status: "Done"});
         }
+        await bm.service.update(req.params.mapId, { tasksLocked: ["Easy", "Normal", "Hard", "Insane", "Expert", "Storyboard"]});
     }
+    b = await bm.service.update(req.params.mapId, { status: req.body.status });
     
     b = await bm.service.query({_id: req.params.mapId}, defaultPopulate);
     res.json(b);

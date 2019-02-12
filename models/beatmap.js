@@ -10,6 +10,7 @@ const beatmapSchema = new mongoose.Schema({
     bns: [{ type: 'ObjectId', ref: 'User' }],
     quest: { type: 'ObjectId', ref: 'Quest' },
     url: { type: String },
+    mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania'], default: "osu" }
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const Beatmap = mongoose.model('Beatmap', beatmapSchema);

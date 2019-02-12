@@ -191,14 +191,15 @@ const partiesVue = new Vue({
 	},
 	mounted() {
 		axios
+			.get('/parties/parties')
+			.then(response => (this.parties = response.data));
+		axios
 			.get('/parties/currentParty')
 			.then(response => {
 				this.userPartyId = response.data.party;
 				this.userId = response.data.user;
 			})
-		axios
-			.get('/parties/parties')
-			.then(response => (this.parties = response.data));
+		
 	}
 });
 
