@@ -1,5 +1,7 @@
 $(document).ready(function () {
     $("body").tooltip({ selector: '[data-toggle=tooltip]' });
+    var src = "../images/small.png"
+    $("#load").attr("src", src);
 });
 
 Vue.component("beatmap-card", {

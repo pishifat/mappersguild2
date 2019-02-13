@@ -1,3 +1,8 @@
+$(document).ready(function () {
+    var src = "../images/small.png"
+    $("#load").attr("src", src);
+});
+
 const partiesVue = new Vue({
 	el: '#app',
 	methods: {
