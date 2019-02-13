@@ -1,3 +1,8 @@
+$(document).ready(function () {
+    var src = "../images/small.png"
+    $("#load").attr("src", src);
+});
+
 const adminVue = new Vue({
     el: '#app',
     methods: {
@@ -312,7 +317,6 @@ const adminVue = new Vue({
             let songId = $("#editSongSelection").val();
             const fa = await this.executePost('/admin/updateMetadata/' + id, {artist: artist, title: title, songId: songId}, e);
             if(fa){
-                console.log(fa);
                 this.updateArtist(fa);
                 this.info = `edited metadata`
             }
@@ -342,7 +346,10 @@ const adminVue = new Vue({
                 this.parties = response.data.p;
                 this.users = response.data.u;
                 this.featuredArtists = response.data.fa;
-            });
+            }).then(function(){
+                $("#loading").fadeOut();
+				$("#app").attr("style", "visibility: visible").hide().fadeIn();
+			});
     }
 });
 
