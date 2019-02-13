@@ -15,7 +15,7 @@
                     data-toggle='modal' data-target='#extendedInfo' :data-user="user.osuId"
                     @click="extendedInfo(user)">
                     <div class='card-header'><a :href="'https://osu.ppy.sh/users/' + user.osuId"
-                            class="text-shadow">\{{user.username}}</a> <span class="pseudo-float-right-avatar"><img
+                            class="text-shadow" target="_blank" @click.stop>\{{user.username}}</a> <span class="pseudo-float-right-avatar"><img
                                 :src="'https://a.ppy.sh/' + user.osuId"
                                 class="rounded-circle avatar-mini-thumb"></span></div>
                     <div class='card-body'>
@@ -44,8 +44,8 @@
                 <div class="row col-lg-12">
                     <table class="small table text-shadow col-md-6">
                         <thead>
-                            <th scope="col" style="padding: 2px;">Task</th>
-                            <th scope="col" style="padding: 2px;">Points</th>
+                            <td scope="col" style="padding: 2px;">Task</td>
+                            <td scope="col" style="padding: 2px;">Points</td>
                         </thead>
                         <transition-group tag="tbody" name="list">
                             <tr v-if="selectedUser.easyPoints">
@@ -142,10 +142,10 @@
                 <p class="text-shadow">Mappers' Guild Maps:</p>
                 <table class="small table text-shadow">
                     <thead>
-                        <th scope="col" style="padding: 2px;">Mapset</th>
-                        <th scope="col" style="padding: 2px;">Host</th>
-                        <th scope="col" style="padding: 2px;">Status</th>
-                        <th scope="col" style="padding: 2px;">Tasks</th>
+                        <td scope="col" style="padding: 2px;">Mapset</td>
+                        <td scope="col" style="padding: 2px;">Host</td>
+                        <td scope="col" style="padding: 2px;">Status</td>
+                        <td scope="col" style="padding: 2px;">Tasks</td>
                     </thead>
                     <transition-group tag="tbody" name="list">
                         <tr v-for="map in userMaps" :key="map.id">

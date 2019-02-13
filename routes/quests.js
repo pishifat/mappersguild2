@@ -49,16 +49,18 @@ router.post('/acceptQuest/:id', async (req, res) => {
     let user = await users.service.query({osuId: req.session.osuId});
     let party = await parties.service.query({leader: user._id});
     if (party) {
-        
         let quest = await quests.service.query({_id: req.params.id});
+        if(quest.assignedParty){
+            return res.json({error: "Can't accept already assigned quest"});
+        }
         if(party.members.length >= quest.minParty 
         && party.members.length <= quest.maxParty 
         && party.currentQuest == undefined
         && party.rank >= quest.minRank){
+            await parties.service.update(party._id, {currentQuest: quest._id});
             await quests.service.update(quest._id, {accepted: new Date().getTime()});
             await quests.service.update(quest._id, {deadline: new Date().getTime() + quest.timeframe});
             await quests.service.update(quest._id, {status: "wip"});
-            await parties.service.update(party._id, {currentQuest: quest._id});
             
             res.json(await quests.service.query({_id: quest._id}, defaultPopulate));
 
@@ -76,7 +78,10 @@ router.post('/dropQuest/:id', async (req, res) => {
     let user = await users.service.query({osuId: req.session.osuId});
     let party = await parties.service.query({leader: user._id});
     if (party) {
-        let quest = await quests.service.query({_id: req.params.id});
+        let quest = await quests.service.query({_id: req.params.id}, defaultPopulate);
+        if(!quest.assignedParty){
+            return res.json({error: "Can't drop unassigned quest"});
+        }
         if(quest.exclusive){
             await quests.service.update(req.params.id, {status: "hidden"});
         }else{

@@ -55,10 +55,11 @@ const partiesVue = new Vue({
 			}
 		},
 		rename: async function (e) {
-			if (this.selectedParty.name.length < 3 || this.selectedParty.name.length > 32) {
+			const newName = $("#newName").val();
+			if (newName.length < 3 || newName.length > 32) {
 				this.info = 'Choose a name between 3 and 32 characters!';
 			} else {
-				const party = await this.executePost('/parties/rename', { id: this.selectedParty.id, newName: this.selectedParty.name }, e);
+				const party = await this.executePost('/parties/rename', { id: this.selectedParty.id, newName: newName }, e);
 				if (party) {
 					this.updateParty(party);
 					this.info = `Party renamed to ${party.name}!`;
@@ -110,7 +111,8 @@ const partiesVue = new Vue({
 			}
 		},
 		addBanner: async function (e) {
-			const party = await this.executePost('/parties/addBanner', { banner: this.selectedParty.art }, e);
+			const banner = $("#banner").val();
+			const party = await this.executePost('/parties/addBanner', { banner: banner }, e);
 			if (party) {
 				this.updateParty(party);
 				this.info = 'Banner added!';
@@ -125,7 +127,7 @@ const partiesVue = new Vue({
 		createParty: async function (e) {
 			const name = $("#partyName").val();
 			if (name.length < 3 || name.length > 32) {
-				this.info = `Party name must be bewteen 3 and 32 characters! Yours is ${name.length} ${name.length == 1 ? 'character' : 'characters'}`;
+				this.info = `Party name must be between 3 and 32 characters! Yours is ${name.length} ${name.length == 1 ? 'character' : 'characters'}`;
 			} else {
 				const party = await this.executePost('/parties/create', { name: name }, e);
 				if (party) {
@@ -198,6 +200,9 @@ const partiesVue = new Vue({
 			.then(response => {
 				this.userPartyId = response.data.party;
 				this.userId = response.data.user;
+			}).then(function(){
+				$("#loading").fadeOut();
+				$("#app").attr("style", "visibility: visible").hide().fadeIn();
 			})
 		
 	}

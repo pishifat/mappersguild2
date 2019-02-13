@@ -48,6 +48,21 @@ a {
 
 #app{
     min-height: calc(80vh);
+    visibility: hidden;
+}
+
+#loading{
+    position: absolute;
+    margin: auto;
+    left: 0;
+    right: 0;
+    top: calc(50vh);
+    text-align: center;
+    z-index: 1;
+}
+
+#loading img{
+    vertical-align:middle;
 }
 
 footer {
@@ -114,9 +129,19 @@ footer {
     padding-bottom: 20px
 }
 
+.modal-open[style] {
+    padding-right: 0px !important;
+    }
+
 .modal-body {
     border-radius: 0 0 5px 5px; 
 }
+
+.append-button-padding{
+    padding-right: 4px;
+}
+
+
 
 .custom-bg-dark {
     background-color: var(--dark);
@@ -307,8 +332,8 @@ input[type=text], input[type=text]:focus {
       linear-gradient(45deg, transparent 50%, gray 50%),
       linear-gradient(135deg, gray 50%, transparent 50%);
     background-position:
-      calc(100% - 20px) calc(1em + 2px),
-      calc(100% - 15px) calc(1em + 2px),
+      calc(100% - 20px) calc(1em),
+      calc(100% - 15px) calc(1em),
       calc(100% - 2.5em) 0.5em;
     background-size:
       5px 5px,

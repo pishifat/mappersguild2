@@ -95,7 +95,7 @@ const usersVue = new Vue({
             beatmaps: null,
             selectedUser: null,
 			sortBy: null,
-			asc: false,
+            asc: false,
         }
     },
     mounted() {
@@ -104,7 +104,10 @@ const usersVue = new Vue({
             .then(response => {
                 this.users = response.data.users;
                 this.beatmaps = response.data.beatmaps;
-            });
+            }).then(function(){
+                $("#loading").fadeOut();
+				$("#app").attr("style", "visibility: visible").hide().fadeIn();
+			});
     }
 });
 

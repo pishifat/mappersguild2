@@ -125,7 +125,12 @@ const beatmapsVue = new Vue({
         },
         resetArtist: function(){
             this.featuredSongs = null;
+            this.featuredArtists = this.featuredArtists.sort((a,b) => (a.label.toLowerCase() > b.label.toLowerCase()) ? 1 : ((b.label.toLowerCase() > a.label.toLowerCase()) ? -1 : 0));
             this.info = null;
+            $('input[type=checkbox]').each(function() 
+            { 
+                this.checked = false; 
+            }); 
         },
 		executePost: async function(path, data, e) {
 			if (e) e.target.disabled = true;
@@ -373,6 +378,7 @@ const beatmapsVue = new Vue({
             }
         },
         lockTask: async function(e){
+            this.fakeButton = null;
             let difficulty = $("#lockDiffSelection").val();
             const bm = await this.executePost('/beatmaps/lockTask/' + this.selectedMap._id, {difficulty: difficulty}, e);
             if(bm){
@@ -403,7 +409,7 @@ const beatmapsVue = new Vue({
                 .get('beatmaps/songs/' + labelId)
                 .then(response => {
                     e.target.disabled = false;
-                    this.featuredSongs = response.data;
+                    this.featuredSongs = response.data.sort((a,b) => (a.title.toLowerCase() > b.title.toLowerCase()) ? 1 : ((b.title.toLowerCase() > a.title.toLowerCase()) ? -1 : 0));
                 });
         },
         saveNewMap: async function(e){
@@ -501,7 +507,10 @@ const beatmapsVue = new Vue({
                 this.wipQuests = response.data.wipQuests;
                 this.userOsuId = response.data.userId;
                 this.featuredArtists = response.data.fa;
-              });
+              }).then(function(){
+                $("#loading").fadeOut();
+				$("#app").attr("style", "visibility: visible").hide().fadeIn();
+			});
     },
 });
 

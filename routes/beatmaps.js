@@ -46,7 +46,7 @@ router.get("/relevantInfo", async (req, res, next) => {
         bm.service.query({status: { $ne: 'Ranked'}}, defaultPopulate, sort, true),
         quest.service.query({status: 'wip'}, questPopulate, sort, true),
         user.service.query({osuId: req.session.osuId}),
-        featuredArtists.service.query({}, {}, {label: 1}, true)
+        featuredArtists.service.query({}, {}, {}, true)
     ]);
 
     res.json({beatmaps: beatmaps, wipQuests: wipQuests, userId: u.osuId, fa: fa});
@@ -180,7 +180,12 @@ router.post("/addTask/:mapId", async (req, res) => {
             return res.json({error: "This mapset is part of a quest, so only members of the host's party can add difficulties."})
         }
     }
-    if(b.tasksLocked){
+
+    if(b.tasks.length > 20){
+        return res.json({error: "This mapset has too many difficulties!"})
+    }
+
+    if(b.tasksLocked && !isBeatmapHost){
         let locked = false;
         b.tasksLocked.forEach(task => {
             if(req.body.difficulty == task){

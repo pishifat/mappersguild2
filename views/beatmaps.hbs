@@ -14,7 +14,7 @@
         </small>
     </div>
     {{!-- WIP Beatmaps --}}
-    <div class="col-md-8">
+    <div class="col-lg-8">
         <div class="row">
             <h2>Work-in-progress <button class="btn btn-mg" data-toggle="modal" data-target="#addBeatmap" @click="resetArtist()">Add beatmap</button></h2>
         </div>
@@ -50,7 +50,7 @@
     </div>
 
     {{!-- Pending Beatmaps --}}
-    <div class="col-md-4">
+    <div class="col-lg-4">
         <div class="row">
             <h2>Pending</h2>
         </div>
@@ -115,18 +115,18 @@
                             </div>
                             <div id="newHost" v-if="isHost">
                                 <div class="input-group input-group-sm mb-3" id="setNewHost">
-                                    <div class="input-group-prepend">
-                                        <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg" type="submit" @click="transferHost(selectedMap.id, $event)">Transfer Host</button>
+                                    <input class="form-control form-control-sm" type="text" placeholder="username..." id="hostEntry" style="border-radius: 100px 0 0 100px;" v-model="selectedMap.host.username" maxlength="16" @keyup.enter="transferHost(selectedMap.id, $event)"></input>
+                                    <div class="input-group-append">
+                                        <button style="border-radius: 0 100px 100px 0" class="rounded-circle-left btn btn-mg" type="submit" @click="transferHost(selectedMap.id, $event)" data-toggle="tooltip" data-placement="right" title="let another user host this mapset"><span class="append-button-padding">Transfer Host</span></button>
                                     </div>
-                                    <input class="form-control form-control-sm" type="text" placeholder="username..." id="hostEntry" style="border-radius: 0 100px 100px 0" v-model="selectedMap.host.username" maxlength="16" @keyup.enter="transferHost(selectedMap.id, $event)"></input>
                                 </div>
                             </div>
                             <table class="small table text-shadow">
                                 <thead>
-                                    <th scope="col" style="padding: 2px;">Difficulty</th>
-                                    <th scope="col" style="padding: 2px;">Mapper(s)</th>
-                                    <th scope="col" style="padding: 2px;">Status</th>
-                                    <th scope="col" style="padding: 2px;"></th>
+                                    <td scope="col" style="padding: 2px;">Difficulty</td>
+                                    <td scope="col" style="padding: 2px;">Mapper(s)</td>
+                                    <td scope="col" style="padding: 2px;">Status</td>
+                                    <td scope="col" style="padding: 2px;"></td>
                                 </thead>
                                 <transition-group tag="tbody" name="list" id="difficulties">
                                     <tr v-for="task in selectedMap.tasks" :key="task.id" :id="task.id + 'Row'">
@@ -148,10 +148,7 @@
                             </table>
                             <div id="newDifficulty" v-if="selectedMap.status == 'WIP'" :class="selectedMap.tasksLocked.length == 6 ? 'fake-button-disable' : ''">
                                 <div class="input-group input-group-sm mb-3">
-                                    <div class="input-group-prepend">
-                                        <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg" id="addTask" @click="addTask(selectedMap.id, $event);" data-toggle="tooltip" data-placement="left" title="add difficulty"><i style="padding-left: 4px" class="fas fa-plus"></i></button>
-                                    </div>
-                                    <select class="custom-select select-arrow small" id="diffSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 0 100px 100px 0">
+                                    <select class="custom-select select-arrow small" id="diffSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 100px 0 0 100px">
                                         <option v-if="selectedMap.tasksLocked.indexOf('Easy') < 0 || isHost" value="Easy">Easy</option>
                                         <option v-if="selectedMap.tasksLocked.indexOf('Normal') < 0 || isHost" value="Normal">Normal</option>
                                         <option v-if="selectedMap.tasksLocked.indexOf('Hard') < 0 || isHost" value="Hard">Hard</option>
@@ -159,6 +156,9 @@
                                         <option v-if="selectedMap.tasksLocked.indexOf('Expert') < 0 || isHost" value="Expert">Expert</option>
                                         <option v-if="selectedMap.tasksLocked.indexOf('Storyboard') < 0 || isHost" value="Storyboard">Storyboard</option>
                                     </select>
+                                    <div class="input-group-append">
+                                        <button style="border-radius: 0 100px 100px 0;" class="rounded-circle-left btn btn-mg" id="addTask" @click="addTask(selectedMap.id, $event);" data-toggle="tooltip" data-placement="right" title="add difficulty"><i class="fas fa-plus append-button-padding"></i></button>
+                                    </div>
                                 </div>
                             </div>
                             <div id="newCollaborator">
@@ -221,10 +221,10 @@
                             </p>
                             <p  id="linkInput">
                                 <div v-if="editLinkInput" class="input-group input-group-sm mb-3">
-                                    <div class="input-group-prepend">
-                                        <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg" type="submit" id="addLinkButton" @click="saveLink($event)">Save link</button>
+                                    <input class="form-control form-control-sm" type="text" placeholder="URL" id="newLink" style="border-radius: 100px 0 0 100px" v-model="selectedMap.url" @keyup.enter="saveLink($event)"></input>
+                                    <div class="input-group-append">
+                                        <button style="border-radius: 0 100px 100px 0;" class="rounded-circle-left btn btn-mg" type="submit" id="addLinkButton" @click="saveLink($event)" data-toggle="tooltip" data-placement="right" title="use new osu!web link for card image"><span class="append-button-padding">Save link</span></button>
                                     </div>
-                                    <input class="form-control form-control-sm" type="text" placeholder="URL" id="newLink" style="border-radius: 0 100px 100px 0" v-model="selectedMap.url" @keyup.enter="saveLink($event)"></input>
                                 </div>
                             </p>
                             <div id="locks">
@@ -238,10 +238,7 @@
                                 <div id="newLock" v-if="selectedMap.tasksLocked.length != 6 && isHost">
                                     <br v-if="selectedMap.tasksLocked.length > 0">
                                     <div class="input-group input-group-sm mb-3">
-                                        <div class="input-group-prepend">
-                                            <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg" id="lockTask" @click="lockTask($event);" data-toggle="tooltip" data-placement="left" title="prevent other mappers from claiming a difficulty">Lock</button>
-                                        </div>
-                                        <select class="custom-select select-arrow small" id="lockDiffSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 0 100px 100px 0">
+                                        <select class="custom-select select-arrow small" id="lockDiffSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 100px 0 0 100px">
                                             <option v-if="selectedMap.tasksLocked.indexOf('Easy') < 0" value="Easy">Easy</option>
                                             <option v-if="selectedMap.tasksLocked.indexOf('Normal') < 0" value="Normal">Normal</option>
                                             <option v-if="selectedMap.tasksLocked.indexOf('Hard') < 0" value="Hard">Hard</option>
@@ -249,6 +246,9 @@
                                             <option v-if="selectedMap.tasksLocked.indexOf('Expert') < 0" value="Expert">Expert</option>
                                             <option v-if="selectedMap.tasksLocked.indexOf('Storyboard') < 0" value="Storyboard">Storyboard</option>
                                         </select>
+                                        <div class="input-group-append">
+                                            <button style="border-radius: 0 100px 100px 0;" class="rounded-circle-left btn btn-mg" id="lockTask" @click="lockTask($event);" data-toggle="tooltip" data-placement="left" title="prevent other mappers from claiming a difficulty"><span class="append-button-padding">Lock</span></button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -273,7 +273,7 @@
 <div id="addBeatmap" class="modal fade" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content custom-bg-dark" v-if="featuredArtists">
-            <div class="modal-header bg-rest">
+            <div class="modal-header bg-done">
                 <h5 class="modal-title text-dark">Add Beatmap</h5>
                 <button type="button" class="close" data-dismiss="modal">
                 <span>&times;</span>
@@ -283,20 +283,32 @@
                 <img src="../images/the_A.png" class="the-a-background">
                 <div class="container">
                     <div class="form-group row">
-                        <div class="input-group input-group-sm mb-3" id="artistForm">
-                            <div class="input-group-prepend">
-                                <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg" id="artistButton" @click="setArtist($event);">Select Artist</button>
+                        <div class="col-lg-1">
+                            <p class="text-shadow" style="margin-top: 3px;">Artist:</p>
+                        </div>
+                        <div class="col-lg-11">
+                            <div class="input-group input-group-sm mb-3" style="width: 400px" id="artistForm">
+                                <select class="custom-select select-arrow small" id="artistSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 100px 0 0 100px">
+                                    <option v-for="featuredArtist in featuredArtists" :value="featuredArtist.id">\{{featuredArtist.label}}</option>
+                                </select>
+                                <div class="input-group-append">
+                                    <button style="border-radius: 0 100px 100px 0;" class="rounded-circle-left btn btn-mg" id="artistButton" @click="setArtist($event);">Load songs</button>
+                                </div>
                             </div>
-                            <select class="custom-select select-arrow small" id="artistSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 0 100px 100px 0">
-                                <option v-for="featuredArtist in featuredArtists" :value="featuredArtist.id">\{{featuredArtist.label}}</option>
-                            </select>
                         </div>
-                        <div class="input-group input-group-sm mb-3" id="songForm">
-                            <select class="custom-select select-arrow small" :disabled="!featuredSongs" id="songSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 100px 100px 100px 100px">
-                                <option v-if="!featuredSongs">Select an artist to view song select</option>
-                                <option v-for="featuredSong in featuredSongs" :value="featuredSong.id">\{{featuredSong.title}} --- (\{{featuredSong.artist}})</option>
-                            </select>
+
+                        <div class="col-lg-1">
+                            <p class="text-shadow" style="margin-top: 3px;">Song:</p>
                         </div>
+                        <div class="col-lg-11">
+                            <div class="input-group input-group-sm mb-3" style="width: 400px" id="songForm">
+                                <select class="custom-select select-arrow small" :disabled="!featuredSongs" id="songSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 100px 100px 100px 100px">
+                                    <option v-if="!featuredSongs">Select an artist to view songs</option>
+                                    <option v-for="featuredSong in featuredSongs" :value="featuredSong.id">\{{featuredSong.title}} --- (\{{featuredSong.artist}})</option>
+                                </select>
+                            </div>
+                        </div>
+                        
                     </div>
                     <p class="text-shadow">Select one or more difficulties <i>you plan on mapping</i>. These can be changed later:</p>
                     <div class="form-group row">
@@ -371,9 +383,8 @@
                     </div>
                 </div>
                 <p class="errors" id="addBeatmapErrors">\{{ info }}</p>
-            </div>
-            <div class="modal-footer">
-                <button type="submit" class="btn btn-mg" @click="saveNewMap($event)">Save</button>
+                <hr>
+                <button type="submit" class="btn btn-mg float-right" @click="saveNewMap($event)">Save</button>
             </div>
         </div>
     </div>

@@ -25,7 +25,7 @@ const questsVue = new Vue({
             if (e) e.target.disabled = false;
         },
         acceptQuest: async function (id, e) {
-            var result = confirm("Are you sure? Dropping the quest will result in a points penalty");
+            var result = confirm("Are you sure?");
             if (result) {
                 $('.card-body').removeAttr("data-toggle");
                 $('.accept').prop("disabled", true);
@@ -167,7 +167,10 @@ const questsVue = new Vue({
             .then(response => {
                 this.openQuests = response.data.openQuests;
                 this.wipQuests = response.data.wipQuests;
-            });
+            }).then(function(){
+                $("#loading").fadeOut();
+				$("#app").attr("style", "visibility: visible").hide().fadeIn();
+			});
     }
 });
 

@@ -59,7 +59,10 @@ const questsVue = new Vue({
             .get('/questsarchive/quests')
             .then(response => {
                 this.completeQuests = response.data;
-            });
+            }).then(function(){
+                $("#loading").fadeOut();
+				$("#app").attr("style", "visibility: visible").hide().fadeIn();
+			});
     }
 });
 

@@ -200,6 +200,9 @@ const rankedVue = new Vue({
             .then(response => {
                 this.beatmaps = response.data.beatmaps;
                 this.completeQuests = response.data.completeQuests;
-            });
+            }).then(function(){
+                $("#loading").fadeOut();
+				$("#app").attr("style", "visibility: visible").hide().fadeIn();
+			});
     }
 });
