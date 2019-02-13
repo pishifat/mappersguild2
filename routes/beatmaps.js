@@ -136,7 +136,7 @@ router.post("/transferHost/:mapId", async (req, res) => {
     if(u.osuId == req.session.osuId){
         return res.json({ error: 'Choose someone other than yourself!'})
     }
-    let beatmap = await bm.service.update({_id: req.params.mapId}, {host: u._id})
+    let beatmap = await bm.service.update({_id: req.params.mapId}, {host: u._id});
     
     if(!beatmap){
         return res.json({ error: 'Something went wrong!' });
@@ -309,7 +309,7 @@ router.post('/setStatus/:mapId', isBeatmapHost, async (req, res) => {
             return res.json({error: "You can't mark an empty mapset as complete!"});
         }
         for (let i = 0; i < b.tasks.length; i++) {
-            await task.service.update(b.tasks[i], {status: "Done"});
+            await task.service.update(b.tasks[i].id, {status: "Done"});
         }
         await bm.service.update(req.params.mapId, { tasksLocked: ["Easy", "Normal", "Hard", "Insane", "Expert", "Storyboard"]});
     }
