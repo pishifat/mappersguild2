@@ -25,9 +25,7 @@
     --expert: rgb(231, 205, 255);
 }
 
-html {
-    scroll-behavior: smooth;
-}
+
 
 body {
     background-color: #151515;
