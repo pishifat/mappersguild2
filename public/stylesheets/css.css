@@ -34,7 +34,10 @@ body {
     background: url("../images/triangles.png") repeat fixed;
     font-family: 'Roboto', sans-serif;
     overflow-x: hidden;
+    transform: translate3d(0,0,0);  
 }
+
+body 
 
 a {
     color: rgb(238, 238, 238);

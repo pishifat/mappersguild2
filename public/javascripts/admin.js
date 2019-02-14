@@ -259,6 +259,13 @@ const adminVue = new Vue({
                 this.updateUser(u);
             }
         },
+        updatePenaltyPoints: async function(id, e){
+            var points = $("#penaltyPointsInput").val();
+            const u = await this.executePost('/admin/updatePenaltyPoints/' + id, {points: points}, e);
+            if(u){
+                this.updateUser(u);
+            }
+        },
         updateUserPoints: async function(e){
             const success = await this.executePost('/admin/updateUserPoints/', {}, e);
             if(success){

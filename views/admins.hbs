@@ -276,7 +276,7 @@
                         <div class="input-group-prepend">
                             <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg-used" type="submit" @click="removeMember(selectedParty.id, $event)">remove member</button>
                         </div>
-                            <select class="custom-select select-arrow small" id="removeMemberSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 0 100px 100px 0">
+                        <select class="custom-select select-arrow small" id="removeMemberSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 0 100px 100px 0">
                             <option v-for="member in selectedParty.members" :value="member.id">\{{member.username}}</option>
                         </select>
                     </div>
@@ -287,7 +287,7 @@
                         <div class="input-group-prepend">
                             <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg" type="submit" @click="transferLeader(selectedParty.id, $event)">transfer leader</button>
                         </div>
-                            <select class="custom-select select-arrow small" id="transferLeaderSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 0 100px 100px 0">
+                        <select class="custom-select select-arrow small" id="transferLeaderSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 0 100px 100px 0">
                             <option v-for="member in selectedParty.members" :value="member.id">\{{member.username}}</option>
                         </select>
                     </div>
@@ -298,7 +298,7 @@
                         <div class="input-group-prepend">
                             <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg" type="submit" @click="editBanner(selectedParty.id, $event)">edit banner</button>
                         </div>
-                            <input class="form-control form-control-sm" type="text" placeholder="map id banner" id="bannerInput" style="border-radius: 0 100px 100px 0"></input>
+                        <input class="form-control form-control-sm" type="text" placeholder="map id banner" id="bannerInput" style="border-radius: 0 100px 100px 0"></input>
                     </div>
 
                     <hr>
@@ -336,6 +336,12 @@
                             <option value="hidden">hidden</option>
                             <option value="admin">admin</option>
                         </select>
+                    </div>
+                    <div class="input-group input-group-sm mb-3">
+                        <div class="input-group-prepend">
+                            <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg-used" type="submit" @click="updatePenaltyPoints(selectedUser.id, $event)">edit penaltypoints</button>
+                        </div>
+                        <input class="form-control form-control-sm" type="text" placeholder="penalty points" id="penaltyPointsInput" style="border-radius: 0 100px 100px 0"></input>
                     </div>
                     <p id="errors"></p>
                 </div>

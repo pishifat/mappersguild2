@@ -167,6 +167,8 @@ router.post("/transferHost/:mapId", async (req, res) => {
 router.post("/addTask/:mapId", async (req, res) => {
     const u = await user.service.query({osuId: req.session.osuId});
     let b = await bm.service.query({_id: req.params.mapId}, defaultPopulate);
+
+    //quest check
     if(b.quest){
         let p = await party.service.query({currentQuest: b.quest});
         let valid = false;
@@ -181,10 +183,23 @@ router.post("/addTask/:mapId", async (req, res) => {
         }
     }
 
+    //bn check
+    let isBn = false;
+    b.bns.forEach(bn => {
+        if(bn.id == u.id){
+            isBn = true;
+        }
+    });
+    if(isBn){
+        return res.json({error: "Remove yourself from the BN list before adding a difficulty!"})
+    }
+
+    //excess diffs check
     if(b.tasks.length > 20){
         return res.json({error: "This mapset has too many difficulties!"})
     }
 
+    //locked diffs check
     if(b.tasksLocked && !isBeatmapHost){
         let locked = false;
         b.tasksLocked.forEach(task => {
@@ -196,6 +211,8 @@ router.post("/addTask/:mapId", async (req, res) => {
             return res.json({error: "This task is locked by the mapset host"})
         }
     }
+
+    //multiple storyboards check
     if(req.body.difficulty == "Storyboard"){
         let sb = false;
         b.tasks.forEach(task => {
@@ -208,6 +225,7 @@ router.post("/addTask/:mapId", async (req, res) => {
         }
     }
 
+    //create
     const t = await task.service.create({ name: req.body.difficulty, mappers: u._id });
     if (t.error) {
         return res.json(t.error);
@@ -404,11 +422,23 @@ router.post("/updateModder/:mapId", async (req, res) => {
 /* POST bn from extended view, returns new bns list. */
 router.post("/updateBn/:mapId", api.isBn, async (req, res) => {
     const u = await user.service.query({osuId: req.session.osuId});
-    const isAlreadyBn = await bm.service.query({ _id: req.params.mapId, bns: u._id });
+    const isAlreadyBn = await bm.service.query({ _id: req.params.mapId, bns: u._id }, defaultPopulate);
+    
     let update;
     if (!isAlreadyBn) {
         update = { $push: { bns: u._id } };
     } else {
+        let hasTask = false;
+        isAlreadyBn.tasks.forEach(task => {
+            task.mappers.forEach(mapper => {
+                if(mapper.id == u.id){
+                    hasTask = true;
+                }
+            });
+        });
+        if(hasTask){
+            return res.json({error: "You can't nominate a mapset you've done a task for!"})
+        }
         update = { $pull: { bns: u._id } };
     }
 

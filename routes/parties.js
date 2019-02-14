@@ -299,14 +299,23 @@ router.post('/switchLock', async (req, res) => {
 
 /* POST add banner */
 router.post('/addBanner', async (req, res) => {
-    if (req.body.banner.match(/^[0-9]+$/)) {
+    if (req.body.banner.indexOf('osu.ppy.sh/beatmapsets/') != -1) {
+        let indexStart = req.body.banner.indexOf('beatmapsets/') + 'beatmapsets/'.length;
+        let indexEnd = req.body.banner.indexOf('#');
+        let idUrl;
+        if (indexEnd !== -1) {
+            idUrl = req.body.banner.slice(indexStart, indexEnd);
+        } else {
+            idUrl = req.body.banner.slice(indexStart);
+        }
+
         const axios = require('axios');
         axios
-            .get(`https://assets.ppy.sh/beatmaps/${req.body.banner}/covers/cover.jpg`)
+            .get(`https://assets.ppy.sh/beatmaps/${idUrl}/covers/cover.jpg`)
 			.then(async function() {
                 let user = await users.service.query({osuId: req.session.osuId});
                 let party = await parties.service.query({leader: user._id});
-                await parties.service.update(party._id, {art: req.body.banner});
+                await parties.service.update(party._id, {art: idUrl});
                 res.json(await parties.service.query({ _id: party._id }, defaultPopulate));        
                 logs.service.create(req.session.osuId, `added banner on party "${party.name}"`, party._id, 'party' );
             })
@@ -316,7 +325,7 @@ router.post('/addBanner', async (req, res) => {
                 }
             });
     }else{
-        return res.json({error: "Banner input must be numbers only"})
+        return res.json({error: "Not a valid URL! Link a beatmap's page on the new osu! site."})
     }
 });
 

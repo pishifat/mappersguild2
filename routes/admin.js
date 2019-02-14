@@ -417,6 +417,19 @@ router.post('/updateUserGroup/:id', async (req, res) => {
     }
 });
 
+/* POST update user penatly points */
+router.post('/updatePenaltyPoints/:id', async (req, res) => {
+    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
+        let user = await users.service.query({_id: req.params.id});
+        let success = await users.service.update(req.params.id, {penaltyPoints: req.body.points});
+        if(success){
+            logs.service.create(req.session.osuId, `edited penalty points of "${user.username}" to ${req.body.points}`, req.params.id, 'user' );
+            user = await users.service.query({_id: req.params.id}, defaultUserPopulate)
+            res.json(user);
+        } 
+    }
+});
+
 /* POST update user points */
 router.post('/updateUserPoints', async (req, res) => {
     if(req.session.osuId == 3178418 || req.session.osuId == 1052994){
@@ -460,6 +473,7 @@ router.post('/updateUserPoints', async (req, res) => {
                                     questBonus = 2;
                                     questParticipation = true;
                                 }
+                                console.log(task.name);
                                 pointsObject[task.name]["total"] += (pointsObject[task.name]["num"] + questBonus) / task.mappers.length;
                             }
                         });

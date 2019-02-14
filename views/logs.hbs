@@ -1,7 +1,6 @@
 <div class="row">
     <div class="col-md-12">
-        <p class="small">Filter: <a href="#">User</a> | <a href="#">Action</a></p>
-        <table class="small table">
+        <table class="small table mt-3">
             <thead>
                 <td scope="col" style="padding: 2px;">date</td>
                 <td scope="col" style="padding: 2px;">user</td>
@@ -10,7 +9,7 @@
             <tbody>
                 {{#each logs}}
                 <tr>
-                    <td scope="row" style="padding: 1px;">{{shortDate createdAt}}</td>
+                    <td scope="row" style="padding: 1px;">{{shortDate createdAt}} GMT</td>
                     <td scope="row" style="padding: 1px;">{{user.username}}</td>
                     <td scope="row" style="padding: 1px;">{{action}}</td>
                 </tr>
