@@ -473,7 +473,6 @@ router.post('/updateUserPoints', async (req, res) => {
                                     questBonus = 2;
                                     questParticipation = true;
                                 }
-                                console.log(task.name);
                                 pointsObject[task.name]["total"] += (pointsObject[task.name]["num"] + questBonus) / task.mappers.length;
                             }
                         });

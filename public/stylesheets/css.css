@@ -25,14 +25,15 @@
     --expert: rgb(231, 205, 255);
 }
 
-
+html {
+    scroll-behavior: smooth;
+}
 
 body {
     background-color: #151515;
     background: url("../images/triangles.png") repeat fixed;
     font-family: 'Roboto', sans-serif;
     overflow-x: hidden;
-    transform: translate3d(0,0,0);  
 }
 
 body 
@@ -509,6 +510,17 @@ input[type=text], input[type=text]:focus {
 .overwrite-card-spacing{
     margin:0;
     padding:0.5rem 1rem 1rem 1rem;
+}
+
+.notification-card-spacing{
+    margin:0;
+    padding:0.5rem 0.5rem 0.5rem 0.5rem;
+}
+
+.notification-button{
+    margin:0;
+    padding:0 0.5rem 0 0.5rem;
+    font-size: 10pt;
 }
 
 .indent{

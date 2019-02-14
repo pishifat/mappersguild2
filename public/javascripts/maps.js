@@ -123,6 +123,7 @@ const beatmapsVue = new Vue({
             this.removeCollabInput = null;
             this.editLinkInput = null;
             this.collabTask = null;
+            this.fakeButton = null;
             this.sortDiffs();
         },
         resetArtist: function(){

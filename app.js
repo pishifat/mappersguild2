@@ -19,6 +19,7 @@ var questsRouter = require('./routes/quests');
 var questsArchiveRouter = require('./routes/questsarchive');
 var partiesRouter = require('./routes/parties');
 var logsRouter = require('./routes/logs');
+var notificationsRouter = require('./routes/notifications');
 var adminsRouter = require('./routes/admin');
 
 var app = express();
@@ -59,6 +60,7 @@ app.use('/quests', questsRouter);
 app.use('/questsarchive', questsArchiveRouter);
 app.use('/parties', partiesRouter);
 app.use('/logs', logsRouter);
+app.use('/notifications', notificationsRouter);
 app.use('/admin', adminsRouter);
 
 // catch 404 and forward to error handler

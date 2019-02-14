@@ -1,0 +1,48 @@
+<div id="app">
+
+<div class="row">
+
+    <div class="col-md-6">
+        <h2>Notifications</h2> 
+        <transition-group name="list" tag="div" class="row">
+            <div class='col-md-12 my-2' v-for="notification in notifications" :key="notification.id">
+                <div class="card custom-bg-dark border-rank-done" style="height: 100%">
+                    <div class='card-body notification-card-spacing'>
+                        <p class='card-text text-shadow small'>
+                            <a :href="'https://osu.ppy.sh/users/' + notification.sender.osuId" class="text-shadow" target="_blank" @click.stop>\{{notification.sender.username}}</a> 
+                            \{{notification.info}}
+                            <a v-if="notification.map" :href="notification.map.url ? notification.map.url : ''" target="_blank">\{{notification.map.song.artist}} - \{{notification.map.song.title}}</a> [also show card]
+                            </p>
+                    </div>
+                    <div class="card-footer notification-card-spacing mx-2">
+                        <span class='card-text text-shadow small'>\{{notification.createdAt.slice(0,10)}}</span>
+                        <button class="btn btn-mg notification-button float-right" @click.prevent="hideNotification(notification.id, $event)">Mark as read</button>
+                    </div>
+                </div>
+            </div>
+        </transition-group>
+    </div>
+
+<!--this isnt done yet-->
+    <div class="col-md-6">
+        <h2>Invites</h2> 
+        <transition-group name="list" tag="div" class="row">
+            <div class='col-md-12 my-2' v-for="invite in invites" :key="invite.id">
+                <div class="card custom-bg-dark border-rank-ranked" style="height: 100%">
+                    <div class='card-header'>
+                        <a :href="'https://osu.ppy.sh/users/' + invite.sender.osuId" class="text-shadow" target="_blank" @click.stop>\{{invite.sender.username}}</a>
+                    </div>
+                    <div class='card-body'>
+                        <p class='card-text text-shadow small'>\{{invite.info}}</p>
+                        <p class='card-text text-shadow small'>\{{notification.createdAt}}</p>
+                    </div>
+                    <div class="card-footer">
+                        2 days ago
+                    </div>
+                </div>
+            </div>
+        </transition-group>
+    </div>
+</div>
+
+</div>

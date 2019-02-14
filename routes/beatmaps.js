@@ -4,6 +4,7 @@ const task = require('../models/task.js');
 const user = require('../models/user.js');
 const quest = require('../models/quest.js');
 const party = require('../models/party.js');
+const notifications = require('../models/notification.js');
 const logs = require('../models/log.js');
 const featuredArtists = require('../models/featuredArtists.js');
 const api = require('../models/api.js');
@@ -239,6 +240,8 @@ router.post("/addTask/:mapId", async (req, res) => {
     b = await bm.service.query({_id: req.params.mapId}, defaultPopulate);
 
     res.json(b);
+
+    notifications.service.create(b.id, `added "${req.body.difficulty}" difficulty to your mapset`, b.host.id, u.id, b.id);
 
     logs.service.create(req.session.osuId, `added "${req.body.difficulty}" difficulty to "${b.song.artist} - ${b.song.title}"`, b._id, 'beatmap' );
 });
