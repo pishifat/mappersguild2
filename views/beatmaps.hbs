@@ -190,7 +190,7 @@
                                     <span v-if="selectedMap.quest">\{{selectedMap.quest.name}}</span>
                                     <span v-else><i>none</i></span>
                                 </small>
-                                <span data-toggle="tooltip" data-placement="right" title="connect mapset to quest">
+                                <span data-toggle="tooltip" data-placement="right" title="connect mapset to your current quest">
                                     <a href='#' v-if="isHost && !selectedMap.quest" id='editQuest' :class="fakeButton == selectedMap.id + 'quest' ? 'fake-button-disable' : ''" class='icon-valid' @click.prevent="setQuest()"><i class="fas fa-plus-square"></i></a>
                                     <a href='#' v-if="isHost && selectedMap.quest" id='editQuest' :class="fakeButton == selectedMap.id + 'quest' ? 'fake-button-disable' : ''" class='icon-used' @click.prevent="unsetQuest()"><i class="fas fa-minus-square"></i></a>
                                 </span>

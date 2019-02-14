@@ -2,6 +2,10 @@ $(document).ready(function () {
     $("body").tooltip({ selector: '[data-toggle=tooltip]' });
     var src = "../images/small.png"
     $("#load").attr("src", src);
+    //this is jquery because
+    //1. the loading div is in layout, so putting it in vue would mean pasting it in all pages
+    //2. i want the entirety of #app to be invisible until things load
+    //3. i dont know a better way to do it with vue
 });
 
 const usersVue = new Vue({
@@ -98,6 +102,7 @@ const usersVue = new Vue({
             selectedUser: null,
 			sortBy: null,
             asc: false,
+            doneLoading: null,
         }
     },
     mounted() {

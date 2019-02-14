@@ -300,21 +300,21 @@ router.post('/switchLock', async (req, res) => {
 /* POST add banner */
 router.post('/addBanner', async (req, res) => {
     if (req.body.banner.match(/^[0-9]+$/)) {
-        const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
-        var request = new XMLHttpRequest();
-        await request.open("GET", `https://assets.ppy.sh/beatmaps/${req.body.banner}/covers/cover.jpg`, true);
-        await request.send();
-        request.onload = async function(){
-            if(request.status == 200){
+        const axios = require('axios');
+        axios
+            .get(`https://assets.ppy.sh/beatmaps/${req.body.banner}/covers/cover.jpg`)
+			.then(async function() {
                 let user = await users.service.query({osuId: req.session.osuId});
                 let party = await parties.service.query({leader: user._id});
                 await parties.service.update(party._id, {art: req.body.banner});
                 res.json(await parties.service.query({ _id: party._id }, defaultPopulate));        
                 logs.service.create(req.session.osuId, `added banner on party "${party.name}"`, party._id, 'party' );
-            }else{
-                return res.json({error: "That map doesn't exist or has no cover art!"})
-            }
-        }
+            })
+            .catch(err => {
+                if(err.response.status == 404){
+                    return res.json({error: "That map doesn't exist or has no cover art!"})
+                }
+            });
     }else{
         return res.json({error: "Banner input must be numbers only"})
     }

@@ -7,6 +7,7 @@
     "devstart": "nodemon ./bin/www"
   },
   "dependencies": {
+    "axios": "^0.18.0",
     "connect-mongo": "^2.0.3",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",
@@ -15,8 +16,7 @@
     "hbs": "~4.0.1",
     "http-errors": "~1.6.2",
     "mongoose": "^5.4.4",
-    "morgan": "~1.9.0",
-    "xmlhttprequest": "^1.8.0"
+    "morgan": "~1.9.0"
   },
   "devDependencies": {
     "nodemon": "^1.18.9"
