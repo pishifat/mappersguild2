@@ -5,6 +5,7 @@ const user = require('../models/user.js');
 const quest = require('../models/quest.js');
 const party = require('../models/party.js');
 const notifications = require('../models/notification.js');
+const invites = require('../models/invite.js');
 const logs = require('../models/log.js');
 const featuredArtists = require('../models/featuredArtists.js');
 const api = require('../models/api.js');
@@ -137,31 +138,23 @@ router.post("/transferHost/:mapId", async (req, res) => {
     if(u.osuId == req.session.osuId){
         return res.json({ error: 'Choose someone other than yourself!'})
     }
-    let beatmap = await bm.service.update({_id: req.params.mapId}, {host: u._id});
+   
+    let b = await bm.service.query({_id: req.params.mapId}, defaultPopulate);
     
-    if(!beatmap){
+    if(!b){
         return res.json({ error: 'Something went wrong!' });
     }
 
-    if(beatmap.quest){
-        return res.json({ error: "Disconnect your map from its quest before transferring host!" });
+    if(b.quest){
+        let p = await party.service.query({currentQuest: b.quest, members: u._id});
+        if(!p){
+            return res.json({error: "Invite not sent because this mapset is part of a quest. Only members of your party can host."})
+        }
     }
-
-    const isAlreadyModder = await bm.service.query({ _id: req.params.mapId, modders: u._id });
-    if (isAlreadyModder) {
-        let update = { $pull: { modders: u._id } };
-        beatmap = await bm.service.update(req.params.mapId, update);
-    }
-
-    const isAlreadyBn = await bm.service.query({ _id: req.params.mapId, bns: u._id });
-    if (isAlreadyBn) {
-        update = { $pull: { bns: u._id } };
-        beatmap = await bm.service.update(req.params.mapId, update);
-    }
-    let b = await bm.service.query({_id: req.params.mapId}, defaultPopulate);
     res.json(b);
 
-    logs.service.create(req.session.osuId, `transferred host on "${b.song.artist} - ${b.song.title}"`, b._id, 'beatmap' );
+    let sender = await user.service.query({osuId: req.session.osuId});
+    invites.service.create(u.id, sender.id, b.id, `wants you to host their mapset of`, 'host', b.id );
 });
 
 /* POST create task from extended view. */
@@ -246,6 +239,72 @@ router.post("/addTask/:mapId", async (req, res) => {
     logs.service.create(req.session.osuId, `added "${req.body.difficulty}" difficulty to "${b.song.artist} - ${b.song.title}"`, b._id, 'beatmap' );
 });
 
+/* POST request added task THIS FUNCTION WILL BE MOVED OR REWRITTEN HOPEFULLY IT"S ALMOST ALL COPY PASTE OF ABOVE FUNCTION*/
+router.post("/requestTask/:mapId", async (req, res) => {
+    let u;
+    try {
+        u = await user.service.query({ username: new RegExp("^"+req.body.recipient+"$", "i") })
+    } catch(error) {
+        return res.json({ error: error._message });
+    }
+    if (!u) {
+        return res.json({ error: 'Cannot find user!' });
+    }
+    if(u.osuId == req.session.osuId){
+        return res.json({ error: 'Choose someone other than yourself!'})
+    }
+   
+    let b = await bm.service.query({_id: req.params.mapId}, defaultPopulate);
+    
+    //quest check
+    if(b.quest){
+        let p = await party.service.query({currentQuest: b.quest});
+        let valid = false;
+        for (let i = 0; i < p.members.length; i++) {
+            if(p.members[i].toString() == u._id.toString()){
+                valid = true;
+                break;
+            }
+        }
+        if(!valid){
+            return res.json({error: "Invite could not be sent because this mapset is part of a quest, so only members of the host's party can add difficulties."})
+        }
+    }
+
+    //bn check
+    let isBn = false;
+    b.bns.forEach(bn => {
+        if(bn.id == u.id){
+            isBn = true;
+        }
+    });
+    if(isBn){
+        return res.json({error: "Invite could not be sent becuase that user is marked as a Beatmap Nominator for this mapset!"})
+    }
+
+    //excess diffs check
+    if(b.tasks.length > 20){
+        return res.json({error: "Invite could not be sent because this mapset has too many difficulties!"})
+    }
+
+    //multiple storyboards check
+    if(req.body.difficulty == "Storyboard"){
+        let sb = false;
+        b.tasks.forEach(task => {
+            if(task.name == "Storyboard"){
+                sb = true;
+            }
+        })
+        if(sb){
+            return res.json({error: "Invite could not be sent because there can only be one storyboard on a mapset!"});
+        }
+    }
+    res.json(b);
+
+    let sender = await user.service.query({osuId: req.session.osuId});
+    invites.service.create(u.id, sender.id, b.id, `wants you to create the difficulty ${req.body.difficulty} for their mapset of`, 'task', b.id, req.body.difficulty );
+});
+
 /* POST delete task from extended view. */
 router.post("/removeTask/:id", async (req, res) => {
     let t = await task.service.query({_id: req.params.id});
@@ -259,7 +318,7 @@ router.post("/removeTask/:id", async (req, res) => {
     logs.service.create(req.session.osuId, `removed "${t.name}" from "${b.song.artist} - ${b.song.title}"`, b._id, 'beatmap' );
 });
 
-/* POST add collab user to task. */
+/* POST invite collab user to task. */
 router.post("/task/:taskId/addCollab", async (req, res) => {
     let u;
     try {
@@ -274,7 +333,7 @@ router.post("/task/:taskId/addCollab", async (req, res) => {
         return res.json({ error: 'Cannot collaborate with yourself!' });
     }
 
-    let b = await bm.service.query({ tasks: req.params.taskId });
+    let b = await bm.service.query({ tasks: req.params.taskId }, defaultPopulate);
     if(b.quest){
         let p = await party.service.query({currentQuest: b.quest});
         let valid = false;
@@ -285,20 +344,30 @@ router.post("/task/:taskId/addCollab", async (req, res) => {
             }
         }
         if(!valid){
-            return res.json({error: "This mapset is part of a quest, so only members of the host's party can collaborate."})
+            return res.json({error: "This mapset is part of a quest, so you can only invite members of the host's party to collaborate."})
         }
+    }
+
+    let isBn = false;
+    b.bns.forEach(bn => {
+        if(bn.id == u.id){
+            isBn = true;
+        }
+    });
+    if(isBn){
+        return res.json({error: "Invite could not be sent because user is currently marked as a Nominator for this mapset."})
     }
 
     let t = await task.service.query({ _id: req.params.taskId, mappers: u._id });
     if (t.length != 0) {
-        return res.json({ error: 'You cannot add the same user twice!' });
+        return res.json({ error: 'Invite could not be sent because user is already a collaborator' });
     }
-    t = await task.service.update(req.params.taskId, { $push: { mappers: u._id } });
-    b = await bm.service.query({ tasks: t._id }, defaultPopulate);
+    t = await task.service.query({ _id: req.params.taskId });
 
     res.json(b);
 
-    logs.service.create(req.session.osuId, `added "${u.username}" as collab mapper to "${t.name}" on "${b.song.artist} - ${b.song.title}"`, b._id, 'beatmap' );
+    let sender = await user.service.query({osuId: req.session.osuId});
+    invites.service.create(u.id, sender.id, req.params.taskId, `wants to collaborate with you on the "${t.name}" difficulty of`, 'collab', b.id );
 });
 
 /* POST remove collab user from task. */
@@ -311,9 +380,6 @@ router.post("/task/:taskId/removeCollab", async (req, res) => {
     }
     if (!u) {
         return res.json({ error: 'Cannot find user!' });
-    }
-    if (req.session.username == u.username) {
-        return res.json({ error: 'Cannot remove yourself!' });
     }
     
     let t = await task.service.update(req.params.taskId, { $pull: { mappers: u._id } });

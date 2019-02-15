@@ -113,7 +113,7 @@
 
                     <div v-if="selectedParty.members.length > 1">
                         <div class="input-group input-group-sm mb-3 kick-member-input">
-                            <select class="custom-select select-arrow small" id="kick" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 100px 0 0 100px">
+                            <select class="custom-select select-arrow small" id="kick">
                                 <option selected value="none">Select a user...</option>
                                 <template v-for="member in selectedParty.members">
                                     <option :value="member.id" v-if="member.osuId !== userId">\{{member.username}}</option>
@@ -124,7 +124,7 @@
                             </div>
                         </div>
                         <div class="input-group input-group-sm mb-3 transfer-leader-input">
-                            <select class="custom-select select-arrow small" id="transfer" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 100px 0 0 100px">
+                            <select class="custom-select select-arrow small" id="transfer">
                                 <option selected value="none">Select a user...</option>
                                 <template v-for="member in selectedParty.members">
                                     <option :value="member.id" v-if="member.osuId !== userId">\{{member.username}}</option>

@@ -114,10 +114,10 @@
                                 </p>
                             </div>
                             <div id="newHost" v-if="isHost">
-                                <div class="input-group input-group-sm mb-3" id="setNewHost">
-                                    <input class="form-control form-control-sm" type="text" placeholder="username..." id="hostEntry" style="border-radius: 100px 0 0 100px;" v-model="selectedMap.host.username" maxlength="16" @keyup.enter="transferHost(selectedMap.id, $event)"></input>
+                                <div class="input-group input-group-sm mb-3">
+                                    <input class="form-control form-control-sm custom-input" type="text" placeholder="username..." id="hostEntry" style="border-radius: 100px 0 0 100px;" maxlength="16" @keyup.enter="transferHost(selectedMap.id, $event)"></input>
                                     <div class="input-group-append">
-                                        <button style="border-radius: 0 100px 100px 0" class="rounded-circle-left btn btn-mg" type="submit" @click="transferHost(selectedMap.id, $event)" data-toggle="tooltip" data-placement="right" title="let another user host this mapset"><span class="append-button-padding">Transfer Host</span></button>
+                                        <button style="border-radius: 0 100px 100px 0" class="rounded-circle-left btn btn-mg" type="submit" @click="transferHost(selectedMap.id, $event)" data-toggle="tooltip" data-placement="right" title="request another user to host this mapset"><span class="append-button-padding">Request to host</span></button>
                                     </div>
                                 </div>
                             </div>
@@ -132,7 +132,7 @@
                                     <tr v-for="task in selectedMap.tasks" :key="task.id" :id="task.id + 'Row'">
                                         <td scope="row" style="padding: 1px;">\{{task.name}}</td>
                                         <td scope="row" style="padding: 1px;"><template v-for="(mapper, i) in task.mappers"><a :href="'https://osu.ppy.sh/users/' + mapper.osuId" target="_blank">\{{ mapper.username + (i < task.mappers.length - 1 ? ', ' : '') }}</a></template>
-                                            <a href='#' v-if="(isOwner(task.mappers) || isHost)" :id="task.id + 'Collab'" :class="task.status == 'Done' || addCollabInput == task.id || selectedMap.status == 'Done' ? 'fake-button-disable' : ''" class='icon-valid' @click.prevent="setCollab(task)" data-toggle="tooltip" data-placement="top" title="add collaborator"><i class="fas fa-plus-square"></i></a>
+                                            <a href='#' v-if="(isOwner(task.mappers) || isHost)" :id="task.id + 'Collab'" :class="task.status == 'Done' || addCollabInput == task.id || selectedMap.status == 'Done' ? 'fake-button-disable' : ''" class='icon-valid' @click.prevent="setCollab(task)" data-toggle="tooltip" data-placement="top" title="invite new collaborator"><i class="fas fa-plus-square"></i></a>
                                             <a href='#' v-if="(isOwner(task.mappers) || isHost) && task.mappers.length > 1" class='icon-used' :class="task.status == 'Done' || removeCollabInput == task.id || selectedMap.status == 'Done' ? 'fake-button-disable' : ''" @click.prevent="unsetCollab(task)" data-toggle="tooltip" data-placement="top" title="remove collaborator"><i class="fas fa-minus-square"></i></a>
                                         </td>
                                         <td scope="row" :class="task.status.toLowerCase()" style="padding: 1px;">\{{task.status}}</td>
@@ -148,7 +148,7 @@
                             </table>
                             <div id="newDifficulty" v-if="selectedMap.status == 'WIP'" :class="selectedMap.tasksLocked.length == 6 ? 'fake-button-disable' : ''">
                                 <div class="input-group input-group-sm mb-3">
-                                    <select class="custom-select select-arrow small" id="diffSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 100px 0 0 100px">
+                                    <select class="custom-select select-arrow small" id="diffSelection">
                                         <option v-if="selectedMap.tasksLocked.indexOf('Easy') < 0 || isHost" value="Easy">Easy</option>
                                         <option v-if="selectedMap.tasksLocked.indexOf('Normal') < 0 || isHost" value="Normal">Normal</option>
                                         <option v-if="selectedMap.tasksLocked.indexOf('Hard') < 0 || isHost" value="Hard">Hard</option>
@@ -161,10 +161,18 @@
                                     </div>
                                 </div>
                             </div>
+                            <div id="requestDiff" v-if="isHost">
+                                <div class="input-group input-group-sm mb-3">
+                                    <input class="form-control form-control-sm custom-input" type="text" placeholder="username..." id="requestEntry" style="border-radius: 100px 0 0 100px;" maxlength="16" @keyup.enter="transferHost(selectedMap.id, $event)"></input>
+                                    <div class="input-group-append">
+                                        <button style="border-radius: 0 100px 100px 0" class="rounded-circle-left btn btn-mg" type="submit" @click="requestTask(selectedMap.id, $event)" data-toggle="tooltip" data-placement="right" title="request difficulty selected above from another user"><span class="append-button-padding">Request difficulty</span></button>
+                                    </div>
+                                </div>
+                            </div>
                             <div id="newCollaborator">
                                 <div v-if="addCollabInput" class="input-group input-group-sm mb-3">
                                     <div class="input-group-prepend">
-                                        <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg" @click="addCollab($event)">Add to \{{collabTask.name}}</button>
+                                        <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg" @click="addCollab($event)">Invite to \{{collabTask.name}}</button>
                                     </div>
                                     <input class="form-control form-control-sm" type="text" placeholder="collaborative mapper..." id="collabMapperToAdd" style="border-radius: 0 100px 100px 0"></input>
                                 </div>
@@ -238,7 +246,7 @@
                                 <div id="newLock" v-if="selectedMap.tasksLocked.length != 6 && isHost">
                                     <br v-if="selectedMap.tasksLocked.length > 0">
                                     <div class="input-group input-group-sm mb-3">
-                                        <select class="custom-select select-arrow small" id="lockDiffSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 100px 0 0 100px">
+                                        <select class="custom-select select-arrow small" id="lockDiffSelection">
                                             <option v-if="selectedMap.tasksLocked.indexOf('Easy') < 0" value="Easy">Easy</option>
                                             <option v-if="selectedMap.tasksLocked.indexOf('Normal') < 0" value="Normal">Normal</option>
                                             <option v-if="selectedMap.tasksLocked.indexOf('Hard') < 0" value="Hard">Hard</option>
@@ -288,7 +296,7 @@
                         </div>
                         <div class="col-lg-11">
                             <div class="input-group input-group-sm mb-3" style="width: 400px" id="artistForm">
-                                <select class="custom-select select-arrow small" id="artistSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 100px 0 0 100px">
+                                <select class="custom-select select-arrow small" id="artistSelection">
                                     <option v-for="featuredArtist in featuredArtists" :value="featuredArtist.id">\{{featuredArtist.label}}</option>
                                 </select>
                                 <div class="input-group-append">
@@ -302,7 +310,7 @@
                         </div>
                         <div class="col-lg-11">
                             <div class="input-group input-group-sm mb-3" style="width: 400px" id="songForm">
-                                <select class="custom-select select-arrow small" :disabled="!featuredSongs" id="songSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 100px 100px 100px 100px">
+                                <select class="custom-select select-arrow small" :disabled="!featuredSongs" id="songSelection">
                                     <option v-if="!featuredSongs">Select an artist to view songs</option>
                                     <option v-for="featuredSong in featuredSongs" :value="featuredSong.id">\{{featuredSong.title}} --- (\{{featuredSong.artist}})</option>
                                 </select>

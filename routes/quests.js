@@ -22,10 +22,15 @@ router.get('/', async (req, res, next) => {
 });
 
 router.get("/quests", async (req, res, next) => {
-    res.json(
-        {openQuests: await quests.service.query({status: "open"}, defaultPopulate, {}, true), 
-        wipQuests: await quests.service.query({status: "wip"}, defaultPopulate, {}, true)}, 
-    );
+    const [openQuests, wipQuests] = await Promise.all([
+        quests.service.query({status: "open"}, defaultPopulate, {}, true), 
+        quests.service.query({status: "wip"}, defaultPopulate, {}, true)
+    ]);
+    
+    res.json({
+        openQuests: openQuests, 
+        wipQuests: wipQuests,
+    });
 });
 
 /* GET quest for extended view. */

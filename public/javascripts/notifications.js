@@ -3,7 +3,7 @@ $(document).ready(function () {
     $("#load").attr("src", src);
 });
 
-const usersVue = new Vue({
+const notificationsVue = new Vue({
     el: '#app',
     methods: {
         executePost: async function (path, data, e) {
@@ -35,8 +35,33 @@ const usersVue = new Vue({
             const n = await this.executePost('/notifications/hideNotification/' + id, {}, e);
             if(n){
                 const i = this.notifications.findIndex(notif => notif.id === n.id);
-                console.log(i)
                 this.notifications.splice(i, 1);
+            }
+        },
+        //accept various invites
+        acceptInvite: async function(id, actionType, e){
+            let invite;
+            if(actionType == "collab"){
+                invite = await this.executePost('/notifications/acceptCollab/' + id, {}, e);
+            }else if(actionType == "task"){
+                invite = await this.executePost('/notifications/acceptDiff/' + id, {}, e);
+            }else if(actionType == "host"){
+                invite = await this.executePost('/notifications/acceptHost/' + id, {}, e);
+            }else if(actionType == "join"){
+                invite = await this.executePost('/notifications/acceptJoin/' + id, {}, e);
+            }
+
+            if(invite){
+                const i = this.invites.findIndex(inv => inv.id === invite.id);
+                this.invites.splice(i, 1);
+            }
+        },
+        //decline various invites
+        declineInvite: async function(id, actionType, e){
+            invite = await this.executePost('/notifications/declineInvite/' + id, {}, e);
+            if(invite){
+                const i = this.invites.findIndex(inv => inv.id === invite.id);
+                this.invites.splice(i, 1);
             }
         },
     },
@@ -44,6 +69,7 @@ const usersVue = new Vue({
         return {
             notifications: null,
             invites: null,
+            info: null
         }
     },
     mounted() {

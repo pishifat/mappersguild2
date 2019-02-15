@@ -232,8 +232,8 @@ const beatmapsVue = new Vue({
             const user = $('#hostEntry').val();
             const bm = await this.executePost('/beatmaps/transferHost/' + id, {user: user}, e);
             if(bm){
-                $('#editBeatmap').modal('hide');
                 this.updateMap(bm);
+                this.info = "Transfer host invite sent!"
             }
         },
 
@@ -275,12 +275,22 @@ const beatmapsVue = new Vue({
                 this.updateMap(bm);
             }
         },
+        requestTask: async function(id, e){
+            let difficulty = $("#diffSelection").val();
+            let recipient = $("#requestEntry").val();
+            const bm = await this.executePost('/beatmaps/requestTask/' + id, {difficulty: difficulty, recipient: recipient}, e);
+            if(bm){
+                this.updateMap(bm);
+                this.info = "Difficulty request sent!"
+            }
+        },
         addCollab: async function(e){
             const user = $('#collabMapperToAdd').val();
             const id = this.addCollabInput;
             const bm = await this.executePost('/beatmaps/task/' + id + '/addCollab', {user: user}, e);
             if(bm){
                 this.updateMap(bm);
+                this.info = "Collab invite sent!"
             }
         },
         removeCollab: async function(e){
