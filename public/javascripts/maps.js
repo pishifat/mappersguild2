@@ -118,6 +118,7 @@ const beatmapsVue = new Vue({
 		extendedInfo: function(beatmap) {
             this.selectedMap = beatmap;
             this.info = null;
+            this.inviteConfirm = null;
             this.isHost = (this.userOsuId == beatmap.host.osuId);
             this.addCollabInput = null;
             this.removeCollabInput = null;
@@ -146,7 +147,8 @@ const beatmapsVue = new Vue({
 				const res = await axios.post(path, data)
 				
 				if (res.data.error) {
-					this.info = res.data.error;
+                    this.info = res.data.error;
+                    this.inviteConfirm = null;
 				} else {
 					if (e) e.target.disabled = false;
 					return res.data;
@@ -237,7 +239,7 @@ const beatmapsVue = new Vue({
             const bm = await this.executePost('/beatmaps/transferHost/' + id, {user: user}, e);
             if(bm){
                 this.updateMap(bm);
-                this.info = "Transfer host invite sent!"
+                this.inviteConfirm = "Transfer host invite sent!"
             }
         },
 
@@ -285,7 +287,7 @@ const beatmapsVue = new Vue({
             const bm = await this.executePost('/beatmaps/requestTask/' + id, {difficulty: difficulty, recipient: recipient}, e);
             if(bm){
                 this.updateMap(bm);
-                this.info = "Difficulty request sent!"
+                this.inviteConfirm = "Difficulty request sent!"
             }
         },
         addCollab: async function(e){
@@ -294,7 +296,7 @@ const beatmapsVue = new Vue({
             const bm = await this.executePost('/beatmaps/task/' + id + '/addCollab', {user: user}, e);
             if(bm){
                 this.updateMap(bm);
-                this.info = "Collab invite sent!"
+                this.inviteConfirm = "Collab invite sent!"
             }
         },
         removeCollab: async function(e){
@@ -506,6 +508,7 @@ const beatmapsVue = new Vue({
             featuredArtists: null,
             featuredSongs: null,
             info: null,
+            inviteConfirm: null,
             addCollabInput: null,
             removeCollabInput: null,
             editLinkInput: null,

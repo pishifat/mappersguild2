@@ -20,7 +20,7 @@ router.get('/', async (req, res, next) => {
 /* GET users listing. */
 router.get('/users', async (req, res, next) => {
 	u = await users.service.query({ group: { $ne: 'hidden' }}, defaultPopulate, {}, true),
- 	res.json({users: u});
+ 	res.json({users: u, userId: req.session.osuId});
 });
 
 /* GET maps listing for extended info */
@@ -40,5 +40,12 @@ router.get("/:sort", async (req, res, next) => {
   res.json(await users.service.query({ group: { $ne: 'hidden' }}, defaultPopulate, sortBy, true));
 });
 
+/* POST switch user notifications */
+router.post('/switchInvites', async (req, res) => {
+	let u = await users.service.query({_id: req.session.mongoId});
+	await users.service.update(req.session.mongoId, {invites: !u.invites});
+	u = await users.service.query({_id: req.session.mongoId}, defaultPopulate);
+    res.json(u);
+});
 
 module.exports = router;

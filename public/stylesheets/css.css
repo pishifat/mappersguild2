@@ -354,6 +354,10 @@ input[type=text], input[type=text]:focus {
     color: var(--open);
 }
 
+.confirm {
+    color: var(--ranked);
+}
+
 .tooltip {
     font-family: 'Roboto', sans-serif;
 }
@@ -387,7 +391,7 @@ input[type=text], input[type=text]:focus {
 }
 
 .card {
-    transition: all .2s ease-in-out;
+    transition: all .12s ease-in-out;
     opacity: 0.9;
     box-shadow: 1px 1px 10px 0px #333;
     cursor: default;

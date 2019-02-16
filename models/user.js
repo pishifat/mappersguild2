@@ -17,6 +17,7 @@ var userSchema = new mongoose.Schema({
     hostPoints: { type: Number, default: 0 },
     completedQuests: [{type: 'ObjectId', ref: 'Quest'}],
     penaltyPoints: { type: Number, default: 0 },
+    invites: { type: Boolean, default: true },
     
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
@@ -37,7 +38,7 @@ class UserService
             query = User.findOne(params);
         }
         
-        
+
         if (populate) {
             for (let i = 0; i < populate.length; i++) {
                 const p = populate[i];

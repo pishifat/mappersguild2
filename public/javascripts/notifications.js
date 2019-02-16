@@ -11,8 +11,7 @@ const notificationsVue = new Vue({
 
             try {
                 const res = await axios.post(path, data)
-                console.log(res);
-
+                
                 if (res.data.error) {
                     this.info = res.data.error;
                 } else {
@@ -36,8 +35,14 @@ const notificationsVue = new Vue({
             this.notifications.splice(i, 1);
             await this.executePost('/notifications/hideNotification/' + id, {}, e);
         },
+        //mark all as read
+        hideAll: async function(e){
+            this.notifications = null;
+            await this.executePost('/notifications/hideAll/', {}, e);
+        },
         //accept various invites
         acceptInvite: async function(id, actionType, e){
+            this.info = null;
             let invite;
             if(actionType == "collab"){
                 invite = await this.executePost('/notifications/acceptCollab/' + id, {}, e);
@@ -58,7 +63,12 @@ const notificationsVue = new Vue({
         declineInvite: async function(id, e){
             const i = this.invites.findIndex(inv => inv.id === id);
             this.invites.splice(i, 1);
-            invite = await this.executePost('/notifications/declineInvite/' + id, {}, e);
+            await this.executePost('/notifications/declineInvite/' + id, {}, e);
+        },
+        //decline all invites
+        declineAll: async function(e){
+            this.invites = null;
+            await this.executePost('/notifications/declineAll/', {}, e);
         },
     },
     data() {
@@ -69,11 +79,14 @@ const notificationsVue = new Vue({
         }
     },
     mounted() {
+        
         axios
             .get('/notifications/relevantInfo')
             .then(response => {
                 this.notifications = response.data.notifications;
                 this.invites = response.data.invites;
+                navVue.notificationCount = response.data.notifications.length;
+                navVue.inviteCount = response.data.invites.length;
             }).then(function(){
                 $("#loading").fadeOut();
 				$("#app").attr("style", "visibility: visible").hide().fadeIn();
@@ -87,5 +100,25 @@ setInterval(() => {
         .then(response => {
             notificationsVue.notifications = response.data.notifications;
             notificationsVue.invites = response.data.invites;
+            navVue.notificationCount = response.data.notifications.length;
+            navVue.inviteCount = response.data.invites.length;
         });
 }, 30000);
+
+const navVue = new Vue({
+    el: '#navVue',
+    data() {
+        return {
+            notificationCount: null,
+            inviteCount: null,
+        }
+    },
+    mounted() {
+        axios
+            .get('/notifications/relevantInfo')
+            .then(response => {
+                this.notificationCount = response.data.notifications.length;
+                this.inviteCount = response.data.invites.length;
+            });
+    }
+});

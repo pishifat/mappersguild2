@@ -85,6 +85,11 @@ router.post('/acceptQuest/:id', async (req, res) => {
     res.json(q);
 
     logs.service.create(req.session.osuId, `party "${p.name}" accepted quest "${q.name}"`, q._id, 'quest' );
+    p.members.forEach(member => {
+        if(member != req.session.mongoId){
+            notifications.service.create(q.id, `accepted the quest "${q.name}" for your party`, member, req.session.mongoId);
+        }
+    });
 });
 
 /* POST drops party's quest. */
@@ -115,6 +120,11 @@ router.post('/dropQuest/:id', async (req, res) => {
     }
 
     logs.service.create(req.session.osuId, `party "${p.name}" dropped quest "${q.name}"`, q._id, 'quest' );
+    p.members.forEach(member => {
+        if(member != req.session.mongoId){
+            notifications.service.create(q.id, `dropped the quest "${q.name}" for your party`, member, req.session.mongoId);
+        }
+    });
 });
 
 module.exports = router;

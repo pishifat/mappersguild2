@@ -74,8 +74,8 @@ router.get('/', async (req, res, next) => {
 /* GET notifications/invites listing. */
 router.get('/relevantInfo', async (req, res, next) => {
     const [notif, inv] = await Promise.all([
-        notifications.service.query({ visible: { $ne: false }, recipient: req.session.mongoId}, defaultNotificationPopulate, {}, true),
-        invites.service.query({ visible: { $ne: false }, recipient: req.session.mongoId}, defaultInvitePopulate, {}, true)
+        notifications.service.query({ visible: true, recipient: req.session.mongoId}, defaultNotificationPopulate, {}, true),
+        invites.service.query({ visible: true, recipient: req.session.mongoId}, defaultInvitePopulate, {}, true)
     ]);
     res.json({notifications: notif, invites: inv});
   });
@@ -88,12 +88,30 @@ router.post('/hideNotification/:id', async (req, res) => {
 });
 
 /* POST hide notification */
+router.post('/hideAll/', async (req, res) => {
+    let notifs = await notifications.service.query({recipient: req.session.mongoId, visible: true}, {}, {}, true);
+    notifs.forEach(n => {
+        notifications.service.update(n._id, {visible: false});
+    })
+    res.json({});
+});
+
+/* POST hide notification */
 router.post('/declineInvite/:id', async (req, res) => {
     let inv = await invites.service.update(req.params.id, {visible: false});
     inv = await invites.service.query({_id: req.params.id}, defaultNotificationPopulate)
     res.json(inv);
 
-    notifications.service.create(inv.id, `rejected your invitation related to the mapset`, inv.sender, inv.recipient, inv.map.id);
+    notifications.service.create(inv.id, `rejected your recent invitation related to the mapset`, inv.sender, inv.recipient, inv.map);
+});
+
+/* POST hide notification */
+router.post('/declineAll/', async (req, res) => {
+    let invs = await invites.service.query({recipient: req.session.mongoId, visible: true}, {}, {}, true);
+    invs.forEach(inv => {
+        invites.service.update(inv._id, {visible: false});
+    });
+    res.json({});
 });
 
 
@@ -103,7 +121,7 @@ router.post('/acceptCollab/:id', async (req, res) => {
     let b = await beatmaps.service.query({ tasks: invite.modified._id }, defaultMapPopulate);
     let valid = await addTaskChecks(req.session.mongoId, b, invite);
     if(valid.error){
-        return res.json(valid.error);
+        return res.json(valid);
     }
     await invites.service.update(req.params.id, {visible: false});
     invite = await invites.service.query({_id: req.params.id}, defaultInvitePopulate)
@@ -118,7 +136,7 @@ router.post('/acceptCollab/:id', async (req, res) => {
 /* POST accept transfer host */
 router.post('/acceptHost/:id', async (req, res) => {
     let invite = await invites.service.query({_id: req.params.id}, defaultInvitePopulate);
-    let b = await beatmaps.service.query({_id: invite.map._id});
+    let b = await beatmaps.service.query({_id: invite.map._id}, defaultMapPopulate);
     if(!b){
         return res.json({ error: 'That map no longer exists!' });
     }
@@ -145,7 +163,7 @@ router.post('/acceptHost/:id', async (req, res) => {
     await beatmaps.service.update(b._id, {host: req.session.mongoId})
 
     logs.service.create(req.session.osuId, `became host of "${b.song.artist} - ${b.song.title}"`, b._id, 'beatmap' );
-    notifications.service.create(b.id, `accepted your invite to become the host of your mapset`, invite.sender, invite.recipient, b.id);
+    notifications.service.create(b.id, `accepted the invite to host your mapset`, invite.sender, invite.recipient, b.id);
 });
 
 /* POST accept difficulty */
@@ -154,7 +172,7 @@ router.post('/acceptDiff/:id', async (req, res) => {
     let b = await beatmaps.service.query({_id: invite.map._id}, defaultMapPopulate);
     let valid = await addTaskChecks(req.session.mongoId, b, invite);
     if(valid.error){
-        return res.json(valid.error);
+        return res.json(valid);
     }
     await invites.service.update(req.params.id, {visible: false});
     invite = await invites.service.query({_id: req.params.id}, defaultInvitePopulate);
@@ -165,7 +183,7 @@ router.post('/acceptDiff/:id', async (req, res) => {
     b = await beatmaps.service.query({_id: invite.map.id}, defaultMapPopulate);
 
     logs.service.create(req.session.osuId, `added "${invite.taskName}" difficulty to "${b.song.artist} - ${b.song.title}"`, b._id, 'beatmap' );
-    notifications.service.create(b.id, `accepted your invite to create a difficulty`, invite.sender, invite.recipient, b.id);
+    notifications.service.create(b.id, `accepted the invite to create a difficulty on your mapset`, invite.sender, invite.recipient, b.id);
 });
 
 module.exports = router;

@@ -33,6 +33,11 @@ const usersVue = new Vue({
 
             if (e) e.target.disabled = false;
         },
+        updateUser: function(u) {
+			const i = this.beatmaps.findIndex(user => user.id == u.id);
+			this.users[i] = u;
+            this.selectedUser = u;
+        },
         sort: function (field, keepOrder) {
             this.sortBy = field;
 			if (!keepOrder) {
@@ -81,6 +86,13 @@ const usersVue = new Vue({
                 });
             });
             return tasks.slice(0, -2);
+        },
+        //real functions
+        switchInvites: async function(e){
+            const u = await this.executePost('/users/switchInvites/', {}, e);
+            if(u){
+                this.updateUser(u);
+            }
         }
     },
     computed: {
@@ -98,6 +110,7 @@ const usersVue = new Vue({
     data() {
         return {
             users: null,
+            userId: null,
             beatmaps: null,
             selectedUser: null,
 			sortBy: null,
@@ -110,6 +123,7 @@ const usersVue = new Vue({
             .get('/users/users')
             .then(response => {
                 this.users = response.data.users;
+                this.userId = response.data.userId;
             }).then(function(){
                 $("#loading").fadeOut();
                 $("#app").attr("style", "visibility: visible").hide().fadeIn();
@@ -129,6 +143,7 @@ setInterval(() => {
         .get('/users/users')
         .then(response => {
             usersVue.users = response.data.users;
+            usersVue.userId = response.data.userId;
             usersVue.sort(usersVue.sortBy, true);
         }).then(function(){
             axios

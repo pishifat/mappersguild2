@@ -31,6 +31,11 @@ async function questPenalty(u, p){
         questMaps.forEach(map => {
             beatmaps.service.update(map._id, {quest: undefined}); 
         });
+        p.members.forEach(member => {
+            if(member != req.session.mongoId){
+                notifications.service.create(p.id, `leaving your party forced you to drop the quest "${q.name}"`, member, req.session.mongoId);
+            }
+        });
     }else{
         let penalty = (u.penaltyPoints + q.reward);
         users.service.update(u._id, {penaltyPoints: penalty});
@@ -87,11 +92,11 @@ router.post('/create', async (req, res) => {
         return res.json({ error: 'Party name is already in use!' });
     }
     if(/[^a-zA-Z0-9\!\@\#\$\%\^\*\_\ \|]+/.test(req.body.name)){
-        return res.json({error: "Invalid characters!"})
+        return res.json({ error: "Invalid characters!" })
     }
     let isMember = await parties.service.query({ 'members': req.session.mongoId });
     if(isMember){
-        return res.json({ error: 'Leave your current party before creating a new one!'});
+        return res.json({ error: 'Leave your current party before creating a new one!' });
     }
     const p = await parties.service.create(req.body.name, req.session.mongoId);
     if(p){
@@ -119,6 +124,12 @@ router.post('/join', async (req, res) => {
     }
 
     logs.service.create(req.session.osuId, `joined party "${p.name}"`, p._id, 'party' );
+    p.members.forEach(member => {
+        if(member.id != req.session.mongoId){
+            notifications.service.create(p.id, `joined your party`, member.id, req.session.mongoId);
+        }
+    });
+    
 });
 
 /* POST leave party. */
@@ -141,6 +152,9 @@ router.post('/leave', async (req, res) => {
     res.json(await parties.service.query({ _id: p._id }, defaultPopulate));
     
     logs.service.create(req.session.osuId, `left party "${p.name}"`, p._id, 'party' );
+    p.members.forEach(member => {
+        notifications.service.create(p.id, `left your party`, member.id, req.session.mongoId);
+    });
 });
 
 /* POST delete party. */
@@ -186,6 +200,11 @@ router.post('/kick', async (req, res) => {
     res.json(await parties.service.query({ _id: p._id }, defaultPopulate));
     
     logs.service.create(req.session.osuId, `kicked "${u.username}" from party "${p.name}"`, p._id, 'party' );
+    p.members.forEach(member => {
+        if(member.id != req.session.mongoId){
+            notifications.service.create(p.id, `was kicked from your party`, member.id, req.session.mongoId);
+        }
+    });
 });
 
 /* POST transfer party leadership. */
@@ -200,7 +219,13 @@ router.post('/transferLeader', async (req, res) => {
     if (p && u) {
         await parties.service.update(p._id, {leader: u._id});
         res.json(await parties.service.query({ _id: p._id }, defaultPopulate));
+
         logs.service.create(req.session.osuId, `transferred party leader to "${u.username}" in party "${p.name}"`, p._id, 'party' );
+        p.members.forEach(member => {
+            if(member.id != req.session.mongoId){
+                notifications.service.create(p.id, `was promoted to your party's leader`, member.id, req.session.mongoId);
+            }
+        });
     }
 });
 

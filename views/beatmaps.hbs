@@ -163,7 +163,7 @@
                             </div>
                             <div id="requestDiff" v-if="isHost">
                                 <div class="input-group input-group-sm mb-3">
-                                    <input class="form-control form-control-sm custom-input" type="text" placeholder="username..." id="requestEntry" style="border-radius: 100px 0 0 100px;" maxlength="16" @keyup.enter="transferHost(selectedMap.id, $event)"></input>
+                                    <input class="form-control form-control-sm custom-input" type="text" placeholder="username..." id="requestEntry" style="border-radius: 100px 0 0 100px;" maxlength="16" @keyup.enter="requestTask(selectedMap.id, $event)"></input>
                                     <div class="input-group-append">
                                         <button style="border-radius: 0 100px 100px 0" class="rounded-circle-left btn btn-mg" type="submit" @click="requestTask(selectedMap.id, $event)" data-toggle="tooltip" data-placement="right" title="request another mapper to create the selected difficulty"><span class="append-button-padding">Request difficulty</span></button>
                                     </div>
@@ -171,15 +171,15 @@
                             </div>
                             <div id="newCollaborator">
                                 <div v-if="addCollabInput" class="input-group input-group-sm mb-3">
-                                    <input class="form-control form-control-sm" type="text" placeholder="collaborative mapper..." id="collabMapperToAdd" style="border-radius: 100px 0 0 100px"></input>
+                                    <input class="form-control form-control-sm" type="text" placeholder="collaborative mapper..." id="collabMapperToAdd" style="border-radius: 100px 0 0 100px" @keyup.enter="addCollab($event)"></input>
                                     <div class="input-group-append">
-                                        <button style="border-radius: 0 100px 100px 0;" class="rounded-circle-left btn btn-mg" @click="addCollab($event)">Invite to \{{collabTask.name}}</button>
+                                        <button style="border-radius: 0 100px 100px 0;" class="rounded-circle-left btn btn-mg" @click="addCollab($event)"><span class="append-button-padding">Invite to \{{collabTask.name}}</span></button>
                                     </div>
                                 </div>
                                 <div v-if="removeCollabInput" class="input-group input-group-sm mb-3">
-                                    <input class="form-control form-control-sm" type="text" placeholder="collaborative mapper..." id="collabMapperToRemove" style="border-radius: 100px 0 0 100px"></input>
+                                    <input class="form-control form-control-sm" type="text" placeholder="collaborative mapper..." id="collabMapperToRemove" style="border-radius: 100px 0 0 100px" @keyup.enter="removeCollab($event)"></input>
                                     <div class="input-group-append">
-                                        <button style="border-radius: 0 100px 100px 0;" class="rounded-circle-left btn btn-mg-used" @click="removeCollab($event)">Remove from \{{collabTask.name}}</button>
+                                        <button style="border-radius: 0 100px 100px 0;" class="rounded-circle-left btn btn-mg-used" @click="removeCollab($event)"><span class="append-button-padding">Remove from \{{collabTask.name}}</span></button>
                                     </div>
                                 </div>
                             </div>
@@ -270,7 +270,7 @@
                                 <button v-if="isHost" id="deleteButton" class="btn btn-sm btn-mg-used float-right" @click="deleteMap($event)">Delete</button>
                             </p>
                         </div>
-                        <p class="errors text-shadow" id="errors">\{{ info }}</p>
+                        <p id="errors" class="text-shadow" :class="inviteConfirm ? 'confirm' : 'errors'">\{{info}} \{{inviteConfirm}}</p>
                     </div>
                 </div>
             </div>
