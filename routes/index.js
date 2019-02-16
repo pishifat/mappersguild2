@@ -10,7 +10,7 @@ const router = express.Router();
 /* GET landing page. */
 router.get('/', async (req, res, next) => {
     if (req.session.osuId) {
-        const u = await users.service.query({ osuId: req.session.osuId });
+        const u = await users.service.query({ _id: req.session.mongoId });
 
         if (u && !u.error && u.group != 'hidden') {
             return next();
