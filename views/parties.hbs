@@ -43,7 +43,7 @@
                             <span v-if="userPartyId == party.id">
                                 <button v-if="userId == party.leader.osuId && party.members.length == 1" class='btn btn-mg-used btn-sm justify-content-center float-right dynamic-membership' @click.stop="deleteParty($event)">Disband party</button>
                                 <button v-else-if="userId == party.leader.osuId && party.members.length > 1" class='btn btn-mg-used btn-sm justify-content-center float-right dynamic-membership' @click.stop="leaveParty(party.id)" disabled>Leave party</button>
-                                <button v-else class='btn btn-mg-used btn-sm justify-content-center float-right dynamic-membership' @click.stop="leaveParty(party.id)">Leave party</button>
+                                <button v-else class='btn btn-mg-used btn-sm justify-content-center float-right dynamic-membership' @click.stop="leaveParty(party.id, $event)">Leave party</button>
                             </span>
                             <span v-else-if="!userPartyId && !party.lock && !party.currentQuest && party.members.length < 12">
                                 <button class='btn btn-mg btn-sm justify-content-center float-right join' @click.stop="joinParty(party.id)">Join party</button>
@@ -164,7 +164,7 @@
                     <button class='btn btn-mg-used btn-sm justify-content-center float-right' @click="leaveParty(selectedParty.id)" disabled>Leave party</button>
                 </div>
                 <div v-if="userPartyId == selectedParty.id && selectedParty.members.length > 1 && userId != selectedParty.leader.osuId">
-                    <button class='btn btn-mg-used btn-sm justify-content-center float-right' @click="leaveParty(selectedParty.id)">Leave party</button>
+                    <button class='btn btn-mg-used btn-sm justify-content-center float-right' @click="leaveParty(selectedParty.id, $event)">Leave party</button>
                 </div>
                 <div v-if="userPartyId === selectedParty.id && selectedParty.members.length == 1">
                     <button class='btn btn-mg-used btn-sm justify-content-center float-right' @click="deleteParty($event)">Disband party</button>

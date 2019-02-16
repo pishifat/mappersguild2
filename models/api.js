@@ -116,12 +116,13 @@ async function isLoggedIn(req, res, next) {
     if (config.osuId) {
         req.session.username = config.username;
         req.session.osuId = config.osuId;
+        req.session.mongoId = config.mongoId;
         req.session.accessToken = config.accessToken;
         req.session.refreshToken = config.refreshToken;
     }
     
-    if (req.session.osuId) {
-        const u = await users.service.query({ osuId: req.session.osuId });
+    if (req.session.mongoId) {
+        const u = await users.service.query({ _id: req.session.mongoId });
         
         // If hidden, shouldn't be able to do anything
         if (!u || u.group == 'hidden') {

@@ -160,18 +160,14 @@ const questsVue = new Vue({
     },
     mounted() {
         axios
-            .get('/quests/currentQuest')
+            .get('/quests/relevantInfo')
             .then(response => {
+                this.openQuests = response.data.openQuests;
+                this.wipQuests = response.data.wipQuests;
                 this.partyQuest = response.data.quest;
                 this.partyRank = response.data.rank;
                 this.partySize = response.data.members.length;
                 this.partyName = response.data.name;
-            });
-        axios
-            .get('/quests/quests')
-            .then(response => {
-                this.openQuests = response.data.openQuests;
-                this.wipQuests = response.data.wipQuests;
             }).then(function(){
                 $("#loading").fadeOut();
 				$("#app").attr("style", "visibility: visible").hide().fadeIn();
@@ -181,7 +177,7 @@ const questsVue = new Vue({
 
 setInterval(() => {
     axios
-        .get('/quests/quests')
+        .get('/quests/relevantInfo')
         .then(response => {
             questsVue.openQuests = response.data.openQuests;
             questsVue.wipQuests = response.data.wipQuests;

@@ -48,11 +48,11 @@ const partiesVue = new Vue({
 			$('.card-body').attr("data-toggle", "modal");
 			$('.join').prop("disabled", false);
 		},
-		leaveParty: async function (id) {
+		leaveParty: async function (id, e) {
 			const result = confirm("Are you sure you want to leave the party?")
 			if (result) {
 				$('.card-body').removeAttr("data-toggle");
-				const party = await this.executePost('/parties/leave', { partyId: id });
+				const party = await this.executePost('/parties/leave', { partyId: id }, e);
 				if (party) {
 					this.userPartyId = null;
 					this.updateParty(party);
@@ -199,13 +199,11 @@ const partiesVue = new Vue({
 	},
 	mounted() {
 		axios
-			.get('/parties/parties')
-			.then(response => (this.parties = response.data));
-		axios
-			.get('/parties/currentParty')
+			.get('/parties/relevantInfo')
 			.then(response => {
-				this.userPartyId = response.data.party;
+				this.parties = response.data.parties;
 				this.userId = response.data.user;
+				this.userPartyId = response.data.party;
 			}).then(function(){
 				$("#loading").fadeOut();
 				$("#app").attr("style", "visibility: visible").hide().fadeIn();
@@ -216,9 +214,11 @@ const partiesVue = new Vue({
 
 setInterval(() => {
 	axios
-		.get('/parties/parties')
+		.get('/parties/relevantInfo')
 		.then(response => {
-			partiesVue.parties = response.data;
+			partiesVue.parties = response.data.parties;
+			partiesVue.userId = response.data.user;
+			partiesVue.userPartyId = response.data.party;
 			partiesVue.sort(partiesVue.sortBy, true);
 		});
 }, 30000);

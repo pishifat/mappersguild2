@@ -1,9 +1,5 @@
 var express = require('express');
 var quests = require('../models/quest.js');
-var logs = require('../models/log.js');
-var parties = require('../models/party.js');
-var beatmaps = require('../models/beatmap.js');
-var users = require('../models/user.js');
 var api = require('../models/api.js');
 
 var router = express.Router();

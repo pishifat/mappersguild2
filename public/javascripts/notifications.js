@@ -32,11 +32,9 @@ const notificationsVue = new Vue({
 
         //mark as read
         hideNotification: async function(id, e){
-            const n = await this.executePost('/notifications/hideNotification/' + id, {}, e);
-            if(n){
-                const i = this.notifications.findIndex(notif => notif.id === n.id);
-                this.notifications.splice(i, 1);
-            }
+            const i = this.notifications.findIndex(notif => notif.id === id);
+            this.notifications.splice(i, 1);
+            await this.executePost('/notifications/hideNotification/' + id, {}, e);
         },
         //accept various invites
         acceptInvite: async function(id, actionType, e){
@@ -57,12 +55,10 @@ const notificationsVue = new Vue({
             }
         },
         //decline various invites
-        declineInvite: async function(id, actionType, e){
+        declineInvite: async function(id, e){
+            const i = this.invites.findIndex(inv => inv.id === id);
+            this.invites.splice(i, 1);
             invite = await this.executePost('/notifications/declineInvite/' + id, {}, e);
-            if(invite){
-                const i = this.invites.findIndex(inv => inv.id === invite.id);
-                this.invites.splice(i, 1);
-            }
         },
     },
     data() {
@@ -89,7 +85,7 @@ setInterval(() => {
     axios
         .get('/notifications/relevantInfo')
         .then(response => {
-            usersVue.notifications = response.data.notifications;
-            usersVue.invites = response.data.invites;
+            notificationsVue.notifications = response.data.notifications;
+            notificationsVue.invites = response.data.invites;
         });
 }, 30000);

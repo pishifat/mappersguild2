@@ -1,6 +1,6 @@
 <div id="app">
 
-<p>\{{info}}</p>
+<p class="errors">\{{info}}</p>
 <div class="row">
     <div class="col-md-6">
         <h2>Notifications</h2>
@@ -39,7 +39,7 @@
                     </div>
                     <div class="card-footer notification-card-spacing mx-2">
                         <span class='card-text text-shadow small'>\{{invite.createdAt.slice(0,10)}}</span>
-                        <button class="btn btn-mg-used notification-button float-right mx-1" @click.prevent="declineInvite(invite.id, invite.actionType, $event)">Decline</button>
+                        <button class="btn btn-mg-used notification-button float-right mx-1" @click.prevent="declineInvite(invite.id, $event)">Decline</button>
                         <button class="btn btn-mg notification-button float-right mx-1" @click.prevent="acceptInvite(invite.id, invite.actionType, $event)">Accept</button>
                     </div>
                 </div>

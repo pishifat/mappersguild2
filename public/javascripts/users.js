@@ -107,23 +107,35 @@ const usersVue = new Vue({
     },
     mounted() {
         axios
-            .get('/users/relevantInfo')
+            .get('/users/users')
             .then(response => {
                 this.users = response.data.users;
-                this.beatmaps = response.data.beatmaps;
             }).then(function(){
                 $("#loading").fadeOut();
-				$("#app").attr("style", "visibility: visible").hide().fadeIn();
+                $("#app").attr("style", "visibility: visible").hide().fadeIn();
+                axios
+                    .get('/users/beatmaps')
+                    .then(response2 => {
+                        usersVue.beatmaps = response2.data.beatmaps;
+                        $('.card').attr("data-toggle", "modal");
+                    });
 			});
+        
     }
 });
 
 setInterval(() => {
     axios
-        .get('/users/relevantInfo')
+        .get('/users/users')
         .then(response => {
             usersVue.users = response.data.users;
-            usersVue.beatmaps = response.data.beatmaps;
-			usersVue.sort(usersVue.sortBy, true);
+            usersVue.sort(usersVue.sortBy, true);
+        }).then(function(){
+            axios
+                .get('/users/beatmaps')
+                .then(response2 => {
+                    usersVue.beatmaps = response2.data.beatmaps;
+                });
         });
+        
 }, 30000);

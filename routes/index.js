@@ -25,7 +25,7 @@ router.get('/', async (req, res, next) => {
 router.get('/login', async (req, res, next) => {
     if (req.session.osuId && req.session.username) {
         const u = await users.service.query({ osuId: req.session.osuId });
-
+        req.session.mongoId = u.id;
         if (!u) {
             const user = await users.service.create(req.session.osuId, req.session.username);
 

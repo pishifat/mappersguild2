@@ -21,29 +21,37 @@ router.get('/', async (req, res, next) => {
     res.render('quests', { title: 'Quests', script: '../javascripts/quests.js', isQuests: true, loggedInAs: req.session.username });
 });
 
-router.get("/quests", async (req, res, next) => {
-    const [openQuests, wipQuests] = await Promise.all([
+router.get("/relevantInfo", async (req, res, next) => {
+    const [openQuests, wipQuests, p] = await Promise.all([
         quests.service.query({status: "open"}, defaultPopulate, {}, true), 
-        quests.service.query({status: "wip"}, defaultPopulate, {}, true)
+        quests.service.query({status: "wip"}, defaultPopulate, {}, true),
+        parties.service.query({leader: req.session.mongoId})
     ]);
+    if(p){
+        res.json({
+            openQuests: openQuests, 
+            wipQuests: wipQuests,
+            quest: p.currentQuest,
+            rank: p.rank,
+            members: p.members, 
+            name: p.name
+        });
+    }else{
+        res.json({
+            openQuests: openQuests, 
+            wipQuests: wipQuests,
+            rank: 0,
+            members: []
+        });
+    }
     
-    res.json({
-        openQuests: openQuests, 
-        wipQuests: wipQuests,
-    });
 });
-
-/* GET quest for extended view. */
-router.get("/quest/:id", async (req, res, next) => {
-    res.json(await quests.service.query({_id: req.params.id}, defaultPopulate));
-  });
 
 /* GET current user's quest or null. */
 router.get('/currentQuest', async (req, res) => {
-    let user = await users.service.query({osuId: req.session.osuId});
-    let securedUserParty = await parties.service.query({leader: user._id});
-    if (securedUserParty) {
-        res.json({ quest: securedUserParty.currentQuest, rank: securedUserParty.rank, members: securedUserParty.members, name: securedUserParty.name});
+    let p = await parties.service.query({leader: req.session.mongoId});
+    if (p) {
+        res.json({ quest: p.currentQuest, rank: p.rank, members: p.members, name: p.name});
     } else{
         res.json({ quest: "undefined", rank: 0 , members: []})
     }
@@ -51,67 +59,62 @@ router.get('/currentQuest', async (req, res) => {
 
 /* POST accepts quest. */
 router.post('/acceptQuest/:id', async (req, res) => {
-    let user = await users.service.query({osuId: req.session.osuId});
-    let party = await parties.service.query({leader: user._id});
-    if (party) {
-        let quest = await quests.service.query({_id: req.params.id});
-        if(quest.assignedParty){
-            return res.json({error: "Can't accept already assigned quest"});
-        }
-        if(party.members.length >= quest.minParty 
-        && party.members.length <= quest.maxParty 
-        && party.currentQuest == undefined
-        && party.rank >= quest.minRank){
-            await parties.service.update(party._id, {currentQuest: quest._id});
-            await quests.service.update(quest._id, {accepted: new Date().getTime()});
-            await quests.service.update(quest._id, {deadline: new Date().getTime() + quest.timeframe});
-            await quests.service.update(quest._id, {status: "wip"});
-            
-            res.json(await quests.service.query({_id: quest._id}, defaultPopulate));
-
-            logs.service.create(req.session.osuId, `party "${party.name}" accepted quest "${quest.name}"`, quest._id, 'quest' );
-        }else{
-            return res.json({error: "Something went wrong!"})
-        }
-    }else{
-        return res.json({error: "Something went wrong!"})
+    let p = await parties.service.query({leader: req.session.mongoId});
+    if (!p) {
+        return res.json({error: "Something went wrong!"});
     }
+    let q = await quests.service.query({_id: req.params.id});
+    if(q.assignedParty){
+        return res.json({error: "Can't accept already assigned quest"});
+    }
+    let valid = (p.members.length >= q.minParty 
+        && p.members.length <= q.maxParty 
+        && p.currentQuest == undefined
+        && p.rank >= q.minRank);
+    if(!valid){
+        return res.json({error: "Something went wrong!"});
+    }
+    await Promise.all([
+        parties.service.update(p._id, {currentQuest: q._id}),
+        quests.service.update(q._id, {accepted: new Date().getTime()}),
+        quests.service.update(q._id, {status: "wip"}),
+    ]);
+    await quests.service.update(q._id, {deadline: new Date().getTime() + q.timeframe});
+    
+    q = await quests.service.query({_id: q._id}, defaultPopulate)
+    res.json(q);
+
+    logs.service.create(req.session.osuId, `party "${p.name}" accepted quest "${q.name}"`, q._id, 'quest' );
 });
 
 /* POST drops party's quest. */
 router.post('/dropQuest/:id', async (req, res) => {
-    let user = await users.service.query({osuId: req.session.osuId});
-    let party = await parties.service.query({leader: user._id});
-    if (party) {
-        let quest = await quests.service.query({_id: req.params.id}, defaultPopulate);
-        if(!quest.assignedParty){
-            return res.json({error: "Can't drop unassigned quest"});
-        }
-        if(quest.exclusive){
-            await quests.service.update(req.params.id, {status: "hidden"});
-        }else{
-            await quests.service.update(req.params.id, {status: "open"});
-        }
-        await parties.service.update(party._id, {currentQuest: undefined});
-
-        const populate = [{ populate: 'assignedParty',  display: 'name' },];
-        res.json(await quests.service.query({_id: req.params.id}, populate));
-
-        for (let i = 0; i < party.members.length; i++) {
-            let member = await users.service.query({_id: party.members[i]});
-            await users.service.update(party.members[i]._id, {penaltyPoints: (member.penaltyPoints + quest.reward)});
-        }
-
-        let maps = await beatmaps.service.query({}, {}, {}, true);
-        for (let i = 0; i < maps.length; i++) {
-            if(maps[i].quest && maps[i].quest.toString() == quest._id.toString()){
-                beatmaps.service.update(maps[i]._id, {quest: undefined});
-            }
-        }
-
-        logs.service.create(req.session.osuId, `party "${party.name}" dropped quest "${quest.name}"`, quest._id, 'quest' );
-        
+    let p = await parties.service.query({leader: req.session.mongoId});
+    let q = await quests.service.query({_id: req.params.id}, defaultPopulate);
+    if(!p || !q.assignedParty){
+        return res.json({error: "Something went wrong!"});
     }
+    if(q.exclusive){
+        await quests.service.update(req.params.id, {status: "hidden"});
+    }else{
+        await quests.service.update(req.params.id, {status: "open"});
+    }
+    await parties.service.update(p._id, {currentQuest: undefined});
+    q = await quests.service.query({_id: req.params.id}, defaultPopulate)
+    res.json(q);
+    
+    for (let i = 0; i < p.members.length; i++) {
+        let u = await users.service.query({_id: p.members[i]});
+        users.service.update(p.members[i]._id, {penaltyPoints: (u.penaltyPoints + q.reward)});
+    }
+    let maps = await beatmaps.service.query({}, {}, {}, true);
+    for (let i = 0; i < maps.length; i++) {
+        if(maps[i].quest && maps[i].quest == q.id){
+            beatmaps.service.update(maps[i]._id, {quest: undefined});
+        }
+    }
+
+    logs.service.create(req.session.osuId, `party "${p.name}" dropped quest "${q.name}"`, q._id, 'quest' );
 });
 
 module.exports = router;

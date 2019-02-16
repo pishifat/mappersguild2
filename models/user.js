@@ -36,7 +36,7 @@ class UserService
         }else{
             query = User.findOne(params);
         }
-         
+        
         
         if (populate) {
             for (let i = 0; i < populate.length; i++) {

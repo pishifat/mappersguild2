@@ -1,9 +1,9 @@
 const express = require('express');
-const bm = require('../models/beatmap.js');
-const task = require('../models/task.js');
-const user = require('../models/user.js');
-const quest = require('../models/quest.js');
-const party = require('../models/party.js');
+const beatmaps = require('../models/beatmap.js');
+const tasks = require('../models/task.js');
+const users = require('../models/user.js');
+const quests = require('../models/quest.js');
+const parties = require('../models/party.js');
 const notifications = require('../models/notification.js');
 const invites = require('../models/invite.js');
 const logs = require('../models/log.js');
@@ -14,16 +14,49 @@ const router = express.Router();
 
 router.use(api.isLoggedIn);
 
-async function isBeatmapHost(req, res, next) {
-    const response = await bm.service.query({ _id: req.params.mapId}, [{ populate: 'host',  display: 'osuId' }]);
-    
-    if (response && req.session.osuId == response.host.osuId) {
-        next();
-    } else {
-        res.status(403).render('error', { message: 'unauthorized' });
+//used in addtask, requesttask, addcollab
+async function addTaskChecks(userId, b, newDiff, isHost){ 
+    if(b.tasks.length > 20 && newDiff){
+        return { error: "This mapset has too many difficulties!" };
     }
+    if(newDiff == "Storyboard"){
+        let sb = false;
+        b.tasks.forEach(task => {
+            if(task.name == "Storyboard"){
+                sb = true;
+            }
+        })
+        if(sb){
+            return { error: "There can only be one storyboard on a mapset!" };
+        }
+    }
+    if(b.quest){
+        let p = await parties.service.query({currentQuest: b.quest, members: userId});
+        if(!p){
+            return { error: "This mapset is part of a quest, so only members of the host's party can add difficulties!" };
+        }
+    }
+    const isAlreadyBn = await beatmaps.service.query({ _id: b._id, bns: userId });
+    if(isAlreadyBn){
+        return { error: "Cannot create a difficulty while in BN list!" };
+    }
+    if(b.tasksLocked && !isHost && newDiff){
+        let locked = false;
+        b.tasksLocked.forEach(task => {
+            if(newDiff == task){
+               locked = true;
+            }
+        });
+        if(locked){
+            return { error: "This task is locked by the mapset host!" };
+        }
+    }
+    return true;
 }
 
+let inviteError = "Invite not sent: ";
+
+//query populations
 const defaultPopulate = [
     { populate: 'host',  display: '_id osuId username' },
     { populate: 'bns',  display: '_id osuId username' },
@@ -32,84 +65,58 @@ const defaultPopulate = [
     { populate: 'song',  display: 'artist title' },
     { innerPopulate: 'tasks',  populate: { path: 'mappers' } },
 ];
+const questPopulate = [
+    { innerPopulate: 'associatedMaps', populate: { path: 'host bns modders song tasks' } },
+];
 
 /* GET maps page. */
 router.get('/', async function(req, res) {
     res.render('beatmaps', { title: 'Maps', script: '../javascripts/maps.js', isMaps: true, loggedInAs: req.session.username });
 });
 
-
 router.get("/relevantInfo", async (req, res, next) => {
-    const questPopulate = [
-        { innerPopulate: 'associatedMaps', populate: { path: 'host bns modders song tasks' } },
-    ];
-    const sort = {createdAt: -1};
-    const [beatmaps, wipQuests, u, fa] = await Promise.all([
-        bm.service.query({status: { $ne: 'Ranked'}}, defaultPopulate, sort, true),
-        quest.service.query({status: 'wip'}, questPopulate, sort, true),
-        user.service.query({osuId: req.session.osuId}),
-        featuredArtists.service.query({}, {}, {}, true)
+    const [bms, wipQuests] = await Promise.all([
+        beatmaps.service.query({status: { $ne: 'Ranked'}}, defaultPopulate, {createdAt: -1}, true),
+        quests.service.query({status: 'wip'}, questPopulate, {createdAt: -1}, true),
     ]);
-
-    res.json({beatmaps: beatmaps, wipQuests: wipQuests, userId: u.osuId, fa: fa});
+    res.json({beatmaps: bms, wipQuests: wipQuests, userId: req.session.osuId});
 });
 
 /* GET artists for new map entry */
-router.get("/artists", async (req, res, next) => {
-    
+router.get("/artists/", async (req, res, next) => {
+    let fa = await featuredArtists.service.query({}, {}, {}, true);
+    res.json(fa);
 });
 
 /* GET songs for new map entry */
 router.get("/songs/:labelId", async (req, res, next) => {
-    const populate = [{ populate: 'songs',  display: 'artist title' }];
-    let fa = await featuredArtists.service.query({_id: req.params.labelId}, populate, {title: -1});
+    let fa = await featuredArtists.service.query({_id: req.params.labelId}, [{ populate: 'songs',  display: 'artist title' }], {title: -1});
     res.json(fa.songs);
 });
 
 /* POST create new map */
 router.post('/create', async (req, res) => {
     if (!req.body.song) {
-        return res.json({ error: 'Missing song' });
+        return res.json({ error: 'Missing song!' });
     }
-
     if (req.body.tasks.length < 1) {
         return res.json({ error: 'Select at least one difficulty to map!' });
     }
-
-    const userSearched = await user.service.query({osuId: req.session.osuId});
-    if (userSearched.error) {
-        return res.status(500).render('error');
-    }
-
-    let tasks = [];
-    if (req.body.tasks) {
-        tasks = req.body.tasks.split('|');
-    }
-
+    let newTasks = req.body.tasks.split('|');
     let realTasks = [];
-    for (let i = 0; i < tasks.length; i++) {
-        const t = await task.service.create({ name: tasks[i], mappers: userSearched._id });
-        if (t.error) {
-            return res.status(500).render('error');
+    for (let i = 0; i < newTasks.length; i++) {
+        const t = await tasks.service.create({ name: newTasks[i], mappers: req.session.mongoId });
+        if (!t) {
+            return res.json({ error: 'Missing task!' });
         }
         realTasks.push(t._id);
     }
-
     let locks = [];
     if (req.body.tasksLocked) {
         locks = req.body.tasksLocked.split('|');
     }
-
-    let song = await featuredArtists.service.querySong({_id: req.body.song});
-
-    if(!song){
-        return res.json({ error: 'song not in db' });
-    }
-
-    let b = await bm.service.create(userSearched._id, realTasks, locks, req.body.song );
-
-    b = await bm.service.query({ _id: b._id }, defaultPopulate)
-
+    let b = await beatmaps.service.create(req.session.mongoId, realTasks, locks, req.body.song);
+    b = await beatmaps.service.query({ _id: b._id }, defaultPopulate)
     res.json(b);
 
     logs.service.create(req.session.osuId, `created new map "${b.song.artist} - ${b.song.title}"`, b._id, 'beatmap' );
@@ -117,8 +124,12 @@ router.post('/create', async (req, res) => {
 
 /* POST set game mode. */
 router.post("/setMode/:id", async (req, res) => {
-    let b = await bm.service.update(req.params.id, {mode: req.body.mode});
-    b = await bm.service.query({_id: req.params.id}, defaultPopulate);
+    let b = await beatmaps.service.query({_id: req.params.id});
+    if(req.session.mongoId != b.host){
+        return res.json ({ error: 'You are not mapset host!' });
+    }
+    b = await beatmaps.service.update(req.params.id, {mode: req.body.mode});
+    b = await beatmaps.service.query({_id: req.params.id}, defaultPopulate);
     res.json(b);
 
     logs.service.create(req.session.osuId, `changed mode of "${b.song.artist} - ${b.song.title}" to "${req.body.mode}"`, b._id, 'beatmap' );
@@ -126,193 +137,73 @@ router.post("/setMode/:id", async (req, res) => {
 
 /* POST transfer host */
 router.post("/transferHost/:mapId", async (req, res) => {
-    let u;
-    try {
-        u = await user.service.query({ username: new RegExp("^"+req.body.user+"$", "i") })
-    } catch(error) {
-        return res.json({ error: error._message });
-    }
+    const u = await users.service.query({ username: new RegExp("^"+req.body.user+"$", "i") });
     if (!u) {
-        return res.json({ error: 'Cannot find user!' });
+        return res.json({ error: inviteError + 'Cannot find user!'});
     }
     if(u.osuId == req.session.osuId){
-        return res.json({ error: 'Choose someone other than yourself!'})
+        return res.json({ error: inviteError + 'Choose someone other than yourself!'})
     }
-   
-    let b = await bm.service.query({_id: req.params.mapId}, defaultPopulate);
-    
-    if(!b){
-        return res.json({ error: 'Something went wrong!' });
+    let b = await beatmaps.service.query({_id: req.params.mapId}, defaultPopulate);
+    if(req.session.mongoId != b.host.id){
+        return res.json ({ error: inviteError + 'You are not mapset host!' });
     }
-
     if(b.quest){
-        let p = await party.service.query({currentQuest: b.quest, members: u._id});
+        let p = await parties.service.query({currentQuest: b.quest, members: u._id});
         if(!p){
-            return res.json({error: "Invite not sent because this mapset is part of a quest. Only members of your party can host."})
+            return res.json({error: inviteError + "This mapset is part of a quest, so only members of your party can host."})
         }
     }
     res.json(b);
 
-    let sender = await user.service.query({osuId: req.session.osuId});
-    invites.service.create(u.id, sender.id, b.id, `wants you to host their mapset of`, 'host', b.id );
+    invites.service.create(u.id, req.session.mongoId, b.id, `wants you to host their mapset of`, 'host', b.id );
 });
 
 /* POST create task from extended view. */
 router.post("/addTask/:mapId", async (req, res) => {
-    const u = await user.service.query({osuId: req.session.osuId});
-    let b = await bm.service.query({_id: req.params.mapId}, defaultPopulate);
-
-    //quest check
-    if(b.quest){
-        let p = await party.service.query({currentQuest: b.quest});
-        let valid = false;
-        for (let i = 0; i < p.members.length; i++) {
-            if(p.members[i].toString() == u._id.toString()){
-                valid = true;
-                break;
-            }
-        }
-        if(!valid){
-            return res.json({error: "This mapset is part of a quest, so only members of the host's party can add difficulties."})
-        }
+    let b = await beatmaps.service.query({_id: req.params.mapId}, defaultPopulate);
+    let isHost = (b.host.id == req.session.mongoId);
+    let valid = await addTaskChecks(req.session.mongoId, b, req.body.difficulty, isHost);
+    if(valid.error){
+        return res.json(valid.error);
     }
-
-    //bn check
-    let isBn = false;
-    b.bns.forEach(bn => {
-        if(bn.id == u.id){
-            isBn = true;
-        }
-    });
-    if(isBn){
-        return res.json({error: "Remove yourself from the BN list before adding a difficulty!"})
-    }
-
-    //excess diffs check
-    if(b.tasks.length > 20){
-        return res.json({error: "This mapset has too many difficulties!"})
-    }
-
-    //locked diffs check
-    if(b.tasksLocked && !isBeatmapHost){
-        let locked = false;
-        b.tasksLocked.forEach(task => {
-            if(req.body.difficulty == task){
-               locked = true;
-            }
-        });
-        if(locked){
-            return res.json({error: "This task is locked by the mapset host"})
-        }
-    }
-
-    //multiple storyboards check
-    if(req.body.difficulty == "Storyboard"){
-        let sb = false;
-        b.tasks.forEach(task => {
-            if(task.name == "Storyboard"){
-                sb = true;
-            }
-        })
-        if(sb){
-            return res.json({error: "There can only be one storyboard on a mapset!"});
-        }
-    }
-
-    //create
-    const t = await task.service.create({ name: req.body.difficulty, mappers: u._id });
-    if (t.error) {
-        return res.json(t.error);
-    } 
-
-    b = await bm.service.update(req.params.mapId, { $push: {tasks: t._id } });
-    if (b.error) {
-        return res.json(b.error);
-    }
-
-    b = await bm.service.query({_id: req.params.mapId}, defaultPopulate);
-
+    const t = await tasks.service.create({ name: req.body.difficulty, mappers: req.session.mongoId });
+    await beatmaps.service.update(req.params.mapId, { $push: {tasks: t._id } });
+    b = await beatmaps.service.query({_id: req.params.mapId}, defaultPopulate);
     res.json(b);
 
-    notifications.service.create(b.id, `added "${req.body.difficulty}" difficulty to your mapset`, b.host.id, u.id, b.id);
-
+    notifications.service.create(b.id, `added "${req.body.difficulty}" difficulty to your mapset`, b.host.id, req.session.mongoId, b.id);
     logs.service.create(req.session.osuId, `added "${req.body.difficulty}" difficulty to "${b.song.artist} - ${b.song.title}"`, b._id, 'beatmap' );
 });
 
-/* POST request added task THIS FUNCTION WILL BE MOVED OR REWRITTEN HOPEFULLY IT"S ALMOST ALL COPY PASTE OF ABOVE FUNCTION*/
+/* POST request added task*/
 router.post("/requestTask/:mapId", async (req, res) => {
-    let u;
-    try {
-        u = await user.service.query({ username: new RegExp("^"+req.body.recipient+"$", "i") })
-    } catch(error) {
-        return res.json({ error: error._message });
-    }
+    const u = await users.service.query({ username: new RegExp("^"+req.body.recipient+"$", "i") })
     if (!u) {
         return res.json({ error: 'Cannot find user!' });
     }
     if(u.osuId == req.session.osuId){
         return res.json({ error: 'Choose someone other than yourself!'})
     }
-   
-    let b = await bm.service.query({_id: req.params.mapId}, defaultPopulate);
-    
-    //quest check
-    if(b.quest){
-        let p = await party.service.query({currentQuest: b.quest});
-        let valid = false;
-        for (let i = 0; i < p.members.length; i++) {
-            if(p.members[i].toString() == u._id.toString()){
-                valid = true;
-                break;
-            }
-        }
-        if(!valid){
-            return res.json({error: "Invite could not be sent because this mapset is part of a quest, so only members of the host's party can add difficulties."})
-        }
+    let b = await beatmaps.service.query({_id: req.params.mapId}, defaultPopulate);
+    if(req.session.mongoId != b.host.id){
+        return res.json ({ error: 'You are not mapset host!' });
     }
-
-    //bn check
-    let isBn = false;
-    b.bns.forEach(bn => {
-        if(bn.id == u.id){
-            isBn = true;
-        }
-    });
-    if(isBn){
-        return res.json({error: "Invite could not be sent becuase that user is marked as a Beatmap Nominator for this mapset!"})
-    }
-
-    //excess diffs check
-    if(b.tasks.length > 20){
-        return res.json({error: "Invite could not be sent because this mapset has too many difficulties!"})
-    }
-
-    //multiple storyboards check
-    if(req.body.difficulty == "Storyboard"){
-        let sb = false;
-        b.tasks.forEach(task => {
-            if(task.name == "Storyboard"){
-                sb = true;
-            }
-        })
-        if(sb){
-            return res.json({error: "Invite could not be sent because there can only be one storyboard on a mapset!"});
-        }
+    let valid = await addTaskChecks(u.id, b, req.body.difficulty, true);
+    if(valid.error){
+        return res.json(valid.error);
     }
     res.json(b);
 
-    let sender = await user.service.query({osuId: req.session.osuId});
-    invites.service.create(u.id, sender.id, b.id, `wants you to create the difficulty ${req.body.difficulty} for their mapset of`, 'task', b.id, req.body.difficulty );
+    invites.service.create(u.id, req.session.mongoId, b.id, `wants you to create the difficulty ${req.body.difficulty} for their mapset of`, 'task', b.id, req.body.difficulty );
 });
 
 /* POST delete task from extended view. */
 router.post("/removeTask/:id", async (req, res) => {
-    let t = await task.service.query({_id: req.params.id});
-    let b = await bm.service.update(req.body.beatmapId, { $pull: { tasks: t._id } });
-    await task.service.remove(req.params.id);
-
-    b = await bm.service.query({_id: req.body.beatmapId}, defaultPopulate);
-
+    let t = await tasks.service.query({_id: req.params.id});
+    let b = await beatmaps.service.update(req.body.beatmapId, { $pull: { tasks: t._id } });
+    await tasks.service.remove(req.params.id);
+    b = await beatmaps.service.query({_id: req.body.beatmapId}, defaultPopulate);
     res.json(b);
 
     logs.service.create(req.session.osuId, `removed "${t.name}" from "${b.song.artist} - ${b.song.title}"`, b._id, 'beatmap' );
@@ -320,94 +211,61 @@ router.post("/removeTask/:id", async (req, res) => {
 
 /* POST invite collab user to task. */
 router.post("/task/:taskId/addCollab", async (req, res) => {
-    let u;
-    try {
-        u = await user.service.query({ username: new RegExp("^"+req.body.user+"$", "i") });
-    } catch(error) {
-        return res.json({ error: error._message });
-    }
+    let u = await users.service.query({ username: new RegExp("^"+req.body.user+"$", "i") });
     if (!u) {
-        return res.json({ error: 'Cannot find user!' });
+        return res.json({ error: inviteError + 'Cannot find user!' });
     }
     if (req.session.username == u.username) {
-        return res.json({ error: 'Cannot collaborate with yourself!' });
+        return res.json({ error: inviteError + 'Cannot collaborate with yourself!' });
     }
-
-    let b = await bm.service.query({ tasks: req.params.taskId }, defaultPopulate);
-    if(b.quest){
-        let p = await party.service.query({currentQuest: b.quest});
-        let valid = false;
-        for (let i = 0; i < p.members.length; i++) {
-            if(p.members[i].toString() == u._id.toString()){
-                valid = true;
-                break;
-            }
-        }
-        if(!valid){
-            return res.json({error: "This mapset is part of a quest, so you can only invite members of the host's party to collaborate."})
-        }
-    }
-
-    let isBn = false;
-    b.bns.forEach(bn => {
-        if(bn.id == u.id){
-            isBn = true;
-        }
-    });
-    if(isBn){
-        return res.json({error: "Invite could not be sent because user is currently marked as a Nominator for this mapset."})
-    }
-
-    let t = await task.service.query({ _id: req.params.taskId, mappers: u._id });
+    let t = await tasks.service.query({ _id: req.params.taskId, mappers: u._id });
     if (t.length != 0) {
-        return res.json({ error: 'Invite could not be sent because user is already a collaborator' });
+        return res.json({ error: inviteError + 'User is already a collaborator' });
     }
-    t = await task.service.query({ _id: req.params.taskId });
-
+    let b = await beatmaps.service.query({ tasks: req.params.taskId }, defaultPopulate);
+    let valid = await addTaskChecks(u.id, b);
+    if(valid.error){
+        return res.json(valid.error);
+    }
+    t = await tasks.service.query({ _id: req.params.taskId });
     res.json(b);
 
-    let sender = await user.service.query({osuId: req.session.osuId});
-    invites.service.create(u.id, sender.id, req.params.taskId, `wants to collaborate with you on the "${t.name}" difficulty of`, 'collab', b.id );
+    invites.service.create(u.id, req.session.mongoId, req.params.taskId, `wants to collaborate with you on the "${t.name}" difficulty of`, 'collab', b.id );
 });
 
 /* POST remove collab user from task. */
 router.post("/task/:taskId/removeCollab", async (req, res) => {
-    let u;
-    try {
-        u = await user.service.query({ username: new RegExp("^"+req.body.user+"$", "i") });
-    } catch(error) {
-        return res.json({ error: error._message });
-    }
+    let u = await users.service.query({ username: new RegExp("^"+req.body.user+"$", "i") });
     if (!u) {
         return res.json({ error: 'Cannot find user!' });
     }
-    
-    let t = await task.service.update(req.params.taskId, { $pull: { mappers: u._id } });
-
-    let b = await bm.service.query({ tasks: t._id }, defaultPopulate);
+    let t = await tasks.service.update(req.params.taskId, { $pull: { mappers: u._id } });
+    let b = await beatmaps.service.query({ tasks: t._id }, defaultPopulate);
     res.json(b);
 
     logs.service.create(req.session.osuId, `removed "${u.username}" from collab mapper of "${t.name}" on "${b.song.artist} - ${b.song.title}"`, b._id, 'beatmap' );
 });
 
 /* POST set status of the beatmapset from extended view. */
-router.post('/setStatus/:mapId', isBeatmapHost, async (req, res) => {
-    let b = await bm.service.query({_id: req.params.mapId}, defaultPopulate);
+router.post('/setStatus/:mapId', async (req, res) => {
+    let b = await beatmaps.service.query({_id: req.params.mapId}, defaultPopulate);
+    if(req.session.mongoId != b.host.id){
+        return res.json ({ error: 'You are not mapset host!' });
+    }
     if(req.body.status == "Done"){
         if(b.tasks.length == 0){
-            return res.json({error: "You can't mark an empty mapset as complete!"});
+            return res.json({ error: "You can't mark an empty mapset as complete!" });
         }
         if(b.tasks.length == 1 && b.tasks[0].name == "Storyboard"){
-            return res.json({error: "You can't mark an empty mapset as complete!"});
+            return res.json({ error: "You can't mark a mapset without difficulties as complete!" });
         }
         for (let i = 0; i < b.tasks.length; i++) {
             await task.service.update(b.tasks[i].id, {status: "Done"});
         }
-        await bm.service.update(req.params.mapId, { tasksLocked: ["Easy", "Normal", "Hard", "Insane", "Expert", "Storyboard"]});
+        await beatmaps.service.update(req.params.mapId, { tasksLocked: ["Easy", "Normal", "Hard", "Insane", "Expert", "Storyboard"]});
     }
-    b = await bm.service.update(req.params.mapId, { status: req.body.status });
-    
-    b = await bm.service.query({_id: req.params.mapId}, defaultPopulate);
+    await beatmaps.service.update(req.params.mapId, { status: req.body.status });
+    b = await beatmaps.service.query({_id: req.params.mapId}, defaultPopulate);
     res.json(b);
 
     logs.service.create(req.session.osuId, `changed status of "${b.song.artist} - ${b.song.title}"`, b._id, 'beatmap' );
@@ -415,32 +273,29 @@ router.post('/setStatus/:mapId', isBeatmapHost, async (req, res) => {
 
 /* POST set status of the task selected from extended view. */
 router.post('/setTaskStatus/:taskId', async (req, res) => {
-    let t = await task.service.update(req.params.taskId, { status: req.body.status });
-    let b = await bm.service.query({ tasks: t._id }, defaultPopulate);
+    let t = await tasks.service.update(req.params.taskId, { status: req.body.status });
+    let b = await beatmaps.service.query({ tasks: t._id }, defaultPopulate);
     res.json(b);
     
     logs.service.create(req.session.osuId, `changed status of "${t.name}" on "${b.song.artist} - ${b.song.title}"`, b._id, 'beatmap' );
 });
 
 /* POST quest to map */
-router.post('/setQuest/:mapId', isBeatmapHost, async (req, res) => {
-    let q;
-    let u = await user.service.query({osuId: req.session.osuId});
-    let p = await party.service.query({_id: u.currentParty});
-    if(p){
-        q = p.currentQuest;
+router.post('/setQuest/:mapId', async (req, res) => {
+    let u = await users.service.query({_id: req.session.mongoId});
+    let p = await parties.service.query({_id: u.currentParty});
+    if(!p.currentQuest){
+        return res.json({ error: "You're not assigned to a quest!" });
     }
-    
-    if(!q || !u){
-        return res.json({error: "You're not assigned to a quest!"});
+    let b = await beatmaps.service.query({ _id: req.params.mapId }, defaultPopulate);
+    if(req.session.mongoId != b.host.id){
+        return res.json ({ error: 'You are not mapset host!' });
     }
-    let b = await bm.service.query({ _id: req.params.mapId }, defaultPopulate);
-
     let invalid = false;
     for (let i = 0; i < b.tasks.length; i++) {
         for (let j = 0; j < b.tasks[i].mappers.length; j++) {
-            let u = await user.service.query({_id: b.tasks[i].mappers[j]._id});
-            if(!u.currentParty || u.currentParty.toString() != p._id.toString()){
+            let u = await users.service.query({_id: b.tasks[i].mappers[j]._id});
+            if(!u.currentParty || u.currentParty != p.id){
                 invalid = true;
             }
         }
@@ -448,36 +303,36 @@ router.post('/setQuest/:mapId', isBeatmapHost, async (req, res) => {
     if(invalid){
         return res.json({error: "Some of this mapset's mappers are not assigned to your quest!"});
     }
-    
-    await bm.service.update(req.params.mapId, { quest: q });
-    b = await bm.service.query({ _id: req.params.mapId }, defaultPopulate);
-    
+    await beatmaps.service.update(req.params.mapId, { quest: p.currentQuest });
+    b = await beatmaps.service.query({ _id: req.params.mapId }, defaultPopulate);
     res.json(b);
 
     logs.service.create(req.session.osuId, `linked quest to "${b.song.artist} - ${b.song.title}"`, b._id, 'beatmap' );
 });
 
 /* POST remove quest from map */
-router.post('/unsetQuest/:mapId', isBeatmapHost, async (req, res) => {
-    let b = await bm.service.update(req.params.mapId, { quest: undefined });
-    b = await bm.service.query({ _id: req.params.mapId }, defaultPopulate)
+router.post('/unsetQuest/:mapId', async (req, res) => {
+    let b = await beatmaps.service.query({ _id: req.params.mapId })
+    if(req.session.mongoId != b.host){
+        return res.json ({ error: 'You are not mapset host!' });
+    }
+    await beatmaps.service.update(req.params.mapId, { quest: undefined });
+    b = await beatmaps.service.query({ _id: req.params.mapId }, defaultPopulate)
     res.json(b);
     logs.service.create(req.session.osuId, `unlinked quest from "${b.song.artist} - ${b.song.title}"`, b._id, 'beatmap' );
 });
 
 /* POST modder from extended view, returns new modders list. */
 router.post("/updateModder/:mapId", async (req, res) => {
-    const u = await user.service.query({osuId: req.session.osuId});
-    const isAlreadyModder = await bm.service.query({ _id: req.params.mapId, modders: u._id });
+    const isAlreadyModder = await beatmaps.service.query({ _id: req.params.mapId, modders: req.session.mongoId });
     let update;
     if (!isAlreadyModder) {
-        update = { $push: { modders: u._id } };
+        update = { $push: { modders: req.session.mongoId } };
     } else {
-        update = { $pull: { modders: u._id } };
+        update = { $pull: { modders: req.session.mongoId } };
     }
-
-    await bm.service.update(req.params.mapId, update);
-    let b = await bm.service.query({ _id: req.params.mapId }, defaultPopulate);
+    await beatmaps.service.update(req.params.mapId, update);
+    let b = await beatmaps.service.query({ _id: req.params.mapId }, defaultPopulate);
     res.json(b);
 
     if(isAlreadyModder){
@@ -485,22 +340,19 @@ router.post("/updateModder/:mapId", async (req, res) => {
     }else{
         logs.service.create(req.session.osuId, `added to modder list on "${b.song.artist} - ${b.song.title}"`, b._id, 'beatmap' );
     }
-    
 });
 
 /* POST bn from extended view, returns new bns list. */
 router.post("/updateBn/:mapId", api.isBn, async (req, res) => {
-    const u = await user.service.query({osuId: req.session.osuId});
-    const isAlreadyBn = await bm.service.query({ _id: req.params.mapId, bns: u._id }, defaultPopulate);
-    
+    const isAlreadyBn = await beatmaps.service.query({ _id: req.params.mapId, bns: req.session.mongoId }, defaultPopulate);
     let update;
     if (!isAlreadyBn) {
-        update = { $push: { bns: u._id } };
+        update = { $push: { bns: req.session.mongoId } };
     } else {
         let hasTask = false;
         isAlreadyBn.tasks.forEach(task => {
             task.mappers.forEach(mapper => {
-                if(mapper.id == u.id){
+                if(mapper.id == req.session.mongoId){
                     hasTask = true;
                 }
             });
@@ -508,11 +360,10 @@ router.post("/updateBn/:mapId", api.isBn, async (req, res) => {
         if(hasTask){
             return res.json({error: "You can't nominate a mapset you've done a task for!"})
         }
-        update = { $pull: { bns: u._id } };
+        update = { $pull: { bns: req.session.mongoId } };
     }
-
-    await bm.service.update(req.params.mapId, update);
-    let b = await bm.service.query({ _id: req.params.mapId }, defaultPopulate);
+    await beatmaps.service.update(req.params.mapId, update);
+    let b = await beatmaps.service.query({ _id: req.params.mapId }, defaultPopulate);
     res.json(b);
 
     if(isAlreadyBn){
@@ -523,7 +374,7 @@ router.post("/updateBn/:mapId", api.isBn, async (req, res) => {
 });
 
 /* POST edit link from extended view. */
-router.post("/setLink/:mapId", isBeatmapHost, async (req, res) => {
+router.post("/setLink/:mapId", async (req, res) => {
     let url = req.body.url;
     if (url.length == 0) {
         url = undefined;
@@ -532,63 +383,59 @@ router.post("/setLink/:mapId", isBeatmapHost, async (req, res) => {
     if(!(regexp.test(url))){
         return res.json({error: "Not a valid URL"})
     }
-
-    let b = await bm.service.update(req.params.mapId, { url: url });
-    b = await bm.service.query({_id: req.params.mapId}, defaultPopulate);
+    let b = await beatmaps.service.query({_id: req.params.mapId});
+    if(req.session.mongoId != b.host){
+        return res.json ({ error: 'You are not mapset host!' });
+    }
+    await beatmaps.service.update(req.params.mapId, { url: url });
+    b = await beatmaps.service.query({_id: req.params.mapId}, defaultPopulate);
     res.json(b);
 
     logs.service.create(req.session.osuId, `edited link on "${b.song.artist} - ${b.song.title}"`, b._id, 'beatmap' );
 });
 
 /* POST locks task from extended view. */
-router.post("/lockTask/:mapId", isBeatmapHost, async (req, res) => {
-    let b = await bm.service.update(
+router.post("/lockTask/:mapId", async (req, res) => {
+    let b = await beatmaps.service.query({_id: req.params.mapId});
+    if(req.session.mongoId != b.host){
+        return res.json ({ error: 'You are not mapset host!' });
+    }
+    await beatmaps.service.update(
         req.params.mapId, 
         { $push: { tasksLocked: req.body.difficulty } }
     );
-
-    b = await bm.service.query({_id: req.params.mapId}, defaultPopulate);
+    b = await beatmaps.service.query({_id: req.params.mapId}, defaultPopulate);
     res.json(b);
 
     logs.service.create(req.session.osuId, `locked claims for "${req.body.difficulty}" on "${b.song.artist} - ${b.song.title}"`, b._id, 'beatmap' );
 });
 
 /* POST unlocks task from extended view. */
-router.post("/unlockTask/:mapId", isBeatmapHost, async (req, res) => {
-    let b = await bm.service.update(
+router.post("/unlockTask/:mapId", async (req, res) => {
+    let b = await beatmaps.service.query({_id: req.params.mapId});
+    if(req.session.mongoId != b.host){
+        return res.json ({ error: 'You are not mapset host!' });
+    }
+    await beatmaps.service.update(
         req.params.mapId, 
         { $pull: { tasksLocked: req.body.difficulty } }
     );
-
-    b = await bm.service.query({_id: req.params.mapId}, defaultPopulate);
+    b = await beatmaps.service.query({_id: req.params.mapId}, defaultPopulate);
     res.json(b);
 
     logs.service.create(req.session.osuId, `unlocked claims for "${req.body.difficulty}" on "${b.song.artist} - ${b.song.title}"`, b._id, 'beatmap' );
 });
 
 /* POST delete map */
-router.post("/delete/:mapId", isBeatmapHost, async (req, res) => {
-    let b = await bm.service.remove(req.params.mapId);
+router.post("/delete/:mapId", async (req, res) => {
+    let b = await beatmaps.service.query({_id: req.params.mapId});
+    if(req.session.mongoId != b.host){
+        return res.json ({ error: 'You are not mapset host!' });
+    }
+    b = await beatmaps.service.remove(req.params.mapId);
     res.json(b);
+
     logs.service.create(req.session.osuId, `deleted "${b.song.artist} - ${b.song.title}"`, b._id, 'beatmap' );
-});
-
-
-/* GET map for extended admin view (temporary). */
-router.get("/beatmap/:mapId", async (req, res) => {
-    const params = { _id: req.params.mapId };
-    const populate = [
-        { populate: 'host',  display: '_id osuId username' },
-        { populate: 'bns',  display: '_id osuId username' },
-        { populate: 'modders',  display: '_id osuId username' },
-        { populate: 'quest',  display: '_id name' },
-        { populate: 'song',  display: 'artist title' },
-        { innerPopulate: 'tasks',  populate: { path: 'mappers' } },
-    ];
-    const sort = {createdAt: 1};
-    const beatmap = await bm.service.query(params, populate, sort);
-
-    res.json(beatmap);
 });
 
 module.exports = router;

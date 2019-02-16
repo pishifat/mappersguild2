@@ -1,6 +1,6 @@
 const express = require('express');
-const bm = require('../models/beatmap.js');
-const quest = require('../models/quest.js');
+const beatmaps = require('../models/beatmap.js');
+const quests = require('../models/quest.js');
 const api = require('../models/api.js');
 
 const router = express.Router();
@@ -25,12 +25,12 @@ router.get('/', async function(req, res) {
 router.get("/relevantInfo", async (req, res, next) => {
     const questPopulate = [{populate: 'associatedMaps', display: 'artist'}];
     const sort = {createdAt: -1};
-    const [beatmaps, completeQuests] = await Promise.all([
-    bm.service.query({status: "Ranked"}, defaultPopulate, sort, true),
-    quest.service.query({status: "done"}, questPopulate, sort, true)
+    const [bms, completeQuests] = await Promise.all([
+    beatmaps.service.query({status: "Ranked"}, defaultPopulate, sort, true),
+    quests.service.query({status: "done"}, questPopulate, sort, true)
     ]);
 
-    res.json({beatmaps: beatmaps, completeQuests: completeQuests});
+    res.json({beatmaps: bms, completeQuests: completeQuests});
 });
 
 

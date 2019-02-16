@@ -132,8 +132,8 @@
                                     <tr v-for="task in selectedMap.tasks" :key="task.id" :id="task.id + 'Row'">
                                         <td scope="row" style="padding: 1px;">\{{task.name}}</td>
                                         <td scope="row" style="padding: 1px;"><template v-for="(mapper, i) in task.mappers"><a :href="'https://osu.ppy.sh/users/' + mapper.osuId" target="_blank">\{{ mapper.username + (i < task.mappers.length - 1 ? ', ' : '') }}</a></template>
-                                            <a href='#' v-if="(isOwner(task.mappers) || isHost)" :id="task.id + 'Collab'" :class="task.status == 'Done' || addCollabInput == task.id || selectedMap.status == 'Done' ? 'fake-button-disable' : ''" class='icon-valid' @click.prevent="setCollab(task)" data-toggle="tooltip" data-placement="top" title="invite new collaborator"><i class="fas fa-plus-square"></i></a>
-                                            <a href='#' v-if="(isOwner(task.mappers) || isHost) && task.mappers.length > 1" class='icon-used' :class="task.status == 'Done' || removeCollabInput == task.id || selectedMap.status == 'Done' ? 'fake-button-disable' : ''" @click.prevent="unsetCollab(task)" data-toggle="tooltip" data-placement="top" title="remove collaborator"><i class="fas fa-minus-square"></i></a>
+                                            <a href='#' v-if="(isOwner(task.mappers))" :id="task.id + 'Collab'" :class="task.status == 'Done' || addCollabInput == task.id || selectedMap.status == 'Done' ? 'fake-button-disable' : ''" class='icon-valid' @click.prevent="setCollab(task)" data-toggle="tooltip" data-placement="top" title="invite new collaborator"><i class="fas fa-plus-square"></i></a>
+                                            <a href='#' v-if="(isOwner(task.mappers)) && task.mappers.length > 1" class='icon-used' :class="task.status == 'Done' || removeCollabInput == task.id || selectedMap.status == 'Done' ? 'fake-button-disable' : ''" @click.prevent="unsetCollab(task)" data-toggle="tooltip" data-placement="top" title="remove collaborator"><i class="fas fa-minus-square"></i></a>
                                         </td>
                                         <td scope="row" :class="task.status.toLowerCase()" style="padding: 1px;">\{{task.status}}</td>
                                         <td scope="row" style="padding: 1px;">
@@ -165,22 +165,22 @@
                                 <div class="input-group input-group-sm mb-3">
                                     <input class="form-control form-control-sm custom-input" type="text" placeholder="username..." id="requestEntry" style="border-radius: 100px 0 0 100px;" maxlength="16" @keyup.enter="transferHost(selectedMap.id, $event)"></input>
                                     <div class="input-group-append">
-                                        <button style="border-radius: 0 100px 100px 0" class="rounded-circle-left btn btn-mg" type="submit" @click="requestTask(selectedMap.id, $event)" data-toggle="tooltip" data-placement="right" title="request difficulty selected above from another user"><span class="append-button-padding">Request difficulty</span></button>
+                                        <button style="border-radius: 0 100px 100px 0" class="rounded-circle-left btn btn-mg" type="submit" @click="requestTask(selectedMap.id, $event)" data-toggle="tooltip" data-placement="right" title="request another mapper to create the selected difficulty"><span class="append-button-padding">Request difficulty</span></button>
                                     </div>
                                 </div>
                             </div>
                             <div id="newCollaborator">
                                 <div v-if="addCollabInput" class="input-group input-group-sm mb-3">
-                                    <div class="input-group-prepend">
-                                        <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg" @click="addCollab($event)">Invite to \{{collabTask.name}}</button>
+                                    <input class="form-control form-control-sm" type="text" placeholder="collaborative mapper..." id="collabMapperToAdd" style="border-radius: 100px 0 0 100px"></input>
+                                    <div class="input-group-append">
+                                        <button style="border-radius: 0 100px 100px 0;" class="rounded-circle-left btn btn-mg" @click="addCollab($event)">Invite to \{{collabTask.name}}</button>
                                     </div>
-                                    <input class="form-control form-control-sm" type="text" placeholder="collaborative mapper..." id="collabMapperToAdd" style="border-radius: 0 100px 100px 0"></input>
                                 </div>
                                 <div v-if="removeCollabInput" class="input-group input-group-sm mb-3">
-                                    <div class="input-group-prepend">
-                                        <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg-used" @click="removeCollab($event)">Remove from \{{collabTask.name}}</button>
+                                    <input class="form-control form-control-sm" type="text" placeholder="collaborative mapper..." id="collabMapperToRemove" style="border-radius: 100px 0 0 100px"></input>
+                                    <div class="input-group-append">
+                                        <button style="border-radius: 0 100px 100px 0;" class="rounded-circle-left btn btn-mg-used" @click="removeCollab($event)">Remove from \{{collabTask.name}}</button>
                                     </div>
-                                    <input class="form-control form-control-sm" type="text" placeholder="collaborative mapper..." id="collabMapperToRemove" style="border-radius: 0 100px 100px 0"></input>
                                 </div>
                             </div>
                             <div v-if="isHost" id="mapsetStatus">
@@ -280,7 +280,7 @@
 
 <div id="addBeatmap" class="modal fade" tabindex="-1">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content custom-bg-dark" v-if="featuredArtists">
+        <div class="modal-content custom-bg-dark">
             <div class="modal-header bg-done">
                 <h5 class="modal-title text-dark">Add Beatmap</h5>
                 <button type="button" class="close" data-dismiss="modal">
@@ -310,7 +310,7 @@
                         </div>
                         <div class="col-lg-11">
                             <div class="input-group input-group-sm mb-3" style="width: 400px" id="songForm">
-                                <select class="custom-select select-arrow small" :disabled="!featuredSongs" id="songSelection">
+                                <select class="custom-select select-arrow small" :disabled="!featuredSongs" id="songSelection" style="border-radius: 100px 100px 100px 100px">
                                     <option v-if="!featuredSongs">Select an artist to view songs</option>
                                     <option v-for="featuredSong in featuredSongs" :value="featuredSong.id">\{{featuredSong.title}} --- (\{{featuredSong.artist}})</option>
                                 </select>

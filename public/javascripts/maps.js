@@ -128,12 +128,16 @@ const beatmapsVue = new Vue({
         },
         resetArtist: function(){
             this.featuredSongs = null;
-            this.featuredArtists = this.featuredArtists.sort((a,b) => (a.label.toLowerCase() > b.label.toLowerCase()) ? 1 : ((b.label.toLowerCase() > a.label.toLowerCase()) ? -1 : 0));
+            axios
+                .get('/beatmaps/artists')
+                .then(response => {
+                    this.featuredArtists = response.data.sort((a,b) => (a.label.toLowerCase() > b.label.toLowerCase()) ? 1 : ((b.label.toLowerCase() > a.label.toLowerCase()) ? -1 : 0));
+                });
             this.info = null;
             $('input[type=checkbox]').each(function() 
             { 
                 this.checked = false; 
-            }); 
+            });
         },
 		executePost: async function(path, data, e) {
 			if (e) e.target.disabled = true;
@@ -299,6 +303,7 @@ const beatmapsVue = new Vue({
             const bm = await this.executePost('/beatmaps/task/' + id + '/removeCollab', {user: user}, e);
             if(bm){
                 this.updateMap(bm);
+                this.removeCollabInput = null;
             }
         },
 
@@ -519,7 +524,6 @@ const beatmapsVue = new Vue({
                 this.beatmaps = response.data.beatmaps;
                 this.wipQuests = response.data.wipQuests;
                 this.userOsuId = response.data.userId;
-                this.featuredArtists = response.data.fa;
               }).then(function(){
                 $("#loading").fadeOut();
 				$("#app").attr("style", "visibility: visible").hide().fadeIn();

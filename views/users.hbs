@@ -12,7 +12,7 @@
         <transition-group name="list" tag="div" class="row">
             <div class='col-md-4 col-lg-3 my-2' v-for="user in users" :key="user.id">
                 <div class="card custom-bg-dark" :class="'border-rank-' + user.rank" style="height: 100%"
-                    data-toggle='modal' data-target='#extendedInfo' :data-user="user.osuId"
+                    :data-toggle='beatmaps ? "modal" : beatmaps' data-target='#extendedInfo' :data-user="user.osuId"
                     @click="extendedInfo(user)">
                     <div class='card-header'><a :href="'https://osu.ppy.sh/users/' + user.osuId"
                             class="text-shadow" target="_blank" @click.stop>\{{user.username}}</a> <span class="pseudo-float-right-avatar"><img
