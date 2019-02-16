@@ -45,7 +45,7 @@ async function addTaskChecks(userId, b, invite){
     if(!t){
         return { error: "Task doesn't exist anymore!" };
     }
-    t = await tasks.service.query({ _id: invite.modified._id, mappers: u._id });
+    t = await tasks.service.query({ _id: invite.modified._id, mappers: userId });
     if (t.length != 0) {
         invite = await invites.service.update(invite.map.id, {visible: false});
         return { error: "You're already a mapper on this task!" };

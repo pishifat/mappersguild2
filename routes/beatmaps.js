@@ -284,7 +284,7 @@ router.post('/setTaskStatus/:taskId', async (req, res) => {
 router.post('/setQuest/:mapId', async (req, res) => {
     let u = await users.service.query({_id: req.session.mongoId});
     let p = await parties.service.query({_id: u.currentParty});
-    if(!p.currentQuest){
+    if(!p || !p.currentQuest){
         return res.json({ error: "You're not assigned to a quest!" });
     }
     let b = await beatmaps.service.query({ _id: req.params.mapId }, defaultPopulate);
