@@ -160,7 +160,7 @@ router.post('/acceptDiff/:id', async (req, res) => {
     invite = await invites.service.query({_id: req.params.id}, defaultInvitePopulate);
     res.json(invite);
 
-    await tasks.service.create({ name: invite.taskName, mappers: req.session.mongoId });
+    let t = await tasks.service.create({ name: invite.taskName, mappers: req.session.mongoId });
     await beatmaps.service.update(invite.map.id, { $push: {tasks: t._id } });
     b = await beatmaps.service.query({_id: invite.map.id}, defaultMapPopulate);
 
