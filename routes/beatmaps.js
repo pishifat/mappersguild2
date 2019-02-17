@@ -291,7 +291,7 @@ router.post('/setStatus/:mapId', async (req, res) => {
             return res.json({ error: "You can't mark a mapset without difficulties as complete!" });
         }
         for (let i = 0; i < b.tasks.length; i++) {
-            await task.service.update(b.tasks[i].id, {status: "Done"});
+            await tasks.service.update(b.tasks[i].id, {status: "Done"});
         }
         await beatmaps.service.update(req.params.mapId, { tasksLocked: ["Easy", "Normal", "Hard", "Insane", "Expert", "Storyboard"]});
     }

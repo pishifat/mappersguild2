@@ -132,8 +132,8 @@
                                     <tr v-for="task in selectedMap.tasks" :key="task.id" :id="task.id + 'Row'">
                                         <td scope="row" style="padding: 1px;">\{{task.name}}</td>
                                         <td scope="row" style="padding: 1px;"><template v-for="(mapper, i) in task.mappers"><a :href="'https://osu.ppy.sh/users/' + mapper.osuId" target="_blank">\{{ mapper.username + (i < task.mappers.length - 1 ? ', ' : '') }}</a></template>
-                                            <a href='#' v-if="(isOwner(task.mappers))" :id="task.id + 'Collab'" :class="task.status == 'Done' || addCollabInput == task.id || selectedMap.status == 'Done' ? 'fake-button-disable' : ''" class='icon-valid' @click.prevent="setCollab(task)" data-toggle="tooltip" data-placement="top" title="invite new collaborator"><i class="fas fa-plus-square"></i></a>
-                                            <a href='#' v-if="(isOwner(task.mappers)) && task.mappers.length > 1" class='icon-used' :class="task.status == 'Done' || removeCollabInput == task.id || selectedMap.status == 'Done' ? 'fake-button-disable' : ''" @click.prevent="unsetCollab(task)" data-toggle="tooltip" data-placement="top" title="remove collaborator"><i class="fas fa-minus-square"></i></a>
+                                            <a href='#' v-if="(isOwner(task.mappers))" :id="task.id + 'Collab'" :class="[task.status == 'Done' || selectedMap.status == 'Done' ? 'fake-button-disable' : '', addCollabInput == task.id ? 'fake-collab-button-disable' : '']" class='icon-valid' @click.prevent="addCollabInput == task.id ? cancelCollab() : setCollab(task)" data-toggle="tooltip" data-placement="top" title="invite new collaborator"><i class="fas fa-plus-square"></i></a>
+                                            <a href='#' v-if="(isOwner(task.mappers)) && task.mappers.length > 1" class='icon-used' :class="[task.status == 'Done' || selectedMap.status == 'Done' ? 'fake-button-disable' : '', removeCollabInput == task.id ? 'fake-collab-button-disable' : '']" @click.prevent="removeCollabInput == task.id ? cancelCollab() : unsetCollab(task)" data-toggle="tooltip" data-placement="top" title="remove collaborator"><i class="fas fa-minus-square"></i></a>
                                         </td>
                                         <td scope="row" :class="task.status.toLowerCase()" style="padding: 1px;">\{{task.status}}</td>
                                         <td scope="row" style="padding: 1px;">
@@ -146,7 +146,7 @@
                                     </tr>
                                 </transition-group>
                             </table>
-                            <div id="newDifficulty" v-if="selectedMap.status == 'WIP'" :class="selectedMap.tasksLocked.length == 6 ? 'fake-button-disable' : ''">
+                            <div id="newDifficulty" v-if="selectedMap.status == 'WIP'" :class="selectedMap.tasksLocked.length == 6 && !isHost ? 'fake-button-disable' : ''">
                                 <div class="input-group input-group-sm mb-3">
                                     <select class="custom-select select-arrow small" id="diffSelection">
                                         <option v-if="selectedMap.tasksLocked.indexOf('Easy') < 0 || isHost" value="Easy">Easy</option>
@@ -157,11 +157,12 @@
                                         <option v-if="selectedMap.tasksLocked.indexOf('Storyboard') < 0 || isHost" value="Storyboard">Storyboard</option>
                                     </select>
                                     <div class="input-group-append">
-                                        <button style="border-radius: 0 100px 100px 0;" class="rounded-circle-left btn btn-mg" id="addTask" @click="addTask(selectedMap.id, $event);" data-toggle="tooltip" data-placement="right" title="add difficulty"><i class="fas fa-plus append-button-padding"></i></button>
+                                        <button style="border-radius: 0 100px 100px 0;" class="rounded-circle-left btn btn-mg" id="addTask" :disabled="requestDiffInput" @click="addTask(selectedMap.id, $event);" data-toggle="tooltip" data-placement="top" title="add difficulty"><i class="fas fa-plus append-button-padding"></i></button>
                                     </div>
+                                    <a v-if="isHost" href="#" :class="requestDiffInput ? 'icon-used' : ''" class="icon-valid px-2 text-shadow" @click.prevent="requestDiffInput ? unsetRequest() : setRequest()"  data-toggle="tooltip" data-placement="top" title="request difficulty"><i class="fas fa-edit"></i></a>
                                 </div>
                             </div>
-                            <div id="requestDiff" v-if="isHost">
+                            <div id="requestDiff" v-if="requestDiffInput">
                                 <div class="input-group input-group-sm mb-3">
                                     <input class="form-control form-control-sm custom-input" type="text" placeholder="username..." id="requestEntry" style="border-radius: 100px 0 0 100px;" maxlength="16" @keyup.enter="requestTask(selectedMap.id, $event)"></input>
                                     <div class="input-group-append">
@@ -255,7 +256,7 @@
                                             <option v-if="selectedMap.tasksLocked.indexOf('Storyboard') < 0" value="Storyboard">Storyboard</option>
                                         </select>
                                         <div class="input-group-append">
-                                            <button style="border-radius: 0 100px 100px 0;" class="rounded-circle-left btn btn-mg" id="lockTask" @click="lockTask($event);" data-toggle="tooltip" data-placement="left" title="prevent other mappers from claiming a difficulty"><span class="append-button-padding">Lock</span></button>
+                                            <button style="border-radius: 0 100px 100px 0;" class="rounded-circle-left btn btn-mg" id="lockTask" @click="lockTask($event);" data-toggle="tooltip" data-placement="right" title="prevent other mappers from claiming a difficulty"><span class="append-button-padding">Lock</span></button>
                                         </div>
                                     </div>
                                 </div>

@@ -123,6 +123,7 @@ const beatmapsVue = new Vue({
             this.addCollabInput = null;
             this.removeCollabInput = null;
             this.editLinkInput = null;
+            this.requestDiffInput = null;
             this.collabTask = null;
             this.fakeButton = null;
             this.sortDiffs();
@@ -247,12 +248,18 @@ const beatmapsVue = new Vue({
         setCollab(task){
             this.addCollabInput = task._id;
             this.removeCollabInput = null;
+            this.requestDiffInput = null;
             this.collabTask = task;
         },
         unsetCollab(task){
             this.removeCollabInput = task._id;
             this.addCollabInput = null;
+            this.requestDiffInput = null;
             this.collabTask = task;
+        },
+        cancelCollab(){
+            this.removeCollabInput = null;
+            this.addCollabInput = null;
         },
         removeTask: async function(id){
             this.fakeButton = id;
@@ -281,6 +288,16 @@ const beatmapsVue = new Vue({
                 this.updateMap(bm);
             }
         },
+        setRequest(){
+            this.requestDiffInput = true;
+            this.addCollabInput = null;
+            this.removeCollabInput = null;
+        },
+        unsetRequest(){
+            this.requestDiffInput = null;
+            this.addCollabInput = null;
+            this.removeCollabInput = null;
+        },
         requestTask: async function(id, e){
             let difficulty = $("#diffSelection").val();
             let recipient = $("#requestEntry").val();
@@ -297,6 +314,7 @@ const beatmapsVue = new Vue({
             if(bm){
                 this.updateMap(bm);
                 this.inviteConfirm = "Collab invite sent!"
+                this.addCollabInput = null;
             }
         },
         removeCollab: async function(e){
@@ -511,6 +529,7 @@ const beatmapsVue = new Vue({
             inviteConfirm: null,
             addCollabInput: null,
             removeCollabInput: null,
+            requestDiffInput: null,
             editLinkInput: null,
             collabTask: null,
             fakeButton: null,
