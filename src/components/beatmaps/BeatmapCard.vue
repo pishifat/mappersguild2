@@ -1,5 +1,5 @@
 <template>
-    <div class='my-2 col-sm-12' :class='beatmap.status == "WIP" ? "col-md-6" : ""' @click="extendedInfo(beatmap)">
+    <div class='my-2 col-sm-12 col-md-6' :class='beatmap.status == "Done" ? "col-lg-12" : ""' @click="selectBeatmap()">
         <div class='card map-card custom-bg-dark' :class='beatmap.status == "WIP" ? " border-status-wip" : "border-status-done"' data-toggle='modal' data-target='#editBeatmap' :data-mapid="beatmap.id">
             <img class='card-img' :src="processUrl(beatmap.url)" style='opacity:0.5; overflow:hidden'> 
             <div class='card-img-overlay' style='padding: 0.50rem 0.50rem 0 0.50rem'>
@@ -19,8 +19,11 @@
 <script>
 export default {
     name: 'beatmap-card',
-    props: ['beatmap', 'extendedInfo'],
+    props: ['beatmap','userOsuId'],
     methods: {
+        selectBeatmap: function () {
+            this.$emit('update:selectedMap', this.beatmap)
+        },
         formatMetadata: function(artist, title) {
             let str = artist + " - " + title;
             if(str.length>39){

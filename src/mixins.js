@@ -1,6 +1,6 @@
 const mixin = {
     methods: {
-        executePost: async function(path, data, e) {
+        executePostT: async function(path, data, e) {
 			if (e) e.target.disabled = true;
 
 			try {
@@ -17,7 +17,8 @@ const mixin = {
 			}
 			
 			if (e) e.target.disabled = false;
-        },
+		},
+		//sort
     }
 }
 

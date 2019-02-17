@@ -126,8 +126,34 @@ import mixin from '../../mixins.js'
 export default {
     name: 'create-beatmap',
     mixins: [ mixin ],
-    props: [ 'visible' ],
+    props: [ 'opened' ],
+    watch: {
+        opened: function (wasOpened) {
+            if (wasOpened) {
+                this.info = null;
+                this.resetArtist();
+                this.opened = false;
+            }
+        }
+    },
     methods: {
+        executePost: async function(path, data, e) {
+			if (e) e.target.disabled = true;
+            $("[data-toggle='tooltip']").tooltip('hide');
+			try {
+				const res = await axios.post(path, data)
+				
+				if (res.data.error) {
+                    this.info = res.data.error;
+				} else {
+					if (e) e.target.disabled = false;
+					return res.data;
+				}
+			} catch (error) {
+                this.info = 'Something went wrong';
+			    if (e) e.target.disabled = false;
+			}
+        },
         resetArtist: function(){
             this.featuredSongs = null;
             axios
@@ -153,16 +179,18 @@ export default {
                     this.featuredSongs = response.data.sort((a,b) => (a.title.toLowerCase() > b.title.toLowerCase()) ? 1 : ((b.title.toLowerCase() > a.title.toLowerCase()) ? -1 : 0));
                 });
         },
-        saveNewMap: async function(e){
+        saveNewMap: async function (e) {
             const song = $('#songSelection').val();
-            if(song == "none"){
+            if (song == "none") {
                 this.info = "Select a song!"
-            }else{
+            } else {
                 const tasks = ['Easy', 'Normal', 'Hard', 'Insane', 'Expert'];
                 const difficulties = this.applyCheckboxes(tasks, false);
                 const locks = this.applyCheckboxes(tasks, true); 
-                const bm = await this.executePost('/beatmaps/create/', {song: song, tasks: difficulties, tasksLocked: locks}, e);
-                if(bm){
+                const bm = await this.executePost('/beatmaps/create/', { song: song, tasks: difficulties, tasksLocked: locks }, e);
+                if (bm && bm.error) {
+                    this.info = res.data.error;
+                } else if (bm) {
                     $('#addBeatmap').modal('hide');
                     $('.quest-collapse-wip').collapse();
                     $('#othersWip').collapse("show");
@@ -191,6 +219,7 @@ export default {
     },
     data () {
 		return { 
+            //opened: false,
             info: null,
             featuredArtists: null,
             featuredSongs: null,

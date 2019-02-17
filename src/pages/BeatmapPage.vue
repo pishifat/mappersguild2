@@ -16,10 +16,7 @@
     <!-- WIP Beatmaps -->
     <div class="col-lg-8">
         <div class="row">
-            <h2>Work-in-progress <button class="btn btn-mg" data-toggle="modal" data-target="#addBeatmap" @click="isCreateBeatmapVisible = true">Add beatmap</button></h2>
-            <create-beatmap
-                :visible="isCreateBeatmapVisible"
-            ></create-beatmap>
+            <h2>Work-in-progress <button class="btn btn-mg" data-toggle="modal" data-target="#addBeatmap" @click="wasCreateBeatmapClicked = true">Add beatmap</button></h2>
         </div>
 
         <template v-for="quest in wipQuests">
@@ -35,7 +32,8 @@
                     v-if="beatmap.quest && quest.id == beatmap.quest._id && beatmap.status == 'WIP'"
                     :key="beatmap.id"
                     :beatmap="beatmap"
-                    :extended-info="extendedInfo"
+                    :user-osu-id="userOsuId"
+                    @update:selectedMap="selectedMap = $event"
                 ></beatmap-card>
             </transition-group>
         </template>
@@ -47,7 +45,8 @@
                 v-if="!beatmap.quest && beatmap.status == 'WIP'"
                 :key="beatmap.id"
                 :beatmap="beatmap"
-                :extended-info="extendedInfo"
+                :user-osu-id="userOsuId"
+                @update:selectedMap="selectedMap = $event"
             ></beatmap-card>
         </transition-group>
     </div>
@@ -71,7 +70,8 @@
                     v-if="beatmap.quest && quest.id == beatmap.quest._id && beatmap.status == 'Done'"
                     :key="beatmap.id"
                     :beatmap="beatmap"
-                    :extended-info="extendedInfo"
+                    :user-osu-id="userOsuId"
+                    @update:selectedMap="selectedMap = $event"
                 ></beatmap-card>
             </transition-group>
         </template>
@@ -83,12 +83,19 @@
                 v-if="!beatmap.quest && beatmap.status == 'Done'"
                 :key="beatmap.id"
                 :beatmap="beatmap"
-                :extended-info="extendedInfo"
+                :user-osu-id="userOsuId"
+                @update:selectedMap="selectedMap = $event"
             ></beatmap-card>
         </transition-group>
     </div>
+
     <beatmap-info
+        :beatmap="selectedMap"
+        :user-osu-id="userOsuId"
     ></beatmap-info>
+    <create-beatmap
+        :opened="wasCreateBeatmapOpened"
+    ></create-beatmap>
 </div>
 </template>
 
@@ -105,53 +112,9 @@ export default {
         BeatmapInfo,
     },
     methods: {
-		extendedInfo: function(beatmap) {
-            this.selectedMap = beatmap;
-            this.isHost = (this.userOsuId == beatmap.host.osuId);
-            //sortDiffs();
-        },
-        resetArtist: function(){
-            this.featuredSongs = null;
-            axios
-                .get('/beatmaps/artists')
-                .then(response => {
-                    this.featuredArtists = response.data.sort((a,b) => (a.label.toLowerCase() > b.label.toLowerCase()) ? 1 : ((b.label.toLowerCase() > a.label.toLowerCase()) ? -1 : 0));
-                });
-            this.info = null;
-            $('input[type=checkbox]').each(function() 
-            { 
-                this.checked = false; 
-            });
-        },
-
         //display methods
         createCollapseId(name){
             return name.split(' ').join('');
-        },
-        isModder(){
-            let value;
-            this.selectedMap.modders.forEach(modder => {
-                if(modder.osuId == this.userOsuId){
-                    value = true;
-                }
-            });
-            return value;
-        },
-        isBn(){
-            let value;
-            this.selectedMap.bns.forEach(bn => {
-                if(bn.osuId == this.userOsuId){
-                    value = true;
-                }
-            });
-            return value;
-        },
-        urlLength(url){
-            if(url.length > 40){
-                return url.slice(0, 40) + "...";
-            }else{
-                return url;
-            }
         },
         hasBeatmaps(quest, state) {
             return quest.associatedMaps.find(m => m.status == state);
@@ -165,52 +128,7 @@ export default {
             $(".map-collapse").collapse('show');
         },
 
-        //new map
-        setArtist: async function(e){
-            let labelId = $("#artistSelection").val();
-            e.target.disabled = true;
-            axios
-                .get('beatmaps/songs/' + labelId)
-                .then(response => {
-                    e.target.disabled = false;
-                    this.featuredSongs = response.data.sort((a,b) => (a.title.toLowerCase() > b.title.toLowerCase()) ? 1 : ((b.title.toLowerCase() > a.title.toLowerCase()) ? -1 : 0));
-                });
-        },
-        saveNewMap: async function(e){
-            const song = $('#songSelection').val();
-            if(song == "none"){
-                this.info = "Select a song!"
-            }else{
-                const tasks = ['Easy', 'Normal', 'Hard', 'Insane', 'Expert'];
-                const difficulties = this.applyCheckboxes(tasks, false);
-                const locks = this.applyCheckboxes(tasks, true); 
-                const bm = await this.executePost('/beatmaps/create/', {song: song, tasks: difficulties, tasksLocked: locks}, e);
-                if(bm){
-                    $('#addBeatmap').modal('hide');
-                    $('.quest-collapse-wip').collapse();
-                    $('#othersWip').collapse("show");
-                    this.beatmaps.unshift(bm);
-                }
-            }
-        },
-        applyCheckboxes(tasks, isLocks) {
-            let difficulties = '';
-        
-            tasks.forEach(function(task) {
-                let element;
-        
-                if (isLocks) {
-                    element = `#lock-${task}`;
-                } else {
-                    element = `#${task}`;
-                }
-        
-                if ($(element).is(':checked')) {
-                    difficulties += `${task}|`;
-                }
-            });
-            return difficulties.slice(0, -1);
-        },
+        // filters
         filter: function (field, e, keepFilter) {            
             if (this.filterBy === field && !keepFilter) {
                 this.filterBy = null;
@@ -248,14 +166,13 @@ export default {
             wipQuests: null,
 			selectedMap: null,
             userOsuId: null,
-            isHost: null,
             featuredArtists: null,
             featuredSongs: null,
             info: null,
             filterBy: null,
             filterValue: null,
             tempBeatmaps: null,
-            isCreateBeatmapVisible: false,
+            wasCreateBeatmapOpened: false,
 		}
     },
     created () {
@@ -270,6 +187,18 @@ export default {
 				$("#app").attr("style", "visibility: visible").hide().fadeIn();
 			});
     },
+    mounted () {
+        setInterval(() => {
+            axios
+                .get('/beatmaps/relevantInfo')
+                .then(response => {
+                    this.beatmaps = response.data.beatmaps;
+                    this.wipQuests = response.data.wipQuests;
+                    this.userOsuId = response.data.userId;
+                    this.filter(this.filterBy, null, true);
+                });
+        }, 30000);
+    }
 }
 </script>
 
