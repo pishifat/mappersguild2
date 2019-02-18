@@ -130,8 +130,8 @@
                                     <a :href="'https://osu.ppy.sh/users/' + modder.osuId" target="_blank" :key="modder.id">{{ modder.username + (i < beatmap.modders.length - 1 ? ', ' : '') }}</a>
                                 </template></span>
                                 <span data-toggle="tooltip" data-placement="right" title="add/remove yourself from modder list">
-                                    <a href="#" v-if="isModder() && !isHost" class="mod-button icon-used" :class="fakeButton == beatmap.id + 'mod' ? 'fake-button-disable' : ''" @click.stop.prevent="updateModder()"><i class="fas fa-minus-square"></i></a>
-                                    <a href="#" v-if="!isModder() && !isHost" class="icon-valid mod-button" :class="fakeButton == beatmap.id + 'mod' ? 'fake-button-disable' : ''" @click.stop.prevent="updateModder()"><i class="fas fa-plus-square"></i></a>
+                                    <a href="#" v-if="isModder && !isHost" class="mod-button icon-used" :class="fakeButton == beatmap.id + 'mod' ? 'fake-button-disable' : ''" @click.stop.prevent="updateModder()"><i class="fas fa-minus-square"></i></a>
+                                    <a href="#" v-if="!isModder && !isHost" class="icon-valid mod-button" :class="fakeButton == beatmap.id + 'mod' ? 'fake-button-disable' : ''" @click.stop.prevent="updateModder()"><i class="fas fa-plus-square"></i></a>
                                 </span>
                             </p>
                             <p id="bns" class="text-shadow">
@@ -141,8 +141,8 @@
                                     <a :href="'https://osu.ppy.sh/users/' + bn.osuId" target="_blank" :key="bn.id">{{ bn.username + (i < beatmap.bns.length - 1 ? ', ' : '') }}</a>
                                 </template></span>
                                 <span data-toggle="tooltip" data-placement="right" title="add/remove yourself from potential BN list">
-                                    <a href="#" v-if="isBn() && !isHost" class="icon-used" :class="fakeButton == beatmap.id + 'bn' ? 'fake-button-disable' : ''" @click.prevent="updateBn()"><i class="fas fa-minus-square"></i></a>
-                                    <a href="#" v-if="!isBn() && !isHost && beatmap.bns.length < 2" :class="fakeButton == beatmap.id + 'bn' ? 'fake-button-disable' : ''" class="icon-valid" @click.prevent="updateBn()"><i class="fas fa-plus-square"></i></a>
+                                    <a href="#" v-if="isBn && !isHost" class="icon-used" :class="fakeButton == beatmap.id + 'bn' ? 'fake-button-disable' : ''" @click.prevent="updateBn()"><i class="fas fa-minus-square"></i></a>
+                                    <a href="#" v-if="!isBn && !isHost && beatmap.bns.length < 2" :class="fakeButton == beatmap.id + 'bn' ? 'fake-button-disable' : ''" class="icon-valid" @click.prevent="updateBn()"><i class="fas fa-plus-square"></i></a>
                                 </span>
                             </p>
                             <p id="mapLink" class="text-shadow">
@@ -151,11 +151,13 @@
                                 <i v-else class="small">none</i>
                                 <a v-if="isHost" href="#" id='editLink' :class="editLinkInput ? 'icon-used' : ''" class="icon-valid" @click.prevent="editLinkInput ? unsetLink() : setLink()"  data-toggle="tooltip" data-placement="right" title="edit link"><i class="fas fa-edit"></i></a>
                             </p>
-                            <p  id="linkInput">
+                            <p id="linkInput">
                                 <div v-if="editLinkInput" class="input-group input-group-sm mb-3">
-                                    <input class="form-control form-control-sm" type="text" placeholder="URL" id="newLink" style="border-radius: 100px 0 0 100px" v-model="beatmap.url" @keyup.enter="saveLink($event)"></input>
+                                    <input class="form-control form-control-sm" type="text" placeholder="URL" id="newLink" style="border-radius: 100px 0 0 100px" v-model="beatmap.url" @keyup.enter="saveLink($event)" />
                                     <div class="input-group-append">
-                                        <button style="border-radius: 0 100px 100px 0;" class="rounded-circle-left btn btn-mg" type="submit" id="addLinkButton" @click="saveLink($event)" data-toggle="tooltip" data-placement="right" title="use new osu!web link for card image"><span class="append-button-padding">Save link</span></button>
+                                        <button style="border-radius: 0 100px 100px 0;" class="rounded-circle-left btn btn-mg" type="submit" id="addLinkButton" @click="saveLink($event)" data-toggle="tooltip" data-placement="right" title="use new osu!web link for card image">
+                                            <span class="append-button-padding">Save link</span>
+                                        </button>
                                     </div>
                                 </div>
                             </p>
@@ -228,14 +230,6 @@ export default {
         isHost: function () {
             return this.userOsuId == this.beatmap.host.osuId;
         },
-        isOwner(mappers){
-            mappers.forEach(mapper => {
-                if(mapper.osuId == this.userOsuId){
-                    return true;
-                }
-            });
-            return false;
-        },
         isModder: function () {
             this.beatmap.modders.forEach(modder => {
                 if(modder.osuId == this.userOsuId){
@@ -280,18 +274,19 @@ export default {
 			    if (e) e.target.disabled = false;
 			}
         },
-        updateMap: function(bm) {
-			const i = this.$parent.beatmaps.findIndex(b => b.id == bm.id);
-			this.$parent.beatmaps[i] = bm;
-            this.beatmap = bm;
-            this.info = null;
-            this.sortDiffs();
-        },
         sortDiffs: function(){
             let sortOrder = ["Easy", "Normal", "Hard", "Insane", "Expert", "Storyboard"]
             this.beatmap.tasks.sort(function(a, b) {
                 return sortOrder.indexOf(a.name) - sortOrder.indexOf(b.name);
             });
+        },
+        isOwner(mappers){
+            mappers.forEach(mapper => {
+                if(mapper.osuId == this.userOsuId){
+                    return true;
+                }
+            });
+            return false;
         },
         
         //real methods
@@ -300,7 +295,8 @@ export default {
         setMode: async function(id, mode, e){
             const bm = await this.executePost('/beatmaps/setMode/' + id, {mode: mode}, e);
             if(bm){
-                this.updateMap(bm);
+                this.$emit('update-map', bm);
+                this.sortDiffs();
             }
         },
 
@@ -309,7 +305,8 @@ export default {
             const user = $('#hostEntry').val();
             const bm = await this.executePost('/beatmaps/transferHost/' + id, {user: user}, e);
             if(bm){
-                this.updateMap(bm);
+                this.$emit('update-map', bm);
+                this.sortDiffs();
                 this.inviteConfirm = "Transfer host invite sent!"
             }
         },
@@ -325,13 +322,14 @@ export default {
             this.addCollabInput = null;
             this.collabTask = task;
         },
-        removeTask: async function(id){
+        removeTask: async function(id) {
             this.fakeButton = id;
             this.addCollabInput = null;
             this.removeCollabInput = null;
-            const bm = await this.executePost('/beatmaps/removeTask/' + id, {beatmapId: beatmap._id});
-            if(bm){
-                this.updateMap(bm);
+            const bm = await this.executePost('/beatmaps/removeTask/' + id, { beatmapId: this.beatmap._id });
+            if (bm) {
+                this.$emit('update-map', bm);
+                this.sortDiffs();
             }
             this.fakeButton = null;
         },
@@ -341,7 +339,8 @@ export default {
             this.removeCollabInput = null;
             const bm = await this.executePost('/beatmaps/setTaskStatus/' + id, {status: status});
             if(bm){
-                this.updateMap(bm);
+                this.$emit('update-map', bm);
+                this.sortDiffs();
             }
             this.fakeButton = null;
         },
@@ -349,7 +348,8 @@ export default {
             let difficulty = $("#diffSelection").val();
             const bm = await this.executePost('/beatmaps/addTask/' + id, {difficulty: difficulty}, e);
             if(bm){
-                this.updateMap(bm);
+                this.$emit('update-map', bm);
+                this.sortDiffs();
             }
         },
         requestTask: async function(id, e){
@@ -357,7 +357,8 @@ export default {
             let recipient = $("#requestEntry").val();
             const bm = await this.executePost('/beatmaps/requestTask/' + id, {difficulty: difficulty, recipient: recipient}, e);
             if(bm){
-                this.updateMap(bm);
+                this.$emit('update-map', bm);
+                this.sortDiffs();
                 this.inviteConfirm = "Difficulty request sent!"
             }
         },
@@ -366,7 +367,8 @@ export default {
             const id = this.addCollabInput;
             const bm = await this.executePost('/beatmaps/task/' + id + '/addCollab', {user: user}, e);
             if(bm){
-                this.updateMap(bm);
+                this.$emit('update-map', bm);
+                this.sortDiffs();
                 this.inviteConfirm = "Collab invite sent!"
             }
         },
@@ -375,7 +377,8 @@ export default {
             const id = this.removeCollabInput;
             const bm = await this.executePost('/beatmaps/task/' + id + '/removeCollab', {user: user}, e);
             if(bm){
-                this.updateMap(bm);
+                this.$emit('update-map', bm);
+                this.sortDiffs();
                 this.removeCollabInput = null;
             }
         },
@@ -384,7 +387,8 @@ export default {
         setStatus: async function(status, e){
             const bm = await this.executePost('/beatmaps/setStatus/' + beatmap._id, {status: status}, e);
             if(bm){
-                this.updateMap(bm);
+                this.$emit('update-map', bm);
+                this.sortDiffs();
             }
         },
 
@@ -400,7 +404,7 @@ export default {
                     $(`#${bm.quest.name.split(' ').join('')}Done`).collapse("show");
                     $(`.non-quest-collapse-done`).collapse();
                 }
-                this.updateMap(bm);
+                this.$emit('update-map', bm);
                 axios
                     .get('/beatmaps/relevantInfo')
                     .then(response => {
@@ -413,7 +417,7 @@ export default {
             this.fakeButton = beatmap._id + 'quest';
             const bm = await this.executePost('/beatmaps/unsetQuest/' + beatmap._id);
             if(bm){
-                this.updateMap(bm);
+                this.$emit('update-map', bm);
             }
             this.fakeButton = null;
             /* const questIndex = this.$parent.wipQuests.findIndex(q => q.id == bm.quest.id);
@@ -434,7 +438,7 @@ export default {
             this.fakeButton = beatmap._id + "mod";
             const bm = await this.executePost('/beatmaps/updateModder/' + beatmap._id);
             if(bm){
-                this.updateMap(bm);
+                this.$emit('update-map', bm);
             }
             this.fakeButton = null;
         },
@@ -444,7 +448,7 @@ export default {
             this.fakeButton = beatmap._id + "bn";
             const bm = await this.executePost('/beatmaps/updateBn/' + beatmap._id);
             if(bm){
-                this.updateMap(bm);
+                this.$emit('update-map', bm);
             }
             this.fakeButton = null;
         },
@@ -461,7 +465,7 @@ export default {
             const bm = await this.executePost('/beatmaps/setLink/' + beatmap._id, {url: url}, e);
             if(bm){
                 this.editLinkInput = null;
-                this.updateMap(bm);
+                this.$emit('update-map', bm);
             }
         },
         
@@ -471,7 +475,7 @@ export default {
             const bm = await this.executePost('/beatmaps/unlockTask/' + beatmap._id, {difficulty: difficulty});
             if(bm){
                 this.editLinkInput = null;
-                this.updateMap(bm);
+                this.$emit('update-map', bm);
             }
         },
         lockTask: async function(e){
@@ -479,7 +483,7 @@ export default {
             let difficulty = $("#lockDiffSelection").val();
             const bm = await this.executePost('/beatmaps/lockTask/' + beatmap._id, {difficulty: difficulty}, e);
             if(bm){
-                this.updateMap(bm);
+                this.$emit('update-map', bm);
             }
         },
 

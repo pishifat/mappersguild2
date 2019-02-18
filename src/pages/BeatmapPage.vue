@@ -4,7 +4,7 @@
         <small>Filter: 
             <a :class="filterBy === 'myMaps' ? 'sorted' : ''" href="#" @click.prevent="filter('myMaps')">My maps</a> | 
             <a :class="filterBy === 'gds' ? 'sorted' : '' " href="#" @click.prevent="filter('gds')">Accepting guest difficulties</a> | 
-            <a :class="filterBy === 'mapper' ? 'sorted' : ''" href="#" @click.prevent="filter('mapper')">Search mapper: </a> <input id="mapperFilter" type="text" @keyup.enter="filter('mapper', $event)" style="border-radius: 5px 5px 5px 5px; filter: drop-shadow(1px 1px 1px #000000);"></input> 
+            <a :class="filterBy === 'mapper' ? 'sorted' : ''" href="#" @click.prevent="filter('mapper')">Search mapper: </a> <input id="mapperFilter" type="text" @keyup.enter="filter('mapper', $event)" style="border-radius: 5px 5px 5px 5px; filter: drop-shadow(1px 1px 1px #000000);" /> 
         </small>
     </div>
     <div class="row mb-3 col-md-12">
@@ -16,17 +16,17 @@
     <!-- WIP Beatmaps -->
     <div class="col-lg-8">
         <div class="row">
-            <h2>Work-in-progress <button class="btn btn-mg" data-toggle="modal" data-target="#addBeatmap" @click="wasCreateBeatmapClicked = true">Add beatmap</button></h2>
+            <h2>Work-in-progress <button class="btn btn-mg" data-toggle="modal" data-target="#addBeatmap" @click="wasCreateBeatmapOpened = true">Add beatmap</button></h2>
         </div>
 
-        <template v-for="quest in wipQuests">
-            <div class="col-md-12" :key="quest.id" v-if="hasBeatmaps(quest, 'WIP')">
+        <template v-for="quest in wipQuests" v-if="hasBeatmaps(quest, 'WIP')">
+            <div class="col-md-12" :key="quest.id">
                 <a data-toggle="collapse" :href="'#' + createCollapseId(quest.name) + 'Wip'">
                     <img v-if="quest.art" class="rounded-circle" style="height:24px; width: 24px;" :src="'https://assets.ppy.sh/artists/' + quest.art + '/cover.jpg'"> 
                     Quest: \{{quest.name}}
                 </a> 
             </div>
-            <transition-group :id="createCollapseId(quest.name) + 'Wip'" name="list" tag="div" class="row collapse show map-collapse" :key="quest.id">
+            <transition-group :id="createCollapseId(quest.name) + 'Wip'" name="list" tag="div" class="row collapse show map-collapse" :key="quest.id + '-wip'">
                 <beatmap-card
                     v-for="beatmap in beatmaps"
                     v-if="beatmap.quest && quest.id == beatmap.quest._id && beatmap.status == 'WIP'"
@@ -57,8 +57,8 @@
             <h2>Pending</h2>
         </div>
 
-        <template v-for="quest in wipQuests">
-            <div class="col-md-12" :key="quest.id" v-if="hasBeatmaps(quest, 'Done')">
+        <template v-for="quest in wipQuests" v-if="hasBeatmaps(quest, 'Done')">
+            <div class="col-md-12" :key="quest.id + '-done'">
                 <a data-toggle="collapse" :href="'#' + createCollapseId(quest.name) + 'done'">
                     <img v-if="quest.art" class="rounded-circle" style="height:24px; width: 24px;" :src="'https://assets.ppy.sh/artists/' + quest.art + '/cover.jpg'"> 
                     Quest: \{{quest.name}}
@@ -92,6 +92,7 @@
     <beatmap-info
         :beatmap="selectedMap"
         :user-osu-id="userOsuId"
+        @update-map="updateMap($event)"
     ></beatmap-info>
     <create-beatmap
         :opened="wasCreateBeatmapOpened"
@@ -112,6 +113,16 @@ export default {
         BeatmapInfo,
     },
     methods: {
+        updateMap: function(bm) {
+            console.log(bm);
+            
+			const i = this.beatmaps.findIndex(b => b.id == bm.id);
+			this.beatmaps[i] = bm;
+            this.beatmap = bm;
+            this.selectedMap = bm;
+            this.info = null;
+        },
+
         //display methods
         createCollapseId(name){
             return name.split(' ').join('');
