@@ -259,6 +259,7 @@ export default {
         executePost: async function(path, data, e) {
 			if (e) e.target.disabled = true;
             $("[data-toggle='tooltip']").tooltip('hide');
+            
 			try {
 				const res = await axios.post(path, data)
 				
@@ -266,13 +267,13 @@ export default {
                     this.info = res.data.error;
                     this.inviteConfirm = null;
 				} else {
-					if (e) e.target.disabled = false;
 					return res.data;
 				}
 			} catch (error) {
                 this.info = 'Something went wrong';
-			    if (e) e.target.disabled = false;
-			}
+            }
+            
+            if (e) e.target.disabled = false;
         },
         sortDiffs: function(){
             let sortOrder = ["Easy", "Normal", "Hard", "Insane", "Expert", "Storyboard"]
@@ -394,8 +395,8 @@ export default {
 
         //quest
         setQuest: async function(){
-            this.fakeButton = beatmap._id + 'quest';
-            const bm = await this.executePost('/beatmaps/setQuest/' + beatmap._id);
+            this.fakeButton = this.beatmap._id + 'quest';
+            const bm = await this.executePost('/beatmaps/setQuest/' + this.beatmap._id);
             if(bm){
                 if(bm.status == "WIP"){
                     $(`#${bm.quest.name.split(' ').join('')}Wip`).collapse("show");
@@ -414,8 +415,8 @@ export default {
             this.fakeButton = null;
         },
         unsetQuest: async function(){
-            this.fakeButton = beatmap._id + 'quest';
-            const bm = await this.executePost('/beatmaps/unsetQuest/' + beatmap._id);
+            this.fakeButton = this.beatmap._id + 'quest';
+            const bm = await this.executePost('/beatmaps/unsetQuest/' + this.beatmap._id);
             if(bm){
                 this.$emit('update-map', bm);
             }
@@ -435,8 +436,8 @@ export default {
 
         //mod
         updateModder: async function(){
-            this.fakeButton = beatmap._id + "mod";
-            const bm = await this.executePost('/beatmaps/updateModder/' + beatmap._id);
+            this.fakeButton = this.beatmap._id + "mod";
+            const bm = await this.executePost('/beatmaps/updateModder/' + this.beatmap._id);
             if(bm){
                 this.$emit('update-map', bm);
             }
@@ -445,8 +446,8 @@ export default {
 
         //BN
         updateBn: async function(){
-            this.fakeButton = beatmap._id + "bn";
-            const bm = await this.executePost('/beatmaps/updateBn/' + beatmap._id);
+            this.fakeButton = this.beatmap._id + "bn";
+            const bm = await this.executePost('/beatmaps/updateBn/' + this.beatmap._id);
             if(bm){
                 this.$emit('update-map', bm);
             }
@@ -462,7 +463,7 @@ export default {
         },
         saveLink: async function(e){
             let url = $("#newLink").val();
-            const bm = await this.executePost('/beatmaps/setLink/' + beatmap._id, {url: url}, e);
+            const bm = await this.executePost('/beatmaps/setLink/' + this.beatmap._id, {url: url}, e);
             if(bm){
                 this.editLinkInput = null;
                 this.$emit('update-map', bm);
@@ -472,7 +473,7 @@ export default {
         //locks
         unlockTask: async function(difficulty){
             this.fakeButton = difficulty;
-            const bm = await this.executePost('/beatmaps/unlockTask/' + beatmap._id, {difficulty: difficulty});
+            const bm = await this.executePost('/beatmaps/unlockTask/' + this.beatmap._id, {difficulty: difficulty});
             if(bm){
                 this.editLinkInput = null;
                 this.$emit('update-map', bm);
@@ -481,7 +482,7 @@ export default {
         lockTask: async function(e){
             this.fakeButton = null;
             let difficulty = $("#lockDiffSelection").val();
-            const bm = await this.executePost('/beatmaps/lockTask/' + beatmap._id, {difficulty: difficulty}, e);
+            const bm = await this.executePost('/beatmaps/lockTask/' + this.beatmap._id, {difficulty: difficulty}, e);
             if(bm){
                 this.$emit('update-map', bm);
             }
@@ -492,7 +493,7 @@ export default {
             const result = confirm(`Are you sure you want to delete?`);
 			if (result) {
                 e.target.disabled = true;
-                const bm = await this.executePost('/beatmaps/delete/' + beatmap._id, e);
+                const bm = await this.executePost('/beatmaps/delete/' + this.beatmap._id, e);
                 if(bm){
                     $('#editBeatmap').modal('hide');
                     const i = this.beatmaps.findIndex(b => b.id == bm.id);

@@ -19,17 +19,16 @@
             <h2>Work-in-progress <button class="btn btn-mg" data-toggle="modal" data-target="#addBeatmap" @click="wasCreateBeatmapOpened = true">Add beatmap</button></h2>
         </div>
 
-        <template v-for="quest in wipQuests" v-if="hasBeatmaps(quest, 'WIP')">
+        <template v-for="quest in wipQuests">
             <div class="col-md-12" :key="quest.id">
                 <a data-toggle="collapse" :href="'#' + createCollapseId(quest.name) + 'Wip'">
                     <img v-if="quest.art" class="rounded-circle" style="height:24px; width: 24px;" :src="'https://assets.ppy.sh/artists/' + quest.art + '/cover.jpg'"> 
-                    Quest: \{{quest.name}}
+                    Quest: {{quest.name}}
                 </a> 
             </div>
             <transition-group :id="createCollapseId(quest.name) + 'Wip'" name="list" tag="div" class="row collapse show map-collapse" :key="quest.id + '-wip'">
                 <beatmap-card
-                    v-for="beatmap in beatmaps"
-                    v-if="beatmap.quest && quest.id == beatmap.quest._id && beatmap.status == 'WIP'"
+                    v-for="beatmap in getRelatedBeatmaps(quest)"
                     :key="beatmap.id"
                     :beatmap="beatmap"
                     :user-osu-id="userOsuId"
@@ -41,8 +40,7 @@
         <a class="ml-3" data-toggle="collapse" href="#othersWip">No associated quest</a>
         <transition-group id="othersWip" name="list" tag="div" class="row collapse show map-collapse">
             <beatmap-card
-                v-for="beatmap in beatmaps"
-                v-if="!beatmap.quest && beatmap.status == 'WIP'"
+                v-for="beatmap in othersWipBeatmaps"
                 :key="beatmap.id"
                 :beatmap="beatmap"
                 :user-osu-id="userOsuId"
@@ -57,17 +55,16 @@
             <h2>Pending</h2>
         </div>
 
-        <template v-for="quest in wipQuests" v-if="hasBeatmaps(quest, 'Done')">
+        <template v-for="quest in pendingQuests">
             <div class="col-md-12" :key="quest.id + '-done'">
                 <a data-toggle="collapse" :href="'#' + createCollapseId(quest.name) + 'done'">
                     <img v-if="quest.art" class="rounded-circle" style="height:24px; width: 24px;" :src="'https://assets.ppy.sh/artists/' + quest.art + '/cover.jpg'"> 
-                    Quest: \{{quest.name}}
+                    Quest: {{quest.name}}
                 </a> 
             </div>
             <transition-group :id="createCollapseId(quest.name) + 'done'" name="list" tag="div" class="row collapse show map-collapse" :key="quest.id">
                 <beatmap-card
-                    v-for="beatmap in beatmaps"
-                    v-if="beatmap.quest && quest.id == beatmap.quest._id && beatmap.status == 'Done'"
+                    v-for="beatmap in getRelatedBeatmaps(quest)"
                     :key="beatmap.id"
                     :beatmap="beatmap"
                     :user-osu-id="userOsuId"
@@ -79,8 +76,7 @@
         <a class="ml-3" data-toggle="collapse" href="#othersDone">No associated quest</a>
         <transition-group id="othersDone" name="list" tag="div" class="row collapse show map-collapse">
             <beatmap-card
-                v-for="beatmap in beatmaps"
-                v-if="!beatmap.quest && beatmap.status == 'Done'"
+                v-for="beatmap in othersPendingBeatmaps"
                 :key="beatmap.id"
                 :beatmap="beatmap"
                 :user-osu-id="userOsuId"
@@ -112,10 +108,43 @@ export default {
         BeatmapCard,
         BeatmapInfo,
     },
+    computed: {
+        othersWipBeatmaps: function () {
+            if (this.beatmaps) {
+                return this.beatmaps.filter(b => b.status == 'WIP');
+            }
+        },
+        othersPendingBeatmaps: function () {
+            if (this.beatmaps) {
+                return this.beatmaps.filter(b => b.status == 'Done');
+            }
+        },
+        wipQuests: function () {
+            if (this.allQuests) {
+                return this.allQuests.filter(q => {
+                    if (q.associatedMaps.find(m => m.status == 'WIP')) {
+                        return true;
+                    }
+                });
+            }
+        },
+        pendingQuests: function () {
+            if (this.allQuests) {
+                return this.allQuests.filter(q => {
+                    if (q.associatedMaps.find(m => m.status == 'Done')) {
+                        return true;
+                    }
+                });
+            }
+        },
+    },
     methods: {
+        getRelatedBeatmaps: function (quest) {
+            return this.beatmaps.filter(b => {
+                return b.quest && b.quest.id == quest.id
+            });
+        },
         updateMap: function(bm) {
-            console.log(bm);
-            
 			const i = this.beatmaps.findIndex(b => b.id == bm.id);
 			this.beatmaps[i] = bm;
             this.beatmap = bm;
@@ -126,9 +155,6 @@ export default {
         //display methods
         createCollapseId(name){
             return name.split(' ').join('');
-        },
-        hasBeatmaps(quest, state) {
-            return quest.associatedMaps.find(m => m.status == state);
         },
 
         //collapse
@@ -174,7 +200,7 @@ export default {
     data () {
 		return { 
             beatmaps: null,
-            wipQuests: null,
+            allQuests: null,
 			selectedMap: null,
             userOsuId: null,
             featuredArtists: null,
@@ -191,7 +217,7 @@ export default {
       		.get('/beatmaps/relevantInfo')
       		.then(response => {
                 this.beatmaps = response.data.beatmaps;
-                this.wipQuests = response.data.wipQuests;
+                this.allQuests = response.data.allQuests;
                 this.userOsuId = response.data.userId;
               }).then(function(){
                 $("#loading").fadeOut();
@@ -204,7 +230,7 @@ export default {
                 .get('/beatmaps/relevantInfo')
                 .then(response => {
                     this.beatmaps = response.data.beatmaps;
-                    this.wipQuests = response.data.wipQuests;
+                    this.allQuests = response.data.allQuests;
                     this.userOsuId = response.data.userId;
                     this.filter(this.filterBy, null, true);
                 });

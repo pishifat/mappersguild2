@@ -89,11 +89,11 @@ router.get('/', async function(req, res) {
 });
 
 router.get("/relevantInfo", async (req, res, next) => {
-    const [bms, wipQuests] = await Promise.all([
+    const [bms, allQuests] = await Promise.all([
         beatmaps.service.query({status: { $ne: 'Ranked'}}, defaultPopulate, {createdAt: -1}, true),
         quests.service.query({status: 'wip'}, questPopulate, {createdAt: -1}, true),
     ]);
-    res.json({beatmaps: bms, wipQuests: wipQuests, userId: req.session.osuId});
+    res.json({beatmaps: bms, allQuests: allQuests, userId: req.session.osuId});
 });
 
 /* GET artists for new map entry */

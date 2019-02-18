@@ -1,0 +1,118 @@
+<template>
+<div id="extendedInfo" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content custom-bg-dark" v-if="selectedParty">
+            <div class="modal-header modal-header-card text-dark" :class="'bg-rank-' + selectedParty.rank">
+                <h5 class="modal-title modal-title-card">{{ selectedParty.name }}</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body modal-body-card" style="overflow: hidden;">
+                <img src="../images/the_A.png" class="the-a-background">
+                <p class="text-shadow">Members: (<span :class="selectedParty.id + '-member-count'">{{ selectedParty.members.length }}</span>)</p> 
+                <p class="indent text-shadow">
+                    <template v-for="(member, i) in selectedParty.members"><a :href="'https://osu.ppy.sh/users/' + member.osuId" target="_blank">{{ member.username + (i < selectedParty.members.length - 1 ? ', ' : '') }}</a></template>
+                </p>
+                <p class="text-shadow">Leader: <a :href="'https://osu.ppy.sh/users/' + selectedParty.leader.osuId" target="_blank">{{ selectedParty.leader.username }}</a></p>
+                <p class="text-shadow">Rank: {{ selectedParty.rank }}</p>
+                <p class="text-shadow">
+                    Current Quest: <span :class="selectedParty.id + '-quest'">{{ selectedParty.currentQuest ? selectedParty.currentQuest.name : 'none' }}</span>
+                </p>
+
+                <!-- leader options -->
+                <div v-if="userId == selectedParty.leader.osuId">
+                    <hr>
+                    <p class="text-shadow">Party leader options:</p>
+                    <div class="input-group input-group-sm mb-3">
+                        <input class="form-control form-control-sm" type="text" placeholder="New name..." id="newName" maxlength="32"
+                            style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 100px 0 0 100px;" 
+                            @keyup.enter="rename($event)" />
+                        <div class="input-group-prepend">
+                            <button style="border-radius: 0 100px 100px 0;" class="btn btn-mg rename-button" @click="rename($event)" type="submit"><span class="append-button-padding">Save new name</span></button>
+                        </div>
+                    </div>
+                    <div class="input-group input-group-sm mb-3">
+                        <input class="form-control form-control-sm" type="text" placeholder="Beatmap set ID (banner = map bg)" id="banner" 
+                            style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 100px 0 0 100px" 
+                            @keyup.enter="addBanner($event)" />
+                        <div class="input-group-append">
+                            <button style="border-radius: 0 100px 100px 0;" class="btn btn-mg banner-button" @click="addBanner($event)" type="submit"><span class="append-button-padding">Save banner</span></button>
+                        </div>
+                    </div>
+
+                    <div v-if="selectedParty.members.length > 1">
+                        <div class="input-group input-group-sm mb-3 kick-member-input">
+                            <select class="custom-select select-arrow small" id="kick">
+                                <option selected value="none">Select a user...</option>
+                                <template v-for="member in selectedParty.members">
+                                    <option :value="member.id" v-if="member.osuId !== userId">{{member.username}}</option>
+                                </template>
+                            </select>
+                            <div class="input-group-append">
+                                <button style="border-radius: 0 100px 100px 0;" class="btn btn-mg-used kick-button" @click="kickMember($event)"><span class="append-button-padding">Kick</span></button>
+                            </div>
+                        </div>
+                        <div class="input-group input-group-sm mb-3 transfer-leader-input">
+                            <select class="custom-select select-arrow small" id="transfer">
+                                <option selected value="none">Select a user...</option>
+                                <template v-for="member in selectedParty.members">
+                                    <option :value="member.id" v-if="member.osuId !== userId">{{member.username}}</option>
+                                </template>
+                            </select>
+                            <div class="input-group-append">
+                                <button style="border-radius: 0 100px 100px 0;" class="btn btn-mg transfer-leader-button" @click="transferLeader($event)"><span class="append-button-padding">Transfer Leader</span></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button 
+                        class="btn btn-sm justify-content-center" 
+                        :class="{ 'btn-mg': selectedParty.lock, 'btn-mg-used': !selectedParty.lock }" 
+                        @click="switchLock($event)"
+                    >
+                        {{selectedParty.lock ? 'Allow new members' : 'Disallow new members'}}
+                    </button>
+                </div>
+                <!-- end leader options -->
+
+                <hr>
+                <div v-if="!(!userPartyId && !selectedParty.lock && !selectedParty.currentQuest && selectedParty.members.length <= 12) && userPartyId != selectedParty.id">
+                    <p class="small text-shadow">You're unable to join this party because:</p>
+                    <ul style="list-style-type: none" class="small text-shadow">
+                        <li v-if="userPartyId">You can only be in one party at a time</li>
+                        <li v-if="selectedParty.lock">The party's leader has disabled new member entry</li>
+                        <li v-if="selectedParty.currentQuest">The party is currently running a quest</li>
+                        <li v-if="selectedParty.members.length > 12">The party has the maximum number of members (12)</li>
+                    </ul>
+                </div>
+
+                <div v-if="!userPartyId && !selectedParty.lock && !selectedParty.currentQuest && selectedParty.members.length < 12">
+                    <button class='btn btn-mg btn-sm justify-content-center float-right join' @click="joinParty(selectedParty.id)">Join party</button>
+                </div>
+                <div v-if="userId == selectedParty.leader.osuId && selectedParty.members.length > 1">
+                    <button class='btn btn-mg-used btn-sm justify-content-center float-right' @click="leaveParty(selectedParty.id)" disabled>Leave party</button>
+                </div>
+                <div v-if="userPartyId == selectedParty.id && selectedParty.members.length > 1 && userId != selectedParty.leader.osuId">
+                    <button class='btn btn-mg-used btn-sm justify-content-center float-right' @click="leaveParty(selectedParty.id, $event)">Leave party</button>
+                </div>
+                <div v-if="userPartyId === selectedParty.id && selectedParty.members.length == 1">
+                    <button class='btn btn-mg-used btn-sm justify-content-center float-right' @click="deleteParty($event)">Disband party</button>
+                </div>
+
+                <p class="mt-4 text-shadow">{{ info }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+</template>
+
+<script>
+export default {
+
+}
+</script>
+
+<style>
+
+</style>

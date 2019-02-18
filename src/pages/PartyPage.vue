@@ -1,12 +1,46 @@
-$(document).ready(function () {
-	$("body").tooltip({ selector: '[data-toggle=tooltip]' });
-    var src = "../images/small.png"
-    $("#load").attr("src", src);
-});
+<template>
+<div class="row">
+    <div class="col-md-12">
+        <h2>Currently active parties <button class="btn btn-mg" data-toggle="modal" data-target="#createParty" v-if="!userPartyId" @click="wasCreatePartyOpened = true">Create new party</button></h2>
+        <small>Sort: 
+            <a :class="sortBy === 'members' ? 'sorted' : ''" href="#" @click.prevent="sort('members')">Members</a> | 
+            <a :class="sortBy === 'rank' ? 'sorted' : ''" href="#" @click.prevent="sort('rank')">Rank</a> | 
+            <a :class="sortBy === 'createdAt' ? 'sorted' : ''" href="#" @click.prevent="sort('createdAt')">Created</a>
+        </small>
+        <div id="parties">
+            <transition-group name="list" tag="div" class="row">
+				<party-card
+					v-for="party in parties"
+					:key="party.id" 
+					:party="party"
+                    @update:selectedParty="selectedParty = $event"
+				></party-card>
+            </transition-group>
+        </div>
+    </div>
+    <party-info
+        :party="selectedParty"
+        @update-party="updateParty($event)"
+    ></party-info>
+    <create-party
+        :opened="wasCreatePartyOpened"
+    ></create-party>
+</div>
+</template>
 
-const partiesVue = new Vue({
-	el: '#app',
-	methods: {
+<script>
+import CreateParty from '../components/parties/CreateParty.vue';
+import PartyCard from '../components/parties/PartyCard.vue';
+import PartyInfo from '../components/parties/PartyInfo.vue';
+
+export default {
+    name: 'party-page',
+    components: {
+        CreateParty,
+        PartyInfo,
+        PartyCard,
+    },
+    methods: {
 		extendedInfo: function (party) {
 			this.selectedParty = party;
 			this.info = null;
@@ -186,7 +220,7 @@ const partiesVue = new Vue({
 			}
 		}
 	},
-	data() {
+	data () {
 		return {
 			parties: null,
 			selectedParty: null,
@@ -194,11 +228,12 @@ const partiesVue = new Vue({
 			userPartyId: null,
 			info: '',
 			sortBy: null,
-			asc: false,
+            asc: false,
+            wasCreatePartyOpened: false,
 		}
-	},
-	mounted() {
-		axios
+    },
+    created () {
+        axios
 			.get('/parties/relevantInfo')
 			.then(response => {
 				this.parties = response.data.parties;
@@ -207,18 +242,23 @@ const partiesVue = new Vue({
 			}).then(function(){
 				$("#loading").fadeOut();
 				$("#app").attr("style", "visibility: visible").hide().fadeIn();
-			})
-		
-	}
-});
+			});
+    },
+	mounted () {
+        setInterval(() => {
+            axios
+                .get('/parties/relevantInfo')
+                .then(response => {
+                    partiesVue.parties = response.data.parties;
+                    partiesVue.userId = response.data.user;
+                    partiesVue.userPartyId = response.data.party;
+                    partiesVue.sort(partiesVue.sortBy, true);
+                });
+        }, 30000);
+    },
+}
+</script>
 
-setInterval(() => {
-	axios
-		.get('/parties/relevantInfo')
-		.then(response => {
-			partiesVue.parties = response.data.parties;
-			partiesVue.userId = response.data.user;
-			partiesVue.userPartyId = response.data.party;
-			partiesVue.sort(partiesVue.sortBy, true);
-		});
-}, 30000);
+<style>
+
+</style>
