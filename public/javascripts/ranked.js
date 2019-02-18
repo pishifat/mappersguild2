@@ -198,7 +198,7 @@ const rankedVue = new Vue({
     },
     mounted() {
         axios
-            .get('/ranked/relevantInfo')
+            .get('/beatmapsarchive/relevantInfo')
             .then(response => {
                 this.beatmaps = response.data.beatmaps;
                 this.completeQuests = response.data.completeQuests;

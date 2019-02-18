@@ -62,6 +62,25 @@
                         <button class="btn btn-mg-used btn-sm float-right drop" @click="dropQuest($event)">Drop</button>
                     </div>
                 </span>
+                <span v-if="quest.status == 'done'">
+                    <p class="text-shadow">Reward: {{quest.reward}} bonus points for each user <span v-if="quest.medal">+ a pack-exclusive medal</span></p>
+                    <p class='card-text text-shadow'>Completed on {{quest.completed.slice(0,10)}} by:
+                    <ul style="list-style-type: none">
+                        <li class="text-shadow small" v-for="member in quest.completedMembers" :key="member.id"><a :href="'https://osu.ppy.sh/users/' + member.osuId" target="_blank">{{ member.username }}</a></li>
+                    </ul>
+                </p>
+                <p class="text-shadow">Associated maps:</p>
+                <ul style="list-style-type: none;">
+                    <li class="small text-shadow" v-for="map in quest.associatedMaps" :key="map.id">
+                        <template v-if="map.url">
+                            <a :href="map.url" target="_blank">{{map.song.artist}} - {{map.song.title}}</a> by <a :href="'https://osu.ppy.sh/users/' + map.host.osuId" target="_blank">{{map.host.username}}</a>
+                        </template>
+                        <template v-else>
+                            {{map.song.artist}} - {{map.song.title}} by <a :href="'https://osu.ppy.sh/users/' + map.host.osuId" target="_blank">{{map.host.username}}</a>
+                        </template>
+                    </li>
+                </ul>
+                </span>
             </div>
         </div>
     </div>

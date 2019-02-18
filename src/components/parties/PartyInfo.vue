@@ -33,7 +33,7 @@
                         </div>
                     </div>
                     <div class="input-group input-group-sm mb-3">
-                        <input class="form-control form-control-sm" type="text" placeholder="Beatmap set ID (banner = map bg)" id="banner" 
+                        <input class="form-control form-control-sm" type="text" placeholder="beatmap URL (background = banner)" id="banner" 
                             style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 100px 0 0 100px" 
                             @keyup.enter="addBanner($event)" />
                         <div class="input-group-append">
@@ -88,10 +88,10 @@
                 </div>
 
                 <div v-if="!userPartyId && !party.lock && !party.currentQuest && party.members.length < 12">
-                    <button class='btn btn-mg btn-sm justify-content-center float-right join' @click="joinParty(party.id)">Join party</button>
+                    <button class='btn btn-mg btn-sm justify-content-center float-right' @click="joinParty(party.id, $event)">Join party</button>
                 </div>
                 <div v-if="userId == party.leader.osuId && party.members.length > 1">
-                    <button class='btn btn-mg-used btn-sm justify-content-center float-right' @click="leaveParty(party.id)" disabled>Leave party</button>
+                    <button class='btn btn-mg-used btn-sm justify-content-center float-right' disabled>Leave party</button>
                 </div>
                 <div v-if="userPartyId == party.id && party.members.length > 1 && userId != party.leader.osuId">
                     <button class='btn btn-mg-used btn-sm justify-content-center float-right' @click="leaveParty(party.id, $event)">Leave party</button>
@@ -115,12 +115,89 @@ export default {
     props: [ 'party', 'userId', 'userPartyId' ],
     mixins: [ mixin ],
     methods: {
-        acceptQuest: function (e) {
-            this.$emit('accept-quest', {id: this.quest.id, e: e});
+        executePost: async function (path, data, e) {
+			if (e) e.target.disabled = true;
+
+			try {
+				const res = await axios.post(path, data)
+
+				if (res.data.error) {
+					this.info = res.data.error;
+				} else {
+					if (e) e.target.disabled = false;
+					return res.data;
+				}
+			} catch (error) {
+				console.log(error)
+			}
+
+			if (e) e.target.disabled = false;
+		},
+        joinParty: function (id, e) {
+            this.$emit('join-party', {id: this.party.id, e: e});
         },
-        dropQuest: function (e) {
-            this.$emit('drop-quest', {id: this.quest.id, e: e});
-        }, 
+        leaveParty: function (id, e) {
+            this.$emit('leave-party', {id: this.party.id, e: e});
+        },
+        deleteParty: function (e) {
+            this.$emit('delete-party', e);
+        },
+        rename: async function (e) {
+			const newName = $("#newName").val();
+			if (newName.length < 3 || newName.length > 32) {
+				this.info = 'Choose a name between 3 and 32 characters!';
+			} else {
+				const party = await this.executePost('/parties/rename', { id: this.party.id, newName: newName }, e);
+				if (party) {
+					this.$emit('update-party', party);
+					this.info = `Party renamed to ${party.name}!`;
+				}
+			}
+        },
+        addBanner: async function (e) {
+			const banner = $("#banner").val();
+			const party = await this.executePost('/parties/addBanner', { banner: banner }, e);
+			if (party) {
+				this.$emit('update-party', party);
+				this.info = 'Banner added!';
+			}
+		},
+		kickMember: async function (e) {
+			const user = $("#extendedInfo #kick").val();
+			if (user == "none") {
+				this.info = 'Select a user to kick!';
+			} else {
+				var result = confirm(`Are you sure you want to kick? This action cannot be undone`);
+				if (result) {
+					const party = await this.executePost('/parties/kick', { user: user }, e);
+					if (party) {
+						this.$emit('update-party', party);
+						this.info = 'User has been kicked!';
+					}
+				}
+			}
+		},
+		transferLeader: async function (e) {
+			const user = $("#extendedInfo #transfer").val();
+			if (user == "none") {
+				this.info = 'Select a user to transfer host!';
+			} else {
+				var result = confirm(`Are you sure you want to transfer leadership? This action cannot be undone`);
+				if (result) {
+					const party = await this.executePost('/parties/transferLeader', { user: user }, e);
+					if (party) {
+						this.$emit('update-party', party);
+						this.info = 'Leader has been transferred!';
+					}
+				}
+			}
+        },
+        switchLock: async function (e) {
+			const party = await this.executePost('/parties/switchLock', { partyId: this.party.id }, e);
+			if (party) {
+				this.$emit('update-party', party);
+			}
+		},
     },
     data() {
         return {

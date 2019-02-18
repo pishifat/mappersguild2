@@ -4,8 +4,10 @@ const path = require('path');
 module.exports = {
     entry: {
         maps: './src/maps.js',
-        parties: './src/parties.js',
+        mapsarchive: './src/mapsarchive.js',
         quests: './src/quests.js',
+        questsarchive: './src/questsarchive.js',
+        parties: './src/parties.js',
         users: './src/users.js',
     },
     output: {

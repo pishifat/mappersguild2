@@ -2,7 +2,8 @@
 
 <div class='my-2' :class="quest.status != 'wip' ? 'col-lg-6' : 'col-lg-12'" @click="selectQuest()">
     <div class='card quest-card custom-bg-dark' :class="'border-status-' + quest.status" style='height: 100%' data-toggle='modal' data-target='#extendedInfo' :data-user="quest.id">
-        <img :src="quest.art ? 'https://assets.ppy.sh/artists/' + quest.art + '/header.jpg' : '../images/no-art.png'" style='right:300px;'>
+        <img :src="quest.art ? 'https://assets.ppy.sh/artists/' + quest.art + '/header.jpg' : '../images/no-art.png'" 
+        :style='quest.status == "open" ? "right:300px;" : quest.status == "wip" ? "right: 366px; max-height:166px;" : "right: 250px; max-height:166px;"'>
         <div class='card-img-overlay' style='padding: 0 0 0 0'>
             <div class='card-header text-shadow'>
                 <span :class="quest.status != 'wip' ? 'big' : ''">{{quest.name}}</span>
@@ -22,6 +23,12 @@
                 <span v-if="quest.status == 'wip'">
                     <p class='card-text text-shadow small'>Current Party:</p> <p class='indent text-shadow small'>{{quest.assignedParty.name}}</p>
                     <p class='card-text text-shadow small'>Time remaining:</p> <p class='indent text-shadow small'>{{timeRemaining(quest.deadline)}}</p>
+                </span>
+                <span v-if="quest.status == 'done'">
+                    <p class='card-text text-shadow small'>Objective: <p class='indent text-shadow small'>{{quest.descriptionMain}}</p>
+                    <p class='card-text text-shadow small'>Completed on {{quest.completed.slice(0,10)}} by:
+                        <template v-for="(member, i) in quest.completedMembers"><a :key="i" :href="'https://osu.ppy.sh/users/' + member.osuId" target="_blank">{{ member.username + (i < quest.completedMembers.length - 1 ? ', ' : '') }}</a></template>
+                    </p>
                 </span>
             </div>
         </div>

@@ -18,7 +18,7 @@
                 <div class="container">
                     <div class="row">
                         <div class="col-sm-6">
-                            <div v-if="isHost" id="mode" class="mb-3">
+                            <div v-if="isHost && beatmap.status != 'Ranked'" id="mode" class="mb-3">
                                 <p class="text-shadow">Mode:
                                     <button class="btn btn-sm btn-mg-done" :disabled="beatmap.mode == 'osu' || beatmap.status == 'Done'" @click="setMode(beatmap.id, 'osu', $event)" data-toggle="tooltip" data-placement="top" title="osu!"><i class="far fa-circle"></i></button> 
                                     <button class="btn btn-sm btn-mg-done" :disabled="beatmap.mode == 'taiko' || beatmap.status == 'Done'" @click="setMode(beatmap.id, 'taiko', $event)" data-toggle="tooltip" data-placement="top" title="osu!taiko"><i class="fas fa-drum"></i></button> 
@@ -42,8 +42,8 @@
                                 <thead>
                                     <td scope="col" style="padding: 2px;">Difficulty</td>
                                     <td scope="col" style="padding: 2px;">Mapper(s)</td>
-                                    <td scope="col" style="padding: 2px;">Status</td>
-                                    <td scope="col" style="padding: 2px;"></td>
+                                    <td scope="col" style="padding: 2px;" v-if="beatmap.status != 'Ranked'">Status</td>
+                                    <td scope="col" style="padding: 2px;" v-if="beatmap.status != 'Ranked'"></td>
                                 </thead>
                                 <transition-group tag="tbody" name="list" id="difficulties">
                                     <tr v-for="task in beatmap.tasks" :key="task.id" :id="task.id + 'Row'">
@@ -55,8 +55,8 @@
                                             <a href='#' v-if="(isOwner(task.mappers))" :id="task.id + 'Collab'" :class="task.status == 'Done' || addCollabInput == task.id || beatmap.status == 'Done' ? 'fake-button-disable' : ''" class='icon-valid' @click.prevent="setCollab(task)" data-toggle="tooltip" data-placement="top" title="invite new collaborator"><i class="fas fa-plus-square"></i></a>
                                             <a href='#' v-if="(isOwner(task.mappers)) && task.mappers.length > 1" class='icon-used' :class="task.status == 'Done' || removeCollabInput == task.id || beatmap.status == 'Done' ? 'fake-button-disable' : ''" @click.prevent="unsetCollab(task)" data-toggle="tooltip" data-placement="top" title="remove collaborator"><i class="fas fa-minus-square"></i></a>
                                         </td>
-                                        <td scope="row" :class="task.status.toLowerCase()" style="padding: 1px;">{{task.status}}</td>
-                                        <td scope="row" style="padding: 1px;">
+                                        <td scope="row" :class="task.status.toLowerCase()" style="padding: 1px;" v-if="beatmap.status != 'Ranked'">{{task.status}}</td>
+                                        <td scope="row" style="padding: 1px;" v-if="beatmap.status != 'Ranked'">
                                             <a href='#' v-if="isOwner(task.mappers) || isHost" class='icon-used' :class="fakeButton == task.id ? 'fake-button-disable' : ''" @click.prevent="removeTask(task.id)" data-toggle="tooltip" data-placement="top" title="delete"><i class="fas fa-minus-square"></i></a>
                                             <span data-toggle="tooltip" data-placement="top" title="set status">
                                                 <a href='#' v-if="(isOwner(task.mappers) || isHost) && task.status == 'WIP'" :class="fakeButton == task.id ? 'fake-button-disable' : ''" class='icon-done' @click.prevent="setTaskStatus(task.id, 'Done')"><i class="fas fa-check"></i></a>
@@ -112,7 +112,7 @@
                         </div>
 
                         <div class="col-sm-6 bm-col-separator-left">
-                            <p id="quest" class="text-shadow">
+                            <p id="quest" class="text-shadow" v-if="beatmap.status != 'Ranked' || beatmap.quest">
                                 Quest: 
                                 <small>
                                     <span v-if="beatmap.quest">{{beatmap.quest.name}}</span>
@@ -129,12 +129,12 @@
                                 <span v-else class="small text-shadow"><template v-for="(modder, i) in beatmap.modders">
                                     <a :href="'https://osu.ppy.sh/users/' + modder.osuId" target="_blank" :key="modder.id">{{ modder.username + (i < beatmap.modders.length - 1 ? ', ' : '') }}</a>
                                 </template></span>
-                                <span data-toggle="tooltip" data-placement="right" title="add/remove yourself from modder list">
+                                <span data-toggle="tooltip" data-placement="right" title="add/remove yourself from modder list" v-if="beatmap.status !='Ranked'">
                                     <a href="#" v-if="isModder && !isHost" class="mod-button icon-used" :class="fakeButton == beatmap.id + 'mod' ? 'fake-button-disable' : ''" @click.stop.prevent="updateModder()"><i class="fas fa-minus-square"></i></a>
                                     <a href="#" v-if="!isModder && !isHost" class="icon-valid mod-button" :class="fakeButton == beatmap.id + 'mod' ? 'fake-button-disable' : ''" @click.stop.prevent="updateModder()"><i class="fas fa-plus-square"></i></a>
                                 </span>
                             </p>
-                            <p id="bns" class="text-shadow">
+                            <p id="bns" class="text-shadow" v-if="beatmap.status != 'Ranked'">
                                 Potential Nominators ({{beatmap.bns.length}}): 
                                 <span v-if="beatmap.bns.length == 0" class="small text-shadow"><i>none</i></span>
                                 <span v-else class="small text-shadow"><template v-for="(bn, i) in beatmap.bns">
@@ -161,7 +161,7 @@
                                     </div>
                                 </div>
                             </p>
-                            <div id="locks">
+                            <div id="locks" v-if="beatmap.status != 'Ranked'">
                                 <p class="text-shadow">Locked: <i v-if="beatmap.tasksLocked.length == 0" class="small">none</i></p>
                                 <div id="lockedDiffs" class="text-shadow">
                                     <div class='ml-3 small' v-for="task in beatmap.tasksLocked" :key="task.id">
@@ -386,7 +386,7 @@ export default {
 
         //status
         setStatus: async function(status, e){
-            const bm = await this.executePost('/beatmaps/setStatus/' + beatmap._id, {status: status}, e);
+            const bm = await this.executePost('/beatmaps/setStatus/' + this.beatmap._id, {status: status}, e);
             if(bm){
                 this.$emit('update-map', bm);
                 this.sortDiffs();
@@ -409,7 +409,7 @@ export default {
                 axios
                     .get('/beatmaps/relevantInfo')
                     .then(response => {
-                        this.$parent.wipQuests = response.data.wipQuests;
+                        this.$parent.allQuests = response.data.allQuests;
                     });
             }
             this.fakeButton = null;
@@ -430,7 +430,7 @@ export default {
             axios
                 .get('/beatmaps/relevantInfo')
                 .then(response => {
-                    this.$parent.wipQuests = response.data.wipQuests;
+                    this.$parent.allQuests = response.data.allQuests;
                 });
         },
 

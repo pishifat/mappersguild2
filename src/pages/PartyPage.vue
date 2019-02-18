@@ -28,6 +28,9 @@
 		:user-id="userId"
 		:user-party-id="userPartyId"
         @update-party="updateParty($event)"
+		@join-party="joinParty($event)"
+		@leave-party="leaveParty($event)"
+		@delete-party="deleteParty($event)"
     ></party-info>
     <create-party
         :opened="wasCreatePartyOpened"
@@ -99,48 +102,6 @@ export default {
 				}
 			}
 		},
-		rename: async function (e) {
-			const newName = $("#newName").val();
-			if (newName.length < 3 || newName.length > 32) {
-				this.info = 'Choose a name between 3 and 32 characters!';
-			} else {
-				const party = await this.executePost('/parties/rename', { id: this.selectedParty.id, newName: newName }, e);
-				if (party) {
-					this.updateParty(party);
-					this.info = `Party renamed to ${party.name}!`;
-				}
-			}
-		},
-		kickMember: async function (e) {
-			const user = $("#extendedInfo #kick").val();
-			if (user == "none") {
-				this.info = 'Select a user to kick!';
-			} else {
-				var result = confirm(`Are you sure you want to kick? This action cannot be undone`);
-				if (result) {
-					const party = await this.executePost('/parties/kick', { user: user }, e);
-					if (party) {
-						this.updateParty(party);
-						this.info = 'User has been kicked!';
-					}
-				}
-			}
-		},
-		transferLeader: async function (e) {
-			const user = $("#extendedInfo #transfer").val();
-			if (user == "none") {
-				this.info = 'Select a user to transfer host!';
-			} else {
-				var result = confirm(`Are you sure you want to transfer leadership? This action cannot be undone`);
-				if (result) {
-					const party = await this.executePost('/parties/transferLeader', { user: user }, e);
-					if (party) {
-						this.updateParty(party);
-						this.info = 'Leader has been transferred!';
-					}
-				}
-			}
-		},
 		deleteParty: async function (e) {
 			const result = confirm(`Are you sure you want to delete?`);
 			if (result) {
@@ -153,20 +114,6 @@ export default {
 					$('#extendedInfo').modal('hide');
 				}
 				$('.card-body').attr("data-toggle", "modal");
-			}
-		},
-		addBanner: async function (e) {
-			const banner = $("#banner").val();
-			const party = await this.executePost('/parties/addBanner', { banner: banner }, e);
-			if (party) {
-				this.updateParty(party);
-				this.info = 'Banner added!';
-			}
-		},
-		switchLock: async function (e) {
-			const party = await this.executePost('/parties/switchLock', { partyId: this.selectedParty.id }, e);
-			if (party) {
-				this.updateParty(party);
 			}
 		},
 		sort: function (field, keepOrder) {

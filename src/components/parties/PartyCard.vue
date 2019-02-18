@@ -20,11 +20,7 @@
                     <template v-for="(member, i) in party.members"><a :key="i" :href="'https://osu.ppy.sh/users/' + member.osuId" target="_blank" onclick="event.stopPropagation()">{{ member.username + (i < party.members.length - 1 ? ', ' : '') }}</a></template>
                 </p>
                 <p class="card-text text-shadow" style='margin-top:0.5rem'>Leader: <a :href="'https://osu.ppy.sh/users/' + party.leader.osuId" target="_blank" onclick="event.stopPropagation()">{{party.leader.username}}</a></p>
-                <p class="card-text text-shadow">Current Quest: 
-                    <span class="party.id + '-quest'">
-                        {{ party.currentQuest ? party.currentQuest.name : 'none' }}
-                    </span>
-                </p>
+                <p class="card-text text-shadow">Current Quest: {{ party.currentQuest ? party.currentQuest.name : 'none' }}</p>
             </div>
         </div>
     </div>

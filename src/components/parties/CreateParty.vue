@@ -29,8 +29,16 @@ import mixin from "../../mixins.js";
 
 export default {
     name: 'create-party',
-    props: [ 'party', 'userId', 'userPartyId' ],
+    props: [ 'opened' ],
     mixins: [ mixin ],
+    watch: {
+        opened: function (wasOpened) {
+            if (wasOpened) {
+                this.info = null;
+                this.opened = false;
+            }
+        }
+    },
     methods: {
         executePost: async function (path, data, e) {
 			if (e) e.target.disabled = true;
@@ -63,9 +71,6 @@ export default {
 				}
 			}
 		},
-        dropQuest: function (e) {
-            this.$emit('drop-quest', {id: this.quest.id, e: e});
-        }, 
     },
     data() {
         return {

@@ -18,7 +18,7 @@ const defaultPopulate = [
 
 /* GET maps page. */
 router.get('/', async function(req, res) {
-    res.render('ranked', { title: 'Maps', script: '../javascripts/ranked.js', isMaps: true, loggedInAs: req.session.username });
+    res.render('beatmapsarchive', { title: 'Maps', script: '../javascripts/mapsarchive.js', isMaps: true, loggedInAs: req.session.username });
 });
 
 

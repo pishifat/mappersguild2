@@ -291,12 +291,13 @@ router.post('/setStatus/:mapId', async (req, res) => {
             return res.json({ error: "You can't mark a mapset without difficulties as complete!" });
         }
         for (let i = 0; i < b.tasks.length; i++) {
-            await task.service.update(b.tasks[i].id, {status: "Done"});
+            await tasks.service.update(b.tasks[i].id, {status: "Done"});
         }
         await beatmaps.service.update(req.params.mapId, { tasksLocked: ["Easy", "Normal", "Hard", "Insane", "Expert", "Storyboard"]});
     }
     await beatmaps.service.update(req.params.mapId, { status: req.body.status });
     b = await beatmaps.service.query({_id: req.params.mapId}, defaultPopulate);
+    console.log(b)
     res.json(b);
 
     logs.service.create(req.session.osuId, `changed status of "${b.song.artist} - ${b.song.title}"`, b._id, 'beatmap' );
