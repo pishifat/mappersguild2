@@ -4,6 +4,9 @@ const path = require('path');
 module.exports = {
     entry: {
         maps: './src/maps.js',
+        parties: './src/parties.js',
+        quests: './src/quests.js',
+        users: './src/users.js',
     },
     output: {
         filename: '[name].js',

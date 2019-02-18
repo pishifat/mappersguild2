@@ -1,27 +1,27 @@
 <template>
 <div id="extendedInfo" class="modal fade" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content custom-bg-dark" v-if="selectedParty">
-            <div class="modal-header modal-header-card text-dark" :class="'bg-rank-' + selectedParty.rank">
-                <h5 class="modal-title modal-title-card">{{ selectedParty.name }}</h5>
+        <div class="modal-content custom-bg-dark" v-if="party">
+            <div class="modal-header modal-header-card text-dark" :class="'bg-rank-' + party.rank">
+                <h5 class="modal-title modal-title-card">{{ party.name }}</h5>
                 <button type="button" class="close" data-dismiss="modal">
                 <span>&times;</span>
                 </button>
             </div>
             <div class="modal-body modal-body-card" style="overflow: hidden;">
-                <img src="../images/the_A.png" class="the-a-background">
-                <p class="text-shadow">Members: (<span :class="selectedParty.id + '-member-count'">{{ selectedParty.members.length }}</span>)</p> 
+                <img src="../../images/the_A.png" class="the-a-background">
+                <p class="text-shadow">Members: (<span :class="party.id + '-member-count'">{{ party.members.length }}</span>)</p> 
                 <p class="indent text-shadow">
-                    <template v-for="(member, i) in selectedParty.members"><a :href="'https://osu.ppy.sh/users/' + member.osuId" target="_blank">{{ member.username + (i < selectedParty.members.length - 1 ? ', ' : '') }}</a></template>
+                    <template v-for="(member, i) in party.members"><a :key="i" :href="'https://osu.ppy.sh/users/' + member.osuId" target="_blank">{{ member.username + (i < party.members.length - 1 ? ', ' : '') }}</a></template>
                 </p>
-                <p class="text-shadow">Leader: <a :href="'https://osu.ppy.sh/users/' + selectedParty.leader.osuId" target="_blank">{{ selectedParty.leader.username }}</a></p>
-                <p class="text-shadow">Rank: {{ selectedParty.rank }}</p>
+                <p class="text-shadow">Leader: <a :href="'https://osu.ppy.sh/users/' + party.leader.osuId" target="_blank">{{ party.leader.username }}</a></p>
+                <p class="text-shadow">Rank: {{ party.rank }}</p>
                 <p class="text-shadow">
-                    Current Quest: <span :class="selectedParty.id + '-quest'">{{ selectedParty.currentQuest ? selectedParty.currentQuest.name : 'none' }}</span>
+                    Current Quest: <span :class="party.id + '-quest'">{{ party.currentQuest ? party.currentQuest.name : 'none' }}</span>
                 </p>
 
                 <!-- leader options -->
-                <div v-if="userId == selectedParty.leader.osuId">
+                <div v-if="userId == party.leader.osuId">
                     <hr>
                     <p class="text-shadow">Party leader options:</p>
                     <div class="input-group input-group-sm mb-3">
@@ -41,12 +41,12 @@
                         </div>
                     </div>
 
-                    <div v-if="selectedParty.members.length > 1">
+                    <div v-if="party.members.length > 1">
                         <div class="input-group input-group-sm mb-3 kick-member-input">
                             <select class="custom-select select-arrow small" id="kick">
                                 <option selected value="none">Select a user...</option>
-                                <template v-for="member in selectedParty.members">
-                                    <option :value="member.id" v-if="member.osuId !== userId">{{member.username}}</option>
+                                <template v-for="member in party.members">
+                                    <option :key="member.id" :value="member.id" v-if="member.osuId !== userId">{{member.username}}</option>
                                 </template>
                             </select>
                             <div class="input-group-append">
@@ -56,8 +56,8 @@
                         <div class="input-group input-group-sm mb-3 transfer-leader-input">
                             <select class="custom-select select-arrow small" id="transfer">
                                 <option selected value="none">Select a user...</option>
-                                <template v-for="member in selectedParty.members">
-                                    <option :value="member.id" v-if="member.osuId !== userId">{{member.username}}</option>
+                                <template v-for="member in party.members">
+                                    <option :key="member.id" :value="member.id" v-if="member.osuId !== userId">{{member.username}}</option>
                                 </template>
                             </select>
                             <div class="input-group-append">
@@ -68,35 +68,35 @@
 
                     <button 
                         class="btn btn-sm justify-content-center" 
-                        :class="{ 'btn-mg': selectedParty.lock, 'btn-mg-used': !selectedParty.lock }" 
+                        :class="{ 'btn-mg': party.lock, 'btn-mg-used': !party.lock }" 
                         @click="switchLock($event)"
                     >
-                        {{selectedParty.lock ? 'Allow new members' : 'Disallow new members'}}
+                        {{party.lock ? 'Allow new members' : 'Disallow new members'}}
                     </button>
                 </div>
                 <!-- end leader options -->
 
                 <hr>
-                <div v-if="!(!userPartyId && !selectedParty.lock && !selectedParty.currentQuest && selectedParty.members.length <= 12) && userPartyId != selectedParty.id">
+                <div v-if="!(!userPartyId && !party.lock && !party.currentQuest && party.members.length <= 12) && userPartyId != party.id">
                     <p class="small text-shadow">You're unable to join this party because:</p>
                     <ul style="list-style-type: none" class="small text-shadow">
                         <li v-if="userPartyId">You can only be in one party at a time</li>
-                        <li v-if="selectedParty.lock">The party's leader has disabled new member entry</li>
-                        <li v-if="selectedParty.currentQuest">The party is currently running a quest</li>
-                        <li v-if="selectedParty.members.length > 12">The party has the maximum number of members (12)</li>
+                        <li v-if="party.lock">The party's leader has disabled new member entry</li>
+                        <li v-if="party.currentQuest">The party is currently running a quest</li>
+                        <li v-if="party.members.length > 12">The party has the maximum number of members (12)</li>
                     </ul>
                 </div>
 
-                <div v-if="!userPartyId && !selectedParty.lock && !selectedParty.currentQuest && selectedParty.members.length < 12">
-                    <button class='btn btn-mg btn-sm justify-content-center float-right join' @click="joinParty(selectedParty.id)">Join party</button>
+                <div v-if="!userPartyId && !party.lock && !party.currentQuest && party.members.length < 12">
+                    <button class='btn btn-mg btn-sm justify-content-center float-right join' @click="joinParty(party.id)">Join party</button>
                 </div>
-                <div v-if="userId == selectedParty.leader.osuId && selectedParty.members.length > 1">
-                    <button class='btn btn-mg-used btn-sm justify-content-center float-right' @click="leaveParty(selectedParty.id)" disabled>Leave party</button>
+                <div v-if="userId == party.leader.osuId && party.members.length > 1">
+                    <button class='btn btn-mg-used btn-sm justify-content-center float-right' @click="leaveParty(party.id)" disabled>Leave party</button>
                 </div>
-                <div v-if="userPartyId == selectedParty.id && selectedParty.members.length > 1 && userId != selectedParty.leader.osuId">
-                    <button class='btn btn-mg-used btn-sm justify-content-center float-right' @click="leaveParty(selectedParty.id, $event)">Leave party</button>
+                <div v-if="userPartyId == party.id && party.members.length > 1 && userId != party.leader.osuId">
+                    <button class='btn btn-mg-used btn-sm justify-content-center float-right' @click="leaveParty(party.id, $event)">Leave party</button>
                 </div>
-                <div v-if="userPartyId === selectedParty.id && selectedParty.members.length == 1">
+                <div v-if="userPartyId === party.id && party.members.length == 1">
                     <button class='btn btn-mg-used btn-sm justify-content-center float-right' @click="deleteParty($event)">Disband party</button>
                 </div>
 
@@ -108,8 +108,25 @@
 </template>
 
 <script>
-export default {
+import mixin from "../../mixins.js";
 
+export default {
+    name: 'party-info',
+    props: [ 'party', 'userId', 'userPartyId' ],
+    mixins: [ mixin ],
+    methods: {
+        acceptQuest: function (e) {
+            this.$emit('accept-quest', {id: this.quest.id, e: e});
+        },
+        dropQuest: function (e) {
+            this.$emit('drop-quest', {id: this.quest.id, e: e});
+        }, 
+    },
+    data() {
+        return {
+            info: ''
+        }
+    }
 }
 </script>
 

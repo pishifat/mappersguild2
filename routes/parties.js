@@ -1,4 +1,5 @@
 var express = require('express');
+var notifications = require('../models/notification.js');
 var beatmaps = require('../models/beatmap.js');
 var parties = require('../models/party.js');
 var quests = require('../models/quest.js');
@@ -69,7 +70,7 @@ router.get('/', async (req, res, next) => {
 
 router.get("/relevantInfo", async (req, res, next) => {
      const [ps, p] = await Promise.all([
-        parties.service.query({}, defaultPopulate, {}, true),
+        parties.service.query({}, defaultPopulate, {updatedAt: -1}, true),
         parties.service.query({ 'members': req.session.mongoId })
     ]);
     if(p){

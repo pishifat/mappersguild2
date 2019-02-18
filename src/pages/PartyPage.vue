@@ -13,13 +13,20 @@
 					v-for="party in parties"
 					:key="party.id" 
 					:party="party"
+					:user-id="userId"
+					:user-party-id="userPartyId"
                     @update:selectedParty="selectedParty = $event"
+					@join-party="joinParty($event)"
+					@leave-party="leaveParty($event)"
+					@delete-party="deleteParty($event)"
 				></party-card>
             </transition-group>
         </div>
     </div>
     <party-info
         :party="selectedParty"
+		:user-id="userId"
+		:user-party-id="userPartyId"
         @update-party="updateParty($event)"
     ></party-info>
     <create-party
@@ -71,27 +78,25 @@ export default {
 			this.parties[i] = party;
 			this.selectedParty = party;
 		},
-		joinParty: async function (id) {
-			$('.card-body').removeAttr("data-toggle");
-			$('.join').prop("disabled", true);
-			const party = await this.executePost('/parties/join', { partyId: id });
+		joinParty: async function (args) {
+			let id = args.id;
+			let e = args.e;
+			const party = await this.executePost('/parties/join', { partyId: id }, e);
 			if (party) {
 				this.userPartyId = party.id;
 				this.updateParty(party);
 			}
-			$('.card-body').attr("data-toggle", "modal");
-			$('.join').prop("disabled", false);
 		},
-		leaveParty: async function (id, e) {
+		leaveParty: async function (args) {
+			let id = args.id;
+			let e = args.e;
 			const result = confirm("Are you sure you want to leave the party?")
 			if (result) {
-				$('.card-body').removeAttr("data-toggle");
 				const party = await this.executePost('/parties/leave', { partyId: id }, e);
 				if (party) {
 					this.userPartyId = null;
 					this.updateParty(party);
 				}
-				$('.card-body').attr("data-toggle", "modal");
 			}
 		},
 		rename: async function (e) {
@@ -164,19 +169,6 @@ export default {
 				this.updateParty(party);
 			}
 		},
-		createParty: async function (e) {
-			const name = $("#partyName").val();
-			if (name.length < 3 || name.length > 32) {
-				this.info = `Party name must be between 3 and 32 characters! Yours is ${name.length} ${name.length == 1 ? 'character' : 'characters'}`;
-			} else {
-				const party = await this.executePost('/parties/create', { name: name }, e);
-				if (party) {
-					this.userPartyId = party.id;
-					this.parties.push(party);
-					$('#createParty').modal('hide');
-				}
-			}
-		},
 		sort: function (field, keepOrder) {
 			this.sortBy = field;
 			if (!keepOrder) {
@@ -226,7 +218,6 @@ export default {
 			selectedParty: null,
 			userId: null,
 			userPartyId: null,
-			info: '',
 			sortBy: null,
             asc: false,
             wasCreatePartyOpened: false,
@@ -249,10 +240,10 @@ export default {
             axios
                 .get('/parties/relevantInfo')
                 .then(response => {
-                    partiesVue.parties = response.data.parties;
-                    partiesVue.userId = response.data.user;
-                    partiesVue.userPartyId = response.data.party;
-                    partiesVue.sort(partiesVue.sortBy, true);
+                    this.parties = response.data.parties;
+					this.userId = response.data.user;
+					this.userPartyId = response.data.party;
+                    this.sort(this.sortBy, true);
                 });
         }, 30000);
     },

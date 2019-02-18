@@ -11,6 +11,11 @@ const defaultPopulate = [
  	 { populate: 'currentParty',  display: 'name' },
  	 { populate: 'completedQuests',  display: 'name' },
 ];
+const mapPopulate = [
+	{ populate: 'song',  display: 'artist title' },
+	{ populate: 'host',  display: 'username osuId' },
+	{ innerPopulate: 'tasks',  populate: { path: 'mappers' } },
+	];
 
 /* GET page render. */
 router.get('/', async (req, res, next) => {
@@ -18,20 +23,12 @@ router.get('/', async (req, res, next) => {
 });
 
 /* GET users listing. */
-router.get('/users', async (req, res, next) => {
-	u = await users.service.query({ group: { $ne: 'hidden' }}, defaultPopulate, {}, true),
- 	res.json({users: u, userId: req.session.osuId});
-});
-
-/* GET maps listing for extended info */
-router.get('/beatmaps', async (req, res, next) => {
- 	const mapPopulate = [
-		{ populate: 'song',  display: 'artist title' },
-		{ populate: 'host',  display: 'username osuId' },
-		{ innerPopulate: 'tasks',  populate: { path: 'mappers' } },
-  	];
-	b = await beatmaps.service.query({}, mapPopulate, {status: -1}, true);
- 	res.json({beatmaps: b});
+router.get('/relevantInfo', async (req, res, next) => {
+	const [u, b] = await Promise.all([
+		users.service.query({ group: { $ne: 'hidden' }}, defaultPopulate, {}, true),
+		beatmaps.service.query({}, mapPopulate, {status: -1}, true)
+	])
+ 	res.json({users: u, userId: req.session.osuId, beatmaps: b});
 });
 
 /* GET users with sorting. */
