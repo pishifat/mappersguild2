@@ -54,14 +54,7 @@
                     <a class="nav-link" href="/faq">FAQ</a>
                 </li>
             </ul>
-
-            <span id="navVue" class="small nav-item {{#if isNotifications}}active{{/if}}">
-                <a class="nav-link" href="/notifications">
-                    Notifications: <span id="nav-notifications">\{{notificationCount ? notificationCount : 0}}</span> | 
-                    Invites: <span id="nav-invites">\{{inviteCount ? inviteCount : 0}}</span>
-                </a>
-            </span>
-
+            
             <span class="navbar-text">Logged in as {{loggedInAs}}</span>
             {{else}}
             <form class="ml-auto" action="/login" method="GET">

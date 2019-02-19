@@ -93,6 +93,7 @@
     <create-beatmap
         :opened="wasCreateBeatmapOpened"
     ></create-beatmap>
+    <notifications-access></notifications-access>
 </div>
 </template>
 
@@ -100,6 +101,7 @@
 import CreateBeatmap from '../components/beatmaps/CreateBeatmap.vue';
 import BeatmapCard from '../components/beatmaps/BeatmapCard.vue';
 import BeatmapInfo from '../components/beatmaps/BeatmapInfo.vue';
+import NotificationsAccess from '../components/NotificationsAccess.vue';
 
 export default {
     name: 'beatmap-page',
@@ -107,16 +109,17 @@ export default {
         CreateBeatmap,
         BeatmapCard,
         BeatmapInfo,
+        NotificationsAccess
     },
     watch:{
         beatmaps: function(v){
-            if(v){
+            if (v) {
                 this.othersWipBeatmaps();
                 this.othersPendingBeatmaps();
                 this.wipQuests();
                 this.pendingQuests();
-            } 
-        },
+            }
+        }
     },
     computed: {
         
@@ -248,10 +251,10 @@ export default {
                     this.beatmaps = response.data.beatmaps;
                     this.allQuests = response.data.allQuests;
                     this.userOsuId = response.data.userId;
+                    this.filter(this.filterBy, null, true);
                 });
-        }, 30000)
-		
-    },
+        }, 30000);
+    }
 }
 </script>
 
