@@ -1,5 +1,5 @@
 <template>
-<div id="limitedEditBeatmap" class="modal fade modal-no-scroll" tabindex="-1">
+<div id="limitedEditBeatmap" class="modal fade my-4" tabindex="-1">
     <div class="modal-dialog modal-md">
         <div class="modal-content custom-bg-dark" v-if="beatmap">
             <div class="modal-header text-dark" :class="'bg-' + beatmap.status.toLowerCase()">
