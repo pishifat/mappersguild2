@@ -121,32 +121,24 @@ export default {
     },
     methods: {
         othersWipBeatmaps: function () {
-            if (this.beatmaps) {
-                return this.beatmaps.filter(b => b.status == 'WIP' && !b.quest);
-            }
+            return this.beatmaps.filter(b => b.status == 'WIP' && !b.quest);
         },
         othersPendingBeatmaps: function () {
-            if (this.beatmaps) {
-                return this.beatmaps.filter(b => b.status == 'Done' && !b.quest);
-            }
+            return this.beatmaps.filter(b => b.status == 'Done' && !b.quest);
         },
         wipQuests: function () {
-            if (this.allQuests) {
-                return this.allQuests.filter(q => {
-                    if (q.associatedMaps.find(m => m.status == 'WIP')) {
-                        return true;
-                    }
-                });
-            }
+            return this.allQuests.filter(q => {
+                if (q.associatedMaps.find(m => m.status == 'WIP')) {
+                    return true;
+                }
+            });
         },
         pendingQuests: function () {
-            if (this.allQuests) {
-                return this.allQuests.filter(q => {
-                    if (q.associatedMaps.find(m => m.status == 'Done')) {
-                        return true;
-                    }
-                });
-            }
+            return this.allQuests.filter(q => {
+                if (q.associatedMaps.find(m => m.status == 'Done')) {
+                    return true;
+                }
+            });
         },
         getRelatedWipBeatmaps: function (quest) {
             return this.beatmaps.filter(b => {
