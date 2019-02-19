@@ -7,8 +7,9 @@
                 <a :href="'https://osu.ppy.sh/users/' + invite.sender.osuId" class="text-shadow" target="_blank" @click.stop>{{invite.sender.username}}</a> 
                 {{invite.info}}
                 <span v-if="invite.map">
-                    <span v-if="invite.map.url"><a  :href="invite.map.url" target="_blank">{{invite.map.song.artist}} - {{invite.map.song.title}}</a> [also show card]</span>
-                    <span v-else>{{invite.map.song.artist}} - {{invite.map.song.title}} [also show card]</span>
+                    <span v-if="invite.map.url"><a  :href="invite.map.url" target="_blank">{{invite.map.song.artist}} - {{invite.map.song.title}}</a></span>
+                    <span v-else>{{invite.map.song.artist}} - {{invite.map.song.title}}</span>
+                    <a href="#" class="icon-valid" @click.prevent="selectBeatmap()" :data-user="invite.map.id" data-toggle="modal" data-target="#limitedEditBeatmap"><i class="far fa-window-maximize"></i></a>
                 </span>
             </p>
         </div>
@@ -44,6 +45,9 @@ export default {
             }
 
             if (e) e.target.disabled = false;
+        },
+        selectBeatmap: function (e) {
+            this.$emit('update:selectedMap', this.invite.map);
         },
         hideInvite: function (e) {
             this.$emit('hide-invite', {id: this.invite.id, e: e});

@@ -12,7 +12,7 @@ var router = express.Router();
 router.use(api.isLoggedIn);
 
 //handling quest penalty points when leaving/kicking/deleting
-async function questPenalty(u, p){
+async function questPenalty(u, p, userMongoId){
     const [q, questMaps] = await Promise.all([
         quests.service.query({_id: p.currentQuest}),
         beatmaps.service.query({quest: p.currentQuest}, [{ innerPopulate: 'tasks', populate: { path: 'mappers' } }], {}, true)
@@ -33,8 +33,8 @@ async function questPenalty(u, p){
             beatmaps.service.update(map._id, {quest: undefined}); 
         });
         p.members.forEach(member => {
-            if(member != req.session.mongoId){
-                notifications.service.create(p.id, `leaving your party forced you to drop the quest "${q.name}"`, member, req.session.mongoId);
+            if(member != userMongoId){
+                notifications.service.create(p.id, `leaving your party forced you to drop the quest "${q.name}"`, member, userMongoId);
             }
         });
     }else{
@@ -144,7 +144,7 @@ router.post('/leave', async (req, res) => {
         return res.json({ error: "Something went wrong!" });
     }
     if(p.currentQuest){
-        questPenalty(u, p);
+        questPenalty(u, p, req.session.mongoId);
     }
     await Promise.all([
         parties.service.update(p._id, {$pull: {members: u._id}}),
@@ -166,7 +166,7 @@ router.post('/delete', async (req, res) => {
     }
     if (p.currentQuest) {
         u = await users.service.query({_id: req.session.mongoId});
-        questPenalty(u, p);
+        questPenalty(u, p, req.session.mongoId);
     }
     await users.service.update(req.session.mongoId, {currentParty: undefined});
     const success = await parties.service.remove(p._id);
@@ -192,7 +192,7 @@ router.post('/kick', async (req, res) => {
         return res.json({error: "You cannot kick yourself!"});
     }
     if(p.currentQuest){
-        questPenalty(u, p);
+        questPenalty(u, p, req.session.mongoId);
     }
     await Promise.all([
         parties.service.update(p._id, {$pull: {members: u._id}}),

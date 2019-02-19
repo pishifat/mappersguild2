@@ -18,15 +18,15 @@
                 <div class="container">
                     <div class="row">
                         <div class="col-sm-6">
-                            <div v-if="isHost && beatmap.status != 'Ranked'" id="mode" class="mb-3">
+                            <div v-if="isHost && beatmap.status == 'WIP'" id="mode" class="mb-3">
                                 <p class="text-shadow">Mode:
-                                    <button class="btn btn-sm btn-mg-done" :disabled="beatmap.mode == 'osu' || beatmap.status == 'Done'" @click="setMode(beatmap.id, 'osu', $event)" data-toggle="tooltip" data-placement="top" title="osu!"><i class="far fa-circle"></i></button> 
-                                    <button class="btn btn-sm btn-mg-done" :disabled="beatmap.mode == 'taiko' || beatmap.status == 'Done'" @click="setMode(beatmap.id, 'taiko', $event)" data-toggle="tooltip" data-placement="top" title="osu!taiko"><i class="fas fa-drum"></i></button> 
-                                    <button class="btn btn-sm btn-mg-done" :disabled="beatmap.mode == 'catch' || beatmap.status == 'Done'" @click="setMode(beatmap.id, 'catch', $event)" data-toggle="tooltip" data-placement="top" title="osu!catch"><i class="fas fa-apple-alt"></i></button> 
-                                    <button class="btn btn-sm btn-mg-done" :disabled="beatmap.mode == 'mania' || beatmap.status == 'Done'" @click="setMode(beatmap.id, 'mania', $event)" data-toggle="tooltip" data-placement="top" title="osu!mania"><i class="fas fa-stream"></i></button>
+                                    <button class="btn btn-sm btn-mg-done" :disabled="beatmap.mode == 'osu'" @click="setMode(beatmap.id, 'osu', $event)" data-toggle="tooltip" data-placement="top" title="osu!"><i class="far fa-circle"></i></button> 
+                                    <button class="btn btn-sm btn-mg-done" :disabled="beatmap.mode == 'taiko'" @click="setMode(beatmap.id, 'taiko', $event)" data-toggle="tooltip" data-placement="top" title="osu!taiko"><i class="fas fa-drum"></i></button> 
+                                    <button class="btn btn-sm btn-mg-done" :disabled="beatmap.mode == 'catch'" @click="setMode(beatmap.id, 'catch', $event)" data-toggle="tooltip" data-placement="top" title="osu!catch"><i class="fas fa-apple-alt"></i></button> 
+                                    <button class="btn btn-sm btn-mg-done" :disabled="beatmap.mode == 'mania'" @click="setMode(beatmap.id, 'mania', $event)" data-toggle="tooltip" data-placement="top" title="osu!mania"><i class="fas fa-stream"></i></button>
                                 </p>
                             </div>
-                            <div id="newHost" v-if="isHost">
+                            <!--<div id="newHost" v-if="isHost">
                                 <div class="input-group input-group-sm mb-3">
                                     <input class="form-control form-control-sm custom-input" type="text" placeholder="username..." id="hostEntry" style="border-radius: 100px 0 0 100px;" maxlength="16" @keyup.enter="transferHost(beatmap.id, $event)" />
                                     <div class="input-group-append">
@@ -37,7 +37,7 @@
                                         </button>
                                     </div>
                                 </div>
-                            </div>
+                            </div>-->
                             <table class="small table text-shadow">
                                 <thead>
                                     <td scope="col" style="padding: 2px;">Difficulty</td>
@@ -162,7 +162,7 @@
                                     </div>
                                 </div>
                             </p>
-                            <div id="locks" v-if="beatmap.status != 'Ranked'">
+                            <div id="locks" v-if="beatmap.status == 'WIP'">
                                 <p class="text-shadow">Locked: <i v-if="beatmap.tasksLocked.length == 0" class="small">none</i></p>
                                 <div id="lockedDiffs" class="text-shadow">
                                     <div class='ml-3 small' v-for="task in beatmap.tasksLocked" :key="task.id">
@@ -312,7 +312,7 @@ export default {
             const user = $('#hostEntry').val();
             const bm = await this.executePost('/beatmaps/transferHost/' + id, {user: user}, e);
             if(bm){
-                this.$emit('update-map', bm);
+                this.info = null;
                 this.inviteConfirm = "Transfer host invite sent!"
             }
         },
@@ -377,6 +377,7 @@ export default {
             const bm = await this.executePost('/beatmaps/requestTask/' + id, {difficulty: difficulty, recipient: recipient}, e);
             if(bm){
                 this.$emit('update-map', bm);
+                this.info = null;
                 this.inviteConfirm = "Difficulty request sent!"
             }
         },
@@ -386,6 +387,7 @@ export default {
             const bm = await this.executePost('/beatmaps/task/' + id + '/addCollab', {user: user}, e);
             if(bm){
                 this.$emit('update-map', bm);
+                this.info = null;
                 this.inviteConfirm = "Collab invite sent!"
                 this.addCollabInput = null;
             }

@@ -1,7 +1,7 @@
 <template>
 <div class="row">
     <div class="col-md-12">
-        <h2>Currently active parties <button class="btn btn-mg" data-toggle="modal" data-target="#createParty" v-if="!userPartyId" @click="wasCreatePartyOpened = true">Create new party</button></h2>
+        <h2>Currently active parties <button class="btn btn-mg" data-toggle="modal" data-target="#createParty" v-if="!userPartyId" @click="newPartyInfo()">Create new party</button></h2>
         <small>Sort: 
             <a :class="sortBy === 'members' ? 'sorted' : ''" href="#" @click.prevent="sort('members')">Members</a> | 
             <a :class="sortBy === 'rank' ? 'sorted' : ''" href="#" @click.prevent="sort('rank')">Rank</a> | 
@@ -33,7 +33,7 @@
 		@delete-party="deleteParty($event)"
     ></party-info>
     <create-party
-        :opened="wasCreatePartyOpened"
+        :info="info"
     ></create-party>
 </div>
 </template>
@@ -51,10 +51,6 @@ export default {
         PartyCard,
     },
     methods: {
-		extendedInfo: function (party) {
-			this.selectedParty = party;
-			this.info = null;
-		},
 		newPartyInfo: function(){
 			this.info = null;
 		},
@@ -166,6 +162,7 @@ export default {
 			userId: null,
 			userPartyId: null,
 			sortBy: null,
+			info: null,
             asc: false,
             wasCreatePartyOpened: false,
 		}

@@ -100,7 +100,7 @@
                     <button class='btn btn-mg-used btn-sm justify-content-center float-right' @click="deleteParty($event)">Disband party</button>
                 </div>
 
-                <p class="mt-4 text-shadow">{{ info }}</p>
+                <p class="mt-4 text-shadow errors">{{ info }}</p>
             </div>
         </div>
     </div>
@@ -114,6 +114,11 @@ export default {
     name: 'party-info',
     props: [ 'party', 'userId', 'userPartyId' ],
     mixins: [ mixin ],
+    watch: {
+        party: function () {
+            this.info = null;
+        }
+    },
     methods: {
         executePost: async function (path, data, e) {
 			if (e) e.target.disabled = true;
@@ -147,10 +152,9 @@ export default {
 			if (newName.length < 3 || newName.length > 32) {
 				this.info = 'Choose a name between 3 and 32 characters!';
 			} else {
-				const party = await this.executePost('/parties/rename', { id: this.party.id, newName: newName }, e);
+                const party = await this.executePost('/parties/rename', { id: this.party.id, newName: newName }, e);
 				if (party) {
-					this.$emit('update-party', party);
-					this.info = `Party renamed to ${party.name}!`;
+                    this.$emit('update-party', party);
 				}
 			}
         },
@@ -159,7 +163,6 @@ export default {
 			const party = await this.executePost('/parties/addBanner', { banner: banner }, e);
 			if (party) {
 				this.$emit('update-party', party);
-				this.info = 'Banner added!';
 			}
 		},
 		kickMember: async function (e) {
@@ -172,7 +175,6 @@ export default {
 					const party = await this.executePost('/parties/kick', { user: user }, e);
 					if (party) {
 						this.$emit('update-party', party);
-						this.info = 'User has been kicked!';
 					}
 				}
 			}
@@ -187,7 +189,6 @@ export default {
 					const party = await this.executePost('/parties/transferLeader', { user: user }, e);
 					if (party) {
 						this.$emit('update-party', party);
-						this.info = 'Leader has been transferred!';
 					}
 				}
 			}

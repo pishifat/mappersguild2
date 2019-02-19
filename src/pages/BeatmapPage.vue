@@ -16,7 +16,7 @@
     <!-- WIP Beatmaps -->
     <div class="col-lg-8">
         <div class="row">
-            <h2>Work-in-progress <button class="btn btn-mg" data-toggle="modal" data-target="#addBeatmap" @click="wasCreateBeatmapOpened = true">Add beatmap</button></h2>
+            <h2>Work-in-progress <button class="btn btn-mg" data-toggle="modal" data-target="#addBeatmap" @click="openAddBeatmap()">Add beatmap</button></h2>
         </div>
 
         <template v-for="quest in wipQuests()">
@@ -91,7 +91,9 @@
         @update-map="updateMap($event)"
     ></beatmap-info>
     <create-beatmap
-        :opened="wasCreateBeatmapOpened"
+        :featured-artists="featuredArtists"
+        :featured-songs="featuredSongs"
+        :info="info"
     ></create-beatmap>
     <notifications-access></notifications-access>
 </div>
@@ -121,10 +123,21 @@ export default {
             }
         }
     },
-    computed: {
-        
-    },
     methods: {
+        openAddBeatmap: function(){
+            this.info = null;
+            this.featuredSongs = null;
+            $('input[type=checkbox]').each(function(){ 
+                this.checked = false; 
+            });
+            if(!this.featuredArtists){
+                axios
+                    .get('/beatmaps/artists')
+                    .then(response => {
+                        this.featuredArtists = response.data.sort((a,b) => (a.label.toLowerCase() > b.label.toLowerCase()) ? 1 : ((b.label.toLowerCase() > a.label.toLowerCase()) ? -1 : 0));
+                    });
+            }
+        },
         othersWipBeatmaps: function () {
             if(this.beatmaps){
                 return this.beatmaps.filter(b => b.status == 'WIP' && !b.quest);

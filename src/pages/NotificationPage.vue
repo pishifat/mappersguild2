@@ -8,6 +8,7 @@
                 v-for="notification in notifications"
                 :notification="notification"
                 :key="notification.id"
+                @update:selectedMap="selectedMap = $event"
                 @hide-notification="hideNotification($event)"
             ></notification-card>
         </transition-group>
@@ -22,11 +23,17 @@
                 :invite="invite"
                 :key="invite.id"
                 @update:info="info = $event"
+                @update:selectedMap="selectedMap = $event"
                 @hide-invite="hideInvite($event)"
             ></invite-card>
         </transition-group>
         <p v-if="!invites || invites.length == 0" class="ml-4">No invites...</p>
     </div>
+
+    <limited-map-info
+        :beatmap="selectedMap"
+    ></limited-map-info>
+    
 </div>
 
 </template>
@@ -34,12 +41,14 @@
 <script>
 import NotificationCard from '../components/notifications/NotificationCard.vue';
 import InviteCard from '../components/notifications/InviteCard.vue';
+import LimitedMapInfo from '../components/LimitedMapInfo.vue';
 
 export default {
     name: 'notification-page',
     components: {
         NotificationCard,
-        InviteCard
+        InviteCard,
+        LimitedMapInfo
     },
     methods: {
         executePost: async function (path, data, e) {
@@ -111,7 +120,9 @@ export default {
         return {
             notifications: null,
             invites: null,
-            info: ''
+            info: '',
+            selectedMap: null,
+            userOsuId: null,
         }
     },
     created() {
@@ -120,6 +131,7 @@ export default {
             .then(response => {
                 this.notifications = response.data.notifications;
                 this.invites = response.data.invites;
+                this.userOsuId = response.data.userOsuId;
             }).then(function(){
                 $("#loading").fadeOut();
                 $("#app").attr("style", "visibility: visible").hide().fadeIn();
@@ -132,6 +144,7 @@ export default {
                 .then(response => {
                     this.notifications = response.data.notifications;
                     this.invites = response.data.invites;
+                    this.userOsuId = response.data.userOsuId;
                 });
         }, 30000);
     }

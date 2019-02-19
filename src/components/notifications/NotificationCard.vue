@@ -6,8 +6,9 @@
                 <a :href="'https://osu.ppy.sh/users/' + notification.sender.osuId" class="text-shadow" target="_blank" @click.stop>{{notification.sender.username}}</a> 
                 {{notification.info}}
                 <span v-if="notification.map">
-                    <span v-if="notification.map.url"><a  :href="notification.map.url" target="_blank">{{notification.map.song.artist}} - {{notification.map.song.title}}</a> [also show card]</span>
-                    <span v-else>{{notification.map.song.artist}} - {{notification.map.song.title}} [also show card]</span>
+                    <span v-if="notification.map.url"><a  :href="notification.map.url" target="_blank">{{notification.map.song.artist}} - {{notification.map.song.title}}</a></span>
+                    <span v-else>{{notification.map.song.artist}} - {{notification.map.song.title}}</span>
+                    <a href="#" class="icon-valid" @click.prevent="selectBeatmap()" :data-user="notification.map.id" data-toggle="modal" data-target="#limitedEditBeatmap"><i class="far fa-window-maximize"></i></a>
                 </span>
             </p>
         </div>
@@ -26,6 +27,9 @@ export default {
     methods: {
         hideNotification: function (e) {
             this.$emit('hide-notification', {notification: this.notification, e: e});
+        },
+        selectBeatmap: function (e) {
+            this.$emit('update:selectedMap', this.notification.map);
         },
     },
 }

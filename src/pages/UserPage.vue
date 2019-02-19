@@ -22,8 +22,13 @@
         :user="selectedUser"
         :beatmaps="beatmaps"
         :user-id="userId"
+        @update:selectedMap="selectedMap = $event"
         @update-user="updateUser($event)"
     ></user-info>
+
+    <limited-map-info
+        :beatmap="selectedMap"
+    ></limited-map-info>
 
 </div>
 </template>
@@ -31,12 +36,14 @@
 <script>
 import UserCard from '../components/users/UserCard.vue';
 import UserInfo from '../components/users/UserInfo.vue';
+import LimitedMapInfo from '../components/LimitedMapInfo.vue';
 
 export default {
     name: 'user-page',
     components: {
         UserCard,
         UserInfo,
+        LimitedMapInfo
     },
     methods: {
         updateUser: function(u) {
@@ -96,6 +103,7 @@ export default {
             userId: null,
             beatmaps: null,
             selectedUser: null,
+            selectedMap: null,
             info: null,
             sortBy: null,
             asc: false,

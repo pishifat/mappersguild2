@@ -56,11 +56,13 @@ async function addTaskChecks(userId, b, invite){
 //populations
 const defaultNotificationPopulate = [
     { populate: 'sender',  display: 'username osuId' },
-    { innerPopulate: 'map',  populate: { path: 'song' } },
+    { innerPopulate: 'map',  populate: { path: 'song host' } },
+    { innerPopulate: 'map', populate: { path: 'tasks', populate: { path: 'mappers', } } },
 ];
 const defaultInvitePopulate = [
     { populate: 'sender',  display: 'username osuId' },
-    { innerPopulate: 'map',  populate: { path: 'song' } },
+    { innerPopulate: 'map',  populate: { path: 'song host' } },
+    { innerPopulate: 'map', populate: { path: 'tasks', populate: { path: 'mappers', } } },
 ];
 const defaultMapPopulate = [
     { populate: 'song',  display: 'artist title' },
