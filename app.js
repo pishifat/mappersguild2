@@ -9,9 +9,9 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
 const config = require('./config.json');
 const hbs = require('hbs');
-const webpack = require('webpack');
-const webpackDevMiddleware = require('webpack-dev-middleware');
-const webpackConfig = require('./webpack.config.js');
+// const webpack = require('webpack');
+// const webpackDevMiddleware = require('webpack-dev-middleware');
+// const webpackConfig = require('./webpack.config.js');
 
 const indexRouter = require('./routes/index');
 const faqRouter = require('./routes/faq');
@@ -26,15 +26,15 @@ const notificationsRouter = require('./routes/notifications');
 const adminsRouter = require('./routes/admin');
 
 const app = express();
-const compiler = webpack(webpackConfig);
+// const compiler = webpack(webpackConfig);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
 
-app.use(webpackDevMiddleware(compiler, {
-  publicPath: webpackConfig.output.publicPath
-}));
+// app.use(webpackDevMiddleware(compiler, {
+//   publicPath: webpackConfig.output.publicPath
+// }));
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
