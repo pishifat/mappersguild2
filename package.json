@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "devstart": "webpack --mode production --progress | nodemon ./bin/www",
+    "devstart": "nodemon ./bin/www",
     "build": "webpack --mode production"
   },
   "dependencies": {
@@ -31,14 +31,13 @@
     "vue-loader": "^15.6.2",
     "vue-template-compiler": "^2.6.6",
     "webpack": "^4.29.4",
-    "webpack-cli": "^3.2.3"
+    "webpack-cli": "^3.2.3",
+    "webpack-dev-middleware": "^3.5.2"
   },
   "nodemonConfig": {
-    "events": {
-      "restart": "webpack --mode production --progress"
-    },
     "ignore": [
-      "public/*"
+      "public/*",
+      "src/*"
     ]
   }
 }

@@ -240,18 +240,6 @@ export default {
 				$("#app").attr("style", "visibility: visible").hide().fadeIn();
 			});
     },
-    mounted () {
-        setInterval(() => {
-            axios
-                .get('/beatmaps/relevantInfo')
-                .then(response => {
-                    this.beatmaps = response.data.beatmaps;
-                    this.allQuests = response.data.allQuests;
-                    this.userOsuId = response.data.userId;
-                    this.filter(this.filterBy, null, true);
-                });
-        }, 30000);
-    }
 }
 </script>
 
