@@ -14,7 +14,8 @@ module.exports = {
     },
     output: {
         filename: '[name].js',
-        path: path.resolve(__dirname, 'public/javascripts/')
+        path: path.resolve(__dirname, 'public/javascripts/'),
+        publicPath: '/'
     },
     mode: 'development', // TOCHANGE production
     module: {
@@ -31,9 +32,12 @@ module.exports = {
             },
             {
                 test: /\.(png|svg|jpg|gif)$/,
-                use: [
-                    'file-loader'
-                ]
+                use: [{
+                    loader: 'file-loader',
+                    options: {
+                        outputPath: '../images'
+                    }
+                }]
             }
         ]
     },
