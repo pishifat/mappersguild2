@@ -109,36 +109,46 @@ export default {
         BeatmapInfo,
     },
     watch:{
-        beatmaps: function(){
-            othersWipBeatmaps();
-            othersPendingBeatmaps();
-            wipQuests();
-            pendingQuests();
-        }
+        beatmaps: function(v){
+            if(v){
+                this.othersWipBeatmaps();
+                this.othersPendingBeatmaps();
+                this.wipQuests();
+                this.pendingQuests();
+            } 
+        },
     },
     computed: {
         
     },
     methods: {
         othersWipBeatmaps: function () {
-            return this.beatmaps.filter(b => b.status == 'WIP' && !b.quest);
+            if(this.beatmaps){
+                return this.beatmaps.filter(b => b.status == 'WIP' && !b.quest);
+            }
         },
         othersPendingBeatmaps: function () {
-            return this.beatmaps.filter(b => b.status == 'Done' && !b.quest);
+            if(this.beatmaps){
+                return this.beatmaps.filter(b => b.status == 'Done' && !b.quest);
+            }
         },
         wipQuests: function () {
-            return this.allQuests.filter(q => {
-                if (q.associatedMaps.find(m => m.status == 'WIP')) {
-                    return true;
-                }
-            });
+            if(this.beatmaps){
+                return this.allQuests.filter(q => {
+                    if (q.associatedMaps.find(m => m.status == 'WIP')) {
+                        return true;
+                    }
+                });
+            }
         },
         pendingQuests: function () {
-            return this.allQuests.filter(q => {
-                if (q.associatedMaps.find(m => m.status == 'Done')) {
-                    return true;
-                }
-            });
+            if(this.beatmaps){
+                return this.allQuests.filter(q => {
+                    if (q.associatedMaps.find(m => m.status == 'Done')) {
+                        return true;
+                    }
+                });
+            }
         },
         getRelatedWipBeatmaps: function (quest) {
             return this.beatmaps.filter(b => {
@@ -152,9 +162,7 @@ export default {
         },
         updateMap: function(bm) {
             const i = this.beatmaps.findIndex(b => b.id == bm.id);
-            console.log(this.beatmaps[i])
             this.beatmaps[i] = bm;
-            console.log(this.beatmaps[i])
             this.beatmap = bm;
             this.selectedMap = bm;
             this.info = null;
@@ -231,6 +239,18 @@ export default {
                 $("#loading").fadeOut();
 				$("#app").attr("style", "visibility: visible").hide().fadeIn();
 			});
+    },
+    mounted () {
+        setInterval(() => {
+            axios
+                .get('/beatmaps/relevantInfo')
+                .then(response => {
+                    this.beatmaps = response.data.beatmaps;
+                    this.allQuests = response.data.allQuests;
+                    this.userOsuId = response.data.userId;
+                });
+        }, 30000)
+		
     },
 }
 </script>
