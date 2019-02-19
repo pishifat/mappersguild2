@@ -190,7 +190,7 @@ export default {
                 }
 
                 this.tempBeatmaps = this.beatmaps;
-                this.beatmaps = this.beatmaps.filter(b => b.host.username == this.filterValue);
+                this.beatmaps = this.beatmaps.filter(b => b.host.username.toLowerCase() == this.filterValue.toLowerCase());
             } else if (field == 'gds') {
                 this.tempBeatmaps = this.beatmaps;
                 this.beatmaps = this.beatmaps.filter(b => (b.tasksLocked.length < 6 && b.status == "WIP"));

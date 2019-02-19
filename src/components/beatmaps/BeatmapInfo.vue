@@ -52,8 +52,8 @@
                                             <template v-for="(mapper, i) in task.mappers">
                                                 <a :href="'https://osu.ppy.sh/users/' + mapper.osuId" target="_blank" :key="mapper.id">{{ mapper.username + (i < task.mappers.length - 1 ? ', ' : '') }}</a>
                                             </template>
-                                            <a href='#' v-if="(isOwner(task.mappers))" :id="task.id + 'Collab'" :class="task.status == 'Done' || addCollabInput == task.id || beatmap.status == 'Done' ? 'fake-button-disable' : ''" class='icon-valid' @click.prevent="setCollab(task)" data-toggle="tooltip" data-placement="top" title="invite new collaborator"><i class="fas fa-plus-square"></i></a>
-                                            <a href='#' v-if="(isOwner(task.mappers)) && task.mappers.length > 1" class='icon-used' :class="task.status == 'Done' || removeCollabInput == task.id || beatmap.status == 'Done' ? 'fake-button-disable' : ''" @click.prevent="unsetCollab(task)" data-toggle="tooltip" data-placement="top" title="remove collaborator"><i class="fas fa-minus-square"></i></a>
+                                            <a href='#' v-if="(isOwner(task.mappers))" :id="task.id + 'Collab'" :class="[task.status == 'Done' || beatmap.status == 'Done' ? 'fake-button-disable' : '', addCollabInput == task.id ? 'fake-collab-button-disable' : '']" class='icon-valid' @click.prevent="addCollabInput == task.id ? cancelCollab() : setCollab(task)" data-toggle="tooltip" data-placement="top" title="invite new collaborator"><i class="fas fa-plus-square"></i></a>
+                                            <a href='#' v-if="(isOwner(task.mappers)) && task.mappers.length > 1" class='icon-used' :class="[task.status == 'Done' || beatmap.status == 'Done' ? 'fake-button-disable' : '', removeCollabInput == task.id ? 'fake-collab-button-disable' : '']" @click.prevent="removeCollabInput == task.id ? cancelCollab() : unsetCollab(task)" data-toggle="tooltip" data-placement="top" title="remove collaborator"><i class="fas fa-minus-square"></i></a>
                                         </td>
                                         <td scope="row" :class="task.status.toLowerCase()" style="padding: 1px;" v-if="beatmap.status != 'Ranked'">{{task.status}}</td>
                                         <td scope="row" style="padding: 1px;" v-if="beatmap.status != 'Ranked'">
@@ -66,7 +66,7 @@
                                     </tr>
                                 </transition-group>
                             </table>
-                            <div id="newDifficulty" v-if="beatmap.status == 'WIP'" :class="beatmap.tasksLocked.length == 6 ? 'fake-button-disable' : ''">
+                            <div id="newDifficulty" v-if="beatmap.status == 'WIP'" :class="beatmap.tasksLocked.length == 6 && !isHost ? 'fake-button-disable' : ''">
                                 <div class="input-group input-group-sm mb-3">
                                     <select class="custom-select select-arrow small" id="diffSelection">
                                         <option v-if="beatmap.tasksLocked.indexOf('Easy') < 0 || isHost" value="Easy">Easy</option>
@@ -77,11 +77,12 @@
                                         <option v-if="beatmap.tasksLocked.indexOf('Storyboard') < 0 || isHost" value="Storyboard">Storyboard</option>
                                     </select>
                                     <div class="input-group-append">
-                                        <button style="border-radius: 0 100px 100px 0;" class="rounded-circle-left btn btn-mg" id="addTask" @click="addTask(beatmap.id, $event);" data-toggle="tooltip" data-placement="right" title="add difficulty"><i class="fas fa-plus append-button-padding"></i></button>
+                                        <button style="border-radius: 0 100px 100px 0;" class="rounded-circle-left btn btn-mg" id="addTask" @click="addTask(beatmap.id, $event);" data-toggle="tooltip" data-placement="right" title="add difficulty" :disabled="requestDiffInput"><i class="fas fa-plus append-button-padding"></i></button>
                                     </div>
+                                    <a v-if="isHost" href="#" :class="requestDiffInput ? 'icon-used' : ''" class="icon-valid px-2 text-shadow" @click.prevent="requestDiffInput ? unsetRequest() : setRequest()"  data-toggle="tooltip" data-placement="top" title="request difficulty"><i class="fas fa-edit"></i></a>
                                 </div>
                             </div>
-                            <div id="requestDiff" v-if="isHost">
+                            <div id="requestDiff" v-if="requestDiffInput">
                                 <div class="input-group input-group-sm mb-3">
                                     <input class="form-control form-control-sm custom-input" type="text" placeholder="username..." id="requestEntry" style="border-radius: 100px 0 0 100px;" maxlength="16" @keyup.enter="requestTask(beatmap.id, $event)" />
                                     <div class="input-group-append">
@@ -153,7 +154,7 @@
                             </p>
                             <p id="linkInput">
                                 <div v-if="editLinkInput" class="input-group input-group-sm mb-3">
-                                    <input class="form-control form-control-sm" type="text" placeholder="URL" id="newLink" style="border-radius: 100px 0 0 100px" v-model="beatmap.url" @keyup.enter="saveLink($event)" />
+                                    <input class="form-control form-control-sm" type="text" placeholder="URL" id="newLink" style="border-radius: 100px 0 0 100px" @keyup.enter="saveLink($event)" />
                                     <div class="input-group-append">
                                         <button style="border-radius: 0 100px 100px 0;" class="rounded-circle-left btn btn-mg" type="submit" id="addLinkButton" @click="saveLink($event)" data-toggle="tooltip" data-placement="right" title="use new osu!web link for card image">
                                             <span class="append-button-padding">Save link</span>
@@ -183,7 +184,7 @@
                                             <option v-if="beatmap.tasksLocked.indexOf('Storyboard') < 0" value="Storyboard">Storyboard</option>
                                         </select>
                                         <div class="input-group-append">
-                                            <button style="border-radius: 0 100px 100px 0;" class="rounded-circle-left btn btn-mg" id="lockTask" @click="lockTask($event);" data-toggle="tooltip" data-placement="left" title="prevent other mappers from claiming a difficulty"><span class="append-button-padding">Lock</span></button>
+                                            <button style="border-radius: 0 100px 100px 0;" class="rounded-circle-left btn btn-mg" id="lockTask" @click="lockTask($event);" data-toggle="tooltip" data-placement="right" title="prevent other mappers from claiming a difficulty"><span class="append-button-padding">Lock</span></button>
                                         </div>
                                     </div>
                                 </div>
@@ -221,6 +222,7 @@ export default {
             this.addCollabInput = null;
             this.removeCollabInput = null;
             this.editLinkInput = null;
+            this.requestDiffInput = null;
             this.collabTask = null;
             this.fakeButton = null;
             this.sortDiffs();
@@ -231,21 +233,24 @@ export default {
             return this.userOsuId == this.beatmap.host.osuId;
         },
         isModder: function () {
+            let value;
             this.beatmap.modders.forEach(modder => {
                 if(modder.osuId == this.userOsuId){
-                    return true;
+                    value = true;
+                    return;
                 }
             });
-            return false;
+            return value;
         },
         isBn: function () {
             let value;
             this.beatmap.bns.forEach(bn => {
                 if(bn.osuId == this.userOsuId){
-                    return true;
+                    value = true;
+                    return;
                 }
             });
-            return false;
+            return value;
         },
         shortUrl: function () {
             if(this.beatmap.url.length > 40){
@@ -282,12 +287,14 @@ export default {
             });
         },
         isOwner(mappers){
+            let value;
             mappers.forEach(mapper => {
                 if(mapper.osuId == this.userOsuId){
-                    return true;
+                    value = true;
+                    return;
                 }
             });
-            return false;
+            return value;
         },
         
         //real methods
@@ -297,7 +304,6 @@ export default {
             const bm = await this.executePost('/beatmaps/setMode/' + id, {mode: mode}, e);
             if(bm){
                 this.$emit('update-map', bm);
-                this.sortDiffs();
             }
         },
 
@@ -307,7 +313,6 @@ export default {
             const bm = await this.executePost('/beatmaps/transferHost/' + id, {user: user}, e);
             if(bm){
                 this.$emit('update-map', bm);
-                this.sortDiffs();
                 this.inviteConfirm = "Transfer host invite sent!"
             }
         },
@@ -316,12 +321,18 @@ export default {
         setCollab(task){
             this.addCollabInput = task._id;
             this.removeCollabInput = null;
+            this.requestDiffInput = null;
             this.collabTask = task;
         },
         unsetCollab(task){
             this.removeCollabInput = task._id;
             this.addCollabInput = null;
+            this.requestDiffInput = null;
             this.collabTask = task;
+        },
+        cancelCollab(){
+            this.removeCollabInput = null;
+            this.addCollabInput = null;
         },
         removeTask: async function(id) {
             this.fakeButton = id;
@@ -330,7 +341,6 @@ export default {
             const bm = await this.executePost('/beatmaps/removeTask/' + id, { beatmapId: this.beatmap._id });
             if (bm) {
                 this.$emit('update-map', bm);
-                this.sortDiffs();
             }
             this.fakeButton = null;
         },
@@ -341,7 +351,6 @@ export default {
             const bm = await this.executePost('/beatmaps/setTaskStatus/' + id, {status: status});
             if(bm){
                 this.$emit('update-map', bm);
-                this.sortDiffs();
             }
             this.fakeButton = null;
         },
@@ -350,8 +359,17 @@ export default {
             const bm = await this.executePost('/beatmaps/addTask/' + id, {difficulty: difficulty}, e);
             if(bm){
                 this.$emit('update-map', bm);
-                this.sortDiffs();
             }
+        },
+        setRequest(){
+            this.requestDiffInput = true;
+            this.addCollabInput = null;
+            this.removeCollabInput = null;
+        },
+        unsetRequest(){
+            this.requestDiffInput = null;
+            this.addCollabInput = null;
+            this.removeCollabInput = null;
         },
         requestTask: async function(id, e){
             let difficulty = $("#diffSelection").val();
@@ -359,7 +377,6 @@ export default {
             const bm = await this.executePost('/beatmaps/requestTask/' + id, {difficulty: difficulty, recipient: recipient}, e);
             if(bm){
                 this.$emit('update-map', bm);
-                this.sortDiffs();
                 this.inviteConfirm = "Difficulty request sent!"
             }
         },
@@ -369,8 +386,8 @@ export default {
             const bm = await this.executePost('/beatmaps/task/' + id + '/addCollab', {user: user}, e);
             if(bm){
                 this.$emit('update-map', bm);
-                this.sortDiffs();
                 this.inviteConfirm = "Collab invite sent!"
+                this.addCollabInput = null;
             }
         },
         removeCollab: async function(e){
@@ -379,7 +396,6 @@ export default {
             const bm = await this.executePost('/beatmaps/task/' + id + '/removeCollab', {user: user}, e);
             if(bm){
                 this.$emit('update-map', bm);
-                this.sortDiffs();
                 this.removeCollabInput = null;
             }
         },
@@ -389,7 +405,6 @@ export default {
             const bm = await this.executePost('/beatmaps/setStatus/' + this.beatmap._id, {status: status}, e);
             if(bm){
                 this.$emit('update-map', bm);
-                this.sortDiffs();
             }
         },
 
@@ -509,6 +524,7 @@ export default {
             addCollabInput: null,
             removeCollabInput: null,
             editLinkInput: null,
+            requestDiffInput: null,
             collabTask: null,
             fakeButton: null,
             info: null,
