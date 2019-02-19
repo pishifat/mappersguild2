@@ -19,7 +19,7 @@
             <h2>Work-in-progress <button class="btn btn-mg" data-toggle="modal" data-target="#addBeatmap" @click="wasCreateBeatmapOpened = true">Add beatmap</button></h2>
         </div>
 
-        <template v-for="quest in wipQuests">
+        <template v-for="quest in wipQuests()">
             <div class="col-md-12" :key="quest.id">
                 <a data-toggle="collapse" :href="'#' + createCollapseId(quest.name) + 'Wip'">
                     <img v-if="quest.art" class="rounded-circle" style="height:24px; width: 24px;" :src="'https://assets.ppy.sh/artists/' + quest.art + '/cover.jpg'"> 
@@ -28,7 +28,7 @@
             </div>
             <transition-group :id="createCollapseId(quest.name) + 'Wip'" name="list" tag="div" class="row collapse show map-collapse" :key="quest.id + '-wip'">
                 <beatmap-card
-                    v-for="beatmap in getRelatedBeatmaps(quest)"
+                    v-for="beatmap in getRelatedWipBeatmaps(quest)"
                     :key="beatmap.id"
                     :beatmap="beatmap"
                     :user-osu-id="userOsuId"
@@ -40,7 +40,7 @@
         <a class="ml-3" data-toggle="collapse" href="#othersWip">No associated quest</a>
         <transition-group id="othersWip" name="list" tag="div" class="row collapse show map-collapse">
             <beatmap-card
-                v-for="beatmap in othersWipBeatmaps"
+                v-for="beatmap in othersWipBeatmaps()"
                 :key="beatmap.id"
                 :beatmap="beatmap"
                 :user-osu-id="userOsuId"
@@ -55,7 +55,7 @@
             <h2>Pending</h2>
         </div>
 
-        <template v-for="quest in pendingQuests">
+        <template v-for="quest in pendingQuests()">
             <div class="col-md-12" :key="quest.id + '-done'">
                 <a data-toggle="collapse" :href="'#' + createCollapseId(quest.name) + 'done'">
                     <img v-if="quest.art" class="rounded-circle" style="height:24px; width: 24px;" :src="'https://assets.ppy.sh/artists/' + quest.art + '/cover.jpg'"> 
@@ -64,7 +64,7 @@
             </div>
             <transition-group :id="createCollapseId(quest.name) + 'done'" name="list" tag="div" class="row collapse show map-collapse" :key="quest.id">
                 <beatmap-card
-                    v-for="beatmap in getRelatedBeatmaps(quest)"
+                    v-for="beatmap in getRelatedDoneBeatmaps(quest)"
                     :key="beatmap.id"
                     :beatmap="beatmap"
                     :user-osu-id="userOsuId"
@@ -76,7 +76,7 @@
         <a class="ml-3" data-toggle="collapse" href="#othersDone">No associated quest</a>
         <transition-group id="othersDone" name="list" tag="div" class="row collapse show map-collapse">
             <beatmap-card
-                v-for="beatmap in othersPendingBeatmaps"
+                v-for="beatmap in othersPendingBeatmaps()"
                 :key="beatmap.id"
                 :beatmap="beatmap"
                 :user-osu-id="userOsuId"
@@ -108,7 +108,18 @@ export default {
         BeatmapCard,
         BeatmapInfo,
     },
+    watch:{
+        beatmaps: function(){
+            othersWipBeatmaps();
+            othersPendingBeatmaps();
+            wipQuests();
+            pendingQuests();
+        }
+    },
     computed: {
+        
+    },
+    methods: {
         othersWipBeatmaps: function () {
             if (this.beatmaps) {
                 return this.beatmaps.filter(b => b.status == 'WIP' && !b.quest);
@@ -137,16 +148,21 @@ export default {
                 });
             }
         },
-    },
-    methods: {
-        getRelatedBeatmaps: function (quest) {
+        getRelatedWipBeatmaps: function (quest) {
             return this.beatmaps.filter(b => {
-                return b.quest && b.quest.id == quest.id
+                return b.quest && b.quest.id == quest.id && b.status == "WIP"
+            });
+        },
+        getRelatedDoneBeatmaps: function (quest) {
+            return this.beatmaps.filter(b => {
+                return b.quest && b.quest.id == quest.id && b.status == "Done"
             });
         },
         updateMap: function(bm) {
-			const i = this.beatmaps.findIndex(b => b.id == bm.id);
-			this.beatmaps[i] = bm;
+            const i = this.beatmaps.findIndex(b => b.id == bm.id);
+            console.log(this.beatmaps[i])
+            this.beatmaps[i] = bm;
+            console.log(this.beatmaps[i])
             this.beatmap = bm;
             this.selectedMap = bm;
             this.info = null;

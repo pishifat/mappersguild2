@@ -297,7 +297,6 @@ router.post('/setStatus/:mapId', async (req, res) => {
     }
     await beatmaps.service.update(req.params.mapId, { status: req.body.status });
     b = await beatmaps.service.query({_id: req.params.mapId}, defaultPopulate);
-    console.log(b)
     res.json(b);
 
     logs.service.create(req.session.osuId, `changed status of "${b.song.artist} - ${b.song.title}"`, b._id, 'beatmap' );

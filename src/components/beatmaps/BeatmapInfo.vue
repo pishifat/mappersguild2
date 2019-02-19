@@ -405,6 +405,11 @@ export default {
             const bm = await this.executePost('/beatmaps/setStatus/' + this.beatmap._id, {status: status}, e);
             if(bm){
                 this.$emit('update-map', bm);
+                axios
+                .get('/beatmaps/relevantInfo')
+                .then(response => {
+                    this.$parent.beatmaps = response.data.beatmaps;
+                });
             }
         },
 
@@ -425,6 +430,7 @@ export default {
                     .get('/beatmaps/relevantInfo')
                     .then(response => {
                         this.$parent.allQuests = response.data.allQuests;
+                        this.$parent.beatmaps = response.data.beatmaps;
                     });
             }
             this.fakeButton = null;
@@ -446,6 +452,7 @@ export default {
                 .get('/beatmaps/relevantInfo')
                 .then(response => {
                     this.$parent.allQuests = response.data.allQuests;
+                    this.$parent.beatmaps = response.data.beatmaps;
                 });
         },
 
@@ -511,8 +518,8 @@ export default {
                 const bm = await this.executePost('/beatmaps/delete/' + this.beatmap._id, e);
                 if(bm){
                     $('#editBeatmap').modal('hide');
-                    const i = this.beatmaps.findIndex(b => b.id == bm.id);
-                    this.beatmaps.splice(i, 1);
+                    const i = this.$parent.beatmaps.findIndex(b => b.id == bm.id);
+                    this.$parent.beatmaps.splice(i, 1);
                     e.target.disabled = false;
                 }
             }
