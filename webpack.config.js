@@ -9,6 +9,8 @@ module.exports = {
         questsarchive: './src/questsarchive.js',
         parties: './src/parties.js',
         users: './src/users.js',
+        notifications: './src/notifications.js',
+        admin: './src/admin.js',
     },
     output: {
         filename: '[name].js',

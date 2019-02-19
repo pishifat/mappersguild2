@@ -97,7 +97,7 @@ router.post('/hideAll/', async (req, res) => {
 });
 
 /* POST hide notification */
-router.post('/declineInvite/:id', async (req, res) => {
+router.post('/hideInvite/:id', async (req, res) => {
     let inv = await invites.service.update(req.params.id, {visible: false});
     inv = await invites.service.query({_id: req.params.id}, defaultNotificationPopulate)
     res.json(inv);
@@ -124,7 +124,8 @@ router.post('/acceptCollab/:id', async (req, res) => {
         return res.json(valid);
     }
     await invites.service.update(req.params.id, {visible: false});
-    invite = await invites.service.query({_id: req.params.id}, defaultInvitePopulate)
+    invite = await invites.service.query({_id: req.params.id}, defaultInvitePopulate);
+    console.log(invite);
     res.json(invite);
 
     let t = await tasks.service.update(invite.modified._id, { $push: { mappers: req.session.mongoId } });
