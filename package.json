@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
+    "start": "webpack --mode production | node ./bin/www",
     "devstart": "webpack | nodemon ./bin/www",
     "build": "webpack --mode production"
   },
