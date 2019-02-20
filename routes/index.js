@@ -26,7 +26,8 @@ router.get('/login', async (req, res, next) => {
     if (req.session.osuId && req.session.username) {
         const u = await users.service.query({ osuId: req.session.osuId });
         if (!u || u.error) {
-            const user = await users.service.create(req.session.osuId, req.session.username);
+            await users.service.create(req.session.osuId, req.session.username);
+            const user = await users.service.query({ osuId: req.session.osuId });
             if (user && !user.error) {
                 req.session.mongoId = user._id;
                 logs.service.create(req.session.osuId, `joined the Mappers' Guild`, user._id, 'user');
