@@ -54,7 +54,7 @@
         @accept-quest="acceptQuest($event)" 
         @drop-quest="dropQuest($event)"
     ></quest-info>
-
+    <notifications-access></notifications-access>
 </div>
 
 </template>
@@ -62,12 +62,14 @@
 <script>
 import QuestCard from '../components/quests/QuestCard.vue';
 import QuestInfo from '../components/quests/QuestInfo.vue';
+import NotificationsAccess from '../components/NotificationsAccess.vue';
 
 export default {
     name: 'quest-page',
     components: {
         QuestCard,
         QuestInfo,
+        NotificationsAccess
     },
     methods: {
         executePost: async function (path, data, e) {

@@ -49,18 +49,21 @@
     <beatmap-info
         :beatmap="selectedMap"
     ></beatmap-info>
+    <notifications-access></notifications-access>
 </div>
 </template>
 
 <script>
 import BeatmapCard from '../components/beatmaps/BeatmapCard.vue';
 import BeatmapInfo from '../components/beatmaps/BeatmapInfo.vue';
+import NotificationsAccess from '../components/NotificationsAccess.vue';
 
 export default {
     name: 'beatmap-page',
     components: {
         BeatmapCard,
         BeatmapInfo,
+        NotificationsAccess
     },
     computed: {
         othersBeatmaps: function () {

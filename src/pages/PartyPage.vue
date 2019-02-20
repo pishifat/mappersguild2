@@ -35,6 +35,7 @@
     <create-party
         :info="info"
     ></create-party>
+	<notifications-access></notifications-access>
 </div>
 </template>
 
@@ -42,6 +43,7 @@
 import CreateParty from '../components/parties/CreateParty.vue';
 import PartyCard from '../components/parties/PartyCard.vue';
 import PartyInfo from '../components/parties/PartyInfo.vue';
+import NotificationsAccess from '../components/NotificationsAccess.vue';
 
 export default {
     name: 'party-page',

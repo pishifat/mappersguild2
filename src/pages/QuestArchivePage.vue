@@ -23,7 +23,7 @@
     <quest-info
         :quest="selectedQuest"
     ></quest-info>
-
+    <notifications-access></notifications-access>
 </div>
 
 </template>
@@ -31,12 +31,14 @@
 <script>
 import QuestCard from '../components/quests/QuestCard.vue';
 import QuestInfo from '../components/quests/QuestInfo.vue';
+import NotificationsAccess from '../components/NotificationsAccess.vue';
 
 export default {
     name: 'quest-archive-page',
     components: {
         QuestCard,
         QuestInfo,
+        NotificationsAccess
     },
     methods: {
         sort: function (field, keepOrder) {

@@ -29,7 +29,7 @@
     <limited-map-info
         :beatmap="selectedMap"
     ></limited-map-info>
-
+    <notifications-access></notifications-access>
 </div>
 </template>
 
@@ -37,13 +37,15 @@
 import UserCard from '../components/users/UserCard.vue';
 import UserInfo from '../components/users/UserInfo.vue';
 import LimitedMapInfo from '../components/LimitedMapInfo.vue';
+import NotificationsAccess from '../components/NotificationsAccess.vue';
 
 export default {
     name: 'user-page',
     components: {
         UserCard,
         UserInfo,
-        LimitedMapInfo
+        LimitedMapInfo,
+        NotificationsAccess
     },
     methods: {
         updateUser: function(u) {
