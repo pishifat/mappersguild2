@@ -25,7 +25,7 @@ router.get('/', async (req, res, next) => {
 router.get('/login', async (req, res, next) => {
     if (req.session.osuId && req.session.username) {
         const u = await users.service.query({ osuId: req.session.osuId });
-        if (!u) {
+        if (!u || u.error) {
             const user = await users.service.create(req.session.osuId, req.session.username);
             if (user.error) {
                 return res.status(500).render('error', { message: user.error });
