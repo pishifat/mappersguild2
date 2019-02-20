@@ -1,38 +1,25 @@
 <template>
 <div class="row">
     <div class="row col-md-12">
-        <small>Filter: 
-            <a :class="filterBy === 'myMaps' ? 'sorted' : ''" href="#" @click.prevent="filter('myMaps')">My maps</a> 
-        </small>
-    </div>
-    <div class="row col-md-12">
         <small>Search: 
-            <a :class="filterBy === 'mapper' ? 'sorted' : ''" href="#" @click.prevent="filter('mapper')">Mapper: </a> 
-            <input id="mapperFilter" type="text" @keyup.enter="filter('mapper', $event)" style="border-radius: 5px 5px 5px 5px; filter: drop-shadow(1px 1px 1px #000000);" /> |
-            <a :class="filterBy === 'map' ? 'sorted' : ''" href="#" @click.prevent="filter('map')">Song: </a> 
-            <input id="beatmapFilter" type="text" @keyup.enter="filter('map', $event)" style="border-radius: 5px 5px 5px 5px; filter: drop-shadow(1px 1px 1px #000000);" /> 
+            <input id="search" v-model="filterValue" type="text" placeholder="song or username..." style="border-radius: 5px 5px 5px 5px; filter: drop-shadow(1px 1px 1px #000000);" /> 
+            <a href="#" class="pl-1" @click.prevent="collapseAll()">Collapse all</a> | <a href="#" @click.prevent="uncollapseAll()">Expand all</a> 
         </small>
-    </div>
-    <div class="row mb-3 col-md-12">
-        <small>
-            Collapse: <a href="#" @click.prevent="collapseAll()">Collapse all</a> | <a href="#" @click.prevent="uncollapseAll()">Expand all</a> 
-        </small>
-    </div>
+    </div> 
 
-    <!-- WIP Beatmaps -->
     <div class="col-lg-12">
         <div class="row">
-            <h2>Work-in-progress <button class="btn btn-mg" data-toggle="modal" data-target="#addBeatmap" @click="wasCreateBeatmapOpened = true">Add beatmap</button></h2>
+            <h2>Ranked</h2>
         </div>
 
-        <template v-for="quest in validCompleteQuests">
+        <template v-for="quest in validQuests">
             <div class="col-md-12" :key="quest.id">
-                <a data-toggle="collapse" :href="'#' + createCollapseId(quest.name) + 'Wip'">
+                <a data-toggle="collapse" :href="'#' + createCollapseId(quest.name) + 'Ranked'">
                     <img v-if="quest.art" class="rounded-circle" style="height:24px; width: 24px;" :src="'https://assets.ppy.sh/artists/' + quest.art + '/cover.jpg'"> 
                     Quest: {{quest.name}}
                 </a> 
             </div>
-            <transition-group :id="createCollapseId(quest.name) + 'Wip'" name="list" tag="div" class="row collapse show map-collapse" :key="quest.id + '-wip'">
+            <transition-group :id="createCollapseId(quest.name) + 'Ranked'" name="list" tag="div" class="row collapse show map-collapse" :key="quest.id + '-ranked'">
                 <beatmap-card
                     v-for="beatmap in getRelatedBeatmaps(quest)"
                     :key="beatmap.id"
@@ -42,15 +29,20 @@
             </transition-group>
         </template>
 
-        <a class="ml-3" data-toggle="collapse" href="#othersWip">No associated quest</a>
-        <transition-group id="othersWip" name="list" tag="div" class="row collapse show map-collapse">
-            <beatmap-card
-                v-for="beatmap in othersBeatmaps"
-                :key="beatmap.id"
-                :beatmap="beatmap"
-                @update:selectedMap="selectedMap = $event"
-            ></beatmap-card>
-        </transition-group>
+        <a class="ml-3" data-toggle="collapse" href="#othersRanked">No associated quest</a>
+        <div id="othersRanked" class="collapse show map-collapse">
+            <transition-group name="list" tag="div" class="row">
+                <beatmap-card
+                    v-for="beatmap in othersBeatmaps()"
+                    :key="beatmap.id"
+                    :beatmap="beatmap"
+                    @update:selectedMap="selectedMap = $event"
+                ></beatmap-card>
+            </transition-group>
+            <button v-if="showMore" class="btn btn-sm btn-mg mx-auto my-2" style="display:block" type="button" @click="showMoreOthers()">
+                <i class="fas fa-angle-down mr-1"></i> show more <i class="fas fa-angle-down ml-1"></i>
+            </button>
+        </div>
     </div>
 
     <beatmap-info
@@ -66,21 +58,21 @@ import BeatmapInfo from '../components/beatmaps/BeatmapInfo.vue';
 import NotificationsAccess from '../components/NotificationsAccess.vue';
 
 export default {
-    name: 'beatmap-page',
+    name: 'beatmap-archive-page',
     components: {
         BeatmapCard,
         BeatmapInfo,
         NotificationsAccess
     },
+    watch:{
+        filterValue: function(v){
+            this.filter();
+        }
+    },
     computed: {
-        othersBeatmaps: function () {
-            if (this.beatmaps) {
-                return this.beatmaps.filter(b => b.status == 'Ranked' && !b.quest);
-            }
-        },
-        validCompleteQuests: function () {
-            if (this.completeQuests) {
-                return this.completeQuests.filter(q => {
+        validQuests: function () {
+            if (this.quests) {
+                return this.quests.filter(q => {
                     if (q.associatedMaps.find(m => m.status == 'Ranked')) {
                         return true;
                     }
@@ -89,6 +81,19 @@ export default {
         },
     },
     methods: {
+        othersBeatmaps: function () {
+            if(this.beatmaps){
+                let maps = this.beatmaps.filter(b => b.status == 'Ranked' && !b.quest);
+                if(maps.length == maps.slice(0, this.moreOthers).length){
+                    this.showMore = false;
+                }
+                return maps.slice(0, this.moreOthers);
+            }
+        },
+        showMoreOthers: function(){
+            this.moreOthers += 18;
+            this.othersBeatmaps();
+        },
         getRelatedBeatmaps: function (quest) {
             return this.beatmaps.filter(b => {
                 return b.quest && b.quest.id == quest.id
@@ -116,42 +121,18 @@ export default {
         },
 
         // filters
-        filter: function (field, e, keepFilter) {            
-            if (this.filterBy === field && !keepFilter) {
-                this.filterBy = null;
-                this.beatmaps = this.tempBeatmaps;
-                return;
-            }
-
-            this.filterBy = field;
-
-            if (this.tempBeatmaps) {
-                this.beatmaps = this.tempBeatmaps;
-            }
-
-            if (field == 'myMaps') {
-                this.tempBeatmaps = this.beatmaps;
-                this.beatmaps = this.beatmaps.filter(b => b.host.osuId === this.userOsuId);
-            } else if (field == 'mapper') {
-                if (e) {
-                    this.filterValue = e.target.value;
-                }else{
-                    this.filterValue = $("#mapperFilter").val();
-                }
-
-                this.tempBeatmaps = this.beatmaps;
-                this.beatmaps = this.beatmaps.filter(b => b.host.username == this.filterValue);
-            } else if (field == 'map') {
-                if (e) {
-                    this.filterValue = e.target.value;
-                }else{
-                    this.filterValue = $("#beatmapFilter").val();
-                }
-
-                this.tempBeatmaps = this.beatmaps;
+        filter: function () {            
+            this.filterValue = $("#search").val();
+            this.beatmaps = this.allBeatmaps;
+            if(this.filterValue != ""){
                 this.beatmaps = this.beatmaps.filter(b => {
-                    const title = b.song.title + ' ' + b.song.artist;
-                    if (title.toLowerCase().indexOf(this.filterValue.toLowerCase()) > -1) {
+                    let valid = b.song.title + ' ' + b.song.artist + ' ' + b.host.username;
+                    b.tasks.forEach(task => {
+                        task.mappers.forEach(mapper => {
+                            valid += ' ' + mapper.username;
+                        });
+                    });
+                    if(valid.toLowerCase().indexOf(this.filterValue.toLowerCase()) > -1){
                         return true;
                     }
                     return false;
@@ -162,12 +143,13 @@ export default {
     data () {
 		return { 
             beatmaps: null,
-            completeQuests: null,
+            allBeatmaps: null,
+            quests: null,
 			selectedMap: null,
             info: null,
-            filterBy: null,
+            moreOthers: 36,
+            showMore: true,
             filterValue: null,
-            tempBeatmaps: null,
 		}
     },
     created () {
@@ -175,7 +157,8 @@ export default {
       		.get('/beatmapsarchive/relevantInfo')
       		.then(response => {
                 this.beatmaps = response.data.beatmaps;
-                this.completeQuests = response.data.completeQuests;
+                this.allBeatmaps = response.data.beatmaps;
+                this.quests = response.data.quests;
             }).then(function(){
                 $("#loading").fadeOut();
 				$("#app").attr("style", "visibility: visible").hide().fadeIn();
@@ -187,7 +170,8 @@ export default {
                 .get('/beatmapsarchive/relevantInfo')
                 .then(response => {
                 this.beatmaps = response.data.beatmaps;
-                this.completeQuests = response.data.completeQuests;
+                this.allBeatmaps = response.data.beatmaps;
+                this.quests = response.data.quests;
                 });
         }, 30000);
     }

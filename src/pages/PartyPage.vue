@@ -50,7 +50,8 @@ export default {
     components: {
         CreateParty,
         PartyInfo,
-        PartyCard,
+		PartyCard,
+		NotificationsAccess
     },
     methods: {
 		newPartyInfo: function(){
@@ -91,7 +92,7 @@ export default {
 		leaveParty: async function (args) {
 			let id = args.id;
 			let e = args.e;
-			const result = confirm("Are you sure you want to leave the party?")
+			const result = confirm("Are you sure? If your party is running a quest, you will lose points")
 			if (result) {
 				const party = await this.executePost('/parties/leave', { partyId: id }, e);
 				if (party) {

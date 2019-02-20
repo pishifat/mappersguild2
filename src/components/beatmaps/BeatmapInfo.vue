@@ -77,9 +77,9 @@
                                         <option v-if="beatmap.tasksLocked.indexOf('Storyboard') < 0 || isHost" value="Storyboard">Storyboard</option>
                                     </select>
                                     <div class="input-group-append">
-                                        <button style="border-radius: 0 100px 100px 0;" class="rounded-circle-left btn btn-mg" id="addTask" @click="addTask(beatmap.id, $event);" data-toggle="tooltip" data-placement="right" title="add difficulty" :disabled="requestDiffInput"><i class="fas fa-plus append-button-padding"></i></button>
+                                        <button style="border-radius: 0 100px 100px 0;" class="rounded-circle-left btn btn-mg" id="addTask" @click="addTask(beatmap.id, $event);" data-toggle="tooltip" data-placement="top" title="add difficulty" :disabled="requestDiffInput"><i class="fas fa-plus append-button-padding"></i></button>
                                     </div>
-                                    <a v-if="isHost" href="#" :class="requestDiffInput ? 'icon-used' : ''" class="icon-valid px-2 text-shadow" @click.prevent="requestDiffInput ? unsetRequest() : setRequest()"  data-toggle="tooltip" data-placement="top" title="request difficulty"><i class="fas fa-edit"></i></a>
+                                    <a v-if="isHost" href="#" :class="requestDiffInput ? 'icon-used' : ''" class="icon-valid px-2 text-shadow pt-1" @click.prevent="requestDiffInput ? unsetRequest() : setRequest()"  data-toggle="tooltip" data-placement="top" title="request difficulty"><i class="fas fa-sign-out-alt"></i></a>
                                 </div>
                             </div>
                             <div id="requestDiff" v-if="requestDiffInput">
@@ -218,7 +218,6 @@ export default {
     watch: {
         beatmap: function () {
             this.info = null;
-            this.inviteConfirm = null;
             this.addCollabInput = null;
             this.removeCollabInput = null;
             this.editLinkInput = null;

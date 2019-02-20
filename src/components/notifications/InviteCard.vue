@@ -64,7 +64,7 @@ export default {
                 invite = await this.executePost('/notifications/acceptJoin/' + this.invite.id, {}, e);
             }
             if(invite){
-                this.hideInvite(e);
+                this.$emit('hide-accepted-invite', {id: this.invite.id, e: e});
             }
         },
     },

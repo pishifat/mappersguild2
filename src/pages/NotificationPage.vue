@@ -25,6 +25,7 @@
                 @update:info="info = $event"
                 @update:selectedMap="selectedMap = $event"
                 @hide-invite="hideInvite($event)"
+                @hide-accepted-invite="hideAcceptedInvite($event)"
             ></invite-card>
         </transition-group>
         <p v-if="!invites || invites.length == 0" class="ml-4">No invites...</p>
@@ -104,11 +105,18 @@ export default {
         //decline invite
         hideInvite: async function(args){
             let id = args.id;
-            console.log(args);
             let e = args.e;
             const i = this.invites.findIndex(inv => inv.id === id);
             this.invites.splice(i, 1);
             await this.executePost('/notifications/hideInvite/' + id, {}, e);
+        },
+        //decline invite
+        hideAcceptedInvite: async function(args){
+            let id = args.id;
+            let e = args.e;
+            const i = this.invites.findIndex(inv => inv.id === id);
+            this.invites.splice(i, 1);
+            await this.executePost('/notifications/hideAcceptedInvite/' + id, {}, e);
         },
         //decline all invites
         declineAll: async function(e){
@@ -122,7 +130,6 @@ export default {
             invites: null,
             info: '',
             selectedMap: null,
-            userOsuId: null,
         }
     },
     created() {
@@ -131,7 +138,6 @@ export default {
             .then(response => {
                 this.notifications = response.data.notifications;
                 this.invites = response.data.invites;
-                this.userOsuId = response.data.userOsuId;
             }).then(function(){
                 $("#loading").fadeOut();
                 $("#app").attr("style", "visibility: visible").hide().fadeIn();
@@ -144,7 +150,6 @@ export default {
                 .then(response => {
                     this.notifications = response.data.notifications;
                     this.invites = response.data.invites;
-                    this.userOsuId = response.data.userOsuId;
                 });
         }, 30000);
     }

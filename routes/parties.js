@@ -203,7 +203,7 @@ router.post('/kick', async (req, res) => {
     logs.service.create(req.session.osuId, `kicked "${u.username}" from party "${p.name}"`, p._id, 'party' );
     p.members.forEach(member => {
         if(member.id != req.session.mongoId){
-            notifications.service.create(p.id, `was kicked from your party`, member.id, req.session.mongoId);
+            notifications.service.create(p.id, `was kicked from your party`, member, req.session.mongoId);
         }
     });
 });
@@ -224,7 +224,7 @@ router.post('/transferLeader', async (req, res) => {
         logs.service.create(req.session.osuId, `transferred party leader to "${u.username}" in party "${p.name}"`, p._id, 'party' );
         p.members.forEach(member => {
             if(member.id != req.session.mongoId){
-                notifications.service.create(p.id, `was promoted to your party's leader`, member.id, req.session.mongoId);
+                notifications.service.create(p.id, `was promoted to your party's leader`, member, req.session.mongoId);
             }
         });
     }

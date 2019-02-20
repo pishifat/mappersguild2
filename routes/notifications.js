@@ -107,6 +107,14 @@ router.post('/hideInvite/:id', async (req, res) => {
     notifications.service.create(inv.id, `rejected your recent invitation related to the mapset`, inv.sender, inv.recipient, inv.map);
 });
 
+
+/* POST hide notification */
+router.post('/hideAcceptedInvite/:id', async (req, res) => {
+    res.json(await invites.service.update(req.params.id, {visible: false}));
+
+});
+
+
 /* POST hide notification */
 router.post('/declineAll/', async (req, res) => {
     let invs = await invites.service.query({recipient: req.session.mongoId, visible: true}, {}, {}, true);

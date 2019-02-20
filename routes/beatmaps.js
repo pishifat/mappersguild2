@@ -110,7 +110,7 @@ router.get("/songs/:labelId", async (req, res, next) => {
 
 /* POST create new map */
 router.post('/create', async (req, res) => {
-    if (!req.body.song) {
+    if (req.body.song == 'Select an artist to view songs') {
         return res.json({ error: 'Missing song!' });
     }
     if (req.body.tasks.length < 1) {
@@ -383,8 +383,6 @@ router.post("/updateBn/:mapId", api.isBn, async (req, res) => {
     const isAlreadyBn = await beatmaps.service.query({ _id: req.params.mapId, bns: req.session.mongoId }, defaultPopulate);
     let update;
     if (!isAlreadyBn) {
-        update = { $push: { bns: req.session.mongoId } };
-    } else {
         let hasTask = false;
         isAlreadyBn.tasks.forEach(task => {
             task.mappers.forEach(mapper => {
@@ -396,6 +394,8 @@ router.post("/updateBn/:mapId", api.isBn, async (req, res) => {
         if(hasTask){
             return res.json({error: "You can't nominate a mapset you've done a task for!"})
         }
+        update = { $push: { bns: req.session.mongoId } };
+    } else {
         update = { $pull: { bns: req.session.mongoId } };
     }
     await beatmaps.service.update(req.params.mapId, update);
@@ -407,7 +407,7 @@ router.post("/updateBn/:mapId", api.isBn, async (req, res) => {
             notifications.service.create(b.id, `removed themself from the Beatmap Nominator list on your mapset`, b.host.id, req.session.mongoId, b.id);
     }else{
         logs.service.create(req.session.osuId, `added to Beatmap Nominator list on "${b.song.artist} - ${b.song.title}"`, b._id, 'beatmap' );
-            notifications.service.create(b.id, `added themself to teh Beatmap Nominator list on your mapset`, b.host.id, req.session.mongoId, b.id);     
+            notifications.service.create(b.id, `added themself to the Beatmap Nominator list on your mapset`, b.host.id, req.session.mongoId, b.id);     
     }
 });
 

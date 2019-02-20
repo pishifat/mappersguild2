@@ -15,6 +15,10 @@ const defaultPopulate = [
     { populate: 'song',  display: 'artist title' },
     { innerPopulate: 'tasks',  populate: { path: 'mappers' } },
 ];
+const questPopulate = [
+    { innerPopulate: 'associatedMaps', populate: { path: 'host bns modders song tasks' } },
+];
+const sort = {createdAt: -1};
 
 /* GET maps page. */
 router.get('/', async function(req, res) {
@@ -23,14 +27,12 @@ router.get('/', async function(req, res) {
 
 
 router.get("/relevantInfo", async (req, res, next) => {
-    const questPopulate = [{populate: 'associatedMaps', display: 'artist'}];
-    const sort = {createdAt: -1};
-    const [bms, completeQuests] = await Promise.all([
+    const [bms, qs] = await Promise.all([
     beatmaps.service.query({status: "Ranked"}, defaultPopulate, sort, true),
-    quests.service.query({status: "done"}, questPopulate, sort, true)
+    quests.service.query({status: { $ne: 'open'}}, questPopulate, sort, true)
     ]);
 
-    res.json({beatmaps: bms, completeQuests: completeQuests});
+    res.json({beatmaps: bms, quests: qs});
 });
 
 

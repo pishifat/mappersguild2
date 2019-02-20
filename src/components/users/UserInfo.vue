@@ -151,10 +151,10 @@
                 <button 
                     v-if="user.osuId == userId"
                     class="btn btn-sm justify-content-center" 
-                    :class="{ 'btn-mg': user.invites, 'btn-mg-used': !user.invites }" 
+                    :class="{ 'btn-mg': !user.invites, 'btn-mg-used': user.invites }" 
                     @click="switchInvites($event)"
                 >
-                    {{user.invites ? 'Enable invites' : 'Disable invites'}}
+                    {{user.invites ? 'Disable invites' : 'Enable invites'}}
                 </button>
                 <p class="text-shadow float-right">Joined: {{user.createdAt.slice(0,10)}}</p>
             </div>

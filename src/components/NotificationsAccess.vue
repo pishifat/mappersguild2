@@ -25,13 +25,23 @@ export default {
             invites: null,
         }
     },
-    mounted () {
+    created () {
         axios
       		.get('/notifications/relevantInfo')
       		.then(response => {
                 this.notifications = response.data.notifications.length;
                 this.invites = response.data.invites.length;
             });
+    },
+    mounted () {
+        setInterval(() => {
+            axios
+                .get('/notifications/relevantInfo')
+                .then(response => {
+                    this.notifications = response.data.notifications.length;
+                    this.invites = response.data.invites.length;
+                });
+        }, 30000);
     }
 }
 </script>
