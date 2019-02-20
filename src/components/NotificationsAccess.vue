@@ -1,8 +1,19 @@
 <template>
-    <div style="position: fixed; z-index: 2000; bottom: 20px; right: 20px;" class="bg-dark">
-        <a href="/notifications">Notifications: <span class="badge badge-light">{{ notifications }}</span>
-        Invites: {{ invites }}</a>
-        <a href="#navbar" class="fas fa-angle-up fa-lg"></a>
+    <div class="bg-dark pl-3"  style="
+        position: fixed; 
+        z-index: 1060; 
+        bottom: 20px; 
+        right: 20px;
+        border-radius: 100px;
+    " >
+        <a href="/notifications"><span class="badge badge-light" data-toggle="tooltip" data-placement="top" title="notifications">{{ notifications }}</span>
+        <span class="badge badge-light" data-toggle="tooltip" data-placement="top" title="invites">{{ invites }}</span></a>
+        <a href="#navbar" class="btn btn-secondary fas fa-angle-up fa-2x ml-2" style="
+            background-color: var(--done);
+            border-color: var(--done);
+            filter: drop-shadow(1px 1px 1px #000000);
+            border-radius: 10000px;
+        "></a>
     </div>
 </template>
 
@@ -10,8 +21,8 @@
 export default {
     data () {
         return {
-            notifications: 1,
-            invites: 1,
+            notifications: null,
+            invites: null,
         }
     },
     mounted () {
