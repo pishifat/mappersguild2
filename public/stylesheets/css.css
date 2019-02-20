@@ -36,8 +36,6 @@ body {
     overflow-x: hidden;
 }
 
-body 
-
 a {
     color: rgb(238, 238, 238);
     font-weight: bold;
@@ -133,7 +131,7 @@ footer {
 
 .modal-open[style] {
     padding-right: 0px !important;
-    }
+}
 
 .modal-body {
     border-radius: 0 0 5px 5px; 

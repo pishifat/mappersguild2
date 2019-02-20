@@ -9,25 +9,32 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
 const config = require('./config.json');
 const hbs = require('hbs');
+// const webpack = require('webpack');
+// const webpackDevMiddleware = require('webpack-dev-middleware');
+// const webpackConfig = require('./webpack.config.js');
 
-var indexRouter = require('./routes/index');
-var faqRouter = require('./routes/faq');
-var beatmapsRouter = require('./routes/beatmaps');
-var rankedRouter = require('./routes/ranked');
-var usersRouter = require('./routes/users');
-var questsRouter = require('./routes/quests');
-var questsArchiveRouter = require('./routes/questsarchive');
-var partiesRouter = require('./routes/parties');
-var logsRouter = require('./routes/logs');
-var notificationsRouter = require('./routes/notifications');
-var adminsRouter = require('./routes/admin');
+const indexRouter = require('./routes/index');
+const faqRouter = require('./routes/faq');
+const beatmapsRouter = require('./routes/beatmaps');
+const beatmapsArchiveRouter = require('./routes/beatmapsarchive');
+const usersRouter = require('./routes/users');
+const questsRouter = require('./routes/quests');
+const questsArchiveRouter = require('./routes/questsarchive');
+const partiesRouter = require('./routes/parties');
+const logsRouter = require('./routes/logs');
+const notificationsRouter = require('./routes/notifications');
+const adminsRouter = require('./routes/admin');
 
-var app = express();
+const app = express();
+// const compiler = webpack(webpackConfig);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
 
+// app.use(webpackDevMiddleware(compiler, {
+//   publicPath: webpackConfig.output.publicPath
+// }));
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -54,7 +61,7 @@ app.use(session({
 app.use('/', indexRouter);
 app.use('/faq', faqRouter);
 app.use('/beatmaps', beatmapsRouter);
-app.use('/ranked', rankedRouter);
+app.use('/beatmapsarchive', beatmapsArchiveRouter);
 app.use('/users', usersRouter);
 app.use('/quests', questsRouter);
 app.use('/questsarchive', questsArchiveRouter);

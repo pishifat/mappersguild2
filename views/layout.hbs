@@ -10,10 +10,9 @@
     <link rel="stylesheet" href="../stylesheets/css.css">
     <link rel="icon" type="image/png" href="../images/logo256.png">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.2/dist/vue.min.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 </head>
-<body class="text-light">
+<body class="text-light px-0">
     <nav class="navbar navbar-expand-lg navbar-dark custom-bg-dark">
         <a class="navbar-brand" href="/">
             <img src="../images/logo_nav.png" width="31" height="28" alt="">
@@ -32,7 +31,7 @@
                     </a>
                     <div class="dropdown-menu">
                         <a class="dropdown-item" href="/beatmaps">WIP/Pending</a>
-                        <a class="dropdown-item" href="/ranked">Ranked</a>
+                        <a class="dropdown-item" href="/beatmapsarchive">Ranked</a>
                     </div>
                 </li>
                 <li class="nav-item dropdown {{#if isQuests}}active{{/if}}">
@@ -55,14 +54,7 @@
                     <a class="nav-link" href="/faq">FAQ</a>
                 </li>
             </ul>
-
-            <span id="navVue" class="small nav-item {{#if isNotifications}}active{{/if}}">
-                <a class="nav-link" href="/notifications">
-                    Notifications: <span id="nav-notifications">\{{notificationCount ? notificationCount : 0}}</span> | 
-                    Invites: <span id="nav-invites">\{{inviteCount ? inviteCount : 0}}</span>
-                </a>
-            </span>
-
+            
             <span class="navbar-text">Logged in as {{loggedInAs}}</span>
             {{else}}
             <form class="ml-auto" action="/login" method="GET">
