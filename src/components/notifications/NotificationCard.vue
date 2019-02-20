@@ -26,7 +26,7 @@ export default {
     props: ['notification'],
     methods: {
         hideNotification: function (e) {
-            this.$emit('hide-notification', {notification: this.notification, e: e});
+            this.$emit('hide-notification', {id: this.notification.id, e: e});
         },
         selectBeatmap: function (e) {
             this.$emit('update:selectedMap', this.notification.map);
