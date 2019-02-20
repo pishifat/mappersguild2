@@ -27,12 +27,13 @@ router.get('/login', async (req, res, next) => {
         const u = await users.service.query({ osuId: req.session.osuId });
         if (!u) {
             const user = await users.service.create(req.session.osuId, req.session.username);
-
             if (user.error) {
                 return res.status(500).render('error', { message: user.error });
             }
+            req.session.mongoId = user.id;
             logs.service.create(req.session.osuId, `joined the Mappers' Guild`, user._id, 'user');
         } else {
+            req.session.mongoId = u.id;
             return next();
         }
     }
@@ -47,7 +48,6 @@ router.get('/login', async (req, res, next) => {
         res.redirect(`https://osu.ppy.sh/oauth/authorize?response_type=code&client_id=${config.id}&redirect_uri=${encodeURIComponent(config.redirect)}&state=${hashedState}&scope=identify`);
     }
 }, api.isLoggedIn, (req, res) => {
-    req.session.mongoId = u.id;
     res.redirect('/faq'); 
 });
 
