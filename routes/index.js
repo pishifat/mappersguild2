@@ -75,7 +75,7 @@ router.get('/callback', async (req, res) => {
 
         if (response.error) {
             res.status(500).render('error');
-        } else if (response.ranked_and_approved_beatmapset_count > 1 && response.kudosu.total > 100) {
+        } else if (response.ranked_and_approved_beatmapset_count >= 1 && response.kudosu.total > 80) {
             req.session.username = response.username;
             req.session.osuId = response.id;
             res.redirect('/login');

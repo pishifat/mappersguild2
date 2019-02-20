@@ -7,7 +7,7 @@ router.use(api.isLoggedIn);
 
 /* GET faq */
 router.get('/', async (req, res, next) => {
-	res.render('faq', { title: 'Frequently Asked Questions', isFaq: true, script: '../javascripts/faq.js', loggedInAs: req.session.username });
+	res.render('faq', { title: 'Frequently Asked Questions', isFaq: true, loggedInAs: req.session.username });
 });
 
 module.exports = router;

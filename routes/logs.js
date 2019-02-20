@@ -12,7 +12,7 @@ router.get('/', async (req, res, next) => {
 		{ populate: 'user',  display: 'username' }
 	];
 
-	res.render('logs', { title: 'Logs', script: '../javascripts/logs.js', isLogs: true, logs: await logs.service.query({}, populate, {createdAt: -1}, true, 100), loggedInAs: req.session.username });
+	res.render('logs', { title: 'Logs', script: '../js/logs.js', isLogs: true, logs: await logs.service.query({}, populate, {createdAt: -1}, true, 100), loggedInAs: req.session.username });
 });
 
 router.get('/more/:skip', async (req, res, next) => {
