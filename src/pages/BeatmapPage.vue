@@ -54,6 +54,9 @@
                 @update:selectedMap="selectedMap = $event"
             ></beatmap-card>
         </transition-group>
+        <button class="btn btn-sm btn-mg mx-auto my-2" style="display:block" type="button" @click="showMoreOthersWip()">
+            <i class="fas fa-angle-down mr-1"></i> show more <i class="fas fa-angle-down ml-1"></i>
+        </button>
     </div>
 
     <!-- Pending Beatmaps -->
@@ -90,6 +93,9 @@
                 @update:selectedMap="selectedMap = $event"
             ></beatmap-card>
         </transition-group>
+        <button class="btn btn-sm btn-mg mx-auto my-2" style="display:block" type="button" @click="showMoreOthersPending()">
+            <i class="fas fa-angle-down mr-1"></i> show more <i class="fas fa-angle-down ml-1"></i>
+        </button>
     </div>
 
     <beatmap-info
@@ -147,13 +153,21 @@ export default {
         },
         othersWipBeatmaps: function () {
             if(this.beatmaps){
-                return this.beatmaps.filter(b => b.status == 'WIP' && !b.quest);
+                return this.beatmaps.filter(b => b.status == 'WIP' && !b.quest).slice(0, this.moreOthersWip);
             }
+        },
+        showMoreOthersWip: function(){
+            this.moreOthersWip += 12;
+            this.othersWipBeatmaps();
         },
         othersPendingBeatmaps: function () {
             if(this.beatmaps){
-                return this.beatmaps.filter(b => b.status == 'Done' && !b.quest);
+                return this.beatmaps.filter(b => b.status == 'Done' && !b.quest).slice(0, this.moreOthersPending);
             }
+        },
+        showMoreOthersPending: function(){
+            this.moreOthersPending += 12;
+            this.othersPendingBeatmaps();
         },
         wipQuests: function () {
             if(this.beatmaps){
@@ -260,6 +274,8 @@ export default {
             featuredArtists: null,
             featuredSongs: null,
             info: null,
+            moreOthersWip: 16,
+            moreOthersPending: 8,
             filterBy: null,
             filterValue: null,
             tempBeatmaps: null,

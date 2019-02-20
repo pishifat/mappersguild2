@@ -184,7 +184,7 @@ export default {
     },
     methods: {
         selectBeatmap: function (map) {
-            $('#extendedInfo').modal('hide')
+            $("#extendedInfo").css("z-index", "10");
             this.$emit('update:selectedMap', map);
         },
         executePost: async function (path, data, e) {
