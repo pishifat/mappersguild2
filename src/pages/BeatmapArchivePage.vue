@@ -2,8 +2,15 @@
 <div class="row">
     <div class="row col-md-12">
         <small>Filter: 
-            <a :class="filterBy === 'myMaps' ? 'sorted' : ''" href="#" @click.prevent="filter('myMaps')">My maps</a> | 
-            <a :class="filterBy === 'mapper' ? 'sorted' : ''" href="#" @click.prevent="filter('mapper')">Search mapper: </a> <input id="mapperFilter" type="text" @keyup.enter="filter('mapper', $event)" style="border-radius: 5px 5px 5px 5px; filter: drop-shadow(1px 1px 1px #000000);" /> 
+            <a :class="filterBy === 'myMaps' ? 'sorted' : ''" href="#" @click.prevent="filter('myMaps')">My maps</a> 
+        </small>
+    </div>
+    <div class="row col-md-12">
+        <small>Search: 
+            <a :class="filterBy === 'mapper' ? 'sorted' : ''" href="#" @click.prevent="filter('mapper')">Mapper: </a> 
+            <input id="mapperFilter" type="text" @keyup.enter="filter('mapper', $event)" style="border-radius: 5px 5px 5px 5px; filter: drop-shadow(1px 1px 1px #000000);" /> |
+            <a :class="filterBy === 'map' ? 'sorted' : ''" href="#" @click.prevent="filter('map')">Song: </a> 
+            <input id="beatmapFilter" type="text" @keyup.enter="filter('map', $event)" style="border-radius: 5px 5px 5px 5px; filter: drop-shadow(1px 1px 1px #000000);" /> 
         </small>
     </div>
     <div class="row mb-3 col-md-12">
@@ -134,6 +141,21 @@ export default {
 
                 this.tempBeatmaps = this.beatmaps;
                 this.beatmaps = this.beatmaps.filter(b => b.host.username == this.filterValue);
+            } else if (field == 'map') {
+                if (e) {
+                    this.filterValue = e.target.value;
+                }else{
+                    this.filterValue = $("#beatmapFilter").val();
+                }
+
+                this.tempBeatmaps = this.beatmaps;
+                this.beatmaps = this.beatmaps.filter(b => {
+                    const title = b.song.title + ' ' + b.song.artist;
+                    if (title.toLowerCase().indexOf(this.filterValue.toLowerCase()) > -1) {
+                        return true;
+                    }
+                    return false;
+                });
             }
         },
     },
