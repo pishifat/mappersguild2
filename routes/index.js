@@ -27,13 +27,15 @@ router.get('/login', async (req, res, next) => {
         const u = await users.service.query({ osuId: req.session.osuId });
         if (!u || u.error) {
             const user = await users.service.create(req.session.osuId, req.session.username);
-            if (user.error) {
-                return res.status(500).render('error', { message: user.error });
+            if (user && !user.error) {
+                req.session.mongoId = user._id;
+                logs.service.create(req.session.osuId, `joined the Mappers' Guild`, user._id, 'user');
+                return next();
+            } else {
+                return res.status(500).render('error', { message: 'Something went wrong!' });
             }
-            req.session.mongoId = user.id;
-            logs.service.create(req.session.osuId, `joined the Mappers' Guild`, user._id, 'user');
         } else {
-            req.session.mongoId = u.id;
+            req.session.mongoId = u._id;
             return next();
         }
     }

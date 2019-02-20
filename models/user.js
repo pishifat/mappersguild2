@@ -32,12 +32,12 @@ class UserService
 {
     async query(params, populate, sorting, getAll) {
         let query;
-        if(getAll){
+
+        if (getAll) {
             query = User.find(params);
-        }else{
+        } else {
             query = User.findOne(params);
         }
-        
 
         if (populate) {
             for (let i = 0; i < populate.length; i++) {
