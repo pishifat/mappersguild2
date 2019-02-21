@@ -9,6 +9,7 @@
                 :notification="notification"
                 :key="notification.id"
                 @update:selectedMap="selectedMap = $event"
+                @update:selectedParty="selectedParty = $event"
                 @hide-notification="hideNotification($event)"
             ></notification-card>
         </transition-group>
@@ -24,6 +25,7 @@
                 :key="invite.id"
                 @update:info="info = $event"
                 @update:selectedMap="selectedMap = $event"
+                @update:selectedParty="selectedParty = $event"
                 @hide-invite="hideInvite($event)"
                 @hide-accepted-invite="hideAcceptedInvite($event)"
             ></invite-card>
@@ -34,6 +36,9 @@
     <limited-map-info
         :beatmap="selectedMap"
     ></limited-map-info>
+    <limited-party-info
+        :party="selectedParty"
+    ></limited-party-info>
     
 </div>
 
@@ -43,13 +48,15 @@
 import NotificationCard from '../components/notifications/NotificationCard.vue';
 import InviteCard from '../components/notifications/InviteCard.vue';
 import LimitedMapInfo from '../components/LimitedMapInfo.vue';
+import LimitedPartyInfo from '../components/LimitedPartyInfo.vue';
 
 export default {
     name: 'notification-page',
     components: {
         NotificationCard,
         InviteCard,
-        LimitedMapInfo
+        LimitedMapInfo,
+        LimitedPartyInfo
     },
     methods: {
         executePost: async function (path, data, e) {
@@ -87,9 +94,10 @@ export default {
         acceptInvite: async function(id, actionType, e){
             this.info = null;
             let invite;
-            if(actionType == "collab"){
+            console.log(actionType);
+            if(actionType == "collaborate in a difficulty"){
                 invite = await this.executePost('/notifications/acceptCollab/' + id, {}, e);
-            }else if(actionType == "task"){
+            }else if(actionType == "create a difficulty"){
                 invite = await this.executePost('/notifications/acceptDiff/' + id, {}, e);
             }else if(actionType == "host"){
                 invite = await this.executePost('/notifications/acceptHost/' + id, {}, e);
@@ -130,6 +138,7 @@ export default {
             invites: null,
             info: '',
             selectedMap: null,
+            selectedParty: null,
         }
     },
     created() {

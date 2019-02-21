@@ -112,6 +112,7 @@
                     </div>
                 </div>
                 <hr>
+                <span v-if="userMaps.length">
                 <p class="text-shadow">Mappers' Guild Maps:</p>
                 <table class="small table text-shadow">
                     <thead>
@@ -148,6 +149,7 @@
                     </tbody>
                 </table>
                 <hr>
+                </span>
                 <button 
                     v-if="user.osuId == userId"
                     class="btn btn-sm justify-content-center" 

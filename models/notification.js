@@ -8,6 +8,7 @@ var notificationSchema = new mongoose.Schema({
     visible: {type: Boolean, default: true },
 
     map: { type: 'ObjectId', ref: 'Beatmap' }, //exists to link map when relevant. can be duplicate of "modified", but isn't becuase modified could be a task as well
+    party: { type: 'ObjectId', ref: 'Party' },
 
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
@@ -56,6 +57,15 @@ class NotificationService
 
     async create(modified, info, recipient, sender, map) {
         var notification = new Notification({ modified: modified, info: info, recipient: recipient, sender: sender, map: map });
+        try {
+            return await notification.save();
+        } catch(err) {
+            console.log(err);
+        }
+    }
+
+    async createPartyNotification(modified, info, recipient, sender, party) {
+        var notification = new Notification({ modified: modified, info: info, recipient: recipient, sender: sender, party: party });
         try {
             return await notification.save();
         } catch(err) {

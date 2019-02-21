@@ -18,6 +18,7 @@
                 <p v-else class="text-shadow small">{{quest.descriptionFluff}}</p>
 
                 <p class="text-shadow">Objective: {{quest.descriptionMain}}</p>
+                <p v-if="quest.status == 'wip'" class='card-text text-shadow' style='margin-top:0.5rem'>Deadline: {{quest.deadline.slice(0,10)}}</p>
                 <hr>
                 <span v-if="quest.status == 'open'">
                     <p class="text-shadow">Reward: {{quest.reward}} bonus points for each user <span v-if="quest.medal">+ a pack-exclusive medal</span></p>
@@ -43,7 +44,7 @@
                 <span v-if="quest.status == 'wip'">
                     <p class="text-shadow">Reward: {{quest.reward}} bonus points for each user <span v-if="quest.medal">+ a pack-exclusive medal</span></p>
                     <p class="text-shadow">Current Party: {{quest.assignedParty.name}}</p>
-                    <p class='card-text text-shadow' style='margin-top:0.5rem'>Deadline: {{quest.deadline.slice(0,10)}}</p>
+                    <p class="text-shadow pl-4 small">Members: <template v-for="(member, i) in quest.assignedParty.members"><a :key="i" :href="'https://osu.ppy.sh/users/' + member.osuId" target="_blank">{{ member.username + (i < quest.assignedParty.members.length - 1 ? ', ' : '') }}</a></template></p>
                     <span v-if="quest.associatedMaps.length">
                         <p class="text-shadow">Associated maps:</p>
                         <ul style="list-style-type: none;">

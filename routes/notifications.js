@@ -58,11 +58,13 @@ const defaultNotificationPopulate = [
     { populate: 'sender',  display: 'username osuId' },
     { innerPopulate: 'map',  populate: { path: 'song host' } },
     { innerPopulate: 'map', populate: { path: 'tasks', populate: { path: 'mappers', } } },
+    { innerPopulate: 'party',  populate: { path: 'members leader' } },
 ];
 const defaultInvitePopulate = [
     { populate: 'sender',  display: 'username osuId' },
     { innerPopulate: 'map',  populate: { path: 'song host' } },
     { innerPopulate: 'map', populate: { path: 'tasks', populate: { path: 'mappers', } } },
+    { innerPopulate: 'party',  populate: { path: 'members leader' } },
 ];
 const defaultMapPopulate = [
     { populate: 'song',  display: 'artist title' },
@@ -104,14 +106,18 @@ router.post('/hideInvite/:id', async (req, res) => {
     inv = await invites.service.query({_id: req.params.id}, defaultNotificationPopulate)
     res.json(inv);
 
-    notifications.service.create(inv.id, `rejected your recent invitation related to the mapset`, inv.sender, inv.recipient, inv.map);
+    if(inv.map){
+        notifications.service.create(inv.id, `rejected your invite to ${inv.actionType} on the mapset`, inv.sender, inv.recipient, inv.map);
+    }else{
+        notifications.service.createPartyNotification(inv.id, `rejected your invite to join the party`, inv.sender, inv.recipient, inv.party);
+    }
+    
 });
 
 
 /* POST hide notification */
 router.post('/hideAcceptedInvite/:id', async (req, res) => {
     res.json(await invites.service.update(req.params.id, {visible: false}));
-
 });
 
 
@@ -135,7 +141,6 @@ router.post('/acceptCollab/:id', async (req, res) => {
     }
     await invites.service.update(req.params.id, {visible: false});
     invite = await invites.service.query({_id: req.params.id}, defaultInvitePopulate);
-    console.log(invite);
     res.json(invite);
 
     let t = await tasks.service.update(invite.modified._id, { $push: { mappers: req.session.mongoId } });
@@ -195,6 +200,32 @@ router.post('/acceptDiff/:id', async (req, res) => {
 
     logs.service.create(req.session.osuId, `added "${invite.taskName}" difficulty to "${b.song.artist} - ${b.song.title}"`, b._id, 'beatmap' );
     notifications.service.create(b.id, `accepted the invite to create a difficulty on your mapset`, invite.sender, invite.recipient, b.id);
+});
+
+/* POST accept difficulty */
+router.post('/acceptJoin/:id', async (req, res) => {
+    let invite = await invites.service.query({_id: req.params.id}, defaultInvitePopulate);
+    let isMember = await parties.service.query({ 'members': req.session.mongoId });
+    if(isMember){
+        return res.json({ error: 'Leave your current party before joining a new one!' });
+    }
+    let p = await parties.service.query({_id: invite.party._id});
+    if(!p || p.error){
+        return res.json({ error: 'That party no longer exists!' });
+    }
+    if(p.members.length >= 12){
+        return res.json({ error: 'That party has too many members!'});
+    }
+    if(p.currentQuest){
+        return res.json({ error: "You cannot join a party while it's' running a quest!"})
+    }
+    await invites.service.update(req.params.id, {visible: false});
+    invite = await invites.service.query({_id: req.params.id}, defaultInvitePopulate);
+    res.json(invite);
+
+    await parties.service.update(invite.party.id, { $push: { members: req.session.mongoId } });
+    logs.service.create(req.session.osuId, `joined the party "${p.name}"`, p._id, 'party' );
+    notifications.service.createPartyNotification(p.id, `accepted the invite to join your party`, invite.sender, invite.recipient, p.id);
 });
 
 module.exports = router;

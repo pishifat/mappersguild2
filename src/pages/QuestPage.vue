@@ -63,13 +63,15 @@
 import QuestCard from '../components/quests/QuestCard.vue';
 import QuestInfo from '../components/quests/QuestInfo.vue';
 import NotificationsAccess from '../components/NotificationsAccess.vue';
+import LimitedPartyInfo from '../components/LimitedPartyInfo.vue';
 
 export default {
     name: 'quest-page',
     components: {
         QuestCard,
         QuestInfo,
-        NotificationsAccess
+        NotificationsAccess,
+        LimitedPartyInfo
     },
     methods: {
         executePost: async function (path, data, e) {

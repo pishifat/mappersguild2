@@ -110,7 +110,7 @@ router.get("/songs/:labelId", async (req, res, next) => {
 
 /* POST create new map */
 router.post('/create', async (req, res) => {
-    if (req.body.song == 'Select an artist to view songs') {
+    if (req.body.song == 'none') {
         return res.json({ error: 'Missing song!' });
     }
     if (req.body.tasks.length < 1) {
@@ -174,7 +174,7 @@ router.post("/transferHost/:mapId", async (req, res) => {
     }
     res.json(b);
 
-    invites.service.create(u.id, req.session.mongoId, b.id, `wants you to host their mapset of`, 'host', b.id );
+    invites.service.createMapInvite(u.id, req.session.mongoId, b.id, `wants you to host their mapset of`, 'host', b.id );
 });
 
 /* POST create task from extended view. */
@@ -219,7 +219,7 @@ router.post("/requestTask/:mapId", async (req, res) => {
     }
     res.json(b);
 
-    invites.service.create(u.id, req.session.mongoId, b.id, `wants you to create the difficulty ${req.body.difficulty} for their mapset of`, 'task', b.id, req.body.difficulty );
+    invites.service.createMapInvite(u.id, req.session.mongoId, b.id, `wants you to create the difficulty ${req.body.difficulty} for their mapset of`, 'create a difficulty', b.id, req.body.difficulty );
 });
 
 /* POST delete task from extended view. */
@@ -261,7 +261,7 @@ router.post("/task/:taskId/addCollab", async (req, res) => {
     t = await tasks.service.query({ _id: req.params.taskId });
     res.json(b);
 
-    invites.service.create(u.id, req.session.mongoId, req.params.taskId, `wants to collaborate with you on the "${t.name}" difficulty of`, 'collab', b.id );
+    invites.service.createMapInvite(u.id, req.session.mongoId, req.params.taskId, `wants to collaborate with you on the "${t.name}" difficulty of`, 'collaborate in a difficulty', b.id );
 });
 
 /* POST remove collab user from task. */
