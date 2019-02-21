@@ -33,7 +33,7 @@
                         <div class="col-lg-11">
                             <div class="input-group input-group-sm mb-3" style="width: 400px" id="songForm">
                                 <select class="custom-select select-arrow small" :disabled="!featuredSongs" id="songSelection" style="border-radius: 100px 100px 100px 100px">
-                                    <option v-if="!featuredSongs">Select an artist to view songs</option>
+                                    <option v-if="!featuredSongs" value="none">Select an artist to view songs</option>
                                     <option v-for="featuredSong in featuredSongs" :value="featuredSong.id" :key="featuredSong.id">{{featuredSong.title}} --- ({{featuredSong.artist}})</option>
                                 </select>
                             </div>

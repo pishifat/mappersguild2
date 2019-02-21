@@ -1,6 +1,6 @@
 <template>
 <div class="col-md-6 my-2" :class="party.id + '-card'" @click="selectParty()">
-    <div class="card custom-bg-dark party-card" :class="'border-rank-' + party.rank" :data-user="party.id" data-toggle="modal" data-target="#extendedInfo">
+    <div class="card custom-bg-dark party-card border-outline" :class="'border-rank-' + party.rank" :data-user="party.id" data-toggle="modal" data-target="#extendedInfo">
         <img :class="party.id + '-card-image'" :src="party.art ? 'https://assets.ppy.sh/beatmaps/' + party.art + '/covers/cover.jpg' : 'https://osu.ppy.sh/images/layout/beatmaps/default-bg.png'" style="right:250px;"> 
         <div class='card-img-overlay' style='padding: 0'>
             <div class="card-header text-shadow">

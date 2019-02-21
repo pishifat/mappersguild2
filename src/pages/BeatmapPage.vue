@@ -1,17 +1,17 @@
 <template>
-<div class="row">
-    <div class="row col-md-12">
-        <small>Search: 
-            <input id="search" v-model="filterValue" type="text" placeholder="song or username..." style="border-radius: 5px 5px 5px 5px; filter: drop-shadow(1px 1px 1px #000000);" /> 
-            <a href="#" class="pl-1" @click.prevent="collapseAll()">Collapse all</a> | <a href="#" @click.prevent="uncollapseAll()">Expand all</a> 
-        </small>
-    </div>    
+<div class="row"> 
 
     <!-- WIP Beatmaps -->
     <div class="col-lg-8">
         <div class="row">
             <h2>Work-in-progress <button class="btn btn-mg" data-toggle="modal" data-target="#addBeatmap" @click="openAddBeatmap()">Add beatmap</button></h2>
         </div>
+        <div class="row col-md-12 pb-2">
+            <small>Search: 
+                <input id="search" v-model="filterValue" type="text" placeholder="song or username..." style="border-radius: 5px 5px 5px 5px; filter: drop-shadow(1px 1px 1px #000000);" /> 
+                <a href="#" class="pl-1" @click.prevent="collapseAll()">Collapse all</a> | <a href="#" @click.prevent="uncollapseAll()">Expand all</a> 
+            </small>
+        </div>   
 
         <template v-for="quest in wipQuests()">
             <div class="col-md-12" :key="quest.id">

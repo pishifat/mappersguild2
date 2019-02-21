@@ -1,6 +1,6 @@
 <template>
     <div class='my-2 col-sm-12 col-md-6' :class='beatmap.status == "Done" ? "col-lg-12" : beatmap.status == "WIP" ? "col-md-6" : "col-lg-4"' @click="selectBeatmap()">
-        <div class='card map-card custom-bg-dark' :class='beatmap.status == "WIP" ? " border-status-wip" : "border-status-done"' data-toggle='modal' data-target='#editBeatmap' :data-mapid="beatmap.id">
+        <div class='card map-card custom-bg-dark border-outline' :class='beatmap.status == "WIP" ? " border-status-wip" : "border-status-done"' data-toggle='modal' data-target='#editBeatmap' :data-mapid="beatmap.id">
             <img class='card-img' :src="processUrl(beatmap.url)" style='opacity:0.5; overflow:hidden'> 
             <div class='card-img-overlay' style='padding: 0.50rem 0.50rem 0 0.50rem'>
                 <p class='card-title mb-1 text-shadow'>{{ formatMetadata(beatmap.song.artist, beatmap.song.title) }}</p>

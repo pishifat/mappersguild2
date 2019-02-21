@@ -141,10 +141,12 @@ footer {
     padding-right: 4px;
 }
 
-
-
 .custom-bg-dark {
     background-color: var(--dark);
+}
+
+.border-outline {
+    border: 1px solid rgb(20, 20, 20);
 }
 
 .border-status-wip {

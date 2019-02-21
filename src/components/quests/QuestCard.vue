@@ -1,7 +1,7 @@
 <template>
 
 <div class='my-2' :class="quest.status != 'wip' ? 'col-lg-6' : 'col-lg-12'" @click="selectQuest()">
-    <div class='card quest-card custom-bg-dark' :class="'border-status-' + quest.status" style='height: 100%' data-toggle='modal' data-target='#extendedInfo' :data-user="quest.id">
+    <div class='card quest-card custom-bg-dark border-outline' :class="'border-status-' + quest.status" style='height: 100%' data-toggle='modal' data-target='#extendedInfo' :data-user="quest.id">
         <img :src="quest.art ? 'https://assets.ppy.sh/artists/' + quest.art + '/header.jpg' : '../images/no-art.png'" 
         :style='quest.status == "open" ? "right:300px;" : quest.status == "wip" ? "right: 366px; max-height:166px;" : "right: 250px; max-height:166px;"'>
         <div class='card-img-overlay' style='padding: 0 0 0 0'>

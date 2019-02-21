@@ -2,7 +2,10 @@
 <div class="row">
     <div class="col-md-12">
         <h2>Users listing</h2>
-        <small>Sort: 
+        <small>Search: 
+            <input id="search" v-model="filterValue" type="text" placeholder="username..." style="border-radius: 5px 5px 5px 5px; filter: drop-shadow(1px 1px 1px #000000);" /> 
+        </small>
+        <small class="pl-1">Sort: 
             <a :class="sortBy === 'username' ? 'sorted' : ''" href="#" @click.prevent="sort('username')">Name</a> | 
             <a :class="sortBy === 'rank' ? 'sorted' : ''" href="#" @click.prevent="sort('rank')">Rank</a> | 
             <a :class="sortBy === 'createdAt' ? 'sorted' : ''" href="#" @click.prevent="sort('createdAt')">Joined</a>
@@ -46,6 +49,11 @@ export default {
         UserInfo,
         LimitedMapInfo,
         NotificationsAccess
+    },
+    watch:{
+        filterValue: function(v){
+            this.filter();
+        }
     },
     methods: {
         updateUser: function(u) {
@@ -97,13 +105,27 @@ export default {
             if(u){
                 this.updateUser(u);
             }
-        }
+        },
+        filter: function () {            
+            this.filterValue = $("#search").val();
+            this.users = this.allUsers;
+            if(this.filterValue != ""){
+                this.users = this.users.filter(u => {
+                    if(u.username.toLowerCase().indexOf(this.filterValue.toLowerCase()) > -1){
+                        return true;
+                    }
+                    return false;
+                });
+            }
+        },
     },
     data() {
         return {
             users: null,
+            allUsers: null,
             userId: null,
             beatmaps: null,
+            filterValue: null,
             selectedUser: null,
             selectedMap: null,
             info: null,
@@ -116,6 +138,7 @@ export default {
             .get('/users/relevantInfo')
             .then(response => {
                 this.users = response.data.users;
+                this.allUsers = response.data.users;
                 this.userId = response.data.userId;
                 this.beatmaps = response.data.beatmaps;
             }).then(function(){
@@ -129,6 +152,7 @@ export default {
                 .get('/users/relevantInfo')
                 .then(response => {
                     this.users = response.data.users;
+                    this.allUsers = response.data.users;
                     this.userId = response.data.userId;
                     this.beatmaps = response.data.beatmaps;
                 });

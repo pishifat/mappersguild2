@@ -5,12 +5,13 @@ var inviteSchema = new mongoose.Schema({
     sender: { type: 'ObjectId', ref: 'User', required: true},
     modified: { type: 'ObjectId', required: true },
     info: { type: String, required: true },
-    actionType: { type: String, required: true, enum: ['collab', 'task', 'host', 'join'] },
+    actionType: { type: String, required: true, enum: ['collaborate in a difficulty', 'create a difficulty', 'host', 'join'] },
     accepted: { type: Boolean },
     visible: {type: Boolean, default: true },
 
     map: { type: 'ObjectId', ref: 'Beatmap' }, //exists to link map when relevant. can be duplicate of "modified", but isn't becuase modified could be a task as well
-    taskName: { type: String } //used for difficulty requests only
+    taskName: { type: String }, //used for difficulty requests only
+    party: { type: 'ObjectId', ref: 'Party' },
     
 
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
@@ -58,12 +59,21 @@ class InviteService
         }
     }
 
-    async create(recipient, sender, modified, info, actionType, map, taskName) {
+    async createMapInvite(recipient, sender, modified, info, actionType, map, taskName) {
         if(taskName){
             var invite = new Invite({ recipient: recipient, sender: sender, modified: modified, info: info, actionType: actionType, map: map, taskName: taskName });
         }else{
             var invite = new Invite({ recipient: recipient, sender: sender, modified: modified, info: info, actionType: actionType, map: map });
         }
+        try {
+            return await invite.save();
+        } catch(err) {
+            console.log(err);
+        }
+    }
+
+    async createPartyInvite(recipient, sender, modified, info, actionType, party) {
+        var invite = new Invite({ recipient: recipient, sender: sender, modified: modified, info: info, actionType: actionType, party: party });
         try {
             return await invite.save();
         } catch(err) {

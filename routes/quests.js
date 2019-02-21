@@ -1,6 +1,7 @@
 var express = require('express');
 var quests = require('../models/quest.js');
 var logs = require('../models/log.js');
+var notifications = require('../models/notification.js');
 var parties = require('../models/party.js');
 var beatmaps = require('../models/beatmap.js');
 var users = require('../models/user.js');
@@ -12,6 +13,7 @@ router.use(api.isLoggedIn);
 
 const defaultPopulate = [
     { populate: 'assignedParty',  display: 'name' },
+    { innerPopulate: 'assignedParty',  populate: { path: 'members leader' } },
     { populate: 'completedMembers',  display: 'username' },
     { innerPopulate: 'associatedMaps',  populate: { path: 'song host' } }
 ];

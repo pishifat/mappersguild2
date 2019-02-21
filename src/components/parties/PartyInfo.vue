@@ -44,7 +44,6 @@
                     <div v-if="party.members.length > 1">
                         <div class="input-group input-group-sm mb-3 kick-member-input">
                             <select class="custom-select select-arrow small" id="kick">
-                                <option selected value="none">Select a user...</option>
                                 <template v-for="member in party.members">
                                     <option :key="member.id" :value="member.id" v-if="member.osuId !== userId">{{member.username}}</option>
                                 </template>
@@ -55,7 +54,6 @@
                         </div>
                         <div class="input-group input-group-sm mb-3 transfer-leader-input">
                             <select class="custom-select select-arrow small" id="transfer">
-                                <option selected value="none">Select a user...</option>
                                 <template v-for="member in party.members">
                                     <option :key="member.id" :value="member.id" v-if="member.osuId !== userId">{{member.username}}</option>
                                 </template>
@@ -63,6 +61,15 @@
                             <div class="input-group-append">
                                 <button style="border-radius: 0 100px 100px 0;" class="btn btn-mg transfer-leader-button" @click="transferLeader($event)"><span class="append-button-padding">Transfer Leader</span></button>
                             </div>
+                        </div>
+                    </div>
+
+                    <div class="input-group input-group-sm mb-3">
+                        <input class="form-control form-control-sm" type="text" placeholder="username..." id="inviteMember" 
+                            style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 100px 0 0 100px" 
+                            @keyup.enter="inviteMember($event)" />
+                        <div class="input-group-append">
+                            <button style="border-radius: 0 100px 100px 0;" class="btn btn-mg banner-button" @click="inviteMember($event)" type="submit"><span class="append-button-padding">Invite Member</span></button>
                         </div>
                     </div>
 
@@ -100,7 +107,7 @@
                     <button class='btn btn-mg-used btn-sm justify-content-center float-right' @click="deleteParty($event)">Disband party</button>
                 </div>
 
-                <p class="mt-4 text-shadow errors">{{ info }}</p>
+                <p id="errors" class="text-shadow mt-4" :class="inviteConfirm ? 'confirm' : 'errors'">{{info}} {{inviteConfirm}}</p>
             </div>
         </div>
     </div>
@@ -117,6 +124,7 @@ export default {
     watch: {
         party: function () {
             this.info = null;
+            this.inviteConfirm = null;
         }
     },
     methods: {
@@ -127,7 +135,8 @@ export default {
 				const res = await axios.post(path, data)
 
 				if (res.data.error) {
-					this.info = res.data.error;
+                    this.info = res.data.error;
+                    this.inviteConfirm = null;
 				} else {
 					if (e) e.target.disabled = false;
 					return res.data;
@@ -198,11 +207,20 @@ export default {
 			if (party) {
 				this.$emit('update-party', party);
 			}
+        },
+        inviteMember: async function (e) {
+			const user = $("#inviteMember").val();
+			const party = await this.executePost('/parties/inviteMember', { user: user }, e);
+			if (party) {
+                this.inviteConfirm = "Invite sent!";
+                this.info = '';
+			}
 		},
     },
     data() {
         return {
-            info: ''
+            info: '',
+            inviteConfirm: ''
         }
     }
 }

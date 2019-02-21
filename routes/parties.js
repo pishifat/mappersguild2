@@ -1,6 +1,7 @@
 var express = require('express');
 var notifications = require('../models/notification.js');
 var beatmaps = require('../models/beatmap.js');
+var invites = require('../models/invite.js');
 var parties = require('../models/party.js');
 var quests = require('../models/quest.js');
 var users = require('../models/user.js');
@@ -54,6 +55,22 @@ async function questPenalty(u, p, userMongoId){
             }
         });
     }
+}
+
+let inviteError = "Invite not sent: ";
+async function inviteChecks(u, senderId){
+    if(!u.invites){
+        return { error: inviteError + 'User has invites disabled!'};
+    }
+    let recipientInvites = await invites.service.query({recipient: u._id, visible: true}, {}, {}, true);
+    if(recipientInvites.length > 2){
+        return { error: inviteError + 'User has too many pending invites!'};
+    }
+    let senderInvite = await invites.service.query({recipient: u._id, sender: senderId, visible: true});
+    if(senderInvite){
+        return { error: inviteError + "Wait for the user to reply to your previous invite before sending another!"};
+    }
+    return true;
 }
 
 //population
@@ -154,7 +171,7 @@ router.post('/leave', async (req, res) => {
     
     logs.service.create(req.session.osuId, `left party "${p.name}"`, p._id, 'party' );
     p.members.forEach(member => {
-        notifications.service.create(p.id, `left your party`, member.id, req.session.mongoId);
+        notifications.service.createPartyNotification(p.id, `left your party`, member.id, req.session.mongoId, p.id);
     });
 });
 
@@ -203,7 +220,7 @@ router.post('/kick', async (req, res) => {
     logs.service.create(req.session.osuId, `kicked "${u.username}" from party "${p.name}"`, p._id, 'party' );
     p.members.forEach(member => {
         if(member.id != req.session.mongoId){
-            notifications.service.create(p.id, `was kicked from your party`, member, req.session.mongoId);
+            notifications.service.createPartyNotification(p.id, `was kicked from your party`, member, req.session.mongoId, p.id);
         }
     });
 });
@@ -224,7 +241,7 @@ router.post('/transferLeader', async (req, res) => {
         logs.service.create(req.session.osuId, `transferred party leader to "${u.username}" in party "${p.name}"`, p._id, 'party' );
         p.members.forEach(member => {
             if(member.id != req.session.mongoId){
-                notifications.service.create(p.id, `was promoted to your party's leader`, member, req.session.mongoId);
+                notifications.service.createPartyNotification(p.id, `was promoted to leader in your party`, member, u.id, p.id);
             }
         });
     }
@@ -292,6 +309,35 @@ router.post('/addBanner', async (req, res) => {
     }else{
         return res.json({error: "Not a valid URL! Link a beatmap's page on the new osu! site."})
     }
+});
+
+/* POST invite member */
+router.post('/inviteMember', async (req, res) => {
+    let u = await users.service.query({ username: new RegExp("^"+req.body.user+"$", "i") });
+    if(!u){
+        return res.json({error: inviteError + "Cannot find user!"})
+    }
+    let valid = await inviteChecks(u, req.session.mongoId);
+    if(valid.error){
+        return res.json(valid);
+    }
+    let isMember = await parties.service.query({ 'members': u._id });
+    if(isMember){
+        return res.json({ error: inviteError + 'User is already in a party!' });
+    }
+    let p = await parties.service.query({leader: req.session.mongoId});
+    if(!p){
+        return res.json({error: inviteError + "Something went wrong!"})
+    }
+    if(p.members.length >= 12){
+        return res.json({ error: inviteError + 'Your party has too many members!'});
+    }
+    if(p.currentQuest){
+        return res.json({ error: inviteError + 'Your party is currently running a quest!'})
+    }
+    res.json(p);
+
+    invites.service.createPartyInvite(u.id, req.session.mongoId, p.id, `wants you to join their party`, 'join', p.id );
 });
 
 /* GET parties with sorting. */

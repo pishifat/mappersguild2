@@ -364,7 +364,7 @@ router.post('/transferLeader/:id', async (req, res) => {
         let p = await parties.service.update(req.params.id, {leader: req.body.userId});
         p = await parties.service.query({_id: req.params.id}, defaultPartyPopulate)
 
-        logs.service.create(req.session.osuId, `transferred leader of "${p.name}" to "${p.leader.username}"`, req.params.id, 'party' );
+        logs.service.create(req.session.osuId, `transferred party leader to "${p.leader.username}" in party "${p.name}"`, req.params.id, 'party' );
         res.json(p);
     }
 });
