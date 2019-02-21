@@ -145,3 +145,11 @@
 <div class="text-center" style="margin-bottom: 50px;">
     <img src="../images/logo512.png" style="width:171px; height: 150px; margin-top: 50px;">
 </div>
+
+{{#if loggedInAs }}
+<div id="notifications">
+    <notifications-access></notifications-access>
+</div>
+
+<script src="../js/notificationsComponent.js"></script>
+{{/if}}
