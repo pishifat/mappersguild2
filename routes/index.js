@@ -12,7 +12,7 @@ router.get('/', async (req, res, next) => {
     if (req.session.osuId) {
         const u = await users.service.query({ _id: req.session.mongoId });
 
-        if (u && !u.error && u.group != 'hidden') {
+        if (u && !u.error && u.group != 'hidden' && u.group == 'admin') {
             return next();
         }
     }
