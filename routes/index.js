@@ -9,14 +9,16 @@ const router = express.Router();
 
 /* GET landing page. */
 router.get('/', async (req, res, next) => {
+    let message = '';
     if (req.session.osuId) {
+        message = 'it worked';
         const u = await users.service.query({ _id: req.session.mongoId });
 
         if (u && !u.error && u.group != 'hidden' && u.group == 'admin') {
             return next();
         }
     }
-    res.render('index', { title: `Mappers' Guild`, isIndex: true });
+    res.render('index', { title: `Mappers' Guild`, isIndex: true, message: message });
 }, api.isLoggedIn, (req, res) => {
     res.render('index', { title: `Mappers' Guild`, isIndex: true, loggedInAs: req.session.username });
 });
@@ -80,7 +82,7 @@ router.get('/callback', async (req, res) => {
 
         if (response.error) {
             res.status(500).render('error');
-        } else if (response.ranked_and_approved_beatmapset_count >= 1 && response.kudosu.total > 80) {
+        } else if (response.ranked_and_approved_beatmapset_count >= 1 && response.kudosu.total > 1) {
             req.session.username = response.username;
             req.session.osuId = response.id;
             res.redirect('/login');
