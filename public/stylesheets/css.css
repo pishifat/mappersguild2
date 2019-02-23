@@ -65,6 +65,39 @@ a {
     vertical-align:middle;
 }
 
+.wip-map{
+    position:absolute;
+    top:0px;
+    right:0px;
+    width: 0px;
+    height: 0px;
+    border-bottom: 15px solid transparent;
+    border-right: 15px solid var(--wip);
+    z-index: 10000;
+}
+
+.done-map{
+    position:absolute;
+    top:0px;
+    right:0px;
+    width: 0px;
+    height: 0px;
+    border-bottom: 15px solid transparent;
+    border-right: 15px solid var(--done);
+    z-index: 10000;
+}
+
+.ranked-map{
+    position:absolute;
+    top:0px;
+    right:0px;
+    width: 0px;
+    height: 0px;
+    border-bottom: 15px solid transparent;
+    border-right: 15px solid var(--ranked);
+    z-index: 10000;
+}
+
 footer {
     font-family: Aquatico;
 }

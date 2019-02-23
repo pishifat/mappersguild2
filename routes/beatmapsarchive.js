@@ -1,6 +1,5 @@
 const express = require('express');
 const beatmaps = require('../models/beatmap.js');
-const quests = require('../models/quest.js');
 const api = require('../models/api.js');
 
 const router = express.Router();
@@ -11,7 +10,7 @@ const defaultPopulate = [
     { populate: 'host',  display: '_id osuId username' },
     { populate: 'bns',  display: '_id osuId username' },
     { populate: 'modders',  display: '_id osuId username' },
-    { populate: 'quest',  display: '_id name art' },
+    { populate: 'quest',  display: '_id name art color' },
     { populate: 'song',  display: 'artist title' },
     { innerPopulate: 'tasks',  populate: { path: 'mappers' } },
 ];

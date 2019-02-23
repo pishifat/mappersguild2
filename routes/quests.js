@@ -25,8 +25,8 @@ router.get('/', async (req, res, next) => {
 
 router.get("/relevantInfo", async (req, res, next) => {
     const [openQuests, wipQuests, p] = await Promise.all([
-        quests.service.query({status: "open"}, defaultPopulate, {}, true), 
-        quests.service.query({status: "wip"}, defaultPopulate, {}, true),
+        quests.service.query({status: "open"}, defaultPopulate, {createdAt: -1}, true), 
+        quests.service.query({status: "wip"}, defaultPopulate, {accepted: -1}, true),
         parties.service.query({leader: req.session.mongoId})
     ]);
     if(p){

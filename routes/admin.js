@@ -451,8 +451,6 @@ router.post('/updateUserPoints', async (req, res) => {
                 "Insane":{"num":8, "total":0}, 
                 "Expert":{"num":8, "total":0}, 
                 "Storyboard":{"num":10, "total":0}, 
-                "Background":{"num":1, "total":0}, 
-                "Skin":{"num":1, "total":0}, 
                 "Mod":{"num":2.5, "total":0}, 
                 "Host":{"num":5, "total":0},
                 "QuestReward":{"num":0, "total":0},
@@ -527,7 +525,7 @@ router.post('/updateUserPoints', async (req, res) => {
             users.service.update(user._id, {hardPoints: pointsObject["Hard"]["total"]});
             users.service.update(user._id, {insanePoints: pointsObject["Insane"]["total"]});
             users.service.update(user._id, {expertPoints: pointsObject["Expert"]["total"]});
-            users.service.update(user._id, {skinPoints: pointsObject["Skin"]["total"]});
+            users.service.update(user._id, {storyboardPoints: pointsObject["Storyboard"]["total"]});
             users.service.update(user._id, {modPoints: pointsObject["Mod"]["total"]});
             users.service.update(user._id, {hostPoints: pointsObject["Host"]["total"]});
             users.service.update(user._id, {questPoints: pointsObject["QuestReward"]["total"]});

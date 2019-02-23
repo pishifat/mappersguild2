@@ -6,12 +6,14 @@
         </div>
         <div class="row col-md-12 pb-2">
             <small>Search: 
-                <input id="search" v-model="filterValue" type="text" placeholder="song, username or quest..." 
-                    style="border-radius: 5px 5px 5px 5px; filter: drop-shadow(1px 1px 1px #000000); width: 165px;"
+                <input id="search" v-model="filterValue" type="text" placeholder="song, username or quest... (3+ characters)" 
+                    style="border-radius: 5px 5px 5px 5px; filter: drop-shadow(1px 1px 1px #000000); width: 266px;"
                 /> 
             </small>
         </div> 
-        
+        <button :disabled="!(pre > 0 && filterValue.length < 3)" class="btn btn-sm btn-mg mx-auto my-2" style="display:block" type="button" @click="showNewer()">
+            <i class="fas fa-angle-up mr-1"></i> show newer <i class="fas fa-angle-up ml-1"></i>
+        </button>
         <transition-group name="list" tag="div" class="row">
             <beatmap-card
                 v-for="beatmap in beatmaps"
@@ -20,8 +22,9 @@
                 @update:selectedMap="selectedMap = $event"
             ></beatmap-card>
         </transition-group>
-        <button v-if="canShowMore && filterValue != ''" class="btn btn-sm btn-mg mx-auto my-2" style="display:block" type="button" @click="showMore()">
-            <i class="fas fa-angle-down mr-1"></i> show more <i class="fas fa-angle-down ml-1"></i>
+        <div class="small text-center mx-auto" v-if="filterValue.length < 3">{{currentPage}} of {{pages}}</div>
+        <button :disabled="!(canShowOlder && filterValue.length < 3)" class="btn btn-sm btn-mg mx-auto my-2" style="display:block" type="button" @click="showOlder()">
+            <i class="fas fa-angle-down mr-1"></i> show older <i class="fas fa-angle-down ml-1"></i>
         </button>
     </div>
 
@@ -46,36 +49,42 @@ export default {
     },
     watch:{
         filterValue: function(v){
-            this.filter();
+            if(v.length > 2){
+                this.filter();
+            }else{
+                this.limit += 0.01; //decimal activates the watch without actually affecting limit
+            }
         },
         limit: function () {
-            if (this.beatmaps && this.canShowMore) {
+            this.limit = Math.round(this.limit);
+            this.pre = this.limit - 24;
+            this.currentPage = this.limit / 24;
+            if (this.beatmaps) {
                 if (this.limit >= this.allBeatmaps.length) {
-                    this.canShowMore = false;
+                    this.canShowOlder = false;
                 }
-                this.beatmaps = this.allBeatmaps.slice(0, this.limit);
+                this.beatmaps = this.allBeatmaps.slice(this.pre, this.limit);
             }
         }
     },
     methods: {
-        showMore: function () {
-            if (this.canShowMore && this.beatmaps) {
-                this.limit += 18;
+        showOlder: function () {
+            if (this.canShowOlder && this.beatmaps) {
+                this.limit += 24;
             }
         },
-        updateMap: function (bm) {
-			const i = this.beatmaps.findIndex(b => b.id == bm.id);
-			this.beatmaps[i] = bm;
-            this.beatmap = bm;
-            this.selectedMap = bm;
-            this.info = null;
+        showNewer: function () {
+            if (this.pre > 0 && this.beatmaps) {
+                this.limit -= 24;
+                this.canShowOlder = true;
+            }
         },
 
         // filters
         filter: function () {            
             this.filterValue = $("#search").val();
             this.beatmaps = this.allBeatmaps;
-            if (this.filterValue != "") {
+            if (this.filterValue.length) {
                 this.beatmaps = this.beatmaps.filter(b => {
                     let valid = b.song.title + ' ' + b.song.artist + ' ' + b.host.username;
                     valid += b.quest ? (' ' + b.quest.name) : '';
@@ -100,9 +109,12 @@ export default {
             allBeatmaps: null,
 			selectedMap: null,
             info: null,
-            canShowMore: true,
+            canShowOlder: true,
+            pre: null,
             limit: null,
-            filterValue: null,
+            pages: null,
+            currentPage: null,
+            filterValue: '',
 		}
     },
     created () {
@@ -111,9 +123,12 @@ export default {
       		.then(response => {
                 this.beatmaps = response.data;
                 this.allBeatmaps = response.data;
-                this.limit = 32;
+                this.pre = 0;
+                this.limit = 24;
+                this.pages = Math.ceil(this.allBeatmaps.length / this.limit);
+                this.currentPage = 1;
                 if (this.limit >= this.allBeatmaps.length) {
-                    this.canShowMore = false;
+                    this.canShowOlder = false;
                 }
             }).then(function(){
                 $("#loading").fadeOut();
@@ -126,9 +141,11 @@ export default {
                 .get('/beatmapsarchive/relevantInfo')
                 .then(response => {
                     this.allBeatmaps = response.data;
-                    this.filter();
+                    if(this.filterValue.length > 2){
+                        this.filter();
+                    }
                 });
-        }, 30000);
+        }, 300000);
     }
 }
 </script>

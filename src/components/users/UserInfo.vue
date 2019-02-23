@@ -132,7 +132,6 @@
                                 <template v-else>
                                     <span>{{map.song.artist}} - {{map.song.title}}</span>
                                 </template>
-                                <a href="#" class="icon-valid" @click.prevent="selectBeatmap(map)" :data-user="map.id" data-toggle="modal" data-target="#limitedEditBeatmap"><i class="far fa-window-maximize"></i></a>
                             </td>
                             <td scope="row" style="padding: 1px;">
                                 <a :href="'https://osu.ppy.sh/users/' + map.host.osuId" target="_blank">
@@ -224,7 +223,7 @@ export default {
             if(u){
                 this.$emit('update-user', u);
             }
-        }
+        },
     },
 }
 </script>

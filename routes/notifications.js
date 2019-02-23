@@ -139,6 +139,9 @@ router.post('/acceptCollab/:id', async (req, res) => {
     if(valid.error){
         return res.json(valid);
     }
+    if(b.status == "Ranked"){
+        return res.json ({ error: 'Mapset ranked' });
+    }
     await invites.service.update(req.params.id, {visible: false});
     invite = await invites.service.query({_id: req.params.id}, defaultInvitePopulate);
     res.json(invite);
@@ -161,6 +164,9 @@ router.post('/acceptHost/:id', async (req, res) => {
         if(!p){
             return res.json({error: "This mapset is part of a quest, so only members of the host's party can host."})
         }
+    }
+    if(b.status == "Ranked"){
+        return res.json ({ error: 'Mapset ranked' });
     }
     await invites.service.update(req.params.id, {visible: false});
     invite = await invites.service.query({_id: req.params.id}, defaultInvitePopulate);
@@ -189,6 +195,9 @@ router.post('/acceptDiff/:id', async (req, res) => {
     let valid = await addTaskChecks(req.session.mongoId, b, invite);
     if(valid.error){
         return res.json(valid);
+    }
+    if(b.status == "Ranked"){
+        return res.json ({ error: 'Mapset ranked' });
     }
     await invites.service.update(req.params.id, {visible: false});
     invite = await invites.service.query({_id: req.params.id}, defaultInvitePopulate);

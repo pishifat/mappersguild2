@@ -8,7 +8,7 @@
                     :src="'https://a.ppy.sh/' + user.osuId"
                     class="rounded-circle avatar-mini-thumb"></span></div>
         <div class='card-body'>
-            <p class='card-text text-shadow'>Total: {{user.totalPoints}}</p>
+            <p class='card-text text-shadow'>Total points: {{user.totalPoints}}</p>
             <p class='card-text text-shadow'>Party:
                 <span>{{user.currentParty ? user.currentParty.name : 'none'}}</span>
             </p>

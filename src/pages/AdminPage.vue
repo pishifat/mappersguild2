@@ -198,6 +198,7 @@
                         <label class="col-sm-4" for="art"> FA id:</label><input class="col-sm-8 form-control" type="text" id="art">
                         <label class="col-sm-4" for="exclusive"> Exclusive?:</label><input class="col-sm-8 form-control" type="text" id="exclusive">
                         <label class="col-sm-4" for="medal"> Medal?:</label><input class="col-sm-8 form-control" type="text" id="medal">
+                        <label class="col-sm-4" for="color"> color (#6digithex):</label><input class="col-sm-8 form-control" type="text" id="color">
                     </div>
                     <p id="errors"></p>
                 </div>
@@ -617,6 +618,7 @@ export default {
             let art = $("#art").val();
             let exclusive = $("#exclusive").val();
             let medal = $("#medal").val();
+            let color = $("#color").val();
             const q = await this.executePost('/admin/createQuest/', { 
                 name: name, 
                 reward: reward, 
@@ -628,7 +630,8 @@ export default {
                 minRank: minRank, 
                 art: art, 
                 exclusive: exclusive, 
-                medal: medal 
+                medal: medal,
+                color: color 
             }, e);
             if(q){
                 $('#createQuest').modal('hide');

@@ -3,7 +3,7 @@
     <div class="col-md-12">
         <h2>Users listing</h2>
         <small>Search: 
-            <input id="search" v-model="filterValue" type="text" placeholder="username..." style="border-radius: 5px 5px 5px 5px; filter: drop-shadow(1px 1px 1px #000000);" /> 
+            <input id="search" v-model="filterValue" type="text" placeholder="username... (3+ characters)" style="border-radius: 5px 5px 5px 5px; filter: drop-shadow(1px 1px 1px #000000); width: 200px;" /> 
         </small>
         <small class="pl-1">Sort: 
             <a :class="sortBy === 'username' ? 'sorted' : ''" href="#" @click.prevent="sort('username')">Name</a> | 
@@ -11,6 +11,9 @@
             <a :class="sortBy === 'createdAt' ? 'sorted' : ''" href="#" @click.prevent="sort('createdAt')">Joined</a>
         </small>
         
+        <button :disabled="!(pre > 0 && filterValue.length < 3)" class="btn btn-sm btn-mg mx-auto my-2" style="display:block" type="button" @click="showNewer()">
+            <i class="fas fa-angle-up mr-1"></i> show next <i class="fas fa-angle-up ml-1"></i>
+        </button>
         <transition-group name="list" tag="div" class="row">
             <user-card
                 v-for="user in users"
@@ -19,6 +22,10 @@
                 @update:selectedUser="selectedUser = $event"
             ></user-card>
         </transition-group>
+        <div class="small text-center mx-auto" v-if="filterValue.length < 3">{{currentPage}} of {{pages}}</div>
+        <button :disabled="!(canShowOlder && filterValue.length < 3)" class="btn btn-sm btn-mg mx-auto my-2" style="display:block" type="button" @click="showOlder()">
+            <i class="fas fa-angle-down mr-1"></i> show previous <i class="fas fa-angle-down ml-1"></i>
+        </button>
     </div>
 
     <user-info
@@ -29,9 +36,6 @@
         @update-user="updateUser($event)"
     ></user-info>
 
-    <limited-map-info
-        :beatmap="selectedMap"
-    ></limited-map-info>
     <notifications-access></notifications-access>
 </div>
 </template>
@@ -39,7 +43,6 @@
 <script>
 import UserCard from '../components/users/UserCard.vue';
 import UserInfo from '../components/users/UserInfo.vue';
-import LimitedMapInfo from '../components/LimitedMapInfo.vue';
 import NotificationsAccess from '../components/NotificationsAccess.vue';
 
 export default {
@@ -47,15 +50,40 @@ export default {
     components: {
         UserCard,
         UserInfo,
-        LimitedMapInfo,
         NotificationsAccess
     },
     watch:{
         filterValue: function(v){
-            this.filter();
+            if(v.length > 2){
+                this.filter();
+            }else{
+                this.limit += 0.01; //decimal activates the watch without actually affecting limit
+            }
+        },
+        limit: function () {
+            this.limit = Math.round(this.limit);
+            this.pre = this.limit - 16;
+            this.currentPage = this.limit / 16;
+            if (this.users) {
+                if (this.limit >= this.allUsers.length) {
+                    this.canShowOlder = false;
+                }
+                this.users = this.allUsers.slice(this.pre, this.limit);
+            }
         }
     },
     methods: {
+        showOlder: function () {
+            if (this.canShowOlder && this.beatmaps) {
+                this.limit += 16;
+            }
+        },
+        showNewer: function () {
+            if (this.pre > 0 && this.beatmaps) {
+                this.limit -= 16;
+                this.canShowOlder = true;
+            }
+        },
         updateUser: function(u) {
 			const i = this.beatmaps.findIndex(user => user.id == u.id);
 			this.users[i] = u;
@@ -68,7 +96,7 @@ export default {
             }
             
             if (field == 'rank') {
-                this.users.sort((a, b) => {
+                this.allUsers.sort((a, b) => {
                     if (this.asc) {
                         if (a.totalPoints > b.totalPoints) return 1;
                         if (a.totalPoints < b.totalPoints) return -1;
@@ -79,15 +107,15 @@ export default {
                     return 0;
                 });
             } else if (field == 'username') {
-                this.users.sort((a, b) => {
+                this.allUsers.sort((a, b) => {
                     if (this.asc) {
-                        return a.username.localeCompare(b.username);
+                        return a.username.toLowerCase().localeCompare(b.username.toLowerCase());
                     } else {
-                        return b.username.localeCompare(a.username);
+                        return b.username.toLowerCase().localeCompare(a.username.toLowerCase());
                     }
                 });
             } else if (field == 'createdAt') {
-                this.users.sort((a, b) => {
+                this.allUsers.sort((a, b) => {
                     if (this.asc) {
                         if (a.createdAt > b.createdAt) return 1;
                         if (a.createdAt < b.createdAt) return -1;
@@ -98,6 +126,7 @@ export default {
                     return 0;
                 });
             }
+            this.limit = 16.01;
         },
         //real functions
         switchInvites: async function(e){
@@ -109,7 +138,7 @@ export default {
         filter: function () {            
             this.filterValue = $("#search").val();
             this.users = this.allUsers;
-            if(this.filterValue != ""){
+            if(this.filterValue.length > 2){
                 this.users = this.users.filter(u => {
                     if(u.username.toLowerCase().indexOf(this.filterValue.toLowerCase()) > -1){
                         return true;
@@ -125,12 +154,17 @@ export default {
             allUsers: null,
             userId: null,
             beatmaps: null,
-            filterValue: null,
+            filterValue: "",
             selectedUser: null,
             selectedMap: null,
             info: null,
             sortBy: null,
             asc: false,
+            canShowOlder: true,
+            pre: null,
+            limit: null,
+            pages: null,
+            currentPage: null,
         }
     },
     created() {
@@ -141,6 +175,13 @@ export default {
                 this.allUsers = response.data.users;
                 this.userId = response.data.userId;
                 this.beatmaps = response.data.beatmaps;
+                this.pre = 0;
+                this.limit = 16;
+                this.pages = Math.ceil(this.allUsers.length / this.limit);
+                this.currentPage = 1;
+                if (this.limit >= this.allUsers.length) {
+                    this.canShowOlder = false;
+                }
             }).then(function(){
                 $("#loading").fadeOut();
                 $("#app").attr("style", "visibility: visible").hide().fadeIn();
@@ -155,8 +196,11 @@ export default {
                     this.allUsers = response.data.users;
                     this.userId = response.data.userId;
                     this.beatmaps = response.data.beatmaps;
+                    if(this.filterValue.length > 2){
+                        this.filter();
+                    }
                 });
-        }, 30000);
+        }, 300000);
     }
 }
 </script>

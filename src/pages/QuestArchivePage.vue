@@ -108,7 +108,7 @@ export default {
             .then(response => {
                 this.completeQuests = response.data;
             });
-        }, 30000);
+        }, 300000);
     }
 }
 </script>

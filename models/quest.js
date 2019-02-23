@@ -11,6 +11,7 @@ var questSchema = new mongoose.Schema({
     minRank: { type: Number, required: true},
     status: { type: String, default: "open" },
     art: { type: Number },
+    color: { type: "String", default: "#ffa658" },
 
     accepted: { type: Date },
     deadline: { type: Date },
@@ -93,7 +94,9 @@ class QuestService
             minRank: body.minRank, 
             art: body.art, 
             exclusive: body.exclusive, 
-            medal: body.medal });
+            medal: body.medal,
+            color: body.color
+        });
         try {
             await quest.save();
             return quest;

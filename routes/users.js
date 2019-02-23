@@ -9,7 +9,7 @@ router.use(api.isLoggedIn);
 
 const defaultPopulate = [
  	 { populate: 'currentParty',  display: 'name' },
- 	 { populate: 'completedQuests',  display: 'name' },
+ 	 { populate: 'completedQuests',  display: 'name completed' },
 ];
 const mapPopulate = [
 	{ populate: 'song',  display: 'artist title' },
@@ -25,7 +25,7 @@ router.get('/', async (req, res, next) => {
 /* GET users listing. */
 router.get('/relevantInfo', async (req, res, next) => {
 	const [u, b] = await Promise.all([
-		users.service.query({ group: { $ne: 'hidden' }}, defaultPopulate, {}, true),
+		users.service.query({ group: { $ne: 'hidden' }}, defaultPopulate, {createdAt: -1}, true),
 		beatmaps.service.query({}, mapPopulate, {status: -1}, true)
 	])
  	res.json({users: u, userId: req.session.osuId, beatmaps: b});

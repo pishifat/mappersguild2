@@ -266,17 +266,16 @@ export default {
             
 			try {
 				const res = await axios.post(path, data)
-				
 				if (res.data.error) {
                     this.info = res.data.error;
                     this.inviteConfirm = null;
 				} else {
+                    if (e) e.target.disabled = false;
 					return res.data;
 				}
 			} catch (error) {
                 this.info = 'Something went wrong';
             }
-            
             if (e) e.target.disabled = false;
         },
         sortDiffs: function(){
@@ -409,7 +408,11 @@ export default {
                 axios
                 .get('/beatmaps/relevantInfo')
                 .then(response => {
+                    this.$parent.allBeatmaps = response.data.beatmaps;
                     this.$parent.beatmaps = response.data.beatmaps;
+                    if(this.$parent.filterValue.length > 2){
+                        this.$parent.filter();
+                    }
                 });
             }
         },
@@ -521,6 +524,7 @@ export default {
                     $('#editBeatmap').modal('hide');
                     const i = this.$parent.beatmaps.findIndex(b => b.id == bm.id);
                     this.$parent.beatmaps.splice(i, 1);
+                    this.$parent.allBeatmaps.splice(i, 1);
                     e.target.disabled = false;
                 }
             }

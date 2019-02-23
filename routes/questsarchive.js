@@ -19,7 +19,7 @@ router.get('/', async (req, res, next) => {
 });
 
 router.get("/quests", async (req, res, next) => {
-    res.json(await quests.service.query({status: "done"}, defaultPopulate, {}, true));
+    res.json(await quests.service.query({status: "done"}, defaultPopulate, {completed: -1}, true));
 });
 
 module.exports = router;
