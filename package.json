@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "webpack --mode production | node ./bin/www",
-    "devstart": "webpack | nodemon ./bin/www",
+    "devstart": "webpack --progress | nodemon ./bin/www",
     "build": "webpack --mode production"
   },
   "dependencies": {
@@ -35,6 +35,9 @@
     "webpack-dev-middleware": "^3.5.2"
   },
   "nodemonConfig": {
+    "events": {
+      "restart": "webpack --progress"
+    },
     "ignore": [
       "public/*"
     ]

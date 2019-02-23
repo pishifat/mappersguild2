@@ -1,6 +1,10 @@
 <template>
     <div class='my-2 col-sm-12 col-md-6' :class='beatmap.status == "Done" ? "col-lg-12" : beatmap.status == "WIP" ? "col-md-6" : "col-lg-4"' @click="selectBeatmap()">
-        <div class='card map-card custom-bg-dark border-outline' :class='beatmap.status == "WIP" ? " border-status-wip" : "border-status-done"' data-toggle='modal' data-target='#editBeatmap' :data-mapid="beatmap.id">
+        <div class='card map-card custom-bg-dark border-outline'
+            :class='beatmap.status == "WIP" ? " border-status-wip" : "border-status-done"' 
+            :style="beatmap.quest ? 'border-left: #ffa658cf 3px solid;' : ''"
+            data-toggle='modal' data-target='#editBeatmap' :data-mapid="beatmap.id"
+        >
             <img class='card-img' :src="processUrl(beatmap.url)" style='opacity:0.5; overflow:hidden'> 
             <div class='card-img-overlay' style='padding: 0.50rem 0.50rem 0 0.50rem'>
                 <p class='card-title mb-1 text-shadow'>{{ formatMetadata(beatmap.song.artist, beatmap.song.title) }}</p>
@@ -9,7 +13,12 @@
                 <i v-if="beatmap.mode == 'taiko'" class="fas fa-drum"></i>
                 <i v-else-if="beatmap.mode == 'catch'" class="fas fa-apple-alt"></i>
                 <i v-else-if="beatmap.mode == 'mania'" class="fas fa-stream"></i>
-                <span class='font-weight-bold float-right' style='text-shadow: 1px 1px 3px black;' v-html="processDiffs(beatmap.tasks, beatmap.tasksLocked)"></span>
+                <img v-if="beatmap.quest && beatmap.quest.art" 
+                    class="rounded-circle ml-1" style="height:24px; width: 24px;" 
+                    :src="beatmap.quest.art ? 'https://assets.ppy.sh/artists/' + beatmap.quest.art + '/cover.jpg' : '../../images/fa_icon.png'"
+                    data-toggle="tooltip" :title="beatmap.quest.name"
+                > 
+                <span class='font-weight-bold float-right' v-html="processDiffs(beatmap.tasks, beatmap.tasksLocked)"></span>
             </small> 
             </div>
         </div>
@@ -26,8 +35,8 @@ export default {
         },
         formatMetadata: function(artist, title) {
             let str = artist + " - " + title;
-            if(str.length>39){
-                return str.slice(0,39) + "...";
+            if(str.length>30){
+                return str.slice(0,30) + "...";
             }else{
                 return str;
             }

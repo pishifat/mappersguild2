@@ -47,7 +47,7 @@ module.exports = {
     ],
     resolve: {
         alias: {
-            vue: 'vue/dist/vue.min.js' // TOCHANGE vue.min.js
+            vue: 'vue/dist/vue.js' // TOCHANGE vue.min.js
         }
     }
 };

@@ -403,7 +403,11 @@ input[type=text], input[type=text]:focus {
 }
 
 .card-img {
-    max-height: 80px;
+    size:80%;
+    min-width:400px;
+    min-height:100px;
+    position:relative;
+    opacity:0.5;
 }
 
 .card-body p{
@@ -467,14 +471,6 @@ input[type=text], input[type=text]:focus {
 .map-card{
     overflow:hidden;
     height:75px;
-}
-
-.map-card img{
-    size:80%;
-    min-width:400px;
-    min-height:100px;
-    position:relative;
-    opacity:0.5;
 }
 
 /* SCROLLBAR STUFF TO DO LATER

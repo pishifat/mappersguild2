@@ -11,28 +11,19 @@ const defaultPopulate = [
     { populate: 'host',  display: '_id osuId username' },
     { populate: 'bns',  display: '_id osuId username' },
     { populate: 'modders',  display: '_id osuId username' },
-    { populate: 'quest',  display: '_id name' },
+    { populate: 'quest',  display: '_id name art' },
     { populate: 'song',  display: 'artist title' },
     { innerPopulate: 'tasks',  populate: { path: 'mappers' } },
 ];
-const questPopulate = [
-    { innerPopulate: 'associatedMaps', populate: { path: 'host bns modders song tasks' } },
-];
-const sort = {createdAt: -1};
+const sort = {quest: -1, createdAt: -1};
 
 /* GET maps page. */
 router.get('/', async function(req, res) {
     res.render('beatmapsarchive', { title: 'Maps', script: '../javascripts/mapsarchive.js', isMaps: true, loggedInAs: req.session.username });
 });
 
-
-router.get("/relevantInfo", async (req, res, next) => {
-    const [bms, qs] = await Promise.all([
-    beatmaps.service.query({status: "Ranked"}, defaultPopulate, sort, true),
-    quests.service.query({status: { $ne: 'open'}}, questPopulate, sort, true)
-    ]);
-
-    res.json({beatmaps: bms, quests: qs});
+router.get("/relevantInfo", async (req, res) => {
+    res.json(await beatmaps.service.query({status: "Ranked"}, defaultPopulate, sort, true));
 });
 
 
