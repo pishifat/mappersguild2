@@ -158,7 +158,7 @@
                             <div class="input-group-prepend">
                                 <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg" type="submit" @click="updateMapUrl(selectedMap.id, $event)">save link</button>
                             </div>
-                                <input class="form-control form-control-sm" type="text" placeholder="URL" id="newLink" style="border-radius: 0 100px 100px 0"></input>
+                                <input class="form-control form-control-sm" type="text" placeholder="URL" id="newLink" style="border-radius: 0 100px 100px 0" />
                         </div>
                     </div>
                     <hr>
@@ -265,7 +265,7 @@
                         <div class="input-group-prepend">
                             <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg" type="submit" @click="renameParty(selectedParty.id, $event)">save name</button>
                         </div>
-                            <input class="form-control form-control-sm" type="text" placeholder="new name" id="newName" style="border-radius: 0 100px 100px 0"></input>
+                            <input class="form-control form-control-sm" type="text" placeholder="new name" id="newName" style="border-radius: 0 100px 100px 0" />
                     </div>
 
                     <hr>
@@ -296,7 +296,7 @@
                         <div class="input-group-prepend">
                             <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg" type="submit" @click="editBanner(selectedParty.id, $event)">edit banner</button>
                         </div>
-                        <input class="form-control form-control-sm" type="text" placeholder="map id banner" id="bannerInput" style="border-radius: 0 100px 100px 0"></input>
+                        <input class="form-control form-control-sm" type="text" placeholder="map id banner" id="bannerInput" style="border-radius: 0 100px 100px 0" />
                     </div>
 
                     <hr>
@@ -339,7 +339,7 @@
                         <div class="input-group-prepend">
                             <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg-used" type="submit" @click="updatePenaltyPoints(selectedUser.id, $event)">edit penaltypoints</button>
                         </div>
-                        <input class="form-control form-control-sm" type="text" placeholder="penalty points" id="penaltyPointsInput" style="border-radius: 0 100px 100px 0"></input>
+                        <input class="form-control form-control-sm" type="text" placeholder="penalty points" id="penaltyPointsInput" style="border-radius: 0 100px 100px 0" />
                     </div>
                     <p id="errors"></p>
                 </div>
@@ -393,7 +393,7 @@
                         <div class="input-group-prepend">
                             <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg" type="submit" @click="renameLabel(selectedArtist.id, $event)">rename</button>
                         </div>
-                            <input class="form-control form-control-sm" type="text" placeholder="new name" id="newLabelName" style="border-radius: 0 100px 100px 0"></input>
+                            <input class="form-control form-control-sm" type="text" placeholder="new name" id="newLabelName" style="border-radius: 0 100px 100px 0" />
                     </div>
                     </div>
                     <hr>
@@ -811,5 +811,8 @@ export default {
 </script>
 
 <style>
-
+    .temp {
+        background-color:rgb(255, 255, 130);
+        border-color: rgb(255, 255, 130);
+    }
 </style>

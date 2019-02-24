@@ -57,7 +57,7 @@ router.get('/', async (req, res, next) => {
         res.render('admins', { 
             title: 'Admin', 
             script: '../javascripts/admin.js', 
-            loggedInAs: req.session.username });
+            loggedInAs: req.session.osuId });
     }
 });
 

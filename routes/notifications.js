@@ -72,7 +72,7 @@ const defaultMapPopulate = [
 
 /* GET notifications/invites */
 router.get('/', async (req, res, next) => {
-	res.render('notifications', { title: 'Notifications/Invites', script: '../javascripts/notifications.js', isNotifications: true, loggedInAs: req.session.username });
+	res.render('notifications', { title: 'Notifications/Invites', script: '../javascripts/notifications.js', isNotifications: true, loggedInAs: req.session.osuId });
 });
 
 /* GET notifications/invites listing. */

@@ -1,7 +1,11 @@
 <template>
 
 <div class='my-2' :class="quest.status != 'wip' ? 'col-lg-6' : 'col-lg-12'" @click="selectQuest()">
-    <div class='card quest-card custom-bg-dark border-outline' :class="'border-status-' + quest.status" style='height: 100%' data-toggle='modal' data-target='#extendedInfo' :data-user="quest.id">
+    <div class='card quest-card custom-bg-dark border-outline' style='height: 100%' data-toggle='modal' data-target='#extendedInfo' :data-user="quest.id">
+        <div
+            class="card-status"
+            :class="quest.status == 'wip' ? 'card-status-wip' : quest.status == 'done' ? 'card-status-done' : 'card-status-open'"
+        ></div>
         <img :src="quest.art ? 'https://assets.ppy.sh/artists/' + quest.art + '/header.jpg' : '../images/no-art.png'" 
         :style='quest.status == "open" ? "right:300px;" : quest.status == "wip" ? "right: 366px; max-height:166px;" : "right: 250px; max-height:166px;"'>
         <div class='card-img-overlay' style='padding: 0 0 0 0'>
@@ -71,3 +75,17 @@ export default {
     },
 }
 </script>
+
+<style>
+    .quest-card{
+        overflow:hidden;
+    }
+
+    .quest-card img{
+        min-width:1000px;
+        max-height:200px;
+        position:relative;
+        filter: blur(4px);
+        opacity:0.5;
+    }
+</style>

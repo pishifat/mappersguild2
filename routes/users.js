@@ -19,7 +19,7 @@ const mapPopulate = [
 
 /* GET page render. */
 router.get('/', async (req, res, next) => {
-  	res.render('users', { title: 'Users', script: '../javascripts/users.js', isUsers: true, loggedInAs: req.session.username });
+  	res.render('users', { title: 'Users', script: '../javascripts/users.js', isUsers: true, loggedInAs: req.session.osuId });
 });
 
 /* GET users listing. */

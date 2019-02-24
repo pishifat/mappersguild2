@@ -20,7 +20,7 @@ router.get('/', async (req, res, next) => {
     }
     res.render('index', { title: `Mappers' Guild`, isIndex: true, message: message });
 }, api.isLoggedIn, (req, res) => {
-    res.render('index', { title: `Mappers' Guild`, isIndex: true, loggedInAs: req.session.username });
+    res.render('index', { title: `Mappers' Guild`, isIndex: true, loggedInAs: req.session.osuId });
 });
 
 /* GET user's code to login */

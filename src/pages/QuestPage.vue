@@ -75,12 +75,10 @@ export default {
     },
     methods: {
         executePost: async function (path, data, e) {
-            
             if (e) e.target.disabled = true;
 
             try {
                 const res = await axios.post(path, data)
-                console.log(res);
 
                 if (res.data.error) {
                     this.info = res.data.error;
@@ -89,9 +87,8 @@ export default {
                     return res.data;
                 }
             } catch (error) {
-                console.log(error)
+                this.info = 'Something went wrong';
             }
-            console.log("E" + e)
             if (e) e.target.disabled = false;
         },
         sortOpenQuests: function (field, keepOrder) {

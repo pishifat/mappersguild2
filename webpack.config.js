@@ -1,4 +1,5 @@
-const VueLoaderPlugin = require('vue-loader/lib/plugin')
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const webpack = require("webpack");
 const path = require('path');
 
 module.exports = {
@@ -18,7 +19,7 @@ module.exports = {
         path: path.resolve(__dirname, 'public/javascripts/'),
         publicPath: '/'
     },
-    mode: 'production', // TOCHANGE production
+    mode: 'development', // TOCHANGE production
     module: {
         rules: [
             {
@@ -39,7 +40,11 @@ module.exports = {
                         outputPath: '../images'
                     }
                 }]
-            }
+            },
+            {
+                test: /\.css$/,
+                use: ['vue-style-loader', 'css-loader'],
+            },
         ]
     },
     plugins: [
@@ -48,6 +53,13 @@ module.exports = {
     resolve: {
         alias: {
             vue: 'vue/dist/vue.js' // TOCHANGE vue.min.js
+        }
+    },
+    devServer: {
+        publicPath: '/javascripts/',
+        port: 8080,
+        proxy: {
+          '/': 'http://localhost:3000'
         }
     }
 };

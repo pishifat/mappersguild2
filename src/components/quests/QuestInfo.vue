@@ -111,3 +111,12 @@ export default {
     },
 }
 </script>
+
+<style>
+    .quest-art-thumb{
+        height:128px;
+        width:128px;
+        object-fit:cover;
+        filter: drop-shadow(1px 1px 1px #000000);
+    }
+</style>

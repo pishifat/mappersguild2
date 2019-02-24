@@ -52,5 +52,16 @@ export default {
 </script>
 
 <style>
+    .party-card{
+        overflow:hidden;
+        height:188px;
+    }
 
+    .party-card img{
+        min-width:900px;
+        max-height:250px;
+        position:relative;
+        filter: blur(4px);
+        opacity:0.5;
+    }
 </style>

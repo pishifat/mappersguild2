@@ -29,3 +29,19 @@ export default {
     }
 }
 </script>
+
+<style>
+    .avatar-mini-thumb{
+        height:64px;
+        width:64px;
+        object-fit:cover;
+        filter: drop-shadow(1px 1px 1px #000000);
+    }
+
+    .pseudo-float-right-avatar{
+        position:absolute;
+        top:1rem;
+        right:1rem;
+    }
+
+</style>

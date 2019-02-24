@@ -9,7 +9,7 @@ var questSchema = new mongoose.Schema({
     minParty: { type: Number, required: true},
     maxParty: { type: Number, required: true},
     minRank: { type: Number, required: true},
-    status: { type: String, default: "open" },
+    status: { type: String, enum: ['open', 'wip', 'done'], default: "open" },
     art: { type: Number },
     color: { type: "String", default: "#ffa658" },
 

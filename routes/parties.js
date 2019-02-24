@@ -82,7 +82,7 @@ const defaultPopulate = [
 
 /* GET parties page. */
 router.get('/', async (req, res, next) => {
-    res.render('parties', { title: 'Parties', script: '../javascripts/parties.js', isParties: true, loggedInAs: req.session.username });
+    res.render('parties', { title: 'Parties', script: '../javascripts/parties.js', isParties: true, loggedInAs: req.session.osuId });
   });
 
 router.get("/relevantInfo", async (req, res, next) => {
