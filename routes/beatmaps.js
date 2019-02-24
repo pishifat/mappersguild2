@@ -129,7 +129,7 @@ async function isValidUser(req, res, next) {
         return res.json({ error: inviteError + 'Choose someone other than yourself!' });
     }
 
-    res.locals.user;
+    res.locals.user = u;
     next();
 }
 
@@ -150,7 +150,7 @@ router.get('/relevantInfo', async (req, res, next) => {
         beatmaps.service.query(
             { status: { $ne: 'Ranked' } },
             defaultPopulate,
-            { status: 1, createdAt: -1 },
+            { quest: -1, status: 1, createdAt: -1 },
             true
         ),
     ]);
