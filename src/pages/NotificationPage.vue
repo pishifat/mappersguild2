@@ -94,7 +94,6 @@ export default {
         acceptInvite: async function(id, actionType, e){
             this.info = null;
             let invite;
-            console.log(actionType);
             if(actionType == "collaborate in a difficulty"){
                 invite = await this.executePost('/notifications/acceptCollab/' + id, {}, e);
             }else if(actionType == "create a difficulty"){

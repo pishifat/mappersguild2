@@ -9,16 +9,14 @@ const router = express.Router();
 
 /* GET landing page. */
 router.get('/', async (req, res, next) => {
-    let message = '';
     if (req.session.osuId) {
-        message = 'it worked';
         const u = await users.service.query({ _id: req.session.mongoId });
 
         if (u && !u.error && u.group != 'hidden' && u.group == 'admin') {
             return next();
         }
     }
-    res.render('index', { title: `Mappers' Guild`, isIndex: true, message: message });
+    res.render('index', { title: `Mappers' Guild`, isIndex: true });
 }, api.isLoggedIn, (req, res) => {
     res.render('index', { title: `Mappers' Guild`, isIndex: true, loggedInAs: req.session.osuId });
 });

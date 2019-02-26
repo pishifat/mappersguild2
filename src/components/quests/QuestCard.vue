@@ -3,8 +3,8 @@
 <div class='my-2' :class="quest.status != 'wip' ? 'col-lg-6' : 'col-lg-12'" @click="selectQuest()">
     <div class='card quest-card custom-bg-dark border-outline' style='height: 100%' data-toggle='modal' data-target='#extendedInfo' :data-user="quest.id">
         <div
-            class="card-status"
-            :class="quest.status == 'wip' ? 'card-status-wip' : quest.status == 'done' ? 'card-status-done' : 'card-status-open'"
+            class="quest-card-status"
+            :class="quest.status == 'wip' ? 'quest-card-status-wip' : quest.status == 'done' ? 'quest-card-status-done' : 'quest-card-status-open'"
         ></div>
         <img :src="quest.art ? 'https://assets.ppy.sh/artists/' + quest.art + '/header.jpg' : '../images/no-art.png'" 
         :style='quest.status == "open" ? "right:300px;" : quest.status == "wip" ? "right: 366px; max-height:166px;" : "right: 250px; max-height:166px;"'>
@@ -77,6 +77,7 @@ export default {
 </script>
 
 <style>
+    
     .quest-card{
         overflow:hidden;
     }
@@ -87,5 +88,27 @@ export default {
         position:relative;
         filter: blur(4px);
         opacity:0.5;
+    }
+
+    .quest-card-status {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        width: 0px;
+        height: 0px;
+        border-bottom: 24px solid transparent;
+        z-index: 10000;
+    }
+
+    .quest-card-status-open {
+    border-right: 24px solid var(--open);
+    }
+
+    .quest-card-status-wip {
+        border-right: 24px solid var(--wip);
+    }
+
+    .quest-card-status-done {
+        border-right: 24px solid var(--done);
     }
 </style>

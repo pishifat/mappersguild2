@@ -127,6 +127,7 @@ export default {
                 });
             }
             this.limit = 16.01;
+            this.canShowOlder = true;
         },
         //real functions
         switchInvites: async function(e){
@@ -192,7 +193,6 @@ export default {
             axios
                 .get('/users/relevantInfo')
                 .then(response => {
-                    this.users = response.data.users;
                     this.allUsers = response.data.users;
                     this.userId = response.data.userId;
                     this.beatmaps = response.data.beatmaps;
