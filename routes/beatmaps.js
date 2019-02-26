@@ -426,16 +426,14 @@ router.post('/updateModder/:mapId', async (req, res) => {
 /* POST bn from extended view, returns new bns list. */
 router.post('/updateBn/:mapId', api.isBn, isValidBeatmap, async (req, res) => {
     let b = res.locals.beatmap;
-    console.log(b)
-    let isAlreadyBn = false;
-    if (b.bns.indexOf(req.session.mongoId)) {
-        isAlreadyBn = true;
-    }
+    const isAlreadyBn = await beatmaps.service.query({
+        _id: req.params.mapId,
+        bns: req.session.mongoId,
+    });
     let update;
-    console.log(isAlreadyBn)
     if (!isAlreadyBn) {
         let hasTask = false;
-        isAlreadyBn.tasks.forEach(task => {
+        b.tasks.forEach(task => {
             task.mappers.forEach(mapper => {
                 if (mapper.id == req.session.mongoId) {
                     hasTask = true;
