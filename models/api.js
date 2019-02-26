@@ -102,6 +102,7 @@ async function getUserInfo(token) {
 }
 
 async function isBn(req, res, next) {
+    console.log(req.session.osuId);
     if (req.session.osuId) {
         const res = await getUserInfo(req.session.accessToken);
         if (res.is_qat || res.is_bng) {
