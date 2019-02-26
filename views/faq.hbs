@@ -11,25 +11,17 @@
                     <li><a href="#rewards">Rewards</a></li>
                 </ol>
             </div>
-            <div class="col-md-9 mt-4">
-                <p>There's a lot you need to know as a member of the Mappers' Guild. Treat this like a new member handbook -- read through it before participating to ensure you understand how we run things around here!</p>
-          
-            </div>
-              
-            
-            <div class="col-md-12 segment mx-auto" id="general">
+            <div class="col-md-9 segment mx-auto" id="general">
                 <h4>General</h4>
-                <h5 class="ml-3 mt-4">What are the requirements for joining the Mappers' Guild?</h5>
-                <p class="ml-4">x ranked mapsets, y kudosu earned. These are automatically calculated when you authenticate your osu! account with the Mappers' Guild.</p>
-
                 <h5 class="ml-3 mt-4">Where does the Mappers' Guild communicate?</h5>
-                <p class="ml-4">We have a channel in the <a href="#">osu! development discord.</a></p>
+                <p class="ml-4">We have a channel in the <a href="#">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</a></p>
 
                 <h5 class="ml-3 mt-4">Are there any activity requirements?</h5>
                 <p class="ml-4">Nothing precise, but if you're clearly inactive, you'll be removed. If you want to join again, you'll need to talk to pishifat.</p>
-
-                
             </div>
+              
+            
+            
 
             <div class="col-md-12 segment mx-auto" id="mapping">
                 <h4>Mapping</h4>
@@ -37,7 +29,7 @@
                 <p class="ml-4">Anything you can find on osu!'s <a href="https://osu.ppy.sh/beatmaps/artists">Featured Artist listing</a>.</p>
 
                 <h5 class="ml-3 mt-4">How do I create a new map?</h5>
-                <p class="ml-4">The <button class="btn btn-mg btn-sm">Add beatmap</button> button near the top of the Pending/WIP beatmaps page will open a new map form. Enter an artist, one of their songs, and any difficulties you want to map/lock. <button class="btn btn-mg btn-sm">Save</button> will generate a new map card in the listing.</p>
+                <p class="ml-4">The <button class="btn btn-mg btn-sm">Add beatmap</button> button near the top of the Pending/WIP beatmaps page will open a new map creation form. Select an artist, one of their songs, and any difficulties you want to map/lock. <button class="btn btn-mg btn-sm">Save</button> will generate a new map card in the listing.</p>
                 
                 <h5 class="ml-3 mt-4">How do I add a new difficulty?</h5>
                 <p class="ml-4">Clicking a map card opens its info page. Below the difficulty table is a dropdown menu:</p>
@@ -45,7 +37,7 @@
                         <div class="input-group-prepend">
                             <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg" id="addTask" @click="addTask(selectedMap.id, $event);" data-toggle="tooltip" data-placement="left" title="add difficulty"><i style="padding-left: 4px" class="fas fa-plus"></i></button>
                         </div>
-                        <select class="custom-select select-arrow small" id="diffSelection">
+                        <select class="custom-select select-arrow small" style="border-radius: 0px 100px 100px 0px;" id="diffSelection">
                             <option value="Easy">Easy</option>
                             <option value="Normal">Normal</option>
                             <option value="Hard">Hard</option>
@@ -57,10 +49,10 @@
                     <p class="ml-4">Any selected difficulty can be added from the plus button. Keep in mind that if you're trying to create a guest difficulty, a mapset's host may have certain difficulties locked!</p>
                 
                 <h5 class="ml-3 mt-4">How do I get another user to create a difficulty for my mapset?</h5>
-                <p class="ml-4">Any user can add a difficulty themselves, so long as the mapset host hasn't disabled it. A mapset host can also invite a user to create a difficulty through an input box below the add difficulty dropdown. Invites bypass task locks.</p>
+                <p class="ml-4">Any user can add a difficulty themselves, so long as the mapset host hasn't disabled it. A mapset host can also invite a user to create a difficulty the <button class="btn btn-sm btn-mg px-2"><i class="fas fa-at"></i></button> button. Invites bypass task locks.</p>
 
                 <h5 class="ml-3 mt-4">How do I collaborate on a difficulty?</h5>
-                <p class="ml-4">You'll find a <a href='#' class="icon-valid" onclick="event.preventDefault()"><i class="fas fa-plus-square"></i></a> button beside your name on any of your maps. Clicking that opens an input field, where you can add any mapper you want to collaborate with. This will send the mapper an invite, and if they accept, they'll be added to the task's mapper list!</p>
+                <p class="ml-4">You'll find a <a href='#' class="icon-valid" onclick="event.preventDefault()"><i class="fas fa-plus-square"></i></a> button beside your name on any of your difficulties. Clicking that opens an input field where you can add any mapper you want to collaborate with. This will send the mapper an invite, and if they accept, they'll be added to the task's mapper list!</p>
                 <p class="ml-4">Collaborators can then be removed with the <a href='#' class="icon-used" onclick="event.preventDefault()"><i class="fas fa-minus-square"></i></a> button.</p>
                 
                 <h5 class="ml-3 mt-4">What do the difficulty icons mean?</h5>
@@ -81,22 +73,22 @@
                     <li><a href='#' class='icon-done' onclick="event.preventDefault()"><i class="fas fa-check"></i></a> marks a difficulty as complete, disabling any collaboration edits</li>
                     <li><a href='#' class='icon-wip' onclick="event.preventDefault()"><i class="fas fa-ellipsis-h"></i></a> marks a difficulty as work-in-progress</li>
                 </ul>
-                <p class="ml-4">To change the status of a full mapset, its host can use the <button class="btn btn-sm btn-mg-done">Complete</button> and <button class="btn btn-sm btn-mg-wip" >Work-in-progress</button> buttons. These will move a map's card to its respective status column. Keep these up to date!</p> 
+                <p class="ml-4">To change the status of a full mapset, its host can use the <button class="btn btn-sm btn-mg-done">Complete</button> and <button class="btn btn-sm btn-mg-wip" >Work-in-progress</button> buttons. These will change the color indicator in the top right of the map card, and change its location in the listing (done maps appear before WIP maps). Keep these up to date!</p> 
                 
                 <h5 class="ml-3 mt-4">How do I make my map's card use my map's background?</h5>
                 <p class="ml-4">Click the <a href="#" class="icon-valid" onclick="event.preventDefault()"><i class="fas fa-edit"></i></a> button and input your map's osu! web link. Only links to the new site (such as /beatmapsets/123456 rather than /s/123456) will generate card images, but any links are acceptable.</p>
 
                 <h5 class="ml-3 mt-4">When do I mark myself as a modder?</h5>
-                <p class="ml-4"><i>After</i> you've modded a mapset. When points are rewarded, osu!'s API will check if you actually posted on the mapset's discussion page and someone else ensure you actually modded.</p>
+                <p class="ml-4"><i>After</i> you've modded a mapset. Before a mapset is marked as Ranked, someone else ensure you actually modded.</p>
 
                 <h5 class="ml-3 mt-4">When do I mark myself as a potential Beatmap Nominator?</h5>
-                <p class="ml-4">Any time. If you're a BN and you're interested in nominating a mapset, adding yourself to this list will let the mapper know who to contact when the mapset is ready! If you're not a Beatmap Nominator, osu!'s API will disallow you from adding yourself to this list.</p>
+                <p class="ml-4">Any time. If you're a BN and you're interested in nominating a mapset, adding yourself to this list will let the mapper know who to contact when the mapset is ready!</p>
 
                 <h5 class="ml-3 mt-4">What do I do if I don't want anyone to claim a difficulty on my mapset?</h5>
-                <p class="ml-4">The "lock" feature disables difficulty claims for any difficulty you mark.</p>
+                <p class="ml-4">The "lock" feature disables difficulty claims for any difficulty you mark. Guest difficulty invites can bypass locks.</p>
 
                 <h5 class="ml-3 mt-4">How and why do I link a mapset to a quest?</h5>
-                <p class="ml-4">If your party is currently running a quest, clicking the  <a href='#' class="icon-valid" onclick="event.preventDefault()"><i class="fas fa-plus-square"></i></a> button in the "Quest" field will connect the two. When a mapset is linked to a quest, only people running the quest are able to claim difficulties. This is important because running a quest with other members is not allowed!</p>
+                <p class="ml-4">If your party is currently running a quest, clicking the  <a href='#' class="icon-valid" onclick="event.preventDefault()"><i class="fas fa-plus-square"></i></a> button in the "Quest" field will connect the two. When a mapset is linked to a quest, only people running the quest are able to claim difficulties. This is important because running a quest with other users is not a feature!</p>
 
                 <h5 class="ml-3 mt-4">Are mapsets for different game modes allowed?</h5>
                 <p class="ml-4">Yes.</p>
@@ -128,19 +120,19 @@
                 <p class="ml-4">You and your party needs to complete it by the date labeled in the quest listing.</p>
 
                 <h5 class="ml-3 mt-4">What happens when I don't finish a quest by the deadline?</h5>
-                <p class="ml-4">If you're late, you'll receive less of a points reward than if you completed the quest on time. If you drag a quest on indefinitely, it'll be marked as dropped.</p>
+                <p class="ml-4">If you're late, you'll receive less of a points reward than if you completed the quest on time. If you drag a quest on indefinitely, it'll be marked as dropped and you'll lose points.</p>
 
                 <h5 class="ml-3 mt-4">What happens when I drop a quest?</h5>
                 <p class="ml-4">Each party member will lose the amount of points the quest would ordinarily reward. If someone leaves the party while the quest is ongoing, that user will lose points, but the quest will stay active so long as the party doesn't fall below the required party size/rank.</p>
                 
                 <h5 class="ml-3 mt-4">Why can't I join a party while it's running a quest?</h5>
-                <p class="ml-4">To avoid users joining quests late for easy access to rewards. Organize your parties before accepting a quest or else you might regret it!</p>
+                <p class="ml-4">This is done to avoid users joining quests late for easy access to rewards. Organize your parties before accepting a quest or else you might regret it!</p>
 
                 <h5 class="ml-3 mt-4">Why can't people outside my party participate in quest-related maps?</h5>
                 <p class="ml-4">A quest is designed to be handled by the subgroup of a specified size that signs up for it.</p>
 
                 <h5 class="ml-3 mt-4">What are quests with a "?" as their background?</h5>
-                <p class="ml-4">These are special quests involving unannounced featured artists. They are rank-limited to ensure the quest will be completed and its artist will not be leaked. Instructions about how to handle these quests will be explained privately to their undertaking parties. Accepting these quests is a risk because their music is unknown and dropping the quest will disallow anyone else from taking the quest.</p>
+                <p class="ml-4">These are special quests potentially involving unannounced featured artists. They may be rank-limited to ensure the quest will be completed and its artist will not be leaked. Instructions about how to handle these quests will be explained privately to their undertaking parties. Accepting these quests is a risk because their music is unknown and dropping the quest will disallow anyone else from taking the quest.</p>
 
                 <h5 class="ml-3 mt-4">What happens if I leak anything about a special quest?</h5>
                 <p class="ml-4">Your party will be removed from the Mappers' Guild and if any members re-join, they will not be allowed to handle info-sensitive quests.</p>
@@ -163,13 +155,13 @@
                 <p class="ml-4">A party's rank is an average of its members' user ranks.</p>
 
                 <h5 class="ml-3 mt-4">Why can I only be in one party at a time?</h5>
-                <p class="ml-4">To avoid handling multiple quests at once. We want to avoid one quest being neglected in favor of another.</p>
+                <p class="ml-4">We want to avoid one quest being neglected in favor of another.</p>
 
                 <h5 class="ml-3 mt-4">Is there a limit on party size?</h5>
                 <p class="ml-4">Yes, 12 members.</p>
 
                 <h5 class="ml-3 mt-4">Why can't I join a party while it's running a quest?</h5>
-                <p class="ml-4">To avoid users joining parties for the sake of effortless quest rewards.</p>
+                <p class="ml-4">This avoids users joining parties late for the sake of effortless quest rewards.</p>
 
                 <h5 class="ml-3 mt-4">How do I stop other mappers from joining my party?</h5>
                 <p class="ml-4">A party's leader can lock new member admissions.</p>
@@ -178,7 +170,7 @@
                 <p class="ml-4">Users can join any open party on their own. A party's leader can also invite other users to join the party after clicking on a party's card.</p>
 
                 <h5 class="ml-3 mt-4">How do I set an image for my party's card?</h5>
-                <p class="ml-4">Images are handled through beatmap thumbnails. Choose a beatmap, find its set ID (the first numbers you see in the URL), then paste those into the banner input section. If a map doesn't have a thumbnail on the osu! site, it won't support a banner.</p>
+                <p class="ml-4">Images are handled through beatmap thumbnails. Choose a beatmap and paste its new site link (such as /beatmapsets/123456 rather than /s/123456).</p>
 
                 <h5 class="ml-3 mt-4">Can a party involve mappers from multiple game modes?</h5>
                 <p class="ml-4">Yes.</p>
