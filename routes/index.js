@@ -84,8 +84,15 @@ router.get('/callback', async (req, res) => {
             req.session.username = response.username;
             req.session.osuId = response.id;
             res.redirect('/login');
-        } else {
-            res.status(403).render('error', { message: 'You did not meet the requirements!' });
+        } else { 
+            let u = await users.service.query({ osuId: response.id });
+            if(u){ //exception for the old mg users who dont meet requirements
+                req.session.username = response.username;
+                req.session.osuId = response.id;
+                res.redirect('/login');
+            }else{
+                res.status(403).render('error', { message: 'You did not meet the requirements!' });
+            }
         }
     }
 });
