@@ -11,7 +11,7 @@
             <span class="badge badge-light" data-toggle="tooltip" data-placement="top" title="invites">{{ invites }}</span>
         </a>
 
-        <a href="#navbar" class="btn btn-secondary fas fa-angle-up fa-2x ml-2" style="
+        <a href="#top" class="btn btn-secondary fas fa-angle-up fa-2x ml-2" style="
             background-color: var(--done);
             border-color: var(--done);
             filter: drop-shadow(1px 1px 1px #000000);

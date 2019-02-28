@@ -67,7 +67,7 @@
                             </tr>
                             <tr v-if="user.modPoints">
                                 <td scope="row" style="padding: 1px;" data-toggle="tooltip" data-placement="left"
-                                    title="2.5 points per mod">Modding mapsets</td>
+                                    title="1 point per mod">Modding mapsets</td>
                                 <td scope="row" style="padding: 1px;">{{Math.round(user.modPoints*10)/10}}
                                 </td>
                             </tr>

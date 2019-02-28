@@ -451,7 +451,7 @@ router.post('/updateUserPoints', async (req, res) => {
                 "Insane":{"num":8, "total":0}, 
                 "Expert":{"num":8, "total":0}, 
                 "Storyboard":{"num":10, "total":0}, 
-                "Mod":{"num":2.5, "total":0}, 
+                "Mod":{"num":1, "total":0}, 
                 "Host":{"num":5, "total":0},
                 "QuestReward":{"num":0, "total":0},
                 "Rank":{"value":0},

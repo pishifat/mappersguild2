@@ -63,6 +63,7 @@
                         <button class="btn btn-mg-used btn-sm float-right drop" @click="dropQuest($event)">Drop</button>
                     </div>
                 </span>
+                <span v-if="quest.associatedMaps.length && quest.status == 'done'">
                 <p class="text-shadow">Associated maps:
                     <ul style="list-style-type: none;">
                         <li class="small text-shadow" v-for="map in quest.associatedMaps" :key="map.id">
@@ -75,6 +76,7 @@
                         </li>
                     </ul>
                 </p>
+                </span>
                 <span v-if="quest.status == 'done'">
                     <p class="text-shadow">Reward: {{quest.reward}} bonus points for each user <span v-if="quest.medal">+ a pack-exclusive medal</span></p>
                     <p class='card-text text-shadow'>Completed on {{quest.completed.slice(0,10)}} by:

@@ -32,7 +32,7 @@
                     <p class='card-text text-shadow small'>Objective: <p class='indent text-shadow small'>{{quest.descriptionMain}}</p>
                     <p class='card-text text-shadow small'>Completed on {{quest.completed.slice(0,10)}} by:
                         <template v-for="(member, i) in cutCompletedMembers(quest.completedMembers)"><a :key="i" :href="'https://osu.ppy.sh/users/' + member.osuId" target="_blank">{{ member.username + (i < quest.completedMembers.length - 1 ? ', ' : '') }}</a></template>
-                        <span v-if="quest.completedMembers.length > 12">and a few more...</span>
+                        <span v-if="quest.completedMembers.length > 9">and a few more...</span>
                     </p>
                 </span>
             </div>
@@ -66,8 +66,8 @@ export default {
             return days + "d " + hours + "h " + minutes + "m ";
         },
         cutCompletedMembers: function(members){
-            if(members.length > 12){
-                return members.slice(0, 12)
+            if(members.length > 9){
+                return members.slice(0, 9)
             }else{
                 return members;
             }

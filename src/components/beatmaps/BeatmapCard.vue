@@ -54,8 +54,8 @@ export default {
         },
         formatMetadata: function(artist, title) {
             let str = artist + ' - ' + title;
-            if (str.length > 30) {
-                return str.slice(0, 30) + '...';
+            if (str.length > 34) {
+                return str.slice(0, 34) + '...';
             } else {
                 return str;
             }
