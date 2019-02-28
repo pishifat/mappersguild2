@@ -17,15 +17,16 @@
                 </div>
                 <p v-else class="text-shadow small">{{quest.descriptionFluff}}</p>
 
+                <p v-if="quest.exclusive && quest.status == 'open'" class="small text-shadow">Because this quest involves unpublished featured artist content, it is rank-restricted and dropping it will make it unobtainable by any other party.</p>
+
                 <p class="text-shadow">Objective: {{quest.descriptionMain}}</p>
                 <p v-if="quest.status == 'wip'" class='card-text text-shadow' style='margin-top:0.5rem'>Deadline: {{quest.deadline.slice(0,10)}}</p>
                 <hr>
                 <span v-if="quest.status == 'open'">
-                    <p class="text-shadow">Reward: {{quest.reward}} bonus points for each user <span v-if="quest.medal">+ a pack-exclusive medal</span></p>
+                    <p class="text-shadow">Reward: {{quest.reward}} bonus points for each user + 2 additional points per task on each mapset <span v-if="quest.medal">+ a pack-exclusive medal</span></p>
                     <p class="text-shadow">Party size: {{quest.minParty}}-{{quest.maxParty}} members</p>
                     <p class="text-shadow">Required Rank: {{quest.minRank}}</p>
                     <p class="text-shadow">Timeframe: {{Math.round(quest.timeframe / (1000*60*60*24))}} days</p>
-                    <p v-if="quest.exclusive" class="small text-shadow">Because this quest involves an unannounced Featured Artist, dropping it will make it unobtainable by any other party. If you've recently done a new FA quest, maybe give other mappers a chance!</p>
                     <hr>
                     <div v-if="!(!partyQuest && partyRank >= quest.minRank && partySize <= quest.maxParty && partySize >= quest.minParty)">
                         <p class="small text-shadow">You're unable to accept this quest because:</p>
@@ -42,7 +43,7 @@
                     </div>
                 </span>
                 <span v-if="quest.status == 'wip'">
-                    <p class="text-shadow">Reward: {{quest.reward}} bonus points for each user <span v-if="quest.medal">+ a pack-exclusive medal</span></p>
+                    <p class="text-shadow">Reward: {{quest.reward}} bonus points for each user + 2 additional points per task on each mapset <span v-if="quest.medal">+ a pack-exclusive medal</span></p>
                     <p class="text-shadow">Current Party: {{quest.assignedParty.name}}</p>
                     <p class="text-shadow pl-4 small">Members: <template v-for="(member, i) in quest.assignedParty.members"><a :key="i" :href="'https://osu.ppy.sh/users/' + member.osuId" target="_blank">{{ member.username + (i < quest.assignedParty.members.length - 1 ? ', ' : '') }}</a></template></p>
                     <span v-if="quest.associatedMaps.length">
@@ -78,7 +79,7 @@
                 </p>
                 </span>
                 <span v-if="quest.status == 'done'">
-                    <p class="text-shadow">Reward: {{quest.reward}} bonus points for each user <span v-if="quest.medal">+ a pack-exclusive medal</span></p>
+                    <p class="text-shadow">Reward: {{quest.reward}} bonus points for each user + 2 additional points per task on each mapset <span v-if="quest.medal">+ a pack-exclusive medal</span></p>
                     <p class='card-text text-shadow'>Completed on {{quest.completed.slice(0,10)}} by:
                     <ul style="list-style-type: none">
                         <li class="text-shadow small" v-for="member in quest.completedMembers" :key="member.id"><a :href="'https://osu.ppy.sh/users/' + member.osuId" target="_blank">{{ member.username }}</a></li>
