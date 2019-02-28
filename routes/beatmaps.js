@@ -112,7 +112,7 @@ async function isValidBeatmap(req, res, next) {
 }
 
 async function isBeatmapHost(req, res, next) {
-    if (req.session.mongoId != res.locals.beatmap.host) {
+    if (req.session.mongoId != res.locals.beatmap.host.id) {
         return res.json({ error: 'You are not mapset host!' });
     }
     next();
