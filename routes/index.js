@@ -57,7 +57,7 @@ router.get('/login', async (req, res, next) => {
 /* GET user's token and user's info to login */
 router.get('/callback', async (req, res) => {
     if (!req.query.code || req.query.error) {
-        return res.status(500).render('error', { message: 'Must authorise to proceed'});
+        return res.redirect('/'); 
     }
 
     const decodedState = Buffer.from(req.query.state, 'base64').toString('ascii');
