@@ -13,7 +13,8 @@ var router = express.Router();
 router.use(api.isLoggedIn);
 
 //updating party rank when leaving/kicking/joining
-async function updatePartyRank(p){
+async function updatePartyRank(){
+    let p = await parties.service.query({_id: req.body.partyId}, { populate: 'members',  display: 'rank' });
     var rank = 0;
     p.members.forEach(user => {
         rank+= user.rank;
@@ -137,7 +138,7 @@ router.post('/create', async (req, res) => {
 /* POST join party. */
 router.post('/join', async (req, res) => {
     const [p, isMember] = await Promise.all([
-        parties.service.query({_id: req.body.partyId}, defaultPopulate),
+        parties.service.query({_id: req.body.partyId}),
         parties.service.query({ 'members': req.session.mongoId })
     ]);
     if (p && !isMember && !p.lock && !p.currentQuest && p.members.length < 12) {
@@ -145,7 +146,7 @@ router.post('/join', async (req, res) => {
             parties.service.update(req.body.partyId, { $push: { members: req.session.mongoId } }),
             users.service.update(req.session.mongoId, { currentParty: p._id })
         ]);
-        updatePartyRank(p);
+        updatePartyRank();
         res.json(await parties.service.query({_id: req.body.partyId}, defaultPopulate));
     } else {
         return res.json({ error: 'Party is locked! or something' });
@@ -164,7 +165,7 @@ router.post('/join', async (req, res) => {
 router.post('/leave', async (req, res) => {
     const [u, p, leader] = await Promise.all([
         users.service.query({osuId: req.session.osuId}),
-        parties.service.query({_id: req.body.partyId}, defaultPopulate),
+        parties.service.query({_id: req.body.partyId}),
         parties.service.query({leader: req.session.mongoId})
     ]);
     if (leader || !p) {
@@ -177,7 +178,7 @@ router.post('/leave', async (req, res) => {
         parties.service.update(p._id, {$pull: {members: u._id}}),
         users.service.update(u._id, {currentParty: undefined})
     ]);
-    updatePartyRank(p);
+    updatePartyRank();
     res.json(await parties.service.query({ _id: p._id }, defaultPopulate));
     
     logs.service.create(req.session.osuId, `left party "${p.name}"`, p._id, 'party' );
@@ -211,7 +212,7 @@ router.post('/delete', async (req, res) => {
 router.post('/kick', async (req, res) => {    
     const [u, p] = await Promise.all([
         users.service.query({_id: req.body.user}),
-        parties.service.query({leader: req.session.mongoId}, defaultPopulate)
+        parties.service.query({leader: req.session.mongoId})
     ]);
     if (!p || !u) {
         return res.json({error: "Something went wrong!"});
@@ -226,9 +227,9 @@ router.post('/kick', async (req, res) => {
         parties.service.update(p._id, {$pull: {members: u._id}}),
         users.service.update(u._id, {currentParty: undefined})
     ]);
+    updatePartyRank();
     res.json(await parties.service.query({ _id: p._id }, defaultPopulate));
     
-    updatePartyRank(p);
     logs.service.create(req.session.osuId, `kicked "${u.username}" from party "${p.name}"`, p._id, 'party' );
     p.members.forEach(member => {
         if(member.id != req.session.mongoId){
