@@ -125,7 +125,7 @@ async function isLoggedIn(req, res, next) {
         const u = await users.service.query({ _id: req.session.mongoId });
         
         // If hidden, shouldn't be able to do anything
-        if (!u || u.group == 'hidden' || u.group != 'admin') {
+        if (!u || u.group == 'hidden') {
             return res.redirect('/');
         }
 
