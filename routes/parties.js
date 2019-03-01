@@ -12,6 +12,15 @@ var router = express.Router();
 
 router.use(api.isLoggedIn);
 
+//updating party rank when leaving/kicking/joining
+async function updatePartyRank(p){
+    var rank = 0;
+    p.members.forEach(user => {
+        rank+= user.rank;
+    });
+    await parties.service.update(p._id, {rank: Math.round(rank / p.members.length)});
+}
+
 //handling quest penalty points when leaving/kicking/deleting
 async function questPenalty(u, p, userMongoId){
     const [q, questMaps] = await Promise.all([
@@ -141,6 +150,7 @@ router.post('/join', async (req, res) => {
         return res.json({ error: 'Party is locked! or something' });
     }
 
+    updatePartyRank(p);
     logs.service.create(req.session.osuId, `joined party "${p.name}"`, p._id, 'party' );
     p.members.forEach(member => {
         if(member.id != req.session.mongoId){
@@ -169,6 +179,7 @@ router.post('/leave', async (req, res) => {
     ]);
     res.json(await parties.service.query({ _id: p._id }, defaultPopulate));
     
+    updatePartyRank(p);
     logs.service.create(req.session.osuId, `left party "${p.name}"`, p._id, 'party' );
     p.members.forEach(member => {
         notifications.service.createPartyNotification(p.id, `left your party`, member.id, req.session.mongoId, p.id);
@@ -217,6 +228,7 @@ router.post('/kick', async (req, res) => {
     ]);
     res.json(await parties.service.query({ _id: p._id }, defaultPopulate));
     
+    updatePartyRank(p);
     logs.service.create(req.session.osuId, `kicked "${u.username}" from party "${p.name}"`, p._id, 'party' );
     p.members.forEach(member => {
         if(member.id != req.session.mongoId){
