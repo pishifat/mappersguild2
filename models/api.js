@@ -139,7 +139,7 @@ async function isLoggedIn(req, res, next) {
         
         next();
     } else {
-        console.log(req)
+        console.log(req.body)
         res.redirect('/');
     }
 }
