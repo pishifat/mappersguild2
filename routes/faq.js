@@ -7,7 +7,12 @@ router.use(api.isLoggedIn);
 
 /* GET faq */
 router.get('/', async (req, res, next) => {
-	res.render('faq', { title: 'Frequently Asked Questions', isFaq: true, loggedInAs: req.session.osuId });
+	if(req.session.osuId){
+		res.render('faq', { title: 'Frequently Asked Questions', isFaq: true, loggedInAs: req.session.osuId });
+	}else{
+		res.render('faq', { title: 'Frequently Asked Questions', isFaq: true });
+	}
+	
 });
 
 module.exports = router;
