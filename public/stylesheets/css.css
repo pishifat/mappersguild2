@@ -55,6 +55,10 @@ a {
     visibility: hidden;
 }
 
+#push {
+    min-height: calc(80vh);
+}
+
 #loading {
     position: absolute;
     margin: auto;
