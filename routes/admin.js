@@ -67,7 +67,7 @@ router.get('/relevantInfo/', async (req, res) => {
 
         const [b, q, p, u, fa] = await Promise.all([
             beatmaps.service.query({}, defaultMapPopulate, defaultMapSort, true), 
-            quests.service.query({}, {}, {name: 1}, true), 
+            quests.service.query({}, {}, {status: 1, name: 1}, true), 
             parties.service.query({}, defaultPartyPopulate, {name: 1}, true), 
             users.service.query({}, defaultUserPopulate, {username: 1}, true), 
             featuredArtists.service.query({}, defaultArtistPopulate, {artist: 1}, true), 
