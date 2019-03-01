@@ -14,12 +14,12 @@ router.use(api.isLoggedIn);
 
 //updating party rank when leaving/kicking/joining
 async function updatePartyRank(id){
-    let p = await parties.service.query({_id: id}, { populate: 'members',  display: 'rank' });
+    let p = await parties.service.query({_id: id}, [{ populate: 'members',  display: 'rank' }]);
     var rank = 0;
     p.members.forEach(user => {
         rank+= user.rank;
     });
-    await parties.service.update(p._id, {rank: Math.round(rank / p.members.length)});
+    await parties.service.update(id, {rank: Math.round(rank / p.members.length)});
 }
 
 //handling quest penalty points when leaving/kicking/deleting
@@ -128,6 +128,7 @@ router.post('/create', async (req, res) => {
     }
     const p = await parties.service.create(req.body.name, req.session.mongoId);
     if(p){
+        await updatePartyRank(p._id);
         await users.service.update(req.session.mongoId, {currentParty: p._id});
         res.json(await parties.service.query({_id: p._id}, defaultPopulate));
     }
@@ -137,7 +138,7 @@ router.post('/create', async (req, res) => {
 
 /* POST join party. */
 router.post('/join', async (req, res) => {
-    const [p, isMember] = await Promise.all([
+    let [p, isMember] = await Promise.all([
         parties.service.query({_id: req.body.partyId}),
         parties.service.query({ 'members': req.session.mongoId })
     ]);
@@ -146,8 +147,9 @@ router.post('/join', async (req, res) => {
             parties.service.update(req.body.partyId, { $push: { members: req.session.mongoId } }),
             users.service.update(req.session.mongoId, { currentParty: p._id })
         ]);
-        updatePartyRank(p._id);
-        res.json(await parties.service.query({_id: req.body.partyId}, defaultPopulate));
+        await updatePartyRank(p._id);
+        p = await parties.service.query({_id: req.body.partyId}, defaultPopulate);
+        res.json(p);
     } else {
         return res.json({ error: 'Party is locked! or something' });
     }
@@ -178,7 +180,7 @@ router.post('/leave', async (req, res) => {
         parties.service.update(p._id, {$pull: {members: u._id}}),
         users.service.update(u._id, {currentParty: undefined})
     ]);
-    updatePartyRank(p._id);
+    await updatePartyRank(p._id);
     res.json(await parties.service.query({ _id: p._id }, defaultPopulate));
     
     logs.service.create(req.session.osuId, `left party "${p.name}"`, p._id, 'party' );
@@ -227,7 +229,7 @@ router.post('/kick', async (req, res) => {
         parties.service.update(p._id, {$pull: {members: u._id}}),
         users.service.update(u._id, {currentParty: undefined})
     ]);
-    updatePartyRank(p._id);
+    await updatePartyRank(p._id);
     res.json(await parties.service.query({ _id: p._id }, defaultPopulate));
     
     logs.service.create(req.session.osuId, `kicked "${u.username}" from party "${p.name}"`, p._id, 'party' );
