@@ -13,8 +13,8 @@ var router = express.Router();
 router.use(api.isLoggedIn);
 
 //updating party rank when leaving/kicking/joining
-async function updatePartyRank(){
-    let p = await parties.service.query({_id: req.body.partyId}, { populate: 'members',  display: 'rank' });
+async function updatePartyRank(id){
+    let p = await parties.service.query({_id: id}, { populate: 'members',  display: 'rank' });
     var rank = 0;
     p.members.forEach(user => {
         rank+= user.rank;
@@ -146,7 +146,7 @@ router.post('/join', async (req, res) => {
             parties.service.update(req.body.partyId, { $push: { members: req.session.mongoId } }),
             users.service.update(req.session.mongoId, { currentParty: p._id })
         ]);
-        updatePartyRank();
+        updatePartyRank(p._id);
         res.json(await parties.service.query({_id: req.body.partyId}, defaultPopulate));
     } else {
         return res.json({ error: 'Party is locked! or something' });
@@ -178,7 +178,7 @@ router.post('/leave', async (req, res) => {
         parties.service.update(p._id, {$pull: {members: u._id}}),
         users.service.update(u._id, {currentParty: undefined})
     ]);
-    updatePartyRank();
+    updatePartyRank(p._id);
     res.json(await parties.service.query({ _id: p._id }, defaultPopulate));
     
     logs.service.create(req.session.osuId, `left party "${p.name}"`, p._id, 'party' );
@@ -227,7 +227,7 @@ router.post('/kick', async (req, res) => {
         parties.service.update(p._id, {$pull: {members: u._id}}),
         users.service.update(u._id, {currentParty: undefined})
     ]);
-    updatePartyRank();
+    updatePartyRank(p._id);
     res.json(await parties.service.query({ _id: p._id }, defaultPopulate));
     
     logs.service.create(req.session.osuId, `kicked "${u.username}" from party "${p.name}"`, p._id, 'party' );
