@@ -91,7 +91,7 @@ router.get('/callback', async (req, res) => {
                 req.session.osuId = response.id;
                 res.redirect('/login');
             }else{
-                res.status(403).render('error', { message: 'You did not meet the requirements!' });
+                res.render('index', { title: `Mappers' Guild`, isIndex: true, belowRequirements: true });
             }
         }
     }
