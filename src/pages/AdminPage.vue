@@ -11,7 +11,7 @@
             </thead>
             <tbody>
                 <tr v-for="log in logs" :key="log.id">
-                    <td scope="row" style="padding: 1px;">{{log.user.username}}</td>
+                    <td scope="row" style="padding: 1px;">{{log.user ? log.user.username : '' }}</td>
                     <td scope="row" style="padding: 1px;">{{log.action}}</td>
                     <td scope="row" style="padding: 1px;">{{log.createdAt}}</td>
                 </tr>
@@ -819,7 +819,7 @@ export default {
                 this.parties = response.data.p;
                 this.users = response.data.u;
                 this.featuredArtists = response.data.fa;
-                this.logs = response.data.logs;
+                this.logs = response.data.l;
             }).then(function(){
                 $("#loading").fadeOut();
 				$("#app").attr("style", "visibility: visible").hide().fadeIn();

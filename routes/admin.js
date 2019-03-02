@@ -71,10 +71,10 @@ router.get('/relevantInfo/', async (req, res) => {
             featuredArtists.service.query({}, defaultArtistPopulate, {artist: 1}, true),             
             logs.service.query({ category: 'error' }, [{
                 populate: 'user', display: 'username'
-            }])
+            }], {}, true)
         ]);
     
-        res.json({b: b, q: q, p: p, u: u, fa: fa, logs: l});   
+        res.json({b: b, q: q, p: p, u: u, fa: fa, l: l});   
     }
 });
 
@@ -92,7 +92,7 @@ router.post('/updateMapStatus/:id', async (req, res) => {
         b = await beatmaps.service.query({_id: req.params.id}, defaultMapPopulate);
         res.json(b);
         
-        logs.service.create(req.session.osuId, `set status of "${b.song.artist} - ${b.song.title}" to "${req.body.status}"`, req.params.id, 'beatmap' );
+        logs.service.create(req.session.mongoId, `set status of "${b.song.artist} - ${b.song.title}" to "${req.body.status}"`, req.params.id, 'beatmap' );
     }
 });
 
@@ -107,7 +107,7 @@ router.post('/removeDiff/:id', async (req, res) => {
         b = await beatmaps.service.query({ _id: req.params.id }, defaultMapPopulate);
         res.json(b);
         
-        logs.service.create(req.session.osuId, `removed "${t.name}" from "${b.song.artist} - ${b.song.title}"`, req.body.id, 'beatmap' );
+        logs.service.create(req.session.mongoId, `removed "${t.name}" from "${b.song.artist} - ${b.song.title}"`, req.body.id, 'beatmap' );
     }
 });
 
@@ -120,7 +120,7 @@ router.post('/removeModder/:id', async (req, res) => {
         b = await beatmaps.service.query({_id: req.params.id}, defaultMapPopulate);
         res.json(b);
         
-        logs.service.create(req.session.osuId, `removed "${u.username}" from modders on "${b.song.artist} - ${b.song.title}"`, req.body.id, 'beatmap' );
+        logs.service.create(req.session.mongoId, `removed "${u.username}" from modders on "${b.song.artist} - ${b.song.title}"`, req.body.id, 'beatmap' );
     }
 });
 
@@ -134,7 +134,7 @@ router.post('/removeNominator/:id', async (req, res) => {
         b = await beatmaps.service.query({_id: req.params.id}, defaultMapPopulate);
         res.json(b);
         
-        logs.service.create(req.session.osuId, `removed "${u.username}" from Nominators on "${b.song.artist} - ${b.song.title}"`, req.body.id, 'beatmap' );
+        logs.service.create(req.session.mongoId, `removed "${u.username}" from Nominators on "${b.song.artist} - ${b.song.title}"`, req.body.id, 'beatmap' );
     }
 });
 
@@ -145,7 +145,7 @@ router.post('/updateMapUrl/:id', async (req, res) => {
         b = await beatmaps.service.query({_id: req.params.id}, defaultMapPopulate);
         res.json(b);
         
-        logs.service.create(req.session.osuId, `updated link on "${b.song.artist} - ${b.song.title}"`, req.body.id, 'beatmap' );
+        logs.service.create(req.session.mongoId, `updated link on "${b.song.artist} - ${b.song.title}"`, req.body.id, 'beatmap' );
     }
 });
 
@@ -157,7 +157,7 @@ router.post('/deleteMap/:id', async (req, res) => {
         
         res.json(`deleted "${b.song.artist} - ${b.song.title}"`);
         
-        logs.service.create(req.session.osuId, `deleted "${b.song.artist} - ${b.song.title}"`, req.params.id, 'beatmap' );
+        logs.service.create(req.session.mongoId, `deleted "${b.song.artist} - ${b.song.title}"`, req.params.id, 'beatmap' );
     }
 });
 
@@ -169,7 +169,7 @@ router.post('/createQuest', async (req, res) => {
     if(req.session.osuId == 3178418 || req.session.osuId == 1052994){
         var quest = await quests.service.create(req.body);
         if (quest) {
-            logs.service.create(req.session.osuId, `created quest ${quest.name}`, quest._id, 'quest' );
+            logs.service.create(req.session.mongoId, `created quest ${quest.name}`, quest._id, 'quest' );
             api.webhookPost(`Quest '${quest.name}' was just created!`);
             res.send(quest);
         }
@@ -204,7 +204,7 @@ router.post('/forceDropQuest/:id', async (req, res) => {
             }
         }
         quest = await quests.service.query({_id: req.params.id});
-        logs.service.create(req.session.osuId, `forced party "${party.name}" to drop quest "${quest.name}"`, req.params.id, 'quest' );
+        logs.service.create(req.session.mongoId, `forced party "${party.name}" to drop quest "${quest.name}"`, req.params.id, 'quest' );
         
         res.json(quest);
     }
@@ -221,7 +221,7 @@ router.post('/completeQuest/:id', async (req, res) => {
             await quests.service.update(quest._id, {completed: new Date()});
             await parties.service.update(party._id, {currentQuest: undefined});
             
-            logs.service.create(req.session.osuId, `marked quest "${quest.name}" as complete`, req.params.id, 'quest' );
+            logs.service.create(req.session.mongoId, `marked quest "${quest.name}" as complete`, req.params.id, 'quest' );
             api.webhookPost(`Quest '${quest.name}' was compleated!`);
             quest = await quests.service.query({_id: req.params.id});
             res.json(quest);
@@ -236,7 +236,7 @@ router.post('/hideQuest/:id', async (req, res) => {
         let quest = await quests.service.query({_id: req.params.id});
         res.json(quest);
         
-        logs.service.create(req.session.osuId, `hid a quest`, req.params.id, 'quest' );
+        logs.service.create(req.session.mongoId, `hid a quest`, req.params.id, 'quest' );
     }
 });
 
@@ -247,7 +247,7 @@ router.post('/unhideQuest/:id', async (req, res) => {
         let quest = await quests.service.query({_id: req.params.id});
         res.json(quest);
         
-        logs.service.create(req.session.osuId, `opened a quest`, req.params.id, 'quest' );
+        logs.service.create(req.session.mongoId, `opened a quest`, req.params.id, 'quest' );
     }
 });
 
@@ -259,7 +259,7 @@ router.post('/deleteQuest/:id', async (req, res) => {
             await quests.service.remove(req.params.id);
             res.json("deleted quest");
             
-            logs.service.create(req.session.osuId, `deleted a quest`, req.params.id, 'quest' );
+            logs.service.create(req.session.mongoId, `deleted a quest`, req.params.id, 'quest' );
         }else{
             res.json({})
         }
@@ -283,7 +283,7 @@ router.post('/updatePartyRanks', async (req, res) => {
             
         }
 
-        logs.service.create(req.session.osuId, `updated party ranks`, null, 'party' );
+        logs.service.create(req.session.mongoId, `updated party ranks`, null, 'party' );
         res.json("party ranks updated");
         
     }
@@ -296,7 +296,7 @@ router.post('/renameParty/:id', async (req, res) => {
         let p = await parties.service.update(req.params.id, {name: req.body.name});
         p = await parties.service.query({_id: req.params.id}, defaultPartyPopulate)
 
-        logs.service.create(req.session.osuId, `renamed party from "${p.name}" to "${req.body.name}"`, req.params.id, 'party' );
+        logs.service.create(req.session.mongoId, `renamed party from "${p.name}" to "${req.body.name}"`, req.params.id, 'party' );
         res.json(p);
     }
 });
@@ -356,7 +356,7 @@ router.post('/removeMember/:id', async (req, res) => {
 
         party = await parties.service.query({_id: req.params.id}, defaultPartyPopulate);
 
-        logs.service.create(req.session.osuId, `removed "${user.username}" from party "${party.name}"`, req.params.id, 'party' );
+        logs.service.create(req.session.mongoId, `removed "${user.username}" from party "${party.name}"`, req.params.id, 'party' );
         res.json(party);
     }
 });
@@ -367,7 +367,7 @@ router.post('/transferLeader/:id', async (req, res) => {
         let p = await parties.service.update(req.params.id, {leader: req.body.userId});
         p = await parties.service.query({_id: req.params.id}, defaultPartyPopulate)
 
-        logs.service.create(req.session.osuId, `transferred party leader to "${p.leader.username}" in party "${p.name}"`, req.params.id, 'party' );
+        logs.service.create(req.session.mongoId, `transferred party leader to "${p.leader.username}" in party "${p.name}"`, req.params.id, 'party' );
         res.json(p);
     }
 });
@@ -378,7 +378,7 @@ router.post('/editBanner/:id', async (req, res) => {
         let p = await parties.service.update(req.params.id, {art: req.body.banner});
         p = await parties.service.query({_id: req.params.id}, defaultPartyPopulate)
 
-        logs.service.create(req.session.osuId, `edited banner of party "${p.name}"`, req.params.id, 'party' );
+        logs.service.create(req.session.mongoId, `edited banner of party "${p.name}"`, req.params.id, 'party' );
         res.json(p);
     }
 });
@@ -397,7 +397,7 @@ router.post('/deleteParty/:id', async (req, res) => {
         });
         
         await parties.service.remove(req.params.id);
-        logs.service.create(req.session.osuId, `deleted party "${party.name}"`, req.params.id, 'party' );
+        logs.service.create(req.session.mongoId, `deleted party "${party.name}"`, req.params.id, 'party' );
         res.json("Party deleted");
     }
 });
@@ -413,7 +413,7 @@ router.post('/updateUserGroup/:id', async (req, res) => {
         let user = await users.service.query({_id: req.params.id});
         let success = await users.service.update(req.params.id, {group: req.body.group});
         if(success){
-            logs.service.create(req.session.osuId, `user group of "${user.username}" set to "${req.body.group}"`, req.params.id, 'user' );
+            logs.service.create(req.session.mongoId, `user group of "${user.username}" set to "${req.body.group}"`, req.params.id, 'user' );
             user = await users.service.query({_id: req.params.id}, defaultUserPopulate)
             res.json(user);
         } 
@@ -426,7 +426,7 @@ router.post('/updatePenaltyPoints/:id', async (req, res) => {
         let user = await users.service.query({_id: req.params.id});
         let success = await users.service.update(req.params.id, {penaltyPoints: req.body.points});
         if(success){
-            logs.service.create(req.session.osuId, `edited penalty points of "${user.username}" to ${req.body.points}`, req.params.id, 'user' );
+            logs.service.create(req.session.mongoId, `edited penalty points of "${user.username}" to ${req.body.points}`, req.params.id, 'user' );
             user = await users.service.query({_id: req.params.id}, defaultUserPopulate)
             res.json(user);
         } 
@@ -548,7 +548,7 @@ router.post('/addArtist/:label', async (req, res) => {
 
         res.json(`${fa.label} added`);
 
-        logs.service.create(req.session.osuId, `added "${fa.label}" to the Featured Artist database`, fa._id, 'artist' );
+        logs.service.create(req.session.mongoId, `added "${fa.label}" to the Featured Artist database`, fa._id, 'artist' );
     }
 });
 
@@ -559,7 +559,7 @@ router.post('/renameLabel/:id', async (req, res) => {
         fa = await featuredArtists.service.query({_id: req.params.id}, defaultArtistPopulate)
 
         res.json(fa);
-        logs.service.create(req.session.osuId, `renamed a featured artist`, fa._id, 'artist' );
+        logs.service.create(req.session.mongoId, `renamed a featured artist`, fa._id, 'artist' );
     }
 });
 
@@ -571,7 +571,7 @@ router.post('/addSong/:id', async (req, res) => {
         fa = await featuredArtists.service.query({_id: req.params.id}, defaultArtistPopulate);
 
         res.json(fa);
-        logs.service.create(req.session.osuId, `added "${req.body.artist} - ${req.body.title}" to the Featured Artist songs database`, fa._id, 'artist' );
+        logs.service.create(req.session.mongoId, `added "${req.body.artist} - ${req.body.title}" to the Featured Artist songs database`, fa._id, 'artist' );
     }
 });
 
@@ -583,7 +583,7 @@ router.post('/removeSong/:id', async (req, res) => {
         let fa = await featuredArtists.service.query({_id: req.params.id}, defaultArtistPopulate);
         res.json(fa);
 
-        logs.service.create(req.session.osuId, `removed a song from the Featured Artist database`, fa._id, 'artist' );
+        logs.service.create(req.session.mongoId, `removed a song from the Featured Artist database`, fa._id, 'artist' );
     }
 });
 
@@ -596,7 +596,7 @@ router.post('/updateMetadata/:id', async (req, res) => {
         let fa = await featuredArtists.service.query({_id: req.params.id}, defaultArtistPopulate);
         res.json(fa);
 
-        logs.service.create(req.session.osuId, `edited a song's metadata`, fa._id, 'artist' );
+        logs.service.create(req.session.mongoId, `edited a song's metadata`, fa._id, 'artist' );
     }
 });
 

@@ -148,7 +148,7 @@ router.post('/acceptCollab/:id', async (req, res) => {
 
     let t = await tasks.service.update(invite.modified._id, { $push: { mappers: req.session.mongoId } });
 
-    logs.service.create(req.session.osuId, `added as collab mapper to "${t.name}" on "${b.song.artist} - ${b.song.title}"`, b._id, 'beatmap' );
+    logs.service.create(req.session.mongoId, `added as collab mapper to "${t.name}" on "${b.song.artist} - ${b.song.title}"`, b._id, 'beatmap' );
     notifications.service.create(t.id, `accepted your invite to collaborate on the "${t.name}" difficulty on your mapset`, invite.sender, invite.recipient, b.id);
 });
 
@@ -184,7 +184,7 @@ router.post('/acceptHost/:id', async (req, res) => {
     }
     await beatmaps.service.update(b._id, {host: req.session.mongoId})
 
-    logs.service.create(req.session.osuId, `became host of "${b.song.artist} - ${b.song.title}"`, b._id, 'beatmap' );
+    logs.service.create(req.session.mongoId, `became host of "${b.song.artist} - ${b.song.title}"`, b._id, 'beatmap' );
     notifications.service.create(b.id, `accepted the invite to host your mapset`, invite.sender, invite.recipient, b.id);
 });
 
@@ -207,7 +207,7 @@ router.post('/acceptDiff/:id', async (req, res) => {
     await beatmaps.service.update(invite.map.id, { $push: {tasks: t._id } });
     b = await beatmaps.service.query({_id: invite.map.id}, defaultMapPopulate);
 
-    logs.service.create(req.session.osuId, `added "${invite.taskName}" difficulty to "${b.song.artist} - ${b.song.title}"`, b._id, 'beatmap' );
+    logs.service.create(req.session.mongoId, `added "${invite.taskName}" difficulty to "${b.song.artist} - ${b.song.title}"`, b._id, 'beatmap' );
     notifications.service.create(b.id, `accepted the invite to create a difficulty on your mapset`, invite.sender, invite.recipient, b.id);
 });
 
@@ -234,7 +234,7 @@ router.post('/acceptJoin/:id', async (req, res) => {
 
     await parties.service.update(invite.party.id, { $push: { members: req.session.mongoId } });
     await users.service.update(req.session.mongoId, {currentParty: invite.party.id});
-    logs.service.create(req.session.osuId, `joined the party "${p.name}"`, p._id, 'party' );
+    logs.service.create(req.session.mongoId, `joined the party "${p.name}"`, p._id, 'party' );
     notifications.service.createPartyNotification(p.id, `accepted the invite to join your party`, invite.sender, invite.recipient, p.id);
 });
 

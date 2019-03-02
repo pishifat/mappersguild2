@@ -199,7 +199,7 @@ router.post('/create', async (req, res) => {
     res.json(b);
 
     logs.service.create(
-        req.session.osuId,
+        req.session.mongoId,
         `created new map "${b.song.artist} - ${b.song.title}"`,
         b._id,
         'beatmap'
@@ -232,7 +232,7 @@ router.post('/addTask/:mapId', isValidBeatmap, async (req, res) => {
     res.json(b);
 
     logs.service.create(
-        req.session.osuId,
+        req.session.mongoId,
         `added "${req.body.difficulty}" difficulty to "${b.song.artist} - ${b.song.title}"`,
         b._id,
         'beatmap'
@@ -265,7 +265,7 @@ router.post('/removeTask/:id', async (req, res) => {
     res.json(b);
 
     logs.service.create(
-        req.session.osuId,
+        req.session.mongoId,
         `removed "${t.name}" from "${b.song.artist} - ${b.song.title}"`,
         b._id,
         'beatmap'
@@ -332,7 +332,7 @@ router.post('/task/:taskId/removeCollab', async (req, res) => {
     res.json(b);
 
     logs.service.create(
-        req.session.osuId,
+        req.session.mongoId,
         `removed "${u.username}" from collab mapper of "${t.name}" on "${b.song.artist} - ${
             b.song.title
         }"`,
@@ -356,7 +356,7 @@ router.post('/setTaskStatus/:taskId', async (req, res) => {
     res.json(b);
 
     logs.service.create(
-        req.session.osuId,
+        req.session.mongoId,
         `changed status of "${t.name}" on "${b.song.artist} - ${b.song.title}"`,
         b._id,
         'beatmap'
@@ -394,7 +394,7 @@ router.post('/updateModder/:mapId', async (req, res) => {
 
     if (isAlreadyModder) {
         logs.service.create(
-            req.session.osuId,
+            req.session.mongoId,
             `removed from modder list on "${b.song.artist} - ${b.song.title}"`,
             b._id,
             'beatmap'
@@ -408,7 +408,7 @@ router.post('/updateModder/:mapId', async (req, res) => {
         );
     } else {
         logs.service.create(
-            req.session.osuId,
+            req.session.mongoId,
             `modded "${b.song.artist} - ${b.song.title}"`,
             b._id,
             'beatmap'
@@ -454,7 +454,7 @@ router.post('/updateBn/:mapId', api.isBn, isValidBeatmap, async (req, res) => {
 
     if (isAlreadyBn) {
         logs.service.create(
-            req.session.osuId,
+            req.session.mongoId,
             `removed from Beatmap Nominator list on "${b.song.artist} - ${b.song.title}"`,
             b._id,
             'beatmap'
@@ -468,7 +468,7 @@ router.post('/updateBn/:mapId', api.isBn, isValidBeatmap, async (req, res) => {
         );
     } else {
         logs.service.create(
-            req.session.osuId,
+            req.session.mongoId,
             `added to Beatmap Nominator list on "${b.song.artist} - ${b.song.title}"`,
             b._id,
             'beatmap'
@@ -492,7 +492,7 @@ router.post('/setMode/:mapId', isValidBeatmap, isBeatmapHost, async (req, res) =
     res.json(b);
 
     logs.service.create(
-        req.session.osuId,
+        req.session.mongoId,
         `changed mode of "${b.song.artist} - ${b.song.title}" to "${req.body.mode}"`,
         b._id,
         'beatmap'
@@ -523,7 +523,7 @@ router.post('/setStatus/:mapId', isValidBeatmap, isBeatmapHost, async (req, res)
     res.json(b);
 
     logs.service.create(
-        req.session.osuId,
+        req.session.mongoId,
         `changed status of "${b.song.artist} - ${b.song.title}"`,
         b._id,
         'beatmap'
@@ -614,7 +614,7 @@ router.post('/setQuest/:mapId', isValidBeatmap, isBeatmapHost, async (req, res) 
     res.json(b);
 
     logs.service.create(
-        req.session.osuId,
+        req.session.mongoId,
         `linked quest to "${b.song.artist} - ${b.song.title}"`,
         b._id,
         'beatmap'
@@ -628,7 +628,7 @@ router.post('/unsetQuest/:mapId', isValidBeatmap, isBeatmapHost, async (req, res
     b = await beatmaps.service.query({ _id: req.params.mapId }, defaultPopulate);
     res.json(b);
     logs.service.create(
-        req.session.osuId,
+        req.session.mongoId,
         `unlinked quest from "${b.song.artist} - ${b.song.title}"`,
         b._id,
         'beatmap'
@@ -651,7 +651,7 @@ router.post('/setLink/:mapId', isValidBeatmap, isBeatmapHost, async (req, res) =
     res.json(b);
 
     logs.service.create(
-        req.session.osuId,
+        req.session.mongoId,
         `edited link on "${b.song.artist} - ${b.song.title}"`,
         b._id,
         'beatmap'
@@ -668,7 +668,7 @@ router.post('/lockTask/:mapId', isValidBeatmap, isBeatmapHost, async (req, res) 
     res.json(b);
 
     logs.service.create(
-        req.session.osuId,
+        req.session.mongoId,
         `locked claims for "${req.body.difficulty}" on "${b.song.artist} - ${b.song.title}"`,
         b._id,
         'beatmap'
@@ -685,7 +685,7 @@ router.post('/unlockTask/:mapId', isValidBeatmap, isBeatmapHost, async (req, res
     res.json(b);
 
     logs.service.create(
-        req.session.osuId,
+        req.session.mongoId,
         `unlocked claims for "${req.body.difficulty}" on "${b.song.artist} - ${b.song.title}"`,
         b._id,
         'beatmap'
@@ -702,7 +702,7 @@ router.post('/delete/:mapId', isValidBeatmap, isBeatmapHost, async (req, res) =>
     res.json(b);
 
     logs.service.create(
-        req.session.osuId,
+        req.session.mongoId,
         `deleted "${b.song.artist} - ${b.song.title}"`,
         b._id,
         'beatmap'

@@ -31,7 +31,7 @@ router.get('/more/:skip', async (req, res, next) => {
 
 /* POST creates a test log */
 router.post("/create", async (req, res, next) => {
-	const log = await logs.service.create(req.session.osuId, req.body.action, req.body.modified, req.body.category );
+	const log = await logs.service.create(req.session.mongoId, req.body.action, req.body.modified, req.body.category );
 
 	if (log) {
 		res.json(log);

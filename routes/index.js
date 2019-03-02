@@ -31,7 +31,7 @@ router.get('/login', async (req, res, next) => {
             if (user && !user.error) {
                 req.session.mongoId = user._id;
                 api.webhookPost(`${user.username} joined the guild!`);
-                logs.service.create(req.session.osuId, `joined the Mappers' Guild`, user._id, 'user');
+                logs.service.create(req.session.mongoId, `joined the Mappers' Guild`, user._id, 'user');
                 return next();
             } else {
                 return res.status(500).render('error', { message: 'Something went wrong!' });

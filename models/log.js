@@ -48,8 +48,7 @@ class LogService
     }
 
     async create(userId, action, modified, category) {
-        let user = await User.service.query({osuId: userId});
-        var log = new Log({ user: user, action: action, modified: modified, category: category });
+        const log = new Log({ user: userId, action: action, modified: modified, category: category });
         try {
             return await log.save();
         } catch(err) {

@@ -133,7 +133,7 @@ router.post('/create', async (req, res) => {
         res.json(await parties.service.query({_id: p._id}, defaultPopulate));
     }
 
-    logs.service.create(req.session.osuId, `created party "${p.name}"`, p._id, 'party' );
+    logs.service.create(req.session.mongoId, `created party "${p.name}"`, p._id, 'party' );
 });
 
 /* POST join party. */
@@ -154,7 +154,7 @@ router.post('/join', async (req, res) => {
         return res.json({ error: 'Party is locked! or something' });
     }
 
-    logs.service.create(req.session.osuId, `joined party "${p.name}"`, p._id, 'party' );
+    logs.service.create(req.session.mongoId, `joined party "${p.name}"`, p._id, 'party' );
     p.members.forEach(member => {
         if(member.id != req.session.mongoId){
             notifications.service.create(p.id, `joined your party`, member.id, req.session.mongoId);
@@ -183,7 +183,7 @@ router.post('/leave', async (req, res) => {
     await updatePartyRank(p._id);
     res.json(await parties.service.query({ _id: p._id }, defaultPopulate));
     
-    logs.service.create(req.session.osuId, `left party "${p.name}"`, p._id, 'party' );
+    logs.service.create(req.session.mongoId, `left party "${p.name}"`, p._id, 'party' );
     p.members.forEach(member => {
         notifications.service.createPartyNotification(p.id, `left your party`, member.id, req.session.mongoId, p.id);
     });
@@ -207,7 +207,7 @@ router.post('/delete', async (req, res) => {
         res.json(success);
     }
 
-    logs.service.create(req.session.osuId, `deleted party "${p.name}"`, p._id, 'party' );
+    logs.service.create(req.session.mongoId, `deleted party "${p.name}"`, p._id, 'party' );
 });
 
 /* POST kick member. */
@@ -232,7 +232,7 @@ router.post('/kick', async (req, res) => {
     await updatePartyRank(p._id);
     res.json(await parties.service.query({ _id: p._id }, defaultPopulate));
     
-    logs.service.create(req.session.osuId, `kicked "${u.username}" from party "${p.name}"`, p._id, 'party' );
+    logs.service.create(req.session.mongoId, `kicked "${u.username}" from party "${p.name}"`, p._id, 'party' );
     p.members.forEach(member => {
         if(member.id != req.session.mongoId){
             notifications.service.createPartyNotification(p.id, `kicked ${u.username} from your party`, member, req.session.mongoId, p.id);
@@ -253,7 +253,7 @@ router.post('/transferLeader', async (req, res) => {
         await parties.service.update(p._id, {leader: u._id});
         res.json(await parties.service.query({ _id: p._id }, defaultPopulate));
 
-        logs.service.create(req.session.osuId, `transferred party leader to "${u.username}" in party "${p.name}"`, p._id, 'party' );
+        logs.service.create(req.session.mongoId, `transferred party leader to "${u.username}" in party "${p.name}"`, p._id, 'party' );
         p.members.forEach(member => {
             if(member.id != req.session.mongoId){
                 notifications.service.createPartyNotification(p.id, `was promoted to leader in your party`, member, u.id, p.id);
@@ -279,7 +279,7 @@ router.post('/rename', async (req, res) => {
     }
     await parties.service.update(p._id, {name: req.body.newName});
     res.json(await parties.service.query({ _id: p._id }, defaultPopulate));
-    logs.service.create(req.session.osuId, `renamed party from "${p.name}" to "${req.body.newName}"`, p._id, 'party' );
+    logs.service.create(req.session.mongoId, `renamed party from "${p.name}" to "${req.body.newName}"`, p._id, 'party' );
 });
 
 /* POST switch party lock */
@@ -290,7 +290,7 @@ router.post('/switchLock', async (req, res) => {
     }
     await parties.service.update(p._id, {lock: !p.lock});
     res.json(await parties.service.query({ _id: p._id }, defaultPopulate));
-    logs.service.create(req.session.osuId, `${p.lock ? "unlocked" : "locked"} admissions to party "${p.name}"`, p._id, 'party' );
+    logs.service.create(req.session.mongoId, `${p.lock ? "unlocked" : "locked"} admissions to party "${p.name}"`, p._id, 'party' );
 });
 
 /* POST add banner */
@@ -314,7 +314,7 @@ router.post('/addBanner', async (req, res) => {
 			.then(async function() {
                 await parties.service.update(p._id, {art: idUrl});
                 res.json(await parties.service.query({ _id: p._id }, defaultPopulate));        
-                logs.service.create(req.session.osuId, `added banner on party "${p.name}"`, p._id, 'party' );
+                logs.service.create(req.session.mongoId, `added banner on party "${p.name}"`, p._id, 'party' );
             })
             .catch(err => {
                 if(err.response.status == 404){
