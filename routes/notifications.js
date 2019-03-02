@@ -233,6 +233,7 @@ router.post('/acceptJoin/:id', async (req, res) => {
     res.json(invite);
 
     await parties.service.update(invite.party.id, { $push: { members: req.session.mongoId } });
+    await users.service.update(req.session.mongoId, {currentParty: invite.party.id});
     logs.service.create(req.session.osuId, `joined the party "${p.name}"`, p._id, 'party' );
     notifications.service.createPartyNotification(p.id, `accepted the invite to join your party`, invite.sender, invite.recipient, p.id);
 });
