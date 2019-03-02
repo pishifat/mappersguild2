@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const logs = require('./log');
 
 var questSchema = new mongoose.Schema({
     name: { type: String, required: true },
@@ -69,6 +70,7 @@ class QuestService
         try {
             return await query.exec();
         } catch(error) {
+            logs.service.create(null, error, null, 'error'); 
             return { error: error._message };
         }
     }
@@ -77,11 +79,11 @@ class QuestService
         try {
             return await Quest.findByIdAndUpdate(id, update, { 'new': true });
         } catch(error) {
+            logs.service.create(null, error, null, 'error'); 
             return { error: error._message };
         }
     }
 
-    
     async create(body) {
         var quest = new Quest({ 
             name: body.name, 
@@ -100,8 +102,8 @@ class QuestService
         try {
             await quest.save();
             return quest;
-        } catch(err) {
-            console.log(err);
+        } catch(error) {
+            logs.service.create(null, error, null, 'error'); 
         }
     }
 
@@ -109,6 +111,7 @@ class QuestService
         try {
             return await Quest.findByIdAndDelete(id);
         } catch(error) {
+            logs.service.create(null, error, null, 'error'); 
             return { error: error._message };
         }
     }

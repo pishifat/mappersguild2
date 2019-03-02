@@ -52,28 +52,29 @@ const defaultArtistPopulate = [
 /* GET admin page */
 router.get('/', async (req, res, next) => {
     if(req.session.osuId == 3178418 || req.session.osuId == 1052994){
-        
-
         res.render('admins', { 
             title: 'Admin', 
             script: '../javascripts/admin.js', 
-            loggedInAs: req.session.osuId });
+            loggedInAs: req.session.osuId }
+        );
     }
 });
 
 /* GET relevant info for page load */
 router.get('/relevantInfo/', async (req, res) => {
     if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
-
-        const [b, q, p, u, fa] = await Promise.all([
+        const [b, q, p, u, fa, l] = await Promise.all([
             beatmaps.service.query({}, defaultMapPopulate, defaultMapSort, true), 
             quests.service.query({}, {}, {status: 1, name: 1}, true), 
             parties.service.query({}, defaultPartyPopulate, {name: 1}, true), 
             users.service.query({}, defaultUserPopulate, {username: 1}, true), 
-            featuredArtists.service.query({}, defaultArtistPopulate, {artist: 1}, true), 
+            featuredArtists.service.query({}, defaultArtistPopulate, {artist: 1}, true),             
+            logs.service.query({ category: 'error' }, [{
+                populate: 'user', display: 'username'
+            }])
         ]);
     
-        res.json({b: b, q: q, p: p, u: u, fa: fa});   
+        res.json({b: b, q: q, p: p, u: u, fa: fa, logs: l});   
     }
 });
 
@@ -169,6 +170,7 @@ router.post('/createQuest', async (req, res) => {
         var quest = await quests.service.create(req.body);
         if (quest) {
             logs.service.create(req.session.osuId, `created quest ${quest.name}`, quest._id, 'quest' );
+            api.webhookPost(`Quest '${quest.name}' was just created!`);
             res.send(quest);
         }
     }
@@ -220,6 +222,7 @@ router.post('/completeQuest/:id', async (req, res) => {
             await parties.service.update(party._id, {currentQuest: undefined});
             
             logs.service.create(req.session.osuId, `marked quest "${quest.name}" as complete`, req.params.id, 'quest' );
+            api.webhookPost(`Quest '${quest.name}' was compleated!`);
             quest = await quests.service.query({_id: req.params.id});
             res.json(quest);
         }

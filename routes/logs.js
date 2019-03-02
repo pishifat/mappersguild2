@@ -12,7 +12,13 @@ router.get('/', async (req, res, next) => {
 		{ populate: 'user',  display: 'username' }
 	];
 
-	res.render('logs', { title: 'Logs', script: '../js/logs.js', isLogs: true, logs: await logs.service.query({}, populate, {createdAt: -1}, true, 100), loggedInAs: req.session.osuId });
+	res.render('logs', { 
+		title: 'Logs', 
+		script: '../js/logs.js', 
+		isLogs: true, 
+		logs: await logs.service.query({ category: { $ne: 'error' }}, populate, {createdAt: -1}, true, 100), 
+		loggedInAs: req.session.osuId 
+	});
 });
 
 router.get('/more/:skip', async (req, res, next) => {

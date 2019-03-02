@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const logs = require('./log');
 
 var userSchema = new mongoose.Schema({
     osuId: { type: Number, required: true, unique: true },
@@ -53,6 +54,7 @@ class UserService
         try {
             return await query.exec();
         } catch(error) {
+            logs.service.create(null, error, null, 'error'); 
             return { error: error._message };
         }
     }
@@ -61,6 +63,7 @@ class UserService
         try {
             return await User.findByIdAndUpdate(id, update, { 'new': true });
         } catch(error) {
+            logs.service.create(null, error, null, 'error'); 
             return { error: error._message };
         }
     }
@@ -72,6 +75,7 @@ class UserService
             try {
                 return await User.create({ osuId: osuId, username: username });
             } catch(error) {
+                logs.service.create(null, error, null, 'error'); 
                 return { error: error._message }
             }
         } else {

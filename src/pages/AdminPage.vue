@@ -2,6 +2,22 @@
 <div>
 <div class="row">
     <div class="col-md-12">
+        <h2>Errors</h2> 
+        <table class="small table">
+            <thead>
+                <th scope="col" style="padding: 2px;">user</th>
+                <th scope="col" style="padding: 2px;">error</th>
+                <th scope="col" style="padding: 2px;">date</th>
+            </thead>
+            <tbody>
+                <tr v-for="log in logs" :key="log.id">
+                    <td scope="row" style="padding: 1px;">{{log.user.username}}</td>
+                    <td scope="row" style="padding: 1px;">{{log.action}}</td>
+                    <td scope="row" style="padding: 1px;">{{log.createdAt}}</td>
+                </tr>
+            </tbody>
+        </table>
+
         <h2>Beatmaps</h2> 
         <table class="small table">
             <thead>
@@ -785,6 +801,7 @@ export default {
             parties: null,
             users: null,
             featuredArtists: null,
+            logs: null,
             selectedMap: null,
             selectedQuest: null,
             selectedParty: null,
@@ -802,6 +819,7 @@ export default {
                 this.parties = response.data.p;
                 this.users = response.data.u;
                 this.featuredArtists = response.data.fa;
+                this.logs = response.data.logs;
             }).then(function(){
                 $("#loading").fadeOut();
 				$("#app").attr("style", "visibility: visible").hide().fadeIn();

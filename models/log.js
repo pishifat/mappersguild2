@@ -6,7 +6,6 @@ var logSchema = new mongoose.Schema({
     action: { type: String, required: true },
     modified: { type: 'ObjectId' },
     category: {type: String, required: true },
-
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 var Log = mongoose.model('Log', logSchema);

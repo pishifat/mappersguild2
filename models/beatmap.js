@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const logs = require('./log');
 
 const beatmapSchema = new mongoose.Schema({
     song: { type: 'ObjectId', ref: 'FeaturedSong' },
@@ -45,6 +46,7 @@ class BeatmapService
         try {
             return await query.exec();
         } catch(error) {
+            logs.service.create(null, error, null, 'error');
             return { error: error._message };
         }
     }
@@ -53,6 +55,7 @@ class BeatmapService
         try {
             return await Beatmap.findByIdAndUpdate(id, update, { 'new': true });
         } catch(error) {
+            logs.service.create(null, error, null, 'error');
             return { error: error._message };
         }
     }
@@ -61,6 +64,7 @@ class BeatmapService
         try {
             return await Beatmap.findByIdAndRemove(id);
         } catch(error) {
+            logs.service.create(null, error, null, 'error');
             return { error: error._message };
         }
     }
@@ -74,6 +78,7 @@ class BeatmapService
                 song: song
             });
         } catch(error) {
+            logs.service.create(null, error, null, 'error');
             return { error: error._message };
         }
     }

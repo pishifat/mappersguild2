@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const logs = require('./log');
 
 var notificationSchema = new mongoose.Schema({
     recipient: { type: 'ObjectId', ref: 'User', required: true },
@@ -43,6 +44,7 @@ class NotificationService
         try {
             return await query.exec();
         } catch(error) {
+            logs.service.create(null, error, null, 'error'); 
             return { error: error._message };
         }
     }
@@ -51,6 +53,7 @@ class NotificationService
         try {
             return await Notification.findByIdAndUpdate(id, update, { 'new': true });
         } catch(error) {
+            logs.service.create(null, error, null, 'error'); 
             return { error: error._message };
         }
     }
@@ -59,8 +62,8 @@ class NotificationService
         var notification = new Notification({ modified: modified, info: info, recipient: recipient, sender: sender, map: map });
         try {
             return await notification.save();
-        } catch(err) {
-            console.log(err);
+        } catch(error) {
+            logs.service.create(null, error, null, 'error'); 
         }
     }
 
@@ -68,8 +71,8 @@ class NotificationService
         var notification = new Notification({ modified: modified, info: info, recipient: recipient, sender: sender, party: party });
         try {
             return await notification.save();
-        } catch(err) {
-            console.log(err);
+        } catch(error) {
+            logs.service.create(null, error, null, 'error'); 
         }
     }
 }

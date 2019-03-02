@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const User = require('./user.js');
+const logs = require('./log');
 
 var partySchema = new mongoose.Schema({
     name: { type: String, required: true },
@@ -39,6 +40,7 @@ class PartyService
         try {
             return await query.exec();
         } catch(error) {
+            logs.service.create(null, error, null, 'error'); 
             return { error: error._message };
         }
     }
@@ -47,6 +49,7 @@ class PartyService
         try {
             return await Party.findByIdAndUpdate(id, update, { 'new': true });
         } catch(error) {
+            logs.service.create(null, error, null, 'error'); 
             return { error: error._message };
         }
     }
@@ -59,6 +62,7 @@ class PartyService
                 members: userId,
             });
         } catch(error) {
+            logs.service.create(null, error, null, 'error'); 
             return { error: error._message };
         }
     }
@@ -67,6 +71,7 @@ class PartyService
         try {
             return await Party.findByIdAndDelete(id);
         } catch(error) {
+            logs.service.create(null, error, null, 'error'); 
             return { error: error._message };
         }
     }

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const logs = require('./log');
 
 const taskSchema = new mongoose.Schema({
     name: { type: String, enum: ['Easy', 'Normal', 'Hard', 'Insane', 'Expert', 'Storyboard', 'Background', 'Skin'], required: true },
@@ -37,6 +38,7 @@ class TaskService
             }
             return res;
         } catch(error) {
+            logs.service.create(null, error, null, 'error'); 
             return { error: error._message };
         }
     }
@@ -45,6 +47,7 @@ class TaskService
         try {
             return await Task.findByIdAndUpdate(id, update, { 'new': true });
         } catch(error) {
+            logs.service.create(null, error, null, 'error'); 
             return { error: error._message };
         }
     }
@@ -53,6 +56,7 @@ class TaskService
         try {
             return await Task.findByIdAndRemove(id);
         } catch(error) {
+            logs.service.create(null, error, null, 'error'); 
             return { error: error._message };
         }
     }
@@ -61,6 +65,7 @@ class TaskService
         try {
             return await Task.create(data);
         } catch(error) {
+            logs.service.create(null, error, null, 'error'); 
             return { error: error._message };
         }
     }

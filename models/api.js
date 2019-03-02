@@ -2,6 +2,8 @@ const https = require('https');
 const querystring = require('querystring');
 const config = require('../config.json');
 const users = require('./user');
+const axios = require('axios');
+const logs = require('./log');
 
 async function executeRequest(url, options, postData) {
     return await new Promise((resolve, reject) => {
@@ -101,6 +103,16 @@ async function getUserInfo(token) {
     }
 }
 
+function webhookPost(message) {
+    const url = `https://discordapp.com/api/webhooks/${config.webhook.id}/${config.webhook.token}`;
+    axios.post(url, {
+        content: message
+    })
+    .catch(error => {
+        logs.service.create(null, error, null, 'error');
+    });
+}
+
 async function isBn(req, res, next) {
     if (req.session.osuId) {
         const res = await getUserInfo(req.session.accessToken);
@@ -143,4 +155,4 @@ async function isLoggedIn(req, res, next) {
     }
 }
 
-module.exports = { isLoggedIn, getToken, getUserInfo, isBn };
+module.exports = { isLoggedIn, getToken, getUserInfo, isBn, webhookPost };

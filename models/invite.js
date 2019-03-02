@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const logs = require('./log');
 
 var inviteSchema = new mongoose.Schema({
     recipient: { type: 'ObjectId', ref: 'User', required: true},
@@ -47,6 +48,7 @@ class InviteService
         try {
             return await query.exec();
         } catch(error) {
+            logs.service.create(null, error, null, 'error');
             return { error: error._message };
         }
     }
@@ -55,6 +57,7 @@ class InviteService
         try {
             return await Invite.findByIdAndUpdate(id, update, { 'new': true });
         } catch(error) {
+            logs.service.create(null, error, null, 'error');
             return { error: error._message };
         }
     }
@@ -67,8 +70,8 @@ class InviteService
         }
         try {
             return await invite.save();
-        } catch(err) {
-            console.log(err);
+        } catch(error) {
+            logs.service.create(null, error, null, 'error');
         }
     }
 
@@ -76,8 +79,8 @@ class InviteService
         var invite = new Invite({ recipient: recipient, sender: sender, modified: modified, info: info, actionType: actionType, party: party });
         try {
             return await invite.save();
-        } catch(err) {
-            console.log(err);
+        } catch(error) {
+            logs.service.create(null, error, null, 'error');
         }
     }
 }

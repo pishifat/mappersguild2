@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const logs = require('./log');
 
 const featuredArtistSchema = new mongoose.Schema({
     label: { type: String, required: true },
@@ -45,6 +46,7 @@ class FeaturedArtistService
         try {
             return await query.exec();
         } catch(error) {
+            logs.service.create(null, error, null, 'error');            
             return { error: error._message };
         }
     }
@@ -77,6 +79,7 @@ class FeaturedArtistService
         try {
             return await query.exec();
         } catch(error) {
+            logs.service.create(null, error, null, 'error');
             return { error: error._message };
         }
     }
@@ -85,6 +88,7 @@ class FeaturedArtistService
         try {
             return await FeaturedArtist.findByIdAndUpdate(id, update, { 'new': true });
         } catch(error) {
+            logs.service.create(null, error, null, 'error');
             return { error: error._message };
         }
     }
@@ -93,6 +97,7 @@ class FeaturedArtistService
         try {
             return await FeaturedSong.findByIdAndUpdate(id, update, { 'new': true });
         } catch(error) {
+            logs.service.create(null, error, null, 'error');
             return { error: error._message };
         }
     }
@@ -101,6 +106,7 @@ class FeaturedArtistService
         try {
             return await FeaturedArtist.findByIdAndRemove(id);
         } catch(error) {
+            logs.service.create(null, error, null, 'error');
             return { error: error._message };
         }
     }
@@ -109,6 +115,7 @@ class FeaturedArtistService
         try {
             return await FeaturedSong.findByIdAndRemove(id);
         } catch(error) {
+            logs.service.create(null, error, null, 'error');
             return { error: error._message };
         }
     }
@@ -120,6 +127,7 @@ class FeaturedArtistService
                 osuId: osuId
             });
         } catch(error) {
+            logs.service.create(null, error, null, 'error');
             return { error: error._message };
         }
     }
@@ -131,6 +139,7 @@ class FeaturedArtistService
                 title: title
             });
         } catch(error) {
+            logs.service.create(null, error, null, 'error');
             return { error: error._message };
         }
     }

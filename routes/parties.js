@@ -222,7 +222,7 @@ router.post('/kick', async (req, res) => {
     if (req.session.mongoId == u.id) {
         return res.json({error: "You cannot kick yourself!"});
     }
-    if(p.currentQuest){
+    if (p.currentQuest) {
         questPenalty(u, p, req.session.mongoId);
     }
     await Promise.all([
@@ -235,7 +235,7 @@ router.post('/kick', async (req, res) => {
     logs.service.create(req.session.osuId, `kicked "${u.username}" from party "${p.name}"`, p._id, 'party' );
     p.members.forEach(member => {
         if(member.id != req.session.mongoId){
-            notifications.service.createPartyNotification(p.id, `was kicked from your party`, member, req.session.mongoId, p.id);
+            notifications.service.createPartyNotification(p.id, `kicked ${u.username} from your party`, member, req.session.mongoId, p.id);
         }
     });
 });
