@@ -404,10 +404,13 @@ router.post('/inviteMember', async (req, res) => {
         return res.json({ error: inviteError + 'Your party has too many members!' });
     }
     // if timing window > 7 days, can't invite anymore
-    const timeWindow = (new Date() - p.currentQuest.accepted) / (24*3600*1000);
-    if (p.currentQuest && timeWindow > 7) {
-        return res.json({ error: inviteError + 'Your party has been running a quest for too long to add new members!' });
+    if(p.currentQuest){
+        const timeWindow = (new Date() - p.currentQuest.accepted) / (24*3600*1000);
+        if (timeWindow > 7) {
+            return res.json({ error: inviteError + 'Your party has been running a quest for too long to add new members!' });
+        }
     }
+    
     res.json(p);
 
     invites.service.createPartyInvite(
