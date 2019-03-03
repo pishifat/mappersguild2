@@ -4,19 +4,23 @@
         z-index: 1060; 
         bottom: 20px; 
         right: 20px;
-        border-radius: 100px;
-    ">
+        border-radius: 100px;"
+    >
         <a href="/notifications">
-            <span class="badge badge-light" data-toggle="tooltip" data-placement="top" title="notifications">{{ notifications }}</span>
-            <span class="badge badge-light" data-toggle="tooltip" data-placement="top" title="invites">{{ invites }}</span>
+            <i class="fas fa-bell">
+                <small class="notification-label">{{ notifications }}</small>
+            </i>
+            <i class="fas fa-at">
+                <small class="notification-label">{{ invites }}</small>
+            </i>
         </a>
 
-        <a href="#top" class="btn btn-secondary fas fa-angle-up fa-2x ml-2" style="
+        <a href="#top" class="btn btn-secondary fas fa-angle-up fa-2x" style="
             background-color: var(--done);
             border-color: var(--done);
             filter: drop-shadow(1px 1px 1px #000000);
-            border-radius: 10000px;
-        "></a>
+            border-radius: 10000px;"
+        ></a>
     </div>
 </template>
 
@@ -50,5 +54,15 @@ export default {
 </script>
 
 <style>
-
+    .notification-label {
+        font-family: 'Roboto', sans-serif;
+        position: relative;
+        top: -8px;
+        right: 5px;
+        background: #ff5864;
+        border-radius: 300px;
+        border: #ff5864 1px 5px 1px 5px solid;
+        border-left: 5px solid #ff5864;
+        border-right: 5px solid #ff5864;
+    }
 </style>

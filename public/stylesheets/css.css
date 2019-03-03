@@ -540,3 +540,22 @@ hr {
 .sorted {
     border-bottom: 1px solid white;
 }
+
+.nav-avatar {
+    height:50px; 
+    width:50px; 
+    filter: drop-shadow(1px 1px 1px #000000); 
+    padding: 0;
+}
+
+@media (max-width: 768px) {
+    .nav-avatar-menu {
+        display: none;
+    }
+}
+
+@media (min-width: 768px) {
+    .nav-logout {
+        display: none;
+    }
+}

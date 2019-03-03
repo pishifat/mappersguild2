@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const User = require('./user.js');
 const logs = require('./log');
 
-var partySchema = new mongoose.Schema({
+const partySchema = new mongoose.Schema({
     name: { type: String, required: true },
     leader: { type: 'ObjectId', ref: 'User'},
     currentQuest: { type: 'ObjectId', ref: 'Quest' },
@@ -13,8 +13,7 @@ var partySchema = new mongoose.Schema({
 
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
-var Party = mongoose.model('Party', partySchema);
-
+const Party = mongoose.model('Party', partySchema);
 
 class PartyService
 {

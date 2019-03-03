@@ -18,7 +18,13 @@ router.get('/', async (req, res, next) => {
     }
     res.render('index', { title: `Mappers' Guild`, isIndex: true });
 }, api.isLoggedIn, (req, res) => {
-    res.render('index', { title: `Mappers' Guild`, isIndex: true, loggedInAs: req.session.osuId });
+    res.render('index', { 
+        title: `Mappers' Guild`, 
+        isIndex: true, 
+        loggedInAs: req.session.osuId, 
+        userTotalPoints: res.locals.userRequest.totalPoints,
+        userParty: res.locals.userRequest.currentParty ? res.locals.userRequest.currentParty.name : null, 
+    });
 });
 
 /* GET user's code to login */
@@ -53,6 +59,13 @@ router.get('/login', async (req, res, next) => {
     }
 }, api.isLoggedIn, (req, res) => {
     res.redirect('/faq'); 
+});
+
+/* GET logout, by deleting session */
+router.get('/logout', api.isLoggedIn, async (req, res, next) => {
+    req.session.destroy((error) => {
+        return res.redirect('/');
+    });
 });
 
 /* GET user's token and user's info to login */

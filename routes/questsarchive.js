@@ -15,7 +15,14 @@ const defaultPopulate = [
 
 /* GET quests page. */
 router.get('/', async (req, res, next) => {
-    res.render('questsarchive', { title: 'Quests', script: '../javascripts/questsarchive.js', isQuests: true, loggedInAs: req.session.osuId });
+    res.render('questsarchive', { 
+        title: 'Quests', 
+        script: '../javascripts/questsarchive.js', 
+        isQuests: true, 
+        loggedInAs: req.session.osuId,
+        userTotalPoints: res.locals.userRequest.totalPoints,
+        userParty: res.locals.userRequest.currentParty ? res.locals.userRequest.currentParty.name : null,
+    });
 });
 
 router.get("/quests", async (req, res, next) => {

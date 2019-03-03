@@ -7,23 +7,29 @@ const router = express.Router();
 router.use(api.isLoggedIn);
 
 const defaultPopulate = [
-    { populate: 'host',  display: '_id osuId username' },
-    { populate: 'bns',  display: '_id osuId username' },
-    { populate: 'modders',  display: '_id osuId username' },
-    { populate: 'quest',  display: '_id name art color' },
-    { populate: 'song',  display: 'artist title' },
-    { innerPopulate: 'tasks',  populate: { path: 'mappers' } },
+    { populate: 'host', display: '_id osuId username' },
+    { populate: 'bns', display: '_id osuId username' },
+    { populate: 'modders', display: '_id osuId username' },
+    { populate: 'quest', display: '_id name art color' },
+    { populate: 'song', display: 'artist title' },
+    { innerPopulate: 'tasks', populate: { path: 'mappers' } },
 ];
-const sort = {quest: -1, createdAt: -1};
+const sort = { quest: -1, createdAt: -1 };
 
 /* GET maps page. */
 router.get('/', async function(req, res) {
-    res.render('beatmapsarchive', { title: 'Maps', script: '../javascripts/mapsarchive.js', isMaps: true, loggedInAs: req.session.osuId });
+    res.render('beatmapsarchive', {
+        title: 'Maps',
+        script: '../javascripts/mapsarchive.js',
+        isMaps: true,
+        loggedInAs: req.session.osuId,
+        userTotalPoints: res.locals.userRequest.totalPoints,
+        userParty: res.locals.userRequest.currentParty ? res.locals.userRequest.currentParty.name : null,
+    });
 });
 
-router.get("/relevantInfo", async (req, res) => {
-    res.json(await beatmaps.service.query({status: "Ranked"}, defaultPopulate, sort, true));
+router.get('/relevantInfo', async (req, res) => {
+    res.json(await beatmaps.service.query({ status: 'Ranked' }, defaultPopulate, sort, true));
 });
-
 
 module.exports = router;
