@@ -12,6 +12,16 @@ var router = express.Router();
 
 router.use(api.isLoggedIn);
 
+//updating party rank when accepting invite
+async function updatePartyRank(id) {
+    let p = await parties.service.query({ _id: id }, [{ populate: 'members', display: 'rank' }]);
+    var rank = 0;
+    p.members.forEach(user => {
+        rank += user.rank;
+    });
+    await parties.service.update(id, { rank: Math.round(rank / p.members.length) });
+}
+
 //valid task check (doesn't have lock check, has special task checks)
 async function addTaskChecks(userId, b, invite) {
     if (!b) {
@@ -307,6 +317,7 @@ router.post('/acceptJoin/:id', async (req, res) => {
 
     await parties.service.update(invite.party.id, { $push: { members: req.session.mongoId } });
     await users.service.update(req.session.mongoId, { currentParty: invite.party.id });
+    await updatePartyRank(p._id);
     logs.service.create(req.session.mongoId, `joined the party "${p.name}"`, p._id, 'party');
     notifications.service.createPartyNotification(
         p.id,
