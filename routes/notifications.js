@@ -287,15 +287,20 @@ router.post('/acceptJoin/:id', async (req, res) => {
     if (isMember) {
         return res.json({ error: 'Leave your current party before joining a new one!' });
     }
-    let p = await parties.service.query({ _id: invite.party._id });
+    let p = await parties.service.query({ _id: invite.party._id }, [{
+        populate: 'currentQuest', display: 'accepted',
+    }]);
     if (!p || p.error) {
         return res.json({ error: 'That party no longer exists!' });
     }
     if (p.members.length >= 12) {
         return res.json({ error: 'That party has too many members!' });
     }
-    if(p.currentQuest){
-        return res.json({ error: "You cannot join a party while it's running a quest!"})
+    // if timing window > 7 days, can't invite anymore
+    const timeWindow = (p.currentQuest.accepted - new Date()) / (24*3600*1000);
+    console.log(timeWindow);
+    if(p.currentQuest && timeWindow > 7){
+        return res.json({ error: "You cannot join a party that's been running a quest for over a week!"})
     }
     await invites.service.update(req.params.id, { visible: false });
     invite = await invites.service.query({ _id: req.params.id }, defaultInvitePopulate);
