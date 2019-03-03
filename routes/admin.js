@@ -222,7 +222,7 @@ router.post('/completeQuest/:id', async (req, res) => {
             await parties.service.update(party._id, {currentQuest: undefined});
             
             logs.service.create(req.session.mongoId, `marked quest "${quest.name}" as complete`, req.params.id, 'quest' );
-            api.webhookPost(`Quest '${quest.name}' was compleated!`);
+            api.webhookPost(`Quest '${quest.name}' was completed!`);
             quest = await quests.service.query({_id: req.params.id});
             res.json(quest);
         }
@@ -512,7 +512,8 @@ router.post('/updateUserPoints', async (req, res) => {
                 pointsObject["Storyboard"]["total"] + 
                 pointsObject["Mod"]["total"] + 
                 pointsObject["Host"]["total"] + 
-                pointsObject["QuestReward"]["total"] - user.penaltyPoints;
+                pointsObject["QuestReward"]["total"] + 
+                user.legacyPoints - user.penaltyPoints;
             if(totalPoints < 100){
                 pointsObject["Rank"]["value"] = 0;
             }else if(totalPoints < 250){

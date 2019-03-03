@@ -194,7 +194,7 @@ router.post('/create', async (req, res) => {
     if (req.body.tasksLocked) {
         locks = req.body.tasksLocked.split('|');
     }
-    let b = await beatmaps.service.create(req.session.mongoId, realTasks, locks, req.body.song);
+    let b = await beatmaps.service.create(req.session.mongoId, realTasks, locks, req.body.song, req.body.mode);
     b = await beatmaps.service.query({ _id: b._id }, defaultPopulate);
     res.json(b);
 

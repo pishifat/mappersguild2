@@ -40,6 +40,29 @@
                         </div>
                         
                     </div>
+
+                    <p class="text-shadow">Game-mode:</p>
+                    <div class="form-group row">
+                        <div class="col-sm-10">
+                            <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="mode" id="osu" value="osu" checked>
+                            <label class="form-check-label text-shadow" for="osu">osu!</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="mode" id="taiko" value="taiko">
+                            <label class="form-check-label text-shadow" for="taiko">osu!taiko</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="mode" id="catch" value="catch">
+                            <label class="form-check-label text-shadow" for="catch">osu!catch</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="mode" id="mania" value="mania">
+                            <label class="form-check-label text-shadow" for="mania">osu!mania</label>
+                            </div>
+                        </div>
+                    </div>
+
                     <p class="text-shadow">Select one or more difficulties <i>you plan on mapping</i>. These can be changed later:</p>
                     <div class="form-group row">
                         <div class="col-sm-10">
@@ -158,13 +181,14 @@ export default {
         },
         saveNewMap: async function (e) {
             const song = $('#songSelection').val();
+            const mode = $('input[name=mode]:checked').val();
             if (song == "none") {
                 this.$parent.info = "Select a song!"
             } else {
                 const tasks = ['Easy', 'Normal', 'Hard', 'Insane', 'Expert'];
                 const difficulties = this.applyCheckboxes(tasks, false);
                 const locks = this.applyCheckboxes(tasks, true); 
-                const bm = await this.executePost('/beatmaps/create/', { song: song, tasks: difficulties, tasksLocked: locks }, e);
+                const bm = await this.executePost('/beatmaps/create/', { song: song, tasks: difficulties, tasksLocked: locks, mode: mode }, e);
                 if (bm) {
                     $('#addBeatmap').modal('hide');
                     $('.quest-collapse-wip').collapse();

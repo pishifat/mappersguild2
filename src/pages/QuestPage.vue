@@ -2,7 +2,7 @@
 
 <div class="row">
     <div class="col-lg-9">
-        <h2>Available</h2>
+        <h2>Available<sup style="font-size: 12pt" data-toggle="tooltip" data-placement="top" title="view additional info"><a href="#" @click.prevent data-toggle="modal" data-target='#availableInfo'>?</a></sup></h2>
         <small>Sort: 
             <a :class="sortByOpen === 'createdAt' ? 'sorted' : ''" href="#" @click.prevent="sortOpenQuests('createdAt')">Date added</a> | 
             <a :class="sortByOpen === 'reward' ? 'sorted' : ''" href="#" @click.prevent="sortOpenQuests('reward')">Reward</a> | 
@@ -24,7 +24,7 @@
         </div>
     </div>
     <div class="col-lg-3">
-        <h2>In progress</h2>
+        <h2>In progress<sup style="font-size: 12pt" data-toggle="tooltip" data-placement="top" title="view additional info"><a href="#" @click.prevent data-toggle="modal" data-target='#wipInfo'>?</a></sup></h2>
         <small>Sort: 
             <a :class="sortByWip === 'createdAt' ? 'sorted' : ''" href="#" @click.prevent="sortWipQuests('createdAt')">Date added</a> | 
             <a :class="sortByWip === 'deadline' ? 'sorted' : ''" href="#" @click.prevent="sortWipQuests('deadline')">Deadline</a>
@@ -42,6 +42,55 @@
                     @drop-quest="dropQuest($event)"
                 ></quest-card>
             </transition-group>
+        </div>
+    </div>
+
+    <!-- available quest info -->
+    <div id="availableInfo" class="modal fade" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content custom-bg-dark">
+                <div class="modal-header modal-header-card text-dark bg-open">
+                    <h5 class="modal-title modal-title-card">Available quest information</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body modal-body-card" style="overflow: hidden;">
+                    <img src="../images/the_A.png" class="the-a-background">
+                    <p class="text-shadow">By accepting a quest, you're taking a risk.</p>
+                    <p class="text-shadow small"><span class="errors">Dropping</span> a quest or <span class="errors">leaving</span> its assigned party prematurely will result in user point losses. New users cannot join your party after a quest is accepted, so be sure to organize your party beforehand.</p>
+                    <p class="text-shadow small">There is a window of leniency however -- for the first week after a party accepts a quest, new mappers can be invited to the party via <span class="done">invite only</span>. Invites are handled by a party's leader.</p>
+                    <p class="text-shadow">New quests are added every week.</p>
+                    <p class="text-shadow small">Quests are mainly meant to highlight new or infrequently mapped featured artists.</p>
+                    <p class="text-shadow small">Because the Mappers' Guild is currently starting out, one or two new quests are added daily. This will be scaled back later.</p>
+                    <hr>
+                    <p class="text-shadow">If you're confused about something not listed here or on the <a href="/faq#quest">FAQ page</a>, send a message in the <a href="https://discordapp.com/invite/ppy">#mappers-guild</a> channel!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- work in progress quest info -->
+    <div id="wipInfo" class="modal fade" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content custom-bg-dark">
+                <div class="modal-header modal-header-card text-dark bg-wip">
+                    <h5 class="modal-title modal-title-card">Work-in-progress quest information</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body modal-body-card" style="overflow: hidden;">
+                    <img src="../images/the_A.png" class="the-a-background">
+                    <p class="text-shadow">Quests are first-come first-serve...</p>
+                    <p class="text-shadow small">...however, if you're interested in doing a quest with mappers primarily from a different game-mode than the one currently handling the quest, talk to <a href="https://osu.ppy.sh/users/3178418" target="_blank">pishifat</a>. Work-in-progress quests without rank restrictions can potentially be opened for another game-mode.</p>
+                    <p class="text-shadow">Failing to meet a deadline isn't the end of the world.</p>
+                    <p class="text-shadow small">By failing to meet a deadline you won't receive the quest's bonus reward, but tasks will still earn their +2 additional quest points upon the quest's completion. If you drag a quest on indefinitely though, it will be marked as dropped and your party's members will lose points.</p>
+                    <p class="text-shadow small">To keep yourself on track, try to get your maps checked by Beatmap Nominators at least 2 week before the deadline. Otherwise, your mapsets may not reach ranked in time!</p>
+                    <hr>
+                    <p class="text-shadow">If you're confused about something not listed here or on the <a href="/faq#quest">FAQ page</a>, send a message in the <a href="https://discordapp.com/invite/ppy">#mappers-guild</a> channel!</p>
+                </div>
+            </div>
         </div>
     </div>
 

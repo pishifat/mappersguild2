@@ -77,6 +77,13 @@
                                 <td scope="row" style="padding: 1px;">{{Math.round(user.hostPoints*10)/10}}
                                 </td>
                             </tr>
+                            <tr v-if="user.legacyPoints">
+                                <td scope="row" style="padding: 1px;" data-toggle="tooltip" data-placement="left"
+                                    title="points for tasks that, after going public, were no longer applicable">Legacy points
+                                </td>
+                                <td scope="row" style="padding: 1px;">
+                                    {{Math.round(user.legacyPoints*10)/10}}</td>
+                            </tr>
                             <tr v-if="user.penaltyPoints">
                                 <td scope="row" style="padding: 1px;" data-toggle="tooltip" data-placement="left"
                                     title="penalty for dropping a quest. inverse of a quest's reward">Dropping

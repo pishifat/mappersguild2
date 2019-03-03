@@ -65,7 +65,7 @@
                     </div>
 
                     <div class="input-group input-group-sm mb-3">
-                        <input class="form-control form-control-sm" type="text" placeholder="username..." id="inviteMember" 
+                        <input class="form-control form-control-sm" type="text" placeholder="username..." id="inviteMember" maxlength="18"
                             style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 100px 0 0 100px" 
                             @keyup.enter="inviteMember($event)" />
                         <div class="input-group-append">
@@ -90,7 +90,7 @@
                         <li v-if="userPartyId">You can only be in one party at a time</li>
                         <li v-if="party.lock">The party's leader has disabled new member entry</li>
                         <li v-if="party.currentQuest">The party is currently running a quest</li>
-                        <li v-if="party.members.length > 12">The party has the maximum number of members (12)</li>
+                        <li v-if="party.members.length >= 12">The party has the maximum number of members (12)</li>
                     </ul>
                 </div>
 

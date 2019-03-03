@@ -69,13 +69,14 @@ class BeatmapService
         }
     }
 
-    async create(userId, tasks, locks, song) {
+    async create(userId, tasks, locks, song, mode) {
         try {
             return await Beatmap.create({ 
                 host: userId,
                 tasks: tasks,
                 tasksLocked: locks,
-                song: song
+                song: song,
+                mode: mode
             });
         } catch(error) {
             logs.service.create(null, error, null, 'error');

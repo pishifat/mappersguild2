@@ -234,7 +234,7 @@
                       placeholder="username..."
                       id="requestEntry"
                       style="border-radius: 100px 0 0 100px;"
-                      maxlength="16"
+                      maxlength="18"
                       @keyup.enter="requestTask(beatmap.id, $event)"
                     >
                     <div class="input-group-append">

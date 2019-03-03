@@ -226,7 +226,7 @@ router.post('/acceptJoin/:id', async (req, res) => {
         return res.json({ error: 'That party has too many members!'});
     }
     if(p.currentQuest){
-        return res.json({ error: "You cannot join a party while it's' running a quest!"})
+        return res.json({ error: "You cannot join a party while it's running a quest!"})
     }
     await invites.service.update(req.params.id, {visible: false});
     invite = await invites.service.query({_id: req.params.id}, defaultInvitePopulate);

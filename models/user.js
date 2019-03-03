@@ -17,6 +17,7 @@ var userSchema = new mongoose.Schema({
     modPoints: { type: Number, default: 0 },
     hostPoints: { type: Number, default: 0 },
     completedQuests: [{type: 'ObjectId', ref: 'Quest'}],
+    legacyPoints: { type: Number, default: 0 },
     penaltyPoints: { type: Number, default: 0 },
     invites: { type: Boolean, default: true },
     
@@ -24,7 +25,7 @@ var userSchema = new mongoose.Schema({
 
 userSchema.virtual('totalPoints').get(function() {
     return Math.round((this.easyPoints + this.normalPoints + this.hardPoints + this.insanePoints + this.expertPoints +
-        this.storyboardPoints + this.questPoints + this.modPoints + this.hostPoints - this.penaltyPoints)*10)/10;
+        this.storyboardPoints + this.questPoints + this.modPoints + this.hostPoints + this.legacyPoints - this.penaltyPoints)*10)/10;
 });
 
 var User = mongoose.model('User', userSchema);
