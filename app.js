@@ -22,6 +22,8 @@ const logsRouter = require('./routes/logs');
 const notificationsRouter = require('./routes/notifications');
 const adminsRouter = require('./routes/admin');
 
+const logs = require('./models/log');
+
 const app = express();
 
 // view engine setup
@@ -65,7 +67,10 @@ app.use('/admin', adminsRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  if (createError(404)) res.redirect('/');
+  if (createError(404)) {
+    logs.service.create(req.session.mongoId || null, `${req.session.osuId} trying to go to ${req.originalUrl} from ${req.ip}`, null, 'error');
+    res.redirect('/');
+  }
 });
 
 // error handler

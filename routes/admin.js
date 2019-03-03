@@ -13,15 +13,16 @@ const router = express.Router();
 router.use(api.isLoggedIn);
 router.use(async (req, res, next) => {
     if (!req.session.osuId) {
-        res.status(403).render('error', { message: 'unauthorized' });
+        logs.service.create(req.session.mongoId || null, `${req.session.osuId} trying to go to ${req.originalUrl} from ${req.ip}`, null, 'error');
+        return res.redirect('/');
     } else {
         const user = await users.service.query({ osuId: req.session.osuId });
 
         if (user && user.group === 'admin') {
             return next();
         }
-
-        res.status(403).render('error', { message: 'unauthorized' });
+        logs.service.create(req.session.mongoId || null, `${req.session.osuId} trying to go to ${req.originalUrl} from ${req.ip}`, null, 'error');
+        return res.redirect('/');
     }
 });
 
