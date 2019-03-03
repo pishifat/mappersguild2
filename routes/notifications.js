@@ -297,8 +297,7 @@ router.post('/acceptJoin/:id', async (req, res) => {
         return res.json({ error: 'That party has too many members!' });
     }
     // if timing window > 7 days, can't invite anymore
-    const timeWindow = (p.currentQuest.accepted - new Date()) / (24*3600*1000);
-    console.log(timeWindow);
+    const timeWindow = (new Date() - p.currentQuest.accepted) / (24*3600*1000);
     if(p.currentQuest && timeWindow > 7){
         return res.json({ error: "You cannot join a party that's been running a quest for over a week!"})
     }
