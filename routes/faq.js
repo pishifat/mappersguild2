@@ -11,8 +11,8 @@ router.get('/', async (req, res, next) => {
             title: 'Frequently Asked Questions',
             isFaq: true,
             loggedInAs: u.osuId,
-            userTotalPoints: u.userRequest.totalPoints,
-            userParty: u.userRequest.currentParty ? u.userRequest.currentParty.name : null,
+            userTotalPoints: u.totalPoints,
+            userParty: u.currentParty ? u.currentParty.name : null,
         });
     } else {
         res.render('faq', { title: 'Frequently Asked Questions', isFaq: true });
