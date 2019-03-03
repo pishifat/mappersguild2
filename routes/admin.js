@@ -175,10 +175,24 @@ router.post('/createQuest', async (req, res) => {
             logs.service.create(req.session.mongoId, `created quest ${quest.name}`, quest._id, 'quest' );
             api.webhookPost([{
                 author: {
-                    name: `Quest '${quest.name}' was just created!`,
-                    'icon_url': `https://assets.ppy.sh/artists/${quest.art}/header.jpg`,
+                    name: `New Quest: ${quest.name}`
                 },
-                color: '6780384',
+                thumbnail: {
+                    "url": `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`
+                },
+                color: '16734308',
+                fields:[{
+                    name: "Objective",
+                    value: `${quest.descriptionMain}`
+                },
+                {
+                    name: "Party",
+                    value: `${quest.minParty}-${quest.maxParty} members`
+                },
+                {
+                    name: "Bonus",
+                    value: `${quest.reward} points for each member`
+                }]
             }]);
             res.send(quest);
         }
@@ -233,10 +247,9 @@ router.post('/completeQuest/:id', async (req, res) => {
             logs.service.create(req.session.mongoId, `marked quest "${quest.name}" as complete`, req.params.id, 'quest' );
             api.webhookPost([{
                 author: {
-                    name: `Quest '${quest.name}' was completed!`,
-                    'icon_url': `https://assets.ppy.sh/artists/${quest.art}/header.jpg`,
+                    name: `Quest Completed: ${quest.name}`,
+                    'icon_url': `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`,
                 },
-                color: '6780384',
             }]);
             quest = await quests.service.query({_id: req.params.id});
             res.json(quest);
