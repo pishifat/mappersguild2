@@ -67,7 +67,7 @@
 
         {{#if loggedInAs}}
         <div class="dropdown nav-avatar-menu">
-            <a id="userInfo" class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
+            <a id="userInfo" class="dropdown-toggle" href="#" data-toggle="dropdown">
                 <img src="https://a.ppy.sh/{{loggedInAs}}" class="rounded-circle nav-avatar ml-2">
             </a>
             <div class="dropdown-menu dropdown-menu-right">
@@ -90,7 +90,7 @@
             <button class="btn btn-mg btn-sm" type="submit">Log Out</button>
         </form>
         {{else}}
-        <form action="/login" method="GET">
+        <form class="ml-auto mr-3" action="/login" method="GET">
             <button class="btn btn-lg btn-mg btn-sm" type="submit">Log in</button>
         </form>
         {{/if}}
