@@ -142,6 +142,8 @@ router.get('/', async function(req, res) {
         script: '../javascripts/maps.js',
         isMaps: true,
         loggedInAs: req.session.osuId,
+        userTotalPoints: res.locals.userRequest.totalPoints,
+        userParty: res.locals.userRequest.currentParty ? res.locals.userRequest.currentParty.name : null,
     });
 });
 

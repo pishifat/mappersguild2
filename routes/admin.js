@@ -55,8 +55,10 @@ router.get('/', async (req, res, next) => {
         res.render('admins', { 
             title: 'Admin', 
             script: '../javascripts/admin.js', 
-            loggedInAs: req.session.osuId }
-        );
+            loggedInAs: req.session.osuId,
+            userTotalPoints: res.locals.userRequest.totalPoints,
+            userParty: res.locals.userRequest.currentParty ? res.locals.userRequest.currentParty.name : null,
+        });
     }
 });
 

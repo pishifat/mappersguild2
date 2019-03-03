@@ -134,7 +134,7 @@ async function isLoggedIn(req, res, next) {
     }
     
     if (req.session.mongoId) {
-        const u = await users.service.query({ _id: req.session.mongoId });
+        const u = await users.service.query({ _id: req.session.mongoId }, [{ populate: 'currentParty', display: 'name' }]);
         
         // If hidden, shouldn't be able to do anything
         if (!u || u.group == 'hidden') {
@@ -148,7 +148,8 @@ async function isLoggedIn(req, res, next) {
             req.session.accessToken = response.access_token;
             req.session.refreshToken = response.refresh_token;
         }
-        
+
+        res.locals.userRequest = u;
         next();
     } else {
         res.redirect('/');
