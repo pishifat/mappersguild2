@@ -106,7 +106,7 @@ async function getUserInfo(token) {
 function webhookPost(message) {
     const url = `https://discordapp.com/api/webhooks/${config.webhook.id}/${config.webhook.token}`;
     axios.post(url, {
-        content: message
+        embeds: message
     })
     .catch(error => {
         logs.service.create(null, error, null, 'error');

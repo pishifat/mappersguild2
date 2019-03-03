@@ -36,7 +36,13 @@ router.get('/login', async (req, res, next) => {
             
             if (user && !user.error) {
                 req.session.mongoId = user._id;
-                api.webhookPost(`${user.username} joined the guild!`);
+                api.webhookPost([{
+                    author: {
+                        name: `${user.username} joined the guild!`,
+                        'icon_url': `https://a.ppy.sh/${user.osuId}`,
+                    },
+                    color: '14707049',
+                }]);
                 logs.service.create(req.session.mongoId, `joined the Mappers' Guild`, user._id, 'user');
                 return next();
             } else {

@@ -172,7 +172,13 @@ router.post('/createQuest', async (req, res) => {
         var quest = await quests.service.create(req.body);
         if (quest) {
             logs.service.create(req.session.mongoId, `created quest ${quest.name}`, quest._id, 'quest' );
-            api.webhookPost(`Quest '${quest.name}' was just created!`);
+            api.webhookPost([{
+                author: {
+                    name: `Quest '${quest.name}' was just created!`,
+                    'icon_url': `https://assets.ppy.sh/artists/${quest.art}/header.jpg`,
+                },
+                color: '6780384',
+            }]);
             res.send(quest);
         }
     }
@@ -224,7 +230,13 @@ router.post('/completeQuest/:id', async (req, res) => {
             await parties.service.update(party._id, {currentQuest: undefined});
             
             logs.service.create(req.session.mongoId, `marked quest "${quest.name}" as complete`, req.params.id, 'quest' );
-            api.webhookPost(`Quest '${quest.name}' was completed!`);
+            api.webhookPost([{
+                author: {
+                    name: `Quest '${quest.name}' was completed!`,
+                    'icon_url': `https://assets.ppy.sh/artists/${quest.art}/header.jpg`,
+                },
+                color: '6780384',
+            }]);
             quest = await quests.service.query({_id: req.params.id});
             res.json(quest);
         }
