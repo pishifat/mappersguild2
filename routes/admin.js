@@ -520,7 +520,7 @@ router.post('/updateUserPoints', async (req, res) => {
         ];
         let maps = await beatmaps.service.query({}, populate, null, true);
 
-        u.forEach(user => {
+        u.forEach(async function (user) {
             let pointsObject = {
                 "Easy":{"num":5, "total":0}, 
                 "Normal":{"num":6, "total":0}, 
@@ -534,7 +534,7 @@ router.post('/updateUserPoints', async (req, res) => {
                 "Rank":{"value":0},
                 "Quests":{"list":[]}};
     
-            maps.forEach(map=>{
+            maps.forEach(async function(map){
                 let questParticipation = false;
     
                 if(map.status == "Ranked"){ 
@@ -543,11 +543,11 @@ router.post('/updateUserPoints', async (req, res) => {
                     let bmId;
 
                     if (indexEnd !== -1) {
-                        bmId = bm.url.slice(indexStart, indexEnd);
+                        bmId = map.url.slice(indexStart, indexEnd);
                     } else {
-                        bmId = bm.url.slice(indexStart);
+                        bmId = map.url.slice(indexStart);
                     }
-                    
+                    console.log(bmId);
                     const bmInfo = await api.beatmapsetInfo(bmId);
                     const mapLength = bmInfo.length;
 
