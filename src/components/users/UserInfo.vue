@@ -20,35 +20,35 @@
                         <tbody>
                             <tr v-if="user.easyPoints">
                                 <td scope="row" style="padding: 1px;" data-toggle="tooltip" data-placement="left"
-                                    title="5 points per difficulty. +2 if quest mapset">Mapping <i
+                                    title="~5 points per difficulty. +2 if quest mapset">Mapping <i
                                         class="easy">Easy</i> difficulties</td>
                                 <td scope="row" style="padding: 1px;">{{Math.round(user.easyPoints*10)/10}}
                                 </td>
                             </tr>
                             <tr v-if="user.normalPoints">
                                 <td scope="row" style="padding: 1px;" data-toggle="tooltip" data-placement="left"
-                                    title="6 points per difficulty. +2 if quest mapset">Mapping <i
+                                    title="~6 points per difficulty. +2 if quest mapset">Mapping <i
                                         class="normal">Normal</i> difficulties</td>
                                 <td scope="row" style="padding: 1px;">
                                     {{Math.round(user.normalPoints*10)/10}}</td>
                             </tr>
                             <tr v-if="user.hardPoints">
                                 <td scope="row" style="padding: 1px;" data-toggle="tooltip" data-placement="left"
-                                    title="7 points per difficulty. +2 if quest mapset">Mapping <i
+                                    title="~7 points per difficulty. +2 if quest mapset">Mapping <i
                                         class="hard">Hard</i> difficulties</td>
                                 <td scope="row" style="padding: 1px;">{{Math.round(user.hardPoints*10)/10}}
                                 </td>
                             </tr>
                             <tr v-if="user.insanePoints">
                                 <td scope="row" style="padding: 1px;" data-toggle="tooltip" data-placement="left"
-                                    title="8 points per difficulty. +2 if quest mapset">Mapping <i
+                                    title="~8 points per difficulty. +2 if quest mapset">Mapping <i
                                         class="insane">Insane</i> difficulties</td>
                                 <td scope="row" style="padding: 1px;">
                                     {{Math.round(user.insanePoints*10)/10}}</td>
                             </tr>
                             <tr v-if="user.expertPoints">
                                 <td scope="row" style="padding: 1px;" data-toggle="tooltip" data-placement="left"
-                                    title="8 points per difficulty. +2 if quest mapset">Mapping <i
+                                    title="~8 points per difficulty. +2 if quest mapset">Mapping <i
                                         class="expert">Expert</i> difficulties</td>
                                 <td scope="row" style="padding: 1px;">
                                     {{Math.round(user.expertPoints*10)/10}}</td>

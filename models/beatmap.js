@@ -4,14 +4,15 @@ const logs = require('./log');
 const beatmapSchema = new mongoose.Schema({
     song: { type: 'ObjectId', ref: 'FeaturedSong' },
     host: { type: 'ObjectId', ref: 'User', required: true },
-    status: { type: String, enum: ['WIP', 'Done', 'Nominated', 'Ranked'], default: 'WIP' },
+    status: { type: String, enum: ['WIP', 'Done', 'Qualified', 'Ranked'], default: 'WIP' },
     tasks: [{ type: 'ObjectId', ref: 'Task' }],
     tasksLocked: [{ type: String, enum: ['Easy', 'Normal', 'Hard', 'Insane', 'Expert'] }],
     modders: [{ type: 'ObjectId', ref: 'User' }],
     bns: [{ type: 'ObjectId', ref: 'User' }],
     quest: { type: 'ObjectId', ref: 'Quest' },
     url: { type: String },
-    mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania'], default: "osu" }
+    mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania'], default: "osu" },
+    length: { type: Number },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const Beatmap = mongoose.model('Beatmap', beatmapSchema);

@@ -129,6 +129,32 @@ router.get('/relevantInfo/', async (req, res) => {
 
 //beatmap
 
+/* POST update map lengths */
+router.post('/updateMapLengths', async (req, res) => {
+    if(req.session.osuId == 3178418 || req.session.osuId == 1052994){
+        let bms = await beatmaps.service.query({status: "Ranked"}, {}, {}, true);
+
+        for (let i = 0; i < bms.length; i++) {
+            let indexStart = bms[i].url.indexOf('beatmapsets/') + 'beatmapsets/'.length;
+            let indexEnd = bms[i].url.indexOf('#');
+            let bmId;
+
+            if (indexEnd !== -1) {
+                bmId = bms[i].url.slice(indexStart, indexEnd);
+            } else {
+                bmId = bms[i].url.slice(indexStart, (map.url.length-1));
+            }
+            const bmInfo = await api.beatmapsetInfo(bmId);
+            await beatmaps.service.update(bms[i]._id, {length: bmInfo.hit_length});
+        }
+        
+
+        //logs.service.create(req.session.mongoId, `updated map lengths`, null, 'beatmaps' );
+        res.json("map lengths updated");
+        
+    }
+});
+
 /* POST update map status */
 router.post('/updateMapStatus/:id', async (req, res) => {
     if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
@@ -141,7 +167,7 @@ router.post('/updateMapStatus/:id', async (req, res) => {
         b = await beatmaps.service.query({_id: req.params.id}, defaultMapPopulate);
         res.json(b);
         
-        logs.service.create(req.session.mongoId, `set status of "${b.song.artist} - ${b.song.title}" to "${req.body.status}"`, req.params.id, 'beatmap' );
+        //logs.service.create(req.session.mongoId, `set status of "${b.song.artist} - ${b.song.title}" to "${req.body.status}"`, req.params.id, 'beatmap' );
     }
 });
 
@@ -518,9 +544,9 @@ router.post('/updateUserPoints', async (req, res) => {
             { populate: 'quest',  display: '_id name status reward completed deadline' },
             { innerPopulate: 'tasks',  populate: { path: 'mappers' } },
         ];
-        let maps = await beatmaps.service.query({}, populate, null, true);
-
-        u.forEach(async function (user) {
+        let maps = await beatmaps.service.query({status: "Ranked"}, populate, null, true);
+        
+        u.forEach(user => {
             let pointsObject = {
                 "Easy":{"num":5, "total":0}, 
                 "Normal":{"num":6, "total":0}, 
@@ -534,23 +560,24 @@ router.post('/updateUserPoints', async (req, res) => {
                 "Rank":{"value":0},
                 "Quests":{"list":[]}};
     
-            maps.forEach(async function(map){
+            maps.forEach(map => {
                 let questParticipation = false;
+                let length;
+                if(map.length <= 90){
+                    length = map.length
+                }else if (map.length <= 150){
+                    length = ((map.length - 90)/2) + 90;
+                }else if (map.length <= 210){
+                    length = ((map.length - 150)/3) + 120;
+                }else if (map.length <= 270){
+                    length = ((map.length - 210)/4) + 140;
+                }else{
+                    length = ((map.length - 270)/5) + 155;
+                }
+                
+                let lengthNerf = 124.666; //130=3:00, 120=2:30, 124.666=median of all ranked mg maps (2:43)
     
                 if(map.status == "Ranked"){ 
-                    let indexStart = map.url.indexOf('beatmapsets/') + 'beatmapsets/'.length;
-                    let indexEnd = map.url.indexOf('#');
-                    let bmId;
-
-                    if (indexEnd !== -1) {
-                        bmId = map.url.slice(indexStart, indexEnd);
-                    } else {
-                        bmId = map.url.slice(indexStart);
-                    }
-                    console.log(bmId);
-                    const bmInfo = await api.beatmapsetInfo(bmId);
-                    const mapLength = bmInfo.length;
-
                     //task points
                     map.tasks.forEach(task => {
                         task.mappers.forEach(mapper => {
@@ -558,12 +585,20 @@ router.post('/updateUserPoints', async (req, res) => {
                                 let questBonus = 0;
                                 if(map.quest){
                                     questBonus = 2;
+                                    if(task.name != "Storyboard"){
+                                        questBonus *= (length/lengthNerf);
+                                    }
                                     questParticipation = true;
                                 }
-
+                                
                                 let taskPoints = pointsObject[task.name]["num"];
-                                taskPoints *= (mapLength/210);
-
+                                if(task.name != "Storyboard"){
+                                    taskPoints *= (length/lengthNerf);
+                                }
+                                if(map.length == 164){
+                                    console.log(`${task.name}: ${taskPoints} (${length})`)
+                                }
+                                
                                 pointsObject[task.name]["total"] += (taskPoints + questBonus) / task.mappers.length;
                             }
                         });
