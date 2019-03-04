@@ -538,8 +538,20 @@ router.post('/updateUserPoints', async (req, res) => {
                 let questParticipation = false;
     
                 if(map.status == "Ranked"){ 
-    
-                   //task points
+                    let indexStart = map.url.indexOf('beatmapsets/') + 'beatmapsets/'.length;
+                    let indexEnd = map.url.indexOf('#');
+                    let bmId;
+
+                    if (indexEnd !== -1) {
+                        bmId = bm.url.slice(indexStart, indexEnd);
+                    } else {
+                        bmId = bm.url.slice(indexStart);
+                    }
+                    
+                    const bmInfo = await api.beatmapsetInfo(bmId);
+                    const mapLength = bmInfo.length;
+
+                    //task points
                     map.tasks.forEach(task => {
                         task.mappers.forEach(mapper => {
                             if(mapper._id.toString() == user._id.toString()){
@@ -548,7 +560,11 @@ router.post('/updateUserPoints', async (req, res) => {
                                     questBonus = 2;
                                     questParticipation = true;
                                 }
-                                pointsObject[task.name]["total"] += (pointsObject[task.name]["num"] + questBonus) / task.mappers.length;
+
+                                let taskPoints = pointsObject[task.name]["num"];
+                                taskPoints *= (mapLength/210);
+
+                                pointsObject[task.name]["total"] += (taskPoints + questBonus) / task.mappers.length;
                             }
                         });
                     });
@@ -563,7 +579,7 @@ router.post('/updateUserPoints', async (req, res) => {
                     //host points
                     let host = map.host._id.toString() == user._id.toString();
                     if(host){
-                    pointsObject["Host"]["total"] += pointsObject["Host"]["num"];
+                        pointsObject["Host"]["total"] += pointsObject["Host"]["num"];
                     }
     
                     //quest reward points
