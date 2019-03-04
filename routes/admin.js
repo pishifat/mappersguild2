@@ -547,6 +547,9 @@ router.post('/updateUserPoints', async (req, res) => {
                     } else {
                         bmId = map.url.slice(indexStart);
                     }
+                    if (bmId.indexOf('/') !== -1) {
+                        bmId = bmId.slice(0, -1);
+                    }
                     console.log(bmId);
                     const bmInfo = await api.beatmapsetInfo(bmId);
                     const mapLength = bmInfo.length;
