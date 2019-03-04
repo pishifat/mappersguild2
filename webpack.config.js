@@ -1,5 +1,4 @@
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
-const webpack = require("webpack");
 const path = require('path');
 
 module.exports = {

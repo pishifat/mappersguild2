@@ -5,7 +5,7 @@ var logSchema = new mongoose.Schema({
     user: { type: 'ObjectId', ref: 'User'},
     action: { type: String, required: true },
     modified: { type: 'ObjectId' },
-    category: {type: String, required: true },
+    category: {type: String, enum: ['beatmap', 'quest', 'party', 'user', 'artist', 'error'], required: true },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 var Log = mongoose.model('Log', logSchema);

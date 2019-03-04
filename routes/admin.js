@@ -66,15 +66,59 @@ router.get('/', async (req, res, next) => {
 /* GET relevant info for page load */
 router.get('/relevantInfo/', async (req, res) => {
     if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
-        const [b, q, p, u, fa, l] = await Promise.all([
-            beatmaps.service.query({}, defaultMapPopulate, defaultMapSort, true), 
+        let b = await beatmaps.service.query({}, defaultMapPopulate, defaultMapSort, true);
+        for (let i = 0; i < b.length; i++) {
+            let bm = b[i];
+            if (bm.status == 'Done' && bm.url) {
+                if (bm.url.indexOf('osu.ppy.sh/beatmapsets/') == -1) {
+                    bm.status = `${bm.status}: with wrong link`;
+                } else {
+                    let indexStart = bm.url.indexOf('beatmapsets/') + 'beatmapsets/'.length;
+                    let indexEnd = bm.url.indexOf('#');
+                    let bmId;
+
+                    if (indexEnd !== -1) {
+                        bmId = bm.url.slice(indexStart, indexEnd);
+                    } else {
+                        bmId = bm.url.slice(indexStart);
+                    }
+        
+                    let status = api.beatmapsetInfo(bmId);
+                    switch (status) {
+                        case 4:
+                            status = 'loved';
+                            break;
+                        case 3:
+                            status = 'qualified';
+                            break;
+                        case 2:
+                            status = 'approved';
+                            break;
+                        case 1:
+                            status = 'ranked';
+                            break;
+                        default:
+                            status = 'probably pending';
+                            break;
+                    }
+
+                    bm.status = `${bm.status}: ${status}`;
+                }
+
+            }
+        }
+                
+        const [q, p, u, fa, l] = await Promise.all([
             quests.service.query({}, {}, {status: 1, name: 1}, true), 
             parties.service.query({}, defaultPartyPopulate, {name: 1}, true), 
             users.service.query({}, defaultUserPopulate, {username: 1}, true), 
             featuredArtists.service.query({}, defaultArtistPopulate, {artist: 1}, true),             
-            logs.service.query({ category: 'error' }, [{
-                populate: 'user', display: 'username'
-            }], {}, true)
+            logs.service.query(
+                { category: 'error' }, 
+                [{ populate: 'user', display: 'username' }], 
+                { createdAt: -1 }, 
+                true
+            ),
         ]);
     
         res.json({b: b, q: q, p: p, u: u, fa: fa, l: l});   

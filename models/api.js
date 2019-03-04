@@ -113,6 +113,17 @@ function webhookPost(message) {
     });
 }
 
+async function beatmapsetInfo(setId) {
+    const url = `https://osu.ppy.sh/api/get_beatmaps?k=${config.v1token}&s=${setId}`;
+    
+    try {
+        const res = await axios.get(url);
+        return res[0];
+    } catch (error) {
+        console.log(error);
+    }
+}
+
 async function isBn(req, res, next) {
     if (req.session.osuId) {
         const res = await getUserInfo(req.session.accessToken);
@@ -125,14 +136,6 @@ async function isBn(req, res, next) {
 }
 
 async function isLoggedIn(req, res, next) {
-    if (config.osuId) {
-        req.session.username = config.username;
-        req.session.osuId = config.osuId;
-        req.session.mongoId = config.mongoId;
-        req.session.accessToken = config.accessToken;
-        req.session.refreshToken = config.refreshToken;
-    }
-    
     if (req.session.mongoId) {
         const u = await users.service.query({ _id: req.session.mongoId }, [{ populate: 'currentParty', display: 'name' }]);
         
@@ -156,4 +159,4 @@ async function isLoggedIn(req, res, next) {
     }
 }
 
-module.exports = { isLoggedIn, getToken, getUserInfo, isBn, webhookPost };
+module.exports = { isLoggedIn, getToken, getUserInfo, isBn, webhookPost, beatmapsetInfo };

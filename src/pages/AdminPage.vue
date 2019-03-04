@@ -32,7 +32,7 @@
                     <td scope="row" style="padding: 1px;">{{beatmap.id}}</td>
                     <td scope="row" style="padding: 1px;">{{beatmap.song.artist}} - {{beatmap.song.title}}</td>
                     <td scope="row" style="padding: 1px;"><a :href="'https://osu.ppy.sh/users/' + beatmap.host.osuId" target="_blank">{{beatmap.host.username}}</a></td>
-                    <td scope="row" style="padding: 1px;">{{beatmap.status}}</td>
+                    <td scope="row" style="padding: 1px;" :style="beatmap.status.indexOf('Done') !== -1 ? 'background-color: red' : ''">{{beatmap.status}}</td>
                     <td scope="row" style="padding: 1px;" data-toggle="modal" data-target="#editMap" :data-mapid="beatmap.id" @click.prevent="extendedMap(beatmap)"><a href="#">edit</a></td>
                 </tr>
             </tbody>

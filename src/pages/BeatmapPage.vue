@@ -221,7 +221,7 @@ export default {
                     this.filter();
                 }
             });
-        }, 30000);
+        }, 60000);
     },
 };
 </script>

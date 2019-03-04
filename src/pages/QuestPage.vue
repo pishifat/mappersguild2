@@ -300,7 +300,7 @@ export default {
                 this.partySize = response.data.members.length;
                 this.partyName = response.data.name;
             });
-        }, 30000);
+        }, 60000);
     }
 }
 </script>
