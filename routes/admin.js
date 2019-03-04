@@ -563,6 +563,7 @@ router.post('/updateUserPoints', async (req, res) => {
             maps.forEach(map => {
                 let questParticipation = false;
                 let length;
+
                 if(map.length <= 90){
                     length = map.length
                 }else if (map.length <= 150){
@@ -594,9 +595,6 @@ router.post('/updateUserPoints', async (req, res) => {
                                 let taskPoints = pointsObject[task.name]["num"];
                                 if(task.name != "Storyboard"){
                                     taskPoints *= (length/lengthNerf);
-                                }
-                                if(map.length == 164){
-                                    console.log(`${task.name}: ${taskPoints} (${length})`)
                                 }
                                 
                                 pointsObject[task.name]["total"] += (taskPoints + questBonus) / task.mappers.length;
