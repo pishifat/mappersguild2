@@ -118,7 +118,7 @@ async function beatmapsetInfo(setId) {
     
     try {
         const res = await axios.get(url);
-        return res[0];
+        return res.data[0];
     } catch (error) {
         console.log(error);
     }

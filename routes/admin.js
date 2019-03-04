@@ -82,29 +82,31 @@ router.get('/relevantInfo/', async (req, res) => {
                     } else {
                         bmId = bm.url.slice(indexStart);
                     }
-        
-                    let status = api.beatmapsetInfo(bmId);
-                    switch (status) {
-                        case 4:
-                            status = 'loved';
-                            break;
-                        case 3:
-                            status = 'qualified';
-                            break;
-                        case 2:
-                            status = 'approved';
-                            break;
-                        case 1:
-                            status = 'ranked';
-                            break;
-                        default:
-                            status = 'probably pending';
-                            break;
+                    
+                    const bmInfo = await api.beatmapsetInfo(bmId);
+                    let status = '';
+                    if (bmInfo) {
+                        switch (bmInfo.approved) {
+                            case '4':
+                                status = 'loved';
+                                break;
+                            case '3':
+                                status = 'qualified';
+                                break;
+                            case '2':
+                                status = 'approved';
+                                break;
+                            case '1':
+                                status = 'ranked';
+                                break;
+                            default:
+                                status = 'probably pending';
+                                break;
+                        }
+    
                     }
-
                     bm.status = `${bm.status}: ${status}`;
                 }
-
             }
         }
                 
