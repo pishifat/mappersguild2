@@ -86,7 +86,7 @@ export default {
             this.beatmaps = this.allBeatmaps;
             if (this.filterValue.length) {
                 this.beatmaps = this.beatmaps.filter(b => {
-                    let valid = b.song.title + ' ' + b.song.artist + ' ' + b.host.username + ' ' + b.mode;
+                    let valid = b.song.artist + ' ' + b.song.title + ' ' + b.host.username + ' ' + b.mode;
                     valid += b.quest ? (' ' + b.quest.name) : ' noquest';
 
                     b.tasks.forEach(task => {
