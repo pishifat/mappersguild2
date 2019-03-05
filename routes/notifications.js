@@ -219,8 +219,8 @@ router.post('/acceptHost/:id', async (req, res) => {
             });
         }
     }
-    if (b.status == 'Ranked') {
-        return res.json({ error: 'Mapset ranked' });
+    if (b.status != 'WIP') {
+        return res.json({ error: `Mapset already marked as ${b.status.toLowerCase()}` });
     }
     await invites.service.update(req.params.id, { visible: false });
     invite = await invites.service.query({ _id: req.params.id }, defaultInvitePopulate);
@@ -264,8 +264,8 @@ router.post('/acceptDiff/:id', async (req, res) => {
     if (valid.error) {
         return res.json(valid);
     }
-    if (b.status == 'Ranked') {
-        return res.json({ error: 'Mapset ranked' });
+    if (b.status != 'WIP') {
+        return res.json({ error: `Mapset already marked as ${b.status.toLowerCase()}` });
     }
     await invites.service.update(req.params.id, { visible: false });
     invite = await invites.service.query({ _id: req.params.id }, defaultInvitePopulate);

@@ -21,7 +21,7 @@
             <div class='card-body overwrite-card-spacing'>
                 <span v-if="quest.status == 'open'">
                     <p class='card-text text-shadow small'>Objective: <p class='indent text-shadow small'>{{quest.descriptionMain}}</p>
-                    <p class='card-text text-shadow small text-shadow' style='margin-top:0.5rem'>Reward: {{quest.reward}} bonus points for each user <span v-if="quest.medal">+ a pack-exclusive medal</span></p>
+                    <p class='card-text text-shadow small text-shadow' style='margin-top:0.5rem'>Reward: {{quest.reward}} bonus points for each user <span v-if="quest.medal">+ a pack-exclusive medal/achievement</span></p>
                     <p class='card-text text-shadow small'>Party: {{quest.minParty}}-{{quest.maxParty}} members, rank {{quest.minRank}}+</p>
                 </span>
                 <span v-if="quest.status == 'wip'">

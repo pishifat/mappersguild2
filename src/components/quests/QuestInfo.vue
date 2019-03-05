@@ -35,7 +35,7 @@
                 <hr>
 
                 <span v-if="quest.status == 'open'">
-                    <p class="text-shadow">Reward: {{quest.reward}} bonus points for each user + 2 additional points per task on each mapset <span v-if="quest.medal">+ a pack-exclusive medal</span></p>
+                    <p class="text-shadow">Reward: {{quest.reward}} bonus points for each user + 2 additional points per task on each mapset <span v-if="quest.medal">+ a pack-exclusive medal/achievement</span></p>
                     <p class="text-shadow">Party size: {{quest.minParty}}-{{quest.maxParty}} members</p>
                     <p class="text-shadow">Required Rank: {{quest.minRank}}</p>
                     <p class="text-shadow">Timeframe: {{Math.round(quest.timeframe / (1000*60*60*24))}} days</p>
@@ -75,7 +75,7 @@
                         </ul>
                     </span>
                     <hr>
-                    <p class="text-shadow">Reward: {{quest.reward}} bonus points for each user + 2 additional points per task on each mapset <span v-if="quest.medal">+ a pack-exclusive medal</span></p>
+                    <p class="text-shadow">Reward: {{quest.reward}} bonus points for each user + 2 additional points per task on each mapset <span v-if="quest.medal">+ a pack-exclusive medal/achievement</span></p>
                     <p class='card-text text-shadow' style='margin-top:0.5rem'>Deadline: {{quest.deadline.slice(0,10)}}</p>
                     <div v-if="quest.id == partyQuest">
                         <hr>
@@ -97,7 +97,7 @@
                 </p>
                 </span>
                 <span v-if="quest.status == 'done'">
-                    <p class="text-shadow">Reward: {{quest.reward}} bonus points for each user + 2 additional points per task on each mapset <span v-if="quest.medal">+ a pack-exclusive medal</span></p>
+                    <p class="text-shadow">Reward: {{quest.reward}} bonus points for each user + 2 additional points per task on each mapset <span v-if="quest.medal">+ a pack-exclusive medal/achievement</span></p>
                     <p class='card-text text-shadow'>Completed on {{quest.completed.slice(0,10)}} by:
                     <ul style="list-style-type: none">
                         <li class="text-shadow small" v-for="member in quest.completedMembers" :key="member.id"><a :href="'https://osu.ppy.sh/users/' + member.osuId" target="_blank">{{ member.username }}</a></li>
