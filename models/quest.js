@@ -5,6 +5,7 @@ var questSchema = new mongoose.Schema({
     name: { type: String, required: true },
     descriptionMain: { type: String, required: true},
     descriptionFluff: { type: String, required: true},
+    content: [{ type: Object }],
     timeframe: { type: Number, required: true},
     reward: { type: Number, required: true},
     minParty: { type: Number, required: true},
@@ -97,7 +98,8 @@ class QuestService
             art: body.art, 
             exclusive: body.exclusive, 
             medal: body.medal,
-            color: body.color
+            color: body.color,
+            content: {artist: body.artist, string: body.string}
         });
         try {
             await quest.save();

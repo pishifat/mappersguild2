@@ -17,11 +17,23 @@
                 </div>
                 <p v-else class="text-shadow small">{{quest.descriptionFluff}}</p>
 
+                <p class="text-shadow">Objective: {{quest.descriptionMain}}</p>
+
+                <span v-if="quest.content.length && quest.status != 'done'">
+                    <p class="text-shadow">Content applicable for this quest:</p>
+                    <ul style="list-style-type: none">
+                        <li class="small text-shadow" v-for="content in quest.content" :key="content.string">
+                            <template>
+                                <a :href="'https://osu.ppy.sh/beatmaps/artists/' + content.artist" target="_blank">{{content.string}}</a>
+                            </template>
+                        </li>
+                    </ul>
+                </span>
+
                 <p v-if="quest.exclusive && quest.status == 'open'" class="small text-shadow">Because this quest involves unpublished featured artist content, it is rank-restricted and dropping it will make it unobtainable by any other party.</p>
 
-                <p class="text-shadow">Objective: {{quest.descriptionMain}}</p>
-                <p v-if="quest.status == 'wip'" class='card-text text-shadow' style='margin-top:0.5rem'>Deadline: {{quest.deadline.slice(0,10)}}</p>
                 <hr>
+
                 <span v-if="quest.status == 'open'">
                     <p class="text-shadow">Reward: {{quest.reward}} bonus points for each user + 2 additional points per task on each mapset <span v-if="quest.medal">+ a pack-exclusive medal</span></p>
                     <p class="text-shadow">Party size: {{quest.minParty}}-{{quest.maxParty}} members</p>
@@ -42,8 +54,7 @@
                         <button class="btn btn-mg btn-sm accept float-right" @click="acceptQuest($event)">Accept</button>
                     </div>
                 </span>
-                <span v-if="quest.status == 'wip'">
-                    <p class="text-shadow">Reward: {{quest.reward}} bonus points for each user + 2 additional points per task on each mapset <span v-if="quest.medal">+ a pack-exclusive medal</span></p>
+                <span v-if="quest.status == 'wip'"> 
                     <p class="text-shadow">Current Party: {{quest.assignedParty.name}}
                         <i v-if="quest.assignedParty.mode == 'taiko'" class="fas fa-drum"></i>
                         <i v-else-if="quest.assignedParty.mode == 'catch'" class="fas fa-apple-alt"></i>
@@ -63,6 +74,9 @@
                             </li>
                         </ul>
                     </span>
+                    <hr>
+                    <p class="text-shadow">Reward: {{quest.reward}} bonus points for each user + 2 additional points per task on each mapset <span v-if="quest.medal">+ a pack-exclusive medal</span></p>
+                    <p class='card-text text-shadow' style='margin-top:0.5rem'>Deadline: {{quest.deadline.slice(0,10)}}</p>
                     <div v-if="quest.id == partyQuest">
                         <hr>
                         <button class="btn btn-mg-used btn-sm float-right drop" @click="dropQuest($event)">Drop</button>

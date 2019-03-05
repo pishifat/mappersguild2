@@ -201,6 +201,19 @@ router.post('/updateMapStatus/:id', async (req, res) => {
                 await tasks.service.update(b.tasks[i], {status: "Done"});
             }
         }
+        if(req.body.status == "Ranked"){
+            let indexStart = b.url.indexOf('beatmapsets/') + 'beatmapsets/'.length;
+            let indexEnd = b.url.indexOf('#');
+            let bmId;
+
+            if (indexEnd !== -1) {
+                bmId = b.url.slice(indexStart, indexEnd);
+            } else {
+                bmId = b.url.slice(indexStart, (map.url.length-1));
+            }
+            const bmInfo = await api.beatmapsetInfo(bmId);
+            await beatmaps.service.update(b._id, {length: bmInfo.hit_length});
+        }
         b = await beatmaps.service.query({_id: req.params.id}, defaultMapPopulate);
         res.json(b);
         
@@ -411,7 +424,17 @@ router.post('/unhideQuest/:id', async (req, res) => {
         let quest = await quests.service.query({_id: req.params.id});
         res.json(quest);
         
-        logs.service.create(req.session.mongoId, `opened a quest`, req.params.id, 'quest' );
+        logs.service.create(req.session.mongoId, `revealed a quest`, req.params.id, 'quest' );
+    }
+});
+
+/* POST add content to quest */
+router.post('/addContent/:id', async (req, res) => {
+    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
+        let content = { artist: req.body.artist, string: req.body.string };
+        await quests.service.update(req.params.id, { $push: { content: content } });
+        let quest = await quests.service.query({_id: req.params.id});
+        res.json(quest);
     }
 });
 

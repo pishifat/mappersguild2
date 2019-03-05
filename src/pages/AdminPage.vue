@@ -228,6 +228,9 @@
                         <label class="col-sm-4" for="exclusive"> Exclusive?:</label><input class="col-sm-8 form-control" type="text" id="exclusive">
                         <label class="col-sm-4" for="medal"> Medal?:</label><input class="col-sm-8 form-control" type="text" id="medal">
                         <label class="col-sm-4" for="color"> color (#6digithex):</label><input class="col-sm-8 form-control" type="text" id="color">
+                        <p>content (add the rest after quest is created):</p>
+                        <label class="col-sm-4" for="artist">artist:</label><input class="col-sm-8 form-control" type="text" id="artist">
+                        <label class="col-sm-4" for="string">string:</label><input class="col-sm-8 form-control" type="text" id="string">
                     </div>
                     <p id="errors"></p>
                 </div>
@@ -269,6 +272,12 @@
                     <hr>
                     <div>
                         <button type="button" class="btn btn-mg-used btn-sm" @click="deleteQuest(selectedQuest.id, $event)">delete (for open quests)</button>
+                    </div>
+                    <hr>
+                    <div class="form-group row">
+                        <label class="col-sm-4" for="nextArtist">nextArtist:</label><input class="col-sm-8 form-control" type="text" id="nextArtist">
+                        <label class="col-sm-4" for="nextString">nextString:</label><input class="col-sm-8 form-control" type="text" id="nextString">
+                        <button type="button" class="btn btn-mg btn-sm" @click="addContent(selectedQuest.id, $event)">add applicable song/album/artist</button>
                     </div>
                     <p id="errors"></p>
                 </div>
@@ -632,6 +641,14 @@ export default {
                 this.updateQuest(q);
             }
         },
+        addContent: async function(id, e){
+            let nextArtist = $("#nextArtist").val();
+            let nextString = $("#nextString").val();
+            const q = await this.executePost('/admin/addContent/' + id, { artist: nextArtist, string: nextString }, e);
+            if(q){
+                this.updateQuest(q);
+            }
+        },
         deleteQuest: async function(id, e){
             const q = await this.executePost('/admin/deleteQuest/' + id, {}, e);
             if(q){
@@ -660,6 +677,8 @@ export default {
             let exclusive = $("#exclusive").val();
             let medal = $("#medal").val();
             let color = $("#color").val();
+            let artist = $("#artist").val();
+            let string = $("#string").val();
             const q = await this.executePost('/admin/createQuest/', { 
                 name: name, 
                 reward: reward, 
@@ -672,7 +691,9 @@ export default {
                 art: art, 
                 exclusive: exclusive, 
                 medal: medal,
-                color: color 
+                color: color,
+                artist: artist,
+                string: string
             }, e);
             if(q){
                 $('#createQuest').modal('hide');

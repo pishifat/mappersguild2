@@ -152,7 +152,7 @@ router.get('/relevantInfo', async (req, res, next) => {
         beatmaps.service.query(
             { status: { $ne: 'Ranked' } },
             defaultPopulate,
-            { quest: -1, status: 1, createdAt: -1 },
+            { quest: -1, status: 1, updatedAt: -1 },
             true
         ),
     ]);
