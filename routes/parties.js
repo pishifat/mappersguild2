@@ -59,21 +59,24 @@ async function questPenalty(u, p, userMongoId) {
             }
         });
     } else {
-        let penalty = u.penaltyPoints + q.reward;
-        users.service.update(u._id, { penaltyPoints: penalty });
-        questMaps.forEach(map => {
-            let invalid = false;
-            map.tasks.forEach(task => {
-                task.mappers.forEach(mapper => {
-                    if (mapper.id == u.id) {
-                        invalid = true;
-                    }
+        const timeWindow = (new Date() - p.currentQuest.accepted) / (24*3600*1000);
+        if(timeWindow > 7){
+            let penalty = u.penaltyPoints + q.reward;
+            users.service.update(u._id, { penaltyPoints: penalty });
+            questMaps.forEach(map => {
+                let invalid = false;
+                map.tasks.forEach(task => {
+                    task.mappers.forEach(mapper => {
+                        if (mapper.id == u.id) {
+                            invalid = true;
+                        }
+                    });
                 });
+                if (invalid) {
+                    beatmaps.service.update(map._id, { quest: undefined });
+                }
             });
-            if (invalid) {
-                beatmaps.service.update(map._id, { quest: undefined });
-            }
-        });
+        }
     }
 }
 
@@ -147,7 +150,7 @@ router.post('/create', async (req, res) => {
     if (isMember) {
         return res.json({ error: 'Leave your current party before creating a new one!' });
     }
-    const p = await parties.service.create(req.body.name, req.session.mongoId);
+    const p = await parties.service.create(req.body.name, req.session.mongoId, req.body.mode);
     if (p) {
         await updatePartyRank(p._id);
         await users.service.update(req.session.mongoId, { currentParty: p._id });
@@ -325,6 +328,24 @@ router.post('/rename', async (req, res) => {
     logs.service.create(
         req.session.mongoId,
         `renamed party from "${p.name}" to "${req.body.newName}"`,
+        p._id,
+        'party'
+    );
+});
+
+/* POST update party mode */
+router.post('/setMode/', async (req, res) => {
+    let p = await parties.service.query({ leader: req.session.mongoId });
+    if (!p) {
+        return res.json({ error: 'Something went wrong!' });
+    }
+    await parties.service.update(p._id, { mode: req.body.mode });
+    p = await parties.service.query({ _id: p._id }, defaultPopulate);
+    res.json(p);
+
+    logs.service.create(
+        req.session.mongoId,
+        `changed main mode of party "${p.name}" to "${req.body.mode}"`,
         p._id,
         'party'
     );

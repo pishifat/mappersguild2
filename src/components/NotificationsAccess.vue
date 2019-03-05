@@ -48,7 +48,7 @@ export default {
                     this.notifications = response.data.notifications.length;
                     this.invites = response.data.invites.length;
                 });
-        }, 30000);
+        }, 300000);
     }
 }
 </script>

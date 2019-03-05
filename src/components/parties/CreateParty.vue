@@ -14,6 +14,29 @@
                     <div class="form-group row">
                         <label class="col-sm-4" for="partyName"> Party name:</label><input class="col-sm-8 form-control" style="border-radius: 100px 100px 100px 100px" type="text" id="partyName" @keyup.enter="createParty">
                     </div>
+
+                    <p class="text-shadow">Primary game-mode:</p>
+                    <div class="form-group row">
+                        <div class="col-sm-12">
+                            <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="mode" id="osu" value="osu" checked>
+                            <label class="form-check-label text-shadow" for="osu">osu!</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="mode" id="taiko" value="taiko">
+                            <label class="form-check-label text-shadow" for="taiko">osu!taiko</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="mode" id="catch" value="catch">
+                            <label class="form-check-label text-shadow" for="catch">osu!catch</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="mode" id="mania" value="mania">
+                            <label class="form-check-label text-shadow" for="mania">osu!mania</label>
+                            </div>
+                        </div>
+                    </div>
+
                     <p class="mt-4 text-shadow errors">{{ info }}</p>
                     <hr>
                     <button type="button" class="btn btn-mg float-right" @click="createParty($event)">Save</button>
@@ -51,11 +74,12 @@ export default {
 			if (e) e.target.disabled = false;
 		},
         createParty: async function (e) {
-			const name = $("#partyName").val();
+            const name = $("#partyName").val();
+            const mode = $('input[name=mode]:checked').val();
 			if (name.length < 3 || name.length > 32) {
 				this.$parent.info = `Party name must be between 3 and 32 characters! Yours is ${name.length} ${name.length == 1 ? 'character' : 'characters'}`;
 			} else {
-				const party = await this.executePost('/parties/create', { name: name }, e);
+				const party = await this.executePost('/parties/create', { name: name, mode: mode }, e);
 				if (party) {
 					this.$parent.userPartyId = party.id;
 					this.$parent.parties.unshift(party);

@@ -6,7 +6,7 @@ const beatmapSchema = new mongoose.Schema({
     host: { type: 'ObjectId', ref: 'User', required: true },
     status: { type: String, enum: ['WIP', 'Done', 'Qualified', 'Ranked'], default: 'WIP' },
     tasks: [{ type: 'ObjectId', ref: 'Task' }],
-    tasksLocked: [{ type: String, enum: ['Easy', 'Normal', 'Hard', 'Insane', 'Expert'] }],
+    tasksLocked: [{ type: String, enum: ['Easy', 'Normal', 'Hard', 'Insane', 'Expert', 'Storyboard'] }],
     modders: [{ type: 'ObjectId', ref: 'User' }],
     bns: [{ type: 'ObjectId', ref: 'User' }],
     quest: { type: 'ObjectId', ref: 'Quest' },

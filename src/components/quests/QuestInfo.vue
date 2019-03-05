@@ -44,7 +44,11 @@
                 </span>
                 <span v-if="quest.status == 'wip'">
                     <p class="text-shadow">Reward: {{quest.reward}} bonus points for each user + 2 additional points per task on each mapset <span v-if="quest.medal">+ a pack-exclusive medal</span></p>
-                    <p class="text-shadow">Current Party: {{quest.assignedParty.name}}</p>
+                    <p class="text-shadow">Current Party: {{quest.assignedParty.name}}
+                        <i v-if="quest.assignedParty.mode == 'taiko'" class="fas fa-drum"></i>
+                        <i v-else-if="quest.assignedParty.mode == 'catch'" class="fas fa-apple-alt"></i>
+                        <i v-else-if="quest.assignedParty.mode == 'mania'" class="fas fa-stream"></i>
+                    </p>
                     <p class="text-shadow pl-4 small">Members: <template v-for="(member, i) in quest.assignedParty.members"><a :key="i" :href="'https://osu.ppy.sh/users/' + member.osuId" target="_blank">{{ member.username + (i < quest.assignedParty.members.length - 1 ? ', ' : '') }}</a></template></p>
                     <span v-if="quest.associatedMaps.length">
                         <p class="text-shadow">Associated maps:</p>

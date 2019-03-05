@@ -12,7 +12,7 @@ var router = express.Router();
 router.use(api.isLoggedIn);
 
 const defaultPopulate = [
-    { populate: 'assignedParty',  display: 'name' },
+    { populate: 'assignedParty',  display: 'name mode' },
     { innerPopulate: 'assignedParty',  populate: { path: 'members leader' } },
     { populate: 'completedMembers',  display: 'username' },
     { innerPopulate: 'associatedMaps',  populate: { path: 'song host' } }
@@ -99,6 +99,37 @@ router.post('/acceptQuest/:id', async (req, res) => {
             notifications.service.create(q.id, `accepted the quest "${q.name}" for your party`, member, req.session.mongoId);
         }
     });
+
+    //webhook for accept
+    let populate = [
+        { populate: 'currentQuest', display: 'name art' },
+        { populate: 'leader',  display: 'osuId' },
+        { populate: 'members',  display: 'username' }
+    ]
+    p = await parties.service.query({_id: p._id}, populate);
+    let memberList = "";
+    for (let i = 0; i < p.members.length; i++) {
+        memberList += p.members[i].username
+        if(i != p.members.length - 1){
+            memberList += ", ";
+        }
+    }
+    p.members
+    api.webhookPost([{
+        author: {
+            name: `Party "${p.name}" claimed quest: "${p.currentQuest.name}"`,
+            url: `https://mappersguild.com/quests`,
+            icon_url: `https://a.ppy.sh/${p.leader.osuId}`,
+        },
+        color: '11403103',
+        thumbnail: {
+            url: `https://assets.ppy.sh/artists/${p.currentQuest.art}/cover.jpg`
+        },
+        fields: [{
+            name: "Members",
+            value: memberList
+        }]
+    }]);
 });
 
 /* POST drops party's quest. */

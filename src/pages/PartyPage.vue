@@ -5,7 +5,9 @@
         <small>Sort: 
             <a :class="sortBy === 'members' ? 'sorted' : ''" href="#" @click.prevent="sort('members')">Members</a> | 
             <a :class="sortBy === 'rank' ? 'sorted' : ''" href="#" @click.prevent="sort('rank')">Rank</a> | 
-            <a :class="sortBy === 'createdAt' ? 'sorted' : ''" href="#" @click.prevent="sort('createdAt')">Created</a>
+            <a :class="sortBy === 'createdAt' ? 'sorted' : ''" href="#" @click.prevent="sort('createdAt')">Created</a> | 
+			<a :class="sortBy === 'mode' ? 'sorted' : ''" href="#" @click.prevent="sort('mode')">Mode</a>
+
         </small>
         <div id="parties">
             <transition-group name="list" tag="div" class="row">
@@ -155,7 +157,19 @@ export default {
 					}
 					return 0;
 				});
+			} else if (field == 'mode') {
+				this.parties.sort((a, b) => {
+					if (this.asc) {
+						var sort = { "osu": 1, "taiko": 2, "catch": 3, "mania": 4 };
+						return sort[a.mode] - sort[b.mode];
+					} else {
+						var sort = { "osu": 1, "taiko": 2, "catch": 3, "mania": 4 };
+						return sort[b.mode] - sort[a.mode];
+					}
+					return 0;
+				});
 			}
+			
 		}
 	},
 	data () {

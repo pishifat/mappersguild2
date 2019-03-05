@@ -38,8 +38,9 @@ router.get('/login', async (req, res, next) => {
                 req.session.mongoId = user._id;
                 api.webhookPost([{
                     author: {
-                        name: `${user.username} joined the guild!`,
-                        'icon_url': `https://a.ppy.sh/${user.osuId}`,
+                        name: `${u.username} joined the guild!`,
+                        icon_url: `https://a.ppy.sh/${u.osuId}`,
+                        url: `https://osu.ppy.sh/u/${u.osuId}`
                     },
                     color: '14707049',
                 }]);

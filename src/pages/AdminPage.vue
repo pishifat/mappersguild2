@@ -1,8 +1,20 @@
 <template>
 <div>
+<div class="segment" style="position: fixed; top: 70px; left: 20px;">
+    <p>Quick access</p>
+    <ol>
+        <li><a href="#beatmaps">Beatmaps</a></li>
+        <li><a href="#quests">Quests</a></li>
+        <li><a href="#parties">Parties</a></li>
+        <li><a href="#users">Users</a></li>
+        <li><a href="#featuredArtists">Featured Artists</a></li>
+        <li><a href="#errors">Errors</a></li>
+        <li><a href="#webhook">Webhook</a></li>
+    </ol>
+</div>
 <div class="row">
     <div class="col-md-12">
-        <h2>Beatmaps <button class="btn btn-mg btn-sm temp float-right" @click="updateMapLengths($event)">update map lengths</button></h2> 
+        <h2 id="beatmaps">Beatmaps <button class="btn btn-mg btn-sm temp float-right" @click="updateMapLengths($event)">update map lengths</button></h2> 
         <table class="small table">
             <thead>
                 <th scope="col" style="padding: 2px;">id</th>
@@ -22,7 +34,7 @@
             </tbody>
         </table>
 
-        <h2>Quests <button class="btn btn-mg btn-sm temp float-right" data-toggle="modal" data-target="#createQuest">new quest</button></h2> 
+        <h2 id="quests">Quests <button class="btn btn-mg btn-sm temp float-right" data-toggle="modal" data-target="#createQuest">new quest</button></h2> 
         <table class="small table">
             <thead>
                 <th scope="col" style="padding: 2px;">id</th>
@@ -39,7 +51,7 @@
                 </tr>
             </tbody>
         </table>
-        <h2>Parties <button class="btn btn-mg btn-sm temp float-right" @click="updatePartyRanks($event)">refresh party ranks</button></h2>
+        <h2 id="parties">Parties <button class="btn btn-mg btn-sm temp float-right" @click="updatePartyRanks($event)">refresh party ranks</button></h2>
         <table class="small table">
             <thead>
                 <th scope="col" style="padding: 2px;">id</th>
@@ -56,7 +68,7 @@
                 </tr>
             </tbody>
         </table>
-        <h2>Users 
+        <h2 id="users">Users 
             <button class="btn btn-mg btn-sm temp float-right" @click="updateUserPoints($event);">refresh user points</button>
         </h2>
         <table class="small table">
@@ -75,7 +87,7 @@
                 </tr>
             </tbody>
         </table>
-        <h2>Featured Artists <button class="btn btn-mg btn-sm temp float-right" data-toggle="modal" data-target="#newArtist">new artist</button></h2>
+        <h2 id="featuredArtists">Featured Artists <button class="btn btn-mg btn-sm temp float-right" data-toggle="modal" data-target="#newArtist">new artist</button></h2>
         <table class="small table">
             <thead>
                 <th scope="col" style="padding: 2px;">id</th>
@@ -93,7 +105,7 @@
             </tbody>
         </table>
 
-        <h2>Errors</h2> 
+        <h2 id="errors">Errors</h2> 
         <table class="small table">
             <thead>
                 <th scope="col" style="padding: 2px;">user</th>
@@ -109,6 +121,7 @@
             </tbody>
         </table>
     </div>
+    <button id="webhook" class="btn btn-mg btn-sm temp float-right" @click="generateWebhook($event)">test webhook (ONLY USE THIS LOCALLY)</button>
 </div>
 
 <div id="editMap" class="modal fade" tabindex="-1">
@@ -456,7 +469,6 @@
         </div>
     </div>
 </div>
-
 </div>
 
 </template>
@@ -528,6 +540,13 @@ export default {
             }
 
             if (e) e.target.disabled = false;
+        },
+
+        generateWebhook: async function(e){
+            const success = await this.executePost('/admin/generateWebhook/', {}, e);
+            if(success){
+                console.log('webhook tested');
+            }
         },
 
         //beatmaps

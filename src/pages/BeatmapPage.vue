@@ -18,8 +18,8 @@
             id="search"
             v-model="filterValue"
             type="text"
-            placeholder="song, username or quest... (3+ characters)"
-            style="border-radius: 5px 5px 5px 5px; filter: drop-shadow(1px 1px 1px #000000); width: 266px;"
+            placeholder="song/username/quest/mode... (3+ characters)"
+            style="border-radius: 5px 5px 5px 5px; filter: drop-shadow(1px 1px 1px #000000); width: 280px;"
           >
         </small>
       </div>
@@ -150,8 +150,8 @@ export default {
             this.beatmaps = this.allBeatmaps;
             if (this.filterValue.length > 2) {
                 this.beatmaps = this.beatmaps.filter(b => {
-                    let valid = b.song.title + ' ' + b.song.artist + ' ' + b.host.username;
-                    valid += b.quest ? ' ' + b.quest.name : '';
+                    let valid = b.song.title + ' ' + b.song.artist + ' ' + b.host.username + ' ' + b.mode;
+                    valid += b.quest ? ' ' + b.quest.name : ' noquest';
 
                     b.tasks.forEach(task => {
                         task.mappers.forEach(mapper => {

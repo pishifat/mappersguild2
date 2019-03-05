@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const logs = require('./log');
 
 const taskSchema = new mongoose.Schema({
-    name: { type: String, enum: ['Easy', 'Normal', 'Hard', 'Insane', 'Expert', 'Storyboard', 'Background', 'Skin'], required: true },
+    name: { type: String, enum: ['Easy', 'Normal', 'Hard', 'Insane', 'Expert', 'Storyboard'], required: true },
     mappers: [{ type: 'ObjectId', ref: 'User', required: true }],
     status: { type: String, enum: ['WIP', 'Done'], default: 'WIP' },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });

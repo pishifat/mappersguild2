@@ -3,7 +3,11 @@
     <div class="modal-dialog">
         <div class="modal-content custom-bg-dark" v-if="party">
             <div class="modal-header modal-header-card text-dark" :class="'bg-rank-' + party.rank">
-                <h5 class="modal-title modal-title-card">{{ party.name }}</h5>
+                <h5 class="modal-title modal-title-card">{{ party.name }}
+                    <i v-if="party.mode == 'taiko'" class="fas fa-drum"></i>
+                    <i v-else-if="party.mode == 'catch'" class="fas fa-apple-alt"></i>
+                    <i v-else-if="party.mode == 'mania'" class="fas fa-stream"></i>
+                </h5>
                 <button type="button" class="close" data-dismiss="modal">
                 <span>&times;</span>
                 </button>
@@ -73,6 +77,50 @@
                         </div>
                     </div>
 
+                    <p class="text-shadow">
+                    Mode:
+                    <button
+                        class="btn btn-sm btn-mg-done"
+                        :disabled="party.mode == 'osu'"
+                        @click="setMode('osu', $event)"
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        title="osu!"
+                    >
+                        <i class="far fa-circle"></i>
+                    </button>
+                    <button
+                        class="btn btn-sm btn-mg-done"
+                        :disabled="party.mode == 'taiko'"
+                        @click="setMode('taiko', $event)"
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        title="osu!taiko"
+                    >
+                         <i class="fas fa-drum"></i>
+                    </button>
+                    <button
+                        class="btn btn-sm btn-mg-done"
+                        :disabled="party.mode == 'catch'"
+                        @click="setMode('catch', $event)"
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        title="osu!catch"
+                    >
+                        <i class="fas fa-apple-alt"></i>
+                    </button>
+                    <button
+                        class="btn btn-sm btn-mg-done"
+                        :disabled="party.mode == 'mania'"
+                        @click="setMode('mania', $event)"
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        title="osu!mania"
+                    >
+                        <i class="fas fa-stream"></i>
+                    </button>
+                  </p>
+
                     <button 
                         class="btn btn-sm justify-content-center" 
                         :class="{ 'btn-mg': party.lock, 'btn-mg-used': !party.lock }" 
@@ -84,13 +132,13 @@
                 <!-- end leader options -->
 
                 <hr>
-                <div v-if="!(!userPartyId && !party.lock && !party.currentQuest && party.members.length <= 12) && userPartyId != party.id">
+                <div v-if="!(!userPartyId && !party.lock && !party.currentQuest && party.members.length < 12) && userPartyId != party.id">
                     <p class="small text-shadow">You're unable to join this party because:</p>
                     <ul style="list-style-type: none" class="small text-shadow">
                         <li v-if="userPartyId">You can only be in one party at a time</li>
                         <li v-if="party.lock">The party's leader has disabled new member entry</li>
                         <li v-if="party.currentQuest">The party is currently running a quest</li>
-                        <li v-if="party.members.length >= 12">The party has the maximum number of members (12)</li>
+                        <li v-if="party.members.length == 12">The party has the maximum number of members (12)</li>
                     </ul>
                 </div>
 
@@ -201,6 +249,12 @@ export default {
 					}
 				}
 			}
+        },
+        setMode: async function(mode, e) {
+            const party = await this.executePost('/parties/setMode/', { mode: mode }, e);
+            if (party) {
+                this.$emit('update-party', party);
+            }
         },
         switchLock: async function (e) {
 			const party = await this.executePost('/parties/switchLock', { partyId: this.party.id }, e);

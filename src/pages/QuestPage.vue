@@ -1,7 +1,7 @@
 <template>
 
 <div class="row">
-    <div class="col-lg-9">
+    <div class="col-lg-6"> <!--use 9 for 2 columns open-->
         <h2>Available<sup style="font-size: 12pt" data-toggle="tooltip" data-placement="top" title="view additional info"><a href="#" @click.prevent data-toggle="modal" data-target='#availableInfo'>?</a></sup></h2>
         <small>Sort: 
             <a :class="sortByOpen === 'createdAt' ? 'sorted' : ''" href="#" @click.prevent="sortOpenQuests('createdAt')">Date added</a> | 
@@ -23,7 +23,7 @@
             </transition-group>
         </div>
     </div>
-    <div class="col-lg-3">
+    <div class="col-lg-6"> <!--use 3 for 2 columns open-->
         <h2>In progress<sup style="font-size: 12pt" data-toggle="tooltip" data-placement="top" title="view additional info"><a href="#" @click.prevent data-toggle="modal" data-target='#wipInfo'>?</a></sup></h2>
         <small>Sort: 
             <a :class="sortByWip === 'createdAt' ? 'sorted' : ''" href="#" @click.prevent="sortWipQuests('createdAt')">Date added</a> | 

@@ -10,6 +10,7 @@ const partySchema = new mongoose.Schema({
     rank: { type: Number, default: 0},
     lock: {type: Boolean, default: false},
     art: { type: Number },
+    mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania'], default: 'osu'}
 
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
@@ -53,12 +54,13 @@ class PartyService
         }
     }
 
-    async create(name, userId) {
+    async create(name, userId, mode) {
         try {
             return await Party.create({ 
                 name: name,
                 leader: userId,
                 members: userId,
+                mode: mode
             });
         } catch(error) {
             logs.service.create(null, error, null, 'error'); 

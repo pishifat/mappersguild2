@@ -127,6 +127,43 @@ router.get('/relevantInfo/', async (req, res) => {
     }
 });
 
+//webhook testing
+router.post('/generateWebhook/', async (req, res) => {
+    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
+        let populate = [
+            { populate: 'currentQuest', display: 'name art' },
+            { populate: 'leader',  display: 'osuId' },
+            { populate: 'members',  display: 'username' }
+        ]
+        let p = await parties.service.query({name: "progressive"}, populate);
+        let memberList = "";
+        for (let i = 0; i < p.members.length; i++) {
+            memberList += p.members[i].username
+            if(i != p.members.length - 1){
+                memberList += ", ";
+            }
+        }
+        p.members
+        api.webhookPost([{
+            author: {
+                name: `Party "${p.name}" claimed quest: "${p.currentQuest.name}"`,
+                url: `https://mappersguild.com/quests`,
+                icon_url: `https://a.ppy.sh/${p.leader.osuId}`,
+            },
+            color: '11403103',
+            thumbnail: {
+                url: `https://assets.ppy.sh/artists/${p.currentQuest.art}/cover.jpg`
+            },
+            fields: [{
+                name: "Members",
+                value: memberList
+            }]
+        }]);
+        res.json("webhooked");
+
+    }
+});
+
 //beatmap
 
 /* POST update map lengths */
@@ -244,13 +281,14 @@ router.post('/createQuest', async (req, res) => {
     if(req.session.osuId == 3178418 || req.session.osuId == 1052994){
         var quest = await quests.service.create(req.body);
         if (quest) {
-            logs.service.create(req.session.mongoId, `created quest ${quest.name}`, quest._id, 'quest' );
+            logs.service.create(req.session.mongoId, `created quest "${quest.name}"`, quest._id, 'quest' );
             api.webhookPost([{
                 author: {
-                    name: `New Quest: ${quest.name}`
+                    name: `New Quest: ${quest.name}`,
+                    url: `https://mappersguild.com/quests`
                 },
                 thumbnail: {
-                    "url": `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`
+                    url: `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`
                 },
                 color: '16734308',
                 fields:[{
@@ -308,23 +346,49 @@ router.post('/forceDropQuest/:id', async (req, res) => {
 /* POST mark quest as complete */
 router.post('/completeQuest/:id', async (req, res) => {
     if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
-        let party = await parties.service.query({currentQuest: req.params.id});
+        let populate = [
+            { populate: 'currentQuest', display: 'name art' },
+            { populate: 'leader',  display: 'osuId' },
+            { populate: 'members',  display: 'username' }
+        ];
+        
+        let party = await parties.service.query({currentQuest: req.params.id}, populate);
         let quest = await quests.service.query({_id: req.params.id});
+
         if(quest.status == "wip"){
             await quests.service.update(quest._id, {status: "done"});
             await quests.service.update(quest._id, {completedMembers: party.members});
             await quests.service.update(quest._id, {completed: new Date()});
             await parties.service.update(party._id, {currentQuest: undefined});
             
-            logs.service.create(req.session.mongoId, `marked quest "${quest.name}" as complete`, req.params.id, 'quest' );
-            api.webhookPost([{
-                author: {
-                    name: `Quest Completed: ${quest.name}`,
-                    'icon_url': `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`,
-                },
-            }]);
             quest = await quests.service.query({_id: req.params.id});
             res.json(quest);
+
+            logs.service.create(req.session.mongoId, `marked quest "${quest.name}" as complete`, req.params.id, 'quest' );
+
+            //webhook
+            let memberList = "";
+            for (let i = 0; i < party.members.length; i++) {
+                memberList += party.members[i].username
+                if(i != party.members.length - 1){
+                    memberList += ", ";
+                }
+            }
+            api.webhookPost([{
+                author: {
+                    name: `Party "${party.name}" completed quest: "${quest.name}"`,
+                    url: `https://mappersguild.com/quests`,
+                    icon_url: `https://a.ppy.sh/${party.leader.osuId}`,
+                },
+                color: '11403103',
+                thumbnail: {
+                    url: `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`
+                },
+                fields: [{
+                    name: "Members",
+                    value: memberList
+                }]
+            }]);
         }
     }
 });
@@ -584,11 +648,9 @@ router.post('/updateUserPoints', async (req, res) => {
                         task.mappers.forEach(mapper => {
                             if(mapper._id.toString() == user._id.toString()){
                                 let questBonus = 0;
-                                if(map.quest){
+                                if(map.quest && task.name != "Storyboard"){
                                     questBonus = 2;
-                                    if(task.name != "Storyboard"){
-                                        questBonus *= (length/lengthNerf);
-                                    }
+                                    questBonus *= (length/lengthNerf);
                                     questParticipation = true;
                                 }
                                 

@@ -35,7 +35,7 @@
           <i v-else-if="beatmap.mode == 'catch'" class="fas fa-apple-alt"></i>
           <i v-else-if="beatmap.mode == 'mania'" class="fas fa-stream"></i>
           <span
-            class="font-weight-bold float-right"
+            class="font-weight-bold float-right pt-1"
             v-html="processDiffs(beatmap.tasks, beatmap.tasksLocked)"
           ></span>
         </small>
@@ -84,10 +84,16 @@ export default {
                 { name: 'Normal', short: 'N', count: 0 },
                 { name: 'Hard', short: 'H', count: 0 },
                 { name: 'Insane', short: 'I', count: 0 },
-                { name: 'Expert', short: 'X', count: 0 },
+                { name: 'Expert', short: 'X', count: 0 }
             ];
 
             let diffsBlock = '';
+
+            tasks.forEach(task => {
+                if(task.name == "Storyboard"){
+                    diffsBlock += `<span class="px-1 text-shadow ${task.status.toLowerCase()}">SB</span>`
+                }
+            });
 
             if (tasks.length >= 10) {
                 let singleStatus;

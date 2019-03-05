@@ -4,7 +4,11 @@
         <img :class="party.id + '-card-image'" :src="party.art ? 'https://assets.ppy.sh/beatmaps/' + party.art + '/covers/cover.jpg' : 'https://osu.ppy.sh/images/layout/beatmaps/default-bg.png'" style="right:250px;"> 
         <div class='card-img-overlay' style='padding: 0'>
             <div class="card-header text-shadow">
-                <big :class="party.id + '-name'">{{party.name}}</big>
+                <big :class="party.id + '-name'">{{party.name}} 
+                    <i v-if="party.mode == 'taiko'" class="fas fa-drum"></i>
+                    <i v-else-if="party.mode == 'catch'" class="fas fa-apple-alt"></i>
+                    <i v-else-if="party.mode == 'mania'" class="fas fa-stream"></i>
+                </big>
                 <span v-if="userPartyId == party.id">
                     <button v-if="userId == party.leader.osuId && party.members.length == 1" class='btn btn-mg-used btn-sm justify-content-center float-right' @click.stop="deleteParty($event)">Disband party</button>
                     <button v-else-if="userId == party.leader.osuId && party.members.length > 1" class='btn btn-mg-used btn-sm justify-content-center float-right' disabled>Leave party</button>
