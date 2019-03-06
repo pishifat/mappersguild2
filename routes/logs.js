@@ -30,7 +30,7 @@ router.get('/', async (req, res, next) => {
 router.get('/more/:skip', async (req, res, next) => {
     const populate = [{ populate: 'user', display: 'username' }];
 
-    res.json(await logs.service.query({}, populate, { createdAt: -1 }, true, 100, parseInt(req.params.skip)));
+    res.json(await logs.service.query({ category: { $ne: 'error' }}, populate, { createdAt: -1 }, true, 100, parseInt(req.params.skip)));
 });
 
 /* POST creates a test log */

@@ -336,6 +336,15 @@ input[type='text']:focus {
     background-repeat: no-repeat;
 }
 
+.select-arrow-filter {
+    background-image: linear-gradient(45deg, transparent 50%, gray 50%),
+        linear-gradient(135deg, gray 50%, transparent 50%);
+    background-position: calc(100% - 10px) calc(0.75em), calc(100% - 5px) calc(0.75em),
+        calc(100% - 2.5em) 0.5em;
+    background-size: 5px 5px, 5px 5px, 1px 1.5em;
+    background-repeat: no-repeat;
+}
+
 .confirm {
     color: var(--ranked);
 }
