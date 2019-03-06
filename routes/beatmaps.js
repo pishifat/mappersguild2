@@ -344,10 +344,10 @@ router.post('/task/:taskId/removeCollab', async (req, res) => {
 /* POST set status of the task selected from extended view. */
 router.post('/setTaskStatus/:taskId', async (req, res) => {
     let t = await tasks.service.query({ _id: req.params.taskId });
-    if (t.mappers.indexOf(req.session.mongoId) < 0) {
+    let b = await beatmaps.service.query({ tasks: t._id }, defaultPopulate);
+    if (t.mappers.indexOf(req.session.mongoId) < 0 && req.session.mongoId != b.host.id) {
         return res.json({ error: 'Not mapper' });
     }
-    let b = await beatmaps.service.query({ tasks: t._id }, defaultPopulate);
     if (b.status == 'Ranked') {
         return res.json({ error: 'Mapset ranked' });
     }
