@@ -33,11 +33,9 @@ router.get('/login', async (req, res, next) => {
         const u = await users.service.query({ osuId: req.session.osuId });
         if (!u || u.error) {
             const user = await users.service.create(req.session.osuId, req.session.username);
-            console.log(user);
+            
             if (user && !user.error) {
-                console.log("pass")
                 req.session.mongoId = user._id;
-                console.log("mongoid: " + req.session.mongoId)
                 api.webhookPost([{
                     author: {
                         name: `${u.username} joined the guild!`,
@@ -103,7 +101,7 @@ router.get('/callback', async (req, res) => {
 
         if (response.error) {
             res.status(500).render('error');
-        } else if (response.ranked_and_approved_beatmapset_count >= 0 && response.kudosu.total >= 100) {
+        } else if (response.ranked_and_approved_beatmapset_count >= 3 && response.kudosu.total >= 0) {
             req.session.username = response.username;
             req.session.osuId = response.id;
             res.redirect('/login');
