@@ -6,6 +6,8 @@ var userSchema = new mongoose.Schema({
     username: { type: String, required: true },
     group: { type: String, enum: ['user', 'hidden', 'admin'], default: 'user' }, //deleting a user instance causes problems, so people who want to "leave" will be hidden on the user listing, but still in the db
     currentParty: { type: 'ObjectId', ref: 'Party' },
+    invites: { type: Boolean, default: true },
+
     rank: { type: Number, default: 0 },
     easyPoints: { type: Number, default: 0 },
     normalPoints: { type: Number, default: 0 },
@@ -16,10 +18,18 @@ var userSchema = new mongoose.Schema({
     questPoints: { type: Number, default: 0 },
     modPoints: { type: Number, default: 0 },
     hostPoints: { type: Number, default: 0 },
-    completedQuests: [{type: 'ObjectId', ref: 'Quest'}],
+    
+    osuPoints: { type: Number, default: 0 },
+    taikoPoints: { type: Number, default: 0 },
+    catchPoints: { type: Number, default: 0 },
+    maniaPoints: { type: Number, default: 0 },
+
     legacyPoints: { type: Number, default: 0 },
     penaltyPoints: { type: Number, default: 0 },
-    invites: { type: Boolean, default: true },
+
+    completedQuests: [{type: 'ObjectId', ref: 'Quest'}],
+
+    
     
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 

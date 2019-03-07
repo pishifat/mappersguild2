@@ -91,11 +91,35 @@
                                 <td scope="row" style="padding: 1px;">
                                     -{{Math.round(user.penaltyPoints*10)/10}}</td>
                             </tr>
-                            <tr>
+                            <tr v-if="user.osuPoints">
                                 <td scope="row" style="padding: 1px;" data-toggle="tooltip" data-placement="left"
+                                    title="mapping osu! game mode"><i>Total osu! points</i></td>
+                                <td scope="row" style="padding: 1px;">
+                                    {{Math.round(user.osuPoints*10)/10}}</td>
+                            </tr>
+                            <tr v-if="user.taikoPoints">
+                                <td scope="row" style="padding: 1px;" data-toggle="tooltip" data-placement="left"
+                                    title="mapping osu!taiko game mode"><i>Total osu! taiko points</i></td>
+                                <td scope="row" style="padding: 1px;">
+                                    {{Math.round(user.taikoPoints*10)/10}}</td>
+                            </tr>
+                            <tr v-if="user.catchPoints">
+                                <td scope="row" style="padding: 1px;" data-toggle="tooltip" data-placement="left"
+                                    title="mapping osu!catch game mode"><i>Total osu! catch points</i></td>
+                                <td scope="row" style="padding: 1px;">
+                                    {{Math.round(user.catchPoints*10)/10}}</td>
+                            </tr>
+                            <tr v-if="user.maniaPoints">
+                                <td scope="row" style="padding: 1px;" data-toggle="tooltip" data-placement="left"
+                                    title="mapping osu!mania game mode"><i>Total osu! mania points</i></td>
+                                <td scope="row" style="padding: 1px;">
+                                    {{Math.round(user.maniaPoints*10)/10}}</td>
+                            </tr>
+                            <tr>
+                                <td scope="row" style="padding: 1px; font-size: 12pt" data-toggle="tooltip" data-placement="left"
                                     title="all points rewarded when map is ranked/quest is completed. collaborations split points">
                                     <i>Total points</i></td>
-                                <td scope="row" style="padding: 1px;">{{user.totalPoints}}</td>
+                                <td scope="row" style="padding: 1px; font-size: 12pt">{{user.totalPoints}}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -139,6 +163,9 @@
                                 <template v-else>
                                     <span>{{map.song.artist}} - {{map.song.title}}</span>
                                 </template>
+                                <i v-if="map.mode == 'taiko'" class="fas fa-drum"></i>
+                                <i v-else-if="map.mode == 'catch'" class="fas fa-apple-alt"></i>
+                                <i v-else-if="map.mode == 'mania'" class="fas fa-stream"></i>
                             </td>
                             <td scope="row" style="padding: 1px;">
                                 <a :href="'https://osu.ppy.sh/users/' + map.host.osuId" target="_blank">

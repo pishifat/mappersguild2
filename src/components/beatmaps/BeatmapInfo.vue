@@ -26,6 +26,7 @@
                     Mode:
                     <button
                       class="btn btn-sm btn-mg-done"
+                      style="padding-left: 10px; padding-right: 10px;"
                       :disabled="beatmap.mode == 'osu'"
                       @click="setMode(beatmap.id, 'osu', $event)"
                       data-toggle="tooltip"
@@ -36,6 +37,7 @@
                     </button>
                     <button
                       class="btn btn-sm btn-mg-done"
+                      style="padding-left: 10px; padding-right: 10px;"
                       :disabled="beatmap.mode == 'taiko'"
                       @click="setMode(beatmap.id, 'taiko', $event)"
                       data-toggle="tooltip"
@@ -46,6 +48,7 @@
                     </button>
                     <button
                       class="btn btn-sm btn-mg-done"
+                      style="padding-left: 10px; padding-right: 10px;"
                       :disabled="beatmap.mode == 'catch'"
                       @click="setMode(beatmap.id, 'catch', $event)"
                       data-toggle="tooltip"
@@ -56,6 +59,7 @@
                     </button>
                     <button
                       class="btn btn-sm btn-mg-done"
+                      style="padding-left: 10px; padding-right: 10px;"
                       :disabled="beatmap.mode == 'mania'"
                       @click="setMode(beatmap.id, 'mania', $event)"
                       data-toggle="tooltip"
@@ -63,6 +67,17 @@
                       title="osu!mania"
                     >
                       <i class="fas fa-stream"></i>
+                    </button>
+                    <button
+                      class="btn btn-sm btn-mg-done"
+                      style="padding-left: 10px; padding-right: 10px;"
+                      :disabled="beatmap.mode == 'hybrid'"
+                      @click="setMode(beatmap.id, 'hybrid', $event)"
+                      data-toggle="tooltip"
+                      data-placement="top"
+                      title="multiple modes"
+                    >
+                      hybrid
                     </button>
                   </p>
                 </div>
@@ -87,7 +102,11 @@
                   </thead>
                   <transition-group tag="tbody" name="list" id="difficulties">
                     <tr v-for="task in beatmap.tasks" :key="task.id" :id="task.id + 'Row'">
-                      <td scope="row" style="padding: 1px;">{{task.name}}</td>
+                      <td scope="row" style="padding: 1px;">{{task.name}}
+                        <i v-if="task.mode == 'taiko'" class="fas fa-drum" ></i>
+                        <i v-else-if="task.mode == 'catch'" class="fas fa-apple-alt"></i>
+                        <i v-else-if="task.mode == 'mania'" class="fas fa-stream"></i>
+                      </td>
                       <td scope="row" style="padding: 1px;">
                         <template v-for="(mapper, i) in task.mappers">
                           <a
@@ -100,7 +119,7 @@
                           href="#"
                           v-if="(isOwner(task.mappers))"
                           :id="task.id + 'Collab'"
-                          :class="[task.status == 'Done' || beatmap.status == 'Done' ? 'fake-button-disable' : '', addCollabInput == task.id ? 'fake-collab-button-disable' : '']"
+                          :class="[task.status == 'Done' || beatmap.status == 'Done' || beatmap.status == 'Qualified' ? 'fake-button-disable' : '', addCollabInput == task.id ? 'fake-collab-button-disable' : '']"
                           class="icon-valid"
                           @click.prevent="addCollabInput == task.id ? cancelCollab() : setCollab(task)"
                           data-toggle="tooltip"
@@ -113,7 +132,7 @@
                           href="#"
                           v-if="(isOwner(task.mappers)) && task.mappers.length > 1"
                           class="icon-used"
-                          :class="[task.status == 'Done' || beatmap.status == 'Done' ? 'fake-button-disable' : '', removeCollabInput == task.id ? 'fake-collab-button-disable' : '']"
+                          :class="[task.status == 'Done' || beatmap.status == 'Done' || beatmap.status == 'Qualified' ? 'fake-button-disable' : '', removeCollabInput == task.id ? 'fake-collab-button-disable' : '']"
                           @click.prevent="removeCollabInput == task.id ? cancelCollab() : unsetCollab(task)"
                           data-toggle="tooltip"
                           data-placement="top"
@@ -154,7 +173,7 @@
                           <a
                             href="#"
                             v-if="(isOwner(task.mappers) || isHost) && task.status == 'Done'"
-                            :class="beatmap.status == 'Done' || fakeButton == task.id ? 'fake-button-disable' : ''"
+                            :class="beatmap.status == 'Done' || beatmap.status == 'Qualified' || fakeButton == task.id ? 'fake-button-disable' : ''"
                             class="icon-wip"
                             @click.prevent="setTaskStatus(task.id, 'WIP')"
                           >
@@ -196,6 +215,12 @@
                         v-if="beatmap.tasksLocked.indexOf('Storyboard') < 0 || isHost"
                         value="Storyboard"
                       >Storyboard</option>
+                    </select>
+                    <select v-if="beatmap.mode == 'hybrid'" class="custom-select select-arrow small" id="diffModeSelection">
+                      <option value="osu">osu!</option>
+                      <option value="taiko">osu!taiko</option>
+                      <option value="catch">osu!catch</option>
+                      <option value="mania">osu!mania</option>
                     </select>
                     <div class="input-group-append">
                       <button
@@ -292,12 +317,12 @@
                     </div>
                   </div>
                 </div>
-                <div v-if="isHost" id="mapsetStatus">
+                <div v-if="isHost && beatmap.status != 'Qualified'" id="mapsetStatus">
                   <p class="text-shadow">
                     Mapset status:
                     <button
                       class="btn btn-sm btn-mg-done"
-                      :disabled="beatmap.status == 'Done'"
+                      :disabled="beatmap.status == 'Done' "
                       @click="setStatus('Done', $event);"
                       data-toggle="tooltip"
                       data-placement="bottom"
@@ -725,9 +750,10 @@ export default {
         },
         addTask: async function(id, e) {
             let difficulty = $('#diffSelection').val();
+            let mode = $('#diffModeSelection').val();
             const bm = await this.executePost(
                 '/beatmaps/addTask/' + id,
-                { difficulty: difficulty },
+                { difficulty: difficulty, mode: mode },
                 e
             );
             if (bm) {
@@ -747,9 +773,13 @@ export default {
         requestTask: async function(id, e) {
             let difficulty = $('#diffSelection').val();
             let recipient = $('#requestEntry').val();
+            let mode = $('#diffModeSelection').val();
+            if(!mode){
+              mode = this.beatmap.mode;
+            }
             const bm = await this.executePost(
                 '/beatmaps/requestTask/' + id,
-                { difficulty: difficulty, user: recipient },
+                { difficulty: difficulty, user: recipient, mode: mode },
                 e
             );
             if (bm) {

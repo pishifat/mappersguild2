@@ -9,7 +9,7 @@
     >
       <div
         class="card-status"
-        :class="beatmap.status == 'WIP' ? 'card-status-wip' : beatmap.status == 'Done' ? 'card-status-done' : 'card-status-ranked'"
+        :class="beatmap.status == 'WIP' ? 'card-status-wip' : beatmap.status == 'Done' ? 'card-status-done' : beatmap.status == 'Ranked' ? 'card-status-ranked' : 'card-status-qualified'"
       ></div>
       <img class="card-img" :src="processUrl(beatmap.url)" style="opacity:0.5; overflow:hidden">
       <div class="card-img-overlay" style="padding: 0.50rem 0.50rem 0 0.50rem">
@@ -36,7 +36,7 @@
           <i v-else-if="beatmap.mode == 'mania'" class="fas fa-stream"></i>
           <span
             class="font-weight-bold float-right pt-1"
-            v-html="processDiffs(beatmap.tasks, beatmap.tasksLocked)"
+            v-html="processDiffs(beatmap.tasks, beatmap.tasksLocked, beatmap.mode)"
           ></span>
         </small>
       </div>
@@ -78,78 +78,105 @@ export default {
 
             return url;
         },
-        processDiffs: function(tasks, tasksLocked) {
-            const diffs = [
-                { name: 'Easy', short: 'E', count: 0 },
-                { name: 'Normal', short: 'N', count: 0 },
-                { name: 'Hard', short: 'H', count: 0 },
-                { name: 'Insane', short: 'I', count: 0 },
-                { name: 'Expert', short: 'X', count: 0 }
-            ];
-
+        processDiffs: function(tasks, tasksLocked, mode) {
             let diffsBlock = '';
 
             tasks.forEach(task => {
-                if(task.name == "Storyboard"){
-                    diffsBlock += `<span class="px-1 text-shadow ${task.status.toLowerCase()}">SB</span>`
-                }
-            });
-
-            if (tasks.length >= 10) {
-                let singleStatus;
-                diffs.forEach(diff => {
-                    tasks.forEach(task => {
-                        if (diff.name == task.name) {
-                            diff.count++;
-                            singleStatus = task.status.toLowerCase();
-                        }
-                    });
-                    if (diff.count > 0) {
-                        if (diff.count == 1) {
-                            diffsBlock += `<span class="px-1 text-shadow ${singleStatus}">${
-                                diff.short
-                            }</span>`;
-                        } else {
-                            diffsBlock += `<span class="px-1 text-shadow" data-toggle="tooltip" data-placement="top" title="${
-                                diff.count
-                            }">${diff.short}${diff.count > 1 ? '+' : ''}</span>`;
-                        }
-                    } else if (tasksLocked.indexOf(diff.name) >= 0) {
-                        diffsBlock += `<span class="px-1 text-shadow blocked">${diff.short}</span>`;
-                    } else {
-                        diffsBlock += `<span class="px-1 text-shadow open">${diff.short}</span>`;
+                    if(task.name == "Storyboard"){
+                        diffsBlock += `<span class="px-1 text-shadow ${task.status.toLowerCase()}">SB</span>`
                     }
                 });
-            } else {
-                diffs.forEach(diff => {
-                    let isClaimed = false;
-                    let isUsed = false;
-                    tasks.forEach(task => {
-                        if (diff.name == task.name) {
-                            diffsBlock += `<span class="px-1 text-shadow ${task.status.toLowerCase()}">${
-                                diff.short
-                            }</span>`;
 
-                            isClaimed = true;
-                            isUsed = true;
+            if(mode == "hybrid"){
+                const modes = [
+                    { name: 'osu', short: '<i class="far fa-circle"></i>', count: 0 },
+                    { name: 'taiko', short: '<i class="fas fa-drum"></i>', count: 0 },
+                    { name: 'catch', short: '<i class="fas fa-apple-alt"></i>', count: 0 },
+                    { name: 'mania', short: '<i class="fas fa-stream"></i>', count: 0 }
+                ];
+
+                modes.forEach(mode => {
+                    let modeStatus = 'done';
+                    tasks.forEach(task => {
+                        if(mode.name == task.mode) {
+                            mode.count++;
+                            if(task.status == 'WIP'){
+                                modeStatus = 'wip';
+                            }
                         }
                     });
-                    tasksLocked.forEach(task => {
-                        if (diff.name == task) {
-                            if (!isClaimed) {
-                                diffsBlock += `<span class="px-1 text-shadow blocked">${
+                    diffsBlock += `<span class="px-1 text-shadow ${mode.count == 0 ? 'blocked' : modeStatus}" data-toggle="tooltip" data-placement="top" 
+                        title="${mode.count > 0 ? mode.count : ''}">
+                        ${mode.short}</span>`;
+
+                });
+                
+            }else{
+                const diffs = [
+                    { name: 'Easy', short: 'E', count: 0 },
+                    { name: 'Normal', short: 'N', count: 0 },
+                    { name: 'Hard', short: 'H', count: 0 },
+                    { name: 'Insane', short: 'I', count: 0 },
+                    { name: 'Expert', short: 'X', count: 0 }
+                ];
+                if (tasks.length >= 10) {
+                    let singleStatus;
+                    diffs.forEach(diff => {
+                        tasks.forEach(task => {
+                            if (diff.name == task.name) {
+                                diff.count++;
+                                singleStatus = task.status.toLowerCase();
+                            }
+                        });
+                        if (diff.count > 0) {
+                            if (diff.count == 1) {
+                                diffsBlock += `<span class="px-1 text-shadow ${singleStatus}">${
                                     diff.short
                                 }</span>`;
+                            } else {
+                                diffsBlock += `<span class="px-1 text-shadow" data-toggle="tooltip" data-placement="top" title="${
+                                    diff.count
+                                }">${diff.short}${diff.count > 1 ? '+' : ''}</span>`;
                             }
-
-                            isUsed = true;
+                        } else if (tasksLocked.indexOf(diff.name) >= 0) {
+                            diffsBlock += `<span class="px-1 text-shadow blocked">${diff.short}</span>`;
+                        } else {
+                            diffsBlock += `<span class="px-1 text-shadow open">${diff.short}</span>`;
                         }
                     });
-                    if (!isUsed) {
-                        diffsBlock += `<span class="px-1 text-shadow open">${diff.short}</span>`;
-                    }
-                });
+                } else {
+                    diffs.forEach(diff => {
+                        let isClaimed = false;
+                        let isUsed = false;
+                        tasks.forEach(task => {
+                            if (diff.name == task.name) {
+                                diffsBlock += `<span class="px-1 text-shadow ${task.status.toLowerCase()}">${
+                                    diff.short
+                                }</span>`;
+
+                                isClaimed = true;
+                                isUsed = true;
+                            }
+                        });
+                        tasksLocked.forEach(task => {
+                            if (diff.name == task) {
+                                if (!isClaimed) {
+                                    diffsBlock += `<span class="px-1 text-shadow blocked">${
+                                        diff.short
+                                    }</span>`;
+                                }
+
+                                isUsed = true;
+                            }
+                        });
+                        if (!isUsed) {
+                            diffsBlock += `<span class="px-1 text-shadow open">${diff.short}</span>`;
+                        }
+                    });
+                }
             }
+
+            
             return diffsBlock;
         },
     },

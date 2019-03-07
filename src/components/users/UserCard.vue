@@ -9,6 +9,10 @@
                     class="rounded-circle avatar-mini-thumb"></span></div>
         <div class='card-body'>
             <p class='card-text text-shadow'>Total points: {{user.totalPoints}}</p>
+            <p v-if="filterMode == 'osu'" class='card-text text-shadow small pl-2'>osu! points: {{Math.round(user.osuPoints*10)/10}}</p>
+            <p v-else-if="filterMode == 'taiko'" class='card-text text-shadow small pl-2'>osu!taiko points: {{Math.round(user.taikoPoints*10)/10}}</p>
+            <p v-else-if="filterMode == 'catch'" class='card-text text-shadow small pl-2'>osu!catch points: {{Math.round(user.catchPoints*10)/10}}</p>
+            <p v-else-if="filterMode == 'mania'" class='card-text text-shadow small pl-2'>osu!mania points: {{Math.round(user.maniaPoints*10)/10}}</p>
             <p class='card-text text-shadow'>Party:
                 <span>{{user.currentParty ? user.currentParty.name : 'none'}}</span>
             </p>
@@ -21,7 +25,7 @@
 <script>
 export default {
     name: 'user-card',
-    props: ['user'],
+    props: ['user', 'filterMode'],
     methods: {
         selectUser: function () {
             this.$emit('update:selectedUser', this.user)

@@ -14,7 +14,7 @@
 </div>
 <div class="row">
     <div class="col-md-12">
-        <h2 id="beatmaps">Beatmaps <button class="btn btn-mg btn-sm temp float-right" @click="updateMapLengths($event)">update map lengths</button></h2> 
+        <h2 id="beatmaps">Beatmaps <button class="btn btn-mg btn-sm temp float-right" @click="updateDiffModes($event)">update diff modes</button></h2> 
         <table class="small table">
             <thead>
                 <th scope="col" style="padding: 2px;">id</th>
@@ -143,6 +143,7 @@
                                 <select class="custom-select select-arrow small" id="mapStatusSelect" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 0 100px 100px 0">
                                 <option selected value="WIP">WIP</option>
                                 <option value="Done">Done</option>
+                                <option value="Qualified">Qualified</option>
                                 <option value="Ranked">Ranked</option>
                             </select>
                         </div>
@@ -230,7 +231,7 @@
                         <label class="col-sm-4" for="color"> color (#6digithex):</label><input class="col-sm-8 form-control" type="text" id="color">
                         <p>content (add the rest after quest is created):</p>
                         <label class="col-sm-4" for="artist">artist:</label><input class="col-sm-8 form-control" type="text" id="artist">
-                        <label class="col-sm-4" for="string">string:</label><input class="col-sm-8 form-control" type="text" id="string">
+                        <label class="col-sm-4" for="text">text:</label><input class="col-sm-8 form-control" type="text" id="text">
                     </div>
                     <p id="errors"></p>
                 </div>
@@ -559,8 +560,8 @@ export default {
         },
 
         //beatmaps
-        updateMapLengths: async function(e){
-            const success = await this.executePost('/admin/updateMapLengths/', {}, e);
+        updateDiffModes: async function(e){
+            const success = await this.executePost('/admin/updateDiffModes/', {}, e);
             if(success){
                 console.log('update party ranks worked');
             }
@@ -678,7 +679,7 @@ export default {
             let medal = $("#medal").val();
             let color = $("#color").val();
             let artist = $("#artist").val();
-            let string = $("#string").val();
+            let text = $("#text").val();
             const q = await this.executePost('/admin/createQuest/', { 
                 name: name, 
                 reward: reward, 
@@ -693,7 +694,7 @@ export default {
                 medal: medal,
                 color: color,
                 artist: artist,
-                string: string
+                text: text
             }, e);
             if(q){
                 $('#createQuest').modal('hide');
@@ -841,12 +842,14 @@ export default {
         },
         setBeatmapRowColor: function(status) {
             let style = 'background-color: ';
-            if (status.indexOf('Done: ranked') !== -1) {
-                style += 'red';
+            if (status.indexOf('Done: ranked') !== -1 || status.indexOf('Qualified: ranked') !== -1) {
+                style += 'orangered';
             } else if (status.indexOf('Done: qualified') !== -1) {
-                style += 'blue';
-            } else if (status.indexOf('Done') !== -1) {
                 style += 'green';
+            } else if (status.indexOf('Qualified: probably pending') !== -1) {
+                style += 'blue';
+            } else if(status.indexOf('with wrong link') !== -1) {
+                style += 'purple';
             }
 
             return style;

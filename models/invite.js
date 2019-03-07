@@ -12,6 +12,7 @@ var inviteSchema = new mongoose.Schema({
 
     map: { type: 'ObjectId', ref: 'Beatmap' }, //exists to link map when relevant. can be duplicate of "modified", but isn't becuase modified could be a task as well
     taskName: { type: String }, //used for difficulty requests only
+    taskMode: { type: String },
     party: { type: 'ObjectId', ref: 'Party' },
     
 
@@ -62,9 +63,9 @@ class InviteService
         }
     }
 
-    async createMapInvite(recipient, sender, modified, info, actionType, map, taskName) {
-        if(taskName){
-            var invite = new Invite({ recipient: recipient, sender: sender, modified: modified, info: info, actionType: actionType, map: map, taskName: taskName });
+    async createMapInvite(recipient, sender, modified, info, actionType, map, taskName, taskMode) {
+        if(taskName && taskMode){
+            var invite = new Invite({ recipient: recipient, sender: sender, modified: modified, info: info, actionType: actionType, map: map, taskName: taskName, taskMode });
         }else{
             var invite = new Invite({ recipient: recipient, sender: sender, modified: modified, info: info, actionType: actionType, map: map });
         }

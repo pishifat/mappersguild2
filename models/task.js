@@ -3,6 +3,7 @@ const logs = require('./log');
 
 const taskSchema = new mongoose.Schema({
     name: { type: String, enum: ['Easy', 'Normal', 'Hard', 'Insane', 'Expert', 'Storyboard'], required: true },
+    mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania', 'sb'], default: 'osu' },
     mappers: [{ type: 'ObjectId', ref: 'User', required: true }],
     status: { type: String, enum: ['WIP', 'Done'], default: 'WIP' },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });

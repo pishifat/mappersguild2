@@ -60,6 +60,7 @@
                             <input class="form-check-input" type="radio" name="mode" id="mania" value="mania">
                             <label class="form-check-label text-shadow" for="mania">osu!mania</label>
                             </div>
+                            <br><small class="text-shadow">If you want a hybrid mapset, change this later.</small>
                         </div>
                     </div>
 

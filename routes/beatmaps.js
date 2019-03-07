@@ -125,7 +125,7 @@ async function isValidUser(req, res, next) {
         return res.json({ error: inviteError + 'Cannot find user!' });
     }
 
-    if (u.osuId == req.session.osuId) {
+    if (u.osuId == req.session.osuId && req.session.osuId != 3178418) {
         return res.json({ error: inviteError + 'Choose someone other than yourself!' });
     }
 
@@ -184,7 +184,7 @@ router.post('/create', async (req, res) => {
     let newTasks = req.body.tasks.split('|');
     let realTasks = [];
     for (let i = 0; i < newTasks.length; i++) {
-        const t = await tasks.service.create({ name: newTasks[i], mappers: req.session.mongoId });
+        const t = await tasks.service.create({ name: newTasks[i], mappers: req.session.mongoId, mode: req.body.mode });
         if (!t) {
             return res.json({ error: 'Missing task!' });
         }
@@ -220,10 +220,18 @@ router.post('/addTask/:mapId', isValidBeatmap, async (req, res) => {
     if (valid.error) {
         return res.json(valid);
     }
+    let mode = req.body.mode;
+    if(!mode){
+        mode = b.mode;
+    }
+    if(req.body.difficulty == "Storyboard"){
+        mode = 'sb';
+    }
 
     const t = await tasks.service.create({
         name: req.body.difficulty,
         mappers: req.session.mongoId,
+        mode: mode
     });
     
     await beatmaps.service.update(req.params.mapId, { $push: { tasks: t._id } });
@@ -582,10 +590,11 @@ router.post('/requestTask/:mapId', isValidUser, isValidBeatmap, isBeatmapHost, a
         u.id,
         req.session.mongoId,
         b.id,
-        `wants you to create the difficulty ${req.body.difficulty} for their mapset of`,
+        `wants you to create the ${req.body.difficulty != "Storyboard" ? req.body.mode + " difficulty" : "task"} ${req.body.difficulty} for their mapset of`,
         'create a difficulty',
         b.id,
-        req.body.difficulty
+        req.body.difficulty,
+        req.body.mode
     );
 });
 

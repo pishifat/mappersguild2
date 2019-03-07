@@ -95,6 +95,10 @@ a {
     border-right: 15px solid var(--done);
 }
 
+.card-status-qualified {
+    border-right: 15px solid var(--guild);
+}
+
 .card-status-ranked {
     border-right: 15px solid var(--ranked);
 }
@@ -259,6 +263,10 @@ a {
 
 .bg-done {
     background-color: var(--done);
+}
+
+.bg-qualified {
+    background-color: var(--guild);
 }
 
 .bg-ranked {

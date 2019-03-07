@@ -126,11 +126,11 @@ export default {
 			if (field == 'rank') {
 				this.parties.sort((a, b) => {
 					if (this.asc) {
-						if (a.rank > b.rank) return 1;
-						if (a.rank < b.rank) return -1;
-					} else {
+						if (a.rank > b.rank) return -1;
 						if (a.rank < b.rank) return 1;
-						if (a.rank > b.rank) return -1
+					} else {
+						if (a.rank < b.rank) return -1;
+						if (a.rank > b.rank) return 1
 					}
 					return 0;
 				});

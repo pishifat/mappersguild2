@@ -22,9 +22,9 @@
                 <span v-if="quest.content.length && quest.status != 'done'">
                     <p class="text-shadow">Content applicable for this quest:</p>
                     <ul style="list-style-type: none">
-                        <li class="small text-shadow" v-for="content in quest.content" :key="content.string">
+                        <li class="small text-shadow" v-for="content in quest.content" :key="content.text">
                             <template>
-                                <a :href="'https://osu.ppy.sh/beatmaps/artists/' + content.artist" target="_blank">{{content.string}}</a>
+                                <a :href="'https://osu.ppy.sh/beatmaps/artists/' + content.artist" target="_blank">{{content.text}}</a>
                             </template>
                         </li>
                     </ul>

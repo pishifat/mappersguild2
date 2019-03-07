@@ -69,7 +69,7 @@ router.get('/relevantInfo/', async (req, res) => {
         let b = await beatmaps.service.query({}, defaultMapPopulate, defaultMapSort, true);
         for (let i = 0; i < b.length; i++) {
             let bm = b[i];
-            if (bm.status == 'Done' && bm.url) {
+            if ((bm.status == 'Done' || bm.status == 'Qualified') && bm.url) {
                 if (bm.url.indexOf('osu.ppy.sh/beatmapsets/') == -1) {
                     bm.status = `${bm.status}: with wrong link`;
                 } else {
@@ -130,34 +130,14 @@ router.get('/relevantInfo/', async (req, res) => {
 //webhook testing
 router.post('/generateWebhook/', async (req, res) => {
     if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
-        let populate = [
-            { populate: 'currentQuest', display: 'name art' },
-            { populate: 'leader',  display: 'osuId' },
-            { populate: 'members',  display: 'username' }
-        ]
-        let p = await parties.service.query({name: "progressive"}, populate);
-        let memberList = "";
-        for (let i = 0; i < p.members.length; i++) {
-            memberList += p.members[i].username
-            if(i != p.members.length - 1){
-                memberList += ", ";
-            }
-        }
-        p.members
+        let u = await users.service.query({_id: req.session.mongoId})
         api.webhookPost([{
             author: {
-                name: `Party "${p.name}" claimed quest: "${p.currentQuest.name}"`,
-                url: `https://mappersguild.com/quests`,
-                icon_url: `https://a.ppy.sh/${p.leader.osuId}`,
+                name: `${u.username} joined the guild!`,
+                icon_url: `https://a.ppy.sh/${u.osuId}`,
+                url: `https://osu.ppy.sh/u/${u.osuId}`
             },
-            color: '11403103',
-            thumbnail: {
-                url: `https://assets.ppy.sh/artists/${p.currentQuest.art}/cover.jpg`
-            },
-            fields: [{
-                name: "Members",
-                value: memberList
-            }]
+            color: '14707049',
         }]);
         res.json("webhooked");
 
@@ -167,27 +147,23 @@ router.post('/generateWebhook/', async (req, res) => {
 //beatmap
 
 /* POST update map lengths */
-router.post('/updateMapLengths', async (req, res) => {
+router.post('/updateDiffModes', async (req, res) => {
     if(req.session.osuId == 3178418 || req.session.osuId == 1052994){
-        let bms = await beatmaps.service.query({status: "Ranked"}, {}, {}, true);
+        let bms = await beatmaps.service.query({}, defaultMapPopulate, {}, true);
 
-        for (let i = 0; i < bms.length; i++) {
-            let indexStart = bms[i].url.indexOf('beatmapsets/') + 'beatmapsets/'.length;
-            let indexEnd = bms[i].url.indexOf('#');
-            let bmId;
-
-            if (indexEnd !== -1) {
-                bmId = bms[i].url.slice(indexStart, indexEnd);
-            } else {
-                bmId = bms[i].url.slice(indexStart, (map.url.length-1));
-            }
-            const bmInfo = await api.beatmapsetInfo(bmId);
-            await beatmaps.service.update(bms[i]._id, {length: bmInfo.hit_length});
-        }
+       bms.forEach(bm => {
+            bm.tasks.forEach(task => {
+                if(task.name == "Storyboard"){
+                    tasks.service.update(task._id, {mode: "sb"});
+                }else{
+                    tasks.service.update(task._id, {mode: bm.mode});
+                }
+            })
+       })
         
 
         //logs.service.create(req.session.mongoId, `updated map lengths`, null, 'beatmaps' );
-        res.json("map lengths updated");
+        res.json("set diff modes");
         
     }
 });
@@ -431,7 +407,7 @@ router.post('/unhideQuest/:id', async (req, res) => {
 /* POST add content to quest */
 router.post('/addContent/:id', async (req, res) => {
     if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
-        let content = { artist: req.body.artist, string: req.body.string };
+        let content = { artist: req.body.artist, text: req.body.text };
         await quests.service.update(req.params.id, { $push: { content: content } });
         let quest = await quests.service.query({_id: req.params.id});
         res.json(quest);
@@ -628,6 +604,7 @@ router.post('/updateUserPoints', async (req, res) => {
 
         const populate = [
             { populate: 'host',  display: '_id osuId username' },
+            { populate: 'modders',  display: '_id osuId username' },
             { populate: 'quest',  display: '_id name status reward completed deadline' },
             { innerPopulate: 'tasks',  populate: { path: 'mappers' } },
         ];
@@ -645,6 +622,10 @@ router.post('/updateUserPoints', async (req, res) => {
                 "Host":{"num":5, "total":0},
                 "QuestReward":{"num":0, "total":0},
                 "Rank":{"value":0},
+                "osu":{"total":0},
+                "taiko":{"total":0},
+                "catch":{"total":0},
+                "mania":{"total":0},
                 "Quests":{"list":[]}};
     
             maps.forEach(map => {
@@ -665,51 +646,55 @@ router.post('/updateUserPoints', async (req, res) => {
                 
                 let lengthNerf = 124.666; //130=3:00, 120=2:30, 124.666=median of all ranked mg maps (2:43)
     
-                if(map.status == "Ranked"){ 
-                    //task points
-                    map.tasks.forEach(task => {
-                        task.mappers.forEach(mapper => {
-                            if(mapper._id.toString() == user._id.toString()){
-                                let questBonus = 0;
-                                if(map.quest && task.name != "Storyboard"){
-                                    questBonus = 2;
-                                    questBonus *= (length/lengthNerf);
-                                    questParticipation = true;
-                                }
-                                
-                                let taskPoints = pointsObject[task.name]["num"];
-                                if(task.name != "Storyboard"){
-                                    taskPoints *= (length/lengthNerf);
-                                }
-                                
-                                pointsObject[task.name]["total"] += (taskPoints + questBonus) / task.mappers.length;
+                
+                //task points
+                map.tasks.forEach(task => {
+                    task.mappers.forEach(mapper => {
+                        if(mapper._id.toString() == user._id.toString()){
+                            let questBonus = 0;
+                            if(map.quest && task.name != "Storyboard"){
+                                questBonus = 2;
+                                questBonus *= (length/lengthNerf);
+                                questParticipation = true;
                             }
-                        });
-                    });
-    
-                    //mod points
-                    map.modders.forEach(modder => {
-                        if(modder._id.toString() == user._id.toString()){
-                        pointsObject["Mod"]["total"] += pointsObject["Mod"]["num"];
+                            
+                            let taskPoints = pointsObject[task.name]["num"];
+                            if(task.name != "Storyboard"){
+                                taskPoints *= (length/lengthNerf);
+                            }
+                            
+                            pointsObject[task.name]["total"] += (taskPoints + questBonus) / task.mappers.length;
+                            if(task.name != "Storyboard"){
+                                pointsObject[task.mode]["total"] += (taskPoints + questBonus) / task.mappers.length;
+                            }
                         }
                     });
-    
-                    //host points
-                    let host = map.host._id.toString() == user._id.toString();
-                    if(host){
-                        pointsObject["Host"]["total"] += pointsObject["Host"]["num"];
+                });
+
+                //mod points
+                map.modders.forEach(modder => {
+                    if(modder.id == user.id){
+                        pointsObject["Mod"]["total"] += pointsObject["Mod"]["num"];
                     }
-    
-                    //quest reward points
-                    if(questParticipation){
-                        if(pointsObject["Quests"]["list"].indexOf(map.quest._id) < 0 && map.quest.status=="done"){
-                            pointsObject["Quests"]["list"].push(map.quest._id);
-                            if(map.quest.deadline - map.quest.completed > 0){
-                                pointsObject["QuestReward"]["total"] += map.quest.reward;
-                            }
+                });
+
+                //host points
+                let host = map.host.id == user.id;
+                if(host){
+                    pointsObject["Host"]["total"] += pointsObject["Host"]["num"];
+                }
+
+                //quest reward points
+                if(questParticipation){
+                    if(pointsObject["Quests"]["list"].indexOf(map.quest._id) < 0 && map.quest.status=="done"){
+                        pointsObject["Quests"]["list"].push(map.quest._id);
+                        if(map.quest.deadline - map.quest.completed > 0){
+                            pointsObject["QuestReward"]["total"] += map.quest.reward;
                         }
                     }
                 }
+
+
             });
             //set rank
             let totalPoints = pointsObject["Easy"]["total"] + 
@@ -742,6 +727,10 @@ router.post('/updateUserPoints', async (req, res) => {
             users.service.update(user._id, {hostPoints: pointsObject["Host"]["total"]});
             users.service.update(user._id, {questPoints: pointsObject["QuestReward"]["total"]});
             users.service.update(user._id, {rank: pointsObject["Rank"]["value"]});
+            users.service.update(user._id, {osuPoints: pointsObject["osu"]["total"]});
+            users.service.update(user._id, {taikoPoints: pointsObject["taiko"]["total"]});
+            users.service.update(user._id, {catchPoints: pointsObject["catch"]["total"]});
+            users.service.update(user._id, {maniaPoints: pointsObject["mania"]["total"]});
             users.service.update(user._id, {completedQuests: pointsObject["Quests"]["list"]});
         });
         res.json("user points updated")

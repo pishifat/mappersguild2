@@ -37,6 +37,7 @@
             <option value="" selected>All statuses</option>
             <option value="WIP">WIP</option>
             <option value="Done">Pending</option>
+            <option value="Qualified">Qualified</option>
         </select>
         </small>
         <small>

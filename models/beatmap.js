@@ -11,7 +11,7 @@ const beatmapSchema = new mongoose.Schema({
     bns: [{ type: 'ObjectId', ref: 'User' }],
     quest: { type: 'ObjectId', ref: 'Quest' },
     url: { type: String },
-    mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania'], default: "osu" },
+    mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania', 'hybrid'], default: "osu" },
     length: { type: Number },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
