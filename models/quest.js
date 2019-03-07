@@ -99,7 +99,7 @@ class QuestService
             exclusive: body.exclusive, 
             medal: body.medal,
             color: body.color,
-            content: {artist: body.artist, string: body.string}
+            content: {artist: body.artist, text: body.text}
         });
         try {
             await quest.save();

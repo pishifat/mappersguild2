@@ -277,7 +277,7 @@
                     <hr>
                     <div class="form-group row">
                         <label class="col-sm-4" for="nextArtist">nextArtist:</label><input class="col-sm-8 form-control" type="text" id="nextArtist">
-                        <label class="col-sm-4" for="nextString">nextString:</label><input class="col-sm-8 form-control" type="text" id="nextString">
+                        <label class="col-sm-4" for="nextText">nextText:</label><input class="col-sm-8 form-control" type="text" id="nextText">
                         <button type="button" class="btn btn-mg btn-sm" @click="addContent(selectedQuest.id, $event)">add applicable song/album/artist</button>
                     </div>
                     <p id="errors"></p>
@@ -438,7 +438,7 @@
                     <hr>
                     <div>
                         <div class="form-group row">
-                        <label class="col-sm-3 text-shadow" for="artist"> Artist:</label><input class="col-sm-9 form-control" style="border-radius: 100px 100px 100px 100px" type="text" id="artist">
+                        <label class="col-sm-3 text-shadow" for="songArtist"> Artist:</label><input class="col-sm-9 form-control" style="border-radius: 100px 100px 100px 100px" type="text" id="songArtist">
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-3 text-shadow" for="title"> Title:</label><input class="col-sm-9 form-control" style="border-radius: 100px 100px 100px 100px" type="text" id="title">
@@ -644,8 +644,8 @@ export default {
         },
         addContent: async function(id, e){
             let nextArtist = $("#nextArtist").val();
-            let nextString = $("#nextString").val();
-            const q = await this.executePost('/admin/addContent/' + id, { artist: nextArtist, string: nextString }, e);
+            let nextText = $("#nextText").val();
+            const q = await this.executePost('/admin/addContent/' + id, { artist: nextArtist, text: nextText }, e);
             if(q){
                 this.updateQuest(q);
             }
@@ -814,7 +814,7 @@ export default {
             }
         },
         addSong: async function(id, e){
-            let artist = $("#artist").val();
+            let artist = $("#songArtist").val();
             let title = $("#title").val();
             const fa = await this.executePost('/admin/addSong/' + id, {artist: artist, title: title}, e);
             if(fa){

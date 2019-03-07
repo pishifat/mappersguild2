@@ -133,11 +133,11 @@ router.post('/generateWebhook/', async (req, res) => {
         let u = await users.service.query({_id: req.session.mongoId})
         api.webhookPost([{
             author: {
-                name: `${u.username} joined the guild!`,
-                icon_url: `https://a.ppy.sh/${u.osuId}`,
-                url: `https://osu.ppy.sh/u/${u.osuId}`
+                name: `New Featured Artist: Imperial Circus Dead Decadence`,
+                icon_url: `https://assets.ppy.sh/artists/35/cover.jpg`,
+                url: `https://osu.ppy.sh/beatmaps/artists/35`
             },
-            color: '14707049',
+            color: '9325350',
         }]);
         res.json("webhooked");
 
@@ -765,6 +765,7 @@ router.post('/renameLabel/:id', async (req, res) => {
 router.post('/addSong/:id', async (req, res) => {
     if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
         let song = await featuredArtists.service.createSong(req.body.artist, req.body.title);
+        console.log(req.body.artist + req.body.title);
         let fa = await featuredArtists.service.update(req.params.id, { $push: { songs: song } })
         fa = await featuredArtists.service.query({_id: req.params.id}, defaultArtistPopulate);
 
