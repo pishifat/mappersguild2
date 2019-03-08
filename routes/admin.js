@@ -34,7 +34,7 @@ const defaultMapPopulate = [
     { populate: 'song',  display: 'artist title' },
     { innerPopulate: 'tasks',  populate: { path: 'mappers' } },
 ];
-const defaultMapSort = {status: -1};
+const defaultMapSort = {status: -1, mode: 1};
 
 const defaultPartyPopulate = [
     { populate: 'leader',  display: 'username osuId' },
@@ -119,7 +119,8 @@ router.get('/relevantInfo/', async (req, res) => {
                 { category: 'error' }, 
                 [{ populate: 'user', display: 'username' }], 
                 { createdAt: -1 }, 
-                true
+                true,
+                50
             ),
         ]);
     

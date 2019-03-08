@@ -282,7 +282,7 @@
                     <input
                       class="form-control form-control-sm"
                       type="text"
-                      placeholder="collaborative mapper..."
+                      placeholder="username..."
                       id="collabMapperToAdd"
                       style="border-radius: 100px 0 0 100px"
                       @keyup.enter="addCollab($event)"
@@ -301,7 +301,7 @@
                     <input
                       class="form-control form-control-sm"
                       type="text"
-                      placeholder="collaborative mapper..."
+                      placeholder="username..."
                       id="collabMapperToRemove"
                       style="border-radius: 100px 0 0 100px"
                       @keyup.enter="removeCollab($event)"

@@ -20,14 +20,19 @@
                 <th scope="col" style="padding: 2px;">id</th>
                 <th scope="col" style="padding: 2px;">artist - title</th>
                 <th scope="col" style="padding: 2px;">host</th>
+                <th scope="col" style="padding: 2px;">mode</th>
                 <th scope="col" style="padding: 2px;">status</th>
                 <th scope="col" style="padding: 2px;">edit</th>
             </thead>
             <tbody>
                 <tr v-for="beatmap in beatmaps" :key="beatmap.id">
                     <td scope="row" style="padding: 1px;">{{beatmap.id}}</td>
-                    <td scope="row" style="padding: 1px;">{{beatmap.song.artist}} - {{beatmap.song.title}}</td>
+                    <td scope="row" style="padding: 1px;">
+                        <a v-if="beatmap.url" :href="beatmap.url" target="_blank">{{beatmap.song.artist}} - {{beatmap.song.title}}</a>
+                        <span v-else>{{beatmap.song.artist}} - {{beatmap.song.title}}</span>
+                    </td>
                     <td scope="row" style="padding: 1px;"><a :href="'https://osu.ppy.sh/users/' + beatmap.host.osuId" target="_blank">{{beatmap.host.username}}</a></td>
+                    <td scope="row" style="padding: 1px;">{{beatmap.mode}}</td>
                     <td scope="row" style="padding: 1px;" :style="setBeatmapRowColor(beatmap.status)">{{beatmap.status}}</td>
                     <td scope="row" style="padding: 1px;" data-toggle="modal" data-target="#editMap" :data-mapid="beatmap.id" @click.prevent="extendedMap(beatmap)"><a href="#">edit</a></td>
                 </tr>
@@ -183,7 +188,7 @@
                     </div>
                     <hr>
                     <div>
-                        <a v-if="selectedMap.url" :href="selectedMap.url">{{selectedMap.url}}</a>
+                        <a v-if="selectedMap.url" :href="selectedMap.url" target="_blank">{{selectedMap.url}}</a>
                         <div class="input-group input-group-sm mb-3" id="setLink">
                             <div class="input-group-prepend">
                                 <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg" type="submit" @click="updateMapUrl(selectedMap.id, $event)">save link</button>
