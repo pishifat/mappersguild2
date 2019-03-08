@@ -107,7 +107,7 @@ export default {
             }
         },
         updateUser: function(u) {
-			const i = this.beatmaps.findIndex(user => user.id == u.id);
+			const i = this.users.findIndex(user => user.id == u.id);
 			this.users[i] = u;
             this.selectedUser = u;
         },

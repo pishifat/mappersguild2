@@ -100,4 +100,13 @@ hbs.registerHelper('shortDate', function(date) {
     return date.toString().slice(4, 24);
 });
 
+hbs.registerHelper('shortAction', function(action) {
+    if(action.length > 120){
+        return action.toString().slice(0, 120) + "...";
+    }else{
+        return action;
+    }
+    
+});
+
 module.exports = app;
