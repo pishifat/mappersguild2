@@ -72,12 +72,6 @@ app.use('/admin', adminsRouter);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
     if (createError(404)) {
-        logs.service.create(
-            req.session.mongoId || null,
-            `${req.session.osuId} trying to go to ${req.originalUrl} from ${req.ip}`,
-            null,
-            'error'
-        );
         res.redirect('/');
     }
 });
