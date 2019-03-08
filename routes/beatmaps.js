@@ -119,8 +119,8 @@ async function isBeatmapHost(req, res, next) {
 }
 
 async function isValidUser(req, res, next) {
-    const u = await users.service.query({ username: new RegExp('^' + req.body.user + '$', 'i') });
-
+    const u = await users.service.query({ username: new RegExp('^\\' + req.body.user + '$', 'i') });
+        
     if (!u) {
         return res.json({ error: inviteError + 'Cannot find user!' });
     }
@@ -323,7 +323,7 @@ router.post('/task/:taskId/addCollab', isValidUser, async (req, res) => {
 
 /* POST remove collab user from task. */
 router.post('/task/:taskId/removeCollab', async (req, res) => {
-    let u = await users.service.query({ username: new RegExp('^' + req.body.user + '$', 'i') });
+    let u = await users.service.query({ username: new RegExp('^\\' + req.body.user + '$', 'i') });
     if (!u) {
         return res.json({ error: 'Cannot find user!' });
     }
