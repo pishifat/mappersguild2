@@ -17,9 +17,6 @@ router.use(async (req, res, next) => {
         return res.redirect('/');
     } else {
         const user = await users.service.query({ osuId: req.session.osuId });
-        if(req.session.osuId == 1541323){ //this is dumb and temporary
-            return next();
-        }
 
         if (user && user.group === 'admin') {
             return next();
@@ -55,7 +52,7 @@ const defaultArtistPopulate = [
 
 /* GET admin page */
 router.get('/', async (req, res, next) => {
-    if(req.session.osuId == 3178418 || req.session.osuId == 1052994){
+    if(req.session.osuId == 3178418 || req.session.osuId == 1052994 || req.session.osuId == 1541323){
         res.render('admins', { 
             title: 'Admin', 
             script: '../javascripts/admin.js', 
