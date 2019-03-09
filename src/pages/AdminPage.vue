@@ -34,10 +34,10 @@
                     </td>
                     <td scope="row" style="padding: 1px;"><a :href="'https://osu.ppy.sh/users/' + beatmap.host.osuId" target="_blank">{{beatmap.host.username}}</a></td>
                     <td scope="row" style="padding: 1px;">{{beatmap.mode}}</td>
-                    <td v-if="hasStoryboard(beatmap.tasks)" scope="row" style="padding: 1px; red">
+                    <td v-if="hasStoryboard(beatmap.tasks) && (beatmap.status == 'Qualified' || beatmap.status == 'Ranked')" scope="row" style="padding: 1px; red">
                         <span :style="storyboardJudged(beatmap.tasks) ? '' : 'background-color: red'">{{storyboardJudged(beatmap.tasks) ? storyboardJudged(beatmap.tasks) : 'NOT CHECKED'}}</span>
                     </td>
-                    <td v-else scope="row" style="padding: 1px;">no</td>
+                    <td v-else scope="row" style="padding: 1px;">~</td>
                     <td scope="row" style="padding: 1px;" :style="setBeatmapRowColor(beatmap.status)">{{beatmap.status}}</td>
                     <td scope="row" style="padding: 1px;" data-toggle="modal" data-target="#editMap" :data-mapid="beatmap.id" @click.prevent="extendedMap(beatmap)"><a href="#">edit</a></td>
                 </tr>
