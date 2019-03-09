@@ -402,7 +402,12 @@ router.post('/addBanner', async (req, res) => {
 
 /* POST invite member */
 router.post('/inviteMember', async (req, res) => {
-    let u = await users.service.query({ username: new RegExp('^\\' + req.body.user + '$', 'i') });
+    let u;
+    if(req.body.user.indexOf("[") >= 0 || req.body.user.indexOf("]") >= 0){
+        u = await users.service.query({ username: new RegExp('^\\' + req.body.user + '$', 'i') });
+    }else{
+        u = await users.service.query({ username: new RegExp('^' + req.body.user + '$', 'i') });
+    }
     if (!u) {
         return res.json({ error: inviteError + 'Cannot find user!' });
     }
