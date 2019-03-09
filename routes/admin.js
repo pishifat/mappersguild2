@@ -65,7 +65,7 @@ router.get('/', async (req, res, next) => {
 
 /* GET relevant info for page load */
 router.get('/relevantInfo/', async (req, res) => {
-    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
+    if (req.session.osuId == 3178418 || req.session.osuId == 1052994 || req.session.osuId == 1541323) {
         let b = await beatmaps.service.query({}, defaultMapPopulate, defaultMapSort, true);
         for (let i = 0; i < b.length; i++) {
             let bm = b[i];
