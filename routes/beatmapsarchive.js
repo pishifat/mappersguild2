@@ -29,7 +29,8 @@ router.get('/', async function(req, res) {
 });
 
 router.get('/relevantInfo', async (req, res) => {
-    res.json(await beatmaps.service.query({ status: 'Ranked' }, defaultPopulate, sort, true));
+    let bms = await beatmaps.service.query({ status: 'Ranked' }, defaultPopulate, sort, true);
+    res.json({beatmaps: bms, username: req.session.username});
 });
 
 module.exports = router;

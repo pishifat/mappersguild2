@@ -5,21 +5,29 @@
             <h2>Ranked</h2>
         </div>
         <div class="row col-md-12 pb-2">
-            <small>Filter: 
-                <input id="search" v-model="filterValue" type="text" maxlength="48"
-                    placeholder="song/username... (3+ characters)"
-                    style="border-radius: 5px 5px 5px 5px; filter: drop-shadow(1px 1px 1px #000000); width: 200px;"
-                >
-            </small>
-            <small>
-            <select class="custom-select select-arrow-filter ml-2" id="mode" v-model="filterMode" style="border-radius: 5px 5px 5px 5px; width: 100px; padding: 0 0 0 0; height: 26px;">
-                <option value="" selected>All modes</option>
-                <option value="osu">osu!</option>
-                <option value="taiko">osu!taiko</option>
-                <option value="catch">osu!catch</option>
-                <option value="mania">osu!mania</option>
-            </select>
-            </small>
+        <small>
+          Search:
+          <input
+            id="search"
+            v-model="filterValue"
+            type="text"
+            maxlength="48"
+            placeholder="song/username... (3+ characters)"
+            style="border-radius: 5px 5px 5px 5px; filter: drop-shadow(1px 1px 1px #000000); width: 200px;"
+          >
+          <a href="#" class="icon-valid" @click.prevent="selfFilter()"><i class="ml-1 fas fa-home"></i></a>
+        </small> 
+        
+        <small class="ml-4">
+        Filter:
+        <select class="custom-select select-arrow-filter" id="mode" v-model="filterMode" style="border-radius: 5px 5px 5px 5px; width: 100px; padding: 0 0 0 0; height: 26px;">
+            <option value="" selected>All modes</option>
+            <option value="osu">osu!</option>
+            <option value="taiko">osu!taiko</option>
+            <option value="catch">osu!catch</option>
+            <option value="mania">osu!mania</option>
+        </select>
+        </small>
             <small>
             <select class="custom-select select-arrow-filter ml-2" id="selectQuest" v-model="filterQuest" style="border-radius: 5px 5px 5px 5px; width: 200px; padding: 0 0 0 0; height: 26px;">
                 <option value="" selected>All quests</option>
@@ -112,6 +120,10 @@ export default {
                 this.canShowOlder = true;
             }
         },
+        selfFilter: function(){
+            $('#search').val(this.username);
+            this.filter();
+        },
 
         // filters
         filter: function() {
@@ -195,6 +207,7 @@ export default {
     },
     data () {
 		return { 
+            username: null,
             beatmaps: null,
             allBeatmaps: null,
             filteredBeatmaps: null,
@@ -217,7 +230,8 @@ export default {
 		axios
       		.get('/beatmapsarchive/relevantInfo')
       		.then(response => {
-                this.allBeatmaps = response.data;
+                this.allBeatmaps = response.data.beatmaps;
+                this.username = response.data.username;
                 this.pre = 0;
                 this.limit = 24;
                 this.pages = Math.ceil(this.allBeatmaps.length / this.limit);

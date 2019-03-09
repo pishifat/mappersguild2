@@ -6,6 +6,7 @@ const taskSchema = new mongoose.Schema({
     mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania', 'sb'], default: 'osu' },
     mappers: [{ type: 'ObjectId', ref: 'User', required: true }],
     status: { type: String, enum: ['WIP', 'Done'], default: 'WIP' },
+    sbQuality: { type: Number, enum: [1, 2, 3] } //used to calculate points for sb
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const Task = mongoose.model('Task', taskSchema);

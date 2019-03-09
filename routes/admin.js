@@ -34,7 +34,7 @@ const defaultMapPopulate = [
     { populate: 'song',  display: 'artist title' },
     { innerPopulate: 'tasks',  populate: { path: 'mappers' } },
 ];
-const defaultMapSort = {status: -1, mode: 1};
+const defaultMapSort = {status: 1, mode: 1};
 
 const defaultPartyPopulate = [
     { populate: 'leader',  display: 'username osuId' },
@@ -210,6 +210,18 @@ router.post('/removeDiff/:id', async (req, res) => {
         res.json(b);
         
         logs.service.create(req.session.mongoId, `removed "${t.name}" from "${b.song.artist} - ${b.song.title}"`, req.body.id, 'beatmap' );
+    }
+});
+
+/* POST update sb quality */
+router.post('/updateStoryboardQuality/:id', async (req, res) => {
+    if (req.session.osuId == 3178418 || req.session.osuId == 1052994 || req.session.osuId == 1541323) {
+        console.log(req.body.sbQuality);
+        await tasks.service.update(req.body.taskId, {sbQuality: req.body.sbQuality});
+        b = await beatmaps.service.query({ _id: req.params.id }, defaultMapPopulate);
+        res.json(b);
+        
+        //logs.service.create(req.session.mongoId, `updated sb quality`, req.params.id, 'beatmap' );
     }
 });
 
@@ -577,7 +589,7 @@ router.post('/updateUserGroup/:id', async (req, res) => {
         let user = await users.service.query({_id: req.params.id});
         let success = await users.service.update(req.params.id, {group: req.body.group});
         if(success){
-            logs.service.create(req.session.mongoId, `user group of "${user.username}" set to "${req.body.group}"`, req.params.id, 'user' );
+            //logs.service.create(req.session.mongoId, `user group of "${user.username}" set to "${req.body.group}"`, req.params.id, 'user' );
             user = await users.service.query({_id: req.params.id}, defaultUserPopulate)
             res.json(user);
         } 
@@ -652,22 +664,24 @@ router.post('/updateUserPoints', async (req, res) => {
                 map.tasks.forEach(task => {
                     task.mappers.forEach(mapper => {
                         if(mapper._id.toString() == user._id.toString()){
-                            let questBonus = 0;
-                            if(map.quest && task.name != "Storyboard"){
-                                questBonus = 2;
-                                questBonus *= (length/lengthNerf);
-                                questParticipation = true;
-                            }
-                            
-                            let taskPoints = pointsObject[task.name]["num"];
                             if(task.name != "Storyboard"){
+                                let questBonus = 0;
+                                if(map.quest){
+                                    questBonus = 2;
+                                    questBonus *= (length/lengthNerf);
+                                    questParticipation = true;
+                                }
+                                let taskPoints = pointsObject[task.name]["num"];
                                 taskPoints *= (length/lengthNerf);
-                            }
-                            
-                            pointsObject[task.name]["total"] += (taskPoints + questBonus) / task.mappers.length;
-                            if(task.name != "Storyboard"){
+                                pointsObject[task.name]["total"] += (taskPoints + questBonus) / task.mappers.length;
                                 pointsObject[task.mode]["total"] += (taskPoints + questBonus) / task.mappers.length;
+                            }else{
+                                if(task.sbQuality <= 3){
+                                    pointsObject[task.name]["total"] += (task.sbQuality*task.sbQuality + 1) / task.mappers.length; //sb worth 2, 5, or 10
+                                }
+                                
                             }
+
                         }
                     });
                 });

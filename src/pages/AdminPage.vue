@@ -21,6 +21,7 @@
                 <th scope="col" style="padding: 2px;">artist - title</th>
                 <th scope="col" style="padding: 2px;">host</th>
                 <th scope="col" style="padding: 2px;">mode</th>
+                <th scope="col" style="padding: 2px;">sb</th>
                 <th scope="col" style="padding: 2px;">status</th>
                 <th scope="col" style="padding: 2px;">edit</th>
             </thead>
@@ -28,11 +29,15 @@
                 <tr v-for="beatmap in beatmaps" :key="beatmap.id">
                     <td scope="row" style="padding: 1px;">{{beatmap.id}}</td>
                     <td scope="row" style="padding: 1px;">
-                        <a v-if="beatmap.url" :href="beatmap.url" target="_blank">{{beatmap.song.artist}} - {{beatmap.song.title}}</a>
+                        <a v-if="beatmap.url" :href="beatmap.url" target="_blank">{{beatmap.song.artist}} - {{beatmap.song.title.length > 30 ? beatmap.song.title.slice(0,30) + "..." : beatmap.song.title}}</a>
                         <span v-else>{{beatmap.song.artist}} - {{beatmap.song.title}}</span>
                     </td>
                     <td scope="row" style="padding: 1px;"><a :href="'https://osu.ppy.sh/users/' + beatmap.host.osuId" target="_blank">{{beatmap.host.username}}</a></td>
                     <td scope="row" style="padding: 1px;">{{beatmap.mode}}</td>
+                    <td v-if="hasStoryboard(beatmap.tasks)" scope="row" style="padding: 1px; red">
+                        <span :style="storyboardJudged(beatmap.tasks) ? '' : 'background-color: red'">{{storyboardJudged(beatmap.tasks) ? storyboardJudged(beatmap.tasks) : 'NOT CHECKED'}}</span>
+                    </td>
+                    <td v-else scope="row" style="padding: 1px;">no</td>
                     <td scope="row" style="padding: 1px;" :style="setBeatmapRowColor(beatmap.status)">{{beatmap.status}}</td>
                     <td scope="row" style="padding: 1px;" data-toggle="modal" data-target="#editMap" :data-mapid="beatmap.id" @click.prevent="extendedMap(beatmap)"><a href="#">edit</a></td>
                 </tr>
@@ -193,8 +198,14 @@
                             <div class="input-group-prepend">
                                 <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg" type="submit" @click="updateMapUrl(selectedMap.id, $event)">save link</button>
                             </div>
-                                <input class="form-control form-control-sm" type="text" placeholder="URL" id="newLink" style="border-radius: 0 100px 100px 0" />
+                            <input class="form-control form-control-sm" type="text" placeholder="URL" id="newLink" style="border-radius: 0 100px 100px 0" />
                         </div>
+                    </div>
+                    <div class="input-group input-group-sm mb-3">
+                            <div class="input-group-prepend">
+                                <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg" type="submit" @click="updateStoryboardQuality(selectedMap.id, $event)">set SB quality</button>
+                            </div>
+                            <input class="form-control form-control-sm" type="text" placeholder="1,2,3 = low,med,high" id="sbQuality" style="border-radius: 0 100px 100px 0" />
                     </div>
                     <hr>
                     <div>
@@ -571,6 +582,41 @@ export default {
                 console.log('update party ranks worked');
             }
         },
+        hasStoryboard: function(tasks){
+            let valid;
+            for (let i = 0; i < tasks.length; i++) {
+                if(tasks[i].name == "Storyboard"){
+                    valid = true;
+                }
+            }
+            return valid;
+        },
+        storyboardJudged: function(tasks){
+            let valid;
+            for (let i = 0; i < tasks.length; i++) {
+                if(tasks[i].name == "Storyboard"){
+                    if(tasks[i].sbQuality){
+                        valid = tasks[i].sbQuality;
+                    }
+                }
+            }
+            return valid;
+        },
+        updateStoryboardQuality: async function(id, e){
+            let taskId;
+            this.selectedMap.tasks.forEach(task => {
+                if(task.name == "Storyboard"){
+                    taskId = task.id;
+                }
+            });
+            if(taskId){
+                const sbQuality = $('#sbQuality').val();
+                const bm = await this.executePost('/admin/updateStoryboardQuality/' + id, {sbQuality: sbQuality, taskId: taskId}, e);
+                if(bm){
+                    this.updateMap(bm);
+                }
+            }
+        },
         setStatus: async function(id, e){
             const status = $('#mapStatusSelect').val();
             const bm = await this.executePost('/admin/updateMapStatus/' + id, {status: status}, e);
@@ -607,7 +653,9 @@ export default {
             }
         },
         deleteMap: async function(id, e){
-            const bm = await this.executePost('/admin/deleteMap/' + id, {}, e);
+            const result = confirm(`Are you sure you want to delete?`);
+            if(result){
+                const bm = await this.executePost('/admin/deleteMap/' + id, {}, e);
             if(bm){
                 $('#editMap').modal('hide');
                 axios
@@ -619,6 +667,7 @@ export default {
                         this.users = response.data.u;
                         this.featuredArtists = response.data.fa;
                     });   
+                }
             }
         },
 
