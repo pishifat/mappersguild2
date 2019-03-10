@@ -16,18 +16,19 @@
           Search:
           <input
             id="search"
+            class="px-1"
             v-model="filterValue"
             type="text"
             maxlength="48"
             placeholder="song/username... (3+ characters)"
-            style="border-radius: 5px 5px 5px 5px; filter: drop-shadow(1px 1px 1px #000000); width: 200px;"
+            style="border-radius: 5px 5px 5px 5px; filter: drop-shadow(1px 1px 1px #000000); width: 203px;"
           >
-          <a href="#" class="icon-valid" @click.prevent="selfFilter()"><i class="ml-1 fas fa-home"></i></a>
+          <a href="#" class="icon-valid" @click.prevent="selfFilter()" data-toggle="tooltip" title="My maps"><i class="ml-1 fas fa-home"></i></a>
         </small> 
         
         <small class="ml-4">
         Filter:
-        <select class="custom-select select-arrow-filter" id="mode" v-model="filterMode" style="border-radius: 5px 5px 5px 5px; width: 100px; padding: 0 0 0 0; height: 26px;">
+        <select class="custom-select select-arrow-filter" id="mode" v-model="filterMode" style="border-radius: 5px 5px 5px 5px; width: 100px; padding: 0 0 0 5px; height: 26px;">
             <option value="" selected>All modes</option>
             <option value="osu">osu!</option>
             <option value="taiko">osu!taiko</option>
@@ -36,7 +37,7 @@
         </select>
         </small>
         <small>
-        <select class="custom-select select-arrow-filter ml-2" id="status" v-model="filterStatus" style="border-radius: 5px 5px 5px 5px; width: 100px; padding: 0 0 0 0; height: 26px;">
+        <select class="custom-select select-arrow-filter ml-2" id="status" v-model="filterStatus" style="border-radius: 5px 5px 5px 5px; width: 100px; padding: 0 0 0 5px; height: 26px;">
             <option value="" selected>All statuses</option>
             <option value="WIP">WIP</option>
             <option value="Done">Pending</option>
@@ -44,7 +45,7 @@
         </select>
         </small>
         <small>
-        <select class="custom-select select-arrow-filter ml-2" id="selectQuest" v-model="filterQuest" style="border-radius: 5px 5px 5px 5px; width: 200px; padding: 0 0 0 0; height: 26px;">
+        <select class="custom-select select-arrow-filter ml-2" id="selectQuest" v-model="filterQuest" style="border-radius: 5px 5px 5px 5px; width: 200px; padding: 0 0 0 5px; height: 26px;">
             <option value="" selected>All quests</option>
             <option value="none">No quests</option>
             <option v-for="quest in allQuests" :key="quest.id" :value="quest.id">{{quest.name}}</option>
