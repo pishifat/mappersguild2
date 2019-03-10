@@ -29,7 +29,7 @@ async function addTaskChecks(userId, b, newDiff, isHost) {
             return { error: 'There can only be one storyboard on a mapset!' };
         }
     }
-    if (b.quest) {
+    if (b.quest && newDiff != 'Storyboard') {
         let p = await parties.service.query({ currentQuest: b.quest, members: userId });
         if (!p) {
             return {

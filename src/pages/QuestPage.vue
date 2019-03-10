@@ -21,6 +21,10 @@
                     @accept-quest="acceptQuest($event)" 
                 ></quest-card>
             </transition-group>
+            <div class="segment" v-if="!openQuests">
+                <h5 class="ml-1">There are currently no open quests!</h5>
+                <p class="ml-2">Check back later.</p>
+            </div>
         </div>
     </div>
     <div class="col-lg-6"> <!--use 3 for 2 columns open-->
@@ -42,6 +46,10 @@
                     @drop-quest="dropQuest($event)"
                 ></quest-card>
             </transition-group>
+            <div class="segment" v-if="!wipQuests">
+                <h5 class="ml-1">There are currently no running quests!</h5>
+                <p class="ml-2">Check back later.</p>
+            </div>
         </div>
     </div>
 

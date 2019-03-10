@@ -55,7 +55,7 @@
                             </tr>
                             <tr v-if="user.storyboardPoints">
                                 <td scope="row" style="padding: 1px;" data-toggle="tooltip" data-placement="left"
-                                    title="10 points per storyboard. +2 if quest mapset">Creating storyboards</td>
+                                    title="2, 7.5, or 10 points per storyboard">Creating storyboards</td>
                                 <td scope="row" style="padding: 1px;">
                                     {{Math.round(user.storyboardPoints*10)/10}}</td>
                             </tr>

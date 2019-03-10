@@ -240,6 +240,10 @@ a {
     color: var(--done);
 }
 
+.qualified {
+    color: var(--guild);
+}
+
 .ranked {
     color: var(--ranked);
 }

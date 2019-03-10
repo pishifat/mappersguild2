@@ -676,8 +676,13 @@ router.post('/updateUserPoints', async (req, res) => {
                                 pointsObject[task.name]["total"] += (taskPoints + questBonus) / task.mappers.length;
                                 pointsObject[task.mode]["total"] += (taskPoints + questBonus) / task.mappers.length;
                             }else{
-                                if(task.sbQuality <= 3){
-                                    pointsObject[task.name]["total"] += (task.sbQuality*task.sbQuality + 1) / task.mappers.length; //sb worth 2, 5, or 10
+                                if(task.sbQuality){
+                                    if(task.sbQuality == 2){
+                                        pointsObject[task.name]["total"] += 7.5 / task.mappers.length;
+                                    }else{
+                                        pointsObject[task.name]["total"] += (task.sbQuality*task.sbQuality + 1) / task.mappers.length; //sb worth 2 or 10
+                                    }
+                                    
                                 }
                                 
                             }

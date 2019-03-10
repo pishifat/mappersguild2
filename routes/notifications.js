@@ -41,7 +41,7 @@ async function addTaskChecks(userId, b, invite) {
             return { error: 'There can only be one storyboard on a mapset!' };
         }
     }
-    if (b.quest) {
+    if (b.quest && invite.taskName != 'Storyboard') {
         let p = await parties.service.query({ currentQuest: b.quest, members: userId });
         if (!p) {
             return {
