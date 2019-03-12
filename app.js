@@ -74,7 +74,7 @@ app.use('/notifications', notificationsRouter);
 app.use('/admin', adminsRouter);
 
 //qat
-app.use('/appEval', appEvalRouter);
+app.use('/qat/appEval', appEvalRouter);
 
 //qat
 const qatdb = mongoose.createConnection(config.qat.connection, { useNewUrlParser: true });

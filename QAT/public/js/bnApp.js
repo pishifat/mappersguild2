@@ -18,7 +18,7 @@ $(function () {
             $('#confirm').text('');
             $('#errors').text('You must enter at least two mods!');
         }else{
-            await axios.post(`/qat/apply`, {mode: mode, mods: mods}).then(response => {
+            await axios.post(`/qat/apply`, {mode: mode, mods: mods}).then(response => {//temporary while test doesnt exist
                 if(response.data.error){
                     $('#errors').text(response.data.error);
                 }else{

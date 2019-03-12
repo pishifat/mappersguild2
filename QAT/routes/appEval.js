@@ -14,7 +14,7 @@ router.get('/relevantInfo', async (req, res, next) => {
         bnApps.service.query(
             {},
             {},
-            {},
+            {createdAt: 1},
             true
         )
     ]);

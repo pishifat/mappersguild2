@@ -1,7 +1,7 @@
 <template>
 
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-12">
         <h2>Applicants</h2> 
         <transition-group name="list" tag="div" class="row">
             <eval-card
@@ -55,7 +55,7 @@ export default {
     },
     created() {
         axios
-            .get('/appEval/relevantInfo')
+            .get('/qat/appEval/relevantInfo')
             .then(response => {
                 this.applicants = response.data.applicants;
             }).then(function(){
@@ -66,7 +66,7 @@ export default {
     mounted () {
         setInterval(() => {
             axios
-                .get('/appEval/relevantInfo')
+                .get('/qat/appEval/relevantInfo')
                 .then(response => {
                     this.applicants = response.data.applicants;
                 });
