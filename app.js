@@ -74,21 +74,21 @@ app.use('/notifications', notificationsRouter);
 app.use('/admin', adminsRouter);
 
 //qat
-app.use('/appEval', appEvalRouter);
-
-//qat
 const qatdb = mongoose.createConnection(config.qat.connection, { useNewUrlParser: true });
 qatdb.on('error', console.error.bind(console, 'qatdb connection error:'));
 qatdb.once('open', function() {
     console.log('qatdb connected');
 });
 
+//qat
 app.use('/qat', session({
     secret: config.session,
     store: new MongoStore({ mongooseConnection: qatdb }),
     resave: false,
     saveUninitialized: false,
 }), bnAppRouter);
+
+app.use('/qat/appEval', appEvalRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
