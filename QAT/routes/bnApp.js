@@ -2,50 +2,58 @@ const express = require('express');
 const config = require('../../config.json');
 const crypto = require('crypto');
 const api = require('../models/api.js');
-const users = require('../models/user.js');
+const bnApps = require('../models/bnApp.js');
 
 const router = express.Router();
 
 /* GET bn app page */
 router.get('/', async (req, res, next) => {
-    res.render('bnapp', { title: 'bn app', isBnApp: true, layout: 'qatlayout' });
+    res.render('bnapp', { title: 'bn app', script: '../js/bnApp.js', isBnApp: true, layout: 'qatlayout' });
 });
 
-/* GET user's code to login */
-router.get('/login', async (req, res, next) => {
+/* POST a bn application */
+router.post('/apply', async (req, res, next) => {
     if (req.session.osuId && req.session.username) {
-        const u = await users.service.query({ osuId: req.session.osuId });
-        
+        let date = new Date();
+        date.setDate( date.getDate() - 90 );
+        const u = await bnApps.service.query({ $and: [{ osuId: req.session.osuId }, { mode: req.body.mode }, { createdAt: { $gte: date } }] });
+        //if req.session.usergroup == qat/bn, query for bn of req.body.mode, then error if returned
         if (!u || u.error) {
-            const user = await users.service.create(req.session.osuId, req.session.username);
+            const user = await bnApps.service.create(req.session.osuId, req.session.username, req.body.mode, req.body.mods);
             if (user && !user.error) {
-                return next();
+                return res.json({});
             } else {
-                return res.status(500).render('error', { message: 'Something went wrong!' });
+                return res.json( { error: "Failed to process application!"} );
             }
         } else {
-            req.session.mongoId = u._id;
-            return next();
+            if(!u.consensus){
+                return res.json( { error: 'Your application is still being evaluated!'} );
+            }else{
+                return res.json( { error: `You may apply for this game mode again on ${new Date(u.createdAt.setDate (u.createdAt.getDate() + 90)).toString().slice(4,15)}.` } );
+            }
         }
+            
     }
 
     if (!req.cookies._state) {
         crypto.randomBytes(48, function (err, buffer) {
             res.cookie('_state', buffer.toString('hex')); //, { httpOnly: true }
-            res.redirect('/login');
+            res.redirect('/apply');
         });
     } else {
         let hashedState = Buffer.from(req.cookies._state).toString('base64');
         res.redirect(`https://osu.ppy.sh/oauth/authorize?response_type=code&client_id=${config.qat.id}&redirect_uri=${encodeURIComponent(config.qat.redirect)}&state=${hashedState}&scope=identify`);
+ 
     }
 }, api.isLoggedIn, (req, res) => {
-    res.render('error', { message: 'redirected' });
+    res.render('error', { message: 'redirected', layout: 'qatlayout'});
 });
 
 /* GET user's token and user's info to login */
 router.get('/callback', async (req, res) => {
+    console.log('callback')
     if (!req.query.code || req.query.error) {
-        return res.redirect('/'); 
+        return res.redirect('/qat'); 
     }
 
     const decodedState = Buffer.from(req.query.state, 'base64').toString('ascii');
@@ -68,10 +76,10 @@ router.get('/callback', async (req, res) => {
         
         if (response.error) {
             res.status(500).render('error');
-        } else if (response.ranked_and_approved_beatmapset_count >= 50 && response.kudosu.total >= 0) {
+        } else if (response.ranked_and_approved_beatmapset_count >= 64 && response.kudosu.total >= 0) { //also check if user is qat/bn
             req.session.username = response.username;
             req.session.osuId = response.id;
-            res.redirect('/login');
+            res.redirect('/apply');
         } else { 
             res.render('error', { message: 'bottom text' });
         }
