@@ -1,10 +1,10 @@
-var express = require('express');
-const config = require('../qatConfig.json');
+const express = require('express');
+const config = require('../../config.json');
 const crypto = require('crypto');
-var api = require('../models/api2.js');
-var users = require('../models/user2.js')
+const api = require('../models/api.js');
+const users = require('../models/user.js');
 
-var router = express.Router();
+const router = express.Router();
 
 /* GET bn app page */
 router.get('/', async (req, res, next) => {
@@ -12,11 +12,17 @@ router.get('/', async (req, res, next) => {
 });
 
 /* GET user's code to login */
-router.get('/login2', async (req, res, next) => {
+router.get('/login', async (req, res, next) => {
     if (req.session.osuId && req.session.username) {
         const u = await users.service.query({ osuId: req.session.osuId });
+        
         if (!u || u.error) {
             const user = await users.service.create(req.session.osuId, req.session.username);
+            if (user && !user.error) {
+                return next();
+            } else {
+                return res.status(500).render('error', { message: 'Something went wrong!' });
+            }
         } else {
             req.session.mongoId = u._id;
             return next();
@@ -25,19 +31,19 @@ router.get('/login2', async (req, res, next) => {
 
     if (!req.cookies._state) {
         crypto.randomBytes(48, function (err, buffer) {
-            res.cookie('_state', buffer.toString('hex')); // , { httpOnly: true }
-            res.redirect('/bnApp/login2');
+            res.cookie('_state', buffer.toString('hex')); //, { httpOnly: true }
+            res.redirect('/login');
         });
     } else {
         let hashedState = Buffer.from(req.cookies._state).toString('base64');
-        res.redirect(`https://osu.ppy.sh/oauth/authorize?response_type=code&client_id=${config.id}&redirect_uri=${encodeURIComponent(config.redirect)}&state=${hashedState}&scope=identify`);
+        res.redirect(`https://osu.ppy.sh/oauth/authorize?response_type=code&client_id=${config.qat.id}&redirect_uri=${encodeURIComponent(config.qat.redirect)}&state=${hashedState}&scope=identify`);
     }
 }, api.isLoggedIn, (req, res) => {
     res.render('error', { message: 'redirected' });
 });
 
 /* GET user's token and user's info to login */
-router.get('/callback2', async (req, res) => {
+router.get('/callback', async (req, res) => {
     if (!req.query.code || req.query.error) {
         return res.redirect('/'); 
     }
@@ -49,7 +55,7 @@ router.get('/callback2', async (req, res) => {
     }
 
     let response = await api.getToken(req.query.code);
-
+    
     if (response.error) {
         res.status(500).render('error', { message: response.error });
     } else {
@@ -59,13 +65,13 @@ router.get('/callback2', async (req, res) => {
         req.session.refreshToken = response.refresh_token;
 
         response = await api.getUserInfo(req.session.accessToken);
-
+        
         if (response.error) {
             res.status(500).render('error');
-        } else if (response.ranked_and_approved_beatmapset_count >= 100 && response.kudosu.total >= 0) {
+        } else if (response.ranked_and_approved_beatmapset_count >= 50 && response.kudosu.total >= 0) {
             req.session.username = response.username;
             req.session.osuId = response.id;
-            res.redirect('/bnApp/login2');
+            res.redirect('/login');
         } else { 
             res.render('error', { message: 'bottom text' });
         }
