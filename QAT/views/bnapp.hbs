@@ -1,10 +1,16 @@
 <div class="segment">
     <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc eu lorem velit. Mauris non magna nunc. Mauris accumsan leo sit amet neque tempor ultrices. Nullam sagittis erat nibh, eu tempor leo posuere sed. Quisque lacinia lorem nec elit sollicitudin laoreet. Morbi est est, lobortis eget libero sit amet, finibus vulputate neque. Donec interdum sollicitudin laoreet. Curabitur rhoncus dignissim lorem porta suscipit. Phasellus dignissim ultricies justo, a eleifend sem tristique vitae.</p>
     <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc eu lorem velit. Mauris non magna nunc. Mauris accumsan leo sit amet neque tempor ultrices. Nullam sagittis erat nibh, eu tempor leo posuere sed. Quisque lacinia lorem nec elit sollicitudin laoreet. Morbi est est, lobortis eget libero sit amet, finibus vulputate neque. Donec interdum sollicitudin laoreet. Curabitur rhoncus dignissim lorem porta suscipit. Phasellus dignissim ultricies justo, a eleifend sem tristique vitae.</p>
+    {{#unless loggedInAs}}
+    <form class="col-md-12 mt-2 text-center mx-auto" action="/login" method="GET">
+        <button class="btn btn-lg btn-mg" type="submit">Verify your account to apply</button>
+    </form>
+    {{/unless}}
 </div>
 
 <hr>
 
+{{#if loggedInAs}}
 <div class="segment">
     <h4>Game-mode:</h4>
     <div class="form-group row">
@@ -54,6 +60,5 @@
         <button id="apply" class="btn btn-lg btn-mg" type="submit">Apply</button>
     </div>
 </div>
-
 <hr>
-
+{{/if}}

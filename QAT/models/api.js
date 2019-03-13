@@ -91,7 +91,7 @@ async function isLoggedIn(req, res, next) {
         res.locals.userRequest = u;
         next();
     } else {
-        res.redirect('/');
+        res.redirect('/qat');
     }
 }
 
