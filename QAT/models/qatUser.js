@@ -2,7 +2,7 @@ const config = require('../../config.json');
 const mongoose = require('mongoose');
 const qatDb = mongoose.createConnection(config.qat.connection, { useNewUrlParser: true })
 
-const userSchema = new mongoose.Schema({
+const qatUserSchema = new mongoose.Schema({
     osuId: { type: Number, required: true },
     username: { type: String, required: true },
     group: { type: String, enum: ["bn", "qat", 'user'], default: 'user' },
@@ -12,17 +12,17 @@ const userSchema = new mongoose.Schema({
     vetoMediator: { type: Boolean }, 
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
-const user = qatDb.model('user', userSchema);
+const QatUser = qatDb.model('QatUser', qatUserSchema);
 
-class userService
+class QatUserService
 {
     async query(params, populate, sorting, getAll) {
         let query;
 
         if (getAll) {
-            query = user.find(params);
+            query = QatUser.find(params);
         } else {
-            query = user.findOne(params);
+            query = QatUser.findOne(params);
         }
 
         if (populate) {
@@ -45,22 +45,21 @@ class userService
 
     async update(id, update) {
         try {
-            return await user.findByIdAndUpdate(id, update, { 'new': true });
+            return await QatUser.findByIdAndUpdate(id, update, { 'new': true });
         } catch(error) {
-            logs.service.create(null, error, null, 'error'); 
             return { error: error._message };
         }
     }
 
-    async create(osuId, username, mode, mods) {
+    async create(osuId, username, group) {
         try {
-            return await user.create({osuId: osuId, username: username, mode: mode, mods: mods});
+            return await QatUser.create({osuId: osuId, username: username, group: group});
         } catch(error) {
             return { error: "could not create user" }
         }
     }
 }
 
-const service = new userService();
+const service = new QatUserService();
 
-module.exports = { user, service };
+module.exports = { service };

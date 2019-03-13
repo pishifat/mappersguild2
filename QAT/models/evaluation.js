@@ -3,20 +3,25 @@ const mongoose = require('mongoose');
 const qatDb = mongoose.createConnection(config.qat.connection, { useNewUrlParser: true })
 
 const evaluationSchema = new mongoose.Schema({
-    evaluator: { type: 'ObjectId', ref: 'user' }
+    evaluator: { type: 'ObjectId', ref: 'QatUser', required: true },
+    application: { type: 'ObjectId', ref: 'BnApp' },
+    bn: { type: 'ObjectId', ref: 'QatUser' },
+    behaviorComment: { type: String, required: true },
+    moddingComment: { type: String, required: true },
+    vote: { type: Number, enum: [1, 2, 3] }
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
-const evaluation = qatDb.model('evaluation', evaluationSchema);
+const Evaluation = qatDb.model('Evaluation', evaluationSchema);
 
-class evaluationService
+class EvaluationService
 {
     async query(params, populate, sorting, getAll) {
         let query;
 
         if (getAll) {
-            query = evaluation.find(params);
+            query = Evaluation.find(params);
         } else {
-            query = evaluation.findOne(params);
+            query = Evaluation.findOne(params);
         }
 
         if (populate) {
@@ -39,22 +44,29 @@ class evaluationService
 
     async update(id, update) {
         try {
-            return await evaluation.findByIdAndUpdate(id, update, { 'new': true });
+            return await Evaluation.findByIdAndUpdate(id, update, { 'new': true });
         } catch(error) {
-            logs.service.create(null, error, null, 'error'); 
             return { error: error._message };
         }
     }
 
-    async create(osuId, username, mode, mods) {
+    async createAppEval(evaluatorId, behaviorComment, moddingComment, vote, applicationId) {
         try {
-            return await evaluation.create({osuId: osuId, username: username, mode: mode, mods: mods});
+            return await Evaluation.create({evaluator: evaluatorId, behaviorComment: behaviorComment, moddingComment: moddingComment, vote: vote, application: applicationId});
         } catch(error) {
-            return { error: "could not create user" }
+            return { error: error._message }
+        }
+    }
+
+    async createBnEval(evaluatorId, behaviorComment, moddingComment, vote, bnId) {
+        try {
+            return await Evaluation.create({evaluator: evaluatorId, behaviorComment: behaviorComment, moddingComment: moddingComment, vote: vote, bn: bnId});
+        } catch(error) {
+            return { error: error._message }
         }
     }
 }
 
-const service = new evaluationService();
+const service = new EvaluationService();
 
-module.exports = { evaluation, service };
+module.exports = { service };

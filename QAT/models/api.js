@@ -1,6 +1,6 @@
 const querystring = require('querystring');
 const config = require('../../config.json');
-const users = require('./user.js');
+const users = require('./qatUser.js');
 const axios = require('axios');
 
 async function getToken(code) {
@@ -72,7 +72,7 @@ async function getUserInfo(token) {
 }
 
 async function isLoggedIn(req, res, next) {
-    if (req.session.mongoId) {
+    if (req.session.qatMongoId) {
         const u = await users.service.query({ _id: req.session.qatMongoId });
         
         // If hidden, shouldn't be able to do anything
