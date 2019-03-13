@@ -8,10 +8,15 @@
                 v-for="applicant in applicants"
                 :applicant="applicant"
                 :key="applicant.id"
+                @update:selectedApplicant="selectedApplicant = $event"
             ></eval-card>
         </transition-group>
         <p v-if="!applicants || applicants.length == 0" class="ml-4">No applicants...</p>
     </div>
+
+    <eval-info
+        :applicant="selectedApplicant"
+    ></eval-info>
 
 </div>
 
@@ -19,11 +24,13 @@
 
 <script>
 import EvalCard from '../components/evaluations/EvalCard.vue';
+import EvalInfo from '../components/evaluations/EvalInfo.vue';
 
 export default {
     name: 'app-eval-page',
     components: {
-        EvalCard
+        EvalCard,
+        EvalInfo
     },
     methods: {
         executePost: async function (path, data, e) {
@@ -70,7 +77,7 @@ export default {
                 .then(response => {
                     this.applicants = response.data.applicants;
                 });
-        }, 30000);
+        }, 300000);
     }
 }
 </script>

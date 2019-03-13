@@ -23,6 +23,7 @@
     --hard: rgb(255, 245, 212);
     --insane: rgb(255, 212, 212);
     --expert: rgb(231, 205, 255);
+    --qat: #4AC2C2;
 }
 
 html {
@@ -579,4 +580,22 @@ hr {
     .nav-logout {
         display: none;
     }
+}
+
+
+/*temp*/
+.qat {
+    color: var(--qat);
+}
+
+.bg-qat {
+    background-color: var(--qat);
+}
+
+.btn-qat {
+    background-color: var(--qat);
+    border-color: var(--qat);
+    filter: drop-shadow(1px 1px 1px #000000);
+    border-radius: 10000px;
+    padding: 3px 20px;
 }

@@ -2,28 +2,21 @@ const config = require('../../config.json');
 const mongoose = require('mongoose');
 const qatDb = mongoose.createConnection(config.qat.connection, { useNewUrlParser: true })
 
-const bnAppSchema = new mongoose.Schema({
-    osuId: { type: Number, required: true },
-    username: { type: String, required: true },
-    mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania'], required: true },
-    mods: [{ type: String }],
-    //evaluations: [{type: 'ObjectId', ref: 'evaluation'}],
-    consensus: { type: String, enum: ["accepted", "rejected"]}
-    //testResult: [{ type: 'ObjectId', ref: 'rcTest'}],
-
+const evaluationSchema = new mongoose.Schema({
+    evaluator: { type: 'ObjectId', ref: 'user' }
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
-const bnApp = qatDb.model('bnApp', bnAppSchema);
+const evaluation = qatDb.model('evaluation', evaluationSchema);
 
-class bnAppService
+class evaluationService
 {
     async query(params, populate, sorting, getAll) {
         let query;
 
         if (getAll) {
-            query = bnApp.find(params);
+            query = evaluation.find(params);
         } else {
-            query = bnApp.findOne(params);
+            query = evaluation.findOne(params);
         }
 
         if (populate) {
@@ -46,7 +39,7 @@ class bnAppService
 
     async update(id, update) {
         try {
-            return await bnApp.findByIdAndUpdate(id, update, { 'new': true });
+            return await evaluation.findByIdAndUpdate(id, update, { 'new': true });
         } catch(error) {
             logs.service.create(null, error, null, 'error'); 
             return { error: error._message };
@@ -55,13 +48,13 @@ class bnAppService
 
     async create(osuId, username, mode, mods) {
         try {
-            return await bnApp.create({osuId: osuId, username: username, mode: mode, mods: mods});
+            return await evaluation.create({osuId: osuId, username: username, mode: mode, mods: mods});
         } catch(error) {
             return { error: "could not create user" }
         }
     }
 }
 
-const service = new bnAppService();
+const service = new evaluationService();
 
-module.exports = { bnApp, service };
+module.exports = { evaluation, service };
