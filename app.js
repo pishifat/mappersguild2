@@ -76,20 +76,14 @@ app.use('/admin', adminsRouter);
 //qat
 app.use('/qat/appEval', appEvalRouter);
 
-//qat
+//qat db
 const qatdb = mongoose.createConnection(config.qat.connection, { useNewUrlParser: true });
 qatdb.on('error', console.error.bind(console, 'qatdb connection error:'));
 qatdb.once('open', function() {
     console.log('qatdb connected');
 });
 
-//qat
-app.use('/qat/*', session({
-    secret: config.session,
-    store: new MongoStore({ mongooseConnection: qatdb }),
-    resave: false,
-    saveUninitialized: false,
-}));
+//qat routes
 app.use('/qat', bnAppRouter);
 app.use('/qat/appEval', appEvalRouter);
 

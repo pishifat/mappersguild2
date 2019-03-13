@@ -5,7 +5,7 @@ const qatDb = mongoose.createConnection(config.qat.connection, { useNewUrlParser
 const userSchema = new mongoose.Schema({
     osuId: { type: Number, required: true },
     username: { type: String, required: true },
-    group: { type: String, enum: ["bn", "qat"] },
+    group: { type: String, enum: ["bn", "qat", 'user'], default: 'user' },
     modes: [{ type: String, enum: ["osu", "taiko", "catch", "mania"] }],
     applications: [{ type: 'ObjectId', ref: 'bnApp' }],
     probation: { type: Boolean },
