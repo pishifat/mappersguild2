@@ -24,6 +24,7 @@ const adminsRouter = require('./routes/admin');
 //qat
 const bnAppRouter = require('./QAT/routes/bnApp');
 const appEvalRouter = require('./QAT/routes/appEval');
+const qatUsersRouter = require('./QAT/routes/qatUsers');
 
 const logs = require('./models/log');
 
@@ -83,6 +84,7 @@ qatdb.once('open', function() {
 //qat routes
 app.use('/qat', bnAppRouter);
 app.use('/qat/appEval', appEvalRouter);
+app.use('/qat/qatusers', qatUsersRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

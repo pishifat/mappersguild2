@@ -8,8 +8,8 @@ const qatUserSchema = new mongoose.Schema({
     group: { type: String, enum: ["bn", "qat", 'user'], default: 'user' },
     modes: [{ type: String, enum: ["osu", "taiko", "catch", "mania"] }],
     applications: [{ type: 'ObjectId', ref: 'bnApp' }],
-    probation: { type: Boolean },
-    vetoMediator: { type: Boolean }, 
+    probation: { type: Boolean, default: true },
+    vetoMediator: { type: Boolean, default: true }, 
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const QatUser = qatDb.model('QatUser', qatUserSchema);
