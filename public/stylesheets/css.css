@@ -23,7 +23,14 @@
     --hard: rgb(255, 245, 212);
     --insane: rgb(255, 212, 212);
     --expert: rgb(231, 205, 255);
-    --qat: #4AC2C2;
+
+    --qat-logo: #4AC2C2;
+    --qat: rgb(212, 34, 34);
+    --qat-light: rgb(216, 104, 104);
+    --bn: #773ab8;
+    --bn-light: #c189fc;
+    --probation: #cea0ff;
+    --probation-light: #eeddff;
 }
 
 html {
@@ -585,17 +592,50 @@ hr {
 
 /*temp*/
 .qat {
-    color: var(--qat);
+    color: var(--qat-logo);
 }
 
 .bg-qat {
-    background-color: var(--qat);
+    background-color: var(--qat-logo);
 }
 
 .btn-qat {
-    background-color: var(--qat);
-    border-color: var(--qat);
+    background-color: var(--qat-logo);
+    border-color: var(--qat-logo);
     filter: drop-shadow(1px 1px 1px #000000);
     border-radius: 10000px;
     padding: 3px 20px;
+}
+
+
+.btn-qat-red {
+    background-color: var(--qat-light);
+    border-color: var(--qat-light);
+    filter: drop-shadow(1px 1px 1px #000000);
+    border-radius: 10000px;
+    padding: 3px 20px;
+}
+
+.border-qat {
+    border-top: 5px solid var(--qat);
+}
+
+.border-bn {
+    border-top: 5px solid var(--bn);
+}
+
+.border-probation {
+    border-top: 5px solid var(--probation);
+}
+
+.bg-qat {
+    background-color: var(--qat-light);
+}
+
+.bg-bn {
+    background-color: var(--bn-light);
+}
+
+.bg-probation {
+    background-color: var(--probation-light);
 }
