@@ -5,7 +5,7 @@ const router = express.Router();
 
 /* GET bn app page */
 router.get('/', async (req, res, next) => {
-    res.render('appeval', { title: 'bn app eval', script: '../javascripts/appEval.js', isBnAppEval: true, layout: 'qatlayout' });
+    res.render('appeval', { title: 'bn app eval', script: '../javascripts/appEval.js', isAppEval: true, layout: 'qatlayout' });
 });
 
 /* GET applicant listing. */
@@ -14,7 +14,7 @@ router.get('/relevantInfo', async (req, res, next) => {
         bnApps.service.query(
             {},
             {},
-            {},
+            {createdAt: 1},
             true
         )
     ]);

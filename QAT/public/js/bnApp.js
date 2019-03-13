@@ -20,6 +20,7 @@ $(function() {
         } else {
             try {
                 const res = await axios.post(`/qat/apply`, { mode: mode, mods: mods });
+                // temporary while test doesnt exist
                 if (res.data.error) {
                     $('#errors').text(res.data.error);
                 } else {

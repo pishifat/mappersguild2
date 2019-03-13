@@ -2,28 +2,27 @@ const config = require('../../config.json');
 const mongoose = require('mongoose');
 const qatDb = mongoose.createConnection(config.qat.connection, { useNewUrlParser: true })
 
-const bnAppSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
     osuId: { type: Number, required: true },
     username: { type: String, required: true },
-    mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania'], required: true },
-    mods: [{ type: String }],
-    //evaluations: [{type: 'ObjectId', ref: 'evaluation'}],
-    consensus: { type: String, enum: ["accepted", "rejected"]}
-    //testResult: [{ type: 'ObjectId', ref: 'rcTest'}],
-
+    group: { type: String, enum: ["bn", "qat"] },
+    modes: [{ type: String, enum: ["osu", "taiko", "catch", "mania"] }],
+    applications: [{ type: 'ObjectId', ref: 'bnApp' }],
+    probation: { type: Boolean },
+    vetoMediator: { type: Boolean }, 
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
-const bnApp = qatDb.model('bnApp', bnAppSchema);
+const user = qatDb.model('user', userSchema);
 
-class bnAppService
+class userService
 {
     async query(params, populate, sorting, getAll) {
         let query;
 
         if (getAll) {
-            query = bnApp.find(params);
+            query = user.find(params);
         } else {
-            query = bnApp.findOne(params);
+            query = user.findOne(params);
         }
 
         if (populate) {
@@ -46,7 +45,7 @@ class bnAppService
 
     async update(id, update) {
         try {
-            return await bnApp.findByIdAndUpdate(id, update, { 'new': true });
+            return await user.findByIdAndUpdate(id, update, { 'new': true });
         } catch(error) {
             logs.service.create(null, error, null, 'error'); 
             return { error: error._message };
@@ -55,13 +54,13 @@ class bnAppService
 
     async create(osuId, username, mode, mods) {
         try {
-            return await bnApp.create({osuId: osuId, username: username, mode: mode, mods: mods});
+            return await user.create({osuId: osuId, username: username, mode: mode, mods: mods});
         } catch(error) {
             return { error: "could not create user" }
         }
     }
 }
 
-const service = new bnAppService();
+const service = new userService();
 
-module.exports = { bnApp, service };
+module.exports = { user, service };
