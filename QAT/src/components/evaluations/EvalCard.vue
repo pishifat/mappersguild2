@@ -1,18 +1,27 @@
 <template>
-<div class='col-md-2 my-2' @click="selectApplication()" >
-    <div class="card custom-bg-dark border-outline" :class="'border-' + findRelevantEval()" style="height: 100%" data-toggle='modal' data-target='#evaluationInfo' :data-user="application.id">
+<div class='col-md-2 my-2' @click="application ? selectApplication() : selectEvalRound()" >
+    <div class="card custom-bg-dark border-outline" :class="'border-' + findRelevantEval()" style="height: 100%" data-toggle='modal' data-target='#evaluationInfo' :data-user="application ? application.id : evalRound.id">
         <div class='card-body notification-card-spacing mx-1'>
-            <p class='card-text text-shadow'>
+            <p v-if="application" class='card-text text-shadow'>
                 <a @click.stop :href="'https://osu.ppy.sh/users/' + application.applicant.osuId" target="_blank">{{application.applicant.username}}</a> 
                 <i v-if="application.mode == 'osu'" class="far fa-circle"></i>
                 <i v-else-if="application.mode == 'taiko'" class="fas fa-drum"></i>
                 <i v-else-if="application.mode == 'catch'" class="fas fa-apple-alt"></i>
                 <i v-else-if="application.mode == 'mania'" class="fas fa-stream"></i>
             </p>
+            <p v-else class='card-text text-shadow'>
+                <a @click.stop :href="'https://osu.ppy.sh/users/' + evalRound.bn.osuId" target="_blank">{{evalRound.bn.username}}</a> 
+                <i v-if="evalRound.mode == 'osu'" class="far fa-circle"></i>
+                <i v-else-if="evalRound.mode == 'taiko'" class="fas fa-drum"></i>
+                <i v-else-if="evalRound.mode == 'catch'" class="fas fa-apple-alt"></i>
+                <i v-else-if="evalRound.mode == 'mania'" class="fas fa-stream"></i>
+            </p>
         </div>
         <div class="card-footer notification-card-spacing mx-2 small">
             <p class='card-text text-shadow'>
-                Deadline: <span class="errors">{{createDeadline(application.createdAt)}}</span>
+                Deadline: 
+                <span v-if="application" class="errors">{{createDeadline(application.createdAt)}}</span>
+                <span v-else class="errors">{{new Date(evalRound.deadline).toString().slice(4,10)}}</span>
             </p>
             
         </div>
@@ -28,20 +37,38 @@ export default {
         selectApplication: function () {
             this.$emit('update:selectedApplication', this.application);
         },
+        selectEvalRound: function () {
+            this.$emit('update:selectedEvalRound', this.evalRound);
+        },
         findRelevantEval: function(){
             let vote;
-            this.application.evaluations.forEach(ev => {
-                if(ev.evaluator == this.evaluator){
-                    if(ev.vote == 1){
-                        vote = 'pass';
-                    }else if(ev.vote == 2){
-                        vote = 'neutral'
-                    }else{
-                        vote = 'fail'
+            if(this.application){
+                this.application.evaluations.forEach(ev => {
+                    if(ev.evaluator == this.evaluator){
+                        if(ev.vote == 1){
+                            vote = 'pass';
+                        }else if(ev.vote == 2){
+                            vote = 'neutral'
+                        }else{
+                            vote = 'fail'
+                        }
                     }
-                }
-            });
-            return vote;
+                });
+                return vote;
+            }else{
+                this.evalRound.evaluations.forEach(ev => {
+                    if(ev.evaluator == this.evaluator){
+                        if(ev.vote == 1){
+                            vote = 'pass';
+                        }else if(ev.vote == 2){
+                            vote = this.application ? 'neutral' : 'extend'
+                        }else{
+                            vote = 'fail'
+                        }
+                    }
+                });
+                return vote;
+            }
         },
         createDeadline: function(date){
             date = new Date(date);
