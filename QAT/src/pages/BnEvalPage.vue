@@ -2,35 +2,47 @@
 
 <div class="row">
     <div class="col-md-12">
-        <h2>Pending</h2> 
-        <transition-group name="list" tag="div" class="row">
-            <eval-card
-                v-for="application in applications"
-                :application="application"
-                :evaluator="evaluator"
-                :key="application.id"
-                @update:selectedApplication="selectedApplication = $event"
-            ></eval-card>
-        </transition-group>
-        <p v-if="!applications || applications.length == 0" class="ml-4">No applications...</p>
+        <h2>Pending 
+            <button
+            class="btn btn-qat-logo"
+            data-toggle="modal"
+            data-target="#addEvalRounds"
+            @click="openAddEvalRounds()"
+          >Add users to evaluate</button>
+        </h2> 
+        
+        <p class="ml-4">No applications...</p>
     </div>
 
-    <eval-info
-        :application="selectedApplication"
-        :evaluator="evaluator"
-        @update-application="updateApplication($event)"
-    ></eval-info>
+    
 
 </div>
 
 </template>
 
+
+
 <script>
+/*<transition-group name="list" tag="div" class="row">
+            <eval-card
+                v-for="evalRound in evalRounds"
+                :eval-round="evalRound"
+                :evaluator="evaluator"
+                :key="evalRound.id"
+                @update:selectedEvalRound="selectedEvalRound = $event"
+            ></eval-card>
+        </transition-group>
+        
+        <eval-info
+        :eval-round="selectedEvalRound"
+        :evaluator="evaluator"
+        @update-eval-round="updateEvalRound($event)"
+    ></eval-info>*/
 import EvalCard from '../components/evaluations/EvalCard.vue';
 import EvalInfo from '../components/evaluations/EvalInfo.vue';
 
 export default {
-    name: 'app-eval-page',
+    name: 'bn-eval-page',
     components: {
         EvalCard,
         EvalInfo
@@ -71,9 +83,8 @@ export default {
     },
     created() {
         axios
-            .get('/qat/appEval/relevantInfo')
+            .get('/qat/bnEval/relevantInfo')
             .then(response => {
-                this.applications = response.data.applications;
                 this.evaluator = response.data.evaluator;
             }).then(function(){
                 $("#loading").fadeOut();
@@ -83,10 +94,9 @@ export default {
     mounted () {
         setInterval(() => {
             axios
-                .get('/qat/appEval/relevantInfo')
+                .get('/qat/bnEval/relevantInfo')
                 .then(response => {
-                    this.applications = response.data.applications;
-                    this.evaluator = response.data.evaluator;
+                   
                 });
         }, 300000);
     }

@@ -40,15 +40,15 @@
                         <div class="col-sm-12 mb-2">
                             <span class="mr-3 text-shadow">Vote:</span>
                             <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="vote" id="1" value="1">
+                            <input class="form-check-input" type="radio" name="vote" id="1" value="1" :checked="vote == 1">
                             <label class="form-check-label text-shadow vote-pass" for="1">Pass</label>
                             </div>
                             <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="vote" id="2" value="2">
+                            <input class="form-check-input" type="radio" name="vote" id="2" value="2" :checked="vote == 2">
                             <label class="form-check-label text-shadow vote-neutral" for="2">Neutral</label>
                             </div>
                             <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="vote" id="3" value="3">
+                            <input class="form-check-input" type="radio" name="vote" id="3" value="3" :checked="vote == 3">
                             <label class="form-check-label text-shadow vote-fail" for="3">Fail</label>
                             </div>
                         </div>
@@ -69,7 +69,7 @@ import mixin from "../../mixins.js";
 
 export default {
     name: 'eval-info',
-    props: [ 'application', 'evaluator' ],
+    props: [ 'application', 'evalRound', 'evaluator' ],
     mixins: [ mixin ],
     computed: {
         
@@ -77,10 +77,8 @@ export default {
     watch: {
         application: function() {
             this.info = '';
-            this.behaviorComment = '';
-            this.moddingComment = '';
-            this.findRelevantEval();
             this.confirm = '';
+            this.findRelevantEval();
         },
     },
     methods: {
@@ -105,8 +103,20 @@ export default {
 		},
         //display
         findRelevantEval: function(){
+            this.evaluationId = null;
+            this.behaviorComment = '';
+            this.moddingComment = '';
+            this.vote = 0;
+            $("input[name=vote]").prop("checked",false);
+
             this.application.evaluations.forEach(ev => {
-                this.evaluation = ev;
+                if(ev.evaluator == this.evaluator){
+                    this.evaluationId = ev.id;
+                    this.behaviorComment = ev.behaviorComment;
+                    this.moddingComment = ev.moddingComment;
+                    this.vote = ev.vote;
+
+                }
             });
         },
         createDeadline: function(date){
@@ -123,13 +133,6 @@ export default {
                 return mod;
             }
         },
-        findEvaluation: function(evaluations){
-            evaluations.forEach(ev => {
-                if(ev.evaluator == evaluator){
-                    this.evaluation = ev;
-                }
-            })
-        },
 
         //action
         submitEval: async function (e) {
@@ -139,27 +142,28 @@ export default {
             }else{
                 const a = await this.executePost(
                     '/qat/appEval/submitEval/' + this.application.id, 
-                    { vote: vote, 
+                    { evaluationId: this.evaluationId, 
+                    vote: vote, 
                     behaviorComment: this.behaviorComment, 
                     moddingComment: this.moddingComment
                     }, e);
                 if (a) {
-                    this.$emit('update-application', a);
-                    if(this.evaluation){
+                    await this.$emit('update-application', a);
+                    if(this.evaluationId){
                         this.confirm = "Evaluation updated!"
                     }else{
                         this.confirm = "Evaluation submitted!"
                     }
-                    this.evaluation = a.evaluation; 
                 }
             }
 		},
     },
     data() {
         return {
+            evaluationId: '',
             behaviorComment: '',
             moddingComment: '',
-            evaluation: null,
+            vote: 0,
             info: '',
             confirm: ''
         };
@@ -168,30 +172,5 @@ export default {
 </script>
 
 <style>
-
-.dark-textarea,
-.dark-textarea:focus {
-    background-color: #333;
-    color: white;
-    border-color: #222;
-    filter: drop-shadow(1px 1px 1px #000000);
-    font-size:10pt;
-}
-
-.vote-pass {
-    color: #c1ffd2;
-}
-
-.vote-neutral {
-    color: #c1daff;
-}
-
-.vote-extend {
-    color: #fffbc1;
-}
-
-.vote-fail {
-    color: #ffc4c4;
-}
 
 </style>

@@ -2,24 +2,24 @@ const config = require('../../config.json');
 const mongoose = require('mongoose');
 const qatDb = mongoose.createConnection(config.qat.connection, { useNewUrlParser: true })
 
-const evaluationSchema = new mongoose.Schema({
-    evaluator: { type: 'ObjectId', ref: 'QatUser', required: true },
-    behaviorComment: { type: String, required: true },
-    moddingComment: { type: String, required: true },
-    vote: { type: Number, enum: [1, 2, 3] }
+const evalRoundSchema = new mongoose.Schema({
+    bn: { type: 'ObjectId', ref: 'QatUser', required: true },
+    evaluations: [{ type: 'ObjectId', ref: 'Evaluation' }],
+    deadline: { type: Date , required: true, default: new Date() },
+    active: { type: Boolean, default: true },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
-const Evaluation = qatDb.model('Evaluation', evaluationSchema);
+const EvalRound = qatDb.model('EvalRound', evalRoundSchema);
 
-class EvaluationService
+class EvalRoundService
 {
     async query(params, populate, sorting, getAll) {
         let query;
 
         if (getAll) {
-            query = Evaluation.find(params);
+            query = EvalRound.find(params);
         } else {
-            query = Evaluation.findOne(params);
+            query = EvalRound.findOne(params);
         }
 
         if (populate) {
@@ -42,7 +42,7 @@ class EvaluationService
 
     async update(id, update) {
         try {
-            return await Evaluation.findByIdAndUpdate(id, update, { 'new': true });
+            return await EvalRound.findByIdAndUpdate(id, update, { 'new': true });
         } catch(error) {
             return { error: error._message };
         }
@@ -50,13 +50,13 @@ class EvaluationService
 
     async create(evaluatorId, behaviorComment, moddingComment, vote) {
         try {
-            return await Evaluation.create({evaluator: evaluatorId, behaviorComment: behaviorComment, moddingComment: moddingComment, vote: vote});
+            return await EvalRound.create({evaluator: evaluatorId, behaviorComment: behaviorComment, moddingComment: moddingComment, vote: vote});
         } catch(error) {
             return { error: error._message }
         }
     }
 }
 
-const service = new EvaluationService();
+const service = new EvalRoundService();
 
-module.exports = { service, Evaluation };
+module.exports = { service, EvalRound };

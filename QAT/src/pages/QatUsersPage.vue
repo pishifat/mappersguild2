@@ -42,7 +42,6 @@
         :user="selectedUser"
         :user-id="userId"
         :user-group="userGroup"
-        @update:selectedMap="selectedMap = $event"
         @update-user="updateUser($event)"
     ></qat-user-info>
 

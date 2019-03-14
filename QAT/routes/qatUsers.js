@@ -19,7 +19,7 @@ const defaultPopulate = [
 
 /* GET applicant listing. */
 router.get('/relevantInfo', async (req, res, next) => {
-    let u = await users.service.query({}, {}, {createdAt: 1}, true );
+    let u = await users.service.query({$or: [{group: 'qat'}, {group: 'bn'}]}, {}, {createdAt: 1}, true );
     res.json({ users: u, userId: req.session.qatMongoId, userGroup: req.session.qatGroup });
 });
 

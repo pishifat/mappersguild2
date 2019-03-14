@@ -7,7 +7,7 @@ const router = express.Router();
 
 /* GET bn app page */
 router.get('/', async (req, res, next) => {
-    res.render('appeval', { title: 'bn app eval', script: '../javascripts/appEval.js', isAppEval: true, layout: 'qatlayout' });
+    res.render('bneval', { title: 'current bn eval', script: '../javascripts/bnEval.js', isBnEval: true, layout: 'qatlayout' });
 });
 
 //population doesnt work???
@@ -18,8 +18,8 @@ const defaultPopulate = [
 
 /* GET applicant listing. */
 router.get('/relevantInfo', async (req, res, next) => {
-    let applications = await bnApps.service.query({}, defaultPopulate, {createdAt: 1}, true );
-    res.json({ applications: applications, evaluator: req.session.qatMongoId });
+    //let bns = await users.service.query({probation: true}, defaultPopulate, {createdAt: 1}, true );
+    res.json({ evaluator: req.session.qatMongoId });
 });
 
 
