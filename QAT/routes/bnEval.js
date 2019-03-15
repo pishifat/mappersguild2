@@ -10,18 +10,17 @@ router.get('/', async (req, res, next) => {
     res.render('bneval', { title: 'current bn eval', script: '../javascripts/bnEval.js', isBnEval: true, layout: 'qatlayout' });
 });
 
-//population doesnt work???
+//population doesnt work??? IT works now!
 const defaultPopulate = [
-    { populate: 'bn', display: 'username osuId', model: 'QatUser' },
-    { populate: 'evaluations', display: 'evaluator behaviorComment moddingComment vote', model: 'Evaluation' }
+    { populate: 'bn', display: 'username osuId', model: users.QatUser },
+    { populate: 'evaluations', display: 'evaluator behaviorComment moddingComment vote', model: evals.Evaluation }
 ];
 
 const defaultDiscussPopulate = [
-    { populate: 'bn', display: 'username osuId', model: 'QatUser' },
-    { populate: 'evaluations', display: 'evaluator behaviorComment moddingComment vote', model: 'Evaluation' },
-    { innerPopulate: 'evaluations', innerPath: 'evaluator', innerModel: 'QatUser', model: 'Evaluation' }
+    { populate: 'bn', display: 'username osuId', model: users.QatUser },
+    { populate: 'evaluations', display: 'evaluator behaviorComment moddingComment vote', model: evals.Evaluation },
+    { innerPopulate: 'evaluations', model: evals.Evaluation, populate: { path: 'evaluator', select: 'username', model: users.QatUser } },
 ];
-
 
 
 /* GET applicant listing. */

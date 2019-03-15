@@ -33,11 +33,9 @@ class EvalRoundService
                 const p = populate[i];
                 
                 if (p.innerPopulate) {
-                    query.populate({ path: p.innerPopulate, populate: p.populate }, 
-                        p.model == 'QatUser' ? users.QatUser : evals.Evaluation);
+                    query.populate({ path: p.innerPopulate, model: p.model, populate: p.populate });
                 } else {
-                    query.populate(p.populate, p.display, 
-                        p.model == 'QatUser' ? users.QatUser : evals.Evaluation);
+                    query.populate(p.populate, p.display, p.model);
                 }
             }
         }
