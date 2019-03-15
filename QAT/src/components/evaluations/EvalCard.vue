@@ -61,7 +61,7 @@ export default {
                         if(ev.vote == 1){
                             vote = 'pass';
                         }else if(ev.vote == 2){
-                            vote = this.application ? 'neutral' : 'extend'
+                            vote = 'extend'
                         }else{
                             vote = 'fail'
                         }
