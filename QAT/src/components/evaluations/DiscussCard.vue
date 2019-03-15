@@ -1,18 +1,34 @@
 <template>
-<div class='col-md-2 my-2' @click="selectDiscussRound()" >
-    <div class="card custom-bg-dark border-outline" :class="'border-' + findRelevantEval()" style="height: 100%" data-toggle='modal' data-target='#discussionInfo' :data-user="discussRound.id">
+<div class='col-md-2 my-2' @click="discussApp ? selectDiscussApp() : selectDiscussRound()" >
+    <div class="card custom-bg-dark border-outline" :class="'border-' + findRelevantEval()" style="height: 100%" data-toggle='modal' data-target='#discussionInfo' :data-user="discussApp ? discussApp.id : discussRound.id">
         <div class='card-body notification-card-spacing mx-1'>
-            <div
-                class="card-status"
-                :class="'card-status-' + discussRound.consensus"
-            ></div>
-            <p class='card-text text-shadow'>
-                <a @click.stop :href="'https://osu.ppy.sh/users/' + discussRound.bn.osuId" target="_blank">{{discussRound.bn.username}}</a> 
-                <i v-if="discussRound.mode == 'osu'" class="far fa-circle"></i>
-                <i v-else-if="discussRound.mode == 'taiko'" class="fas fa-drum"></i>
-                <i v-else-if="discussRound.mode == 'catch'" class="fas fa-apple-alt"></i>
-                <i v-else-if="discussRound.mode == 'mania'" class="fas fa-stream"></i>
-            </p>
+            <div v-if="discussApp">
+                <div
+                    class="card-status"
+                    :class="'card-status-' + discussApp.consensus"
+                ></div>
+                <p class='card-text text-shadow'>
+                    <a @click.stop :href="'https://osu.ppy.sh/users/' + discussApp.applicant.osuId" target="_blank">{{discussApp.applicant.username}}</a> 
+                    <i v-if="discussApp.mode == 'osu'" class="far fa-circle"></i>
+                    <i v-else-if="discussApp.mode == 'taiko'" class="fas fa-drum"></i>
+                    <i v-else-if="discussApp.mode == 'catch'" class="fas fa-apple-alt"></i>
+                    <i v-else-if="discussApp.mode == 'mania'" class="fas fa-stream"></i>
+                </p>
+            </div>
+            <div v-else>
+                <div
+                    class="card-status"
+                    :class="'card-status-' + discussRound.consensus"
+                ></div>
+                <p class='card-text text-shadow'>
+                    <a @click.stop :href="'https://osu.ppy.sh/users/' + discussRound.bn.osuId" target="_blank">{{discussRound.bn.username}}</a> 
+                    <i v-if="discussRound.mode == 'osu'" class="far fa-circle"></i>
+                    <i v-else-if="discussRound.mode == 'taiko'" class="fas fa-drum"></i>
+                    <i v-else-if="discussRound.mode == 'catch'" class="fas fa-apple-alt"></i>
+                    <i v-else-if="discussRound.mode == 'mania'" class="fas fa-stream"></i>
+                </p>
+            </div>
+
         </div>
         <div class="card-footer notification-card-spacing mx-2">
             <p class="badge-spacing">
@@ -24,7 +40,8 @@
             </p>
             <p class='card-text text-shadow small'>
                 Deadline: 
-                <span class="errors">{{new Date(discussRound.deadline).toString().slice(4,10)}}</span>
+                <span v-if="discussApp" class="errors">{{createDeadline(discussApp.createdAt)}}</span>
+                <span v-else class="errors">{{new Date(discussRound.deadline).toString().slice(4,10)}}</span>
             </p>
             
         </div>
@@ -35,29 +52,49 @@
 <script>
 export default {
     name: 'discuss-card',
-    props: ['discuss-round', 'evaluator'],
+    props: ['discuss-app', 'discuss-round', 'evaluator'],
     watch: {
+        discussApp: function(v){
+            this.addVotes();
+        },
         discussRound: function(v){
             this.addVotes();
         }
     },
     methods: {
+        selectDiscussApp: function () {
+            this.$emit('update:selectedDiscussApp', this.discussApp);
+        },
         selectDiscussRound: function () {
             this.$emit('update:selectedDiscussRound', this.discussRound);
         },
         findRelevantEval: function(){
             let vote;
-            this.discussRound.evaluations.forEach(ev => {
-                if(ev.evaluator == this.evaluator){
-                    if(ev.vote == 1){
-                        vote = 'pass';
-                    }else if(ev.vote == 2){
-                        vote = this.application ? 'neutral' : 'extend'
-                    }else{
-                        vote = 'fail'
+            if(this.discussApp){
+                this.discussApp.evaluations.forEach(ev => {
+                    if(ev.evaluator.id == this.evaluator){
+                        if(ev.vote == 1){
+                            vote = 'pass';
+                        }else if(ev.vote == 2){
+                            vote = 'neutral';
+                        }else{
+                            vote = 'fail';
+                        }
                     }
-                }
-            });
+                });
+            }else{
+                this.discussRound.evaluations.forEach(ev => {
+                    if(ev.evaluator.id == this.evaluator){
+                        if(ev.vote == 1){
+                            vote = 'pass';
+                        }else if(ev.vote == 2){
+                            vote = 'extend';
+                        }else{
+                            vote = 'fail';
+                        }
+                    }
+                });
+            }
             return vote;
         },
         addVotes: function(){
@@ -65,16 +102,33 @@ export default {
             this.neutral = 0;
             this.extend = 0;
             this.fail = 0;
-            this.discussRound.evaluations.forEach(ev => {
-                if(ev.vote == 1){
-                    this.pass++;
-                }else if(ev.vote == 2){
-                    this.extend++;
-                }else if(ev.vote == 3){
-                    this.fail++;
-                }
-            })
-        }
+            if(this.discussApp){
+                this.discussApp.evaluations.forEach(ev => {
+                    if(ev.vote == 1){
+                        this.pass++;
+                    }else if(ev.vote == 2){
+                        this.neutral++;
+                    }else if(ev.vote == 3){
+                        this.fail++;
+                    }
+                });
+            }else{
+                this.discussRound.evaluations.forEach(ev => {
+                    if(ev.vote == 1){
+                        this.pass++;
+                    }else if(ev.vote == 2){
+                        this.extend++;
+                    }else if(ev.vote == 3){
+                        this.fail++;
+                    }
+                });
+            }
+        },
+        createDeadline: function(date){
+            date = new Date(date);
+            date = new Date(date.setDate (date.getDate() + 14)).toString().slice(4,10);
+            return date;
+        },
     },
     data() {
         return {

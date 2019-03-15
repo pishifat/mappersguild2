@@ -19,7 +19,7 @@ const defaultPopulate = [
 const defaultDiscussPopulate = [
     { populate: 'bn', display: 'username osuId', model: users.QatUser },
     { populate: 'evaluations', display: 'evaluator behaviorComment moddingComment vote', model: evals.Evaluation },
-    { innerPopulate: 'evaluations', model: evals.Evaluation, populate: { path: 'evaluator', select: 'username', model: users.QatUser } },
+    { innerPopulate: 'evaluations', model: evals.Evaluation, populate: { path: 'evaluator', select: 'username osuId', model: users.QatUser } },
 ];
 
 
@@ -146,15 +146,19 @@ router.post('/addEvalRounds/', async (req, res) => {
 
 /* POST submit or edit eval */
 router.post('/submitEval/:id', async (req, res) => {
+
     if(req.body.evaluationId){
         await evals.service.update(req.body.evaluationId, {behaviorComment: req.body.behaviorComment, moddingComment: req.body.moddingComment, vote: req.body.vote});
     }else{
+        console.log('a')
         let ev = await evals.service.create(req.session.qatMongoId, req.body.behaviorComment, req.body.moddingComment, req.body.vote);
         await evalRounds.service.update(req.params.id, {$push: {evaluations: ev._id}});
     }
-    let er = await evalRounds.service.query({ _id: req.params.id }, defaultPopulate);
-
-    res.json(er)
+    if(req.body.discussion){
+        res.json(await evalRounds.service.query({ _id: req.params.id }, defaultDiscussPopulate));
+    }else{
+        res.json(await evalRounds.service.query({ _id: req.params.id }, defaultPopulate));
+    }
 });
 
 module.exports = router;

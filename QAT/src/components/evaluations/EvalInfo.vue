@@ -73,7 +73,7 @@
                 </div>
             </div>
             <div class="modal-footer" style="overflow: hidden;">
-                <button class="btn btn-sm btn-qat" @click="submitEval($event)">Submit Evaluation</button>
+                <button class="btn btn-sm btn-qat" @click="submitEval($event)">{{evaluationId ? 'Update Evaluation' : 'Submit Evaluation'}}</button>
             </div>
         </div>
     </div>

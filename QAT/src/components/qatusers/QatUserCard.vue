@@ -7,10 +7,10 @@
         <div class='card-body qat-user-card-spacing'>
             <a :href="'https://osu.ppy.sh/users/' + user.osuId"
                 class="text-shadow" target="_blank" @click.stop>{{user.username}}</a> 
-            <i v-if="user.modes.indexOf('osu') >= 0" class="far fa-circle"></i>
-            <i v-if="user.modes.indexOf('taiko') >= 0" class="fas fa-drum"></i>
-            <i v-if="user.modes.indexOf('catch') >= 0" class="fas fa-apple-alt"></i>
-            <i v-if="user.modes.indexOf('mania') >= 0" class="fas fa-stream"></i>
+            <i v-if="user.modes.indexOf('osu') >= 0" class="far fa-circle text-shadow"></i>
+            <i v-if="user.modes.indexOf('taiko') >= 0" class="fas fa-drum text-shadow"></i>
+            <i v-if="user.modes.indexOf('catch') >= 0" class="fas fa-apple-alt text-shadow"></i>
+            <i v-if="user.modes.indexOf('mania') >= 0" class="fas fa-stream text-shadow"></i>
             <span class="pseudo-float-right-avatar">
                 <img :src="'https://a.ppy.sh/' + user.osuId" class="rounded-circle avatar-mini-thumb">
             </span>

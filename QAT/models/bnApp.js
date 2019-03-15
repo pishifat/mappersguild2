@@ -1,8 +1,6 @@
 const config = require('../../config.json');
 const mongoose = require('mongoose');
 const qatDb = mongoose.createConnection(config.qat.connection, { useNewUrlParser: true });
-const evals = require('./evaluation.js');
-const users = require('./qatUser.js');
 
 const bnAppSchema = new mongoose.Schema({
     applicant: {type: 'ObjectId', ref: 'QatUser', required: true},
@@ -35,11 +33,9 @@ class BnAppService
                 const p = populate[i];
 
                 if (p.innerPopulate) {
-                    query.populate({ path: p.innerPopulate, populate: p.populate }, 
-                        p.model == 'QatUser' ? users.QatUser : evals.Evaluation);
+                    query.populate({ path: p.innerPopulate, model: p.model, populate: p.populate });
                 } else {
-                    query.populate(p.populate, p.display, 
-                        p.model == 'QatUser' ? users.QatUser : evals.Evaluation);
+                    query.populate(p.populate, p.display, p.model);
                 }
             }
         }

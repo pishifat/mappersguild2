@@ -1,9 +1,16 @@
 <template>
 <div id="discussionInfo" class="modal fade" tabindex="-1">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content custom-bg-dark" v-if="application || discussRound">
+        <div class="modal-content custom-bg-dark" v-if="discussApp || discussRound">
             <div class="modal-header text-dark bg-qat-logo">
-                <h5 class="modal-title">
+                <h5 v-if="discussApp" class="modal-title">
+                    BN Evaluation: <a @click.stop :href="'https://osu.ppy.sh/users/' + discussApp.applicant.osuId" class="text-dark" target="_blank">{{discussApp.applicant.username}}</a>
+                    <i v-if="discussApp.mode == 'osu'" class="far fa-circle"></i>
+                    <i v-else-if="discussApp.mode == 'taiko'" class="fas fa-drum"></i>
+                    <i v-else-if="discussApp.mode == 'catch'" class="fas fa-apple-alt"></i>
+                    <i v-else-if="discussApp.mode == 'mania'" class="fas fa-stream"></i>
+                </h5>
+                <h5 v-else class="modal-title">
                     BN Evaluation: <a @click.stop :href="'https://osu.ppy.sh/users/' + discussRound.bn.osuId" class="text-dark" target="_blank">{{discussRound.bn.username}}</a>
                     <i v-if="discussRound.mode == 'osu'" class="far fa-circle"></i>
                     <i v-else-if="discussRound.mode == 'taiko'" class="fas fa-drum"></i>
@@ -14,7 +21,21 @@
             <div class="modal-body" style="overflow: hidden;">
                 <div class="container">
                     <div class="row">
-                        <div v-if="discussRound" class="col-sm-12">
+                        <div v-if="discussApp" class="col-sm-12">
+                            <p class="text-shadow">Submitted mods:</p>
+                            <ul style="list-style-type: none;">
+                                <li class="small text-shadow" v-for="(mod, i) in discussApp.mods" :key="i">
+                                    <a :href="modUrl(mod)" target="_blank">{{modUrl(mod)}}</a>
+                                </li>
+                            </ul>
+                            <p class="text-shadow">Test results: <a href="#">20/20 <i class="fas fa-angle-right"></i></a></p>
+                            <h5 class="text-shadow mb-2">Consensus:
+                                <span v-if="discussApp.consensus">{{discussApp.consensus}}</span>
+                                <span v-else>none</span>
+                            </h5>
+                            <hr>
+                        </div>
+                        <div v-else class="col-sm-12">
                             <p class="text-shadow">Nominations or osmething</p>
 
                             <h5 class="text-shadow mb-2">Consensus:
@@ -24,26 +45,33 @@
                             <hr>
                         </div>
                         
-                       
-                            
-                        <div class="col-sm-12 row text-shadow" v-for="evaluation in discussRound.evaluations" :key="evaluation.id">
-                            <div class="col-sm-3">
-                                <p :class=" evaluation.vote == 1 ? 'vote-pass' : evaluation.vote == 2 ? 'vote-extend' : 'vote-fail'">{{evaluation.evaluator.slice(0,18)}}</p> 
+                        <div v-if="discussApp" class="col-sm-12 row text-shadow">
+                            <div class="col-sm-12 row text-shadow" v-for="evaluation in discussApp.evaluations" :key="evaluation.id">
+                                <div :class="evaluation.evaluator.username.length > 10 ? 'col-sm-3' : 'col-sm-2'">
+                                    <p :class=" evaluation.vote == 1 ? 'vote-pass' : evaluation.vote == 2 ? 'vote-neutral' : 'vote-fail'">{{evaluation.evaluator.username}}</p> 
+                                </div>
+                                <div class="small" :class="evaluation.evaluator.username.length > 10 ? 'col-sm-9' : 'col-sm-10'">
+                                    <p class="mb-1">Behavior: {{evaluation.behaviorComment}}</p> 
+                                    <p>Modding: {{evaluation.moddingComment}}</p>
+                                </div>
                             </div>
-                            <div class="col-sm-9 small">
-                                <p class="mb-1">Behavior: {{evaluation.behaviorComment}}</p> 
-                                <p>Modding: {{evaluation.moddingComment}}</p>
-                            </div>
-                        
                         </div>
-
-                        
-                        
+                        <div v-else class="col-sm-12 row text-shadow">
+                            <div class="col-sm-12 row text-shadow" v-for="evaluation in discussRound.evaluations" :key="evaluation.id">
+                                <div :class="evaluation.evaluator.username.length > 10 ? 'col-sm-3' : 'col-sm-2'">
+                                    <p :class=" evaluation.vote == 1 ? 'vote-pass' : evaluation.vote == 2 ? 'vote-extend' : 'vote-fail'">{{evaluation.evaluator.username}}</p> 
+                                </div>
+                                <div class="small" :class="evaluation.evaluator.username.length > 10 ? 'col-sm-9' : 'col-sm-10'">
+                                    <p class="mb-1">Behavior: {{evaluation.behaviorComment}}</p> 
+                                    <p>Modding: {{evaluation.moddingComment}}</p>
+                                </div>
+                            </div>
+                        </div>
                         
                         <div class="col-sm-12">
                             <hr>
-                            <p class="text-shadow">{{evaluationId ? 'Edit response:' : 'Add a response:'}}</p>
                         </div>
+                        
                         <div class="col-sm-6">
                             <p class="text-shadow">Behavior/attitude comments:</p>
                             <div class="form-group">
@@ -64,7 +92,8 @@
                             </div>
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="radio" name="vote" id="2d" value="2" :checked="vote == 2">
-                                <label class="form-check-label text-shadow vote-extend" for="2d">Extend</label>
+                                <label v-if="discussApp" class="form-check-label text-shadow vote-neutral" for="2d">Neutral</label>
+                                <label v-else class="form-check-label text-shadow vote-extend" for="2d">Extend</label>
                             </div>
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="radio" name="vote" id="3d" value="3" :checked="vote == 3">
@@ -76,7 +105,7 @@
                 </div>
             </div>
             <div class="modal-footer" style="overflow: hidden;">
-                <button class="btn btn-sm btn-qat" @click="submitEval($event)">Submit Evaluation</button>
+                <button class="btn btn-sm btn-qat" @click="submitEval($event)">{{evaluationId ? 'Update Evaluation' : 'Submit Evaluation'}}</button>
             </div>
         </div>
     </div>
@@ -88,13 +117,13 @@ import mixin from "../../mixins.js";
 
 export default {
     name: 'discuss-info',
-    props: [ 'application', 'discuss-round', 'evaluator' ],
+    props: [ 'discuss-app', 'discuss-round', 'evaluator' ],
     mixins: [ mixin ],
     computed: {
         
     },
     watch: {
-        application: function() {
+        discussApp: function() {
             this.info = '';
             this.confirm = '';
             this.findRelevantEval();
@@ -133,14 +162,26 @@ export default {
             this.vote = 0;
             $("input[name=vote]").prop("checked",false);
 
-            this.discussRound.evaluations.forEach(ev => {
-                if(ev.evaluator == this.evaluator){
-                    this.evaluationId = ev.id;
-                    this.behaviorComment = ev.behaviorComment;
-                    this.moddingComment = ev.moddingComment;
-                    this.vote = ev.vote;
-                }
-            }); 
+            if(this.discussApp){
+                this.discussApp.evaluations.forEach(ev => {
+                    if(ev.evaluator.id == this.evaluator){
+                        this.evaluationId = ev.id;
+                        this.behaviorComment = ev.behaviorComment;
+                        this.moddingComment = ev.moddingComment;
+                        this.vote = ev.vote;
+                    }
+                }); 
+            }else{
+                this.discussRound.evaluations.forEach(ev => {
+                    if(ev.evaluator.id == this.evaluator){
+                        this.evaluationId = ev.id;
+                        this.behaviorComment = ev.behaviorComment;
+                        this.moddingComment = ev.moddingComment;
+                        this.vote = ev.vote;
+                    }
+                }); 
+            }
+            
         },
         createDeadline: function(date){
             date = new Date(date);
@@ -151,7 +192,7 @@ export default {
             if (mod.indexOf('https://osu.ppy.sh/beatmapsets/') == 0 && mod.indexOf("#") < 0) {
                 mod = mod.slice(31);
                 let indexEnd = mod.indexOf('/');
-                return `https://osu.ppy.sh/beatmapsets/${mod.slice(0, indexEnd)}/discussion/timeline?user=${this.application.applicant.osuId}`;
+                return `https://osu.ppy.sh/beatmapsets/${mod.slice(0, indexEnd)}/discussion/timeline?user=${this.discussApp.applicant.osuId}`;
             }else{
                 return mod;
             }
@@ -163,16 +204,17 @@ export default {
             if(!vote || !this.behaviorComment.length || !this.moddingComment.length){
                 this.info = 'Cannot leave fields blank!'
             }else{
-                if(this.application){
+                if(this.discussApp){
                     const a = await this.executePost(
-                        '/qat/appEval/submitEval/' + this.application.id, 
+                        '/qat/appEval/submitEval/' + this.discussApp.id, 
                         { evaluationId: this.evaluationId, 
                         vote: vote, 
                         behaviorComment: this.behaviorComment, 
-                        moddingComment: this.moddingComment
+                        moddingComment: this.moddingComment,
+                        discussion: true
                         }, e);
                     if (a) {
-                        await this.$emit('update-application', a);
+                        await this.$emit('update-discuss-app', a);
                         if(this.evaluationId){
                             this.confirm = "Evaluation updated!"
                         }else{
@@ -185,7 +227,8 @@ export default {
                         { evaluationId: this.evaluationId, 
                         vote: vote, 
                         behaviorComment: this.behaviorComment, 
-                        moddingComment: this.moddingComment
+                        moddingComment: this.moddingComment,
+                        discussion: true
                         }, e);
                     if (er) {
                         await this.$emit('update-discuss-round', er);
