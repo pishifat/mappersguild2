@@ -29,7 +29,6 @@
                 :user="user"
                 :userId="userId"
                 :userGroup="userGroup"
-                :filterMode="filterMode"
                 @update:selectedUser="selectedUser = $event"
             ></qat-user-card>
         </transition-group>

@@ -685,3 +685,23 @@ hr {
 .vote-fail {
     color: var(--fail);
 }
+
+.badge-pass {
+    background-color: var(--pass);
+    color: #111;
+}
+  
+.badge-neutral {
+    background-color: var(--neutral);
+    color: #111;
+}
+  
+.badge-extend {
+    background-color: var(--extend);
+    color: #111;
+}
+  
+.badge-fail {
+    background-color: var(--fail);
+    color: #111;
+}

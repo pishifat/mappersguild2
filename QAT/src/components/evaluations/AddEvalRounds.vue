@@ -139,9 +139,18 @@ export default {
                 probation: probation, bn: bn, qat: qat,
                 includeUsers: includeUsers, excludeUsers: excludeUsers, deadline: deadline
                 }, e);
-            if (result) {
-                console.log(result)
+            if (result.evalRounds) {
                 this.$parent.evalRounds = result.evalRounds;
+                this.confirm = 'Eval rounds added! ';
+                if(result.failed.length){
+                    this.confirm += 'However, the following usernames could not be processed: '
+                    for (let i = 0; i < result.failed.length; i++) {
+                        this.confirm += result.failed[i]
+                        if((i + 1) != result.failed.length){
+                            this.confirm += ", "
+                        }
+                    }
+                }
             }
         },
     },

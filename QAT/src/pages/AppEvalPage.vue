@@ -2,7 +2,7 @@
 
 <div class="row">
     <div class="col-md-12">
-        <h2>Pending</h2> 
+        <h2>Individual Evaluations</h2> 
         <transition-group name="list" tag="div" class="row">
             <eval-card
                 v-for="application in applications"
