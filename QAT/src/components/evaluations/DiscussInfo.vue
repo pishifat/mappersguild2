@@ -161,7 +161,7 @@ export default {
             this.moddingComment = '';
             this.vote = 0;
             $("input[name=vote]").prop("checked",false);
-
+            
             if(this.discussApp){
                 this.discussApp.evaluations.forEach(ev => {
                     if(ev.evaluator.id == this.evaluator){
@@ -181,7 +181,6 @@ export default {
                     }
                 }); 
             }
-            
         },
         createDeadline: function(date){
             date = new Date(date);
@@ -214,7 +213,7 @@ export default {
                         discussion: true
                         }, e);
                     if (a) {
-                        await this.$emit('update-discuss-app', a);
+                        await this.$emit('update-application', a);
                         if(this.evaluationId){
                             this.confirm = "Evaluation updated!"
                         }else{
@@ -231,7 +230,7 @@ export default {
                         discussion: true
                         }, e);
                     if (er) {
-                        await this.$emit('update-discuss-round', er);
+                        await this.$emit('update-eval-round', er);
                         if(this.evaluationId){
                             this.confirm = "Evaluation updated!"
                         }else{

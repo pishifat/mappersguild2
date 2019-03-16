@@ -2,6 +2,31 @@
 
 <div class="row">
     <div class="col-md-12 mb-4">
+        <div class="mb-2">
+            <small>Search: 
+                <input id="search" v-model="filterValue" type="text" placeholder="username... (3+ characters)" style="border-radius: 5px 5px 5px 5px; filter: drop-shadow(1px 1px 1px #000000); width: 200px;" /> 
+            </small>
+            <small>
+                <select class="custom-select select-arrow-filter ml-2 small" id="mode" v-model="filterMode" style="font-size: 10pt; border-radius: 5px 5px 5px 5px; width: 100px; padding: 0 0 0 0; height: 26px;">
+                    <option value="" selected>All modes</option>
+                    <option value="osu">osu!</option>
+                    <option value="taiko">osu!taiko</option>
+                    <option value="catch">osu!catch</option>
+                    <option value="mania">osu!mania</option>
+                </select>
+            </small> 
+        </div>
+        <div class="mb-2">
+            <small>Mark selected as:
+                <button class="btn btn-qat btn-sm ml-2" @click="setGroupEval($event)">Group evaluation</button>
+            </small>
+            <small>
+                <button class="btn btn-qat btn-sm ml-2" @click="setIndividualEval($event)">Individual evaluation</button>
+            </small>
+            <small>
+                <button class="btn btn-qat-red btn-sm ml-2" @click="setComplete($event)">Complete</button>
+            </small>
+        </div>
         <h2>Individual Evaluations<sup style="font-size: 12pt" data-toggle="tooltip" data-placement="top" title="only you can see these">?</sup> 
             <button
             class="btn btn-qat"
@@ -26,20 +51,6 @@
 
     <div class="col-md-12">
         <h2>Group Evaluations<sup style="font-size: 12pt" data-toggle="tooltip" data-placement="top" title="everyone can see these">?</sup></h2>
-        <div class="mb-2">
-            <small>Search: 
-                <input id="search" v-model="filterValue" type="text" placeholder="username... (3+ characters)" style="border-radius: 5px 5px 5px 5px; filter: drop-shadow(1px 1px 1px #000000); width: 200px;" /> 
-            </small>
-            <small>
-                <select class="custom-select select-arrow-filter ml-2 small" id="mode" v-model="filterMode" style="font-size: 10pt; border-radius: 5px 5px 5px 5px; width: 100px; padding: 0 0 0 0; height: 26px;">
-                    <option value="" selected>All modes</option>
-                    <option value="osu">osu!</option>
-                    <option value="taiko">osu!taiko</option>
-                    <option value="catch">osu!catch</option>
-                    <option value="mania">osu!mania</option>
-                </select>
-            </small> 
-        </div>
         
 
         <transition-group name="list" tag="div" class="row">
@@ -58,13 +69,15 @@
     <eval-info
         :evalRound="selectedEvalRound"
         :evaluator="evaluator"
+        :reports="reports"
         @update-eval-round="updateEvalRound($event)"
     ></eval-info>
 
     <discuss-info
         :discussRound="selectedDiscussRound"
         :evaluator="evaluator"
-        @update-discuss-round="updateDiscussRound($event)"
+        :reports="reports"
+        @update-eval-round="updateEvalRound($event)"
     ></discuss-info>
 
     <add-eval-rounds
@@ -121,18 +134,16 @@ export default {
             if (e) e.target.disabled = false;
         },
         updateEvalRound: function (evalRound) {
-			const i = this.evalRounds.findIndex(er => er.id == evalRound.id);
-			this.evalRounds[i] = evalRound;
-			this.selectedEvalRound = evalRound;
-        },
-        updateDiscussRound: function (discussRound) {
-			const i = this.allDiscussRounds.findIndex(dr => dr.id == discussRound.id);
-			this.discussRounds[i] = discussRound;
-            this.selectedDiscussRound = discussRound;
+			const i = this.allEvalRounds.findIndex(er => er.id == evalRound.id);
+			this.allEvalRounds[i] = evalRound;
+            this.selectedEvalRound = evalRound;
+            this.selectedDiscussRound = evalRound;
             this.filter();
         },
         updateAllEvalRounds: function (evalRounds) {
-			this.evalRounds = evalRounds;
+            console.log('s')
+            this.allEvalRounds = evalRounds;
+            this.filter();
 		},
         openAddEvalRounds: function() {
             $('input[type=checkbox]').each(function() {
@@ -142,12 +153,15 @@ export default {
         filter: function () {            
             this.filterValue = $("#search").val();
             this.filterMode = $("#mode").val();
-            this.discussRounds = this.allDiscussRounds;
+            
+            //reset
+            this.evalRounds = this.allEvalRounds.filter(er => !er.discussion);
+            this.discussRounds = this.allEvalRounds.filter(er => er.discussion);
 
             //search
             if(this.filterValue.length > 2){
-                this.filteredDiscussRounds = this.allDiscussRounds.filter(dr => {
-                    if(dr.bn.username.toLowerCase().indexOf(this.filterValue.toLowerCase()) > -1){
+                this.filteredEvalRounds = this.allEvalRounds.filter(er => {
+                    if(er.bn.username.toLowerCase().indexOf(this.filterValue.toLowerCase()) > -1){
                         return true;
                     }
                     return false;
@@ -157,58 +171,84 @@ export default {
             //mode
             if(this.filterMode.length){
                 if(this.filterValue.length > 2){
-                    this.filteredDiscussRounds = this.filteredDiscussRounds.filter(dr => {
-                        if(this.filterMode == "osu" && dr.mode == 'osu'){
-                            return true;
-                        }
-                        if(this.filterMode == "taiko" && dr.mode == 'taiko'){
-                            return true;
-                        }
-                        if(this.filterMode == "catch" && dr.mode == 'catch'){
-                            return true;
-                        }
-                        if(this.filterMode == "mania" && dr.mode == 'mania'){
-                            return true;
-                        }
+                    this.filteredEvalRounds = this.filteredEvalRounds.filter(er => {
+                        if(this.filterMode == "osu" && er.mode == 'osu') return true;
+                        if(this.filterMode == "taiko" && er.mode == 'taiko') return true;
+                        if(this.filterMode == "catch" && er.mode == 'catch') return true;
+                        if(this.filterMode == "mania" && er.mode == 'mania') return true;
                         return false;
                     });
-                    
                 }else{
-                    this.filteredDiscussRounds = this.allDiscussRounds.filter(dr => {
-                        if(this.filterMode == "osu" && dr.mode == 'osu'){
-                            return true;
-                        }
-                        if(this.filterMode == "taiko" && dr.mode == 'taiko'){
-                            return true;
-                        }
-                        if(this.filterMode == "catch" && dr.mode == 'catch'){
-                            return true;
-                        }
-                        if(this.filterMode == "mania" && dr.mode == 'mania'){
-                            return true;
-                        }
+                    this.filteredEvalRounds = this.allEvalRounds.filter(er => {
+                        if(this.filterMode == "osu" && er.mode == 'osu') return true;
+                        if(this.filterMode == "taiko" && er.mode == 'taiko') return true;
+                        if(this.filterMode == "catch" && er.mode == 'catch') return true;
+                        if(this.filterMode == "mania" && er.mode == 'mania') return true;
                         return false;
                     });
                 }
             }
             
-            this.isFiltered = (this.filterValue.length > 2 || this.filterMode.length);
-            if(this.isFiltered){
-                this.discussRounds = this.filteredDiscussRounds;
+            let isFiltered = (this.filterValue.length > 2 || this.filterMode.length);
+            if(isFiltered){
+                this.evalRounds = this.filteredEvalRounds.filter(a => !a.discussion);
+                this.discussRounds = this.filteredEvalRounds.filter(a => a.discussion);
             }
         },
-        
+        setGroupEval: async function(e) {
+            let checkedRounds = [];
+            $("input[name='evalTypeCheck']:checked").each( function () {
+                checkedRounds.push( $(this).val() );
+            });
+            if(checkedRounds.length){
+                const ers = await this.executePost('/qat/bnEval/setGroupEval/', { checkedRounds: checkedRounds}, e);
+                if (ers) {
+                    this.allEvalRounds = ers;
+                    this.filter();
+                }
+            }
+        },
+        setIndividualEval: async function(e) {
+            let checkedRounds = [];
+            $("input[name='evalTypeCheck']:checked").each( function () {
+                checkedRounds.push( $(this).val() );
+            });
+            if(checkedRounds.length){
+                const ers = await this.executePost('/qat/bnEval/setIndividualEval/', { checkedRounds: checkedRounds}, e);
+                if (ers) {
+                    this.allEvalRounds = ers;
+                    this.filter();
+                }
+            }
+        },
+        setComplete: async function(e) {
+            let checkedRounds = [];
+            $("input[name='evalTypeCheck']:checked").each( function () {
+                checkedRounds.push( $(this).val() );
+            });
+            if(checkedRounds.length){
+                const result = confirm(`Are you sure? This will remove applications from the listing. Only do this when feedback PMs have been sent.`);
+                const ers = await this.executePost('/qat/bnEval/setComplete/', { checkedRounds: checkedRounds}, e);
+                if (ers) {
+                    this.allEvalRounds = ers;
+                    this.filter();
+                }
+            }
+        }
     },
     data() {
         return {
+            reports: null,
+            allEvalRounds: null,
+            filteredEvalRounds: null,
+
             evalRounds: null,
             selectedEvalRound: null,
+
             discussRounds: null,
-            allDiscussRounds: null,
-            filteredDiscussRounds: null,
             selectedDiscussRound: null,
+
             evaluator: null,
-            isFiltered: null,
             filterMode: '',
             filterValue: '',
             info: '',
@@ -218,10 +258,13 @@ export default {
         axios
             .get('/qat/bnEval/relevantInfo')
             .then(response => {
-                this.evalRounds = response.data.er;
-                this.allDiscussRounds = response.data.dr;
-                this.discussRounds = response.data.dr;
+                this.allEvalRounds = response.data.er;
+                //this.evalRounds = response.data.er;
+                //this.allDiscussRounds = response.data.dr;
+                //this.discussRounds = response.data.dr;
+                this.reports = response.data.r;
                 this.evaluator = response.data.evaluator;
+                this.filter();
             }).then(function(){
                 $("#loading").fadeOut();
                 $("#app").attr("style", "visibility: visible").hide().fadeIn();

@@ -27,10 +27,10 @@ router.post('/apply', api.isLoggedIn, async (req, res, next) => {
                 return res.json( { error: "Failed to process application!"} );
             }
         } else {
-            if(!currentBnApp.consensus){
+            if(currentBnApp.active){
                 return res.json( { error: 'Your application is still being evaluated!'} );
             }else{
-                return res.json( { error: `You may apply for this game mode again on ${new Date(currentBnApp.createdAt.setDate (currentBnApp.createdAt.getDate() + 90)).toString().slice(4,15)}.` } );
+                return res.json( { error: `Your previous application was rejected (check your osu! forum PMs for details). You may apply for this game mode again on ${new Date(currentBnApp.createdAt.setDate (currentBnApp.createdAt.getDate() + 90)).toString().slice(4,15)}.` } );
             }
         }
     }
@@ -118,5 +118,6 @@ router.get('/callback', async (req, res) => {
         }
     }
 });
+
 
 module.exports = router;

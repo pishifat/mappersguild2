@@ -29,8 +29,7 @@ router.get('/relevantInfo', async (req, res, next) => {
 
 /* POST submit or edit eval */
 router.post('/submitReportEval/:id', async (req, res) => {
-    console.log(req.body.feedback)
-    if(req.body.feedback || req.body.feedback.length){
+    if(req.body.feedback && req.body.feedback.length){
         await reports.service.update(req.params.id, {feedback: req.body.feedback});
     }
     if(req.body.valid){

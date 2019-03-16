@@ -1,5 +1,5 @@
 <template>
-<div class='col-md-2 my-2' @click="discussApp ? selectDiscussApp() : selectDiscussRound()" >
+<div class='col-lg-2 col-md-3 col-sm-6 my-2' @click="discussApp ? selectDiscussApp() : selectDiscussRound()" >
     <div class="card custom-bg-dark border-outline" :class="'border-' + findRelevantEval()" style="height: 100%" data-toggle='modal' data-target='#discussionInfo' :data-user="discussApp ? discussApp.id : discussRound.id">
         <div class='card-body notification-card-spacing mx-1'>
             <div v-if="discussApp">
@@ -40,8 +40,14 @@
             </p>
             <p class='card-text text-shadow small'>
                 Deadline: 
-                <span v-if="discussApp" class="errors">{{createDeadline(discussApp.createdAt)}}</span>
-                <span v-else class="errors">{{new Date(discussRound.deadline).toString().slice(4,10)}}</span>
+                <span v-if="discussApp" class="errors">
+                    {{createDeadline(discussApp.createdAt)}}
+                    <input @click.stop class="form-check-input bottom-right-checkbox" type="checkbox" name="evalTypeCheck" :value="discussApp.id">
+                </span>
+                <span v-else class="errors">
+                    {{new Date(discussRound.deadline).toString().slice(4,10)}}
+                    <input @click.stop class="form-check-input bottom-right-checkbox" type="checkbox" name="evalTypeCheck" :value="discussRound.id">
+                </span>
             </p>
             
         </div>

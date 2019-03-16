@@ -34,8 +34,18 @@
 
                         <div v-if="evalRound" class="col-sm-12">
                             <p class="text-shadow">Nominations or osmething</p>
+                            <div v-if="relevantReports.length">
+                                <hr>
+                                <p class="text-shadow">Reports:</p>
+                                <div v-for="report in relevantReports" :key="report.id">
+                                    <p class="text-shadow small pl-2" :class="report.valid == 1 ? 'vote-pass' : 'vote-extend'">
+                                        {{report.createdAt.slice(0,10)}}: {{report.reason}}
+                                    </p>
+                                </div>
+                            </div>
                             <hr>
                         </div>
+                        
                         
                         <div class="col-sm-6">
                             <p class="text-shadow">Behavior/attitude comments:</p>
@@ -81,15 +91,10 @@
 </template>
 
 <script>
-import mixin from "../../mixins.js";
 
 export default {
     name: 'eval-info',
-    props: [ 'application', 'evalRound', 'evaluator' ],
-    mixins: [ mixin ],
-    computed: {
-        
-    },
+    props: [ 'application', 'evalRound', 'reports', 'evaluator' ],
     watch: {
         application: function() {
             this.info = '';
@@ -100,6 +105,7 @@ export default {
             this.info = '';
             this.confirm = '';
             this.findRelevantEval();
+            if(this.reports && this.reports.length) this.findRelevantReports();
         },
     },
     methods: {
@@ -132,26 +138,28 @@ export default {
 
             if(this.application){
                 this.application.evaluations.forEach(ev => {
-                    if(ev.evaluator == this.evaluator){
+                    if(ev.evaluator.id == this.evaluator){
                         this.evaluationId = ev.id;
                         this.behaviorComment = ev.behaviorComment;
                         this.moddingComment = ev.moddingComment;
                         this.vote = ev.vote;
-
                     }
                 });
             }else{
                 this.evalRound.evaluations.forEach(ev => {
-                    if(ev.evaluator == this.evaluator){
+                    if(ev.evaluator.id == this.evaluator){
                         this.evaluationId = ev.id;
                         this.behaviorComment = ev.behaviorComment;
                         this.moddingComment = ev.moddingComment;
                         this.vote = ev.vote;
-
                     }
                 });
             }
             
+        },
+        findRelevantReports: function() {
+            this.relevantReports = this.reports.filter( report => 
+                report.culprit == this.evalRound.bn.id);
         },
         createDeadline: function(date){
             date = new Date(date);
@@ -216,6 +224,7 @@ export default {
             evaluationId: '',
             behaviorComment: '',
             moddingComment: '',
+            relevantReports: [],
             vote: 0,
             info: '',
             confirm: ''
