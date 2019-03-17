@@ -15,6 +15,9 @@
                     <option value="mania">osu!mania</option>
                 </select>
             </small>
+            <small>
+                <button class="btn btn-qat btn-sm ml-2" @click="selectAll($event)">Select all</button>
+            </small>
         </div>
         <div class="mb-2">
             <small>Mark selected as:
@@ -24,9 +27,10 @@
                 <button class="btn btn-qat btn-sm ml-2" @click="setIndividualEval($event)">Individual evaluation</button>
             </small>
             <small>
-                <button class="btn btn-qat-red btn-sm ml-2" @click="setComplete($event)">Complete</button>
+                <button class="btn btn-qat-red btn-sm ml-2" @click="setComplete($event)">Archive</button>
             </small>
         </div>
+        <hr>
         <h2>Individual Evaluations<sup style="font-size: 12pt" data-toggle="tooltip" data-placement="top" title="only you can see these">?</sup></h2> 
         <transition-group name="list" tag="div" class="row">
             <eval-card
@@ -37,10 +41,11 @@
                 @update:selectedApplication="selectedApplication = $event"
             ></eval-card>
         </transition-group>
-        <p v-if="!applications || applications.length == 0" class="ml-4">No applications...</p>
+        <p v-if="!applications || applications.length == 0" class="ml-4">No applications to evaluate...</p>
     </div>
 
     <div class="col-md-12 mt-4">
+        <hr>
         <h2>Group Evaluations<sup style="font-size: 12pt" data-toggle="tooltip" data-placement="top" title="everyone can see these">?</sup></h2>
         <transition-group name="list" tag="div" class="row">
             <discuss-card
@@ -52,7 +57,7 @@
             ></discuss-card>
         </transition-group>
         
-        <p v-if="!discussApps || discussApps.length == 0" class="ml-4">No BNs to evaluate...</p>
+        <p v-if="!discussApps || discussApps.length == 0" class="ml-4">No applications to evaluate...</p>
     </div>
 
     <eval-info
@@ -122,6 +127,7 @@ export default {
         filter: function () {            
             this.filterValue = $("#search").val();
             this.filterMode = $("#mode").val();
+            $("input[name='evalTypeCheck']").prop('checked', false);
             
             //reset
             this.applications = this.allApplications.filter(a => !a.discussion);
@@ -194,13 +200,19 @@ export default {
                 checkedApps.push( $(this).val() );
             });
             if(checkedApps.length){
-                const result = confirm(`Are you sure? This will remove applications from the listing. Only do this when feedback PMs have been sent.`);
-                const ers = await this.executePost('/qat/appEval/setComplete/', { checkedApps: checkedApps}, e);
-                if (ers) {
-                    this.allApplications = ers;
-                    this.filter();
+                const result = confirm(`Are you sure? The consensus of any evaluation will affect its respective user.\n\nOnly do this after feedback PMs have been sent.`);
+                if(result){
+                    const ers = await this.executePost('/qat/appEval/setComplete/', { checkedApps: checkedApps}, e);
+                    if (ers) {
+                        this.allApplications = ers;
+                        this.filter();
+                    }
                 }
             }
+        },
+        selectAll: function() {
+            var checkBoxes = $("input[name='evalTypeCheck'");
+                checkBoxes.prop("checked", !checkBoxes.prop("checked"));
         }
     },
     data() {
