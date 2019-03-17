@@ -11,7 +11,14 @@ router.use(api.isLoggedIn);
 
 /* GET eval archive page */
 router.get('/', async (req, res, next) => {
-    res.render('evalarchive', { title: 'eval archives', script: '../javascripts/evalArchive.js', isEval: true, layout: 'qatlayout' });
+    res.render('evalarchive', { 
+        title: 'eval archives', 
+        script: '../javascripts/evalArchive.js', 
+        isEval: true, 
+        layout: 'qatlayout',
+        isBnOrQat: res.locals.userRequest.group == 'bn' || res.locals.userRequest.group == 'qat',
+        isQat: res.locals.userRequest.group == 'qat'
+    });
 });
 
 //population

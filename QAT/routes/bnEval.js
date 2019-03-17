@@ -14,7 +14,8 @@ router.get('/', async (req, res, next) => {
     res.render('bneval', { 
         title: 'current bn eval', 
         script: '../javascripts/bnEval.js', 
-        isBnEval: true, layout: 'qatlayout', 
+        isEval: true, 
+        layout: 'qatlayout', 
         isBnOrQat: res.locals.userRequest.group == 'bn' || res.locals.userRequest.group == 'qat',
         isQat: res.locals.userRequest.group == 'qat'
     });
