@@ -38,7 +38,7 @@ a:hover {
     text-decoration: none;
 }
 
-.container {
+#main {
     visibility: hidden;
 }
 

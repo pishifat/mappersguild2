@@ -103,7 +103,7 @@ export default {
                 this.reports = response.data.r;
             }).then(function(){
                 $("#loading").fadeOut();
-                $(".container").attr("style", "visibility: visible").hide().fadeIn();
+                $("#main").attr("style", "visibility: visible").hide().fadeIn();
             });
     },
     mounted () {

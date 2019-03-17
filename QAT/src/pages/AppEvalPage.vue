@@ -241,7 +241,7 @@ export default {
                 this.filter();
             }).then(function(){
                 $("#loading").fadeOut();
-                $(".container").attr("style", "visibility: visible").hide().fadeIn();
+                $("#main").attr("style", "visibility: visible").hide().fadeIn();
             });
     },
     mounted () {

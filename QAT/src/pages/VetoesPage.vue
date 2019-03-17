@@ -219,7 +219,7 @@ export default {
             })
             .then(function() {
                 $('#loading').fadeOut();
-                $('.container')
+                $('#main')
                     .attr('style', 'visibility: visible')
                     .hide()
                     .fadeIn();
