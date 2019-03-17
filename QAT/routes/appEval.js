@@ -10,7 +10,7 @@ router.use(api.isLoggedIn);
 
 /* GET bn app page */
 router.get('/', async (req, res, next) => {
-    res.render('appeval', { title: 'bn app eval', script: '../javascripts/appEval.js', isAppEval: true, layout: 'qatlayout' });
+    res.render('appeval', { title: 'bn app eval', script: '../javascripts/appEval.js', isEval: true, layout: 'qatlayout' });
 });
 
 //population
@@ -67,13 +67,29 @@ router.post('/setIndividualEval/', async (req, res) => {
     res.json(a);
 });
 
-/* POST set invidivual eval */
+/* POST set evals as complete */
 router.post('/setComplete/', async (req, res) => {
     for (let i = 0; i < req.body.checkedApps.length; i++) {
-        await bnApps.service.update(req.body.checkedApps[i], {active: false});
+        let a = await bnApps.service.query({_id: req.body.checkedApps[i]});
+        let u = await users.service.query({_id: a.applicant});
+        if(a.consensus == 'pass'){
+            await users.service.update(u.id, {$push: {modes: a.mode}});
+            await users.service.update(u.id, {$push: {probation: a.mode}});
+            if(u.group == 'user'){
+                await users.service.update(u.id, {group: 'bn'});
+            }
+        }
+        await bnApps.service.update(a.id, {active: false});
     }
     
     let a = await bnApps.service.query({active: true}, defaultDiscussPopulate, {createdAt: 1}, true );
+    res.json(a);
+});
+
+/* POST set consensus of eval */
+router.post('/setConsensus/:id', async (req, res) => {
+    await bnApps.service.update(req.params.id, {consensus: req.body.consensus})
+    let a = await bnApps.service.query({_id: req.params.id}, defaultDiscussPopulate);
     res.json(a);
 });
 

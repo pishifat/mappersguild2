@@ -4,7 +4,7 @@
         <div class="modal-content custom-bg-dark" v-if="application || evalRound">
             <div class="modal-header text-dark bg-qat-logo">
                 <h5 v-if="application" class="modal-title">
-                    BN Evaluation: <a @click.stop :href="'https://osu.ppy.sh/users/' + application.applicant.osuId" class="text-dark" target="_blank">{{application.applicant.username}}</a>
+                    Application Evaluation: <a @click.stop :href="'https://osu.ppy.sh/users/' + application.applicant.osuId" class="text-dark" target="_blank">{{application.applicant.username}}</a>
                     <i v-if="application.mode == 'osu'" class="far fa-circle"></i>
                     <i v-else-if="application.mode == 'taiko'" class="fas fa-drum"></i>
                     <i v-else-if="application.mode == 'catch'" class="fas fa-apple-alt"></i>

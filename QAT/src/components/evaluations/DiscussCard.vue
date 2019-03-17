@@ -8,7 +8,7 @@
                     :class="'card-status-' + discussApp.consensus"
                 ></div>
                 <p class='card-text text-shadow'>
-                    <a @click.stop :href="'https://osu.ppy.sh/users/' + discussApp.applicant.osuId" target="_blank">{{discussApp.applicant.username}}</a> 
+                    <a @click.stop :href="'https://osu.ppy.sh/users/' + discussApp.applicant.osuId" target="_blank">{{discussApp.applicant.username}}</a>
                     <i v-if="discussApp.mode == 'osu'" class="far fa-circle"></i>
                     <i v-else-if="discussApp.mode == 'taiko'" class="fas fa-drum"></i>
                     <i v-else-if="discussApp.mode == 'catch'" class="fas fa-apple-alt"></i>
@@ -21,7 +21,7 @@
                     :class="'card-status-' + discussRound.consensus"
                 ></div>
                 <p class='card-text text-shadow'>
-                    <a @click.stop :href="'https://osu.ppy.sh/users/' + discussRound.bn.osuId" target="_blank">{{discussRound.bn.username}}</a> 
+                    <a @click.stop :href="'https://osu.ppy.sh/users/' + discussRound.bn.osuId" target="_blank">{{discussRound.bn.username}}</a>
                     <i v-if="discussRound.mode == 'osu'" class="far fa-circle"></i>
                     <i v-else-if="discussRound.mode == 'taiko'" class="fas fa-drum"></i>
                     <i v-else-if="discussRound.mode == 'catch'" class="fas fa-apple-alt"></i>
@@ -70,13 +70,15 @@ export default {
     methods: {
         selectDiscussApp: function () {
             this.$emit('update:selectedDiscussApp', this.discussApp);
+            this.$emit('update:selectedDiscussRound', null);
         },
         selectDiscussRound: function () {
             this.$emit('update:selectedDiscussRound', this.discussRound);
+            this.$emit('update:selectedDiscussApp', null);
         },
         findRelevantEval: function(){
             let vote;
-            if(this.discussApp){
+            if(this.discussApp && this.discussApp.evaluations){
                 this.discussApp.evaluations.forEach(ev => {
                     if(ev.evaluator.id == this.evaluator){
                         if(ev.vote == 1){
@@ -88,7 +90,7 @@ export default {
                         }
                     }
                 });
-            }else{
+            }else if(this.discussRound && this.discussRound.evaluations){
                 this.discussRound.evaluations.forEach(ev => {
                     if(ev.evaluator.id == this.evaluator){
                         if(ev.vote == 1){
@@ -108,7 +110,7 @@ export default {
             this.neutral = 0;
             this.extend = 0;
             this.fail = 0;
-            if(this.discussApp){
+            if(this.discussApp && this.discussApp.evaluations){
                 this.discussApp.evaluations.forEach(ev => {
                     if(ev.vote == 1){
                         this.pass++;
@@ -118,7 +120,7 @@ export default {
                         this.fail++;
                     }
                 });
-            }else{
+            }else if(this.discussRound && this.discussRound.evaluations){
                 this.discussRound.evaluations.forEach(ev => {
                     if(ev.vote == 1){
                         this.pass++;
@@ -155,6 +157,12 @@ export default {
 .badge-spacing{
     padding: 0 0 0 0;
     margin: 0 0 0 0;
+}
+
+.bottom-right-checkbox{
+    position:absolute;
+    bottom:0.66rem;
+    right:0.66rem;
 }
 
 </style>

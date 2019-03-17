@@ -621,6 +621,33 @@ hr {
     padding: 3px 20px;
 }
 
+
+.btn-qat-pass {
+    background-color: var(--pass);
+    border-color: var(--pass);
+    filter: drop-shadow(1px 1px 1px #000000);
+    border-radius: 10000px;
+    padding: 3px 20px;
+}
+
+
+.btn-qat-extend {
+    background-color: var(--extend);
+    border-color: var(--extend);
+    filter: drop-shadow(1px 1px 1px #000000);
+    border-radius: 10000px;
+    padding: 3px 20px;
+}
+
+
+.btn-qat-fail {
+    background-color: var(--fail);
+    border-color: var(--fail);
+    filter: drop-shadow(1px 1px 1px #000000);
+    border-radius: 10000px;
+    padding: 3px 20px;
+}
+
 .border-qat {
     border-top: 5px solid var(--qat);
 }

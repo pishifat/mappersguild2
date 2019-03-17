@@ -216,7 +216,6 @@ router.post('/removeDiff/:id', async (req, res) => {
 /* POST update sb quality */
 router.post('/updateStoryboardQuality/:id', async (req, res) => {
     if (req.session.osuId == 3178418 || req.session.osuId == 1052994 || req.session.osuId == 1541323) {
-        console.log(req.body.sbQuality);
         await tasks.service.update(req.body.taskId, {sbQuality: req.body.sbQuality});
         b = await beatmaps.service.query({ _id: req.params.id }, defaultMapPopulate);
         res.json(b);
@@ -785,7 +784,6 @@ router.post('/renameLabel/:id', async (req, res) => {
 router.post('/addSong/:id', async (req, res) => {
     if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
         let song = await featuredArtists.service.createSong(req.body.artist, req.body.title);
-        console.log(req.body.artist + req.body.title);
         let fa = await featuredArtists.service.update(req.params.id, { $push: { songs: song } })
         fa = await featuredArtists.service.query({_id: req.params.id}, defaultArtistPopulate);
 

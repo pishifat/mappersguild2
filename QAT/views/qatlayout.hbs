@@ -31,11 +31,15 @@
                 <li class="nav-item {{#if isReports}}active{{/if}}">
                     <a class="nav-link" href="/qat/reports">Report a BN/QAT</a>
                 </li>
-                <li class="nav-item {{#if isAppEval}}active{{/if}}">
-                    <a class="nav-link" href="/qat/appeval">Application Evals</a>
-                </li>
-                <li class="nav-item {{#if isBnEval}}active{{/if}}">
-                    <a class="nav-link" href="/qat/bneval">BN Evals</a>
+                <li class="nav-item dropdown {{#if isEval}}active{{/if}}">
+                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
+                        Evaluations
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="/qat/appeval">Applications</a>
+                        <a class="dropdown-item" href="/qat/bneval">Current BNs</a>
+                        <a class="dropdown-item" href="/qat/evalarchive">Archive</a>
+                    </div>
                 </li>
                 <li class="nav-item {{#if isManageReports}}active{{/if}}">
                     <a class="nav-link" href="/qat/managereports">Manage Reports</a>
