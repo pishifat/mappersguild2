@@ -6,19 +6,27 @@ const router = express.Router();
 
 const defaultPopulate = [
     { populate: 'applicant', display: 'username osuId' },
-    { populate: 'evaluations', display: 'evaluator behaviorComment moddingComment vote' }
+    { populate: 'evaluations', display: 'evaluator behaviorComment moddingComment vote' },
 ];
 
 router.use(api.isLoggedIn);
+router.use(api.isBnOrQat);
 
 /* GET bn app page */
 router.get('/', async (req, res, next) => {
-    res.render('vetoes', { title: 'vetoes', script: '../javascripts/vetoes.js', isVetoes: true, layout: 'qatlayout' });
+    res.render('vetoes', {
+        title: 'vetoes',
+        script: '../javascripts/vetoes.js',
+        isVetoes: true,
+        layout: 'qatlayout',
+        isBnOrQat: true,
+        isQat: res.locals.userRequest.group == 'qat'
+    });
 });
 
 /* GET applicant listing. */
 router.get('/relevantInfo', async (req, res, next) => {
-    let v = await vetoes.service.query({}, {}, {createdAt: 1}, true);
+    let v = await vetoes.service.query({}, {}, { createdAt: 1 }, true);
     res.json({ vetoes: v, userId: req.session.qatMongoId, userGroup: req.session.qatGroup });
 });
 

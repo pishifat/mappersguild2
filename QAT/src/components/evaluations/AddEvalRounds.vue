@@ -1,7 +1,7 @@
 <template>
 <div id="addEvalRounds" class="modal fade" tabindex="-1">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content custom-bg-dark">
+        <div class="modal-content">
             <div class="modal-header bg-qat-logo">
                 <h5 class="modal-title text-dark">Add BNs to evaluate</h5>
                 <button type="button" class="close" data-dismiss="modal">
@@ -50,18 +50,21 @@
 
                     <hr>
 
-                    <div class="mb-2"><span class="text-shadow">Include specific user(s):</span> 
-                        <input id="includeUsers" type="text" placeholder="username1, username2, username3..." style="border-radius: 5px 5px 5px 5px; filter: drop-shadow(1px 1px 1px #000000); width: 500px;" /> 
+                    <div class="mb-2">
+                        <span class="text-shadow">Include specific user(s):</span> 
+                        <input id="includeUsers" class="text-input ml-1 w-75" type="text" placeholder="username1, username2, username3..." /> 
                     </div>
-                    <div class="mb-2"><span class="text-shadow">Exclude specific user(s):</span> 
-                        <input id="excludeUsers" type="text" placeholder="username1, username2, username3..." style="border-radius: 5px 5px 5px 5px; filter: drop-shadow(1px 1px 1px #000000); width: 500px;" /> 
+                    <div class="mb-2">
+                        <span class="text-shadow">Exclude specific user(s):</span> 
+                        <input id="excludeUsers" class="text-input ml-1 w-75" type="text" placeholder="username1, username2, username3..." /> 
                     </div>
 
                     <hr>
 
-                    <div class="mb-2"><span class="text-shadow">Deadline:</span> 
-                        <input id="month" type="text" placeholder="MM" maxlength="2" style="border-radius: 5px 5px 5px 5px; filter: drop-shadow(1px 1px 1px #000000); width: 35px;"/> 
-                        <input id="day" type="text" placeholder="DD" maxlength="2" style="border-radius: 5px 5px 5px 5px; filter: drop-shadow(1px 1px 1px #000000); width: 35px;"/> 
+                    <div class="mb-2">
+                        <span class="text-shadow">Deadline:</span> 
+                        <input id="month" class="text-input text ml-1" type="text" placeholder="MM" maxlength="2" style="min-width: 55px; width: 55px;" /> 
+                        <input id="day" class="text-input text" type="text" placeholder="DD" maxlength="2" style="min-width: 55px; width: 55px;" /> 
                     </div>
                 </div>
                 

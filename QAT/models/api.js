@@ -95,4 +95,24 @@ async function isLoggedIn(req, res, next) {
     }
 }
 
-module.exports = { isLoggedIn, getToken, getUserInfo };
+async function isBnOrQat(req, res, next) {
+    const u = res.locals.userRequest;
+    
+    if (u.group == 'bn' || u.group == 'qat') {
+        next();
+    } else {
+        res.redirect('/qat');
+    }
+}
+
+async function isQat(req, res, next) {
+    const u = res.locals.userRequest;
+    
+    if (u.group == 'qat') {
+        next();
+    } else {
+        res.redirect('/qat');
+    }
+}
+
+module.exports = { isLoggedIn, getToken, getUserInfo, isBnOrQat, isQat };

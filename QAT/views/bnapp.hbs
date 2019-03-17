@@ -1,11 +1,6 @@
 <div class="segment">
     <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc eu lorem velit. Mauris non magna nunc. Mauris accumsan leo sit amet neque tempor ultrices. Nullam sagittis erat nibh, eu tempor leo posuere sed. Quisque lacinia lorem nec elit sollicitudin laoreet. Morbi est est, lobortis eget libero sit amet, finibus vulputate neque. Donec interdum sollicitudin laoreet. Curabitur rhoncus dignissim lorem porta suscipit. Phasellus dignissim ultricies justo, a eleifend sem tristique vitae.</p>
     <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc eu lorem velit. Mauris non magna nunc. Mauris accumsan leo sit amet neque tempor ultrices. Nullam sagittis erat nibh, eu tempor leo posuere sed. Quisque lacinia lorem nec elit sollicitudin laoreet. Morbi est est, lobortis eget libero sit amet, finibus vulputate neque. Donec interdum sollicitudin laoreet. Curabitur rhoncus dignissim lorem porta suscipit. Phasellus dignissim ultricies justo, a eleifend sem tristique vitae.</p>
-    {{#unless loggedInAs}}
-    <form class="col-md-12 mt-2 text-center mx-auto" action="/qat/login" method="GET">
-        <button class="btn btn-lg btn-mg" type="submit">Verify your account to apply</button>
-    </form>
-    {{/unless}}
 </div>
 
 <hr>
@@ -15,22 +10,22 @@
     <h4>Game-mode:</h4>
     <div class="form-group row">
         <div class="pl-4">
-            <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="mode" id="osu" value="osu">
-            <label class="form-check-label" for="osu">osu!</label>
-            </div>
-            <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="mode" id="taiko" value="taiko">
-            <label class="form-check-label" for="taiko">osu!taiko</label>
-            </div>
-            <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="mode" id="catch" value="catch">
-            <label class="form-check-label" for="catch">osu!catch</label>
-            </div>
-            <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="mode" id="mania" value="mania">
-            <label class="form-check-label" for="mania">osu!mania</label>
-            </div>
+            <label class="mx-1">
+                <input type="radio" class="osu-radio hide-default" name="mode" value="osu" />
+                <i class="fas fa-circle fa-lg"></i>
+            </label>
+            <label class="mx-1">
+                <input type="radio" class="taiko-radio hide-default" name="mode" value="taiko" />
+                <i class="fas fa-drum fa-lg"></i>
+            </label>
+            <label class="mx-1">
+                <input type="radio" class="catch-radio hide-default" name="mode" value="catch" />
+                <i class="fas fa-apple-alt fa-lg"></i>
+            </label>
+            <label class="mx-1">
+                <input type="radio" class="mania-radio hide-default" name="mode" value="mania" />
+                <i class="fas fa-stream fa-lg"></i>
+            </label>
         </div>
     </div>
 
@@ -39,16 +34,16 @@
     <div class="form-group row">
         <div class="pl-4" style="width: 95%">
             <div class="input-group mb-3">
-                <input id="mod0" type="text" class="form-control" placeholder="link to mod" style="border-radius: 100px 100px 100px 100px">
+                <input id="mod0" type="text" class="form-control text-input" placeholder="link to mod">
             </div>
             <div class="input-group mb-3">
-                <input id="mod1" type="text" class="form-control" placeholder="link to mod" style="border-radius: 100px 100px 100px 100px">
+                <input id="mod1" type="text" class="form-control text-input" placeholder="link to mod">
             </div>
             <div class="input-group mb-3">
-                <input id="mod2" type="text" class="form-control" placeholder="link to mod" style="border-radius: 100px 100px 100px 100px">
+                <input id="mod2" type="text" class="form-control text-input" placeholder="link to mod">
             </div>
-            <div class="input-group mb-3">
-                <input id="mod3" type="text" class="form-control" placeholder="link to mod" style="border-radius: 100px 100px 100px 100px">
+            <div class="input-group mb-3 ">
+                <input id="mod3" type="text" class="form-control text-input" placeholder="link to mod">
             </div>
         </div>
     </div>
