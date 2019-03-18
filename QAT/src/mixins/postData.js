@@ -1,4 +1,4 @@
-const mixin = {
+const postData = {
     methods: {
         executePost: async function(path, data, e) {
 			if (e) e.target.disabled = true;
@@ -20,4 +20,4 @@ const mixin = {
     }
 }
 
-export default mixin;
+export default postData;
