@@ -35,7 +35,7 @@ const defaultBnPopulate = [
     { innerPopulate: 'evaluations', model: evals.Evaluation, populate: { path: 'evaluator', select: 'username osuId', model: users.QatUser } },
 ];
 
-/* GET applicant listing. */
+/* GET dq/pop listing */
 router.get('/relevantInfo', async (req, res, next) => {
     let date = new Date();
     date.setDate(date.getDate() - 90);
@@ -45,15 +45,24 @@ router.get('/relevantInfo', async (req, res, next) => {
 });
 
 
-/* POST search for user */
-router.post('/search/', async (req, res) => {
-    let u = await users.service.query({username: new RegExp('^' + req.body.username.trim() + '$', 'i')});
-    if(!u){
-        return res.json( { error: 'Cannot find user!'} );
+/* POST edit reason for dq/pop */
+router.post('/updateReason/:id', async (req, res) => {
+    let a = await aiess.service.update(req.params.id, {content: req.body.reason});
+    if(!a){
+        return res.json( { error: 'Something went wrong'} );
+    }else{
+        return res.json(a);
     }
-    let a = await bnApps.service.query({applicant: u.id, active: false}, defaultAppPopulate, {createdAt: 1}, true);
-    let b = await evalRounds.service.query({bn: u.id, active: false}, defaultBnPopulate, {createdAt: 1}, true);
-    res.json({a: a, b: b});
+});
+
+/* POST edit validity */
+router.post('/updateValidity/:id', async (req, res) => {
+    let a = await aiess.service.update(req.params.id, {valid: req.body.validity});
+    if(!a){
+        return res.json( { error: 'Something went wrong'} );
+    }else{
+        return res.json(a);
+    }
 });
 
 

@@ -43,6 +43,14 @@ a:hover {
     text-decoration: none;
 }
 
+.fa-square:hover {
+    color: lightgray;
+}
+
+.fa-square:hover:active {
+    color: gray;
+}
+
 #main {
     visibility: hidden;
 }
