@@ -3,6 +3,7 @@ const bnApps = require('../models/bnApp.js');
 const evals = require('../models/evaluation.js');
 const evalRounds = require('../models/evalRound.js');
 const users = require('../models/qatUser.js');
+const aiess = require('../models/aiess.js');
 const api = require('../models/api.js');
 
 const router = express.Router();
@@ -11,10 +12,10 @@ router.use(api.isLoggedIn);
 
 /* GET eval archive page */
 router.get('/', async (req, res, next) => {
-    res.render('evalarchive', { 
-        title: 'Evaluation Archives', 
-        script: '../javascripts/evalArchive.js', 
-        isEval: true, 
+    res.render('datacollection', { 
+        title: 'Data Collection', 
+        script: '../javascripts/dataCollection.js', 
+        isDataCollection: true, 
         layout: 'qatlayout',
         isBnOrQat: res.locals.userRequest.group == 'bn' || res.locals.userRequest.group == 'qat',
         isQat: res.locals.userRequest.group == 'qat'
@@ -36,7 +37,11 @@ const defaultBnPopulate = [
 
 /* GET applicant listing. */
 router.get('/relevantInfo', async (req, res, next) => {
-    res.json({ evaluator: req.session.qatMongoId });
+    let date = new Date();
+    date.setDate(date.getDate() - 90);
+    let dqs = await aiess.service.query({eventType: 'Disqualified', timestamp: { $gte: date }}, {}, {timestamp: 1}, true);
+    let pops = await aiess.service.query({eventType: 'Popped', timestamp: { $gte: date }}, {}, {timestamp: 1}, true);
+    res.json({ dqs: dqs, pops: pops });
 });
 
 
@@ -52,15 +57,5 @@ router.post('/search/', async (req, res) => {
 });
 
 
-/* POST set invidivual eval */
-router.post('/setComplete/', async (req, res) => {
-    for (let i = 0; i < req.body.checkedApps.length; i++) {
-        await bnApps.service.update(req.body.checkedApps[i], {active: false});
-    }
-    
-    let a = await bnApps.service.query({active: false}, defaultDiscussPopulate, {createdAt: 1}, true );
-    let b = await bnApps.service.query({active: true}, defaultBnPopulate, {createdAt: 1}, true );
-    res.json(a);
-});
 
 module.exports = router;

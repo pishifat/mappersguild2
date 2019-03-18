@@ -17,7 +17,7 @@
         <hr>
         <h2>Application Evaluations</h2>
         
-        <div v-if="appEvals.length">
+        <div v-if="appEvals">
         <transition-group name="list" tag="div" class="row">
             <discuss-card
                 v-for="discussApp in appEvals"
@@ -36,7 +36,7 @@
         <hr>
         <h2>BN Evaluations</h2>
         
-        <div v-if="bnEvals.length">
+        <div v-if="bnEvals">
         <transition-group name="list" tag="div" class="row">
             <discuss-card
                 v-for="discussRound in bnEvals"
@@ -77,16 +77,7 @@ export default {
         DiscussInfo
     },
     mixins: [postData],
-    watch: {
-        
-    },
     methods: {
-        updateReport: function (report) {
-			const i = this.reports.findIndex(r => r.id == report.id);
-			this.reports[i] = report;
-            this.selectedReport = report;
-            this.categorize();
-        },
         query: async function(e) {
             this.info = '';
             let username = $('#search').val();

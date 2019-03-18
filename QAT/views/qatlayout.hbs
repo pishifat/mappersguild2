@@ -19,38 +19,39 @@
 <body class="text-light px-0">
     <nav id="top" class="navbar navbar-expand-md navbar-qat">
         <a class="navbar-brand" href="/qat">
-            <img src="../images/qatlogo.png" width="48" height="48" style="border-radius: 32px 32px 32px 32px" alt="">
+            <img src="../images/qatlogo.png" width="48" height="48" style="border-radius: 32px 32px 32px 32px; filter: drop-shadow(1px 1px 1px #000000);" alt="">
         </a>
         
         <div class="collapse navbar-collapse" id="navbar">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item {{#if isBnApp}}active{{/if}}">
-                    <a class="nav-link" href="/qat/bnapps">BN Application</a>
+                <li class="nav-item test {{#if isBnApp}}selected{{/if}}">
+                    <a class="nav-link text-shadow" href="/qat/bnapps">BN Application</a>
                 </li>
-                <li class="nav-item {{#if isReports}}active{{/if}}">
-                    <a class="nav-link" href="/qat/reports">Report a BN/QAT</a>
+                <li class="nav-item {{#if isReports}}selected{{/if}}">
+                    <a class="nav-link text-shadow" href="/qat/reports">Report a BN/QAT</a>
                 </li>
-                <li class="nav-item {{#if isQatUsers}}active{{/if}}">
-                    <a class="nav-link" href="/qat/qatusers">Users</a>
+                <li class="nav-item {{#if isQatUsers}}selected{{/if}}">
+                    <a class="nav-link text-shadow" href="/qat/qatusers">Users</a>
                 </li>
                 {{#if isBnOrQat}}
-                <li class="nav-item {{#if isVetoes}}active{{/if}}">
-                    <a class="nav-link" href="/qat/vetoes">Vetoes</a>
+                <li class="nav-item {{#if isVetoes}}selected{{/if}}">
+                    <a class="nav-link text-shadow" href="/qat/vetoes">Vetoes</a>
                 </li>
                 {{/if}}
                 {{#if isQat}}
-                <li class="nav-item dropdown {{#if isEval}}active{{/if}}">
-                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
+                <li class="nav-item dropdown {{#if isEval}}selected{{/if}}">
+                    <a class="nav-link text-shadow dropdown-toggle" href="#" data-toggle="dropdown">
                         Evaluations
                     </a>
                     <div class="dropdown-menu">
                         <a class="dropdown-item" href="/qat/appeval">Applications</a>
                         <a class="dropdown-item" href="/qat/bneval">Current BNs</a>
+                        <a class="dropdown-item" href="/qat/datacollection">Data Collection</a>
                         <a class="dropdown-item" href="/qat/evalarchive">Archive</a>
                     </div>
                 </li>
-                <li class="nav-item {{#if isManageReports}}active{{/if}}">
-                    <a class="nav-link" href="/qat/managereports">Manage Reports</a>
+                <li class="nav-item {{#if isManageReports}}selected{{/if}}">
+                    <a class="nav-link text-shadow" href="/qat/managereports">Manage Reports</a>
                 </li>
                 {{/if}}
             </ul>

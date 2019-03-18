@@ -5,9 +5,9 @@ const mixin = {
 
 			try {
 				const res = await axios.post(path, data);
-				
+
 				if (res.data.error) {
-                    return res.data.error;
+                    return res.data;
 				} else {
 					if (e) e.target.disabled = false;
 					return res.data;

@@ -12,7 +12,7 @@ router.use(api.isLoggedIn);
 /* GET bn app page */
 router.get('/', async (req, res, next) => {
     res.render('bnapp', {
-        title: 'bn app',
+        title: 'Beatmap Nominator Application',
         script: '../js/bnApp.js',
         isBnApp: true,
         layout: 'qatlayout',

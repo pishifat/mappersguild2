@@ -13,7 +13,7 @@ router.use(api.isLoggedIn);
 /* GET bn app page */
 router.get('/', async (req, res, next) => {
     res.render('bneval', { 
-        title: 'current bn eval', 
+        title: 'Current BN Evaluations', 
         script: '../javascripts/bnEval.js', 
         isEval: true, 
         layout: 'qatlayout', 

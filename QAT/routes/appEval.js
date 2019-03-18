@@ -11,7 +11,7 @@ router.use(api.isLoggedIn);
 /* GET bn app page */
 router.get('/', async (req, res, next) => {
     res.render('appeval', { 
-        title: 'bn app eval', 
+        title: 'BN Application Evaluations', 
         script: '../javascripts/appEval.js', 
         isAppEval: true, 
         layout: 'qatlayout', 

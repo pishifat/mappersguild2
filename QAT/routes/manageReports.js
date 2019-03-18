@@ -11,7 +11,13 @@ router.use(api.isLoggedIn);
 
 /* GET bn app page */
 router.get('/', async (req, res, next) => {
-    res.render('managereports', { title: 'manage reports', script: '../javascripts/manageReports.js', isManageReports: true, layout: 'qatlayout' });
+    res.render('managereports', { 
+        title: 'Manage Reports', 
+        script: '../javascripts/manageReports.js', 
+        isManageReports: true, 
+        layout: 'qatlayout',
+        isBnOrQat: res.locals.userRequest.group == 'bn' || res.locals.userRequest.group == 'qat',
+        isQat: res.locals.userRequest.group == 'qat' });
 });
 
 //population

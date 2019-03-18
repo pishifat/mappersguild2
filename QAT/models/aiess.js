@@ -8,7 +8,8 @@ const aiessSchema = new mongoose.Schema({
     metadata: { type: String },
     eventType: { type: String },
     content: { type: String },
-    timestamp: { type: Date }
+    timestamp: { type: Date },
+    valid: { type: Number, enum: [1, 2, 3] }
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const Aiess = qatDb.model('aiess', aiessSchema, 'aiess');
