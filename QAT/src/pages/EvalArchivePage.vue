@@ -68,6 +68,7 @@
 <script>
 import DiscussCard from '../components/evaluations/DiscussCard.vue';
 import DiscussInfo from '../components/evaluations/DiscussInfo.vue';
+import postData from '../mixins/postData.js';
 
 export default {
     name: 'eval-archive-page',
@@ -75,28 +76,11 @@ export default {
         DiscussCard,
         DiscussInfo
     },
+    mixins: [postData],
     watch: {
         
     },
     methods: {
-        executePost: async function (path, data, e) {
-            if (e) e.target.disabled = true;
-
-            try {
-                const res = await axios.post(path, data)
-                
-                if (res.data.error) {
-                    this.info = res.data.error;
-                } else {
-                    if (e) e.target.disabled = false;
-                    return res.data;
-                }
-            } catch (error) {
-                console.log(error)
-            }
-
-            if (e) e.target.disabled = false;
-        },
         updateReport: function (report) {
 			const i = this.reports.findIndex(r => r.id == report.id);
 			this.reports[i] = report;
@@ -110,14 +94,17 @@ export default {
                 this.info = "Must enter a username!"
             }else{
                 const result = await this.executePost('/qat/evalArchive/search/', { username: username }, e);
-                if(result){
-                    this.queried = true;
-                    this.appEvals = result.a;
-                    this.bnEvals = result.b; 
+                if (result) {
+                    if (result.error) {
+                        this.info = result.error;
+                    } else {
+                        this.queried = true;
+                        this.appEvals = result.a;
+                        this.bnEvals = result.b; 
+                    }
                 }
             }
         }
-        
     },
     data() {
         return {

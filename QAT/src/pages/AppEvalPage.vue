@@ -81,6 +81,7 @@ import EvalCard from '../components/evaluations/EvalCard.vue';
 import EvalInfo from '../components/evaluations/EvalInfo.vue';
 import DiscussCard from '../components/evaluations/DiscussCard.vue';
 import DiscussInfo from '../components/evaluations/DiscussInfo.vue';
+import postData from '../mixins/postData.js';
 
 export default {
     name: 'app-eval-page',
@@ -90,6 +91,7 @@ export default {
         DiscussCard,
         DiscussInfo
     },
+    mixins: [postData],
     watch: {
         filterValue: function(){
             this.filter();
@@ -99,24 +101,6 @@ export default {
         },
     },
     methods: {
-        executePost: async function (path, data, e) {
-            if (e) e.target.disabled = true;
-
-            try {
-                const res = await axios.post(path, data)
-                
-                if (res.data.error) {
-                    this.info = res.data.error;
-                } else {
-                    if (e) e.target.disabled = false;
-                    return res.data;
-                }
-            } catch (error) {
-                console.log(error)
-            }
-
-            if (e) e.target.disabled = false;
-        },
         updateApplication: function (application) {
 			const i = this.allApplications.findIndex(a => a.id == application.id);
 			this.allApplications[i] = application;
@@ -176,8 +160,12 @@ export default {
             if(checkedApps.length){
                 const ers = await this.executePost('/qat/appEval/setGroupEval/', { checkedApps: checkedApps}, e);
                 if (ers) {
-                    this.allApplications = ers;
-                    this.filter();
+                    if (ers.error) {
+                        this.info = ers.error;
+                    } else {
+                        this.allApplications = ers;
+                        this.filter();
+                    }
                 }
             }
         },
@@ -189,8 +177,12 @@ export default {
             if(checkedApps.length){
                 const ers = await this.executePost('/qat/appEval/setIndividualEval/', { checkedApps: checkedApps}, e);
                 if (ers) {
-                    this.allApplications = ers;
-                    this.filter();
+                    if (ers.error) {
+                        this.info = ers.error;
+                    } else {
+                        this.allApplications = ers;
+                        this.filter();
+                    }
                 }
             }
         },
@@ -204,8 +196,12 @@ export default {
                 if(result){
                     const ers = await this.executePost('/qat/appEval/setComplete/', { checkedApps: checkedApps}, e);
                     if (ers) {
-                        this.allApplications = ers;
-                        this.filter();
+                        if (ers.error) {
+                            this.info = ers.error;
+                        } else {
+                            this.allApplications = ers;
+                            this.filter();
+                        }
                     }
                 }
             }

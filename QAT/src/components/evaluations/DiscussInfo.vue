@@ -181,12 +181,12 @@
 </template>
 
 <script>
-import mixin from "../../mixins.js";
+import postData from "../../mixins/postData.js";
 
 export default {
     name: 'discuss-info',
     props: [ 'discuss-app', 'discuss-round', 'evaluator', 'reports', 'read-only' ],
-    mixins: [ mixin ],
+    mixins: [ postData ],
     computed: {
         
     },
@@ -204,25 +204,6 @@ export default {
         },
     },
     methods: {
-        executePost: async function (path, data, e) {
-            this.info = '';
-			if (e) e.target.disabled = true;
-
-			try {
-				const res = await axios.post(path, data)
-
-				if (res.data.error) {
-					this.info = res.data.error;
-				} else {
-					if (e) e.target.disabled = false;
-					return res.data;
-				}
-			} catch (error) {
-				console.log(error)
-			}
-
-			if (e) e.target.disabled = false;
-		},
         //display
         findRelevantEval: function(){
             this.evaluationId = null;
@@ -286,11 +267,15 @@ export default {
                         discussion: true
                         }, e);
                     if (a) {
-                        await this.$emit('update-application', a);
-                        if(this.evaluationId){
-                            this.confirm = "Evaluation updated!"
-                        }else{
-                            this.confirm = "Evaluation submitted!"
+                        if (a.error) {
+                            this.info = a.error;
+                        } else {
+                            await this.$emit('update-application', a);
+                            if(this.evaluationId){
+                                this.confirm = "Evaluation updated!"
+                            }else{
+                                this.confirm = "Evaluation submitted!"
+                            }
                         }
                     }
                 }else{
@@ -303,11 +288,15 @@ export default {
                         discussion: true
                         }, e);
                     if (er) {
-                        await this.$emit('update-eval-round', er);
-                        if(this.evaluationId){
-                            this.confirm = "Evaluation updated!"
-                        }else{
-                            this.confirm = "Evaluation submitted!"
+                        if (a.error) {
+                            this.info = a.error;
+                        } else {
+                            await this.$emit('update-eval-round', er);
+                            if(this.evaluationId){
+                                this.confirm = "Evaluation updated!"
+                            }else{
+                                this.confirm = "Evaluation submitted!"
+                            }
                         }
                     }
                 }
@@ -318,13 +307,21 @@ export default {
                 const a = await this.executePost(
                     '/qat/appEval/setConsensus/' + this.discussApp.id, {consensus: consensus}, e);
                 if (a) {
-                    await this.$emit('update-application', a);
+                    if (a.error) {
+                        this.info = a.error;
+                    } else {
+                        await this.$emit('update-application', a);
+                    }
                 }
             }else{
                 const er = await this.executePost(
                     '/qat/bnEval/setConsensus/' + this.discussRound.id, {consensus: consensus}, e);
                 if (er) {
-                    await this.$emit('update-eval-round', er);
+                    if (a.error) {
+                        this.info = a.error;
+                    } else {
+                        await this.$emit('update-eval-round', er);
+                    }
                 }
             }
         }

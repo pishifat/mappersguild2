@@ -22,12 +22,12 @@
 </template>
 
 <script>
-import mixin from "../../mixins.js";
+import postData from "../../mixins/postData.js";
 
 export default {
     name: 'veto-info',
     props: [ 'veto', 'user-id' ],
-    mixins: [ mixin ],
+    mixins: [ postData ],
     methods: {
     },
 }
