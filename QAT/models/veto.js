@@ -1,16 +1,26 @@
 const config = require('../../config.json');
 const mongoose = require('mongoose');
-const qatDb = mongoose.createConnection(config.qat.connection, { useNewUrlParser: true })
+const qatDb = mongoose.createConnection(config.qat.connection, { useNewUrlParser: true });
+const users = require('../models/qatUser');
 
 const vetoesSchema = new mongoose.Schema({
     sender: { type: 'ObjectId', ref: 'QatUser', required: true },
     mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania'] },
     beatmapLink: { type: String, required: true },
+    beatmapId: { type: String },
+    beatmapTitle: { type: String },
+    beatmapMapper: { type: String },
     reasonLink: { type: String, required: true },
     status: { type: String, enum: ['available', 'wip', 'upheld', 'withdrawn'], default: 'available' },
     debaters: [{ type: 'ObjectId', ref: 'QatUser' }],
     mediator: { type: 'ObjectId', ref: 'QatUser' },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
+
+vetoesSchema.pre('findByIdAndUpdate', function (next) {
+    this.populate('mediator', 'username osuId', users.QatUser);
+    this.populate('debaters', 'username osuId', users.QatUser);
+    next();
+});
 
 const Veto = qatDb.model('Veto', vetoesSchema);
 
@@ -28,7 +38,7 @@ class VetoService
         if (populate) {
             for (let i = 0; i < populate.length; i++) {
                 const p = populate[i];
-                query.populate(p.populate, p.display);
+                query.populate(p.populate, p.display, p.model);
             }
         }
 
@@ -51,9 +61,17 @@ class VetoService
         }
     }
 
-    async create(sender, beatmapLink, reasonLink, mode) {
+    async create(sender, beatmapLink, beatmapId, beatmapTitle, beatmapMapper, reasonLink, mode) {
         try {
-            return await Veto.create({ sender: sender, beatmapLink: beatmapLink, reasonLink: reasonLink, mode: mode });
+            return await Veto.create({ 
+                sender: sender, 
+                beatmapLink: beatmapLink, 
+                beatmapId: beatmapId, 
+                beatmapTitle: beatmapTitle, 
+                beatmapMapper: beatmapMapper,
+                reasonLink: reasonLink, 
+                mode: mode 
+            });
         } catch(error) {
             return { error: "could not create veto" }
         }

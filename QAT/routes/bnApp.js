@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const api = require('../models/api.js');
 const bnApps = require('../models/bnApp.js');
 const users = require('../models/qatUser.js');
+const testSubmission = require('../models/testSubmission');
 
 const router = express.Router();
 
@@ -11,6 +12,8 @@ router.use(api.isLoggedIn);
 
 /* GET bn app page */
 router.get('/', async (req, res, next) => {
+    const test = await testSubmission.service.query({ _id: req.session.qatMongoId, status: { $ne: 'finished' } });
+
     res.render('bnapp', {
         title: 'Beatmap Nominator Application',
         script: '../js/bnApp.js',
@@ -18,7 +21,8 @@ router.get('/', async (req, res, next) => {
         layout: 'qatlayout',
         loggedInAs: req.session.qatMongoId,
         isBnOrQat: res.locals.userRequest.group == 'bn' || res.locals.userRequest.group == 'qat',
-        isQat: res.locals.userRequest.group == 'qat'
+        isQat: res.locals.userRequest.group == 'qat',
+        pendingTest: test
     });
 });
 
@@ -42,7 +46,19 @@ router.post('/apply', async (req, res, next) => {
                 req.body.mods
             );
             if (newBnApp && !newBnApp.error) {
-                return res.json({});
+                // Create test
+                const t = await bnApps.service.create(
+                    req.session.qatMongoId,
+                    req.body.mode,
+                    req.body.mods
+                );
+                if (t.error) {
+                    // Need to retry it somewhere later
+                    return res.json({ error: 'Something went wrong while creating the test!' });
+                } else {
+                    // Redirect so the applicant can do the test
+                    return res.redirect('/qat/bnapp');
+                }
             } else {
                 return res.json({ error: 'Failed to process application!' });
             }

@@ -57,3 +57,9 @@
 </div>
 <hr>
 {{/if}}
+
+{{#if pendingTest}}
+<form action="/qat/testsubmission" method="get">
+    <button class="btn btn-lg btn-block btn-qat" type="submit">Do the test</button>
+</form>
+{{/if}}
