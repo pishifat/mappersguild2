@@ -426,3 +426,7 @@ input[type="radio"] + .fas { cursor: pointer; }
     opacity: 0;
     transform: translateY(30px);
 }
+
+.sorted {
+    border-bottom: 1px solid white;
+}

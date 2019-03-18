@@ -49,9 +49,11 @@
 </template>
 
 <script>
+import postData from '../../mixins/postData.js';
 
 export default {
     name: 'report-info',
+    mixins: [postData],
     props: [ 'report' ],
     watch: {
         report: function(v) {
@@ -63,24 +65,6 @@ export default {
         },
     },
     methods: {
-        executePost: async function (path, data, e) {
-            if (e) e.target.disabled = true;
-
-            try {
-                const res = await axios.post(path, data)
-
-                if (res.data.error) {
-                    this.info = res.data.error;
-                } else {
-                    if (e) e.target.disabled = false;
-                    return res.data;
-                }
-            } catch (error) {
-                console.log(error)
-            }
-
-            if (e) e.target.disabled = false;
-        },
         submitReportEval: async function (e) {
             const valid = $('input[name=vote]:checked').val();
             if(!valid && (!this.feedback || !this.feedback.length)){
@@ -90,8 +74,12 @@ export default {
                     '/qat/manageReports/submitReportEval/' + this.report.id, 
                     { valid: valid, feedback: this.feedback }, e);
                 if (r) {
-                    await this.$emit('update-report', r);
-                    this.confirm = 'Report updated!'
+                    if (r.error) {
+                        this.info = r.error;
+                    } else {
+                        await this.$emit('update-report', r);
+                        this.confirm = 'Report updated!'
+                    }
                 }
             }
         }
