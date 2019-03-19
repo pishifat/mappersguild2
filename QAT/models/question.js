@@ -7,9 +7,10 @@ const questionSchema = new mongoose.Schema({
         'codeOfConduct', 'general', 'spread', 'metadata', 
         'timing', 'audio', 'videoBackground', 'skinning', 
         'storyboarding', 'osu', 'taiko', 'catch', 'mania', 'bn'], required: true},
-    text: { type: String, required: true },
-    info: { type: String },
+    content: { type: String, required: true },
+    //info: { type: String },
     active: { type: Boolean, default: true },
+    questionType: { type: String, enum: ["text", "image", "fill"], required: true },
     options: [{ type: 'ObjectId', ref: 'Option'}],
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
@@ -58,9 +59,9 @@ class QuestionService
         }
     }
 
-    async create(osuId) {
+    async create(category, content, questionType) {
         try {
-            return await Question.create({userId: osuId});
+            return await Question.create({category: category, content: content, questionType: questionType});
         } catch(error) {
             return { error: error._message }
         }
