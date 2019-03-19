@@ -1,6 +1,7 @@
 const config = require('../../config.json');
 const mongoose = require('mongoose');
 const qatDb = mongoose.createConnection(config.qat.connection, { useNewUrlParser: true });
+const questions = require('./question');
 
 const testSubmission = new mongoose.Schema({
     applicant: { type: 'ObjectId', ref: 'QatUser', required: true },
@@ -14,13 +15,14 @@ testSubmission.virtual('answers', {
     foreignField: 'test',
 });
 
-const answer = new mongoose.Schema({
+const testAnswer = new mongoose.Schema({
     test: { type: 'ObjectId', ref: 'TestSubmission', required: true },
-    question: { type: 'ObjectId', ref: 'TestSubmission', required: true }, // Questions
-    answer: { type: String, required: true },
+    question: { type: 'ObjectId', ref: 'Question', required: true },
+    optionChose: { type: 'ObjectId', ref: 'Option' },
+    feedback: { type: String },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
-const Answer = qatDb.model('Answer', answer);
+const TestAnswer = qatDb.model('TestAnswer', testAnswer);
 const TestSubmission = qatDb.model('TestSubmission', testSubmission);
 
 class TestSubmissionService
@@ -67,10 +69,22 @@ class TestSubmissionService
 
     async create(applicant, mode) {
         try {
-            return await TestSubmission.create({ 
+            const test = await TestSubmission.create({ 
                 applicant: applicant,
                 mode: mode
             });
+                        
+            const qs = await questions.service.query({ active: true }); // group by category or something
+            let questionsToInsert = [];
+            qs.forEach(q => {
+                questionsToInsert.push({
+                    test: test._id,
+                    question: q._id,
+                });
+            });
+            await TestAnswer.insertMany(questionsToInsert);
+
+            return { success: 'Test created' };
         } catch(error) {
             return { error: 'could not create the test' }
         }
@@ -79,4 +93,4 @@ class TestSubmissionService
 
 const service = new TestSubmissionService();
 
-module.exports = { service, TestSubmission, Answer };
+module.exports = { service, TestSubmission, TestAnswer };
