@@ -57,6 +57,7 @@
         :question="selectedQuestion"
         :category="category"
         @update-question="updateQuestion($event)"
+        @delete-question="deleteQuestion($event)"
     ></edit-question>
 
 </div>
@@ -83,6 +84,11 @@ export default {
 			const i = this.questions.findIndex(q => q.id == question.id);
 			this.questions[i] = question;
             this.selectedQuestion = question;
+        },
+        deleteQuestion: function (question) {
+            const i = this.questions.findIndex(q => q.id == question);
+            this.questions.splice(i, 1);
+            this.selectedQuestion = null;
         },
         selectQuestion: function(q){
             this.selectedQuestion = q;

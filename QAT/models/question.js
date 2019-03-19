@@ -59,6 +59,14 @@ class QuestionService
         }
     }
 
+    async remove(id) {
+        try {
+            return await Question.findByIdAndRemove(id);
+        } catch(error) {
+            return { error: error._message };
+        }
+    }
+
     async create(category, content, questionType) {
         try {
             return await Question.create({category: category, content: content, questionType: questionType});

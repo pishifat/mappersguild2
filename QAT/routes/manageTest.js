@@ -41,6 +41,7 @@ router.post('/addQuestion/', async (req, res) => {
 /* POST edit question */
 router.post('/updateQuestion/:id', async (req, res) => {
     let q = await questions.service.update(req.params.id, {content: req.body.newQuestion, questionType: req.body.questionType});
+    q = await questions.service.query({_id: req.params.id}, defaultPopulate);
     res.json(q);
 });
 
@@ -53,6 +54,44 @@ router.post('/addOption/:id', async (req, res) => {
     let q = await questions.service.update(req.params.id, {$push: {options: o.id}});
     q = await questions.service.query({_id: req.params.id}, defaultPopulate);
     res.json(q);
+});
+
+/* POST edit option */
+router.post('/updateOption/:id', async (req, res) => {
+    let o = await options.service.update(req.params.id, {content: req.body.option, score: req.body.score});
+    if(!o){
+        return res.json({error: 'Something went wrong!'});
+    }
+    let q = await questions.service.query({_id: req.body.questionId}, defaultPopulate);
+    res.json(q);
+});
+
+/* POST delete option */
+router.post('/deleteOption/', async (req, res) => {
+    for (let i = 0; i < req.body.checkedOptions.length; i++) {
+        await options.service.remove(req.body.checkedOptions[i]);
+    }
+    let q = await questions.service.query({_id: req.body.questionId}, defaultPopulate);
+    res.json(q);
+});
+
+/* POST delete question */
+router.post('/deleteQuestion/:id', async (req, res) => {
+    let q = await questions.service.query({_id: req.params.id});
+    for (let i = 0; i < q.options.length; i++) {
+        await options.service.remove(q.options[i]);
+    }
+    await questions.service.remove(req.params.id);
+    res.json(true);
+});
+
+/* POST toggle active question */
+router.post('/toggleActive/:id', async (req, res) => {
+    let q = await questions.service.query({_id: req.params.id});
+    for (let i = 0; i < q.options.length; i++) {
+        await options.service.remove(q.options[i]);
+    }
+    res.json(true);
 });
 
 module.exports = router;
