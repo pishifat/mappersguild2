@@ -33,6 +33,7 @@ const manageReportsRouter = require('./QAT/routes/manageReports');
 const qatUsersRouter = require('./QAT/routes/qatUsers');
 const vetoesRouter = require('./QAT/routes/vetoes');
 const testSubmissionRouter = require('./QAT/routes/testSubmission');
+const manageTestRouter = require('./QAT/routes/manageTest');
 
 const logs = require('./models/log');
 
@@ -101,6 +102,7 @@ app.use('/qat/manageReports', manageReportsRouter);
 app.use('/qat/qatusers', qatUsersRouter);
 app.use('/qat/vetoes', vetoesRouter);
 app.use('/qat/testSubmissionRouter', vetoesRouter);
+app.use('/qat/managetest', manageTestRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

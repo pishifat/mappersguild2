@@ -77,6 +77,7 @@ const qatConfig = Object.assign({}, config, {
         manageReports: './QAT/src/manageReports.js',
         qatUsers: './QAT/src/qatUsers.js',
         vetoes: './QAT/src/vetoes.js',
+        manageTest: './QAT/src/manageTest.js',
     },
     output: {
         filename: '[name].js',
