@@ -46,41 +46,121 @@
                             <hr>
                         </div>
                         <div v-else class="col-sm-12">
-                            <p class="text-shadow">Disqualifications:</p>
-                            <table class="small table text-shadow col-md-12">
-                                <thead>
-                                    <td scope="col" style="padding: 2px;">Date</td>
-                                    <td scope="col" style="padding: 2px;">Mapset</td>
-                                    <td scope="col" style="padding: 2px;">Short reason</td>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td scope="row" style="padding: 1px;">2019-03-04</td>
-                                        <td scope="row" style="padding: 1px;"><a href="#">Anime - Music</a></td>
-                                        <td scope="row" style="padding: 1px;">someone really messed up wow</td>
-                                    </tr>
-                                    <tr>
-                                        <td scope="row" style="padding: 1px;">2019-03-04</td>
-                                        <td scope="row" style="padding: 1px;"><a href="#">dd - sd</a></td>
-                                        <td scope="row" style="padding: 1px;">sucky suck</td>
-                                    </tr>
-                                    <tr>
-                                        <td scope="row" style="padding: 1px;">2019-03-04</td>
-                                        <td scope="row" style="padding: 1px;"><a href="#">eee - assss</a></td>
-                                        <td scope="row" style="padding: 1px;">asdfdsf</td>
-                                    </tr>
-                                    <tr>
-                                        <td scope="row" style="padding: 1px;">2019-03-04</td>
-                                        <td scope="row" style="padding: 1px;"><a href="#">hanatan - anim</a></td>
-                                        <td scope="row" style="padding: 1px;">dfsfdddd</td>
-                                    </tr>
-                                    <tr>
-                                        <td scope="row" style="padding: 1px;">2019-03-04</td>
-                                        <td scope="row" style="padding: 1px;"><a href="#">My - Song</a></td>
-                                        <td scope="row" style="padding: 1px;">aaaaaaaaaaa</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <div class="col-sm-12">
+                                <p class="text-shadow"><a :href="noms && '#noms'" data-toggle="collapse">Show unique nominations</a> ({{noms ? noms.length: '0'}})</p>
+                                <div v-if="noms" class="collapse" id="noms">
+                                    <table class="small table text-shadow col-md-12 mt-2">
+                                        <thead>
+                                            <td scope="col" style="padding: 2px;">Date</td>
+                                            <td scope="col" style="padding: 2px;">Mapset</td>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="nom in noms" :key="nom.id">
+                                                <td scope="row" style="padding: 1px;">{{new Date(nom.timestamp).toString().slice(4,15)}}</td>
+                                                <td scope="row" style="padding: 1px;"><a :href="'https://osu.ppy.sh/beatmapsets/' + nom.beatmapsetId + '/discussion'" target="_blank">{{nom.metadata}}</a></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <p class="text-shadow"><a :href="nomsDqd && '#nomsDqd'" data-toggle="collapse">Show disqualified nominations</a> ({{nomsDqd ? nomsDqd.length : '0'}})</p>
+                                <div v-if="nomsDqd" class="collapse" id="nomsDqd">
+                                    <table class="small table text-shadow col-md-12 mt-2">
+                                        <thead>
+                                            <td scope="col" style="padding: 2px;">Date</td>
+                                            <td scope="col" style="padding: 2px;">Mapset</td>
+                                            <td scope="col" style="padding: 2px;">Reason</td>
+                                            <td scope="col" style="padding: 2px;">Validity</td>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="dq in nomsDqd" :key="dq.id">
+                                                <td scope="row" style="padding: 1px;">{{new Date(dq.timestamp).toString().slice(4,15)}}</td>
+                                                <td scope="row" style="padding: 1px;"><a :href="'https://osu.ppy.sh/beatmapsets/' + dq.beatmapsetId + '/discussion'" target="_blank">{{dq.metadata}}</a></td>
+                                                <td scope="row" style="padding: 1px;">{{dq.content.slice(0, dq.content.indexOf('.')+1 || 50)}}</td>
+                                                <td scope="row" style="padding: 1px;"
+                                                    :class="dq.valid == 1 ? 'vote-pass' : dq.valid == 2 ? 'vote-extend' : dq.valid == 3 ? 'vote-fail' : ''">
+                                                    {{dq.valid == 1 ? 'valid' : dq.valid == 2 ? 'partially valid' : dq.valid == 3 ? 'invalid' : 'none'}}
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <p class="text-shadow"><a :href="nomsPopped && '#nomsPopped'" data-toggle="collapse">Show popped nominations</a> ({{nomsPopped ? nomsPopped.length : '0'}})</p>
+                                <div v-if="nomsPopped" class="collapse" id="nomsPopped">
+                                    <table class="small table text-shadow col-md-12 mt-2">
+                                        <thead>
+                                            <td scope="col" style="padding: 2px;">Date</td>
+                                            <td scope="col" style="padding: 2px;">Mapset</td>
+                                            <td scope="col" style="padding: 2px;">Reason</td>
+                                            <td scope="col" style="padding: 2px;">Validity</td>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="pop in nomsPopped" :key="pop.id">
+                                                <td scope="row" style="padding: 1px;">{{new Date(pop.timestamp).toString().slice(4,15)}}</td>
+                                                <td scope="row" style="padding: 1px;"><a :href="'https://osu.ppy.sh/beatmapsets/' + pop.beatmapsetId + '/discussion'" target="_blank">{{pop.metadata}}</a></td>
+                                                <td scope="row" style="padding: 1px;">{{pop.content.slice(0, pop.content.indexOf('.')+1 || 50)}}</td>
+                                                <td scope="row" style="padding: 1px;"
+                                                    :class="pop.valid == 1 ? 'vote-pass' : pop.valid == 2 ? 'vote-extend' : pop.valid == 3 ? 'vote-fail' : ''">
+                                                    {{pop.valid == 1 ? 'valid' : pop.valid == 2 ? 'partially valid' : pop.valid == 3 ? 'invalid' : 'none'}}
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <p class="text-shadow"><a :href="dqs && '#dqs'" data-toggle="collapse">Show disqualifications done by user</a> ({{dqs ? dqs.length : '0'}})</p>
+                                <div v-if="dqs" class="collapse" id="dqs">
+                                    <table class="small table text-shadow col-md-12 mt-2">
+                                        <thead>
+                                            <td scope="col" style="padding: 2px;">Date</td>
+                                            <td scope="col" style="padding: 2px;">Mapset</td>
+                                            <td scope="col" style="padding: 2px;">Reason</td>
+                                            <td scope="col" style="padding: 2px;">Validity</td>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="dq in dqs" :key="dq.id">
+                                                <td scope="row" style="padding: 1px;">{{new Date(dq.timestamp).toString().slice(4,15)}}</td>
+                                                <td scope="row" style="padding: 1px;"><a :href="'https://osu.ppy.sh/beatmapsets/' + dq.beatmapsetId + '/discussion'" target="_blank">{{dq.metadata}}</a></td>
+                                                <td scope="row" style="padding: 1px;">{{dq.content.slice(0, dq.content.indexOf('.')+1 || 50)}}</td>
+                                                <td scope="row" style="padding: 1px;"
+                                                    :class="dq.valid == 1 ? 'vote-pass' : dq.valid == 2 ? 'vote-extend' : dq.valid == 3 ? 'vote-fail' : ''">
+                                                    {{dq.valid == 1 ? 'valid' : dq.valid == 2 ? 'partially valid' : dq.valid == 3 ? 'invalid' : 'none'}}
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <p class="text-shadow"><a :href="pops && '#pops'" data-toggle="collapse">Show pops done by user</a> ({{pops ? pops.length : '0'}})</p>
+                                <div v-if="pops" class="collapse" id="pops">
+                                    <table class="small table text-shadow col-md-12 mt-2">
+                                        <thead>
+                                            <td scope="col" style="padding: 2px;">Date</td>
+                                            <td scope="col" style="padding: 2px;">Mapset</td>
+                                            <td scope="col" style="padding: 2px;">Reason</td>
+                                            <td scope="col" style="padding: 2px;">Validity</td>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="pop in pops" :key="pop.id">
+                                                <td scope="row" style="padding: 1px;">{{new Date(pop.timestamp).toString().slice(4,15)}}</td>
+                                                <td scope="row" style="padding: 1px;"><a :href="'https://osu.ppy.sh/beatmapsets/' + pop.beatmapsetId + '/discussion'" target="_blank">{{pop.metadata}}</a></td>
+                                                <td scope="row" style="padding: 1px;">{{pop.content.slice(0, pop.content.indexOf('.')+1 || 50)}}</td>
+                                                <td scope="row" style="padding: 1px;"
+                                                    :class="pop.valid == 1 ? 'vote-pass' : pop.valid == 2 ? 'vote-extend' : pop.valid == 3 ? 'vote-fail' : ''">
+                                                    {{pop.valid == 1 ? 'valid' : pop.valid == 2 ? 'partially valid' : pop.valid == 3 ? 'invalid' : 'none'}}
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div v-if="relevantReports.length">
+                                    <hr>
+                                    <p class="text-shadow">Reports:</p>
+                                    <div v-for="report in relevantReports" :key="report.id">
+                                        <p class="text-shadow small pl-2" :class="report.valid == 1 ? 'vote-pass' : 'vote-extend'">
+                                            {{report.createdAt.slice(0,10)}}: {{report.reason}}
+                                        </p>
+                                    </div>
+                                </div>
+                                <hr>
+                            </div>
                             
                             <p v-if="relevantReports.length" class="text-shadow">Reports:</p>
                             <div v-for="report in relevantReports" :key="report.id">
@@ -201,6 +281,7 @@ export default {
             this.confirm = '';
             this.findRelevantEval();
             if(this.reports && this.reports.length) this.findRelevantReports();
+            this.findRelevantActivity();
         },
     },
     methods: {
@@ -235,6 +316,17 @@ export default {
         findRelevantReports: function() {
             this.relevantReports = this.reports.filter( report => 
                 report.culprit == this.discussRound.bn.id);
+        },
+        findRelevantActivity: function() {
+            axios
+                .get('/qat/bnEval/userActivity/' + this.discussRound.bn.osuId)
+                .then(response => {
+                    this.noms = response.data.noms;
+                    this.nomsDqd = response.data.nomsDqd;
+                    this.nomsPopped = response.data.nomsPopped;
+                    this.dqs = response.data.dqs;
+                    this.pops = response.data.pops;
+                });
         },
         createDeadline: function(date){
             date = new Date(date);
@@ -334,7 +426,12 @@ export default {
             vote: 0,
             relevantReports: [],
             info: '',
-            confirm: ''
+            confirm: '',
+            noms: null,
+            pops: null,
+            dqs: null,
+            nomsPopped: null,
+            nomsDqd: null
         };
     },
 }

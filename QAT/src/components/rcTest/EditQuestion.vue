@@ -174,7 +174,6 @@ export default {
             if(!checkedOptions.length){
                 this.info = 'Must select options!'
             }else{
-                console.log(checkedOptions)
                 const question = await this.executePost('/qat/manageTest/deleteOption/', {checkedOptions: checkedOptions, questionId: this.question.id}, e);
                 if (question) {
                     if (question.error) {
