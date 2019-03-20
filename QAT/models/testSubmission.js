@@ -10,8 +10,8 @@ const testSubmission = new mongoose.Schema({
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 testSubmission.virtual('answers', {
-    ref: 'Answer',
-    localField: 'id',
+    ref: 'TestAnswer',
+    localField: '_id',
     foreignField: 'test',
 });
 
@@ -69,12 +69,57 @@ class TestSubmissionService
 
     async create(applicant, mode) {
         try {
+            /* Dumb stuff that may revisit someday
+            try {
+                // Group questions by category. Ex: { _id: 'osu', questions: [] }
+                categories = await questions.Question.aggregate([{
+                    $group: {
+                        _id: '$category',
+                        questions: { $push: '$$ROOT' },
+                    }
+                }]);
+                await questions.Question.populate(categories, {
+                    path: 'questions.options', model: options.Option
+                });
+
+                // Filter out unnecessary categories
+                categories = categories.filter(c => {
+                    (c._id != 'osu' && c._id != 'catch' && c._id != 'mania' && c._id != 'taiko') || (c._id == mode)
+                });
+                categories.forEach(c => {
+                    // Filter out not active questions
+                    c.questions = c.questions.filter(q => q.active);
+                    // Take 5 per each category
+                    c.questions = c.questions.slice(0, 5);
+                });
+
+            } catch (error) {
+                return { error: 'could not generate questions' };
+            } 
+            */
+
             const test = await TestSubmission.create({ 
                 applicant: applicant,
                 mode: mode
             });
-                        
-            const qs = await questions.service.query({ active: true }); // group by category or something
+            
+            
+            const categories = [
+                'codeOfConduct', 'general', 'spread', 'metadata', 
+                'timing', 'audio', 'videoBackground', 'skinning', 
+                'storyboarding', 'bn'
+            ];
+            categories.push(mode);
+
+            let qs;
+            categories.forEach(async function(c) {
+                try {
+                    qs.push(await questions.Question.find({ category: c, active: true }).limit(5).exec());
+                } catch (error) {
+                    return { error: 'Something went wrong' };
+                }
+            });
+
             let questionsToInsert = [];
             qs.forEach(q => {
                 questionsToInsert.push({
@@ -86,7 +131,7 @@ class TestSubmissionService
 
             return { success: 'Test created' };
         } catch(error) {
-            return { error: 'could not create the test' }
+            return { error: 'could not create the test' };
         }
     }
 }
