@@ -1,9 +1,6 @@
 const express = require('express');
-const config = require('../../config.json');
-const crypto = require('crypto');
 const api = require('../models/api.js');
 const bnApps = require('../models/bnApp.js');
-const users = require('../models/qatUser.js');
 const testSubmission = require('../models/testSubmission');
 
 const router = express.Router();
@@ -12,8 +9,8 @@ router.use(api.isLoggedIn);
 
 /* GET bn app page */
 router.get('/', async (req, res, next) => {
-    const test = await testSubmission.service.query({ _id: req.session.qatMongoId, status: { $ne: 'finished' } });
-
+    const test = await testSubmission.service.query({ applicant: req.session.qatMongoId, status: { $ne: 'finished' } });
+    
     res.render('bnapp', {
         title: 'Beatmap Nominator Application',
         script: '../js/bnApp.js',

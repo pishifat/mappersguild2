@@ -7,6 +7,8 @@ const testSubmission = new mongoose.Schema({
     applicant: { type: 'ObjectId', ref: 'QatUser', required: true },
     mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania'] },
     status: { type: String, enum: ['tbd', 'wip', 'finished'], default: 'tbd' },
+    startedAt: { type: Date },
+    submittedAt: { type: Date },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 testSubmission.virtual('answers', {
@@ -69,6 +71,11 @@ class TestSubmissionService
 
     async create(applicant, mode) {
         try {
+            const test = await TestSubmission.create({ 
+                applicant: applicant,
+                mode: mode
+            });
+            
             /* Dumb stuff that may revisit someday
             try {
                 // Group questions by category. Ex: { _id: 'osu', questions: [] }
@@ -97,12 +104,6 @@ class TestSubmissionService
                 return { error: 'could not generate questions' };
             } 
             */
-
-            const test = await TestSubmission.create({ 
-                applicant: applicant,
-                mode: mode
-            });
-            
             
             const categories = [
                 'codeOfConduct', 'general', 'spread', 'metadata', 
@@ -110,16 +111,22 @@ class TestSubmissionService
                 'storyboarding', 'bn'
             ];
             categories.push(mode);
-
-            let qs;
-            categories.forEach(async function(c) {
+            
+            let qs = [];
+            for (let i = 0; i < categories.length; i++) {
+                const c = categories[i];
                 try {
-                    qs.push(await questions.Question.find({ category: c, active: true }).limit(5).exec());
+                    // 5 questions per category ?
+                    const questionsByCategory = await questions.Question.find({ category: c, active: true }).limit(5).exec()
+                    for (let j = 0; j < questionsByCategory.length; j++) {
+                        const q = questionsByCategory[j];
+                        qs.push(q);
+                    }
                 } catch (error) {
                     return { error: 'Something went wrong' };
                 }
-            });
-
+            }
+            
             let questionsToInsert = [];
             qs.forEach(q => {
                 questionsToInsert.push({

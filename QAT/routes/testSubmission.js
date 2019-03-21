@@ -6,6 +6,7 @@ const questions = require('../models/question');
 const options = require('../models/option');
 
 const router = express.Router();
+router.use(api.isLoggedIn);
 
 const defaultPopulate = [
     { populate: 'applicant', display: 'username', model: users.QatUser },
@@ -27,23 +28,61 @@ router.get('/', async (req, res, next) => {
     });
 });
 
-/* GET test by user */
-router.get('/relevantInfo', async (req, res, next) => {
-    const test = await testSubmission.service.query({ 
+/* GET pending tests by user */
+router.get('/tests', async (req, res, next) => {
+    const tests = await testSubmission.service.query({ 
         applicant: req.session.qatMongoId, 
         status: { $ne: 'finished' },
+    }, null, null, true);
+    
+    if (!tests || tests.error) {
+        return res.redirect('/qat');
+    }
+
+    return res.json({ testList: tests });
+});
+
+/* POST test by user */
+router.post('/loadTest', async (req, res, next) => {
+    let test = await testSubmission.service.query({ 
+        _id: req.body.testId,
+        applicant: req.session.qatMongoId,
+        status: { $ne: 'finished' },
     }, defaultPopulate, { 'answers.question.category': 1 });
-    console.log(test);
     
     if (!test || test.error) {
         return res.redirect('/qat');
     }
 
-    return res.json({ test: test });
+    if (!test.startedAt) {
+        await testSubmission.service.update(req.body.testId, { startedAt: Date.now(), status: 'wip' });
+        test.startedAt = Date.now();
+    }
+
+    return res.json(test);
 });
 
+/* POST submit answers */
+router.post('/submit', async (req, res, next) => {
+    let test = await testSubmission.service.query({ 
+        _id: req.body.testId,
+        applicant: req.session.qatMongoId,
+        status: { $ne: 'finished' },
+    });
+    
+    if (!test || test.error) {
+        return res.json({ error: 'Something went wrong!' });
+    }
+
+    await testSubmission.service.update(req.body.testId, { submittedAt: Date.now(), status: 'finished' });
+    // todo Update with chosen answers
+
+    return res.json(test);
+});
+
+// Temp
 router.post('/generateTest', async (req, res, next) => {
-    await testSubmission.service.create(req.session.qatMongoId, 'osu');
+    await testSubmission.service.create(req.session.qatMongoId, 'catch');
     
     res.redirect('/qat/testSubmission');
 });
