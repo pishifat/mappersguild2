@@ -1,9 +1,6 @@
 $(function() {
-    $('#loading').fadeOut();
-    $('#main')
-        .attr('style', 'visibility: visible')
-        .hide()
-        .fadeIn();
+    $('#loading').hide();
+    $('#main').attr('style', 'visibility: visible');
 
     $('#report').click(async function() {
         $('#report').attr('disabled', true);

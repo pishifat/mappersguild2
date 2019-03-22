@@ -1,9 +1,8 @@
 $(function() {
-    $('#loading').fadeOut();
-    $('#main')
-        .attr('style', 'visibility: visible')
-        .hide()
-        .fadeIn();
+    $('#loading').hide();
+    $('#main').attr('style', 'visibility: visible');
+    $("body").tooltip({ selector: '[data-toggle=tooltip]', trigger: 'hover', });
+
 
     $('#apply').click(async function() {
         $('#apply').attr('disabled', true);

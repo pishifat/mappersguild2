@@ -10,10 +10,12 @@ const router = express.Router();
 /* GET bn app page */
 router.get('/', async (req, res, next) => {
     let isBnOrQat;
+    let isBn;
     if (req.session.qatGroup == 'bn' || req.session.qatGroup == 'qat') {
         isBnOrQat = true;
+        if (req.session.qatGroup == 'bn') isBn = true;
     }
-    res.render('qatIndex', { title: 'stuff', layout: false, loggedInAs: req.session.qatMongoId, isBnOrQat: isBnOrQat });
+    res.render('qatIndex', { title: 'stuff', layout: false, loggedInAs: req.session.qatMongoId, isBnOrQat: isBnOrQat, isBn: isBn});
 });
 
 /*-------below this line is the intimidating code that i never want to look at----------*/
