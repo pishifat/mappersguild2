@@ -113,6 +113,54 @@ const filters = {
                     });
                 }
                 
+            } else if (this.sortBy == 'bnDuration') {
+                if(this.isFiltered){
+                    this.filteredObjs.sort((a, b) => {
+                        if (this.asc) {
+                            if (this.sortDuration(a.bnDuration) > this.sortDuration(b.bnDuration)) return -1;
+                            if (this.sortDuration(a.bnDuration) < this.sortDuration(b.bnDuration)) return 1;
+                        } else {
+                            if (this.sortDuration(a.bnDuration) < this.sortDuration(b.bnDuration)) return -1;
+                            if (this.sortDuration(a.bnDuration) > this.sortDuration(b.bnDuration)) return 1
+                        }
+                        return 0;
+                    });
+                }else{
+                    this.allObjs.sort((a, b) => {
+                        if (this.asc) {
+                            if (this.sortDuration(a.bnDuration) > this.sortDuration(b.bnDuration)) return -1;
+                            if (this.sortDuration(a.bnDuration) < this.sortDuration(b.bnDuration)) return 1;
+                        } else {
+                            if (this.sortDuration(a.bnDuration) < this.sortDuration(b.bnDuration)) return -1;
+                            if (this.sortDuration(a.bnDuration) > this.sortDuration(b.bnDuration)) return 1
+                        }
+                        return 0;
+                    });
+                }
+            } else if (this.sortBy == 'qatDuration') {
+                if(this.isFiltered){
+                    this.filteredObjs.sort((a, b) => {
+                        if (this.asc) {
+                            if (this.sortDuration(a.qatDuration) > this.sortDuration(b.qatDuration)) return -1;
+                            if (this.sortDuration(a.qatDuration) < this.sortDuration(b.qatDuration)) return 1;
+                        } else {
+                            if (this.sortDuration(a.qatDuration) < this.sortDuration(b.qatDuration)) return -1;
+                            if (this.sortDuration(a.qatDuration) > this.sortDuration(b.qatDuration)) return 1
+                        }
+                        return 0;
+                    });
+                }else{
+                    this.allObjs.sort((a, b) => {
+                        if (this.asc) {
+                            if (this.sortDuration(a.qatDuration) > this.sortDuration(b.qatDuration)) return -1;
+                            if (this.sortDuration(a.qatDuration) < this.sortDuration(b.qatDuration)) return 1;
+                        } else {
+                            if (this.sortDuration(a.qatDuration) < this.sortDuration(b.qatDuration)) return -1;
+                            if (this.sortDuration(a.qatDuration) > this.sortDuration(b.qatDuration)) return 1
+                        }
+                        return 0;
+                    });
+                }
             }
             this.limit = 16.01;
             this.canShowOlder = true;

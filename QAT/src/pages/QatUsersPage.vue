@@ -2,7 +2,18 @@
 <div class="row">
     <div class="col-md-12">
         <div class="row mb-3">
-            <div class="col-lg-5 col-md-7">
+            <div class="col-lg-12 col-md-12">
+                <small>temp
+                    <input id="username" placeholder="username"/>
+                    <input id="osuId" placeholder="osu id"/>
+                    <input id="mode" placeholder="mode (just 1)"/> 
+                    <input id="group" placeholder="bn/qat"/> 
+                    <input id="probation" placeholder="probation mode"/> | 
+                    <input id="date" placeholder="date" @keyup.enter="tempUpdate()"/>
+                    <button @click="tempCreate()">temp create</button>
+                    <button @click="tempUpdate()">temp update</button>
+                </small>
+                <hr>
                 <small>Search: 
                     <input id="search" class="text-input" v-model="filterValue" type="text" placeholder="username... (3+ characters)" /> 
                 </small>
@@ -16,10 +27,11 @@
                 </select>
                 </small>
             </div>
-            <div class="col-lg-3 col-md-3">
-                <small class="pl-1">Sort: 
-                    <a :class="sortBy === 'username' ? 'sorted' : ''" href="#" @click.prevent="sort('username')">Name</a> |
-                    <a :class="sortBy === 'createdAt' ? 'sorted' : ''" href="#" @click.prevent="sort('createdAt')">Joined</a>
+            <div class="col-lg-4 col-md-4">
+                <small>Sort: 
+                    <a :class="sortBy === 'username' ? 'sorted' : ''" href="#" @click.prevent="sort('username')">Name</a> | 
+                    <a :class="sortBy === 'bnDuration' ? 'sorted' : ''" href="#" @click.prevent="sort('bnDuration')">BN Tenure</a> | 
+                    <a :class="sortBy === 'qatDuration' ? 'sorted' : ''" href="#" @click.prevent="sort('qatDuration')">QAT Tenure</a>
                 </small>
             </div>
         </div>
@@ -78,11 +90,39 @@ export default {
 			this.pageObjs[i] = u;
             this.selectedUser = u;
         },
-        //real functions
-        switchInvites: async function(e){
-            const u = await this.executePost('/users/switchInvites/', {}, e);
+        sortDuration: function(dateArray, user) {
+            let days = 0;
+            for (let i = 0; i < dateArray.length; i+=2) {
+                let a = new Date(dateArray[i]);
+                let b = new Date(dateArray[i+1]);
+                if(dateArray[i+1]){
+                    days += (Math.abs(b.getTime() - a.getTime())) / (1000 * 3600 * 24);
+                }else{
+                    days += (Math.abs(new Date().getTime() - a.getTime())) / (1000 * 3600 * 24);
+                }
+            }
+            return days;
+        },
+        tempCreate: async function(e){
+            const username = $('#username').val();
+            const osuId = $('#osuId').val();
+            const mode = $('#mode').val();
+            const group = $('#group').val();
+            const probation = $('#probation').val();
+            const u = await this.executePost('/qat/qatusers/tempCreate/', {username: username, osuId: osuId, mode: mode, group: group, probation: probation}, e);
             if(u){
-                this.updateUser(u);
+                console.log("ye");
+            }
+        },
+        tempUpdate: async function(e){
+            const username = $('#username').val();
+            const mode = $('#mode').val();
+            const group = $('#group').val();
+            const probation = $('#probation').val();
+            const date = new Date($('#date').val());
+            const u = await this.executePost('/qat/qatusers/tempUpdate/', {username: username, group: group, mode: mode, probation: probation, date: date}, e);
+            if(u){
+                console.log("yeeeee");
             }
         },
     },

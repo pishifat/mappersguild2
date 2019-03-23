@@ -14,7 +14,8 @@
             <span class="pseudo-float-right-avatar">
                 <img :src="'https://a.ppy.sh/' + user.osuId" class="rounded-circle avatar-mini-thumb">
             </span>
-            <p class="small ml-1 text-shadow">Joined: {{user.createdAt.slice(0,10)}}</p>
+            <p class="small ml-1 text-shadow" v-if="user.bnDuration.length">Joined BN: {{user.bnDuration[0].slice(0,10)}}</p>
+            <p class="small ml-1 text-shadow" v-if="user.qatDuration.length">Joined QAT: {{user.qatDuration[0].slice(0,10)}}</p>
         </div>
     </div>
 </div>

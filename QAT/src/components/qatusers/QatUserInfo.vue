@@ -16,6 +16,8 @@
             </div>
             <div class="modal-body" style="overflow: hidden">
                 <p class="text-shadow">BN Score: coming soon</p>
+                <p class="text-shadow">Time as BN: {{calculateDuration('bn')}}</p>
+                <p class="text-shadow">Time as QAT: {{calculateDuration('qat')}}</p>
                 <p v-if="user.id == userId" class="text-shadow">Veto Mediation: 
                     <button 
                         class="btn btn-sm justify-content-center" 
@@ -47,6 +49,28 @@ export default {
     props: [ 'user', 'user-id' ],
     mixins: [ postData ],
     methods: {
+        //display
+        calculateDuration: function(group) {
+            let dateArray = group == 'bn' ? this.user.bnDuration : this.user.qatDuration;
+            let days = 0;
+            for (let i = 0; i < dateArray.length; i+=2) {
+                let a = new Date(dateArray[i]);
+                let b = new Date(dateArray[i+1]);
+                if(dateArray[i+1]){
+                    days += (Math.abs(b.getTime() - a.getTime())) / (1000 * 3600 * 24);
+                }else{
+                    days += (Math.abs(new Date().getTime() - a.getTime())) / (1000 * 3600 * 24);
+                }
+            }
+            let years = Math.floor(days/365);
+            let remainingDays = Math.round(days % 365);
+            if(years > 0){
+                return `${years} ${years == 1 ? 'year' : 'years'}, ${remainingDays} days`
+            }else{
+                return `${remainingDays} days`
+            }
+        },
+        //real
         switchMediator: async function(e){
             const u = await this.executePost('/qat/qatusers/switchMediator/', {}, e);
             if(u){
