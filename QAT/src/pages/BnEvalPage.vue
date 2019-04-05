@@ -101,7 +101,6 @@ import EvalCard from '../components/evaluations/EvalCard.vue';
 import EvalInfo from '../components/evaluations/EvalInfo.vue';
 import DiscussCard from '../components/evaluations/DiscussCard.vue';
 import DiscussInfo from '../components/evaluations/DiscussInfo.vue';
-import postData from '../mixins/postData.js';
 
 export default {
     name: 'bn-eval-page',
@@ -112,7 +111,6 @@ export default {
         DiscussCard,
         DiscussInfo
     },
-    mixins: [postData],
     watch: {
         filterValue: function(v){
             this.filter();
@@ -122,6 +120,24 @@ export default {
         },
     },
     methods: {
+        executePost: async function (path, data, e) {
+            if (e) e.target.disabled = true;
+
+            try {
+                const res = await axios.post(path, data)
+                
+                if (res.data.error) {
+                    this.info = res.data.error;
+                } else {
+                    if (e) e.target.disabled = false;
+                    return res.data;
+                }
+            } catch (error) {
+                console.log(error)
+            }
+
+            if (e) e.target.disabled = false;
+        },
         updateEvalRound: function (evalRound) {
 			const i = this.allEvalRounds.findIndex(er => er.id == evalRound.id);
 			this.allEvalRounds[i] = evalRound;
@@ -192,12 +208,8 @@ export default {
             if(checkedRounds.length){
                 const ers = await this.executePost('/qat/bnEval/setGroupEval/', { checkedRounds: checkedRounds}, e);
                 if (ers) {
-                    if (ers.error) {
-                        this.info = ers.error;
-                    } else {
-                        this.allEvalRounds = ers;
-                        this.filter();
-                    }
+                    this.allEvalRounds = ers;
+                    this.filter();
                 }
             }
         },
@@ -209,12 +221,8 @@ export default {
             if(checkedRounds.length){
                 const ers = await this.executePost('/qat/bnEval/setIndividualEval/', { checkedRounds: checkedRounds}, e);
                 if (ers) {
-                    if (ers.error) {
-                        this.info = ers.error;
-                    } else {
-                        this.allEvalRounds = ers;
-                        this.filter();
-                    }
+                    this.allEvalRounds = ers;
+                    this.filter();
                 }
             }
         },
@@ -227,12 +235,8 @@ export default {
                 const result = confirm(`Are you sure? The consensus of any evaluation will affect its respective user.\n\nOnly do this after feedback PMs have been sent.`);
                 const ers = await this.executePost('/qat/bnEval/setComplete/', { checkedRounds: checkedRounds}, e);
                 if (ers) {
-                    if (ers.error) {
-                        this.info = ers.error;
-                    } else {
-                        this.allEvalRounds = ers;
-                        this.filter();
-                    }
+                    this.allEvalRounds = ers;
+                    this.filter();
                 }
             }
         },

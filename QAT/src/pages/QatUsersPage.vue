@@ -29,7 +29,7 @@
         </button>
         <transition-group name="list" tag="div" class="row">
             <qat-user-card
-                v-for="user in pageObjs"
+                v-for="user in users"
                 :key="user.id"
                 :user="user"
                 :userId="userId"
@@ -55,9 +55,6 @@
 <script>
 import QatUserCard from '../components/qatusers/QatUserCard.vue';
 import QatUserInfo from '../components/qatusers/QatUserInfo.vue';
-import pagination from '../mixins/pagination.js';
-import filters from '../mixins/filters.js';
-import postData from '../mixins/postData.js';
 
 export default {
     name: 'qat-users-page',
@@ -65,18 +62,106 @@ export default {
         QatUserCard,
         QatUserInfo, 
     },
-    mixins: [postData, pagination, filters],
-    methods: {
-        filterBySearchValueContext: function(u) {
-            if(u.username.toLowerCase().indexOf(this.filterValue.toLowerCase()) > -1){
-                return true;
+    watch:{
+        filterValue: function(v){
+            this.filter();
+        },
+        filterMode: function(v) {
+            this.filter();
+        },
+        limit: function () {
+            this.limit = Math.round(this.limit);
+            this.pre = this.limit - 16;
+            if (this.allUsers) {
+                if(this.isFiltered){
+                    if (this.limit >= this.filteredUsers.length) {
+                        this.canShowOlder = false;
+                    }
+                    this.users = this.filteredUsers.slice(this.pre, this.limit);
+                    this.pages = Math.ceil(this.filteredUsers.length / 16);
+                }else{
+                    if (this.limit >= this.allUsers.length) {
+                        this.canShowOlder = false;
+                    }
+                    this.users = this.allUsers.slice(this.pre, this.limit);
+                    this.pages = Math.ceil(this.allUsers.length / 16);
+                }
             }
-            return false;
+            if(this.pages > 0){
+                this.currentPage = this.limit / 16;
+            }else{
+                this.currentPage = this.pages;
+            }
+        },
+    },
+    methods: {
+        showOlder: function () {
+            if (this.canShowOlder) {
+                this.limit += 16;
+            }
+        },
+        showNewer: function () {
+            if (this.pre > 0) {
+                this.limit -= 16;
+                this.canShowOlder = true;
+            }
         },
         updateUser: function(u) {
-			const i = this.pageObjs.findIndex(user => user.id == u.id);
-			this.pageObjs[i] = u;
+			const i = this.users.findIndex(user => user.id == u.id);
+			this.users[i] = u;
             this.selectedUser = u;
+        },
+        sort: function (field, keepOrder) {
+            this.sortBy = field;
+			if (!keepOrder) {
+				this.asc = !this.asc;
+            }
+            if (this.sortBy == 'username') {
+                if(this.isFiltered){
+                    this.filteredUsers.sort((a, b) => {
+                        if (this.asc) {
+                            return a.username.toLowerCase().localeCompare(b.username.toLowerCase());
+                        } else {
+                            return b.username.toLowerCase().localeCompare(a.username.toLowerCase());
+                        }
+                    });
+                }else{
+                    this.allUsers.sort((a, b) => {
+                        if (this.asc) {
+                            return a.username.toLowerCase().localeCompare(b.username.toLowerCase());
+                        } else {
+                            return b.username.toLowerCase().localeCompare(a.username.toLowerCase());
+                        }
+                    });
+                }
+            } else if (this.sortBy == 'createdAt') {
+                if(this.isFiltered){
+                    this.filteredUsers.sort((a, b) => {
+                        if (this.asc) {
+                            if (a.createdAt > b.createdAt) return 1;
+                            if (a.createdAt < b.createdAt) return -1;
+                        } else {
+                            if (a.createdAt < b.createdAt) return 1;
+                            if (a.createdAt > b.createdAt) return -1
+                        }
+                        return 0;
+                    });
+                }else{
+                    this.allUsers.sort((a, b) => {
+                        if (this.asc) {
+                            if (a.createdAt > b.createdAt) return 1;
+                            if (a.createdAt < b.createdAt) return -1;
+                        } else {
+                            if (a.createdAt < b.createdAt) return 1;
+                            if (a.createdAt > b.createdAt) return -1
+                        }
+                        return 0;
+                    });
+                }
+                
+            }
+            this.limit = 16.01;
+            this.canShowOlder = true;
         },
         //real functions
         switchInvites: async function(e){
@@ -85,22 +170,92 @@ export default {
                 this.updateUser(u);
             }
         },
+        filter: function () {            
+            this.filterValue = $("#search").val();
+            this.filterMode = $("#mode").val();
+            this.users = this.allUsers;
+
+            //search
+            if(this.filterValue.length > 2){
+                this.filteredUsers = this.allUsers.filter(u => {
+                    if(u.username.toLowerCase().indexOf(this.filterValue.toLowerCase()) > -1){
+                        return true;
+                    }
+                    return false;
+                });
+            }
+            
+            //mode
+            if(this.filterMode.length){
+                if(this.filterValue.length > 2){
+                    this.filteredUsers = this.filteredUsers.filter(u => {
+                        if(this.filterMode == "osu" && u.modes.indexOf("osu") >= 0){
+                            return true;
+                        }
+                        if(this.filterMode == "taiko" && u.modes.indexOf("taiko") >= 0){
+                            return true;
+                        }
+                        if(this.filterMode == "catch" && u.modes.indexOf("catch") >= 0){
+                            return true;
+                        }
+                        if(this.filterMode == "mania" && u.modes.indexOf("mania") >= 0){
+                            return true;
+                        }
+                        return false;
+                    });
+                    
+                }else{
+                    this.filteredUsers = this.allUsers.filter(u => {
+                        if(this.filterMode == "osu" && u.modes.indexOf("osu") >= 0){
+                            return true;
+                        }
+                        if(this.filterMode == "taiko" && u.modes.indexOf("taiko") >= 0){
+                            return true;
+                        }
+                        if(this.filterMode == "catch" && u.modes.indexOf("catch") >= 0){
+                            return true;
+                        }
+                        if(this.filterMode == "mania" && u.modes.indexOf("mania") >= 0){
+                            return true;
+                        }
+                        return false;
+                    });
+                }
+            }
+            
+            this.isFiltered = (this.filterValue.length > 2 || this.filterMode.length);
+            if(this.sortBy){
+                this.sort(this.sortBy, true)
+            }
+            this.limit = 16.01; //resets to first page
+            this.canShowOlder = true;
+        },
     },
     data() {
         return {
-            pageObjs: null,
-            allObjs: null,
-            filteredObjs: null,
+            users: null,
+            allUsers: null,
+            filteredUsers: null,
             userId: null,
             userGroup: null,
+            filterValue: "",
+            filterMode: "",
+            isFiltered: false,
             selectedUser: null,
+            sortBy: null,
+            asc: false,
+            canShowOlder: true,
+            pre: null,
+            limit: null,
+            pages: null,
+            currentPage: null,
         }
     },
     created() {
         axios
             .get('/qat/qatusers/relevantInfo')
             .then(response => {
-                this.allObjs = response.data.users;
+                this.allUsers = response.data.users;
                 this.userId = response.data.userId;
                 this.userGroup = response.data.userGroup;
                 this.limit = 16;
@@ -114,7 +269,7 @@ export default {
             axios
                 .get('/users/relevantInfo')
                 .then(response => {
-                    this.allObjs = response.data.users;
+                    this.allUsers = response.data.users;
                     if(this.isFiltered){
                         this.filter();
                     }

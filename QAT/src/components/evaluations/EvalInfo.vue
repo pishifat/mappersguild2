@@ -173,12 +173,12 @@
 </template>
 
 <script>
-import postData from '../../mixins/postData.js'
+import mixin from '../../mixins.js'
 
 export default {
     name: 'eval-info',
     props: [ 'application', 'evalRound', 'reports', 'evaluator' ],
-    mixins: [ postData ],
+    mixins: [ mixin ],
     watch: {
         application: function() {
             this.info = '';
@@ -268,15 +268,11 @@ export default {
                         moddingComment: this.moddingComment
                         }, e);
                     if (a) {
-                        if (a.error) {
-                            this.info = a.error;
-                        } else {
-                            await this.$emit('update-application', a);
-                            if(this.evaluationId){
-                                this.confirm = "Evaluation updated!"
-                            }else{
-                                this.confirm = "Evaluation submitted!"
-                            }
+                        await this.$emit('update-application', a);
+                        if(this.evaluationId){
+                            this.confirm = "Evaluation updated!"
+                        }else{
+                            this.confirm = "Evaluation submitted!"
                         }
                     }
                 }else{
@@ -288,15 +284,11 @@ export default {
                         moddingComment: this.moddingComment
                         }, e);
                     if (er) {
-                        if (a.error) {
-                            this.info = a.error;
-                        } else {
-                            await this.$emit('update-eval-round', er);
-                            if(this.evaluationId){
-                                this.confirm = "Evaluation updated!"
-                            }else{
-                                this.confirm = "Evaluation submitted!"
-                            }
+                        await this.$emit('update-eval-round', er);
+                        if(this.evaluationId){
+                            this.confirm = "Evaluation updated!"
+                        }else{
+                            this.confirm = "Evaluation submitted!"
                         }
                     }
                 }

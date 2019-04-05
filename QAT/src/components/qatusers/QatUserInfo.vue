@@ -40,31 +40,41 @@
 </template>
 
 <script>
-import postData from "../../mixins/postData.js";
+import mixin from "../../mixins.js";
 
 export default {
     name: 'qat-user-info',
     props: [ 'user', 'user-id' ],
-    mixins: [ postData ],
+    mixins: [ mixin ],
     methods: {
+        executePost: async function (path, data, e) {
+            if (e) e.target.disabled = true;
+
+            try {
+                const res = await axios.post(path, data)
+
+                if (res.data.error) {
+                    this.info = res.data.error;
+                } else {
+                    if (e) e.target.disabled = false;
+                    return res.data;
+                }
+            } catch (error) {
+                console.log(error)
+            }
+
+            if (e) e.target.disabled = false;
+        },
         switchMediator: async function(e){
             const u = await this.executePost('/qat/qatusers/switchMediator/', {}, e);
             if(u){
-                if (u.error) {
-                    this.info = u.error
-                } else {
-                    this.$emit('update-user', u);
-                }
+                this.$emit('update-user', u);
             }
         },
         switchGroup: async function(group, e){
             const u = await this.executePost('/qat/qatusers/switchGroup/' + this.user.id, {group: group}, e);
             if(u){
-                if (u.error) {
-                    this.info = u.error
-                } else {
-                    this.$emit('update-user', u);
-                }
+                this.$emit('update-user', u);
             }
         },
     },

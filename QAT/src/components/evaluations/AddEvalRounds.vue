@@ -79,13 +79,30 @@
 </template>
 
 <script>
-import postData from '../../mixins/postData.js'
+import mixin from '../../mixins.js'
 
 export default {
     name: 'add-eval-rounds',
-    mixins: [ postData ],
+    mixins: [ mixin ],
     props: [],
     methods: {
+        executePost: async function(path, data, e) {
+			if (e) e.target.disabled = true;
+
+			try {
+				const res = await axios.post(path, data)
+				
+				if (res.data.error) {
+                    this.info = res.data.error;
+				} else {
+					if (e) e.target.disabled = false;
+					return res.data;
+				}
+			} catch (error) {
+                this.info = 'Something went wrong';
+            }
+            if (e) e.target.disabled = false;
+        },
         addEvalRounds: async function (e) {
             this.info = '';
             this.confirm = '';
@@ -125,20 +142,17 @@ export default {
                 probation: probation, bn: bn, qat: qat,
                 includeUsers: includeUsers, excludeUsers: excludeUsers, deadline: deadline
                 }, e);
-            if (result) {
-                if (result.errors) {
-                    this.info = result.errors;
-                } else {
-                    this.$emit('update-all-eval-rounds', result.ers);
-                    this.$parent.allEvalRounds = result.ers;
-                    this.confirm = 'Eval rounds added! ';
-                    if(result.failed.length){
-                        this.confirm += 'However, the following usernames could not be processed: '
-                        for (let i = 0; i < result.failed.length; i++) {
-                            this.confirm += result.failed[i]
-                            if((i + 1) != result.failed.length){
-                                this.confirm += ", "
-                            }
+            if (result.ers) {
+                console.log('a')
+                this.$emit('update-all-eval-rounds', result.ers);
+                this.$parent.allEvalRounds = result.ers;
+                this.confirm = 'Eval rounds added! ';
+                if(result.failed.length){
+                    this.confirm += 'However, the following usernames could not be processed: '
+                    for (let i = 0; i < result.failed.length; i++) {
+                        this.confirm += result.failed[i]
+                        if((i + 1) != result.failed.length){
+                            this.confirm += ", "
                         }
                     }
                 }

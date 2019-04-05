@@ -60,11 +60,11 @@
 </template>
 
 <script>
-import postData from '../../mixins/postData.js';
+import mixin from '../../mixins.js';
 
 export default {
     name: 'submit-veto',
-    mixins: [postData],
+    mixins: [mixin],
     data() {
         return {
             beatmapLink: null,
