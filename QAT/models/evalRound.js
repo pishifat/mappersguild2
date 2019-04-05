@@ -10,9 +10,6 @@ const evalRoundSchema = new mongoose.Schema({
     evaluations: [{ type: 'ObjectId', ref: 'Evaluation' }],
     deadline: { type: Date , required: true },
     active: { type: Boolean, default: true },
-    discussion: { type: Boolean, default: false },
-    consensus: { type: String, enum: ['pass', 'extend', 'fail'] },
-    feedback: { type: String },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const EvalRound = qatDb.model('EvalRound', evalRoundSchema);

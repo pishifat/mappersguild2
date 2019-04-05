@@ -3,7 +3,7 @@
 <div id="extendedInfo" class="modal fade" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content custom-bg-dark" v-if="user">
-            <div class="modal-header text-dark" :class="user.probation.length && user.group != 'qat' ? 'bg-probation' : 'bg-' + user.group">
+            <div class="modal-header text-dark" :class="!user.probation ? 'bg-' + user.group : 'bg-probation'">
                 <h5 class="modal-title">{{user.username}}
                     <i v-if="user.modes.indexOf('osu') >= 0" class="far fa-circle"></i>
                     <i v-if="user.modes.indexOf('taiko') >= 0" class="fas fa-drum"></i>

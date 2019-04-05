@@ -1,7 +1,7 @@
 <template>
 
 <div class='col-md-4 col-lg-3 my-2' @click="selectUser()">
-    <div class="card custom-bg-dark border-outline" :class="user.probation.length && user.group != 'qat' ? 'border-probation' : 'border-' + user.group" style="height: 100%"
+    <div class="card custom-bg-dark border-outline" :class="!user.probation ? 'border-' + user.group : 'border-probation'" style="height: 100%"
         data-toggle="modal" data-target='#extendedInfo' :data-user="user.osuId">
                 
         <div class='card-body qat-user-card-spacing'>
