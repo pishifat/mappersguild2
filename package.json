@@ -6,7 +6,7 @@
     "start": "node ./bin/www",
     "build": "webpack --mode production",
     "devstart": "nodemon ./bin/www",
-    "devstart-client": "webpack-dev-server --mode development --port 8080 --watch --progress --colors --config-name qat"
+    "devstart-client": "webpack-dev-server --mode development --port 8080 --watch --progress"
   },
   "dependencies": {
     "axios": "^0.18.0",

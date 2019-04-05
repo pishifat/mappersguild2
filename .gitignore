@@ -26,5 +26,4 @@ jspm_packages/
 
 config.json
 public/javascripts/
-QAT/public/javascripts/
 .prettierrc

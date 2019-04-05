@@ -80,15 +80,12 @@ qatdb.once('open', function() {
     console.log('qatdb connected');
 });
 
-//qat
 app.use('/qat', session({
     secret: config.session,
     store: new MongoStore({ mongooseConnection: qatdb }),
     resave: false,
     saveUninitialized: false,
 }), bnAppRouter);
-
-app.use('/qat/appEval', appEvalRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
