@@ -3,7 +3,7 @@ const config = require('../../config.json');
 const crypto = require('crypto');
 const api = require('../models/api.js');
 const bnApps = require('../models/bnApp.js');
-const users = require('../models/qatUser.js');
+const users = require('../models/user.js');
 
 const router = express.Router();
 
@@ -17,10 +17,12 @@ router.post('/apply', api.isLoggedIn, async (req, res, next) => {
     if (req.session.qatMongoId) {
         let date = new Date();
         date.setDate( date.getDate() - 90 );
-        const currentBnApp = await bnApps.service.query({ $and: [{ qatUser: req.session.qatMongoId }, { mode: req.body.mode }, { createdAt: { $gte: date } }] });
+        const currentBnApp = await bnApps.service.query({ $and: [{ user: req.session.qatMongoId }, { mode: req.body.mode }, { createdAt: { $gte: date } }] });
         
+        //if req.session.usergroup == qat/bn, query for bn of req.body.mode, then error if returned
         if (!currentBnApp || currentBnApp.error) {
             const newBnApp = await bnApps.service.create(req.session.qatMongoId, req.body.mode, req.body.mods);
+            
             if (newBnApp && !newBnApp.error) {
                 return res.json({});
             } else {
@@ -34,22 +36,16 @@ router.post('/apply', api.isLoggedIn, async (req, res, next) => {
             }
         }
     }
+}, api.isLoggedIn, (req, res) => {
+    res.render('error', { message: 'redirected to test page', layout: 'qatlayout'});
 });
-
-
-
-
-
-
-
-/*-------below this line is the intimidating code that i never want to look at----------*/
 
 /* GET 'login' to get user's info */
 router.get('/login', async (req, res, next) => {
     if (req.session.qatOsuId && req.session.qatUsername) {
         const u = await users.service.query({ osuId: req.session.qatOsuId });
         if (!u || u.error) {
-            const user = await users.service.create(req.session.qatOsuId, req.session.qatUsername, req.session.qatGroup);
+            const user = await users.service.create(req.session.qatOsuId, req.session.qatUsername);
             
             if (user && !user.error) {
                 req.session.qatMongoId = user._id;
@@ -73,7 +69,7 @@ router.get('/login', async (req, res, next) => {
         res.redirect(`https://osu.ppy.sh/oauth/authorize?response_type=code&client_id=${config.qat.id}&redirect_uri=${encodeURIComponent(config.qat.redirect)}&state=${hashedState}&scope=identify`);
     }
 }, api.isLoggedIn, (req, res) => {
-    res.redirect("/qat");
+    res.render('error', { message: 'redirected', layout: 'qatlayout'});
 });
 
 /* GET user's token and user's info to login */
@@ -101,14 +97,10 @@ router.get('/callback', async (req, res) => {
         req.session.qatRefreshToken = response.refresh_token;
 
         response = await api.getUserInfo(req.session.qatAccessToken);
+        
         if (response.error) {
             res.status(500).render('error');
-        }else if(response.is_qat){
-            req.session.qatGroup = 'qat';
-        }else if(response.is_bng){
-            req.session.qatGroup = 'bn';
-        }
-        if (response.ranked_and_approved_beatmapset_count >= 64 && response.kudosu.total >= 0) { // todo also check if user is qat/bn
+        } else if (response.ranked_and_approved_beatmapset_count >= 64 && response.kudosu.total >= 0) { // todo also check if user is qat/bn
             req.session.qatUsername = response.username;
             req.session.qatOsuId = response.id;
             res.redirect('/qat/login');

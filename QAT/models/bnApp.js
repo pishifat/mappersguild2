@@ -1,38 +1,34 @@
 const config = require('../../config.json');
 const mongoose = require('mongoose');
-const qatDb = mongoose.createConnection(config.qat.connection, { useNewUrlParser: true });
-const evals = require('./evaluation.js');
-const users = require('./qatUser.js');
+const qatDb = mongoose.createConnection(config.qat.connection, { useNewUrlParser: true })
 
 const bnAppSchema = new mongoose.Schema({
-    applicant: {type: 'ObjectId', ref: 'QatUser', required: true},
+    user: { type: 'ObjectId', ref: 'User', required: true },
     mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania'], required: true },
     mods: [{ type: String, required: true }],
-    evaluations: [{type: 'ObjectId', ref: 'Evaluation'}],
+    //evaluations: [{type: 'ObjectId', ref: 'evaluation'}],
     consensus: { type: String, enum: ["accepted", "rejected"]}
     //testResult: [{ type: 'ObjectId', ref: 'rcTest'}],
 
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
-const BnApp = qatDb.model('BnApp', bnAppSchema);
+const bnApp = qatDb.model('bnApp', bnAppSchema);
 
-class BnAppService
+class bnAppService
 {
     async query(params, populate, sorting, getAll) {
         let query;
 
         if (getAll) {
-            query = BnApp.find(params);
+            query = bnApp.find(params);
         } else {
-            query = BnApp.findOne(params);
+            query = bnApp.findOne(params);
         }
 
         if (populate) {
-            
             for (let i = 0; i < populate.length; i++) {
                 const p = populate[i];
-                console.log(p)
-                query.populate(p.populate, p.display, p.model);
+                query.populate(p.populate, p.display);
             }
         }
 
@@ -49,21 +45,22 @@ class BnAppService
 
     async update(id, update) {
         try {
-            return await BnApp.findByIdAndUpdate(id, update, { 'new': true });
+            return await bnApp.findByIdAndUpdate(id, update, { 'new': true });
         } catch(error) {
+            logs.service.create(null, error, null, 'error'); 
             return { error: error._message };
         }
     }
 
     async create(userId, mode, mods) {
         try {
-            return await BnApp.create({ qatUser: userId, mode: mode, mods: mods });
+            return await bnApp.create({ user: userId, mode: mode, mods: mods });
         } catch(error) {
-            return { error: error._message }
+            return { error: 'could not create app' }
         }
     }
 }
 
-const service = new BnAppService();
+const service = new bnAppService();
 
-module.exports = { service };
+module.exports = { bnApp, service };

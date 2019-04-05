@@ -2,7 +2,7 @@ const config = require('../../config.json');
 const mongoose = require('mongoose');
 const qatDb = mongoose.createConnection(config.qat.connection, { useNewUrlParser: true })
 
-const qatUserSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
     osuId: { type: Number, required: true },
     username: { type: String, required: true },
     group: { type: String, enum: ["bn", "qat", 'user'], default: 'user' },
@@ -12,17 +12,17 @@ const qatUserSchema = new mongoose.Schema({
     vetoMediator: { type: Boolean }, 
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
-const QatUser = qatDb.model('QatUser', qatUserSchema);
+const user = qatDb.model('user', userSchema);
 
-class QatUserService
+class userService
 {
     async query(params, populate, sorting, getAll) {
         let query;
 
         if (getAll) {
-            query = QatUser.find(params);
+            query = user.find(params);
         } else {
-            query = QatUser.findOne(params);
+            query = user.findOne(params);
         }
 
         if (populate) {
@@ -45,21 +45,22 @@ class QatUserService
 
     async update(id, update) {
         try {
-            return await QatUser.findByIdAndUpdate(id, update, { 'new': true });
+            return await user.findByIdAndUpdate(id, update, { 'new': true });
         } catch(error) {
+            logs.service.create(null, error, null, 'error'); 
             return { error: error._message };
         }
     }
 
-    async create(osuId, username, group) {
+    async create(osuId, username, mode, mods) {
         try {
-            return await QatUser.create({osuId: osuId, username: username, group: group});
+            return await user.create({osuId: osuId, username: username, mode: mode, mods: mods});
         } catch(error) {
             return { error: "could not create user" }
         }
     }
 }
 
-const service = new QatUserService();
+const service = new userService();
 
-module.exports = { service };
+module.exports = { user, service };

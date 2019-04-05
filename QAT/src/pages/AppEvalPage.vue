@@ -2,20 +2,20 @@
 
 <div class="row">
     <div class="col-md-12">
-        <h2>Pending</h2> 
+        <h2>Applicants</h2> 
         <transition-group name="list" tag="div" class="row">
             <eval-card
-                v-for="application in applications"
-                :application="application"
-                :key="application.id"
-                @update:selectedApplication="selectedApplication = $event"
+                v-for="applicant in applicants"
+                :applicant="applicant"
+                :key="applicant.id"
+                @update:selectedApplicant="selectedApplicant = $event"
             ></eval-card>
         </transition-group>
-        <p v-if="!applications || applications.length == 0" class="ml-4">No applications...</p>
+        <p v-if="!applicants || applicants.length == 0" class="ml-4">No applicants...</p>
     </div>
 
     <eval-info
-        :application="selectedApplication"
+        :applicant="selectedApplicant"
     ></eval-info>
 
 </div>
@@ -51,18 +51,12 @@ export default {
 
             if (e) e.target.disabled = false;
         },
-        updateApplication: function (application) {
-			const i = this.applications.findIndex(a => a.id == application.id);
-			this.applications[i] = application;
-			this.selectedApplication = application;
-		},
         
     },
     data() {
         return {
-            applications: null,
-            selectedApplication: null,
-            evaluator: null,
+            applicants: null,
+            selectedApplicant: null,
             info: '',
         }
     },
@@ -70,8 +64,7 @@ export default {
         axios
             .get('/qat/appEval/relevantInfo')
             .then(response => {
-                this.applications = response.data.applications;
-                this.evaluator = response.data.evaluator;
+                this.applicants = response.data.applicants;
             }).then(function(){
                 $("#loading").fadeOut();
                 $("#app").attr("style", "visibility: visible").hide().fadeIn();
@@ -82,8 +75,7 @@ export default {
             axios
                 .get('/qat/appEval/relevantInfo')
                 .then(response => {
-                    this.applications = response.data.applications;
-                    this.evaluator = response.data.evaluator;
+                    this.applicants = response.data.applicants;
                 });
         }, 300000);
     }
