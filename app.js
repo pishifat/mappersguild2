@@ -101,7 +101,7 @@ app.use('/qat/evalArchive', evalArchiveRouter);
 app.use('/qat/manageReports', manageReportsRouter);
 app.use('/qat/qatusers', qatUsersRouter);
 app.use('/qat/vetoes', vetoesRouter);
-app.use('/qat/testSubmission', testSubmissionRouter);
+app.use('/qat/testSubmissionRouter', vetoesRouter);
 app.use('/qat/managetest', manageTestRouter);
 
 // catch 404 and forward to error handler

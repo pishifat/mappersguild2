@@ -47,9 +47,10 @@ router.post('/apply', async (req, res, next) => {
             );
             if (newBnApp && !newBnApp.error) {
                 // Create test
-                const t = await testSubmission.service.create(
+                const t = await bnApps.service.create(
                     req.session.qatMongoId,
-                    req.body.mode
+                    req.body.mode,
+                    req.body.mods
                 );
                 if (t.error) {
                     // Need to retry it somewhere later

@@ -10,27 +10,18 @@ const defaultPopulate = [
 
 /* GET bn app page */
 router.get('/', async (req, res, next) => {
-    const test = await testSubmission.service.query({ applicant: req.session.qatMongoId, status: { $ne: 'finished' } }, defaultPopulate);
-    console.log(test);
-    
+    const test = await testSubmission.service.query({ _id: req.session.qatMongoId, status: { $ne: 'finished' } }, defaultPopulate);
     if (!test || test.error) {
         return res.redirect('/qat');
     }
 
-    res.render('testsubmission', {
+    res.render('vetoes', {
         questions: test,
-        title: 'Test Submission',
+        title: 'vetoes',
         script: '../js/testSubmission.js',
-        layout: 'qatLayout'
+        isBnOrQat: res.locals.userRequest.group == 'qat' || res.locals.userRequest.group == 'bn',
+        isQat: res.locals.userRequest.group == 'qat'
     });
-});
-
-router.post('/generateTest', async (req, res, next) => {
-    console.log('generating test');
-    
-    await testSubmission.service.create(req.session.qatMongoId, 'osu');
-    
-    res.redirect('/qat/testSubmission');
 });
 
 module.exports = router;
