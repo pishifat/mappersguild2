@@ -4,7 +4,7 @@
         <div class="modal-content custom-bg-dark" v-if="application">
             <div class="modal-header text-dark bg-qat">
                 <h5 class="modal-title">
-                    BN Evaluation: <a @click.stop :href="'https://osu.ppy.sh/users/' + application.applicant.osuId" class="text-dark" target="_blank">{{application.applicant.username}}</a>
+                    BN Evaluation: <a @click.stop :href="'https://osu.ppy.sh/users/' + application.qatUser.osuId" class="text-dark" target="_blank">{{application.qatUser.username}}</a>
                     <i v-if="application.mode == 'osu'" class="far fa-circle"></i>
                     <i v-else-if="application.mode == 'taiko'" class="fas fa-drum"></i>
                     <i v-else-if="application.mode == 'catch'" class="fas fa-apple-alt"></i>
@@ -118,7 +118,7 @@ export default {
             if (mod.indexOf('https://osu.ppy.sh/beatmapsets/') == 0 && mod.indexOf("#") < 0) {
                 mod = mod.slice(31);
                 let indexEnd = mod.indexOf('/');
-                return `https://osu.ppy.sh/beatmapsets/${mod.slice(0, indexEnd)}/discussion/timeline?user=${this.application.applicant.osuId}`;
+                return `https://osu.ppy.sh/beatmapsets/${mod.slice(0, indexEnd)}/discussion/timeline?user=${this.application.qatUser.osuId}`;
             }else{
                 return mod;
             }

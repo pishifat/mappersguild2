@@ -59,7 +59,6 @@ router.get('/login', async (req, res, next) => {
             }
         } else {
             req.session.qatMongoId = u._id;
-            req.session.qatGroup = u.group;
             return next();
         }
     }
