@@ -2,7 +2,7 @@
 
 <div id="reportInfo" class="modal fade" tabindex="-1">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content" v-if="report">
+        <div class="modal-content custom-bg-dark" v-if="report">
             <div class="modal-header text-dark bg-qat-logo">
                 <h5 class="modal-title">{{report.culprit.username}}</h5>
                 <button type="button" class="close" data-dismiss="modal">

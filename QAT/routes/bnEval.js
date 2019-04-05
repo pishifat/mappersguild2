@@ -11,11 +11,7 @@ router.use(api.isLoggedIn);
 
 /* GET bn app page */
 router.get('/', async (req, res, next) => {
-    let isBnOrQat;
-    if (res.locals.userRequest.group == 'bn' || res.locals.userRequest.group == 'qat') {
-        isBnOrQat = true;
-    }
-    res.render('bneval', { title: 'current bn eval', script: '../javascripts/bnEval.js', isBnEval: true, layout: 'qatlayout', isBnOrQat: isBnOrQat });
+    res.render('bneval', { title: 'current bn eval', script: '../javascripts/bnEval.js', isBnEval: true, layout: 'qatlayout' });
 });
 
 //population

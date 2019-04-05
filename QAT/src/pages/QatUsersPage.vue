@@ -1,30 +1,25 @@
 <template>
 <div class="row">
     <div class="col-md-12">
-        <div class="row mb-3">
-            <div class="col-lg-5 col-md-7">
-                <small>Search: 
-                    <input id="search" class="text-input" v-model="filterValue" type="text" placeholder="username... (3+ characters)" /> 
-                </small>
-                <small>
-                <select class="custom-select inline-custom-select ml-2" id="mode" v-model="filterMode">
-                    <option value="" selected>All modes</option>
-                    <option value="osu">osu!</option>
-                    <option value="taiko">osu!taiko</option>
-                    <option value="catch">osu!catch</option>
-                    <option value="mania">osu!mania</option>
-                </select>
-                </small>
-            </div>
-            <div class="col-lg-3 col-md-3">
-                <small class="pl-1">Sort: 
-                    <a :class="sortBy === 'username' ? 'sorted' : ''" href="#" @click.prevent="sort('username')">Name</a> |
-                    <a :class="sortBy === 'createdAt' ? 'sorted' : ''" href="#" @click.prevent="sort('createdAt')">Joined</a>
-                </small>
-            </div>
-        </div>
-
-        <button :disabled="!(pre > 0)" class="btn btn-sm btn-qat mx-auto my-2" style="display:block" type="button" @click="showNewer()">
+        <h2>Users listing</h2>
+        <small>Search: 
+            <input id="search" v-model="filterValue" type="text" placeholder="username... (3+ characters)" style="border-radius: 5px 5px 5px 5px; filter: drop-shadow(1px 1px 1px #000000); width: 200px;" /> 
+        </small>
+        <small>
+        <select class="custom-select select-arrow-filter ml-2" id="mode" v-model="filterMode" style="border-radius: 5px 5px 5px 5px; width: 100px; padding: 0 0 0 0; height: 26px;">
+            <option value="" selected>All modes</option>
+            <option value="osu">osu!</option>
+            <option value="taiko">osu!taiko</option>
+            <option value="catch">osu!catch</option>
+            <option value="mania">osu!mania</option>
+        </select>
+        </small>
+        <small class="pl-1">Sort: 
+            <a :class="sortBy === 'username' ? 'sorted' : ''" href="#" @click.prevent="sort('username')">Name</a> |
+            <a :class="sortBy === 'createdAt' ? 'sorted' : ''" href="#" @click.prevent="sort('createdAt')">Joined</a>
+        </small>
+        
+        <button :disabled="!(pre > 0)" class="btn btn-sm btn-mg mx-auto my-2" style="display:block" type="button" @click="showNewer()">
             <i class="fas fa-angle-up mr-1"></i> show next <i class="fas fa-angle-up ml-1"></i>
         </button>
         <transition-group name="list" tag="div" class="row">
@@ -38,7 +33,7 @@
             ></qat-user-card>
         </transition-group>
         <div class="small text-center mx-auto">{{currentPage}} of {{pages}}</div>
-        <button :disabled="!canShowOlder" class="btn btn-sm btn-qat mx-auto my-2" style="display:block" type="button" @click="showOlder()">
+        <button :disabled="!canShowOlder" class="btn btn-sm btn-mg mx-auto my-2" style="display:block" type="button" @click="showOlder()">
             <i class="fas fa-angle-down mr-1"></i> show previous <i class="fas fa-angle-down ml-1"></i>
         </button>
     </div>
@@ -261,7 +256,7 @@ export default {
                 this.limit = 16;
             }).then(function(){
                 $("#loading").fadeOut();
-                $(".container").attr("style", "visibility: visible").hide().fadeIn();
+                $("#app").attr("style", "visibility: visible").hide().fadeIn();
             });
     },
     mounted () {

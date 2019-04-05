@@ -1,7 +1,7 @@
 <template>
 
 <div class='col-md-3 col-lg-2 col-sm-6 my-2' @click="selectReport()">
-    <div class="card" 
+    <div class="card custom-bg-dark border-outline" 
         :class="report.valid == 1 ? 'border-pass' : report.valid == 2 ? 'border-extend' : report.valid == 3 ? 'border-fail' : ''"
         style="height: 100%" data-toggle="modal" data-target='#reportInfo' :data-user="report.id">   
         <div class='card-body qat-user-card-spacing'>

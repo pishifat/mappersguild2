@@ -23,7 +23,20 @@
     --hard: rgb(255, 245, 212);
     --insane: rgb(255, 212, 212);
     --expert: rgb(231, 205, 255);
+
+    --qat-logo: #4AC2C2;
+    --qat: rgb(212, 34, 34);
+    --qat-light: rgb(216, 104, 104);
+    --bn: #773ab8;
+    --bn-light: #c189fc;
+    --probation: #cea0ff;
+    --probation-light: #eeddff;
+    --pass: #90f3aa;
+    --neutral: #a0c6ff;
+    --extend: #fff9aa;
+    --fail: #ff9b9b;
 }
+
 
 html {
     scroll-behavior: smooth;
@@ -579,4 +592,116 @@ hr {
     .nav-logout {
         display: none;
     }
+}
+
+
+/*temp*/
+.qat {
+    color: var(--qat-logo);
+}
+
+.bg-qat-logo {
+    background-color: var(--qat-logo);
+}
+
+.btn-qat {
+    background-color: var(--qat-logo);
+    border-color: var(--qat-logo);
+    filter: drop-shadow(1px 1px 1px #000000);
+    border-radius: 10000px;
+    padding: 3px 20px;
+}
+
+
+.btn-qat-red {
+    background-color: var(--qat-light);
+    border-color: var(--qat-light);
+    filter: drop-shadow(1px 1px 1px #000000);
+    border-radius: 10000px;
+    padding: 3px 20px;
+}
+
+.border-qat {
+    border-top: 5px solid var(--qat);
+}
+
+.border-bn {
+    border-top: 5px solid var(--bn);
+}
+
+.border-probation {
+    border-top: 5px solid var(--probation);
+}
+
+.bg-qat {
+    background-color: var(--qat-light);
+}
+
+.bg-bn {
+    background-color: var(--bn-light);
+}
+
+.bg-probation {
+    background-color: var(--probation-light);
+}
+
+.border-pass {
+    border-left: 5px solid var(--pass);
+}
+
+.border-neutral {
+    border-left: 5px solid var(--neutral);
+}
+
+.border-extend {
+    border-left: 5px solid var(--extend);
+}
+
+.border-fail {
+    border-left: 5px solid var(--fail);
+}
+
+.dark-textarea,
+.dark-textarea:focus {
+    background-color: #333;
+    color: white;
+    border-color: #222;
+    filter: drop-shadow(1px 1px 1px #000000);
+    font-size:10pt;
+}
+
+.vote-pass {
+    color: var(--pass);
+}
+
+.vote-neutral {
+    color: var(--neutral);
+}
+
+.vote-extend {
+    color: var(--extend);
+}
+
+.vote-fail {
+    color: var(--fail);
+}
+
+.badge-pass {
+    background-color: var(--pass);
+    color: #111;
+}
+  
+.badge-neutral {
+    background-color: var(--neutral);
+    color: #111;
+}
+  
+.badge-extend {
+    background-color: var(--extend);
+    color: #111;
+}
+  
+.badge-fail {
+    background-color: var(--fail);
+    color: #111;
 }

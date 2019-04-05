@@ -4,10 +4,10 @@
     <div class="col-md-12">
         <div class="mb-2">
             <small>Search: 
-                <input id="search" class="text-input" v-model="filterValue" type="text" placeholder="username... (3+ characters)" /> 
+                <input id="search" v-model="filterValue" type="text" placeholder="username... (3+ characters)" style="border-radius: 5px 5px 5px 5px; filter: drop-shadow(1px 1px 1px #000000); width: 200px;" /> 
             </small>
             <small>
-                <select class="custom-select inline-custom-select ml-2" id="mode" v-model="filterMode">
+                <select class="custom-select select-arrow-filter ml-2 small" id="mode" v-model="filterMode" style="font-size: 10pt; border-radius: 5px 5px 5px 5px; width: 100px; padding: 0 0 0 0; height: 26px;">
                     <option value="" selected>All modes</option>
                     <option value="osu">osu!</option>
                     <option value="taiko">osu!taiko</option>
@@ -229,7 +229,7 @@ export default {
                 this.filter();
             }).then(function(){
                 $("#loading").fadeOut();
-                $(".container").attr("style", "visibility: visible").hide().fadeIn();
+                $("#app").attr("style", "visibility: visible").hide().fadeIn();
             });
     },
     mounted () {

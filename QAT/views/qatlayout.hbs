@@ -9,36 +9,28 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
         integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
-    <link rel="stylesheet" href="../css/css.css">
-    <link rel="icon" type="image/png" href="../images/qatlogo.png">
+    <link rel="stylesheet" href="../stylesheets/css.css">
+    <link rel="icon" type="image/png" href="../images/qat/qatlogo.png">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css"
         integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 </head>
 
 <body class="text-light px-0">
-    <nav id="top" class="navbar navbar-expand-md navbar-qat">
-        <a class="navbar-brand" href="/qat">
-            <img src="../images/qatlogo.png" width="48" height="48" style="border-radius: 32px 32px 32px 32px" alt="">
+    <nav id="top" class="navbar navbar-expand-md navbar-dark custom-bg-dark">
+        <a class="navbar-brand" href="/">
+            <img src="../images/qat/qatlogo.png" width="32" height="32" style="border-radius: 32px 32px 32px 32px" alt="">
+            <span style="font-size: 12pt">QAT something</span>
         </a>
         
         <div class="collapse navbar-collapse" id="navbar">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item {{#if isBnApp}}active{{/if}}">
-                    <a class="nav-link" href="/qat/bnapps">BN Application</a>
+                    <a class="nav-link" href="/qat">BN Application</a>
                 </li>
                 <li class="nav-item {{#if isReports}}active{{/if}}">
                     <a class="nav-link" href="/qat/reports">Report a BN/QAT</a>
                 </li>
-                <li class="nav-item {{#if isQatUsers}}active{{/if}}">
-                    <a class="nav-link" href="/qat/qatusers">Users</a>
-                </li>
-                {{#if isBnOrQat}}
-                <li class="nav-item {{#if isVetoes}}active{{/if}}">
-                    <a class="nav-link" href="/qat/vetoes">Vetoes</a>
-                </li>
-                {{/if}}
-                {{#if isQat}}
                 <li class="nav-item {{#if isAppEval}}active{{/if}}">
                     <a class="nav-link" href="/qat/appeval">Application Evals</a>
                 </li>
@@ -48,7 +40,12 @@
                 <li class="nav-item {{#if isManageReports}}active{{/if}}">
                     <a class="nav-link" href="/qat/managereports">Manage Reports</a>
                 </li>
-                {{/if}}
+                <li class="nav-item {{#if isQatUsers}}active{{/if}}">
+                    <a class="nav-link" href="/qat/qatusers">Users</a>
+                </li>
+                <li class="nav-item {{#if isVetoes}}active{{/if}}">
+                    <a class="nav-link" href="/qat/vetoes">Vetoes</a>
+                </li>
             </ul>
         </div>
 
@@ -56,22 +53,25 @@
             <span class="navbar-toggler-icon"></span>
         </button>
     </nav>
-    
-    <div id="loading">
-        <img id="load" src="../images/qatlogo.png">
-    </div>
-    
+
     <div class="container">
         <div>
-            <img class="my-3 mx-auto d-block img-fluid" src="../images/qatlogo.png" width="100" height="100" style="border-radius: 100px 100px 100px 100px">
+            <img class="my-3 mx-auto d-block img-fluid" src="../images/qat/qatlogo.png" width="100" height="100" style="border-radius: 100px 100px 100px 100px">
             <h1 class="text-center">{{title}}</h1>
+        </div>
+
+        <div id="loading">
+            <img id="load">
         </div>
 
         {{{body}}}
     </div>
 
+    <div style="height: 100px;">
+    </div>
+
     <div>
-        <a href="#top"><img class="my-1 mx-auto d-block img-fluid" src="../images/qatlogo.png" width="50" height="50" style="border-radius: 100px 100px 100px 100px"></a>
+        <a href="#top"><img class="my-1 mx-auto d-block img-fluid" src="../images/qat/qatlogo.png" width="50" height="50" style="border-radius: 100px 100px 100px 100px"></a>
         <p class="text-center">{{title}}</p>
     </div>
 
