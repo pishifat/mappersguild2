@@ -3,9 +3,11 @@ const mongoose = require('mongoose');
 const qatDb = mongoose.createConnection(config.qat.connection, { useNewUrlParser: true })
 
 const optionSchema = new mongoose.Schema({
-    content: { type: String, required: true },
+    text: { type: String, required: true },
     score: { type: Number, required: true },
+    image: { type: String },
     active: { type: Boolean, default: true },
+    typeOfQuestion: { type: String, enum: ["select", "input"]}
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const Option = qatDb.model('Option', optionSchema);
@@ -53,9 +55,9 @@ class OptionService
         }
     }
 
-    async create(content, score) {
+    async create(osuId) {
         try {
-            return await Option.create({content: content, score: score});
+            return await Option.create({userId: osuId});
         } catch(error) {
             return { error: error._message }
         }

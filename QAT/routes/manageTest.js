@@ -1,7 +1,8 @@
 const express = require('express');
 const api = require('../models/api.js');
-const questions = require('../models/question.js');
-const options = require('../models/option.js');
+const bnApps = require('../models/bnApp.js');
+const evals = require('../models/evaluation.js');
+const reports = require('../models/report.js');
 const users = require('../models/qatUser.js');
 
 const router = express.Router();
@@ -21,38 +22,28 @@ router.get('/', async (req, res, next) => {
 
 //population
 const defaultPopulate = [
-    { populate: 'options', display: 'content score', model: options.Option },
+    { populate: 'culprit', display: 'username osuId', model: users.QatUser },
 
 ];
 
 /* GET applicant listing. */
-router.get('/load/:type', async (req, res, next) => {
-    let q = await questions.service.query({category: req.params.type}, defaultPopulate, {}, true);
-    res.json(q);
+router.get('/relevantInfo', async (req, res, next) => {
+    let r = await reports.service.query({}, defaultPopulate, {createdAt: 1}, true );
+    res.json({ r: r });
 });
 
 
-/* POST add question */
-router.post('/addQuestion/', async (req, res) => {
-    let q = await questions.service.create(req.body.category, req.body.newQuestion, req.body.questionType);
-    res.json(q);
-});
-
-/* POST edit question */
-router.post('/updateQuestion/:id', async (req, res) => {
-    let q = await questions.service.update(req.params.id, {content: req.body.newQuestion, questionType: req.body.questionType});
-    res.json(q);
-});
-
-/* POST add option */
-router.post('/addOption/:id', async (req, res) => {
-    let o = await options.service.create(req.body.option, req.body.score);
-    if(!o){
-        return res.json({error: 'Something went wrong!'});
+/* POST submit or edit eval */
+router.post('/submitReportEval/:id', async (req, res) => {
+    if(req.body.feedback && req.body.feedback.length){
+        await reports.service.update(req.params.id, {feedback: req.body.feedback});
     }
-    let q = await questions.service.update(req.params.id, {$push: {options: o.id}});
-    q = await questions.service.query({_id: req.params.id}, defaultPopulate);
-    res.json(q);
+    if(req.body.valid){
+        await reports.service.update(req.params.id, {valid: req.body.valid});
+    }
+    let r = await reports.service.query({_id: req.params.id}, defaultPopulate);
+
+    res.json(r);
 });
 
 module.exports = router;
