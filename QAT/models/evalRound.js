@@ -1,14 +1,11 @@
 const config = require('../../config.json');
 const mongoose = require('mongoose');
 const qatDb = mongoose.createConnection(config.qat.connection, { useNewUrlParser: true })
-const evals = require('./evaluation.js');
-const users = require('./qatUser.js');
 
 const evalRoundSchema = new mongoose.Schema({
     bn: { type: 'ObjectId', ref: 'QatUser', required: true },
-    mode: { type: String, required: true },
     evaluations: [{ type: 'ObjectId', ref: 'Evaluation' }],
-    deadline: { type: Date , required: true },
+    deadline: { type: Date , required: true, default: new Date() },
     active: { type: Boolean, default: true },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
@@ -28,14 +25,7 @@ class EvalRoundService
         if (populate) {
             for (let i = 0; i < populate.length; i++) {
                 const p = populate[i];
-                
-                if (p.innerPopulate) {
-                    query.populate({ path: p.innerPopulate, populate: p.populate }, 
-                        p.model == 'QatUser' ? users.QatUser : evals.Evaluation);
-                } else {
-                    query.populate(p.populate, p.display, 
-                        p.model == 'QatUser' ? users.QatUser : evals.Evaluation);
-                }
+                query.populate(p.populate, p.display);
             }
         }
 
@@ -58,9 +48,9 @@ class EvalRoundService
         }
     }
 
-    async create(bnId, mode, deadline) {
+    async create(evaluatorId, behaviorComment, moddingComment, vote) {
         try {
-            return await EvalRound.create({bn: bnId, mode: mode, deadline: deadline});
+            return await EvalRound.create({evaluator: evaluatorId, behaviorComment: behaviorComment, moddingComment: moddingComment, vote: vote});
         } catch(error) {
             return { error: error._message }
         }

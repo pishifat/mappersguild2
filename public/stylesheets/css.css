@@ -31,10 +31,9 @@
     --bn-light: #c189fc;
     --probation: #cea0ff;
     --probation-light: #eeddff;
-    --pass: #90f3aa;
-    --neutral: #a0c6ff;
-    --extend: #fff9aa;
-    --fail: #ff9b9b;
+    --pass: #c1ffd2;
+    --neutral: #c1daff;
+    --fail: #ffc4c4;
 }
 
 
@@ -600,7 +599,7 @@ hr {
     color: var(--qat-logo);
 }
 
-.bg-qat-logo {
+.bg-qat {
     background-color: var(--qat-logo);
 }
 
@@ -653,10 +652,6 @@ hr {
     border-left: 5px solid var(--neutral);
 }
 
-.border-extend {
-    border-left: 5px solid var(--extend);
-}
-
 .border-fail {
     border-left: 5px solid var(--fail);
 }
@@ -679,7 +674,7 @@ hr {
 }
 
 .vote-extend {
-    color: var(--extend);
+    color: #fffbc1;
 }
 
 .vote-fail {
