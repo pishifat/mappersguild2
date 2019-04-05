@@ -3,7 +3,7 @@
     <div class="card custom-bg-dark border-outline" style="height: 100%" data-toggle='modal' data-target='#evaluationInfo' :data-user="application.id">
         <div class='card-body notification-card-spacing mx-1'>
             <p class='card-text text-shadow'>
-                <a @click.stop :href="'https://osu.ppy.sh/users/' + application.applicant.osuId" target="_blank">{{application.applicant.username}}</a> 
+                <a @click.stop :href="'https://osu.ppy.sh/users/' + application.qatUser.osuId" target="_blank">{{application.qatUser.username}}</a> 
                 <i v-if="application.mode == 'osu'" class="far fa-circle"></i>
                 <i v-else-if="application.mode == 'taiko'" class="fas fa-drum"></i>
                 <i v-else-if="application.mode == 'catch'" class="fas fa-apple-alt"></i>

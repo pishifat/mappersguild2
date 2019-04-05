@@ -62,4 +62,4 @@ class QatUserService
 
 const service = new QatUserService();
 
-module.exports = { service, QatUser };
+module.exports = { service };

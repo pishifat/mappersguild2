@@ -73,6 +73,9 @@ app.use('/logs', logsRouter);
 app.use('/notifications', notificationsRouter);
 app.use('/admin', adminsRouter);
 
+//qat
+app.use('/qat/appEval', appEvalRouter);
+
 //qat db
 const qatdb = mongoose.createConnection(config.qat.connection, { useNewUrlParser: true });
 qatdb.on('error', console.error.bind(console, 'qatdb connection error:'));

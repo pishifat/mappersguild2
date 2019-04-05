@@ -69,4 +69,4 @@ class EvaluationService
 
 const service = new EvaluationService();
 
-module.exports = { service, Evaluation };
+module.exports = { service };

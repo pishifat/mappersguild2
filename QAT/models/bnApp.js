@@ -28,16 +28,11 @@ class BnAppService
         }
 
         if (populate) {
+            
             for (let i = 0; i < populate.length; i++) {
                 const p = populate[i];
-
-                if (p.innerPopulate) {
-                    query.populate({ path: p.innerPopulate, populate: p.populate }, 
-                        p.model == 'QatUser' ? users.QatUser : evals.Evaluation);
-                } else {
-                    query.populate(p.populate, p.display, 
-                        p.model == 'QatUser' ? users.QatUser : evals.Evaluation);
-                }
+                console.log(p)
+                query.populate(p.populate, p.display, p.model);
             }
         }
 

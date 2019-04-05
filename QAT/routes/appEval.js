@@ -12,13 +12,13 @@ router.get('/', async (req, res, next) => {
 
 //population doesnt work???
 const defaultPopulate = [
-    { populate: 'applicant', display: 'username osuId', model: 'QatUser' },
-    { populate: 'evaluations', display: 'evaluator behaviorComment moddingComment vote', model: 'Evaluation' }
+    { populate: 'applicant', display: 'username osuId' },
+    { populate: 'evaluations', display: 'evaluator behaviorComment moddingComment vote' }
 ];
 
 /* GET applicant listing. */
 router.get('/relevantInfo', async (req, res, next) => {
-    let applications = await bnApps.service.query({}, defaultPopulate, {createdAt: 1}, true );
+    let applications = await bnApps.service.query({}, {}, {createdAt: 1}, true );
     res.json({ applications: applications, evaluator: req.session.qatMongoId });
 });
 
