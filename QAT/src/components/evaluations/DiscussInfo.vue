@@ -21,27 +21,6 @@
             <div class="modal-body" style="overflow: hidden;">
                 <div class="container">
                     <div class="row">
-                        <h5 class="text-shadow mb-3 ml-1 mt-1">Consensus:
-                            <span v-if="discussRound.consensus" :class="'vote-' + discussRound.consensus">{{discussRound.consensus}}</span>
-                            <span v-else>none</span>
-                            <span v-if="!readOnly">
-                            <button
-                                class="btn btn-sm btn-qat-pass"
-                                :disabled="discussRound.consensus == 'pass' "
-                                @click="setConsensus('pass', $event);"
-                            >Set Pass</button>
-                            <button
-                                class="btn btn-sm btn-qat-extend"
-                                :disabled="discussRound.consensus == 'extend' "
-                                @click="setConsensus('extend', $event);"
-                            >Set Extend</button>
-                            <button
-                                class="btn btn-sm btn-qat-fail"
-                                :disabled="discussRound.consensus == 'fail'"
-                                @click="setConsensus('fail', $event);"
-                            >Set Fail</button>
-                            </span>
-                        </h5>
                         <div v-if="discussApp" class="col-sm-12">
                             <p class="text-shadow">Submitted mods:</p>
                             <ul style="list-style-type: none;">
@@ -171,15 +150,46 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                
+                                <div v-if="relevantReports.length">
+                                    <hr>
+                                    <p class="text-shadow">Reports:</p>
+                                    <div v-for="report in relevantReports" :key="report.id">
+                                        <p class="text-shadow small pl-2" :class="report.valid == 1 ? 'vote-pass' : 'vote-extend'">
+                                            {{report.createdAt.slice(0,10)}}: {{report.reason}}
+                                        </p>
+                                    </div>
+                                </div>
+                                <hr>
                             </div>
-                            <hr>
+                            
                             <p v-if="relevantReports.length" class="text-shadow">Reports:</p>
                             <div v-for="report in relevantReports" :key="report.id">
                                 <p class="text-shadow small pl-2" :class="report.valid == 1 ? 'vote-pass' : 'vote-extend'">
                                     {{report.createdAt.slice(0,10)}}: {{report.reason}}
                                 </p>
                             </div>
+                            
+                            <h5 class="text-shadow mb-2">Consensus:
+                                <span v-if="discussRound.consensus" :class="'vote-' + discussRound.consensus">{{discussRound.consensus}}</span>
+                                <span v-else>none</span>
+                                <span v-if="!readOnly">
+                                <button
+                                    class="btn btn-sm btn-qat-pass"
+                                    :disabled="discussRound.consensus == 'pass' "
+                                    @click="setConsensus('pass', $event);"
+                                >Set Pass</button>
+                                <button
+                                    class="btn btn-sm btn-qat-extend"
+                                    :disabled="discussRound.consensus == 'extend' "
+                                    @click="setConsensus('extend', $event);"
+                                >Set Extend</button>
+                                <button
+                                    class="btn btn-sm btn-qat-fail"
+                                    :disabled="discussRound.consensus == 'fail'"
+                                    @click="setConsensus('fail', $event);"
+                                >Set Fail</button>
+                                </span>
+                            </h5>
                             <hr>
                         </div>
                         

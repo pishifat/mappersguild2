@@ -17,6 +17,11 @@ router.get('/', async (req, res, next) => {
         isQat: res.locals.userRequest.group == 'qat' });
 });
 
+//population doesnt work???
+const defaultPopulate = [
+    { populate: 'applicant', display: 'username osuId' },
+    { populate: 'evaluations', display: 'evaluator behaviorComment moddingComment vote' }
+];
 
 /* GET applicant listing. */
 router.get('/relevantInfo', async (req, res, next) => {
@@ -35,40 +40,6 @@ router.post('/switchMediator/', api.isLoggedIn, async (req, res) => {
 router.post('/switchGroup/:id', api.isLoggedIn, async (req, res) => {
     let u = await users.service.update(req.params.id, { group: req.body.group });
     u = await users.service.update(req.params.id, {probation: []});
-    res.json(u);
-});
-
-
-/* POST switch usergroup */
-router.post('/tempCreate/', api.isLoggedIn, async (req, res) => {
-    let u = await users.service.create(req.body.osuId, req.body.username, req.body.group);
-    console.log(u)
-    await users.service.update(u.id, {$push: {modes: req.body.mode}});
-    if(req.body.probation.length){
-        await users.service.update(u.id, {$push: {probation: req.body.probation}});
-    }
-    res.json(u);
-});
-
-
-/* POST switch usergroup */
-router.post('/tempUpdate/', api.isLoggedIn, async (req, res) => {
-    let u;
-    if(req.body.username.indexOf("[") >= 0 || req.body.username.indexOf("]") >= 0){
-        u = await users.service.query({ username: new RegExp('^\\' + req.body.username + '$', 'i') });
-    }else{
-        u = await users.service.query({ username: new RegExp('^' + req.body.username + '$', 'i') });
-    }
-    if(req.body.mode.length){
-        await users.service.update(u.id, {$push: {modes: req.body.mode}});
-    }
-    if(req.body.probation.length){
-        await users.service.update(u.id, {$push: {probation: req.body.probation}});
-    }
-    if(req.body.date){
-        if(req.body.group == 'bn') await users.service.update(u.id, {$push: {bnDuration: req.body.date}});
-        if(req.body.group == 'qat') await users.service.update(u.id, {$push: {qatDuration: req.body.date}});  
-    }
     res.json(u);
 });
 

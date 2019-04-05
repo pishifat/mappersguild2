@@ -8,9 +8,7 @@ const qatUserSchema = new mongoose.Schema({
     group: { type: String, enum: ["bn", "qat", 'user'], default: 'user' },
     modes: [{ type: String, enum: ["osu", "taiko", "catch", "mania"] }],
     probation: [{ type: String, enum: ["osu", "taiko", "catch", "mania"] }],
-    vetoMediator: { type: Boolean, default: true },
-    bnDuration: [{ type: Date }],
-    qatDuration: [{ type: Date }],
+    vetoMediator: { type: Boolean, default: true }, 
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const QatUser = qatDb.model('QatUser', qatUserSchema);
@@ -56,7 +54,7 @@ class QatUserService
         try {
             return await QatUser.create({osuId: osuId, username: username, group: group});
         } catch(error) {
-            return { error: error }
+            return { error: "could not create user" }
         }
     }
 }
