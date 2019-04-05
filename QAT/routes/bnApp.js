@@ -17,7 +17,7 @@ router.post('/apply', api.isLoggedIn, async (req, res, next) => {
     if (req.session.qatMongoId) {
         let date = new Date();
         date.setDate( date.getDate() - 90 );
-        const currentBnApp = await bnApps.service.query({ $and: [{ applicant: req.session.qatMongoId }, { mode: req.body.mode }, { createdAt: { $gte: date } }] });
+        const currentBnApp = await bnApps.service.query({ $and: [{ qatUser: req.session.qatMongoId }, { mode: req.body.mode }, { createdAt: { $gte: date } }] });
         
         if (!currentBnApp || currentBnApp.error) {
             const newBnApp = await bnApps.service.create(req.session.qatMongoId, req.body.mode, req.body.mods);

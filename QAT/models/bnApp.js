@@ -62,7 +62,7 @@ class BnAppService
 
     async create(userId, mode, mods) {
         try {
-            return await BnApp.create({ applicant: userId, mode: mode, mods: mods });
+            return await BnApp.create({ qatUser: userId, mode: mode, mods: mods });
         } catch(error) {
             return { error: error._message }
         }

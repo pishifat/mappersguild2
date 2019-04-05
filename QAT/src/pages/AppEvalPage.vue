@@ -7,7 +7,6 @@
             <eval-card
                 v-for="application in applications"
                 :application="application"
-                :evaluator="evaluator"
                 :key="application.id"
                 @update:selectedApplication="selectedApplication = $event"
             ></eval-card>
@@ -17,8 +16,6 @@
 
     <eval-info
         :application="selectedApplication"
-        :evaluator="evaluator"
-        @update-application="updateApplication($event)"
     ></eval-info>
 
 </div>

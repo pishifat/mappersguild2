@@ -4,6 +4,8 @@ const qatDb = mongoose.createConnection(config.qat.connection, { useNewUrlParser
 
 const evaluationSchema = new mongoose.Schema({
     evaluator: { type: 'ObjectId', ref: 'QatUser', required: true },
+    application: { type: 'ObjectId', ref: 'BnApp' },
+    bn: { type: 'ObjectId', ref: 'QatUser' },
     behaviorComment: { type: String, required: true },
     moddingComment: { type: String, required: true },
     vote: { type: Number, enum: [1, 2, 3] }
@@ -48,9 +50,17 @@ class EvaluationService
         }
     }
 
-    async create(evaluatorId, behaviorComment, moddingComment, vote) {
+    async createAppEval(evaluatorId, behaviorComment, moddingComment, vote, applicationId) {
         try {
-            return await Evaluation.create({evaluator: evaluatorId, behaviorComment: behaviorComment, moddingComment: moddingComment, vote: vote});
+            return await Evaluation.create({evaluator: evaluatorId, behaviorComment: behaviorComment, moddingComment: moddingComment, vote: vote, application: applicationId});
+        } catch(error) {
+            return { error: error._message }
+        }
+    }
+
+    async createBnEval(evaluatorId, behaviorComment, moddingComment, vote, bnId) {
+        try {
+            return await Evaluation.create({evaluator: evaluatorId, behaviorComment: behaviorComment, moddingComment: moddingComment, vote: vote, bn: bnId});
         } catch(error) {
             return { error: error._message }
         }

@@ -25,13 +25,14 @@ router.get('/relevantInfo', async (req, res, next) => {
 
 /* POST submit or edit eval */
 router.post('/submitEval/:id', async (req, res) => {
-    if(req.body.evaluationId){
-        await evals.service.update(req.body.evaluationId, {behaviorComment: req.body.behaviorComment, moddingComment: req.body.moddingComment, vote: req.body.vote});
-    }else{
-        let ev = await evals.service.create(req.session.qatMongoId, req.body.behaviorComment, req.body.moddingComment, req.body.vote);
+    let ev = await evals.service.query({$and: [{ application: req.params.id }, {evaluator: req.session.qatMongoId}]});
+    if(!ev){
+        ev = await evals.service.createAppEval(req.session.qatMongoId, req.body.behaviorComment, req.body.moddingComment, req.body.vote, req.params.id);
         await bnApps.service.update(req.params.id, {$push: {evaluations: ev._id}});
+    }else{
+        await evals.service.update(ev._id, {behaviorComment: req.body.behaviorComment, moddingComment: req.body.moddingComment, vote: req.body.vote});
     }
-    let a = await bnApps.service.query({ _id: req.params.id }, defaultPopulate);
+    let a = await bnApps.service.query({ _id: req.params.id });
 
     res.json(a)
 });
