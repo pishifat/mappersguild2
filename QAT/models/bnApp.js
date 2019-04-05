@@ -3,9 +3,10 @@ const mongoose = require('mongoose');
 const qatDb = mongoose.createConnection(config.qat.connection, { useNewUrlParser: true })
 
 const bnAppSchema = new mongoose.Schema({
-    user: { type: 'ObjectId', ref: 'User', required: true },
+    osuId: { type: Number, required: true },
+    username: { type: String, required: true },
     mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania'], required: true },
-    mods: [{ type: String, required: true }],
+    mods: [{ type: String }],
     //evaluations: [{type: 'ObjectId', ref: 'evaluation'}],
     consensus: { type: String, enum: ["accepted", "rejected"]}
     //testResult: [{ type: 'ObjectId', ref: 'rcTest'}],
@@ -52,11 +53,11 @@ class bnAppService
         }
     }
 
-    async create(userId, mode, mods) {
+    async create(osuId, username, mode, mods) {
         try {
-            return await bnApp.create({ user: userId, mode: mode, mods: mods });
+            return await bnApp.create({osuId: osuId, username: username, mode: mode, mods: mods});
         } catch(error) {
-            return { error: 'could not create app' }
+            return { error: "could not create user" }
         }
     }
 }
