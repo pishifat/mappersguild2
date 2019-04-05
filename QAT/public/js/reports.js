@@ -15,7 +15,7 @@ $(function() {
                     $('#errors').text(res.data.error);
                 } else {
                     $('#confirm').text(
-                        'Your report has been submitted! Its outcome will be sent to you via osu! forum PM.'
+                        'Your application has been submitted! Evaluation will take approximately one week.'
                     );
                 }
             } catch (error) {

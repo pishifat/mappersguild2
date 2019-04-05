@@ -139,10 +139,8 @@ export default {
                 probation: probation, bn: bn, qat: qat,
                 includeUsers: includeUsers, excludeUsers: excludeUsers, deadline: deadline
                 }, e);
-            if (result.ers) {
-                console.log('a')
-                this.$emit('update-all-eval-rounds', result.ers);
-                this.$parent.allEvalRounds = result.ers;
+            if (result.evalRounds) {
+                this.$parent.evalRounds = result.evalRounds;
                 this.confirm = 'Eval rounds added! ';
                 if(result.failed.length){
                     this.confirm += 'However, the following usernames could not be processed: '

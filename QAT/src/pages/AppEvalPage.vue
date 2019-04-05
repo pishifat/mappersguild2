@@ -2,31 +2,6 @@
 
 <div class="row">
     <div class="col-md-12">
-        <div class="mb-2">
-            <small>Search: 
-                <input id="search" v-model="filterValue" type="text" placeholder="username... (3+ characters)" style="border-radius: 5px 5px 5px 5px; filter: drop-shadow(1px 1px 1px #000000); width: 200px;" /> 
-            </small>
-            <small>
-                <select class="custom-select select-arrow-filter ml-2 small" id="mode" v-model="filterMode" style="font-size: 10pt; border-radius: 5px 5px 5px 5px; width: 100px; padding: 0 0 0 0; height: 26px;">
-                    <option value="" selected>All modes</option>
-                    <option value="osu">osu!</option>
-                    <option value="taiko">osu!taiko</option>
-                    <option value="catch">osu!catch</option>
-                    <option value="mania">osu!mania</option>
-                </select>
-            </small>
-        </div>
-        <div class="mb-2">
-            <small>Mark selected as:
-                <button class="btn btn-qat btn-sm ml-2" @click="setGroupEval($event)">Group evaluation</button>
-            </small>
-            <small>
-                <button class="btn btn-qat btn-sm ml-2" @click="setIndividualEval($event)">Individual evaluation</button>
-            </small>
-            <small>
-                <button class="btn btn-qat-red btn-sm ml-2" @click="setComplete($event)">Complete</button>
-            </small>
-        </div>
         <h2>Individual Evaluations<sup style="font-size: 12pt" data-toggle="tooltip" data-placement="top" title="only you can see these">?</sup></h2> 
         <transition-group name="list" tag="div" class="row">
             <eval-card
@@ -40,8 +15,24 @@
         <p v-if="!applications || applications.length == 0" class="ml-4">No applications...</p>
     </div>
 
-    <div class="col-md-12 mt-4">
+    <div class="col-md-12">
         <h2>Group Evaluations<sup style="font-size: 12pt" data-toggle="tooltip" data-placement="top" title="everyone can see these">?</sup></h2>
+        <div class="mb-2">
+            <small>Search: 
+                <input id="search" v-model="filterValue" type="text" placeholder="username... (3+ characters)" style="border-radius: 5px 5px 5px 5px; filter: drop-shadow(1px 1px 1px #000000); width: 200px;" /> 
+            </small>
+            <small>
+                <select class="custom-select select-arrow-filter ml-2 small" id="mode" v-model="filterMode" style="font-size: 10pt; border-radius: 5px 5px 5px 5px; width: 100px; padding: 0 0 0 0; height: 26px;">
+                    <option value="" selected>All modes</option>
+                    <option value="osu">osu!</option>
+                    <option value="taiko">osu!taiko</option>
+                    <option value="catch">osu!catch</option>
+                    <option value="mania">osu!mania</option>
+                </select>
+            </small> 
+        </div>
+        
+
         <transition-group name="list" tag="div" class="row">
             <discuss-card
                 v-for="discussApp in discussApps"
@@ -64,7 +55,7 @@
     <discuss-info
         :discussApp="selectedDiscussApp"
         :evaluator="evaluator"
-        @update-application="updateApplication($event)"
+        @update-discuss-app="updateDiscussApp($event)"
     ></discuss-info>
 
 </div>
@@ -86,10 +77,10 @@ export default {
         DiscussInfo
     },
     watch: {
-        filterValue: function(){
+        filterValue: function(v){
             this.filter();
         },
-        filterMode: function() {
+        filterMode: function(v) {
             this.filter();
         },
     },
@@ -113,24 +104,27 @@ export default {
             if (e) e.target.disabled = false;
         },
         updateApplication: function (application) {
-			const i = this.allApplications.findIndex(a => a.id == application.id);
-			this.allApplications[i] = application;
-            this.selectedApplication = application;
-            this.selectedDiscussApp = application;
+			const i = this.applications.findIndex(a => a.id == application.id);
+			this.applications[i] = application;
+			this.selectedApplication = application;
+        },
+        updateDiscussApp: function (discussApp) {
+			const i = this.allDiscussApps.findIndex(a => a.id == discussApp.id);
+			this.allDiscussApps[i] = discussApp;
+            this.selectedDiscussApp = discussApp;
             this.filter();
         },
         filter: function () {            
             this.filterValue = $("#search").val();
             this.filterMode = $("#mode").val();
-            
-            //reset
-            this.applications = this.allApplications.filter(a => !a.discussion);
-            this.discussApps = this.allApplications.filter(a => a.discussion);
+            this.discussApps = this.allDiscussApps;
 
             //search
             if(this.filterValue.length > 2){
-                this.filteredApps = this.allApplications.filter(a => {
-                    if(a.applicant.username.toLowerCase().indexOf(this.filterValue.toLowerCase()) > -1) return true;
+                this.filteredDiscussApps = this.allDiscussApps.filter(dr => {
+                    if(dr.bn.username.toLowerCase().indexOf(this.filterValue.toLowerCase()) > -1){
+                        return true;
+                    }
                     return false;
                 });
             }
@@ -138,82 +132,56 @@ export default {
             //mode
             if(this.filterMode.length){
                 if(this.filterValue.length > 2){
-                    this.filteredApps = this.filteredApps.filter(a => {
-                        if(this.filterMode == "osu" && a.mode == 'osu') return true;
-                        if(this.filterMode == "taiko" && a.mode == 'taiko') return true;
-                        if(this.filterMode == "catch" && a.mode == 'catch') return true;
-                        if(this.filterMode == "mania" && a.mode == 'mania') return true;
+                    this.filteredDiscussApps = this.filteredDiscussApps.filter(dr => {
+                        if(this.filterMode == "osu" && dr.mode == 'osu'){
+                            return true;
+                        }
+                        if(this.filterMode == "taiko" && dr.mode == 'taiko'){
+                            return true;
+                        }
+                        if(this.filterMode == "catch" && dr.mode == 'catch'){
+                            return true;
+                        }
+                        if(this.filterMode == "mania" && dr.mode == 'mania'){
+                            return true;
+                        }
                         return false;
                     });
+                    
                 }else{
-                    this.filteredApps = this.allApplications.filter(a => {
-                        if(this.filterMode == "osu" && a.mode == 'osu') return true;
-                        if(this.filterMode == "taiko" && a.mode == 'taiko') return true;
-                        if(this.filterMode == "catch" && a.mode == 'catch') return true;
-                        if(this.filterMode == "mania" && a.mode == 'mania') return true;
+                    this.filteredDiscussApps = this.allDiscussApps.filter(dr => {
+                        if(this.filterMode == "osu" && dr.mode == 'osu'){
+                            return true;
+                        }
+                        if(this.filterMode == "taiko" && dr.mode == 'taiko'){
+                            return true;
+                        }
+                        if(this.filterMode == "catch" && dr.mode == 'catch'){
+                            return true;
+                        }
+                        if(this.filterMode == "mania" && dr.mode == 'mania'){
+                            return true;
+                        }
                         return false;
                     });
                 }
             }
-
-            let isFiltered = (this.filterValue.length > 2 || this.filterMode.length);
-            if(isFiltered){
-                this.applications = this.filteredApps.filter(a => !a.discussion);
-                this.discussApps = this.filteredApps.filter(a => a.discussion);
+            
+            this.isFiltered = (this.filterValue.length > 2 || this.filterMode.length);
+            if(this.isFiltered){
+                this.discussApps = this.filteredDiscussApps;
             }
         },
-        setGroupEval: async function(e) {
-            let checkedApps = [];
-            $("input[name='evalTypeCheck']:checked").each( function () {
-                checkedApps.push( $(this).val() );
-            });
-            if(checkedApps.length){
-                const ers = await this.executePost('/qat/appEval/setGroupEval/', { checkedApps: checkedApps}, e);
-                if (ers) {
-                    this.allApplications = ers;
-                    this.filter();
-                }
-            }
-        },
-        setIndividualEval: async function(e) {
-            let checkedApps = [];
-            $("input[name='evalTypeCheck']:checked").each( function () {
-                checkedApps.push( $(this).val() );
-            });
-            if(checkedApps.length){
-                const ers = await this.executePost('/qat/appEval/setIndividualEval/', { checkedApps: checkedApps}, e);
-                if (ers) {
-                    this.allApplications = ers;
-                    this.filter();
-                }
-            }
-        },
-        setComplete: async function(e) {
-            let checkedApps = [];
-            $("input[name='evalTypeCheck']:checked").each( function () {
-                checkedApps.push( $(this).val() );
-            });
-            if(checkedApps.length){
-                const result = confirm(`Are you sure? This will remove applications from the listing. Only do this when feedback PMs have been sent.`);
-                const ers = await this.executePost('/qat/appEval/setComplete/', { checkedApps: checkedApps}, e);
-                if (ers) {
-                    this.allApplications = ers;
-                    this.filter();
-                }
-            }
-        }
+        
     },
     data() {
         return {
-            allApplications: null,
-            filteredApps: null,
-
             applications: null,
             selectedApplication: null,
-
             discussApps: null,
+            allDiscussApps: null,
+            filteredDiscussApps: null,
             selectedDiscussApp: null,
-            
             evaluator: null,
             info: '',
             filterValue: '',
@@ -224,9 +192,10 @@ export default {
         axios
             .get('/qat/appEval/relevantInfo')
             .then(response => {
-                this.allApplications = response.data.a;
+                this.applications = response.data.a;
+                this.allDiscussApps = response.data.da;
+                this.discussApps = response.data.da;
                 this.evaluator = response.data.evaluator;
-                this.filter();
             }).then(function(){
                 $("#loading").fadeOut();
                 $("#app").attr("style", "visibility: visible").hide().fadeIn();
@@ -237,8 +206,8 @@ export default {
             axios
                 .get('/qat/appEval/relevantInfo')
                 .then(response => {
-                    this.allApplications = response.data.a;
-                    this.filter();
+                    this.applications = response.data.a;
+                    this.allDiscussApps = response.data.da;
                 });
         }, 300000);
     }

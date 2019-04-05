@@ -1,7 +1,6 @@
 const express = require('express');
 const api = require('../models/api.js');
 const evals = require('../models/evaluation.js');
-const reports = require('../models/report.js');
 const evalRounds = require('../models/evalRound.js');
 const users = require('../models/qatUser.js');
 
@@ -29,11 +28,11 @@ const defaultDiscussPopulate = [
 
 /* GET applicant listing. */
 router.get('/relevantInfo', async (req, res, next) => {
-    const [er, dr, r] = await Promise.all([
-        await evalRounds.service.query({active: true}, defaultDiscussPopulate, {createdAt: 1}, true ),
-        await reports.service.query({valid: {$exists: true, $ne: 3}, feedback: {$exists: true, $nin: ''}}, {}, {}, true)
+    const [er, dr] = await Promise.all([
+        await evalRounds.service.query({$and: [{active: true}, {discussion: false}]}, defaultPopulate, {createdAt: 1}, true ),
+        await evalRounds.service.query({$and: [{active: true}, {discussion: true}]}, defaultDiscussPopulate, {createdAt: 1}, true ),
     ]);
-    res.json({ er: er, dr: dr, r: r, evaluator: req.session.qatMongoId });
+    res.json({ er: er, dr: dr, evaluator: req.session.qatMongoId });
 });
 
 
@@ -144,50 +143,24 @@ router.post('/addEvalRounds/', async (req, res) => {
             await cycleModes(allUsers[i].id, allUsers[i].modes, req.body.deadline, req.body.osu, req.body.taiko, req.body.catch, req.body.mania)
         }
     }
-    let ers = await evalRounds.service.query({active: true}, defaultDiscussPopulate, {createdAt: 1}, true);
-    res.json({ers: ers, failed: failed})
+    let allEvalRounds = await evalRounds.service.query({$and: [{active: true}, {discussion: false}]}, defaultPopulate, {createdAt: 1}, true);
+    res.json({evalRounds: allEvalRounds, failed: failed})
 });
 
 /* POST submit or edit eval */
 router.post('/submitEval/:id', async (req, res) => {
+
     if(req.body.evaluationId){
         await evals.service.update(req.body.evaluationId, {behaviorComment: req.body.behaviorComment, moddingComment: req.body.moddingComment, vote: req.body.vote});
     }else{
         let ev = await evals.service.create(req.session.qatMongoId, req.body.behaviorComment, req.body.moddingComment, req.body.vote);
         await evalRounds.service.update(req.params.id, {$push: {evaluations: ev._id}});
     }
-    res.json(await evalRounds.service.query({ _id: req.params.id }, defaultDiscussPopulate));
-    
-});
-
-/* POST set group eval */
-router.post('/setGroupEval/', async (req, res) => {
-    for (let i = 0; i < req.body.checkedRounds.length; i++) {
-        await evalRounds.service.update(req.body.checkedRounds[i], {discussion: true});
+    if(req.body.discussion){
+        res.json(await evalRounds.service.query({ _id: req.params.id }, defaultDiscussPopulate));
+    }else{
+        res.json(await evalRounds.service.query({ _id: req.params.id }, defaultPopulate));
     }
-
-    let a = await evalRounds.service.query({active: true}, defaultDiscussPopulate, {createdAt: 1}, true );
-    res.json(a);
-});
-
-/* POST set invidivual eval */
-router.post('/setIndividualEval/', async (req, res) => {
-    for (let i = 0; i < req.body.checkedRounds.length; i++) {
-        await evalRounds.service.update(req.body.checkedRounds[i], {discussion: false});
-    }
-    
-    let a = await evalRounds.service.query({active: true}, defaultDiscussPopulate, {createdAt: 1}, true );
-    res.json(a);
-});
-
-/* POST set invidivual eval */
-router.post('/setComplete/', async (req, res) => {
-    for (let i = 0; i < req.body.checkedRounds.length; i++) {
-        await evalRounds.service.update(req.body.checkedRounds[i], {active: false});
-    }
-    
-    let a = await evalRounds.service.query({active: true}, defaultDiscussPopulate, {createdAt: 1}, true );
-    res.json(a);
 });
 
 module.exports = router;

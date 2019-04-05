@@ -1,5 +1,5 @@
 <template>
-<div class='col-lg-2 col-md-3 col-sm-6 my-2' @click="application ? selectApplication() : selectEvalRound()" >
+<div class='col-md-2 my-2' @click="application ? selectApplication() : selectEvalRound()" >
     <div class="card custom-bg-dark border-outline" :class="'border-' + findRelevantEval()" style="height: 100%" data-toggle='modal' data-target='#evaluationInfo' :data-user="application ? application.id : evalRound.id">
         <div class='card-body notification-card-spacing mx-1'>
             <p v-if="application" class='card-text text-shadow'>
@@ -20,15 +20,8 @@
         <div class="card-footer notification-card-spacing mx-2 small">
             <p class='card-text text-shadow'>
                 Deadline: 
-                <span v-if="application" class="errors">
-                    {{createDeadline(application.createdAt)}}
-                    <input @click.stop class="form-check-input bottom-right-checkbox" type="checkbox" name="evalTypeCheck" :value="application.id">
-                </span>
-                <span v-else class="errors">
-                    {{new Date(evalRound.deadline).toString().slice(4,10)}}
-                    <input @click.stop class="form-check-input bottom-right-checkbox" type="checkbox" name="evalTypeCheck" :value="evalRound.id">
-                </span>
-                
+                <span v-if="application" class="errors">{{createDeadline(application.createdAt)}}</span>
+                <span v-else class="errors">{{new Date(evalRound.deadline).toString().slice(4,10)}}</span>
             </p>
             
         </div>
@@ -51,7 +44,7 @@ export default {
             let vote;
             if(this.application){
                 this.application.evaluations.forEach(ev => {
-                    if(ev.evaluator.id == this.evaluator){
+                    if(ev.evaluator == this.evaluator){
                         if(ev.vote == 1){
                             vote = 'pass';
                         }else if(ev.vote == 2){
@@ -64,7 +57,7 @@ export default {
                 return vote;
             }else{
                 this.evalRound.evaluations.forEach(ev => {
-                    if(ev.evaluator.id == this.evaluator){
+                    if(ev.evaluator == this.evaluator){
                         if(ev.vote == 1){
                             vote = 'pass';
                         }else if(ev.vote == 2){
@@ -87,11 +80,5 @@ export default {
 </script>
 
 <style>
-
-    .bottom-right-checkbox{
-        position:absolute;
-        bottom:0.66rem;
-        right:0.66rem;
-    }
 
 </style>
