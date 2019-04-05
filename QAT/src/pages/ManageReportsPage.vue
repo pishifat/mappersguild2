@@ -12,6 +12,7 @@
             ></report-card>
         </transition-group>
         
+        
         <p v-if="!openReports || openReports.length == 0" class="ml-4">No open reports...</p>
     </div>
 
@@ -25,7 +26,10 @@
                 @update:selectedReport="selectedReport = $event"
             ></report-card>
         </transition-group>
+        
 
+        
+        
         <p v-if="!closedReports || closedReports.length == 0" class="ml-4">No closed reports...</p>
     </div>
     
@@ -79,8 +83,7 @@ export default {
         updateReport: function (report) {
 			const i = this.reports.findIndex(r => r.id == report.id);
 			this.reports[i] = report;
-            this.selectedReport = report;
-            this.categorize();
+			this.selectedReport = report;
         },
         categorize: function(){
             this.openReports = this.reports.filter( report => !report.feedback || !report.valid);

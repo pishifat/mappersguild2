@@ -36,8 +36,6 @@
                     <label class="form-check-label text-shadow vote-fail" for="3">Invalid</label>
                 </div>
 
-                 <div :class="this.info.length ? 'errors' : 'confirm'" class="text-shadow ml-2" style="min-height: 24px;">{{info}} {{confirm}}</div>
-
             </div>
             <div class="modal-footer" style="overflow: hidden;">
                 <button class="btn btn-sm btn-qat" @click="submitReportEval($event)">Submit Report Evaluation</button>
@@ -83,7 +81,8 @@ export default {
         },
         submitReportEval: async function (e) {
             const valid = $('input[name=vote]:checked').val();
-            if(!valid && (!this.feedback || !this.feedback.length)){
+            console.log(this.feedback)
+            if(!valid && !this.feedback.length){
                 this.info = 'At least one field must have input!'
             }else{
                 const r = await this.executePost(
@@ -99,8 +98,6 @@ export default {
     data() {
         return {
             feedback: '',
-            confirm: '',
-            info: '',
         };
     },
 }
