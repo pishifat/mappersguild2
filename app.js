@@ -23,10 +23,8 @@ const notificationsRouter = require('./routes/notifications');
 const adminsRouter = require('./routes/admin');
 //qat
 const bnAppRouter = require('./QAT/routes/bnApp');
-const reportsRouter = require('./QAT/routes/reports');
 const appEvalRouter = require('./QAT/routes/appEval');
 const bnEvalRouter = require('./QAT/routes/bnEval');
-const manageReportsRouter = require('./QAT/routes/manageReports');
 const qatUsersRouter = require('./QAT/routes/qatUsers');
 const vetoesRouter = require('./QAT/routes/vetoes');
 
@@ -87,10 +85,8 @@ qatdb.once('open', function() {
 
 //qat routes
 app.use('/qat', bnAppRouter);
-app.use('/qat/reports', reportsRouter);
 app.use('/qat/appEval', appEvalRouter);
 app.use('/qat/bnEval', bnEvalRouter);
-app.use('/qat/manageReports', manageReportsRouter);
 app.use('/qat/qatusers', qatUsersRouter);
 app.use('/qat/vetoes', vetoesRouter);
 

@@ -186,7 +186,7 @@ router.post('/updateMapStatus/:id', async (req, res) => {
             if (indexEnd !== -1) {
                 bmId = b.url.slice(indexStart, indexEnd);
             } else {
-                bmId = b.url.slice(indexStart, (b.url.length-1));
+                bmId = b.url.slice(indexStart, (map.url.length-1));
             }
             const bmInfo = await api.beatmapsetInfo(bmId);
             await beatmaps.service.update(b._id, {length: bmInfo.hit_length});

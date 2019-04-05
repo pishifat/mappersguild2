@@ -2,18 +2,15 @@ const express = require('express');
 const bnApps = require('../models/bnApp.js');
 const evals = require('../models/evaluation.js');
 const users = require('../models/qatUser.js');
-const api = require('../models/api.js');
 
 const router = express.Router();
-
-router.use(api.isLoggedIn);
 
 /* GET bn app page */
 router.get('/', async (req, res, next) => {
     res.render('appeval', { title: 'bn app eval', script: '../javascripts/appEval.js', isAppEval: true, layout: 'qatlayout' });
 });
 
-//population
+//population doesnt work???
 const defaultPopulate = [
     { populate: 'applicant', display: 'username osuId', model: users.QatUser },
     { populate: 'evaluations', display: 'evaluator behaviorComment moddingComment vote', model: evals.Evaluation }
