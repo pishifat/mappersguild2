@@ -81,13 +81,13 @@ qatdb.once('open', function() {
 });
 
 //qat
-app.use('/qat/*', session({
+app.use('/qat', session({
     secret: config.session,
     store: new MongoStore({ mongooseConnection: qatdb }),
     resave: false,
     saveUninitialized: false,
-}));
-app.use('/qat', bnAppRouter);
+}), bnAppRouter);
+
 app.use('/qat/appEval', appEvalRouter);
 
 // catch 404 and forward to error handler

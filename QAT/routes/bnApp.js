@@ -8,12 +8,12 @@ const router = express.Router();
 
 /* GET bn app page */
 router.get('/', async (req, res, next) => {
-    res.render('bnapp', { title: 'bn app', script: '../js/bnApp.js', isBnApp: true, layout: 'qatlayout', loggedInAs: req.session.mongoId });
+    res.render('bnapp', { title: 'bn app', script: '../js/bnApp.js', isBnApp: true, layout: 'qatlayout' });
 });
 
 /* POST a bn application */
-router.post('/apply', api.isLoggedIn, async (req, res, next) => {
-    if (req.session.mongoId) {
+router.post('/apply', async (req, res, next) => {
+    if (req.session.osuId && req.session.username) {
         let date = new Date();
         date.setDate( date.getDate() - 90 );
         const u = await bnApps.service.query({ $and: [{ osuId: req.session.osuId }, { mode: req.body.mode }, { createdAt: { $gte: date } }] });
@@ -32,38 +32,18 @@ router.post('/apply', api.isLoggedIn, async (req, res, next) => {
                 return res.json( { error: `You may apply for this game mode again on ${new Date(u.createdAt.setDate (u.createdAt.getDate() + 90)).toString().slice(4,15)}.` } );
             }
         }
-    }
-}, api.isLoggedIn, (req, res) => {
-    res.render('error', { message: 'redirected', layout: 'qatlayout'});
-});
-
-/* GET 'login' to get user's info */
-router.get('/login', async (req, res, next) => {
-    if (req.session.osuId && req.session.username) {
-        const u = await users.service.query({ osuId: req.session.osuId });
-        if (!u || u.error) {
-            const user = await users.service.create(req.session.osuId, req.session.username);
             
-            if (user && !user.error) {
-                req.session.mongoId = user._id;
-                return next();
-            } else {
-                return res.status(500).render('error', { message: 'Something went wrong!' });
-            }
-        } else {
-            req.session.mongoId = u._id;
-            return next();
-        }
     }
 
     if (!req.cookies._state) {
         crypto.randomBytes(48, function (err, buffer) {
-            res.cookie('_state', buffer.toString('hex'), { httpOnly: true });
-            res.redirect('/login');
+            res.cookie('_state', buffer.toString('hex')); //, { httpOnly: true }
+            res.redirect('/apply');
         });
     } else {
         let hashedState = Buffer.from(req.cookies._state).toString('base64');
-        res.redirect(`https://osu.ppy.sh/oauth/authorize?response_type=code&client_id=${config.id}&redirect_uri=${encodeURIComponent(config.redirect)}&state=${hashedState}&scope=identify`);
+        res.redirect(`https://osu.ppy.sh/oauth/authorize?response_type=code&client_id=${config.qat.id}&redirect_uri=${encodeURIComponent(config.qat.redirect)}&state=${hashedState}&scope=identify`);
+ 
     }
 }, api.isLoggedIn, (req, res) => {
     res.render('error', { message: 'redirected', layout: 'qatlayout'});
@@ -82,7 +62,6 @@ router.get('/callback', async (req, res) => {
         return res.status(403).render('error', { message: 'unauthorized' });
     }
 
-    req.clearCookie('_state');
     let response = await api.getToken(req.query.code);
     
     if (response.error) {
