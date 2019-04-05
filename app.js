@@ -9,6 +9,9 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
 const config = require('./config.json');
 const hbs = require('hbs');
+const MongoClient = require('mongodb').MongoClient;
+//qat
+const qatConfig = require('./QAT/qatConfig.json');
 
 const indexRouter = require('./routes/index');
 const faqRouter = require('./routes/faq');
@@ -23,6 +26,7 @@ const notificationsRouter = require('./routes/notifications');
 const adminsRouter = require('./routes/admin');
 //qat
 const bnAppRouter = require('./QAT/routes/bnApp');
+
 
 const logs = require('./models/log');
 
@@ -45,7 +49,7 @@ app.use(
 app.use(bodyParser.json());
 
 mongoose.connect(config.connection, { useNewUrlParser: true });
-const db = mongoose.connection;
+var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
     console.log('connected');
@@ -53,11 +57,27 @@ db.once('open', function() {
 app.use(
     session({
         secret: config.session,
-        store: new MongoStore({ mongooseConnection: db }),
+        store: new MongoStore({ mongooseConnection: mongoose.connection }),
         resave: false,
         saveUninitialized: false,
     })
 );
+
+//qat
+/*mongoose.connect(qatConfig.connection, { useNewUrlParser: true });
+var qatdb = mongoose.connection;
+qatdb.on('error', console.error.bind(console, 'connection error:'));
+qatdb.once('open', function() {
+    console.log('connected');
+});
+app.use(
+    session({
+        secret: qatConfig.session,
+        store: new MongoStore({ mongooseConnection: mongoose.connection }),
+        resave: false,
+        saveUninitialized: false,
+    })
+);*/
 
 app.use('/', indexRouter);
 app.use('/faq', faqRouter);
@@ -72,18 +92,7 @@ app.use('/notifications', notificationsRouter);
 app.use('/admin', adminsRouter);
 
 //qat
-const qatdb = mongoose.createConnection(config.qat.connection, { useNewUrlParser: true });
-qatdb.on('error', console.error.bind(console, 'qatdb connection error:'));
-qatdb.once('open', function() {
-    console.log('qatdb connected');
-});
-
-app.use('/qat', session({
-    secret: config.session,
-    store: new MongoStore({ mongooseConnection: qatdb }),
-    resave: false,
-    saveUninitialized: false,
-}), bnAppRouter);
+app.use('/bnapp', bnAppRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

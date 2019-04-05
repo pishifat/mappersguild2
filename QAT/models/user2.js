@@ -1,13 +1,11 @@
-const config = require('../../config.json');
 const mongoose = require('mongoose');
-const qatDb = mongoose.createConnection(config.qat.connection, { useNewUrlParser: true })
 
-const qatUserSchema = new mongoose.Schema({
+var qatUserSchema = new mongoose.Schema({
     osuId: { type: Number, required: true, unique: true },
     username: { type: String, required: true },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
-const qatUser = qatDb.model('qatUser', qatUserSchema);
+var qatUser = mongoose.model('qatUser', qatUserSchema);
 
 class qatUserService
 {
@@ -30,7 +28,7 @@ class qatUserService
         if (sorting) {
             query.sort(sorting);
         }
-
+        console.log(await query.exec())
         try {
             return await query.exec();
         } catch(error) {
@@ -49,6 +47,7 @@ class qatUserService
     }
 
     async create(osuId, username) {
+        console.log(osuId + username)
         try {
             return await qatUser.create({ osuId: osuId, username: username });
         } catch(error) {
@@ -57,6 +56,6 @@ class qatUserService
     }
 }
 
-const service = new qatUserService();
+var service = new qatUserService();
 
 module.exports = { qatUser, service };
