@@ -91,12 +91,10 @@
 </template>
 
 <script>
-import mixin from '../../mixins.js'
 
 export default {
     name: 'eval-info',
     props: [ 'application', 'evalRound', 'reports', 'evaluator' ],
-    mixins: [ mixin ],
     watch: {
         application: function() {
             this.info = '';
@@ -111,6 +109,25 @@ export default {
         },
     },
     methods: {
+        executePost: async function (path, data, e) {
+            this.info = '';
+			if (e) e.target.disabled = true;
+
+			try {
+				const res = await axios.post(path, data)
+
+				if (res.data.error) {
+					this.info = res.data.error;
+				} else {
+					if (e) e.target.disabled = false;
+					return res.data;
+				}
+			} catch (error) {
+				console.log(error)
+			}
+
+			if (e) e.target.disabled = false;
+		},
         //display
         findRelevantEval: function(){
             this.evaluationId = null;

@@ -1,7 +1,7 @@
 <template>
 <div class='col-lg-2 col-md-3 col-sm-6 my-2' @click="discussApp ? selectDiscussApp() : selectDiscussRound()" >
     <div class="card custom-bg-dark border-outline" :class="'border-' + findRelevantEval()" style="height: 100%" data-toggle='modal' data-target='#discussionInfo' :data-user="discussApp ? discussApp.id : discussRound.id">
-        <div class='card-body eval-card-spacing mx-1'>
+        <div class='card-body notification-card-spacing mx-1'>
             <div v-if="discussApp">
                 <div
                     class="card-status"
@@ -30,7 +30,7 @@
             </div>
 
         </div>
-        <div class="card-footer eval-card-spacing mx-2">
+        <div class="card-footer notification-card-spacing mx-2">
             <p class="badge-spacing">
                 <span class="card-text text-shadow small">Votes:</span>
                 <span v-if="pass" class="badge badge-primary badge-pass" data-toggle="tooltip" data-placement="top" title="pass">{{pass}}</span>

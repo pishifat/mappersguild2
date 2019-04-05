@@ -1,7 +1,7 @@
 <template>
 <div class='col-lg-2 col-md-3 col-sm-6 my-2' @click="application ? selectApplication() : selectEvalRound()" >
     <div class="card custom-bg-dark border-outline" :class="'border-' + findRelevantEval()" style="height: 100%" data-toggle='modal' data-target='#evaluationInfo' :data-user="application ? application.id : evalRound.id">
-        <div class='card-body eval-card-spacing mx-1'>
+        <div class='card-body notification-card-spacing mx-1'>
             <p v-if="application" class='card-text text-shadow'>
                 <a @click.stop :href="'https://osu.ppy.sh/users/' + application.applicant.osuId" target="_blank">{{application.applicant.username}}</a> 
                 <i v-if="application.mode == 'osu'" class="far fa-circle"></i>
@@ -17,7 +17,7 @@
                 <i v-else-if="evalRound.mode == 'mania'" class="fas fa-stream"></i>
             </p>
         </div>
-        <div class="card-footer eval-card-spacing mx-2 small">
+        <div class="card-footer notification-card-spacing mx-2 small">
             <p class='card-text text-shadow'>
                 Deadline: 
                 <span v-if="application" class="errors">
