@@ -9,9 +9,6 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
 const config = require('./config.json');
 const hbs = require('hbs');
-const MongoClient = require('mongodb').MongoClient;
-//qat
-const qatConfig = require('./QAT/qatConfig.json');
 
 const indexRouter = require('./routes/index');
 const faqRouter = require('./routes/faq');
@@ -24,16 +21,13 @@ const partiesRouter = require('./routes/parties');
 const logsRouter = require('./routes/logs');
 const notificationsRouter = require('./routes/notifications');
 const adminsRouter = require('./routes/admin');
-//qat
-const bnAppRouter = require('./QAT/routes/bnApp');
-
 
 const logs = require('./models/log');
 
 const app = express();
 
 // view engine setup
-app.set('views', [__dirname + '/views', __dirname + '/QAT/views']);
+app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
 
 app.use(logger('dev'));
@@ -63,22 +57,6 @@ app.use(
     })
 );
 
-//qat
-/*mongoose.connect(qatConfig.connection, { useNewUrlParser: true });
-var qatdb = mongoose.connection;
-qatdb.on('error', console.error.bind(console, 'connection error:'));
-qatdb.once('open', function() {
-    console.log('connected');
-});
-app.use(
-    session({
-        secret: qatConfig.session,
-        store: new MongoStore({ mongooseConnection: mongoose.connection }),
-        resave: false,
-        saveUninitialized: false,
-    })
-);*/
-
 app.use('/', indexRouter);
 app.use('/faq', faqRouter);
 app.use('/beatmaps', beatmapsRouter);
@@ -90,9 +68,6 @@ app.use('/parties', partiesRouter);
 app.use('/logs', logsRouter);
 app.use('/notifications', notificationsRouter);
 app.use('/admin', adminsRouter);
-
-//qat
-app.use('/bnapp', bnAppRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
