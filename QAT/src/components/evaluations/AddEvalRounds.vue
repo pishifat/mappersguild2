@@ -71,7 +71,7 @@
                 <hr>
                 <span class="errors text-shadow" id="addEvalRoundsErrors">{{ info }}</span>
                 <span class="confirm text-shadow" id="addEvalRoundsConfirm">{{ confirm }}</span>
-                <button type="submit" class="btn btn-qat float-right" @click="addEvalRounds($event)">Add BNs</button>
+                <button type="submit" class="btn btn-mg float-right" @click="addEvalRounds($event)">Add BNs</button>
             </div>
         </div>
     </div>
