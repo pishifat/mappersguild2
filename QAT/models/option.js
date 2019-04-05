@@ -53,14 +53,6 @@ class OptionService
         }
     }
 
-    async remove(id) {
-        try {
-            return await Option.findByIdAndRemove(id);
-        } catch(error) {
-            return { error: error._message };
-        }
-    }
-
     async create(content, score) {
         try {
             return await Option.create({content: content, score: score});
