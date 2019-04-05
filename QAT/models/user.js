@@ -2,30 +2,22 @@ const config = require('../../config.json');
 const mongoose = require('mongoose');
 const qatDb = mongoose.createConnection(config.qat.connection, { useNewUrlParser: true })
 
-const bnAppSchema = new mongoose.Schema({
-    osuId: { type: Number, required: true },
+const qatUserSchema = new mongoose.Schema({
+    osuId: { type: Number, required: true, unique: true },
     username: { type: String, required: true },
-    mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania'], required: true },
-    mods: [{ type: String }],
-    behaviorComments: [{ type: String }],
-    moddingComments: [{ type: String }],
-    votes: [{ type: String, enum: ["yes", "neutral", "no"] }], 
-    consensus: { type: String, enum: ["accepted", "rejected"]}
-    //testResult: [{ type: 'ObjectId', ref: 'rcTest'}],
-
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
-const bnApp = qatDb.model('bnApp', bnAppSchema);
+const qatUser = qatDb.model('qatUser', qatUserSchema);
 
-class bnAppService
+class qatUserService
 {
     async query(params, populate, sorting, getAll) {
         let query;
 
         if (getAll) {
-            query = bnApp.find(params);
+            query = qatUser.find(params);
         } else {
-            query = bnApp.findOne(params);
+            query = qatUser.findOne(params);
         }
 
         if (populate) {
@@ -42,28 +34,29 @@ class bnAppService
         try {
             return await query.exec();
         } catch(error) {
+            logs.service.create(null, error, null, 'error'); 
             return { error: error._message };
         }
     }
 
     async update(id, update) {
         try {
-            return await bnApp.findByIdAndUpdate(id, update, { 'new': true });
+            return await qatUser.findByIdAndUpdate(id, update, { 'new': true });
         } catch(error) {
             logs.service.create(null, error, null, 'error'); 
             return { error: error._message };
         }
     }
 
-    async create(osuId, username, mode, mods) {
+    async create(osuId, username) {
         try {
-            return await bnApp.create({osuId: osuId, username: username, mode: mode, mods: mods});
+            return await qatUser.create({ osuId: osuId, username: username });
         } catch(error) {
-            return { error: "could not create user" }
+            return { error: error._message }
         }
     }
 }
 
-const service = new bnAppService();
+const service = new qatUserService();
 
-module.exports = { bnApp, service };
+module.exports = { qatUser, service };

@@ -1,6 +1,6 @@
 const querystring = require('querystring');
 const config = require('../../config.json');
-const users = require('./bnApp.js');
+const users = require('./user.js');
 const axios = require('axios');
 
 async function getToken(code) {
@@ -73,7 +73,7 @@ async function getUserInfo(token) {
 
 async function isLoggedIn(req, res, next) {
     if (req.session.mongoId) {
-        const u = await users.service.query({ _id: req.session.mongoId });
+        const u = await users.service.query({ _id: req.session.mongoId }, [{ populate: 'currentParty', display: 'name' }]);
         
         // If hidden, shouldn't be able to do anything
         if (!u || u.group == 'hidden') {
