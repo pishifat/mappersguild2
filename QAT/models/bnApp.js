@@ -7,7 +7,9 @@ const bnAppSchema = new mongoose.Schema({
     username: { type: String, required: true },
     mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania'], required: true },
     mods: [{ type: String }],
-    //evaluations: [{type: 'ObjectId', ref: 'evaluation'}],
+    behaviorComments: [{ type: String }],
+    moddingComments: [{ type: String }],
+    votes: [{ type: String, enum: ["yes", "neutral", "no"] }], 
     consensus: { type: String, enum: ["accepted", "rejected"]}
     //testResult: [{ type: 'ObjectId', ref: 'rcTest'}],
 
