@@ -4,7 +4,7 @@
         <div class="modal-content custom-bg-dark" v-if="discussApp || discussRound">
             <div class="modal-header text-dark bg-qat-logo">
                 <h5 v-if="discussApp" class="modal-title">
-                    Application Evaluation: <a @click.stop :href="'https://osu.ppy.sh/users/' + discussApp.applicant.osuId" class="text-dark" target="_blank">{{discussApp.applicant.username}}</a>
+                    BN Evaluation: <a @click.stop :href="'https://osu.ppy.sh/users/' + discussApp.applicant.osuId" class="text-dark" target="_blank">{{discussApp.applicant.username}}</a>
                     <i v-if="discussApp.mode == 'osu'" class="far fa-circle"></i>
                     <i v-else-if="discussApp.mode == 'taiko'" class="fas fa-drum"></i>
                     <i v-else-if="discussApp.mode == 'catch'" class="fas fa-apple-alt"></i>
@@ -30,85 +30,17 @@
                             </ul>
                             <p class="text-shadow">Test results: <a href="#">20/20 <i class="fas fa-angle-right"></i></a></p>
                             <h5 class="text-shadow mb-2">Consensus:
-                                <span v-if="discussApp.consensus" :class="'vote-' + discussApp.consensus">{{discussApp.consensus}}</span>
+                                <span v-if="discussApp.consensus">{{discussApp.consensus}}</span>
                                 <span v-else>none</span>
-                                <button
-                                    class="btn btn-sm btn-qat-pass"
-                                    :disabled="discussApp.consensus == 'pass' "
-                                    @click="setConsensus('pass', $event);"
-                                >Set Pass</button>
-                                <button
-                                    class="btn btn-sm btn-qat-fail"
-                                    :disabled="discussApp.consensus == 'fail'"
-                                    @click="setConsensus('fail', $event);"
-                                >Set Fail</button>
                             </h5>
                             <hr>
                         </div>
                         <div v-else class="col-sm-12">
-                            <p class="text-shadow">Disqualifications:</p>
-                            <table class="small table text-shadow col-md-12">
-                                <thead>
-                                    <td scope="col" style="padding: 2px;">Date</td>
-                                    <td scope="col" style="padding: 2px;">Mapset</td>
-                                    <td scope="col" style="padding: 2px;">Short reason</td>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td scope="row" style="padding: 1px;">2019-03-04</td>
-                                        <td scope="row" style="padding: 1px;"><a href="#">Anime - Music</a></td>
-                                        <td scope="row" style="padding: 1px;">someone really messed up wow</td>
-                                    </tr>
-                                    <tr>
-                                        <td scope="row" style="padding: 1px;">2019-03-04</td>
-                                        <td scope="row" style="padding: 1px;"><a href="#">dd - sd</a></td>
-                                        <td scope="row" style="padding: 1px;">sucky suck</td>
-                                    </tr>
-                                    <tr>
-                                        <td scope="row" style="padding: 1px;">2019-03-04</td>
-                                        <td scope="row" style="padding: 1px;"><a href="#">eee - assss</a></td>
-                                        <td scope="row" style="padding: 1px;">asdfdsf</td>
-                                    </tr>
-                                    <tr>
-                                        <td scope="row" style="padding: 1px;">2019-03-04</td>
-                                        <td scope="row" style="padding: 1px;"><a href="#">hanatan - anim</a></td>
-                                        <td scope="row" style="padding: 1px;">dfsfdddd</td>
-                                    </tr>
-                                    <tr>
-                                        <td scope="row" style="padding: 1px;">2019-03-04</td>
-                                        <td scope="row" style="padding: 1px;"><a href="#">My - Song</a></td>
-                                        <td scope="row" style="padding: 1px;">aaaaaaaaaaa</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            
-                            <p v-if="relevantReports.length" class="text-shadow">Reports:</p>
-                            <div v-for="report in relevantReports" :key="report.id">
-                                <p class="text-shadow small pl-2" :class="report.valid == 1 ? 'vote-pass' : 'vote-extend'">
-                                    {{report.createdAt.slice(0,10)}}: {{report.reason}}
-                                </p>
-                            </div>
-                            
+                            <p class="text-shadow">Nominations or osmething</p>
+
                             <h5 class="text-shadow mb-2">Consensus:
-                                <span v-if="discussRound.consensus" :class="'vote-' + discussRound.consensus">{{discussRound.consensus}}</span>
+                                <span v-if="discussRound.consensus">{{discussRound.consensus}}</span>
                                 <span v-else>none</span>
-                                <span v-if="!readOnly">
-                                <button
-                                    class="btn btn-sm btn-qat-pass"
-                                    :disabled="discussRound.consensus == 'pass' "
-                                    @click="setConsensus('pass', $event);"
-                                >Set Pass</button>
-                                <button
-                                    class="btn btn-sm btn-qat-extend"
-                                    :disabled="discussRound.consensus == 'extend' "
-                                    @click="setConsensus('extend', $event);"
-                                >Set Extend</button>
-                                <button
-                                    class="btn btn-sm btn-qat-fail"
-                                    :disabled="discussRound.consensus == 'fail'"
-                                    @click="setConsensus('fail', $event);"
-                                >Set Fail</button>
-                                </span>
                             </h5>
                             <hr>
                         </div>
@@ -135,24 +67,24 @@
                                 </div>
                             </div>
                         </div>
-
-
-                        <div class="col-sm-12" v-if="!readOnly">
+                        
+                        <div class="col-sm-12">
                             <hr>
                         </div>
-                        <div class="col-sm-6" v-if="!readOnly">
+                        
+                        <div class="col-sm-6">
                             <p class="text-shadow">Behavior/attitude comments:</p>
                             <div class="form-group">
                                 <textarea class="form-control dark-textarea" id="behaviorComments" rows="4" v-model="behaviorComment"></textarea>
                             </div>
                         </div>
-                        <div class="col-sm-6" v-if="!readOnly">
+                        <div class="col-sm-6">
                             <p class="text-shadow">Modding comments:</p>
                             <div class="form-group">
                                 <textarea class="form-control dark-textarea" id="moddingComments" rows="4" v-model="moddingComment"></textarea>
                             </div>
                         </div>
-                        <div class="col-sm-12 mb-2" v-if="!readOnly">
+                        <div class="col-sm-12 mb-2">
                             <span class="mr-3 text-shadow">Vote:</span>
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="radio" name="vote" id="1d" value="1" :checked="vote == 1">
@@ -172,7 +104,7 @@
                     <div :class="this.info.length ? 'errors' : 'confirm'" class="text-shadow ml-2" style="min-height: 24px;">{{info}} {{confirm}}</div>
                 </div>
             </div>
-            <div v-if="!readOnly" class="modal-footer" style="overflow: hidden;">
+            <div class="modal-footer" style="overflow: hidden;">
                 <button class="btn btn-sm btn-qat" @click="submitEval($event)">{{evaluationId ? 'Update Evaluation' : 'Submit Evaluation'}}</button>
             </div>
         </div>
@@ -185,7 +117,7 @@ import mixin from "../../mixins.js";
 
 export default {
     name: 'discuss-info',
-    props: [ 'discuss-app', 'discuss-round', 'evaluator', 'reports', 'read-only' ],
+    props: [ 'discuss-app', 'discuss-round', 'evaluator' ],
     mixins: [ mixin ],
     computed: {
         
@@ -200,7 +132,6 @@ export default {
             this.info = '';
             this.confirm = '';
             this.findRelevantEval();
-            if(this.reports && this.reports.length) this.findRelevantReports();
         },
     },
     methods: {
@@ -250,10 +181,6 @@ export default {
                     }
                 }); 
             }
-        },
-        findRelevantReports: function() {
-            this.relevantReports = this.reports.filter( report => 
-                report.culprit == this.discussRound.bn.id);
         },
         createDeadline: function(date){
             date = new Date(date);
@@ -311,23 +238,9 @@ export default {
                         }
                     }
                 }
+                
             }
-        },
-        setConsensus: async function(consensus, e){
-            if(this.discussApp){
-                const a = await this.executePost(
-                    '/qat/appEval/setConsensus/' + this.discussApp.id, {consensus: consensus}, e);
-                if (a) {
-                    await this.$emit('update-application', a);
-                }
-            }else{
-                const er = await this.executePost(
-                    '/qat/bnEval/setConsensus/' + this.discussRound.id, {consensus: consensus}, e);
-                if (er) {
-                    await this.$emit('update-eval-round', er);
-                }
-            }
-        }
+		},
     },
     data() {
         return {
@@ -335,7 +248,6 @@ export default {
             behaviorComment: '',
             moddingComment: '',
             vote: 0,
-            relevantReports: [],
             info: '',
             confirm: ''
         };
@@ -344,6 +256,5 @@ export default {
 </script>
 
 <style>
-
 
 </style>

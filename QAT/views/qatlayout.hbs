@@ -39,15 +39,11 @@
                 </li>
                 {{/if}}
                 {{#if isQat}}
-                <li class="nav-item dropdown {{#if isEval}}active{{/if}}">
-                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
-                        Evaluations
-                    </a>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" href="/qat/appeval">Applications</a>
-                        <a class="dropdown-item" href="/qat/bneval">Current BNs</a>
-                        <a class="dropdown-item" href="/qat/evalarchive">Archive</a>
-                    </div>
+                <li class="nav-item {{#if isAppEval}}active{{/if}}">
+                    <a class="nav-link" href="/qat/appeval">Application Evals</a>
+                </li>
+                <li class="nav-item {{#if isBnEval}}active{{/if}}">
+                    <a class="nav-link" href="/qat/bneval">BN Evals</a>
                 </li>
                 <li class="nav-item {{#if isManageReports}}active{{/if}}">
                     <a class="nav-link" href="/qat/managereports">Manage Reports</a>
@@ -64,7 +60,7 @@
     <div id="loading">
         <img id="load" src="../images/qatlogo.png">
     </div>
-
+    
     <div class="container">
         <div>
             <img class="my-3 mx-auto d-block img-fluid" src="../images/qatlogo.png" width="100" height="100" style="border-radius: 100px 100px 100px 100px">

@@ -26,11 +26,6 @@
                     </button>
                 </p>
                 <hr>
-                <button 
-                    class="btn btn-qat btn-sm justify-content-center"
-                    @click="user.group == 'bn' ? switchGroup('qat', $event) : switchGroup('bn', $event)">
-                    {{user.group == 'bn' ? 'Promote to QAT' : 'Promote to BN'}}
-                </button>
                 <p class="text-shadow float-right">Joined: {{user.createdAt.slice(0,10)}}</p>
             </div>
         </div>
@@ -66,13 +61,7 @@ export default {
             if (e) e.target.disabled = false;
         },
         switchMediator: async function(e){
-            const u = await this.executePost('/qat/qatusers/switchMediator/', {}, e);
-            if(u){
-                this.$emit('update-user', u);
-            }
-        },
-        switchGroup: async function(group, e){
-            const u = await this.executePost('/qat/qatusers/switchGroup/' + this.user.id, {group: group}, e);
+            const u = await this.executePost('/qat/qatusers/switchMediator/' + this.user.id, {}, e);
             if(u){
                 this.$emit('update-user', u);
             }

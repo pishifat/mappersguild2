@@ -25,15 +25,8 @@ router.get('/relevantInfo', async (req, res, next) => {
 
 
 /* POST submit or edit eval */
-router.post('/switchMediator/', api.isLoggedIn, async (req, res) => {
+router.post('/switchMediator/:id', api.isLoggedIn, async (req, res) => {
     let u = await users.service.update(req.session.qatMongoId, { vetoMediator: !res.locals.userRequest.vetoMediator });
-    res.json(u);
-});
-
-/* POST switch usergroup */
-router.post('/switchGroup/:id', api.isLoggedIn, async (req, res) => {
-    let u = await users.service.update(req.params.id, { group: req.body.group });
-    u = await users.service.update(req.params.id, {probation: []});
     res.json(u);
 });
 

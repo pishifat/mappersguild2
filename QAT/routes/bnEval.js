@@ -11,13 +11,11 @@ router.use(api.isLoggedIn);
 
 /* GET bn app page */
 router.get('/', async (req, res, next) => {
-    res.render('bneval', { 
-        title: 'current bn eval', 
-        script: '../javascripts/bnEval.js', 
-        isBnEval: true, layout: 'qatlayout', 
-        isBnOrQat: res.locals.userRequest.group == 'bn' || res.locals.userRequest.group == 'qat',
-        isQat: res.locals.userRequest.group == 'qat'
-    });
+    let isBnOrQat;
+    if (res.locals.userRequest.group == 'bn' || res.locals.userRequest.group == 'qat') {
+        isBnOrQat = true;
+    }
+    res.render('bneval', { title: 'current bn eval', script: '../javascripts/bnEval.js', isBnEval: true, layout: 'qatlayout', isBnOrQat: isBnOrQat });
 });
 
 //population
@@ -35,11 +33,11 @@ const defaultDiscussPopulate = [
 
 /* GET applicant listing. */
 router.get('/relevantInfo', async (req, res, next) => {
-    const [er, r] = await Promise.all([
+    const [er, dr, r] = await Promise.all([
         await evalRounds.service.query({active: true}, defaultDiscussPopulate, {createdAt: 1}, true ),
         await reports.service.query({valid: {$exists: true, $ne: 3}, feedback: {$exists: true, $nin: ''}}, {}, {}, true)
     ]);
-    res.json({ er: er, r: r, evaluator: req.session.qatMongoId });
+    res.json({ er: er, dr: dr, r: r, evaluator: req.session.qatMongoId });
 });
 
 
@@ -79,41 +77,40 @@ router.post('/addEvalRounds/', async (req, res) => {
                     {probation: {$elemMatch: {$eq: req.body.catch && 'catch'},},},
                     {probation: {$elemMatch: {$eq: req.body.mania && 'mania'},},},
                 ]},
-                {modes: {$in: [
-                    req.body.osu && 'osu', 
-                    req.body.taiko && 'taiko',
-                    req.body.catch && 'catch',
-                    req.body.mania && 'mania'
-            ]}}]}, {}, {}, true);
+                {$or: [
+                    {modes: {$elemMatch: {$eq: req.body.osu && 'osu'},},},
+                    {modes: {$elemMatch: {$eq: req.body.taiko && 'taiko'},},},
+                    {modes: {$elemMatch: {$eq: req.body.catch && 'catch'},},},
+                    {modes: {$elemMatch: {$eq: req.body.mania && 'mania'},},},
+                ]},]}, {}, {}, true);
     }
     if(req.body.bn){
         fullBns = await users.service.query(
             {$and: [
                 {group: 'bn'},
-                {probation: {$nin: [
-                    req.body.osu && 'osu', 
-                    req.body.taiko && 'taiko',
-                    req.body.catch && 'catch',
-                    req.body.mania && 'mania'
-                ]}},
-                {modes: {$in: [
-                    req.body.osu && 'osu', 
-                    req.body.taiko && 'taiko',
-                    req.body.catch && 'catch',
-                    req.body.mania && 'mania'
-            ]}}]}, {}, {}, true);
+                {$or: [
+                    {probation: {$elemMatch: {$ne: req.body.osu && 'osu'},},},
+                    {probation: {$elemMatch: {$ne: req.body.taiko && 'taiko'},},},
+                    {probation: {$elemMatch: {$ne: req.body.catch && 'catch'},},},
+                    {probation: {$elemMatch: {$ne: req.body.mania && 'mania'},},},
+                ]},
+                {$or: [
+                    {modes: {$elemMatch: {$eq: req.body.osu && 'osu'},},},
+                    {modes: {$elemMatch: {$eq: req.body.taiko && 'taiko'},},},
+                    {modes: {$elemMatch: {$eq: req.body.catch && 'catch'},},},
+                    {modes: {$elemMatch: {$eq: req.body.mania && 'mania'},},},
+                ]},]}, {}, {}, true);
     }
-    
     if(req.body.qat){
         qat = await users.service.query(
             {$and: [
                 {group: 'qat'},
-                {modes: {$in: [
-                    req.body.osu && 'osu', 
-                    req.body.taiko && 'taiko',
-                    req.body.catch && 'catch',
-                    req.body.mania && 'mania'
-            ]}}]}, {}, {}, true);
+                {$or: [
+                    {modes: {$elemMatch: {$eq: req.body.osu && 'osu'},},},
+                    {modes: {$elemMatch: {$eq: req.body.taiko && 'taiko'},},},
+                    {modes: {$elemMatch: {$eq: req.body.catch && 'catch'},},},
+                    {modes: {$elemMatch: {$eq: req.body.mania && 'mania'},},},
+                ]},]}, {}, {}, true);
     }
     let allUsers = probationBns.concat(fullBns.concat(qat));
     
@@ -187,35 +184,13 @@ router.post('/setIndividualEval/', async (req, res) => {
     res.json(a);
 });
 
-/* POST set evals as complete */
+/* POST set invidivual eval */
 router.post('/setComplete/', async (req, res) => {
     for (let i = 0; i < req.body.checkedRounds.length; i++) {
-        let er = await evalRounds.service.query({_id: req.body.checkedRounds[i]});
-        let u = await users.service.query({_id: er.bn});
-        if(er.consensus == 'fail'){
-            u = await users.service.update(u.id, {$pull: {modes: er.mode}});
-            await users.service.update(u.id, {$pull: {probation: er.mode}});
-            if(!u.modes.length){
-                await users.service.update(u.id, {group: 'user'});
-            }
-        }
-        if(er.consensus == 'extend' && u.probation.indexOf(er.mode) < 0){
-            await users.service.update(u.id, {$push: {probation: er.mode}});
-        }
-        if(er.consensus == 'pass'){
-            await users.service.update(u.id, {$pull: {probation: er.mode}});
-        }
         await evalRounds.service.update(req.body.checkedRounds[i], {active: false});
     }
     
     let a = await evalRounds.service.query({active: true}, defaultDiscussPopulate, {createdAt: 1}, true );
-    res.json(a);
-});
-
-/* POST set consensus of eval */
-router.post('/setConsensus/:id', async (req, res) => {
-    await evalRounds.service.update(req.params.id, {consensus: req.body.consensus})
-    let a = await evalRounds.service.query({_id: req.params.id}, defaultDiscussPopulate);
     res.json(a);
 });
 

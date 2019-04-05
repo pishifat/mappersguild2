@@ -1,6 +1,8 @@
 const config = require('../../config.json');
 const mongoose = require('mongoose');
 const qatDb = mongoose.createConnection(config.qat.connection, { useNewUrlParser: true })
+const evals = require('./evaluation.js');
+const users = require('./qatUser.js');
 
 const evalRoundSchema = new mongoose.Schema({
     bn: { type: 'ObjectId', ref: 'QatUser', required: true },

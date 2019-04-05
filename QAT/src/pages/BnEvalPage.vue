@@ -15,9 +15,6 @@
                     <option value="mania">osu!mania</option>
                 </select>
             </small> 
-            <small>
-                <button class="btn btn-qat btn-sm ml-2" @click="selectAll($event)">Select all</button>
-            </small>
         </div>
         <div class="mb-2">
             <small>Mark selected as:
@@ -27,10 +24,9 @@
                 <button class="btn btn-qat btn-sm ml-2" @click="setIndividualEval($event)">Individual evaluation</button>
             </small>
             <small>
-                <button class="btn btn-qat-red btn-sm ml-2" @click="setComplete($event)">Archive</button>
+                <button class="btn btn-qat-red btn-sm ml-2" @click="setComplete($event)">Complete</button>
             </small>
         </div>
-        <hr>
         <h2>Individual Evaluations<sup style="font-size: 12pt" data-toggle="tooltip" data-placement="top" title="only you can see these">?</sup> 
             <button
             class="btn btn-qat"
@@ -52,9 +48,8 @@
         
         <p v-if="!evalRounds || evalRounds.length == 0" class="ml-4">No BNs to evaluate...</p>
     </div>
-    
+
     <div class="col-md-12">
-        <hr>
         <h2>Group Evaluations<sup style="font-size: 12pt" data-toggle="tooltip" data-placement="top" title="everyone can see these">?</sup></h2>
         
 
@@ -146,6 +141,7 @@ export default {
             this.filter();
         },
         updateAllEvalRounds: function (evalRounds) {
+            console.log('s')
             this.allEvalRounds = evalRounds;
             this.filter();
 		},
@@ -157,7 +153,6 @@ export default {
         filter: function () {            
             this.filterValue = $("#search").val();
             this.filterMode = $("#mode").val();
-            $("input[name='evalTypeCheck']").prop('checked', false);
             
             //reset
             this.evalRounds = this.allEvalRounds.filter(er => !er.discussion);
@@ -232,17 +227,13 @@ export default {
                 checkedRounds.push( $(this).val() );
             });
             if(checkedRounds.length){
-                const result = confirm(`Are you sure? The consensus of any evaluation will affect its respective user.\n\nOnly do this after feedback PMs have been sent.`);
+                const result = confirm(`Are you sure? This will remove applications from the listing. Only do this when feedback PMs have been sent.`);
                 const ers = await this.executePost('/qat/bnEval/setComplete/', { checkedRounds: checkedRounds}, e);
                 if (ers) {
                     this.allEvalRounds = ers;
                     this.filter();
                 }
             }
-        },
-        selectAll: function() {
-            var checkBoxes = $("input[name='evalTypeCheck'");
-                checkBoxes.prop("checked", !checkBoxes.prop("checked"));
         }
     },
     data() {
@@ -268,6 +259,9 @@ export default {
             .get('/qat/bnEval/relevantInfo')
             .then(response => {
                 this.allEvalRounds = response.data.er;
+                //this.evalRounds = response.data.er;
+                //this.allDiscussRounds = response.data.dr;
+                //this.discussRounds = response.data.dr;
                 this.reports = response.data.r;
                 this.evaluator = response.data.evaluator;
                 this.filter();
@@ -281,8 +275,8 @@ export default {
             axios
                 .get('/qat/bnEval/relevantInfo')
                 .then(response => {
-                    this.allEvalRounds = response.data.er;
-                    this.reports = response.data.r;
+                    this.evalRounds = response.data.er;
+                    this.allDiscussRounds = response.data.dr;
                 });
         }, 300000);
     }
