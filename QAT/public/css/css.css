@@ -1,6 +1,5 @@
 :root {
     --qat-logo: #4AC2C2;
-    --qat-logo-light: rgb(173, 255, 255);
     --qat: rgb(212, 34, 34);
     --qat-light: rgb(216, 104, 104);
     --bn: #773ab8;
@@ -147,7 +146,7 @@ hr {
 }
 
 .navbar-qat {
-    background-image: linear-gradient(#226161d1, transparent);
+    background-image: linear-gradient(#4ac2c2d1, transparent);
     padding-bottom: 20px;
 }
 
@@ -171,15 +170,6 @@ hr {
     border-radius: 0 100px 100px 0;
 }
 
-input[type='text'],
-input[type='text']:focus {
-    background-color: #333;
-    color: white;
-    border-color: transparent;
-    filter: drop-shadow(1px 1px 1px #000000);
-    border-radius: 100px 100px 100px 100px;
-}
-
 .custom-select {
     min-width: 5em;
     width: 5em;
@@ -201,7 +191,6 @@ input[type='text']:focus {
 .inline-custom-select {
     height: 26px;
     padding: 0 0 0 0.75rem;
-    padding-right: 2rem
 }
 
 .text-shadow {
@@ -219,11 +208,11 @@ input[type='text']:focus {
 }
 
 .confirm {
-    color: var(--neutral);
+    color: var(--ranked);
 }
 
 .errors {
-    color: var(--fail);
+    color: var(--open);
 }
 
 .eval-card-spacing {
@@ -416,32 +405,6 @@ input[type="radio"] + .fas { cursor: pointer; }
 
 .card-body p {
     margin: 0;
-}
-
-.card-status {
-    position: absolute;
-    top: 0px;
-    right: 0px;
-    width: 0px;
-    height: 0px;
-    border-bottom: 15px solid transparent;
-    z-index: 10000;
-}
-
-.card-status-pass {
-    border-right: 15px solid var(--pass);
-}
-
-.card-status-extend {
-    border-right: 15px solid var(--extend);
-}
-
-.card-status-fail {
-    border-right: 15px solid var(--fail);
-}
-
-.dropdown-item:hover {
-    background-color: var(--qat-logo);
 }
 
 .modal-content {

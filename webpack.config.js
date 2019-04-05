@@ -72,7 +72,6 @@ const qatConfig = Object.assign({}, config, {
     entry: {
         appEval: './QAT/src/appEval.js',
         bnEval: './QAT/src/bnEval.js',
-        dataCollection: './QAT/src/dataCollection.js',
         evalArchive: './QAT/src/evalArchive.js',
         manageReports: './QAT/src/manageReports.js',
         qatUsers: './QAT/src/qatUsers.js',

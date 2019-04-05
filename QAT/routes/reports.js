@@ -5,18 +5,9 @@ const users = require('../models/qatUser.js');
 
 const router = express.Router();
 
-router.use(api.isLoggedIn);
-
 /* GET reports page */
 router.get('/', async (req, res, next) => {
-    res.render('reports', { 
-        title: 'Report a BN/QAT', 
-        script: '../js/reports.js', 
-        isReports: true, 
-        layout: 'qatlayout',
-        isBnOrQat: res.locals.userRequest.group == 'bn' || res.locals.userRequest.group == 'qat',
-        isQat: res.locals.userRequest.group == 'qat'
-    });
+    res.render('reports', { title: 'report a bn/qat', script: '../js/reports.js', isReports: true, layout: 'qatlayout' });
 });
 
 

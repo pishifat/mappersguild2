@@ -267,7 +267,6 @@ export default {
                         behaviorComment: this.behaviorComment, 
                         moddingComment: this.moddingComment
                         }, e);
-                    
                     if (a) {
                         if (a.error) {
                             this.info = a.error;
@@ -289,8 +288,8 @@ export default {
                         moddingComment: this.moddingComment
                         }, e);
                     if (er) {
-                        if (er.error) {
-                            this.info = er.error;
+                        if (a.error) {
+                            this.info = a.error;
                         } else {
                             await this.$emit('update-eval-round', er);
                             if(this.evaluationId){

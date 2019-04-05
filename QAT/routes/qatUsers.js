@@ -1,20 +1,14 @@
 const express = require('express');
 const api = require('../models/api.js');
+const bnApps = require('../models/bnApp.js');
+const evals = require('../models/evaluation.js');
 const users = require('../models/qatUser.js');
 
 const router = express.Router();
 
-router.use(api.isLoggedIn);
-
 /* GET bn app page */
 router.get('/', async (req, res, next) => {
-    res.render('qatusers', { 
-        title: 'BN/QAT Listing', 
-        script: '../javascripts/qatUsers.js', 
-        isQatUsers: true, 
-        layout: 'qatlayout',
-        isBnOrQat: res.locals.userRequest.group == 'bn' || res.locals.userRequest.group == 'qat',
-        isQat: res.locals.userRequest.group == 'qat' });
+    res.render('qatusers', { title: 'bn/qat listing', script: '../javascripts/qatUsers.js', isQatUsers: true, layout: 'qatlayout' });
 });
 
 //population doesnt work???

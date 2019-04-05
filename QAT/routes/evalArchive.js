@@ -12,7 +12,7 @@ router.use(api.isLoggedIn);
 /* GET eval archive page */
 router.get('/', async (req, res, next) => {
     res.render('evalarchive', { 
-        title: 'Evaluation Archives', 
+        title: 'eval archives', 
         script: '../javascripts/evalArchive.js', 
         isEval: true, 
         layout: 'qatlayout',
