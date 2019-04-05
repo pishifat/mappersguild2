@@ -11,14 +11,17 @@ router.use(api.isLoggedIn);
 
 /* GET bn app page */
 router.get('/', async (req, res, next) => {
+    let isBnOrQat;
+    if (res.locals.userRequest.group == 'bn' || res.locals.userRequest.group == 'qat') {
+        isBnOrQat = true;
+    }
     res.render('bnapp', {
         title: 'bn app',
         script: '../js/bnApp.js',
         isBnApp: true,
         layout: 'qatlayout',
         loggedInAs: req.session.qatMongoId,
-        isBnOrQat: res.locals.userRequest.group == 'bn' || res.locals.userRequest.group == 'qat',
-        isQat: res.locals.userRequest.group == 'qat'
+        isBnOrQat: isBnOrQat,
     });
 });
 

@@ -261,7 +261,7 @@ export default {
                 this.limit = 16;
             }).then(function(){
                 $("#loading").fadeOut();
-                $("#main").attr("style", "visibility: visible").hide().fadeIn();
+                $(".container").attr("style", "visibility: visible").hide().fadeIn();
             });
     },
     mounted () {
