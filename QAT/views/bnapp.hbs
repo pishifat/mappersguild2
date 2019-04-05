@@ -51,20 +51,18 @@
     <div id="errors" class="errors"></div>
     <div id="confirm" class="confirm"></div>
 
-    <div class="col-md-6 mt-2 text-center mx-auto">
-        <button id="apply" class="btn btn-lg btn-block btn-qat" type="submit">Apply</button>
+    <div class="col-md-12 mt-2 text-center mx-auto">
+        <button id="apply" class="btn btn-lg btn-qat" type="submit">Apply</button>
     </div>
-    {{#if pendingTest}}
-    <div class="col-md-6 mt-2 text-center mx-auto">
-        <a href="/qat/testsubmission" class="btn btn-lg btn-qat" type="submit">Start the test now</a>
-    </div>
-    {{/if}}
 </div>
+<hr>
 {{/if}}
 
-
-{{!-- Temp stuff --}}
-<hr>
+{{#if pendingTest}}
+<form action="/qat/testsubmission" method="get">
+    <button class="btn btn-lg btn-block btn-qat" type="submit">Do the test</button>
+</form>
+{{/if}}
 <form action="/qat/testsubmission/generatetest" method="post">
     <button class="btn btn-lg btn-qat" type="submit">temp generate test</button>
     <a href="/qat/testsubmission" class="btn btn-lg btn-qat" type="submit">temp visit test</a>
