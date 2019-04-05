@@ -61,7 +61,7 @@
             :veto="selectedVeto"
             :user-id="userId"
             :user-group="userGroup"
-            :isMediator="isMediator"
+            :.sync="selectedVeto"
             @update-veto="updateVeto($event)"
         ></veto-info>
         <submit-veto @submit-veto="SubmitVeto($event)"></submit-veto>
@@ -94,13 +94,15 @@ export default {
         },
         SubmitVeto: function(v) {
             this.allObjs.push(v);
-            this.filter();
         },
         updateVeto: function(v) {
             const i = this.allObjs.findIndex(veto => veto.id == v.id);
             this.allObjs[i] = v;
+
+            i = this.pageObjs.findIndex(veto => veto.id == v.id);
+            this.pageObjs[i] = v;
+
             this.selectedVeto = v;
-            this.filter();
         },
     },
     data() {
@@ -111,7 +113,6 @@ export default {
             userId: null,
             userGroup: null,
             selectedVeto: null,
-            isMediator: null,
         };
     },
     created() {
@@ -121,7 +122,6 @@ export default {
                 this.allObjs = response.data.vetoes;
                 this.userId = response.data.userId;
                 this.userGroup = response.data.userGroup;
-                this.isMediator = response.data.isMediator;
                 this.limit = 16;
             })
             .then(function() {
@@ -134,7 +134,7 @@ export default {
     },
     mounted() {
         setInterval(() => {
-            axios.get('/qat/vetoes/relevantInfo').then(response => {
+            axios.get('/users/relevantInfo').then(response => {
                 this.allObjs = response.data.vetoes;
                 if (this.isFiltered) {
                     this.filter();

@@ -8,13 +8,9 @@
     --probation: #cea0ff;
     --probation-light: #eeddff;
     --pass: #90f3aa;
-    --available: var(--pass);
     --neutral: #a0c6ff;
-    --wip: var(--neutral);
     --extend: #fff9aa;
-    --upheld: var(--extend);
     --fail: #ff9b9b;
-    --withdrawn: var(--fail);
 
     --dark: #252525;
     --dark-alpha: #252525a6;

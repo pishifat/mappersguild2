@@ -71,17 +71,6 @@ async function getUserInfo(token) {
     }
 }
 
-async function beatmapsetInfo(setId) {
-    const url = `https://osu.ppy.sh/api/get_beatmaps?k=${config.v1token}&s=${setId}`;
-    
-    try {
-        const res = await axios.get(url);
-        return res.data[0];
-    } catch (error) {
-        return { error: 'Something went wrong!' };
-    }
-}
-
 async function isLoggedIn(req, res, next) {
     if (req.session.qatMongoId) {
         const u = await users.service.query({ _id: req.session.qatMongoId });
@@ -126,4 +115,4 @@ async function isQat(req, res, next) {
     }
 }
 
-module.exports = { isLoggedIn, getToken, getUserInfo, beatmapsetInfo, isBnOrQat, isQat };
+module.exports = { isLoggedIn, getToken, getUserInfo, isBnOrQat, isQat };
