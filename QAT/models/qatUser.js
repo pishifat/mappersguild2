@@ -7,6 +7,7 @@ const qatUserSchema = new mongoose.Schema({
     username: { type: String, required: true },
     group: { type: String, enum: ["bn", "qat", 'user'], default: 'user' },
     modes: [{ type: String, enum: ["osu", "taiko", "catch", "mania"] }],
+    applications: [{ type: 'ObjectId', ref: 'bnApp' }],
     probation: [{ type: String, enum: ["osu", "taiko", "catch", "mania"] }],
     vetoMediator: { type: Boolean, default: true }, 
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });

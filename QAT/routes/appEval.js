@@ -12,23 +12,14 @@ router.get('/', async (req, res, next) => {
 
 //population doesnt work???
 const defaultPopulate = [
-    { populate: 'applicant', display: 'username osuId', model: users.QatUser },
-    { populate: 'evaluations', display: 'evaluator behaviorComment moddingComment vote', model: evals.Evaluation }
-];
-
-const defaultDiscussPopulate = [
-    { populate: 'applicant', display: 'username osuId', model: users.QatUser },
-    { populate: 'evaluations', display: 'evaluator behaviorComment moddingComment vote', model: evals.Evaluation },
-    { innerPopulate: 'evaluations', model: evals.Evaluation, populate: { path: 'evaluator', select: 'username osuId', model: users.QatUser } },
+    { populate: 'applicant', display: 'username osuId', model: 'QatUser' },
+    { populate: 'evaluations', display: 'evaluator behaviorComment moddingComment vote', model: 'Evaluation' }
 ];
 
 /* GET applicant listing. */
 router.get('/relevantInfo', async (req, res, next) => {
-    const [a, da] = await Promise.all([
-        await bnApps.service.query({active: true, discussion: false}, defaultPopulate, {createdAt: 1}, true ),
-        await bnApps.service.query({active: true, discussion: true}, defaultDiscussPopulate, {createdAt: 1}, true ),
-    ]);
-    res.json({ a: a, da: da, evaluator: req.session.qatMongoId });
+    let applications = await bnApps.service.query({}, defaultPopulate, {createdAt: 1}, true );
+    res.json({ applications: applications, evaluator: req.session.qatMongoId });
 });
 
 
@@ -38,13 +29,11 @@ router.post('/submitEval/:id', async (req, res) => {
         await evals.service.update(req.body.evaluationId, {behaviorComment: req.body.behaviorComment, moddingComment: req.body.moddingComment, vote: req.body.vote});
     }else{
         let ev = await evals.service.create(req.session.qatMongoId, req.body.behaviorComment, req.body.moddingComment, req.body.vote);
-        a = await bnApps.service.update(req.params.id, {$push: {evaluations: ev._id}});
+        await bnApps.service.update(req.params.id, {$push: {evaluations: ev._id}});
     }
-    if(req.body.discussion){
-        res.json(await bnApps.service.query({ _id: req.params.id }, defaultDiscussPopulate));
-    }else{
-        res.json(await bnApps.service.query({ _id: req.params.id }, defaultPopulate));
-    }
+    let a = await bnApps.service.query({ _id: req.params.id }, defaultPopulate);
+
+    res.json(a)
 });
 
 module.exports = router;
