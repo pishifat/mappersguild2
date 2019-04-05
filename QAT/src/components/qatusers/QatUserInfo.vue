@@ -15,7 +15,7 @@
                 </button>
             </div>
             <div class="modal-body" style="overflow: hidden">
-                <p class="text-shadow">BN Score: coming soon</p>
+                <p class="text-shadow">BN Score: 394394</p>
                 <p v-if="user.id == userId" class="text-shadow">Veto Mediation: 
                     <button 
                         class="btn btn-sm justify-content-center" 
