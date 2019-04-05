@@ -67,7 +67,7 @@ module.exports = [
     // QAT
     {
         entry: {
-            appEval: './QAT/src/appEval.js',
+            bnApp: './QAT/src/bnApp.js',
         },
         output: {
             filename: '[name].js',

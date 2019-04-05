@@ -23,7 +23,6 @@ const notificationsRouter = require('./routes/notifications');
 const adminsRouter = require('./routes/admin');
 //qat
 const bnAppRouter = require('./QAT/routes/bnApp');
-const appEvalRouter = require('./QAT/routes/appEval');
 
 const logs = require('./models/log');
 
@@ -72,9 +71,6 @@ app.use('/parties', partiesRouter);
 app.use('/logs', logsRouter);
 app.use('/notifications', notificationsRouter);
 app.use('/admin', adminsRouter);
-
-//qat
-app.use('/appEval', appEvalRouter);
 
 //qat
 const qatdb = mongoose.createConnection(config.qat.connection, { useNewUrlParser: true });

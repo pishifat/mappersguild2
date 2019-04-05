@@ -104,7 +104,6 @@ router.get('/callback', async (req, res) => {
         } else if (response.ranked_and_approved_beatmapset_count >= 3 && response.kudosu.total >= 0) {
             req.session.username = response.username;
             req.session.osuId = response.id;
-            req.session.group = 'qat'; //temporary because i broke qat callback
             res.redirect('/login');
         } else { 
             let u = await users.service.query({ osuId: response.id });
