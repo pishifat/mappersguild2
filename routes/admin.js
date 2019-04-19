@@ -186,12 +186,54 @@ router.post('/updateMapStatus/:id', async (req, res) => {
             if (indexEnd !== -1) {
                 bmId = b.url.slice(indexStart, indexEnd);
             } else {
-                bmId = b.url.slice(indexStart, (map.url.length-1));
+                bmId = b.url.slice(indexStart);
             }
             const bmInfo = await api.beatmapsetInfo(bmId);
             await beatmaps.service.update(b._id, {length: bmInfo.hit_length});
+            b = await beatmaps.service.query({_id: req.params.id}, defaultMapPopulate);
+
+            let names = [];
+            b.tasks.forEach(task => {
+                task.mappers.forEach(mapper => {
+                    if(names.indexOf(mapper.username) == -1 && mapper.username != b.host.username){
+                        names.push(mapper.username);
+                    }
+                });
+            });
+            let nameString;
+            if(!names.length){
+                nameString = "No guest difficulties";
+            }else if(names.length > 1){
+                nameString = "Guest difficulties: ";
+            }else if(names.length == 1){
+                nameString = "Guest difficulty: ";
+            }
+            for (let i = 0; i < names.length; i++) {
+                nameString += names[i];
+                if(i != names.length - 1){
+                    nameString += ", "
+                }
+            }
+
+            api.webhookPost([{
+                author: {
+                    name: `Ranked: ${b.song.artist} - ${b.song.title}`,
+                    url: b.url,
+                    icon_url: 'https://a.ppy.sh/' + b.host.osuId,
+                },
+                thumbnail: {
+                    url: `https://assets.ppy.sh/beatmaps/${bmId}/covers/list.jpg`
+                },
+                color: '10221039',
+                fields:[
+                    {
+                        name: `Host: ${b.host.username}`,
+                        value: nameString
+                    }
+                ]
+            }]);
         }
-        b = await beatmaps.service.query({_id: req.params.id}, defaultMapPopulate);
+        if(req.body.status != "Ranked") b = await beatmaps.service.query({_id: req.params.id}, defaultMapPopulate);
         res.json(b);
         
         //logs.service.create(req.session.mongoId, `set status of "${b.song.artist} - ${b.song.title}" to "${req.body.status}"`, req.params.id, 'beatmap' );
