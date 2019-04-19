@@ -313,7 +313,7 @@ router.post('/deleteMap/:id', async (req, res) => {
         
         res.json(`deleted "${b.song.artist} - ${b.song.title}"`);
         
-        logs.service.create(req.session.mongoId, `deleted "${b.song.artist} - ${b.song.title}"`, req.params.id, 'beatmap' );
+        //logs.service.create(req.session.mongoId, `deleted "${b.song.artist} - ${b.song.title}"`, req.params.id, 'beatmap' );
     }
 });
 
@@ -501,7 +501,7 @@ router.post('/updatePartyRanks', async (req, res) => {
             
         }
 
-        logs.service.create(req.session.mongoId, `updated party ranks`, null, 'party' );
+        //logs.service.create(req.session.mongoId, `updated party ranks`, null, 'party' );
         res.json("party ranks updated");
         
     }

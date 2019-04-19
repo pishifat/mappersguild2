@@ -164,6 +164,14 @@ export default {
                     this.filteredBeatmaps = this.filteredBeatmaps.filter(b => {
                         if(b.mode == this.filterMode){
                             return true;
+                        }else if(b.mode == 'hybrid'){
+                            let value;
+                            b.tasks.forEach(task => {
+                                if(task.mode == this.filterMode){
+                                    value = true;
+                                }
+                            });
+                            return value;
                         }
                         return false;
                     });
@@ -171,6 +179,14 @@ export default {
                     this.filteredBeatmaps = this.allBeatmaps.filter(b => {
                         if(b.mode == this.filterMode){
                             return true;
+                        }else if(b.mode == 'hybrid'){
+                            let value;
+                            b.tasks.forEach(task => {
+                                if(task.mode == this.filterMode){
+                                    value = true;
+                                }
+                            });
+                            return value;
                         }
                         return false;
                     });
