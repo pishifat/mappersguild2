@@ -135,6 +135,13 @@ export default {
 					this.newArtists.push(artist);
 				}
 			});
+			for (let i = 0; i < this.newArtists.length; i++) {
+				let artist = this.newArtists[i];
+				if(artist.projectedRelease){
+					this.newArtists.splice(i,1);
+					this.newArtists.unshift(artist);
+				}
+			}
 		},
 		updateArtist: function (artist) {
 			const i = this.allArtists.findIndex(a => a.id == artist.id);

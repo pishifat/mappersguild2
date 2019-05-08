@@ -25,7 +25,7 @@ router.get('/', async (req, res, next) => {
 });
 
 router.get('/relevantInfo', async (req, res, next) => {
-    let a = await featuredArtists.service.query({}, defaultPopulate, {projectedRelease: 1, updatedAt: -1}, true);
+    let a = await featuredArtists.service.query({}, defaultPopulate, {updatedAt: -1}, true);
     res.json({artists: a});
 });
 
