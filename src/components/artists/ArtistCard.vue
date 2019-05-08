@@ -137,23 +137,23 @@
                     </a>
                 </p>
             </span>
-            <p class="sub-header text-shadow min-spacing mt-2">Notes: 
+            <p class="text-shadow min-spacing mt-2"><span class="sub-header">Notes:</span> 
                 <a href="#" @click.prevent="updateNotes()">
                     <i class="fas fa-edit"></i>
                 </a>
             </p>
-            <p v-if="!showNotesInput" class="small text-shadow min-spacing ml-2 mb-3">
-                {{artist.notes ? artist.notes : '...'}}
+            <p v-if="!showNotesInput" class="small text-shadow min-spacing ml-2 mb-3 notes-pre">
+                {{artist.notes || '...'}}
             </p>
             <textarea
                 v-if="showNotesInput"
                 class="custom-input small mb-5 ml-2 w-100"
                 rows="4"
                 type="text"
-                placeholder="notes..."
+                placeholder="shift+enter for new line, enter for submit..."
                 style="border-radius: 5px 5px 5px 5px;"
                 v-model="artist.notes"
-                @keyup.enter="updateNotes()"
+                @keyup.enter="updateNotes($event)"
             ></textarea>
             <br>
             <div class="card-footer text-muted footer-spacing">
@@ -281,8 +281,15 @@ export default {
             }
         },
         updateNotes: async function (e) {
-            this.showNotesInput = !this.showNotesInput;
-            if(this.artist.notes != this.tempNotes){
+            let submit;
+            if(e && e.keyCode == 13 && !e.shiftKey){
+                submit = true;
+            }else if(!e){
+                this.showNotesInput = !this.showNotesInput;
+            }
+            if(this.artist.notes != this.tempNotes && submit){
+                this.artist.notes = this.artist.notes.trim();
+                this.showNotesInput = !this.showNotesInput;
                 const artist = await this.executePost('/artists/updateNotes/' + this.artist.id, {notes: this.artist.notes}, e);
                 if (artist) {
                     this.$emit('update-artist', artist);
@@ -331,6 +338,20 @@ export default {
     left:0; 
     bottom:0; 
     width:100%
+}
+
+.fas:hover {
+    color: var(--ranked); 
+    text-decoration: none;
+}
+
+.fas:active {
+    color: var(--clicked); 
+}
+
+.notes-pre{
+    white-space: pre-line;
+    margin-top: -1.5em !important;
 }
 
 </style>

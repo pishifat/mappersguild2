@@ -1,11 +1,24 @@
 <template>
 <div class="row">
     <div class="col-md-12">
-        <h2>In-progress</h2>
+        <h2>In progress</h2>
+		<h4 class="ml-4">New artists</h4>
         <div>
             <transition-group name="list" tag="div" class="row">
 				<artist-card
-					v-for="artist in wip"
+					v-for="artist in newArtists"
+					:key="artist.id"
+					:artist="artist"
+                    @update:selectedArtist="selectedArtist = $event"
+					@update-artist="updateArtist($event)"
+				></artist-card>
+            </transition-group>
+        </div>
+		<h4 class="ml-4 mt-4">Current artist updates</h4>
+        <div>
+            <transition-group name="list" tag="div" class="row">
+				<artist-card
+					v-for="artist in updateArtists"
 					:key="artist.id"
 					:artist="artist"
                     @update:selectedArtist="selectedArtist = $event"
@@ -103,7 +116,8 @@ export default {
 		separateObjs: function() {
 			this.notContacted = [];
 			this.upToDate = [];
-			this.wip = [];
+			this.newArtists = [];
+			this.updateArtists = [];
 			this.stalled = [];
 			this.rejected = [];
 			this.allArtists.forEach(artist => {
@@ -115,8 +129,10 @@ export default {
 					this.stalled.push(artist);
 				}else if(artist.isRejected){
 					this.rejected.push(artist);
+				}else if(artist.isPendingUpdate){
+					this.updateArtists.push(artist);
 				}else{
-					this.wip.push(artist);
+					this.newArtists.push(artist);
 				}
 			});
 		},
@@ -137,7 +153,8 @@ export default {
 			allArtists: null,
 			notContacted: [],
 			upToDate: [],
-			wip: [],
+			newArtists: [],
+			updateArtists: [],
 			stalled: [],
 			rejected: [],
 
