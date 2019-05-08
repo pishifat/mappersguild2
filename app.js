@@ -21,6 +21,7 @@ const partiesRouter = require('./routes/parties');
 const logsRouter = require('./routes/logs');
 const notificationsRouter = require('./routes/notifications');
 const adminsRouter = require('./routes/admin');
+const artistsRouter = require('./routes/artists');
 
 const logs = require('./models/log');
 
@@ -68,6 +69,7 @@ app.use('/parties', partiesRouter);
 app.use('/logs', logsRouter);
 app.use('/notifications', notificationsRouter);
 app.use('/admin', adminsRouter);
+app.use('/artists', artistsRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

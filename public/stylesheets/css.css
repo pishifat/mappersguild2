@@ -324,6 +324,15 @@ input[type='text']:focus {
     border-radius: 0 100px 100px 0;
 }
 
+textarea,
+textarea:focus {
+    background-color: #333;
+    color: white;
+    border-color: transparent;
+    filter: drop-shadow(1px 1px 1px #000000);
+    border-radius: 0 100px 100px 0;
+}
+
 .custom-select {
     min-width: 5em;
     width: 5em;
@@ -395,6 +404,11 @@ input[type='text']:focus {
 
 .card:hover {
     transform: scale(1.03);
+    opacity: 1;
+}
+
+.static-card:hover {
+    transform: scale(1) !important;
     opacity: 1;
 }
 
@@ -490,7 +504,7 @@ input[type='text']:focus {
 }
 
 a:hover {
-    color: var(--ranked);
+    color: var(--ranked); 
     text-decoration: none;
 }
 

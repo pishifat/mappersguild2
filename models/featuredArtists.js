@@ -5,6 +5,26 @@ const featuredArtistSchema = new mongoose.Schema({
     label: { type: String, required: true },
     osuId: { type: Number },
     songs: [{ type: 'ObjectId', ref: 'FeaturedSong' }],
+    
+    isContacted: { type: Boolean },
+    isResponded: { type: Boolean },
+    tracksSelected: { type: Boolean },
+    contractSent: { type: Boolean },
+    contractSigned: { type: Boolean },
+    contractPaid: { type: Boolean },
+    songsTimed: { type: Boolean },
+    assetsReceived: { type: Boolean },
+    bioWritten: { type: Boolean },
+    isReady: { type: Boolean },
+    isUpToDate: { type: Boolean },
+    isPendingUpdate: { type: Boolean },
+    isStalled: { type: Boolean },
+    isRejected: { type: Boolean },
+
+    notes: { type: String },
+    lastMajorUpdate: { type: Date },
+    projectedRelease: { type: Date },
+    classification: { type: String, enum: ["Minor", "Major"]}
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const FeaturedArtist = mongoose.model('FeaturedArtist', featuredArtistSchema);
@@ -122,10 +142,16 @@ class FeaturedArtistService
 
     async createArtist(label, osuId) {
         try {
-            return await FeaturedArtist.create({ 
-                label: label,
-                osuId: osuId
-            });
+            if(osuId){
+                return await FeaturedArtist.create({ 
+                    label: label,
+                    osuId: osuId
+                });
+            }else{
+                return await FeaturedArtist.create({ 
+                    label: label
+                });
+            }
         } catch(error) {
             logs.service.create(null, error, null, 'error');
             return { error: error._message };

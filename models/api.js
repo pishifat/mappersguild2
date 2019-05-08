@@ -159,4 +159,12 @@ async function isLoggedIn(req, res, next) {
     }
 }
 
-module.exports = { isLoggedIn, getToken, getUserInfo, isBn, webhookPost, beatmapsetInfo };
+async function isAdmin(req, res, next) {
+    if(res.locals.userRequest.group == 'admin'){
+        next();
+    }else{
+        res.redirect('/');
+    }
+}
+
+module.exports = { isLoggedIn, getToken, getUserInfo, isBn, webhookPost, beatmapsetInfo, isAdmin };

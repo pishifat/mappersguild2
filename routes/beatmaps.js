@@ -164,7 +164,7 @@ router.get('/relevantInfo', async (req, res, next) => {
 
 /* GET artists for new map entry */
 router.get('/artists/', async (req, res, next) => {
-    let fa = await featuredArtists.service.query({}, {}, {}, true);
+    let fa = await featuredArtists.service.query({osuId: {$exists: true}}, {}, {}, true);
     res.json(fa);
 });
 

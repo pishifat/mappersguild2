@@ -11,6 +11,7 @@ module.exports = {
         users: './src/users.js',
         notifications: './src/notifications.js',
         admin: './src/admin.js',
+        artists: './src/artists.js',
         //notificationsComponent: './src/notificationsComponent.js', // Whenever need to rebuild the notif thing at bottom
     },
     output: {
