@@ -1,7 +1,7 @@
 <template>
 
 <div class='col-md-4 col-lg-3 my-2' @click="selectUser()">
-    <div class="card custom-bg-dark border-outline" :class="'border-rank-' + user.rank" style="height: 100%"
+    <div class="card bg-dark border-outline" :class="'border-rank-' + user.rank" style="height: 100%"
         data-toggle="modal" data-target='#extendedInfo' :data-user="user.osuId">
         <div class='card-header'><a :href="'https://osu.ppy.sh/users/' + user.osuId"
                 class="text-shadow" target="_blank" @click.stop>{{user.username}}</a> <span class="pseudo-float-right-avatar"><img

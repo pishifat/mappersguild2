@@ -157,10 +157,6 @@ a {
     flex-direction: column;
 }
 
-.landing-logo {
-    vertical-align: middle;
-}
-
 .landing-arrow {
     padding-bottom: 20px;
 }
@@ -177,8 +173,8 @@ a {
     padding-right: 4px;
 }
 
-.custom-bg-dark {
-    background-color: var(--dark);
+.bg-dark {
+    background-color: var(--dark)!important;
 }
 
 .border-outline {
@@ -309,19 +305,15 @@ a {
     background-color: var(--rest);
 }
 
+.bg-container {
+    background-color: #1e1c1a;
+    box-shadow: 1px 1px 5px 1px #131313;
+}
+
 @media (min-width: 768px) {
     .bm-col-separator-left {
         border-left: 3px solid rgba(0, 0, 0, 0.5);
     }
-}
-
-input[type='text'],
-input[type='text']:focus {
-    background-color: #333;
-    color: white;
-    border-color: transparent;
-    filter: drop-shadow(1px 1px 1px #000000);
-    border-radius: 0 100px 100px 0;
 }
 
 textarea,
@@ -331,39 +323,6 @@ textarea:focus {
     border-color: transparent;
     filter: drop-shadow(1px 1px 1px #000000);
     border-radius: 0 100px 100px 0;
-}
-
-.custom-select {
-    min-width: 5em;
-    width: 5em;
-    height: 2.5em;
-    background-color: #333;
-    color: white;
-    border-color: transparent;
-}
-
-.input-group-sm > .custom-select {
-    padding-left: 10px;
-    filter: drop-shadow(1px 1px 1px #000000);
-    border-radius: 100px 0 0 100px;
-}
-
-.select-arrow {
-    background-image: linear-gradient(45deg, transparent 50%, gray 50%),
-        linear-gradient(135deg, gray 50%, transparent 50%);
-    background-position: calc(100% - 20px) calc(1em), calc(100% - 15px) calc(1em),
-        calc(100% - 2.5em) 0.5em;
-    background-size: 5px 5px, 5px 5px, 1px 1.5em;
-    background-repeat: no-repeat;
-}
-
-.select-arrow-filter {
-    background-image: linear-gradient(45deg, transparent 50%, gray 50%),
-        linear-gradient(135deg, gray 50%, transparent 50%);
-    background-position: calc(100% - 10px) calc(0.75em), calc(100% - 5px) calc(0.75em),
-        calc(100% - 2.5em) 0.5em;
-    background-size: 5px 5px, 5px 5px, 1px 1.5em;
-    background-repeat: no-repeat;
 }
 
 .confirm {
@@ -440,35 +399,6 @@ textarea:focus {
     border-top: 5px solid var(--rank-3);
 }
 
-/* SCROLLBAR STUFF TO DO LATER
-.scroll-column::-webkit-scrollbar-track {
-    background:transparent;
-}
- 
-.scroll-column::-webkit-scrollbar {
-    width:5px;
-    background: transparent;
-}
-
-.scroll-column::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.5);
-    -webkit-border-radius: 1ex;
-    -webkit-box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.75);
-}
-
-.scroll-column::-webkit-scrollbar-corner {
-    background: #000;
-}
-
-.scroll-column{
-    overflow-y:scroll;
-    height:300px;
-
-    scrollbar-width: thin; 
-    scrollbar-color: rgba(0, 0, 0, 0.5) transparent;
-}
-*/
-
 .the-a-background {
     width: 557px;
     height: 600px;
@@ -522,13 +452,6 @@ a:active {
     color: var(--clicked);
 }
 
-@media (min-width: 992px) {
-    .navbar-brand {
-        border-right: 3px solid white;
-        padding-right: 1rem;
-    }
-}
-
 .list-enter-active,
 .list-leave-active,
 .list-move {
@@ -573,7 +496,14 @@ hr {
 }
 
 .sorted {
-    border-bottom: 1px solid white;
+    background-color: #ffffff2e;
+    padding: 5px;
+    border-radius: 9px;
+    color: var(--ranked);
+}
+
+.unsorted {
+    padding: 5px;
 }
 
 .nav-avatar {
@@ -593,4 +523,62 @@ hr {
     .nav-logout {
         display: none;
     }
+}
+
+.form-control {
+    color: #fff;
+    background-color: #625f5c66;
+    border: 1px solid #6c757d;
+}
+
+.form-control:focus {
+    color: #fff;
+    background-color: initial;
+    border-color: #6c757d;
+    box-shadow: 0 0 0 0.2rem rgba(108,117,125,.5);
+}
+
+.input-group-text {
+    background-color: #625f5c66;
+    border: 1px solid #6c757d;
+}
+
+.linear-divisor {
+    height:3px; 
+    width: 50%; 
+    background-image:linear-gradient(to right, #ff5e37, transparent);
+}
+
+.radial-divisor {
+    height:3px; 
+    width: 50%; 
+    background-image:radial-gradient(#ff5e37, transparent);
+}
+
+.add-divisor {
+    background-image: linear-gradient(to right, transparent, rgb(76, 69, 63) 50%, transparent);
+}
+
+.table-sm {
+    font-size: 80%;
+    font-weight: 400;
+}
+
+.table-dark {
+    background-color: transparent;
+    color: var(--main-text) !important;
+}
+
+.table-dark thead {
+    background-color: #1f2022c4;
+}
+
+.table-dark thead td {
+    font-weight: 600;
+    color: hsla(0,0%,100%,.8);
+    text-transform: uppercase;
+}
+
+select option {
+    color: #333;
 }

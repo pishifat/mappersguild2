@@ -1,7 +1,7 @@
 <template>
 <div id="addBeatmap" class="modal fade" tabindex="-1">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content custom-bg-dark">
+        <div class="modal-content bg-dark">
             <div class="modal-header bg-done">
                 <h5 class="modal-title text-dark">Add Beatmap</h5>
                 <button type="button" class="close" data-dismiss="modal">

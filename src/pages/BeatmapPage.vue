@@ -1,109 +1,84 @@
 <template>
-  <div class="row">
-    <div class="col-lg-12">
-      <div class="row">
-        <h2>Work-in-progress/Pending
-          <button
-            class="btn btn-mg"
-            data-toggle="modal"
-            data-target="#addBeatmap"
-            @click="openAddBeatmap()"
-          >Add beatmap</button>
-        </h2>
-      </div>
-      <div class="row col-md-12 pb-2">
-        <small>
-          Search:
-          <input
-            id="search"
-            class="px-1"
-            v-model="filterValue"
-            type="text"
-            maxlength="48"
-            placeholder="song/username... (3+ characters)"
-            style="border-radius: 5px 5px 5px 5px; filter: drop-shadow(1px 1px 1px #000000); width: 203px;"
-          >
-          <a href="#" class="icon-valid" @click.prevent="selfFilter()" data-toggle="tooltip" title="My maps"><i class="ml-1 fas fa-home"></i></a>
-        </small> 
-        
-        <small class="ml-4">
-        Filter:
-        <select class="custom-select select-arrow-filter" id="mode" v-model="filterMode" style="border-radius: 5px 5px 5px 5px; width: 100px; padding: 0 0 0 5px; height: 26px;">
-            <option value="" selected>All modes</option>
-            <option value="osu">osu!</option>
-            <option value="taiko">osu!taiko</option>
-            <option value="catch">osu!catch</option>
-            <option value="mania">osu!mania</option>
-        </select>
-        </small>
-        <small>
-        <select class="custom-select select-arrow-filter ml-2" id="status" v-model="filterStatus" style="border-radius: 5px 5px 5px 5px; width: 100px; padding: 0 0 0 5px; height: 26px;">
-            <option value="" selected>All statuses</option>
-            <option value="WIP">WIP</option>
-            <option value="Done">Pending</option>
-            <option value="Qualified">Qualified</option>
-        </select>
-        </small>
-        <small>
-        <select class="custom-select select-arrow-filter ml-2" id="selectQuest" v-model="filterQuest" style="border-radius: 5px 5px 5px 5px; width: 200px; padding: 0 0 0 5px; height: 26px;">
-            <option value="" selected>All quests</option>
-            <option value="none">No quests</option>
-            <option v-for="quest in allQuests" :key="quest.id" :value="quest.id">{{quest.name}}</option>
-        </select>
-        </small>
+    <div>
+        <div class="container bg-container py-3">
+            <filter-box
+                :filterValue.sync="filterValue"
+                :filterMode.sync="filterMode"
+                :filterStatus.sync="filterStatus"
+                :filterQuest.sync="filterQuest"
+                :all-quests="allQuests"
+                @self-filter="selfFilter()"
+            ></filter-box>
+        </div>
 
-      </div>
+        <div class="row justify-content-center my-2">
+            <a
+                class="col-3 text-center add-divisor"
+                href="#"
+                data-toggle="modal"
+                data-target="#addBeatmap"
+                @click.prevent="openAddBeatmap()"
+            >
+                <i class="fas fa-plus"></i>
+            </a>
+        </div>
 
-      <button
-        :disabled="!(pre > 0)"
-        class="btn btn-sm btn-mg mx-auto my-2"
-        style="display:block"
-        type="button"
-        @click="showNewer()"
-      >
-        <i class="fas fa-angle-up mr-1"></i> show newer
-        <i class="fas fa-angle-up ml-1"></i>
-      </button>
-      <div id="wipAndPendingBeatmaps">
-        <transition-group name="list" tag="div" class="row">
-          <beatmap-card
-            v-for="beatmap in beatmaps"
-            :key="beatmap.id"
-            :beatmap="beatmap"
+        <div class="container bg-container py-3">
+            <button
+                :disabled="!(pre > 0)"
+                class="btn btn-sm btn-mg mx-auto my-2"
+                style="display:block"
+                type="button"
+                @click="showNewer()"
+            >
+                <i class="fas fa-angle-up mr-1"></i> show newer
+                <i class="fas fa-angle-up ml-1"></i>
+            </button>
+            <div>
+                <transition-group name="list" tag="div" class="row">
+                    <beatmap-card
+                        v-for="beatmap in beatmaps"
+                        :key="beatmap.id"
+                        :beatmap="beatmap"
+                        :user-osu-id="userOsuId"
+                        @update:selectedMap="selectedMap = $event"
+                    ></beatmap-card>
+                </transition-group>
+                <div class="small text-center mx-auto">{{ currentPage }} of {{ pages }}</div>
+                <button
+                    :disabled="!canShowOlder"
+                    class="btn btn-sm btn-mg mx-auto my-2"
+                    style="display:block"
+                    type="button"
+                    @click="showOlder()"
+                >
+                    <i class="fas fa-angle-down mr-1"></i> show older
+                    <i class="fas fa-angle-down ml-1"></i>
+                </button>
+            </div>
+        </div>
+
+        <beatmap-info
+            :beatmap="selectedMap"
             :user-osu-id="userOsuId"
-            @update:selectedMap="selectedMap = $event"
-          ></beatmap-card>
-        </transition-group>
-        <div
-          class="small text-center mx-auto"
-        >{{currentPage}} of {{pages}}</div>
-        <button
-          :disabled="!canShowOlder"
-          class="btn btn-sm btn-mg mx-auto my-2"
-          style="display:block"
-          type="button"
-          @click="showOlder()"
-        >
-          <i class="fas fa-angle-down mr-1"></i> show older
-          <i class="fas fa-angle-down ml-1"></i>
-        </button>
-      </div>
-    </div>
+            @update-map="updateMap($event)"
+        ></beatmap-info>
 
-    <beatmap-info :beatmap="selectedMap" :user-osu-id="userOsuId" @update-map="updateMap($event)"></beatmap-info>
-    <create-beatmap
-      :featured-artists="featuredArtists"
-      :featured-songs="featuredSongs"
-      :info="info"
-    ></create-beatmap>
-    <notifications-access></notifications-access>
-  </div>
+        <create-beatmap
+            :featured-artists="featuredArtists"
+            :featured-songs="featuredSongs"
+            :info="info"
+        ></create-beatmap>
+
+        <notifications-access></notifications-access>
+    </div>
 </template>
 
 <script>
 import CreateBeatmap from '../components/beatmaps/CreateBeatmap.vue';
 import BeatmapCard from '../components/beatmaps/BeatmapCard.vue';
 import BeatmapInfo from '../components/beatmaps/BeatmapInfo.vue';
+import FilterBox from '../components/FilterBox.vue';
 import NotificationsAccess from '../components/NotificationsAccess.vue';
 
 export default {
@@ -113,6 +88,7 @@ export default {
         BeatmapCard,
         BeatmapInfo,
         NotificationsAccess,
+        FilterBox,
     },
     watch: {
         filterValue: function(v) {
@@ -131,13 +107,13 @@ export default {
             this.limit = Math.round(this.limit);
             this.pre = this.limit - 24;
             if (this.allBeatmaps) {
-                if(this.isFiltered){
+                if (this.isFiltered) {
                     if (this.limit >= this.filteredBeatmaps.length) {
                         this.canShowOlder = false;
                     }
                     this.beatmaps = this.filteredBeatmaps.slice(this.pre, this.limit);
                     this.pages = Math.ceil(this.filteredBeatmaps.length / 24);
-                }else{
+                } else {
                     if (this.limit >= this.allBeatmaps.length) {
                         this.canShowOlder = false;
                     }
@@ -145,9 +121,10 @@ export default {
                     this.pages = Math.ceil(this.allBeatmaps.length / 24);
                 }
             }
-            if(this.pages > 0){
+            
+            if (this.pages > 0) {
                 this.currentPage = this.limit / 24;
-            }else{
+            } else {
                 this.currentPage = this.pages;
             }
         },
@@ -190,21 +167,17 @@ export default {
             this.selectedMap = bm;
             this.info = null;
         },
-        selfFilter: function(){
-            $('#search').val(this.username);
+        selfFilter: function() {
+            this.filterValue = this.username;
             this.filter();
         },
 
         // filters
         filter: function() {
-            this.filterValue = $('#search').val();
-            this.filterMode = $('#mode').val();
-            this.filterStatus = $('#status').val();
-            this.filterQuest = $('#selectQuest').val();
             this.filteredBeatmaps = this.allBeatmaps;
 
             //search
-            if(this.filterValue.length > 2){
+            if (this.filterValue.length > 2) {
                 this.filteredBeatmaps = this.allBeatmaps.filter(b => {
                     let valid = b.song.artist + ' ' + b.song.title + ' ' + b.host.username;
                     b.tasks.forEach(task => {
@@ -214,15 +187,18 @@ export default {
                     });
                     valid = valid.toLowerCase();
 
-                    let tags = this.filterValue.toLowerCase().trim().split(" ");
+                    let tags = this.filterValue
+                        .toLowerCase()
+                        .trim()
+                        .split(' ');
                     let count = 0;
                     tags.forEach(tag => {
-                        if(valid.includes(tag)){
+                        if (valid.includes(tag)) {
                             count++;
                         }
                     });
 
-                    if(count == tags.length){
+                    if (count == tags.length) {
                         return true;
                     }
                     return false;
@@ -230,15 +206,15 @@ export default {
             }
 
             //mode
-            if(this.filterMode.length){
-                if(this.isFiltered){
+            if (this.filterMode.length) {
+                if (this.isFiltered) {
                     this.filteredBeatmaps = this.filteredBeatmaps.filter(b => {
-                        if(b.mode == this.filterMode){
+                        if (b.mode == this.filterMode) {
                             return true;
-                        }else if(b.mode == 'hybrid'){
+                        } else if (b.mode == 'hybrid') {
                             let value;
                             b.tasks.forEach(task => {
-                                if(task.mode == this.filterMode){
+                                if (task.mode == this.filterMode) {
                                     value = true;
                                 }
                             });
@@ -246,14 +222,14 @@ export default {
                         }
                         return false;
                     });
-                }else{
+                } else {
                     this.filteredBeatmaps = this.allBeatmaps.filter(b => {
-                        if(b.mode == this.filterMode){
+                        if (b.mode == this.filterMode) {
                             return true;
-                        }else if(b.mode == 'hybrid'){
+                        } else if (b.mode == 'hybrid') {
                             let value;
                             b.tasks.forEach(task => {
-                                if(task.mode == this.filterMode){
+                                if (task.mode == this.filterMode) {
                                     value = true;
                                 }
                             });
@@ -265,17 +241,17 @@ export default {
             }
 
             //status
-            if(this.filterStatus.length){
-                if(this.isFiltered){
+            if (this.filterStatus.length) {
+                if (this.isFiltered) {
                     this.filteredBeatmaps = this.filteredBeatmaps.filter(b => {
-                        if(b.status == this.filterStatus){
+                        if (b.status == this.filterStatus) {
                             return true;
                         }
                         return false;
                     });
-                }else{
+                } else {
                     this.filteredBeatmaps = this.allBeatmaps.filter(b => {
-                        if(b.status == this.filterStatus){
+                        if (b.status == this.filterStatus) {
                             return true;
                         }
                         return false;
@@ -284,29 +260,33 @@ export default {
             }
 
             //quest
-            if(this.filterQuest.length){
-                if(this.isFiltered){
+            if (this.filterQuest.length) {
+                if (this.isFiltered) {
                     this.filteredBeatmaps = this.filteredBeatmaps.filter(b => {
-                        if(this.filterQuest == "none" && !b.quest){
+                        if (this.filterQuest == 'none' && !b.quest) {
                             return true;
-                        }else if(b.quest && b.quest.id == this.filterQuest){
+                        } else if (b.quest && b.quest.id == this.filterQuest) {
                             return true;
                         }
                         return false;
                     });
-                }else{
+                } else {
                     this.filteredBeatmaps = this.allBeatmaps.filter(b => {
-                        if(this.filterQuest == "none" && !b.quest){
+                        if (this.filterQuest == 'none' && !b.quest) {
                             return true;
-                        }else if(b.quest && b.quest.id == this.filterQuest){
+                        } else if (b.quest && b.quest.id == this.filterQuest) {
                             return true;
                         }
                         return false;
                     });
                 }
             }
-            
-            this.isFiltered = (this.filterValue.length > 2 || this.filterMode.length || this.filterStatus.length || this.filterQuest.length);
+
+            this.isFiltered =
+                this.filterValue.length > 2 ||
+                this.filterMode.length ||
+                this.filterStatus.length ||
+                this.filterQuest.length;
             this.limit = 24.01; //resets to first page
             this.canShowOlder = true;
         },
@@ -347,16 +327,16 @@ export default {
                 this.limit = 24;
                 this.pages = Math.ceil(this.allBeatmaps.length / this.limit);
                 this.currentPage = 1;
-                
+
                 if (this.limit >= this.allBeatmaps.length) {
                     this.canShowOlder = false;
                 }
 
                 let duplicate;
                 this.allBeatmaps.forEach(b => {
-                    if(b.quest && b.quest.name != duplicate){
+                    if (b.quest && b.quest.name != duplicate) {
                         duplicate = b.quest.name;
-                        this.allQuests.push({id: b.quest.id, name: b.quest.name});
+                        this.allQuests.push({ id: b.quest.id, name: b.quest.name, art: b.quest.art });
                     }
                 });
             })

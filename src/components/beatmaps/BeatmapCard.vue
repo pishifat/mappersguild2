@@ -1,7 +1,7 @@
 <template>
   <div class="my-2 col-sm-12 col-md-6 col-lg-4" @click="selectBeatmap()">
     <div
-      class="card map-card custom-bg-dark border-outline"
+      class="card map-card bg-dark border-outline"
       :style="beatmap.quest ? 'border-left: ' + beatmap.quest.color + ' 4px solid;' : ''"
       data-toggle="modal"
       data-target="#editBeatmap"
@@ -11,7 +11,7 @@
         class="card-status"
         :class="beatmap.status == 'WIP' ? 'card-status-wip' : beatmap.status == 'Done' ? 'card-status-done' : beatmap.status == 'Ranked' ? 'card-status-ranked' : 'card-status-qualified'"
       ></div>
-      <img class="card-img" :src="processUrl(beatmap.url)" style="opacity:0.5; overflow:hidden">
+      <img class="card-img" :src="processUrl(beatmap.url)" @error="fallbackImage($event)" style="opacity:0.5; overflow:hidden">
       <div class="card-img-overlay" style="padding: 0.50rem 0.50rem 0 0.50rem">
         <p
           class="card-title mb-1 text-shadow"
@@ -48,7 +48,15 @@
 export default {
     name: 'beatmap-card',
     props: ['beatmap', 'userOsuId'],
+    data () {
+        return {
+            defaultUrl: 'https://osu.ppy.sh/images/layout/beatmaps/default-bg.png',
+        }
+    },
     methods: {
+        fallbackImage: function(e) {
+            e.target.src = this.defaultUrl;
+        },
         selectBeatmap: function() {
             this.$emit('update:selectedMap', this.beatmap);
         },
@@ -61,8 +69,6 @@ export default {
             }
         },
         processUrl: function(beatmapUrl) {
-            let url = 'https://osu.ppy.sh/images/layout/beatmaps/default-bg.png';
-
             if (beatmapUrl && beatmapUrl.indexOf('osu.ppy.sh/beatmapsets/') !== -1) {
                 let indexStart = beatmapUrl.indexOf('beatmapsets/') + 'beatmapsets/'.length;
                 let indexEnd = beatmapUrl.indexOf('#');
@@ -73,10 +79,10 @@ export default {
                     idUrl = beatmapUrl.slice(indexStart);
                 }
 
-                url = `https://assets.ppy.sh/beatmaps/${idUrl}/covers/card.jpg`;
+                return `https://assets.ppy.sh/beatmaps/${idUrl}/covers/card.jpg`;
+            } else {
+                return this.defaultUrl;
             }
-
-            return url;
         },
         processDiffs: function(tasks, tasksLocked, mode) {
             let diffsBlock = '';

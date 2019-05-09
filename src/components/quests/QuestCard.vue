@@ -1,7 +1,7 @@
 <template>
 
 <div class='my-2' :class="quest.status == 'open' ? 'col-lg-12' : 'col-lg-6'" @click="selectQuest()"> <!--switch 6 and 12 for 2 columns open-->
-    <div class='card quest-card custom-bg-dark border-outline' style='height: 100%' data-toggle='modal' data-target='#extendedInfo' :data-user="quest.id">
+    <div class='card quest-card bg-dark border-outline' style='height: 100%' data-toggle='modal' data-target='#extendedInfo' :data-user="quest.id">
         <div
             class="quest-card-status"
             :class="quest.status == 'wip' ? 'quest-card-status-wip' : quest.status == 'done' ? 'quest-card-status-done' : 'quest-card-status-open'"

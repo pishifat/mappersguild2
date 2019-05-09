@@ -2,7 +2,7 @@
 
 <div id="extendedInfo" class="modal fade" tabindex="-1">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content custom-bg-dark" v-if="user">
+        <div class="modal-content bg-dark" v-if="user">
             <div class="modal-header text-dark" :class="'bg-rank-' + user.rank">
                 <h5 class="modal-title">{{user.username}}</h5>
                 <button type="button" class="close" data-dismiss="modal">
@@ -12,105 +12,105 @@
             <div class="modal-body" style="overflow: hidden">
                 <img src="../../images/the_A.png" class="the-a-background">
                 <div class="row col-lg-12">
-                    <table class="small table text-shadow col-md-6">
+                    <table class="table table-sm table-dark table-hover col-md-6">
                         <thead>
-                            <td scope="col" style="padding: 2px;">Task</td>
-                            <td scope="col" style="padding: 2px;">Points</td>
+                            <td scope="col">Task</td>
+                            <td scope="col">Points</td>
                         </thead>
                         <tbody>
                             <tr v-if="user.easyPoints">
-                                <td scope="row" style="padding: 1px;" data-toggle="tooltip" data-placement="left"
+                                <td scope="row" data-toggle="tooltip" data-placement="left"
                                     title="~5 points per difficulty. +2 if quest mapset">Mapping <i
                                         class="easy">Easy</i> difficulties</td>
                                 <td scope="row" style="padding: 1px;">{{Math.round(user.easyPoints*10)/10}}
                                 </td>
                             </tr>
                             <tr v-if="user.normalPoints">
-                                <td scope="row" style="padding: 1px;" data-toggle="tooltip" data-placement="left"
+                                <td scope="row" data-toggle="tooltip" data-placement="left"
                                     title="~6 points per difficulty. +2 if quest mapset">Mapping <i
                                         class="normal">Normal</i> difficulties</td>
                                 <td scope="row" style="padding: 1px;">
                                     {{Math.round(user.normalPoints*10)/10}}</td>
                             </tr>
                             <tr v-if="user.hardPoints">
-                                <td scope="row" style="padding: 1px;" data-toggle="tooltip" data-placement="left"
+                                <td scope="row" data-toggle="tooltip" data-placement="left"
                                     title="~7 points per difficulty. +2 if quest mapset">Mapping <i
                                         class="hard">Hard</i> difficulties</td>
                                 <td scope="row" style="padding: 1px;">{{Math.round(user.hardPoints*10)/10}}
                                 </td>
                             </tr>
                             <tr v-if="user.insanePoints">
-                                <td scope="row" style="padding: 1px;" data-toggle="tooltip" data-placement="left"
+                                <td scope="row" data-toggle="tooltip" data-placement="left"
                                     title="~8 points per difficulty. +2 if quest mapset">Mapping <i
                                         class="insane">Insane</i> difficulties</td>
                                 <td scope="row" style="padding: 1px;">
                                     {{Math.round(user.insanePoints*10)/10}}</td>
                             </tr>
                             <tr v-if="user.expertPoints">
-                                <td scope="row" style="padding: 1px;" data-toggle="tooltip" data-placement="left"
+                                <td scope="row" data-toggle="tooltip" data-placement="left"
                                     title="~8 points per difficulty. +2 if quest mapset">Mapping <i
                                         class="expert">Expert</i> difficulties</td>
                                 <td scope="row" style="padding: 1px;">
                                     {{Math.round(user.expertPoints*10)/10}}</td>
                             </tr>
                             <tr v-if="user.storyboardPoints">
-                                <td scope="row" style="padding: 1px;" data-toggle="tooltip" data-placement="left"
+                                <td scope="row" data-toggle="tooltip" data-placement="left"
                                     title="2, 7.5, or 10 points per storyboard">Creating storyboards</td>
                                 <td scope="row" style="padding: 1px;">
                                     {{Math.round(user.storyboardPoints*10)/10}}</td>
                             </tr>
                             <tr v-if="user.questPoints">
-                                <td scope="row" style="padding: 1px;" data-toggle="tooltip" data-placement="left"
+                                <td scope="row" data-toggle="tooltip" data-placement="left"
                                     title="points reward varies between quests">Completing quests</td>
                                 <td scope="row" style="padding: 1px;">
                                     {{Math.round(user.questPoints*10)/10}}</td>
                             </tr>
                             <tr v-if="user.modPoints">
-                                <td scope="row" style="padding: 1px;" data-toggle="tooltip" data-placement="left"
+                                <td scope="row" data-toggle="tooltip" data-placement="left"
                                     title="1 point per mod">Modding mapsets</td>
                                 <td scope="row" style="padding: 1px;">{{Math.round(user.modPoints*10)/10}}
                                 </td>
                             </tr>
                             <tr v-if="user.hostPoints">
-                                <td scope="row" style="padding: 1px;" data-toggle="tooltip" data-placement="left"
+                                <td scope="row" data-toggle="tooltip" data-placement="left"
                                     title="5 points per mapset hosted">Hosting mapsets</td>
                                 <td scope="row" style="padding: 1px;">{{Math.round(user.hostPoints*10)/10}}
                                 </td>
                             </tr>
                             <tr v-if="user.legacyPoints">
-                                <td scope="row" style="padding: 1px;" data-toggle="tooltip" data-placement="left"
+                                <td scope="row" data-toggle="tooltip" data-placement="left"
                                     title="points for tasks that, after going public, were no longer applicable">Legacy points
                                 </td>
                                 <td scope="row" style="padding: 1px;">
                                     {{Math.round(user.legacyPoints*10)/10}}</td>
                             </tr>
                             <tr v-if="user.penaltyPoints">
-                                <td scope="row" style="padding: 1px;" data-toggle="tooltip" data-placement="left"
+                                <td scope="row" data-toggle="tooltip" data-placement="left"
                                     title="penalty for dropping a quest. inverse of a quest's reward">Dropping
                                     quests</td>
                                 <td scope="row" style="padding: 1px;">
                                     -{{Math.round(user.penaltyPoints*10)/10}}</td>
                             </tr>
                             <tr v-if="user.osuPoints">
-                                <td scope="row" style="padding: 1px;" data-toggle="tooltip" data-placement="left"
+                                <td scope="row" data-toggle="tooltip" data-placement="left"
                                     title="mapping osu! game mode"><i>Total osu! points</i></td>
                                 <td scope="row" style="padding: 1px;">
                                     {{Math.round(user.osuPoints*10)/10}}</td>
                             </tr>
                             <tr v-if="user.taikoPoints">
-                                <td scope="row" style="padding: 1px;" data-toggle="tooltip" data-placement="left"
+                                <td scope="row" data-toggle="tooltip" data-placement="left"
                                     title="mapping osu!taiko game mode"><i>Total osu! taiko points</i></td>
                                 <td scope="row" style="padding: 1px;">
                                     {{Math.round(user.taikoPoints*10)/10}}</td>
                             </tr>
                             <tr v-if="user.catchPoints">
-                                <td scope="row" style="padding: 1px;" data-toggle="tooltip" data-placement="left"
+                                <td scope="row" data-toggle="tooltip" data-placement="left"
                                     title="mapping osu!catch game mode"><i>Total osu! catch points</i></td>
                                 <td scope="row" style="padding: 1px;">
                                     {{Math.round(user.catchPoints*10)/10}}</td>
                             </tr>
                             <tr v-if="user.maniaPoints">
-                                <td scope="row" style="padding: 1px;" data-toggle="tooltip" data-placement="left"
+                                <td scope="row" data-toggle="tooltip" data-placement="left"
                                     title="mapping osu!mania game mode"><i>Total osu! mania points</i></td>
                                 <td scope="row" style="padding: 1px;">
                                     {{Math.round(user.maniaPoints*10)/10}}</td>
@@ -145,12 +145,12 @@
                 <hr>
                 <span v-if="userMaps.length">
                 <p class="text-shadow">Mappers' Guild Maps:</p>
-                <table class="small table text-shadow">
+                <table class="table table-sm table-dark table-hover">
                     <thead>
-                        <td scope="col" style="padding: 2px;">Mapset</td>
-                        <td scope="col" style="padding: 2px;">Host</td>
-                        <td scope="col" style="padding: 2px;">Status</td>
-                        <td scope="col" style="padding: 2px;">Tasks</td>
+                        <td scope="col">Mapset</td>
+                        <td scope="col">Host</td>
+                        <td scope="col">Status</td>
+                        <td scope="col">Tasks</td>
                     </thead>
                     <tbody>
                         <tr v-for="map in userMaps" :key="map.id">
@@ -172,7 +172,7 @@
                                     {{map.host.username}}
                                 </a>
                             </td>
-                            <td scope="row" style="padding: 1px;" :class="map.status.toLowerCase()">
+                            <td scope="row" :class="map.status.toLowerCase()">
                                 {{map.status}}
                             </td>
                             <td scope="row" style="padding: 1px;">

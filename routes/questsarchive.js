@@ -17,6 +17,7 @@ const defaultPopulate = [
 router.get('/', async (req, res, next) => {
     res.render('questsarchive', { 
         title: 'Quests', 
+        subTitle: 'Completed', 
         script: '../javascripts/questsarchive.js', 
         isQuests: true, 
         loggedInAs: req.session.osuId,

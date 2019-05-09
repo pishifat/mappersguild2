@@ -1,6 +1,6 @@
 <template>
 <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 my-2">
-    <div class="card custom-bg-dark border-outline static-card" style="height: 100%">
+    <div class="card bg-dark border-outline static-card" style="height: 100%">
         <div class="card-header text-shadow artist-card-spacing">
             {{artist.label.length - 3 > 20 ? artist.label.slice(0,20) + "..." : artist.label}} 
             <a href="#" v-if="!artist.isContacted" class="float-right small icon-used ml-2" data-toggle="tooltip" data-placement="top" title="delete" @click.prevent="deleteArtist()">

@@ -1,7 +1,7 @@
 <template>
 <div id="extendedInfo" class="modal fade" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content custom-bg-dark" v-if="party">
+        <div class="modal-content bg-dark" v-if="party">
             <div class="modal-header modal-header-card text-dark" :class="'bg-rank-' + party.rank">
                 <h5 class="modal-title modal-title-card">{{ party.name }}
                     <i v-if="party.mode == 'taiko'" class="fas fa-drum"></i>

@@ -20,6 +20,7 @@ const sort = { quest: -1, createdAt: -1 };
 router.get('/', async function(req, res) {
     res.render('beatmapsarchive', {
         title: 'Maps',
+        subTitle: 'Ranked',
         script: '../javascripts/mapsarchive.js',
         isMaps: true,
         loggedInAs: req.session.osuId,

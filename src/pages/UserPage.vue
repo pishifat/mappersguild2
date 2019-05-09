@@ -1,58 +1,89 @@
 <template>
-<div class="row">
-    <div class="col-md-12">
-        <h2>Users listing</h2>
-        <small>Search: 
-            <input id="search" v-model="filterValue" type="text" placeholder="username... (3+ characters)" style="border-radius: 5px 5px 5px 5px; filter: drop-shadow(1px 1px 1px #000000); width: 200px;" /> 
-        </small>
-        <small>
-        <select class="custom-select select-arrow-filter ml-2" id="mode" v-model="filterMode" style="border-radius: 5px 5px 5px 5px; width: 100px; padding: 0 0 0 0; height: 26px;">
-            <option value="" selected>All modes</option>
-            <option value="osu">osu!</option>
-            <option value="taiko">osu!taiko</option>
-            <option value="catch">osu!catch</option>
-            <option value="mania">osu!mania</option>
-        </select>
-        </small>
-        <small class="pl-1">Sort: 
-            <a :class="sortBy === 'username' ? 'sorted' : ''" href="#" @click.prevent="sort('username')">Name</a> |
-            <a :class="sortBy === 'rank' ? 'sorted' : ''" href="#" @click.prevent="sort('rank')">Rank</a> |
-            <a :class="sortBy === 'createdAt' ? 'sorted' : ''" href="#" @click.prevent="sort('createdAt')">Joined</a>
-        </small>
-        
-        <button :disabled="!(pre > 0)" class="btn btn-sm btn-mg mx-auto my-2" style="display:block" type="button" @click="showNewer()">
-            <i class="fas fa-angle-up mr-1"></i> show next <i class="fas fa-angle-up ml-1"></i>
-        </button>
-        <transition-group name="list" tag="div" class="row">
-            <user-card
-                v-for="user in users"
-                :key="user.id"
-                :user="user"
-                :filterMode="filterMode"
-                @update:selectedUser="selectedUser = $event"
-            ></user-card>
-        </transition-group>
-        <div class="small text-center mx-auto">{{currentPage}} of {{pages}}</div>
-        <button :disabled="!canShowOlder" class="btn btn-sm btn-mg mx-auto my-2" style="display:block" type="button" @click="showOlder()">
-            <i class="fas fa-angle-down mr-1"></i> show previous <i class="fas fa-angle-down ml-1"></i>
-        </button>
+    <div>
+        <div class="container bg-container py-3 mb-2">
+            <filter-box
+                :filterValue.sync="filterValue"
+                :filterMode.sync="filterMode"
+                @self-filter="selfFilter()"
+            ></filter-box>
+            <div class="row small mt-3">
+                <div class="col-auto filter-title">
+                    Sort
+                </div>
+                <div class="col">
+                    <a
+                        :class="sortBy === 'username' ? 'sorted' : 'unsorted'"
+                        href="#"
+                        @click.prevent="sort('username')"
+                        >Name</a
+                    >
+                    <a
+                        :class="sortBy === 'rank' ? 'sorted' : 'unsorted'"
+                        href="#"
+                        @click.prevent="sort('rank')"
+                        >Rank</a
+                    >
+                    <a
+                        :class="sortBy === 'createdAt' ? 'sorted' : 'unsorted'"
+                        href="#"
+                        @click.prevent="sort('createdAt')"
+                        >Joined</a
+                    >
+                </div>
+            </div>
+        </div>
+
+        <div class="container bg-container py-3">
+            <button
+                :disabled="!(pre > 0)"
+                class="btn btn-sm btn-mg mx-auto my-2"
+                style="display:block"
+                type="button"
+                @click="showNewer()"
+            >
+                <i class="fas fa-angle-up mr-1"></i> show newer
+                <i class="fas fa-angle-up ml-1"></i>
+            </button>
+            <div>
+                <transition-group name="list" tag="div" class="row">
+                    <user-card
+                        v-for="user in users"
+                        :key="user.id"
+                        :user="user"
+                        :filterMode="filterMode"
+                        @update:selectedUser="selectedUser = $event"
+                    ></user-card>
+                </transition-group>
+                <div class="small text-center mx-auto">{{ currentPage }} of {{ pages }}</div>
+                <button
+                    :disabled="!canShowOlder"
+                    class="btn btn-sm btn-mg mx-auto my-2"
+                    style="display:block"
+                    type="button"
+                    @click="showOlder()"
+                >
+                    <i class="fas fa-angle-down mr-1"></i> show older
+                    <i class="fas fa-angle-down ml-1"></i>
+                </button>
+            </div>
+        </div>
+
+        <user-info
+            :user="selectedUser"
+            :beatmaps="beatmaps"
+            :user-id="userId"
+            @update:selectedMap="selectedMap = $event"
+            @update-user="updateUser($event)"
+        ></user-info>
+
+        <notifications-access></notifications-access>
     </div>
-
-    <user-info
-        :user="selectedUser"
-        :beatmaps="beatmaps"
-        :user-id="userId"
-        @update:selectedMap="selectedMap = $event"
-        @update-user="updateUser($event)"
-    ></user-info>
-
-    <notifications-access></notifications-access>
-</div>
 </template>
 
 <script>
 import UserCard from '../components/users/UserCard.vue';
 import UserInfo from '../components/users/UserInfo.vue';
+import FilterBox from '../components/FilterBox.vue';
 import NotificationsAccess from '../components/NotificationsAccess.vue';
 
 export default {
@@ -60,26 +91,27 @@ export default {
     components: {
         UserCard,
         UserInfo,
-        NotificationsAccess
+        NotificationsAccess,
+        FilterBox,
     },
-    watch:{
-        filterValue: function(v){
+    watch: {
+        filterValue: function(v) {
             this.filter();
         },
         filterMode: function(v) {
             this.filter();
         },
-        limit: function () {
+        limit: function() {
             this.limit = Math.round(this.limit);
             this.pre = this.limit - 16;
             if (this.allUsers) {
-                if(this.isFiltered){
+                if (this.isFiltered) {
                     if (this.limit >= this.filteredUsers.length) {
                         this.canShowOlder = false;
                     }
                     this.users = this.filteredUsers.slice(this.pre, this.limit);
                     this.pages = Math.ceil(this.filteredUsers.length / 16);
-                }else{
+                } else {
                     if (this.limit >= this.allUsers.length) {
                         this.canShowOlder = false;
                     }
@@ -87,109 +119,108 @@ export default {
                     this.pages = Math.ceil(this.allUsers.length / 16);
                 }
             }
-            if(this.pages > 0){
+            if (this.pages > 0) {
                 this.currentPage = this.limit / 16;
-            }else{
+            } else {
                 this.currentPage = this.pages;
             }
         },
     },
     methods: {
-        showOlder: function () {
+        showOlder: function() {
             if (this.canShowOlder) {
                 this.limit += 16;
             }
         },
-        showNewer: function () {
+        showNewer: function() {
             if (this.pre > 0) {
                 this.limit -= 16;
                 this.canShowOlder = true;
             }
         },
         updateUser: function(u) {
-			const i = this.users.findIndex(user => user.id == u.id);
-			this.users[i] = u;
+            const i = this.users.findIndex(user => user.id == u.id);
+            this.users[i] = u;
             this.selectedUser = u;
         },
-        sort: function (field, keepOrder) {
+        sort: function(field, keepOrder) {
             this.sortBy = field;
-			if (!keepOrder) {
-				this.asc = !this.asc;
+            if (!keepOrder) {
+                this.asc = !this.asc;
             }
 
             if (this.sortBy == 'rank') {
-                if(this.isFiltered){
-                    if(this.filterMode == "osu"){
+                if (this.isFiltered) {
+                    if (this.filterMode == 'osu') {
                         this.filteredUsers.sort((a, b) => {
                             if (this.asc) {
                                 if (a.osuPoints > b.osuPoints) return -1;
                                 if (a.osuPoints < b.osuPoints) return 1;
                             } else {
                                 if (a.osuPoints < b.osuPoints) return -1;
-                                if (a.osuPoints > b.osuPoints) return 1
+                                if (a.osuPoints > b.osuPoints) return 1;
                             }
                             return 0;
                         });
-                    }else if(this.filterMode == "taiko"){
+                    } else if (this.filterMode == 'taiko') {
                         this.filteredUsers.sort((a, b) => {
                             if (this.asc) {
                                 if (a.taikoPoints > b.taikoPoints) return -1;
                                 if (a.taikoPoints < b.taikoPoints) return 1;
                             } else {
                                 if (a.taikoPoints < b.taikoPoints) return -1;
-                                if (a.taikoPoints > b.taikoPoints) return 1
+                                if (a.taikoPoints > b.taikoPoints) return 1;
                             }
                             return 0;
                         });
-                    }else if(this.filterMode == "catch"){
+                    } else if (this.filterMode == 'catch') {
                         this.filteredUsers.sort((a, b) => {
                             if (this.asc) {
                                 if (a.catchPoints > b.catchPoints) return -1;
                                 if (a.catchPoints < b.catchPoints) return 1;
                             } else {
                                 if (a.catchPoints < b.catchPoints) return -1;
-                                if (a.catchPoints > b.catchPoints) return 1
+                                if (a.catchPoints > b.catchPoints) return 1;
                             }
                             return 0;
                         });
-                    }else if(this.filterMode == "mania"){
+                    } else if (this.filterMode == 'mania') {
                         this.filteredUsers.sort((a, b) => {
                             if (this.asc) {
                                 if (a.maniaPoints > b.maniaPoints) return -1;
                                 if (a.maniaPoints < b.maniaPoints) return 1;
                             } else {
                                 if (a.maniaPoints < b.maniaPoints) return -1;
-                                if (a.maniaPoints > b.maniaPoints) return 1
+                                if (a.maniaPoints > b.maniaPoints) return 1;
                             }
                             return 0;
                         });
-                    }else{
+                    } else {
                         this.filteredUsers.sort((a, b) => {
                             if (this.asc) {
                                 if (a.totalPoints > b.totalPoints) return -1;
                                 if (a.totalPoints < b.totalPoints) return 1;
                             } else {
                                 if (a.totalPoints < b.totalPoints) return -1;
-                                if (a.totalPoints > b.totalPoints) return 1
+                                if (a.totalPoints > b.totalPoints) return 1;
                             }
                             return 0;
                         });
                     }
-                }else{
+                } else {
                     this.allUsers.sort((a, b) => {
                         if (this.asc) {
                             if (a.totalPoints > b.totalPoints) return -1;
                             if (a.totalPoints < b.totalPoints) return 1;
                         } else {
                             if (a.totalPoints < b.totalPoints) return -1;
-                            if (a.totalPoints > b.totalPoints) return 1
+                            if (a.totalPoints > b.totalPoints) return 1;
                         }
                         return 0;
                     });
                 }
-                
             } else if (this.sortBy == 'username') {
-                if(this.isFiltered){
+                if (this.isFiltered) {
                     this.filteredUsers.sort((a, b) => {
                         if (this.asc) {
                             return a.username.toLowerCase().localeCompare(b.username.toLowerCase());
@@ -197,7 +228,7 @@ export default {
                             return b.username.toLowerCase().localeCompare(a.username.toLowerCase());
                         }
                     });
-                }else{
+                } else {
                     this.allUsers.sort((a, b) => {
                         if (this.asc) {
                             return a.username.toLowerCase().localeCompare(b.username.toLowerCase());
@@ -206,99 +237,96 @@ export default {
                         }
                     });
                 }
-                
             } else if (this.sortBy == 'createdAt') {
-                if(this.isFiltered){
+                if (this.isFiltered) {
                     this.filteredUsers.sort((a, b) => {
                         if (this.asc) {
                             if (a.createdAt > b.createdAt) return 1;
                             if (a.createdAt < b.createdAt) return -1;
                         } else {
                             if (a.createdAt < b.createdAt) return 1;
-                            if (a.createdAt > b.createdAt) return -1
+                            if (a.createdAt > b.createdAt) return -1;
                         }
                         return 0;
                     });
-                }else{
+                } else {
                     this.allUsers.sort((a, b) => {
                         if (this.asc) {
                             if (a.createdAt > b.createdAt) return 1;
                             if (a.createdAt < b.createdAt) return -1;
                         } else {
                             if (a.createdAt < b.createdAt) return 1;
-                            if (a.createdAt > b.createdAt) return -1
+                            if (a.createdAt > b.createdAt) return -1;
                         }
                         return 0;
                     });
                 }
-                
             }
             this.limit = 16.01;
             this.canShowOlder = true;
         },
         //real functions
-        switchInvites: async function(e){
+        switchInvites: async function(e) {
             const u = await this.executePost('/users/switchInvites/', {}, e);
-            if(u){
+            if (u) {
                 this.updateUser(u);
             }
         },
-        filter: function () {            
-            this.filterValue = $("#search").val();
-            this.filterMode = $("#mode").val();
+        filter: function() {
+            this.filterValue = $('#search').val();
+            this.filterMode = $('#mode').val();
             this.users = this.allUsers;
 
             //search
-            if(this.filterValue.length > 2){
+            if (this.filterValue.length > 2) {
                 this.filteredUsers = this.allUsers.filter(u => {
-                    if(u.username.toLowerCase().indexOf(this.filterValue.toLowerCase()) > -1){
+                    if (u.username.toLowerCase().indexOf(this.filterValue.toLowerCase()) > -1) {
                         return true;
                     }
                     return false;
                 });
             }
-            
+
             //mode
-            if(this.filterMode.length){
-                if(this.filterValue.length > 2){
+            if (this.filterMode.length) {
+                if (this.filterValue.length > 2) {
                     this.filteredUsers = this.filteredUsers.filter(u => {
-                        if(this.filterMode == "osu" && u.osuPoints){
+                        if (this.filterMode == 'osu' && u.osuPoints) {
                             return true;
                         }
-                        if(this.filterMode == "taiko" && u.taikoPoints){
+                        if (this.filterMode == 'taiko' && u.taikoPoints) {
                             return true;
                         }
-                        if(this.filterMode == "catch" && u.catchPoints){
+                        if (this.filterMode == 'catch' && u.catchPoints) {
                             return true;
                         }
-                        if(this.filterMode == "mania" && u.maniaPoints){
+                        if (this.filterMode == 'mania' && u.maniaPoints) {
                             return true;
                         }
                         return false;
                     });
-                    
-                }else{
+                } else {
                     this.filteredUsers = this.allUsers.filter(u => {
-                        if(this.filterMode == "osu" && u.osuPoints){
+                        if (this.filterMode == 'osu' && u.osuPoints) {
                             return true;
                         }
-                        if(this.filterMode == "taiko" && u.taikoPoints){
+                        if (this.filterMode == 'taiko' && u.taikoPoints) {
                             return true;
                         }
-                        if(this.filterMode == "catch" && u.catchPoints){
+                        if (this.filterMode == 'catch' && u.catchPoints) {
                             return true;
                         }
-                        if(this.filterMode == "mania" && u.maniaPoints){
+                        if (this.filterMode == 'mania' && u.maniaPoints) {
                             return true;
                         }
                         return false;
                     });
                 }
             }
-            
-            this.isFiltered = (this.filterValue.length > 2 || this.filterMode.length);
-            if(this.sortBy){
-                this.sort(this.sortBy, true)
+
+            this.isFiltered = this.filterValue.length > 2 || this.filterMode.length;
+            if (this.sortBy) {
+                this.sort(this.sortBy, true);
             }
             this.limit = 16.01; //resets to first page
             this.canShowOlder = true;
@@ -311,8 +339,8 @@ export default {
             filteredUsers: null,
             userId: null,
             beatmaps: null,
-            filterValue: "",
-            filterMode: "",
+            filterValue: '',
+            filterMode: '',
             isFiltered: false,
             selectedUser: null,
             selectedMap: null,
@@ -324,7 +352,7 @@ export default {
             limit: null,
             pages: null,
             currentPage: null,
-        }
+        };
     },
     created() {
         axios
@@ -334,28 +362,29 @@ export default {
                 this.userId = response.data.userId;
                 this.beatmaps = response.data.beatmaps;
                 this.limit = 16;
-            }).then(function(){
-                $("#loading").fadeOut();
-                $("#app").attr("style", "visibility: visible").hide().fadeIn();
+            })
+            .then(function() {
+                $('#loading').fadeOut();
+                $('#app')
+                    .attr('style', 'visibility: visible')
+                    .hide()
+                    .fadeIn();
             });
     },
-    mounted () {
+    mounted() {
         setInterval(() => {
-            axios
-                .get('/users/relevantInfo')
-                .then(response => {
-                    this.allUsers = response.data.users;
-                    this.userId = response.data.userId;
-                    this.beatmaps = response.data.beatmaps;
-                    if(this.isFiltered){
-                        this.filter();
-                    }
-                });
+            axios.get('/users/relevantInfo').then(response => {
+                this.allUsers = response.data.users;
+                this.userId = response.data.userId;
+                this.beatmaps = response.data.beatmaps;
+                if (this.isFiltered) {
+                    this.filter();
+                }
+            });
         }, 300000);
-    }
-}
+    },
+};
 </script>
 
 <style>
-
 </style>

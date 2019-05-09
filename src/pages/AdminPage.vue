@@ -15,118 +15,118 @@
 <div class="row">
     <div class="col-md-12">
         <h2 id="beatmaps">Beatmaps <button class="btn btn-mg btn-sm temp float-right" @click="updateDiffModes($event)">update diff modes</button></h2> 
-        <table class="small table">
+        <table class="table table-sm table-dark table-hover">
             <thead>
-                <th scope="col" style="padding: 2px;">id</th>
-                <th scope="col" style="padding: 2px;">artist - title</th>
-                <th scope="col" style="padding: 2px;">host</th>
-                <th scope="col" style="padding: 2px;">mode</th>
-                <th scope="col" style="padding: 2px;">sb</th>
-                <th scope="col" style="padding: 2px;">status</th>
-                <th scope="col" style="padding: 2px;">edit</th>
+                <th scope="col">id</th>
+                <th scope="col">artist - title</th>
+                <th scope="col">host</th>
+                <th scope="col">mode</th>
+                <th scope="col">sb</th>
+                <th scope="col">status</th>
+                <th scope="col">edit</th>
             </thead>
             <tbody>
                 <tr v-for="beatmap in beatmaps" :key="beatmap.id">
-                    <td scope="row" style="padding: 1px;">{{beatmap.id}}</td>
-                    <td scope="row" style="padding: 1px;">
+                    <td scope="row">{{beatmap.id}}</td>
+                    <td scope="row">
                         <a v-if="beatmap.url" :href="beatmap.url" target="_blank">{{beatmap.song.artist}} - {{beatmap.song.title.length > 30 ? beatmap.song.title.slice(0,30) + "..." : beatmap.song.title}}</a>
                         <span v-else>{{beatmap.song.artist}} - {{beatmap.song.title}}</span>
                     </td>
-                    <td scope="row" style="padding: 1px;"><a :href="'https://osu.ppy.sh/users/' + beatmap.host.osuId" target="_blank">{{beatmap.host.username}}</a></td>
-                    <td scope="row" style="padding: 1px;">{{beatmap.mode}}</td>
+                    <td scope="row"><a :href="'https://osu.ppy.sh/users/' + beatmap.host.osuId" target="_blank">{{beatmap.host.username}}</a></td>
+                    <td scope="row">{{beatmap.mode}}</td>
                     <td v-if="hasStoryboard(beatmap.tasks) && (beatmap.status == 'Qualified' || beatmap.status == 'Ranked')" scope="row" style="padding: 1px; red">
                         <span :style="storyboardJudged(beatmap.tasks) ? 'background-color: darkgreen' : 'background-color: red'">{{storyboardJudged(beatmap.tasks) ? storyboardJudged(beatmap.tasks) : 'NOT CHECKED'}}</span>
                     </td>
-                    <td v-else scope="row" style="padding: 1px;">~</td>
-                    <td scope="row" style="padding: 1px;" :style="setBeatmapRowColor(beatmap.status)">{{beatmap.status}}</td>
-                    <td scope="row" style="padding: 1px;" data-toggle="modal" data-target="#editMap" :data-mapid="beatmap.id" @click.prevent="extendedMap(beatmap)"><a href="#">edit</a></td>
+                    <td v-else scope="row">~</td>
+                    <td scope="row" :style="setBeatmapRowColor(beatmap.status)">{{beatmap.status}}</td>
+                    <td scope="row" data-toggle="modal" data-target="#editMap" :data-mapid="beatmap.id" @click.prevent="extendedMap(beatmap)"><a href="#">edit</a></td>
                 </tr>
             </tbody>
         </table>
 
         <h2 id="quests">Quests <button class="btn btn-mg btn-sm temp float-right" data-toggle="modal" data-target="#createQuest">new quest</button></h2> 
-        <table class="small table">
+        <table class="table table-sm table-dark table-hover">
             <thead>
-                <th scope="col" style="padding: 2px;">id</th>
-                <th scope="col" style="padding: 2px;">name</th>
-                <th scope="col" style="padding: 2px;">status</th>
-                <th scope="col" style="padding: 2px;">edit</th>
+                <th scope="col">id</th>
+                <th scope="col">name</th>
+                <th scope="col">status</th>
+                <th scope="col">edit</th>
             </thead>
             <tbody>
                 <tr v-for="quest in quests" :key="quest.id">
-                    <td scope="row" style="padding: 1px;">{{quest._id}}</td>
-                    <td scope="row" style="padding: 1px;">{{quest.name}}</td>
-                    <td scope="row" style="padding: 1px;">{{quest.status}}</td>
-                    <td scope="row" style="padding: 1px;" data-toggle="modal" data-target="#editQuest" :data-questid="quest.id" @click.prevent="extendedQuest(quest)"><a href="#">edit</a></td>
+                    <td scope="row">{{quest._id}}</td>
+                    <td scope="row">{{quest.name}}</td>
+                    <td scope="row">{{quest.status}}</td>
+                    <td scope="row" data-toggle="modal" data-target="#editQuest" :data-questid="quest.id" @click.prevent="extendedQuest(quest)"><a href="#">edit</a></td>
                 </tr>
             </tbody>
         </table>
         <h2 id="parties">Parties <button class="btn btn-mg btn-sm temp float-right" @click="updatePartyRanks($event)">refresh party ranks</button></h2>
-        <table class="small table">
+        <table class="table table-sm table-dark table-hover">
             <thead>
-                <th scope="col" style="padding: 2px;">id</th>
-                <th scope="col" style="padding: 2px;">name</th>
-                <th scope="col" style="padding: 2px;">leader</th>
-                <th scope="col" style="padding: 2px;">edit</th>
+                <th scope="col">id</th>
+                <th scope="col">name</th>
+                <th scope="col">leader</th>
+                <th scope="col">edit</th>
             </thead>
             <tbody>
                 <tr v-for="party in parties" :key="party.id">
-                    <td scope="row" style="padding: 1px;">{{party._id}}</td>
-                    <td scope="row" style="padding: 1px;">{{party.name}}</td>
-                    <td scope="row" style="padding: 1px;"><a :href="'https://osu.ppy.sh/users/' + party.leader.osuId" target="_blank">{{party.leader.username}}</a></td>
-                    <td scope="row" style="padding: 1px;" data-toggle="modal" data-target="#editParty" :data-partyid="party.id" @click.prevent="extendedParty(party)"><a href="#">edit</a></td>
+                    <td scope="row">{{party._id}}</td>
+                    <td scope="row">{{party.name}}</td>
+                    <td scope="row"><a :href="'https://osu.ppy.sh/users/' + party.leader.osuId" target="_blank">{{party.leader.username}}</a></td>
+                    <td scope="row" data-toggle="modal" data-target="#editParty" :data-partyid="party.id" @click.prevent="extendedParty(party)"><a href="#">edit</a></td>
                 </tr>
             </tbody>
         </table>
         <h2 id="users">Users 
             <button class="btn btn-mg btn-sm temp float-right" @click="updateUserPoints($event);">refresh user points</button>
         </h2>
-        <table class="small table">
+        <table class="table table-sm table-dark table-hover">
             <thead>
-                <th scope="col" style="padding: 2px;">id</th>
-                <th scope="col" style="padding: 2px;">name</th>
-                <th scope="col" style="padding: 2px;">group</th>
-                <th scope="col" style="padding: 2px;">edit</th>
+                <th scope="col">id</th>
+                <th scope="col">name</th>
+                <th scope="col">group</th>
+                <th scope="col">edit</th>
             </thead>
             <tbody>
                 <tr v-for="user in users" :key="user.id">
-                    <td scope="row" style="padding: 1px;">{{user._id}}</td>
-                    <td scope="row" style="padding: 1px;"><a :href="'https://osu.ppy.sh/users/' + user.osuId" target="_blank">{{user.username}}</a></td>
-                    <td scope="row" style="padding: 1px;">{{user.group}}</td>
-                    <td scope="row" style="padding: 1px;" data-toggle="modal" data-target="#editUser" :data-userid="user.id" @click.prevent="extendedUser(user)"><a href="#">edit</a></td>
+                    <td scope="row">{{user._id}}</td>
+                    <td scope="row"><a :href="'https://osu.ppy.sh/users/' + user.osuId" target="_blank">{{user.username}}</a></td>
+                    <td scope="row">{{user.group}}</td>
+                    <td scope="row" data-toggle="modal" data-target="#editUser" :data-userid="user.id" @click.prevent="extendedUser(user)"><a href="#">edit</a></td>
                 </tr>
             </tbody>
         </table>
         <h2 id="featuredArtists">Featured Artists <button class="btn btn-mg btn-sm temp float-right" data-toggle="modal" data-target="#newArtist">new artist</button></h2>
-        <table class="small table">
+        <table class="table table-sm table-dark table-hover">
             <thead>
-                <th scope="col" style="padding: 2px;">id</th>
-                <th scope="col" style="padding: 2px;">artist</th>
-                <th scope="col" style="padding: 2px;">songs</th>
-                <th scope="col" style="padding: 2px;">edit</th>
+                <th scope="col">id</th>
+                <th scope="col">artist</th>
+                <th scope="col">songs</th>
+                <th scope="col">edit</th>
             </thead>
             <tbody>
                 <tr v-for="featuredArtist in featuredArtists" :key="featuredArtist.id">
-                    <td scope="row" style="padding: 1px;">{{featuredArtist._id}}</td>
-                    <td scope="row" style="padding: 1px;"><a :href="'https://osu.ppy.sh/beatmaps/artists/' + featuredArtist.osuId" target="_blank">{{featuredArtist.label}}</a></td>
-                    <td scope="row" style="padding: 1px;">{{featuredArtist.songs.length}}</td>
-                    <td scope="row" style="padding: 1px;" data-toggle="modal" data-target="#editSongs" :data-artistid="featuredArtist.id" @click.prevent="extendedArtist(featuredArtist)"><a href="#">edit</a></td>
+                    <td scope="row">{{featuredArtist._id}}</td>
+                    <td scope="row"><a :href="'https://osu.ppy.sh/beatmaps/artists/' + featuredArtist.osuId" target="_blank">{{featuredArtist.label}}</a></td>
+                    <td scope="row">{{featuredArtist.songs.length}}</td>
+                    <td scope="row" data-toggle="modal" data-target="#editSongs" :data-artistid="featuredArtist.id" @click.prevent="extendedArtist(featuredArtist)"><a href="#">edit</a></td>
                 </tr>
             </tbody>
         </table>
 
         <h2 id="errors">Errors</h2> 
-        <table class="small table">
+        <table class="table table-sm table-dark table-hover">
             <thead>
-                <th scope="col" style="padding: 2px;">user</th>
-                <th scope="col" style="padding: 2px;">error</th>
-                <th scope="col" style="padding: 2px;">date</th>
+                <th scope="col">user</th>
+                <th scope="col">error</th>
+                <th scope="col">date</th>
             </thead>
             <tbody>
                 <tr v-for="log in logs" :key="log.id">
-                    <td scope="row" style="padding: 1px;">{{log.user ? log.user.username : '' }}</td>
-                    <td scope="row" style="padding: 1px;">{{log.action}}</td>
-                    <td scope="row" style="padding: 1px;">{{log.createdAt}}</td>
+                    <td scope="row">{{log.user ? log.user.username : '' }}</td>
+                    <td scope="row">{{log.action}}</td>
+                    <td scope="row">{{log.createdAt}}</td>
                 </tr>
             </tbody>
         </table>
@@ -136,7 +136,7 @@
 
 <div id="editMap" class="modal fade" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content custom-bg-dark" v-if="selectedMap">
+        <div class="modal-content bg-dark" v-if="selectedMap">
             <div class="modal-header text-dark" :class="'bg-' + selectedMap.status.toLowerCase()">
                 <h5 class="modal-title">{{selectedMap.song.artist}} - {{selectedMap.song.title}} ({{selectedMap.host.username}})</h5>
                 <button type="button" class="close" data-dismiss="modal">
@@ -223,7 +223,7 @@
 
 <div id="createQuest" class="modal fade" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content custom-bg-dark">
+        <div class="modal-content bg-dark">
             <div class="modal-header text-dark bg-rest">
                 <h5 class="modal-title">Create quest</h5>
                 <button type="button" class="close" data-dismiss="modal">
@@ -262,7 +262,7 @@
 
 <div id="editQuest" class="modal fade" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content custom-bg-dark" v-if="selectedQuest">
+        <div class="modal-content bg-dark" v-if="selectedQuest">
             <div class="modal-header text-dark" :class="'bg-' + selectedQuest.status">
                 <h5 class="modal-title">{{selectedQuest.name}}</h5>
                 <button type="button" class="close" data-dismiss="modal">
@@ -307,7 +307,7 @@
 
 <div id="editParty" class="modal fade" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content custom-bg-dark" v-if="selectedParty">
+        <div class="modal-content bg-dark" v-if="selectedParty">
             <div class="modal-header text-dark bg-rest">
                 <h5 class="modal-title">{{selectedParty.name}}</h5>
                 <button type="button" class="close" data-dismiss="modal">
@@ -371,7 +371,7 @@
 
 <div id="editUser" class="modal fade" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content custom-bg-dark" v-if="selectedUser">
+        <div class="modal-content bg-dark" v-if="selectedUser">
             <div class="modal-header text-dark" :class="'bg-rank-' + selectedUser.rank">
                 <h5 class="modal-title">{{selectedUser.username}} ({{selectedUser.group}})</h5>
                 <button type="button" class="close" data-dismiss="modal">
@@ -407,7 +407,7 @@
 
 <div id="newArtist" class="modal fade" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content custom-bg-dark">
+        <div class="modal-content bg-dark">
             <div class="modal-header text-dark bg-rest">
                 <h5 class="modal-title">New Artist</h5>
                 <button type="button" class="close" data-dismiss="modal">
@@ -434,7 +434,7 @@
 
 <div id="editSongs" class="modal fade" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content custom-bg-dark" v-if="selectedArtist">
+        <div class="modal-content bg-dark" v-if="selectedArtist">
             <div class="modal-header text-dark bg-rest">
                 <h5 class="modal-title">{{selectedArtist.label}} ({{selectedArtist.songs.length}})</h5>
                 <button type="button" class="close" data-dismiss="modal">

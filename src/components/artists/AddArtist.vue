@@ -1,7 +1,7 @@
 <template>
 <div id="addArtist" class="modal fade" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content custom-bg-dark">
+        <div class="modal-content bg-dark">
             <div class="modal-header text-dark bg-done">
                 <h5 class="modal-title" >Add artist</h5>
                 <button type="button" class="close" data-dismiss="modal">
