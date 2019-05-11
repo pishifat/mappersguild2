@@ -853,7 +853,7 @@ export default {
         },
         addTask: async function(id, e) {
             if (this.requestTaskUsername.length) {
-                requestTask(id, e);
+                this.requestTask(id, e);
                 return;
             }
             let difficulty = $('#diffSelection').val();
