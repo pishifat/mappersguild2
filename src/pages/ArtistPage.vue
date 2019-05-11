@@ -1,79 +1,98 @@
 <template>
-<div class="row">
-    <div class="col-md-12">
-        <h2>In progress</h2>
-		<h4 class="ml-4">New artists</h4>
-        <div>
-            <transition-group name="list" tag="div" class="row">
-				<artist-card
-					v-for="artist in newArtists"
-					:key="artist.id"
-					:artist="artist"
-                    @update:selectedArtist="selectedArtist = $event"
-					@update-artist="updateArtist($event)"
-				></artist-card>
-            </transition-group>
-        </div>
-		<h4 class="ml-4 mt-4">Current artist updates</h4>
-        <div>
-            <transition-group name="list" tag="div" class="row">
-				<artist-card
-					v-for="artist in updateArtists"
-					:key="artist.id"
-					:artist="artist"
-                    @update:selectedArtist="selectedArtist = $event"
-					@update-artist="updateArtist($event)"
-				></artist-card>
-            </transition-group>
-			<hr>
-        </div>
-		<h2>Not contacted <button class="btn btn-mg" data-toggle="modal" data-target="#addArtist">Add artist</button></h2>
-		<a href="#" class="ml-2" @click.prevent="showNotContacted = !showNotContacted">{{showNotContacted ? 'Hide' : 'Show'}} {{notContacted.length}} {{notContacted.length == 1 ? 'entry' : 'entries'}}</a>
-        <div v-if="showNotContacted">
-            <transition-group name="list" tag="div" class="row">
-				<artist-card
-					v-for="artist in notContacted"
-					:key="artist.id"
-					:artist="artist"
-                    @update:selectedArtist="selectedArtist = $event"
-					@update-artist="updateArtist($event)"
-					@delete-artist="deleteArtist($event)"
-				></artist-card>
-            </transition-group>
-			<hr>
-        </div>
-		<h2 class="mt-4">Up to date</h2>
-		<a href="#" class="ml-2" @click.prevent="showUpToDate = !showUpToDate">{{showUpToDate ? 'Hide' : 'Show'}} {{upToDate.length}} {{upToDate.length == 1 ? 'entry' : 'entries'}}</a>
-        <div v-if="showUpToDate">
-            <transition-group name="list" tag="div" class="row">
-				<artist-card
-					v-for="artist in upToDate"
-					:key="artist.id"
-					:artist="artist"
-                    @update:selectedArtist="selectedArtist = $event"
-					@update-artist="updateArtist($event)"
-				></artist-card>
-            </transition-group>
-			<hr>
-        </div>
-		<h2 class="mt-4">Rejected</h2>
-		<a href="#" class="ml-2" @click.prevent="showRejected = !showRejected">{{showRejected ? 'Hide' : 'Show'}} {{rejected.length}} {{rejected.length == 1 ? 'entry' : 'entries'}}</a>
-        <div v-if="showRejected">
-            <transition-group name="list" tag="div" class="row">
-				<artist-card
-					v-for="artist in rejected"
-					:key="artist.id"
-					:artist="artist"
-                    @update:selectedArtist="selectedArtist = $event"
-					@update-artist="updateArtist($event)"
-				></artist-card>
-            </transition-group>
-			<hr>
-        </div>
-    </div>
-    
-	<add-artist></add-artist>
+<div>
+	<div class="container bg-container py-1">
+		<div class="row">
+			<div class="col">
+				<h2>In progress</h2>
+				<h4 class="ml-4">New artists</h4>
+				<div>
+					<transition-group name="list" tag="div" class="row">
+						<artist-card
+							v-for="artist in newArtists"
+							:key="artist.id"
+							:artist="artist"
+							@update:selectedArtist="selectedArtist = $event"
+							@update-artist="updateArtist($event)"
+						></artist-card>
+					</transition-group>
+				</div>
+				<h4 class="ml-4 mt-4">Current artist updates</h4>
+				<div>
+					<transition-group name="list" tag="div" class="row">
+						<artist-card
+							v-for="artist in updateArtists"
+							:key="artist.id"
+							:artist="artist"
+							@update:selectedArtist="selectedArtist = $event"
+							@update-artist="updateArtist($event)"
+						></artist-card>
+					</transition-group>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="radial-divisor mx-auto my-4"></div>
 
+	<div class="container bg-container py-1">
+		<div class="row">
+			<div class="col">
+				<h2>Not contacted <button class="btn btn-outline-info" data-toggle="modal" data-target="#addArtist">Add artist</button></h2>
+				<a href="#" class="ml-2" @click.prevent="showNotContacted = !showNotContacted">{{showNotContacted ? 'Hide' : 'Show'}} {{notContacted.length}} {{notContacted.length == 1 ? 'entry' : 'entries'}}</a>
+				<div v-if="showNotContacted">
+					<transition-group name="list" tag="div" class="row">
+						<artist-card
+							v-for="artist in notContacted"
+							:key="artist.id"
+							:artist="artist"
+							@update:selectedArtist="selectedArtist = $event"
+							@update-artist="updateArtist($event)"
+							@delete-artist="deleteArtist($event)"
+						></artist-card>
+					</transition-group>
+					<div class="radial-divisor mx-auto my-4"></div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col">
+				<h2 class="mt-4">Up to date</h2>
+				<a href="#" class="ml-2" @click.prevent="showUpToDate = !showUpToDate">{{showUpToDate ? 'Hide' : 'Show'}} {{upToDate.length}} {{upToDate.length == 1 ? 'entry' : 'entries'}}</a>
+				<div v-if="showUpToDate">
+					<transition-group name="list" tag="div" class="row">
+						<artist-card
+							v-for="artist in upToDate"
+							:key="artist.id"
+							:artist="artist"
+							@update:selectedArtist="selectedArtist = $event"
+							@update-artist="updateArtist($event)"
+						></artist-card>
+					</transition-group>
+					<div class="radial-divisor mx-auto my-4"></div>
+				</div>
+			</div>
+		</div>		
+		<div class="row">
+			<div class="col">
+				<h2 class="mt-4">Rejected</h2>
+				<a href="#" class="ml-2" @click.prevent="showRejected = !showRejected">{{showRejected ? 'Hide' : 'Show'}} {{rejected.length}} {{rejected.length == 1 ? 'entry' : 'entries'}}</a>
+				<div v-if="showRejected">
+					<transition-group name="list" tag="div" class="row">
+						<artist-card
+							v-for="artist in rejected"
+							:key="artist.id"
+							:artist="artist"
+							@update:selectedArtist="selectedArtist = $event"
+							@update-artist="updateArtist($event)"
+						></artist-card>
+					</transition-group>
+					<div class="radial-divisor mx-auto my-4"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+		
+	<add-artist></add-artist>
 </div>
 </template>
 

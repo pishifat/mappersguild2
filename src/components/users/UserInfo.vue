@@ -1,232 +1,347 @@
 <template>
-
-<div id="extendedInfo" class="modal fade" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content bg-dark" v-if="user">
-            <div class="modal-header text-dark" :class="'bg-rank-' + user.rank">
-                <h5 class="modal-title">{{user.username}}</h5>
-                <button type="button" class="close" data-dismiss="modal">
-                    <span>&times;</span>
-                </button>
-            </div>
-            <div class="modal-body" style="overflow: hidden">
-                <img src="../../images/the_A.png" class="the-a-background">
-                <div class="row col-lg-12">
-                    <table class="table table-sm table-dark table-hover col-md-6">
-                        <thead>
-                            <td scope="col">Task</td>
-                            <td scope="col">Points</td>
-                        </thead>
-                        <tbody>
-                            <tr v-if="user.easyPoints">
-                                <td scope="row" data-toggle="tooltip" data-placement="left"
-                                    title="~5 points per difficulty. +2 if quest mapset">Mapping <i
-                                        class="easy">Easy</i> difficulties</td>
-                                <td scope="row" style="padding: 1px;">{{Math.round(user.easyPoints*10)/10}}
-                                </td>
-                            </tr>
-                            <tr v-if="user.normalPoints">
-                                <td scope="row" data-toggle="tooltip" data-placement="left"
-                                    title="~6 points per difficulty. +2 if quest mapset">Mapping <i
-                                        class="normal">Normal</i> difficulties</td>
-                                <td scope="row" style="padding: 1px;">
-                                    {{Math.round(user.normalPoints*10)/10}}</td>
-                            </tr>
-                            <tr v-if="user.hardPoints">
-                                <td scope="row" data-toggle="tooltip" data-placement="left"
-                                    title="~7 points per difficulty. +2 if quest mapset">Mapping <i
-                                        class="hard">Hard</i> difficulties</td>
-                                <td scope="row" style="padding: 1px;">{{Math.round(user.hardPoints*10)/10}}
-                                </td>
-                            </tr>
-                            <tr v-if="user.insanePoints">
-                                <td scope="row" data-toggle="tooltip" data-placement="left"
-                                    title="~8 points per difficulty. +2 if quest mapset">Mapping <i
-                                        class="insane">Insane</i> difficulties</td>
-                                <td scope="row" style="padding: 1px;">
-                                    {{Math.round(user.insanePoints*10)/10}}</td>
-                            </tr>
-                            <tr v-if="user.expertPoints">
-                                <td scope="row" data-toggle="tooltip" data-placement="left"
-                                    title="~8 points per difficulty. +2 if quest mapset">Mapping <i
-                                        class="expert">Expert</i> difficulties</td>
-                                <td scope="row" style="padding: 1px;">
-                                    {{Math.round(user.expertPoints*10)/10}}</td>
-                            </tr>
-                            <tr v-if="user.storyboardPoints">
-                                <td scope="row" data-toggle="tooltip" data-placement="left"
-                                    title="2, 7.5, or 10 points per storyboard">Creating storyboards</td>
-                                <td scope="row" style="padding: 1px;">
-                                    {{Math.round(user.storyboardPoints*10)/10}}</td>
-                            </tr>
-                            <tr v-if="user.questPoints">
-                                <td scope="row" data-toggle="tooltip" data-placement="left"
-                                    title="points reward varies between quests">Completing quests</td>
-                                <td scope="row" style="padding: 1px;">
-                                    {{Math.round(user.questPoints*10)/10}}</td>
-                            </tr>
-                            <tr v-if="user.modPoints">
-                                <td scope="row" data-toggle="tooltip" data-placement="left"
-                                    title="1 point per mod">Modding mapsets</td>
-                                <td scope="row" style="padding: 1px;">{{Math.round(user.modPoints*10)/10}}
-                                </td>
-                            </tr>
-                            <tr v-if="user.hostPoints">
-                                <td scope="row" data-toggle="tooltip" data-placement="left"
-                                    title="5 points per mapset hosted">Hosting mapsets</td>
-                                <td scope="row" style="padding: 1px;">{{Math.round(user.hostPoints*10)/10}}
-                                </td>
-                            </tr>
-                            <tr v-if="user.legacyPoints">
-                                <td scope="row" data-toggle="tooltip" data-placement="left"
-                                    title="points for tasks that, after going public, were no longer applicable">Legacy points
-                                </td>
-                                <td scope="row" style="padding: 1px;">
-                                    {{Math.round(user.legacyPoints*10)/10}}</td>
-                            </tr>
-                            <tr v-if="user.penaltyPoints">
-                                <td scope="row" data-toggle="tooltip" data-placement="left"
-                                    title="penalty for dropping a quest. inverse of a quest's reward">Dropping
-                                    quests</td>
-                                <td scope="row" style="padding: 1px;">
-                                    -{{Math.round(user.penaltyPoints*10)/10}}</td>
-                            </tr>
-                            <tr v-if="user.osuPoints">
-                                <td scope="row" data-toggle="tooltip" data-placement="left"
-                                    title="mapping osu! game mode"><i>Total osu! points</i></td>
-                                <td scope="row" style="padding: 1px;">
-                                    {{Math.round(user.osuPoints*10)/10}}</td>
-                            </tr>
-                            <tr v-if="user.taikoPoints">
-                                <td scope="row" data-toggle="tooltip" data-placement="left"
-                                    title="mapping osu!taiko game mode"><i>Total osu! taiko points</i></td>
-                                <td scope="row" style="padding: 1px;">
-                                    {{Math.round(user.taikoPoints*10)/10}}</td>
-                            </tr>
-                            <tr v-if="user.catchPoints">
-                                <td scope="row" data-toggle="tooltip" data-placement="left"
-                                    title="mapping osu!catch game mode"><i>Total osu! catch points</i></td>
-                                <td scope="row" style="padding: 1px;">
-                                    {{Math.round(user.catchPoints*10)/10}}</td>
-                            </tr>
-                            <tr v-if="user.maniaPoints">
-                                <td scope="row" data-toggle="tooltip" data-placement="left"
-                                    title="mapping osu!mania game mode"><i>Total osu! mania points</i></td>
-                                <td scope="row" style="padding: 1px;">
-                                    {{Math.round(user.maniaPoints*10)/10}}</td>
-                            </tr>
-                            <tr>
-                                <td scope="row" style="padding: 1px; font-size: 12pt" data-toggle="tooltip" data-placement="left"
-                                    title="all points rewarded when map is ranked/quest is completed. collaborations split points">
-                                    <i>Total points</i></td>
-                                <td scope="row" style="padding: 1px; font-size: 12pt">{{user.totalPoints}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <div class='col-md-6'>
-                        <p class="text-shadow">Party:
-                            <span v-if="user.currentParty">{{user.currentParty.name}}</span>
-                            <span v-else><i>none</i></span>
-                        </p>
-                        <p class="text-shadow" data-toggle="tooltip" data-placement="left" title="rank thresholds are 100, 250, and 500 points">
-                            Rank: {{user.rank}}
-                        </p>
-                        <p v-if="user.completedQuests.length" class="text-shadow">Completed Quests: </p>
-                        <ul style="list-style-type: none;" id="questDetails">
-                            <li class='ml-3 small text-shadow' v-for="quest in user.completedQuests" :key="quest.id">
-                                {{quest.name}}
-                            </li>
-                        </ul>
-                        <p class="text-shadow">
-                            Invites: {{user.invites ? "Enabled" : "Disabled"}}
-                        </p>
-                    </div>
+    <div id="extendedInfo" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content bg-dark" v-if="user">
+                <div class="modal-header text-dark" :class="'bg-rank-' + user.rank">
+                    <h5 class="modal-title">{{ user.username }}</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
                 </div>
-                <hr>
-                <span v-if="userMaps.length">
-                <p class="text-shadow">Mappers' Guild Maps:</p>
-                <table class="table table-sm table-dark table-hover">
-                    <thead>
-                        <td scope="col">Mapset</td>
-                        <td scope="col">Host</td>
-                        <td scope="col">Status</td>
-                        <td scope="col">Tasks</td>
-                    </thead>
-                    <tbody>
-                        <tr v-for="map in userMaps" :key="map.id">
-                            <td scope="row" style="padding: 1px;">
-                                <template v-if="map.url">
-                                    <a :href="map.url" target="_blank">
-                                        {{map.song.artist}} - {{map.song.title}}
-                                    </a>
-                                </template>
-                                <template v-else>
-                                    <span>{{map.song.artist}} - {{map.song.title}}</span>
-                                </template>
-                                <i v-if="map.mode == 'taiko'" class="fas fa-drum"></i>
-                                <i v-else-if="map.mode == 'catch'" class="fas fa-apple-alt"></i>
-                                <i v-else-if="map.mode == 'mania'" class="fas fa-stream"></i>
-                            </td>
-                            <td scope="row" style="padding: 1px;">
-                                <a :href="'https://osu.ppy.sh/users/' + map.host.osuId" target="_blank">
-                                    {{map.host.username}}
-                                </a>
-                            </td>
-                            <td scope="row" :class="map.status.toLowerCase()">
-                                {{map.status}}
-                            </td>
-                            <td scope="row" style="padding: 1px;">
-                                {{userTasks(map)}}
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <hr>
-                </span>
-                <button 
-                    v-if="user.osuId == userId"
-                    class="btn btn-sm justify-content-center" 
-                    :class="{ 'btn-mg': !user.invites, 'btn-mg-used': user.invites }" 
-                    @click="switchInvites($event)"
-                >
-                    {{user.invites ? 'Disable invites' : 'Enable invites'}}
-                </button>
-                <p class="text-shadow float-right">Joined: {{user.createdAt.slice(0,10)}}</p>
+                <div class="modal-body" style="overflow: hidden">
+                    <img src="../../images/the_A.png" class="the-a-background" />
+                    <div class="row col-lg-12">
+                        <table class="table table-sm table-dark table-hover col-md-6">
+                            <thead>
+                                <td scope="col">Task</td>
+                                <td scope="col">Points</td>
+                            </thead>
+                            <tbody>
+                                <tr v-if="user.easyPoints">
+                                    <td
+                                        scope="row"
+                                        data-toggle="tooltip"
+                                        data-placement="left"
+                                        title="~5 points per difficulty. +2 if quest mapset"
+                                    >
+                                        Mapping <i class="easy">Easy</i> difficulties
+                                    </td>
+                                    <td scope="row" style="padding: 1px;">
+                                        {{ Math.round(user.easyPoints * 10) / 10 }}
+                                    </td>
+                                </tr>
+                                <tr v-if="user.normalPoints">
+                                    <td
+                                        scope="row"
+                                        data-toggle="tooltip"
+                                        data-placement="left"
+                                        title="~6 points per difficulty. +2 if quest mapset"
+                                    >
+                                        Mapping <i class="normal">Normal</i> difficulties
+                                    </td>
+                                    <td scope="row" style="padding: 1px;">
+                                        {{ Math.round(user.normalPoints * 10) / 10 }}
+                                    </td>
+                                </tr>
+                                <tr v-if="user.hardPoints">
+                                    <td
+                                        scope="row"
+                                        data-toggle="tooltip"
+                                        data-placement="left"
+                                        title="~7 points per difficulty. +2 if quest mapset"
+                                    >
+                                        Mapping <i class="hard">Hard</i> difficulties
+                                    </td>
+                                    <td scope="row" style="padding: 1px;">
+                                        {{ Math.round(user.hardPoints * 10) / 10 }}
+                                    </td>
+                                </tr>
+                                <tr v-if="user.insanePoints">
+                                    <td
+                                        scope="row"
+                                        data-toggle="tooltip"
+                                        data-placement="left"
+                                        title="~8 points per difficulty. +2 if quest mapset"
+                                    >
+                                        Mapping <i class="insane">Insane</i> difficulties
+                                    </td>
+                                    <td scope="row" style="padding: 1px;">
+                                        {{ Math.round(user.insanePoints * 10) / 10 }}
+                                    </td>
+                                </tr>
+                                <tr v-if="user.expertPoints">
+                                    <td
+                                        scope="row"
+                                        data-toggle="tooltip"
+                                        data-placement="left"
+                                        title="~8 points per difficulty. +2 if quest mapset"
+                                    >
+                                        Mapping <i class="expert">Expert</i> difficulties
+                                    </td>
+                                    <td scope="row" style="padding: 1px;">
+                                        {{ Math.round(user.expertPoints * 10) / 10 }}
+                                    </td>
+                                </tr>
+                                <tr v-if="user.storyboardPoints">
+                                    <td
+                                        scope="row"
+                                        data-toggle="tooltip"
+                                        data-placement="left"
+                                        title="2, 7.5, or 10 points per storyboard"
+                                    >
+                                        Creating storyboards
+                                    </td>
+                                    <td scope="row" style="padding: 1px;">
+                                        {{ Math.round(user.storyboardPoints * 10) / 10 }}
+                                    </td>
+                                </tr>
+                                <tr v-if="user.questPoints">
+                                    <td
+                                        scope="row"
+                                        data-toggle="tooltip"
+                                        data-placement="left"
+                                        title="points reward varies between quests"
+                                    >
+                                        Completing quests
+                                    </td>
+                                    <td scope="row" style="padding: 1px;">
+                                        {{ Math.round(user.questPoints * 10) / 10 }}
+                                    </td>
+                                </tr>
+                                <tr v-if="user.modPoints">
+                                    <td
+                                        scope="row"
+                                        data-toggle="tooltip"
+                                        data-placement="left"
+                                        title="1 point per mod"
+                                    >
+                                        Modding mapsets
+                                    </td>
+                                    <td scope="row" style="padding: 1px;">
+                                        {{ Math.round(user.modPoints * 10) / 10 }}
+                                    </td>
+                                </tr>
+                                <tr v-if="user.hostPoints">
+                                    <td
+                                        scope="row"
+                                        data-toggle="tooltip"
+                                        data-placement="left"
+                                        title="5 points per mapset hosted"
+                                    >
+                                        Hosting mapsets
+                                    </td>
+                                    <td scope="row" style="padding: 1px;">
+                                        {{ Math.round(user.hostPoints * 10) / 10 }}
+                                    </td>
+                                </tr>
+                                <tr v-if="user.legacyPoints">
+                                    <td
+                                        scope="row"
+                                        data-toggle="tooltip"
+                                        data-placement="left"
+                                        title="points for tasks that, after going public, were no longer applicable"
+                                    >
+                                        Legacy points
+                                    </td>
+                                    <td scope="row" style="padding: 1px;">
+                                        {{ Math.round(user.legacyPoints * 10) / 10 }}
+                                    </td>
+                                </tr>
+                                <tr v-if="user.penaltyPoints">
+                                    <td
+                                        scope="row"
+                                        data-toggle="tooltip"
+                                        data-placement="left"
+                                        title="penalty for dropping a quest. inverse of a quest's reward"
+                                    >
+                                        Dropping quests
+                                    </td>
+                                    <td scope="row" style="padding: 1px;">
+                                        -{{ Math.round(user.penaltyPoints * 10) / 10 }}
+                                    </td>
+                                </tr>
+                                <tr v-if="user.osuPoints">
+                                    <td
+                                        scope="row"
+                                        data-toggle="tooltip"
+                                        data-placement="left"
+                                        title="mapping osu! game mode"
+                                    >
+                                        <i>Total osu! points</i>
+                                    </td>
+                                    <td scope="row" style="padding: 1px;">
+                                        {{ Math.round(user.osuPoints * 10) / 10 }}
+                                    </td>
+                                </tr>
+                                <tr v-if="user.taikoPoints">
+                                    <td
+                                        scope="row"
+                                        data-toggle="tooltip"
+                                        data-placement="left"
+                                        title="mapping osu!taiko game mode"
+                                    >
+                                        <i>Total osu! taiko points</i>
+                                    </td>
+                                    <td scope="row" style="padding: 1px;">
+                                        {{ Math.round(user.taikoPoints * 10) / 10 }}
+                                    </td>
+                                </tr>
+                                <tr v-if="user.catchPoints">
+                                    <td
+                                        scope="row"
+                                        data-toggle="tooltip"
+                                        data-placement="left"
+                                        title="mapping osu!catch game mode"
+                                    >
+                                        <i>Total osu! catch points</i>
+                                    </td>
+                                    <td scope="row" style="padding: 1px;">
+                                        {{ Math.round(user.catchPoints * 10) / 10 }}
+                                    </td>
+                                </tr>
+                                <tr v-if="user.maniaPoints">
+                                    <td
+                                        scope="row"
+                                        data-toggle="tooltip"
+                                        data-placement="left"
+                                        title="mapping osu!mania game mode"
+                                    >
+                                        <i>Total osu! mania points</i>
+                                    </td>
+                                    <td scope="row" style="padding: 1px;">
+                                        {{ Math.round(user.maniaPoints * 10) / 10 }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td
+                                        scope="row"
+                                        style="padding: 1px; font-size: 12pt"
+                                        data-toggle="tooltip"
+                                        data-placement="left"
+                                        title="all points rewarded when map is ranked/quest is completed. collaborations split points"
+                                    >
+                                        <i>Total points</i>
+                                    </td>
+                                    <td scope="row" style="padding: 1px; font-size: 12pt">
+                                        {{ user.totalPoints }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="col-md-6">
+                            <p class="text-shadow">
+                                Party:
+                                <span v-if="user.currentParty">{{ user.currentParty.name }}</span>
+                                <span v-else><i>none</i></span>
+                            </p>
+                            <p
+                                class="text-shadow"
+                                data-toggle="tooltip"
+                                data-placement="left"
+                                title="rank thresholds are 100, 250, and 500 points"
+                            >
+                                Rank: {{ user.rank }}
+                            </p>
+                            <p v-if="user.completedQuests.length" class="text-shadow">Completed Quests:</p>
+                            <ul style="list-style-type: none;" id="questDetails">
+                                <li
+                                    class="ml-3 small text-shadow"
+                                    v-for="quest in user.completedQuests"
+                                    :key="quest.id"
+                                >
+                                    {{ quest.name }}
+                                </li>
+                            </ul>
+                            <p class="text-shadow">Invites: {{ user.invites ? 'Enabled' : 'Disabled' }}</p>
+                        </div>
+                    </div>
+                    <div class="radial-divisor mx-auto my-3"></div>
+                    <span v-if="userMaps.length">
+                        <p class="text-shadow">Mappers' Guild Maps:</p>
+                        <table class="table table-sm table-dark table-hover">
+                            <thead>
+                                <td scope="col">Mapset</td>
+                                <td scope="col">Host</td>
+                                <td scope="col">Status</td>
+                                <td scope="col">Tasks</td>
+                            </thead>
+                            <tbody>
+                                <tr v-for="map in userMaps" :key="map.id">
+                                    <td scope="row" style="padding: 1px;">
+                                        <template v-if="map.url">
+                                            <a :href="map.url" target="_blank">
+                                                {{ map.song.artist }} - {{ map.song.title }}
+                                            </a>
+                                        </template>
+                                        <template v-else>
+                                            <span>{{ map.song.artist }} - {{ map.song.title }}</span>
+                                        </template>
+                                        <i v-if="map.mode == 'taiko'" class="fas fa-drum"></i>
+                                        <i v-else-if="map.mode == 'catch'" class="fas fa-apple-alt"></i>
+                                        <i v-else-if="map.mode == 'mania'" class="fas fa-stream"></i>
+                                    </td>
+                                    <td scope="row" style="padding: 1px;">
+                                        <a
+                                            :href="'https://osu.ppy.sh/users/' + map.host.osuId"
+                                            target="_blank"
+                                        >
+                                            {{ map.host.username }}
+                                        </a>
+                                    </td>
+                                    <td scope="row" :class="map.status.toLowerCase()">
+                                        {{ map.status }}
+                                    </td>
+                                    <td scope="row" style="padding: 1px;">
+                                        {{ userTasks(map) }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="radial-divisor mx-auto my-3"></div>
+                    </span>
+                    <button
+                        v-if="user.osuId == userId"
+                        class="btn btn-sm justify-content-center"
+                        :class="{ 'btn-outline-info': !user.invites, 'btn-outline-danger': user.invites }"
+                        @click="switchInvites($event)"
+                    >
+                        {{ user.invites ? 'Disable invites' : 'Enable invites' }}
+                    </button>
+                    <p class="text-shadow float-right">Joined: {{ user.createdAt.slice(0, 10) }}</p>
+                </div>
             </div>
         </div>
     </div>
-</div>
-
 </template>
 
 <script>
-import mixin from "../../mixins.js";
+import mixin from '../../mixins.js';
 
 export default {
     name: 'user-info',
-    props: [ 'user', 'beatmaps', 'userId' ],
-    mixins: [ mixin ],
+    props: ['user', 'beatmaps', 'userId'],
+    mixins: [mixin],
     computed: {
-        userMaps: function () {
+        userMaps: function() {
             return this.beatmaps.filter(b => {
                 return b.tasks.some(t => {
                     return t.mappers.some(m => {
                         return m.id == this.user.id;
-                    })
+                    });
                 });
             });
         },
     },
     methods: {
-        selectBeatmap: function (map) {
-            $("#extendedInfo").css("z-index", "10");
+        selectBeatmap: function(map) {
+            $('#extendedInfo').css('z-index', '10');
             this.$emit('update:selectedMap', map);
         },
-        executePost: async function (path, data, e) {
+        executePost: async function(path, data, e) {
             if (e) e.target.disabled = true;
 
             try {
-                const res = await axios.post(path, data)
+                const res = await axios.post(path, data);
                 console.log(res);
 
                 if (res.data.error) {
@@ -236,28 +351,28 @@ export default {
                     return res.data;
                 }
             } catch (error) {
-                console.log(error)
+                console.log(error);
             }
 
             if (e) e.target.disabled = false;
         },
-        userTasks: function (beatmap) {
-            let tasks = "";
+        userTasks: function(beatmap) {
+            let tasks = '';
             beatmap.tasks.forEach(task => {
                 task.mappers.forEach(mapper => {
                     if (mapper._id == this.user.id) {
-                        tasks += task.name + ", "
+                        tasks += task.name + ', ';
                     }
                 });
             });
             return tasks.slice(0, -2);
         },
-        switchInvites: async function(e){
+        switchInvites: async function(e) {
             const u = await this.executePost('/users/switchInvites/', {}, e);
-            if(u){
+            if (u) {
                 this.$emit('update-user', u);
             }
         },
     },
-}
+};
 </script>

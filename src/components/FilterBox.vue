@@ -26,6 +26,9 @@
                             <i class="fas fa-user-circle"></i>
                         </button>
                     </div>
+                    <div class="input-group-append">
+                        <slot></slot>
+                    </div>
                 </div>
             </div>
         </div>
@@ -80,7 +83,6 @@
                 </div>
             </div>
         </div>
-        <slot></slot>
     </div>
 </template>
 

@@ -1,6 +1,6 @@
 <template>
 <div class="col-md-6 my-2" :class="party.id + '-card'" @click="selectParty()">
-    <div class="card bg-dark party-card border-outline" :class="'border-rank-' + party.rank" :data-user="party.id" data-toggle="modal" data-target="#extendedInfo">
+    <div class="card bg-dark party-card" :class="'border-rank-' + party.rank" :data-user="party.id" data-toggle="modal" data-target="#extendedInfo">
         <img :class="party.id + '-card-image'" :src="party.art ? 'https://assets.ppy.sh/beatmaps/' + party.art + '/covers/cover.jpg' : 'https://osu.ppy.sh/images/layout/beatmaps/default-bg.png'" style="right:250px;"> 
         <div class='card-img-overlay' style='padding: 0'>
             <div class="card-header text-shadow">
@@ -10,12 +10,12 @@
                     <i v-else-if="party.mode == 'mania'" class="fas fa-stream"></i>
                 </big>
                 <span v-if="userPartyId == party.id">
-                    <button v-if="userId == party.leader.osuId && party.members.length == 1" class='btn btn-mg-used btn-sm justify-content-center float-right' @click.stop="deleteParty($event)">Disband party</button>
-                    <button v-else-if="userId == party.leader.osuId && party.members.length > 1" class='btn btn-mg-used btn-sm justify-content-center float-right' disabled>Leave party</button>
-                    <button v-else class='btn btn-mg-used btn-sm justify-content-center float-right' @click.stop="leaveParty(party.id, $event)">Leave party</button>
+                    <button v-if="userId == party.leader.osuId && party.members.length == 1" class='btn btn-outline-danger btn-sm justify-content-center float-right' @click.stop="deleteParty($event)">Disband party</button>
+                    <button v-else-if="userId == party.leader.osuId && party.members.length > 1" class='btn btn-outline-danger btn-sm justify-content-center float-right' disabled>Leave party</button>
+                    <button v-else class='btn btn-outline-danger btn-sm justify-content-center float-right' @click.stop="leaveParty(party.id, $event)">Leave party</button>
                 </span>
                 <span v-else-if="!userPartyId && !party.lock && !party.currentQuest && party.members.length < 12">
-                    <button class='btn btn-mg btn-sm justify-content-center float-right' @click.stop="joinParty(party.id, $event)">Join party</button>
+                    <button class='btn btn-outline-info btn-sm justify-content-center float-right' @click.stop="joinParty(party.id, $event)">Join party</button>
                 </span>
             </div>
             <div class="card-body overwrite-card-spacing">

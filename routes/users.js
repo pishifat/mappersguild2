@@ -35,7 +35,7 @@ router.get('/relevantInfo', async (req, res, next) => {
         users.service.query({ group: { $ne: 'hidden' } }, defaultPopulate, { createdAt: -1 }, true),
         beatmaps.service.query({}, mapPopulate, { status: -1 }, true),
     ]);
-    res.json({ users: u, userId: req.session.osuId, beatmaps: b });
+    res.json({ users: u, userId: req.session.osuId, beatmaps: b, username: req.session.username });
 });
 
 /* GET users with sorting. */

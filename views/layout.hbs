@@ -75,21 +75,17 @@
                 {{/if}}
                 <div class="dropdown-divider"></div>
                 <form action="/logout" method="GET">
-                    <button class="btn float-right mr-2" type="submit" style="
-                        border-color: var(--done);
-                        border-radius: 10000px;
-                        padding: 3px 20px;"
-                    >Log Out</button>
+                    <button class="btn btn-sm btn-outline-danger float-right mr-2" type="submit">Log Out</button>
                 </form>
             </div>
         </div>
 
         <form class="nav-logout ml-auto mr-3" action="/logout" method="GET">
-            <button class="btn btn-mg btn-sm" type="submit">Log Out</button>
+            <button class="btn btn-sm btn-danger" type="submit">Log Out</button>
         </form>
         {{else}}
         <form class="ml-auto mr-3" action="/login" method="GET">
-            <button class="btn btn-lg btn-mg btn-sm" type="submit">Log in</button>
+            <button class="btn btn-sm btn-info" type="submit">Log in</button>
         </form>
         {{/if}}
 
@@ -120,8 +116,8 @@
     </div>
 
     <footer class="text-center mt-1">
-        <div style="font-size: 15pt" class="my-3 guild-text">Mappers' Guild</div>
-        <div style="height: 10px;" class="guild-section"></div>
+        <div class="my-3 guild-text">Mappers' Guild</div>
+        <div class="guild-section"></div>
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>

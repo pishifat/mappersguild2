@@ -1,604 +1,708 @@
 <template>
-  <div id="editBeatmap" class="modal fade" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content bg-dark" v-if="beatmap">
-        <div class="modal-header text-dark" :class="'bg-' + beatmap.status.toLowerCase()">
-          <h5 class="modal-title">
-            {{beatmap.song.artist}} - {{beatmap.song.title}} ({{beatmap.host.username}})
-            <i
-              v-if="beatmap.mode == 'taiko'"
-              class="fas fa-drum"
-            ></i>
-            <i v-else-if="beatmap.mode == 'catch'" class="fas fa-apple-alt"></i>
-            <i v-else-if="beatmap.mode == 'mania'" class="fas fa-stream"></i>
-          </h5>
-          <button type="button" class="close" data-dismiss="modal">
-            <span>&times;</span>
-          </button>
-        </div>
-        <div class="modal-body" style="overflow: hidden;">
-          <img src="../../images/the_A.png" class="the-a-background">
-          <div class="container">
-            <div class="row">
-              <div class="col-sm-6">
-                <div v-if="isHost && beatmap.status == 'WIP'" id="mode" class="mb-3">
-                  <p class="text-shadow">
-                    Mode:
-                    <button
-                      class="btn btn-sm btn-mg-done"
-                      style="padding-left: 10px; padding-right: 10px;"
-                      :disabled="beatmap.mode == 'osu'"
-                      @click="setMode(beatmap.id, 'osu', $event)"
-                      data-toggle="tooltip"
-                      data-placement="top"
-                      title="osu!"
-                    >
-                      <i class="far fa-circle"></i>
+    <div id="editBeatmap" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content bg-dark" v-if="beatmap">
+                <div class="modal-header text-dark" :class="'bg-' + beatmap.status.toLowerCase()">
+                    <h5 class="modal-title">
+                        {{ beatmap.song.artist }} - {{ beatmap.song.title }} ({{ beatmap.host.username }})
+                        <i v-if="beatmap.mode == 'taiko'" class="fas fa-drum"></i>
+                        <i v-else-if="beatmap.mode == 'catch'" class="fas fa-apple-alt"></i>
+                        <i v-else-if="beatmap.mode == 'mania'" class="fas fa-stream"></i>
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
                     </button>
-                    <button
-                      class="btn btn-sm btn-mg-done"
-                      style="padding-left: 10px; padding-right: 10px;"
-                      :disabled="beatmap.mode == 'taiko'"
-                      @click="setMode(beatmap.id, 'taiko', $event)"
-                      data-toggle="tooltip"
-                      data-placement="top"
-                      title="osu!taiko"
-                    >
-                      <i class="fas fa-drum"></i>
-                    </button>
-                    <button
-                      class="btn btn-sm btn-mg-done"
-                      style="padding-left: 10px; padding-right: 10px;"
-                      :disabled="beatmap.mode == 'catch'"
-                      @click="setMode(beatmap.id, 'catch', $event)"
-                      data-toggle="tooltip"
-                      data-placement="top"
-                      title="osu!catch"
-                    >
-                      <i class="fas fa-apple-alt"></i>
-                    </button>
-                    <button
-                      class="btn btn-sm btn-mg-done"
-                      style="padding-left: 10px; padding-right: 10px;"
-                      :disabled="beatmap.mode == 'mania'"
-                      @click="setMode(beatmap.id, 'mania', $event)"
-                      data-toggle="tooltip"
-                      data-placement="top"
-                      title="osu!mania"
-                    >
-                      <i class="fas fa-stream"></i>
-                    </button>
-                    <button
-                      class="btn btn-sm btn-mg-done"
-                      style="padding-left: 10px; padding-right: 10px;"
-                      :disabled="beatmap.mode == 'hybrid'"
-                      @click="setMode(beatmap.id, 'hybrid', $event)"
-                      data-toggle="tooltip"
-                      data-placement="top"
-                      title="multiple modes"
-                    >
-                      hybrid
-                    </button>
-                  </p>
                 </div>
-                <!--<div id="newHost" v-if="isHost">
-                        <div class="input-group input-group-sm mb-3">
-                            <input class="form-control form-control-sm custom-input" type="text" placeholder="username..." id="hostEntry" style="border-radius: 100px 0 0 100px;" maxlength="16" @keyup.enter="transferHost(beatmap.id, $event)" />
-                            <div class="input-group-append">
-                                <button style="border-radius: 0 100px 100px 0" class="rounded-circle-left btn btn-mg" type="submit"
-                                    @click="transferHost(beatmap.id, $event)" data-toggle="tooltip" data-placement="right" title="request another user to host this mapset"
+                <div class="modal-body" style="overflow: hidden;">
+                    <img src="../../images/the_A.png" class="the-a-background" />
+                    <div class="container">
+                        <div class="row">
+                            <!-- LEFT SIDE -->
+                            <div class="col-sm-7">
+                                <!-- host options -->
+                                <div class="row mb-3" v-if="isHost">
+                                    <div class="col">
+                                        <div id="mode" class="form-group" v-if="beatmap.status == 'WIP'">
+                                            <div class="d-inline-block mr-2">
+                                                Mode
+                                            </div>
+                                            <button
+                                                class="btn btn-sm btn-info rounded-100"
+                                                :disabled="beatmap.mode == 'osu'"
+                                                @click="setMode(beatmap.id, 'osu', $event)"
+                                                data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="osu!"
+                                            >
+                                                <i class="far fa-circle"></i>
+                                            </button>
+                                            <button
+                                                class="btn btn-sm btn-info rounded-100"
+                                                :disabled="beatmap.mode == 'taiko'"
+                                                @click="setMode(beatmap.id, 'taiko', $event)"
+                                                data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="osu!taiko"
+                                            >
+                                                <i class="fas fa-drum"></i>
+                                            </button>
+                                            <button
+                                                class="btn btn-sm btn-info rounded-100"
+                                                :disabled="beatmap.mode == 'catch'"
+                                                @click="setMode(beatmap.id, 'catch', $event)"
+                                                data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="osu!catch"
+                                            >
+                                                <i class="fas fa-apple-alt"></i>
+                                            </button>
+                                            <button
+                                                class="btn btn-sm btn-info rounded-100"
+                                                :disabled="beatmap.mode == 'mania'"
+                                                @click="setMode(beatmap.id, 'mania', $event)"
+                                                data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="osu!mania"
+                                            >
+                                                <i class="fas fa-stream"></i>
+                                            </button>
+                                            <button
+                                                class="btn btn-sm btn-info rounded-pill"
+                                                :disabled="beatmap.mode == 'hybrid'"
+                                                @click="setMode(beatmap.id, 'hybrid', $event)"
+                                                data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="multiple modes"
+                                            >
+                                                hybrid
+                                            </button>
+                                        </div>
+                                        
+                                        <div class="form-group" v-if="beatmap.status != 'Qualified'" id="mapsetStatus">
+                                            <div class="d-inline-block mr-2">
+                                                Status
+                                            </div>
+                                            <button
+                                                class="btn btn-sm btn-outline-success"
+                                                :disabled="beatmap.status == 'Done'"
+                                                @click="setStatus('Done', $event)"
+                                                data-toggle="tooltip"
+                                                data-placement="bottom"
+                                                title="mark mapset and all diffs as done"
+                                            >
+                                                Done
+                                            </button>
+                                            <button
+                                                class="btn btn-sm btn-outline-warning"
+                                                :disabled="beatmap.status == 'WIP'"
+                                                @click="setStatus('WIP', $event)"
+                                                data-toggle="tooltip"
+                                                data-placement="bottom"
+                                                title="mark mapset as work-in-progress"
+                                            >
+                                                WIP
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- difficulties -->
+                                <div class="row">
+                                    <div class="col">
+                                        <table class="table table-sm table-dark table-hover">
+                                            <thead>
+                                                <td scope="col">Difficulty</td>
+                                                <td scope="col">Mapper(s)</td>
+                                                <td scope="col" v-if="beatmap.status != 'Ranked'">Status</td>
+                                                <td scope="col" v-if="beatmap.status != 'Ranked'"></td>
+                                            </thead>
+                                            <transition-group tag="tbody" name="list" id="difficulties">
+                                                <tr
+                                                    v-for="task in beatmap.tasks"
+                                                    :key="task.id"
+                                                    :id="task.id + 'Row'"
+                                                >
+                                                    <td scope="row">
+                                                        {{ task.name }}
+                                                        <i 
+                                                            v-if="task.mode == 'taiko'" 
+                                                            class="fas fa-drum"
+                                                        ></i>
+                                                        <i
+                                                            v-else-if="task.mode == 'catch'"
+                                                            class="fas fa-apple-alt"
+                                                        ></i>
+                                                        <i 
+                                                            v-else-if="task.mode == 'mania'" 
+                                                            class="fas fa-stream"
+                                                        ></i>
+                                                    </td>
+                                                    <td scope="row">
+                                                        <template v-for="(mapper, i) in task.mappers">
+                                                            <a
+                                                                :href="'https://osu.ppy.sh/users/' + mapper.osuId"
+                                                                target="_blank"
+                                                                :key="mapper.id"
+                                                                >{{
+                                                                    mapper.username +
+                                                                        (i < task.mappers.length - 1 ? ', ' : '')
+                                                                }}</a
+                                                            >
+                                                        </template>
+                                                        <a
+                                                            href="#"
+                                                            v-if="isOwner(task.mappers)"
+                                                            :id="task.id + 'Collab'"
+                                                            :class="[
+                                                                task.status == 'Done' ||
+                                                                beatmap.status == 'Done' ||
+                                                                beatmap.status == 'Qualified'
+                                                                    ? 'fake-button-disable'
+                                                                    : '',
+                                                                addCollabInput == task.id
+                                                                    ? 'fake-collab-button-disable'
+                                                                    : '',
+                                                            ]"
+                                                            class="text-success"
+                                                            @click.prevent="
+                                                                addCollabInput == task.id
+                                                                    ? cancelCollab()
+                                                                    : setCollab(task)
+                                                            "
+                                                            data-toggle="tooltip"
+                                                            data-placement="top"
+                                                            title="invite new collaborator"
+                                                        >
+                                                            <i class="fas fa-plus"></i>
+                                                        </a>
+                                                        <a
+                                                            href="#"
+                                                            v-if="isOwner(task.mappers) && task.mappers.length > 1"
+                                                            class="text-danger"
+                                                            :class="[
+                                                                task.status == 'Done' ||
+                                                                beatmap.status == 'Done' ||
+                                                                beatmap.status == 'Qualified'
+                                                                    ? 'fake-button-disable'
+                                                                    : '',
+                                                                removeCollabInput == task.id
+                                                                    ? 'fake-collab-button-disable'
+                                                                    : '',
+                                                            ]"
+                                                            @click.prevent="
+                                                                removeCollabInput == task.id
+                                                                    ? cancelCollab()
+                                                                    : unsetCollab(task)
+                                                            "
+                                                            data-toggle="tooltip"
+                                                            data-placement="top"
+                                                            title="remove collaborator"
+                                                        >
+                                                            <i class="fas fa-minus"></i>
+                                                        </a>
+                                                    </td>
+                                                    <td
+                                                        scope="row"
+                                                        :class="task.status.toLowerCase()"
+                                                        v-if="beatmap.status != 'Ranked'"
+                                                    >
+                                                        {{ task.status }}
+                                                    </td>
+                                                    <td scope="row" v-if="beatmap.status != 'Ranked'">
+                                                        <a
+                                                            href="#"
+                                                            v-if="isOwner(task.mappers) || isHost"
+                                                            class="text-danger"
+                                                            :class="
+                                                                fakeButton == task.id ? 'fake-button-disable' : ''
+                                                            "
+                                                            @click.prevent="removeTask(task.id)"
+                                                            data-toggle="tooltip"
+                                                            data-placement="top"
+                                                            title="delete"
+                                                        >
+                                                            <i class="fas fa-minus"></i>
+                                                        </a>
+                                                        <span
+                                                            data-toggle="tooltip"
+                                                            data-placement="top"
+                                                            title="set status"
+                                                        >
+                                                            <a
+                                                                href="#"
+                                                                v-if="
+                                                                    (isOwner(task.mappers) || isHost) &&
+                                                                        task.status == 'WIP'
+                                                                "
+                                                                :class="
+                                                                    fakeButton == task.id ? 'fake-button-disable' : ''
+                                                                "
+                                                                class="text-success"
+                                                                @click.prevent="setTaskStatus(task.id, 'Done')"
+                                                            >
+                                                                <i class="fas fa-check"></i>
+                                                            </a>
+                                                            <a
+                                                                href="#"
+                                                                v-if="
+                                                                    (isOwner(task.mappers) || isHost) &&
+                                                                        task.status == 'Done'
+                                                                "
+                                                                :class="
+                                                                    beatmap.status == 'Done' ||
+                                                                    beatmap.status == 'Qualified' ||
+                                                                    fakeButton == task.id
+                                                                        ? 'fake-button-disable'
+                                                                        : ''
+                                                                "
+                                                                class="icon-wip"
+                                                                @click.prevent="setTaskStatus(task.id, 'WIP')"
+                                                            >
+                                                                <i class="fas fa-ellipsis-h"></i>
+                                                            </a>
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            </transition-group>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div
+                                    id="newDifficulty"
+                                    v-if="beatmap.status == 'WIP'"
+                                    class="row mt-2"
+                                    :class="
+                                        beatmap.tasksLocked.length == 6 && !isHost
+                                            ? 'fake-button-disable'
+                                            : ''
+                                    "
                                 >
-                                    <span class="append-button-padding">Request to host</span>
-                                </button>
+                                    <div class="col form-inline">
+                                        <div class="input-group input-group-sm">
+                                            <select class="form-control" id="diffSelection">
+                                                <option
+                                                    v-if="beatmap.tasksLocked.indexOf('Easy') < 0 || isHost"
+                                                    value="Easy"
+                                                    >Easy</option
+                                                >
+                                                <option
+                                                    v-if="beatmap.tasksLocked.indexOf('Normal') < 0 || isHost"
+                                                    value="Normal"
+                                                    >Normal</option
+                                                >
+                                                <option
+                                                    v-if="beatmap.tasksLocked.indexOf('Hard') < 0 || isHost"
+                                                    value="Hard"
+                                                    >Hard</option
+                                                >
+                                                <option
+                                                    v-if="beatmap.tasksLocked.indexOf('Insane') < 0 || isHost"
+                                                    value="Insane"
+                                                    >Insane</option
+                                                >
+                                                <option
+                                                    v-if="beatmap.tasksLocked.indexOf('Expert') < 0 || isHost"
+                                                    value="Expert"
+                                                    >Expert</option
+                                                >
+                                                <option
+                                                    v-if="beatmap.tasksLocked.indexOf('Storyboard') < 0 || isHost"
+                                                    value="Storyboard"
+                                                    >Storyboard</option
+                                                >
+                                            </select>
+                                            <select
+                                                v-if="beatmap.mode == 'hybrid'"
+                                                class="form-control"
+                                                id="diffModeSelection"
+                                            >
+                                                <option value="osu">osu!</option>
+                                                <option value="taiko">osu!taiko</option>
+                                                <option value="catch">osu!catch</option>
+                                                <option value="mania">osu!mania</option>
+                                            </select>
+                                            <input
+                                                v-if="isHost"
+                                                class="form-control w-25"
+                                                type="text"
+                                                placeholder="request to... (if needed)"
+                                                id="requestEntry"
+                                                maxlength="18"
+                                                v-model="requestTaskUsername"
+                                                @keyup.enter="requestTask(beatmap.id, $event)"
+                                            />
+                                            <button
+                                                class="btn btn-sm btn-outline-info ml-1"
+                                                id="addTask"
+                                                @click="addTask(beatmap.id, $event)"
+                                                data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="add difficulty"
+                                                :disabled="requestDiffInput"
+                                            >
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="newCollaborator" class="row mt-2">
+                                    <div class="col">
+                                        <div v-if="addCollabInput" class="input-group input-group-sm">
+                                            <input
+                                                class="form-control form-control-sm"
+                                                type="text"
+                                                placeholder="username..."
+                                                id="collabMapperToAdd"
+                                                @keyup.enter="addCollab($event)"
+                                            />
+                                            <div class="input-group-append">
+                                                <button
+                                                    class="btn btn-outline-info"
+                                                    @click="addCollab($event)"
+                                                >
+                                                    Invite to {{ collabTask.name }}
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div v-if="removeCollabInput" class="input-group input-group-sm">
+                                            <input
+                                                class="form-control form-control-sm"
+                                                type="text"
+                                                placeholder="username..."
+                                                id="collabMapperToRemove"
+                                                @keyup.enter="removeCollab($event)"
+                                            />
+                                            <div class="input-group-append">
+                                                <button
+                                                    class="btn btn-outline-danger"
+                                                    @click="removeCollab($event)"
+                                                >
+                                                    Remove from {{ collabTask.name }}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- RIGHT SIDE -->
+                            <div class="col-sm-5 bm-col-separator-left">
+                                <!-- quest -->
+                                <div class="row mb-2" v-if="beatmap.status != 'Ranked' || beatmap.quest">
+                                    <div class="col">
+                                        <div>
+                                            Quest
+                                            <small
+                                                class="ml-1"
+                                                data-toggle="tooltip"
+                                                data-placement="right"
+                                                title="connect mapset to your current quest"
+                                                v-if="isHost && beatmap.status != 'Ranked'"
+                                            >
+                                                <a
+                                                    href="#"
+                                                    v-if="!beatmap.quest"
+                                                    id="editQuest"
+                                                    :class="
+                                                        fakeButton == beatmap.id + 'quest'
+                                                            ? 'fake-button-disable'
+                                                            : ''
+                                                    "
+                                                    class="text-success"
+                                                    @click.prevent="setQuest()"
+                                                >
+                                                    <i class="fas fa-plus"></i>
+                                                </a>
+                                                <a
+                                                    href="#"
+                                                    v-if="beatmap.quest"
+                                                    id="editQuest"
+                                                    :class="
+                                                        fakeButton == beatmap.id + 'quest'
+                                                            ? 'fake-button-disable'
+                                                            : ''
+                                                    "
+                                                    class="text-danger"
+                                                    @click.prevent="unsetQuest()"
+                                                >
+                                                    <i class="fas fa-minus"></i>
+                                                </a>
+                                            </small>
+                                        </div>
+                                        <div class="small ml-3">
+                                            <span v-if="beatmap.quest">{{ beatmap.quest.name }}</span>
+                                            <i v-else>none</i>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- modders -->
+                                <div id="modders" class="row mb-2">
+                                    <div class="col">
+                                        <div>
+                                            Modders ({{ beatmap.modders.length }}) 
+                                            <small
+                                                class="ml-1"
+                                                data-toggle="tooltip"
+                                                data-placement="right"
+                                                title="add/remove yourself from modder list"
+                                                v-if="beatmap.status != 'Ranked'"
+                                            >
+                                                <a
+                                                    href="#"
+                                                    v-if="isModder && !isHost"
+                                                    class="mod-button text-danger"
+                                                    :class="
+                                                        fakeButton == beatmap.id + 'mod' ? 'fake-button-disable' : ''
+                                                    "
+                                                    @click.stop.prevent="updateModder()"
+                                                >
+                                                    <i class="fas fa-minus"></i>
+                                                </a>
+                                                <a
+                                                    href="#"
+                                                    v-if="!isModder && !isHost"
+                                                    class="text-success mod-button"
+                                                    :class="
+                                                        fakeButton == beatmap.id + 'mod' ? 'fake-button-disable' : ''
+                                                    "
+                                                    @click.stop.prevent="updateModder()"
+                                                >
+                                                    <i class="fas fa-plus"></i>
+                                                </a>
+                                            </small>
+                                        </div>
+                                        <div class="small ml-3">
+                                            <i v-if="beatmap.modders.length == 0">
+                                                none
+                                            </i>
+                                            <span v-else>
+                                                <template v-for="(modder, i) in beatmap.modders">
+                                                    <a
+                                                        :href="'https://osu.ppy.sh/users/' + modder.osuId"
+                                                        target="_blank"
+                                                        :key="modder.id"
+                                                    >
+                                                            {{ modder.username + (i < beatmap.modders.length - 1 ? ', ' : '') }}
+                                                    </a>
+                                                </template>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- bns -->
+                                <div id="bns" class="row mb-2" v-if="beatmap.status != 'Ranked' || beatmap.bns">
+                                    <div class="col">
+                                        <div>
+                                            Potential Nominators ({{ beatmap.bns.length }})
+                                            <small
+                                                class="ml-1"
+                                                data-toggle="tooltip"
+                                                data-placement="right"
+                                                title="add/remove yourself from potential BN list"
+                                                v-if="!isHost && beatmap.status != 'Ranked'"
+                                            >
+                                                <a
+                                                    href="#"
+                                                    v-if="isBn"
+                                                    class="text-danger"
+                                                    :class="
+                                                        fakeButton == beatmap.id + 'bn' ? 'fake-button-disable' : ''
+                                                    "
+                                                    @click.prevent="updateBn()"
+                                                >
+                                                    <i class="fas fa-minus"></i>
+                                                </a>
+                                                <a
+                                                    href="#"
+                                                    v-if="!isBn && beatmap.bns.length < 2"
+                                                    :class="
+                                                        fakeButton == beatmap.id + 'bn' ? 'fake-button-disable' : ''
+                                                    "
+                                                    class="text-success"
+                                                    @click.prevent="updateBn()"
+                                                >
+                                                    <i class="fas fa-plus"></i>
+                                                </a>
+                                            </small>
+                                        </div>
+                                        <div class="small ml-3">
+                                            <i v-if="beatmap.bns.length == 0">none</i>
+                                            <span v-else>
+                                                <template v-for="(bn, i) in beatmap.bns">
+                                                    <a
+                                                        :href="'https://osu.ppy.sh/users/' + bn.osuId"
+                                                        target="_blank"
+                                                        :key="bn.id"
+                                                        >{{
+                                                            bn.username + (i < beatmap.bns.length - 1 ? ', ' : '')
+                                                        }}</a
+                                                    >
+                                                </template>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- link -->
+                                <div id="mapLink" class="row mb-2">
+                                    <div class="col">
+                                        <div>
+                                            Link
+                                            <a
+                                                v-if="isHost"
+                                                href="#"
+                                                id="editLink"
+                                                :class="editLinkInput ? 'text-danger' : ''"
+                                                class="text-success small ml-1"
+                                                @click.prevent="editLinkInput ? unsetLink() : setLink()"
+                                                data-toggle="tooltip"
+                                                data-placement="right"
+                                                title="edit link"
+                                            >
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </div>
+                                        <div class="small ml-3">
+                                            <a v-if="beatmap.url" :href="beatmap.url" target="_blank">
+                                                <b>{{ shortUrl }}</b>
+                                            </a>
+                                            <i v-else>none</i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" id="linkInput" v-if="editLinkInput">
+                                    <div class="col">
+                                        <div class="input-group input-group-sm">
+                                            <input
+                                                class="form-control form-control-sm"
+                                                type="text"
+                                                placeholder="URL"
+                                                id="newLink"
+                                                @keyup.enter="saveLink($event)"
+                                            />
+                                            <div class="input-group-append">
+                                                <button
+                                                    class="btn btn-outline-info"
+                                                    type="submit"
+                                                    id="addLinkButton"
+                                                    @click="saveLink($event)"
+                                                    data-toggle="tooltip"
+                                                    data-placement="right"
+                                                    title="use new osu!web link for card image"
+                                                >
+                                                    Save
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- locks -->
+                                <div id="locks" class="row mb-1" v-if="beatmap.status == 'WIP'">
+                                    <div class="col">
+                                        <div>
+                                            Locks
+                                        </div>
+                                        <div class="small ml-3">
+                                            <i v-if="beatmap.tasksLocked.length == 0">none</i>
+                                            <div v-else id="lockedDiffs">
+                                                <div
+                                                    v-for="task in beatmap.tasksLocked"
+                                                    :key="task.id"
+                                                >
+                                                    <a
+                                                        href="#"
+                                                        v-if="isHost"
+                                                        class="text-danger"
+                                                        @click.prevent="unlockTask(task)"
+                                                        :class="fakeButton == task ? 'fake-button-disable' : ''"
+                                                        data-toggle="tooltip"
+                                                        data-placement="left"
+                                                        title="unlock"
+                                                    >
+                                                        <i class="fas fa-minus"></i>
+                                                    </a>
+                                                    {{ task }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="newLock" class="row" v-if="beatmap.tasksLocked.length != 6 && isHost">
+                                    <div class="col">
+                                        <div class="input-group input-group-sm">
+                                            <select class="form-control" id="lockDiffSelection">
+                                                <option
+                                                    v-if="beatmap.tasksLocked.indexOf('Easy') < 0"
+                                                    value="Easy"
+                                                    >Easy</option
+                                                >
+                                                <option
+                                                    v-if="beatmap.tasksLocked.indexOf('Normal') < 0"
+                                                    value="Normal"
+                                                    >Normal</option
+                                                >
+                                                <option
+                                                    v-if="beatmap.tasksLocked.indexOf('Hard') < 0"
+                                                    value="Hard"
+                                                    >Hard</option
+                                                >
+                                                <option
+                                                    v-if="beatmap.tasksLocked.indexOf('Insane') < 0"
+                                                    value="Insane"
+                                                    >Insane</option
+                                                >
+                                                <option
+                                                    v-if="beatmap.tasksLocked.indexOf('Expert') < 0"
+                                                    value="Expert"
+                                                    >Expert</option
+                                                >
+                                                <option
+                                                    v-if="beatmap.tasksLocked.indexOf('Storyboard') < 0"
+                                                    value="Storyboard"
+                                                    >Storyboard</option
+                                                >
+                                            </select>
+                                            <div class="input-group-append">
+                                                <button
+                                                    class="btn btn-outline-info"
+                                                    id="lockTask"
+                                                    @click="lockTask($event)"
+                                                    data-toggle="tooltip"
+                                                    data-placement="right"
+                                                    title="prevent other mappers from claiming a difficulty"
+                                                >
+                                                    <i class="fas fa-lock"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                </div>-->
-                <table class="table table-sm table-dark table-hover">
-                  <thead>
-                    <td scope="col">Difficulty</td>
-                    <td scope="col">Mapper(s)</td>
-                    <td scope="col" v-if="beatmap.status != 'Ranked'">Status</td>
-                    <td scope="col" v-if="beatmap.status != 'Ranked'"></td>
-                  </thead>
-                  <transition-group tag="tbody" name="list" id="difficulties">
-                    <tr v-for="task in beatmap.tasks" :key="task.id" :id="task.id + 'Row'">
-                      <td scope="row">{{task.name}}
-                        <i v-if="task.mode == 'taiko'" class="fas fa-drum" ></i>
-                        <i v-else-if="task.mode == 'catch'" class="fas fa-apple-alt"></i>
-                        <i v-else-if="task.mode == 'mania'" class="fas fa-stream"></i>
-                      </td>
-                      <td scope="row">
-                        <template v-for="(mapper, i) in task.mappers">
-                          <a
-                            :href="'https://osu.ppy.sh/users/' + mapper.osuId"
-                            target="_blank"
-                            :key="mapper.id"
-                          >{{ mapper.username + (i < task.mappers.length - 1 ? ', ' : '') }}</a>
-                        </template>
-                        <a
-                          href="#"
-                          v-if="(isOwner(task.mappers))"
-                          :id="task.id + 'Collab'"
-                          :class="[task.status == 'Done' || beatmap.status == 'Done' || beatmap.status == 'Qualified' ? 'fake-button-disable' : '', addCollabInput == task.id ? 'fake-collab-button-disable' : '']"
-                          class="icon-valid"
-                          @click.prevent="addCollabInput == task.id ? cancelCollab() : setCollab(task)"
-                          data-toggle="tooltip"
-                          data-placement="top"
-                          title="invite new collaborator"
-                        >
-                          <i class="fas fa-plus-square"></i>
-                        </a>
-                        <a
-                          href="#"
-                          v-if="(isOwner(task.mappers)) && task.mappers.length > 1"
-                          class="icon-used"
-                          :class="[task.status == 'Done' || beatmap.status == 'Done' || beatmap.status == 'Qualified' ? 'fake-button-disable' : '', removeCollabInput == task.id ? 'fake-collab-button-disable' : '']"
-                          @click.prevent="removeCollabInput == task.id ? cancelCollab() : unsetCollab(task)"
-                          data-toggle="tooltip"
-                          data-placement="top"
-                          title="remove collaborator"
-                        >
-                          <i class="fas fa-minus-square"></i>
-                        </a>
-                      </td>
-                      <td
-                        scope="row"
-                        :class="task.status.toLowerCase()"
-                        v-if="beatmap.status != 'Ranked'"
-                      >{{task.status}}</td>
-                      <td scope="row" v-if="beatmap.status != 'Ranked'">
-                        <a
-                          href="#"
-                          v-if="isOwner(task.mappers) || isHost"
-                          class="icon-used"
-                          :class="fakeButton == task.id ? 'fake-button-disable' : ''"
-                          @click.prevent="removeTask(task.id)"
-                          data-toggle="tooltip"
-                          data-placement="top"
-                          title="delete"
-                        >
-                          <i class="fas fa-minus-square"></i>
-                        </a>
-                        <span data-toggle="tooltip" data-placement="top" title="set status">
-                          <a
-                            href="#"
-                            v-if="(isOwner(task.mappers) || isHost) && task.status == 'WIP'"
-                            :class="fakeButton == task.id ? 'fake-button-disable' : ''"
-                            class="icon-done"
-                            @click.prevent="setTaskStatus(task.id, 'Done')"
-                          >
-                            <i class="fas fa-check"></i>
-                          </a>
-                          <a
-                            href="#"
-                            v-if="(isOwner(task.mappers) || isHost) && task.status == 'Done'"
-                            :class="beatmap.status == 'Done' || beatmap.status == 'Qualified' || fakeButton == task.id ? 'fake-button-disable' : ''"
-                            class="icon-wip"
-                            @click.prevent="setTaskStatus(task.id, 'WIP')"
-                          >
-                            <i class="fas fa-ellipsis-h"></i>
-                          </a>
-                        </span>
-                      </td>
-                    </tr>
-                  </transition-group>
-                </table>
-                <div
-                  id="newDifficulty"
-                  v-if="beatmap.status == 'WIP'"
-                  :class="beatmap.tasksLocked.length == 6 && !isHost ? 'fake-button-disable' : ''"
-                >
-                  <div class="input-group input-group-sm mb-3">
-                    <select class="form-control small" id="diffSelection">
-                      <option
-                        v-if="beatmap.tasksLocked.indexOf('Easy') < 0 || isHost"
-                        value="Easy"
-                      >Easy</option>
-                      <option
-                        v-if="beatmap.tasksLocked.indexOf('Normal') < 0 || isHost"
-                        value="Normal"
-                      >Normal</option>
-                      <option
-                        v-if="beatmap.tasksLocked.indexOf('Hard') < 0 || isHost"
-                        value="Hard"
-                      >Hard</option>
-                      <option
-                        v-if="beatmap.tasksLocked.indexOf('Insane') < 0 || isHost"
-                        value="Insane"
-                      >Insane</option>
-                      <option
-                        v-if="beatmap.tasksLocked.indexOf('Expert') < 0 || isHost"
-                        value="Expert"
-                      >Expert</option>
-                      <option
-                        v-if="beatmap.tasksLocked.indexOf('Storyboard') < 0 || isHost"
-                        value="Storyboard"
-                      >Storyboard</option>
-                    </select>
-                    <select v-if="beatmap.mode == 'hybrid'" class="form-control small" id="diffModeSelection">
-                      <option value="osu">osu!</option>
-                      <option value="taiko">osu!taiko</option>
-                      <option value="catch">osu!catch</option>
-                      <option value="mania">osu!mania</option>
-                    </select>
-                    <div class="input-group-append">
-                      <button
-                        style="border-radius: 0 100px 100px 0;"
-                        class="rounded-circle-left btn btn-outline-secondary"
-                        id="addTask"
-                        @click="addTask(beatmap.id, $event);"
-                        data-toggle="tooltip"
-                        data-placement="top"
-                        title="add difficulty"
-                        :disabled="requestDiffInput"
-                      >
-                        <i class="fas fa-plus append-button-padding"></i>
-                      </button>
                     </div>
-                    <span class="ml-1">
-                      <button
-                        v-if="isHost"
-                        :class="requestDiffInput ? 'btn-mg-used' : 'btn-mg'"
-                        class="btn btn-sm px-2"
-                        @click.prevent="requestDiffInput ? unsetRequest() : setRequest()"
-                        data-toggle="tooltip"
-                        data-placement="top"
-                        title="request difficulty"
-                      >
-                        <i class="fas fa-at"></i>
-                      </button>
+                </div>
+                <div class="modal-footer">
+                    <span id="errors" class="mr-auto" :class="inviteConfirm ? 'confirm' : 'errors'">
+                        {{ info }} {{ inviteConfirm }}
                     </span>
-                  </div>
-                </div>
-                <div id="requestDiff" v-if="requestDiffInput">
-                  <div class="input-group input-group-sm mb-3">
-                    <input
-                      class="form-control form-control-sm custom-input"
-                      type="text"
-                      placeholder="username..."
-                      id="requestEntry"
-                      style="border-radius: 100px 0 0 100px;"
-                      maxlength="18"
-                      @keyup.enter="requestTask(beatmap.id, $event)"
-                    >
-                    <div class="input-group-append">
-                      <button
-                        style="border-radius: 0 100px 100px 0"
-                        class="rounded-circle-left btn btn-mg"
-                        type="submit"
-                        @click="requestTask(beatmap.id, $event)"
-                        data-toggle="tooltip"
-                        data-placement="right"
-                        title="request another mapper to create the selected difficulty"
-                      >
-                        <span class="append-button-padding">Request difficulty</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div id="newCollaborator">
-                  <div v-if="addCollabInput" class="input-group input-group-sm mb-3">
-                    <input
-                      class="form-control form-control-sm"
-                      type="text"
-                      placeholder="username..."
-                      id="collabMapperToAdd"
-                      style="border-radius: 100px 0 0 100px"
-                      @keyup.enter="addCollab($event)"
-                    >
-                    <div class="input-group-append">
-                      <button
-                        style="border-radius: 0 100px 100px 0;"
-                        class="rounded-circle-left btn btn-mg"
-                        @click="addCollab($event)"
-                      >
-                        <span class="append-button-padding">Invite to {{collabTask.name}}</span>
-                      </button>
-                    </div>
-                  </div>
-                  <div v-if="removeCollabInput" class="input-group input-group-sm mb-3">
-                    <input
-                      class="form-control form-control-sm"
-                      type="text"
-                      placeholder="username..."
-                      id="collabMapperToRemove"
-                      style="border-radius: 100px 0 0 100px"
-                      @keyup.enter="removeCollab($event)"
-                    >
-                    <div class="input-group-append">
-                      <button
-                        style="border-radius: 0 100px 100px 0;"
-                        class="rounded-circle-left btn btn-mg-used"
-                        @click="removeCollab($event)"
-                      >
-                        <span class="append-button-padding">Remove from {{collabTask.name}}</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div v-if="isHost && beatmap.status != 'Qualified'" id="mapsetStatus">
-                  <p class="text-shadow">
-                    Mapset status:
+                    Created: {{ beatmap.createdAt.slice(0, 10) }}
                     <button
-                      class="btn btn-sm btn-mg-done"
-                      :disabled="beatmap.status == 'Done' "
-                      @click="setStatus('Done', $event);"
-                      data-toggle="tooltip"
-                      data-placement="bottom"
-                      title="mark set and all diffs as done"
-                    >Done</button>
-                    <button
-                      class="btn btn-sm btn-mg-wip"
-                      :disabled="beatmap.status == 'WIP'"
-                      @click="setStatus('WIP', $event);"
-                      data-toggle="tooltip"
-                      data-placement="bottom"
-                      title="mark set as work-in-progress"
-                    >WIP</button>
-                  </p>
-                </div>
-              </div>
-
-              <div class="col-sm-6 bm-col-separator-left">
-                <p
-                  id="quest"
-                  class="text-shadow"
-                  v-if="beatmap.status != 'Ranked' || beatmap.quest"
-                >
-                  Quest:
-                  <small>
-                    <span v-if="beatmap.quest">{{beatmap.quest.name}}</span>
-                    <span v-else>
-                      <i>none</i>
-                    </span>
-                  </small>
-                  <span
-                    data-toggle="tooltip"
-                    data-placement="right"
-                    title="connect mapset to your current quest"
-                  >
-                    <a
-                      href="#"
-                      v-if="isHost && !beatmap.quest"
-                      id="editQuest"
-                      :class="fakeButton == beatmap.id + 'quest' ? 'fake-button-disable' : ''"
-                      class="icon-valid"
-                      @click.prevent="setQuest()"
-                    >
-                      <i class="fas fa-plus-square"></i>
-                    </a>
-                    <a
-                      href="#"
-                      v-if="isHost && beatmap.quest"
-                      id="editQuest"
-                      :class="fakeButton == beatmap.id + 'quest' ? 'fake-button-disable' : ''"
-                      class="icon-used"
-                      @click.prevent="unsetQuest()"
-                    >
-                      <i class="fas fa-minus-square"></i>
-                    </a>
-                  </span>
-                </p>
-                <p id="modders" class="text-shadow">
-                  Modders ({{beatmap.modders.length}}):
-                  <span
-                    v-if="beatmap.modders.length == 0"
-                    class="small text-shadow"
-                  >
-                    <i>none</i>
-                  </span>
-                  <span v-else class="small text-shadow">
-                    <template v-for="(modder, i) in beatmap.modders">
-                      <a
-                        :href="'https://osu.ppy.sh/users/' + modder.osuId"
-                        target="_blank"
-                        :key="modder.id"
-                      >{{ modder.username + (i < beatmap.modders.length - 1 ? ', ' : '') }}</a>
-                    </template>
-                  </span>
-                  <span
-                    data-toggle="tooltip"
-                    data-placement="right"
-                    title="add/remove yourself from modder list"
-                    v-if="beatmap.status !='Ranked'"
-                  >
-                    <a
-                      href="#"
-                      v-if="isModder && !isHost"
-                      class="mod-button icon-used"
-                      :class="fakeButton == beatmap.id + 'mod' ? 'fake-button-disable' : ''"
-                      @click.stop.prevent="updateModder()"
-                    >
-                      <i class="fas fa-minus-square"></i>
-                    </a>
-                    <a
-                      href="#"
-                      v-if="!isModder && !isHost"
-                      class="icon-valid mod-button"
-                      :class="fakeButton == beatmap.id + 'mod' ? 'fake-button-disable' : ''"
-                      @click.stop.prevent="updateModder()"
-                    >
-                      <i class="fas fa-plus-square"></i>
-                    </a>
-                  </span>
-                </p>
-                <p id="bns" class="text-shadow" v-if="beatmap.status != 'Ranked'">
-                  Potential Nominators ({{beatmap.bns.length}}):
-                  <span
-                    v-if="beatmap.bns.length == 0"
-                    class="small text-shadow"
-                  >
-                    <i>none</i>
-                  </span>
-                  <span v-else class="small text-shadow">
-                    <template v-for="(bn, i) in beatmap.bns">
-                      <a
-                        :href="'https://osu.ppy.sh/users/' + bn.osuId"
-                        target="_blank"
-                        :key="bn.id"
-                      >{{ bn.username + (i < beatmap.bns.length - 1 ? ', ' : '') }}</a>
-                    </template>
-                  </span>
-                  <span
-                    data-toggle="tooltip"
-                    data-placement="right"
-                    title="add/remove yourself from potential BN list"
-                  >
-                    <a
-                      href="#"
-                      v-if="isBn && !isHost"
-                      class="icon-used"
-                      :class="fakeButton == beatmap.id + 'bn' ? 'fake-button-disable' : ''"
-                      @click.prevent="updateBn()"
-                    >
-                      <i class="fas fa-minus-square"></i>
-                    </a>
-                    <a
-                      href="#"
-                      v-if="!isBn && !isHost && beatmap.bns.length < 2"
-                      :class="fakeButton == beatmap.id + 'bn' ? 'fake-button-disable' : ''"
-                      class="icon-valid"
-                      @click.prevent="updateBn()"
-                    >
-                      <i class="fas fa-plus-square"></i>
-                    </a>
-                  </span>
-                </p>
-                <p id="mapLink" class="text-shadow">
-                  Link:
-                  <a v-if="beatmap.url" class="small" :href="beatmap.url" target="_blank">
-                    <b>{{ shortUrl }}</b>
-                  </a>
-                  <i v-else class="small">none</i>
-                  <a
-                    v-if="isHost"
-                    href="#"
-                    id="editLink"
-                    :class="editLinkInput ? 'icon-used' : ''"
-                    class="icon-valid"
-                    @click.prevent="editLinkInput ? unsetLink() : setLink()"
-                    data-toggle="tooltip"
-                    data-placement="right"
-                    title="edit link"
-                  >
-                    <i class="fas fa-edit"></i>
-                  </a>
-                </p>
-                <div id="linkInput">
-                  <div v-if="editLinkInput" class="input-group input-group-sm mb-3">
-                    <input
-                      class="form-control form-control-sm"
-                      type="text"
-                      placeholder="URL"
-                      id="newLink"
-                      style="border-radius: 100px 0 0 100px"
-                      @keyup.enter="saveLink($event)"
-                    >
-                    <div class="input-group-append">
-                      <button
-                        style="border-radius: 0 100px 100px 0;"
-                        class="rounded-circle-left btn btn-mg"
-                        type="submit"
-                        id="addLinkButton"
-                        @click="saveLink($event)"
-                        data-toggle="tooltip"
-                        data-placement="right"
-                        title="use new osu!web link for card image"
-                      >
-                        <span class="append-button-padding">Save link</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div id="locks" v-if="beatmap.status == 'WIP'">
-                  <p class="text-shadow">Locked:
-                    <i v-if="beatmap.tasksLocked.length == 0" class="small">none</i>
-                  </p>
-                  <div id="lockedDiffs" class="text-shadow">
-                    <div class="ml-3 small" v-for="task in beatmap.tasksLocked" :key="task.id">
-                      <a
-                        href="#"
                         v-if="isHost"
-                        class="icon-used"
-                        @click.prevent="unlockTask(task)"
-                        :class="fakeButton == task ? 'fake-button-disable' : ''"
-                        data-toggle="tooltip"
-                        data-placement="left"
-                        title="unlock"
-                      >
-                        <i class="fas fa-minus-square"></i>
-                      </a>
-                      {{task}}
-                    </div>
-                  </div>
-                  <div id="newLock" v-if="beatmap.tasksLocked.length != 6 && isHost">
-                    <br v-if="beatmap.tasksLocked.length > 0">
-                    <div class="input-group input-group-sm mb-3">
-                      <select class="form-control small" id="lockDiffSelection">
-                        <option v-if="beatmap.tasksLocked.indexOf('Easy') < 0" value="Easy">Easy</option>
-                        <option
-                          v-if="beatmap.tasksLocked.indexOf('Normal') < 0"
-                          value="Normal"
-                        >Normal</option>
-                        <option v-if="beatmap.tasksLocked.indexOf('Hard') < 0" value="Hard">Hard</option>
-                        <option
-                          v-if="beatmap.tasksLocked.indexOf('Insane') < 0"
-                          value="Insane"
-                        >Insane</option>
-                        <option
-                          v-if="beatmap.tasksLocked.indexOf('Expert') < 0"
-                          value="Expert"
-                        >Expert</option>
-                        <option
-                          v-if="beatmap.tasksLocked.indexOf('Storyboard') < 0"
-                          value="Storyboard"
-                        >Storyboard</option>
-                      </select>
-                      <div class="input-group-append">
-                        <button
-                          style="border-radius: 0 100px 100px 0;"
-                          class="rounded-circle-left btn btn-outline-secondary"
-                          id="lockTask"
-                          @click="lockTask($event);"
-                          data-toggle="tooltip"
-                          data-placement="right"
-                          title="prevent other mappers from claiming a difficulty"
-                        >
-                          <span class="append-button-padding">Lock</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+                        id="deleteButton"
+                        class="btn btn-sm btn-outline-danger ml-2"
+                        @click="deleteMap($event)"
+                    >
+                        Delete
+                    </button>
                 </div>
-              </div>
             </div>
-            <div class="row">
-              <div class="col-sm-12">
-                <hr>
-                <p id="delete">
-                  <span
-                    class="text-shadow"
-                    :class="isHost ? 'float-left' : 'float-right'"
-                  >Created: {{beatmap.createdAt.slice(0,10)}}</span>
-                  <button
-                    v-if="isHost"
-                    id="deleteButton"
-                    class="btn btn-sm btn-mg-used float-right"
-                    @click="deleteMap($event)"
-                  >Delete</button>
-                </p>
-              </div>
-              <p
-                id="errors"
-                class="text-shadow"
-                :class="inviteConfirm ? 'confirm' : 'errors'"
-              >{{info}} {{inviteConfirm}}</p>
-            </div>
-          </div>
         </div>
-      </div>
     </div>
-  </div>
 </template>
 
 <script>
@@ -748,6 +852,10 @@ export default {
             this.fakeButton = null;
         },
         addTask: async function(id, e) {
+            if (this.requestTaskUsername.length) {
+                requestTask(id, e);
+                return;
+            }
             let difficulty = $('#diffSelection').val();
             let mode = $('#diffModeSelection').val();
             const bm = await this.executePost(
@@ -773,8 +881,8 @@ export default {
             let difficulty = $('#diffSelection').val();
             let recipient = $('#requestEntry').val();
             let mode = $('#diffModeSelection').val();
-            if(!mode){
-              mode = this.beatmap.mode;
+            if (!mode) {
+                mode = this.beatmap.mode;
             }
             const bm = await this.executePost(
                 '/beatmaps/requestTask/' + id,
@@ -790,11 +898,7 @@ export default {
         addCollab: async function(e) {
             const user = $('#collabMapperToAdd').val();
             const id = this.addCollabInput;
-            const bm = await this.executePost(
-                '/beatmaps/task/' + id + '/addCollab',
-                { user: user },
-                e
-            );
+            const bm = await this.executePost('/beatmaps/task/' + id + '/addCollab', { user: user }, e);
             if (bm) {
                 this.$emit('update-map', bm);
                 this.info = null;
@@ -805,11 +909,7 @@ export default {
         removeCollab: async function(e) {
             const user = $('#collabMapperToRemove').val();
             const id = this.removeCollabInput;
-            const bm = await this.executePost(
-                '/beatmaps/task/' + id + '/removeCollab',
-                { user: user },
-                e
-            );
+            const bm = await this.executePost('/beatmaps/task/' + id + '/removeCollab', { user: user }, e);
             if (bm) {
                 this.$emit('update-map', bm);
                 this.removeCollabInput = null;
@@ -903,11 +1003,7 @@ export default {
         },
         saveLink: async function(e) {
             let url = $('#newLink').val();
-            const bm = await this.executePost(
-                '/beatmaps/setLink/' + this.beatmap._id,
-                { url: url },
-                e
-            );
+            const bm = await this.executePost('/beatmaps/setLink/' + this.beatmap._id, { url: url }, e);
             if (bm) {
                 this.editLinkInput = null;
                 this.$emit('update-map', bm);
@@ -964,19 +1060,21 @@ export default {
             collabTask: null,
             fakeButton: null,
             info: null,
+
+            requestTaskUsername: '',
         };
     },
 };
 </script>
 
 <style>
-    .fake-button-disable {
-        pointer-events: none;
-        opacity: 0.6;
-    }
+.fake-button-disable {
+    pointer-events: none;
+    opacity: 0.6;
+}
 
-    .fake-collab-button-disable {
-        opacity: 0.6;
-        color: var(--ranked);
-    }
+.fake-collab-button-disable {
+    opacity: 0.6;
+    color: var(--ranked);
+}
 </style>

@@ -21,7 +21,7 @@
 
                 <span v-if="quest.content.length && quest.status != 'done'">
                     <p class="text-shadow">Content applicable for this quest:</p>
-                    <ul style="list-style-type: none">
+                    <ul>
                         <li class="small text-shadow" v-for="content in quest.content" :key="content.text">
                             <template>
                                 <a :href="'https://osu.ppy.sh/beatmaps/artists/' + content.artist" target="_blank">{{content.text}}</a>
@@ -32,17 +32,17 @@
 
                 <p v-if="quest.exclusive && quest.status == 'open'" class="small text-shadow">Because this quest involves unpublished featured artist content, it is rank-restricted and dropping it will make it unobtainable by any other party.</p>
 
-                <hr>
+                <div class="radial-divisor mx-auto my-3"></div>
 
                 <span v-if="quest.status == 'open'">
                     <p class="text-shadow">Reward: {{quest.reward}} bonus points for each user + 2 additional points per task on each mapset <span v-if="quest.medal">+ a pack-exclusive medal/achievement</span></p>
                     <p class="text-shadow">Party size: {{quest.minParty}}-{{quest.maxParty}} members</p>
                     <p class="text-shadow">Required Rank: {{quest.minRank}}</p>
                     <p class="text-shadow">Timeframe: {{Math.round(quest.timeframe / (1000*60*60*24))}} days</p>
-                    <hr>
+                    <div class="radial-divisor mx-auto my-3"></div>
                     <div v-if="!(!partyQuest && partyRank >= quest.minRank && partySize <= quest.maxParty && partySize >= quest.minParty)">
                         <p class="small text-shadow">You're unable to accept this quest because:</p>
-                        <ul style="list-style-type: none" class="small text-shadow">
+                        <ul class="small text-shadow">
                             <li v-if="!partyName">You're not the leader of a party</li>
                             <li v-if="partyQuest && partyName">You can only handle one quest at a time</li>
                             <li v-if="partyRank < quest.minRank && partyName">Your party is below the quest's required rank</li>
@@ -51,7 +51,7 @@
                         </ul>
                     </div>
                     <div v-if="!partyQuest && partyRank >= quest.minRank && partySize <= quest.maxParty && partySize >= quest.minParty">
-                        <button class="btn btn-mg btn-sm accept float-right" @click="acceptQuest($event)">Accept</button>
+                        <button class="btn btn-outline-info btn-sm accept float-right" @click="acceptQuest($event)">Accept</button>
                     </div>
                 </span>
                 <span v-if="quest.status == 'wip'"> 
@@ -74,12 +74,12 @@
                             </li>
                         </ul>
                     </span>
-                    <hr>
+                    <div class="radial-divisor mx-auto my-3"></div>
                     <p class="text-shadow">Reward: {{quest.reward}} bonus points for each user + 2 additional points per task on each mapset <span v-if="quest.medal">+ a pack-exclusive medal/achievement</span></p>
                     <p class='card-text text-shadow' style='margin-top:0.5rem'>Deadline: {{quest.deadline.slice(0,10)}}</p>
                     <div v-if="quest.id == partyQuest">
-                        <hr>
-                        <button class="btn btn-mg-used btn-sm float-right drop" @click="dropQuest($event)">Drop</button>
+                        <div class="radial-divisor mx-auto my-3"></div>
+                        <button class="btn btn-outline-danger btn-sm float-right drop" @click="dropQuest($event)">Drop</button>
                     </div>
                 </span>
                 <span v-if="quest.associatedMaps.length && quest.status == 'done'">
@@ -99,7 +99,7 @@
                 <span v-if="quest.status == 'done'">
                     <p class="text-shadow">Reward: {{quest.reward}} bonus points for each user + 2 additional points per task on each mapset <span v-if="quest.medal">+ a pack-exclusive medal/achievement</span></p>
                     <p class='card-text text-shadow'>Completed on {{quest.completed.slice(0,10)}} by:
-                    <ul style="list-style-type: none">
+                    <ul>
                         <li class="text-shadow small" v-for="member in quest.completedMembers" :key="member.id"><a :href="'https://osu.ppy.sh/users/' + member.osuId" target="_blank">{{ member.username }}</a></li>
                     </ul>
                 </p>

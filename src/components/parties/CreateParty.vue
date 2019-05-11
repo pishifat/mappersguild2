@@ -38,8 +38,8 @@
                     </div>
 
                     <p class="mt-4 text-shadow errors">{{ info }}</p>
-                    <hr>
-                    <button type="button" class="btn btn-mg float-right" @click="createParty($event)">Save</button>
+                    <div class="radial-divisor mx-auto my-3"></div>
+                    <button type="button" class="btn btn-outline-info float-right" @click="createParty($event)">Save</button>
                 </div>
             </div>
         </div>

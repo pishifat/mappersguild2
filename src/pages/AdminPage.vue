@@ -150,7 +150,7 @@
                             <div class="input-group-prepend">
                                 <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg" type="submit" @click="setStatus(selectedMap.id, $event)">save status</button>
                             </div>
-                                <select class="custom-select select-arrow small" id="mapStatusSelect" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 0 100px 100px 0">
+                                <select class="form-control form-control-sm" id="mapStatusSelect" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 0 100px 100px 0">
                                 <option selected value="WIP">WIP</option>
                                 <option value="Done">Done</option>
                                 <option value="Qualified">Qualified</option>
@@ -163,9 +163,9 @@
 
                     <div class="input-group input-group-sm mb-3">
                         <div class="input-group-prepend">
-                            <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg-used" @click="removeDiff(selectedMap.id, $event)">remove diff</button>
+                            <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-outline-danger" @click="removeDiff(selectedMap.id, $event)">remove diff</button>
                         </div>
-                        <select class="custom-select select-arrow small" id="removeDiffSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 0 100px 100px 0">
+                        <select class="form-control form-control-sm" id="removeDiffSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 0 100px 100px 0">
                             <option v-for="task in selectedMap.tasks" :value="task.id" :key="task.id">{{task.name}} - <template v-for="(mapper, i) in task.mappers"><a :key="i" :href="'https://osu.ppy.sh/users/' + mapper.osuId" target="_blank">{{ mapper.username + (i < task.mappers.length - 1 ? ', ' : '') }}</a></template></option>
                         </select>
                     </div>
@@ -174,9 +174,9 @@
 
                     <div class="input-group input-group-sm mb-3">
                         <div class="input-group-prepend">
-                            <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg-used" @click="removeModder(selectedMap.id, $event)">remove modder</button>
+                            <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-outline-danger" @click="removeModder(selectedMap.id, $event)">remove modder</button>
                         </div>
-                        <select class="custom-select select-arrow small" id="removeModderSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 0 100px 100px 0">
+                        <select class="form-control form-control-sm" id="removeModderSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 0 100px 100px 0">
                             <option v-for="modder in selectedMap.modders" :value="modder.id" :key="modder.id">{{modder.username}}</option>
                         </select>
                     </div>
@@ -185,9 +185,9 @@
 
                     <div class="input-group input-group-sm mb-3">
                         <div class="input-group-prepend">
-                            <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg-used" @click="removeNominator(selectedMap.id, $event)">remove bn</button>
+                            <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-outline-danger" @click="removeNominator(selectedMap.id, $event)">remove bn</button>
                         </div>
-                        <select class="custom-select select-arrow small" id="removeNominatorSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 0 100px 100px 0">
+                        <select class="form-control form-control-sm" id="removeNominatorSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 0 100px 100px 0">
                             <option v-for="bn in selectedMap.bns" :value="bn.id" :key="bn.id">{{bn.username}}</option>
                         </select>
                     </div>
@@ -209,7 +209,7 @@
                     </div>
                     <hr>
                     <div>
-                        <button type="button" class="btn btn-mg-used btn-sm" @click="deleteMap(selectedMap.id, $event)">delete</button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" @click="deleteMap(selectedMap.id, $event)">delete</button>
                     </div>
                     
                     <p id="errors"></p>
@@ -288,7 +288,7 @@
                     </div>
                     <hr>
                     <div>
-                        <button type="button" class="btn btn-mg-used btn-sm" @click="deleteQuest(selectedQuest.id, $event)">delete (for open quests)</button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" @click="deleteQuest(selectedQuest.id, $event)">delete (for open quests)</button>
                     </div>
                     <hr>
                     <div class="form-group row">
@@ -327,9 +327,9 @@
 
                     <div class="input-group input-group-sm mb-3">
                         <div class="input-group-prepend">
-                            <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg-used" type="submit" @click="removeMember(selectedParty.id, $event)">remove member</button>
+                            <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-outline-danger" type="submit" @click="removeMember(selectedParty.id, $event)">remove member</button>
                         </div>
-                        <select class="custom-select select-arrow small" id="removeMemberSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 0 100px 100px 0">
+                        <select class="form-control form-control-sm" id="removeMemberSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 0 100px 100px 0">
                             <option v-for="member in selectedParty.members" :value="member.id" :key="member.id">{{member.username}}</option>
                         </select>
                     </div>
@@ -340,7 +340,7 @@
                         <div class="input-group-prepend">
                             <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg" type="submit" @click="transferLeader(selectedParty.id, $event)">transfer leader</button>
                         </div>
-                        <select class="custom-select select-arrow small" id="transferLeaderSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 0 100px 100px 0">
+                        <select class="form-control form-control-sm" id="transferLeaderSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 0 100px 100px 0">
                             <option v-for="member in selectedParty.members" :value="member.id" :key="member.id">{{member.username}}</option>
                         </select>
                     </div>
@@ -357,7 +357,7 @@
                     <hr>
 
                     <div class="input-group input-group-sm mb-3">
-                        <button class="rounded-circle-left btn btn-mg-used btn-sm" type="submit" @click="deleteParty(selectedParty.id, $event)">delete party</button>
+                        <button class="rounded-circle-left btn btn-outline-danger btn-sm" type="submit" @click="deleteParty(selectedParty.id, $event)">delete party</button>
                     </div>
                     
                     <p id="errors"></p>
@@ -382,9 +382,9 @@
                 <div class="container">
                     <div class="input-group input-group-sm mb-3">
                         <div class="input-group-prepend">
-                            <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg-used" type="submit" @click="updateUserGroup(selectedUser.id, $event)">update usergroup</button>
+                            <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-outline-danger" type="submit" @click="updateUserGroup(selectedUser.id, $event)">update usergroup</button>
                         </div>
-                        <select class="custom-select select-arrow small" id="userGroupSelect" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 0 100px 100px 0">
+                        <select class="form-control form-control-sm" id="userGroupSelect" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 0 100px 100px 0">
                             <option selected value="user">user</option>
                             <option value="hidden">hidden</option>
                             <option value="admin">admin</option>
@@ -392,7 +392,7 @@
                     </div>
                     <div class="input-group input-group-sm mb-3">
                         <div class="input-group-prepend">
-                            <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg-used" type="submit" @click="updatePenaltyPoints(selectedUser.id, $event)">edit penaltypoints</button>
+                            <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-outline-danger" type="submit" @click="updatePenaltyPoints(selectedUser.id, $event)">edit penaltypoints</button>
                         </div>
                         <input class="form-control form-control-sm" type="text" placeholder="penalty points" id="penaltyPointsInput" style="border-radius: 0 100px 100px 0" />
                     </div>
@@ -466,9 +466,9 @@
                         <p class="text-shadow">remove song:</p>
                         <div class="input-group input-group-sm mb-3" id="removeSongForm">
                             <div class="input-group-prepend">
-                                <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg-used"  @click="removeSong(selectedArtist.id, $event)">delete song</button>
+                                <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-outline-danger"  @click="removeSong(selectedArtist.id, $event)">delete song</button>
                             </div>
-                            <select class="custom-select select-arrow small" id="removeSongSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 0 100px 100px 0">
+                            <select class="form-control form-control-sm" id="removeSongSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 0 100px 100px 0">
                                 <option v-for="song in selectedArtist.songs" :value="song.id" :key="song.id">{{song.artist}} - {{song.title}}</option>
                             </select>
                         </div>
@@ -476,7 +476,7 @@
                     <hr>
                     <div>
                         <div class="mb-4">
-                            <select class="custom-select select-arrow small" id="editSongSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 100px 100px 100px 100px; width: 100%">
+                            <select class="form-control form-control-sm" id="editSongSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 100px 100px 100px 100px; width: 100%">
                                 <option v-for="song in selectedArtist.songs" :value="song.id" :key="song.id">{{song.artist}} - {{song.title}}</option>
                             </select>
                         </div>

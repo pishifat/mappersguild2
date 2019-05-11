@@ -1,7 +1,7 @@
 <template>
   <div class="my-2 col-sm-12 col-md-6 col-lg-4" @click="selectBeatmap()">
     <div
-      class="card map-card bg-dark border-outline"
+      class="card map-card bg-dark"
       :style="beatmap.quest ? 'border-left: ' + beatmap.quest.color + ' 4px solid;' : ''"
       data-toggle="modal"
       data-target="#editBeatmap"
@@ -193,6 +193,36 @@ export default {
     .map-card{
         overflow:hidden;
         height:75px;
+    }
+    
+    .card-status {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        width: 0px;
+        height: 0px;
+        border-bottom: 15px solid transparent;
+        z-index: 10000;
+    }
+
+    .card-status-open {
+        border-right: 15px solid var(--open);
+    }
+
+    .card-status-wip {
+        border-right: 15px solid var(--wip);
+    }
+
+    .card-status-done {
+        border-right: 15px solid var(--done);
+    }
+
+    .card-status-qualified {
+        border-right: 15px solid var(--guild);
+    }
+
+    .card-status-ranked {
+        border-right: 15px solid var(--ranked);
     }
 </style>
 

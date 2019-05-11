@@ -272,9 +272,11 @@ export default {
                 this.updateUser(u);
             }
         },
+        selfFilter: function() {
+            this.filterValue = this.username;
+            this.filter();
+        },
         filter: function() {
-            this.filterValue = $('#search').val();
-            this.filterMode = $('#mode').val();
             this.users = this.allUsers;
 
             //search
@@ -338,6 +340,7 @@ export default {
             allUsers: null,
             filteredUsers: null,
             userId: null,
+            username: null,
             beatmaps: null,
             filterValue: '',
             filterMode: '',
@@ -360,6 +363,7 @@ export default {
             .then(response => {
                 this.allUsers = response.data.users;
                 this.userId = response.data.userId;
+                this.username = response.data.username;
                 this.beatmaps = response.data.beatmaps;
                 this.limit = 16;
             })
@@ -376,6 +380,7 @@ export default {
             axios.get('/users/relevantInfo').then(response => {
                 this.allUsers = response.data.users;
                 this.userId = response.data.userId;
+                this.username = response.data.username;
                 this.beatmaps = response.data.beatmaps;
                 if (this.isFiltered) {
                     this.filter();

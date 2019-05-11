@@ -16,13 +16,13 @@
                             <p class="text-shadow" style="margin-top: 3px;">Artist:</p>
                         </div>
                         <div class="col-lg-11">
-                            <div class="input-group input-group-sm mb-3" style="width: 400px" id="artistForm">
-                                <select class="custom-select select-arrow small" id="artistSelection">
+                            <div class="input-group input-group-sm mb-3" id="artistForm">
+                                <select class="form-control" id="artistSelection">
                                     <option v-if="!featuredArtists">*namirin</option>
                                     <option v-else v-for="featuredArtist in featuredArtists" :value="featuredArtist.id" :key="featuredArtist.id">{{featuredArtist.label}}</option>
                                 </select>
                                 <div class="input-group-append">
-                                    <button style="border-radius: 0 100px 100px 0;" class="rounded-circle-left btn btn-mg" id="artistButton" @click="setArtist($event);">Load songs</button>
+                                    <button class="btn btn-outline-info" id="artistButton" @click="setArtist($event);">Load songs</button>
                                 </div>
                             </div>
                         </div>
@@ -31,8 +31,8 @@
                             <p class="text-shadow" style="margin-top: 3px;">Song:</p>
                         </div>
                         <div class="col-lg-11">
-                            <div class="input-group input-group-sm mb-3" style="width: 400px" id="songForm">
-                                <select class="custom-select select-arrow small" :disabled="!featuredSongs" id="songSelection" style="border-radius: 100px 100px 100px 100px">
+                            <div class="input-group input-group-sm mb-3" id="songForm">
+                                <select class="form-control form-control-sm" :disabled="!featuredSongs" id="songSelection">
                                     <option v-if="!featuredSongs" value="none">Select an artist to view songs</option>
                                     <option v-for="featuredSong in featuredSongs" :value="featuredSong.id" :key="featuredSong.id">{{featuredSong.title}} --- ({{featuredSong.artist}})</option>
                                 </select>
@@ -137,8 +137,8 @@
                     </div>
                 </div>
                 <p class="errors text-shadow" id="addBeatmapErrors">{{ info }}</p>
-                <hr>
-                <button type="submit" class="btn btn-mg float-right" @click="saveNewMap($event)">Save</button>
+                <div class="radial-divisor mx-auto my-3"></div>
+                <button type="submit" class="btn btn-outline-success btn-block" @click="saveNewMap($event)">Save</button>
             </div>
         </div>
     </div>

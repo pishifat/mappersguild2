@@ -14,8 +14,8 @@
                     <div class="form-group row">
                         <label class="col-sm-3 mt-1 text-shadow" for="artistName"> Artist/Label:</label><input class="col-sm-9 form-control" style="border-radius: 100px 100px 100px 100px" type="text" id="artistName" @keyup.enter="createArtist">
                     </div>
-                    <hr>
-                    <button type="button" class="btn btn-mg float-right" @click="createArtist($event)">Save</button>
+                    <div class="radial-divisor mx-auto my-3"></div>
+                    <button type="button" class="btn btn-outline-info float-right" @click="createArtist($event)">Save</button>
                 </div>
             </div>
         </div>

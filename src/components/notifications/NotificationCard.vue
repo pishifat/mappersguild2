@@ -1,6 +1,6 @@
 <template>
 <div class='col-md-12 my-2'>
-    <div class="card bg-dark border-outline" style="height: 100%">
+    <div class="card bg-dark">
         <div class='card-body notification-card-spacing'>
             <p class='card-text text-shadow small'>
                 <a :href="'https://osu.ppy.sh/users/' + notification.sender.osuId" class="text-shadow" target="_blank" @click.stop>{{notification.sender.username}}</a> 
@@ -15,7 +15,7 @@
         </div>
         <div class="card-footer notification-card-spacing mx-2">
             <span class='card-text text-shadow small'>{{notification.createdAt.slice(0,10)}}</span>
-            <button class="btn btn-mg notification-button float-right" @click.prevent="hideNotification($event)">Mark as read</button>
+            <button class="btn btn-outline-info notification-button float-right" @click.prevent="hideNotification($event)">Mark as read</button>
         </div>
     </div>
 </div>

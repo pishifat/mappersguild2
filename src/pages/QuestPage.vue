@@ -141,7 +141,7 @@
                             Because the Mappers' Guild is currently starting out, one or two new quests are
                             added daily. This will be scaled back later.
                         </p>
-                        <hr />
+					    <div class="radial-divisor mx-auto my-4"></div>
                         <p class="text-shadow">
                             If you're confused about something not listed here or on the
                             <a href="/faq#quest">FAQ page</a>, send a message in the
@@ -184,7 +184,7 @@
                             least 2 week before the deadline. Otherwise, your mapsets may not reach ranked in
                             time!
                         </p>
-                        <hr />
+					    <div class="radial-divisor mx-auto my-4"></div>
                         <p class="text-shadow">
                             If you're confused about something not listed here or on the
                             <a href="/faq#quest">FAQ page</a>, send a message in the

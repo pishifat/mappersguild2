@@ -1,7 +1,7 @@
 <template>
 
 <div class='col-md-12 my-2'>
-    <div class="card bg-dark border-outline" style="height: 100%">
+    <div class="card bg-dark">
         <div class='card-body notification-card-spacing'>
             <p class='card-text text-shadow small'>
                 <a :href="'https://osu.ppy.sh/users/' + invite.sender.osuId" class="text-shadow" target="_blank" @click.stop>{{invite.sender.username}}</a> 
@@ -16,8 +16,8 @@
         </div>
         <div class="card-footer notification-card-spacing mx-2">
             <span class='card-text text-shadow small'>{{invite.createdAt.slice(0,10)}}</span> <span class="errors small text-shadow">{{info}}</span>
-            <button class="btn btn-mg-used notification-button float-right mx-1" @click.prevent="hideInvite($event)">Decline</button>
-            <button class="btn btn-mg notification-button float-right mx-1" @click.prevent="acceptInvite($event)">Accept</button>
+            <button class="btn btn-outline-danger notification-button float-right mx-1" @click.prevent="hideInvite($event)">Decline</button>
+            <button class="btn btn-outline-info notification-button float-right mx-1" @click.prevent="acceptInvite($event)">Accept</button>
         </div>
     </div>
 </div>

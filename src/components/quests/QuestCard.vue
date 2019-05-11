@@ -1,7 +1,7 @@
 <template>
 
 <div class='my-2' :class="quest.status == 'open' ? 'col-lg-12' : 'col-lg-6'" @click="selectQuest()"> <!--switch 6 and 12 for 2 columns open-->
-    <div class='card quest-card bg-dark border-outline' style='height: 100%' data-toggle='modal' data-target='#extendedInfo' :data-user="quest.id">
+    <div class='card quest-card bg-dark' style='height: 100%' data-toggle='modal' data-target='#extendedInfo' :data-user="quest.id">
         <div
             class="quest-card-status"
             :class="quest.status == 'wip' ? 'quest-card-status-wip' : quest.status == 'done' ? 'quest-card-status-done' : 'quest-card-status-open'"
@@ -12,10 +12,10 @@
             <div class='card-header text-shadow'>
                 <span :class="quest.status != 'wip' ? 'big' : ''">{{quest.name}}</span>
                 <span v-if="quest.status == 'open' && !partyQuest && partyRank >= quest.minRank && partySize <= quest.maxParty && partySize >= quest.minParty">
-                    <button class="btn btn-mg btn-sm float-right accept" @click.stop="acceptQuest($event)">Accept</button>
+                    <button class="btn btn-outline-info btn-sm float-right accept" @click.stop="acceptQuest($event)">Accept</button>
                 </span>
                 <span v-if="quest.status == 'wip' && partyQuest == quest.id">
-                    <button class="btn btn-mg-used btn-sm float-right drop" @click.stop="dropQuest($event)">Drop</button>
+                    <button class="btn btn-outline-danger btn-sm float-right drop" @click.stop="dropQuest($event)">Drop</button>
                 </span>
             </div>
             <div class='card-body overwrite-card-spacing'>
@@ -81,7 +81,6 @@ export default {
 </script>
 
 <style>
-    
     .quest-card{
         overflow:hidden;
     }
@@ -105,7 +104,7 @@ export default {
     }
 
     .quest-card-status-open {
-    border-right: 24px solid var(--open);
+        border-right: 24px solid var(--open);
     }
 
     .quest-card-status-wip {

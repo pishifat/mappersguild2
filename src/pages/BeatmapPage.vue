@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="container bg-container py-3">
+        <div class="container bg-container py-3 mb-2">
             <filter-box
                 :filterValue.sync="filterValue"
                 :filterMode.sync="filterMode"
@@ -8,19 +8,17 @@
                 :filterQuest.sync="filterQuest"
                 :all-quests="allQuests"
                 @self-filter="selfFilter()"
-            ></filter-box>
-        </div>
-
-        <div class="row justify-content-center my-2">
-            <a
-                class="col-3 text-center add-divisor"
-                href="#"
-                data-toggle="modal"
-                data-target="#addBeatmap"
-                @click.prevent="openAddBeatmap()"
             >
-                <i class="fas fa-plus"></i>
-            </a>
+                <button
+                    class="btn btn-outline-info"
+                    href="#"
+                    data-toggle="modal"
+                    data-target="#addBeatmap"
+                    @click.prevent="openAddBeatmap()"
+                >
+                    Add beatmap <i class="fas fa-plus small"></i>
+                </button>
+            </filter-box>
         </div>
 
         <div class="container bg-container py-3">

@@ -1,11 +1,11 @@
 <template>
     <div>
         <div class="container bg-container py-1 mb-2">
-            <div class="row small mt-2 mb-3">
-                <div class="col-auto filter-title">
+            <div class="row small my-2">
+                <div class="col-auto filter-title my-auto">
                     Sort
                 </div>
-                <div class="col">
+                <div class="col-auto my-auto">
                     <a
                         :class="sortBy === 'members' ? 'sorted' : 'unsorted'"
                         href="#"
@@ -31,22 +31,22 @@
                         >Mode</a
                     >
                 </div>
+                <div class="col text-right">
+                    <button
+                        v-if="!userPartyId"
+                        class="btn btn-outline-info"
+                        href="#"
+                        data-toggle="modal"
+                        data-target="#createParty"
+                        @click.prevent="newPartyInfo()"
+                    >
+                        Add party <i class="fas fa-plus small"></i>
+                    </button>
+                </div>
             </div>
         </div>
 
-        <div class="row justify-content-center" v-if="!userPartyId">
-            <a
-                class="col-3 text-center add-divisor"
-                href="#"
-                data-toggle="modal"
-                data-target="#createParty"
-                @click.prevent="newPartyInfo()"
-            >
-                <i class="fas fa-plus"></i>
-            </a>
-        </div>
-
-        <div class="container bg-container py-3 mt-2">
+        <div class="container bg-container py-3">
             <transition-group name="list" tag="div" class="row">
                 <party-card
                     v-for="party in parties"
