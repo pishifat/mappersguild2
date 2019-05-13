@@ -95,6 +95,12 @@ router.post('/toggleBioWritten/:id', async (req, res) => {
     res.json(a);
 });
 
+/* POST toggle isInvited */
+router.post('/toggleIsInvited/:id', async (req, res) => {
+    let a = await featuredArtists.service.update(req.params.id, {isInvited: req.body.value});
+    res.json(a);
+});
+
 /* POST toggle isReady */
 router.post('/toggleIsReady/:id', async (req, res) => {
     let a = await featuredArtists.service.update(req.params.id, {isReady: req.body.value});
@@ -140,6 +146,7 @@ router.post('/reset/:id', async (req, res) => {
         songsTimed: false, 
         assetsReceived: false, 
         bioWritten: false, 
+        isInvited: false, 
         isReady: false, 
         isUpToDate: false, 
         isPendingUpdate: false});

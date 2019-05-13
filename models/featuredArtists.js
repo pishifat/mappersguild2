@@ -16,6 +16,7 @@ const featuredArtistSchema = new mongoose.Schema({
     assetsReceived: { type: Boolean },
     bioWritten: { type: Boolean },
     isReady: { type: Boolean },
+    isInvited: { type: Boolean },
     isUpToDate: { type: Boolean },
     isPendingUpdate: { type: Boolean },
     isStalled: { type: Boolean },

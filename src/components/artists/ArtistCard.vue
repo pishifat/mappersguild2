@@ -37,6 +37,12 @@
                         <i class="fas" :class="artist.isPendingUpdate ? 'icon-valid fa-check' : 'icon-used fa-times'"></i>
                     </a>
                 </p>
+                <p class="small text-shadow min-spacing">
+                    Invited to Discord: 
+                    <a href="#" @click.stop.prevent="toggleIsInvited()">
+                        <i class="fas" :class="artist.isInvited ? 'icon-valid fa-check' : 'icon-used fa-times'"></i>
+                    </a>
+                </p>
             </span>
             <span v-else-if="!artist.tracksSelected">
                 <p class="sub-header text-shadow min-spacing">Discussion...</p>
@@ -111,6 +117,12 @@
                     Webpage ready: 
                     <a href="#" @click.stop.prevent="toggleIsReady()">
                         <i class="fas" :class="artist.isReady ? 'icon-valid fa-check' : 'icon-used fa-times'"></i>
+                    </a>
+                </p>
+                <p class="small text-shadow min-spacing ml-2">
+                    Invited to Discord: 
+                    <a href="#" @click.stop.prevent="toggleIsInvited()">
+                        <i class="fas" :class="artist.isInvited ? 'icon-valid fa-check' : 'icon-used fa-times'"></i>
                     </a>
                 </p>
                 <p class="small text-shadow min-spacing ml-2">
@@ -250,6 +262,12 @@ export default {
         },
         toggleBioWritten: async function (e) {
             const artist = await this.executePost('/artists/toggleBioWritten/' + this.artist.id, {value: !this.artist.bioWritten }, e);
+            if (artist) {
+                this.$emit('update-artist', artist);
+            }
+        },
+        toggleIsInvited: async function (e) {
+            const artist = await this.executePost('/artists/toggleIsInvited/' + this.artist.id, {value: !this.artist.isInvited }, e);
             if (artist) {
                 this.$emit('update-artist', artist);
             }
