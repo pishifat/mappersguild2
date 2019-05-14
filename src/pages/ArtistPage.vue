@@ -165,6 +165,20 @@ export default {
 					this.newArtists.unshift(artist);
 				}
 			}
+			for (let i = 0; i < this.newArtists.length; i++) {
+				let artist = this.newArtists[i];
+				if(artist.projectedRelease){
+					this.newArtists.splice(i,1);
+					this.newArtists.unshift(artist);
+				}
+			}
+			this.newArtists.sort(function(a,b){
+				if(a.projectedRelease< b.projectedRelease) return -1;
+				if(a.projectedRelease >b.projectedRelease) return 1;
+				if(a.projectedRelease< b.projectedRelease) return -1;
+				if(a.projectedRelease >b.projectedRelease) return 1;
+				return 0;
+			});
 			this.updateArtists.sort(function(a,b){
 				if(a.lastContacted< b.lastContacted) return 1;
 				if(a.lastContacted >b.lastContacted) return -1;
@@ -179,18 +193,11 @@ export default {
 					this.updateArtists.unshift(artist);
 				}
 			}
-			for (let i = 0; i < this.newArtists.length; i++) {
-				let artist = this.newArtists[i];
-				if(artist.projectedRelease){
-					this.newArtists.splice(i,1);
-					this.newArtists.unshift(artist);
-				}
-			}
-			this.newArtists.sort(function(a,b){
-				if(a.projectedRelease< b.projectedRelease) return -1;
-				if(a.projectedRelease >b.projectedRelease) return 1;
-				if(a.projectedRelease< b.projectedRelease) return -1;
-				if(a.projectedRelease >b.projectedRelease) return 1;
+			this.rejected.sort(function(a,b){
+				if(a.lastContacted< b.lastContacted) return 1;
+				if(a.lastContacted >b.lastContacted) return -1;
+				if(a.lastContacted< b.lastContacted) return 1;
+				if(a.lastContacted >b.lastContacted) return -1;
 				return 0;
 			});
 		},
