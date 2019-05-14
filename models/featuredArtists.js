@@ -22,6 +22,8 @@ const featuredArtistSchema = new mongoose.Schema({
     isStalled: { type: Boolean },
     isRejected: { type: Boolean },
 
+    isPriority: { type: Boolean },
+    lastContacted: { type: Date },
     notes: { type: String },
     lastMajorUpdate: { type: Date },
     projectedRelease: { type: Date },

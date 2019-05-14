@@ -1,15 +1,17 @@
 <template>
 <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 my-2">
-    <div class="card bg-dark static-card">
+    <div class="card static-card" :class="artist.isPriority ? 'card-bg-priority' : 'bg-dark'">
         <div class="card-header text-shadow artist-card-spacing">
             {{artist.label.length - 3 > 20 ? artist.label.slice(0,20) + "..." : artist.label}} 
             <a href="#" v-if="!artist.isContacted" class="float-right small icon-used ml-2" data-toggle="tooltip" data-placement="top" title="delete" @click.prevent="deleteArtist()">
                 <i class="fas fa-trash"></i>
             </a>
+            <a href="#" class="float-right small icon-valid ml-2" data-toggle="tooltip" data-placement="top" :title="artist.isPriority ? 'mark as low priority' : 'mark as high priority'" @click.prevent="toggleIsPriority()">
+                <i class="fas" :class="artist.isPriority ? 'fa-arrow-down' : 'fa-arrow-up'"></i>
+            </a>
             <a href="#" class="float-right small icon-used" data-toggle="tooltip" data-placement="top" title="reset progress (except notes)" @click.prevent="reset()">
                 <i class="fas fa-undo-alt"></i>
             </a>
-            
         </div>
         <div :id="'body' + artist.id" class="card-body artist-card">
             <p v-if="!artist.isContacted" class="small text-shadow min-spacing">
@@ -168,8 +170,24 @@
                 @keyup.enter="updateNotes($event)"
             ></textarea>
             <br>
-            <div class="card-footer text-muted footer-spacing">
-                <p class="min-spacing text-center" style="font-size: 8pt;">updated {{new Date(artist.updatedAt).toString().slice(4,15)}}</p>
+            <div class="card-footer text-muted footer-spacing" :style="showContactedInput ? 'margin-top:20px;' : ''">
+                <p class="min-spacing text-center" style="font-size: 8pt;">
+                    last contacted: {{artist.lastContacted ? new Date(artist.lastContacted).toString().slice(4,15) : 'never'}}
+                    <a href="#" @click.prevent="showContactedInput = !showContactedInput">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                </p>
+                <p v-if="showContactedInput" class="small text-center">
+                    <input
+                        class="custom-input small w-50"
+                        type="text"
+                        placeholder="mm-dd-yyyy"
+                        style="border-radius: 5px 5px 5px 5px; "
+                        maxlength="10"
+                        v-model="contactedInput"
+                        @keyup.enter="updateLastContacted()"
+                    >
+                </p>
             </div>
             
         </div>
@@ -296,6 +314,16 @@ export default {
             const artist = await this.executePost('/artists/updateProjectedRelease/' + this.artist.id, {date: date}, e);
             if (artist) {
                 this.$emit('update-artist', artist);
+                this.showDateInput = false;
+            }
+        },
+        updateLastContacted: async function (e) {
+            let dateSplit = this.contactedInput.split("-");
+            let date = new Date(dateSplit[2], dateSplit[0] - 1, dateSplit[1]);
+            const artist = await this.executePost('/artists/updateLastContacted/' + this.artist.id, {date: date}, e);
+            if (artist) {
+                this.$emit('update-artist', artist);
+                this.showContactedInput = false;
             }
         },
         updateNotes: async function (e) {
@@ -320,6 +348,12 @@ export default {
                 this.$emit('update-artist', artist);
             }
         },
+        toggleIsPriority: async function (e) {
+            const artist = await this.executePost('/artists/toggleIsPriority/' + this.artist.id, {value: !this.artist.isPriority }, e);
+            if (artist) {
+                this.$emit('update-artist', artist);
+            }
+        },
         deleteArtist: async function (e) {
             const artist = await this.executePost('/artists/deleteArtist/' + this.artist.id, {}, e);
             if (artist) {
@@ -331,6 +365,8 @@ export default {
         return {
             dateInput: null,
             showDateInput: false,
+            contactedInput: null,
+            showContactedInput: false,
             showNotesInput: false,
             tempNotes: '',
         }
@@ -342,8 +378,12 @@ export default {
 </script>
 
 <style>
+.card-bg-priority {
+    background-color: rgb(38, 48, 63)!important;
+}
+
 .artist-card {
-    margin: 0.25rem 0.5rem 0.25rem 0.5rem ;
+    margin: 0.25rem 0.5rem 0.25rem 0.5rem;
     padding: 0.5rem 0.5rem 0.5rem 0.5rem;
 }
 

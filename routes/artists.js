@@ -127,6 +127,12 @@ router.post('/updateProjectedRelease/:id', async (req, res) => {
     res.json(a);
 });
 
+/* POST update projectedRelease */
+router.post('/updateLastContacted/:id', async (req, res) => {
+    let a = await featuredArtists.service.update(req.params.id, {lastContacted: req.body.date});
+    res.json(a);
+});
+
 /* POST update notes */
 router.post('/updateNotes/:id', async (req, res) => {
     let a = await featuredArtists.service.update(req.params.id, {notes: req.body.notes});
@@ -149,7 +155,14 @@ router.post('/reset/:id', async (req, res) => {
         isInvited: false, 
         isReady: false, 
         isUpToDate: false, 
+        isPriority: false,
         isPendingUpdate: false});
+    res.json(a);
+});
+
+/* POST toggle isPriority */
+router.post('/toggleIsPriority/:id', async (req, res) => {
+    let a = await featuredArtists.service.update(req.params.id, {isPriority: req.body.value});
     res.json(a);
 });
 

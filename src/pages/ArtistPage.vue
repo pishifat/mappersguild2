@@ -137,15 +137,12 @@ export default {
 			this.upToDate = [];
 			this.newArtists = [];
 			this.updateArtists = [];
-			this.stalled = [];
 			this.rejected = [];
 			this.allArtists.forEach(artist => {
 				if(!artist.isContacted){
 					this.notContacted.push(artist);
 				}else if(artist.isUpToDate){
 					this.upToDate.push(artist);
-				}else if(artist.isStalled){
-					this.stalled.push(artist);
 				}else if(artist.isRejected){
 					this.rejected.push(artist);
 				}else if(artist.isPendingUpdate){
@@ -154,6 +151,20 @@ export default {
 					this.newArtists.push(artist);
 				}
 			});
+			this.newArtists.sort(function(a,b){
+				if(a.lastContacted< b.lastContacted) return 1;
+				if(a.lastContacted >b.lastContacted) return -1;
+				if(a.lastContacted< b.lastContacted) return 1;
+				if(a.lastContacted >b.lastContacted) return -1;
+				return 0;
+			});
+			for (let i = 0; i < this.newArtists.length; i++) {
+				let artist = this.newArtists[i];
+				if(artist.isPriority){
+					this.newArtists.splice(i,1);
+					this.newArtists.unshift(artist);
+				}
+			}
 			for (let i = 0; i < this.newArtists.length; i++) {
 				let artist = this.newArtists[i];
 				if(artist.projectedRelease){
@@ -161,6 +172,13 @@ export default {
 					this.newArtists.unshift(artist);
 				}
 			}
+			this.newArtists.sort(function(a,b){
+				if(a.projectedRelease< b.projectedRelease) return -1;
+				if(a.projectedRelease >b.projectedRelease) return 1;
+				if(a.projectedRelease< b.projectedRelease) return -1;
+				if(a.projectedRelease >b.projectedRelease) return 1;
+				return 0;
+			});
 		},
 		updateArtist: function (artist) {
 			const i = this.allArtists.findIndex(a => a.id == artist.id);
@@ -181,12 +199,10 @@ export default {
 			upToDate: [],
 			newArtists: [],
 			updateArtists: [],
-			stalled: [],
 			rejected: [],
 
 			showNotContacted: false,
 			showUpToDate: false,
-			showStalled: false,
 			showRejected: false,
 
             selectedArtist: null,
