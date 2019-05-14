@@ -186,13 +186,6 @@ export default {
 					this.newArtists.unshift(artist);
 				}
 			}
-			for (let i = 0; i < this.newArtists.length; i++) {
-				let artist = this.newArtists[i];
-				if(artist.projectedRelease){
-					this.newArtists.splice(i,1);
-					this.newArtists.unshift(artist);
-				}
-			}
 			this.newArtists.sort(function(a,b){
 				if(a.projectedRelease< b.projectedRelease) return -1;
 				if(a.projectedRelease >b.projectedRelease) return 1;
