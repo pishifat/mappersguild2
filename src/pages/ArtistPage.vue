@@ -165,6 +165,27 @@ export default {
 					this.newArtists.unshift(artist);
 				}
 			}
+			this.updateArtists.sort(function(a,b){
+				if(a.lastContacted< b.lastContacted) return 1;
+				if(a.lastContacted >b.lastContacted) return -1;
+				if(a.lastContacted< b.lastContacted) return 1;
+				if(a.lastContacted >b.lastContacted) return -1;
+				return 0;
+			});
+			for (let i = 0; i < this.updateArtists.length; i++) {
+				let artist = this.updateArtists[i];
+				if(artist.isPriority){
+					this.updateArtists.splice(i,1);
+					this.updateArtists.unshift(artist);
+				}
+			}
+			for (let i = 0; i < this.newArtists.length; i++) {
+				let artist = this.newArtists[i];
+				if(artist.projectedRelease){
+					this.newArtists.splice(i,1);
+					this.newArtists.unshift(artist);
+				}
+			}
 			for (let i = 0; i < this.newArtists.length; i++) {
 				let artist = this.newArtists[i];
 				if(artist.projectedRelease){
