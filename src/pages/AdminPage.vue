@@ -444,12 +444,18 @@
             <div class="modal-body">
                 <div class="container">
                     <div>
-                    <div class="input-group input-group-sm mb-3">
-                        <div class="input-group-prepend">
-                            <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg" type="submit" @click="renameLabel(selectedArtist.id, $event)">rename</button>
+                        <div class="input-group input-group-sm mb-3">
+                            <div class="input-group-prepend">
+                                <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg" type="submit" @click="renameLabel(selectedArtist.id, $event)">rename</button>
+                            </div>
+                                <input class="form-control form-control-sm" type="text" placeholder="new name" id="newLabelName" style="border-radius: 0 100px 100px 0" />
                         </div>
-                            <input class="form-control form-control-sm" type="text" placeholder="new name" id="newLabelName" style="border-radius: 0 100px 100px 0" />
-                    </div>
+                        <div class="input-group input-group-sm mb-3">
+                            <div class="input-group-prepend">
+                                <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg" type="submit" @click="updateLabelOsuId(selectedArtist.id, $event)">change osu id</button>
+                            </div>
+                                <input class="form-control form-control-sm" type="text" placeholder="#osuid" id="newLabelOsuId" style="border-radius: 0 100px 100px 0" />
+                        </div>
                     </div>
                     <hr>
                     <div>
@@ -863,6 +869,13 @@ export default {
         renameLabel: async function(id, e){
             let name = $("#newLabelName").val();
             const fa = await this.executePost('/admin/renameLabel/' + id, {name: name}, e);
+            if(fa){
+                this.updateArtist(fa);
+            }
+        },
+        updateLabelOsuId: async function(id, e){
+            let osuId = $("#newLabelOsuId").val();
+            const fa = await this.executePost('/admin/updateLabelOsuId/' + id, {osuId: osuId}, e);
             if(fa){
                 this.updateArtist(fa);
             }

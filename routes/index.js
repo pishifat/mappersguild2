@@ -65,7 +65,12 @@ router.get('/login', async (req, res, next) => {
         res.redirect(`https://osu.ppy.sh/oauth/authorize?response_type=code&client_id=${config.id}&redirect_uri=${encodeURIComponent(config.redirect)}&state=${hashedState}&scope=identify`);
     }
 }, api.isLoggedIn, (req, res) => {
-    res.redirect('/faq'); 
+    if(res.locals.userRequest.group == 'admin'){
+        res.redirect('/artists'); 
+    }else{
+        res.redirect('/faq'); 
+    }
+    
 });
 
 /* GET logout, by deleting session */

@@ -823,6 +823,16 @@ router.post('/renameLabel/:id', async (req, res) => {
     }
 });
 
+/* POST update artist osuId */
+router.post('/updateLabelOsuId/:id', async (req, res) => {
+    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
+        let fa = await featuredArtists.service.update(req.params.id, {osuId: req.body.osuId});
+        fa = await featuredArtists.service.query({_id: req.params.id}, defaultArtistPopulate)
+
+        res.json(fa);
+    }
+});
+
 /* POST add song to artist */
 router.post('/addSong/:id', async (req, res) => {
     if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
