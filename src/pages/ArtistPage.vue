@@ -1,5 +1,31 @@
 <template>
 <div>
+	<div class="container bg-container py-3 mb-2">
+		<div>
+        <div class="row mb-2">
+            <div class="col">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text">
+                            <i class="fas fa-search"></i>
+                        </div>
+                    </div>
+                    <input
+                        class="form-control"
+                        type="text"
+                        maxlength="48"
+                        placeholder="artist..."
+                        autocomplete="off"
+                        v-model="filterValue"
+                    />
+                    <div class="input-group-append">
+                        <slot></slot>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+	</div>
 	<div class="container bg-container py-1">
 		<div class="row">
 			<div class="col">
@@ -99,19 +125,24 @@
 <script>
 import AddArtist from '../components/artists/AddArtist.vue';
 import ArtistCard from '../components/artists/ArtistCard.vue';
+import FilterBox from '../components/FilterBox.vue';
 
 export default {
     name: 'artist-page',
     components: {
 		AddArtist,
 		ArtistCard,
+		FilterBox
 	},
 	watch: {
 		allArtists: function(v) {
 			if(v){
-				this.separateObjs();
+				this.filter();
 			}
-		}
+		},
+		filterValue: function(v) {
+            this.filter();
+        },
 	},
     methods: {
 		executePost: async function (path, data, e) {
@@ -138,7 +169,7 @@ export default {
 			this.newArtists = [];
 			this.updateArtists = [];
 			this.rejected = [];
-			this.allArtists.forEach(artist => {
+			this.filteredArtists.forEach(artist => {
 				if(!artist.isContacted){
 					this.notContacted.push(artist);
 				}else if(artist.isUpToDate){
@@ -211,11 +242,25 @@ export default {
 			const i = this.allArtists.findIndex(a => a.id === artist.id);
 			this.allArtists.splice(i, 1);
 			this.separateObjs();
-		}
+		},
+		filter: function() {
+			if (this.filterValue.length > 2) {
+				this.filteredArtists = this.allArtists.filter(a => {
+					if (a.label.toLowerCase().indexOf(this.filterValue.toLowerCase()) > -1) {
+						return true;
+					}
+					return false;
+				});
+			}else{
+				this.filteredArtists = this.allArtists;
+			}
+			this.separateObjs();
+		},
 	},
 	data () {
 		return {
 			allArtists: null,
+			filteredArtists: null,
 			notContacted: [],
 			upToDate: [],
 			newArtists: [],
@@ -226,7 +271,8 @@ export default {
 			showUpToDate: false,
 			showRejected: false,
 
-            selectedArtist: null,
+			selectedArtist: null,
+			filterValue: '',
 		}
     },
     created () {
@@ -234,6 +280,7 @@ export default {
 			.get('/artists/relevantInfo')
 			.then(response => {
 				this.allArtists = response.data.artists;
+				this.filteredArtists = response.data.artists;
 			}).then(function(){
 				$("#loading").fadeOut();
 				$("#app").attr("style", "visibility: visible").hide().fadeIn();

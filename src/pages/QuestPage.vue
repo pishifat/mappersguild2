@@ -402,7 +402,7 @@ export default {
                 this.partySize = response.data.members.length;
                 this.partyName = response.data.name;
             });
-        }, 60000);
+        }, 300000);
     },
 };
 </script>

@@ -354,7 +354,7 @@ export default {
                     this.filter();
                 }
             });
-        }, 60000);
+        }, 300000);
     },
 };
 </script>

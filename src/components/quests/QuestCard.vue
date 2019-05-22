@@ -10,7 +10,8 @@
         :style='quest.status == "open" ? "right:233px;" : quest.status == "wip" ? "right: 366px; max-height:166px;" : "right: 250px; max-height:166px;"'> <!--use 300px when 2 columns open-->
         <div class='card-img-overlay' style='padding: 0 0 0 0'>
             <div class='card-header text-shadow'>
-                <span :class="quest.status != 'wip' ? 'big' : ''">{{quest.name}}</span>
+                <span v-if="quest.status == 'wip'" class="big">{{quest.name.length > 24 ? quest.name.slice(0,24) + "..." : quest.name}}</span>
+                <span v-else>{{quest.name.length > 40 ? quest.name.slice(0,40) + "..." : quest.name}}</span>
                 <span v-if="quest.status == 'open' && !partyQuest && partyRank >= quest.minRank && partySize <= quest.maxParty && partySize >= quest.minParty">
                     <button class="btn btn-outline-info btn-sm float-right accept" @click.stop="acceptQuest($event)">Accept</button>
                 </span>

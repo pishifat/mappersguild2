@@ -243,7 +243,7 @@ export default {
                 this.userPartyId = response.data.party;
                 this.sort(this.sortBy, true);
             });
-        }, 30000);
+        }, 300000);
     },
 };
 </script>
