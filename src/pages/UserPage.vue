@@ -45,7 +45,7 @@
                 <i class="fas fa-angle-up ml-1"></i>
             </button>
             <div>
-                <transition-group name="list" tag="div" class="row">
+                <transition-group name="list" tag="div" class="row px-3">
                     <user-card
                         v-for="user in users"
                         :key="user.id"
@@ -364,7 +364,6 @@ export default {
                 this.allUsers = response.data.users;
                 this.userId = response.data.userId;
                 this.username = response.data.username;
-                this.beatmaps = response.data.beatmaps;
                 this.limit = 16;
             })
             .then(function() {
@@ -376,6 +375,13 @@ export default {
             });
     },
     mounted() {
+        // getting all bms is too heavy, so doing it later
+        axios
+            .get(`/users/beatmaps`)
+            .then(response => {
+                this.beatmaps = response.data.beatmaps;
+            });
+
         setInterval(() => {
             axios.get('/users/relevantInfo').then(response => {
                 this.allUsers = response.data.users;

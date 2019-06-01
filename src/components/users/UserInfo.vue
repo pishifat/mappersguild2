@@ -256,7 +256,8 @@
                         </div>
                     </div>
                     <div class="radial-divisor mx-auto my-3"></div>
-                    <span v-if="userMaps.length">
+                    <span v-if="!beatmaps"><p>Loading beatmaps...</p></span>
+                    <span v-if="userMaps && userMaps.length">
                         <p class="text-shadow">Mappers' Guild Maps:</p>
                         <table class="table table-sm table-dark table-hover">
                             <thead>
@@ -323,13 +324,15 @@ export default {
     mixins: [mixin],
     computed: {
         userMaps: function() {
-            return this.beatmaps.filter(b => {
-                return b.tasks.some(t => {
-                    return t.mappers.some(m => {
-                        return m.id == this.user.id;
+            if ( this.beatmaps) {
+                return this.beatmaps.filter(b => {
+                    return b.tasks.some(t => {
+                        return t.mappers.some(m => {
+                            return m.id == this.user.id;
+                        });
                     });
                 });
-            });
+            }
         },
     },
     methods: {

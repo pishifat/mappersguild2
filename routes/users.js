@@ -31,11 +31,14 @@ router.get('/', async (req, res, next) => {
 
 /* GET users listing. */
 router.get('/relevantInfo', async (req, res, next) => {
-    const [u, b] = await Promise.all([
-        users.service.query({ group: { $ne: 'hidden' } }, defaultPopulate, { createdAt: -1 }, true),
-        beatmaps.service.query({}, mapPopulate, { status: -1 }, true),
-    ]);
-    res.json({ users: u, userId: req.session.osuId, beatmaps: b, username: req.session.username });
+    const u = await users.service.query({ group: { $ne: 'hidden' } }, defaultPopulate, { createdAt: -1 }, true);
+    res.json({ users: u, userId: req.session.osuId, username: req.session.username });
+});
+
+/* GET beatmaps listing. */
+router.get('/beatmaps', async (req, res, next) => {
+    const b = await beatmaps.service.query({}, mapPopulate, { status: -1 }, true);
+    res.json({ beatmaps: b });
 });
 
 /* GET users with sorting. */
