@@ -34,8 +34,8 @@
                     </td>
                     <td scope="row"><a :href="'https://osu.ppy.sh/users/' + beatmap.host.osuId" target="_blank">{{beatmap.host.username}}</a></td>
                     <td scope="row">{{beatmap.mode}}</td>
-                    <td v-if="hasStoryboard(beatmap.tasks) && (beatmap.status == 'Qualified' || beatmap.status == 'Ranked')" scope="row" style="padding: 1px; red">
-                        <span :style="storyboardJudged(beatmap.tasks) ? 'background-color: darkgreen' : 'background-color: red'">{{storyboardJudged(beatmap.tasks) ? storyboardJudged(beatmap.tasks) : 'NOT CHECKED'}}</span>
+                    <td v-if="hasStoryboard(beatmap.tasks)" scope="row" style="padding: 1px; red">
+                        <span :style="storyboardJudged(beatmap.tasks) ? 'background-color: darkgreen' : 'background-color: red'">{{storyboardJudged(beatmap.tasks) ? storyboardJudged(beatmap.tasks) : '#'}}</span>
                     </td>
                     <td v-else scope="row">~</td>
                     <td scope="row" :style="setBeatmapRowColor(beatmap.status)">{{beatmap.status}}</td>
