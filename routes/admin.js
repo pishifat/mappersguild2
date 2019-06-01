@@ -171,7 +171,7 @@ router.post('/updateDiffModes', async (req, res) => {
 
 /* POST update map status */
 router.post('/updateMapStatus/:id', async (req, res) => {
-    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
+    if (req.session.osuId == 3178418 || req.session.osuId == 1052994 || req.session.osuId == 1541323) {
         let b = await beatmaps.service.update(req.params.id, {status: req.body.status});
         if(req.body.status == "Done"){
             for (let i = 0; i < b.tasks.length; i++) {
@@ -242,7 +242,7 @@ router.post('/updateMapStatus/:id', async (req, res) => {
 
 /* POST remove diff */
 router.post('/removeDiff/:id', async (req, res) => {
-    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
+    if (req.session.osuId == 3178418 || req.session.osuId == 1052994 || req.session.osuId == 1541323) {
         let t = await tasks.service.query({_id: req.body.taskId});
         let b = await beatmaps.service.update(req.params.id, { $pull: { tasks: req.body.taskId } });
         
@@ -269,7 +269,7 @@ router.post('/updateStoryboardQuality/:id', async (req, res) => {
 
 /* POST remove modder */
 router.post('/removeModder/:id', async (req, res) => {
-    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
+    if (req.session.osuId == 3178418 || req.session.osuId == 1052994 || req.session.osuId == 1541323) {
         let u = await users.service.query({_id: req.body.userId});
         let b = await beatmaps.service.update(req.params.id, { $pull: { modders: req.body.userId } });
 
@@ -296,7 +296,7 @@ router.post('/removeNominator/:id', async (req, res) => {
 
 /* POST update map url */
 router.post('/updateMapUrl/:id', async (req, res) => {
-    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
+    if (req.session.osuId == 3178418 || req.session.osuId == 1052994 || req.session.osuId == 1541323) {
         let b = await beatmaps.service.update(req.params.id, {url: req.body.link});
         b = await beatmaps.service.query({_id: req.params.id}, defaultMapPopulate);
         res.json(b);
