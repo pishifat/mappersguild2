@@ -13,6 +13,7 @@ const featuredArtistSchema = new mongoose.Schema({
     contractSigned: { type: Boolean },
     contractPaid: { type: Boolean },
     songsTimed: { type: Boolean },
+    songsReceived: { type: Boolean },
     assetsReceived: { type: Boolean },
     bioWritten: { type: Boolean },
     isReady: { type: Boolean },

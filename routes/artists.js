@@ -83,7 +83,13 @@ router.post('/toggleSongsTimed/:id', async (req, res) => {
     res.json(a);
 });
 
-/* POST toggle contractPaid */
+/* POST toggle songsReceived */
+router.post('/toggleSongsReceived/:id', async (req, res) => {
+    let a = await featuredArtists.service.update(req.params.id, {songsReceived: req.body.value});
+    res.json(a);
+});
+
+/* POST toggle assetsReceived */
 router.post('/toggleAssetsReceived/:id', async (req, res) => {
     let a = await featuredArtists.service.update(req.params.id, {assetsReceived: req.body.value});
     res.json(a);

@@ -98,13 +98,19 @@
             <span v-if="artist.contractSent && artist.contractSigned && artist.contractPaid && !artist.osuId">
                 <p class="sub-header text-shadow min-spacing">Publication...</p>
                 <p class="small text-shadow min-spacing ml-2">
+                    Songs received: 
+                    <a href="#" @click.stop.prevent="toggleSongsReceived()">
+                        <i class="fas" :class="artist.songsReceived ? 'icon-valid fa-check' : 'icon-used fa-times'"></i>
+                    </a>
+                </p>
+                <p class="small text-shadow min-spacing ml-2">
                     Songs timed: 
                     <a href="#" @click.stop.prevent="toggleSongsTimed()">
                         <i class="fas" :class="artist.songsTimed ? 'icon-valid fa-check' : 'icon-used fa-times'"></i>
                     </a>
                 </p>
                 <p class="small text-shadow min-spacing ml-2">
-                    Assets received: 
+                    Visual assets received: 
                     <a href="#" @click.stop.prevent="toggleAssetsReceived()">
                         <i class="fas" :class="artist.assetsReceived ? 'icon-valid fa-check' : 'icon-used fa-times'"></i>
                     </a>
@@ -268,6 +274,12 @@ export default {
         },
         toggleSongsTimed: async function (e) {
             const artist = await this.executePost('/artists/toggleSongsTimed/' + this.artist.id, {value: !this.artist.songsTimed }, e);
+            if (artist) {
+                this.$emit('update-artist', artist);
+            }
+        },
+        toggleSongsReceived: async function (e) {
+            const artist = await this.executePost('/artists/toggleSongsReceived/' + this.artist.id, {value: !this.artist.songsReceived }, e);
             if (artist) {
                 this.$emit('update-artist', artist);
             }
