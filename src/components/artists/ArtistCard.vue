@@ -157,13 +157,13 @@
                     </a>
                 </p>
             </span>
-            <p class="text-shadow min-spacing mt-2"><span class="sub-header">Notes:</span> 
+            <p class="text-shadow min-spacing mt-2 mb-3"><span class="sub-header">Notes:</span> 
                 <a href="#" @click.prevent="updateNotes()">
                     <i class="fas fa-edit"></i>
                 </a>
             </p>
-            <p v-if="!showNotesInput" class="small text-shadow min-spacing ml-2 mb-3 notes-pre">
-                {{artist.notes || '...'}}
+            <p v-if="!showNotesInput" class="small text-shadow min-spacing ml-2 mb-3 notes-pre" v-html="filterLinks(artist.notes)">
+
             </p>
             <textarea
                 v-if="showNotesInput"
@@ -193,6 +193,7 @@
                         v-model="contactedInput"
                         @keyup.enter="updateLastContacted()"
                     >
+                    <a href="#" @click.stop.prevent="contactedToday()">mark as today</a>
                 </p>
             </div>
             
@@ -230,6 +231,32 @@ export default {
 
 			if (e) e.target.disabled = false;
 		},
+        filterLinks: function (notes) {
+            return (notes || "...").replace(
+                /([^\S]|^)(((https?\:\/\/)|(www\.))(\S+))/gi,
+                function(match, space, url){
+                    var hyperlink = url;
+                    if (!hyperlink.match('^https?:\/\/')) {
+                        hyperlink = 'http://' + hyperlink;
+                    }
+                    return space + '<a href="' + hyperlink + '" target="_blank">' + url + '</a>';
+                }
+            );
+        },
+        contactedToday: function() {
+            let date = new Date();
+            let month = (date.getMonth() + 1).toString();
+            if(month.length == 1){
+                month = "0" + month;
+            }
+            let day = date.getDate().toString();
+            if(day.length == 1){
+                day = "0" + day;
+            }
+            let year = date.getFullYear();
+            this.contactedInput = month + "-" + day + "-" + year;
+            this.updateLastContacted();
+        },
         toggleIsContacted: async function (e) {
             const artist = await this.executePost('/artists/toggleIsContacted/' + this.artist.id, {value: !this.artist.isContacted }, e);
             if (artist) {
