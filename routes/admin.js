@@ -469,6 +469,29 @@ router.post('/addContent/:id', async (req, res) => {
     }
 });
 
+/* POST duplicate quest */
+router.post('/duplicateQuest/:id', async (req, res) => {
+    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
+        let q = await quests.service.query({_id: req.params.id});
+        let body = {name: req.body.name,
+                    reward: q.reward,
+                    descriptionMain: q.descriptionMain,
+                    descriptionFluff: q.descriptionFluff,
+                    timeframe: q.timeframe,
+                    minParty: q.minParty,
+                    maxParty: q.maxParty,
+                    minRank: q.minRank,
+                    art: q.art,
+                    exclusive: q.exclusive,
+                    medal: q.medal,
+                    color: q.color,
+                    artist: q.content[0].artist,
+                    text: q.content[0].text}
+        let newQuest = await quests.service.create(body);
+        res.json(newQuest)
+    }
+});
+
 /* POST delete quest */
 router.post('/deleteQuest/:id', async (req, res) => {
     if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
@@ -653,7 +676,7 @@ router.post('/updatePenaltyPoints/:id', async (req, res) => {
 
 /* POST update user points */
 router.post('/updateUserPoints', async (req, res) => {
-    if(req.session.osuId == 3178418 || req.session.osuId == 1052994){
+    if(req.session.osuId == 3178418 || req.session.osuId == 1052994 || req.session.osuId == 1541323){
         
         let u = await users.service.query({}, {}, null, true);
 

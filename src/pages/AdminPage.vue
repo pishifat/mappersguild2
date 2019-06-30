@@ -78,6 +78,7 @@
                 </tr>
             </tbody>
         </table>
+        <p class="float-right small min-spacing">(only refresh points after marking maps as ranked)</p>
         <h2 id="users">Users 
             <button class="btn btn-mg btn-sm temp float-right" @click="updateUserPoints($event);">refresh user points</button>
         </h2>
@@ -285,6 +286,11 @@
                     <hr>
                     <div>
                         <button type="button" class="btn btn-mg btn-sm" @click="unhideQuest(selectedQuest.id, $event)">unhide (for hidden quests)</button>
+                    </div>
+                    <hr>
+                    <div>
+                        <button type="button" class="btn btn-outline-danger btn-sm" @click="duplicateQuest(selectedQuest.id, $event)">duplicate</button>
+                        <label class="col-sm-4" for="newQuestName">newQuestName:</label><input class="col-sm-8 form-control" type="text" id="newQuestName">
                     </div>
                     <hr>
                     <div>
@@ -708,6 +714,22 @@ export default {
             const q = await this.executePost('/admin/addContent/' + id, { artist: nextArtist, text: nextText }, e);
             if(q){
                 this.updateQuest(q);
+            }
+        },
+        duplicateQuest: async function(id, e){
+            let name = $("#newQuestName").val();
+            const q = await this.executePost('/admin/duplicateQuest/' + id, {name: name}, e);
+            if(q){
+                $('#editQuest').modal('hide');
+                axios
+                    .get('/admin/relevantInfo')
+                    .then(response => {
+                        this.beatmaps = response.data.b;
+                        this.quests = response.data.q;
+                        this.parties = response.data.p;
+                        this.users = response.data.u;
+                        this.featuredArtists = response.data.fa;
+                    });   
             }
         },
         deleteQuest: async function(id, e){
