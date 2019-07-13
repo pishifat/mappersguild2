@@ -23,8 +23,11 @@
                     <p class="text-shadow">Content applicable for this quest:</p>
                     <ul>
                         <li class="small text-shadow" v-for="content in quest.content" :key="content.text">
-                            <template>
+                            <template v-if="content.artist != 0">
                                 <a :href="'https://osu.ppy.sh/beatmaps/artists/' + content.artist" target="_blank">{{content.text}}</a>
+                            </template>
+                            <template v-else>
+                                {{content.text}}
                             </template>
                         </li>
                     </ul>
