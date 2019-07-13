@@ -51,7 +51,7 @@ router.get('/login', async (req, res, next) => {
             }
         } else {
             if (u.username != req.session.username) {
-                await usersService.update(u._id, { username: req.session.username });
+                await users.service.update(u._id, { username: req.session.username });
             }
             req.session.mongoId = u._id;
             return next();
