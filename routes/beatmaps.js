@@ -270,7 +270,7 @@ router.post('/removeTask/:id', async (req, res) => {
         return res.json({ error: 'Mapset ranked' });
     }
     let t = await tasks.service.query({ _id: req.params.id });
-    if (t.mappers.indexOf(req.session.mongoId) < 0) {
+    if (t.mappers.indexOf(req.session.mongoId) < 0 && b.host != req.session.mongoId) {
         return res.json({ error: 'Not mapper' });
     }
     b = await beatmaps.service.update(req.body.beatmapId, { $pull: { tasks: t._id } });
