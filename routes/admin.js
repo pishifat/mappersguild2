@@ -488,9 +488,21 @@ router.post('/duplicateQuest/:id', async (req, res) => {
                     artist: q.content[0].artist,
                     text: q.content[0].text}
         let newQuest = await quests.service.create(body);
-        res.json(newQuest)
+        res.json(newQuest);
     }
 });
+
+/* POST reset quest deadline */
+router.post('/resetQuestDeadline/:id', async (req, res) => {
+    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
+        let date = new Date();
+        date.setDate(date.getDate() + 7);
+        await quests.service.update(req.params.id, {deadline: date});
+        let quest = await quests.service.query({_id: req.params.id});
+        res.json(quest);
+    }
+});
+
 
 /* POST delete quest */
 router.post('/deleteQuest/:id', async (req, res) => {

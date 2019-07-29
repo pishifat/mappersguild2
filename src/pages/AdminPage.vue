@@ -294,6 +294,10 @@
                     </div>
                     <hr>
                     <div>
+                        <button type="button" class="btn btn-mg btn-sm" @click="resetQuestDeadline(selectedQuest.id, $event)">reset quest deadline to positive</button>
+                    </div>
+                    <hr>
+                    <div>
                         <button type="button" class="btn btn-outline-danger btn-sm" @click="deleteQuest(selectedQuest.id, $event)">delete (for open quests)</button>
                     </div>
                     <hr>
@@ -730,6 +734,12 @@ export default {
                         this.users = response.data.u;
                         this.featuredArtists = response.data.fa;
                     });   
+            }
+        },
+        resetQuestDeadline: async function(id, e){
+            const q = await this.executePost('/admin/resetQuestDeadline/' + id, {}, e);
+            if(q){
+                this.updateQuest(q);
             }
         },
         deleteQuest: async function(id, e){
