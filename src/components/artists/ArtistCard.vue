@@ -34,17 +34,47 @@
                     </a>
                 </p>
                 <p class="small text-shadow min-spacing">
-                    Pending update: 
-                    <a href="#" @click.stop.prevent="toggleIsPendingUpdate()">
-                        <i class="fas" :class="artist.isPendingUpdate ? 'icon-valid fa-check' : 'icon-used fa-times'"></i>
-                    </a>
-                </p>
-                <p class="small text-shadow min-spacing">
                     Invited to Discord: 
                     <a href="#" @click.stop.prevent="toggleIsInvited()">
                         <i class="fas" :class="artist.isInvited ? 'icon-valid fa-check' : 'icon-used fa-times'"></i>
                     </a>
                 </p>
+                <span v-if="!artist.isUpToDate && !artist.contractPaid">
+                    <p class="sub-header text-shadow min-spacing mt-2">Contract...</p>
+                    <p class="small text-shadow min-spacing ml-2">
+                        sent: 
+                        <a href="#" @click.stop.prevent="toggleContractSent()">
+                            <i class="fas" :class="artist.contractSent ? 'icon-valid fa-check' : 'icon-used fa-times'"></i>
+                        </a>
+                    </p>
+                    <p class="small text-shadow min-spacing ml-2">
+                        signed: 
+                        <a href="#" @click.stop.prevent="toggleContractSigned()">
+                            <i class="fas" :class="artist.contractSigned ? 'icon-valid fa-check' : 'icon-used fa-times'"></i>
+                        </a>
+                    </p>
+                    <p class="small text-shadow min-spacing ml-2">
+                        paid: 
+                        <a href="#" @click.stop.prevent="toggleContractPaid()">
+                            <i class="fas" :class="artist.contractPaid ? 'icon-valid fa-check' : 'icon-used fa-times'"></i>
+                        </a>
+                    </p>
+                </span>
+                <span v-else-if="!artist.isUpToDate && artist.contractPaid">
+                    <p class="sub-header text-shadow min-spacing mt-2">Publication...</p>
+                    <p class="small text-shadow min-spacing ml-2">
+                        Songs received: 
+                        <a href="#" @click.stop.prevent="toggleSongsReceived()">
+                            <i class="fas" :class="artist.songsReceived ? 'icon-valid fa-check' : 'icon-used fa-times'"></i>
+                        </a>
+                    </p>
+                    <p class="small text-shadow min-spacing ml-2">
+                        Songs timed: 
+                        <a href="#" @click.stop.prevent="toggleSongsTimed()">
+                            <i class="fas" :class="artist.songsTimed ? 'icon-valid fa-check' : 'icon-used fa-times'"></i>
+                        </a>
+                    </p>
+                </span>
             </span>
             <span v-else-if="!artist.tracksSelected">
                 <p class="sub-header text-shadow min-spacing">Discussion...</p>
@@ -337,12 +367,6 @@ export default {
         },
         toggleIsUpToDate: async function (e) {
             const artist = await this.executePost('/artists/toggleIsUpToDate/' + this.artist.id, {value: !this.artist.isUpToDate }, e);
-            if (artist) {
-                this.$emit('update-artist', artist);
-            }
-        },
-        toggleIsPendingUpdate: async function (e) {
-            const artist = await this.executePost('/artists/toggleIsPendingUpdate/' + this.artist.id, {value: !this.artist.isPendingUpdate }, e);
             if (artist) {
                 this.$emit('update-artist', artist);
             }

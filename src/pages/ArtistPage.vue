@@ -176,7 +176,7 @@ export default {
 					this.upToDate.push(artist);
 				}else if(artist.isRejected){
 					this.rejected.push(artist);
-				}else if(artist.isPendingUpdate){
+				}else if(artist.osuId && !artist.isUpToDate){
 					this.updateArtists.push(artist);
 				}else{
 					this.newArtists.push(artist);

@@ -115,15 +115,14 @@ router.post('/toggleIsReady/:id', async (req, res) => {
 
 /* POST toggle isUpToDate */
 router.post('/toggleIsUpToDate/:id', async (req, res) => {
-    let a = await featuredArtists.service.update(req.params.id, {isUpToDate: req.body.value});
-    a = await featuredArtists.service.update(req.params.id, {isPendingUpdate: !req.body.value});
-    res.json(a);
-});
-
-/* POST toggle isPendingUpdate */
-router.post('/toggleIsPendingUpdate/:id', async (req, res) => {
-    let a = await featuredArtists.service.update(req.params.id, {isPendingUpdate: req.body.value});
-    a = await featuredArtists.service.update(req.params.id, {isUpToDate: !req.body.value});
+    let a = await featuredArtists.service.update(req.params.id, {
+        isUpToDate: req.body.value,
+        contractSent: false, 
+        contractSigned: false, 
+        contractPaid: false, 
+        songsReceived: false,
+        songsTimed: false, 
+    });
     res.json(a);
 });
 
@@ -162,7 +161,7 @@ router.post('/reset/:id', async (req, res) => {
         isReady: false, 
         isUpToDate: false, 
         isPriority: false,
-        isPendingUpdate: false});
+    });
     res.json(a);
 });
 
