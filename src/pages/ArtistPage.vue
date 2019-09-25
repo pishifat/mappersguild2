@@ -33,13 +33,13 @@
 				<h4 class="ml-4">New artists</h4>
 				<div>
 					<transition-group name="list" tag="div" class="row">
-						<artist-card
+						<new-artist-card
 							v-for="artist in newArtists"
 							:key="artist.id"
 							:artist="artist"
 							@update:selectedArtist="selectedArtist = $event"
 							@update-artist="updateArtist($event)"
-						></artist-card>
+						></new-artist-card>
 					</transition-group>
 				</div>
 				<h4 class="ml-4 mt-4">Current artist updates</h4>
@@ -125,6 +125,7 @@
 <script>
 import AddArtist from '../components/artists/AddArtist.vue';
 import ArtistCard from '../components/artists/ArtistCard.vue';
+import NewArtistCard from '../components/artists/NewArtistCard.vue';
 import FilterBox from '../components/FilterBox.vue';
 
 export default {
@@ -132,6 +133,7 @@ export default {
     components: {
 		AddArtist,
 		ArtistCard,
+		NewArtistCard,
 		FilterBox
 	},
 	watch: {

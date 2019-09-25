@@ -1,32 +1,74 @@
 <template>
-<div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 my-2">
+<div class="col-sm-12 my-1">
     <div class="card static-card" :class="artist.isPriority ? 'card-bg-priority' : 'bg-dark'">
-        <div class="card-header text-shadow artist-card-spacing">
-            {{artist.label.length - 3 > 20 ? artist.label.slice(0,20) + "..." : artist.label}} 
-            <a href="#" v-if="!artist.isContacted" class="float-right small icon-used ml-2" data-toggle="tooltip" data-placement="top" title="delete" @click.prevent="deleteArtist()">
-                <i class="fas fa-trash"></i>
-            </a>
-            <a href="#" class="float-right small icon-valid ml-2" data-toggle="tooltip" data-placement="top" :title="artist.isPriority ? 'mark as low priority' : 'mark as high priority'" @click.prevent="toggleIsPriority()">
-                <i class="fas" :class="artist.isPriority ? 'fa-arrow-down' : 'fa-arrow-up'"></i>
-            </a>
-            <a href="#" class="float-right small icon-used" data-toggle="tooltip" data-placement="top" title="reset progress (except notes)" @click.prevent="reset()">
-                <i class="fas fa-undo-alt"></i>
-            </a>
-        </div>
-        <div :id="'body' + artist.id" class="card-body artist-card">
-            <p v-if="!artist.isContacted" class="small text-shadow min-spacing">
-                Contacted: 
-                <a href="#" @click.stop.prevent="toggleIsContacted()">
-                    <i class="fas" :class="artist.isContacted ? 'icon-valid fa-check' : 'icon-used fa-times'"></i>
-                </a>
-            </p>
-            <p v-else-if="artist.isRejected" class="small text-shadow min-spacing">
-                Offer rejected: 
-                <a href="#" @click.stop.prevent="toggleIsRejected()">
-                    <i class="fas" :class="artist.isContacted ? 'icon-valid fa-check' : 'icon-used fa-times'"></i>
-                </a>
-            </p>
-            <span v-else-if="artist.osuId">
+        <div class="card-body text-shadow min-spacing">
+            <div class="min-spacing mt-1 row">
+                <span class="col-sm-4">
+                    <a :href="'#details' + artist.id" data-toggle="collapse">
+                        {{artist.label}}
+                        <i class="fas fa-angle-down" />
+                    </a>
+                </span>
+                <span class="small col-sm-4">
+                    status:
+                    <span v-if="artist.projectedRelease" class="done">{{new Date(artist.projectedRelease).toString().slice(4,15)}}</span>
+                    <span v-else-if="artist.songsTimed" class="text-white-50">songs timed</span>
+                    <span v-else-if="artist.contractPaid" class="text-white-50">paid contract</span>
+                    <span v-else-if="artist.contractSigned" class="text-white-50">signed contract</span>
+                    <span v-else-if="artist.contractSent" class="text-white-50">sent contract</span>
+                    <span v-else-if="artist.isResponded" class="text-white-50">discussing</span>
+                    <span v-else-if="artist.isContacted" class="text-white-50">contacted</span>
+                </span>
+                
+                
+                <span class="col-sm-4">
+                    <a href="#" v-if="!artist.isContacted" class="float-right small icon-used ml-2" data-toggle="tooltip" data-placement="top" title="delete" @click.prevent="deleteArtist()">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                    <a href="#" class="float-right small icon-valid ml-2" data-toggle="tooltip" data-placement="top" :title="artist.isPriority ? 'mark as low priority' : 'mark as high priority'" @click.prevent="toggleIsPriority()">
+                        <i class="fas" :class="artist.isPriority ? 'fa-arrow-down' : 'fa-arrow-up'"></i>
+                    </a>
+                    <a href="#" class="float-right small icon-used" data-toggle="tooltip" data-placement="top" title="reset progress (except notes)" @click.prevent="reset()">
+                        <i class="fas fa-undo-alt"></i>
+                    </a>
+                    
+
+
+                    <span class="min-spacing text-center font-8 text-white-50 float-right mr-2">
+                        last contacted: {{artist.lastContacted ? new Date(artist.lastContacted).toString().slice(4,15) : 'never'}}
+                        <a href="#" @click.prevent="showContactedInput = !showContactedInput">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                    </span>
+                    <span v-if="showContactedInput" class="small float-right">
+                        <input
+                            class="custom-input small w-50"
+                            type="text"
+                            placeholder="mm-dd-yyyy"
+                            style="border-radius: 5px 5px 5px 5px; "
+                            maxlength="10"
+                            v-model="contactedInput"
+                            @keyup.enter="updateLastContacted()"
+                        >
+                        <a href="#" @click.stop.prevent="contactedToday()">mark as today</a>
+                    </span>
+                </span>
+            </div>
+            <div :id="'details' + artist.id" class="collapse ml-2">
+                <!--fix from here-->
+                <p class="small text-shadow min-spacing">
+                    Contacted: 
+                    <a href="#" @click.stop.prevent="toggleIsContacted()">
+                        <i class="fas" :class="artist.isContacted ? 'icon-valid fa-check' : 'icon-used fa-times'"></i>
+                    </a>
+                </p>
+                <p class="small text-shadow min-spacing">
+                    Offer rejected: 
+                    <a href="#" @click.stop.prevent="toggleIsRejected()">
+                        <i class="fas" :class="artist.isContacted ? 'icon-valid fa-check' : 'icon-used fa-times'"></i>
+                    </a>
+                </p>
+
                 <p class="small text-shadow min-spacing">
                     Up to date: 
                     <a href="#" @click.stop.prevent="toggleIsUpToDate()">
@@ -39,44 +81,7 @@
                         <i class="fas" :class="artist.isInvited ? 'icon-valid fa-check' : 'icon-used fa-times'"></i>
                     </a>
                 </p>
-                <span v-if="!artist.isUpToDate && !artist.contractPaid">
-                    <p class="sub-header text-shadow min-spacing mt-2">Contract...</p>
-                    <p class="small text-shadow min-spacing ml-2">
-                        sent: 
-                        <a href="#" @click.stop.prevent="toggleContractSent()">
-                            <i class="fas" :class="artist.contractSent ? 'icon-valid fa-check' : 'icon-used fa-times'"></i>
-                        </a>
-                    </p>
-                    <p class="small text-shadow min-spacing ml-2">
-                        signed: 
-                        <a href="#" @click.stop.prevent="toggleContractSigned()">
-                            <i class="fas" :class="artist.contractSigned ? 'icon-valid fa-check' : 'icon-used fa-times'"></i>
-                        </a>
-                    </p>
-                    <p class="small text-shadow min-spacing ml-2">
-                        paid: 
-                        <a href="#" @click.stop.prevent="toggleContractPaid()">
-                            <i class="fas" :class="artist.contractPaid ? 'icon-valid fa-check' : 'icon-used fa-times'"></i>
-                        </a>
-                    </p>
-                </span>
-                <span v-else-if="!artist.isUpToDate && artist.contractPaid">
-                    <p class="sub-header text-shadow min-spacing mt-2">Publication...</p>
-                    <p class="small text-shadow min-spacing ml-2">
-                        Songs received: 
-                        <a href="#" @click.stop.prevent="toggleSongsReceived()">
-                            <i class="fas" :class="artist.songsReceived ? 'icon-valid fa-check' : 'icon-used fa-times'"></i>
-                        </a>
-                    </p>
-                    <p class="small text-shadow min-spacing ml-2">
-                        Songs timed: 
-                        <a href="#" @click.stop.prevent="toggleSongsTimed()">
-                            <i class="fas" :class="artist.songsTimed ? 'icon-valid fa-check' : 'icon-used fa-times'"></i>
-                        </a>
-                    </p>
-                </span>
-            </span>
-            <span v-else-if="!artist.tracksSelected">
+                    
                 <p class="sub-header text-shadow min-spacing">Discussion...</p>
                 <p class="small text-shadow min-spacing ml-2">
                     Contacted: 
@@ -102,9 +107,8 @@
                         <i class="fas" :class="artist.isRejected ? 'icon-valid fa-check' : 'icon-used fa-times'"></i>
                     </a>
                 </p>
-            </span>
 
-            <span v-if="artist.isContacted && artist.isResponded && artist.tracksSelected && !artist.isRejected && !artist.osuId && !(artist.contractSent && artist.contractSigned && artist.contractPaid)">
+
                 <p class="sub-header text-shadow min-spacing">Contract...</p>
                 <p class="small text-shadow min-spacing ml-2">
                     sent: 
@@ -124,8 +128,6 @@
                         <i class="fas" :class="artist.contractPaid ? 'icon-valid fa-check' : 'icon-used fa-times'"></i>
                     </a>
                 </p>
-            </span>
-            <span v-if="artist.contractSent && artist.contractSigned && artist.contractPaid && !artist.osuId">
                 <p class="sub-header text-shadow min-spacing">Publication...</p>
                 <p class="small text-shadow min-spacing ml-2">
                     Songs received: 
@@ -163,6 +165,12 @@
                         <i class="fas" :class="artist.isInvited ? 'icon-valid fa-check' : 'icon-used fa-times'"></i>
                     </a>
                 </p>
+                <p class="small text-shadow min-spacing ml-2">
+                    Projected release: <span :class="artist.projectedRelease ? 'done' : 'open'">{{artist.projectedRelease ? new Date(artist.projectedRelease).toString().slice(4,15) : '...'}}</span>
+                    <a href="#" @click.prevent="showDateInput = !showDateInput">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                </p>
                 <p v-if="showDateInput" class="small ml-3">
                     <input
                         class="custom-input small w-50"
@@ -180,47 +188,25 @@
                         <i class="fas" :class="artist.isUpToDate ? 'icon-valid fa-check' : 'icon-used fa-times'"></i>
                     </a>
                 </p>
-            </span>
-            <p class="text-shadow min-spacing mt-2 mb-3"><span class="sub-header">Notes:</span> 
+            </div>
+            <div class="min-spacing mb-1 ml-2">
                 <a href="#" @click.prevent="updateNotes()">
                     <i class="fas fa-edit"></i>
                 </a>
-            </p>
-            <p v-if="!showNotesInput" class="small text-shadow min-spacing ml-2 mb-3 notes-pre" v-html="filterLinks(artist.notes)">
-
-            </p>
-            <textarea
-                v-if="showNotesInput"
-                class="custom-input small mb-5 ml-2 w-100"
-                rows="4"
-                type="text"
-                placeholder="shift+enter for new line, enter for submit..."
-                style="border-radius: 5px 5px 5px 5px;"
-                v-model="artist.notes"
-                @keyup.enter="updateNotes($event)"
-            ></textarea>
-            <br>
-            <div class="card-footer text-muted footer-spacing" :style="showContactedInput ? 'margin-top:20px;' : ''">
-                <p class="min-spacing text-center" style="font-size: 8pt;">
-                    last contacted: {{artist.lastContacted ? new Date(artist.lastContacted).toString().slice(4,15) : 'never'}}
-                    <a href="#" @click.prevent="showContactedInput = !showContactedInput">
-                        <i class="fas fa-edit"></i>
-                    </a>
-                </p>
-                <p v-if="showContactedInput" class="small text-center">
-                    <input
-                        class="custom-input small w-50"
-                        type="text"
-                        placeholder="mm-dd-yyyy"
-                        style="border-radius: 5px 5px 5px 5px; "
-                        maxlength="10"
-                        v-model="contactedInput"
-                        @keyup.enter="updateLastContacted()"
-                    >
-                    <a href="#" @click.stop.prevent="contactedToday()">mark as today</a>
-                </p>
+                <span v-if="!showNotesInput" class="small text-shadow min-spacing text-white-50" v-html="filterLinks(artist.notes)"></span>
+                <input
+                    v-if="showNotesInput"
+                    class="custom-input small w-75"
+                    rows="4"
+                    type="text"
+                    placeholder="enter to submit..."
+                    style="border-radius: 5px 5px 5px 5px;"
+                    v-model="artist.notes"
+                    @keyup.enter="updateNotes($event)"
+                    @change="updateNotes($event)"
+                >
+                
             </div>
-            
         </div>
     </div>
 </div>
@@ -384,13 +370,10 @@ export default {
             }
         },
         updateNotes: async function (e) {
-            let submit;
-            if(e && e.keyCode == 13 && !e.shiftKey){
-                submit = true;
-            }else if(!e){
+            if(!e){
                 this.showNotesInput = !this.showNotesInput;
             }
-            if(this.artist.notes != this.tempNotes && submit){
+            if(this.artist.notes != this.tempNotes){
                 this.artist.notes = this.artist.notes.trim();
                 this.showNotesInput = !this.showNotesInput;
                 const artist = await this.executePost('/artists/updateNotes/' + this.artist.id, {notes: this.artist.notes}, e);
@@ -435,38 +418,27 @@ export default {
 </script>
 
 <style>
-.card-bg-priority {
-    background-color: rgb(38, 48, 63)!important;
+.min-spacing{
+    margin: 0px;
+    padding: 0px; 
 }
 
-.artist-card {
-    margin: 0.25rem 0.5rem 0.25rem 0.5rem;
-    padding: 0.5rem 0.5rem 0.5rem 0.5rem;
+.font-8{
+    font-size: 8pt;
 }
 
-.sub-header {
-    font-size: 11pt;
+input,
+input:focus {
+    background-color: #333;
+    color: white;
+    border-color: transparent;
+    filter: drop-shadow(1px 1px 1px #000000);
+    border-radius: 0 100px 100px 0;
 }
 
-.footer-spacing {
-    position:absolute;
-    left:0; 
-    bottom:0; 
-    width:100%
+.collapsing {
+    -webkit-transition: none;
+    transition: none;
+    display: none;
 }
-
-.fas:hover {
-    color: var(--ranked); 
-    text-decoration: none;
-}
-
-.fas:active {
-    color: var(--clicked); 
-}
-
-.notes-pre{
-    white-space: pre-line;
-    margin-top: -1.5em !important;
-}
-
 </style>
