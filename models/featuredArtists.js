@@ -16,18 +16,16 @@ const featuredArtistSchema = new mongoose.Schema({
     songsReceived: { type: Boolean },
     assetsReceived: { type: Boolean },
     bioWritten: { type: Boolean },
-    isReady: { type: Boolean },
     isInvited: { type: Boolean },
     isUpToDate: { type: Boolean },
     isStalled: { type: Boolean },
     isRejected: { type: Boolean },
-
     isPriority: { type: Boolean },
+
     lastContacted: { type: Date },
-    notes: { type: String },
-    lastMajorUpdate: { type: Date },
     projectedRelease: { type: Date },
-    classification: { type: String, enum: ["Minor", "Major"]}
+    notes: { type: String },
+    assignedUser: { type: 'ObjectId', ref: 'User' },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const FeaturedArtist = mongoose.model('FeaturedArtist', featuredArtistSchema);

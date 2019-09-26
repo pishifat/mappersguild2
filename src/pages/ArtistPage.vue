@@ -29,27 +29,70 @@
 	<div class="container bg-container py-1">
 		<div class="row">
 			<div class="col">
-				<h2>In progress</h2>
-				<h4 class="ml-4">New artists</h4>
-				<div>
+				<h3 class="ml-2">In-progress</h3>
+				<h5 class="ml-4">
+					<a href="#projectedRelease" data-toggle="collapse" >
+						Projected for release ({{projectedReleaseArtists.length}})
+						<i class="fas fa-angle-down" />
+					</a>
+				</h5>
+				<div id="projectedRelease" class="show">
 					<transition-group name="list" tag="div" class="row">
-						<new-artist-card
-							v-for="artist in newArtists"
+						<artist-card
+							v-for="artist in projectedReleaseArtists"
 							:key="artist.id"
 							:artist="artist"
-							@update:selectedArtist="selectedArtist = $event"
+							:user-id="userId"
 							@update-artist="updateArtist($event)"
-						></new-artist-card>
+						></artist-card>
 					</transition-group>
 				</div>
-				<h4 class="ml-4 mt-4">Current artist updates</h4>
-				<div>
+				<h5 class="ml-4 mt-2">
+					<a href="#discussionArtists" data-toggle="collapse" >
+						Active discussion ({{discussionArtists.length}})
+						<i class="fas fa-angle-down" />
+					</a>
+				</h5>
+				<div id="discussionArtists" class="collapse">
+					<transition-group name="list" tag="div" class="row">
+						<artist-card
+							v-for="artist in discussionArtists"
+							:key="artist.id"
+							:artist="artist"
+							:user-id="userId"
+							@update-artist="updateArtist($event)"
+						></artist-card>
+					</transition-group>
+				</div>
+				<h5 class="ml-4 mt-2">
+					<a href="#contactedArtists" data-toggle="collapse" >
+						Contacted ({{contactedArtists.length}})
+						<i class="fas fa-angle-down" />
+					</a>
+				</h5>
+				<div id="contactedArtists" class="collapse">
+					<transition-group name="list" tag="div" class="row">
+						<artist-card
+							v-for="artist in contactedArtists"
+							:key="artist.id"
+							:artist="artist"
+							:user-id="userId"
+							@update-artist="updateArtist($event)"
+						></artist-card>
+					</transition-group>
+				</div>
+				<h5 class="ml-4 mt-2">
+					<a href="#currentArtistUpdates" data-toggle="collapse" >
+						Current artist updates ({{updateArtists.length}})
+						<i class="fas fa-angle-down" />
+					</a>
+				</h5>
+				<div id="currentArtistUpdates" class="collapse">
 					<transition-group name="list" tag="div" class="row">
 						<artist-card
 							v-for="artist in updateArtists"
 							:key="artist.id"
 							:artist="artist"
-							@update:selectedArtist="selectedArtist = $event"
 							@update-artist="updateArtist($event)"
 						></artist-card>
 					</transition-group>
@@ -63,52 +106,55 @@
 	<div class="container bg-container py-1">
 		<div class="row">
 			<div class="col">
-				<h2>Not contacted <button class="btn btn-outline-info" data-toggle="modal" data-target="#addArtist">Add artist</button></h2>
-				<a href="#" class="ml-2" @click.prevent="showNotContacted = !showNotContacted">{{showNotContacted ? 'Hide' : 'Show'}} {{notContacted.length}} {{notContacted.length == 1 ? 'entry' : 'entries'}}</a>
-				<div v-if="showNotContacted">
+				<h3 class="ml-2">Inactive</h3>
+				<h5 class="ml-4 mt-2">
+					<a href="#notContacted" data-toggle="collapse" >
+						Not contacted ({{notContacted.length}})
+						<i class="fas fa-angle-down" />
+						<button class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#addArtist">Add artist</button>
+					</a>
+				</h5>
+				<div id="notContacted" class="collapse">
 					<transition-group name="list" tag="div" class="row">
 						<artist-card
 							v-for="artist in notContacted"
 							:key="artist.id"
 							:artist="artist"
-							@update:selectedArtist="selectedArtist = $event"
 							@update-artist="updateArtist($event)"
 							@delete-artist="deleteArtist($event)"
 						></artist-card>
 					</transition-group>
 					<div class="radial-divisor mx-auto my-4"></div>
 				</div>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col">
-				<h2 class="mt-4">Up to date</h2>
-				<a href="#" class="ml-2" @click.prevent="showUpToDate = !showUpToDate">{{showUpToDate ? 'Hide' : 'Show'}} {{upToDate.length}} {{upToDate.length == 1 ? 'entry' : 'entries'}}</a>
-				<div v-if="showUpToDate">
+				<h5 class="ml-4 mt-2">
+					<a href="#upToDate" data-toggle="collapse" >
+						Up to date ({{upToDate.length}})
+						<i class="fas fa-angle-down" />
+					</a>
+				</h5>
+				<div id="upToDate" class="collapse">
 					<transition-group name="list" tag="div" class="row">
 						<artist-card
 							v-for="artist in upToDate"
 							:key="artist.id"
 							:artist="artist"
-							@update:selectedArtist="selectedArtist = $event"
 							@update-artist="updateArtist($event)"
 						></artist-card>
 					</transition-group>
 					<div class="radial-divisor mx-auto my-4"></div>
 				</div>
-			</div>
-		</div>		
-		<div class="row">
-			<div class="col">
-				<h2 class="mt-4">Rejected</h2>
-				<a href="#" class="ml-2" @click.prevent="showRejected = !showRejected">{{showRejected ? 'Hide' : 'Show'}} {{rejected.length}} {{rejected.length == 1 ? 'entry' : 'entries'}}</a>
-				<div v-if="showRejected">
+				<h5 class="ml-4 mt-2">
+					<a href="#rejected" data-toggle="collapse" >
+						Rejected/Ghosted ({{rejected.length}})
+						<i class="fas fa-angle-down" />
+					</a>
+				</h5>
+				<div id="rejected" class="collapse">
 					<transition-group name="list" tag="div" class="row">
 						<artist-card
 							v-for="artist in rejected"
 							:key="artist.id"
 							:artist="artist"
-							@update:selectedArtist="selectedArtist = $event"
 							@update-artist="updateArtist($event)"
 						></artist-card>
 					</transition-group>
@@ -125,7 +171,6 @@
 <script>
 import AddArtist from '../components/artists/AddArtist.vue';
 import ArtistCard from '../components/artists/ArtistCard.vue';
-import NewArtistCard from '../components/artists/NewArtistCard.vue';
 import FilterBox from '../components/FilterBox.vue';
 
 export default {
@@ -133,7 +178,6 @@ export default {
     components: {
 		AddArtist,
 		ArtistCard,
-		NewArtistCard,
 		FilterBox
 	},
 	watch: {
@@ -168,9 +212,11 @@ export default {
 		separateObjs: function() {
 			this.notContacted = [];
 			this.upToDate = [];
-			this.newArtists = [];
-			this.updateArtists = [];
 			this.rejected = [];
+			this.updateArtists = [];
+			this.projectedReleaseArtists = [];
+			this.discussionArtists = [];
+			this.contactedArtists = [];
 			this.filteredArtists.forEach(artist => {
 				if(!artist.isContacted){
 					this.notContacted.push(artist);
@@ -180,38 +226,56 @@ export default {
 					this.rejected.push(artist);
 				}else if(artist.osuId && !artist.isUpToDate){
 					this.updateArtists.push(artist);
-				}else{
-					this.newArtists.push(artist);
+				}else if(artist.projectedRelease){
+					this.projectedReleaseArtists.push(artist);
+				}else if(artist.isResponded){
+					this.discussionArtists.push(artist);
+				}else if(artist.isContacted && !artist.isResponded){
+					this.contactedArtists.push(artist);
 				}
 			});
-			this.newArtists.sort(function(a,b){
+			//sort projected release artists
+			this.projectedReleaseArtists.sort(function(a,b){
+				if(a.projectedRelease< b.projectedRelease) return -1;
+				if(a.projectedRelease >b.projectedRelease) return 1;
+				if(a.projectedRelease< b.projectedRelease) return -1;
+				if(a.projectedRelease >b.projectedRelease) return 1;
+				return 0;
+			});
+
+			//sort discussion artists
+			this.discussionArtists.sort(function(a,b){
 				if(a.lastContacted< b.lastContacted) return 1;
 				if(a.lastContacted >b.lastContacted) return -1;
 				if(a.lastContacted< b.lastContacted) return 1;
 				if(a.lastContacted >b.lastContacted) return -1;
 				return 0;
 			});
-			for (let i = 0; i < this.newArtists.length; i++) {
-				let artist = this.newArtists[i];
+			for (let i = 0; i < this.discussionArtists.length; i++) {
+				let artist = this.discussionArtists[i];
 				if(artist.isPriority){
-					this.newArtists.splice(i,1);
-					this.newArtists.unshift(artist);
+					this.discussionArtists.splice(i,1);
+					this.discussionArtists.unshift(artist);
 				}
 			}
-			for (let i = 0; i < this.newArtists.length; i++) {
-				let artist = this.newArtists[i];
-				if(artist.projectedRelease){
-					this.newArtists.splice(i,1);
-					this.newArtists.unshift(artist);
-				}
-			}
-			this.newArtists.sort(function(a,b){
-				if(a.projectedRelease< b.projectedRelease) return -1;
-				if(a.projectedRelease >b.projectedRelease) return 1;
-				if(a.projectedRelease< b.projectedRelease) return -1;
-				if(a.projectedRelease >b.projectedRelease) return 1;
+
+			//sort contacted artists
+			this.contactedArtists.sort(function(a,b){
+				if(a.lastContacted< b.lastContacted) return 1;
+				if(a.lastContacted >b.lastContacted) return -1;
+				if(a.lastContacted< b.lastContacted) return 1;
+				if(a.lastContacted >b.lastContacted) return -1;
 				return 0;
 			});
+			for (let i = 0; i < this.contactedArtists.length; i++) {
+				let artist = this.contactedArtists[i];
+				if(artist.isPriority){
+					this.contactedArtists.splice(i,1);
+					this.contactedArtists.unshift(artist);
+				}
+			}
+			
+			//sort pending update artists
 			this.updateArtists.sort(function(a,b){
 				if(a.lastContacted< b.lastContacted) return 1;
 				if(a.lastContacted >b.lastContacted) return -1;
@@ -226,6 +290,17 @@ export default {
 					this.updateArtists.unshift(artist);
 				}
 			}
+
+			//sort not contacted artists
+			for (let i = 0; i < this.notContacted.length; i++) {
+				let artist = this.notContacted[i];
+				if(artist.isPriority){
+					this.notContacted.splice(i,1);
+					this.notContacted.unshift(artist);
+				}
+			}
+
+			//sort rejected artists
 			this.rejected.sort(function(a,b){
 				if(a.lastContacted< b.lastContacted) return 1;
 				if(a.lastContacted >b.lastContacted) return -1;
@@ -233,11 +308,19 @@ export default {
 				if(a.lastContacted >b.lastContacted) return -1;
 				return 0;
 			});
+			for (let i = 0; i < this.rejected.length; i++) {
+				let artist = this.rejected[i];
+				if(artist.isPriority){
+					this.rejected.splice(i,1);
+					this.rejected.unshift(artist);
+				}
+			}
 		},
 		updateArtist: function (artist) {
-			const i = this.allArtists.findIndex(a => a.id == artist.id);
+			let i = this.allArtists.findIndex(a => a.id == artist.id);
 			this.allArtists[i] = artist;
-			this.selectedArtist = artist;
+			i = this.filteredArtists.findIndex(a => a.id == artist.id);
+			this.filteredArtists[i] = artist;
 			this.separateObjs();
 		},
 		deleteArtist: function (artist) {
@@ -265,7 +348,9 @@ export default {
 			filteredArtists: null,
 			notContacted: [],
 			upToDate: [],
-			newArtists: [],
+			projectedReleaseArtists: [],
+			discussionArtists: [],
+			contactedArtists: [],
 			updateArtists: [],
 			rejected: [],
 
@@ -273,7 +358,6 @@ export default {
 			showUpToDate: false,
 			showRejected: false,
 
-			selectedArtist: null,
 			filterValue: '',
 		}
     },
@@ -283,6 +367,7 @@ export default {
 			.then(response => {
 				this.allArtists = response.data.artists;
 				this.filteredArtists = response.data.artists;
+				this.userId = response.data.userId;
 			}).then(function(){
 				$("#loading").fadeOut();
 				$("#app").attr("style", "visibility: visible").hide().fadeIn();
@@ -292,5 +377,9 @@ export default {
 </script>
 
 <style>
-
+.collapsing {
+    -webkit-transition: none;
+    transition: none;
+    display: none;
+}
 </style>

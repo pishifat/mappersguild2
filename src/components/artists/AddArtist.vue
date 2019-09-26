@@ -27,7 +27,7 @@
 import mixin from "../../mixins.js";
 
 export default {
-    name: 'create-party',
+    name: 'add-artist',
     props: [ 'info' ],
     mixins: [ mixin ],
     methods: {
