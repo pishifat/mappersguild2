@@ -35,11 +35,8 @@ async function questPenalty(u, p, userMongoId) {
     ]);
     if (q.minParty == p.members.length) {
         quests.service.update(q._id, { assignedParty: undefined }),
-            quests.service.update(q._id, { status: 'open' }),
-            parties.service.update(p._id, { currentQuest: undefined });
-        if (q.exclusive) {
-            quests.service.update(q._id, { status: 'hidden' });
-        }
+        quests.service.update(q._id, { status: 'open' }),
+        parties.service.update(p._id, { currentQuest: undefined });
         for (let i = 0; i < p.members.length; i++) {
             let u = await users.service.query({ _id: p.members[i]._id });
             let penalty = u.penaltyPoints + q.reward;

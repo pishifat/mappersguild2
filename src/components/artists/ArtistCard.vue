@@ -419,11 +419,6 @@ export default {
 </script>
 
 <style>
-.min-spacing{
-    margin: 0px;
-    padding: 0px; 
-}
-
 .font-8{
     font-size: 8pt;
 }

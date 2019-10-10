@@ -78,7 +78,7 @@
                 </tr>
             </tbody>
         </table>
-        <p class="float-right small min-spacing">(only refresh points after marking maps as ranked)</p>
+        <p class="float-right small">(only refresh points after marking maps as ranked)</p>
         <h2 id="users">Users 
             <button class="btn btn-mg btn-sm temp float-right" @click="updateUserPoints($event);">refresh user points</button>
         </h2>
@@ -243,7 +243,6 @@
                         <label class="col-sm-4" for="questMaxParty"> Max Party:</label><input class="col-sm-8 form-control" type="text" id="questMaxParty">
                         <label class="col-sm-4" for="questMinRank"> Min Rank:</label><input class="col-sm-8 form-control" type="text" id="questMinRank">
                         <label class="col-sm-4" for="art"> FA id:</label><input class="col-sm-8 form-control" type="text" id="art">
-                        <label class="col-sm-4" for="exclusive"> Exclusive?:</label><input class="col-sm-8 form-control" type="text" id="exclusive">
                         <label class="col-sm-4" for="medal"> Medal?:</label><input class="col-sm-8 form-control" type="text" id="medal">
                         <label class="col-sm-4" for="color"> color (#6digithex):</label><input class="col-sm-8 form-control" type="text" id="color">
                         <p>content (add the rest after quest is created):</p>
@@ -767,7 +766,6 @@ export default {
             let maxParty = $("#questMaxParty").val();
             let minRank = $("#questMinRank").val();
             let art = $("#art").val();
-            let exclusive = $("#exclusive").val();
             let medal = $("#medal").val();
             let color = $("#color").val();
             let artist = $("#artist").val();
@@ -782,7 +780,6 @@ export default {
                 maxParty: maxParty, 
                 minRank: minRank, 
                 art: art, 
-                exclusive: exclusive, 
                 medal: medal,
                 color: color,
                 artist: artist,

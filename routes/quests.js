@@ -140,11 +140,7 @@ router.post('/dropQuest/:id', async (req, res) => {
     if(!p || !q.assignedParty){
         return res.json({error: "Something went wrong!"});
     }
-    if(q.exclusive){
-        await quests.service.update(req.params.id, {status: "hidden"});
-    }else{
-        await quests.service.update(req.params.id, {status: "open"});
-    }
+    await quests.service.update(req.params.id, {status: "open"});
     await parties.service.update(p._id, {currentQuest: undefined});
     q = await quests.service.query({_id: req.params.id}, defaultPopulate)
     res.json(q);

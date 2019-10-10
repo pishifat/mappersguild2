@@ -3,14 +3,17 @@ const User = require('./user.js');
 const logs = require('./log');
 
 const partySchema = new mongoose.Schema({
-    name: { type: String, required: true },
     leader: { type: 'ObjectId', ref: 'User'},
-    currentQuest: { type: 'ObjectId', ref: 'Quest' },
     members: [{ type: 'ObjectId', ref: 'User'}],
-    rank: { type: Number, default: 0},
-    lock: {type: Boolean, default: false},
+    lock: { type: Boolean, default: false },
+    rank: { type: Number, default: 0 },
+    isActive: { type: Boolean, default: true },
+    
+    //used for legacy parties
+    currentQuest: { type: 'ObjectId', ref: 'Quest' },
+    name: { type: String },
     art: { type: Number },
-    mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania'], default: 'osu'}
+    mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania'], default: 'osu' }
 
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
@@ -54,13 +57,11 @@ class PartyService
         }
     }
 
-    async create(name, userId, mode) {
+    async create(userId) {
         try {
             return await Party.create({ 
-                name: name,
                 leader: userId,
                 members: userId,
-                mode: mode
             });
         } catch(error) {
             logs.service.create(null, error, null, 'error'); 

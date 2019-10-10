@@ -33,8 +33,6 @@
                     </ul>
                 </span>
 
-                <p v-if="quest.exclusive && quest.status == 'open'" class="small text-shadow">Because this quest involves unpublished featured artist content, it is rank-restricted and dropping it will make it unobtainable by any other party.</p>
-
                 <div class="radial-divisor mx-auto my-3"></div>
 
                 <span v-if="quest.status == 'open'">

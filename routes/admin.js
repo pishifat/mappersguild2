@@ -361,11 +361,7 @@ router.post('/forceDropQuest/:id', async (req, res) => {
         let party = await parties.service.query({currentQuest: req.params.id});
         let quest = await quests.service.query({_id: req.params.id});
         if(quest.status == "wip"){
-            if(quest.exclusive){
-                await quests.service.update(req.params.id, {status: "hidden"});
-            }else{
-                await quests.service.update(req.params.id, {status: "open"});
-            }
+            await quests.service.update(req.params.id, {status: "open"});
         }
         await parties.service.update(party._id, {currentQuest: undefined});
 
@@ -482,7 +478,6 @@ router.post('/duplicateQuest/:id', async (req, res) => {
                     maxParty: q.maxParty,
                     minRank: q.minRank,
                     art: q.art,
-                    exclusive: q.exclusive,
                     medal: q.medal,
                     color: q.color,
                     artist: q.content[0].artist,
@@ -573,9 +568,6 @@ router.post('/removeMember/:id', async (req, res) => {
                     quests.service.update(quest._id, {status: "open"}),
                     parties.service.update(party._id, {currentQuest: undefined})
                 ]);
-                if(quest.exclusive){
-                    await quests.service.update(quest._id, {status: "hidden"});
-                }
                 for (let i = 0; i < party.members.length; i++) {
                     let u = await users.service.query({_id: party.members[i]._id});
                     let penalty = (u.penaltyPoints + quest.reward);

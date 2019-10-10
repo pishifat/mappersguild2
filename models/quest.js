@@ -3,25 +3,26 @@ const logs = require('./log');
 
 var questSchema = new mongoose.Schema({
     name: { type: String, required: true },
-    descriptionMain: { type: String, required: true},
-    descriptionFluff: { type: String, required: true},
-    content: [{ type: Object }],
-    timeframe: { type: Number, required: true},
     reward: { type: Number, required: true},
+    descriptionMain: { type: String, required: true},
+    timeframe: { type: Number, required: true},
     minParty: { type: Number, required: true},
     maxParty: { type: Number, required: true},
     minRank: { type: Number, required: true},
-    status: { type: String, enum: ['open', 'wip', 'done'], default: "open" },
     art: { type: Number },
+    medal: { type: Boolean },
     color: { type: "String", default: "#ffa658" },
-
+    status: { type: String, enum: ['open', 'wip', 'done'], default: "open" },
+    parties: [{type: 'ObjectId', ref: 'Party'}],
+    
     accepted: { type: Date },
     deadline: { type: Date },
     completed: { type: Date },
-
-    exclusive: { type: Boolean },
-    medal: { type: Boolean },
     completedMembers: [{type: 'ObjectId', ref: 'User'}],
+
+    //legacy quest info
+    descriptionFluff: { type: String, required: true},
+    content: [{ type: Object }],
 
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
@@ -96,7 +97,6 @@ class QuestService
             maxParty: body.maxParty, 
             minRank: body.minRank, 
             art: body.art, 
-            exclusive: body.exclusive, 
             medal: body.medal,
             color: body.color,
             content: {artist: body.artist, text: body.text}
