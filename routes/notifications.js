@@ -78,8 +78,15 @@ const defaultInvitePopulate = [
     { innerPopulate: 'map', populate: { path: 'song host' } },
     { innerPopulate: 'map', populate: { path: 'tasks', populate: { path: 'mappers' } } },
     { innerPopulate: 'party', populate: { path: 'members leader' } },
+    { innerPopulate: 'quest', populate: { path: 'currentParty', populate: { path: 'members' } } },
 ];
 const defaultMapPopulate = [{ populate: 'song', display: 'artist title' }];
+const questPopulate = [
+    { innerPopulate: 'parties',  populate: { path: 'members leader' } },
+    { innerPopulate: 'currentParty',  populate: { path: 'members leader' } },
+    { populate: 'completedMembers',  display: 'username osuId rank' },
+    { innerPopulate: 'associatedMaps',  populate: { path: 'song host' } }
+];
 
 /* GET notifications/invites */
 router.get('/', async (req, res, next) => {
@@ -294,24 +301,29 @@ router.post('/acceptDiff/:id', async (req, res) => {
     );
 });
 
-/* POST accept difficulty */
+/* POST accept join party */
 router.post('/acceptJoin/:id', async (req, res) => {
     let invite = await invites.service.query({ _id: req.params.id }, defaultInvitePopulate);
-    let isMember = await parties.service.query({ members: req.session.mongoId });
-    if (isMember) {
-        return res.json({ error: 'Leave your current party before joining a new one!' });
+    let q = await quests.service.query({ _id: invite.quest.id }, questPopulate);
+    let currentParties = await parties.service.query({ members: u._id }, {}, {}, true);
+    let duplicate;
+    q.parties.forEach(questParty => {
+        currentParties.forEach(userParty => {
+            if (questParty.id == userParty.id){
+                duplicate = true;    
+            }
+        });
+    });
+    if(duplicate){
+        return res.json({ error: inviteError + 'You are already in a party for this quest!' });
     }
-    let p = await parties.service.query({ _id: invite.party._id }, [{
-        populate: 'currentQuest', display: 'accepted',
-    }]);
+
+    let p = await parties.service.query({ _id: invite.party._id });
     if (!p || p.error) {
         return res.json({ error: 'That party no longer exists!' });
     }
-    if (p.members.length >= 12) {
-        return res.json({ error: 'That party has too many members!' });
-    }
     // if timing window > 7 days, can't invite anymore
-    if(p.currentQuest){
+    if(q.status == 'wip'){
         const timeWindow = (new Date() - p.currentQuest.accepted) / (24*3600*1000);
         if(timeWindow > 7){
             return res.json({ error: "You cannot join a party that's been running a quest for over a week!"})
@@ -323,9 +335,8 @@ router.post('/acceptJoin/:id', async (req, res) => {
     res.json(invite);
 
     await parties.service.update(invite.party.id, { $push: { members: req.session.mongoId } });
-    await users.service.update(req.session.mongoId, { currentParty: invite.party.id });
     await updatePartyRank(p._id);
-    logs.service.create(req.session.mongoId, `joined the party "${p.name}"`, p._id, 'party');
+    logs.service.create(req.session.mongoId, `joined a party for quest ${q.name}`, p._id, 'party');
     notifications.service.createPartyNotification(
         p.id,
         `accepted the invite to join your party`,

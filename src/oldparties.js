@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import PartyPage from './pages/PartyPage.vue';
+import OldPartyPage from './pages/OldPartyPage.vue';
 
 $(document).ready(function() {
     $("body").tooltip({ selector: '[data-toggle=tooltip]', trigger: 'hover', });
@@ -10,6 +10,6 @@ $(document).ready(function() {
 new Vue({
     el: '#app',
     components: {
-        PartyPage,
+        OldPartyPage,
     },
 });

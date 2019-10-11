@@ -229,11 +229,6 @@
                             </tbody>
                         </table>
                         <div class="col-md-6">
-                            <p class="text-shadow">
-                                Party:
-                                <span v-if="user.currentParty">{{ user.currentParty.name }}</span>
-                                <span v-else><i>none</i></span>
-                            </p>
                             <p
                                 class="text-shadow"
                                 data-toggle="tooltip"

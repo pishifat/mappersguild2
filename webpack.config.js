@@ -5,15 +5,16 @@ module.exports = {
     entry: {
         maps: './src/maps.js',
         mapsarchive: './src/mapsarchive.js',
-        quests: './src/quests.js',
-        questsarchive: './src/questsarchive.js',
-        parties: './src/parties.js',
         users: './src/users.js',
         notifications: './src/notifications.js',
         admin: './src/admin.js',
         artists: './src/artists.js',
-        new: './src/new.js',
+        quests: './src/quests.js',
         //notificationsComponent: './src/notificationsComponent.js', // Whenever need to rebuild the notif thing at bottom
+        oldquests: './src/oldquests.js',
+        oldquestsarchive: './src/oldquestsarchive.js',
+        oldparties: './src/oldparties.js',
+        
     },
     output: {
         filename: '[name].js',

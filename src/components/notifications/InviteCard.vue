@@ -11,7 +11,7 @@
                     <span v-else>{{invite.map.song.artist}} - {{invite.map.song.title}}</span>
                     <a href="#" class="icon-valid" @click.prevent="selectBeatmap()" :data-user="invite.map.id" data-toggle="modal" data-target="#limitedEditBeatmap"><i class="far fa-window-maximize"></i></a>
                 </span>
-                <span v-if="invite.party">"{{invite.party.name}}" <a href="#" class="icon-valid" @click.prevent="selectParty()" :data-user="invite.party.id" data-toggle="modal" data-target="#limitedEditParty"><i class="far fa-window-maximize"></i></a></span>
+                <span v-if="invite.party">for quest "{{invite.quest.name}}" <a href="#" class="icon-valid" @click.prevent="selectParty()" :data-user="invite.party.id" data-toggle="modal" data-target="#limitedEditParty"><i class="far fa-window-maximize"></i></a></span>
             </p>
         </div>
         <div class="card-footer notification-card-spacing mx-2">

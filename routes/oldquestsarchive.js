@@ -15,10 +15,10 @@ const defaultPopulate = [
 
 /* GET quests page. */
 router.get('/', async (req, res, next) => {
-    res.render('questsarchive', { 
-        title: 'Quests', 
+    res.render('oldquestsarchive', { 
+        title: 'old Quests', 
         subTitle: 'Completed', 
-        script: '../javascripts/questsarchive.js', 
+        script: '../javascripts/oldquestsarchive.js', 
         isQuests: true, 
         loggedInAs: req.session.osuId,
         userTotalPoints: res.locals.userRequest.totalPoints,

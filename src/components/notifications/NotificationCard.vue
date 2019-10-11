@@ -10,7 +10,7 @@
                     <span v-else>"{{notification.map.song.artist}} - {{notification.map.song.title}}"</span>
                     <a href="#" class="icon-valid" @click.prevent="selectBeatmap()" :data-user="notification.map.id" data-toggle="modal" data-target="#limitedEditBeatmap"><i class="far fa-window-maximize"></i></a>
                 </span>
-                <span v-if="notification.party">"{{notification.party.name}}" <a href="#" class="icon-valid" @click.prevent="selectParty()" :data-user="notification.party.id" data-toggle="modal" data-target="#limitedEditParty"><i class="far fa-window-maximize"></i></a></span>
+                <span v-if="notification.party">for quest "{{notification.quest.name}}" <a href="#" class="icon-valid" @click.prevent="selectParty()" :data-user="notification.party.id" data-toggle="modal" data-target="#limitedEditParty"><i class="far fa-window-maximize"></i></a></span>
             </p>
         </div>
         <div class="card-footer notification-card-spacing mx-2">

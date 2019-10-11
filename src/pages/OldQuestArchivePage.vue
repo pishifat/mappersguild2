@@ -49,7 +49,7 @@ import QuestInfo from '../components/quests/QuestInfo.vue';
 import NotificationsAccess from '../components/NotificationsAccess.vue';
 
 export default {
-    name: 'quest-archive-page',
+    name: 'old-quest-archive-page',
     components: {
         QuestCard,
         QuestInfo,

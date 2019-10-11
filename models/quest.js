@@ -17,6 +17,7 @@ var questSchema = new mongoose.Schema({
     
     accepted: { type: Date },
     deadline: { type: Date },
+    currentParty: {type: 'ObjectId', ref: 'Party'},
     completed: { type: Date },
     completedMembers: [{type: 'ObjectId', ref: 'User'}],
 
@@ -26,7 +27,7 @@ var questSchema = new mongoose.Schema({
 
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
-questSchema.virtual('assignedParty', {
+questSchema.virtual('assignedParty', { //assignedparty can be deleted soon
     ref: 'Party',
     localField: '_id',
     foreignField: 'currentQuest',

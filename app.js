@@ -15,16 +15,16 @@ const faqRouter = require('./routes/faq');
 const beatmapsRouter = require('./routes/beatmaps');
 const beatmapsArchiveRouter = require('./routes/beatmapsarchive');
 const usersRouter = require('./routes/users');
-const questsRouter = require('./routes/quests');
-const questsArchiveRouter = require('./routes/questsarchive');
-const partiesRouter = require('./routes/parties');
 const logsRouter = require('./routes/logs');
 const notificationsRouter = require('./routes/notifications');
 const adminsRouter = require('./routes/admin');
 const artistsRouter = require('./routes/artists');
-const newRouter = require('./routes/new');
-
+const questsRouter = require('./routes/quests');
 const logs = require('./models/log');
+
+const oldQuestsRouter = require('./routes/oldquests');
+const oldQuestsArchiveRouter = require('./routes/oldquestsarchive');
+const oldPartiesRouter = require('./routes/oldparties');
 
 const app = express();
 
@@ -64,14 +64,15 @@ app.use('/faq', faqRouter);
 app.use('/beatmaps', beatmapsRouter);
 app.use('/beatmapsarchive', beatmapsArchiveRouter);
 app.use('/users', usersRouter);
-app.use('/quests', questsRouter);
-app.use('/questsarchive', questsArchiveRouter);
-app.use('/parties', partiesRouter);
 app.use('/logs', logsRouter);
 app.use('/notifications', notificationsRouter);
 app.use('/admin', adminsRouter);
 app.use('/artists', artistsRouter);
-app.use('/new', newRouter);
+app.use('/quests', questsRouter);
+
+app.use('/oldquests', oldQuestsRouter);
+app.use('/oldquestsarchive', oldQuestsArchiveRouter);
+app.use('/oldparties', oldPartiesRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

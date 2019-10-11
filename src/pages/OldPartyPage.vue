@@ -85,7 +85,7 @@ import PartyInfo from '../components/parties/PartyInfo.vue';
 import NotificationsAccess from '../components/NotificationsAccess.vue';
 
 export default {
-    name: 'party-page',
+    name: 'old-party-page',
     components: {
         CreateParty,
         PartyInfo,

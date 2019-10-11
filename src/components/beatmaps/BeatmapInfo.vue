@@ -394,46 +394,53 @@
                                     <div class="col">
                                         <div>
                                             Quest
-                                            <small
-                                                class="ml-1"
+                                            <a
+                                                v-if="isHost"
+                                                href="#"
+                                                id="editLink"
+                                                :class="editQuestInput ? 'text-danger' : ''"
+                                                class="text-success small ml-1"
+                                                @click.prevent="editQuestInput ? unsetQuest() : setQuest()"
                                                 data-toggle="tooltip"
                                                 data-placement="right"
-                                                title="connect mapset to your current quest"
-                                                v-if="isHost && beatmap.status != 'Ranked'"
+                                                title="connect mapset with a quest"
                                             >
-                                                <a
-                                                    href="#"
-                                                    v-if="!beatmap.quest"
-                                                    id="editQuest"
-                                                    :class="
-                                                        fakeButton == beatmap.id + 'quest'
-                                                            ? 'fake-button-disable'
-                                                            : ''
-                                                    "
-                                                    class="text-success"
-                                                    @click.prevent="setQuest()"
-                                                >
-                                                    <i class="fas fa-plus"></i>
-                                                </a>
-                                                <a
-                                                    href="#"
-                                                    v-if="beatmap.quest"
-                                                    id="editQuest"
-                                                    :class="
-                                                        fakeButton == beatmap.id + 'quest'
-                                                            ? 'fake-button-disable'
-                                                            : ''
-                                                    "
-                                                    class="text-danger"
-                                                    @click.prevent="unsetQuest()"
-                                                >
-                                                    <i class="fas fa-minus"></i>
-                                                </a>
-                                            </small>
+                                                <i class="fas fa-edit"></i>
+                                            </a>
                                         </div>
                                         <div class="small ml-3">
                                             <span v-if="beatmap.quest">{{ beatmap.quest.name }}</span>
                                             <i v-else>none</i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" id="questInput" v-if="editQuestInput">
+                                    <div class="col">
+                                        <div class="input-group input-group-sm">
+                                            <select class="form-control form-control-sm" v-model="dropdownQuestId">
+                                                <option
+                                                    value=""
+                                                    >No quest</option
+                                                >
+                                                <template v-for="quest in userQuests">
+                                                    <option
+                                                        :key="quest.id"
+                                                        :value="quest.id"
+                                                        >{{ quest.name }}</option
+                                                    >
+                                                </template>
+                                            </select>
+                                            <div class="input-group-append">
+                                                <button
+                                                    class="btn btn-outline-info"
+                                                    @click="saveQuest($event)"
+                                                    data-toggle="tooltip"
+                                                    data-placement="top"
+                                                    title="link quest to beatmap"
+                                                >
+                                                    Save
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -718,6 +725,7 @@ export default {
             this.addCollabInput = null;
             this.removeCollabInput = null;
             this.editLinkInput = null;
+            this.editQuestInput = null;
             this.requestDiffInput = null;
             this.collabTask = null;
             this.fakeButton = null;
@@ -936,17 +944,19 @@ export default {
         },
 
         //quest
-        setQuest: async function() {
+        setQuest() {
+            axios.get('/beatmaps/findUserQuests').then(response => {
+                this.userQuests = response.data.userQuests;
+                this.editQuestInput = true;
+            });
+        },
+        unsetQuest() {
+            this.editQuestInput = null;
+        },
+        saveQuest: async function(e) {
             this.fakeButton = this.beatmap._id + 'quest';
-            const bm = await this.executePost('/beatmaps/setQuest/' + this.beatmap._id);
+            const bm = await this.executePost('/beatmaps/saveQuest/' + this.beatmap._id, { questId: this.dropdownQuestId }, e);
             if (bm) {
-                if (bm.status == 'WIP') {
-                    $(`#${bm.quest.name.split(' ').join('')}Wip`).collapse('show');
-                    $(`.non-quest-collapse-wip`).collapse();
-                } else {
-                    $(`#${bm.quest.name.split(' ').join('')}Done`).collapse('show');
-                    $(`.non-quest-collapse-done`).collapse();
-                }
                 this.$emit('update-map', bm);
                 axios.get('/beatmaps/relevantInfo').then(response => {
                     this.$parent.allQuests = response.data.allQuests;
@@ -954,24 +964,6 @@ export default {
                 });
             }
             this.fakeButton = null;
-        },
-        unsetQuest: async function() {
-            this.fakeButton = this.beatmap._id + 'quest';
-            const bm = await this.executePost('/beatmaps/unsetQuest/' + this.beatmap._id);
-            if (bm) {
-                this.$emit('update-map', bm);
-            }
-            this.fakeButton = null;
-            /* const questIndex = this.$parent.wipQuests.findIndex(q => q.id == bm.quest.id);
-			this.$parent.wipQuests[questIndex].associatedMaps.slice();
-            beatmap = bm;
-            this.$parent.info = null;
-            this.sortDiffs();
-            this.$parent.wipQuests.fin */
-            axios.get('/beatmaps/relevantInfo').then(response => {
-                this.$parent.allQuests = response.data.allQuests;
-                this.$parent.beatmaps = response.data.beatmaps;
-            });
         },
 
         //mod
@@ -1052,16 +1044,18 @@ export default {
     },
     data() {
         return {
-            inviteConfirm: null,
             addCollabInput: null,
             removeCollabInput: null,
             editLinkInput: null,
+            editQuestInput: null,
+            userQuests: null,
             requestDiffInput: null,
             collabTask: null,
             fakeButton: null,
-            info: null,
-
             requestTaskUsername: '',
+            dropdownQuestId: '',
+            info: null,
+            inviteConfirm: null,
         };
     },
 };

@@ -33,10 +33,6 @@
                 <p v-else-if="filterMode == 'mania'" class="card-text text-shadow small pl-2">
                     osu!mania points: {{ Math.round(user.maniaPoints * 10) / 10 }}
                 </p>
-                <p class="card-text text-shadow small">
-                    Party:
-                    <span>{{ user.currentParty ? user.currentParty.name : 'none' }}</span>
-                </p>
             </div>
         </div>
     </div>

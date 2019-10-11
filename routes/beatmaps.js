@@ -3,6 +3,7 @@ const beatmaps = require('../models/beatmap.js');
 const tasks = require('../models/task.js');
 const users = require('../models/user.js');
 const parties = require('../models/party.js');
+const quests = require('../models/quest.js');
 const notifications = require('../models/notification.js');
 const invites = require('../models/invite.js');
 const logs = require('../models/log.js');
@@ -177,6 +178,22 @@ router.get('/songs/:labelId', async (req, res, next) => {
         { title: -1 }
     );
     res.json(fa.songs);
+});
+
+/* GET quests for linking quest to beatmap */
+router.get('/findUserQuests/', async (req, res, next) => {
+    let p = await parties.service.query({ members: req.session.mongoId }, {}, {}, true);
+    let q = await quests.service.query({ status: 'wip' }, {}, {}, true);
+    let userQuests = [];
+    q.forEach(quest => {
+        p.forEach(party => {
+            if(quest.currentParty.toString() == party.id){
+                userQuests.push(quest);
+            }
+        });
+    });
+    
+    res.json({userQuests});
 });
 
 /* POST create new map */
@@ -610,32 +627,34 @@ router.post('/requestTask/:mapId', isValidUser, isValidBeatmap, isBeatmapHost, a
 });
 
 /* POST quest to map */
-router.post('/setQuest/:mapId', isValidBeatmap, isBeatmapHost, async (req, res) => {
-    let u = await users.service.query({ _id: req.session.mongoId });
-    let p = await parties.service.query({ _id: u.currentParty });
-    if (!p || !p.currentQuest) {
-        return res.json({ error: "You're not assigned to a quest!" });
-    }
+router.post('/saveQuest/:mapId', isValidBeatmap, isBeatmapHost, async (req, res) => {
     let b = res.locals.beatmap;
-    let invalid = false;
-    for (let i = 0; i < b.tasks.length; i++) {
-        for (let j = 0; j < b.tasks[i].mappers.length; j++) {
-            let u = await users.service.query({ _id: b.tasks[i].mappers[j]._id });
-            if (!u.currentParty || u.currentParty != p.id) {
-                invalid = true;
+    if(req.body.questId.length){
+        let q = await quests.service.query({ _id: req.body.questId}, [{ populate: 'currentParty',  display: 'members' }]);
+        let invalid = false;
+        for (let i = 0; i < b.tasks.length; i++) {
+            for (let j = 0; j < b.tasks[i].mappers.length; j++) {
+                let u = await users.service.query({ _id: b.tasks[i].mappers[j]._id });
+                if (q.currentParty.members.indexOf(u._id) < 0) {
+                    
+                    invalid = true;
+                }
             }
         }
+        if (invalid) {
+            return res.json({ error: "Some of this mapset's mappers are not assigned to your quest!" });
+        }
+    }else{
+        await beatmaps.service.update(req.params.mapId, { quest: null });
     }
-    if (invalid) {
-        return res.json({ error: "Some of this mapset's mappers are not assigned to your quest!" });
-    }
-    await beatmaps.service.update(req.params.mapId, { quest: p.currentQuest });
+    
+    await beatmaps.service.update(req.params.mapId, { quest: req.body.questId });
     b = await beatmaps.service.query({ _id: req.params.mapId }, defaultPopulate);
     res.json(b);
 
     logs.service.create(
         req.session.mongoId,
-        `linked quest to "${b.song.artist} - ${b.song.title}"`,
+        `${req.body.questId.length ? 'linked quest to' : 'unlinked quest from'} "${b.song.artist} - ${b.song.title}"`,
         b._id,
         'beatmap'
     );

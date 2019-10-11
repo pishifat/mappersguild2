@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import QuestArchivePage from './pages/QuestArchivePage.vue';
+import OldQuestPage from './pages/OldQuestPage.vue';
 
 $(document).ready(function() {
     $("body").tooltip({ selector: '[data-toggle=tooltip]', trigger: 'hover', });
@@ -10,6 +10,6 @@ $(document).ready(function() {
 new Vue({
     el: '#app',
     components: {
-        QuestArchivePage
+        OldQuestPage
     },
 });

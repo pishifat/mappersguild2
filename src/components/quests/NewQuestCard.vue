@@ -50,16 +50,30 @@
         </div>
         <!--collapsed info-->
         <div :id="'details' + quest.id" class="collapse ml-4 my-2 row bg-darker">   
+            <!--open quests-->
             <div v-if="quest.status == 'open'" class="col-sm-12">
                 <p class="sub-header text-shadow min-spacing">
-                    <button v-if="notInParty()" class="btn btn-sm btn-outline-info" @click.prevent="createParty($event)">Add party <i class="fas fa-plus small"></i></button>
+                    <button v-if="notInParty()" class="btn btn-sm btn-outline-info mb-2" @click.prevent="createParty($event)">Add party <i class="fas fa-plus small"></i></button>
                 </p>
                 <div v-for="party in quest.parties" :key="party.id">
                     <div class="row">
-                        <p class="sub-header col-sm-3 text-shadow min-spacing">
-                            <i v-if="party.lock" class="fas fa-lock small"></i>
-                            <i v-else class="fas fa-unlock small"></i>
+                        <p class="sub-header col-sm-4 text-shadow min-spacing">
                             <u><a :href="'https://osu.ppy.sh/users/' + party.leader.osuId" _target="blank">{{party.leader.username}}</a>'s party</u>
+                            ({{party.members.length}})
+                            <i v-if="party.lock" class="fas fa-lock small" data-toggle="tooltip" data-placement="top" title="party is invite-only"></i>
+                            <i v-else class="fas fa-unlock small" data-toggle="tooltip" data-placement="top" title="party is open"></i>
+                            <i 
+                                v-if="party.rank > 0" 
+                                class="fas fa-crown" 
+                                :class="party.rank == 1 ? 'text-rank-1' : party.rank == 2 ? 'text-rank-2' : 'text-rank-3'"
+                                data-toggle="tooltip"
+                                data-placement="top"
+                                :title="party.rank == 1 ? 'rank 1 party' : party.rank == 2 ? 'rank 2 party' : 'rank 3 party'"
+                                >
+                            </i>
+                            <button v-if="notInParty() && !party.lock" class="btn btn-sm btn-outline-info" @click.prevent="joinParty(party.id, $event)">Join <i class="fas fa-plus small"></i></button>
+                            <button v-if="inCurrentParty(party.members) && !party.lock && userId != party.leader.id" class="btn btn-sm btn-outline-danger" @click.prevent="leaveParty(party.id, $event)">Leave <i class="fas fa-minus small"></i></button>
+                            <button v-if="party.leader.id == userId" class="btn btn-sm btn-outline-danger mx-2" @click.prevent="deleteParty(party.id, $event)">Delete <i class="fas fa-minus small"></i></button>
                         </p>
                         <div v-if="party.leader.id == userId" class="col-sm-2 mx-2 min-spacing input-group input-group-sm">
                             <input
@@ -67,38 +81,58 @@
                                 type="text"
                                 placeholder="username..."
                                 maxlength="18"
-                                @keyup.enter="invite($event)"
+                                v-model="inviteUsername"
+                                @keyup.enter="inviteToParty(party.id, $event)"
                             />
                             <span class="input-group-append">
                                 <button
                                     class="btn btn-outline-info"
-                                    @click="invite($event)"
+                                    @click="inviteToParty(party.id, $event)"
+                                    data-toggle="tooltip"
+                                    data-placement="top"
+                                    title="invite user to party"
                                 >
                                     Invite
                                 </button>
                             </span>
                         </div>
-                        <div v-if="party.leader.id == userId" class="col-sm-2 mx-2 min-spacing input-group input-group-sm">
-                            <input
-                                class="form-control form-control-sm"
-                                type="text"
-                                placeholder="username..."
-                                id="collabMapperToAdd"
-                                @keyup.enter="invite($event)"
-                            />
-                            <span class="input-group-append">
+                        <div v-if="party.leader.id == userId" class="col-sm-3 mx-2 min-spacing input-group input-group-sm">
+                            <select class="form-control form-control-sm" v-model="dropdownUserId">
+                                <template v-for="member in party.members">
+                                    <option
+                                        :key="member.id"
+                                        :value="member.id"
+                                        v-if="member.id !== userId"
+                                        >{{ member.username }}</option
+                                    >
+                                </template>
+                            </select>
+                            <div class="input-group-append">
                                 <button
                                     class="btn btn-outline-info"
-                                    @click="invite($event)"
+                                    @click="transferPartyLeader(party.id, $event)"
+                                    data-toggle="tooltip"
+                                    data-placement="top"
+                                    title="change party leader"
                                 >
-                                    Invite
+                                    Lead
                                 </button>
-                            </span>
+                            </div>
+                            <div class="input-group-append">
+                                <button
+                                    class="btn btn-outline-info"
+                                    @click="kickPartyMember(party.id, $event)"
+                                    data-toggle="tooltip"
+                                    data-placement="top"
+                                    title="kick party member"
+                                >
+                                    Kick
+                                </button>
+                            </div>
                         </div>
-                        <div v-if="party.leader.id == userId" class="col-sm-3">
+                        <div v-if="party.leader.id == userId" class="col-sm-2">
                             <button v-if="!party.lock" class="btn btn-sm btn-outline-info mx-2" @click.prevent="togglePartyLock(party.id, party.lock, $event)">Lock <i class="fas fa-lock small"></i></button>
                             <button v-else class="btn btn-sm btn-outline-info mx-2" @click.prevent="togglePartyLock(party.id, party.lock, $event)">Unlock <i class="fas fa-unlock"></i></button>
-                            <button class="btn btn-sm btn-outline-danger mx-2" @click.prevent="deleteParty(party.id, $event)">Delete <i class="fas fa-minus small"></i></button>
                         </div>
                     </div>
                     <p class='small text-shadow min-spacing ml-3'>
@@ -109,16 +143,53 @@
                             <a :href="'https://osu.ppy.sh/users/' + member.osuId" target="_blank">
                                 {{ member.username }}
                             </a>
+                            <i 
+                                v-if="member.rank > 0"
+                                class="fas fa-crown" 
+                                :class="member.rank == 1 ? 'text-rank-1' : member.rank == 2 ? 'text-rank-2' : 'text-rank-3'"
+                                data-toggle="tooltip"
+                                data-placement="top"
+                                :title="member.rank == 1 ? 'rank 1 user' : member.rank == 2 ? 'rank 2 user' : 'rank 3 user'"
+                                >
+                            </i>
                         </li>
                     </ul>
+                    <button 
+                        v-if="party.leader.id == userId && party.rank >= quest.minRank && party.members.length >= quest.minParty && party.members.length <= quest.maxParty" 
+                        class="btn btn-sm btn-outline-success mx-2 my-2" 
+                        @click.prevent="acceptQuest(party.id, $event)"
+                    >
+                        Accept quest
+                        <i class="fas fa-check small"></i>
+                    </button>   
                 </div>
            </div>
 
-
-
-            
+            <!--wip quests-->
             <div v-if="quest.status == 'wip'" class="col-sm-6">
-                <p class="sub-header text-shadow min-spacing"><u><a :href="'https://osu.ppy.sh/users/' + quest.parties[0].leader.osuId" _target="blank">{{quest.parties[0].leader.username}}</a>'s party</u></p>
+                <p class="sub-header text-shadow min-spacing">
+                    <u><a :href="'https://osu.ppy.sh/users/' + quest.currentParty.leader.osuId" _target="blank">
+                        {{quest.currentParty.leader.username}}
+                    </a>'s party</u>
+                    ({{quest.currentParty.members.length}})
+                    <i 
+                        v-if="quest.currentParty.rank > 0" 
+                        class="fas fa-crown" 
+                        :class="quest.currentParty.rank == 1 ? 'text-rank-1' : quest.currentParty.rank == 2 ? 'text-rank-2' : 'text-rank-3'"
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        :title="quest.currentParty.rank == 1 ? 'rank 1 party' : quest.currentParty.rank == 2 ? 'rank 2 party' : 'rank 3 party'"
+                        >
+                    </i>
+                    <button 
+                        v-if="inCurrentParty(quest.currentParty.members) && userId != quest.currentParty.leader.id"
+                        class="btn btn-sm btn-outline-danger"
+                        @click.prevent="leaveParty(quest.currentParty.id, $event)"
+                    >
+                        Leave
+                        <i class="fas fa-minus small"></i>
+                    </button>
+                </p>
                 <p class='small text-shadow min-spacing ml-3'>
                     Deadline: 
                     <span class="text-white-50">{{quest.deadline.slice(0,10)}}</span>
@@ -131,13 +202,87 @@
                     Members: 
                 </p>
                 <ul class="min-spacing ml-4">
-                    <li class="text-shadow small" v-for="member in quest.parties[0].members" :key="member.id">
+                    <li class="text-shadow small" v-for="member in quest.currentParty.members" :key="member.id">
                         <a :href="'https://osu.ppy.sh/users/' + member.osuId" target="_blank">
                             {{ member.username }}
                         </a>
+                        <i 
+                            v-if="member.rank > 0"
+                            class="fas fa-crown" 
+                            :class="member.rank == 1 ? 'text-rank-1' : member.rank == 2 ? 'text-rank-2' : 'text-rank-3'"
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            :title="member.rank == 1 ? 'rank 1 user' : member.rank == 2 ? 'rank 2 user' : 'rank 3 user'"
+                            >
+                        </i>
                     </li>
                 </ul>
+                <button 
+                    v-if="quest.currentParty.leader.id == userId" 
+                    class="btn btn-sm btn-outline-danger mx-2 my-2" 
+                    @click.prevent="dropQuest(quest.currentParty.id, $event)"
+                >
+                    Drop quest
+                    <i class="fas fa-times small"></i>
+                </button>
+                <div v-if="quest.currentParty.leader.id == userId" class="col-sm-6 mx-2 min-spacing input-group input-group-sm">
+                    <input
+                        class="form-control form-control-sm"
+                        type="text"
+                        placeholder="username..."
+                        maxlength="18"
+                        v-model="inviteUsername"
+                        @keyup.enter="inviteToParty(quest.currentParty.id, $event)"
+                    />
+                    <span class="input-group-append">
+                        <button
+                            class="btn btn-outline-info"
+                            @click="inviteToParty(quest.currentParty.id, $event)"
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            title="invite user to party"
+                        >
+                            Invite
+                        </button>
+                    </span>
+                </div>
+                <div v-if="quest.currentParty.leader.id == userId" class="col-sm-6 mx-2 my-2 min-spacing input-group input-group-sm">
+                    <select class="form-control form-control-sm" v-model="dropdownUserId">
+                        <template v-for="member in quest.currentParty.members">
+                            <option
+                                :key="member.id"
+                                :value="member.id"
+                                v-if="member.id !== userId"
+                                >{{ member.username }}</option
+                            >
+                        </template>
+                    </select>
+                    <div class="input-group-append">
+                        <button
+                            class="btn btn-outline-info"
+                            @click="transferPartyLeader(quest.currentParty.id, $event)"
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            title="change party leader"
+                        >
+                            Lead
+                        </button>
+                    </div>
+                    <div class="input-group-append">
+                        <button
+                            class="btn btn-outline-info"
+                            @click="kickPartyMember(quest.currentParty.id, $event)"
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            title="kick party member"
+                        >
+                            Kick
+                        </button>
+                    </div>
+                </div>
             </div>
+                
+            <!--done quests-->
             <div v-if="quest.status == 'done'" class="col-sm-6">
                 <p class="sub-header text-shadow min-spacing"><u>Party</u></p>
                 <p class='small text-shadow min-spacing ml-3'>
@@ -148,7 +293,20 @@
                     Members: 
                 </p>
                 <ul class="min-spacing ml-4">
-                    <li class="text-shadow small" v-for="member in quest.completedMembers" :key="member.id"><a :href="'https://osu.ppy.sh/users/' + member.osuId" target="_blank">{{ member.username }}</a></li>
+                    <li class="text-shadow small" v-for="member in quest.completedMembers" :key="member.id">
+                        <a :href="'https://osu.ppy.sh/users/' + member.osuId" target="_blank">
+                            {{ member.username }}
+                        </a>
+                        <i 
+                            v-if="member.rank > 0"
+                            class="fas fa-crown" 
+                            :class="member.rank == 1 ? 'text-rank-1' : member.rank == 2 ? 'text-rank-2' : 'text-rank-3'"
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            :title="member.rank == 1 ? 'rank 1 user' : member.rank == 2 ? 'rank 2 user' : 'rank 3 user'"
+                            >
+                        </i>
+                    </li>
                 </ul>
             </div>
             <!--done or wip-->
@@ -169,6 +327,7 @@
             
             <div class="col-sm-12">
                 <p class="small text-shadow min-spacing errors">{{ info }}</p>
+                <p class="small text-shadow min-spacing confirm">{{ confirm }}</p>
             </div>
             
         </div>
@@ -185,6 +344,8 @@ export default {
     methods: {
         executePost: async function(path, data, e) {
             if (e) e.target.disabled = true;
+            if(this.info.length) this.info = '';
+            if(this.confirm.length) this.confirm = '';
 
             try {
                 const res = await axios.post(path, data);
@@ -219,37 +380,101 @@ export default {
             }
             return valid;
         },
+        inCurrentParty: function(members) {
+            let valid = false;
+            members.forEach(member => {
+                if(member.id == this.userId){
+                    valid = true;
+                }
+            });
+            return valid;
+        },
         //functionality
         createParty: async function(e) {
-            const quest = await this.executePost('/new/createParty/' + this.quest.id, {}, e);
+            const quest = await this.executePost('/quests/createParty/' + this.quest.id, {}, e);
             if (quest) {
                 this.$emit('update-quest', quest);
             }
         },
         deleteParty: async function(partyId, e) {
-            const quest = await this.executePost('/new/deleteParty/' + partyId + '/' + this.quest.id, {}, e);
-            if (quest) {
-                this.$emit('update-quest', quest);
+            var result = confirm(`Are you sure?`);
+            if (result) {
+                const quest = await this.executePost('/quests/deleteParty/' + partyId + '/' + this.quest.id, {}, e);
+                if (quest) {
+                    this.$emit('update-quest', quest);
+                }
             }
         },
         togglePartyLock: async function(partyId, lock, e) {
-            const quest = await this.executePost('/new/togglePartyLock/' + partyId + '/' + this.quest.id, { lock }, e);
+            const quest = await this.executePost('/quests/togglePartyLock/' + partyId + '/' + this.quest.id, { lock }, e);
             if (quest) {
                 this.$emit('update-quest', quest);
             }
         },
-        invite: async function(e) {
-            const success = await this.executePost('/new/invite', { user: this.inviteUsername }, e);
+        joinParty: async function(partyId, e) {
+            const quest = await this.executePost('/quests/joinParty/' + partyId + '/' + this.quest.id, {}, e);
+            if (quest) {
+                this.$emit('update-quest', quest);
+            }
+        },
+        leaveParty: async function(partyId, e) {
+            var result = confirm(`Are you sure?`);
+            if (result) {
+                const quest = await this.executePost('/quests/leaveParty/' + partyId + '/' + this.quest.id, {}, e);
+                if (quest) {
+                    this.$emit('update-quest', quest);
+                    if(quest.status == 'wip' && (quest.currentParty.members.length < quest.minParty || quest.currentParty.rank < quest.minRank)){
+                        this.dropQuest(partyId, e);
+                    }
+                }
+            }
+        },
+        inviteToParty: async function(partyId, e) {
+            const success = await this.executePost('/quests/inviteToParty/' + partyId + '/' + this.quest.id, { username: this.inviteUsername }, e);
             if (success) {
-                this.inviteConfirm = 'Invite sent!'; //this doesnt exist yet
-                this.info = '';
+                this.confirm = 'Invite sent!';
+            }
+        },
+        transferPartyLeader: async function(partyId, e) {
+            const quest = await this.executePost('/quests/transferPartyLeader/' + partyId + '/' + this.quest.id, { userId: this.dropdownUserId }, e);
+            if (quest) {
+                this.$emit('update-quest', quest);
+            }
+        },
+        kickPartyMember: async function(partyId, e) {
+            var result = confirm(`Are you sure?`);
+            if (result) {
+                const quest = await this.executePost('/quests/kickPartyMember/' + partyId + '/' + this.quest.id, { userId: this.dropdownUserId }, e);
+                if (quest) {
+                    this.$emit('update-quest', quest);
+                    if(quest.status == 'wip' && (quest.currentParty.members.length < quest.minParty || quest.currentParty.rank < quest.minRank)){
+                        this.dropQuest(partyId, e);
+                    }
+                }
+            }
+        },
+        acceptQuest: async function(partyId, e) {
+            var result = confirm(`Are you sure?`);
+            if (result) {
+                const quest = await this.executePost('/quests/acceptQuest/' + partyId + '/' + this.quest.id, {}, e);
+                if (quest) {
+                    this.$emit('update-quest', quest);
+                }
+            }
+        },
+        dropQuest: async function(partyId, e) {
+            const quest = await this.executePost('/quests/dropQuest/' + partyId + '/' + this.quest.id, {}, e);
+            if (quest) {
+                this.$emit('update-quest', quest);
             }
         },
     },
     data() {
         return {
             info: '',
+            confirm: '',
             inviteUsername: '',
+            dropdownUserId: '',
         };
     },
 }
