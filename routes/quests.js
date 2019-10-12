@@ -167,6 +167,7 @@ router.post('/inviteToParty/:partyId/:questId', async (req, res) => {
         `wants you to join their party`,
         'join',
         req.params.partyId,
+        req.params.questId,
     );
 });
 
