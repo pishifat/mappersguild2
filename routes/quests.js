@@ -24,6 +24,10 @@ const partyPopulate = [
     { populate: 'leader', display: 'username osuId' },
 ];
 
+const beatmapPopulate = [
+    { innerPopulate: 'tasks', populate: { path: 'mappers' } },
+];
+
 //updating party rank when leaving/kicking/joining
 async function updatePartyRank(id) {
     let p = await parties.service.query({ _id: id }, partyPopulate);
@@ -115,6 +119,23 @@ router.post('/leaveParty/:partyId/:questId', async (req, res) => {
             users.service.update(u._id, {penaltyPoints: (u.penaltyPoints + q.reward)});
         }
     }
+
+    if(q.associatedMaps){
+        for (let i = 0; i < q.associatedMaps.length; i++) {
+            let valid = true;
+            let b = await beatmaps.service.query({ _id: q.associatedMaps[i]._id }, beatmapPopulate);
+            b.tasks.forEach(task => {
+                task.mappers.forEach(mapper => {
+                    if(mapper.id == req.session.mongoId){
+                        valid = false;
+                    }
+                });
+            });
+            if(!valid){
+                await beatmaps.service.update(q.associatedMaps[i]._id, {quest: null});
+            }
+        }
+    }
     
 });
 
@@ -199,6 +220,23 @@ router.post('/kickPartyMember/:partyId/:questId', async (req, res) => {
         const timeWindow = (new Date() - q.accepted) / (24*3600*1000);
         if (timeWindow > 7) {
             users.service.update(u._id, {penaltyPoints: (u.penaltyPoints + q.reward)});
+        }
+    }
+
+    if(q.associatedMaps){
+        for (let i = 0; i < q.associatedMaps.length; i++) {
+            let valid = true;
+            let b = await beatmaps.service.query({ _id: q.associatedMaps[i]._id }, beatmapPopulate);
+            b.tasks.forEach(task => {
+                task.mappers.forEach(mapper => {
+                    if(mapper.id == u.id){
+                        valid = false;
+                    }
+                });
+            });
+            if(!valid){
+                await beatmaps.service.update(q.associatedMaps[i]._id, {quest: null});
+            }
         }
     }
 });
