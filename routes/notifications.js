@@ -258,7 +258,7 @@ router.post('/acceptDiff/:id', async (req, res) => {
 router.post('/acceptJoin/:id', async (req, res) => {
     let invite = await invites.service.query({ _id: req.params.id }, defaultInvitePopulate);
     let q = await quests.service.query({ _id: invite.quest.id }, questPopulate);
-    let currentParties = await parties.service.query({ members: u._id }, {}, {}, true);
+    let currentParties = await parties.service.query({ members: req.session.mongoId }, {}, {}, true);
     let duplicate;
     q.parties.forEach(questParty => {
         currentParties.forEach(userParty => {
