@@ -24,10 +24,6 @@ var userSchema = new mongoose.Schema({
     legacyPoints: { type: Number, default: 0 },
     penaltyPoints: { type: Number, default: 0 },
     completedQuests: [{type: 'ObjectId', ref: 'Quest'}],
-
-    //legacy party thing, delete soon
-    currentParty: { type: 'ObjectId', ref: 'Party' },
-    
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 userSchema.virtual('totalPoints').get(function() {

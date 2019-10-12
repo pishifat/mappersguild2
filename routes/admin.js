@@ -26,6 +26,7 @@ router.use(async (req, res, next) => {
     }
 });
 
+//population
 const defaultMapPopulate = [
     { populate: 'host',  display: '_id osuId username' },
     { populate: 'bns',  display: '_id osuId username' },
@@ -36,13 +37,14 @@ const defaultMapPopulate = [
 ];
 const defaultMapSort = {status: 1, mode: 1};
 
-const defaultPartyPopulate = [
-    { populate: 'leader',  display: 'username osuId' },
-    { populate: 'members',  display: 'username' }
+const questPopulate = [
+    { innerPopulate: 'parties',  populate: { path: 'members leader' } },
+    { innerPopulate: 'currentParty',  populate: { path: 'members leader' } },
+    { populate: 'completedMembers',  display: 'username osuId rank' },
+    { innerPopulate: 'associatedMaps',  populate: { path: 'song host' } }
 ];
 
 const defaultUserPopulate = [
-    { populate: 'currentParty',  display: 'name' },
     { populate: 'completedQuests',  display: 'name' },
 ];
 
@@ -58,7 +60,6 @@ router.get('/', async (req, res, next) => {
             script: '../javascripts/admin.js', 
             loggedInAs: req.session.osuId,
             userTotalPoints: res.locals.userRequest.totalPoints,
-            userParty: res.locals.userRequest.currentParty ? res.locals.userRequest.currentParty.name : null,
         });
     }
 });
@@ -110,9 +111,8 @@ router.get('/relevantInfo/', async (req, res) => {
             }
         }
                 
-        const [q, p, u, fa, l] = await Promise.all([
+        const [q, u, fa, l] = await Promise.all([
             quests.service.query({}, {}, {status: 1, name: 1}, true), 
-            parties.service.query({}, defaultPartyPopulate, {name: 1}, true), 
             users.service.query({}, defaultUserPopulate, {username: 1}, true), 
             featuredArtists.service.query({}, defaultArtistPopulate, {artist: 1}, true),             
             logs.service.query(
@@ -124,7 +124,7 @@ router.get('/relevantInfo/', async (req, res) => {
             ),
         ]);
     
-        res.json({b: b, q: q, p: p, u: u, fa: fa, l: l});   
+        res.json({b: b, q: q, u: u, fa: fa, l: l});   
     }
 });
 
@@ -280,20 +280,6 @@ router.post('/removeModder/:id', async (req, res) => {
     }
 });
 
-
-/* POST remove BN */
-router.post('/removeNominator/:id', async (req, res) => {
-    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
-        let u = await users.service.query({_id: req.body.userId});
-        let b = await beatmaps.service.update(req.params.id, { $pull: { bns: req.body.userId } });
-
-        b = await beatmaps.service.query({_id: req.params.id}, defaultMapPopulate);
-        res.json(b);
-        
-        logs.service.create(req.session.mongoId, `removed "${u.username}" from Nominators on "${b.song.artist} - ${b.song.title}"`, req.body.id, 'beatmap' );
-    }
-});
-
 /* POST update map url */
 router.post('/updateMapUrl/:id', async (req, res) => {
     if (req.session.osuId == 3178418 || req.session.osuId == 1052994 || req.session.osuId == 1541323) {
@@ -358,69 +344,55 @@ router.post('/createQuest', async (req, res) => {
 /* POST force drop quest */
 router.post('/forceDropQuest/:id', async (req, res) => {
     if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
-        let party = await parties.service.query({currentQuest: req.params.id});
-        let quest = await quests.service.query({_id: req.params.id});
-        if(quest.status == "wip"){
-            await quests.service.update(req.params.id, {status: "open"});
+        let q = await quests.service.query({_id: req.params.id}, questPopulate);
+        if(q.status == "wip"){
+            await quests.service.update(req.params.id, {
+                status: "open",
+                currentParty: null,
+            });
         }
-        await parties.service.update(party._id, {currentQuest: undefined});
-
-        for (let i = 0; i < party.members.length; i++) {
-            let member = await users.service.query({_id: party.members[i]});
-            await users.service.update(party.members[i]._id, {penaltyPoints: (member.penaltyPoints + quest.reward)});
+        
+        for (let i = 0; i < q.currentParty.members.length; i++) {
+            let member = await users.service.query({_id: q.currentParty.members[i]});
+            await users.service.update(member._id, {penaltyPoints: (member.penaltyPoints + q.reward)});
         }
 
         let maps = await beatmaps.service.query({}, {}, {}, true);
         for (let i = 0; i < maps.length; i++) {
-            if(maps[i].quest && maps[i].quest.toString() == quest._id.toString()){
+            if(maps[i].quest && maps[i].quest.toString() == q._id.toString()){
                 beatmaps.service.update(maps[i]._id, {quest: undefined});
             }
         }
-        quest = await quests.service.query({_id: req.params.id});
-        logs.service.create(req.session.mongoId, `forced party "${party.name}" to drop quest "${quest.name}"`, req.params.id, 'quest' );
-        
-        res.json(quest);
+        await parties.service.remove(q.currentParty.id);
+
+        q = await quests.service.query({_id: req.params.id}, questPopulate);
+        res.json(q);
+
+        logs.service.create(req.session.mongoId, `forced party to drop quest "${q.name}"`, req.params.id, 'quest' );
     }
 });
 
 /* POST mark quest as complete */
 router.post('/completeQuest/:id', async (req, res) => {
     if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
-        let populate = [
-            { populate: 'currentQuest', display: 'name art' },
-            { populate: 'leader',  display: 'osuId' },
-            { populate: 'members',  display: 'username' }
-        ];
-        
-        let party = await parties.service.query({currentQuest: req.params.id}, populate);
-        let quest = await quests.service.query({_id: req.params.id});
+        let quest = await quests.service.query({_id: req.params.id}, questPopulate);
 
         if(quest.status == "wip"){
-            await quests.service.update(quest._id, {status: "done"});
-            await quests.service.update(quest._id, {completedMembers: party.members});
-            await quests.service.update(quest._id, {completed: new Date()});
-            await parties.service.update(party._id, {currentQuest: undefined});
-            
-            quest = await quests.service.query({_id: req.params.id});
-            res.json(quest);
-
-            logs.service.create(req.session.mongoId, `marked quest "${quest.name}" as complete`, req.params.id, 'quest' );
-
             //webhook
             let memberList = "";
-            for (let i = 0; i < party.members.length; i++) {
-                memberList += party.members[i].username
-                if(i != party.members.length - 1){
+            for (let i = 0; i < quest.currentParty.members.length; i++) {
+                memberList += quest.currentParty.members[i].username
+                if(i != quest.currentParty.members.length - 1){
                     memberList += ", ";
                 }
             }
             api.webhookPost([{
                 author: {
-                    name: `Party "${party.name}" completed quest: "${quest.name}"`,
+                    name: `Party completed quest: "${quest.name}"`,
                     url: `https://mappersguild.com/quests`,
-                    icon_url: `https://a.ppy.sh/${party.leader.osuId}`,
+                    icon_url: `https://a.ppy.sh/${quest.currentParty.leader.osuId}`,
                 },
-                color: '11403103',
+                color: '3138274',
                 thumbnail: {
                     url: `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`
                 },
@@ -429,6 +401,20 @@ router.post('/completeQuest/:id', async (req, res) => {
                     value: memberList
                 }]
             }]);
+
+            //quest changes
+            await parties.service.remove(quest.currentParty.id);
+            await quests.service.update(quest._id, {
+                status: "done",
+                currentParty: null,
+                completedMembers: quest.currentParty.members,
+                completed: new Date()
+            });
+            
+            quest = await quests.service.query({_id: req.params.id}, questPopulate);
+            res.json(quest);
+
+            logs.service.create(req.session.mongoId, `marked quest "${quest.name}" as complete`, req.params.id, 'quest' );            
         }
     }
 });
@@ -455,16 +441,6 @@ router.post('/unhideQuest/:id', async (req, res) => {
     }
 });
 
-/* POST add content to quest */
-router.post('/addContent/:id', async (req, res) => {
-    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
-        let content = { artist: req.body.artist, text: req.body.text };
-        await quests.service.update(req.params.id, { $push: { content: content } });
-        let quest = await quests.service.query({_id: req.params.id});
-        res.json(quest);
-    }
-});
-
 /* POST duplicate quest */
 router.post('/duplicateQuest/:id', async (req, res) => {
     if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
@@ -472,16 +448,13 @@ router.post('/duplicateQuest/:id', async (req, res) => {
         let body = {name: req.body.name,
                     reward: q.reward,
                     descriptionMain: q.descriptionMain,
-                    descriptionFluff: q.descriptionFluff,
                     timeframe: q.timeframe,
                     minParty: q.minParty,
                     maxParty: q.maxParty,
                     minRank: q.minRank,
                     art: q.art,
                     medal: q.medal,
-                    color: q.color,
-                    artist: q.content[0].artist,
-                    text: q.content[0].text}
+                    color: q.color}
         let newQuest = await quests.service.create(body);
         res.json(newQuest);
     }
@@ -513,142 +486,6 @@ router.post('/deleteQuest/:id', async (req, res) => {
         }
     }
 });
-
-
-//party
-
-/* POST update party ranks */
-router.post('/updatePartyRanks', async (req, res) => {
-    if(req.session.osuId == 3178418 || req.session.osuId == 1052994){
-        const populate = [{ populate: 'members',  display: 'rank' }];
-        let p = await parties.service.query({}, populate, {}, true);
-        for (let i = 0; i < p.length; i++) {
-            var rank = 0;
-            p[i].members.forEach(user => {
-                rank+= user.rank;
-            });
-            await parties.service.update(p[i]._id, {rank: Math.round(rank / p[i].members.length)});
-            
-        }
-
-        //logs.service.create(req.session.mongoId, `updated party ranks`, null, 'party' );
-        res.json("party ranks updated");
-        
-    }
-});
-
-
-/* POST rename party */
-router.post('/renameParty/:id', async (req, res) => {
-    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
-        let p = await parties.service.update(req.params.id, {name: req.body.name});
-        p = await parties.service.query({_id: req.params.id}, defaultPartyPopulate)
-
-        logs.service.create(req.session.mongoId, `renamed party from "${p.name}" to "${req.body.name}"`, req.params.id, 'party' );
-        res.json(p);
-    }
-});
-
-/* POST remove member from party */
-router.post('/removeMember/:id', async (req, res) => {
-    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
-        let party = await parties.service.query({_id: req.params.id}, defaultPartyPopulate);
-        let user = await users.service.query({_id: req.body.userId});
-        if(user._id.toString() == party.leader._id.toString()){
-            return res.json(party);
-        }
-
-        if(party.currentQuest){
-            const quest = await quests.service.query({_id: party.currentQuest});
-            const questMaps = await beatmaps.service.query({quest: party.currentQuest}, [{ innerPopulate: 'tasks', populate: { path: 'mappers' } }], {}, true);
-            
-            if(quest.minParty == party.members.length){
-                await Promise.all([
-                    quests.service.update(quest._id, {assignedParty: undefined}),
-                    quests.service.update(quest._id, {status: "open"}),
-                    parties.service.update(party._id, {currentQuest: undefined})
-                ]);
-                for (let i = 0; i < party.members.length; i++) {
-                    let u = await users.service.query({_id: party.members[i]._id});
-                    let penalty = (u.penaltyPoints + quest.reward);
-                    await users.service.update(u._id, {penaltyPoints: penalty});
-                }
-                questMaps.forEach(map => {
-                    beatmaps.service.update(map._id, {quest: undefined}); 
-                });
-            }else{
-                let penalty = (user.penaltyPoints + quest.reward);
-                await users.service.update(user._id, {penaltyPoints: penalty});
-                questMaps.forEach(map => {
-                    let invalid = false;
-                    map.tasks.forEach(task => {
-                        task.mappers.forEach(mapper => {
-                            if(mapper.id == user.id){
-                                invalid = true;
-                            }
-                        });
-                    });
-                    if(invalid){
-                        beatmaps.service.update(map._id, {quest: undefined});
-                    }
-                });
-            }
-        }
-        await Promise.all([
-            parties.service.update(party._id, {$pull: {members: user._id}}),
-            users.service.update(user._id, {currentParty: undefined})
-        ]);
-
-        party = await parties.service.query({_id: req.params.id}, defaultPartyPopulate);
-
-        logs.service.create(req.session.mongoId, `removed "${user.username}" from party "${party.name}"`, req.params.id, 'party' );
-        res.json(party);
-    }
-});
-
-/* POST transfer leader of party */
-router.post('/transferLeader/:id', async (req, res) => {
-    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
-        let p = await parties.service.update(req.params.id, {leader: req.body.userId});
-        p = await parties.service.query({_id: req.params.id}, defaultPartyPopulate)
-
-        logs.service.create(req.session.mongoId, `transferred party leader to "${p.leader.username}" in party "${p.name}"`, req.params.id, 'party' );
-        res.json(p);
-    }
-});
-
-/* POST edit party banner */
-router.post('/editBanner/:id', async (req, res) => {
-    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
-        let p = await parties.service.update(req.params.id, {art: req.body.banner});
-        p = await parties.service.query({_id: req.params.id}, defaultPartyPopulate)
-
-        logs.service.create(req.session.mongoId, `edited banner of party "${p.name}"`, req.params.id, 'party' );
-        res.json(p);
-    }
-});
-
-/* POST delete party */
-router.post('/deleteParty/:id', async (req, res) => {
-    if (req.session.osuId == 3178418 || req.session.osuId == 1052994) {
-        let party = await parties.service.query({_id: req.params.id});
-        if(party.currentQuest){
-            await quests.service.update(party.currentQuest, {assignedParty: undefined});
-            await quests.service.update(party.currentQuest, {status: "open"});
-        }
-
-        party.members.forEach(member => {
-            users.service.update(member._id, {currentParty: undefined});
-        });
-        
-        await parties.service.remove(req.params.id);
-        logs.service.create(req.session.mongoId, `deleted party "${party.name}"`, req.params.id, 'party' );
-        res.json("Party deleted");
-    }
-});
-
-
-
 
 //user
 

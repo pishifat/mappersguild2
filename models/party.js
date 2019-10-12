@@ -7,14 +7,6 @@ const partySchema = new mongoose.Schema({
     members: [{ type: 'ObjectId', ref: 'User'}],
     lock: { type: Boolean, default: false },
     rank: { type: Number, default: 0 },
-    isActive: { type: Boolean, default: true },
-    
-    //used for legacy parties
-    currentQuest: { type: 'ObjectId', ref: 'Quest' },
-    name: { type: String },
-    art: { type: Number },
-    mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania'], default: 'osu' }
-
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const Party = mongoose.model('Party', partySchema);
@@ -77,22 +69,6 @@ class PartyService
             return { error: error._message };
         }
     }
-
-
-
-    //soon to be trashed, but is used in index functions
-
-    async getByLeader(osuId) {
-        let user = await User.service.query({osuId: osuId});
-        let party = await Party.findOne({ leader: user }).populate('currentQuest', '_id name').exec();
-        if (party) {
-            return party;
-        } else {
-            return undefined;
-        }
-    }
-
-
 }
 
 var service = new PartyService();

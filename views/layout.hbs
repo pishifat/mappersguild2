@@ -63,9 +63,6 @@
             </a>
             <div class="dropdown-menu dropdown-menu-right">
                 <span class="dropdown-item">Total points: {{userTotalPoints}}</span>
-                {{#if userParty}}
-                <span class="dropdown-item">Current party: {{userParty}}</span>
-                {{/if}}
                 <div class="dropdown-divider"></div>
                 <form action="/logout" method="GET">
                     <button class="btn btn-sm btn-outline-danger float-right mr-2" type="submit">Log Out</button>

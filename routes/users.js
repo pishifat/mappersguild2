@@ -8,7 +8,6 @@ const router = express.Router();
 router.use(api.isLoggedIn);
 
 const defaultPopulate = [
-    { populate: 'currentParty', display: 'name' },
     { populate: 'completedQuests', display: 'name completed' },
 ];
 const mapPopulate = [
@@ -25,7 +24,6 @@ router.get('/', async (req, res, next) => {
         isUsers: true,
         loggedInAs: req.session.osuId,
         userTotalPoints: res.locals.userRequest.totalPoints,
-        userParty: res.locals.userRequest.currentParty ? res.locals.userRequest.currentParty.name : null,
     });
 });
 

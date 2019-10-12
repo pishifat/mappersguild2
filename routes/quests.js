@@ -38,13 +38,11 @@ async function updatePartyRank(id) {
 /* GET quests page */
 router.get('/', async (req, res, next) => {
     res.render('quests', { 
-        title: 'title', 
-        subTitle: 'subtitle', 
+        title: 'Quests',
         script: '../javascripts/quests.js', 
         isQuests: true, 
         loggedInAs: req.session.osuId, 
         userTotalPoints: res.locals.userRequest.totalPoints,
-        userParty: res.locals.userRequest.currentParty ? res.locals.userRequest.currentParty.name : null,
     });
 });
 
@@ -109,7 +107,16 @@ router.post('/leaveParty/:partyId/:questId', async (req, res) => {
     let q = await quests.service.query({ _id: req.params.questId }, questPopulate);
     res.json(q);
 
-    logs.service.create(req.session.mongoId, `joined party for ${q.name}`, p._id, 'party');
+    logs.service.create(req.session.mongoId, `left party for ${q.name}`, p._id, 'party');
+
+    if(q.status == 'wip'){
+        const timeWindow = (new Date() - q.accepted) / (24*3600*1000);
+        if (timeWindow > 7) {
+            let u = await users.service.query({ _id: req.session.mongoId });
+            users.service.update(u._id, {penaltyPoints: (u.penaltyPoints + q.reward)});
+        }
+    }
+    
 });
 
 /* POST invite to party */
@@ -173,7 +180,7 @@ router.post('/transferPartyLeader/:partyId/:questId', async (req, res) => {
     let q = await quests.service.query({ _id: req.params.questId }, questPopulate);
     res.json(q);
 
-    logs.service.create(req.session.mongoId, `transfer party leader in party for ${q.name}`, p._id, 'party');
+    logs.service.create(req.session.mongoId, `transferred party leader in party for ${q.name}`, p._id, 'party');
 });
 
 /* POST kick party member */
@@ -186,7 +193,14 @@ router.post('/kickPartyMember/:partyId/:questId', async (req, res) => {
     let q = await quests.service.query({ _id: req.params.questId }, questPopulate);
     res.json(q);
 
-    logs.service.create(req.session.mongoId, `transfer party leader in party for ${q.name}`, p._id, 'party');
+    logs.service.create(req.session.mongoId, `kicked member from party for ${q.name}`, p._id, 'party');
+
+    if(q.status == 'wip'){
+        const timeWindow = (new Date() - q.accepted) / (24*3600*1000);
+        if (timeWindow > 7) {
+            users.service.update(u._id, {penaltyPoints: (u.penaltyPoints + q.reward)});
+        }
+    }
 });
 
 /* POST accepts quest. */
@@ -268,10 +282,13 @@ router.post('/dropQuest/:partyId/:questId', async (req, res) => {
     
     q = await quests.service.query({ _id: req.params.questId }, questPopulate);
     res.json(q);
-    
-    for (let i = 0; i < p.members.length; i++) {
-        let u = await users.service.query({_id: p.members[i].id});
-        users.service.update(p.members[i]._id, {penaltyPoints: (u.penaltyPoints + q.reward)});
+
+    const timeWindow = (new Date() - q.accepted) / (24*3600*1000);
+    if (timeWindow > 7) {
+        for (let i = 0; i < p.members.length; i++) {
+            let u = await users.service.query({_id: p.members[i].id});
+            users.service.update(p.members[i]._id, {penaltyPoints: (u.penaltyPoints + q.reward)});
+        }
     }
 
     logs.service.create(req.session.mongoId, `party dropped quest "${q.name}"`, q._id, 'quest' );

@@ -25,7 +25,6 @@ router.get('/', async function(req, res) {
         isMaps: true,
         loggedInAs: req.session.osuId,
         userTotalPoints: res.locals.userRequest.totalPoints,
-        userParty: res.locals.userRequest.currentParty ? res.locals.userRequest.currentParty.name : null,
     });
 });
 

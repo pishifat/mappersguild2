@@ -20,19 +20,8 @@ var questSchema = new mongoose.Schema({
     currentParty: {type: 'ObjectId', ref: 'Party'},
     completed: { type: Date },
     completedMembers: [{type: 'ObjectId', ref: 'User'}],
-
-    //legacy quest info
-    descriptionFluff: { type: String, required: true},
-    content: [{ type: Object }],
-
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
-questSchema.virtual('assignedParty', { //assignedparty can be deleted soon
-    ref: 'Party',
-    localField: '_id',
-    foreignField: 'currentQuest',
-    justOne: true
-});
 
 questSchema.virtual('associatedMaps', {
     ref: 'Beatmap',
@@ -92,7 +81,6 @@ class QuestService
             name: body.name, 
             reward: body.reward, 
             descriptionMain: body.descriptionMain, 
-            descriptionFluff: body.descriptionFluff, 
             timeframe: body.timeframe, 
             minParty: body.minParty, 
             maxParty: body.maxParty, 
@@ -100,7 +88,6 @@ class QuestService
             art: body.art, 
             medal: body.medal,
             color: body.color,
-            content: {artist: body.artist, text: body.text}
         });
         try {
             await quest.save();

@@ -16,9 +16,6 @@
                 </p>
                 <p class="text-shadow">Leader: <a :href="'https://osu.ppy.sh/users/' + party.leader.osuId" target="_blank">{{ party.leader.username }}</a></p>
                 <p class="text-shadow">Rank: {{ party.rank }}</p>
-                <p class="text-shadow">
-                    Current Quest: <span :class="party.id + '-quest'">{{ party.currentQuest ? party.currentQuest.name : 'none' }}</span>
-                </p>
             </div>
         </div>
     </div>

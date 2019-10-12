@@ -23,7 +23,6 @@ router.get('/', async (req, res, next) => {
         isIndex: true, 
         loggedInAs: req.session.osuId, 
         userTotalPoints: res.locals.userRequest.totalPoints,
-        userParty: res.locals.userRequest.currentParty ? res.locals.userRequest.currentParty.name : null, 
     });
 });
 

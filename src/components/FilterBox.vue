@@ -72,7 +72,7 @@
                             @click.prevent="$emit('update:filterQuest', quest.id); checkSorted();"
                         >
                             <img
-                                :src="`https://assets.ppy.sh/artists/${quest.art}/cover.jpg`"
+                                :src="quest.art ? `https://assets.ppy.sh/artists/${quest.art}/cover.jpg` : `../images/no-art-icon.png`"
                                 data-toggle="tooltip"
                                 :title="quest.name"
                                 class="quest rounded-circle unsorted-img"

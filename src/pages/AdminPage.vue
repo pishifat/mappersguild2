@@ -5,7 +5,6 @@
     <ol>
         <li><a href="#beatmaps">Beatmaps</a></li>
         <li><a href="#quests">Quests</a></li>
-        <li><a href="#parties">Parties</a></li>
         <li><a href="#users">Users</a></li>
         <li><a href="#featuredArtists">Featured Artists</a></li>
         <li><a href="#errors">Errors</a></li>
@@ -14,7 +13,7 @@
 </div>
 <div class="row">
     <div class="col-md-12">
-        <h2 id="beatmaps">Beatmaps <button class="btn btn-mg btn-sm temp float-right" @click="updateDiffModes($event)">update diff modes</button></h2> 
+        <h2 id="beatmaps">Beatmaps</h2> 
         <table class="table table-sm table-dark table-hover">
             <thead>
                 <th scope="col">id</th>
@@ -61,24 +60,7 @@
                 </tr>
             </tbody>
         </table>
-        <h2 id="parties">Parties <button class="btn btn-mg btn-sm temp float-right" @click="updatePartyRanks($event)">refresh party ranks</button></h2>
-        <table class="table table-sm table-dark table-hover">
-            <thead>
-                <th scope="col">id</th>
-                <th scope="col">name</th>
-                <th scope="col">leader</th>
-                <th scope="col">edit</th>
-            </thead>
-            <tbody>
-                <tr v-for="party in parties" :key="party.id">
-                    <td scope="row">{{party._id}}</td>
-                    <td scope="row">{{party.name}}</td>
-                    <td scope="row"><a :href="'https://osu.ppy.sh/users/' + party.leader.osuId" target="_blank">{{party.leader.username}}</a></td>
-                    <td scope="row" data-toggle="modal" data-target="#editParty" :data-partyid="party.id" @click.prevent="extendedParty(party)"><a href="#">edit</a></td>
-                </tr>
-            </tbody>
-        </table>
-        <p class="float-right small">(only refresh points after marking maps as ranked)</p>
+        
         <h2 id="users">Users 
             <button class="btn btn-mg btn-sm temp float-right" @click="updateUserPoints($event);">refresh user points</button>
         </h2>
@@ -181,17 +163,6 @@
                             <option v-for="modder in selectedMap.modders" :value="modder.id" :key="modder.id">{{modder.username}}</option>
                         </select>
                     </div>
-
-                    <hr>
-
-                    <div class="input-group input-group-sm mb-3">
-                        <div class="input-group-prepend">
-                            <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-outline-danger" @click="removeNominator(selectedMap.id, $event)">remove bn</button>
-                        </div>
-                        <select class="form-control form-control-sm" id="removeNominatorSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 0 100px 100px 0">
-                            <option v-for="bn in selectedMap.bns" :value="bn.id" :key="bn.id">{{bn.username}}</option>
-                        </select>
-                    </div>
                     <hr>
                     <div>
                         <a v-if="selectedMap.url" :href="selectedMap.url" target="_blank">{{selectedMap.url}}</a>
@@ -223,7 +194,7 @@
 <!--quest-->
 
 <div id="createQuest" class="modal fade" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content bg-dark">
             <div class="modal-header text-dark bg-rest">
                 <h5 class="modal-title">Create quest</h5>
@@ -237,7 +208,6 @@
                         <label class="col-sm-4" for="questName"> Quest name:</label><input class="col-sm-8 form-control" type="text" id="questName">
                         <label class="col-sm-4" for="questReward"> Reward:</label><input class="col-sm-8 form-control" type="text" id="questReward">
                         <label class="col-sm-4" for="questDescriptionMain"> Objective:</label><input class="col-sm-8 form-control" type="text" id="questDescriptionMain">
-                        <label class="col-sm-4" for="questDescriptionFluff"> Flavor text:</label><input class="col-sm-8 form-control" type="text" id="questDescriptionFluff">
                         <label class="col-sm-4" for="questTimeframe"> Timeframe:</label><input class="col-sm-8 form-control" type="text" id="questTimeframe">
                         <label class="col-sm-4" for="questMinParty"> Min Party:</label><input class="col-sm-8 form-control" type="text" id="questMinParty">
                         <label class="col-sm-4" for="questMaxParty"> Max Party:</label><input class="col-sm-8 form-control" type="text" id="questMaxParty">
@@ -245,9 +215,6 @@
                         <label class="col-sm-4" for="art"> FA id:</label><input class="col-sm-8 form-control" type="text" id="art">
                         <label class="col-sm-4" for="medal"> Medal?:</label><input class="col-sm-8 form-control" type="text" id="medal">
                         <label class="col-sm-4" for="color"> color (#6digithex):</label><input class="col-sm-8 form-control" type="text" id="color">
-                        <p>content (add the rest after quest is created):</p>
-                        <label class="col-sm-4" for="artist">artist:</label><input class="col-sm-8 form-control" type="text" id="artist">
-                        <label class="col-sm-4" for="text">text:</label><input class="col-sm-8 form-control" type="text" id="text">
                     </div>
                     <p id="errors"></p>
                 </div>
@@ -261,7 +228,7 @@
 </div>
 
 <div id="editQuest" class="modal fade" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content bg-dark" v-if="selectedQuest">
             <div class="modal-header text-dark" :class="'bg-' + selectedQuest.status">
                 <h5 class="modal-title">{{selectedQuest.name}}</h5>
@@ -300,75 +267,6 @@
                         <button type="button" class="btn btn-outline-danger btn-sm" @click="deleteQuest(selectedQuest.id, $event)">delete (for open quests)</button>
                     </div>
                     <hr>
-                    <div class="form-group row">
-                        <label class="col-sm-4" for="nextArtist">nextArtist:</label><input class="col-sm-8 form-control" type="text" id="nextArtist">
-                        <label class="col-sm-4" for="nextText">nextText:</label><input class="col-sm-8 form-control" type="text" id="nextText">
-                        <button type="button" class="btn btn-mg btn-sm" @click="addContent(selectedQuest.id, $event)">add applicable song/album/artist</button>
-                    </div>
-                    <p id="errors"></p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!--party-->
-
-<div id="editParty" class="modal fade" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content bg-dark" v-if="selectedParty">
-            <div class="modal-header text-dark bg-rest">
-                <h5 class="modal-title">{{selectedParty.name}}</h5>
-                <button type="button" class="close" data-dismiss="modal">
-                <span>&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="container">
-                    <div class="input-group input-group-sm mb-3">
-                        <div class="input-group-prepend">
-                            <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg" type="submit" @click="renameParty(selectedParty.id, $event)">save name</button>
-                        </div>
-                            <input class="form-control form-control-sm" type="text" placeholder="new name" id="newName" style="border-radius: 0 100px 100px 0" />
-                    </div>
-
-                    <hr>
-
-                    <div class="input-group input-group-sm mb-3">
-                        <div class="input-group-prepend">
-                            <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-outline-danger" type="submit" @click="removeMember(selectedParty.id, $event)">remove member</button>
-                        </div>
-                        <select class="form-control form-control-sm" id="removeMemberSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 0 100px 100px 0">
-                            <option v-for="member in selectedParty.members" :value="member.id" :key="member.id">{{member.username}}</option>
-                        </select>
-                    </div>
-
-                    <hr>
-
-                    <div class="input-group input-group-sm mb-3">
-                        <div class="input-group-prepend">
-                            <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg" type="submit" @click="transferLeader(selectedParty.id, $event)">transfer leader</button>
-                        </div>
-                        <select class="form-control form-control-sm" id="transferLeaderSelection" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 0 100px 100px 0">
-                            <option v-for="member in selectedParty.members" :value="member.id" :key="member.id">{{member.username}}</option>
-                        </select>
-                    </div>
-
-                    <hr>
-
-                    <div class="input-group input-group-sm mb-3">
-                        <div class="input-group-prepend">
-                            <button style="border-radius: 100px 0 0 100px;" class="rounded-circle-left btn btn-mg" type="submit" @click="editBanner(selectedParty.id, $event)">edit banner</button>
-                        </div>
-                        <input class="form-control form-control-sm" type="text" placeholder="map id banner" id="bannerInput" style="border-radius: 0 100px 100px 0" />
-                    </div>
-
-                    <hr>
-
-                    <div class="input-group input-group-sm mb-3">
-                        <button class="rounded-circle-left btn btn-outline-danger btn-sm" type="submit" @click="deleteParty(selectedParty.id, $event)">delete party</button>
-                    </div>
-                    
                     <p id="errors"></p>
                 </div>
             </div>
@@ -528,9 +426,6 @@ export default {
         extendedQuest: function (quest) {
             this.selectedQuest = quest;
         },
-        extendedParty: function (party) {
-            this.selectedParty = party;
-        },
         extendedUser: function (user) {
             this.selectedUser = user;
         },
@@ -546,11 +441,6 @@ export default {
 			const i = this.quests.findIndex(quest => quest.id == q.id);
 			this.quests[i] = q;
             this.selectedQuest = q;
-        },
-        updateParty: function(p) {
-			const i = this.parties.findIndex(party => party.id == p.id);
-			this.parties[i] = p;
-            this.selectedParty = p;
         },
         updateUser: function(u) {
 			const i = this.users.findIndex(user => user.id == u.id);
@@ -591,12 +481,6 @@ export default {
         },
 
         //beatmaps
-        updateDiffModes: async function(e){
-            const success = await this.executePost('/admin/updateDiffModes/', {}, e);
-            if(success){
-                console.log('update party ranks worked');
-            }
-        },
         hasStoryboard: function(tasks){
             let valid;
             for (let i = 0; i < tasks.length; i++) {
@@ -678,7 +562,6 @@ export default {
                     .then(response => {
                         this.beatmaps = response.data.b;
                         this.quests = response.data.q;
-                        this.parties = response.data.p;
                         this.users = response.data.u;
                         this.featuredArtists = response.data.fa;
                     });   
@@ -711,14 +594,6 @@ export default {
                 this.updateQuest(q);
             }
         },
-        addContent: async function(id, e){
-            let nextArtist = $("#nextArtist").val();
-            let nextText = $("#nextText").val();
-            const q = await this.executePost('/admin/addContent/' + id, { artist: nextArtist, text: nextText }, e);
-            if(q){
-                this.updateQuest(q);
-            }
-        },
         duplicateQuest: async function(id, e){
             let name = $("#newQuestName").val();
             const q = await this.executePost('/admin/duplicateQuest/' + id, {name: name}, e);
@@ -729,7 +604,6 @@ export default {
                     .then(response => {
                         this.beatmaps = response.data.b;
                         this.quests = response.data.q;
-                        this.parties = response.data.p;
                         this.users = response.data.u;
                         this.featuredArtists = response.data.fa;
                     });   
@@ -750,7 +624,6 @@ export default {
                     .then(response => {
                         this.beatmaps = response.data.b;
                         this.quests = response.data.q;
-                        this.parties = response.data.p;
                         this.users = response.data.u;
                         this.featuredArtists = response.data.fa;
                     });   
@@ -760,7 +633,6 @@ export default {
             let name = $("#questName").val();
             let reward = $("#questReward").val();
             let descriptionMain = $("#questDescriptionMain").val();
-            let descriptionFluff = $("#questDescriptionFluff").val();
             let timeframe = $("#questTimeframe").val();
             let minParty = $("#questMinParty").val();
             let maxParty = $("#questMaxParty").val();
@@ -768,13 +640,10 @@ export default {
             let art = $("#art").val();
             let medal = $("#medal").val();
             let color = $("#color").val();
-            let artist = $("#artist").val();
-            let text = $("#text").val();
             const q = await this.executePost('/admin/createQuest/', { 
                 name: name, 
                 reward: reward, 
                 descriptionMain: descriptionMain, 
-                descriptionFluff: descriptionFluff, 
                 timeframe: timeframe, 
                 minParty: minParty, 
                 maxParty: maxParty, 
@@ -782,8 +651,6 @@ export default {
                 art: art, 
                 medal: medal,
                 color: color,
-                artist: artist,
-                text: text
             }, e);
             if(q){
                 $('#createQuest').modal('hide');
@@ -792,62 +659,9 @@ export default {
                     .then(response => {
                         this.beatmaps = response.data.b;
                         this.quests = response.data.q;
-                        this.parties = response.data.p;
                         this.users = response.data.u;
                         this.featuredArtists = response.data.fa;
                     });   
-            }
-        },
-
-        //party
-
-        renameParty: async function(id, e){
-            var name = $("#newName").val()
-            const p = await this.executePost('/admin/renameParty/' + id, {name: name}, e);
-            if(p){
-                this.updateParty(p);
-            }
-        },
-        removeMember: async function(id, e){
-            var userId = $("#removeMemberSelection").val();
-            const p = await this.executePost('/admin/removeMember/' + id, {userId: userId}, e);
-            if(p){
-                this.updateParty(p);
-            }
-        },
-        transferLeader: async function(id, e){
-            var userId = $("#transferLeaderSelection").val();
-            const p = await this.executePost('/admin/transferLeader/' + id, {userId: userId}, e);
-            if(p){
-                this.updateParty(p);
-            }
-        },
-        editBanner: async function(id, e){
-            var banner = $("#bannerInput").val();
-            const p = await this.executePost('/admin/editBanner/' + id, {banner: banner}, e);
-            if(p){
-                this.updateParty(p);
-            }
-        },
-        deleteParty: async function(id, e){
-            const p = await this.executePost('/admin/deleteParty/' + id, {}, e);
-            if(p){
-                $('#editParty').modal('hide');
-                axios
-                    .get('/admin/relevantInfo')
-                    .then(response => {
-                        this.beatmaps = response.data.b;
-                        this.quests = response.data.q;
-                        this.parties = response.data.p;
-                        this.users = response.data.u;
-                        this.featuredArtists = response.data.fa;
-                    });   
-            }
-        },
-        updatePartyRanks: async function(e){
-            const success = await this.executePost('/admin/updatePartyRanks/', {}, e);
-            if(success){
-                console.log('update party ranks worked');
             }
         },
 
@@ -887,7 +701,6 @@ export default {
                     .then(response => {
                         this.beatmaps = response.data.b;
                         this.quests = response.data.q;
-                        this.parties = response.data.p;
                         this.users = response.data.u;
                         this.featuredArtists = response.data.fa;
                     });   
@@ -955,13 +768,11 @@ export default {
         return {
             beatmaps: null,
             quests: null,
-            parties: null,
             users: null,
             featuredArtists: null,
             logs: null,
             selectedMap: null,
             selectedQuest: null,
-            selectedParty: null,
             selectedUser: null,
             selectedArtist: null,
             info: null
@@ -973,7 +784,6 @@ export default {
             .then(response => {
                 this.beatmaps = response.data.b;
                 this.quests = response.data.q;
-                this.parties = response.data.p;
                 this.users = response.data.u;
                 this.featuredArtists = response.data.fa;
                 this.logs = response.data.l;

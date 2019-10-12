@@ -810,16 +810,6 @@ export default {
             }
         },
 
-        //host
-        transferHost: async function(id, e) {
-            const user = $('#hostEntry').val();
-            const bm = await this.executePost('/beatmaps/transferHost/' + id, { user: user }, e);
-            if (bm) {
-                this.info = null;
-                this.inviteConfirm = 'Transfer host invite sent!';
-            }
-        },
-
         //difficulties
         setCollab(task) {
             this.addCollabInput = task._id;

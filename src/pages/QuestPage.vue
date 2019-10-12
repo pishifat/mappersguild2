@@ -14,9 +14,9 @@
                         class="form-control"
                         type="text"
                         maxlength="48"
-                        placeholder="quest..."
+                        placeholder="quest (this isn't ready yet)..."
                         autocomplete="off"
-                        v-model="filterValue"
+                        disabled
                     />
                     <div class="input-group-append">
                         <slot></slot>

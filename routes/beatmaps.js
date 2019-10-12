@@ -14,6 +14,23 @@ const router = express.Router();
 
 router.use(api.isLoggedIn);
 
+//query populations
+const defaultPopulate = [
+    { populate: 'host', display: '_id osuId username' },
+    { populate: 'bns', display: '_id osuId username' },
+    { populate: 'modders', display: '_id osuId username' },
+    { populate: 'quest', display: '_id name art color' },
+    { populate: 'song', display: 'artist title' },
+    { innerPopulate: 'tasks', populate: { path: 'mappers' } },
+];
+
+const questPopulate = [
+    { innerPopulate: 'parties',  populate: { path: 'members leader' } },
+    { innerPopulate: 'currentParty',  populate: { path: 'members leader' } },
+    { populate: 'completedMembers',  display: 'username osuId rank' },
+    { innerPopulate: 'associatedMaps',  populate: { path: 'song host' } }
+];
+
 //used in addtask, requesttask, addcollab
 async function addTaskChecks(userId, b, newDiff, isHost) {
     if (b.tasks.length > 20 && newDiff) {
@@ -31,11 +48,17 @@ async function addTaskChecks(userId, b, newDiff, isHost) {
         }
     }
     if (b.quest && newDiff != 'Storyboard') {
-        let p = await parties.service.query({ currentQuest: b.quest, members: userId });
-        if (!p) {
+        let q = await quests.service.query({ _id: b.quest }, questPopulate);
+        let valid = false;
+        q.currentParty.members.forEach(member => {
+            if(member.id == userId){
+                valid = true;
+            }
+        });
+        if (!valid) {
             return {
                 error:
-                    "This mapset is part of a quest, so only members of the host's party can add difficulties!",
+                    "This mapset is part of a quest, so only members of the quest's current party can add difficulties!",
             };
         }
     }
@@ -86,15 +109,6 @@ async function inviteChecks(u, senderId) {
     return true;
 }
 
-//query populations
-const defaultPopulate = [
-    { populate: 'host', display: '_id osuId username' },
-    { populate: 'bns', display: '_id osuId username' },
-    { populate: 'modders', display: '_id osuId username' },
-    { populate: 'quest', display: '_id name art color' },
-    { populate: 'song', display: 'artist title' },
-    { innerPopulate: 'tasks', populate: { path: 'mappers' } },
-];
 
 //#region middlewares
 async function isValidBeatmap(req, res, next) {
@@ -150,7 +164,6 @@ router.get('/', async function(req, res) {
         isMaps: true,
         loggedInAs: req.session.osuId,
         userTotalPoints: res.locals.userRequest.totalPoints,
-        userParty: res.locals.userRequest.currentParty ? res.locals.userRequest.currentParty.name : null,
     });
 });
 
@@ -566,39 +579,6 @@ router.post('/setStatus/:mapId', isValidBeatmap, isBeatmapHost, async (req, res)
     );
 });
 
-/* POST transfer host */
-router.post('/transferHost/:mapId', isValidUser, isValidBeatmap, isBeatmapHost, async (req, res) => {
-    let b = res.locals.beatmap;
-    let u = res.locals.user;
-
-    if (b.quest) {
-        let p = await parties.service.query({ currentQuest: b.quest, members: u._id });
-        if (!p) {
-            return res.json({
-                error:
-                    inviteError +
-                    'This mapset is part of a quest, so only members of your party can host.',
-            });
-        }
-    }
-
-    let valid = await inviteChecks(u, req.session.mongoId);
-    if (valid.error) {
-        return res.json(valid);
-    }
-
-    res.json(b);
-
-    invites.service.createMapInvite(
-        u.id,
-        req.session.mongoId,
-        b.id,
-        `wants you to host their mapset of`,
-        'host',
-        b.id
-    );
-});
-
 /* POST request added task*/
 router.post('/requestTask/:mapId', isValidUser, isValidBeatmap, isBeatmapHost, async (req, res) => {
     const u = res.locals.user;
@@ -655,20 +635,6 @@ router.post('/saveQuest/:mapId', isValidBeatmap, isBeatmapHost, async (req, res)
     logs.service.create(
         req.session.mongoId,
         `${req.body.questId.length ? 'linked quest to' : 'unlinked quest from'} "${b.song.artist} - ${b.song.title}"`,
-        b._id,
-        'beatmap'
-    );
-});
-
-/* POST remove quest from map */
-router.post('/unsetQuest/:mapId', isValidBeatmap, isBeatmapHost, async (req, res) => {
-    let b = res.locals.beatmap;
-    await beatmaps.service.update(req.params.mapId, { quest: undefined });
-    b = await beatmaps.service.query({ _id: req.params.mapId }, defaultPopulate);
-    res.json(b);
-    logs.service.create(
-        req.session.mongoId,
-        `unlinked quest from "${b.song.artist} - ${b.song.title}"`,
         b._id,
         'beatmap'
     );
