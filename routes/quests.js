@@ -1,7 +1,6 @@
 const express = require('express');
 const quests = require('../models/quest.js');
 const logs = require('../models/log.js');
-const notifications = require('../models/notification.js');
 const parties = require('../models/party.js');
 const invites = require('../models/invite.js');
 const beatmaps = require('../models/beatmap.js');
