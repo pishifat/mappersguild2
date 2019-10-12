@@ -14,6 +14,7 @@ var inviteSchema = new mongoose.Schema({
     taskName: { type: String }, //used for difficulty requests only
     taskMode: { type: String },
     party: { type: 'ObjectId', ref: 'Party' },
+    quest: { type: 'ObjectId', ref: 'Quest' },
     
 
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
@@ -76,8 +77,8 @@ class InviteService
         }
     }
 
-    async createPartyInvite(recipient, sender, modified, info, actionType, party) {
-        var invite = new Invite({ recipient: recipient, sender: sender, modified: modified, info: info, actionType: actionType, party: party });
+    async createPartyInvite(recipient, sender, modified, info, actionType, party, quest) {
+        var invite = new Invite({ recipient: recipient, sender: sender, modified: modified, info: info, actionType: actionType, party: party, quest: quest });
         try {
             return await invite.save();
         } catch(error) {
