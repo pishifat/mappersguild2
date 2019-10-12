@@ -104,16 +104,21 @@
             </div>
 		</div>
 	</div>
+    
+    <notifications-access></notifications-access>
+
 </div>
 </template>
 
 <script>
 import NewQuestCard from '../components/quests/NewQuestCard.vue';
+import NotificationsAccess from '../components/NotificationsAccess.vue';
 
 export default {
     name: 'quest-page',
     components: {
-        NewQuestCard
+        NewQuestCard,
+        NotificationsAccess
     },
     methods: {
         executePost: async function(path, data, e) {

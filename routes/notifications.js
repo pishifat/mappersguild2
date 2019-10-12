@@ -274,10 +274,10 @@ router.post('/acceptJoin/:id', async (req, res) => {
         });
     });
     if(duplicate){
-        return res.json({ error: inviteError + 'You are already in a party for this quest!' });
+        return res.json({ error: 'You are already in a party for this quest!' });
     }
     if(q.currentParty.members.length >= q.maxParty){
-        return res.json({ error: inviteError + 'Party has too many members!' });
+        return res.json({ error: 'Party has too many members!' });
     }
 
     let p = await parties.service.query({ _id: invite.party._id });

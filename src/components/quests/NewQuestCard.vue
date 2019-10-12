@@ -15,9 +15,17 @@
                     <span 
                         data-toggle="tooltip"
                         data-placement="top"
-                        :title="quest.minParty + '-' + quest.maxParty + ' users'"
-                    >
-                        <i v-for="i in quest.minParty" :key="i" class="fas fa-user"></i><i v-for="i in quest.maxParty - quest.minParty" :key="i+100" class="fas text-white-50 fa-user"></i>
+                        :title="quest.status == 'open' ? quest.minParty + '-' + quest.maxParty + ' users' : 'total party members'"
+                    >   
+                        <span v-if="quest.status == 'open'">
+                            <i v-for="i in quest.minParty" :key="i" class="fas fa-user"></i><i v-for="i in quest.maxParty - quest.minParty" :key="i+100" class="fas text-white-50 fa-user"></i>
+                        </span>
+                        <span v-else-if="quest.status == 'wip'">
+                            <i v-for="member in quest.currentParty.members" :key="member.id" class="fas fa-user"></i>
+                        </span>
+                        <span v-else-if="quest.status == 'done'">
+                            <i v-for="member in quest.completedMembers" :key="member.id" class="fas fa-user"></i>
+                        </span>
                     </span>
                 </span>
                 <span class="small min-spacing col-sm-1 mt-1">
