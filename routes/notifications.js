@@ -187,6 +187,9 @@ router.post('/declineAll/', async (req, res) => {
 /* POST accept collab */
 router.post('/acceptCollab/:id', async (req, res) => {
     let invite = await invites.service.query({ _id: req.params.id }, defaultInvitePopulate);
+    if(!invite.modified){
+        return res.json({ error: `Mapset no longer exists!` });
+    }
     let b = await beatmaps.service.query({ tasks: invite.modified._id }, defaultMapPopulate);
     let valid = await addTaskChecks(req.session.mongoId, b, invite);
     if (valid.error) {
@@ -219,6 +222,9 @@ router.post('/acceptCollab/:id', async (req, res) => {
 /* POST accept difficulty */
 router.post('/acceptDiff/:id', async (req, res) => {
     let invite = await invites.service.query({ _id: req.params.id }, defaultInvitePopulate);
+    if(!invite.map){
+        return res.json({ error: `Mapset no longer exists!` });
+    }
     let b = await beatmaps.service.query({ _id: invite.map._id }, defaultMapPopulate);
     let valid = await addTaskChecks(req.session.mongoId, b, invite);
     if (valid.error) {
@@ -269,6 +275,9 @@ router.post('/acceptJoin/:id', async (req, res) => {
     });
     if(duplicate){
         return res.json({ error: inviteError + 'You are already in a party for this quest!' });
+    }
+    if(q.currentParty.members.length >= q.maxParty){
+        return res.json({ error: inviteError + 'Party has too many members!' });
     }
 
     let p = await parties.service.query({ _id: invite.party._id });
