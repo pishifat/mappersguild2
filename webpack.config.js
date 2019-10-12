@@ -11,9 +11,6 @@ module.exports = {
         artists: './src/artists.js',
         quests: './src/quests.js',
         //notificationsComponent: './src/notificationsComponent.js', // Whenever need to rebuild the notif thing at bottom
-        oldquests: './src/oldquests.js',
-        oldquestsarchive: './src/oldquestsarchive.js',
-        oldparties: './src/oldparties.js',
         
     },
     output: {

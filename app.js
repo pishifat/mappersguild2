@@ -22,10 +22,6 @@ const artistsRouter = require('./routes/artists');
 const questsRouter = require('./routes/quests');
 const logs = require('./models/log');
 
-const oldQuestsRouter = require('./routes/oldquests');
-const oldQuestsArchiveRouter = require('./routes/oldquestsarchive');
-const oldPartiesRouter = require('./routes/oldparties');
-
 const app = express();
 
 // view engine setup
@@ -69,10 +65,6 @@ app.use('/notifications', notificationsRouter);
 app.use('/admin', adminsRouter);
 app.use('/artists', artistsRouter);
 app.use('/quests', questsRouter);
-
-app.use('/oldquests', oldQuestsRouter);
-app.use('/oldquestsarchive', oldQuestsArchiveRouter);
-app.use('/oldparties', oldPartiesRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
