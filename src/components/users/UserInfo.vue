@@ -230,24 +230,43 @@
                         </table>
                         <div class="col-md-6">
                             <p
-                                class="text-shadow"
-                                data-toggle="tooltip"
-                                data-placement="left"
-                                title="rank thresholds are 100, 250, and 500 points"
+                                class="text-shadow small"
                             >
-                                Rank: {{ user.rank }}
+                                Rank: 
+                                <i 
+                                    v-if="user.rank > 0"
+                                    class="fas fa-crown" 
+                                    :class="user.rank == 1 ? 'text-rank-1' : user.rank == 2 ? 'text-rank-2' : 'text-rank-3'"
+                                    data-toggle="tooltip"
+                                    data-placement="top"
+                                    :title="user.rank == 1 ? 'rank 1 user' : user.rank == 2 ? 'rank 2 user' : 'rank 3 user'"
+                                    >
+                                </i>
+                                <span v-else class="text-white-50">
+                                    None
+                                </span>
                             </p>
-                            <p v-if="user.completedQuests.length" class="text-shadow">Completed Quests:</p>
-                            <ul style="list-style-type: none;" id="questDetails">
+                            <p v-if="currentQuests.length" class="text-shadow small min-spacing">Current Quests:</p>
+                            <ul class="min-spacing mb-2 ml-4">
                                 <li
-                                    class="ml-3 small text-shadow"
+                                    class="small text-shadow text-white-50"
+                                    v-for="quest in currentQuests"
+                                    :key="quest.id"
+                                >
+                                    {{ quest.name.length > 40 ? quest.name.slice(0,40) + "..." : quest.name }}
+                                </li>
+                            </ul>
+                            <p v-if="user.completedQuests.length" class="text-shadow small min-spacing">Completed Quests:</p>
+                            <ul class="min-spacing mb-2 ml-4">
+                                <li
+                                    class="small text-shadow text-white-50"
                                     v-for="quest in user.completedQuests"
                                     :key="quest.id"
                                 >
-                                    {{ quest.name }}
+                                    {{ quest.name.length > 40 ? quest.name.slice(0,40) + "..." : quest.name }}
                                 </li>
                             </ul>
-                            <p class="text-shadow">Invites: {{ user.invites ? 'Enabled' : 'Disabled' }}</p>
+                            <p class="text-shadow small">Invites: <span class="text-white-50">{{ user.invites ? 'Enabled' : 'Disabled' }}</span></p>
                         </div>
                     </div>
                     <div class="radial-divisor mx-auto my-3"></div>
@@ -263,20 +282,20 @@
                             </thead>
                             <tbody>
                                 <tr v-for="map in userMaps" :key="map.id">
-                                    <td scope="row" style="padding: 1px;">
+                                    <td scope="row">
                                         <template v-if="map.url">
                                             <a :href="map.url" target="_blank">
                                                 {{ map.song.artist }} - {{ map.song.title }}
                                             </a>
                                         </template>
                                         <template v-else>
-                                            <span>{{ map.song.artist }} - {{ map.song.title }}</span>
+                                            <span class="text-white-50">{{ map.song.artist }} - {{ map.song.title }}</span>
                                         </template>
                                         <i v-if="map.mode == 'taiko'" class="fas fa-drum"></i>
                                         <i v-else-if="map.mode == 'catch'" class="fas fa-apple-alt"></i>
                                         <i v-else-if="map.mode == 'mania'" class="fas fa-stream"></i>
                                     </td>
-                                    <td scope="row" style="padding: 1px;">
+                                    <td scope="row">
                                         <a
                                             :href="'https://osu.ppy.sh/users/' + map.host.osuId"
                                             target="_blank"
@@ -287,7 +306,7 @@
                                     <td scope="row" :class="map.status.toLowerCase()">
                                         {{ map.status }}
                                     </td>
-                                    <td scope="row" style="padding: 1px;">
+                                    <td scope="row" class="text-white-50">
                                         {{ userTasks(map) }}
                                     </td>
                                 </tr>
@@ -317,6 +336,16 @@ export default {
     name: 'user-info',
     props: ['user', 'beatmaps', 'userId'],
     mixins: [mixin],
+    watch: {
+        user: function() {
+            this.currentQuests = [];
+            axios
+                .get(`/users/findCurrentQuests/${this.user.id}`)
+                .then(response => {
+                    this.currentQuests = response.data.currentQuests;
+                });
+        },
+    },
     computed: {
         userMaps: function() {
             if ( this.beatmaps) {
@@ -371,6 +400,11 @@ export default {
                 this.$emit('update-user', u);
             }
         },
+    },
+    data() {
+        return {
+            currentQuests: [],
+        };
     },
 };
 </script>

@@ -14,9 +14,9 @@
                         class="form-control"
                         type="text"
                         maxlength="48"
-                        placeholder="quest (this isn't ready yet)..."
+                        placeholder="quest..."
                         autocomplete="off"
-                        disabled
+                        v-model="filterValue"
                     />
                     <div class="input-group-append">
                         <slot></slot>
@@ -37,13 +37,13 @@
 				</h5>
 				<div id="open" class="show">
 					<transition-group name="list" tag="div" class="row">
-						<new-quest-card
+						<quest-card
 							v-for="quest in openQuests"
 							:key="quest.id"
 							:quest="quest"
                             :userId="userId"
                             @update-quest="updateQuest($event)"
-						></new-quest-card>
+						></quest-card>
 					</transition-group>
 				</div>
 				
@@ -64,13 +64,13 @@
 				</h5>
 				<div id="wip" class="collapse">
 					<transition-group name="list" tag="div" class="row">
-						<new-quest-card
+						<quest-card
 							v-for="quest in wipQuests"
 							:key="quest.id"
 							:quest="quest"
                             :userId="userId"
                             @update-quest="updateQuest($event)"
-						></new-quest-card>
+						></quest-card>
 					</transition-group>
 				</div>
             </div>
@@ -82,8 +82,9 @@
 	<div class="container bg-container py-1">
 		<div class="row">
 			<div class="col">
-                <h5 v-if="!completeQuests" class="ml-4 mt-2">
-                    <a href="#" @click.prevent="loadComplete()">Load complete quests</a>
+                <h5 v-if="!completeQuests || !completeQuests.length" class="ml-4 mt-2">
+                    <a v-if="!loadingCompleteQuests" href="#" @click.prevent="loadComplete()">Load complete quests</a>
+                    <a v-else href="#" @click.prevent>Load complete quests</a>
                 </h5>
 				<h5 v-else class="ml-4 mt-2">
 					<a href="#complete" data-toggle="collapse" >
@@ -93,12 +94,12 @@
 				</h5>
 				<div id="complete" class="show">
 					<transition-group name="list" tag="div" class="row">
-						<new-quest-card
+						<quest-card
 							v-for="quest in completeQuests"
 							:key="quest.id"
 							:quest="quest"
                             @update-quest="updateQuest($event)"
-						></new-quest-card>
+						></quest-card>
 					</transition-group>
 				</div>
             </div>
@@ -111,14 +112,19 @@
 </template>
 
 <script>
-import NewQuestCard from '../components/quests/NewQuestCard.vue';
+import QuestCard from '../components/quests/QuestCard.vue';
 import NotificationsAccess from '../components/NotificationsAccess.vue';
 
 export default {
     name: 'quest-page',
     components: {
-        NewQuestCard,
+        QuestCard,
         NotificationsAccess
+    },
+    watch: {
+        filterValue: function(v) {
+            this.filter();
+        },
     },
     methods: {
         executePost: async function(path, data, e) {
@@ -141,34 +147,53 @@ export default {
         separateObjs: function() {
             this.openQuests = [];
             this.wipQuests = [];
-            this.allActiveQuests.forEach(quest => {
+            this.completeQuests = [];
+            this.pageObjs.forEach(quest => {
                 if(quest.status == 'open'){
                     this.openQuests.push(quest);
-                }else{
+                }else if(quest.status == 'wip'){
                     this.wipQuests.push(quest);
+                }else{
+                    this.completeQuests.push(quest);
                 }
             });
         },
         loadComplete: async function() {
+            this.loadingCompleteQuests = true;
             axios
             .get('/quests/loadComplete')
             .then(response => {
-                this.completeQuests = response.data.complete;
+                this.allObjs = this.allObjs.concat(response.data.complete);
+                this.filter();
             });
         },
         updateQuest: function(quest) {
-            const i = this.allActiveQuests.findIndex(q => q.id == quest.id);
-            this.allActiveQuests[i] = quest;
+            const i = this.allObjs.findIndex(q => q.id == quest.id);
+            this.allObjs[i] = quest;
+            this.separateObjs();
+        },
+        filter: function() {
+            this.pageObjs = this.allObjs;
+            if (this.filterValue.length > 2) {
+                this.pageObjs = this.allObjs.filter(q => {
+                    if (q.name.toLowerCase().indexOf(this.filterValue.toLowerCase()) > -1) {
+                        return true;
+                    }
+                    return false;
+                });
+            }
             this.separateObjs();
         },
     },
     data() {
         return {
             filterValue: '',
-            allActiveQuests: null,
+            allObjs: null,
+            pageObjs: null,
             openQuests: null,
             wipQuests: null,
             completeQuests: null,
+            loadingCompleteQuests: false,
             userId: null,
         };
     },
@@ -176,7 +201,8 @@ export default {
         axios
             .get('/quests/relevantInfo')
             .then(response => {
-                this.allActiveQuests = response.data.all;
+                this.allObjs = response.data.all;
+                this.pageObjs = response.data.all;
                 this.userId = response.data.userId;
                 this.separateObjs();
             })

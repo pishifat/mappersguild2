@@ -579,6 +579,9 @@ router.post('/updateUserPoints', async (req, res) => {
                                 }
                                 let taskPoints = pointsObject[task.name]["num"];
                                 taskPoints *= (length/lengthNerf);
+                                /*if(task.mode == 'taiko'){
+                                    taskPoints *= 0.75;
+                                }*/
                                 pointsObject[task.name]["total"] += (taskPoints + questBonus) / task.mappers.length;
                                 pointsObject[task.mode]["total"] += (taskPoints + questBonus) / task.mappers.length;
                             }else{

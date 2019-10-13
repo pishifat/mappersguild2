@@ -4,7 +4,14 @@
         <div class="text-shadow min-spacing">
             <div class="min-spacing mt-1 row">
                 <span class="col-sm-5">
-                    <img :src="quest.art ? 'https://assets.ppy.sh/artists/' + quest.art + '/cover.jpg' : '../../images/no-art-icon.png'" class="card-avatar-img">
+                    <span v-if="quest.art">
+                        <a :href="'https://osu.ppy.sh/beatmaps/artists/' + quest.art" target="_blank">
+                            <img :src="'https://assets.ppy.sh/artists/' + quest.art + '/cover.jpg'" class="card-avatar-img">
+                        </a>
+                    </span>
+                    <span v-else>
+                        <img :src="'../../images/no-art-icon.png'" class="card-avatar-img">
+                    </span>
                     <a :href="'#details' + quest.id" data-toggle="collapse" class="ml-1">
                         {{quest.name.length > 40 ? quest.name.slice(0,40) + "..." : quest.name}}
                         <i class="fas fa-angle-down" />
@@ -15,7 +22,10 @@
                     <span 
                         data-toggle="tooltip"
                         data-placement="top"
-                        :title="quest.status == 'open' ? quest.minParty + '-' + quest.maxParty + ' users' : 'total party members'"
+                        :title="
+                            quest.status == 'open' ? quest.minParty + '-' + quest.maxParty + ' users' : 
+                            quest.status == 'wip' ? quest.currentParty.members.length + ' party members' : 
+                            quest.status == 'done' ? quest.completedMembers.length + ' party members' : ''"
                     >   
                         <span v-if="quest.status == 'open'">
                             <i v-for="i in quest.minParty" :key="i" class="fas fa-user"></i><i v-for="i in quest.maxParty - quest.minParty" :key="i+100" class="fas text-white-50 fa-user"></i>
@@ -347,7 +357,7 @@
 
 <script>
 export default {
-    name: 'new-quest-card',
+    name: 'quest-card',
     props: ['quest', 'userId'],
     methods: {
         executePost: async function(path, data, e) {

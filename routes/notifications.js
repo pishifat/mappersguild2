@@ -1,14 +1,14 @@
-var express = require('express');
-var beatmaps = require('../models/beatmap.js');
-var parties = require('../models/party.js');
-var quests = require('../models/quest.js');
-var notifications = require('../models/notification.js');
-var invites = require('../models/invite.js');
-var tasks = require('../models/task.js');
-var logs = require('../models/log.js');
-var api = require('../models/api.js');
+const express = require('express');
+const beatmaps = require('../models/beatmap.js');
+const parties = require('../models/party.js');
+const quests = require('../models/quest.js');
+const notifications = require('../models/notification.js');
+const invites = require('../models/invite.js');
+const tasks = require('../models/task.js');
+const logs = require('../models/log.js');
+const api = require('../models/api.js');
 
-var router = express.Router();
+const router = express.Router();
 
 router.use(api.isLoggedIn);
 
@@ -276,16 +276,17 @@ router.post('/acceptJoin/:id', async (req, res) => {
     if(duplicate){
         return res.json({ error: 'You are already in a party for this quest!' });
     }
-    if(q.currentParty.members.length >= q.maxParty){
-        return res.json({ error: 'Party has too many members!' });
-    }
-
-    let p = await parties.service.query({ _id: invite.party._id });
-    if (!p || p.error) {
+    
+    if(!invite.party){
         return res.json({ error: 'That party no longer exists!' });
     }
+    let p = await parties.service.query({ _id: invite.party._id });
+
     // if timing window > 7 days, can't invite anymore
     if(q.status == 'wip'){
+        if(q.currentParty.members.length >= q.maxParty){
+            return res.json({ error: 'Party has too many members!' });
+        }
         const timeWindow = (new Date() - q.accepted) / (24*3600*1000);
         if(timeWindow > 7){
             return res.json({ error: "You cannot join a party that's been running a quest for over a week!"})

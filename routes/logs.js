@@ -1,8 +1,8 @@
-var express = require('express');
-var logs = require('../models/log.js');
-var api = require('../models/api.js');
+const express = require('express');
+const logs = require('../models/log.js');
+const api = require('../models/api.js');
 
-var router = express.Router();
+const router = express.Router();
 
 router.use(api.isLoggedIn);
 

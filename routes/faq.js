@@ -1,7 +1,7 @@
-var express = require('express');
-var users = require('../models/user.js');
+const express = require('express');
+const users = require('../models/user.js');
 
-var router = express.Router();
+const router = express.Router();
 
 /* GET faq */
 router.get('/', async (req, res, next) => {
