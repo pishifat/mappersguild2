@@ -10,13 +10,14 @@ module.exports = {
         admin: './src/admin.js',
         artists: './src/artists.js',
         quests: './src/quests.js',
+        //notificationsComponent: './src/notificationsComponent.js', // Whenever need to rebuild the notif thing at bottom
     },
     output: {
         filename: '[name].js',
         path: path.resolve(__dirname, 'public/javascripts/'),
         publicPath: '/'
     },
-    mode: 'development',
+    mode: 'production',
     module: {
         rules: [
             {
@@ -49,14 +50,7 @@ module.exports = {
     ],
     resolve: {
         alias: {
-            vue: 'vue/dist/vue.js',
-        },
-    },
-    devServer: {
-        publicPath: '/javascripts/',
-        port: 8080,
-        proxy: {
-          '/': 'http://localhost:3001'
+            vue: 'vue/dist/vue.min.js',
         }
-    }
+    },
 };
