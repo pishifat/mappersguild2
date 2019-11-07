@@ -11,20 +11,7 @@ const api = require('../models/api.js');
 const router = express.Router();
 
 router.use(api.isLoggedIn);
-router.use(async (req, res, next) => {
-    if (!req.session.osuId) {
-        logs.service.create(req.session.mongoId || null, `${req.session.osuId} trying to go to ${req.originalUrl} from ${req.ip}`, null, 'error');
-        return res.redirect('/');
-    } else {
-        const user = await users.service.query({ osuId: req.session.osuId });
-
-        if (user && user.group === 'admin') {
-            return next();
-        }
-        logs.service.create(req.session.mongoId || null, `${req.session.osuId} trying to go to ${req.originalUrl} from ${req.ip}`, null, 'error');
-        return res.redirect('/');
-    }
-});
+router.use(api.isAdmin);
 
 //population
 const defaultMapPopulate = [

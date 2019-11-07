@@ -7,7 +7,6 @@ const router = express.Router();
 router.use(api.isLoggedIn);
 router.use(api.isAdmin);
 
-
 //population
 const defaultPopulate = [
     { populate: 'songs', display: 'artist title' },

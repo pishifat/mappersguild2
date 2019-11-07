@@ -12,7 +12,7 @@ router.get('/', async (req, res, next) => {
     if (req.session.osuId) {
         const u = await users.service.query({ _id: req.session.mongoId });
         
-        if (u && !u.error && u.group != 'hidden') {
+        if (u && !u.error) {
             return next();
         }
     }
@@ -22,6 +22,7 @@ router.get('/', async (req, res, next) => {
         title: `Mappers' Guild`, 
         isIndex: true, 
         loggedInAs: req.session.osuId, 
+        isNotSpectator: res.locals.userRequest.group != 'spectator',
         userTotalPoints: res.locals.userRequest.totalPoints,
     });
 });
@@ -67,7 +68,7 @@ router.get('/login', async (req, res, next) => {
                         },
                         color: '14707049',
                     }]);
-                    logs.service.create(req.session.mongoId, `joined the Mappers' Guild`, u._id, 'user');
+                    logs.service.create(u._id, `joined the Mappers' Guild`, u._id, 'user');
                 }
             }
             req.session.mongoId = u._id;

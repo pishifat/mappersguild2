@@ -174,7 +174,7 @@ router.get('/relevantInfo', async (req, res, next) => {
             { quest: -1, status: 1, updatedAt: -1 },
             true
         );
-    res.json({ beatmaps: bms, userId: req.session.osuId, username: req.session.username });
+    res.json({ beatmaps: bms, userId: req.session.osuId, username: req.session.username, group: res.locals.userRequest.group });
 });
 
 /* GET artists for new map entry */

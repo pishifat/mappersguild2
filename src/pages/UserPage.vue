@@ -76,7 +76,7 @@
             @update-user="updateUser($event)"
         ></user-info>
 
-        <notifications-access></notifications-access>
+        <notifications-access v-if="usergroup != 'spectator'"></notifications-access>
     </div>
 </template>
 
@@ -341,6 +341,7 @@ export default {
             filteredUsers: null,
             userId: null,
             username: null,
+            usergroup: null,
             beatmaps: null,
             filterValue: '',
             filterMode: '',
@@ -364,6 +365,7 @@ export default {
                 this.allUsers = response.data.users;
                 this.userId = response.data.userId;
                 this.username = response.data.username;
+                this.usergroup = response.data.group;
                 this.limit = 16;
             })
             .then(function() {

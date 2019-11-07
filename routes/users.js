@@ -38,7 +38,7 @@ router.get('/', async (req, res, next) => {
 /* GET users listing. */
 router.get('/relevantInfo', async (req, res, next) => {
     const u = await users.service.query({ group: { $ne: 'spectator' } }, defaultPopulate, { createdAt: -1 }, true);
-    res.json({ users: u, userId: req.session.osuId, username: req.session.username });
+    res.json({ users: u, userId: req.session.osuId, username: req.session.username, group: res.locals.userRequest.group });
 });
 
 /* GET beatmaps listing. */

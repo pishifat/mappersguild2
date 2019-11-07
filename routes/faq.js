@@ -11,6 +11,7 @@ router.get('/', async (req, res, next) => {
             title: 'Frequently Asked Questions',
             isFaq: true,
             loggedInAs: u.osuId,
+            isNotSpectator: u.group != 'spectator',
             userTotalPoints: u.totalPoints,
         });
     } else {

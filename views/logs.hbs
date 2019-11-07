@@ -26,8 +26,11 @@
     </div>
 </div>
 
-<div id="notifications">
-    <notifications-access></notifications-access>
-</div>
+{{#if isNotSpectator}}
+    <div id="notifications">
+        <notifications-access></notifications-access>
+    </div>
 
-<script src="../js/notificationsComponent.js"></script>
+    <script src="../js/notificationsComponent.js"></script>
+{{/if}}
+

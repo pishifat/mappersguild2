@@ -11,6 +11,7 @@ const api = require('../models/api.js');
 const router = express.Router();
 
 router.use(api.isLoggedIn);
+router.use(api.isUser);
 
 //populations
 const defaultNotificationPopulate = [

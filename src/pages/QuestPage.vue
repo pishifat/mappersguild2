@@ -106,7 +106,7 @@
 		</div>
 	</div>
     
-    <notifications-access></notifications-access>
+    <notifications-access v-if="usergroup != 'spectator'"></notifications-access>
 
 </div>
 </template>
@@ -195,6 +195,7 @@ export default {
             completeQuests: null,
             loadingCompleteQuests: false,
             userId: null,
+            usergroup: null,
         };
     },
     created() {
@@ -204,6 +205,7 @@ export default {
                 this.allObjs = response.data.all;
                 this.pageObjs = response.data.all;
                 this.userId = response.data.userId;
+                this.usergroup = response.data.group;
                 this.separateObjs();
             })
             .then(function() {

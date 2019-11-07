@@ -167,6 +167,14 @@ async function isAdmin(req, res, next) {
     }
 }
 
+async function isUser(req, res, next) {
+    if(res.locals.userRequest.group == 'admin' || res.locals.userRequest.group == 'user'){
+        next();
+    }else{
+        res.redirect('/');
+    }
+}
+
 async function isNotSpectator(req, res, next) {
     if(res.locals.userRequest.group != 'spectator'){
         next();
@@ -175,4 +183,4 @@ async function isNotSpectator(req, res, next) {
     }
 }
 
-module.exports = { isLoggedIn, getToken, getUserInfo, isBn, webhookPost, beatmapsetInfo, isAdmin, isNotSpectator };
+module.exports = { isLoggedIn, getToken, getUserInfo, isBn, webhookPost, beatmapsetInfo, isAdmin, isUser, isNotSpectator };

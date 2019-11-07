@@ -46,7 +46,7 @@
 
         <beatmap-info :beatmap="selectedMap"></beatmap-info>
 
-        <notifications-access></notifications-access>
+        <notifications-access v-if="usergroup != 'spectator'"></notifications-access>
     </div>
 </template>
 
@@ -217,6 +217,7 @@ export default {
     data() {
         return {
             username: null,
+            usergroup: null,
             beatmaps: null,
             allBeatmaps: null,
             filteredBeatmaps: null,
@@ -241,6 +242,7 @@ export default {
             .then(response => {
                 this.allBeatmaps = response.data.beatmaps;
                 this.username = response.data.username;
+                this.usergroup = response.data.group;
                 this.pre = 0;
                 this.limit = 24;
                 this.pages = Math.ceil(this.allBeatmaps.length / this.limit);

@@ -42,7 +42,7 @@ router.get('/relevantInfo', async (req, res) => {
         console.log('')
     });*/
     let bms = await beatmaps.service.query({ status: 'Ranked' }, defaultPopulate, sort, true);
-    res.json({beatmaps: bms, username: req.session.username});
+    res.json({beatmaps: bms, username: req.session.username, group: res.locals.userRequest.group});
 });
 
 module.exports = router;

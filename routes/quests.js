@@ -54,7 +54,7 @@ router.get("/relevantInfo", async (req, res, next) => {
     let all = await quests.service.query({ $or: [ { status: 'open' }, { status: 'wip' } ] }, questPopulate, {createdAt: -1}, true);
     let wip = await quests.service.query({ status: 'wip' }, questPopulate, {createdAt: -1}, true);
     
-    res.json({all, userId: req.session.mongoId});
+    res.json({all, userId: req.session.mongoId, group: res.locals.userRequest.group});
 });
 
 /* GET completed quests */

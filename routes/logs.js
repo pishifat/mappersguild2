@@ -22,6 +22,7 @@ router.get('/', async (req, res, next) => {
             100
         ),
         loggedInAs: req.session.osuId,
+        isNotSpectator: res.locals.userRequest.group != 'spectator',
         userTotalPoints: res.locals.userRequest.totalPoints,
     });
 });
