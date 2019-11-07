@@ -138,11 +138,6 @@ async function isBn(req, res, next) {
 async function isLoggedIn(req, res, next) {
     if (req.session.mongoId) {
         const u = await users.service.query({ _id: req.session.mongoId }, [{ populate: 'currentParty', display: 'name' }]);
-        
-        // If hidden, shouldn't be able to do anything
-        if (!u || u.group == 'hidden') {
-            return res.redirect('/');
-        }
 
         // Refresh if less than 30 sec left
         if (req.session.cookie.maxAge < 30000) {

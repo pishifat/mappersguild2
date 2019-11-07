@@ -64,7 +64,7 @@ router.get('/findCurrentQuests/:id', async (req, res, next) => {
 /* GET users with sorting. */
 router.get('/:sort', async (req, res, next) => {
     const sortBy = req.params.sort;
-    res.json(await users.service.query({ group: { $ne: 'hidden' } }, defaultPopulate, sortBy, true));
+    res.json(await users.service.query({ group: { $ne: 'spectator' } }, defaultPopulate, sortBy, true));
 });
 
 /* POST switch user notifications */

@@ -293,7 +293,7 @@
                         </div>
                         <select class="form-control form-control-sm" id="userGroupSelect" style="filter: drop-shadow(1px 1px 1px #000000); border-radius: 0 100px 100px 0">
                             <option selected value="user">user</option>
-                            <option value="hidden">hidden</option>
+                            <option value="spectator">spectator</option>
                             <option value="admin">admin</option>
                         </select>
                     </div>
