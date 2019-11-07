@@ -29,6 +29,18 @@ router.get('/', async function(req, res) {
 });
 
 router.get('/relevantInfo', async (req, res) => {
+    /*let date = new Date('September 23, 2019 00:00:00');
+    let bmes = await beatmaps.service.query({ status: 'Ranked', updatedAt: {$gte: date} }, defaultPopulate, sort, true);
+    bmes.forEach(bm => {
+        console.log(bm.url);
+        console.log(bm.song.artist);
+        console.log(bm.song.title);
+        console.log(bm.quest ? bm.quest.name : 'no quest');
+        console.log(bm.host.username);
+        console.log(bm.mode);
+        console.log(bm.updatedAt);
+        console.log('')
+    });*/
     let bms = await beatmaps.service.query({ status: 'Ranked' }, defaultPopulate, sort, true);
     res.json({beatmaps: bms, username: req.session.username});
 });

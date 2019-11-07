@@ -18,6 +18,7 @@ const defaultNotificationPopulate = [
     { innerPopulate: 'map', populate: { path: 'song host' } },
     { innerPopulate: 'map', populate: { path: 'tasks', populate: { path: 'mappers' } } },
     { innerPopulate: 'party', populate: { path: 'members leader' } },
+    { populate: 'quest', display: 'name' },
 ];
 const defaultInvitePopulate = [
     { populate: 'sender', display: 'username osuId' },
@@ -165,7 +166,8 @@ router.post('/hideInvite/:id', async (req, res) => {
             `rejected your invite to join the party`,
             inv.sender,
             inv.recipient,
-            inv.party
+            inv.party,
+            inv.quest
         );
     }
 });
@@ -305,7 +307,8 @@ router.post('/acceptJoin/:id', async (req, res) => {
         `accepted the invite to join your party`,
         invite.sender,
         invite.recipient,
-        p.id
+        p.id,
+        q.id
     );
 });
 
