@@ -4,7 +4,7 @@ const logs = require('./log');
 var userSchema = new mongoose.Schema({
     osuId: { type: Number, required: true, unique: true },
     username: { type: String, required: true },
-    group: { type: String, enum: ['user', 'hidden', 'admin'], default: 'user' }, //deleting a user instance causes problems, so people who want to "leave" will be hidden on the user listing, but still in the db
+    group: { type: String, enum: ['user', 'admin', 'spectator'], default: 'user' },
     invites: { type: Boolean, default: true },
 
     rank: { type: Number, default: 0 },
@@ -72,12 +72,12 @@ class UserService
         }
     }
 
-    async create(osuId, username) {
+    async create(osuId, username, group) {
         let res = await User.findOne({ osuId: osuId });
         
         if (!res) {
             try {
-                return await User.create({ osuId: osuId, username: username });
+                return await User.create({ osuId: osuId, username: username, group: group });
             } catch(error) {
                 logs.service.create(null, error, null, 'error'); 
                 return { error: error._message }

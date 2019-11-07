@@ -37,7 +37,7 @@ router.get('/', async (req, res, next) => {
 
 /* GET users listing. */
 router.get('/relevantInfo', async (req, res, next) => {
-    const u = await users.service.query({ group: { $ne: 'hidden' } }, defaultPopulate, { createdAt: -1 }, true);
+    const u = await users.service.query({ group: { $ne: 'spectator' } }, defaultPopulate, { createdAt: -1 }, true);
     res.json({ users: u, userId: req.session.osuId, username: req.session.username });
 });
 
@@ -68,7 +68,7 @@ router.get('/:sort', async (req, res, next) => {
 });
 
 /* POST switch user notifications */
-router.post('/switchInvites', async (req, res) => {
+router.post('/switchInvites', api.isNotSpectator, async (req, res) => {
     let u = await users.service.query({ _id: req.session.mongoId });
     await users.service.update(req.session.mongoId, { invites: !u.invites });
     u = await users.service.query({ _id: req.session.mongoId }, defaultPopulate);

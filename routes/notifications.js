@@ -126,14 +126,14 @@ router.get('/relevantInfo', async (req, res, next) => {
 });
 
 /* POST hide notification */
-router.post('/hideNotification/:id', async (req, res) => {
+router.post('/hideNotification/:id', api.isNotSpectator, async (req, res) => {
     await notifications.service.update(req.params.id, { visible: false });
     let n = await notifications.service.query({ _id: req.params.id }, defaultNotificationPopulate);
     res.json(n);
 });
 
 /* POST hide notification */
-router.post('/hideAll/', async (req, res) => {
+router.post('/hideAll/', api.isNotSpectator, async (req, res) => {
     let notifs = await notifications.service.query(
         { recipient: req.session.mongoId, visible: true },
         {},
@@ -147,7 +147,7 @@ router.post('/hideAll/', async (req, res) => {
 });
 
 /* POST hide notification */
-router.post('/hideInvite/:id', async (req, res) => {
+router.post('/hideInvite/:id', api.isNotSpectator, async (req, res) => {
     let inv = await invites.service.update(req.params.id, { visible: false });
     inv = await invites.service.query({ _id: req.params.id }, defaultNotificationPopulate);
     res.json(inv);
@@ -173,12 +173,12 @@ router.post('/hideInvite/:id', async (req, res) => {
 });
 
 /* POST hide notification */
-router.post('/hideAcceptedInvite/:id', async (req, res) => {
+router.post('/hideAcceptedInvite/:id', api.isNotSpectator, async (req, res) => {
     res.json(await invites.service.update(req.params.id, { visible: false }));
 });
 
 /* POST hide notification */
-router.post('/declineAll/', async (req, res) => {
+router.post('/declineAll/', api.isNotSpectator, async (req, res) => {
     let invs = await invites.service.query({ recipient: req.session.mongoId, visible: true }, {}, {}, true);
     invs.forEach(inv => {
         invites.service.update(inv._id, { visible: false });
@@ -187,7 +187,7 @@ router.post('/declineAll/', async (req, res) => {
 });
 
 /* POST accept collab */
-router.post('/acceptCollab/:id', async (req, res) => {
+router.post('/acceptCollab/:id', api.isNotSpectator, async (req, res) => {
     let invite = await invites.service.query({ _id: req.params.id }, defaultInvitePopulate);
     if(!invite.modified){
         return res.json({ error: `Mapset no longer exists!` });
@@ -222,7 +222,7 @@ router.post('/acceptCollab/:id', async (req, res) => {
 });
 
 /* POST accept difficulty */
-router.post('/acceptDiff/:id', async (req, res) => {
+router.post('/acceptDiff/:id', api.isNotSpectator, async (req, res) => {
     let invite = await invites.service.query({ _id: req.params.id }, defaultInvitePopulate);
     if(!invite.map){
         return res.json({ error: `Mapset no longer exists!` });
@@ -263,7 +263,7 @@ router.post('/acceptDiff/:id', async (req, res) => {
 });
 
 /* POST accept join party */
-router.post('/acceptJoin/:id', async (req, res) => {
+router.post('/acceptJoin/:id', api.isNotSpectator, async (req, res) => {
     let invite = await invites.service.query({ _id: req.params.id }, defaultInvitePopulate);
     let q = await quests.service.query({ _id: invite.quest.id }, questPopulate);
     let currentParties = await parties.service.query({ members: req.session.mongoId }, {}, {}, true);

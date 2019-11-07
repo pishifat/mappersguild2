@@ -210,7 +210,7 @@ router.get('/findUserQuests/', async (req, res, next) => {
 });
 
 /* POST create new map */
-router.post('/create', async (req, res) => {
+router.post('/create', api.isNotSpectator, async (req, res) => {
     if (req.body.song == 'none') {
         return res.json({ error: 'Missing song!' });
     }
@@ -243,7 +243,7 @@ router.post('/create', async (req, res) => {
 });
 
 /* POST create task from extended view. */
-router.post('/addTask/:mapId', isValidBeatmap, async (req, res) => {
+router.post('/addTask/:mapId', api.isNotSpectator, isValidBeatmap, async (req, res) => {
     let b = res.locals.beatmap;
     const isHost = b.host.id == req.session.mongoId;
     const valid = await addTaskChecks(
@@ -294,7 +294,7 @@ router.post('/addTask/:mapId', isValidBeatmap, async (req, res) => {
 
 
 /* POST delete task from extended view. */
-router.post('/removeTask/:id', async (req, res) => {
+router.post('/removeTask/:id', api.isNotSpectator, async (req, res) => {
     let b = await beatmaps.service.query({ _id: req.body.beatmapId });
     if (b.status == 'Ranked') {
         return res.json({ error: 'Mapset ranked' });
@@ -326,7 +326,7 @@ router.post('/removeTask/:id', async (req, res) => {
 });
 
 /* POST invite collab user to task. */
-router.post('/task/:taskId/addCollab', isValidUser, async (req, res) => {
+router.post('/task/:taskId/addCollab', api.isNotSpectator, isValidUser, async (req, res) => {
     let u = res.locals.user;
     let valid = await inviteChecks(u, req.session.mongoId);
     if (valid.error) {
@@ -358,7 +358,7 @@ router.post('/task/:taskId/addCollab', isValidUser, async (req, res) => {
 });
 
 /* POST remove collab user from task. */
-router.post('/task/:taskId/removeCollab', async (req, res) => {
+router.post('/task/:taskId/removeCollab', api.isNotSpectator, async (req, res) => {
     let u;
     if(req.body.user.indexOf("[") >= 0 || req.body.user.indexOf("]") >= 0){
         u = await users.service.query({ username: new RegExp('^\\' + req.body.user + '$', 'i') });
@@ -391,7 +391,7 @@ router.post('/task/:taskId/removeCollab', async (req, res) => {
 });
 
 /* POST set status of the task selected from extended view. */
-router.post('/setTaskStatus/:taskId', async (req, res) => {
+router.post('/setTaskStatus/:taskId', api.isNotSpectator, async (req, res) => {
     let t = await tasks.service.query({ _id: req.params.taskId });
     let b = await beatmaps.service.query({ tasks: t._id }, defaultPopulate);
     if (t.mappers.indexOf(req.session.mongoId) < 0 && req.session.mongoId != b.host.id) {
@@ -422,7 +422,7 @@ router.post('/setTaskStatus/:taskId', async (req, res) => {
 });
 
 /* POST modder from extended view, returns new modders list. */
-router.post('/updateModder/:mapId', async (req, res) => {
+router.post('/updateModder/:mapId', api.isNotSpectator, async (req, res) => {
     const isAlreadyModder = await beatmaps.service.query({
         _id: req.params.mapId,
         modders: req.session.mongoId,
@@ -473,7 +473,7 @@ router.post('/updateModder/:mapId', async (req, res) => {
 });
 
 /* POST bn from extended view, returns new bns list. */
-router.post('/updateBn/:mapId', api.isBn, isValidBeatmap, async (req, res) => {
+router.post('/updateBn/:mapId', api.isNotSpectator, api.isBn, isValidBeatmap, async (req, res) => {
     let b = res.locals.beatmap;
     const isAlreadyBn = await beatmaps.service.query({
         _id: req.params.mapId,
@@ -535,7 +535,7 @@ router.post('/updateBn/:mapId', api.isBn, isValidBeatmap, async (req, res) => {
 //#region Host exclusive routes
 
 /* POST set game mode. */
-router.post('/setMode/:mapId', isValidBeatmap, isBeatmapHost, async (req, res) => {
+router.post('/setMode/:mapId', api.isNotSpectator, isValidBeatmap, isBeatmapHost, async (req, res) => {
     let b = await beatmaps.service.update(req.params.mapId, { mode: req.body.mode });
     b = await beatmaps.service.query({ _id: req.params.mapId }, defaultPopulate);
     res.json(b);
@@ -549,7 +549,7 @@ router.post('/setMode/:mapId', isValidBeatmap, isBeatmapHost, async (req, res) =
 });
 
 /* POST set status of the beatmapset from extended view. */
-router.post('/setStatus/:mapId', isValidBeatmap, isBeatmapHost, async (req, res) => {
+router.post('/setStatus/:mapId', api.isNotSpectator, isValidBeatmap, isBeatmapHost, async (req, res) => {
     let b = res.locals.beatmap;
 
     if (req.body.status == 'Done') {
@@ -580,7 +580,7 @@ router.post('/setStatus/:mapId', isValidBeatmap, isBeatmapHost, async (req, res)
 });
 
 /* POST request added task*/
-router.post('/requestTask/:mapId', isValidUser, isValidBeatmap, isBeatmapHost, async (req, res) => {
+router.post('/requestTask/:mapId', api.isNotSpectator, isValidUser, isValidBeatmap, isBeatmapHost, async (req, res) => {
     const u = res.locals.user;
     let b = res.locals.beatmap;
 
@@ -607,7 +607,7 @@ router.post('/requestTask/:mapId', isValidUser, isValidBeatmap, isBeatmapHost, a
 });
 
 /* POST quest to map */
-router.post('/saveQuest/:mapId', isValidBeatmap, isBeatmapHost, async (req, res) => {
+router.post('/saveQuest/:mapId', api.isNotSpectator, isValidBeatmap, isBeatmapHost, async (req, res) => {
     let b = res.locals.beatmap;
     if(req.body.questId.length){
         let q = await quests.service.query({ _id: req.body.questId}, [{ populate: 'currentParty',  display: 'members' }]);
@@ -641,7 +641,7 @@ router.post('/saveQuest/:mapId', isValidBeatmap, isBeatmapHost, async (req, res)
 });
 
 /* POST edit link from extended view. */
-router.post('/setLink/:mapId', isValidBeatmap, isBeatmapHost, async (req, res) => {
+router.post('/setLink/:mapId', api.isNotSpectator, isValidBeatmap, isBeatmapHost, async (req, res) => {
     let url = req.body.url;
     if (url.length == 0) {
         url = undefined;
@@ -664,7 +664,7 @@ router.post('/setLink/:mapId', isValidBeatmap, isBeatmapHost, async (req, res) =
 });
 
 /* POST locks task from extended view. */
-router.post('/lockTask/:mapId', isValidBeatmap, isBeatmapHost, async (req, res) => {
+router.post('/lockTask/:mapId', api.isNotSpectator, isValidBeatmap, isBeatmapHost, async (req, res) => {
     let b = res.locals.beatmap;
     await beatmaps.service.update(req.params.mapId, {
         $push: { tasksLocked: req.body.difficulty },
@@ -681,7 +681,7 @@ router.post('/lockTask/:mapId', isValidBeatmap, isBeatmapHost, async (req, res) 
 });
 
 /* POST unlocks task from extended view. */
-router.post('/unlockTask/:mapId', isValidBeatmap, isBeatmapHost, async (req, res) => {
+router.post('/unlockTask/:mapId', api.isNotSpectator, isValidBeatmap, isBeatmapHost, async (req, res) => {
     let b = res.locals.beatmap;
     await beatmaps.service.update(req.params.mapId, {
         $pull: { tasksLocked: req.body.difficulty },
@@ -698,7 +698,7 @@ router.post('/unlockTask/:mapId', isValidBeatmap, isBeatmapHost, async (req, res
 });
 
 /* POST delete map */
-router.post('/delete/:mapId', isValidBeatmap, isBeatmapHost, async (req, res) => {
+router.post('/delete/:mapId', api.isNotSpectator, isValidBeatmap, isBeatmapHost, async (req, res) => {
     let b = res.locals.beatmap;
     for (let i = 0; i < b.tasks.length; i++) {
         await tasks.service.remove(b.tasks[i]);

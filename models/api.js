@@ -167,4 +167,12 @@ async function isAdmin(req, res, next) {
     }
 }
 
-module.exports = { isLoggedIn, getToken, getUserInfo, isBn, webhookPost, beatmapsetInfo, isAdmin };
+async function isNotSpectator(req, res, next) {
+    if(res.locals.userRequest.group != 'spectator'){
+        next();
+    }else{
+        return res.json({ error: 'Spectators cannot perform this action!' });
+    }
+}
+
+module.exports = { isLoggedIn, getToken, getUserInfo, isBn, webhookPost, beatmapsetInfo, isAdmin, isNotSpectator };

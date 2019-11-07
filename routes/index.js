@@ -31,19 +31,23 @@ router.get('/login', async (req, res, next) => {
     if (req.session.osuId && req.session.username) {
         const u = await users.service.query({ osuId: req.session.osuId });
         if (!u || u.error) {
-            const user = await users.service.create(req.session.osuId, req.session.username);
+            const user = await users.service.create(req.session.osuId, req.session.username, req.session.group);
             
             if (user && !user.error) {
                 req.session.mongoId = user._id;
-                api.webhookPost([{
-                    author: {
-                        name: `${user.username} joined the guild!`,
-                        icon_url: `https://a.ppy.sh/${user.osuId}`,
-                        url: `https://osu.ppy.sh/u/${user.osuId}`
-                    },
-                    color: '14707049',
-                }]);
-                logs.service.create(req.session.mongoId, `joined the Mappers' Guild`, user._id, 'user');
+                if(user.group == 'user'){
+                    api.webhookPost([{
+                        author: {
+                            name: `${user.username} joined the guild!`,
+                            icon_url: `https://a.ppy.sh/${user.osuId}`,
+                            url: `https://osu.ppy.sh/u/${user.osuId}`
+                        },
+                        color: '14707049',
+                    }]);
+                    logs.service.create(req.session.mongoId, `joined the Mappers' Guild`, user._id, 'user');
+                }else{
+                    logs.service.create(req.session.mongoId, `verified their account for the first time`, user._id, 'user');
+                }
                 return next();
             } else {
                 return res.status(500).render('error', { message: 'Something went wrong!' });
@@ -51,6 +55,20 @@ router.get('/login', async (req, res, next) => {
         } else {
             if (u.username != req.session.username) {
                 await users.service.update(u._id, { username: req.session.username });
+            }
+            if (u.group != req.session.group && u.group != 'admin') {
+                await users.service.update(u._id, { group: req.session.group });
+                if(req.session.group == 'user'){
+                    api.webhookPost([{
+                        author: {
+                            name: `${u.username} joined the guild!`,
+                            icon_url: `https://a.ppy.sh/${u.osuId}`,
+                            url: `https://osu.ppy.sh/u/${u.osuId}`
+                        },
+                        color: '14707049',
+                    }]);
+                    logs.service.create(req.session.mongoId, `joined the Mappers' Guild`, u._id, 'user');
+                }
             }
             req.session.mongoId = u._id;
             return next();
@@ -108,19 +126,16 @@ router.get('/callback', async (req, res) => {
 
         if (response.error) {
             res.status(500).render('error');
-        } else if (response.ranked_and_approved_beatmapset_count >= 3 && response.kudosu.total >= 0) {
+        } else if (response.ranked_and_approved_beatmapset_count >= 3) {
             req.session.username = response.username;
             req.session.osuId = response.id;
+            req.session.group = 'user';
             res.redirect('/login');
         } else { 
-            let u = await users.service.query({ osuId: response.id });
-            if(u){ //exception for the old mg users who dont meet requirements
-                req.session.username = response.username;
-                req.session.osuId = response.id;
-                res.redirect('/login');
-            }else{
-                res.render('index', { title: `Mappers' Guild`, isIndex: true, belowRequirements: true });
-            }
+            req.session.username = response.username;
+            req.session.osuId = response.id;
+            req.session.group = 'spectator';
+            res.redirect('/login');
         }
     }
 });

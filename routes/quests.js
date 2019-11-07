@@ -64,7 +64,7 @@ router.get("/loadComplete", async (req, res, next) => {
 });
 
 /* POST create party */
-router.post('/createParty/:id', async (req, res) => {
+router.post('/createParty/:id', api.isNotSpectator, async (req, res) => {
     let p = await parties.service.create(req.session.mongoId);
     await updatePartyRank(p._id);
     await quests.service.update(req.params.id, { $push: { parties: p._id } });
@@ -75,7 +75,7 @@ router.post('/createParty/:id', async (req, res) => {
 });
 
 /* POST delete party */
-router.post('/deleteParty/:partyId/:questId', async (req, res) => {
+router.post('/deleteParty/:partyId/:questId', api.isNotSpectator, async (req, res) => {
     let p = await parties.service.remove(req.params.partyId);
     await quests.service.update(req.params.questId, { $pull: { parties: p._id } });
     let q = await quests.service.query({ _id: req.params.questId }, questPopulate);
@@ -85,7 +85,7 @@ router.post('/deleteParty/:partyId/:questId', async (req, res) => {
 });
 
 /* POST toggle party lock */
-router.post('/togglePartyLock/:partyId/:questId', async (req, res) => {
+router.post('/togglePartyLock/:partyId/:questId', api.isNotSpectator, async (req, res) => {
     let p = await parties.service.update(req.params.partyId, { lock: !req.body.lock });
     let q = await quests.service.query({ _id: req.params.questId }, questPopulate);
     res.json(q);
@@ -94,7 +94,7 @@ router.post('/togglePartyLock/:partyId/:questId', async (req, res) => {
 });
 
 /* POST join party */
-router.post('/joinParty/:partyId/:questId', async (req, res) => {
+router.post('/joinParty/:partyId/:questId', api.isNotSpectator, async (req, res) => {
     let p = await parties.service.update(req.params.partyId, { $push: { members: req.session.mongoId } });
     await updatePartyRank(req.params.partyId);
     let q = await quests.service.query({ _id: req.params.questId }, questPopulate);
@@ -104,7 +104,7 @@ router.post('/joinParty/:partyId/:questId', async (req, res) => {
 });
 
 /* POST leave party */
-router.post('/leaveParty/:partyId/:questId', async (req, res) => {
+router.post('/leaveParty/:partyId/:questId', api.isNotSpectator, async (req, res) => {
     let p = await parties.service.update(req.params.partyId, { $pull: { members: req.session.mongoId } });
     await updatePartyRank(req.params.partyId);
     let q = await quests.service.query({ _id: req.params.questId }, questPopulate);
@@ -140,7 +140,7 @@ router.post('/leaveParty/:partyId/:questId', async (req, res) => {
 });
 
 /* POST invite to party */
-router.post('/inviteToParty/:partyId/:questId', async (req, res) => {
+router.post('/inviteToParty/:partyId/:questId', api.isNotSpectator, async (req, res) => {
     let u;
     if(req.body.username.indexOf("[") >= 0 || req.body.username.indexOf("]") >= 0){
         u = await users.service.query({ username: new RegExp('^\\' + req.body.username + '$', 'i') });
@@ -192,7 +192,7 @@ router.post('/inviteToParty/:partyId/:questId', async (req, res) => {
 });
 
 /* POST transfer party leader */
-router.post('/transferPartyLeader/:partyId/:questId', async (req, res) => {
+router.post('/transferPartyLeader/:partyId/:questId', api.isNotSpectator, async (req, res) => {
     let u = await users.service.query({_id: req.body.userId});
     if(!u || !req.body.userId.length){
         return res.json({ error: 'Cannot find user!' });
@@ -205,7 +205,7 @@ router.post('/transferPartyLeader/:partyId/:questId', async (req, res) => {
 });
 
 /* POST kick party member */
-router.post('/kickPartyMember/:partyId/:questId', async (req, res) => {
+router.post('/kickPartyMember/:partyId/:questId', api.isNotSpectator, async (req, res) => {
     let u = await users.service.query({_id: req.body.userId});
     if(!u || !req.body.userId.length){
         return res.json({ error: 'Cannot find user!' });
@@ -242,7 +242,7 @@ router.post('/kickPartyMember/:partyId/:questId', async (req, res) => {
 });
 
 /* POST accepts quest. */
-router.post('/acceptQuest/:partyId/:questId', async (req, res) => {
+router.post('/acceptQuest/:partyId/:questId', api.isNotSpectator, async (req, res) => {
     let p = await parties.service.query({_id: req.params.partyId}, partyPopulate);
     if (!p) {
         return res.json({error: "Party doesn't exist!"});
@@ -297,7 +297,7 @@ router.post('/acceptQuest/:partyId/:questId', async (req, res) => {
 });
 
 /* POST drop quest. */
-router.post('/dropQuest/:partyId/:questId', async (req, res) => {
+router.post('/dropQuest/:partyId/:questId', api.isNotSpectator, async (req, res) => {
     let p = await parties.service.query({_id: req.params.partyId}, partyPopulate);
     if (!p) {
         return res.json({error: "Party doesn't exist!"});
