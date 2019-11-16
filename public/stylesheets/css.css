@@ -212,13 +212,13 @@ select option {
     margin: 0;
 }
 
-.form-control {
+.form-control, .form-control-sm {
     color: #fff;
     background-color: #625f5c66;
     border: 1px solid #6c757d;
 }
 
-.form-control:focus {
+.form-control:focus, .form-control-sm:focus {
     color: #fff;
     background-color: initial;
     border-color: #6c757d;

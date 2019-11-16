@@ -360,16 +360,11 @@ export default {
         },
     },
     methods: {
-        selectBeatmap: function(map) {
-            $('#extendedInfo').css('z-index', '10');
-            this.$emit('update:selectedMap', map);
-        },
         executePost: async function(path, data, e) {
             if (e) e.target.disabled = true;
 
             try {
                 const res = await axios.post(path, data);
-                console.log(res);
 
                 if (res.data.error) {
                     this.info = res.data.error;
