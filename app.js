@@ -18,6 +18,7 @@ const usersRouter = require('./routes/users');
 const logsRouter = require('./routes/logs');
 const notificationsRouter = require('./routes/notifications');
 const adminsRouter = require('./routes/admin');
+const newAdminRouter = require('./routes/newadmin');
 const artistsRouter = require('./routes/artists');
 const questsRouter = require('./routes/quests');
 const logs = require('./models/log');
@@ -63,6 +64,7 @@ app.use('/users', usersRouter);
 app.use('/logs', logsRouter);
 app.use('/notifications', notificationsRouter);
 app.use('/admin', adminsRouter);
+app.use('/newadmin', newAdminRouter)
 app.use('/artists', artistsRouter);
 app.use('/quests', questsRouter);
 
