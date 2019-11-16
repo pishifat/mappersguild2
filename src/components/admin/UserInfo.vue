@@ -3,26 +3,26 @@
         <div class="modal-dialog">
             <div class="modal-content bg-dark" v-if="user">
                 <div class="modal-header text-dark" :class="'bg-rank-' + user.rank">
-                    <h5 class="modal-title">{{ user.username }}</h5>
+                    <h5 class="modal-title">
+                        <a :href="'https://osu.ppy.sh/users/' + user.osuId" class="text-dark" target="_blank">
+                            {{ user.username }}
+                        </a>
+                    </h5>
                     <button type="button" class="close" data-dismiss="modal">
                         <span>&times;</span>
                     </button>
                 </div>
                 <div class="modal-body" style="overflow: hidden">
                     <p>
-                        Penalty points: 
                         <input
                             class="form-control-sm mx-2"
                             type="text"
                             autocomplete="off"
                             v-model="penaltyPoints"
                         />
-                        <button class="btn btn-sm btn-outline-info" @click="updatePenaltyPoints()">
-                            Save
+                        <button class="btn btn-sm btn-outline-info" @click="updatePenaltyPoints($event)">
+                            Save penalty points
                         </button>
-                    </p>
-                    <p>
-                        test
                     </p>
                 </div>
             </div>
@@ -36,8 +36,8 @@ export default {
     props: ['user'],
     watch: {
         user: function() {
-            this.penaltyPoints = this.user.penaltyPoints;
-        }
+            this.penaltyPoints = this.user.penaltyPoints || 0;
+        },
     },
     computed: {
 
@@ -62,8 +62,7 @@ export default {
             if (e) e.target.disabled = false;
         },
         updatePenaltyPoints: async function(e) {
-            //this doesn't work, continue tomorrow
-            const u = await this.executePost('/admin/updatePenaltyPoints/' + this.user.id, {penaltyPoints: this.penaltyPoints}, e);
+            const u = await this.executePost('/newadmin/updatePenaltyPoints/' + this.user.id, {penaltyPoints: this.penaltyPoints}, e);
             if (u) {
                 this.$emit('update-user', u);
             }
