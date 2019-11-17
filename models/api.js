@@ -162,6 +162,14 @@ async function isAdmin(req, res, next) {
     }
 }
 
+async function isSuperAdmin(req, res, next) {
+    if(res.locals.userRequest.osuId == 3178418){
+        next();
+    }else{
+        res.redirect('/');
+    }
+}
+
 async function isUser(req, res, next) {
     if(res.locals.userRequest.group == 'admin' || res.locals.userRequest.group == 'user'){
         next();
@@ -178,4 +186,4 @@ async function isNotSpectator(req, res, next) {
     }
 }
 
-module.exports = { isLoggedIn, getToken, getUserInfo, isBn, webhookPost, beatmapsetInfo, isAdmin, isUser, isNotSpectator };
+module.exports = { isLoggedIn, getToken, getUserInfo, isBn, webhookPost, beatmapsetInfo, isAdmin, isSuperAdmin, isUser, isNotSpectator };

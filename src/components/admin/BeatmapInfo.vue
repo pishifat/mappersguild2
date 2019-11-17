@@ -127,31 +127,31 @@ export default {
             if (e) e.target.disabled = false;
         },
         updateBeatmapStatus: async function(e) {
-            const b = await this.executePost('/newadmin/updateBeatmapStatus/' + this.beatmap.id, { status: this.status }, e);
+            const b = await this.executePost('/admin/updateBeatmapStatus/' + this.beatmap.id, { status: this.status }, e);
             if (b) {
                 this.$emit('update-beatmap', b);
             }
         },
         deleteTask: async function(e) {
-            const b = await this.executePost('/newadmin/deleteTask/' + this.beatmap.id, { taskId: this.taskId }, e);
+            const b = await this.executePost('/admin/deleteTask/' + this.beatmap.id, { taskId: this.taskId }, e);
             if (b) {
                 this.$emit('update-beatmap', b);
             }
         },
         deleteModder: async function(e) {
-            const b = await this.executePost('/newadmin/deleteModder/' + this.beatmap.id, { modderId: this.modderId }, e);
+            const b = await this.executePost('/admin/deleteModder/' + this.beatmap.id, { modderId: this.modderId }, e);
             if (b) {
                 this.$emit('update-beatmap', b);
             }
         },
         updateUrl: async function(e) {
-            const b = await this.executePost('/newadmin/updateUrl/' + this.beatmap.id, { url: this.beatmapUrl }, e);
+            const b = await this.executePost('/admin/updateUrl/' + this.beatmap.id, { url: this.beatmapUrl }, e);
             if (b) {
                 this.$emit('update-beatmap', b);
             }
         },
         updateStoryboardQuality: async function(e) {
-            const b = await this.executePost('/newadmin/updateStoryboardQuality/' + this.beatmap.id, { storyboardQuality: this.storyboardQuality }, e);
+            const b = await this.executePost('/admin/updateStoryboardQuality/' + this.beatmap.id, { storyboardQuality: this.storyboardQuality }, e);
             if (b) {
                 this.$emit('update-beatmap', b);
             }

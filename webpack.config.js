@@ -8,7 +8,6 @@ module.exports = {
         users: './src/users.js',
         notifications: './src/notifications.js',
         admin: './src/admin.js',
-        newadmin: './src/newadmin.js',
         artists: './src/artists.js',
         quests: './src/quests.js',
     },

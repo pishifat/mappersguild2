@@ -62,7 +62,7 @@ export default {
             if (e) e.target.disabled = false;
         },
         updatePenaltyPoints: async function(e) {
-            const u = await this.executePost('/newadmin/updatePenaltyPoints/' + this.user.id, {penaltyPoints: this.penaltyPoints}, e);
+            const u = await this.executePost('/admin/updatePenaltyPoints/' + this.user.id, {penaltyPoints: this.penaltyPoints}, e);
             if (u) {
                 this.$emit('update-user', u);
             }

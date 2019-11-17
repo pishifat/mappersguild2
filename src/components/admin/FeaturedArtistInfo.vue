@@ -126,31 +126,31 @@ export default {
             if (e) e.target.disabled = false;
         },
         updateOsuId: async function(e) {
-            const fa = await this.executePost('/newadmin/updateFeaturedArtistOsuId/' + this.featuredArtist.id, { osuId: this.osuId }, e);
+            const fa = await this.executePost('/admin/updateFeaturedArtistOsuId/' + this.featuredArtist.id, { osuId: this.osuId }, e);
             if (fa) {
                 this.$emit('update-featured-artist', fa);
             }
         },
         updateName: async function(e) {
-            const fa = await this.executePost('/newadmin/updateFeaturedArtistName/' + this.featuredArtist.id, { name: this.name }, e);
+            const fa = await this.executePost('/admin/updateFeaturedArtistName/' + this.featuredArtist.id, { name: this.name }, e);
             if (fa) {
                 this.$emit('update-featured-artist', fa);
             }
         },
         addSong: async function(e) {
-            const fa = await this.executePost('/newadmin/addSong/' + this.featuredArtist.id, { artist: this.artist, title: this.title }, e);
+            const fa = await this.executePost('/admin/addSong/' + this.featuredArtist.id, { artist: this.artist, title: this.title }, e);
             if (fa) {
                 this.$emit('update-featured-artist', fa);
             }
         },
         editSong: async function(e) {
-            const fa = await this.executePost('/newadmin/editSong/' + this.featuredArtist.id, { songId: this.selectedSong.id, artist: this.artist, title: this.title }, e);
+            const fa = await this.executePost('/admin/editSong/' + this.featuredArtist.id, { songId: this.selectedSong.id, artist: this.artist, title: this.title }, e);
             if (fa) {
                 this.$emit('update-featured-artist', fa);
             }
         },
         deleteSong: async function(e) {
-            const fa = await this.executePost('/newadmin/deleteSong/' + this.featuredArtist.id, { songId: this.selectedSong.id }, e);
+            const fa = await this.executePost('/admin/deleteSong/' + this.featuredArtist.id, { songId: this.selectedSong.id }, e);
             if (fa) {
                 this.$emit('update-featured-artist', fa);
             }

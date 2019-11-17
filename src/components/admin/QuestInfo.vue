@@ -76,31 +76,31 @@ export default {
             if (e) e.target.disabled = false;
         },
         dropQuest: async function(e) {
-            const q = await this.executePost('/newadmin/dropQuest/' + this.quest.id, {}, e);
+            const q = await this.executePost('/admin/dropQuest/' + this.quest.id, {}, e);
             if (q) {
                 this.$emit('update-quest', q);
             }
         },
         completeQuest: async function(e) {
-            const q = await this.executePost('/newadmin/completeQuest/' + this.quest.id, {}, e);
+            const q = await this.executePost('/admin/completeQuest/' + this.quest.id, {}, e);
             if (q) {
                 this.$emit('update-quest', q);
             }
         },
         duplicateQuest: async function(e) {
-            const q = await this.executePost('/newadmin/duplicateQuest/' + this.quest.id, {name: this.duplicateQuestName}, e);
+            const q = await this.executePost('/admin/duplicateQuest/' + this.quest.id, {name: this.duplicateQuestName}, e);
             if (q) {
                 this.$emit('add-quest', q);
             }
         },
         resetQuestDeadline: async function(e) {
-            const q = await this.executePost('/newadmin/resetQuestDeadline/' + this.quest.id, {}, e);
+            const q = await this.executePost('/admin/resetQuestDeadline/' + this.quest.id, {}, e);
             if (q) {
                 this.$emit('update-quest', q);
             }
         },
         deleteQuest: async function(e) {
-            const q = await this.executePost('/newadmin/deleteQuest/' + this.quest.id, {}, e);
+            const q = await this.executePost('/admin/deleteQuest/' + this.quest.id, {}, e);
             if (q) {
                 $('#editQuest').modal('hide');
                 this.$emit('delete-quest', q);
