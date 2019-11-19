@@ -31,6 +31,28 @@ userSchema.virtual('totalPoints').get(function() {
         this.storyboardPoints + this.questPoints + this.modPoints + this.hostPoints + this.legacyPoints - this.penaltyPoints)*10)/10;
 });
 
+userSchema.virtual('mainMode').get(function() {
+    let modes = indexModes = [this.osuPoints, this.taikoPoints, this.catchPoints, this.maniaPoints];
+    modes.sort();
+    let i = [this.osuPoints, this.taikoPoints, this.catchPoints, this.maniaPoints].indexOf(modes[3]);
+    let mode;
+    switch (i) {
+        case 3:
+            mode = 'mania';
+            break;
+        case 2:
+            mode = 'catch';
+            break;
+        case 1:
+            mode = 'taiko';
+            break;
+        default:
+            mode = 'osu';
+            break;
+    }
+    return mode;
+});
+
 var User = mongoose.model('User', userSchema);
 
 class UserService

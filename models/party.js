@@ -3,10 +3,11 @@ const User = require('./user.js');
 const logs = require('./log');
 
 const partySchema = new mongoose.Schema({
-    leader: { type: 'ObjectId', ref: 'User'},
-    members: [{ type: 'ObjectId', ref: 'User'}],
+    leader: { type: 'ObjectId', ref: 'User' },
+    members: [{ type: 'ObjectId', ref: 'User' }],
     lock: { type: Boolean, default: false },
     rank: { type: Number, default: 0 },
+    modes: { type: [String], required: true }
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const Party = mongoose.model('Party', partySchema);
@@ -49,11 +50,12 @@ class PartyService
         }
     }
 
-    async create(userId) {
+    async create(userId, mode) {
         try {
             return await Party.create({ 
                 leader: userId,
                 members: userId,
+                modes: [mode],
             });
         } catch(error) {
             logs.service.create(null, error, null, 'error'); 

@@ -104,6 +104,9 @@
                             <i class="fas fa-angle-down" />
                         </a>
                         <span v-if="questsLoading" class="ml-2 small text-white-50">loading...</span>
+                        <button class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#addQuest">
+                            Add quest
+                        </button>
                     </h5>
                     <div id="quests" class="collapse">
                         <table v-if="quests" class="table table-sm table-dark table-hover">
@@ -243,10 +246,13 @@
         @update-beatmap="updateBeatmap($event)"
     ></beatmap-info>
 
+    <add-quest
+        @add-quest="addQuest($event)"
+    ></add-quest>
+
     <quest-info
         :quest="selectedQuest"
         @update-quest="updateQuest($event)"
-        @add-quest="addQuest($event)"
         @delete-quest="deleteQuest($event)"
     ></quest-info>
 
@@ -265,6 +271,7 @@
 
 <script>
 import BeatmapInfo from '../components/admin/BeatmapInfo.vue';
+import AddQuest from '../components/admin/AddQuest.vue';
 import QuestInfo from '../components/admin/QuestInfo.vue';
 import UserInfo from '../components/admin/UserInfo.vue';
 import FeaturedArtistInfo from '../components/admin/FeaturedArtistInfo.vue';
@@ -273,6 +280,7 @@ export default {
     name: 'admin-page',
     components: {
         BeatmapInfo,
+        AddQuest,
         QuestInfo,
         UserInfo,
         FeaturedArtistInfo,
@@ -316,8 +324,9 @@ export default {
             this.selectedQuest = q;
         },
         addQuest: function(q) {
-            this.quests.push(q);
-            this.selectedQuest = q;
+            if(this.quests){
+                this.quests.unshift(q);
+            }
         },
         deleteQuest: function(q) {
             const i = this.quests.findIndex(quest => quest.id == q.id);

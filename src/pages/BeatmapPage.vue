@@ -7,6 +7,7 @@
                 :filterStatus.sync="filterStatus"
                 :filterQuest.sync="filterQuest"
                 :all-quests="allQuests"
+                placeholder="song/username..."
                 @self-filter="selfFilter()"
             >
                 <button
@@ -85,8 +86,8 @@ export default {
         CreateBeatmap,
         BeatmapCard,
         BeatmapInfo,
-        NotificationsAccess,
         FilterBox,
+        NotificationsAccess,
     },
     watch: {
         filterValue: function(v) {

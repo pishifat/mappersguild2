@@ -52,13 +52,12 @@
                     Time: 
                     <span class="text-white-50">{{Math.round(quest.timeframe / (1000*60*60*24))}} days</span>
                 </span>
-                <span class="small min-spacing col-sm-1 mt-1">
-                    Medal: 
-                    <i class="fas text-white-50" :class="quest.medal ? 'fa-check' : 'fa-times'"></i>
-                </span>
-                <span class="small min-spacing col-sm-1 mt-1">
-                    Rank: 
-                    <span class="text-white-50">{{quest.minRank}}</span>
+                <span class="small min-spacing col-sm-2 mt-1">
+                    Modes: 
+                    <i v-if="quest.modes.includes('osu')" class="fas fa-circle" data-toggle="tooltip" data-placement="top" title="osu!"></i>
+                    <i v-if="quest.modes.includes('taiko')" class="fas fa-drum" data-toggle="tooltip" data-placement="top" title="osu!taiko"></i>
+                    <i v-if="quest.modes.includes('catch')" class="fas fa-apple-alt" data-toggle="tooltip" data-placement="top" title="osu!catch"></i>
+                    <i v-if="quest.modes.includes('mania')" class="fas fa-stream" data-toggle="tooltip" data-placement="top" title="osu!mania"></i>
                 </span>
             </div>
         </div>
@@ -76,7 +75,7 @@
                 <div v-for="party in quest.parties" :key="party.id">
                     <div class="row">
                         <p class="sub-header col-sm-4 text-shadow min-spacing">
-                            <u><a :href="'https://osu.ppy.sh/users/' + party.leader.osuId" _target="blank">{{party.leader.username}}</a>'s party</u>
+                            <u><a :href="'https://osu.ppy.sh/users/' + party.leader.osuId" target="_blank">{{party.leader.username}}</a>'s party</u>
                             ({{party.members.length}})
                             <i v-if="party.lock" class="fas fa-lock small" data-toggle="tooltip" data-placement="top" title="party is invite-only"></i>
                             <i v-else class="fas fa-unlock small" data-toggle="tooltip" data-placement="top" title="party is open"></i>
@@ -172,6 +171,13 @@
                             </i>
                         </li>
                     </ul>
+                    <p class='small text-shadow min-spacing ml-3 mt-1'>
+                        Modes: 
+                        <i v-if="party.modes.includes('osu')" class="fas fa-circle" data-toggle="tooltip" data-placement="top" title="osu!"></i>
+                        <i v-if="party.modes.includes('taiko')" class="fas fa-drum" data-toggle="tooltip" data-placement="top" title="osu!taiko"></i>
+                        <i v-if="party.modes.includes('catch')" class="fas fa-apple-alt" data-toggle="tooltip" data-placement="top" title="osu!catch"></i>
+                        <i v-if="party.modes.includes('mania')" class="fas fa-stream" data-toggle="tooltip" data-placement="top" title="osu!mania"></i>
+                    </p>
                     <button 
                         v-if="party.leader.id == userId && party.rank >= quest.minRank && party.members.length >= quest.minParty && party.members.length <= quest.maxParty" 
                         class="btn btn-sm btn-outline-success mx-2 my-2" 
@@ -186,7 +192,7 @@
             <!--wip quests-->
             <div v-if="quest.status == 'wip'" class="col-sm-6">
                 <p class="sub-header text-shadow min-spacing">
-                    <u><a :href="'https://osu.ppy.sh/users/' + quest.currentParty.leader.osuId" _target="blank">
+                    <u><a :href="'https://osu.ppy.sh/users/' + quest.currentParty.leader.osuId" target="+blank">
                         {{quest.currentParty.leader.username}}
                     </a>'s party</u>
                     ({{quest.currentParty.members.length}})

@@ -137,7 +137,7 @@ async function isBn(req, res, next) {
 
 async function isLoggedIn(req, res, next) {
     if (req.session.mongoId) {
-        const u = await users.service.query({ _id: req.session.mongoId }, [{ populate: 'currentParty', display: 'name' }]);
+        const u = await users.service.query({ _id: req.session.mongoId });
 
         // Refresh if less than 30 sec left
         if (req.session.cookie.maxAge < 30000) {

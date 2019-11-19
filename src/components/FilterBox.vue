@@ -12,12 +12,12 @@
                         class="form-control"
                         type="text"
                         maxlength="48"
-                        :placeholder="filterQuest !== undefined ? 'song/username' : 'username' + '... (3+ characters)'"
+                        :placeholder="placeholder"
                         autocomplete="off"
                         :value="filterValue"
                         @input="$emit('update:filterValue', $event.target.value)"
                     />
-                    <div class="input-group-append">
+                    <div v-if="placeholder != 'quest name...'" class="input-group-append">
                         <button
                             class="btn btn-outline-secondary"
                             type="button"
@@ -39,11 +39,11 @@
                         Mode
                     </div>
                     <div class="col">
-                        <a href="#" class="mode sorted" @click.prevent="$emit('update:filterMode', ''); checkSorted();">Any</a>
-                        <a href="#" class="mode unsorted" @click.prevent="$emit('update:filterMode', 'osu'); checkSorted();">osu!</a>
-                        <a href="#" class="mode unsorted" @click.prevent="$emit('update:filterMode', 'taiko'); checkSorted();">osu!taiko</a>
-                        <a href="#" class="mode unsorted" @click.prevent="$emit('update:filterMode', 'catch'); checkSorted();">osu!catch</a>
-                        <a href="#" class="mode unsorted" @click.prevent="$emit('update:filterMode', 'mania'); checkSorted();">osu!mania</a>
+                        <a href="#" class="mode" :class="selectModeSort('')" @click.prevent="$emit('update:filterMode', ''); checkSorted();">Any</a>
+                        <a href="#" id="osu" class="mode" :class="selectModeSort('osu')" @click.prevent="$emit('update:filterMode', 'osu'); checkSorted();">osu!</a>
+                        <a href="#" id="taiko" class="mode" :class="selectModeSort('taiko')" @click.prevent="$emit('update:filterMode', 'taiko'); checkSorted();">osu!taiko</a>
+                        <a href="#" id="catch" class="mode" :class="selectModeSort('catch')" @click.prevent="$emit('update:filterMode', 'catch'); checkSorted();">osu!catch</a>
+                        <a href="#" id="mania" class="mode" :class="selectModeSort('mania')" @click.prevent="$emit('update:filterMode', 'mania'); checkSorted();">osu!mania</a>
                     </div>
                 </div>
                 <div class="row mt-3" v-if="filterStatus !== undefined">
@@ -88,7 +88,7 @@
 
 <script>
 export default {
-    props: ['filter-value', 'filter-mode', 'filter-status', 'filter-quest', 'all-quests'],
+    props: ['filter-value', 'filter-mode', 'filter-status', 'filter-quest', 'all-quests', 'placeholder'],
     methods: {
         checkSorted: function () {
             const category = event.target.classList[0];
@@ -108,6 +108,13 @@ export default {
                     event.target.className.indexOf('unsorted')
                 );
                 event.target.className += ' sorted';
+            }
+        },
+        selectModeSort: function(sort) {
+            if (this.filterMode == sort){
+                return 'sorted';
+            }else{
+                return 'unsorted';
             }
         }
     }

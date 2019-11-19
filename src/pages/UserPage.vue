@@ -4,6 +4,7 @@
             <filter-box
                 :filterValue.sync="filterValue"
                 :filterMode.sync="filterMode"
+                placeholder="username..."
                 @self-filter="selfFilter()"
             ></filter-box>
             <div class="row small mt-3">

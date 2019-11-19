@@ -28,14 +28,18 @@ const beatmapPopulate = [
     { innerPopulate: 'tasks', populate: { path: 'mappers' } },
 ];
 
-//updating party rank when leaving/kicking/joining
-async function updatePartyRank(id) {
-    let p = await parties.service.query({ _id: id }, partyPopulate);
+//updating party rank and modes when leaving/kicking/joining
+async function updatePartyInfo(id) {
+    let p = await parties.service.query({ _id: id }, [{ populate: 'members', display: 'rank osuPoints taikoPoints catchPoints maniaPoints' }]);
     let rank = 0;
+    let modes = [];
     p.members.forEach(user => {
         rank += user.rank;
+        if(!modes.includes(user.mainMode)){
+            modes.push(user.mainMode);
+        }
     });
-    await parties.service.update(id, { rank: Math.round(rank / p.members.length) });
+    await parties.service.update(id, { rank: Math.round(rank / p.members.length), modes: modes });
 }
 
 /* GET quests page */
@@ -51,22 +55,26 @@ router.get('/', async (req, res, next) => {
 
 /* GET relevant quest info */
 router.get("/relevantInfo", async (req, res, next) => {
-    let all = await quests.service.query({ $or: [ { status: 'open' }, { status: 'wip' } ] }, questPopulate, {createdAt: -1}, true);
-    let wip = await quests.service.query({ status: 'wip' }, questPopulate, {createdAt: -1}, true);
+    let all = await quests.service.query({ modes: res.locals.userRequest.mainMode, status: 'open' }, questPopulate, {createdAt: -1}, true);
     
-    res.json({all, userId: req.session.mongoId, group: res.locals.userRequest.group});
+    res.json({all, userId: req.session.mongoId, group: res.locals.userRequest.group, mainMode: res.locals.userRequest.mainMode});
 });
 
-/* GET completed quests */
-router.get("/loadComplete", async (req, res, next) => {
-    let complete = await quests.service.query({status: "done"}, questPopulate, {accepted: -1}, true);
-    res.json({complete});
+/* GET relevant quest info */
+router.get("/loadQuests/:mode", async (req, res, next) => {
+    let all;
+    if(req.params.mode != 'any'){
+        all = await quests.service.query({ modes: req.params.mode, status: { $ne: 'hidden' } }, questPopulate, {createdAt: -1}, true);
+    }else{
+        all = await quests.service.query({ status: { $ne: 'hidden' } }, questPopulate, {createdAt: -1}, true);
+    }
+    res.json({all});
 });
 
 /* POST create party */
 router.post('/createParty/:id', api.isNotSpectator, async (req, res) => {
-    let p = await parties.service.create(req.session.mongoId);
-    await updatePartyRank(p._id);
+    let p = await parties.service.create(req.session.mongoId, res.locals.userRequest.mainMode);
+    await updatePartyInfo(p._id);
     await quests.service.update(req.params.id, { $push: { parties: p._id } });
     let q = await quests.service.query({ _id: req.params.id }, questPopulate);
     res.json(q);
@@ -96,7 +104,10 @@ router.post('/togglePartyLock/:partyId/:questId', api.isNotSpectator, async (req
 /* POST join party */
 router.post('/joinParty/:partyId/:questId', api.isNotSpectator, async (req, res) => {
     let p = await parties.service.update(req.params.partyId, { $push: { members: req.session.mongoId } });
-    await updatePartyRank(req.params.partyId);
+    if(!p.modes.includes(res.locals.userRequest.mainMode)){
+        p = await parties.service.update(req.params.partyId, { $push: { modes: res.locals.userRequest.mainMode } });
+    }
+    await updatePartyInfo(req.params.partyId);
     let q = await quests.service.query({ _id: req.params.questId }, questPopulate);
     res.json(q);
 
@@ -106,7 +117,7 @@ router.post('/joinParty/:partyId/:questId', api.isNotSpectator, async (req, res)
 /* POST leave party */
 router.post('/leaveParty/:partyId/:questId', api.isNotSpectator, async (req, res) => {
     let p = await parties.service.update(req.params.partyId, { $pull: { members: req.session.mongoId } });
-    await updatePartyRank(req.params.partyId);
+    await updatePartyInfo(req.params.partyId);
     let q = await quests.service.query({ _id: req.params.questId }, questPopulate);
     res.json(q);
 

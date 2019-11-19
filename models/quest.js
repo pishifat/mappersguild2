@@ -10,10 +10,10 @@ var questSchema = new mongoose.Schema({
     maxParty: { type: Number, required: true},
     minRank: { type: Number, required: true},
     art: { type: Number },
-    medal: { type: Boolean },
-    color: { type: "String", default: "#ffa658" },
-    status: { type: String, enum: ['open', 'wip', 'done'], default: "open" },
-    parties: [{type: 'ObjectId', ref: 'Party'}],
+    color: { type: String, default: '#ffa658' },
+    status: { type: String, enum: ['open', 'wip', 'done'], default: 'open' },
+    parties: [{ type: 'ObjectId', ref: 'Party' }],
+    modes: { type: [String], default: ['osu', 'taiko', 'catch', 'mania'], required: true},
     
     accepted: { type: Date },
     deadline: { type: Date },
@@ -86,8 +86,8 @@ class QuestService
             maxParty: body.maxParty, 
             minRank: body.minRank, 
             art: body.art, 
-            medal: body.medal,
             color: body.color,
+            modes: ['osu', 'taiko', 'catch', 'mania']
         });
         try {
             await quest.save();

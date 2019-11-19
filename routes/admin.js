@@ -205,6 +205,38 @@ router.get('/loadQuests/', async (req, res) => {
     res.json({q});
 });
 
+/* POST add quest */
+router.post('/addQuest/', api.isSuperAdmin, async (req, res) => {
+    var quest = await quests.service.create(req.body);
+    if (quest) {
+        logs.service.create(req.session.mongoId, `created quest "${quest.name}"`, quest._id, 'quest' );
+        api.webhookPost([{
+            author: {
+                name: `New Quest: ${quest.name}`,
+                url: `https://mappersguild.com/quests`
+            },
+            thumbnail: {
+                url: `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`
+            },
+            color: '16734308',
+            fields:[{
+                name: "Objective",
+                value: `${quest.descriptionMain}`
+            },
+            {
+                name: "Party",
+                value: `${quest.minParty}-${quest.maxParty} members`
+            },
+            {
+                name: "Bonus",
+                value: `${quest.reward} points for each member`
+            }]
+        }]);
+        res.send(quest);
+    }
+});
+
+
 /* POST drop quest */
 router.post('/dropQuest/:id', api.isSuperAdmin, async (req, res) => {
     let q = await quests.service.query({_id: req.params.id}, questPopulate);
@@ -290,7 +322,6 @@ router.post('/duplicateQuest/:id', api.isSuperAdmin, async (req, res) => {
                 maxParty: q.maxParty,
                 minRank: q.minRank,
                 art: q.art,
-                medal: q.medal,
                 color: q.color}
     let newQuest = await quests.service.create(body);
     res.json(newQuest);

@@ -1,35 +1,20 @@
 <template>
 <div>
-	<div class="container bg-container py-3 mb-2">
-		<div>
-        <div class="row mb-2">
-            <div class="col">
-                <div class="input-group">
-                    <div class="input-group-prepend">
-                        <div class="input-group-text">
-                            <i class="fas fa-search"></i>
-                        </div>
-                    </div>
-                    <input
-                        class="form-control"
-                        type="text"
-                        maxlength="48"
-                        placeholder="quest..."
-                        autocomplete="off"
-                        v-model="filterValue"
-                    />
-                    <div class="input-group-append">
-                        <slot></slot>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="container bg-container py-3 mb-2">
+        <filter-box
+            :filterValue.sync="filterValue"
+            :filterMode.sync="filterMode"
+            placeholder="quest name..."
+        >
+        </filter-box>
     </div>
-	</div>
-	<div v-if="openQuests" class="container bg-container py-1">
+	<div class="container bg-container py-1">
 		<div class="row">
 			<div class="col">
-				<h5 class="ml-4 mt-2">
+                <h5 v-if="!openQuests" class="ml-4 mt-2">
+                    <a href="#" @click.prevent>Loading open quests...</a>
+                </h5>
+				<h5 v-else class="ml-4 mt-2">
 					<a href="#open" data-toggle="collapse" >
 						Open quests ({{openQuests.length}})
 						<i class="fas fa-angle-down" />
@@ -53,10 +38,13 @@
 	
 	<div class="radial-divisor mx-auto my-4"></div>
 
-	<div v-if="wipQuests" class="container bg-container py-1">
+	<div class="container bg-container py-1">
 		<div class="row">
 			<div class="col">
-				<h5 class="ml-4 mt-2">
+                <h5 v-if="!wipQuests" class="ml-4 mt-2">
+                    <a href="#" @click.prevent>Loading work-in-progress quests...</a>
+                </h5>
+				<h5 v-else class="ml-4 mt-2">
 					<a href="#wip" data-toggle="collapse" >
 						Work-in-progress quests ({{wipQuests.length}})
 						<i class="fas fa-angle-down" />
@@ -82,9 +70,8 @@
 	<div class="container bg-container py-1">
 		<div class="row">
 			<div class="col">
-                <h5 v-if="!completeQuests || !completeQuests.length" class="ml-4 mt-2">
-                    <a v-if="!loadingCompleteQuests" href="#" @click.prevent="loadComplete()">Load complete quests</a>
-                    <a v-else href="#" @click.prevent>Load complete quests</a>
+                <h5 v-if="!completeQuests" class="ml-4 mt-2">
+                    <a href="#" @click.prevent>Loading complete quests...</a>
                 </h5>
 				<h5 v-else class="ml-4 mt-2">
 					<a href="#complete" data-toggle="collapse" >
@@ -92,7 +79,7 @@
 						<i class="fas fa-angle-down" />
 					</a>
 				</h5>
-				<div id="complete" class="show">
+				<div id="complete" class="collapse">
 					<transition-group name="list" tag="div" class="row">
 						<quest-card
 							v-for="quest in completeQuests"
@@ -113,17 +100,30 @@
 
 <script>
 import QuestCard from '../components/quests/QuestCard.vue';
+import FilterBox from '../components/FilterBox.vue';
 import NotificationsAccess from '../components/NotificationsAccess.vue';
 
 export default {
     name: 'quest-page',
     components: {
         QuestCard,
+        FilterBox,
         NotificationsAccess
     },
     watch: {
         filterValue: function(v) {
             this.filter();
+        },
+        filterMode: async function(v) {
+            let mode = this.filterMode;
+            if(!this.filterMode.length) mode = 'any';
+            axios
+                .get('/quests/loadQuests/' + mode)
+                .then(response => {
+                    this.allObjs = response.data.all;
+                    this.pageObjs = response.data.all;
+                    this.filter();
+            })
         },
     },
     methods: {
@@ -158,22 +158,14 @@ export default {
                 }
             });
         },
-        loadComplete: async function() {
-            this.loadingCompleteQuests = true;
-            axios
-            .get('/quests/loadComplete')
-            .then(response => {
-                this.allObjs = this.allObjs.concat(response.data.complete);
-                this.filter();
-            });
-        },
         updateQuest: function(quest) {
             const i = this.allObjs.findIndex(q => q.id == quest.id);
             this.allObjs[i] = quest;
-            this.separateObjs();
+            this.filter();
         },
         filter: function() {
             this.pageObjs = this.allObjs;
+            //search
             if (this.filterValue.length > 2) {
                 this.pageObjs = this.allObjs.filter(q => {
                     if (q.name.toLowerCase().indexOf(this.filterValue.toLowerCase()) > -1) {
@@ -182,12 +174,37 @@ export default {
                     return false;
                 });
             }
+            //mode
+            if (this.filterMode.length) {
+                if (this.isFiltered) {
+                    this.pageObjs = this.pageObjs.filter(q => {
+                        if(q.modes){
+                            if (q.modes.indexOf(this.filterMode) >= 0) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    });
+                } else {
+                    this.pageObjs = this.allObjs.filter(q => {
+                        if(q.modes){
+                            if (q.modes.indexOf(this.filterMode) >= 0) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    });
+                }
+            }
+            this.isFiltered = this.filterValue.length > 2 || this.filterMode.length;
             this.separateObjs();
         },
     },
     data() {
         return {
             filterValue: '',
+            filterMode: '',
+            isFiltered: false,
             allObjs: null,
             pageObjs: null,
             openQuests: null,
@@ -206,6 +223,7 @@ export default {
                 this.pageObjs = response.data.all;
                 this.userId = response.data.userId;
                 this.usergroup = response.data.group;
+                this.filterMode = response.data.mainMode;
                 this.separateObjs();
             })
             .then(function() {

@@ -36,14 +36,18 @@ const questPopulate = [
     { innerPopulate: 'associatedMaps',  populate: { path: 'song host' } }
 ];
 
-//updating party rank when accepting invite
-async function updatePartyRank(id) {
-    let p = await parties.service.query({ _id: id }, [{ populate: 'members', display: 'rank' }]);
+//updating party rank and modes when accepting invite
+async function updatePartyInfo(id) {
+    let p = await parties.service.query({ _id: id }, [{ populate: 'members', display: 'rank osuPoints taikoPoints catchPoints maniaPoints' }]);
     var rank = 0;
+    let modes = [];
     p.members.forEach(user => {
         rank += user.rank;
+        if(!modes.includes(user.mainMode)){
+            modes.push(user.mainMode);
+        }
     });
-    await parties.service.update(id, { rank: Math.round(rank / p.members.length) });
+    await parties.service.update(id, { rank: Math.round(rank / p.members.length), modes: modes });
 }
 
 //valid task check (doesn't have lock check, has special task checks)
@@ -301,7 +305,7 @@ router.post('/acceptJoin/:id', api.isNotSpectator, async (req, res) => {
     res.json(invite);
 
     await parties.service.update(invite.party.id, { $push: { members: req.session.mongoId } });
-    await updatePartyRank(p._id);
+    await updatePartyInfo(p._id);
     logs.service.create(req.session.mongoId, `joined a party for quest ${q.name}`, p._id, 'party');
     notifications.service.createPartyNotification(
         p.id,
