@@ -207,6 +207,7 @@ router.get('/loadQuests/', async (req, res) => {
 
 /* POST add quest */
 router.post('/addQuest/', api.isSuperAdmin, async (req, res) => {
+    req.body.modes = ['osu', 'taiko', 'catch', 'mania'];
     var quest = await quests.service.create(req.body);
     if (quest) {
         logs.service.create(req.session.mongoId, `created quest "${quest.name}"`, quest._id, 'quest' );
@@ -322,7 +323,8 @@ router.post('/duplicateQuest/:id', api.isSuperAdmin, async (req, res) => {
                 maxParty: q.maxParty,
                 minRank: q.minRank,
                 art: q.art,
-                color: q.color}
+                color: q.color,
+                modes: ['osu', 'taiko', 'catch', 'mania']}
     let newQuest = await quests.service.create(body);
     res.json(newQuest);
 });

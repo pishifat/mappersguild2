@@ -254,31 +254,60 @@ router.post('/kickPartyMember/:partyId/:questId', api.isNotSpectator, async (req
 
 /* POST accepts quest. */
 router.post('/acceptQuest/:partyId/:questId', api.isNotSpectator, async (req, res) => {
-    let p = await parties.service.query({_id: req.params.partyId}, partyPopulate);
+    let p = await parties.service.query({ _id: req.params.partyId }, partyPopulate);
     if (!p) {
         return res.json({error: "Party doesn't exist!"});
     }
-    let q = await quests.service.query({ _id: req.params.questId }, questPopulate);
-    if(q.currentParty){
-        return res.json({error: "Another party has taken this quest!"});
+    let invalidQuest = await quests.service.query({ name: req.body.questName, modes: p.modes }, questPopulate);
+    if(invalidQuest){
+        return res.json({error: "Quest already exists for selected mode(s)!"});
     }
+    let q = await quests.service.query({ _id: req.params.questId }, questPopulate);
     let valid = (p.members.length >= q.minParty 
         && p.members.length <= q.maxParty 
         && p.rank >= q.minRank);
     if(!valid){
         return res.json({error: "Something went wrong!"});
     }
-
-    await quests.service.update(q._id, {
-        accepted: new Date().getTime(),
-        status: 'wip',
-        deadline: new Date().getTime() + q.timeframe,
-        parties: [],
-        currentParty: p._id 
-    });
+    if(q.modes.length == p.modes.length){
+        await quests.service.update(q._id, {
+            accepted: new Date().getTime(),
+            status: 'wip',
+            deadline: new Date().getTime() + q.timeframe,
+            parties: [],
+            currentParty: p._id 
+        });
+    }else{
+        for (let i = 0; i < p.modes.length; i++) {
+            const mode = p.modes[i];
+            await quests.service.update(q._id, { $pull: { modes: mode } });
+        }
+        await quests.service.update(q._id, {
+            $pull: { parties: p._id },
+        });
+        let body = {name: q.name,
+            reward: q.reward,
+            descriptionMain: q.descriptionMain,
+            timeframe: q.timeframe,
+            minParty: q.minParty,
+            maxParty: q.maxParty,
+            minRank: q.minRank,
+            art: q.art,
+            color: q.color,
+            modes: p.modes}
+        let newQuest = await quests.service.create(body);
+        await quests.service.update(newQuest._id, {
+            accepted: new Date().getTime(),
+            status: 'wip',
+            deadline: new Date().getTime() + newQuest.timeframe,
+            currentParty: p._id 
+        });
+    }
 
     q = await quests.service.query({ _id: req.params.questId }, questPopulate);
     res.json(q);
+
+    
 
     logs.service.create(req.session.mongoId, `party accepted quest "${q.name}"`, q._id, 'quest' );
 

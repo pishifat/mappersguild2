@@ -87,7 +87,7 @@ class QuestService
             minRank: body.minRank, 
             art: body.art, 
             color: body.color,
-            modes: ['osu', 'taiko', 'catch', 'mania']
+            modes: body.modes
         });
         try {
             await quest.save();

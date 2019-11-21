@@ -482,7 +482,7 @@ export default {
             if (result) {
                 const quest = await this.executePost('/quests/acceptQuest/' + partyId + '/' + this.quest.id, {}, e);
                 if (quest) {
-                    this.$emit('update-quest', quest);
+                    this.$emit('update-every-quest');
                 }
             }
         },

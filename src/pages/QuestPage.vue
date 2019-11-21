@@ -28,6 +28,7 @@
 							:quest="quest"
                             :userId="userId"
                             @update-quest="updateQuest($event)"
+                            @update-every-quest="updateEveryQuest()"
 						></quest-card>
 					</transition-group>
 				</div>
@@ -162,6 +163,17 @@ export default {
             const i = this.allObjs.findIndex(q => q.id == quest.id);
             this.allObjs[i] = quest;
             this.filter();
+        },
+        updateEveryQuest: async function() {
+            let mode = this.filterMode;
+            if(!this.filterMode.length) mode = 'any';
+            axios
+                .get('/quests/loadQuests/' + mode)
+                .then(response => {
+                    this.allObjs = response.data.all;
+                    this.pageObjs = response.data.all;
+                    this.filter();
+            })
         },
         filter: function() {
             this.pageObjs = this.allObjs;
