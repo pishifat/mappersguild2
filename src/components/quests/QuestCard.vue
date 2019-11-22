@@ -480,16 +480,16 @@ export default {
         acceptQuest: async function(partyId, e) {
             var result = confirm(`Are you sure?`);
             if (result) {
-                const quest = await this.executePost('/quests/acceptQuest/' + partyId + '/' + this.quest.id, {}, e);
-                if (quest) {
-                    this.$emit('update-every-quest');
+                const quests = await this.executePost('/quests/acceptQuest/' + partyId + '/' + this.quest.id, {}, e);
+                if (quests) {
+                    this.$emit('update-quests-by-name', quests);
                 }
             }
         },
         dropQuest: async function(partyId, e) {
-            const quest = await this.executePost('/quests/dropQuest/' + partyId + '/' + this.quest.id, {}, e);
-            if (quest) {
-                this.$emit('update-quest', quest);
+            const quests = await this.executePost('/quests/dropQuest/' + partyId + '/' + this.quest.id, {}, e);
+            if (quests) {
+                this.$emit('update-quests-by-name', quests);
             }
         },
     },

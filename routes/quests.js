@@ -68,6 +68,7 @@ router.get("/loadQuests/:mode", async (req, res, next) => {
     }else{
         all = await quests.service.query({ status: { $ne: 'hidden' } }, questPopulate, {createdAt: -1}, true);
     }
+
     res.json({all});
 });
 
@@ -258,16 +259,16 @@ router.post('/acceptQuest/:partyId/:questId', api.isNotSpectator, async (req, re
     if (!p) {
         return res.json({error: "Party doesn't exist!"});
     }
-    let invalidQuest = await quests.service.query({ name: req.body.questName, modes: p.modes }, questPopulate);
-    if(invalidQuest){
-        return res.json({error: "Quest already exists for selected mode(s)!"});
-    }
     let q = await quests.service.query({ _id: req.params.questId }, questPopulate);
     let valid = (p.members.length >= q.minParty 
         && p.members.length <= q.maxParty 
         && p.rank >= q.minRank);
     if(!valid){
         return res.json({error: "Something went wrong!"});
+    }
+    let invalidQuest = await quests.service.query({ name: q.name, modes: p.modes }, questPopulate); //does this detect in case of newparty osu, oldquest osu/taiko?
+    if(invalidQuest){
+        return res.json({error: "Quest already exists for selected mode(s)!"});
     }
     if(q.modes.length == p.modes.length){
         await quests.service.update(q._id, {
@@ -304,8 +305,8 @@ router.post('/acceptQuest/:partyId/:questId', api.isNotSpectator, async (req, re
         });
     }
 
-    q = await quests.service.query({ _id: req.params.questId }, questPopulate);
-    res.json(q);
+    let allQuests = await quests.service.query({}, questPopulate, {createdAt: -1}, true);
+    res.json(allQuests);
 
     
 
@@ -347,19 +348,11 @@ router.post('/dropQuest/:partyId/:questId', api.isNotSpectator, async (req, res)
         return res.json({error: "Invalid request!"});
     }
 
-    await quests.service.update(req.params.questId, {
-        status: "open",
-        currentParty: null,
-    });
-
     if(q.associatedMaps){
         for (let i = 0; i < q.associatedMaps.length; i++) {
             beatmaps.service.update(q.associatedMaps[i]._id, {quest: null});
         }
     }
-    
-    q = await quests.service.query({ _id: req.params.questId }, questPopulate);
-    res.json(q);
 
     const timeWindow = (new Date() - q.accepted) / (24*3600*1000);
     if (timeWindow > 7) {
@@ -368,6 +361,22 @@ router.post('/dropQuest/:partyId/:questId', api.isNotSpectator, async (req, res)
             users.service.update(p.members[i]._id, {penaltyPoints: (u.penaltyPoints + q.reward)});
         }
     }
+
+    let openQuest = await quests.service.query({ name: q.name, status: 'open' });
+    if(openQuest){
+        await quests.service.update(openQuest._id, {
+            $push: { modes: q.modes }
+        });
+        await quests.service.remove(req.params.questId);
+    }else{
+        await quests.service.update(req.params.questId, {
+            status: "open",
+            currentParty: null,
+        });
+    }
+
+    let allQuests = await quests.service.query({}, questPopulate, {createdAt: -1}, true);
+    res.json(allQuests);
 
     logs.service.create(req.session.mongoId, `party dropped quest "${q.name}"`, q._id, 'quest' );
 
