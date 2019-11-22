@@ -237,11 +237,23 @@ router.post('/addQuest/', api.isSuperAdmin, async (req, res) => {
     }
 });
 
+/* POST rename quest */
+router.post('/renameQuest/:id', api.isSuperAdmin, async (req, res) => {
+    let q = await quests.service.update(req.params.id, { name: req.body.name });
+    q = await quests.service.query({_id: req.params.id}, questPopulate);
+    res.json(q);
+});
 
 /* POST drop quest */
 router.post('/dropQuest/:id', api.isSuperAdmin, async (req, res) => {
     let q = await quests.service.query({_id: req.params.id}, questPopulate);
-    if(q.status == "wip"){
+    let openQuest = await quests.service.query({ name: q.name, status: 'open' });
+    if(openQuest){
+        await quests.service.update(openQuest._id, {
+            $push: { modes: q.modes }
+        });
+        await quests.service.remove(req.params.id);
+    }else{
         await quests.service.update(req.params.id, {
             status: "open",
             currentParty: null,
@@ -335,6 +347,18 @@ router.post('/resetQuestDeadline/:id', api.isSuperAdmin, async (req, res) => {
     date.setDate(date.getDate() + 7);
     await quests.service.update(req.params.id, {deadline: date});
     let quest = await quests.service.query({_id: req.params.id});
+    res.json(quest);
+});
+
+/* POST toggle quest mode */
+router.post('/toggleQuestMode/:id', api.isSuperAdmin, async (req, res) => {
+    let quest = await quests.service.query({ _id: req.params.id });
+    if(quest.modes.includes(req.body.mode)){
+        await quests.service.update(req.params.id, { $pull: { modes: req.body.mode } });
+    }else{
+        await quests.service.update(req.params.id, { $push: { modes: req.body.mode } });
+    }
+    quest = await quests.service.query({_id: req.params.id});
     res.json(quest);
 });
 

@@ -112,12 +112,14 @@
                         <table v-if="quests" class="table table-sm table-dark table-hover">
                             <thead>
                                 <th scope="col">NAME</th>
+                                <th scope="col">MODES</th>
                                 <th scope="col">STATUS</th>
                                 <th scope="col">EDIT</th>
                             </thead>
                             <tbody>
                                 <tr v-for="quest in quests" :key="quest.id" class="text-white-50">
                                     <td scope="row">{{quest.name}}</td>
+                                    <td scope="row">{{quest.modes}}</td>
                                     <td scope="row">{{quest.status}}</td>
                                     <td scope="row">
                                         <a href="#" data-toggle="modal" data-target="#editQuest" :data-id="quest.id" @click.prevent="selectedQuest = quest">

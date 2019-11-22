@@ -106,7 +106,7 @@ router.post('/togglePartyLock/:partyId/:questId', api.isNotSpectator, async (req
 router.post('/togglePartyMode/:partyId/:questId', api.isNotSpectator, async (req, res) => {
     let p = await parties.service.query({ _id: req.params.partyId });
     if(p.modes.includes(req.body.mode)){
-        p = await parties.service.update(req.params.partyId, { $pull: { modes: req.body.mode } });
+        await parties.service.update(req.params.partyId, { $pull: { modes: req.body.mode } });
     }else{
         await parties.service.update(req.params.partyId, { $push: { modes: req.body.mode } });
     }
@@ -357,6 +357,10 @@ router.post('/acceptQuest/:partyId/:questId', api.isNotSpectator, async (req, re
         fields: [{
             name: "Party members",
             value: memberList
+        },
+        {
+            name: "Modes",
+            value: modeList
         }]
     }]);
 });
@@ -434,6 +438,9 @@ router.post('/dropQuest/:partyId/:questId', api.isNotSpectator, async (req, res)
         fields: [{
             name: "Party members",
             value: memberList
+        },{
+            name: "Modes",
+            value: modeList
         }]
     }]);
 
