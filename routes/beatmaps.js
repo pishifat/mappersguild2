@@ -19,7 +19,7 @@ const defaultPopulate = [
     { populate: 'host', display: '_id osuId username' },
     { populate: 'bns', display: '_id osuId username' },
     { populate: 'modders', display: '_id osuId username' },
-    { populate: 'quest', display: '_id name art color' },
+    { populate: 'quest', display: '_id name art color modes' },
     { populate: 'song', display: 'artist title' },
     { innerPopulate: 'tasks', populate: { path: 'mappers' } },
 ];
@@ -32,11 +32,11 @@ const questPopulate = [
 ];
 
 //used in addtask, requesttask, addcollab
-async function addTaskChecks(userId, b, newDiff, isHost) {
-    if (b.tasks.length > 20 && newDiff) {
+async function addTaskChecks(userId, b, taskName, taskMode, isHost) {
+    if (b.tasks.length > 20 && taskName) {
         return { error: 'This mapset has too many difficulties!' };
     }
-    if (newDiff == 'Storyboard') {
+    if (taskName == 'Storyboard') {
         let sb = false;
         b.tasks.forEach(task => {
             if (task.name == 'Storyboard') {
@@ -47,29 +47,29 @@ async function addTaskChecks(userId, b, newDiff, isHost) {
             return { error: 'There can only be one storyboard on a mapset!' };
         }
     }
-    if (b.quest && newDiff != 'Storyboard') {
+    if (b.quest && taskName != 'Storyboard') {
         let q = await quests.service.query({ _id: b.quest }, questPopulate);
-        let valid = false;
+        let validMapper = false;
         q.currentParty.members.forEach(member => {
             if(member.id == userId){
-                valid = true;
+                validMapper = true;
             }
         });
-        if (!valid) {
-            return {
-                error:
-                    "This mapset is part of a quest, so only members of the quest's current party can add difficulties!",
-            };
+        if (!validMapper) {
+            return { error: "This mapset is part of a quest, so only members of the quest's current party can add difficulties!" };
+        }
+        if(taskMode && !b.quest.modes.includes(taskMode)){
+            return { error: "The selected quest doesn't support beatmaps of this mode!" };
         }
     }
     const isAlreadyBn = await beatmaps.service.query({ _id: b._id, bns: userId });
     if (isAlreadyBn) {
         return { error: 'Cannot create a difficulty while in BN list!' };
     }
-    if (b.tasksLocked && !isHost && newDiff) {
+    if (b.tasksLocked && !isHost && taskName) {
         let locked = false;
         b.tasksLocked.forEach(task => {
-            if (newDiff == task) {
+            if (taskName == task) {
                 locked = true;
             }
         });
@@ -250,6 +250,7 @@ router.post('/addTask/:mapId', api.isNotSpectator, isValidBeatmap, async (req, r
         req.session.mongoId,
         b,
         req.body.difficulty,
+        req.body.mode,
         isHost
     );
 
@@ -536,7 +537,17 @@ router.post('/updateBn/:mapId', api.isNotSpectator, api.isBn, isValidBeatmap, as
 
 /* POST set game mode. */
 router.post('/setMode/:mapId', api.isNotSpectator, isValidBeatmap, isBeatmapHost, async (req, res) => {
-    let b = await beatmaps.service.update(req.params.mapId, { mode: req.body.mode });
+    let b = await beatmaps.service.query({ _id: req.params.mapId }, defaultPopulate);
+    if(req.body.mode != 'hybrid'){
+        if(b.quest && !b.quest.modes.includes(req.body.mode)){
+            return res.json({ error: "The selected quest doesn't support beatmaps of this mode!" });
+        }
+        for (let i = 0; i < b.tasks.length; i++) {
+            const task = b.tasks[i];
+            await tasks.service.update(task.id, { mode: req.body.mode });
+        }
+    }
+    await beatmaps.service.update(req.params.mapId, { mode: req.body.mode });
     b = await beatmaps.service.query({ _id: req.params.mapId }, defaultPopulate);
     res.json(b);
 
@@ -588,7 +599,7 @@ router.post('/requestTask/:mapId', api.isNotSpectator, isValidUser, isValidBeatm
     if (valid.error) {
         return res.json(valid);
     }
-    valid = await addTaskChecks(u.id, b, req.body.difficulty, true);
+    valid = await addTaskChecks(u.id, b, req.body.difficulty, req.body.mode, true);
     if (valid.error) {
         return res.json(valid);
     }
@@ -611,18 +622,25 @@ router.post('/saveQuest/:mapId', api.isNotSpectator, isValidBeatmap, isBeatmapHo
     let b = res.locals.beatmap;
     if(req.body.questId.length){
         let q = await quests.service.query({ _id: req.body.questId}, [{ populate: 'currentParty',  display: 'members' }]);
-        let invalid = false;
+        let invalidMapper = false;
+        let invalidMode = false;
         for (let i = 0; i < b.tasks.length; i++) {
-            for (let j = 0; j < b.tasks[i].mappers.length; j++) {
-                let u = await users.service.query({ _id: b.tasks[i].mappers[j]._id });
+            let task = b.tasks[i];
+            if(q.modes.indexOf(task.mode) < 0){
+                invalidMode = true;
+            }
+            for (let j = 0; j < task.mappers.length; j++) {
+                let u = await users.service.query({ _id: task.mappers[j]._id });
                 if (q.currentParty.members.indexOf(u._id) < 0) {
-                    
-                    invalid = true;
+                    invalidMapper = true;
                 }
             }
         }
-        if (invalid) {
+        if (invalidMapper) {
             return res.json({ error: "Some of this mapset's mappers are not assigned to your quest!" });
+        }
+        if (invalidMode) {
+            return res.json({ error: "Some of this mapset's difficulties are not the correct mode for this quest!" });
         }
     }else{
         await beatmaps.service.update(req.params.mapId, { quest: null });

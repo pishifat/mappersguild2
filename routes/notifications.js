@@ -78,10 +78,10 @@ async function addTaskChecks(userId, b, invite) {
             }
         });
         if (!valid) {
-            return {
-                error:
-                    "This mapset is part of a quest, so only members of the quest's current party can add difficulties!",
-            };
+            return { error: "This mapset is part of a quest, so only members of the quest's current party can add difficulties!" };
+        }
+        if(!b.quest.modes.includes(invite.taskMode)){
+            return res.json({ error: "The selected quest doesn't support beatmaps of this mode!" });
         }
     }
     const isAlreadyBn = await beatmaps.service.query({ _id: b._id, bns: userId });

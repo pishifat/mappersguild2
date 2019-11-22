@@ -102,12 +102,23 @@ router.post('/togglePartyLock/:partyId/:questId', api.isNotSpectator, async (req
     logs.service.create(req.session.mongoId, `toggled lock on party for ${q.name}`, p._id, 'party');
 });
 
+/* POST toggle party mode */
+router.post('/togglePartyMode/:partyId/:questId', api.isNotSpectator, async (req, res) => {
+    let p = await parties.service.query({ _id: req.params.partyId });
+    if(p.modes.includes(req.body.mode)){
+        p = await parties.service.update(req.params.partyId, { $pull: { modes: req.body.mode } });
+    }else{
+        await parties.service.update(req.params.partyId, { $push: { modes: req.body.mode } });
+    }
+    let q = await quests.service.query({ _id: req.params.questId }, questPopulate);
+    res.json(q);
+
+    logs.service.create(req.session.mongoId, `toggled "${req.body.mode}" mode on party for ${q.name}`, p._id, 'party');
+});
+
 /* POST join party */
 router.post('/joinParty/:partyId/:questId', api.isNotSpectator, async (req, res) => {
     let p = await parties.service.update(req.params.partyId, { $push: { members: req.session.mongoId } });
-    if(!p.modes.includes(res.locals.userRequest.mainMode)){
-        p = await parties.service.update(req.params.partyId, { $push: { modes: res.locals.userRequest.mainMode } });
-    }
     await updatePartyInfo(req.params.partyId);
     let q = await quests.service.query({ _id: req.params.questId }, questPopulate);
     res.json(q);
@@ -259,6 +270,9 @@ router.post('/acceptQuest/:partyId/:questId', api.isNotSpectator, async (req, re
     if (!p) {
         return res.json({error: "Party doesn't exist!"});
     }
+    if(!p.modes.length){
+        return res.json({error: "Your party has no modes selected!"});
+    }
     let q = await quests.service.query({ _id: req.params.questId }, questPopulate);
     let valid = (p.members.length >= q.minParty 
         && p.members.length <= q.maxParty 
@@ -266,9 +280,12 @@ router.post('/acceptQuest/:partyId/:questId', api.isNotSpectator, async (req, re
     if(!valid){
         return res.json({error: "Something went wrong!"});
     }
-    let invalidQuest = await quests.service.query({ name: q.name, modes: p.modes }, questPopulate); //does this detect in case of newparty osu, oldquest osu/taiko?
-    if(invalidQuest){
-        return res.json({error: "Quest already exists for selected mode(s)!"});
+    for (let i = 0; i < p.modes.length; i++) {
+        const mode = p.modes[i];
+        let invalidQuest = await quests.service.query({ name: q.name, modes: mode, $or: [{ status: 'wip' }, { status: 'done' }] }, questPopulate);
+        if(invalidQuest){
+            return res.json({error: "Quest already exists for selected mode(s)!"});
+        }
     }
     if(q.modes.length == p.modes.length){
         await quests.service.update(q._id, {
@@ -308,14 +325,21 @@ router.post('/acceptQuest/:partyId/:questId', api.isNotSpectator, async (req, re
     let allQuests = await quests.service.query({}, questPopulate, {createdAt: -1}, true);
     res.json(allQuests);
 
-    
+    //logs
+    let modeList = "";
+    for (let i = 0; i < p.modes.length; i++) {
+        modeList += p.modes[i];
+        if(i != p.modes.length - 1){
+            modeList += ", ";
+        }
+    }
 
-    logs.service.create(req.session.mongoId, `party accepted quest "${q.name}"`, q._id, 'quest' );
+    logs.service.create(req.session.mongoId, `party accepted quest "${q.name}" for mode${p.modes.length > 1 ? 's' : ''} "${modeList}"`, q._id, 'quest' );
 
     //webhook
     let memberList = "";
     for (let i = 0; i < p.members.length; i++) {
-        memberList += p.members[i].username
+        memberList += p.members[i].username;
         if(i != p.members.length - 1){
             memberList += ", ";
         }
@@ -378,7 +402,16 @@ router.post('/dropQuest/:partyId/:questId', api.isNotSpectator, async (req, res)
     let allQuests = await quests.service.query({}, questPopulate, {createdAt: -1}, true);
     res.json(allQuests);
 
-    logs.service.create(req.session.mongoId, `party dropped quest "${q.name}"`, q._id, 'quest' );
+    //logs
+    let modeList = "";
+    for (let i = 0; i < q.modes.length; i++) {
+        modeList += q.modes[i];
+        if(i != q.modes.length - 1){
+            modeList += ", ";
+        }
+    }
+
+    logs.service.create(req.session.mongoId, `party dropped quest "${q.name}" for mode${q.modes.length > 1 ? 's' : ''} "${modeList}"`, q._id, 'quest' );
 
     //webhook
     let memberList = "";
