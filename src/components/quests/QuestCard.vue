@@ -1,6 +1,6 @@
 <template>
 <div class="col-sm-12 my-1">
-    <div class="card static-card" :class="quest.minRank ? 'rank-restricted' : 'bg-dark'">
+    <div class="card static-card" :class="quest.minRank ? 'rank-restricted' : quest.status == 'wip' && timeRemaining(quest.deadline) < 0 ? 'overdue' : 'bg-dark'">
         <div class="text-shadow min-spacing">
             <div class="min-spacing mt-1 row">
                 <span class="col-sm-5">
@@ -237,7 +237,7 @@
                 </p>
                 <p class='small text-shadow min-spacing ml-3'>
                     Time remaining:
-                    <span :class="timeRemaining(quest.deadline) > 0 ? 'text-white-50' : 'icon-used'">{{timeRemaining(quest.deadline)}} days</span>
+                    <span :class="timeRemaining(quest.deadline) > 0 ? 'text-white-50' : 'errors'">{{timeRemaining(quest.deadline)}} days</span>
                 </p>
                 <p class='small text-shadow min-spacing ml-3'>
                     Members: 
@@ -550,6 +550,10 @@ export default {
 
 .rank-restricted {
     background-color: rgba(200, 0, 0, 0.05)!important;
+}
+
+.overdue {
+    background-color: rgba(255, 251, 0, 0.05)!important;
 }
 
 .fake-button-disable {
