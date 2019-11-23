@@ -33,7 +33,7 @@ const questPopulate = [
     { innerPopulate: 'parties',  populate: { path: 'members leader' } },
     { innerPopulate: 'currentParty',  populate: { path: 'members leader' } },
     { populate: 'completedMembers',  display: 'username osuId rank' },
-    { innerPopulate: 'associatedMaps',  populate: { path: 'song host' } }
+    { innerPopulate: 'associatedMaps',  populate: { path: 'song host' } },
 ];
 
 //updating party rank and modes when accepting invite
@@ -80,8 +80,8 @@ async function addTaskChecks(userId, b, invite) {
         if (!valid) {
             return { error: "This mapset is part of a quest, so only members of the quest's current party can add difficulties!" };
         }
-        if(!b.quest.modes.includes(invite.taskMode)){
-            return res.json({ error: "The selected quest doesn't support beatmaps of this mode!" });
+        if(!q.modes.includes(invite.taskMode)){
+            return { error: "The selected quest doesn't support beatmaps of this mode!" };
         }
     }
     const isAlreadyBn = await beatmaps.service.query({ _id: b._id, bns: userId });
@@ -194,6 +194,7 @@ router.post('/declineAll/', api.isNotSpectator, async (req, res) => {
 /* POST accept collab */
 router.post('/acceptCollab/:id', api.isNotSpectator, async (req, res) => {
     let invite = await invites.service.query({ _id: req.params.id }, defaultInvitePopulate);
+    console.log(invite);
     if(!invite.modified){
         return res.json({ error: `Mapset no longer exists!` });
     }

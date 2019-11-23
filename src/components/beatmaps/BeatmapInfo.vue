@@ -904,7 +904,9 @@ export default {
         addCollab: async function(e) {
             const user = $('#collabMapperToAdd').val();
             const id = this.addCollabInput;
-            const bm = await this.executePost('/beatmaps/task/' + id + '/addCollab', { user: user }, e);
+            let difficulty = $('#diffSelection').val();
+            let mode = $('#diffModeSelection').val();
+            const bm = await this.executePost('/beatmaps/task/' + id + '/addCollab', { user: user, difficulty: difficulty, mode: mode }, e);
             if (bm) {
                 this.$emit('update-map', bm);
                 this.info = null;
