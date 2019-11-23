@@ -194,7 +194,6 @@ router.post('/declineAll/', api.isNotSpectator, async (req, res) => {
 /* POST accept collab */
 router.post('/acceptCollab/:id', api.isNotSpectator, async (req, res) => {
     let invite = await invites.service.query({ _id: req.params.id }, defaultInvitePopulate);
-    console.log(invite);
     if(!invite.modified){
         return res.json({ error: `Mapset no longer exists!` });
     }
