@@ -89,7 +89,6 @@ export default {
         featuredArtist: function() {
             this.osuId = this.featuredArtist.osuId;
             this.name = this.featuredArtist.label;
-            this.artist = null;
             this.title = null;
         },
         selectedSong: function() {

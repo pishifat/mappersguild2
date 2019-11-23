@@ -226,7 +226,7 @@ router.post('/addQuest/', api.isSuperAdmin, async (req, res) => {
             },
             {
                 name: "Party",
-                value: `${quest.minParty}-${quest.maxParty} members`
+                value: `${quest.minParty == quest.maxParty ? quest.maxParty : quest.minParty + '-' + quest.maxParty} member${quest.maxParty == 1 ? '' : 's'}`
             },
             {
                 name: "Bonus",
@@ -559,7 +559,7 @@ router.post('/updateFeaturedArtistName/:id', api.isSuperAdmin, async (req, res) 
 
 /* POST add song to artist */
 router.post('/addSong/:id', api.isSuperAdmin, async (req, res) => {
-    let song = await featuredArtists.service.createSong(req.body.artist, req.body.title);
+    let song = await featuredArtists.service.createSong(req.body.artist.trim(), req.body.title.trim());
     let fa = await featuredArtists.service.update(req.params.id, { $push: { songs: song } })
     fa = await featuredArtists.service.query({_id: req.params.id}, artistPopulate);
     res.json(fa);
@@ -567,7 +567,7 @@ router.post('/addSong/:id', api.isSuperAdmin, async (req, res) => {
 
 /* POST edit metadata */
 router.post('/editSong/:id', api.isSuperAdmin, async (req, res) => {
-    await featuredArtists.service.updateSong(req.body.songId, {artist: req.body.artist, title: req.body.title});
+    await featuredArtists.service.updateSong(req.body.songId, {artist: req.body.artist.trim(), title: req.body.title.trim()});
     let fa = await featuredArtists.service.query({_id: req.params.id}, artistPopulate);
     res.json(fa);
 });

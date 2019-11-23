@@ -1,9 +1,9 @@
 <template>
 <div class="col-sm-12 my-1">
-    <div class="card static-card" :class="quest.minRank ? 'rank-restricted' : quest.status == 'wip' && timeRemaining(quest.deadline) < 0 ? 'overdue' : 'bg-dark'">
+    <div class="card static-card px-2" :class="quest.minRank ? 'rank-restricted' : quest.status == 'wip' && timeRemaining(quest.deadline) < 0 ? 'overdue' : 'bg-dark'">
         <div class="text-shadow min-spacing">
             <div class="min-spacing mt-1 row">
-                <span class="col-sm-5">
+                <span class="col-sm-5 pl-2">
                     <span v-if="quest.art">
                         <a :href="'https://osu.ppy.sh/beatmaps/artists/' + quest.art" target="_blank">
                             <img :src="'https://assets.ppy.sh/artists/' + quest.art + '/cover.jpg'" class="card-avatar-img">
@@ -12,7 +12,7 @@
                     <span v-else>
                         <img :src="'../../images/no-art-icon.png'" class="card-avatar-img">
                     </span>
-                    <a :href="'#details' + quest.id" data-toggle="collapse" class="ml-1">
+                    <a :href="'#details' + quest.id" data-toggle="collapse">
                         {{quest.name.length > 40 ? quest.name.slice(0,40) + "..." : quest.name}}
                         <i class="fas fa-angle-down" />
                     </a>
@@ -62,7 +62,7 @@
                 </span>
             </div>
         </div>
-        <div class="card-header min-spacing pb-1 pl-2">
+        <div class="card-header min-spacing pb-1">
             <span class="small text-shadow">Objective:</span>
             <span class="small text-shadow text-white-50">{{quest.descriptionMain}}</span>
         </div>

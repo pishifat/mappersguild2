@@ -141,4 +141,9 @@ router.get('/callback', async (req, res) => {
     }
 });
 
+/* GET redirect to bnsite */
+router.get('/bnsite', async (req, res, next) => {
+    return res.redirect('https://bn.mappersguild.com');
+});
+
 module.exports = router;

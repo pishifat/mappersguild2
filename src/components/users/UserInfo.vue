@@ -3,7 +3,11 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content bg-dark" v-if="user">
                 <div class="modal-header text-dark" :class="'bg-rank-' + user.rank">
-                    <h5 class="modal-title">{{ user.username }}</h5>
+                    <h5 class="modal-title">
+                        <a :href="'https://osu.ppy.sh/users/' + user.osuId" class="text-dark" target="_blank">
+                            {{ user.username }}
+                        </a>
+                    </h5>
                     <button type="button" class="close" data-dismiss="modal">
                         <span>&times;</span>
                     </button>

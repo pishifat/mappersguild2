@@ -12,8 +12,8 @@
                         </a>
                         <span v-if="actionBeatmapsLoading" class="ml-2 small text-white-50">loading...</span>
                     </h5>
-                    <div id="actionBeatmaps" class="show">
-                        <table v-if="actionBeatmaps" class="table table-sm table-dark table-hover">
+                    <div v-if="actionBeatmaps" id="actionBeatmaps" class="show">
+                        <table v-if="actionBeatmaps.length" class="table table-sm table-dark table-hover">
                             <thead>
                                 <th scope="col">METADATA</th>
                                 <th scope="col">MODE</th>
@@ -46,6 +46,7 @@
                                 </tr>
                             </tbody>
                         </table>
+                        <span v-else class="text-white-50">None...</span>
                     </div>
                     <h5 class="ml-4 mt-2">
                         <a href="#beatmaps" data-toggle="collapse" @click.prevent="loadBeatmaps()">
@@ -119,7 +120,12 @@
                             <tbody>
                                 <tr v-for="quest in quests" :key="quest.id" class="text-white-50">
                                     <td scope="row">{{quest.name}}</td>
-                                    <td scope="row">{{quest.modes}}</td>
+                                    <td scope="row">
+                                        <i v-if="quest.modes.includes('osu')" class="fas fa-circle"></i>
+                                        <i v-if="quest.modes.includes('taiko')" class="fas fa-drum"></i>
+                                        <i v-if="quest.modes.includes('catch')" class="fas fa-apple-alt"></i>
+                                        <i v-if="quest.modes.includes('mania')" class="fas fa-stream"></i>
+                                    </td>
                                     <td scope="row">{{quest.status}}</td>
                                     <td scope="row">
                                         <a href="#" data-toggle="modal" data-target="#editQuest" :data-id="quest.id" @click.prevent="selectedQuest = quest">
@@ -198,8 +204,8 @@
                                         <a v-if="featuredArtist.osuId" :href="'https://osu.ppy.sh/beatmaps/artists/' + featuredArtist.osuId" target="_blank">{{featuredArtist.label}}</a>
                                         <span v-else>{{featuredArtist.label}}</span>
                                     </td>
-                                    <td scope="row" data-toggle="modal" data-target="#editFeaturedArtist" :data-id="featuredArtist.id" @click.prevent="selectedFeaturedArtist = featuredArtist">
-                                        <a href="#">
+                                    <td scope="row">
+                                        <a href="#" data-toggle="modal" data-target="#editFeaturedArtist" :data-id="featuredArtist.id" @click.prevent="selectedFeaturedArtist = featuredArtist">
                                             edit
                                         </a>
                                     </td>
@@ -318,6 +324,8 @@ export default {
         updateBeatmap: function(b) {
             const i = this.beatmaps.findIndex(beatmap => beatmap.id == b.id);
             this.beatmaps[i] = b;
+            const j = this.actionBeatmaps.findIndex(beatmap => beatmap.id == b.id);
+            this.actionBeatmaps[j] = b;
             this.selectedBeatmap = b;
         },
         updateQuest: function(q) {

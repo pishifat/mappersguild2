@@ -111,8 +111,8 @@
 					<a href="#notContacted" data-toggle="collapse" >
 						Not contacted ({{notContacted.length}})
 						<i class="fas fa-angle-down" />
-						<button class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#addArtist">Add artist</button>
 					</a>
+					<button class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#addArtist">Add artist</button>
 				</h5>
 				<div id="notContacted" class="collapse">
 					<transition-group name="list" tag="div" class="row">

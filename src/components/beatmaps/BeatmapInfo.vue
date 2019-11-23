@@ -4,7 +4,15 @@
             <div class="modal-content bg-dark" v-if="beatmap">
                 <div class="modal-header text-dark" :class="'bg-' + beatmap.status.toLowerCase()">
                     <h5 class="modal-title">
-                        {{ beatmap.song.artist }} - {{ beatmap.song.title }} ({{ beatmap.host.username }})
+                        <span v-if="beatmap.url">
+                            <a :href="beatmap.url" class="text-dark" target="_blank">
+                                {{ beatmap.song.artist }} - {{ beatmap.song.title }}
+                            </a>
+                        </span>
+                        <span v-else>
+                            {{ beatmap.song.artist }} - {{ beatmap.song.title }}
+                        </span>
+                        (<a :href="'https://osu.ppy.sh/users/' + beatmap.host.osuId" class="text-dark" target="_blank">{{ beatmap.host.username }}</a>)
                         <i v-if="beatmap.mode == 'taiko'" class="fas fa-drum"></i>
                         <i v-else-if="beatmap.mode == 'catch'" class="fas fa-apple-alt"></i>
                         <i v-else-if="beatmap.mode == 'mania'" class="fas fa-stream"></i>

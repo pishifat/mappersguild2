@@ -130,7 +130,7 @@ export default {
                 name: this.name, 
                 reward: this.reward, 
                 descriptionMain: this.description, 
-                timeframe: this.timeframe, 
+                timeframe: this.timeframe*(24*3600*1000), 
                 minParty: this.minParty, 
                 maxParty: this.maxParty, 
                 minRank: this.minRank, 
