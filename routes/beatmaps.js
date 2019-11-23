@@ -358,7 +358,9 @@ router.post('/task/:taskId/addCollab', api.isNotSpectator, isValidUser, async (r
         req.params.taskId,
         `wants to collaborate with you on the "${t.name}" difficulty of`,
         'collaborate in a difficulty',
-        b.id
+        b.id,
+        req.body.difficulty,
+        req.body.mode
     );
 });
 
