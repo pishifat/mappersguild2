@@ -33,7 +33,6 @@ const questPopulate = [
 
 //used in addtask, requesttask, addcollab
 async function addTaskChecks(userId, b, taskName, taskMode, isHost) {
-    if(!isHost) isHost = (b.host._id.toString() == req.session.mongoId);
     if (b.tasks.length > 20 && taskName) {
         return { error: 'This mapset has too many difficulties!' };
     }
@@ -342,7 +341,7 @@ router.post('/task/:taskId/addCollab', api.isNotSpectator, isValidUser, async (r
     if(!req.body.mode) {
         req.body.mode = b.mode;
     }
-    valid = await addTaskChecks(u.id, b, req.body.difficulty, req.body.mode);
+    valid = await addTaskChecks(u.id, b, req.body.difficulty, req.body.mode, b.host._id.toString() == req.session.mongoId);
     if (valid.error) {
         return res.json(valid);
     }
