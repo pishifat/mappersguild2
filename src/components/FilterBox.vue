@@ -44,6 +44,7 @@
                         <a href="#" id="taiko" class="mode" :class="selectModeSort('taiko')" @click.prevent="$emit('update:filterMode', 'taiko'); checkSorted();">osu!taiko</a>
                         <a href="#" id="catch" class="mode" :class="selectModeSort('catch')" @click.prevent="$emit('update:filterMode', 'catch'); checkSorted();">osu!catch</a>
                         <a href="#" id="mania" class="mode" :class="selectModeSort('mania')" @click.prevent="$emit('update:filterMode', 'mania'); checkSorted();">osu!mania</a>
+                        <span v-if="isLoading" class="small text-white-50">loading...</span>
                     </div>
                 </div>
                 <div class="row mt-3" v-if="filterStatus !== undefined">
@@ -88,7 +89,7 @@
 
 <script>
 export default {
-    props: ['filter-value', 'filter-mode', 'filter-status', 'filter-quest', 'all-quests', 'placeholder'],
+    props: ['filter-value', 'filter-mode', 'filter-status', 'filter-quest', 'all-quests', 'placeholder', 'isLoading'],
     methods: {
         checkSorted: function () {
             const category = event.target.classList[0];

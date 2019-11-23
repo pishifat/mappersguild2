@@ -5,6 +5,7 @@
             :filterValue.sync="filterValue"
             :filterMode.sync="filterMode"
             placeholder="quest name..."
+            :isLoading.sync="isLoading"
         >
         </filter-box>
     </div>
@@ -118,6 +119,7 @@ export default {
         },
         filterMode: async function(v) {
             let mode = this.filterMode;
+            this.isLoading = true;
             if(!this.filterMode.length) mode = 'any';
             axios
                 .get('/quests/loadQuests/' + mode)
@@ -125,6 +127,7 @@ export default {
                     this.allObjs = response.data.all;
                     this.pageObjs = response.data.all;
                     this.filter();
+                    this.isLoading = false;
             })
         },
     },
@@ -219,6 +222,7 @@ export default {
             loadingCompleteQuests: false,
             userId: null,
             usergroup: null,
+            isLoading: false,
         };
     },
     created() {
