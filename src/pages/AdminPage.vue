@@ -53,6 +53,9 @@
                             All Beatmaps
                             <i class="fas fa-angle-down" />
                         </a>
+                        <button class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#newsPost">
+                            Create news post
+                        </button>
                         <span v-if="beatmapsLoading" class="ml-2 small text-white-50">loading...</span>
                     </h5>
                     <div id="beatmaps" class="collapse">
@@ -249,6 +252,9 @@
             </div>
         </div>
 
+    <news-post
+    ></news-post>
+
     <beatmap-info
         :beatmap="selectedBeatmap"
         @update-beatmap="updateBeatmap($event)"
@@ -278,6 +284,7 @@
 </template>
 
 <script>
+import NewsPost from '../components/admin/NewsPost.vue';
 import BeatmapInfo from '../components/admin/BeatmapInfo.vue';
 import AddQuest from '../components/admin/AddQuest.vue';
 import QuestInfo from '../components/admin/QuestInfo.vue';
@@ -287,6 +294,7 @@ import FeaturedArtistInfo from '../components/admin/FeaturedArtistInfo.vue';
 export default {
     name: 'admin-page',
     components: {
+        NewsPost,
         BeatmapInfo,
         AddQuest,
         QuestInfo,

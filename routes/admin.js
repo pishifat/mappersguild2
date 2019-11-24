@@ -97,6 +97,27 @@ router.get('/relevantInfo/', async (req, res) => {
     res.json({actionBeatmaps});   
 });
 
+/* GET news info */
+router.get('/loadNewsInfo/:date', async (req, res) => {
+    let date = new Date(req.params.date);
+    if(isNaN(Date.parse(date))){
+        return res.json( { error: 'Invalid date' } );
+    }
+    let b = await beatmaps.service.query({ 
+        updatedAt: { $gte: date }, 
+        status: 'Ranked', 
+        $or: [
+            { quest: { $exists: false } }, 
+            { quest: { $eq: null } } 
+        ],},
+        beatmapPopulate, 
+        { mode: 1, createdAt: -1 }, 
+        true
+    );
+    let q = await quests.service.query({ completed: { $gte: date } }, questPopulate, { name: 1 }, true);
+    res.json({ beatmaps: b, quests: q });
+});
+
 /* GET beatmaps */
 router.get('/loadBeatmaps/', async (req, res) => {
     let b = await beatmaps.service.query({}, beatmapPopulate, {status: 1, mode: 1, createdAt: -1}, true);

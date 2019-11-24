@@ -60,7 +60,7 @@ textarea:focus {
     color: white;
     border-color: transparent;
     filter: drop-shadow(1px 1px 1px #000000);
-    border-radius: 0 100px 100px 0;
+    border-radius: 5px 5px 5px 5px;
 }
 
 select option {

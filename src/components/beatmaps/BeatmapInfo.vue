@@ -222,6 +222,7 @@
                                                             v-if="isOwner(task.mappers) || isHost"
                                                             class="text-danger"
                                                             :class="
+                                                                beatmap.status == 'Qualified' ||
                                                                 fakeButton == task.id ? 'fake-button-disable' : ''
                                                             "
                                                             @click.prevent="removeTask(task.id)"
