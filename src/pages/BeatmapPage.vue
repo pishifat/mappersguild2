@@ -9,6 +9,7 @@
                 :all-quests="allQuests"
                 placeholder="song/username..."
                 @self-filter="selfFilter()"
+                :isLoading.sync="isLoading"
             >
                 <button
                     class="btn btn-outline-info"
@@ -23,37 +24,39 @@
         </div>
 
         <div class="container bg-container py-3">
-            <button
-                :disabled="!(pre > 0)"
-                class="btn btn-sm btn-mg mx-auto my-2"
-                style="display:block"
-                type="button"
-                @click="showNewer()"
-            >
-                <i class="fas fa-angle-up mr-1"></i> show newer
-                <i class="fas fa-angle-up ml-1"></i>
-            </button>
-            <div>
+            <h5 class="ml-4">
+                <a href="#hostMaps" data-toggle="collapse" >
+                    My mapsets ({{hostMaps ? hostMaps.length : '...'}})
+                    <i class="fas fa-angle-down" />
+                </a>
+            </h5>
+            <div id="hostMaps" class="show">
                 <transition-group name="list" tag="div" class="row">
                     <beatmap-card
-                        v-for="beatmap in beatmaps"
+                        v-for="beatmap in hostMaps"
                         :key="beatmap.id"
                         :beatmap="beatmap"
                         :user-osu-id="userOsuId"
                         @update:selectedMap="selectedMap = $event"
                     ></beatmap-card>
                 </transition-group>
-                <div class="small text-center mx-auto">{{ currentPage }} of {{ pages }}</div>
-                <button
-                    :disabled="!canShowOlder"
-                    class="btn btn-sm btn-mg mx-auto my-2"
-                    style="display:block"
-                    type="button"
-                    @click="showOlder()"
-                >
-                    <i class="fas fa-angle-down mr-1"></i> show older
-                    <i class="fas fa-angle-down ml-1"></i>
-                </button>
+            </div>
+            <h5 class="ml-4 mt-2">
+                <a href="#guestDifficultyMaps" data-toggle="collapse" >
+                    My guest difficulties ({{guestDifficultyMaps ? guestDifficultyMaps.length : '...'}})
+                    <i class="fas fa-angle-down" />
+                </a>
+            </h5>
+            <div id="guestDifficultyMaps" class="show">
+                <transition-group name="list" tag="div" class="row">
+                    <beatmap-card
+                        v-for="beatmap in guestDifficultyMaps"
+                        :key="beatmap.id"
+                        :beatmap="beatmap"
+                        :user-osu-id="userOsuId"
+                        @update:selectedMap="selectedMap = $event"
+                    ></beatmap-card>
+                </transition-group>
             </div>
         </div>
 
@@ -94,38 +97,24 @@ export default {
             this.filter();
         },
         filterMode: function(v) {
+            let mode = this.filterMode;
             this.filter();
+            this.isLoading = true;
+            if(!this.filterMode.length) mode = 'any';
+            axios
+                .get('/beatmaps/loadBeatmaps/' + mode)
+                .then(response => {
+                    this.allObjs = response.data.beatmaps;
+                    this.pageObjs = response.data.beatmaps;
+                    this.filter();
+                    this.isLoading = false;
+            })
         },
         filterStatus: function(v) {
             this.filter();
         },
         filterQuest: function(v) {
             this.filter();
-        },
-        limit: function() {
-            this.limit = Math.round(this.limit);
-            this.pre = this.limit - 24;
-            if (this.allBeatmaps) {
-                if (this.isFiltered) {
-                    if (this.limit >= this.filteredBeatmaps.length) {
-                        this.canShowOlder = false;
-                    }
-                    this.beatmaps = this.filteredBeatmaps.slice(this.pre, this.limit);
-                    this.pages = Math.ceil(this.filteredBeatmaps.length / 24);
-                } else {
-                    if (this.limit >= this.allBeatmaps.length) {
-                        this.canShowOlder = false;
-                    }
-                    this.beatmaps = this.allBeatmaps.slice(this.pre, this.limit);
-                    this.pages = Math.ceil(this.allBeatmaps.length / 24);
-                }
-            }
-            
-            if (this.pages > 0) {
-                this.currentPage = this.limit / 24;
-            } else {
-                this.currentPage = this.pages;
-            }
         },
     },
     methods: {
@@ -148,16 +137,37 @@ export default {
                 });
             }
         },
-        showOlder: function() {
-            if (this.canShowOlder && this.beatmaps) {
-                this.limit += 24;
-            }
-        },
-        showNewer: function() {
-            if (this.pre > 0 && this.beatmaps) {
-                this.limit -= 24;
-                this.canShowOlder = true;
-            }
+        separateObjs: function() {
+            this.hostMaps = [];
+            this.guestDifficultyMaps = [];
+            this.pageObjs.forEach(beatmap => {
+                if(beatmap.host.osuId == this.userOsuId){
+                    this.hostMaps.push(beatmap);
+                }else{
+                    let breakLoop = false;
+                    for (let i = 0; i < beatmap.tasks.length; i++) {
+                        const task = beatmap.tasks[i];
+                        for (let j = 0; j < task.mappers.length; j++) {
+                            const mapper = task.mappers[j];
+                            if(mapper.osuId == this.userOsuId){
+                                this.guestDifficultyMaps.push(beatmap);
+                                breakLoop = true;
+                                break;
+                            }
+                        }
+                        if(breakLoop){
+                            break;
+                        }
+                    }
+                }
+            });
+            /*let duplicate;
+            this.pageObjs.forEach(b => {
+                if (b.quest && b.quest.name != duplicate) {
+                    duplicate = b.quest.name;
+                    this.allQuests.push({ id: b.quest.id, name: b.quest.name, art: b.quest.art });
+                }
+            });*/
         },
         updateMap: function(bm) {
             const i = this.beatmaps.findIndex(b => b.id == bm.id);
@@ -173,11 +183,11 @@ export default {
 
         // filters
         filter: function() {
-            this.filteredBeatmaps = this.allBeatmaps;
+            this.pageObjs = this.allObjs;
 
             //search
             if (this.filterValue.length > 2) {
-                this.filteredBeatmaps = this.allBeatmaps.filter(b => {
+                this.pageObjs = this.allObjs.filter(b => {
                     let valid = b.song.artist + ' ' + b.song.title + ' ' + b.host.username;
                     b.tasks.forEach(task => {
                         task.mappers.forEach(mapper => {
@@ -207,7 +217,7 @@ export default {
             //mode
             if (this.filterMode.length) {
                 if (this.isFiltered) {
-                    this.filteredBeatmaps = this.filteredBeatmaps.filter(b => {
+                    this.pageObjs = this.pageObjs.filter(b => {
                         if (b.mode == this.filterMode) {
                             return true;
                         } else if (b.mode == 'hybrid') {
@@ -222,7 +232,7 @@ export default {
                         return false;
                     });
                 } else {
-                    this.filteredBeatmaps = this.allBeatmaps.filter(b => {
+                    this.pageObjs = this.allObjs.filter(b => {
                         if (b.mode == this.filterMode) {
                             return true;
                         } else if (b.mode == 'hybrid') {
@@ -242,14 +252,14 @@ export default {
             //status
             if (this.filterStatus.length) {
                 if (this.isFiltered) {
-                    this.filteredBeatmaps = this.filteredBeatmaps.filter(b => {
+                    this.pageObjs = this.pageObjs.filter(b => {
                         if (b.status == this.filterStatus) {
                             return true;
                         }
                         return false;
                     });
                 } else {
-                    this.filteredBeatmaps = this.allBeatmaps.filter(b => {
+                    this.pageObjs = this.allObjs.filter(b => {
                         if (b.status == this.filterStatus) {
                             return true;
                         }
@@ -261,7 +271,7 @@ export default {
             //quest
             if (this.filterQuest.length) {
                 if (this.isFiltered) {
-                    this.filteredBeatmaps = this.filteredBeatmaps.filter(b => {
+                    this.pageObjs = this.pageObjs.filter(b => {
                         if (this.filterQuest == 'none' && !b.quest) {
                             return true;
                         } else if (b.quest && b.quest.id == this.filterQuest) {
@@ -270,7 +280,7 @@ export default {
                         return false;
                     });
                 } else {
-                    this.filteredBeatmaps = this.allBeatmaps.filter(b => {
+                    this.pageObjs = this.allObjs.filter(b => {
                         if (this.filterQuest == 'none' && !b.quest) {
                             return true;
                         } else if (b.quest && b.quest.id == this.filterQuest) {
@@ -286,15 +296,15 @@ export default {
                 this.filterMode.length ||
                 this.filterStatus.length ||
                 this.filterQuest.length;
-            this.limit = 24.01; //resets to first page
-            this.canShowOlder = true;
+            this.separateObjs();
         },
     },
     data() {
         return {
-            beatmaps: null,
-            allBeatmaps: null,
-            filteredBeatmaps: null,
+            allObjs: null,
+            pageObjs: null,
+            hostMaps: null,
+            guestDifficultyMaps: null,
             selectedMap: null,
             userOsuId: null,
             username: null,
@@ -302,44 +312,25 @@ export default {
             featuredArtists: null,
             featuredSongs: null,
             info: null,
+            isLoading: false,
             filterValue: '',
             filterMode: '',
             filterStatus: '',
             filterQuest: '',
             isFiltered: false,
             allQuests: [],
-
-            limit: null,
-            pre: null,
-            currentPage: null,
-            pages: null,
-            canShowOlder: true,
         };
     },
     created() {
         axios
             .get('/beatmaps/relevantInfo')
             .then(response => {
-                this.allBeatmaps = response.data.beatmaps;
+                this.allObjs = response.data.beatmaps;
+                this.pageObjs = response.data.beatmaps;
                 this.userOsuId = response.data.userId;
                 this.username = response.data.username;
                 this.usergroup = response.data.group;
-                this.pre = 0;
-                this.limit = 24;
-                this.pages = Math.ceil(this.allBeatmaps.length / this.limit);
-                this.currentPage = 1;
-
-                if (this.limit >= this.allBeatmaps.length) {
-                    this.canShowOlder = false;
-                }
-
-                let duplicate;
-                this.allBeatmaps.forEach(b => {
-                    if (b.quest && b.quest.name != duplicate) {
-                        duplicate = b.quest.name;
-                        this.allQuests.push({ id: b.quest.id, name: b.quest.name, art: b.quest.art });
-                    }
-                });
+                this.separateObjs();
             })
             .then(function() {
                 $('#loading').fadeOut();
@@ -352,7 +343,7 @@ export default {
     mounted() {
         setInterval(() => {
             axios.get('/beatmaps/relevantInfo').then(response => {
-                this.allBeatmaps = response.data.beatmaps;
+                this.allObjs = response.data.beatmaps;
                 if (this.isFiltered) {
                     this.filter();
                 }

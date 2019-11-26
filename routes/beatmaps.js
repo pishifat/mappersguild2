@@ -167,14 +167,33 @@ router.get('/', async function(req, res) {
     });
 });
 
+/* GET info for page load */
 router.get('/relevantInfo', async (req, res, next) => {
-    const bms = await beatmaps.service.query(
-            { status: { $ne: 'Ranked' } },
-            defaultPopulate,
-            { quest: -1, status: 1, updatedAt: -1 },
-            true
-        );
-    res.json({ beatmaps: bms, userId: req.session.osuId, username: req.session.username, group: res.locals.userRequest.group });
+    let hostBeatmaps = await beatmaps.service.query(
+        { host: req.session.mongoId },
+        defaultPopulate,
+        { quest: -1, status: 1, updatedAt: -1 },
+        true
+    );
+    res.json({ beatmaps: hostBeatmaps, userId: req.session.osuId, username: req.session.username, group: res.locals.userRequest.group });
+});
+
+/* GET mode-specific beatmaps */
+router.get('/loadBeatmaps/:mode', async (req, res, next) => {
+    let inactiveDate = new Date();
+    inactiveDate.setDate(inactiveDate.getDate() - 30);
+    let b;
+    if(req.params.mode != 'any'){
+        b = await beatmaps.service.query({ 
+            $or: [{ mode: req.params.mode }, { mode: 'hybrid' }], 
+            $or: [{ host: req.session.mongoId }, { updatedAt: { $gte: inactiveDate } }] }, 
+            defaultPopulate, { quest: -1, status: 1, updatedAt: -1 }, true);
+    }else{
+        b = await beatmaps.service.query({ 
+            $or: [{ host: req.session.mongoId }, { updatedAt: { $gte: inactiveDate } }] }, 
+            defaultPopulate, { quest: -1, status: 1, updatedAt: -1 }, true);
+    }
+    res.json({ beatmaps: b });
 });
 
 /* GET artists for new map entry */
