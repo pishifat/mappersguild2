@@ -175,25 +175,58 @@ router.get('/relevantInfo', async (req, res, next) => {
         { quest: -1, status: 1, updatedAt: -1 },
         true
     );
-    res.json({ beatmaps: hostBeatmaps, userId: req.session.osuId, username: req.session.username, group: res.locals.userRequest.group });
+    res.json({ beatmaps: hostBeatmaps, userId: req.session.osuId, username: req.session.username, group: res.locals.userRequest.group, mainMode: res.locals.userRequest.mainMode });
 });
 
 /* GET mode-specific beatmaps */
-router.get('/loadBeatmaps/:mode', async (req, res, next) => {
+router.get('/loadBeatmaps/:mode/:inactive', async (req, res, next) => {
     let inactiveDate = new Date();
-    inactiveDate.setDate(inactiveDate.getDate() - 30);
-    let b;
+    if(req.params.inactive == 'show'){
+        inactiveDate.setDate(inactiveDate.getDate() - 3000);
+    }else if(req.params.inactive == 'hide'){
+        inactiveDate.setDate(inactiveDate.getDate() - 30);
+    }
+    let statusBeatmaps;
+    let allBeatmaps;
     if(req.params.mode != 'any'){
-        b = await beatmaps.service.query({ 
+        statusBeatmaps = await beatmaps.service.query({ 
             $or: [{ mode: req.params.mode }, { mode: 'hybrid' }], 
             $or: [{ host: req.session.mongoId }, { updatedAt: { $gte: inactiveDate } }] }, 
             defaultPopulate, { quest: -1, status: 1, updatedAt: -1 }, true);
+        allBeatmaps = await beatmaps.service.query({ 
+            $or: [{ mode: req.params.mode }, { mode: 'hybrid' }],
+            updatedAt: { $lte: inactiveDate } }, 
+            defaultPopulate, { quest: -1, status: 1, updatedAt: -1 }, true);
     }else{
-        b = await beatmaps.service.query({ 
+        statusBeatmaps = await beatmaps.service.query({ 
             $or: [{ host: req.session.mongoId }, { updatedAt: { $gte: inactiveDate } }] }, 
             defaultPopulate, { quest: -1, status: 1, updatedAt: -1 }, true);
+        allBeatmaps = await beatmaps.service.query({ updatedAt: { $lte: inactiveDate } },
+            defaultPopulate, { quest: -1, status: 1, updatedAt: -1 }, true);
     }
-    res.json({ beatmaps: b });
+    let guestDifficultyBeatmaps = [];
+    allBeatmaps.forEach(beatmap => {
+        if(beatmap.host.osuId != req.session.osuId){
+            let breakLoop = false;
+            for (let i = 0; i < beatmap.tasks.length; i++) {
+                const task = beatmap.tasks[i];
+                for (let j = 0; j < task.mappers.length; j++) {
+                    const mapper = task.mappers[j];
+                    if(mapper.osuId == req.session.osuId){
+                        guestDifficultyBeatmaps.push(beatmap);
+                        breakLoop = true;
+                        break;
+                    }
+                }
+                if(breakLoop){
+                    break;
+                }
+            }
+        }
+    });
+    
+
+    res.json({ statusBeatmaps, guestDifficultyBeatmaps });
 });
 
 /* GET artists for new map entry */

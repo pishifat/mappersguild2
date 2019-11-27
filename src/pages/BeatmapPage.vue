@@ -24,39 +24,105 @@
         </div>
 
         <div class="container bg-container py-3">
+            <h3>
+                My beatmaps 
+                <span v-if="isLoading" class="text-white-50" style="font-size: 9pt;">loading...</span>
+            </h3>
             <h5 class="ml-4">
-                <a href="#hostMaps" data-toggle="collapse" >
-                    My mapsets ({{hostMaps ? hostMaps.length : '...'}})
+                <a href="#hostBeatmaps" data-toggle="collapse" >
+                    My mapsets ({{hostBeatmaps ? hostBeatmaps.length : '...'}})
                     <i class="fas fa-angle-down" />
                 </a>
             </h5>
-            <div id="hostMaps" class="show">
+            <div v-if="hostBeatmaps" id="hostBeatmaps" class="show">
                 <transition-group name="list" tag="div" class="row">
                     <beatmap-card
-                        v-for="beatmap in hostMaps"
+                        v-for="beatmap in hostBeatmaps"
                         :key="beatmap.id"
                         :beatmap="beatmap"
                         :user-osu-id="userOsuId"
                         @update:selectedMap="selectedMap = $event"
                     ></beatmap-card>
                 </transition-group>
+                <p v-if="!hostBeatmaps.length" class="ml-5 text-white-50">None...</p>
             </div>
             <h5 class="ml-4 mt-2">
-                <a href="#guestDifficultyMaps" data-toggle="collapse" >
-                    My guest difficulties ({{guestDifficultyMaps ? guestDifficultyMaps.length : '...'}})
+                <a href="#guestDifficultyBeatmaps" data-toggle="collapse" >
+                    My guest difficulties ({{guestDifficultyBeatmaps ? guestDifficultyBeatmaps.length : '...'}}) 
                     <i class="fas fa-angle-down" />
                 </a>
             </h5>
-            <div id="guestDifficultyMaps" class="show">
+            <div v-if="guestDifficultyBeatmaps" id="guestDifficultyBeatmaps" class="collapse">
                 <transition-group name="list" tag="div" class="row">
                     <beatmap-card
-                        v-for="beatmap in guestDifficultyMaps"
+                        v-for="beatmap in guestDifficultyBeatmaps"
                         :key="beatmap.id"
                         :beatmap="beatmap"
                         :user-osu-id="userOsuId"
                         @update:selectedMap="selectedMap = $event"
                     ></beatmap-card>
                 </transition-group>
+                <p v-if="!guestDifficultyBeatmaps.length" class="ml-5 text-white-50">None...</p>
+            </div>
+        </div>
+
+        <div class="radial-divisor mx-auto my-4"></div>
+
+        <div class="container bg-container py-3">
+            <h3>
+                Other beatmaps
+                <button class="btn btn-sm btn-outline-info mx-2" @click.prevent="toggleInactive($event)" data-toggle="tooltip" data-placement="top" title="toggle visibility of beatmaps older than 30 days">
+                    {{ toggleInactiveBeatmaps ? 'Hide inactive beatmaps' : 'Show inactive beatmaps' }}
+                </button>
+                <span v-if="isLoading" class="text-white-50" style="font-size: 9pt;">loading...</span>
+            </h3>
+            <h5 class="ml-4">
+                <a href="#workInProgressBeatmaps" data-toggle="collapse" >
+                    Work-in-progress beatmaps ({{workInProgressBeatmaps ? workInProgressBeatmaps.length : '...'}})
+                    <i class="fas fa-angle-down" />
+                </a>
+            </h5>
+            <div v-if="workInProgressBeatmaps" id="workInProgressBeatmaps" class="collapse">
+                <p v-for="beatmap in workInProgressBeatmaps" :key="beatmap.id" class="small min-spacing">
+                    {{beatmap.song.artist}} - {{beatmap.song.title}} ({{beatmap.host.username}})
+                </p>
+                <p v-if="!workInProgressBeatmaps.length" class="ml-5 text-white-50">None...</p>
+            </div>
+            <h5 class="ml-4 mt-2">
+                <a href="#pendingBeatmaps" data-toggle="collapse" >
+                    Pending beatmaps ({{pendingBeatmaps ? pendingBeatmaps.length : '...'}})
+                    <i class="fas fa-angle-down" />
+                </a>
+            </h5>
+            <div v-if="pendingBeatmaps" id="pendingBeatmaps" class="collapse">
+                <p v-for="beatmap in pendingBeatmaps" :key="beatmap.id" class="small min-spacing">
+                    {{beatmap.song.artist}} - {{beatmap.song.title}} ({{beatmap.host.username}})
+                </p>
+                <p v-if="!pendingBeatmaps.length" class="ml-5 text-white-50">None...</p>
+            </div>
+            <h5 class="ml-4 mt-2">
+                <a href="#qualifiedBeatmaps" data-toggle="collapse" >
+                    Qualified beatmaps ({{qualifiedBeatmaps ? qualifiedBeatmaps.length : '...'}})
+                    <i class="fas fa-angle-down" />
+                </a>
+            </h5>
+            <div v-if="qualifiedBeatmaps" id="qualifiedBeatmaps" class="collapse">
+                <p v-for="beatmap in qualifiedBeatmaps" :key="beatmap.id" class="small min-spacing">
+                    {{beatmap.song.artist}} - {{beatmap.song.title}} ({{beatmap.host.username}})
+                </p>
+                <p v-if="!qualifiedBeatmaps.length" class="ml-5 text-white-50">None...</p>
+            </div>
+            <h5 class="ml-4 mt-2">
+                <a href="#rankedBeatmaps" data-toggle="collapse" >
+                    Ranked beatmaps ({{rankedBeatmaps ? rankedBeatmaps.length : '...'}})
+                    <i class="fas fa-angle-down" />
+                </a>
+            </h5>
+            <div v-if="rankedBeatmaps" id="rankedBeatmaps" class="collapse">
+                <p v-for="beatmap in rankedBeatmaps" :key="beatmap.id" class="small min-spacing">
+                    {{beatmap.song.artist}} - {{beatmap.song.title}} ({{beatmap.host.username}})
+                </p>
+                <p v-if="!rankedBeatmaps.length" class="ml-5 text-white-50">None...</p>
             </div>
         </div>
 
@@ -97,18 +163,7 @@ export default {
             this.filter();
         },
         filterMode: function(v) {
-            let mode = this.filterMode;
-            this.filter();
-            this.isLoading = true;
-            if(!this.filterMode.length) mode = 'any';
-            axios
-                .get('/beatmaps/loadBeatmaps/' + mode)
-                .then(response => {
-                    this.allObjs = response.data.beatmaps;
-                    this.pageObjs = response.data.beatmaps;
-                    this.filter();
-                    this.isLoading = false;
-            })
+            this.loadBeatmaps();
         },
         filterStatus: function(v) {
             this.filter();
@@ -137,12 +192,34 @@ export default {
                 });
             }
         },
+        loadBeatmaps: async function(e) {
+            if (e) e.target.disabled = true;
+            let mode = this.filterMode;
+            let inactive;
+            this.isLoading = true;
+            if(!this.filterMode.length) mode = 'any';
+            this.toggleInactiveBeatmaps ? inactive = 'show' : inactive = 'hide';
+            console.log(inactive);
+            axios
+                .get('/beatmaps/loadBeatmaps/' + mode + '/' + inactive)
+                .then(response => {
+                    this.allObjs = response.data.statusBeatmaps.concat(response.data.guestDifficultyBeatmaps);
+                    this.pageObjs = this.allObjs;
+                    this.filter();
+                    this.isLoading = false;
+                    if (e) e.target.disabled = false;
+            })
+        },
         separateObjs: function() {
-            this.hostMaps = [];
-            this.guestDifficultyMaps = [];
+            this.hostBeatmaps = [];
+            this.guestDifficultyBeatmaps = [];
+            this.workInProgressBeatmaps = [];
+            this.pendingBeatmaps = [];
+            this.qualifiedBeatmaps = [];
+            this.rankedBeatmaps = [];
             this.pageObjs.forEach(beatmap => {
                 if(beatmap.host.osuId == this.userOsuId){
-                    this.hostMaps.push(beatmap);
+                    this.hostBeatmaps.push(beatmap);
                 }else{
                     let breakLoop = false;
                     for (let i = 0; i < beatmap.tasks.length; i++) {
@@ -150,13 +227,24 @@ export default {
                         for (let j = 0; j < task.mappers.length; j++) {
                             const mapper = task.mappers[j];
                             if(mapper.osuId == this.userOsuId){
-                                this.guestDifficultyMaps.push(beatmap);
+                                this.guestDifficultyBeatmaps.push(beatmap);
                                 breakLoop = true;
                                 break;
                             }
                         }
                         if(breakLoop){
                             break;
+                        }
+                    }
+                    if(!breakLoop){
+                        if(beatmap.status == 'WIP'){
+                            this.workInProgressBeatmaps.push(beatmap);
+                        }else if(beatmap.status == 'Done'){
+                            this.pendingBeatmaps.push(beatmap);
+                        }else if(beatmap.status == 'Qualified'){
+                            this.qualifiedBeatmaps.push(beatmap);
+                        }else if(beatmap.status == 'Ranked'){
+                            this.rankedBeatmaps.push(beatmap);
                         }
                     }
                 }
@@ -179,6 +267,10 @@ export default {
         selfFilter: function() {
             this.filterValue = this.username;
             this.filter();
+        },
+        toggleInactive: function(e) {
+            this.toggleInactiveBeatmaps = !this.toggleInactiveBeatmaps;
+            this.loadBeatmaps(e);
         },
 
         // filters
@@ -303,8 +395,12 @@ export default {
         return {
             allObjs: null,
             pageObjs: null,
-            hostMaps: null,
-            guestDifficultyMaps: null,
+            hostBeatmaps: null,
+            guestDifficultyBeatmaps: null,
+            workInProgressBeatmaps: null,
+            pendingBeatmaps: null,
+            qualifiedBeatmaps: null,
+            rankedBeatmaps: null,
             selectedMap: null,
             userOsuId: null,
             username: null,
@@ -318,6 +414,7 @@ export default {
             filterStatus: '',
             filterQuest: '',
             isFiltered: false,
+            toggleInactiveBeatmaps: false,
             allQuests: [],
         };
     },
@@ -330,6 +427,7 @@ export default {
                 this.userOsuId = response.data.userId;
                 this.username = response.data.username;
                 this.usergroup = response.data.group;
+                this.filterMode = response.data.mainMode;
                 this.separateObjs();
             })
             .then(function() {
@@ -340,18 +438,14 @@ export default {
                     .fadeIn();
             });
     },
-    mounted() {
-        setInterval(() => {
-            axios.get('/beatmaps/relevantInfo').then(response => {
-                this.allObjs = response.data.beatmaps;
-                if (this.isFiltered) {
-                    this.filter();
-                }
-            });
-        }, 300000);
-    },
 };
 </script>
 
 <style>
+.collapsing {
+    -webkit-transition: none;
+    transition: none;
+    display: none;
+}
 </style>
+
