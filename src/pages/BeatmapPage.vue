@@ -24,15 +24,12 @@
         </div>
 
         <div class="container bg-container py-3">
-            <h3>
-                My beatmaps 
-                <span v-if="isLoading" class="text-white-50" style="font-size: 9pt;">loading...</span>
-            </h3>
-            <h5 class="ml-4">
+            <h5 class="ml-2">
                 <a href="#hostBeatmaps" data-toggle="collapse" >
                     My mapsets ({{hostBeatmaps ? hostBeatmaps.length : '...'}})
                     <i class="fas fa-angle-down" />
                 </a>
+                <span v-if="isLoading && firstLoadingComplete" class="text-white-50" style="font-size: 9pt;">loading...</span>
             </h5>
             <div v-if="hostBeatmaps" id="hostBeatmaps" class="show">
                 <transition-group name="list" tag="div" class="row">
@@ -46,11 +43,17 @@
                 </transition-group>
                 <p v-if="!hostBeatmaps.length" class="ml-5 text-white-50">None...</p>
             </div>
-            <h5 class="ml-4 mt-2">
+        </div>
+
+        <div class="radial-divisor mx-auto my-4"></div>
+
+        <div class="container bg-container py-3">
+            <h5 class="ml-2">
                 <a href="#guestDifficultyBeatmaps" data-toggle="collapse" >
                     My guest difficulties ({{guestDifficultyBeatmaps ? guestDifficultyBeatmaps.length : '...'}}) 
                     <i class="fas fa-angle-down" />
                 </a>
+                <span v-if="isLoading" class="text-white-50" style="font-size: 9pt;">loading...</span>
             </h5>
             <div v-if="guestDifficultyBeatmaps" id="guestDifficultyBeatmaps" class="collapse">
                 <transition-group name="list" tag="div" class="row">
@@ -69,69 +72,83 @@
         <div class="radial-divisor mx-auto my-4"></div>
 
         <div class="container bg-container py-3">
-            <h3>
-                Other beatmaps
-                <button class="btn btn-sm btn-outline-info mx-2" @click.prevent="toggleInactive($event)" data-toggle="tooltip" data-placement="top" title="toggle visibility of beatmaps older than 30 days">
-                    {{ toggleInactiveBeatmaps ? 'Hide inactive beatmaps' : 'Show inactive beatmaps' }}
-                </button>
+            <h5 class="ml-2">
+                <a href="#otherBeatmaps" data-toggle="collapse" >
+                    Other beatmaps ({{otherBeatmaps ? otherBeatmaps.length : '...'}})
+                    <i class="fas fa-angle-down" />
+                </a>
                 <span v-if="isLoading" class="text-white-50" style="font-size: 9pt;">loading...</span>
-            </h3>
-            <h5 class="ml-4">
-                <a href="#workInProgressBeatmaps" data-toggle="collapse" >
-                    Work-in-progress beatmaps ({{workInProgressBeatmaps ? workInProgressBeatmaps.length : '...'}})
-                    <i class="fas fa-angle-down" />
-                </a>
             </h5>
-            <div v-if="workInProgressBeatmaps" id="workInProgressBeatmaps" class="collapse">
-                <p v-for="beatmap in workInProgressBeatmaps" :key="beatmap.id" class="small min-spacing">
-                    {{beatmap.song.artist}} - {{beatmap.song.title}} ({{beatmap.host.username}})
-                </p>
-                <p v-if="!workInProgressBeatmaps.length" class="ml-5 text-white-50">None...</p>
-            </div>
-            <h5 class="ml-4 mt-2">
-                <a href="#pendingBeatmaps" data-toggle="collapse" >
-                    Pending beatmaps ({{pendingBeatmaps ? pendingBeatmaps.length : '...'}})
-                    <i class="fas fa-angle-down" />
-                </a>
-            </h5>
-            <div v-if="pendingBeatmaps" id="pendingBeatmaps" class="collapse">
-                <p v-for="beatmap in pendingBeatmaps" :key="beatmap.id" class="small min-spacing">
-                    {{beatmap.song.artist}} - {{beatmap.song.title}} ({{beatmap.host.username}})
-                </p>
-                <p v-if="!pendingBeatmaps.length" class="ml-5 text-white-50">None...</p>
-            </div>
-            <h5 class="ml-4 mt-2">
-                <a href="#qualifiedBeatmaps" data-toggle="collapse" >
-                    Qualified beatmaps ({{qualifiedBeatmaps ? qualifiedBeatmaps.length : '...'}})
-                    <i class="fas fa-angle-down" />
-                </a>
-            </h5>
-            <div v-if="qualifiedBeatmaps" id="qualifiedBeatmaps" class="collapse">
-                <p v-for="beatmap in qualifiedBeatmaps" :key="beatmap.id" class="small min-spacing">
-                    {{beatmap.song.artist}} - {{beatmap.song.title}} ({{beatmap.host.username}})
-                </p>
-                <p v-if="!qualifiedBeatmaps.length" class="ml-5 text-white-50">None...</p>
-            </div>
-            <h5 class="ml-4 mt-2">
-                <a href="#rankedBeatmaps" data-toggle="collapse" >
-                    Ranked beatmaps ({{rankedBeatmaps ? rankedBeatmaps.length : '...'}})
-                    <i class="fas fa-angle-down" />
-                </a>
-            </h5>
-            <div v-if="rankedBeatmaps" id="rankedBeatmaps" class="collapse">
-                <p v-for="beatmap in rankedBeatmaps" :key="beatmap.id" class="small min-spacing">
-                    {{beatmap.song.artist}} - {{beatmap.song.title}} ({{beatmap.host.username}})
-                </p>
-                <p v-if="!rankedBeatmaps.length" class="ml-5 text-white-50">None...</p>
+            <div v-if="otherBeatmaps" id="otherBeatmaps" class="collapse">
+                <table v-if="otherBeatmaps.length" class="table table-dark table-hover col-md-12 mt-2">
+                    <thead>
+                        <td scope="col">
+                            Mapset
+                        </td>
+                        <td scope="col">
+                            Quest
+                        </td>
+                        <td scope="col">
+                            Host
+                        </td>
+                        <td scope="col">
+                            Difficulties
+                        </td>
+                    </thead>
+                    <beatmap-table-row
+                        v-for="beatmap in otherBeatmaps"
+                        :key="beatmap.id"
+                        :beatmap="beatmap"
+                        :user-osu-id="userOsuId"
+                        @update:selectedMap="selectedMap = $event"
+                    ></beatmap-table-row>
+                </table>
+                <p v-else class="ml-5 text-white-50">None...</p>
+                <div class="text-center">
+                    <button class="btn btn-sm btn-outline-info mx-2" @click.prevent="showMore($event)" data-toggle="tooltip" data-placement="top" title="toggle visibility of less active beatmaps">
+                        <i class="fas fa-angle-down mr-1"></i> show older beatmaps<i class="fas fa-angle-down ml-1"></i>
+                    </button>
+                </div>
             </div>
         </div>
 
-        <beatmap-info
-            :beatmap="selectedMap"
-            :user-osu-id="userOsuId"
-            @update-map="updateMap($event)"
-        ></beatmap-info>
-
+        <!-- beatmap info modal -->
+        <div id="editBeatmap" class="modal fade" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content bg-dark" v-if="selectedMap">
+                    <div class="modal-header text-dark" :class="'bg-' + selectedMap.status.toLowerCase()">
+                        <h5 class="modal-title">
+                            <span v-if="selectedMap.url">
+                                <a :href="selectedMap.url" class="text-dark" target="_blank">
+                                    {{ selectedMap.song.artist }} - {{ selectedMap.song.title }}
+                                </a>
+                            </span>
+                            <span v-else>
+                                {{ selectedMap.song.artist }} - {{ selectedMap.song.title }}
+                            </span>
+                            (<a :href="'https://osu.ppy.sh/users/' + selectedMap.host.osuId" class="text-dark" target="_blank">{{ selectedMap.host.username }}</a>)
+                            <i v-if="selectedMap.mode == 'taiko'" class="fas fa-drum"></i>
+                            <i v-else-if="selectedMap.mode == 'catch'" class="fas fa-apple-alt"></i>
+                            <i v-else-if="selectedMap.mode == 'mania'" class="fas fa-stream"></i>
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span>&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" style="overflow: hidden;">
+                        <img src="../images/the_A.png" class="the-a-background">
+                        <beatmap-info
+                            :beatmap="selectedMap"
+                            :user-osu-id="userOsuId"
+                            @update-map="updateBeatmap($event)"
+                        >
+                        </beatmap-info>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- create beatmap modal -->
         <create-beatmap
             :featured-artists="featuredArtists"
             :featured-songs="featuredSongs"
@@ -145,6 +162,7 @@
 <script>
 import CreateBeatmap from '../components/beatmaps/CreateBeatmap.vue';
 import BeatmapCard from '../components/beatmaps/BeatmapCard.vue';
+import BeatmapTableRow from '../components/beatmaps/BeatmapTableRow.vue';
 import BeatmapInfo from '../components/beatmaps/BeatmapInfo.vue';
 import FilterBox from '../components/FilterBox.vue';
 import NotificationsAccess from '../components/NotificationsAccess.vue';
@@ -154,6 +172,7 @@ export default {
     components: {
         CreateBeatmap,
         BeatmapCard,
+        BeatmapTableRow,
         BeatmapInfo,
         FilterBox,
         NotificationsAccess,
@@ -171,6 +190,13 @@ export default {
         filterQuest: function(v) {
             this.filter();
         },
+    },
+    computed: {
+        displayDate: function() {
+            let date = new Date;
+            date.setDate(date.getDate() - this.daysCount);
+            return date.toISOString().slice(0,10);
+        }
     },
     methods: {
         openAddBeatmap: function() {
@@ -195,58 +221,30 @@ export default {
         loadBeatmaps: async function(e) {
             if (e) e.target.disabled = true;
             let mode = this.filterMode;
-            let inactive;
             this.isLoading = true;
             if(!this.filterMode.length) mode = 'any';
-            this.toggleInactiveBeatmaps ? inactive = 'show' : inactive = 'hide';
-            console.log(inactive);
             axios
-                .get('/beatmaps/loadBeatmaps/' + mode + '/' + inactive)
+                .get('/beatmaps/loadBeatmaps/' + mode + '/' + this.daysCount)
                 .then(response => {
                     this.allObjs = response.data.statusBeatmaps.concat(response.data.guestDifficultyBeatmaps);
                     this.pageObjs = this.allObjs;
                     this.filter();
                     this.isLoading = false;
+                    this.firstLoadingComplete = true;
                     if (e) e.target.disabled = false;
             })
         },
         separateObjs: function() {
             this.hostBeatmaps = [];
             this.guestDifficultyBeatmaps = [];
-            this.workInProgressBeatmaps = [];
-            this.pendingBeatmaps = [];
-            this.qualifiedBeatmaps = [];
-            this.rankedBeatmaps = [];
+            this.otherBeatmaps = [];
             this.pageObjs.forEach(beatmap => {
-                if(beatmap.host.osuId == this.userOsuId){
+                if(beatmap.host.id == this.userMongoId){
                     this.hostBeatmaps.push(beatmap);
+                }else if(beatmap.mappers.includes(this.userMongoId)){
+                    this.guestDifficultyBeatmaps.push(beatmap);
                 }else{
-                    let breakLoop = false;
-                    for (let i = 0; i < beatmap.tasks.length; i++) {
-                        const task = beatmap.tasks[i];
-                        for (let j = 0; j < task.mappers.length; j++) {
-                            const mapper = task.mappers[j];
-                            if(mapper.osuId == this.userOsuId){
-                                this.guestDifficultyBeatmaps.push(beatmap);
-                                breakLoop = true;
-                                break;
-                            }
-                        }
-                        if(breakLoop){
-                            break;
-                        }
-                    }
-                    if(!breakLoop){
-                        if(beatmap.status == 'WIP'){
-                            this.workInProgressBeatmaps.push(beatmap);
-                        }else if(beatmap.status == 'Done'){
-                            this.pendingBeatmaps.push(beatmap);
-                        }else if(beatmap.status == 'Qualified'){
-                            this.qualifiedBeatmaps.push(beatmap);
-                        }else if(beatmap.status == 'Ranked'){
-                            this.rankedBeatmaps.push(beatmap);
-                        }
-                    }
+                    this.otherBeatmaps.push(beatmap);
                 }
             });
             /*let duplicate;
@@ -257,20 +255,20 @@ export default {
                 }
             });*/
         },
-        updateMap: function(bm) {
-            const i = this.beatmaps.findIndex(b => b.id == bm.id);
-            this.beatmaps[i] = bm;
-            this.beatmap = bm;
+        updateBeatmap: function(bm) {
+            const i = this.allObjs.findIndex(b => b.id == bm.id);
+            this.allObjs[i] = bm;
             this.selectedMap = bm;
             this.info = null;
+            this.filter();
         },
         selfFilter: function() {
             this.filterValue = this.username;
             this.filter();
         },
-        toggleInactive: function(e) {
-            this.toggleInactiveBeatmaps = !this.toggleInactiveBeatmaps;
-            this.loadBeatmaps(e);
+        showMore: async function(e) {
+            this.daysCount += 30;
+            await this.loadBeatmaps(e);
         },
 
         // filters
@@ -397,10 +395,7 @@ export default {
             pageObjs: null,
             hostBeatmaps: null,
             guestDifficultyBeatmaps: null,
-            workInProgressBeatmaps: null,
-            pendingBeatmaps: null,
-            qualifiedBeatmaps: null,
-            rankedBeatmaps: null,
+            otherBeatmaps: null,
             selectedMap: null,
             userOsuId: null,
             username: null,
@@ -409,12 +404,13 @@ export default {
             featuredSongs: null,
             info: null,
             isLoading: false,
+            firstLoadingComplete: false,
             filterValue: '',
             filterMode: '',
             filterStatus: '',
             filterQuest: '',
             isFiltered: false,
-            toggleInactiveBeatmaps: false,
+            daysCount: 30,
             allQuests: [],
         };
     },
@@ -424,7 +420,8 @@ export default {
             .then(response => {
                 this.allObjs = response.data.beatmaps;
                 this.pageObjs = response.data.beatmaps;
-                this.userOsuId = response.data.userId;
+                this.userOsuId = response.data.userOsuId;
+                this.userMongoId = response.data.userMongoId;
                 this.username = response.data.username;
                 this.usergroup = response.data.group;
                 this.filterMode = response.data.mainMode;

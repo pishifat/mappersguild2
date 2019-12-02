@@ -27,7 +27,7 @@ const questPopulate = [
     { innerPopulate: 'parties',  populate: { path: 'members leader' } },
     { innerPopulate: 'currentParty',  populate: { path: 'members leader' } },
     { populate: 'completedMembers',  display: 'username osuId rank' },
-    { innerPopulate: 'associatedMaps',  populate: { path: 'song host' } }
+    { innerPopulate: 'associatedMaps',  populate: { path: 'song host tasks' } }
 ];
 
 const artistPopulate = [

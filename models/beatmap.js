@@ -17,6 +17,20 @@ const beatmapSchema = new mongoose.Schema({
 
 const Beatmap = mongoose.model('Beatmap', beatmapSchema);
 
+beatmapSchema.virtual('mappers').get(function() {
+    let mappers = new Array;
+    if(this.tasks[0].mappers[0]){
+        this.tasks.forEach(task => {
+            task.mappers.forEach(mapper => {
+                if(!mappers.includes(mapper.id)){
+                    mappers.push(mapper.id);
+                }
+            });
+        });
+        return mappers;
+    }
+});
+
 class BeatmapService
 {
     async query(params, populate, sorting, getAll) {

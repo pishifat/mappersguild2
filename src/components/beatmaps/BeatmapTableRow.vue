@@ -1,57 +1,66 @@
 <template>
-  <div class="my-2 col-sm-12 col-md-6 col-lg-4" @click="selectBeatmap()">
-    <div
-      class="card map-card bg-dark"
-      :class="statusBorder()"
-      data-toggle="modal"
-      data-target="#editBeatmap"
-      :data-mapid="beatmap.id"
-    >
-      <img class="card-img" :src="processUrl(beatmap.url)" @error="fallbackImage($event)" style="opacity:0.5; overflow:hidden">
-      <div class="card-img-overlay" style="padding: 0.50rem 0.50rem 0 0.50rem">
-        <p
-          class="card-title mb-1 text-shadow"
-        >{{ formatMetadata(beatmap.song.artist, beatmap.song.title) }}</p>
-        <small class="card-text text-shadow">
-          <img
-            v-if="beatmap.quest && beatmap.quest.art"
-            class="rounded-circle mr-1"
-            style="height:24px; width: 24px;"
-            :src="beatmap.quest.art ? 'https://assets.ppy.sh/artists/' + beatmap.quest.art + '/cover.jpg' : '../../images/fa_icon.png'"
-            data-toggle="tooltip"
-            :title="beatmap.quest.name"
-          >
-          Hosted by
-          <a
-            :href="'https://osu.ppy.sh/users/' + beatmap.host.osuId"
-            target="_blank"
-            @click.stop
-          >{{beatmap.host.username}}</a>
-          <i v-if="beatmap.mode == 'taiko'" class="fas fa-drum"></i>
-          <i v-else-if="beatmap.mode == 'catch'" class="fas fa-apple-alt"></i>
-          <i v-else-if="beatmap.mode == 'mania'" class="fas fa-stream"></i>
-          <span
-            class="font-weight-bold float-right pt-1"
-            v-html="processDiffs(beatmap.tasks, beatmap.tasksLocked, beatmap.mode)"
-          ></span>
-        </small>
-      </div>
-    </div>
-  </div>
+<tbody>
+    <tr :class="statusBorder()" style="border-bottom: 1px solid gray;">
+        <td scope="row">
+            <a :href="'#details' + beatmap.id" data-toggle="collapse">
+                {{ formatMetadata() }}
+                <i class="fas fa-angle-down" />
+            </a>
+        </td>
+        <td scope="row">
+            <img
+                v-if="beatmap.quest && beatmap.quest.art"
+                class="rounded-circle mr-1"
+                style="height:24px; width: 24px;"
+                :src="beatmap.quest.art ? 'https://assets.ppy.sh/artists/' + beatmap.quest.art + '/cover.jpg' : '../../images/fa_icon.png'"
+                data-toggle="tooltip"
+                :title="beatmap.quest.name"
+            >
+        </td>
+        <td scope="row">
+            <a :href="'https://osu.ppy.sh/users/' + beatmap.host.osuId" target="_blank" @click.stop>
+                {{beatmap.host.username}}
+            </a>
+        </td>
+        <td scope="row">
+            <span
+                class="font-weight-bold"
+                v-html="processDiffs(beatmap.tasks, beatmap.tasksLocked, beatmap.mode)"
+            ></span>
+        </td>
+    </tr>
+    <div :id="'details' + beatmap.id" class="collapse ml-4 my-2 row bg-darker">
+        <beatmap-info
+            :beatmap="beatmap"
+            :user-osu-id="userOsuId"
+            :is-table="true"
+            @update-map="updateBeatmap($event)"
+        >
+        </beatmap-info>
+    </div> 
+</tbody>
 </template>
 
 <script>
+import BeatmapInfo from './BeatmapInfo.vue';
+
 export default {
-    name: 'beatmap-card',
-    props: ['beatmap', 'userOsuId'],
-    data () {
-        return {
-            defaultUrl: 'https://osu.ppy.sh/images/layout/beatmaps/default-bg.png',
-        }
+    name: 'beatmap-table-row',
+    components: {
+        BeatmapInfo,
     },
+    props: ['beatmap', 'userOsuId'],
     methods: {
-        fallbackImage: function(e) {
-            e.target.src = this.defaultUrl;
+        updateBeatmap: function(bm) {
+            this.$emit('update-map', bm);
+        },
+        formatMetadata: function() {
+            let str = this.beatmap.song.artist + ' - ' + this.beatmap.song.title;
+            if (str.length > 70) {
+                return str.slice(0, 70) + '...';
+            } else {
+                return str;
+            }
         },
         statusBorder: function() {
             if(this.beatmap.status == 'WIP'){
@@ -62,33 +71,6 @@ export default {
                 return 'card-status-qualified';
             }else if(this.beatmap.status == 'Ranked'){
                 return 'card-status-ranked';
-            }
-        },
-        selectBeatmap: function() {
-            this.$emit('update:selectedMap', this.beatmap);
-        },
-        formatMetadata: function(artist, title) {
-            let str = artist + ' - ' + title;
-            if (str.length > 34) {
-                return str.slice(0, 34) + '...';
-            } else {
-                return str;
-            }
-        },
-        processUrl: function(beatmapUrl) {
-            if (beatmapUrl && beatmapUrl.indexOf('osu.ppy.sh/beatmapsets/') !== -1) {
-                let indexStart = beatmapUrl.indexOf('beatmapsets/') + 'beatmapsets/'.length;
-                let indexEnd = beatmapUrl.indexOf('#');
-                let idUrl;
-                if (indexEnd !== -1) {
-                    idUrl = beatmapUrl.slice(indexStart, indexEnd);
-                } else {
-                    idUrl = beatmapUrl.slice(indexStart);
-                }
-
-                return `https://assets.ppy.sh/beatmaps/${idUrl}/covers/card.jpg`;
-            } else {
-                return this.defaultUrl;
             }
         },
         processDiffs: function(tasks, tasksLocked, mode) {
@@ -197,21 +179,6 @@ export default {
 </script>
 
 <style>
-    .map-card{
-        overflow:hidden;
-        height:75px;
-    }
-    
-    .card-status {
-        position: absolute;
-        top: 0px;
-        right: 0px;
-        width: 0px;
-        height: 0px;
-        border-bottom: 15px solid transparent;
-        z-index: 10000;
-    }
-
     .card-status-wip {
         border-left: 4px solid var(--wip);
     }
@@ -226,6 +193,11 @@ export default {
 
     .card-status-ranked {
         border-left: 4px solid var(--ranked);
+    }
+
+    tr td{ /*FROM HERE*/
+        padding: 0.5rem 0.5rem 0.5rem 0.5rem !important;
+        margin: 0 !important;
     }
 </style>
 

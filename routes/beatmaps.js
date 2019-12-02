@@ -172,37 +172,40 @@ router.get('/relevantInfo', async (req, res, next) => {
     let hostBeatmaps = await beatmaps.service.query(
         { host: req.session.mongoId },
         defaultPopulate,
-        { quest: -1, status: 1, updatedAt: -1 },
+        { updatedAt: -1 },
         true
     );
-    res.json({ beatmaps: hostBeatmaps, userId: req.session.osuId, username: req.session.username, group: res.locals.userRequest.group, mainMode: res.locals.userRequest.mainMode });
+    res.json({ 
+        beatmaps: hostBeatmaps, 
+        userOsuId: req.session.osuId, 
+        userMongoId: req.session.mongoId, 
+        username: req.session.username, 
+        group: res.locals.userRequest.group, 
+        mainMode: res.locals.userRequest.mainMode 
+    });
 });
 
 /* GET mode-specific beatmaps */
-router.get('/loadBeatmaps/:mode/:inactive', async (req, res, next) => {
-    let inactiveDate = new Date();
-    if(req.params.inactive == 'show'){
-        inactiveDate.setDate(inactiveDate.getDate() - 3000);
-    }else if(req.params.inactive == 'hide'){
-        inactiveDate.setDate(inactiveDate.getDate() - 30);
-    }
+router.get('/loadBeatmaps/:mode/:days', async (req, res, next) => {
+    let date = new Date();
+    date.setDate(date.getDate() - req.params.days);
     let statusBeatmaps;
     let allBeatmaps;
     if(req.params.mode != 'any'){
         statusBeatmaps = await beatmaps.service.query({ 
             $or: [{ mode: req.params.mode }, { mode: 'hybrid' }], 
-            $or: [{ host: req.session.mongoId }, { updatedAt: { $gte: inactiveDate } }] }, 
-            defaultPopulate, { quest: -1, status: 1, updatedAt: -1 }, true);
+            $or: [{ host: req.session.mongoId }, { updatedAt: { $gte: date } }] }, 
+            defaultPopulate, { updatedAt: -1 }, true);
         allBeatmaps = await beatmaps.service.query({ 
             $or: [{ mode: req.params.mode }, { mode: 'hybrid' }],
-            updatedAt: { $lte: inactiveDate } }, 
-            defaultPopulate, { quest: -1, status: 1, updatedAt: -1 }, true);
+            updatedAt: { $lte: date } }, 
+            defaultPopulate, { updatedAt: -1 }, true);
     }else{
         statusBeatmaps = await beatmaps.service.query({ 
-            $or: [{ host: req.session.mongoId }, { updatedAt: { $gte: inactiveDate } }] }, 
-            defaultPopulate, { quest: -1, status: 1, updatedAt: -1 }, true);
-        allBeatmaps = await beatmaps.service.query({ updatedAt: { $lte: inactiveDate } },
-            defaultPopulate, { quest: -1, status: 1, updatedAt: -1 }, true);
+            $or: [{ host: req.session.mongoId }, { updatedAt: { $gte: date } }] }, 
+            defaultPopulate, { updatedAt: -1 }, true);
+        allBeatmaps = await beatmaps.service.query({ updatedAt: { $lte: date } },
+            defaultPopulate, { updatedAt: -1 }, true);
     }
     let guestDifficultyBeatmaps = [];
     allBeatmaps.forEach(beatmap => {
@@ -224,7 +227,6 @@ router.get('/loadBeatmaps/:mode/:inactive', async (req, res, next) => {
             }
         }
     });
-    
 
     res.json({ statusBeatmaps, guestDifficultyBeatmaps });
 });
