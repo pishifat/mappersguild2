@@ -93,7 +93,7 @@
             <!-- difficulties -->
             <div class="row">
                 <div class="col">
-                    <table :class="isTable ? 'table-sm' : 'table table-sm table-dark table-hover'">
+                    <table class="w-100 table-sm" :class="isTable ? '' : 'table table-dark table-hover'">
                         <thead>
                             <td scope="col">Difficulty</td>
                             <td scope="col">Mapper(s)</td>

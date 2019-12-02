@@ -196,7 +196,7 @@ export default {
     }
 
     tr td{ /*FROM HERE*/
-        padding: 0.5rem 0.5rem 0.5rem 0.5rem !important;
+        padding: 5px 5px 5px 5px !important;
         margin: 0 !important;
     }
 </style>
