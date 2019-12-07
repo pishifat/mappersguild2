@@ -742,16 +742,20 @@ router.post('/setLink/:mapId', api.isNotSpectator, isValidBeatmap, isBeatmapHost
 
 /* POST locks task from extended view. */
 router.post('/lockTask/:mapId', api.isNotSpectator, isValidBeatmap, isBeatmapHost, async (req, res) => {
+    if (!req.body.task) {
+        return res.json({ error: 'Not a valid task' });
+    }
+
     let b = res.locals.beatmap;
     await beatmaps.service.update(req.params.mapId, {
-        $push: { tasksLocked: req.body.difficulty },
+        $push: { tasksLocked: req.body.task },
     });
     b = await beatmaps.service.query({ _id: req.params.mapId }, defaultPopulate);
     res.json(b);
 
     logs.service.create(
         req.session.mongoId,
-        `locked claims for "${req.body.difficulty}" on "${b.song.artist} - ${b.song.title}"`,
+        `locked claims for "${req.body.task}" on "${b.song.artist} - ${b.song.title}"`,
         b._id,
         'beatmap'
     );
@@ -761,14 +765,14 @@ router.post('/lockTask/:mapId', api.isNotSpectator, isValidBeatmap, isBeatmapHos
 router.post('/unlockTask/:mapId', api.isNotSpectator, isValidBeatmap, isBeatmapHost, async (req, res) => {
     let b = res.locals.beatmap;
     await beatmaps.service.update(req.params.mapId, {
-        $pull: { tasksLocked: req.body.difficulty },
+        $pull: { tasksLocked: req.body.task },
     });
     b = await beatmaps.service.query({ _id: req.params.mapId }, defaultPopulate);
     res.json(b);
 
     logs.service.create(
         req.session.mongoId,
-        `unlocked claims for "${req.body.difficulty}" on "${b.song.artist} - ${b.song.title}"`,
+        `unlocked claims for "${req.body.task}" on "${b.song.artist} - ${b.song.title}"`,
         b._id,
         'beatmap'
     );

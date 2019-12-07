@@ -117,19 +117,32 @@
             <div class="modal-dialog modal-lg">
                 <div class="modal-content bg-dark" v-if="selectedMap">
                     <div class="modal-header text-dark" :class="'bg-' + selectedMap.status.toLowerCase()">
-                        <h5 class="modal-title">
+                        <h5 class="modal-title d-flex align-items-center">
+                            <img
+                                v-if="selectedMap.quest"
+                                class="rounded-circle mr-1"
+                                style="height:24px; width: 24px;"
+                                :src="selectedMap.quest.art ? 'https://assets.ppy.sh/artists/' + selectedMap.quest.art + '/cover.jpg' : '../../images/fa_icon.png'"
+                                data-toggle="tooltip"
+                                :title="selectedMap.quest.name"
+                            >
+
                             <span v-if="selectedMap.url">
                                 <a :href="selectedMap.url" class="text-dark" target="_blank">
+                                    <i class="fas fa-link"></i> 
                                     {{ selectedMap.song.artist }} - {{ selectedMap.song.title }}
                                 </a>
                             </span>
                             <span v-else>
                                 {{ selectedMap.song.artist }} - {{ selectedMap.song.title }}
                             </span>
-                            (<a :href="'https://osu.ppy.sh/users/' + selectedMap.host.osuId" class="text-dark" target="_blank">{{ selectedMap.host.username }}</a>)
+
+                            <a :href="'https://osu.ppy.sh/users/' + selectedMap.host.osuId" class="text-dark mx-1" target="_blank">({{ selectedMap.host.username }})</a>
+
                             <i v-if="selectedMap.mode == 'taiko'" class="fas fa-drum"></i>
                             <i v-else-if="selectedMap.mode == 'catch'" class="fas fa-apple-alt"></i>
                             <i v-else-if="selectedMap.mode == 'mania'" class="fas fa-stream"></i>
+                            <i v-else-if="selectedMap.mode == 'hybrid'" class="fas fa-check-double"></i>
                         </h5>
                         <button type="button" class="close" data-dismiss="modal">
                             <span>&times;</span>
@@ -140,7 +153,7 @@
                         <beatmap-info
                             :beatmap="selectedMap"
                             :user-osu-id="userOsuId"
-                            @update-map="updateBeatmap($event)"
+                            @update:beatmap="updateBeatmap($event)"
                         >
                         </beatmap-info>
                     </div>
@@ -163,7 +176,7 @@
 import CreateBeatmap from '../components/beatmaps/CreateBeatmap.vue';
 import BeatmapCard from '../components/beatmaps/BeatmapCard.vue';
 import BeatmapTableRow from '../components/beatmaps/BeatmapTableRow.vue';
-import BeatmapInfo from '../components/beatmaps/BeatmapInfo.vue';
+import BeatmapInfo from '../components/beatmaps/beatmapInfo/BeatmapInfo.vue';
 import FilterBox from '../components/FilterBox.vue';
 import NotificationsAccess from '../components/NotificationsAccess.vue';
 

@@ -34,7 +34,7 @@
             :beatmap="beatmap"
             :user-osu-id="userOsuId"
             :is-table="true"
-            @update-map="updateBeatmap($event)"
+            @update:beatmap="$emit('update:beatmap', $event)"
         >
         </beatmap-info>
     </div> 
@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import BeatmapInfo from './BeatmapInfo.vue';
+import BeatmapInfo from './beatmapInfo/BeatmapInfo.vue';
 
 export default {
     name: 'beatmap-table-row',
@@ -51,9 +51,6 @@ export default {
     },
     props: ['beatmap', 'userOsuId'],
     methods: {
-        updateBeatmap: function(bm) {
-            this.$emit('update-map', bm);
-        },
         formatMetadata: function() {
             let str = this.beatmap.song.artist + ' - ' + this.beatmap.song.title;
             if (str.length > 70) {

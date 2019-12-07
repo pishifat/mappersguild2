@@ -24,12 +24,9 @@
 </template>
 
 <script>
-import mixin from "../../mixins.js";
-
 export default {
     name: 'add-artist',
     props: [ 'info' ],
-    mixins: [ mixin ],
     methods: {
         executePost: async function (path, data, e) {
 			if (e) e.target.disabled = true;

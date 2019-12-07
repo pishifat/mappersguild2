@@ -146,11 +146,8 @@
 </template>
 
 <script>
-import mixin from '../../mixins.js'
-
 export default {
     name: 'create-beatmap',
-    mixins: [ mixin ],
     props: [ 'featuredArtists', 'featuredSongs', 'info' ],
     methods: {
         executePost: async function(path, data, e) {

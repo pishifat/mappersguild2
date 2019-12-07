@@ -334,12 +334,9 @@
 </template>
 
 <script>
-import mixin from '../../mixins.js';
-
 export default {
     name: 'user-info',
     props: ['user', 'beatmaps', 'userId'],
-    mixins: [mixin],
     watch: {
         user: function() {
             this.currentQuests = [];

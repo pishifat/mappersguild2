@@ -46,12 +46,9 @@
 </template>
 
 <script>
-import mixin from "../mixins.js";
-
 export default {
     name: 'limited-map-info',
     props: [ 'beatmap' ],
-    mixins: [ mixin ],
     watch: {
         beatmap: function () {
             this.sortDiffs();
