@@ -164,6 +164,10 @@ select option {
     background-color: var(--dark)!important;
 }
 
+.bg-darker {
+    background-color: var(--dark-alpha)!important;
+}
+
 .tooltip {
     font-family: 'Roboto', sans-serif;
 }

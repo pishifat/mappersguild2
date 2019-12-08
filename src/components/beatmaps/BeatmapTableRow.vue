@@ -1,35 +1,39 @@
 <template>
-<tbody>
-    <tr :class="statusBorder()" style="border-bottom: 1px solid gray;">
-        <td scope="row">
-            <a :href="'#details' + beatmap.id" data-toggle="collapse">
-                {{ formatMetadata() }}
-                <i class="fas fa-angle-down" />
-            </a>
-        </td>
-        <td scope="row">
-            <img
-                v-if="beatmap.quest && beatmap.quest.art"
-                class="rounded-circle mr-1"
-                style="height:24px; width: 24px;"
-                :src="beatmap.quest.art ? 'https://assets.ppy.sh/artists/' + beatmap.quest.art + '/cover.jpg' : '../../images/fa_icon.png'"
-                data-toggle="tooltip"
-                :title="beatmap.quest.name"
-            >
-        </td>
-        <td scope="row">
-            <a :href="'https://osu.ppy.sh/users/' + beatmap.host.osuId" target="_blank" @click.stop>
-                {{beatmap.host.username}}
-            </a>
-        </td>
-        <td scope="row">
-            <span
-                class="font-weight-bold"
-                v-html="processDiffs(beatmap.tasks, beatmap.tasksLocked, beatmap.mode)"
-            ></span>
-        </td>
-    </tr>
-    <div :id="'details' + beatmap.id" class="collapse ml-4 my-2 row bg-darker">
+<div>
+    <div class="card min-spacing static-card" :class="statusBorder()">
+        <div class="card-header min-spacing row d-flex align-items-center my-2">
+            <div class="col-sm-6">
+                <img
+                    v-if="beatmap.quest && beatmap.quest.art"
+                    class="rounded-circle mr-1"
+                    style="height:24px; width: 24px;"
+                    :src="beatmap.quest.art ? 'https://assets.ppy.sh/artists/' + beatmap.quest.art + '/cover.jpg' : '../../images/fa_icon.png'"
+                    data-toggle="tooltip"
+                    :title="beatmap.quest.name"
+                >
+                <a href="#" data-toggle="collapse" :data-target="'#details' + beatmap.id">
+                    {{ formatMetadata() }}
+                    <i class="fas fa-angle-down" />
+                </a>
+            </div>
+            
+            <div class="col-sm-3 small">
+                <span class="text-white-50">Host:</span>
+                <a :href="'https://osu.ppy.sh/users/' + beatmap.host.osuId" target="_blank" @click.stop>{{ beatmap.host.username }}</a>
+            </div>
+            
+            <div class="col-sm-3 small">
+                <span class="text-white-50">Difficulties:</span>
+                <span
+                    class="font-weight-bold"
+                    v-html="processDiffs(beatmap.tasks, beatmap.tasksLocked, beatmap.mode)"
+                ></span>
+            </div>
+            
+        </div>
+    </div>
+
+    <div :id="'details' + beatmap.id" class="collapse my-2 mx-5 row border-right border-left border-secondary bg-darker">
         <beatmap-info
             :beatmap="beatmap"
             :user-osu-id="userOsuId"
@@ -37,8 +41,8 @@
             @update:beatmap="$emit('update:beatmap', $event)"
         >
         </beatmap-info>
-    </div> 
-</tbody>
+    </div>
+</div>
 </template>
 
 <script>

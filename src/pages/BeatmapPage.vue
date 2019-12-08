@@ -80,30 +80,14 @@
                 <span v-if="isLoading" class="text-white-50" style="font-size: 9pt;">loading...</span>
             </h5>
             <div v-if="otherBeatmaps" id="otherBeatmaps" class="collapse">
-                <table v-if="otherBeatmaps.length" class="table table-dark table-hover col-md-12 mt-2">
-                    <thead>
-                        <td scope="col">
-                            Mapset
-                        </td>
-                        <td scope="col">
-                            Quest
-                        </td>
-                        <td scope="col">
-                            Host
-                        </td>
-                        <td scope="col">
-                            Difficulties
-                        </td>
-                    </thead>
-                    <beatmap-table-row
-                        v-for="beatmap in otherBeatmaps"
-                        :key="beatmap.id"
-                        :beatmap="beatmap"
-                        :user-osu-id="userOsuId"
-                        @update:selectedMap="selectedMap = $event"
-                    ></beatmap-table-row>
-                </table>
-                <p v-else class="ml-5 text-white-50">None...</p>
+                <p v-if="!otherBeatmaps.length" class="ml-5 text-white-50">None...</p>
+                <beatmap-table-row
+                    v-for="beatmap in otherBeatmaps"
+                    :key="beatmap.id"
+                    :beatmap="beatmap"
+                    :user-osu-id="userOsuId"
+                    @update:selectedMap="selectedMap = $event"
+                ></beatmap-table-row>
                 <div class="text-center">
                     <button class="btn btn-sm btn-outline-info mx-2" @click.prevent="showMore($event)" data-toggle="tooltip" data-placement="top" title="toggle visibility of less active beatmaps">
                         <i class="fas fa-angle-down mr-1"></i> show older beatmaps<i class="fas fa-angle-down ml-1"></i>
