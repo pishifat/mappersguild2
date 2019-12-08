@@ -13,11 +13,8 @@
                     <a
                         href="#"
                         class="text-danger"
-                        :class="[
-                            fakeButton == beatmap.id + 'mod' ? 'fake-button-disable' : '',
-                            isModder ? 'text-danger' : 'text-success'
-                        ]"
-                        @click.prevent="updateModder()"
+                        :class="isModder ? 'text-danger' : 'text-success'"
+                        @click.prevent="updateModder($event)"
                     >
                         <i class="fas" :class="isModder ? 'fa-minus' : 'fa-plus'"></i>
                     </a>
@@ -52,17 +49,26 @@ export default {
     props: {
         beatmap: Object,
         canEdit: Boolean,
+        userOsuId: Number,
+    },
+    computed: {
+        isModder() {
+            return this.beatmap.modders.some(m => m.osuId == this.userOsuId);
+        },
     },
     methods: {
-        updateModder: async function() {
-            this.fakeButton = this.beatmap._id + 'mod';
+        async updateModder(e) {
+            e.target.classList.add('fake-button-disable');
             const bm = await this.executePost('/beatmaps/updateModder/' + this.beatmap._id);
-
-            if (bm) {
+            console.log(bm);
+            
+            if (!bm || bm.error) {
+                this.$emit('update:info', (bm && bm.error) || 'Something went wrong!');
+            } else {
                 this.$emit('update:beatmap', bm);
             }
 
-            this.fakeButton = null;
+            e.target.classList.remove('fake-button-disable');
         },
     },
 }

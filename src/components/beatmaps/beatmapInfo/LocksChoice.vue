@@ -3,7 +3,15 @@
         <div id="locks" class="row mb-1">
             <div class="col">
                 <div>
-                    Locks
+                    Locks 
+                    <a 
+                        v-if="beatmap.tasksLocked.length != 6"
+                        @click.prevent="showLocksInput = !showLocksInput"
+                        class="text-success small ml-1"
+                        href="#"
+                    >
+                        <i class="fas fa-edit"></i>
+                    </a>
                 </div>
                 <div class="small ml-3">
                     <i v-if="beatmap.tasksLocked.length == 0">none</i>
@@ -15,8 +23,7 @@
                             <a
                                 href="#"
                                 class="text-danger"
-                                @click.prevent="unlockTask(task)"
-                                :class="fakeButton == task ? 'fake-button-disable' : ''"
+                                @click.prevent="unlockTask(task, $event)"
                                 data-toggle="tooltip"
                                 data-placement="left"
                                 title="unlock"
@@ -31,21 +38,23 @@
                 </div>
             </div>
         </div>
-        <div class="row" v-if="beatmap.tasksLocked.length != 6">
+
+        <div 
+            v-if="showLocksInput"
+            class="row"
+        >
             <div class="col">
                 <div class="input-group input-group-sm">
-                    <select class="form-control" v-model="lockTaskSelection">
-                        <template
-                            v-for="task in tasks"
+                    <select
+                        v-model="lockTaskSelection"
+                        class="form-control"
+                    >
+                        <option
+                            v-for="task in remaningTasks"
+                            :value="task"
                         >
-                            <option value="">Choose a difficulty</option>
-                            <option
-                                v-if="canSelect(task)"
-                                :value="task"
-                            >
-                                {{ task }}
-                            </option>
-                        </template>
+                            {{ task }}
+                        </option>
                     </select>
                     <div class="input-group-append">
                         <button
@@ -75,30 +84,39 @@ export default {
         beatmap: Object,
     },
     watch: {
-        beatmap: function() {
-            this.fakeButton = null;
-        },
+        beatmap () {
+            this.showLocksInput = false;
+        }
     },
-    data () {
-        return {
-            tasks: [
+    computed: {
+        remaningTasks() {
+            let possibleTasks = [
                 'Easy',
                 'Normal',
                 'Hard',
                 'Insane',
                 'Expert',
                 'Storyboard',
-            ],
+            ];
+
+            if (this.beatmap && this.beatmap.tasksLocked && this.beatmap.tasksLocked.length) {
+                possibleTasks = possibleTasks.filter(t => !this.beatmap.tasksLocked.includes(t));
+                
+            }
+            
+            this.lockTaskSelection = possibleTasks[0] || null;
+            return possibleTasks;
+        },
+    },
+    data () {
+        return {
             lockTaskSelection: null,
-            fakeButton: null,
+            showLocksInput: false,
         }
     },
     methods: {
-        canSelect (task) {
-            return this.beatmap.tasksLocked.indexOf(task) == -1;
-        },
-        unlockTask: async function(task) {
-            this.fakeButton = task;
+        unlockTask: async function(task, e) {
+            e.target.classList.add('fake-button-disable');
 
             const bm = await this.executePost(
                 '/beatmaps/unlockTask/' + this.beatmap._id, 
@@ -109,17 +127,19 @@ export default {
                 this.editLinkInput = null;
                 this.$emit('update:beatmap', bm);
             }
+
+            e.target.classList.remove('fake-button-disable');
         },
         lockTask: async function(e) {
-            this.fakeButton = null;
-
             const bm = await this.executePost(
                 '/beatmaps/lockTask/' + this.beatmap._id,
                 { task: this.lockTaskSelection },
                 e
             );
             
-            if (bm) {
+            if (!bm || bm.error) {
+                this.$emit('update:info', (bm && bm.error) || 'Something went wrong!');
+            } else {
                 this.$emit('update:beatmap', bm);
             }
         },

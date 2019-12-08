@@ -1,50 +1,49 @@
 <template>
-<div>
-    <div class="card min-spacing static-card" :class="statusBorder()">
-        <div class="card-header min-spacing row d-flex align-items-center my-2">
-            <div class="col-sm-6">
-                <img
-                    v-if="beatmap.quest && beatmap.quest.art"
-                    class="rounded-circle mr-1"
-                    style="height:24px; width: 24px;"
-                    :src="beatmap.quest.art ? 'https://assets.ppy.sh/artists/' + beatmap.quest.art + '/cover.jpg' : '../../images/fa_icon.png'"
-                    data-toggle="tooltip"
-                    :title="beatmap.quest.name"
-                >
-                <a href="#" data-toggle="collapse" :data-target="'#details' + beatmap.id">
-                    {{ formatMetadata() }}
-                    <i class="fas fa-angle-down" />
-                </a>
-            </div>
-            <div class="col-sm-2 small d-flex justify-content-end">
-                <span
-                    class="font-weight-bold"
-                    v-html="processDiffs(beatmap.tasks, beatmap.tasksLocked, beatmap.mode)"
-                ></span>
-                
-            </div>
-            <div class="col-sm-3 small">
-                <span class="text-white-50">Hosted by</span>
-                <a :href="'https://osu.ppy.sh/users/' + beatmap.host.osuId" target="_blank" @click.stop>{{ beatmap.host.username }}</a>
-            </div>
-            <div v-if="beatmap.url" class="col-sm-1 d-flex justify-content-end">
-                <a :href="beatmap.url" target="_blank">
-                    <i class="fas fa-link"></i> 
-                </a>
+    <div>
+        <div class="card min-spacing static-card" :class="statusBorder()">
+            <div class="card-header min-spacing row d-flex align-items-center my-2">
+                <div class="col-sm-6">
+                    <img
+                        v-if="beatmap.quest && beatmap.quest.art"
+                        class="rounded-circle mr-1"
+                        style="height:24px; width: 24px;"
+                        :src="beatmap.quest.art ? 'https://assets.ppy.sh/artists/' + beatmap.quest.art + '/cover.jpg' : '../../images/fa_icon.png'"
+                        data-toggle="tooltip"
+                        :title="beatmap.quest.name"
+                    >
+                    <a href="#" data-toggle="collapse" :data-target="'#details' + beatmap.id">
+                        {{ formatMetadata() }}
+                        <i class="fas fa-angle-down" />
+                    </a>
+                </div>
+                <div class="col-sm-2 small d-flex justify-content-end">
+                    <span
+                        class="font-weight-bold"
+                        v-html="processDiffs(beatmap.tasks, beatmap.tasksLocked, beatmap.mode)"
+                    ></span>
+                    
+                </div>
+                <div class="col-sm-3 small">
+                    <span class="text-white-50">Hosted by</span>
+                    <a :href="'https://osu.ppy.sh/users/' + beatmap.host.osuId" target="_blank" @click.stop>{{ beatmap.host.username }}</a>
+                </div>
+                <div v-if="beatmap.url" class="col-sm-1 d-flex justify-content-end">
+                    <a :href="beatmap.url" target="_blank">
+                        <i class="fas fa-link"></i> 
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div :id="'details' + beatmap.id" class="collapse my-2 mx-5 row border-right border-left border-secondary bg-darker">
-        <beatmap-info
-            :beatmap="beatmap"
-            :user-osu-id="userOsuId"
-            :is-table="true"
-            @update:beatmap="$emit('update:beatmap', $event)"
-        >
-        </beatmap-info>
+        <div :id="'details' + beatmap.id" class="collapse my-2 mx-5 row border-right border-left border-secondary bg-darker py-3">
+            <beatmap-info
+                :beatmap="beatmap"
+                :user-osu-id="userOsuId"
+                :is-table="true"
+                @update:beatmap="$emit('update:beatmap', $event)"
+            ></beatmap-info>
+        </div>
     </div>
-</div>
 </template>
 
 <script>

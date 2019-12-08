@@ -13,21 +13,15 @@
                     href="#"
                     v-if="isBn"
                     class="text-danger"
-                    :class="
-                        fakeButton == beatmap.id + 'bn' ? 'fake-button-disable' : ''
-                    "
-                    @click.prevent="updateBn()"
+                    @click.prevent="updateBn($event)"
                 >
                     <i class="fas fa-minus"></i>
                 </a>
                 <a
                     href="#"
                     v-if="!isBn && beatmap.bns.length < 2"
-                    :class="
-                        fakeButton == beatmap.id + 'bn' ? 'fake-button-disable' : ''
-                    "
                     class="text-success"
-                    @click.prevent="updateBn()"
+                    @click.prevent="updateBn($event)"
                 >
                     <i class="fas fa-plus"></i>
                 </a>
@@ -59,17 +53,25 @@ export default {
     props: {
         beatmap: Object,
         canEdit: Boolean,
+        userOsuId: Number,
+    },
+    computed: {
+        isBn() {
+            return this.beatmap.bns.some(bn => bn.osuId == this.userOsuId);
+        },
     },
     methods: {
-        updateBn: async function() {
-            this.fakeButton = this.beatmap._id + 'bn';
+        updateBn: async function(e) {
+            e.target.classList.add('fake-button-disable');
             const bm = await this.executePost('/beatmaps/updateBn/' + this.beatmap._id);
 
-            if (bm) {
+            if (!bm || bm.error) {
+                this.$emit('update:info', bm.error);
+            } else {
                 this.$emit('update:beatmap', bm);
             }
 
-            this.fakeButton = null;
+            e.target.classList.remove('fake-button-disable');
         },
     },
 }

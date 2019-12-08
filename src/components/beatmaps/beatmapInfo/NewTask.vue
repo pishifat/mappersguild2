@@ -1,31 +1,29 @@
 <template>
     <div
-        v-if="beatmap.status == 'WIP'"
-        class="row mt-2"
-        :class="
-            beatmap.tasksLocked.length == 6 && !isHost ? 
-            'fake-button-disable' : ''
-        "
+        v-if="beatmap.status == 'WIP' && remaningTasks.length"
+        class="row mt-2 mb-3"
     >
-        <div class="col form-inline">
-            <div class="input-group input-group-sm">
-                <select class="form-control" v-model="selectedTask">
-                    <template
-                        v-for="task in tasks"
+        <div class="col-sm-12 form-inline">
+            <div class="input-group input-group-sm mx-auto">
+                <select
+                    v-if="!taskToAddCollaborator"
+                    v-model="selectedTask"
+                    class="form-control"
+                    key="tasks"
+                >
+                    <option
+                        v-for="task in remaningTasks"
+                        :value="task"
                     >
-                        <option
-                            v-if="canSelect(task)"
-                            :value="task"
-                        >
-                            {{ task }}
-                        </option>
-                    </template>
+                        {{ task }}
+                    </option>
                 </select>
                 
                 <select
-                    v-if="beatmap.mode == 'hybrid'"
-                    class="form-control"
+                    v-if="beatmap.mode == 'hybrid' && !taskToAddCollaborator"
                     v-model="selectedMode"
+                    class="form-control"
+                    key="modes"
                 >
                     <option value="osu">osu!</option>
                     <option value="taiko">osu!taiko</option>
@@ -34,26 +32,39 @@
                 </select>
 
                 <input
-                    v-if="isHost"
+                    v-if="isHost || taskToAddCollaborator"
                     class="form-control w-25"
                     type="text"
                     placeholder="request to... (if needed)"
                     maxlength="18"
                     v-model="requestTaskUsername"
-                    @keyup.enter="requestTask(beatmap.id, $event)"
+                    @keyup.enter="taskToAddCollaborator ? addCollab($event) : requestTask(beatmap.id, $event)"
+                    key="username"
                 />
 
                 <button
                     class="btn btn-sm btn-outline-info ml-1"
-                    @click="addTask(beatmap.id, $event)"
+                    @click="taskToAddCollaborator ? addCollab($event) : addTask(beatmap.id, $event)"
                     data-toggle="tooltip"
                     data-placement="top"
                     title="add difficulty"
-                    :disabled="requestDiffInput"
+                    key="submit"
                 >
                     <i class="fas fa-plus"></i>
                 </button>
             </div>
+        </div>
+
+        <div
+            v-if="taskToAddCollaborator"
+            class="col-sm-12 mt-1 text-center"
+        >
+            <small>
+                Adding collaborator for the selected difficulty 
+                <a class="text-danger" href="#" @click="$emit('update:task-to-add-collaborator', null)">
+                    <i class="fas fa-times-circle"></i>
+                </a>
+            </small>
         </div>
     </div>
 </template>
@@ -67,28 +78,37 @@ export default {
     props: {
         beatmap: Object,
         isHost: Boolean,
+        taskToAddCollaborator: Object,
     },
     data () {
         return {
-            tasks: [
+            selectedTask: 'Easy',
+            selectedMode: 'osu',
+            requestTaskUsername: null,
+        }
+    },
+    computed: {
+        remaningTasks() {
+            let possibleTasks = [
                 'Easy',
                 'Normal',
                 'Hard',
                 'Insane',
                 'Expert',
                 'Storyboard',
-            ],
-            selectedTask: 'Easy',
-            selectedMode: 'osu',
-            requestTaskUsername: null,
-        }
+            ];
+
+            if (this.beatmap.tasksLocked && this.beatmap.tasksLocked.length && !this.isHost) {
+                possibleTasks = possibleTasks.filter(t => !this.beatmap.tasksLocked.includes(t));
+            }
+            
+            this.selectedTask = possibleTasks[0] || null;
+            return possibleTasks;
+        },
     },
     methods: {
-        canSelect (task) {
-            return this.beatmap.tasksLocked.indexOf(task) == -1 || this.isHost
-        },
         addTask: async function(id, e) {
-            if (this.requestTaskUsername.length) {
+            if (this.requestTaskUsername && this.requestTaskUsername.length) {
                 this.requestTask(id, e);
                 return;
             }
@@ -98,7 +118,10 @@ export default {
                 mode: this.selectedmode 
             }, e);
 
-            if (bm) {
+            if (!bm || bm.error) {
+                this.$emit('update:info', bm.error);
+                this.$emit('update:invite-confirm', null);
+            } else {
                 this.$emit('update:beatmap', bm);
             }
         },
@@ -113,16 +136,30 @@ export default {
                 mode: this.selectedmode 
             }, e);
 
-            if (bm) {
+            if (!bm || bm.error) {
+                this.$emit('update:info', bm.error);
+                this.$emit('update:invite-confirm', null);
+            } else {
+                this.$emit('update:beatmap', bm);
+                this.$emit('update:invite-confirm', 'Difficulty request sent!');
+            }
+        },
+        addCollab: async function(e) {
+            const bm = await this.executePost('/beatmaps/task/' + this.taskToAddCollaborator.id + '/addCollab', { 
+                user: this.requestTaskUsername, 
+                taskId: this.taskToAddCollaborator.name,
+                mode: this.taskToAddCollaborator.mode,
+            }, e);
+
+            if (!bm || bm.error) {
+                this.$emit('update:info', (bm && bm.error) || 'Something went wrong!');
+                this.$emit('update:invite-confirm', null);
+            } else {
                 this.$emit('update:beatmap', bm);
                 this.$emit('update:info', null);
-                this.$emit('update:invite-confirm', 'Difficulty request sent!');
+                this.$emit('update:invite-confirm', 'Collab invite sent!');
             }
         },
     },
 }
 </script>
-
-<style>
-
-</style>

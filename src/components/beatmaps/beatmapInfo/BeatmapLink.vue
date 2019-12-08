@@ -7,9 +7,9 @@
                     <a
                         href="#"
                         id="editLink"
-                        :class="editLinkInput ? 'text-danger' : ''"
+                        :class="showLinkInput ? 'text-danger' : ''"
                         class="text-success small ml-1"
-                        @click.prevent="editLinkInput ? unsetLink() : setLink()"
+                        @click.prevent="showLinkInput ? unsetLink() : setLink()"
                         data-toggle="tooltip"
                         data-placement="right"
                         title="edit link"
@@ -25,8 +25,11 @@
                 </div>
             </div>
         </div>
-        <div class="row" id="linkInput" v-if="editLinkInput">
-            <div class="col">
+        <div
+            v-if="showLinkInput"
+            class="row mb-2"
+        >
+            <div class="col-sm-12">
                 <div class="input-group input-group-sm">
                     <input
                         class="form-control form-control-sm"
@@ -63,23 +66,34 @@ export default {
     props: {
         beatmap: Object,
     },
+    watch: {
+        beatmap() {
+            if (this.beatmap) {
+                this.showLinkInput = false;
+                this.url = this.beatmap.url;
+            }
+        },
+    },
     data () {
         return {
             url: null,
+            showLinkInput: false,
         }
     },
     methods: {
         setLink() {
-            this.editLinkInput = true;
+            this.showLinkInput = true;
         },
         unsetLink() {
-            this.editLinkInput = null;
+            this.showLinkInput = false;
         },
         saveLink: async function(e) {
             const bm = await this.executePost('/beatmaps/setLink/' + this.beatmap._id, { url: this.url }, e);
 
-            if (bm) {
-                this.editLinkInput = null;
+            if (!bm || bm.error) {
+                this.$emit('update:info', (bm && bm.error) || 'Something went wrong!');
+            } else {
+                this.showLinkInput = null;
                 this.$emit('update:beatmap', bm);
             }
         },

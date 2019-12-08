@@ -392,7 +392,7 @@ router.post('/task/:taskId/addCollab', api.isNotSpectator, isValidUser, async (r
         return res.json({ error: inviteError + 'User is already a collaborator' });
     }
     let b = await beatmaps.service.query({ tasks: req.params.taskId }, defaultPopulate);
-    if(!req.body.mode) {
+    if (!req.body.mode) {
         req.body.mode = b.mode;
     }
     valid = await addTaskChecks(u.id, b, req.body.difficulty, req.body.mode, b.host._id.toString() == req.session.mongoId);
@@ -419,15 +419,12 @@ router.post('/task/:taskId/addCollab', api.isNotSpectator, isValidUser, async (r
 
 /* POST remove collab user from task. */
 router.post('/task/:taskId/removeCollab', api.isNotSpectator, async (req, res) => {
-    let u;
-    if(req.body.user.indexOf("[") >= 0 || req.body.user.indexOf("]") >= 0){
-        u = await users.service.query({ username: new RegExp('^\\' + req.body.user + '$', 'i') });
-    }else{
-        u = await users.service.query({ username: new RegExp('^' + req.body.user + '$', 'i') });
-    }
+    const u = await users.service.query({ _id: req.body.user });
+
     if (!u) {
         return res.json({ error: 'Cannot find user!' });
     }
+
     let b = await beatmaps.service.query({ tasks: t._id });
     if (b.status == 'Ranked') {
         return res.json({ error: 'Mapset ranked' });

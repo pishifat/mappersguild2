@@ -3,8 +3,10 @@
         <div class="d-inline-block mr-2">
             Status
         </div>
+
         <button
-            class="btn btn-sm btn-outline-success"
+            class="btn btn-sm"
+            :class="beatmap.status == 'Done' ? 'btn-success' : 'btn-outline-success'"
             :disabled="beatmap.status == 'Done'"
             @click="setStatus('Done', $event)"
             data-toggle="tooltip"
@@ -13,8 +15,10 @@
         >
             Done
         </button>
+
         <button
-            class="btn btn-sm btn-outline-warning"
+            class="btn btn-sm"
+            :class="beatmap.status == 'WIP' ? 'btn-warning' : 'btn-outline-warning'"
             :disabled="beatmap.status == 'WIP'"
             @click="setStatus('WIP', $event)"
             data-toggle="tooltip"
@@ -43,7 +47,9 @@ export default {
                 e
             );
 
-            if (bm) {
+            if (!beatmap || beatmap.error) {
+                this.$emit('update:info', (beatmap && beatmap.error) || 'Something went wrong!');
+            } else {
                 this.$emit('update:beatmap', beatmap);
     
                 // why was it here

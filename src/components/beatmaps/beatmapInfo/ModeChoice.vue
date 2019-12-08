@@ -74,7 +74,9 @@ export default {
         setMode: async function(id, mode, e) {
             const beatmap = await this.executePost('/beatmaps/setMode/' + id, { mode }, e);
 
-            if (beatmap) {
+            if (!beatmap || beatmap.error) {
+                this.$emit('update:info', (beatmap && beatmap.error) || 'Something went wrong!');
+            } else {
                 this.$emit('update:beatmap', beatmap);
             }
         },

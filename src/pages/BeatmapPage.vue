@@ -86,11 +86,11 @@
                     :key="beatmap.id"
                     :beatmap="beatmap"
                     :user-osu-id="userOsuId"
-                    @update:selectedMap="selectedMap = $event"
+                    @update:beatmap="updateBeatmap($event)"
                 ></beatmap-table-row>
                 <div class="text-center">
                     <button class="btn btn-sm btn-outline-info mx-2" @click.prevent="showMore($event)" data-toggle="tooltip" data-placement="top" title="toggle visibility of less active beatmaps">
-                        <i class="fas fa-angle-down mr-1"></i> show older beatmaps<i class="fas fa-angle-down ml-1"></i>
+                        <i class="fas fa-angle-down mr-1"></i> show older beatmaps <i class="fas fa-angle-down ml-1"></i>
                     </button>
                 </div>
             </div>
@@ -442,4 +442,3 @@ export default {
     display: none;
 }
 </style>
-

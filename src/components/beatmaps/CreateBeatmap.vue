@@ -191,7 +191,7 @@ export default {
                     $('#addBeatmap').modal('hide');
                     $('.quest-collapse-wip').collapse();
                     $('#othersWip').collapse("show");
-                    this.$parent.beatmaps.unshift(bm);
+                    this.$parent.hostBeatmaps.unshift(bm);
                 }
             }
         },

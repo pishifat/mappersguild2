@@ -7,9 +7,9 @@
                     <a
                         href="#"
                         id="editLink"
-                        :class="editQuestInput ? 'text-danger' : ''"
+                        :class="showQuestInput ? 'text-danger' : ''"
                         class="text-success small ml-1"
-                        @click.prevent="editQuestInput ? unsetQuest() : setQuest()"
+                        @click.prevent="showQuestInput ? unsetQuest() : setQuest()"
                         data-toggle="tooltip"
                         data-placement="right"
                         title="connect mapset with a quest"
@@ -24,21 +24,26 @@
             </div>
         </div>
 
-        <div class="row" id="questInput" v-if="editQuestInput">
+        <div
+            v-if="showQuestInput"
+            class="row mb-2"
+        >
             <div class="col">
                 <div class="input-group input-group-sm">
-                    <select class="form-control form-control-sm" v-model="dropdownQuestId">
+                    <select
+                        v-model="dropdownQuestId"
+                        class="form-control form-control-sm"
+                    >
+                        <option value="">
+                            No quest
+                        </option>
                         <option
-                            value=""
-                            >No quest</option
+                            v-for="quest in userQuests"
+                            :key="quest.id"
+                            :value="quest.id"
                         >
-                        <template v-for="quest in userQuests">
-                            <option
-                                :key="quest.id"
-                                :value="quest.id"
-                                >{{ quest.name }}</option
-                            >
-                        </template>
+                            {{ quest.name }}
+                        </option>
                     </select>
                     <div class="input-group-append">
                         <button
@@ -46,7 +51,7 @@
                             @click="saveQuest($event)"
                             data-toggle="tooltip"
                             data-placement="top"
-                            title="link quest to beatmap"
+                            title="link beatmap to quest"
                         >
                             Save
                         </button>
@@ -68,35 +73,43 @@ export default {
     },
     watch: {
         beatmap () {
-            this.editQuestInput = null;
+            this.showQuestInput = false;
         }
     },
     data () {
         return {
-            editQuestInput: null,
+            userQuests: null,
+            showQuestInput: false,
+            dropdownQuestId: '',
         }
     },
     methods: {
         async setQuest() {
             const response = await axios.get('/beatmaps/findUserQuests');
             this.userQuests = response.data.userQuests;
-            this.editQuestInput = true;
+            this.showQuestInput = true;
         },
         unsetQuest() {
-            this.editQuestInput = null;
+            this.showQuestInput = false;
         },
         saveQuest: async function(e) {
-            this.fakeButton = this.beatmap._id + 'quest';
-            const bm = await this.executePost('/beatmaps/saveQuest/' + this.beatmap._id, { questId: this.dropdownQuestId }, e);
+            const bm = await this.executePost(
+                '/beatmaps/saveQuest/' + this.beatmap._id,
+                { questId: this.dropdownQuestId },
+                e
+            );
             
-            if (bm) {
+            if (!bm || bm.error) {
+                this.$emit('update:info', (bm && bm.error) || 'Something went wrong!');
+            } else {
                 this.$emit('update:beatmap', bm);
-                axios.get('/beatmaps/relevantInfo').then(response => {
-                    this.$parent.allQuests = response.data.allQuests;
-                    this.$parent.beatmaps = response.data.beatmaps;
-                });
+
+                // needed at all?
+                // axios.get('/beatmaps/relevantInfo').then(response => {
+                //     this.$parent.allQuests = response.data.allQuests;
+                //     this.$parent.beatmaps = response.data.beatmaps;
+                // });
             }
-            this.fakeButton = null;
         },
     }
 }

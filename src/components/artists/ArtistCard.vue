@@ -217,7 +217,6 @@ export default {
 
 				if (res.data.error) {
                     this.info = res.data.error;
-                    this.inviteConfirm = null;
 				} else {
 					if (e) e.target.disabled = false;
 					return res.data;

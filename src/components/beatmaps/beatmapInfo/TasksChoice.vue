@@ -1,13 +1,13 @@
 <template>
     <div class="row">
         <div class="col-sm-12">
-            <table class="w-100 table table-sm table-dark table-hover">
+            <table class="table table-sm table-dark table-hover">
                 <thead>
                     <td>Difficulty</td>
                     <td>Mapper(s)</td>
-                    <td v-if="!isRanked"></td>
+                    <td v-if="!isRanked && !isQualifed"></td>
                 </thead>
-                <transition-group tag="tbody" name="list" id="difficulties">
+                <transition-group tag="tbody" name="list">
                     <tr
                         v-for="task in beatmap.tasks"
                         :key="task.id"
@@ -39,6 +39,31 @@
                                 v-for="(mapper, i) in task.mappers"
                                 :key="mapper.id"
                             >
+                                <template v-if="i == 0 && canEditTaskCollaborators(task)">
+                                    <a
+                                        v-if="isAddingCollaborator(task)"
+                                        href="#"
+                                        class="text-danger"
+                                        @click.prevent="taskToAddCollaborator = null"
+                                        data-toggle="tooltip"
+                                        data-placement="top"
+                                        :title="'cancel'"
+                                    >
+                                        <i class="fas fa-times"></i>
+                                    </a>
+                                    <a
+                                        v-else
+                                        href="#"
+                                        class="text-success"
+                                        @click.prevent="taskToAddCollaborator = task"
+                                        data-toggle="tooltip"
+                                        data-placement="top"
+                                        title="invite new collaborator"
+                                    >
+                                        <i class="fas fa-plus"></i>
+                                    </a>
+                                </template>
+
                                 <a 
                                     :href="'https://osu.ppy.sh/users/' + mapper.osuId"
                                     target="_blank"
@@ -60,37 +85,15 @@
                                     </a>
                                 </a>
                             </div>
-                            <a
-                                href="#"
-                                v-if="canEditTaskCollaborators(task)"
-                                :class="{
-                                    'fake-collab-button-disable': addCollabInput == task.id,
-                                }"
-                                class="text-success"
-                                @click.prevent="
-                                    addCollabInput == task.id ? 
-                                    cancelCollabInput() : displayCollabInput(task)
-                                "
-                                data-toggle="tooltip"
-                                data-placement="top"
-                                title="invite new collaborator"
-                            >
-                                <i class="fas fa-plus"></i>
-                            </a>
                         </td>
 
                         <!-- Actions -->
-                        <td v-if="!isRanked">
+                        <td v-if="!isRanked && !isQualifed">
                             <a
                                 href="#"
                                 v-if="canEditTask(task)"
                                 class="text-danger"
-                                :class="
-                                    beatmap.status == 'Qualified' ||
-                                    fakeButton == task.id ? 
-                                    'fake-button-disable' : ''
-                                "
-                                @click.prevent="removeTask(task.id)"
+                                @click.prevent="removeTask(task.id, $event)"
                                 data-toggle="tooltip"
                                 data-placement="top"
                                 title="delete"
@@ -99,11 +102,10 @@
                             </a>
                             <span v-if="canEditTask(task)">
                                 <a
-                                    href="#"
                                     v-if="task.status == 'WIP'"
-                                    :class="fakeButton == task.id ? 'fake-button-disable' : ''"
+                                    href="#"
                                     class="text-success"
-                                    @click.prevent="setTaskStatus(task.id, 'Done')"
+                                    @click.prevent="setTaskStatus(task.id, 'Done', $event)"
                                     data-toggle="tooltip"
                                     data-placement="top"
                                     title="mark as done"
@@ -111,16 +113,10 @@
                                     <i class="fas fa-check"></i>
                                 </a>
                                 <a
+                                    v-if="task.status == 'Done' && beatmap.status != 'Done'"
                                     href="#"
-                                    v-if="task.status == 'Done'"
-                                    :class="
-                                        beatmap.status == 'Done' ||
-                                        beatmap.status == 'Qualified' ||
-                                        fakeButton == task.id ? 
-                                        'fake-button-disable' : ''
-                                    "
                                     class="icon-wip"
-                                    @click.prevent="setTaskStatus(task.id, 'WIP')"
+                                    @click.prevent="setTaskStatus(task.id, 'WIP', $event)"
                                     data-toggle="tooltip"
                                     data-placement="top"
                                     title="mark as WIP"
@@ -134,97 +130,106 @@
             </table>
         </div>
 
-        <div class="col-sm-12 mt-2">
-            <new-collab
-                :beatmap="beatmap"
-                :is-host="isHost"
-                @update:invite-confirm="inviteConfirm = $event"
-                @update:info="info = $event"
-            ></new-collab>
-        </div>
+        <template v-if="!isRanked && !isQualifed">
+            <div class="col-sm-12 mt-2">
+                <new-task
+                    :beatmap="beatmap"
+                    :is-host="isHost"
+                    :task-to-add-collaborator.sync="taskToAddCollaborator"
+                    @update:beatmap="$emit('update:beatmap', $event)"
+                    @update:invite-confirm="inviteConfirmMessage = $event"
+                    @update:info="$emit('update:info', $event)"
+                ></new-task>
+            </div>
+
+            <div
+                v-if="inviteConfirmMessage"
+                class="col-sm-12 mt-2 text-center"
+            >
+                <span class="mr-auto confirm">
+                    {{ inviteConfirmMessage }}
+                </span>
+            </div>
+        </template>
     </div>
 </template>
 
 <script>
 import mixin from '../../../mixins.js';
-import NewCollab from './NewCollab.vue';
+import NewTask from './NewTask.vue';
 
 export default {
     name: 'tasks-choice',
     components: {
-        NewCollab,
+        NewTask,
     },
     mixins: [ mixin ],
     props: {
         beatmap: Object,
         isHost: Boolean,
         isRanked: Boolean,
+        isQualifed: Boolean,
     },
     data () {
         return {
-            fakeButton: null,
-            addCollabInput: null,
-            removeCollabInput: null,
+            inviteConfirmMessage: null,
+            taskToAddCollaborator: null,
         }
     },
     methods: {
-        async setTaskStatus(id, status) {
-            this.fakeButton = id;
-            this.addCollabInput = null;
-            this.removeCollabInput = null;
-            const bm = await this.executePost('/beatmaps/setTaskStatus/' + id, { status: status });
-            if (bm) {
+        isOwner(mappers) {
+            return mappers.some(m => m.osuId == this.userOsuId);
+        },
+        canEditTask(task) {
+            return this.isOwner(task.mappers) || this.isHost;
+        },
+        async setTaskStatus(id, status, e) {
+            e.target.classList.add('fake-button-disable');
+
+            const bm = await this.executePost('/beatmaps/setTaskStatus/' + id, { status });
+            
+            if (!bm || bm.error) {
+                this.$emit('update:info', (bm && bm.error) || 'Something went wrong!');
+            } else {
                 this.$emit('update:beatmap', bm);
             }
-            this.fakeButton = null;
+
+            e.target.classList.remove('fake-button-disable');
         },
-        async removeTask(id) {
-            this.fakeButton = id;
-            this.addCollabInput = null;
-            this.removeCollabInput = null;
+        async removeTask(id, e) {
+            e.target.classList.add('fake-button-disable');
+
             const bm = await this.executePost('/beatmaps/removeTask/' + id, {
                 beatmapId: this.beatmap._id,
             });
-            if (bm) {
+
+            if (!bm || bm.error) {
+                this.$emit('update:info', (bm && bm.error) || 'Something went wrong!');
+            } else {
                 this.$emit('update:beatmap', bm);
             }
-            this.fakeButton = null;
-        },
-        displayCollabInput(task) {
-            this.addCollabInput = task._id;
-            this.removeCollabInput = null;
-            this.requestDiffInput = null;
-            this.collabTask = task;
-        },
-        undisplayCollabInput(task) {
-            this.removeCollabInput = task._id;
-            this.addCollabInput = null;
-            this.requestDiffInput = null;
-            this.collabTask = task;
-        },
-        cancelCollabInput() {
-            this.removeCollabInput = null;
-            this.addCollabInput = null;
-        },
-        isOwner(mappers) {
-            let value;
 
-            mappers.forEach(mapper => {
-                if (mapper.osuId == this.userOsuId) {
-                    value = true;
-                    return;
-                }
-            });
-            
-            return value;
+            e.target.classList.remove('fake-button-disable');
         },
+
+        // Collab stuff
         canEditTaskCollaborators(task) {
-            task.status == 'Done' ||
-            this.beatmap.status == 'Done' ||
-            this.beatmap.status == 'Qualified'
+            return (task.status != 'Done' &&
+                !this.isQualifed &&
+                this.beatmap.status != 'Done');
         },
-        canEditTask(task) {
-            return isOwner(task.mappers) || this.isHost;
+        async removeCollab(e) {
+            const bm = await this.executePost('/beatmaps/task/' + id + '/removeCollab', { user: user }, e);
+            
+            if (!bm || bm.error) {
+                this.$emit('update:info', (bm && bm.error) || 'Something went wrong!');
+            } else {
+                this.$emit('update:beatmap', bm);
+            }
+        },
+        isAddingCollaborator(task) {
+            return this.taskToAddCollaborator && 
+                this.taskToAddCollaborator.id == task.id;
         }
     }
 }

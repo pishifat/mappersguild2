@@ -1,6 +1,4 @@
 :root {
-    /*--wip: #adff5f;
-    --ranked: #6dcff6;*/
     --wip: #ffe25f;
     --done: rgb(85, 209, 168);
     --ranked: #6da8f6;
@@ -395,12 +393,6 @@ select option {
 .bg-container {
     background-color: #1e1c1a;
     box-shadow: 1px 1px 5px 1px #131313;
-}
-
-@media (min-width: 768px) {
-    .bm-col-separator-left {
-        border-left: 3px solid rgba(100, 88, 88, 0.42);
-    }
 }
 
 .confirm {
