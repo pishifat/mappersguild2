@@ -16,20 +16,22 @@
                     <i class="fas fa-angle-down" />
                 </a>
             </div>
-            
-            <div class="col-sm-3 small">
-                <span class="text-white-50">Host:</span>
-                <a :href="'https://osu.ppy.sh/users/' + beatmap.host.osuId" target="_blank" @click.stop>{{ beatmap.host.username }}</a>
-            </div>
-            
-            <div class="col-sm-3 small">
-                <span class="text-white-50">Difficulties:</span>
+            <div class="col-sm-2 small d-flex justify-content-end">
                 <span
                     class="font-weight-bold"
                     v-html="processDiffs(beatmap.tasks, beatmap.tasksLocked, beatmap.mode)"
                 ></span>
+                
             </div>
-            
+            <div class="col-sm-3 small">
+                <span class="text-white-50">Hosted by</span>
+                <a :href="'https://osu.ppy.sh/users/' + beatmap.host.osuId" target="_blank" @click.stop>{{ beatmap.host.username }}</a>
+            </div>
+            <div v-if="beatmap.url" class="col-sm-1 d-flex justify-content-end">
+                <a :href="beatmap.url" target="_blank">
+                    <i class="fas fa-link"></i> 
+                </a>
+            </div>
         </div>
     </div>
 
