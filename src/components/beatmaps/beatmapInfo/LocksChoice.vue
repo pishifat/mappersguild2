@@ -89,7 +89,7 @@ export default {
         }
     },
     mounted () {
-        this.$parent.sortLocks();
+        this.sortLocks();
     },
     computed: {
         remainingTasks() {
@@ -145,6 +145,12 @@ export default {
             } else {
                 this.$emit('update:beatmap', bm);
             }
+        },
+        sortLocks: function() {
+            let sortOrder = ['Easy', 'Normal', 'Hard', 'Insane', 'Expert', 'Storyboard'];
+            this.beatmap.tasksLocked.sort(function(a, b) {
+                return sortOrder.indexOf(a) - sortOrder.indexOf(b);
+            });
         },
     },
 }

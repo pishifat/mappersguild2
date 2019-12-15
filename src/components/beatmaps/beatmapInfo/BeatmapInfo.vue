@@ -149,8 +149,10 @@ export default {
             this.editLinkInput = null;
             this.collabTask = null;
             this.fakeButton = null;
-            this.sortDiffs();
         },
+    },
+    mounted () {
+        this.sortTasks();
     },
     computed: {
         isHost: function() {
@@ -164,16 +166,10 @@ export default {
         },
     },
     methods: {
-        sortDiffs: function() {
+        sortTasks: function() {
             let sortOrder = ['Easy', 'Normal', 'Hard', 'Insane', 'Expert', 'Storyboard'];
             this.beatmap.tasks.sort(function(a, b) {
                 return sortOrder.indexOf(a.name) - sortOrder.indexOf(b.name);
-            });
-        },
-        sortLocks: function() {
-            let sortOrder = ['Easy', 'Normal', 'Hard', 'Insane', 'Expert', 'Storyboard'];
-            this.beatmap.tasksLocked.sort(function(a, b) {
-                return sortOrder.indexOf(a) - sortOrder.indexOf(b);
             });
         },
         deleteMap: async function(e) {

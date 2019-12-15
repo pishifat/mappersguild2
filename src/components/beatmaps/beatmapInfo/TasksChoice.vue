@@ -178,9 +178,6 @@ export default {
             taskToAddCollaborator: null,
         }
     },
-    mounted () {
-        this.$parent.sortDiffs();
-    },
     methods: {
         isOwner(mappers) {
             return mappers.some(m => m.osuId == this.userOsuId);
