@@ -52,7 +52,7 @@
 
 <script>
 import BeatmapCard from '../components/beatmaps/BeatmapCard.vue';
-import BeatmapInfo from '../components/beatmaps/BeatmapInfo.vue';
+import BeatmapInfo from '../components/beatmaps/beatmapInfo/BeatmapInfo.vue';
 import FilterBox from '../components/FilterBox.vue';
 import NotificationsAccess from '../components/NotificationsAccess.vue';
 

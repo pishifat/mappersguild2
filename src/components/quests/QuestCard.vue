@@ -67,7 +67,7 @@
             <span class="small text-shadow text-white-50">{{quest.descriptionMain}}</span>
         </div>
         <!--collapsed info-->
-        <div :id="'details' + quest.id" class="collapse ml-4 my-2 row bg-darker">   
+        <div :id="'details' + quest.id" class="collapse ml-4 my-2 row">   
             <!--open quests-->
             <div v-if="quest.status == 'open'" class="col-sm-12">
                 <p class="sub-header text-shadow min-spacing">

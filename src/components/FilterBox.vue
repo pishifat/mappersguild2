@@ -56,6 +56,7 @@
                         <a href="#" class="status unsorted" @click.prevent="$emit('update:filterStatus', 'WIP'); checkSorted();">WIP</a>
                         <a href="#" class="status unsorted" @click.prevent="$emit('update:filterStatus', 'Done'); checkSorted();">Done</a>
                         <a href="#" class="status unsorted" @click.prevent="$emit('update:filterStatus', 'Qualified'); checkSorted();">Qualified</a>
+                        <a href="#" class="status unsorted" @click.prevent="$emit('update:filterStatus', 'Ranked'); checkSorted();">Ranked</a>
                     </div>
                 </div>
                 <div class="row mt-3" v-if="filterQuest !== undefined">

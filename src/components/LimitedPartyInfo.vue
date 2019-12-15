@@ -23,12 +23,9 @@
 </template>
 
 <script>
-import mixin from "../mixins.js";
-
 export default {
     name: 'limited-party-info',
     props: [ 'party' ],
-    mixins: [ mixin ],
 }
 </script>
 

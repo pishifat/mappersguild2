@@ -11,17 +11,14 @@ router.use(api.isLoggedIn);
 const defaultPopulate = [
     { populate: 'completedQuests', display: 'name completed' },
 ];
-const mapPopulate = [
+const beatmapPopulate = [
     { populate: 'song', display: 'artist title' },
     { populate: 'host', display: 'username osuId' },
     { innerPopulate: 'tasks', populate: { path: 'mappers' } },
 ];
 
 const questPopulate = [
-    { innerPopulate: 'parties',  populate: { path: 'members leader' } },
-    { innerPopulate: 'currentParty',  populate: { path: 'members leader' } },
-    { populate: 'completedMembers',  display: 'username osuId rank' },
-    { innerPopulate: 'associatedMaps',  populate: { path: 'song host' } }
+    { innerPopulate: 'currentParty',  populate: { path: 'members leader' } }
 ];
 
 /* GET page render. */
@@ -43,7 +40,7 @@ router.get('/relevantInfo', async (req, res, next) => {
 
 /* GET beatmaps listing. */
 router.get('/beatmaps', async (req, res, next) => {
-    const b = await beatmaps.service.query({}, mapPopulate, { status: -1 }, true);
+    const b = await beatmaps.service.query({}, beatmapPopulate, { status: -1 }, true);
     res.json({ beatmaps: b });
 });
 

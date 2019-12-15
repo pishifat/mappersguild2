@@ -1,7 +1,7 @@
 :root {
-    --wip: #adff5f;
+    --wip: #ffe25f;
     --done: rgb(85, 209, 168);
-    --ranked: #6dcff6;
+    --ranked: #6da8f6;
     --blocked: rgb(170, 170, 170);
     --open: #ff5864;
     --guild: #ff5e37;
@@ -160,6 +160,10 @@ select option {
 
 .bg-dark {
     background-color: var(--dark)!important;
+}
+
+.bg-darker {
+    background-color: var(--dark-alpha)!important;
 }
 
 .tooltip {
@@ -389,12 +393,6 @@ select option {
 .bg-container {
     background-color: #1e1c1a;
     box-shadow: 1px 1px 5px 1px #131313;
-}
-
-@media (min-width: 768px) {
-    .bm-col-separator-left {
-        border-left: 3px solid rgba(100, 88, 88, 0.42);
-    }
 }
 
 .confirm {

@@ -146,11 +146,8 @@
 </template>
 
 <script>
-import mixin from '../../mixins.js'
-
 export default {
     name: 'create-beatmap',
-    mixins: [ mixin ],
     props: [ 'featuredArtists', 'featuredSongs', 'info' ],
     methods: {
         executePost: async function(path, data, e) {
@@ -194,7 +191,7 @@ export default {
                     $('#addBeatmap').modal('hide');
                     $('.quest-collapse-wip').collapse();
                     $('#othersWip').collapse("show");
-                    this.$parent.beatmaps.unshift(bm);
+                    this.$parent.hostBeatmaps.unshift(bm);
                 }
             }
         },

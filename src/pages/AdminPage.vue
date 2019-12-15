@@ -330,10 +330,14 @@ export default {
             return metadata;
         },
         updateBeatmap: function(b) {
-            const i = this.beatmaps.findIndex(beatmap => beatmap.id == b.id);
-            this.beatmaps[i] = b;
-            const j = this.actionBeatmaps.findIndex(beatmap => beatmap.id == b.id);
-            this.actionBeatmaps[j] = b;
+            if(this.beatmaps){
+                const i = this.beatmaps.findIndex(beatmap => beatmap.id == b.id);
+                this.beatmaps[i] = b;
+            }
+            if(this.actionBeatmaps){
+                const j = this.actionBeatmaps.findIndex(beatmap => beatmap.id == b.id);
+                this.actionBeatmaps[j] = b;
+            }
             this.selectedBeatmap = b;
         },
         updateQuest: function(q) {

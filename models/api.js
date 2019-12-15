@@ -127,7 +127,7 @@ async function beatmapsetInfo(setId) {
 async function isBn(req, res, next) {
     if (req.session.osuId) {
         const res = await getUserInfo(req.session.accessToken);
-        if (res.is_qat || res.is_bng) {
+        if (res.is_nat || res.is_bng) {
             return next();
         }        
     }

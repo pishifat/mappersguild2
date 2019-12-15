@@ -167,14 +167,68 @@ router.get('/', async function(req, res) {
     });
 });
 
+/* GET info for page load */
 router.get('/relevantInfo', async (req, res, next) => {
-    const bms = await beatmaps.service.query(
-            { status: { $ne: 'Ranked' } },
-            defaultPopulate,
-            { quest: -1, status: 1, updatedAt: -1 },
-            true
-        );
-    res.json({ beatmaps: bms, userId: req.session.osuId, username: req.session.username, group: res.locals.userRequest.group });
+    let hostBeatmaps = await beatmaps.service.query(
+        { host: req.session.mongoId, mode: res.locals.userRequest.mainMode },
+        defaultPopulate,
+        { updatedAt: -1 },
+        true
+    );
+    res.json({ 
+        beatmaps: hostBeatmaps, 
+        userOsuId: req.session.osuId, 
+        userMongoId: req.session.mongoId, 
+        username: req.session.username, 
+        group: res.locals.userRequest.group, 
+        mainMode: res.locals.userRequest.mainMode 
+    });
+});
+
+/* GET mode-specific beatmaps */
+router.get('/loadBeatmaps/:mode/:days', async (req, res, next) => {
+    let date = new Date();
+    date.setDate(date.getDate() - req.params.days);
+    let statusBeatmaps;
+    let allBeatmaps;
+    if(req.params.mode != 'any'){
+        statusBeatmaps = await beatmaps.service.query({ 
+            $or: [{ mode: req.params.mode }, { mode: 'hybrid' }], 
+            $or: [{ host: req.session.mongoId }, { updatedAt: { $gte: date } }] }, 
+            defaultPopulate, { updatedAt: -1 }, true);
+        allBeatmaps = await beatmaps.service.query({ 
+            $or: [{ mode: req.params.mode }, { mode: 'hybrid' }],
+            updatedAt: { $lte: date } }, 
+            defaultPopulate, { updatedAt: -1 }, true);
+    }else{
+        statusBeatmaps = await beatmaps.service.query({ 
+            $or: [{ host: req.session.mongoId }, { updatedAt: { $gte: date } }] }, 
+            defaultPopulate, { updatedAt: -1 }, true);
+        allBeatmaps = await beatmaps.service.query({ updatedAt: { $lte: date } },
+            defaultPopulate, { updatedAt: -1 }, true);
+    }
+    let guestDifficultyBeatmaps = [];
+    allBeatmaps.forEach(beatmap => {
+        if(beatmap.host.osuId != req.session.osuId){
+            let breakLoop = false;
+            for (let i = 0; i < beatmap.tasks.length; i++) {
+                const task = beatmap.tasks[i];
+                for (let j = 0; j < task.mappers.length; j++) {
+                    const mapper = task.mappers[j];
+                    if(mapper.osuId == req.session.osuId){
+                        guestDifficultyBeatmaps.push(beatmap);
+                        breakLoop = true;
+                        break;
+                    }
+                }
+                if(breakLoop){
+                    break;
+                }
+            }
+        }
+    });
+
+    res.json({ statusBeatmaps, guestDifficultyBeatmaps });
 });
 
 /* GET artists for new map entry */
@@ -338,7 +392,7 @@ router.post('/task/:taskId/addCollab', api.isNotSpectator, isValidUser, async (r
         return res.json({ error: inviteError + 'User is already a collaborator' });
     }
     let b = await beatmaps.service.query({ tasks: req.params.taskId }, defaultPopulate);
-    if(!req.body.mode) {
+    if (!req.body.mode) {
         req.body.mode = b.mode;
     }
     valid = await addTaskChecks(u.id, b, req.body.difficulty, req.body.mode, b.host._id.toString() == req.session.mongoId);
@@ -365,16 +419,13 @@ router.post('/task/:taskId/addCollab', api.isNotSpectator, isValidUser, async (r
 
 /* POST remove collab user from task. */
 router.post('/task/:taskId/removeCollab', api.isNotSpectator, async (req, res) => {
-    let u;
-    if(req.body.user.indexOf("[") >= 0 || req.body.user.indexOf("]") >= 0){
-        u = await users.service.query({ username: new RegExp('^\\' + req.body.user + '$', 'i') });
-    }else{
-        u = await users.service.query({ username: new RegExp('^' + req.body.user + '$', 'i') });
-    }
+    const u = await users.service.query({ _id: req.body.user });
+
     if (!u) {
         return res.json({ error: 'Cannot find user!' });
     }
-    let b = await beatmaps.service.query({ tasks: t._id });
+
+    let b = await beatmaps.service.query({ tasks: req.params.taskId });
     if (b.status == 'Ranked') {
         return res.json({ error: 'Mapset ranked' });
     }
@@ -688,16 +739,20 @@ router.post('/setLink/:mapId', api.isNotSpectator, isValidBeatmap, isBeatmapHost
 
 /* POST locks task from extended view. */
 router.post('/lockTask/:mapId', api.isNotSpectator, isValidBeatmap, isBeatmapHost, async (req, res) => {
+    if (!req.body.task) {
+        return res.json({ error: 'Not a valid task' });
+    }
+
     let b = res.locals.beatmap;
     await beatmaps.service.update(req.params.mapId, {
-        $push: { tasksLocked: req.body.difficulty },
+        $push: { tasksLocked: req.body.task },
     });
     b = await beatmaps.service.query({ _id: req.params.mapId }, defaultPopulate);
     res.json(b);
 
     logs.service.create(
         req.session.mongoId,
-        `locked claims for "${req.body.difficulty}" on "${b.song.artist} - ${b.song.title}"`,
+        `locked claims for "${req.body.task}" on "${b.song.artist} - ${b.song.title}"`,
         b._id,
         'beatmap'
     );
@@ -707,14 +762,14 @@ router.post('/lockTask/:mapId', api.isNotSpectator, isValidBeatmap, isBeatmapHos
 router.post('/unlockTask/:mapId', api.isNotSpectator, isValidBeatmap, isBeatmapHost, async (req, res) => {
     let b = res.locals.beatmap;
     await beatmaps.service.update(req.params.mapId, {
-        $pull: { tasksLocked: req.body.difficulty },
+        $pull: { tasksLocked: req.body.task },
     });
     b = await beatmaps.service.query({ _id: req.params.mapId }, defaultPopulate);
     res.json(b);
 
     logs.service.create(
         req.session.mongoId,
-        `unlocked claims for "${req.body.difficulty}" on "${b.song.artist} - ${b.song.title}"`,
+        `unlocked claims for "${req.body.task}" on "${b.song.artist} - ${b.song.title}"`,
         b._id,
         'beatmap'
     );
