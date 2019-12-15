@@ -33,6 +33,7 @@
                                 <template v-for="(mapper, i) in task.mappers">
                                     {{ mapper.username + (i < task.mappers.length - 1 ? ', ' : '') }}
                                 </template>
+                                {{ task.name == 'Storyboard' ? ' --- ' + task.sbQuality : '' }}
                             </option>
                         </select>
                         <button class="btn btn-sm btn-outline-danger" @click="deleteTask($event)">
@@ -65,7 +66,7 @@
                             Save URL
                         </button>
                     </p>
-                    <p v-if="storyboardQuality" class="form-row">
+                    <p v-if="storyboardTaskId" class="form-row">
                         <select v-model="storyboardQuality" class="form-control form-control-sm w-25 mx-2">
                             <option value="1">1</option>
                             <option value="2">2</option>
@@ -92,9 +93,11 @@ export default {
             this.modderId = null;
             this.beatmapUrl = this.beatmap.url;
             this.storyboardQuality = null;
+            this.storyboardTaskId = null;
             this.beatmap.tasks.forEach(task => {
                 if(task.name == 'Storyboard'){
-                    this.storyboardQuality = task.sbQuality;
+                    if(task.sbQuality) this.storyboardQuality = task.sbQuality;
+                    this.storyboardTaskId = task.id;
                 }
             });
         },
@@ -150,8 +153,8 @@ export default {
                 this.$emit('update-beatmap', b);
             }
         },
-        updateStoryboardQuality: async function(e) {
-            const b = await this.executePost('/admin/updateStoryboardQuality/' + this.beatmap.id, { storyboardQuality: this.storyboardQuality }, e);
+        updateStoryboardQuality: async function(taskId, e) {
+            const b = await this.executePost('/admin/updateStoryboardQuality/' + this.beatmap.id, { storyboardQuality: this.storyboardQuality, taskId: this.storyboardTaskId }, e);
             if (b) {
                 this.$emit('update-beatmap', b);
             }
@@ -164,6 +167,7 @@ export default {
             modderId: null,
             beatmapUrl: null,
             storyboardQuality: null,
+            storyboardTaskId: null,
         };
     },
 };
