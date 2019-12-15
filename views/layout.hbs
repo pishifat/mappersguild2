@@ -25,14 +25,8 @@
         <div class="collapse navbar-collapse" id="navbar">
             {{#if loggedInAs}}
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item dropdown {{#if isMaps}}active{{/if}}">
-                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
-                        Maps
-                    </a>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" href="/beatmaps">WIP/Pending</a>
-                        <a class="dropdown-item" href="/beatmapsarchive">Ranked</a>
-                    </div>
+                <li class="nav-item {{#if isMaps}}active{{/if}}">
+                    <a class="nav-link" href="/beatmaps">Beatmaps</a>
                 </li>
                 <li class="nav-item {{#if isQuests}}active{{/if}}">
                     <a class="nav-link" href="/quests">Quests</a>

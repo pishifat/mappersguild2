@@ -4,7 +4,6 @@ const path = require('path');
 module.exports = {
     entry: {
         maps: './src/maps.js',
-        mapsarchive: './src/mapsarchive.js',
         users: './src/users.js',
         notifications: './src/notifications.js',
         admin: './src/admin.js',

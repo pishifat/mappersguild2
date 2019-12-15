@@ -13,7 +13,6 @@ const hbs = require('hbs');
 const indexRouter = require('./routes/index');
 const faqRouter = require('./routes/faq');
 const beatmapsRouter = require('./routes/beatmaps');
-const beatmapsArchiveRouter = require('./routes/beatmapsarchive');
 const usersRouter = require('./routes/users');
 const logsRouter = require('./routes/logs');
 const notificationsRouter = require('./routes/notifications');
@@ -58,7 +57,6 @@ app.use(
 app.use('/', indexRouter);
 app.use('/faq', faqRouter);
 app.use('/beatmaps', beatmapsRouter);
-app.use('/beatmapsarchive', beatmapsArchiveRouter);
 app.use('/users', usersRouter);
 app.use('/logs', logsRouter);
 app.use('/notifications', notificationsRouter);

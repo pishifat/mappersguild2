@@ -158,8 +158,7 @@ async function isValidUser(req, res, next) {
 /* GET maps page. */
 router.get('/', async function(req, res) {
     res.render('beatmaps', {
-        title: 'Maps',
-        subTitle: 'WIP/Pending',
+        title: 'Beatmaps',
         script: '../javascripts/maps.js',
         isMaps: true,
         loggedInAs: req.session.osuId,
