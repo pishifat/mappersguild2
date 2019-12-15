@@ -89,7 +89,7 @@
                     @update:beatmap="updateBeatmap($event)"
                 ></beatmap-table-row>
                 <div class="text-center">
-                    <button class="btn btn-sm btn-outline-info mx-2" @click.prevent="showMore($event)" data-toggle="tooltip" data-placement="top" title="toggle visibility of less active beatmaps">
+                    <button class="btn btn-sm btn-outline-info my-4" @click.prevent="showMore($event)" data-toggle="tooltip" data-placement="top" title="toggle visibility of less active beatmaps">
                         <i class="fas fa-angle-down mr-1"></i> show older beatmaps <i class="fas fa-angle-down ml-1"></i>
                     </button>
                 </div>
@@ -123,10 +123,10 @@
 
                             <a :href="'https://osu.ppy.sh/users/' + selectedMap.host.osuId" class="text-dark mx-1" target="_blank">({{ selectedMap.host.username }})</a>
 
-                            <i v-if="selectedMap.mode == 'taiko'" class="fas fa-drum"></i>
-                            <i v-else-if="selectedMap.mode == 'catch'" class="fas fa-apple-alt"></i>
-                            <i v-else-if="selectedMap.mode == 'mania'" class="fas fa-stream"></i>
-                            <i v-else-if="selectedMap.mode == 'hybrid'" class="fas fa-check-double"></i>
+                            <i v-if="selectedMap.mode == 'taiko'" class="fas fa-drum" data-toggle="tooltip" data-placement="top" title="osu!taiko"></i>
+                            <i v-else-if="selectedMap.mode == 'catch'" class="fas fa-apple-alt" data-toggle="tooltip" data-placement="top" title="osu!catch"></i>
+                            <i v-else-if="selectedMap.mode == 'mania'" class="fas fa-stream" data-toggle="tooltip" data-placement="top" title="osu!mania"></i>
+                            <i v-else-if="selectedMap.mode == 'hybrid'" class="fas fa-check-double" data-toggle="tooltip" data-placement="top" title="multiple game modes"></i>
                         </h5>
                         <button type="button" class="close" data-dismiss="modal">
                             <span>&times;</span>

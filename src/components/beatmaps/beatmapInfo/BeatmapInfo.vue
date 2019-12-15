@@ -34,6 +34,7 @@
                             :is-ranked="isRanked"
                             :is-qualifed="isQualifed"
                             :is-host="isHost"
+                            :user-osu-id="userOsuId"
                             :beatmap="beatmap"
                             @update:beatmap="$emit('update:beatmap', $event)"
                             @update:info="info = $event"
@@ -67,6 +68,7 @@
 
                 <quest-choice
                     :beatmap="beatmap"
+                    @update:beatmap="$emit('update:beatmap', $event)"
                     @update:info="info = $event"
                 ></quest-choice>
 
@@ -136,7 +138,10 @@ export default {
         BeatmapLink,
         LocksChoice,
     },
-    props: ['userOsuId', 'beatmap', 'isTable'],
+    props: {
+        userOsuId: Number,
+        beatmap: Object,
+    },
     mixins: [ mixin ],
     watch: {
         beatmap: function() {

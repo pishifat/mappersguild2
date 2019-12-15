@@ -12,7 +12,6 @@
                 >
                     <a
                         href="#"
-                        class="text-danger"
                         :class="isModder ? 'text-danger' : 'text-success'"
                         @click.prevent="updateModder($event)"
                     >
@@ -60,7 +59,6 @@ export default {
         async updateModder(e) {
             e.target.classList.add('fake-button-disable');
             const bm = await this.executePost('/beatmaps/updateModder/' + this.beatmap._id);
-            console.log(bm);
             
             if (!bm || bm.error) {
                 this.$emit('update:info', (bm && bm.error) || 'Something went wrong!');

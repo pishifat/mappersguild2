@@ -86,7 +86,11 @@ export default {
     watch: {
         beatmap () {
             this.showLocksInput = false;
+            this.sortDiffs();
         }
+    },
+    mounted () {
+        this.sortDiffs();
     },
     computed: {
         remaningTasks() {
@@ -143,6 +147,12 @@ export default {
                 this.$emit('update:beatmap', bm);
             }
         },
+        sortDiffs: function() {
+            let sortOrder = ['Easy', 'Normal', 'Hard', 'Insane', 'Expert', 'Storyboard'];
+            this.beatmap.tasksLocked.sort(function(a, b) {
+                return sortOrder.indexOf(a) - sortOrder.indexOf(b);
+            });
+        }
     },
 }
 </script>

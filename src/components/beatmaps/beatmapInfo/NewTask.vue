@@ -9,7 +9,6 @@
                     v-if="!taskToAddCollaborator"
                     v-model="selectedTask"
                     class="form-control"
-                    key="tasks"
                 >
                     <option
                         v-for="task in remaningTasks"
@@ -23,7 +22,6 @@
                     v-if="beatmap.mode == 'hybrid' && !taskToAddCollaborator"
                     v-model="selectedMode"
                     class="form-control"
-                    key="modes"
                 >
                     <option value="osu">osu!</option>
                     <option value="taiko">osu!taiko</option>
@@ -39,7 +37,6 @@
                     maxlength="18"
                     v-model="requestTaskUsername"
                     @keyup.enter="taskToAddCollaborator ? addCollab($event) : requestTask(beatmap.id, $event)"
-                    key="username"
                 />
 
                 <button
@@ -48,7 +45,6 @@
                     data-toggle="tooltip"
                     data-placement="top"
                     title="add difficulty"
-                    key="submit"
                 >
                     <i class="fas fa-plus"></i>
                 </button>
@@ -115,7 +111,7 @@ export default {
 
             const bm = await this.executePost('/beatmaps/addTask/' + id, { 
                 difficulty: this.selectedTask, 
-                mode: this.selectedmode 
+                mode: this.selectedMode 
             }, e);
 
             if (!bm || bm.error) {
@@ -126,14 +122,14 @@ export default {
             }
         },
         requestTask: async function(id, e) {
-            if (!this.selectedmode) {
-                this.selectedmode = this.beatmap.mode;
+            if (!this.selectedMode) {
+                this.selectedMode = this.beatmap.mode;
             }
 
             const bm = await this.executePost('/beatmaps/requestTask/' + id, { 
                 difficulty: this.selectedTask, 
                 user: this.requestTaskUsername, 
-                mode: this.selectedmode 
+                mode: this.selectedMode 
             }, e);
 
             if (!bm || bm.error) {

@@ -72,11 +72,12 @@
                                     <a
                                         v-if="
                                             task.mappers.length > 1 &&
-                                            canEditTaskCollaborators(task)
+                                            canEditTaskCollaborators(task) &&
+                                            mapper.osuId != userOsuId
                                         "
                                         href="#"
                                         class="text-danger"
-                                        @click.prevent="removeCollab(task, mapper.id)"
+                                        @click.prevent="removeCollab(task.id, mapper.id, $event)"
                                         data-toggle="tooltip"
                                         data-placement="top"
                                         title="remove collaborator"
@@ -169,12 +170,16 @@ export default {
         isHost: Boolean,
         isRanked: Boolean,
         isQualifed: Boolean,
+        userOsuId: Number,
     },
     data () {
         return {
             inviteConfirmMessage: null,
             taskToAddCollaborator: null,
         }
+    },
+    mounted () {
+        this.$parent.sortDiffs();
     },
     methods: {
         isOwner(mappers) {
@@ -216,16 +221,20 @@ export default {
         canEditTaskCollaborators(task) {
             return (task.status != 'Done' &&
                 !this.isQualifed &&
-                this.beatmap.status != 'Done');
+                this.beatmap.status != 'Done' &&
+                this.isOwner(task.mappers));
         },
-        async removeCollab(e) {
-            const bm = await this.executePost('/beatmaps/task/' + id + '/removeCollab', { user: user }, e);
-            
+        async removeCollab(id, user, e) {
+            e.target.classList.add('fake-button-disable');
+
+            const bm = await this.executePost('/beatmaps/task/' + id + '/removeCollab', { user: user });
             if (!bm || bm.error) {
                 this.$emit('update:info', (bm && bm.error) || 'Something went wrong!');
             } else {
                 this.$emit('update:beatmap', bm);
             }
+
+            e.target.classList.remove('fake-button-disable');
         },
         isAddingCollaborator(task) {
             return this.taskToAddCollaborator && 

@@ -170,7 +170,7 @@ router.get('/', async function(req, res) {
 /* GET info for page load */
 router.get('/relevantInfo', async (req, res, next) => {
     let hostBeatmaps = await beatmaps.service.query(
-        { host: req.session.mongoId },
+        { host: req.session.mongoId, $or: [{ mode: res.locals.userRequest.mainMode }, { mode: 'hybrid' }] },
         defaultPopulate,
         { updatedAt: -1 },
         true
@@ -425,7 +425,7 @@ router.post('/task/:taskId/removeCollab', api.isNotSpectator, async (req, res) =
         return res.json({ error: 'Cannot find user!' });
     }
 
-    let b = await beatmaps.service.query({ tasks: t._id });
+    let b = await beatmaps.service.query({ tasks: req.params.taskId });
     if (b.status == 'Ranked') {
         return res.json({ error: 'Mapset ranked' });
     }
