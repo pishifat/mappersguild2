@@ -39,8 +39,8 @@
                         </option>
                         <option
                             v-for="quest in userQuests"
-                            :key="quest.id"
-                            :value="quest.id"
+                            :key="quest._id"
+                            :value="quest._id"
                         >
                             {{ quest.name }}
                         </option>
@@ -80,7 +80,7 @@ export default {
         return {
             userQuests: null,
             showQuestInput: false,
-            dropdownQuestId: '',
+            dropdownQuestId: (this.beatmap.quest && this.beatmap.quest._id) || '',
         }
     },
     methods: {

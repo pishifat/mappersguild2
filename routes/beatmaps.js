@@ -248,18 +248,9 @@ router.get('/songs/:labelId', async (req, res, next) => {
 
 /* GET quests for linking quest to beatmap */
 router.get('/findUserQuests/', async (req, res, next) => {
-    let p = await parties.service.query({ members: req.session.mongoId }, {}, {}, true);
-    let q = await quests.service.query({ status: 'wip' }, {}, {}, true);
-    let userQuests = [];
-    q.forEach(quest => {
-        p.forEach(party => {
-            if(quest.currentParty.toString() == party.id){
-                userQuests.push(quest);
-            }
-        });
-    });
-    
-    res.json({userQuests});
+    let userQuests = await quests.service.getUserQuests(req.session.mongoId);
+
+    res.json({ userQuests });
 });
 
 /* POST create new map */

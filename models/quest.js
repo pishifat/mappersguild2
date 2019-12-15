@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const logs = require('./log');
+const ObjectId = require('mongoose').Types.ObjectId;
 
 var questSchema = new mongoose.Schema({
     name: { type: String, required: true },
@@ -103,6 +104,42 @@ class QuestService
         } catch(error) {
             logs.service.create(null, error, null, 'error'); 
             return { error: error._message };
+        }
+    }
+
+    async getUserQuests(userId) {
+        try {
+            return await Quest.aggregate([
+                {
+                    $match: {
+                        status: 'wip',
+                    },
+                },
+                {
+                    $lookup: {
+                        from: 'parties',
+                        localField: 'currentParty',
+                        foreignField: '_id',
+                        as: 'currentParty',
+                    },
+                },
+                {
+                    $unwind: '$currentParty'
+                },
+                { 
+                    $match: {
+                        'currentParty.members': ObjectId(userId),
+                    },
+                },
+                {
+                    $project: {
+                        'name': 1,
+                    }
+                },
+            ]);
+        } catch (error) {
+            logs.service.create(null, error, null, 'error'); 
+            return { error: 'Something went wrong!' };
         }
     }
 }
