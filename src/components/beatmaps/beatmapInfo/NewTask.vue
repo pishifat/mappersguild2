@@ -1,6 +1,6 @@
 <template>
     <div
-        v-if="beatmap.status == 'WIP' && remaningTasks.length"
+        v-if="beatmap.status == 'WIP' && remainingTasks.length"
         class="row mt-2 mb-3"
     >
         <div class="col-sm-12 form-inline">
@@ -11,7 +11,7 @@
                     class="form-control"
                 >
                     <option
-                        v-for="task in remaningTasks"
+                        v-for="task in remainingTasks"
                         :value="task"
                     >
                         {{ task }}
@@ -84,7 +84,7 @@ export default {
         }
     },
     computed: {
-        remaningTasks() {
+        remainingTasks() {
             let possibleTasks = [
                 'Easy',
                 'Normal',

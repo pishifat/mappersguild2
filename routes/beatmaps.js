@@ -170,7 +170,7 @@ router.get('/', async function(req, res) {
 /* GET info for page load */
 router.get('/relevantInfo', async (req, res, next) => {
     let hostBeatmaps = await beatmaps.service.query(
-        { host: req.session.mongoId, $or: [{ mode: res.locals.userRequest.mainMode }, { mode: 'hybrid' }] },
+        { host: req.session.mongoId, mode: res.locals.userRequest.mainMode },
         defaultPopulate,
         { updatedAt: -1 },
         true

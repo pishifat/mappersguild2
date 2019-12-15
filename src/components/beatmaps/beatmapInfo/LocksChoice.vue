@@ -50,7 +50,7 @@
                         class="form-control"
                     >
                         <option
-                            v-for="task in remaningTasks"
+                            v-for="task in remainingTasks"
                             :value="task"
                         >
                             {{ task }}
@@ -86,14 +86,13 @@ export default {
     watch: {
         beatmap () {
             this.showLocksInput = false;
-            this.sortDiffs();
         }
     },
     mounted () {
-        this.sortDiffs();
+        this.$parent.sortLocks();
     },
     computed: {
-        remaningTasks() {
+        remainingTasks() {
             let possibleTasks = [
                 'Easy',
                 'Normal',
@@ -147,12 +146,6 @@ export default {
                 this.$emit('update:beatmap', bm);
             }
         },
-        sortDiffs: function() {
-            let sortOrder = ['Easy', 'Normal', 'Hard', 'Insane', 'Expert', 'Storyboard'];
-            this.beatmap.tasksLocked.sort(function(a, b) {
-                return sortOrder.indexOf(a) - sortOrder.indexOf(b);
-            });
-        }
     },
 }
 </script>

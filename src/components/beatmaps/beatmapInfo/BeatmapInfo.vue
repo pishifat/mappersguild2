@@ -81,7 +81,7 @@
                 <locks-choice
                     v-if="beatmap.status == 'WIP'"
                     :beatmap="beatmap"
-                    @update:beatmap="$emit('update:beatmap', $event)"
+                    @update:beatmap="$emit('update:beatmap', $event), sortLocks()"
                     @update:info="info = $event"
                 ></locks-choice>
             </div>
@@ -168,6 +168,12 @@ export default {
             let sortOrder = ['Easy', 'Normal', 'Hard', 'Insane', 'Expert', 'Storyboard'];
             this.beatmap.tasks.sort(function(a, b) {
                 return sortOrder.indexOf(a.name) - sortOrder.indexOf(b.name);
+            });
+        },
+        sortLocks: function() {
+            let sortOrder = ['Easy', 'Normal', 'Hard', 'Insane', 'Expert', 'Storyboard'];
+            this.beatmap.tasksLocked.sort(function(a, b) {
+                return sortOrder.indexOf(a) - sortOrder.indexOf(b);
             });
         },
         deleteMap: async function(e) {
