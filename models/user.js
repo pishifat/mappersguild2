@@ -32,25 +32,26 @@ userSchema.virtual('totalPoints').get(function() {
 });
 
 userSchema.virtual('mainMode').get(function() {
-    let modes = indexModes = [this.osuPoints, this.taikoPoints, this.catchPoints, this.maniaPoints];
-    modes.sort();
-    let i = [this.osuPoints, this.taikoPoints, this.catchPoints, this.maniaPoints].indexOf(modes[3]);
-    let mode;
-    switch (i) {
-        case 3:
-            mode = 'mania';
-            break;
-        case 2:
-            mode = 'catch';
-            break;
-        case 1:
-            mode = 'taiko';
-            break;
-        default:
-            mode = 'osu';
-            break;
-    }
-    return mode;
+    let modes = [
+        {
+            name: 'osu',
+            points: this.osuPoints
+        },
+        {
+            name: 'catch',
+            points: this.catchPoints
+        },
+        {
+            name: 'taiko',
+            points: this.taikoPoints
+        },
+        {
+            name: 'mania',
+            points: this.maniaPoints
+        },
+    ];
+    modes.sort((a, b) => b.points - a.points);
+    return modes[0].name;
 });
 
 var User = mongoose.model('User', userSchema);
