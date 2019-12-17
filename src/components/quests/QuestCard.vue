@@ -54,7 +54,7 @@
                     <span class="text-white-50">{{Math.round(quest.timeframe / (1000*60*60*24))}} days</span>
                 </span>
                 <span class="small min-spacing col-sm-2 mt-1">
-                    Modes: 
+                    Modes {{ quest.status == 'open' ? 'available' : ''}}: 
                     <i v-if="quest.modes.includes('osu')" class="fas fa-circle" data-toggle="tooltip" data-placement="top" title="osu!"></i>
                     <i v-if="quest.modes.includes('taiko')" class="fas fa-drum" data-toggle="tooltip" data-placement="top" title="osu!taiko"></i>
                     <i v-if="quest.modes.includes('catch')" class="fas fa-apple-alt" data-toggle="tooltip" data-placement="top" title="osu!catch"></i>
@@ -512,14 +512,14 @@ export default {
             if (result) {
                 const quests = await this.executePost('/quests/acceptQuest/' + partyId + '/' + this.quest.id, {}, e);
                 if (quests) {
-                    this.$emit('update-quests-by-name', quests);
+                    this.$emit('update-every-quest', quests);
                 }
             }
         },
         dropQuest: async function(partyId, e) {
             const quests = await this.executePost('/quests/dropQuest/' + partyId + '/' + this.quest.id, {}, e);
             if (quests) {
-                this.$emit('update-quests-by-name', quests);
+                this.$emit('update-every-quest', quests);
             }
         },
     },

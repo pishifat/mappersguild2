@@ -76,6 +76,18 @@
                             Save Storyboard Quality
                         </button>
                     </p>
+                    <p>
+                        <input
+                            class="form-control-sm mx-2 w-50"
+                            type="text"
+                            autocomplete="off"
+                            placeholder="osu! beatmap pack ID..."
+                            v-model="packId"
+                        />
+                        <button class="btn btn-sm btn-outline-info" @click="updatePackId($event)">
+                            Save pack ID
+                        </button>
+                    </p>
                 </div>
             </div>
         </div>
@@ -94,6 +106,7 @@ export default {
             this.beatmapUrl = this.beatmap.url;
             this.storyboardQuality = null;
             this.storyboardTaskId = null;
+            this.packId = this.beatmap.packId;
             this.beatmap.tasks.forEach(task => {
                 if(task.name == 'Storyboard'){
                     if(task.sbQuality) this.storyboardQuality = task.sbQuality;
@@ -159,6 +172,12 @@ export default {
                 this.$emit('update-beatmap', b);
             }
         },
+        updatePackId: async function(e) {
+            const b = await this.executePost('/admin/updatePackId/' + this.beatmap.id, { packId: this.packId }, e);
+            if (b) {
+                this.$emit('update-beatmap', b);
+            }
+        },
     },
     data() {
         return {
@@ -168,6 +187,7 @@ export default {
             beatmapUrl: null,
             storyboardQuality: null,
             storyboardTaskId: null,
+            packId: null,
         };
     },
 };

@@ -29,7 +29,7 @@
 							:quest="quest"
                             :userId="userId"
                             @update-quest="updateQuest($event)"
-                            @update-quests-by-name="updateEveryQuest($event)"
+                            @update-every-quest="updateEveryQuest($event)"
 						></quest-card>
 					</transition-group>
 				</div>
@@ -60,7 +60,7 @@
 							:quest="quest"
                             :userId="userId"
                             @update-quest="updateQuest($event)"
-                            @update-quests-by-name="updateEveryQuest($event)"
+                            @update-every-quest="updateEveryQuest($event)"
 						></quest-card>
 					</transition-group>
 				</div>

@@ -28,14 +28,14 @@
                         <span v-for="quest in quests" :key="quest.id">
                             <br><samp class="small text-white-50">
                                 {{quest.art ? 
-                                '![Artist header image](https://assets.ppy.sh/artists/' + quest.art + '/header.jpg' : 
-                                '![Mystery quest header image](/wiki/shared/news/banners/mappersguildmysteryquest.png)'}}
+                                '![' + quest.associatedMaps[0].song.artist + ' header](https://assets.ppy.sh/artists/' + quest.art + '/header.jpg' : 
+                                '![Mystery header](/wiki/shared/news/banners/mappersguild-mystery.jpg)'}}
                             </samp><br><br>
                             <samp class="small text-white-50">
-                                **Quest Objective:** {{ quest.descriptionMain }}
+                                For the **{{ quest.name + ' (' + questModes(quest.modes) + ')'}}** quest, the mappers had to {{ quest.descriptionMain.substring(0,1).toLowerCase() + quest.descriptionMain.substring(1) }}
                             </samp><br><br>
                             <samp class="small text-white-50">
-                                The **{{ quest.name }}** quest was completed by
+                                This quest was completed by
                                 <span v-for="(member, i) in quest.completedMembers" :key="member.id">
                                     **[{{ member.username }}]({{'https://osu.ppy.sh/users/' + member.osuId}})**{{(i < quest.completedMembers.length - 2 ? ', ' : i < quest.completedMembers.length - 1 ? ' and' : '.')}}
                                 </span>
@@ -87,10 +87,29 @@ export default {
                     }
             });
         },
+        questModes: function(modes) {
+            let sortOrder = ['osu', 'taiko', 'catch', 'mania'];
+            modes.sort(function(a, b) {
+                return sortOrder.indexOf(a) - sortOrder.indexOf(b);
+            });
+            let text = '';
+            for (let i = 0; i < modes.length; i++) {
+                const mode = modes[i];
+                if(mode == 'osu'){
+                    text += 'osu!';
+                }else{
+                    text += 'osu!' + mode;
+                }
+                if(i < modes.length - 1){
+                    text += ', ';
+                }
+            }
+            return text;
+        },
     },
     data() {
         return {
-            date: '2019-09-23',
+            date: '2019-11-29',
             beatmaps: null,
             quests: null,
             info: null,

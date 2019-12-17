@@ -46,9 +46,9 @@
                         <i class="fas fa-undo-alt"></i>
                     </a>
 
-                    <!--last contacted-->
+                    <!--contacted-->
                     <span class="min-spacing text-center font-8 text-white-50 float-right mr-2">
-                        last contacted: {{artist.lastContacted ? new Date(artist.lastContacted).toString().slice(4,15) : 'never'}}
+                        contacted {{artist.lastContacted ? daysAgo : 'never'}}
                         <a href="#" @click.prevent="showContactedInput = !showContactedInput">
                             <i class="fas fa-edit"></i>
                         </a>
@@ -206,6 +206,14 @@ export default {
     watch: {
         artist: function(){
             this.tempNotes = this.artist.notes;
+        }
+    },
+    computed: {
+        daysAgo: function(){
+            let today = new Date();
+            let contacted = new Date(this.artist.lastContacted);
+            let days = Math.round((today.getTime() - contacted.getTime())/(1000*60*60*24));
+            return days + (days == 1 ? ' day ago' : ' days ago');
         }
     },
     methods: {

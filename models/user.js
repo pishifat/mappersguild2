@@ -6,6 +6,7 @@ var userSchema = new mongoose.Schema({
     username: { type: String, required: true },
     group: { type: String, enum: ['user', 'admin', 'spectator'], default: 'user' },
     invites: { type: Boolean, default: true },
+    badge: { type: Number, default: 0 },
 
     rank: { type: Number, default: 0 },
     easyPoints: { type: Number, default: 0 },

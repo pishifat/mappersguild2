@@ -30,7 +30,7 @@
                         />
                     </p>
                     <p>
-                        <input
+                        <textarea
                             class="form-control-sm w-100"
                             type="text"
                             autocomplete="off"
@@ -43,7 +43,7 @@
                             class="form-control-sm w-100"
                             type="text"
                             autocomplete="off"
-                            placeholder="timeframe..."
+                            placeholder="timeframe (days)..."
                             v-model="timeframe"
                         />
                     </p>
@@ -81,15 +81,6 @@
                             autocomplete="off"
                             placeholder="artist osu ID..."
                             v-model="osuId"
-                        />
-                    </p>
-                    <p>
-                        <input
-                            class="form-control-sm w-100"
-                            type="text"
-                            autocomplete="off"
-                            placeholder="color..."
-                            v-model="color"
                         />
                     </p>
                     <p>

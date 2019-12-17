@@ -24,6 +24,17 @@
                             Save penalty points
                         </button>
                     </p>
+                    <p>
+                        <input
+                            class="form-control-sm mx-2"
+                            type="text"
+                            autocomplete="off"
+                            v-model="badge"
+                        />
+                        <button class="btn btn-sm btn-outline-info" @click="updateBadge($event)">
+                            Save badge
+                        </button>
+                    </p>
                 </div>
             </div>
         </div>
@@ -37,6 +48,7 @@ export default {
     watch: {
         user: function() {
             this.penaltyPoints = this.user.penaltyPoints || 0;
+            this.badge = this.user.badge || 0;
         },
     },
     computed: {
@@ -67,10 +79,17 @@ export default {
                 this.$emit('update-user', u);
             }
         },
+        updateBadge: async function(e) {
+            const u = await this.executePost('/admin/updateBadge/' + this.user.id, {badge: this.badge}, e);
+            if (u) {
+                this.$emit('update-user', u);
+            }
+        },
     },
     data() {
         return {
             penaltyPoints: null,
+            badge: null,
         };
     },
 };

@@ -46,10 +46,10 @@ router.get('/', async (req, res, next) => {
 
 /* GET relevant info for page load */
 router.get('/relevantInfo/', async (req, res) => {
-    let b = await beatmaps.service.query({}, beatmapPopulate, {status: 1, mode: 1}, true);
+    let allBeatmaps = await beatmaps.service.query({}, beatmapPopulate, {status: 1, mode: 1}, true);
     let actionBeatmaps = [];
-    for (let i = 0; i < b.length; i++) {
-        let bm = b[i];
+    for (let i = 0; i < allBeatmaps.length; i++) {
+        let bm = allBeatmaps[i];
         if ((bm.status == 'Done' || bm.status == 'Qualified') && bm.url) {
             if (bm.url.indexOf('osu.ppy.sh/beatmapsets/') == -1) {
                 bm.status = `${bm.status} (invalid link)`;
@@ -85,16 +85,49 @@ router.get('/relevantInfo/', async (req, res) => {
                             status = 'Done';
                             break;
                     }
-
                 }
                 if(bm.status != status){
-                    bm.status = `${bm.status} (osu: ${status})`;
-                    actionBeatmaps.push(bm);
+                    if(status == 'Qualified'){
+                        await beatmaps.service.update(bm.id, {status: 'Qualified'});
+                    }else{
+                        bm.status = `${bm.status} (osu: ${status})`;
+                        actionBeatmaps.push(bm);
+                    }
+
                 }
             }
         }
     }
-    res.json({actionBeatmaps});   
+
+    let allQuests = await quests.service.query({ status: 'wip' }, questPopulate, {}, true);
+    let actionQuests = [];
+    for (let i = 0; i < allQuests.length; i++) {
+        const q = allQuests[i];
+        let valid = true;
+        if(!q.associatedMaps.length){
+            valid = false;
+        }else{
+            q.associatedMaps.forEach(b => {
+                if(b.status != 'Ranked'){
+                    valid = false;
+                }
+            });
+        }
+        if(valid){
+            q.status = 'wip: all Ranked';
+            actionQuests.push(q);
+        }
+    }
+
+    let allUsers = await users.service.query({}, {}, null, true);
+    let actionUsers = [];
+    for (let i = 0; i < allUsers.length; i++) {
+        const u = allUsers[i];
+        if(u.badge != u.rank){
+            actionUsers.push(u);
+        }
+    }
+    res.json({ actionBeatmaps, actionQuests, actionUsers });   
 });
 
 /* GET news info */
@@ -214,15 +247,22 @@ router.post('/updateUrl/:id', api.isSuperAdmin, async (req, res) => {
 });
 
 /* POST update sb quality */
-router.post('/updateStoryboardQuality/:id', api.isSuperAdmin, async (req, res) => {
+router.post('/updateStoryboardQuality/:id', api.isAdmin, async (req, res) => {
     await tasks.service.update(req.body.taskId, { sbQuality: req.body.storyboardQuality });
+    let b = await beatmaps.service.query({ _id: req.params.id }, beatmapPopulate);
+    res.json(b);
+});
+
+/* POST update osu beatmap pack ID */
+router.post('/updatePackId/:id', api.isAdmin, async (req, res) => {
+    await beatmaps.service.update(req.params.id, { packId: req.body.packId });
     let b = await beatmaps.service.query({ _id: req.params.id }, beatmapPopulate);
     res.json(b);
 });
 
 /* GET quests */
 router.get('/loadQuests/', async (req, res) => {
-    let q = await quests.service.query({}, {}, {status: -1, name: 1}, true);
+    let q = await quests.service.query({}, questPopulate, {status: -1, name: 1}, true);
     res.json({q});
 });
 
@@ -261,6 +301,13 @@ router.post('/addQuest/', api.isSuperAdmin, async (req, res) => {
 /* POST rename quest */
 router.post('/renameQuest/:id', api.isSuperAdmin, async (req, res) => {
     let q = await quests.service.update(req.params.id, { name: req.body.name });
+    q = await quests.service.query({_id: req.params.id}, questPopulate);
+    res.json(q);
+});
+
+/* POST rename quest */
+router.post('/updateDescription/:id', api.isSuperAdmin, async (req, res) => {
+    let q = await quests.service.update(req.params.id, { descriptionMain: req.body.description });
     q = await quests.service.query({_id: req.params.id}, questPopulate);
     res.json(q);
 });
@@ -409,6 +456,13 @@ router.post('/updatePenaltyPoints/:id', api.isSuperAdmin, async (req, res) => {
     res.json(user);
 
     logs.service.create(req.session.mongoId, `edited penalty points of "${user.username}" to ${req.body.penaltyPoints}`, req.params.id, 'user' );
+});
+
+/* POST update user badge */
+router.post('/updateBadge/:id', api.isSuperAdmin, async (req, res) => {
+    await users.service.update(req.params.id, {badge: req.body.badge});
+    let user = await users.service.query({_id: req.params.id});
+    res.json(user);
 });
 
 /* POST update user points */

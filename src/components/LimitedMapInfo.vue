@@ -56,7 +56,7 @@ export default {
     },
     methods: {
         sortTasks: function(){
-            let sortOrder = ["Easy", "Normal", "Hard", "Insane", "Expert", "Storyboard"]
+            let sortOrder = ['Easy', 'Normal', 'Hard', 'Insane', 'Expert', 'Storyboard'];
             this.beatmap.tasks.sort(function(a, b) {
                 return sortOrder.indexOf(a.name) - sortOrder.indexOf(b.name);
             });

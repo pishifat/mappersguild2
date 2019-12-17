@@ -22,6 +22,20 @@
                         />
                     </p>
                     <p>
+                        <button class="btn btn-sm btn-outline-info" @click="updateDescription($event)">
+                            Update description
+                        </button> 
+                    </p>
+                    <p>
+                        <textarea
+                            class="form-control-sm mx-2 mt-2 w-100"
+                            type="text"
+                            autocomplete="off"
+                            placeholder="quest description..."
+                            v-model="description"
+                        />
+                    </p>
+                    <p>
                         <button class="btn btn-sm btn-outline-danger" @click="dropQuest($event)">
                             Drop quest
                         </button>
@@ -62,6 +76,20 @@
                             <i class="fas fa-stream" :class="quest.modes.includes('mania') ? '' : 'text-white-50'" data-toggle="tooltip" data-placement="top" title="toggle osu!mania"></i>
                         </a>
                     </p>
+                    <div v-if="quest.status == 'done' || quest.status == 'wip'" class="mb-4">
+                        <p class="text-shadow min-spacing">Associated maps</p>
+                        <ul v-if="quest.associatedMaps.length" class="min-spacing ml-3">
+                            <li class="small text-shadow text-white-50" v-for="map in quest.associatedMaps" :key="map.id">
+                                <template v-if="map.url">
+                                    <a :href="map.url" target="_blank">{{map.song.artist}} - {{map.song.title}}</a> by <a :href="'https://osu.ppy.sh/users/' + map.host.osuId" target="_blank">{{map.host.username}}</a>
+                                </template>
+                                <template v-else>
+                                    {{map.song.artist}} - {{map.song.title}} by <a :href="'https://osu.ppy.sh/users/' + map.host.osuId" target="_blank">{{map.host.username}}</a>
+                                </template>
+                            </li>
+                        </ul>
+                        <p v-else class="small text-shadow min-spacing text-white-50 ml-3">No associated maps...</p>
+                    </div>
                     <p>
                         <button class="btn btn-sm btn-outline-danger" @click="deleteQuest($event)">
                             Delete quest
@@ -81,6 +109,7 @@ export default {
     watch: {
         quest: function() {
             this.renameQuestName = this.quest.name;
+            this.description = this.quest.descriptionMain;
             this.duplicateQuestName = this.quest.name;
         },
     },
@@ -105,6 +134,12 @@ export default {
         },
         renameQuest: async function(e) {
             const q = await this.executePost('/admin/renameQuest/' + this.quest.id, {name: this.renameQuestName}, e);
+            if (q) {
+                this.$emit('update-quest', q);
+            }
+        },
+        updateDescription: async function(e) {
+            const q = await this.executePost('/admin/updateDescription/' + this.quest.id, {description: this.description}, e);
             if (q) {
                 this.$emit('update-quest', q);
             }
@@ -134,10 +169,13 @@ export default {
             }
         },
         deleteQuest: async function(e) {
-            const q = await this.executePost('/admin/deleteQuest/' + this.quest.id, {}, e);
-            if (q) {
-                $('#editQuest').modal('hide');
-                this.$emit('delete-quest', q);
+            let result = confirm('Are you sure?');
+            if(result){
+                const q = await this.executePost('/admin/deleteQuest/' + this.quest.id, {}, e);
+                if (q) {
+                    $('#editQuest').modal('hide');
+                    this.$emit('delete-quest', q);
+                }
             }
         },
         toggleQuestMode: async function(mode) {
@@ -150,6 +188,7 @@ export default {
     data() {
         return {
             renameQuestName: null,
+            description: null,
             duplicateQuestName: null,
         };
     },
