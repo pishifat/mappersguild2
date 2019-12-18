@@ -88,6 +88,7 @@ export default {
             });
         },
         questModes: function(modes) {
+            return modes;
             let sortOrder = ['osu', 'taiko', 'catch', 'mania'];
             modes.sort(function(a, b) {
                 return sortOrder.indexOf(a) - sortOrder.indexOf(b);
