@@ -122,14 +122,17 @@ export default {
             }
         },
         requestTask: async function(id, e) {
-            if (!this.selectedMode) {
-                this.selectedMode = this.beatmap.mode;
+            let mode;
+            if (!this.beatmap.mode == 'hybrid') {
+                mode = this.selectedMode;
+            }else{
+                mode = this.beatmap.mode;
             }
 
             const bm = await this.executePost('/beatmaps/requestTask/' + id, { 
                 difficulty: this.selectedTask, 
                 user: this.requestTaskUsername, 
-                mode: this.selectedMode 
+                mode 
             }, e);
 
             if (!bm || bm.error) {
