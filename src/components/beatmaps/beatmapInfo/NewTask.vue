@@ -117,7 +117,7 @@ export default {
             }
 
             const bm = await this.executePost('/beatmaps/addTask/' + id, { 
-                difficulty: this.selectedTask, 
+                taskName: this.selectedTask, 
                 mode
             }, e);
 
@@ -137,7 +137,7 @@ export default {
             }
 
             const bm = await this.executePost('/beatmaps/requestTask/' + id, { 
-                difficulty: this.selectedTask, 
+                taskName: this.selectedTask, 
                 user: this.requestTaskUsername, 
                 mode 
             }, e);
@@ -160,7 +160,7 @@ export default {
 
             const bm = await this.executePost('/beatmaps/task/' + this.taskToAddCollaborator.id + '/addCollab', { 
                 user: this.requestTaskUsername, 
-                taskId: this.taskToAddCollaborator.name,
+                taskName: this.taskToAddCollaborator.name,
                 mode,
             }, e);
 

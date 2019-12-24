@@ -293,7 +293,7 @@ router.post('/addTask/:mapId', api.isNotSpectator, isValidBeatmap, async (req, r
     const valid = await addTaskChecks(
         req.session.mongoId,
         b,
-        req.body.difficulty,
+        req.body.taskName,
         req.body.mode,
         isHost
     );
@@ -305,12 +305,12 @@ router.post('/addTask/:mapId', api.isNotSpectator, isValidBeatmap, async (req, r
     if(!mode){
         mode = b.mode;
     }
-    if(req.body.difficulty == "Storyboard"){
+    if(req.body.taskName == "Storyboard"){
         mode = 'sb';
     }
 
     const t = await tasks.service.create({
-        name: req.body.difficulty,
+        name: req.body.taskName,
         mappers: req.session.mongoId,
         mode: mode
     });
@@ -322,14 +322,14 @@ router.post('/addTask/:mapId', api.isNotSpectator, isValidBeatmap, async (req, r
 
     logs.service.create(
         req.session.mongoId,
-        `added "${req.body.difficulty}" difficulty to "${b.song.artist} - ${b.song.title}"`,
+        `added "${req.body.taskName}" difficulty to "${b.song.artist} - ${b.song.title}"`,
         b._id,
         'beatmap'
     );
     if (!isHost) {
         notifications.service.create(
             b.id,
-            `added "${req.body.difficulty}" difficulty to your mapset`,
+            `added "${req.body.taskName}" difficulty to your mapset`,
             b.host.id,
             req.session.mongoId,
             b.id
@@ -385,7 +385,7 @@ router.post('/task/:taskId/addCollab', api.isNotSpectator, isValidUser, async (r
     if (!req.body.mode) {
         req.body.mode = b.mode;
     }
-    valid = await addTaskChecks(u.id, b, req.body.difficulty, req.body.mode, b.host._id.toString() == req.session.mongoId);
+    valid = await addTaskChecks(u.id, b, req.body.taskName, req.body.mode, b.host._id.toString() == req.session.mongoId);
     if (valid.error) {
         return res.json(valid);
     }
@@ -402,7 +402,7 @@ router.post('/task/:taskId/addCollab', api.isNotSpectator, isValidUser, async (r
         `wants to collaborate with you on the "${t.name}" difficulty of`,
         'collaborate in a difficulty',
         b.id,
-        req.body.difficulty,
+        req.body.taskName,
         req.body.mode
     );
 });
@@ -645,7 +645,7 @@ router.post('/requestTask/:mapId', api.isNotSpectator, isValidUser, isValidBeatm
     if (valid.error) {
         return res.json(valid);
     }
-    valid = await addTaskChecks(u.id, b, req.body.difficulty, req.body.mode, true);
+    valid = await addTaskChecks(u.id, b, req.body.taskName, req.body.mode, true);
     if (valid.error) {
         return res.json(valid);
     }
@@ -655,10 +655,10 @@ router.post('/requestTask/:mapId', api.isNotSpectator, isValidUser, isValidBeatm
         u.id,
         req.session.mongoId,
         b.id,
-        `wants you to create the ${req.body.difficulty != "Storyboard" ? req.body.mode + " difficulty" : "task"} ${req.body.difficulty} for their mapset of`,
+        `wants you to create the ${req.body.taskName != "Storyboard" ? req.body.mode + " difficulty" : "task"} ${req.body.taskName} for their mapset of`,
         'create a difficulty',
         b.id,
-        req.body.difficulty,
+        req.body.taskName,
         req.body.mode
     );
 });
