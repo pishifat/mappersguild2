@@ -198,6 +198,7 @@ router.post('/acceptCollab/:id', api.isNotSpectator, async (req, res) => {
         return res.json({ error: `Mapset no longer exists!` });
     }
     let b = await beatmaps.service.query({ tasks: invite.modified._id }, defaultMapPopulate);
+    console.log(invite);
     let valid = await addTaskChecks(req.session.mongoId, b, invite);
     if (valid.error) {
         return res.json(valid);

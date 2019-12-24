@@ -110,7 +110,7 @@ export default {
             }
 
             let mode;
-            if (!this.beatmap.mode == 'hybrid') {
+            if (this.beatmap.mode == 'hybrid') {
                 mode = this.selectedMode;
             }else{
                 mode = this.beatmap.mode;
@@ -130,7 +130,7 @@ export default {
         },
         requestTask: async function(id, e) {
             let mode;
-            if (!this.beatmap.mode == 'hybrid') {
+            if (this.beatmap.mode == 'hybrid') {
                 mode = this.selectedMode;
             }else{
                 mode = this.beatmap.mode;
@@ -151,10 +151,17 @@ export default {
             }
         },
         addCollab: async function(e) {
+            let mode;
+            if (this.beatmap.mode == 'hybrid') {
+                mode = this.taskToAddCollaborator.mode;
+            }else{
+                mode = this.beatmap.mode;
+            }
+
             const bm = await this.executePost('/beatmaps/task/' + this.taskToAddCollaborator.id + '/addCollab', { 
                 user: this.requestTaskUsername, 
                 taskId: this.taskToAddCollaborator.name,
-                mode: this.taskToAddCollaborator.mode,
+                mode,
             }, e);
 
             if (!bm || bm.error) {
