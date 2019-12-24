@@ -109,9 +109,16 @@ export default {
                 return;
             }
 
+            let mode;
+            if (!this.beatmap.mode == 'hybrid') {
+                mode = this.selectedMode;
+            }else{
+                mode = this.beatmap.mode;
+            }
+
             const bm = await this.executePost('/beatmaps/addTask/' + id, { 
                 difficulty: this.selectedTask, 
-                mode: this.selectedMode 
+                mode
             }, e);
 
             if (!bm || bm.error) {
