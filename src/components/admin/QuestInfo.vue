@@ -76,7 +76,7 @@
                             <i class="fas fa-stream" :class="quest.modes.includes('mania') ? '' : 'text-white-50'" data-toggle="tooltip" data-placement="top" title="toggle osu!mania"></i>
                         </a>
                     </p>
-                    <div v-if="quest.status == 'done' || quest.status == 'wip'" class="mb-4">
+                    <div v-if="quest.status == 'done' || quest.status.includes('wip')" class="mb-4">
                         <p class="text-shadow min-spacing">Associated maps</p>
                         <ul v-if="quest.associatedMaps.length" class="min-spacing ml-3">
                             <li class="small text-shadow text-white-50" v-for="map in quest.associatedMaps" :key="map.id">
