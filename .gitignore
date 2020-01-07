@@ -26,4 +26,4 @@ jspm_packages/
 
 config.json
 public/javascripts/
-.prettierrc
+dist/

@@ -13,7 +13,7 @@ module.exports = {
     output: {
         filename: '[name].js',
         path: path.resolve(__dirname, 'public/javascripts/'),
-        publicPath: '/'
+        publicPath: '/',
     },
     mode: 'development',
     module: {
@@ -21,30 +21,30 @@ module.exports = {
             {
                 test: /\.vue$/,
                 exclude: /node_modules/,
-                loader: 'vue-loader'
+                loader: 'vue-loader',
             },
             {
                 test: /\.js$/,
                 exclude: /node_modules/,
-                loader: 'babel-loader'
+                loader: 'babel-loader',
             },
             {
                 test: /\.(png|svg|jpg|gif)$/,
                 use: [{
                     loader: 'file-loader',
                     options: {
-                        outputPath: '../images'
-                    }
-                }]
+                        outputPath: '../images',
+                    },
+                }],
             },
             {
                 test: /\.css$/,
                 use: ['vue-style-loader', 'css-loader'],
             },
-        ]
+        ],
     },
     plugins: [
-        new VueLoaderPlugin()
+        new VueLoaderPlugin(),
     ],
     resolve: {
         alias: {
@@ -55,7 +55,7 @@ module.exports = {
         publicPath: '/javascripts/',
         port: 8080,
         proxy: {
-          '/': 'http://localhost:3000'
-        }
-    }
+            '/': 'http://localhost:3000',
+        },
+    },
 };
