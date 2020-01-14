@@ -4,7 +4,7 @@ import { defaultErrorMessage, BasicError } from '../helpers/helpers';
 export interface QueryData<> {
     query?: object;
     populate?: QueryPopulateOptions[];
-    sort?: object;
+    sort?: object | string;
     defaultSort?: boolean;
     defaultPopulate?: boolean;
     useDefaults?: boolean;

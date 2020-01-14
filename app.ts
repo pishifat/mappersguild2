@@ -15,6 +15,7 @@ import beatmapsRouter from './routes-ts/beatmaps/beatmaps';
 import tasksRouter from './routes-ts/beatmaps/tasks';
 import questsRouter from './routes-ts/quests';
 import notificationsRouter from './routes-ts/notifications';
+import usersRouter from './routes-ts/users';
 
 const app = express();
 const MongoStore = MongoStoreSession(session);
@@ -63,7 +64,7 @@ app.use('/', indexRouter);
 // app.use('/faq', faqRouter);
 app.use('/beatmaps', beatmapsRouter);
 app.use('/beatmaps', tasksRouter);
-// app.use('/users', usersRouter);
+app.use('/users', usersRouter);
 // app.use('/logs', logsRouter);
 app.use('/notifications', notificationsRouter);
 // app.use('/admin', adminRouter);
