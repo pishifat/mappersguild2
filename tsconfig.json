@@ -67,7 +67,6 @@
       "helpers/**/*.ts"
     ],
     "files": [
-      "./app.ts",
-      "./serve.ts"
+      "./app.ts"
     ]
 }

@@ -64,6 +64,10 @@ module.exports = {
             { blankLine: 'always', prev: '*', next: 'block-like' },
             { blankLine: 'always', prev: 'block-like', next: '*' },
         ],
+        '@typescript-eslint/camelcase': [
+            'error', 
+            { properties: 'never' }
+        ]
         // 'vue/html-indent': [
         //     error, 
         //     4

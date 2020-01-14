@@ -107,40 +107,6 @@ export async function getUserInfo(token: string): Promise<OsuAuthResponse | Basi
     return await executeRequest(options);
 }
 
-interface DiscordWebhookMessage {
-    title?: string;
-    description?: string;
-    url?: string;
-    /** ISO8601 timestamp of embed content */
-    timestamp?: string;
-    /** color code */
-    color?: number;
-    author?: {
-        name: string;
-        icon_url: string;
-        url: string;
-    };
-    fields?: [];
-}
-
-export async function webhookPost(message: DiscordWebhookMessage[]): Promise<object> {
-    const url = `https://discordapp.com/api/webhooks/${config.webhook.id}/${config.webhook.token}`;
-
-    try {
-        const res = await axios.post(url, {
-            embeds: message,
-        });
-
-        if (res?.data) {
-            return { success: 'ok' };
-        }
-
-        return defaultErrorMessage;
-    } catch (error) {
-        return defaultErrorMessage;
-    }
-}
-
 export async function beatmapsetInfo(setId: number): Promise<OsuBeatmapResponse | BasicError> {
     const url = `https://osu.ppy.sh/api/get_beatmaps?k=${config.v1token}&s=${setId}`;
 

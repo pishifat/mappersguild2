@@ -26,7 +26,8 @@ class PartyService extends BaseService<Party>
 {
     constructor() {
         super(PartyModel, { updatedAt: -1 }, [
-            //
+            { path: 'members', select: 'username osuId rank' },
+            { path: 'leader', select: 'username osuId' },
         ]);
     }
 
@@ -42,6 +43,16 @@ class PartyService extends BaseService<Party>
         } catch (error) {
             return { error: error._message };
         }
+    }
+
+    async createOrFail(userId: User['_id'], mode: Omit<BeatmapMode, BeatmapMode.Hybrid>): Promise<Party> {
+        const party = await this.create(userId, mode);
+
+        if (this.isError(party)) {
+            throw new Error();
+        }
+
+        return party;
     }
 }
 

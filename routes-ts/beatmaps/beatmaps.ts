@@ -34,7 +34,7 @@ beatmapsRouter.get('/relevantInfo', async (req, res) => {
 
     const hostBeatmaps = await BeatmapService.queryAll({
         query,
-        withDefaults: true,
+        useDefaults: true,
     });
 
     res.json({
@@ -93,11 +93,11 @@ beatmapsRouter.get('/loadBeatmaps/:mode/:days', async (req, res) => {
     const [statusBeatmaps, allBeatmaps] = await Promise.all([
         BeatmapService.queryAll({
             query: statusParams,
-            withDefaults: true,
+            useDefaults: true,
         }),
         BeatmapService.queryAll({
             query: allParams,
-            withDefaults: true,
+            useDefaults: true,
         }),
     ]);
 
@@ -145,7 +145,7 @@ beatmapsRouter.get('/artists/', async (req, res) => {
 /* GET songs for new map entry */
 beatmapsRouter.get('/songs/:labelId', canFail(async (req, res) => {
     const fa = await FeaturedArtistService.queryByIdOrFail(req.params.labelId, {
-        withDefaults: true,
+        useDefaults: true,
     });
 
     res.json(fa.songs);

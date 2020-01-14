@@ -5,8 +5,9 @@ import crypto from 'crypto';
 import { UserService } from '../models-ts/user';
 import { LogService, LogCategory } from '../models-ts/log';
 import { isLoggedIn } from '../helpers/middlewares';
-import { webhookPost, getToken, isAuthError, getUserInfo } from '../helpers/osuApi';
+import { getToken, isAuthError, getUserInfo } from '../helpers/osuApi';
 import { UserGroup } from '../models-ts/user';
+import { webhookPost } from '../helpers/discordApi';
 
 const indexRouter = express.Router();
 
@@ -46,7 +47,6 @@ indexRouter.get('/login', async (req, res, next) => {
                     webhookPost([{
                         author: {
                             name: `${newUser.username} joined the guild!`,
-                            // eslint-disable-next-line @typescript-eslint/camelcase
                             icon_url: `https://a.ppy.sh/${newUser.osuId}`,
                             url: `https://osu.ppy.sh/u/${newUser.osuId}`,
                         },
@@ -73,7 +73,6 @@ indexRouter.get('/login', async (req, res, next) => {
                     webhookPost([{
                         author: {
                             name: `${u.username} joined the guild!`,
-                            // eslint-disable-next-line @typescript-eslint/camelcase
                             icon_url: `https://a.ppy.sh/${u.osuId}`,
                             url: `https://osu.ppy.sh/u/${u.osuId}`,
                         },

@@ -13,6 +13,7 @@ import hbs from 'hbs';
 import indexRouter from './routes-ts/index';
 import beatmapsRouter from './routes-ts/beatmaps/beatmaps';
 import tasksRouter from './routes-ts/beatmaps/tasks';
+import questsRouter from './routes-ts/quests';
 import notificationsRouter from './routes-ts/notifications';
 
 const app = express();
@@ -22,6 +23,7 @@ const MongoStore = MongoStoreSession(session);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
 
+// settings/middlewares
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -34,6 +36,7 @@ app.use(
 );
 app.use(bodyParser.json());
 
+// db
 mongoose.connect(config.connection, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -55,6 +58,7 @@ app.use(
     })
 );
 
+// routes
 app.use('/', indexRouter);
 // app.use('/faq', faqRouter);
 app.use('/beatmaps', beatmapsRouter);
@@ -64,15 +68,15 @@ app.use('/beatmaps', tasksRouter);
 app.use('/notifications', notificationsRouter);
 // app.use('/admin', adminRouter);
 // app.use('/artists', artistsRouter);
-// app.use('/quests', questsRouter);
+app.use('/quests', questsRouter);
 
-// catch 404 and forward to error handler
-app.use(function(req, res) {
+// catch 404
+app.use((req, res) => {
     res.redirect('/');
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use((err, req, res, next) => {
     // set locals, only providing error in development
     res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -87,12 +91,12 @@ app.use(function(err, req, res, next) {
     }
 });
 
-//handlebar helper
-hbs.registerHelper('shortDate', function(date) {
+// handlebar helper
+hbs.registerHelper('shortDate', (date) => {
     return date.toString().slice(4, 24);
 });
 
-hbs.registerHelper('shortAction', function(action) {
+hbs.registerHelper('shortAction', (action) => {
     if (action.length > 120) {
         return action.toString().slice(0, 120) + '...';
     } else {
@@ -100,6 +104,7 @@ hbs.registerHelper('shortAction', function(action) {
     }
 });
 
+// server setup
 const port = process.env.PORT || '3000';
 app.set('port', port);
 const server = http.createServer(app);

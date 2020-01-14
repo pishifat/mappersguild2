@@ -31,6 +31,8 @@ export interface Quest extends Document {
     completedMembers: User[];
     /** virtual field to populate */
     associatedMaps: Beatmap[];
+    /** Get the days between today and passed date */
+    overLimit: boolean;
 }
 
 const questSchema = new Schema({
@@ -60,12 +62,16 @@ questSchema.virtual('associatedMaps', {
     foreignField: 'quest',
 });
 
+questSchema.virtual('overLimit').get(function (this: Quest) {
+    return ((+new Date() - +this.accepted) / (24*3600*1000)) > 7;
+});
+
 const QuestModel = mongoose.model<Quest>('Quest', questSchema);
 
 class QuestService extends BaseService<Quest>
 {
     constructor() {
-        super(QuestModel, { updatedAt: -1 }, [
+        super(QuestModel, { createdAt: -1 }, [
             { path: 'parties',  populate: { path: 'members leader' } },
             { path: 'currentParty',  populate: { path: 'members leader' } },
             { path: 'associatedMaps',  populate: { path: 'song host tasks' } },
@@ -73,20 +79,9 @@ class QuestService extends BaseService<Quest>
         ]);
     }
 
-    async create(questData: Quest): Promise<Quest | BasicError> {
+    async create(questData: Partial<Quest>): Promise<Quest | BasicError> {
         try {
-            const quest: Partial<Quest> = new QuestModel({
-                name: questData.name,
-                reward: questData.reward,
-                descriptionMain: questData.descriptionMain,
-                timeframe: questData.timeframe,
-                minParty: questData.minParty,
-                maxParty: questData.maxParty,
-                minRank: questData.minRank,
-                art: questData.art,
-                color: questData.color,
-                modes: questData.modes,
-            });
+            const quest: Partial<Quest> = new QuestModel(questData);
 
             return await QuestModel.create(quest);
         } catch (error) {
