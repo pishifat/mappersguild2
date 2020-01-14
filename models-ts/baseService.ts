@@ -5,6 +5,8 @@ export interface QueryData<> {
     query?: object;
     populate?: QueryPopulateOptions[];
     sort?: object | string;
+    limit?: number;
+    skip?: number;
     defaultSort?: boolean;
     defaultPopulate?: boolean;
     useDefaults?: boolean;
@@ -135,6 +137,14 @@ export default class BaseService<T extends Document> {
 
         if (queryData.sort) {
             query.sort(queryData.sort);
+        }
+
+        if (queryData.limit) {
+            query.limit(queryData.limit);
+        }
+
+        if (queryData.skip) {
+            query.skip(queryData.skip);
         }
 
         return query;
