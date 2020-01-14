@@ -16,6 +16,7 @@ import tasksRouter from './routes-ts/beatmaps/tasks';
 import questsRouter from './routes-ts/quests';
 import notificationsRouter from './routes-ts/notifications';
 import usersRouter from './routes-ts/users';
+import faqRouter from './routes-ts/faq';
 
 const app = express();
 const MongoStore = MongoStoreSession(session);
@@ -61,7 +62,7 @@ app.use(
 
 // routes
 app.use('/', indexRouter);
-// app.use('/faq', faqRouter);
+app.use('/faq', faqRouter);
 app.use('/beatmaps', beatmapsRouter);
 app.use('/beatmaps', tasksRouter);
 app.use('/users', usersRouter);
@@ -77,6 +78,7 @@ app.use((req, res) => {
 });
 
 // error handler
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err, req, res, next) => {
     // set locals, only providing error in development
     res.locals.message = err.message;
