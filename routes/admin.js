@@ -153,7 +153,7 @@ router.get('/loadNewsInfo/:date', async (req, res) => {
 
 /* GET beatmaps */
 router.get('/loadBeatmaps/', async (req, res) => {
-    let b = await beatmaps.service.query({}, beatmapPopulate, {status: 1, mode: 1, createdAt: -1}, true);
+    let b = await beatmaps.service.query({}, beatmapPopulate, {packId: 1, status: 1, mode: 1, createdAt: -1}, true);
     res.json({b});
 });
 
