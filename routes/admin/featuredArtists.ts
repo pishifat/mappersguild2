@@ -1,7 +1,7 @@
 import express from 'express';
 import { isLoggedIn, isAdmin, isSuperAdmin } from '../../helpers/middlewares';
-import { FeaturedArtistService } from '../../models-ts/featuredArtist';
-import { FeaturedSongService } from '../../models-ts/featuredSong';
+import { FeaturedArtistService } from '../../models/featuredArtist';
+import { FeaturedSongService } from '../../models/featuredSong';
 import { canFail } from '../../helpers/helpers';
 
 const adminFeaturedArtistsRouter = express.Router();

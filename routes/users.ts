@@ -1,8 +1,8 @@
 import express from 'express';
 import { isLoggedIn, isNotSpectator } from '../helpers/middlewares';
-import { UserService } from '../models-ts/user';
-import { BeatmapService } from '../models-ts/beatmap/beatmap';
-import { QuestService, Quest } from '../models-ts/quest';
+import { UserService } from '../models/user';
+import { BeatmapService } from '../models/beatmap/beatmap';
+import { QuestService, Quest } from '../models/quest';
 import { canFail } from '../helpers/helpers';
 
 const usersRouter = express.Router();

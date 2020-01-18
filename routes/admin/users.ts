@@ -1,11 +1,11 @@
 import express from 'express';
 import { isLoggedIn, isAdmin, isSuperAdmin } from '../../helpers/middlewares';
-import { QuestStatus } from '../../models-ts/quest';
-import { UserService } from '../../models-ts/user';
-import { BeatmapService, BeatmapStatus } from '../../models-ts/beatmap/beatmap';
+import { QuestStatus } from '../../models/quest';
+import { UserService } from '../../models/user';
+import { BeatmapService, BeatmapStatus } from '../../models/beatmap/beatmap';
 import { canFail, defaultErrorMessage } from '../../helpers/helpers';
-import { LogService, LogCategory } from '../../models-ts/log';
-import { TaskName } from '../../models-ts/beatmap/task';
+import { LogService, LogCategory } from '../../models/log';
+import { TaskName } from '../../models/beatmap/task';
 
 const adminUsersRouter = express.Router();
 

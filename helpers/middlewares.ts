@@ -1,4 +1,4 @@
-import { UserService, UserGroup } from '../models-ts/user';
+import { UserService, UserGroup } from '../models/user';
 import { refreshToken, isOsuReponseError, getUserInfo } from './osuApi';
 
 export async function isLoggedIn(req, res, next): Promise<void> {

@@ -62,9 +62,9 @@
       "resolveJsonModule": true
     },
     "include": [
-      "models-ts/**/*",
-      "routes-ts/**/*",
-      "helpers/**/*.ts"
+      "models/**/*",
+      "routes/**/*",
+      "helpers/**/*"
     ],
     "files": [
       "./app.ts"

@@ -1,7 +1,7 @@
 import express from 'express';
-import { BeatmapService, BeatmapStatus } from '../../models-ts/beatmap/beatmap';
+import { BeatmapService, BeatmapStatus } from '../../models/beatmap/beatmap';
 import { defaultErrorMessage } from '../../helpers/helpers';
-import { UserService } from '../../models-ts/user';
+import { UserService } from '../../models/user';
 
 const inviteError = 'Invite not sent: ';
 

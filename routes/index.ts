@@ -2,11 +2,11 @@
 import express from 'express';
 import config from '../config.json';
 import crypto from 'crypto';
-import { UserService } from '../models-ts/user';
-import { LogService, LogCategory } from '../models-ts/log';
+import { UserService } from '../models/user';
+import { LogService, LogCategory } from '../models/log';
 import { isLoggedIn } from '../helpers/middlewares';
 import { getToken, getUserInfo, isOsuReponseError } from '../helpers/osuApi';
-import { UserGroup } from '../models-ts/user';
+import { UserGroup } from '../models/user';
 import { webhookPost } from '../helpers/discordApi';
 
 const indexRouter = express.Router();

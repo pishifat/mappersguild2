@@ -1,5 +1,5 @@
 import express from 'express';
-import { UserService } from '../models-ts/user';
+import { UserService } from '../models/user';
 
 const faqRouter = express.Router();
 

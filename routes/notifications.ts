@@ -1,14 +1,14 @@
 import express from 'express';
 import { isLoggedIn, isUser, isNotSpectator } from '../helpers/middlewares';
-import { PartyService } from '../models-ts/party';
+import { PartyService } from '../models/party';
 import { defaultErrorMessage, canFail, BasicResponse } from '../helpers/helpers';
-import { BeatmapMode, BeatmapService, Beatmap } from '../models-ts/beatmap/beatmap';
-import { QuestService } from '../models-ts/quest';
-import { TaskService, TaskName, TaskMode } from '../models-ts/beatmap/task';
-import { User } from '../models-ts/user';
-import { Invite, InviteService } from '../models-ts/invite';
-import { NotificationService } from '../models-ts/notification';
-import { LogService, LogCategory } from '../models-ts/log';
+import { BeatmapMode, BeatmapService, Beatmap } from '../models/beatmap/beatmap';
+import { QuestService } from '../models/quest';
+import { TaskService, TaskName, TaskMode } from '../models/beatmap/task';
+import { User } from '../models/user';
+import { Invite, InviteService } from '../models/invite';
+import { NotificationService } from '../models/notification';
+import { LogService, LogCategory } from '../models/log';
 
 const notificationsRouter = express.Router();
 
@@ -67,7 +67,7 @@ async function addTaskChecks(userId: User['_id'], b: Beatmap, invite: Invite): P
     }
 
     if (b.quest && invite.taskName != TaskName.Storyboard) {
-        const q = await QuestService.queryById(b.quest, { defaultPopulate: true });
+        const q = await QuestService.queryById(b.quest as any, { defaultPopulate: true });
         let valid = false;
 
         if (!q || QuestService.isError(q)) {

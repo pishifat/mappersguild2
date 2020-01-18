@@ -1,13 +1,13 @@
 import express from 'express';
 import { isLoggedIn, isNotSpectator } from '../helpers/middlewares';
-import { PartyService, Party } from '../models-ts/party';
+import { PartyService, Party } from '../models/party';
 import { defaultErrorMessage, BasicError, canFail, BasicResponse } from '../helpers/helpers';
-import { BeatmapMode, BeatmapService } from '../models-ts/beatmap/beatmap';
-import { QuestService, Quest, QuestStatus } from '../models-ts/quest';
-import { LogService, LogCategory } from '../models-ts/log';
+import { BeatmapMode, BeatmapService } from '../models/beatmap/beatmap';
+import { QuestService, Quest, QuestStatus } from '../models/quest';
+import { LogService, LogCategory } from '../models/log';
 import { webhookPost } from '../helpers/discordApi';
-import { UserService, User } from '../models-ts/user';
-import { InviteService, ActionType } from '../models-ts/invite';
+import { UserService, User } from '../models/user';
+import { InviteService, ActionType } from '../models/invite';
 
 const questsRouter = express.Router();
 

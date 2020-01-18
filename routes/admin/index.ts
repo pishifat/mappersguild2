@@ -1,9 +1,9 @@
 import express from 'express';
 import { isLoggedIn, isAdmin } from '../../helpers/middlewares';
-import { QuestService, Quest } from '../../models-ts/quest';
-import { UserService, User } from '../../models-ts/user';
-import { BeatmapService, Beatmap, BeatmapStatus } from '../../models-ts/beatmap/beatmap';
-import { LogService } from '../../models-ts/log';
+import { QuestService, Quest } from '../../models/quest';
+import { UserService, User } from '../../models/user';
+import { BeatmapService, Beatmap, BeatmapStatus } from '../../models/beatmap/beatmap';
+import { LogService } from '../../models/log';
 
 const adminRouter = express.Router();
 

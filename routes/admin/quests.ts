@@ -1,11 +1,11 @@
 import express from 'express';
 import { isLoggedIn, isAdmin, isSuperAdmin } from '../../helpers/middlewares';
-import { QuestService, QuestStatus, Quest } from '../../models-ts/quest';
-import { LogService, LogCategory } from '../../models-ts/log';
+import { QuestService, QuestStatus, Quest } from '../../models/quest';
+import { LogService, LogCategory } from '../../models/log';
 import { webhookPost } from '../../helpers/discordApi';
-import { UserService } from '../../models-ts/user';
-import { BeatmapService } from '../../models-ts/beatmap/beatmap';
-import { PartyService } from '../../models-ts/party';
+import { UserService } from '../../models/user';
+import { BeatmapService } from '../../models/beatmap/beatmap';
+import { PartyService } from '../../models/party';
 import { canFail } from '../../helpers/helpers';
 
 const adminQuestsRouter = express.Router();

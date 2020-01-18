@@ -1,6 +1,6 @@
 import express from 'express';
 import { isAdmin, isLoggedIn } from '../helpers/middlewares';
-import { FeaturedArtistService } from '../models-ts/featuredArtist';
+import { FeaturedArtistService } from '../models/featuredArtist';
 
 const artistsRouter = express.Router();
 

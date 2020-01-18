@@ -1,14 +1,14 @@
 import express from 'express';
-import { BeatmapService, Beatmap, BeatmapMode, BeatmapStatus } from '../../models-ts/beatmap/beatmap';
-import { TaskService, TaskName } from '../../models-ts/beatmap/task';
-import { User, UserService } from '../../models-ts/user';
+import { BeatmapService, Beatmap, BeatmapMode, BeatmapStatus } from '../../models/beatmap/beatmap';
+import { TaskService, TaskName } from '../../models/beatmap/task';
+import { User, UserService } from '../../models/user';
 import { isLoggedIn, isNotSpectator } from '../../helpers/middlewares';
 import { defaultErrorMessage, BasicResponse } from '../../helpers/helpers';
 import { isValidBeatmap, isValidUser, isBeatmapHost } from './middlewares';
-import { QuestService } from '../../models-ts/quest';
-import { InviteService, ActionType } from '../../models-ts/invite';
-import { NotificationService } from '../../models-ts/notification';
-import { LogService, LogCategory } from '../../models-ts/log';
+import { QuestService } from '../../models/quest';
+import { InviteService, ActionType } from '../../models/invite';
+import { NotificationService } from '../../models/notification';
+import { LogService, LogCategory } from '../../models/log';
 
 const tasksRouter = express.Router();
 
