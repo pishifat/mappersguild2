@@ -37,7 +37,7 @@ export default class BaseService<T extends Document> {
         return this.executeQueryOrThrow(query, message);
     }
 
-    queryById(id: T['_id'], queryData: Omit<QueryData, 'query'> = {}): Promise<T | null | BasicError> {
+    queryById(id: string, queryData: Omit<QueryData, 'query'> = {}): Promise<T | null | BasicError> {
         let query = this.model.findById(id);
 
         query = this.generateQuery(queryData, query);
@@ -46,7 +46,7 @@ export default class BaseService<T extends Document> {
     }
 
     /** Will throw if result is null, basically will return "{ error: /message/ }" */
-    queryByIdOrFail(id: T['_id'], queryData: Omit<QueryData, 'query'> = {}, message?: string): Promise<Extract<T | T[], T>> { // return type is dumb, help
+    queryByIdOrFail(id: string, queryData: Omit<QueryData, 'query'> = {}, message?: string): Promise<Extract<T | T[], T>> { // return type is dumb, help
         let query = this.model.findById(id);
 
         query = this.generateQuery(queryData, query);

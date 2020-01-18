@@ -15,6 +15,7 @@ interface OsuBeatmapResponse {
     beatmapset_id: number;
     creator_id: number;
     title: string;
+    hit_length: number;
     total_length: number;
     /** 0 = osu!, 1 = Taiko, 2 = CtB, 3 = osu!mania */
     mode: number;
@@ -32,7 +33,7 @@ interface OsuAuthResponse {
     ranked_and_approved_beatmapset_count: number;
 }
 
-export function isOsuReponseError(basicError: OsuAuthResponse | BasicError): basicError is BasicError {
+export function isOsuReponseError(basicError: OsuBeatmapResponse | OsuAuthResponse | BasicError): basicError is BasicError {
     return (basicError as BasicError).error !== undefined;
 }
 
@@ -69,10 +70,6 @@ export async function getToken(code: string): Promise<OsuAuthResponse | BasicErr
     };
 
     return await executeRequest(options);
-}
-
-export function isAuthError(basicError: OsuAuthResponse | BasicError): basicError is BasicError {
-    return (basicError as BasicError).error !== undefined;
 }
 
 export async function refreshToken(refreshToken: string): Promise<OsuAuthResponse | BasicError> {

@@ -12,7 +12,7 @@ interface DiscordWebhookMessage {
     color?: number;
     author?: {
         name: string;
-        icon_url: string;
+        icon_url?: string;
         url: string;
     };
     fields?: {

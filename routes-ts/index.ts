@@ -5,7 +5,7 @@ import crypto from 'crypto';
 import { UserService } from '../models-ts/user';
 import { LogService, LogCategory } from '../models-ts/log';
 import { isLoggedIn } from '../helpers/middlewares';
-import { getToken, isAuthError, getUserInfo } from '../helpers/osuApi';
+import { getToken, getUserInfo, isOsuReponseError } from '../helpers/osuApi';
 import { UserGroup } from '../models-ts/user';
 import { webhookPost } from '../helpers/discordApi';
 
@@ -131,7 +131,7 @@ indexRouter.get('/callback', async (req, res) => {
 
     let response = await getToken(req.query.code);
 
-    if (isAuthError(response)) {
+    if (isOsuReponseError(response)) {
         res.status(500).render('error', { message: response.error });
     } else {
         // *1000 because maxAge is miliseconds, oauth is seconds
@@ -141,7 +141,7 @@ indexRouter.get('/callback', async (req, res) => {
 
         response = await getUserInfo(req.session?.accessToken);
 
-        if (isAuthError(response)) {
+        if (isOsuReponseError(response)) {
             res.status(500).render('error');
         } else {
             req.session!.group = response.ranked_and_approved_beatmapset_count >= 3 ? 'user' : 'spectator';

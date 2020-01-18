@@ -35,6 +35,16 @@ class FeaturedSongService extends BaseService<FeaturedSong>
             return { error: error._message };
         }
     }
+
+    async createOrFail(artist: FeaturedSong['artist'], title: FeaturedSong['title']): Promise<FeaturedSong> {
+        const song = await this.create(artist, title);
+
+        if (this.isError(song)) {
+            throw new Error();
+        }
+
+        return song;
+    }
 }
 
 const service = new FeaturedSongService();

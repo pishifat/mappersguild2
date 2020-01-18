@@ -23,7 +23,7 @@ export interface Quest extends Document {
     color: string;
     status: QuestStatus;
     parties: Party[];
-    modes: Omit<BeatmapMode, BeatmapMode.Hybrid>;
+    modes: Omit<BeatmapMode, BeatmapMode.Hybrid>[];
     accepted: Date;
     deadline: Date;
     currentParty: Party;
@@ -31,7 +31,7 @@ export interface Quest extends Document {
     completedMembers: User[];
     /** virtual field to populate */
     associatedMaps: Beatmap[];
-    /** Get the days between today and passed date */
+    /** Get the days between today and accepted date */
     overLimit: boolean;
 }
 
