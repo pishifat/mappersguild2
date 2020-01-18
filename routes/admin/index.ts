@@ -1,9 +1,10 @@
 import express from 'express';
 import { isLoggedIn, isAdmin } from '../../helpers/middlewares';
-import { QuestService, Quest } from '../../models/quest';
+import { QuestService, Quest, QuestStatus } from '../../models/quest';
 import { UserService, User } from '../../models/user';
 import { BeatmapService, Beatmap, BeatmapStatus } from '../../models/beatmap/beatmap';
 import { LogService } from '../../models/log';
+import { beatmapsetInfo, isOsuReponseError } from '../../helpers/osuApi';
 
 const adminRouter = express.Router();
 
@@ -34,7 +35,7 @@ adminRouter.get('/relevantInfo/', async (req, res) => {
 
             if ((bm.status == BeatmapStatus.Done || bm.status == 'Qualified') && bm.url) {
                 if (bm.url.indexOf('osu.ppy.sh/beatmapsets/') == -1) {
-                    bm.status = `${bm.status} (invalid link)`;
+                    (bm.status as string) = `${bm.status} (invalid link)`;
                     actionBeatmaps.push(bm);
                 } else {
                     const indexStart = bm.url.indexOf('beatmapsets/') + 'beatmapsets/'.length;
@@ -50,18 +51,18 @@ adminRouter.get('/relevantInfo/', async (req, res) => {
                     const bmInfo = await beatmapsetInfo(bmId);
                     let status = '';
 
-                    if (bmInfo) {
+                    if (!isOsuReponseError(bmInfo)) {
                         switch (bmInfo.approved) {
-                            case '4':
+                            case 4:
                                 status = 'Loved';
                                 break;
-                            case '3':
+                            case 3:
                                 status = 'Qualified';
                                 break;
-                            case '2':
+                            case 2:
                                 status = 'Approved';
                                 break;
-                            case '1':
+                            case 1:
                                 status = BeatmapStatus.Ranked;
                                 break;
                             default:
@@ -74,7 +75,7 @@ adminRouter.get('/relevantInfo/', async (req, res) => {
                         if (status == 'Qualified') {
                             await BeatmapService.update(bm.id, { status: 'Qualified' });
                         } else {
-                            bm.status = `${bm.status} (osu: ${status})`;
+                            (bm.status as string) = `${bm.status} (osu: ${status})`;
                             actionBeatmaps.push(bm);
                         }
 
@@ -86,7 +87,7 @@ adminRouter.get('/relevantInfo/', async (req, res) => {
     }
 
     const allQuests = await QuestService.queryAll({
-        query: { status: 'wip' },
+        query: { status: QuestStatus.WIP },
         defaultPopulate: true,
     });
     const actionQuests: Quest[] = [];
@@ -107,7 +108,7 @@ adminRouter.get('/relevantInfo/', async (req, res) => {
             }
 
             if (valid) {
-                q.status = 'wip: all Ranked';
+                (q.status as string) = 'wip: all Ranked';
                 actionQuests.push(q);
             }
         }

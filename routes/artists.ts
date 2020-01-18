@@ -8,7 +8,7 @@ artistsRouter.use(isLoggedIn);
 artistsRouter.use(isAdmin);
 
 //population
-const { populate: defaultPopulate } = [
+const defaultPopulate = [
     { path: 'songs', select: 'artist title' },
     { path: 'assignedUser', select: 'username osuId' },
 ];
@@ -25,7 +25,7 @@ artistsRouter.get('/', (req, res) => {
 
 artistsRouter.get('/relevantInfo', async (req, res) => {
     const a = await FeaturedArtistService.queryAll({
-        populate: { populate: defaultPopulate },
+        populate: defaultPopulate,
         sort: { updatedAt: -1 },
     });
 

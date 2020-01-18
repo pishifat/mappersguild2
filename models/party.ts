@@ -9,7 +9,7 @@ export interface Party extends Document {
     members: User[];
     lock: boolean;
     rank: number;
-    modes: Omit<BeatmapMode, BeatmapMode.Hybrid>;
+    modes: Omit<BeatmapMode, BeatmapMode.Hybrid>[];
 }
 
 const partySchema = new Schema({
