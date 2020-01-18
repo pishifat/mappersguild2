@@ -18,6 +18,12 @@ import notificationsRouter from './routes-ts/notifications';
 import usersRouter from './routes-ts/users';
 import faqRouter from './routes-ts/faq';
 import logsRouter from './routes-ts/logs';
+import adminRouter from './routes-ts/admin/index';
+import adminUsersRouter from './routes-ts/admin/users';
+import adminBeatmapsRouter from './routes-ts/admin/beatmaps';
+import adminFeaturedArtistsRouter from './routes-ts/admin/featuredArtists';
+import adminQuestsRouter from './routes-ts/admin/quests';
+import artistsRouter from './routes-ts/artists';
 
 const app = express();
 const MongoStore = MongoStoreSession(session);
@@ -69,8 +75,12 @@ app.use('/beatmaps', tasksRouter);
 app.use('/users', usersRouter);
 app.use('/logs', logsRouter);
 app.use('/notifications', notificationsRouter);
-// app.use('/admin', adminRouter);
-// app.use('/artists', artistsRouter);
+app.use('/admin', adminRouter);
+app.use('/admin', adminUsersRouter);
+app.use('/admin', adminBeatmapsRouter);
+app.use('/admin', adminFeaturedArtistsRouter);
+app.use('/admin', adminQuestsRouter);
+app.use('/artists', artistsRouter);
 app.use('/quests', questsRouter);
 
 // catch 404
