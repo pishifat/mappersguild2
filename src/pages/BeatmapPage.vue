@@ -1,15 +1,15 @@
 <template>
-    <div>
+    <div v-cloak>
         <div class="container bg-container py-3 mb-2">
             <filter-box
-                :filterValue.sync="filterValue"
-                :filterMode.sync="filterMode"
-                :filterStatus.sync="filterStatus"
-                :filterQuest.sync="filterQuest"
+                :filter-value.sync="filterValue"
+                :filter-mode.sync="filterMode"
+                :filter-status.sync="filterStatus"
+                :filter-quest.sync="filterQuest"
                 :all-quests="allQuests"
                 placeholder="song/username..."
+                :is-loading.sync="isLoading"
                 @self-filter="selfFilter()"
-                :isLoading.sync="isLoading"
             >
                 <button
                     class="btn btn-outline-info"
@@ -18,15 +18,15 @@
                     data-target="#addBeatmap"
                     @click.prevent="openAddBeatmap()"
                 >
-                    Add beatmap <i class="fas fa-plus small"></i>
+                    Add beatmap <i class="fas fa-plus small" />
                 </button>
             </filter-box>
         </div>
 
         <div class="container bg-container py-3">
             <h5 class="ml-2">
-                <a href="#hostBeatmaps" data-toggle="collapse" >
-                    My mapsets ({{hostBeatmaps ? hostBeatmaps.length : '...'}})
+                <a href="#hostBeatmaps" data-toggle="collapse">
+                    My mapsets ({{ hostBeatmaps ? hostBeatmaps.length : '...' }})
                     <i class="fas fa-angle-down" />
                 </a>
                 <span v-if="isLoading && firstLoadingComplete" class="text-white-50" style="font-size: 9pt;">loading...</span>
@@ -39,18 +39,20 @@
                         :beatmap="beatmap"
                         :user-osu-id="userOsuId"
                         @update:selectedMap="selectedMap = $event"
-                    ></beatmap-card>
+                    />
                 </transition-group>
-                <p v-if="!hostBeatmaps.length" class="ml-5 text-white-50">None...</p>
+                <p v-if="!hostBeatmaps.length" class="ml-5 text-white-50">
+                    None...
+                </p>
             </div>
         </div>
 
-        <div class="radial-divisor mx-auto my-4"></div>
+        <div class="radial-divisor mx-auto my-4" />
 
         <div class="container bg-container py-3">
             <h5 class="ml-2">
-                <a href="#guestDifficultyBeatmaps" data-toggle="collapse" >
-                    My guest difficulties ({{guestDifficultyBeatmaps ? guestDifficultyBeatmaps.length : '...'}}) 
+                <a href="#guestDifficultyBeatmaps" data-toggle="collapse">
+                    My guest difficulties ({{ guestDifficultyBeatmaps ? guestDifficultyBeatmaps.length : '...' }})
                     <i class="fas fa-angle-down" />
                 </a>
                 <span v-if="isLoading" class="text-white-50" style="font-size: 9pt;">loading...</span>
@@ -63,34 +65,44 @@
                         :beatmap="beatmap"
                         :user-osu-id="userOsuId"
                         @update:selectedMap="selectedMap = $event"
-                    ></beatmap-card>
+                    />
                 </transition-group>
-                <p v-if="!guestDifficultyBeatmaps.length" class="ml-5 text-white-50">None...</p>
+                <p v-if="!guestDifficultyBeatmaps.length" class="ml-5 text-white-50">
+                    None...
+                </p>
             </div>
         </div>
 
-        <div class="radial-divisor mx-auto my-4"></div>
+        <div class="radial-divisor mx-auto my-4" />
 
         <div class="container bg-container py-3">
             <h5 class="ml-2">
-                <a href="#otherBeatmaps" data-toggle="collapse" >
-                    Other beatmaps ({{otherBeatmaps ? otherBeatmaps.length : '...'}})
+                <a href="#otherBeatmaps" data-toggle="collapse">
+                    Other beatmaps ({{ otherBeatmaps ? otherBeatmaps.length : '...' }})
                     <i class="fas fa-angle-down" />
                 </a>
                 <span v-if="isLoading" class="text-white-50" style="font-size: 9pt;">loading...</span>
             </h5>
             <div v-if="otherBeatmaps" id="otherBeatmaps" class="collapse">
-                <p v-if="!otherBeatmaps.length" class="ml-5 text-white-50">None...</p>
+                <p v-if="!otherBeatmaps.length" class="ml-5 text-white-50">
+                    None...
+                </p>
                 <beatmap-table-row
                     v-for="beatmap in otherBeatmaps"
                     :key="beatmap.id"
                     :beatmap="beatmap"
                     :user-osu-id="userOsuId"
                     @update:beatmap="updateBeatmap($event)"
-                ></beatmap-table-row>
+                />
                 <div class="text-center">
-                    <button class="btn btn-sm btn-outline-info my-4" @click.prevent="showMore($event)" data-toggle="tooltip" data-placement="top" title="toggle visibility of less active beatmaps">
-                        <i class="fas fa-angle-down mr-1"></i> show older beatmaps <i class="fas fa-angle-down ml-1"></i>
+                    <button
+                        class="btn btn-sm btn-outline-info my-4"
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        title="toggle visibility of less active beatmaps"
+                        @click.prevent="showMore($event)"
+                    >
+                        <i class="fas fa-angle-down mr-1" /> show older beatmaps <i class="fas fa-angle-down ml-1" />
                     </button>
                 </div>
             </div>
@@ -99,7 +111,7 @@
         <!-- beatmap info modal -->
         <div id="editBeatmap" class="modal fade" tabindex="-1">
             <div class="modal-dialog modal-lg">
-                <div class="modal-content bg-dark" v-if="selectedMap">
+                <div v-if="selectedMap" class="modal-content bg-dark">
                     <div class="modal-header text-dark" :class="'bg-' + selectedMap.status.toLowerCase()">
                         <h5 class="modal-title d-flex align-items-center">
                             <img
@@ -113,7 +125,7 @@
 
                             <span v-if="selectedMap.url">
                                 <a :href="selectedMap.url" class="text-dark" target="_blank">
-                                    <i class="fas fa-link"></i> 
+                                    <i class="fas fa-link" />
                                     {{ selectedMap.song.artist }} - {{ selectedMap.song.title }}
                                 </a>
                             </span>
@@ -123,10 +135,34 @@
 
                             <a :href="'https://osu.ppy.sh/users/' + selectedMap.host.osuId" class="text-dark mx-1" target="_blank">({{ selectedMap.host.username }})</a>
 
-                            <i v-if="selectedMap.mode == 'taiko'" class="fas fa-drum" data-toggle="tooltip" data-placement="top" title="osu!taiko"></i>
-                            <i v-else-if="selectedMap.mode == 'catch'" class="fas fa-apple-alt" data-toggle="tooltip" data-placement="top" title="osu!catch"></i>
-                            <i v-else-if="selectedMap.mode == 'mania'" class="fas fa-stream" data-toggle="tooltip" data-placement="top" title="osu!mania"></i>
-                            <i v-else-if="selectedMap.mode == 'hybrid'" class="fas fa-check-double" data-toggle="tooltip" data-placement="top" title="multiple game modes"></i>
+                            <i
+                                v-if="selectedMap.mode == 'taiko'"
+                                class="fas fa-drum"
+                                data-toggle="tooltip"
+                                data-placement="top"
+                                title="osu!taiko"
+                            />
+                            <i
+                                v-else-if="selectedMap.mode == 'catch'"
+                                class="fas fa-apple-alt"
+                                data-toggle="tooltip"
+                                data-placement="top"
+                                title="osu!catch"
+                            />
+                            <i
+                                v-else-if="selectedMap.mode == 'mania'"
+                                class="fas fa-stream"
+                                data-toggle="tooltip"
+                                data-placement="top"
+                                title="osu!mania"
+                            />
+                            <i
+                                v-else-if="selectedMap.mode == 'hybrid'"
+                                class="fas fa-check-double"
+                                data-toggle="tooltip"
+                                data-placement="top"
+                                title="multiple game modes"
+                            />
                         </h5>
                         <button type="button" class="close" data-dismiss="modal">
                             <span>&times;</span>
@@ -138,34 +174,40 @@
                             :beatmap="selectedMap"
                             :user-osu-id="userOsuId"
                             @update:beatmap="updateBeatmap($event)"
-                        >
-                        </beatmap-info>
+                        />
                     </div>
                 </div>
             </div>
         </div>
-        
+
         <!-- create beatmap modal -->
         <create-beatmap
             :featured-artists="featuredArtists"
             :featured-songs="featuredSongs"
             :info="info"
-        ></create-beatmap>
+        />
 
-        <notifications-access v-if="usergroup != 'spectator'"></notifications-access>
+        <notifications-access v-if="usergroup != 'spectator'" />
     </div>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue';
+import Axios from 'axios';
+import $ from 'jquery';
+import { Beatmap } from '../models/beatmap';
 import CreateBeatmap from '../components/beatmaps/CreateBeatmap.vue';
 import BeatmapCard from '../components/beatmaps/BeatmapCard.vue';
 import BeatmapTableRow from '../components/beatmaps/BeatmapTableRow.vue';
 import BeatmapInfo from '../components/beatmaps/beatmapInfo/BeatmapInfo.vue';
 import FilterBox from '../components/FilterBox.vue';
 import NotificationsAccess from '../components/NotificationsAccess.vue';
+import { User, UserGroup } from '../models/user';
+import { FeaturedSong } from '../models/featuredSong';
+import { Quest } from '../models/quest';
 
-export default {
-    name: 'beatmap-page',
+export default Vue.extend({
+    name: 'BeatmapPage',
     components: {
         CreateBeatmap,
         BeatmapCard,
@@ -174,102 +216,142 @@ export default {
         FilterBox,
         NotificationsAccess,
     },
-    watch: {
-        filterValue: function(v) {
-            this.filter();
-        },
-        filterMode: function(v) {
-            this.loadBeatmaps();
-        },
-        filterStatus: function(v) {
-            this.filter();
-        },
-        filterQuest: function(v) {
-            this.filter();
-        },
+    data() {
+        return {
+            allObjs: [] as Beatmap[],
+            pageObjs: [] as Beatmap[],
+            hostBeatmaps: null as null | Beatmap[],
+            guestDifficultyBeatmaps: null as null | Beatmap[],
+            otherBeatmaps: null as null | Beatmap[],
+            selectedMap: null as null | Beatmap,
+            userOsuId: null as null | User['osuId'],
+            username: '',
+            usergroup: null as null | UserGroup,
+            featuredArtists: null,
+            featuredSongs: null as null | FeaturedSong,
+            info: null as null | string,
+            isLoading: false,
+            firstLoadingComplete: false,
+            filterValue: '',
+            filterMode: '',
+            filterStatus: '',
+            filterQuest: '',
+            isFiltered: false,
+            daysCount: 30,
+            allQuests: [] as Quest[],
+            userMongoId: null as null | User['id'],
+        };
     },
     computed: {
-        displayDate: function() {
-            let date = new Date;
+        displayDate(): string {
+            const date = new Date;
             date.setDate(date.getDate() - this.daysCount);
+
             return date.toISOString().slice(0,10);
-        }
+        },
+    },
+    watch: {
+        filterValue(): void {
+            this.filter();
+        },
+        filterMode(): void {
+            this.loadBeatmaps();
+        },
+        filterStatus(): void {
+            this.filter();
+        },
+        filterQuest(): void {
+            this.filter();
+        },
+    },
+    created() {
+        Axios
+            .get('/beatmaps/relevantInfo')
+            .then(response => {
+                this.allObjs = response.data.beatmaps;
+                this.pageObjs = response.data.beatmaps;
+                this.userOsuId = response.data.userOsuId;
+                this.userMongoId = response.data.userMongoId;
+                this.username = response.data.username;
+                this.usergroup = response.data.group;
+                this.filterMode = response.data.mainMode;
+                this.separateObjs();
+            })
+            .then(() => {
+                $('#loading').fadeOut();
+                $('#app')
+                    .attr('style', 'visibility: visible')
+                    .hide()
+                    .fadeIn();
+            });
     },
     methods: {
-        openAddBeatmap: function() {
+        openAddBeatmap (): void {
             this.info = null;
             this.featuredSongs = null;
             $('input[type=checkbox]').each(function() {
-                this.checked = false;
+                (this as any).checked = false;
             });
+
             if (!this.featuredArtists) {
-                axios.get('/beatmaps/artists').then(response => {
+                Axios.get('/beatmaps/artists').then(response => {
                     this.featuredArtists = response.data.sort((a, b) => {
                         if (a.label.toLowerCase() > b.label.toLowerCase()) {
                             return 1;
                         } else if (b.label.toLowerCase() > a.label.toLowerCase()) {
                             return -1;
                         }
+
                         return 0;
                     });
                 });
             }
         },
-        loadBeatmaps: async function(e) {
+        async loadBeatmaps(e?): Promise<void> {
             if (e) e.target.disabled = true;
             let mode = this.filterMode;
             this.isLoading = true;
-            if(!this.filterMode.length) mode = 'any';
-            axios
-                .get('/beatmaps/loadBeatmaps/' + mode + '/' + this.daysCount)
-                .then(response => {
-                    this.allObjs = response.data.statusBeatmaps.concat(response.data.guestDifficultyBeatmaps);
-                    this.pageObjs = this.allObjs;
-                    this.filter();
-                    this.isLoading = false;
-                    this.firstLoadingComplete = true;
-                    if (e) e.target.disabled = false;
-            })
+            if (!this.filterMode.length) mode = 'any';
+            const response = await Axios.get('/beatmaps/loadBeatmaps/' + mode + '/' + this.daysCount);
+            this.allObjs = response.data.statusBeatmaps.concat(response.data.guestDifficultyBeatmaps);
+            this.pageObjs = this.allObjs;
+            this.filter();
+            this.isLoading = false;
+            this.firstLoadingComplete = true;
+            if (e) e.target.disabled = false;
         },
-        separateObjs: function() {
+        separateObjs(): void {
             this.hostBeatmaps = [];
             this.guestDifficultyBeatmaps = [];
             this.otherBeatmaps = [];
             this.pageObjs.forEach(beatmap => {
-                if(beatmap.host.id == this.userMongoId){
-                    this.hostBeatmaps.push(beatmap);
-                }else if(beatmap.mappers.includes(this.userMongoId)){
-                    this.guestDifficultyBeatmaps.push(beatmap);
-                }else{
-                    this.otherBeatmaps.push(beatmap);
+                if (beatmap.host.id == this.userMongoId) {
+                    this.hostBeatmaps?.push(beatmap);
+                } else if ((beatmap.mappers as User['id'][]).includes(this.userMongoId as User['id'])) {
+                    this.guestDifficultyBeatmaps?.push(beatmap);
+                } else {
+                    this.otherBeatmaps?.push(beatmap);
                 }
             });
-            /*let duplicate;
-            this.pageObjs.forEach(b => {
-                if (b.quest && b.quest.name != duplicate) {
-                    duplicate = b.quest.name;
-                    this.allQuests.push({ id: b.quest.id, name: b.quest.name, art: b.quest.art });
-                }
-            });*/
         },
-        updateBeatmap: function(bm) {
+        updateBeatmap(bm): void {
             const i = this.allObjs.findIndex(b => b.id == bm.id);
             this.allObjs[i] = bm;
             this.selectedMap = bm;
             this.info = null;
             this.filter();
         },
-        selfFilter: function() {
+        selfFilter(): void {
             this.filterValue = this.username;
             this.filter();
         },
-        showMore: async function(e) {
+        async showMore(e): Promise<void> {
             this.daysCount += 30;
             await this.loadBeatmaps(e);
         },
 
         // filters
-        filter: function() {
+        filter(): void {
             this.pageObjs = this.allObjs;
 
             //search
@@ -283,7 +365,7 @@ export default {
                     });
                     valid = valid.toLowerCase();
 
-                    let tags = this.filterValue
+                    const tags = this.filterValue
                         .toLowerCase()
                         .trim()
                         .split(' ');
@@ -297,6 +379,7 @@ export default {
                     if (count == tags.length) {
                         return true;
                     }
+
                     return false;
                 });
             }
@@ -314,8 +397,10 @@ export default {
                                     value = true;
                                 }
                             });
+
                             return value;
                         }
+
                         return false;
                     });
                 } else {
@@ -329,8 +414,10 @@ export default {
                                     value = true;
                                 }
                             });
+
                             return value;
                         }
+
                         return false;
                     });
                 }
@@ -343,6 +430,7 @@ export default {
                         if (b.status == this.filterStatus) {
                             return true;
                         }
+
                         return false;
                     });
                 } else {
@@ -350,6 +438,7 @@ export default {
                         if (b.status == this.filterStatus) {
                             return true;
                         }
+
                         return false;
                     });
                 }
@@ -364,6 +453,7 @@ export default {
                         } else if (b.quest && b.quest.id == this.filterQuest) {
                             return true;
                         }
+
                         return false;
                     });
                 } else {
@@ -373,6 +463,7 @@ export default {
                         } else if (b.quest && b.quest.id == this.filterQuest) {
                             return true;
                         }
+
                         return false;
                     });
                 }
@@ -380,59 +471,13 @@ export default {
 
             this.isFiltered =
                 this.filterValue.length > 2 ||
-                this.filterMode.length ||
-                this.filterStatus.length ||
-                this.filterQuest.length;
+                this.filterMode.length > 0 ||
+                this.filterStatus.length > 0 ||
+                this.filterQuest.length > 0;
             this.separateObjs();
         },
     },
-    data() {
-        return {
-            allObjs: null,
-            pageObjs: null,
-            hostBeatmaps: null,
-            guestDifficultyBeatmaps: null,
-            otherBeatmaps: null,
-            selectedMap: null,
-            userOsuId: null,
-            username: null,
-            usergroup: null,
-            featuredArtists: null,
-            featuredSongs: null,
-            info: null,
-            isLoading: false,
-            firstLoadingComplete: false,
-            filterValue: '',
-            filterMode: '',
-            filterStatus: '',
-            filterQuest: '',
-            isFiltered: false,
-            daysCount: 30,
-            allQuests: [],
-        };
-    },
-    created() {
-        axios
-            .get('/beatmaps/relevantInfo')
-            .then(response => {
-                this.allObjs = response.data.beatmaps;
-                this.pageObjs = response.data.beatmaps;
-                this.userOsuId = response.data.userOsuId;
-                this.userMongoId = response.data.userMongoId;
-                this.username = response.data.username;
-                this.usergroup = response.data.group;
-                this.filterMode = response.data.mainMode;
-                this.separateObjs();
-            })
-            .then(function() {
-                $('#loading').fadeOut();
-                $('#app')
-                    .attr('style', 'visibility: visible')
-                    .hide()
-                    .fadeIn();
-            });
-    },
-};
+});
 </script>
 
 <style>

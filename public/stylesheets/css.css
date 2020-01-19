@@ -529,3 +529,7 @@ a:active {
 .rounded-100 {
     border-radius: 100%!important;
 }
+
+[v-cloak] * {
+    display: none;
+}

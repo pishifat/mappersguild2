@@ -248,7 +248,7 @@ questsRouter.post('/inviteToParty/:partyId/:questId', isNotSpectator, canFail(as
         `wants you to join their party`,
         ActionType.Join,
         req.params.partyId,
-        req.params.questId,
+        req.params.questId
     );
 }));
 

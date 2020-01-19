@@ -64,7 +64,8 @@
     "include": [
       "models/**/*",
       "routes/**/*",
-      "helpers/**/*"
+      "helpers/**/*",
+      "src/**/*"
     ],
     "files": [
       "./app.ts"

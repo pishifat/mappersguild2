@@ -1,14 +1,15 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const path = require('path');
 
 module.exports = {
     entry: {
-        maps: './src/maps.js',
-        users: './src/users.js',
-        notifications: './src/notifications.js',
-        admin: './src/admin.js',
-        artists: './src/artists.js',
-        quests: './src/quests.js',
+        maps: './src/maps.ts',
+        // users: './src/users.js',
+        // notifications: './src/notifications.js',
+        // admin: './src/admin.js',
+        // artists: './src/artists.js',
+        // quests: './src/quests.js',
     },
     output: {
         filename: '[name].js',
@@ -16,6 +17,7 @@ module.exports = {
         publicPath: '/',
     },
     mode: 'development',
+    devtool: '#eval-source-map',
     module: {
         rules: [
             {
@@ -24,9 +26,12 @@ module.exports = {
                 loader: 'vue-loader',
             },
             {
-                test: /\.js$/,
+                test: /\.tsx?$/,
+                loader: 'ts-loader',
                 exclude: /node_modules/,
-                loader: 'babel-loader',
+                options: {
+                    appendTsSuffixTo: [/\.vue$/],
+                },
             },
             {
                 test: /\.(png|svg|jpg|gif)$/,
@@ -53,9 +58,13 @@ module.exports = {
     },
     devServer: {
         publicPath: '/javascripts/',
+        stats: 'minimal',
         port: 8080,
         proxy: {
             '/': 'http://localhost:3000',
         },
+    },
+    externals: {
+        jquery: 'jQuery',
     },
 };

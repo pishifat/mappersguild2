@@ -5,7 +5,11 @@ module.exports = {
         jquery: true,
     },
     root: true,
-    parser: '@typescript-eslint/parser',
+    parser: 'vue-eslint-parser',
+    parserOptions: {
+        parser: '@typescript-eslint/parser',
+        sourceType: 'module'
+    },
     plugins: [
         '@typescript-eslint',
         // 'vue',
@@ -14,7 +18,7 @@ module.exports = {
         'eslint:recommended',
         'plugin:@typescript-eslint/eslint-recommended',
         'plugin:@typescript-eslint/recommended',
-        // 'plugin:vue/recommended',
+        'plugin:vue/recommended',
     ],
     rules: {
         indent: [
@@ -41,8 +45,14 @@ module.exports = {
         ],
         'no-var': 'error',
         'comma-dangle': [
-            'error',
-            'always-multiline'
+            'error', {
+                arrays: 'always-multiline',
+                objects: 'always-multiline',
+                imports: 'always-multiline',
+                exports: 'always-multiline',
+                functions: 'always-multiline',
+                functions: 'never',
+            },
         ],
         'require-atomic-updates': 'off',
         'object-curly-spacing': [
@@ -68,14 +78,14 @@ module.exports = {
         '@typescript-eslint/camelcase': [
             'error', 
             { properties: 'never' }
-        ]
-        // 'vue/html-indent': [
-        //     error, 
-        //     4
-        // ],
-        // 'vue/max-attributes-per-line': [error, {
-        //     singleline: 4,
-        //     multiline: 1
-        // }]
+        ],
+        'vue/html-indent': [
+            'error', 
+            4
+        ],
+        'vue/max-attributes-per-line': ['error', {
+            singleline: 4,
+            multiline: 1
+        }]
     }
 };
