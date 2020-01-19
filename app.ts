@@ -49,12 +49,14 @@ app.use(bodyParser.json());
 mongoose.connect(config.connection, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
+    useFindAndModify: false,
+    useCreateIndex: true,
 });
 const db = mongoose.connection;
 
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
-    require('./models-ts/featuredSong'); // mongoose isn't detecting it for some reason otherwise
+    require('./models/featuredSong'); // mongoose isn't detecting it for some reason otherwise
     console.log('connected');
 });
 

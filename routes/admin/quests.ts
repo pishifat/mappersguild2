@@ -189,7 +189,7 @@ adminQuestsRouter.post('/resetQuestDeadline/:id', isSuperAdmin, canFail(async (r
     date.setDate(date.getDate() + 7);
 
     await QuestService.updateOrFail(req.params.id, { deadline: date });
-    const quest = await QuestService.queryByIdOrFail(req.params.id);
+    const quest = await QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
 
     res.json(quest);
 }));

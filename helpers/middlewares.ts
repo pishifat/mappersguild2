@@ -38,7 +38,7 @@ export function isAdmin(req, res, next): void {
 }
 
 export function isSuperAdmin(req, res, next): void {
-    if (res.locals.userRequest.osuId == 3178418) {
+    if (res.locals.userRequest.osuId == 3178418 || res.locals.userRequest.osuId == 1052994) {
         next();
     } else {
         res.redirect('/');
