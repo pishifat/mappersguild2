@@ -376,9 +376,9 @@ questsRouter.post('/acceptQuest/:partyId/:questId', isNotSpectator, canFail(asyn
             art: q.art,
             color: q.color,
             modes: p.modes,
-            accepted: new Date().getTime(),
+            accepted: new Date(),
             status: QuestStatus.WIP,
-            deadline: new Date().getTime() + q.timeframe,
+            deadline: new Date(new Date().getTime() + q.timeframe),
             currentParty: p._id,
         });
 
