@@ -4,7 +4,7 @@ const path = require('path');
 
 module.exports = {
     entry: {
-        maps: './src/maps.ts',
+        maps: './src/beatmaps.ts',
         // users: './src/users.js',
         // notifications: './src/notifications.js',
         // admin: './src/admin.js',
@@ -52,8 +52,13 @@ module.exports = {
         new VueLoaderPlugin(),
     ],
     resolve: {
+        extensions: ['.ts', '.js', '.json'],
         alias: {
-            vue: 'vue/dist/vue.js',
+            vue$: 'vue/dist/vue.esm.js',
+            '@src': path.resolve(__dirname, 'src/'),
+            '@srcModels': path.resolve(__dirname, 'src/models/'),
+            '@components': path.resolve(__dirname, 'src/components/'),
+            '@pages/*': path.resolve(__dirname, 'src/pages/'),
         },
     },
     devServer: {

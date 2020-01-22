@@ -69,11 +69,13 @@ BeatmapSchema.virtual('mappers').get(function(this: Beatmap) {
     const mappers: User[] = [];
 
     this.tasks.forEach(task => {
-        task.mappers.forEach(mapper => {
-            if (!mappers.includes(mapper.id)) {
-                mappers.push(mapper.id);
-            }
-        });
+        if (task?.mappers) {
+            task.mappers.forEach(mapper => {
+                if (!mappers.includes(mapper.id)) {
+                    mappers.push(mapper.id);
+                }
+            });
+        }
     });
 
     return mappers;

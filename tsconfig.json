@@ -59,7 +59,15 @@
       /* Experimental Options */
       "experimentalDecorators": true,        /* Enables experimental support for ES7 decorators. */
       "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
-      "resolveJsonModule": true
+      "resolveJsonModule": true,
+      "baseUrl": ".",
+      "paths": {
+        "@appModels/*": ["models/*"],
+        "@src/*": ["src/*"],
+        "@srcModels/*": ["src/models/*"],
+        "@components/*": ["src/components/*"],
+        "@pages/*": ["src/pages/*"],
+      }
     },
     "include": [
       "models/**/*",

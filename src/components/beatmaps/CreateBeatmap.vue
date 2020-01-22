@@ -1,220 +1,248 @@
 <template>
-<div id="addBeatmap" class="modal fade" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content bg-dark">
-            <div class="modal-header bg-done">
-                <h5 class="modal-title text-dark">Add Beatmap</h5>
-                <button type="button" class="close" data-dismiss="modal">
-                <span>&times;</span>
-                </button>
-            </div>
-            <div class="modal-body" style="overflow: hidden">
-                <img src="../../images/the_A.png" class="the-a-background">
-                <div class="container">
-                    <div class="form-group row">
-                        <div class="col-lg-1">
-                            <p class="text-shadow" style="margin-top: 3px;">Artist:</p>
-                        </div>
-                        <div class="col-lg-11">
-                            <div class="input-group input-group-sm mb-3" id="artistForm">
-                                <select class="form-control" id="artistSelection">
-                                    <option v-if="!featuredArtists">*namirin</option>
-                                    <option v-else v-for="featuredArtist in featuredArtists" :value="featuredArtist.id" :key="featuredArtist.id">{{featuredArtist.label}}</option>
-                                </select>
-                                <div class="input-group-append">
-                                    <button class="btn btn-outline-info" id="artistButton" @click="setArtist($event);">Load songs</button>
+    <div id="addBeatmap" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content bg-dark">
+                <div class="modal-header bg-done">
+                    <h5 class="modal-title text-dark">
+                        Add Beatmap
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="overflow: hidden">
+                    <img src="../../images/the_A.png" class="the-a-background">
+                    <div class="container">
+                        <div class="form-group row">
+                            <div class="col-lg-1">
+                                <p class="text-shadow" style="margin-top: 3px;">
+                                    Artist:
+                                </p>
+                            </div>
+                            <div class="col-lg-11">
+                                <div id="artistForm" class="input-group input-group-sm mb-3">
+                                    <select
+                                        v-model="selectedArtist"
+                                        class="form-control"
+                                    >
+                                        <option v-if="!featuredArtists" value="''">
+                                            *namirin
+                                        </option>
+                                        <option
+                                            v-for="featuredArtist in featuredArtists"
+                                            v-else
+                                            :key="featuredArtist.id"
+                                            :value="featuredArtist.id"
+                                        >
+                                            {{ featuredArtist.label }}
+                                        </option>
+                                    </select>
+                                    <div class="input-group-append">
+                                        <button id="artistButton" class="btn btn-outline-info" @click="setArtist($event)">
+                                            Load songs
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-1">
+                                <p class="text-shadow" style="margin-top: 3px;">
+                                    Song:
+                                </p>
+                            </div>
+                            <div class="col-lg-11">
+                                <div id="songForm" class="input-group input-group-sm mb-3">
+                                    <select
+                                        v-model="selectedSong"
+                                        class="form-control form-control-sm"
+                                        :disabled="!featuredSongs"
+                                    >
+                                        <option v-if="!featuredSongs" value="none">
+                                            Select an artist to view songs
+                                        </option>
+                                        <option v-for="featuredSong in featuredSongs" :key="featuredSong.id" :value="featuredSong.id">
+                                            {{ featuredSong.title }} --- ({{ featuredSong.artist }})
+                                        </option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="col-lg-1">
-                            <p class="text-shadow" style="margin-top: 3px;">Song:</p>
-                        </div>
-                        <div class="col-lg-11">
-                            <div class="input-group input-group-sm mb-3" id="songForm">
-                                <select class="form-control form-control-sm" :disabled="!featuredSongs" id="songSelection">
-                                    <option v-if="!featuredSongs" value="none">Select an artist to view songs</option>
-                                    <option v-for="featuredSong in featuredSongs" :value="featuredSong.id" :key="featuredSong.id">{{featuredSong.title}} --- ({{featuredSong.artist}})</option>
-                                </select>
+                        <p class="text-shadow">
+                            Game-mode:
+                        </p>
+                        <div class="form-group row">
+                            <div class="col-sm-10">
+                                <div
+                                    v-for="mode in modes"
+                                    :key="mode.value"
+                                    class="form-check form-check-inline"
+                                >
+                                    <input
+                                        :id="mode.value"
+                                        v-model="selectedMode"
+                                        class="form-check-input"
+                                        type="radio"
+                                        :value="mode.value"
+                                    >
+                                    <label class="form-check-label text-shadow" :for="mode.value">
+                                        {{ mode.name }}
+                                    </label>
+                                </div>
+                                <br><small class="text-shadow">If you want a hybrid mapset, change this later.</small>
                             </div>
                         </div>
-                        
+
+                        <p class="text-shadow">
+                            Select one or more difficulties <i>you plan on mapping</i>. These can be changed later:
+                        </p>
+                        <div class="form-group row">
+                            <div class="col-sm-10">
+                                <div
+                                    v-for="task in tasks"
+                                    :key="task"
+                                    class="form-check"
+                                >
+                                    <input
+                                        :id="task"
+                                        v-model="checkedTasks"
+                                        class="form-check-input"
+                                        type="checkbox"
+                                    >
+                                    <label class="form-check-label text-shadow" :for="task">
+                                        {{ task }}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="text-shadow">
+                            Select one or more difficulties <i>you don't want anyone else to claim</i>. These can be changed later: <br>
+                            <small class="text-shadow">For example, if you don't want any guest difficulties, you should mark everything</small>
+                        </p>
+                        <div class="form-group row">
+                            <div class="col-sm-10">
+                                <div
+                                    v-for="task in tasks"
+                                    :key="task"
+                                    class="form-check"
+                                >
+                                    <input
+                                        :id="`lock-${task}`"
+                                        v-model="checkedLocks"
+                                        class="form-check-input"
+                                        type="checkbox"
+                                    >
+                                    <label class="form-check-label text-shadow" :for="`lock-${task}`">
+                                        {{ task }}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <p class="text-shadow">Game-mode:</p>
-                    <div class="form-group row">
-                        <div class="col-sm-10">
-                            <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="mode" id="osu" value="osu" checked>
-                            <label class="form-check-label text-shadow" for="osu">osu!</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="mode" id="taiko" value="taiko">
-                            <label class="form-check-label text-shadow" for="taiko">osu!taiko</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="mode" id="catch" value="catch">
-                            <label class="form-check-label text-shadow" for="catch">osu!catch</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="mode" id="mania" value="mania">
-                            <label class="form-check-label text-shadow" for="mania">osu!mania</label>
-                            </div>
-                            <br><small class="text-shadow">If you want a hybrid mapset, change this later.</small>
-                        </div>
-                    </div>
+                    <p class="errors text-shadow">
+                        {{ info }}
+                    </p>
 
-                    <p class="text-shadow">Select one or more difficulties <i>you plan on mapping</i>. These can be changed later:</p>
-                    <div class="form-group row">
-                        <div class="col-sm-10">
-                            <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="Easy">
-                            <label class="form-check-label text-shadow" for="Easy">
-                                Easy
-                            </label>
-                            </div>
-                            <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="Normal">
-                            <label class="form-check-label text-shadow" for="Normal">
-                                Normal
-                            </label>
-                            </div>
-                            <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="Hard">
-                            <label class="form-check-label text-shadow" for="Hard">
-                                Hard
-                            </label>
-                            </div>
-                            <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="Insane">
-                            <label class="form-check-label text-shadow" for="Insane">
-                                Insane
-                            </label>
-                            </div>
-                            <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="Expert">
-                            <label class="form-check-label text-shadow" for="Expert">
-                                Expert
-                            </label>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <p class="text-shadow">Select one or more difficulties <i>you don't want anyone else to claim</i>. These can be changed later: <br><small class="text-shadow">For example, if you don't want any guest difficulties, you should mark everything</small></p>
-                    <div class="form-group row">
-                        <div class="col-sm-10">
-                            <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="lock-Easy">
-                            <label class="form-check-label text-shadow" for="lock-Easy">
-                                Easy
-                            </label>
-                            </div>
-                            <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="lock-Normal">
-                            <label class="form-check-label text-shadow" for="lock-Normal">
-                                Normal
-                            </label>
-                            </div>
-                            <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="lock-Hard">
-                            <label class="form-check-label text-shadow" for="lock-Hard">
-                                Hard
-                            </label>
-                            </div>
-                            <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="lock-Insane">
-                            <label class="form-check-label text-shadow" for="lock-Insane">
-                                Insane
-                            </label>
-                            </div>
-                            <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="lock-Expert">
-                            <label class="form-check-label text-shadow" for="lock-Expert">
-                                Expert
-                            </label>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="radial-divisor mx-auto my-3" />
+
+                    <button type="submit" class="btn btn-outline-success btn-block" @click="saveNewMap($event)">
+                        Save
+                    </button>
                 </div>
-                <p class="errors text-shadow" id="addBeatmapErrors">{{ info }}</p>
-                <div class="radial-divisor mx-auto my-3"></div>
-                <button type="submit" class="btn btn-outline-success btn-block" @click="saveNewMap($event)">Save</button>
             </div>
         </div>
     </div>
-</div>
 </template>
 
-<script>
-export default {
-    name: 'create-beatmap',
-    props: [ 'featuredArtists', 'featuredSongs', 'info' ],
+<script lang="ts">
+import Vue from 'vue';
+import Axios, { AxiosResponse } from 'axios';
+
+export default Vue.extend({
+    name: 'CreateBeatmap',
+    data () {
+        return {
+            featuredArtists: [],
+            featuredSongs: [],
+            info: '',
+            selectedArtist: 'none',
+            selectedSong: 'none',
+            selectedMode: 'osu',
+            checkedTasks: [],
+            checkedLocks: [],
+            modes: [
+                { value: 'osu', name: 'osu!' },
+                { value: 'taiko', name: 'osu!taiko' },
+                { value: 'catch', name: 'osu!catch' },
+                { value: 'mania', name: 'osu!mania' },
+            ],
+            tasks: ['Easy', 'Normal', 'Hard', 'Insane', 'Expert'],
+        };
+    },
     methods: {
-        executePost: async function(path, data, e) {
-			if (e) e.target.disabled = true;
-            $("[data-toggle='tooltip']").tooltip('hide');
-			try {
-				const res = await axios.post(path, data)
-				
-				if (res.data.error) {
-                    this.$parent.info = res.data.error;
-				} else {
-					if (e) e.target.disabled = false;
-					return res.data;
-				}
-			} catch (error) {
-                this.$parent.info = 'Something went wrong';
-            }
-            if (e) e.target.disabled = false;
-        },
-        setArtist: async function(e){
-            let labelId = $("#artistSelection").val();
-            e.target.disabled = true;
-            axios
-                .get('beatmaps/songs/' + labelId)
-                .then(response => {
-                    e.target.disabled = false;
-                    this.$parent.featuredSongs = response.data.sort((a,b) => (a.title.toLowerCase() > b.title.toLowerCase()) ? 1 : ((b.title.toLowerCase() > a.title.toLowerCase()) ? -1 : 0));
-                });
-        },
-        saveNewMap: async function (e) {
-            const song = $('#songSelection').val();
-            const mode = $('input[name=mode]:checked').val();
-            if (song == "none") {
-                this.$parent.info = "Select a song!"
-            } else {
-                const tasks = ['Easy', 'Normal', 'Hard', 'Insane', 'Expert'];
-                const difficulties = this.applyCheckboxes(tasks, false);
-                const locks = this.applyCheckboxes(tasks, true); 
-                const bm = await this.executePost('/beatmaps/create/', { song: song, tasks: difficulties, tasksLocked: locks, mode: mode }, e);
-                if (bm) {
-                    $('#addBeatmap').modal('hide');
-                    $('.quest-collapse-wip').collapse();
-                    $('#othersWip').collapse("show");
-                    this.$parent.hostBeatmaps.unshift(bm);
-                }
-            }
-        },
-        applyCheckboxes(tasks, isLocks) {
-            let difficulties = '';
-        
-            tasks.forEach(function(task) {
-                let element;
-        
-                if (isLocks) {
-                    element = `#lock-${task}`;
+        async executePost(path, data, e): Promise<AxiosResponse | null> {
+            if (e) e.target.disabled = true;
+            ($('[data-toggle=\'tooltip\']') as any).tooltip('hide');
+
+            try {
+                const res = await Axios.post(path, data);
+
+                if (res.data.error) {
+                    this.info = res.data.error;
                 } else {
-                    element = `#${task}`;
+                    if (e) e.target.disabled = false;
+
+                    return res.data;
                 }
-        
-                if ($(element).is(':checked')) {
-                    difficulties += `${task}|`;
-                }
-            });
-            return difficulties.slice(0, -1);
+            } catch (error) {
+                this.info = 'Something went wrong';
+            }
+
+            if (e) e.target.disabled = false;
+
+            return null;
         },
-    }
-}
+        async setArtist(e): Promise <void> {
+            if (!this.selectedArtist) {
+                this.info = 'Select an artist';
+            }
+
+            e.target.disabled = true;
+            const res = await Axios.get('beatmaps/songs/' + this.selectedArtist);
+
+            if (res.data) {
+                e.target.disabled = false;
+                this.featuredSongs = res.data.sort((a,b) => {
+                    if (a.title.toLowerCase() > b.title.toLowerCase()) return 1;
+                    if (b.title.toLowerCase() > a.title.toLowerCase()) return -1;
+
+                    return 0;
+                });
+            }
+        },
+        async saveNewMap (e): Promise<void> {
+            if (this.selectedSong == 'none') {
+                // this.$parent.info = 'Select a song!';
+            } else {
+                const res = await this.executePost('/beatmaps/create/', {
+                    song: this.selectedSong,
+                    tasks: this.checkedTasks,
+                    tasksLocked: this.checkedLocks,
+                    mode: this.selectedMode,
+                }, e);
+
+                if (res?.data?.beatmap) {
+                    ($('#addBeatmap') as any).modal('hide');
+                    ($('.quest-collapse-wip') as any).collapse();
+                    ($('#othersWip') as any).collapse('show');
+                    this.$store.commit('addBeatmap', res.data.beatmap);
+                }
+            }
+        },
+    },
+});
 </script>
 
 <style>

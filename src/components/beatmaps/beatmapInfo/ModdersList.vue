@@ -2,35 +2,35 @@
     <div id="modders" class="row mb-2">
         <div class="col">
             <div>
-                Modders ({{ beatmap.modders.length }}) 
+                Modders ({{ selectedBeatmap.modders.length }})
                 <small
+                    v-if="canEdit"
                     class="ml-1"
                     data-toggle="tooltip"
                     data-placement="right"
                     title="add/remove yourself from modder list"
-                    v-if="canEdit"
                 >
                     <a
                         href="#"
                         :class="isModder ? 'text-danger' : 'text-success'"
                         @click.prevent="updateModder($event)"
                     >
-                        <i class="fas" :class="isModder ? 'fa-minus' : 'fa-plus'"></i>
+                        <i class="fas" :class="isModder ? 'fa-minus' : 'fa-plus'" />
                     </a>
                 </small>
             </div>
             <div class="small ml-3">
-                <i v-if="beatmap.modders.length == 0" class="text-white-50">
+                <i v-if="selectedBeatmap.modders.length == 0" class="text-white-50">
                     none
                 </i>
                 <span v-else>
-                    <template v-for="(modder, i) in beatmap.modders">
+                    <template v-for="(modder, i) in selectedBeatmap.modders">
                         <a
+                            :key="modder.id"
                             :href="'https://osu.ppy.sh/users/' + modder.osuId"
                             target="_blank"
-                            :key="modder.id"
                         >
-                                {{ modder.username + (i < beatmap.modders.length - 1 ? ', ' : '') }}
+                            {{ modder.username + (i < selectedBeatmap.modders.length - 1 ? ', ' : '') }}
                         </a>
                     </template>
                 </span>
@@ -39,35 +39,38 @@
     </div>
 </template>
 
-<script>
-import mixin from '../../../mixins.js';
+<script lang="ts">
+import Vue from 'vue';
+import { mapState } from 'vuex';
+import { User } from '@srcModels/user';
 
-export default {
-    name: 'modders-list',
-    mixins: [ mixin ],
+export default Vue.extend({
+    name: 'ModdersList',
     props: {
-        beatmap: Object,
         canEdit: Boolean,
-        userOsuId: Number,
     },
     computed: {
-        isModder() {
-            return this.beatmap.modders.some(m => m.osuId == this.userOsuId);
+        ...mapState([
+            'selectedBeatmap',
+            'userOsuId',
+        ]),
+        isModder(): User[] {
+            return this.selectedBeatmap.modders.some(m => m.osuId == this.userOsuId);
         },
     },
     methods: {
-        async updateModder(e) {
+        async updateModder(e): Promise<void> {
             e.target.classList.add('fake-button-disable');
-            const bm = await this.executePost('/beatmaps/updateModder/' + this.beatmap._id);
-            
-            if (!bm || bm.error) {
-                this.$emit('update:info', (bm && bm.error) || 'Something went wrong!');
+            const bm = await this.executePost('/beatmaps/updateModder/' + this.selectedBeatmap._id);
+
+            if (this.isError(bm)) {
+                this.$emit('update:info', bm.error);
             } else {
-                this.$emit('update:beatmap', bm);
+                this.$store.dispatch('updateBeatmap', bm);
             }
 
             e.target.classList.remove('fake-button-disable');
         },
     },
-}
+});
 </script>

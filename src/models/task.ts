@@ -29,6 +29,7 @@ export enum SBQuality {
 }
 
 export interface Task {
+    id: string;
     name: TaskName;
     mode: TaskMode;
     mappers: User[];

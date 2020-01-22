@@ -1,71 +1,60 @@
 <template>
-    <div class="form-group" id="mapsetStatus">
+    <div id="mapsetStatus" class="form-group">
         <div class="d-inline-block mr-2">
             Status
         </div>
 
         <button
             class="btn btn-sm"
-            :class="beatmap.status == 'Done' ? 'btn-success' : 'btn-outline-success'"
-            :disabled="beatmap.status == 'Done'"
-            @click="setStatus('Done', $event)"
+            :class="selectedBeatmap.status == 'Done' ? 'btn-success' : 'btn-outline-success'"
+            :disabled="selectedBeatmap.status == 'Done'"
             data-toggle="tooltip"
             data-placement="bottom"
             title="mark mapset and all diffs as done"
+            @click="setStatus('Done', $event)"
         >
             Done
         </button>
 
         <button
             class="btn btn-sm"
-            :class="beatmap.status == 'WIP' ? 'btn-warning' : 'btn-outline-warning'"
-            :disabled="beatmap.status == 'WIP'"
-            @click="setStatus('WIP', $event)"
+            :class="selectedBeatmap.status == 'WIP' ? 'btn-warning' : 'btn-outline-warning'"
+            :disabled="selectedBeatmap.status == 'WIP'"
             data-toggle="tooltip"
             data-placement="bottom"
             title="mark mapset as work-in-progress"
+            @click="setStatus('WIP', $event)"
         >
             WIP
         </button>
     </div>
 </template>
 
-<script>
-import mixin from '../../../mixins.js';
+<script lang="ts">
+import Vue from 'vue';
+import { mapState } from 'vuex';
 
-export default {
-    name: 'status-choice',
-    mixins: [ mixin ],
-    props: {
-        beatmap: Object,
+export default Vue.extend({
+    name: 'StatusChoice',
+    computed: {
+        ...mapState([
+            'selectedBeatmap',
+        ]),
     },
     methods: {
-        setStatus: async function(status, e) {
+        async setStatus(status, e): Promise<void> {
             const beatmap = await this.executePost(
-                '/beatmaps/setStatus/' + this.beatmap._id,
+                '/beatmaps/setStatus/' + this.selectedBeatmap._id,
                 { status },
                 e
             );
 
-            if (!beatmap || beatmap.error) {
-                this.$emit('update:info', (beatmap && beatmap.error) || 'Something went wrong!');
+            if (this.isError(beatmap)) {
+                this.$emit('update:info', beatmap.error);
             } else {
-                this.$emit('update:beatmap', beatmap);
-    
-                // why was it here
-                // axios.get('/beatmaps/relevantInfo').then(response => {
-                //     this.$parent.allBeatmaps = response.data.beatmaps;
-                //     this.$parent.beatmaps = response.data.beatmaps;
-                //     if (this.$parent.filterValue.length > 2) {
-                //         this.$parent.filter();
-                //     }
-                // });
+                this.$store.dispatch('updateBeatmap', beatmap);
             }
         },
-    }
-}
+    },
+});
 </script>
-
-<style>
-
-</style>

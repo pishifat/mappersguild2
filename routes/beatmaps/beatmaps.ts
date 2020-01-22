@@ -48,15 +48,25 @@ beatmapsRouter.get('/relevantInfo', async (req, res) => {
 });
 
 /* GET mode-specific beatmaps */
-beatmapsRouter.get('/loadBeatmaps/:mode/:days', async (req, res) => {
-    let statusParams: object;
-    let allParams: object;
-    const mode = req.params.mode;
-    const maxDate = new Date();
-    maxDate.setDate(maxDate.getDate() - parseInt(req.params.days, 10));
+beatmapsRouter.get('/loadBeatmaps', async (req, res) => {
+    if (!req.query.mode || !req.query.limit) {
+        return res.json({ error: 'Missing mode filter...' });
+    }
+
+    let userBeatmapsQuery = {};
+    let allBeatmapsQuery = {};
+    const mode = req.query.mode as ModeOrAny;
+    const limit = parseInt(req.query.limit);
+    const status = req.query.status as BeatmapStatus | undefined;
+    const quest = req.query.quest as 'none' | undefined;
+    const search = req.query.search as string | undefined;
+    const ownTasks = await TaskService.queryAll({
+        query: { mappers: req.session?.mongoId },
+        select: '_id',
+    });
 
     if (mode != ModeOrAny.Any) {
-        statusParams = {
+        userBeatmapsQuery = {
             $and: [
                 {
                     $or: [
@@ -65,71 +75,81 @@ beatmapsRouter.get('/loadBeatmaps/:mode/:days', async (req, res) => {
                     ],
                 },
                 {
-                    $or: [
-                        { host: req.session?.mongoId },
-                        { updatedAt: { $gte: maxDate } },
-                    ],
+                    tasks: {
+                        $in: ownTasks,
+                    },
                 },
             ],
         };
 
-        allParams = {
-            $or: [{ mode }, { mode: BeatmapMode.Hybrid }],
-            updatedAt: { $lte: maxDate },
-        };
-    } else {
-        statusParams = {
+        allBeatmapsQuery = {
             $or: [
-                { host: req.session?.mongoId },
-                { updatedAt: { $gte: maxDate } },
+                { mode },
+                { mode: BeatmapMode.Hybrid },
             ],
         };
-
-        allParams = {
-            updatedAt: { $lte: maxDate },
+    } else {
+        userBeatmapsQuery = {
+            tasks: {
+                $in: ownTasks,
+            },
         };
     }
 
-    const [statusBeatmaps, allBeatmaps] = await Promise.all([
+    // need to add this somehow here
+    // filter(): void {
+    //     this.pageObjs = this.allObjs.filter(b => {
+    //         let valid = b.song.artist + ' ' + b.song.title + ' ' + b.host.username;
+    //         b.tasks.forEach(task => {
+    //             task.mappers.forEach(mapper => {
+    //                 valid += ' ' + mapper.username;
+    //             });
+    //         });
+    //         valid = valid.toLowerCase();
+
+    //         const tags = this.filterValue
+    //             .toLowerCase()
+    //             .trim()
+    //             .split(' ');
+    //         let count = 0;
+    //         tags.forEach(tag => {
+    //             if (valid.includes(tag)) {
+    //                 count++;
+    //             }
+    //         });
+
+    //         if (count == tags.length) {
+    //             return true;
+    //         }
+
+    //         return false;
+    //     });
+    // },
+
+    const [userBeatmaps, allBeatmaps] = await Promise.all([
         BeatmapService.queryAll({
-            query: statusParams,
+            query: userBeatmapsQuery,
             useDefaults: true,
         }),
         BeatmapService.queryAll({
-            query: allParams,
+            query: {
+                ...allBeatmapsQuery,
+                ...(status ? { status } : {}),
+                ...(quest ? { quest: { $exists: false } } : {}),
+                ...(search ? {
+                    $or: [
+                        { 'host.username': new RegExp(search, 'i') },
+                        { 'song.artist': new RegExp(search, 'i') },
+                        { 'song.title': new RegExp(search, 'i') },
+                    ],
+                } : {}),
+            },
             useDefaults: true,
+            limit,
         }),
     ]);
 
-    const guestDifficultyBeatmaps: Beatmap[] = [];
-
-    if (!BeatmapService.isError(allBeatmaps)) {
-        allBeatmaps.forEach(beatmap => {
-            if (beatmap.host.osuId != req.session?.osuId) {
-                let breakLoop = false;
-
-                for (let i = 0; i < beatmap.tasks.length; i++) {
-                    const task = beatmap.tasks[i];
-
-                    for (let j = 0; j < task.mappers.length; j++) {
-                        const mapper = task.mappers[j];
-
-                        if (mapper.osuId == req.session?.osuId) {
-                            guestDifficultyBeatmaps.push(beatmap);
-                            breakLoop = true;
-                            break;
-                        }
-                    }
-
-                    if (breakLoop) {
-                        break;
-                    }
-                }
-            }
-        });
-    }
-
-    res.json({ statusBeatmaps, guestDifficultyBeatmaps });
+    res.json({ userBeatmaps, allBeatmaps });
 });
 
 /* GET artists for new map entry */
@@ -191,15 +211,15 @@ beatmapsRouter.post('/create', isNotSpectator, canFail(async (req, res) => {
         locks = req.body.tasksLocked.split('|');
     }
 
-    const newB = await BeatmapService.create(req.session?.mongoId, realTasks, locks, req.body.song, req.body.mode);
+    const newBeatmap = await BeatmapService.create(req.session?.mongoId, realTasks, locks, req.body.song, req.body.mode);
 
-    if (!newB || BeatmapService.isError(newB)) {
+    if (!newBeatmap || BeatmapService.isError(newBeatmap)) {
         return res.json(defaultErrorMessage);
     }
 
-    const b = await BeatmapService.queryByIdOrFail(newB._id, { defaultPopulate: true });
+    const b = await BeatmapService.queryByIdOrFail(newBeatmap._id, { defaultPopulate: true });
 
-    res.json(b);
+    res.json({ beatmap: b });
 
     LogService.create(
         req.session?.mongoId,

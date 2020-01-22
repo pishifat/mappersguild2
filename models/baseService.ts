@@ -10,6 +10,7 @@ export interface QueryData<> {
     defaultSort?: boolean;
     defaultPopulate?: boolean;
     useDefaults?: boolean;
+    select?: string;
 }
 
 export default class BaseService<T extends Document> {
@@ -117,6 +118,10 @@ export default class BaseService<T extends Document> {
         queryData: QueryData,
         query: DocumentQuery<Extract<T | T[] | null, U>, T>
     ): DocumentQuery<Extract<T | T[] | null, U>, T> {
+        if (queryData.select) {
+            query.select(queryData.select);
+        }
+
         if (queryData.defaultPopulate || queryData.useDefaults) {
             if (queryData.populate) {
                 queryData.populate = [...this.defaultPopulate, ...queryData.populate];

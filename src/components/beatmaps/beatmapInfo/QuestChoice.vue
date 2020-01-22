@@ -3,22 +3,22 @@
         <div class="row mb-2">
             <div class="col">
                 <div>
-                    Quest 
+                    Quest
                     <a
-                        href="#"
                         id="editLink"
+                        href="#"
                         :class="showQuestInput ? 'text-danger' : ''"
                         class="text-success small ml-1"
-                        @click.prevent="showQuestInput ? unsetQuest() : setQuest()"
                         data-toggle="tooltip"
                         data-placement="right"
                         title="connect mapset with a quest"
+                        @click.prevent="showQuestInput = !showQuestInput"
                     >
-                        <i class="fas fa-edit"></i>
+                        <i class="fas fa-edit" />
                     </a>
                 </div>
                 <div class="small ml-3 text-white-50">
-                    <span v-if="beatmap.quest">{{ beatmap.quest.name }}</span>
+                    <span v-if="selectedBeatmap.quest">{{ selectedBeatmap.quest.name }}</span>
                     <i v-else>none</i>
                 </div>
             </div>
@@ -48,10 +48,10 @@
                     <div class="input-group-append">
                         <button
                             class="btn btn-outline-info"
-                            @click="saveQuest($event)"
                             data-toggle="tooltip"
                             data-placement="top"
                             title="link beatmap to quest"
+                            @click="saveQuest($event)"
                         >
                             Save
                         </button>
@@ -62,55 +62,49 @@
     </div>
 </template>
 
-<script>
-import mixin from '../../../mixins.js';
+<script lang="ts">
+import Vue from 'vue';
+import { mapState } from 'vuex';
+import Axios from 'axios';
 
-export default {
-    name: 'quest-choice',
-    mixins: [ mixin ],
-    props: {
-        beatmap: Object,
-    },
-    watch: {
-        beatmap () {
-            this.showQuestInput = false;
-        }
-    },
+export default Vue.extend({
+    name: 'QuestChoice',
     data () {
         return {
             userQuests: null,
             showQuestInput: false,
-            dropdownQuestId: (this.beatmap.quest && this.beatmap.quest._id) || '',
-        }
+            dropdownQuestId: '',
+        };
     },
-    methods: {
-        async setQuest() {
-            const response = await axios.get('/beatmaps/findUserQuests');
-            this.userQuests = response.data.userQuests;
-            this.showQuestInput = true;
-        },
-        unsetQuest() {
+    computed: {
+        ...mapState([
+            'selectedBeatmap',
+        ]),
+    },
+    watch: {
+        selectedBeatmap (): void {
             this.showQuestInput = false;
+            this.dropdownQuestId = this.selectedBeatmap.quest?._id;
         },
-        saveQuest: async function(e) {
+    },
+    // async created() {
+    //     const response = await Axios.get('/beatmaps/findUserQuests');
+    //     this.userQuests = response.data.userQuests;
+    // },
+    methods: {
+        async saveQuest(e): Promise<void> {
             const bm = await this.executePost(
-                '/beatmaps/saveQuest/' + this.beatmap._id,
+                '/beatmaps/saveQuest/' + this.selectedBeatmap._id,
                 { questId: this.dropdownQuestId },
                 e
             );
-            
-            if (!bm || bm.error) {
-                this.$emit('update:info', (bm && bm.error) || 'Something went wrong!');
-            } else {
-                this.$emit('update:beatmap', bm);
 
-                // needed at all?
-                // axios.get('/beatmaps/relevantInfo').then(response => {
-                //     this.$parent.allQuests = response.data.allQuests;
-                //     this.$parent.beatmaps = response.data.beatmaps;
-                // });
+            if (this.isError(bm)) {
+                this.$emit('update:info', bm.error);
+            } else {
+                this.$store.dispatch('updateBeatmap', bm);
             }
         },
-    }
-}
+    },
+});
 </script>
