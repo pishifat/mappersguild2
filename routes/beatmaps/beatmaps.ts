@@ -4,7 +4,6 @@ import { TaskService, Task, TaskStatus, TaskName } from '../../models/beatmap/ta
 import { UserService } from '../../models/user';
 import { QuestService, Quest } from '../../models/quest';
 import { NotificationService } from '../../models/notification';
-import { FeaturedArtistService } from '../../models/featuredArtist';
 import { LogService, LogCategory } from '../../models/log';
 import { isLoggedIn, isNotSpectator, isBn } from '../../helpers/middlewares';
 import { defaultErrorMessage, canFail } from '../../helpers/helpers';
@@ -92,7 +91,7 @@ beatmapsRouter.get('/search', async (req, res) => {
         },
         useDefaults: true,
         // this actually returns every map, pretty dumb, need to fix somehow
-        limit: search ? undefined: limit,
+        limit: search ? undefined : limit,
     });
 
     if (search && !BeatmapService.isError(allBeatmaps)) {
@@ -118,24 +117,6 @@ beatmapsRouter.get('/search', async (req, res) => {
 
     res.json({ allBeatmaps });
 });
-
-/* GET artists for new map entry */
-beatmapsRouter.get('/artists/', async (req, res) => {
-    const featuredArtists = await FeaturedArtistService.queryAll({
-        query: { osuId: { $exists: true } },
-    });
-
-    res.json(featuredArtists);
-});
-
-/* GET songs for new map entry */
-beatmapsRouter.get('/songs/:labelId', canFail(async (req, res) => {
-    const fa = await FeaturedArtistService.queryByIdOrFail(req.params.labelId, {
-        useDefaults: true,
-    });
-
-    res.json(fa.songs);
-}));
 
 /* GET quests for linking quest to beatmap */
 beatmapsRouter.get('/findUserQuests/', async (req, res) => {

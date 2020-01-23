@@ -59,10 +59,6 @@ export default Vue.extend({
     },
     computed: mapState([
         'userGroup',
-        'filterMode',
-        'filterStatus',
-        'filterQuest',
-        'filterValue',
     ]),
     async created() {
         const res = await Axios.get('/beatmaps/relevantInfo');
@@ -82,10 +78,12 @@ export default Vue.extend({
             .hide()
             .fadeIn();
 
-        await this.loadGuestBeatmaps();
-        this.isLoadingGuestBeatmaps = false;
+        await Promise.all([
+            this.loadGuestBeatmaps(),
+            this.$store.dispatch('loadOthersBeatmaps'),
+        ]);
 
-        await this.$store.dispatch('loadOthersBeatmaps');
+        this.isLoadingGuestBeatmaps = false;
     },
     methods: {
         async loadGuestBeatmaps(): Promise<void> {

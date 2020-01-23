@@ -155,7 +155,6 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { mapState, mapMutations } from 'vuex';
 import Axios from 'axios';
 import { FeaturedSong } from '@srcModels/featuredSong';
 import { Beatmap } from '@srcModels/beatmap';
@@ -181,7 +180,7 @@ export default Vue.extend({
         };
     },
     async created () {
-        const res = await Axios.get('/beatmaps/artists');
+        const res = await Axios.get('/featuredArtists');
 
         if (res.data && !res.data.error) {
             this.featuredArtists = res.data.sort((a, b) => {
@@ -201,7 +200,7 @@ export default Vue.extend({
             }
 
             e.target.disabled = true;
-            const res = await Axios.get('beatmaps/songs/' + this.selectedArtist);
+            const res = await Axios.get(`/featuredArtists/${this.selectedArtist}/songs`);
 
             if (res.data && !res.data.error) {
                 this.featuredSongs = res.data.sort((a,b) => {
