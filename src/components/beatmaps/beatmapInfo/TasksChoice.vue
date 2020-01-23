@@ -9,7 +9,7 @@
                 </thead>
                 <transition-group tag="tbody" name="list">
                     <tr
-                        v-for="task in selectedBeatmap.tasks"
+                        v-for="task in beatmap.tasks"
                         :id="task.id + 'Row'"
                         :key="task.id"
                         :style="'border-left: 3px solid var(--' + task.status.toLowerCase() + ')'"
@@ -17,7 +17,7 @@
                         <!-- Difficulty -->
                         <td class="text-white-50">
                             {{ task.name }}
-                            <template v-if="selectedBeatmap.mode == 'hybrid'">
+                            <template v-if="beatmap.mode == 'hybrid'">
                                 <i
                                     v-if="task.mode == 'taiko'"
                                     class="fas fa-drum"
@@ -114,7 +114,7 @@
                                     <i class="fas fa-check" />
                                 </a>
                                 <a
-                                    v-if="task.status == 'Done' && selectedBeatmap.status != 'Done'"
+                                    v-if="task.status == 'Done' && beatmap.status != 'Done'"
                                     href="#"
                                     class="icon-wip"
                                     data-toggle="tooltip"
@@ -134,10 +134,10 @@
         <template v-if="!isRanked && !isQualified">
             <div class="col-sm-12 mt-2">
                 <new-task
+                    :beatmap="beatmap"
                     :is-host="isHost"
                     :task-to-add-collaborator.sync="taskToAddCollaborator"
                     @update:invite-confirm="inviteConfirmMessage = $event"
-                    @update:info="$emit('update:info', $event)"
                 />
             </div>
 
@@ -155,15 +155,25 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { mapState, mapGetters } from 'vuex';
+import { mapState } from 'vuex';
 import NewTask from './NewTask.vue';
 import { User } from '@srcModels/user';
 import { Task } from '@srcModels/task';
+import { Beatmap } from '@srcModels/beatmap';
 
 export default Vue.extend({
     name: 'TasksChoice',
     components: {
         NewTask,
+    },
+    props: {
+        beatmap: {
+            type: Object as () => Beatmap,
+            required: true,
+        },
+        isHost: Boolean,
+        isRanked: Boolean,
+        isQualified: Boolean,
     },
     data () {
         return {
@@ -173,13 +183,7 @@ export default Vue.extend({
     },
     computed: {
         ...mapState([
-            'selectedBeatmap',
             'userOsuId',
-        ]),
-        ...mapGetters([
-            'isHost',
-            'isRanked',
-            'isQualified',
         ]),
     },
     methods: {
@@ -194,9 +198,7 @@ export default Vue.extend({
 
             const bm = await this.executePost('/beatmaps/setTaskStatus/' + id, { status });
 
-            if (this.isError(bm)) {
-                this.$emit('update:info', bm.error);
-            } else {
+            if (!this.isError(bm)) {
                 this.$store.dispatch('updateBeatmap', bm);
             }
 
@@ -206,12 +208,10 @@ export default Vue.extend({
             e.target.classList.add('fake-button-disable');
 
             const bm = await this.executePost('/beatmaps/removeTask/' + id, {
-                beatmapId: this.selectedBeatmap._id,
+                beatmapId: this.beatmap.id,
             });
 
-            if (this.isError(bm)) {
-                this.$emit('update:info', bm.error);
-            } else {
+            if (!this.isError(bm)) {
                 this.$store.dispatch('updateBeatmap', bm);
             }
 
@@ -222,7 +222,7 @@ export default Vue.extend({
         canEditTaskCollaborators(task: Task): boolean {
             return (task.status != 'Done' &&
                 !this.isQualified &&
-                this.selectedBeatmap.status != 'Done' &&
+                this.beatmap.status != 'Done' &&
                 this.isOwner(task.mappers));
         },
         async removeCollab(id, user, e): Promise<void> {
@@ -230,9 +230,7 @@ export default Vue.extend({
 
             const bm = await this.executePost('/beatmaps/task/' + id + '/removeCollab', { user });
 
-            if (this.isError(bm)) {
-                this.$emit('update:info', bm.error);
-            } else {
+            if (!this.isError(bm)) {
                 this.$store.dispatch('updateBeatmap', bm);
             }
 

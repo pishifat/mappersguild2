@@ -18,8 +18,8 @@
                     </a>
                 </div>
                 <div class="small ml-3">
-                    <a v-if="selectedBeatmap.url" :href="selectedBeatmap.url" target="_blank">
-                        {{ selectedBeatmap.url }}
+                    <a v-if="beatmap.url" :href="beatmap.url" target="_blank">
+                        {{ beatmap.url }}
                     </a>
                     <i v-else class="text-white-50">none</i>
                 </div>
@@ -59,22 +59,24 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { mapState } from 'vuex';
 import { Beatmap } from '@srcModels/beatmap';
 
 export default Vue.extend({
     name: 'BeatmapLink',
+    props: {
+        beatmap: {
+            type: Object as () => Beatmap,
+            required: true,
+        },
+    },
     data () {
         return {
             url: '',
             showLinkInput: false,
         };
     },
-    computed: mapState({
-        selectedBeatmap: (state: any) => state.selectedBeatmap as Beatmap,
-    }),
     watch: {
-        selectedBeatmap (b: Beatmap): void {
+        beatmap (b: Beatmap): void {
             if (b) {
                 this.showLinkInput = false;
                 this.url = b.url;
@@ -82,15 +84,13 @@ export default Vue.extend({
         },
     },
     created () {
-        this.url = this.selectedBeatmap.url;
+        this.url = this.beatmap.url;
     },
     methods: {
         async saveLink(e): Promise<void> {
-            const bm = await this.executePost('/beatmaps/setLink/' + this.selectedBeatmap.id, { url: this.url }, e);
+            const bm = await this.executePost<Beatmap>('/beatmaps/setLink/' + this.beatmap.id, { url: this.url }, e);
 
-            if (!bm || bm.error) {
-                this.$emit('update:info', (bm?.error) || 'Something went wrong!');
-            } else {
+            if (!this.isError(bm)) {
                 this.showLinkInput = false;
                 this.$store.dispatch('updateBeatmap', bm);
             }

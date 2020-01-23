@@ -25,12 +25,11 @@
                                         v-model="selectedArtist"
                                         class="form-control"
                                     >
-                                        <option v-if="!featuredArtists" value="''">
-                                            *namirin
+                                        <option value="" disabled>
+                                            Select an artist
                                         </option>
                                         <option
                                             v-for="featuredArtist in featuredArtists"
-                                            v-else
                                             :key="featuredArtist.id"
                                             :value="featuredArtist.id"
                                         >
@@ -55,9 +54,9 @@
                                     <select
                                         v-model="selectedSong"
                                         class="form-control form-control-sm"
-                                        :disabled="!featuredSongs"
+                                        :disabled="!featuredSongs.length"
                                     >
-                                        <option v-if="!featuredSongs" value="none">
+                                        <option value="" disabled>
                                             Select an artist to view songs
                                         </option>
                                         <option v-for="featuredSong in featuredSongs" :key="featuredSong.id" :value="featuredSong.id">
@@ -108,6 +107,7 @@
                                         v-model="checkedTasks"
                                         class="form-check-input"
                                         type="checkbox"
+                                        :value="task"
                                     >
                                     <label class="form-check-label text-shadow" :for="task">
                                         {{ task }}
@@ -132,6 +132,7 @@
                                         v-model="checkedLocks"
                                         class="form-check-input"
                                         type="checkbox"
+                                        :value="task"
                                     >
                                     <label class="form-check-label text-shadow" :for="`lock-${task}`">
                                         {{ task }}
@@ -140,10 +141,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <p class="errors text-shadow">
-                        {{ info }}
-                    </p>
 
                     <div class="radial-divisor mx-auto my-3" />
 
@@ -158,17 +155,19 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import Axios, { AxiosResponse } from 'axios';
+import { mapState, mapMutations } from 'vuex';
+import Axios from 'axios';
+import { FeaturedSong } from '@srcModels/featuredSong';
+import { Beatmap } from '@srcModels/beatmap';
 
 export default Vue.extend({
-    name: 'CreateBeatmap',
+    name: 'CreateBeatmapModal',
     data () {
         return {
             featuredArtists: [],
-            featuredSongs: [],
-            info: '',
-            selectedArtist: 'none',
-            selectedSong: 'none',
+            featuredSongs: [] as FeaturedSong[],
+            selectedArtist: '',
+            selectedSong: '',
             selectedMode: 'osu',
             checkedTasks: [],
             checkedLocks: [],
@@ -181,39 +180,30 @@ export default Vue.extend({
             tasks: ['Easy', 'Normal', 'Hard', 'Insane', 'Expert'],
         };
     },
+    async created () {
+        const res = await Axios.get('/beatmaps/artists');
+
+        if (res.data && !res.data.error) {
+            this.featuredArtists = res.data.sort((a, b) => {
+                if (a.label.toLowerCase() > b.label.toLowerCase()) return 1;
+                if (b.label.toLowerCase() > a.label.toLowerCase()) return -1;
+
+                return 0;
+            });
+        }
+    },
     methods: {
-        async executePost(path, data, e): Promise<AxiosResponse | null> {
-            if (e) e.target.disabled = true;
-            ($('[data-toggle=\'tooltip\']') as any).tooltip('hide');
-
-            try {
-                const res = await Axios.post(path, data);
-
-                if (res.data.error) {
-                    this.info = res.data.error;
-                } else {
-                    if (e) e.target.disabled = false;
-
-                    return res.data;
-                }
-            } catch (error) {
-                this.info = 'Something went wrong';
-            }
-
-            if (e) e.target.disabled = false;
-
-            return null;
-        },
-        async setArtist(e): Promise <void> {
+        async setArtist(e): Promise<void> {
             if (!this.selectedArtist) {
-                this.info = 'Select an artist';
+                this.$store.dispatch('updateToastMessages', 'Select an artist!');
+
+                return;
             }
 
             e.target.disabled = true;
             const res = await Axios.get('beatmaps/songs/' + this.selectedArtist);
 
-            if (res.data) {
-                e.target.disabled = false;
+            if (res.data && !res.data.error) {
                 this.featuredSongs = res.data.sort((a,b) => {
                     if (a.title.toLowerCase() > b.title.toLowerCase()) return 1;
                     if (b.title.toLowerCase() > a.title.toLowerCase()) return -1;
@@ -221,30 +211,30 @@ export default Vue.extend({
                     return 0;
                 });
             }
+
+            e.target.disabled = false;
         },
         async saveNewMap (e): Promise<void> {
-            if (this.selectedSong == 'none') {
-                // this.$parent.info = 'Select a song!';
-            } else {
-                const res = await this.executePost('/beatmaps/create/', {
-                    song: this.selectedSong,
-                    tasks: this.checkedTasks,
-                    tasksLocked: this.checkedLocks,
-                    mode: this.selectedMode,
-                }, e);
+            if (!this.selectedSong) {
+                this.$store.commit('updateToastMessages', 'Select a song!');
 
-                if (res?.data?.beatmap) {
-                    ($('#addBeatmap') as any).modal('hide');
-                    ($('.quest-collapse-wip') as any).collapse();
-                    ($('#othersWip') as any).collapse('show');
-                    this.$store.commit('addBeatmap', res.data.beatmap);
-                }
+                return;
+            }
+
+            const beatmap = await this.executePost<Beatmap>('/beatmaps/create/', {
+                song: this.selectedSong,
+                tasks: this.checkedTasks,
+                tasksLocked: this.checkedLocks,
+                mode: this.selectedMode,
+            }, e);
+
+            if (!this.isError(beatmap)) {
+                ($('#addBeatmap') as any).modal('hide');
+                ($('.quest-collapse-wip') as any).collapse();
+                ($('#othersWip') as any).collapse('show');
+                this.$store.commit('addBeatmap', beatmap);
             }
         },
     },
 });
 </script>
-
-<style>
-
-</style>

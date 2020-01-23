@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema, Types } from 'mongoose';
+import mongoose, { Document, Schema } from 'mongoose';
 import BaseService from './baseService';
 import { User } from './user';
 import { Beatmap, BeatmapMode } from './beatmap/beatmap';
@@ -110,7 +110,7 @@ class QuestService extends BaseService<Quest>
                 },
                 {
                     $match: {
-                        'currentParty.members': Types.ObjectId(userId),
+                        'currentParty.members': mongoose.Types.ObjectId(userId),
                     },
                 },
                 {

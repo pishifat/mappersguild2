@@ -34,7 +34,7 @@ export enum SBQuality {
 export interface Task extends Document {
     name: TaskName;
     mode: TaskMode;
-    mappers: User[];
+    mappers: User[] | User['_id'][];
     status: TaskStatus;
     sbQuality: SBQuality;
 }

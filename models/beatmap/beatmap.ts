@@ -32,7 +32,7 @@ export enum ModeOrAny {
 
 export interface Beatmap extends Document {
     song: FeaturedSong;
-    host: User;
+    host: User | User['_id'];
     status: BeatmapStatus;
     tasks: Task[];
     tasksLocked: TaskName[];
@@ -93,6 +93,7 @@ class BeatmapService extends BaseService<Beatmap> {
                 path: 'tasks',
                 populate: {
                     path: 'mappers',
+                    select: '_id osuId username',
                 },
             },
         ]);

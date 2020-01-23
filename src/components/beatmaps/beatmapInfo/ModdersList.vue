@@ -2,7 +2,7 @@
     <div id="modders" class="row mb-2">
         <div class="col">
             <div>
-                Modders ({{ selectedBeatmap.modders.length }})
+                Modders ({{ beatmap.modders.length }})
                 <small
                     v-if="canEdit"
                     class="ml-1"
@@ -20,17 +20,17 @@
                 </small>
             </div>
             <div class="small ml-3">
-                <i v-if="selectedBeatmap.modders.length == 0" class="text-white-50">
+                <i v-if="beatmap.modders.length == 0" class="text-white-50">
                     none
                 </i>
                 <span v-else>
-                    <template v-for="(modder, i) in selectedBeatmap.modders">
+                    <template v-for="(modder, i) in beatmap.modders">
                         <a
                             :key="modder.id"
                             :href="'https://osu.ppy.sh/users/' + modder.osuId"
                             target="_blank"
                         >
-                            {{ modder.username + (i < selectedBeatmap.modders.length - 1 ? ', ' : '') }}
+                            {{ modder.username + (i < beatmap.modders.length - 1 ? ', ' : '') }}
                         </a>
                     </template>
                 </span>
@@ -42,30 +42,31 @@
 <script lang="ts">
 import Vue from 'vue';
 import { mapState } from 'vuex';
-import { User } from '@srcModels/user';
+import { Beatmap } from '@srcModels/beatmap';
 
 export default Vue.extend({
     name: 'ModdersList',
     props: {
         canEdit: Boolean,
+        beatmap: {
+            type: Object as () => Beatmap,
+            required: true,
+        },
     },
     computed: {
         ...mapState([
-            'selectedBeatmap',
             'userOsuId',
         ]),
-        isModder(): User[] {
-            return this.selectedBeatmap.modders.some(m => m.osuId == this.userOsuId);
+        isModder(): boolean {
+            return this.beatmap.modders.some(m => m.osuId == this.userOsuId);
         },
     },
     methods: {
         async updateModder(e): Promise<void> {
             e.target.classList.add('fake-button-disable');
-            const bm = await this.executePost('/beatmaps/updateModder/' + this.selectedBeatmap._id);
+            const bm = await this.executePost('/beatmaps/updateModder/' + this.beatmap.id);
 
-            if (this.isError(bm)) {
-                this.$emit('update:info', bm.error);
-            } else {
+            if (!this.isError(bm)) {
                 this.$store.dispatch('updateBeatmap', bm);
             }
 

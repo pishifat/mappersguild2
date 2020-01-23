@@ -1,20 +1,20 @@
 <template>
-    <div v-if="selectedBeatmap" class="container">
+    <div v-if="beatmap" class="container">
         <div class="row">
             <!-- LEFT SIDE -->
             <div :class="(isHost && !isRanked && !isQualified) ? 'col-lg-7' : 'col-sm-12'">
                 <div class="row mb-2">
                     <div class="col-sm-6">
                         <modders-list
+                            :beatmap="beatmap"
                             :can-edit="!isHost && !isRanked"
-                            @update:info="info = $event"
                         />
                     </div>
 
-                    <div v-if="!isRanked || selectedBeatmap.bns" id="bns" class="col-sm-6">
+                    <div v-if="!isRanked || beatmap.bns" id="bns" class="col-sm-6">
                         <nominators-list
+                            :beatmap="beatmap"
                             :can-edit="!isHost && !isRanked"
-                            @update:info="info = $event"
                         />
                     </div>
                 </div>
@@ -25,7 +25,10 @@
                     <div class="col-sm">
                         <!-- tasks options -->
                         <tasks-choice
-                            @update:info="info = $event"
+                            :beatmap="beatmap"
+                            :is-host="isHost"
+                            :is-ranked="isRanked"
+                            :is-qualified="isQualified"
                         />
                     </div>
                 </div>
@@ -37,7 +40,7 @@
                 <div class="row mb-2">
                     <div class="col-sm">
                         <mode-choice
-                            @update:info="info = $event"
+                            :beatmap="beatmap"
                         />
                     </div>
                 </div>
@@ -45,22 +48,22 @@
                 <div class="row mb-2">
                     <div class="col-sm">
                         <status-choice
-                            @update:info="info = $event"
+                            :beatmap="beatmap"
                         />
                     </div>
                 </div>
 
                 <quest-choice
-                    @update:info="info = $event"
+                    :beatmap="beatmap"
                 />
 
                 <beatmap-link
-                    @update:info="info = $event"
+                    :beatmap="beatmap"
                 />
 
                 <locks-choice
-                    v-if="selectedBeatmap.status == 'WIP'"
-                    @update:info="info = $event"
+                    v-if="beatmap.status == 'WIP'"
+                    :beatmap="beatmap"
                 />
             </div>
         </div>
@@ -68,15 +71,9 @@
         <hr>
 
         <div class="row">
-            <div class="col-sm">
-                <span class="errors">
-                    {{ info }}
-                </span>
-            </div>
-
             <div class="col-sm text-right">
                 <span class="small text-white-50">
-                    Created: {{ selectedBeatmap.createdAt.slice(0, 10) }}
+                    Created: {{ beatmap.createdAt.slice(0, 10) }}
                 </span>
                 <button
                     v-if="isHost && !isRanked"
@@ -93,7 +90,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { mapState, mapGetters } from 'vuex';
+import { mapState } from 'vuex';
 import ModeChoice from './ModeChoice.vue';
 import StatusChoice from './StatusChoice.vue';
 import TasksChoice from './TasksChoice.vue';
@@ -102,6 +99,7 @@ import ModdersList from './ModdersList.vue';
 import NominatorsList from './NominatorsList.vue';
 import BeatmapLink from './BeatmapLink.vue';
 import LocksChoice from './LocksChoice.vue';
+import { Beatmap } from '@srcModels/beatmap';
 
 export default Vue.extend({
     name: 'BeatmapInfo',
@@ -115,6 +113,12 @@ export default Vue.extend({
         BeatmapLink,
         LocksChoice,
     },
+    props: {
+        beatmap: {
+            type: Object as () => Beatmap,
+            required: true,
+        },
+    },
     data () {
         return {
             userQuests: null,
@@ -122,18 +126,20 @@ export default Vue.extend({
     },
     computed: {
         ...mapState([
-            'selectedBeatmap',
             'userOsuId',
         ]),
-        ...mapGetters([
-            'isHost',
-            'isRanked',
-            'isQualified',
-        ]),
-    },
-    watch: {
-        selectedBeatmap(): void {
-            this.info = '';
+        isHost(): boolean {
+            if (this.userOsuId && this.beatmap) {
+                return this.userOsuId === this.beatmap.host.osuId;
+            }
+
+            return false;
+        },
+        isRanked(): boolean {
+            return this.beatmap.status === 'Ranked';
+        },
+        isQualified(): boolean {
+            return this.beatmap.status === 'Qualified';
         },
     },
     methods: {
@@ -142,9 +148,9 @@ export default Vue.extend({
 
             if (result) {
                 e.target.disabled = true;
-                const bm = await this.executePost('/beatmaps/delete/' + this.selectedBeatmap.id, {}, e);
+                const bm = await this.executePost('/beatmaps/delete/' + this.beatmap.id, {}, e);
 
-                if (bm) {
+                if (!this.isError(bm)) {
                     ($('#editBeatmap') as any).modal('hide');
                     this.$store.commit('deleteBeatmap', bm);
                 }

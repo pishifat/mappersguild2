@@ -92,9 +92,15 @@
         </div>
         {{/unless}}
 
+        {{#unless isIndex}}
+        {{#unless isFaq}}
+        {{#unless isLogs}}
         <div id="loading">
             <img src="/images/small.png" id="load">
         </div>
+        {{/unless}}
+        {{/unless}}
+        {{/unless}}
 
         {{{ body }}}
     </div>

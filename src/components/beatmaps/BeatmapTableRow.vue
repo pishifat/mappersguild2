@@ -37,9 +37,6 @@
         <div :id="'details' + beatmap.id" class="collapse my-2 mx-5 row border-right border-left border-secondary bg-darker py-3">
             <beatmap-info
                 :beatmap="beatmap"
-                :user-osu-id="userOsuId"
-                :is-table="true"
-                @update:beatmap="$emit('update:beatmap', $event)"
             />
         </div>
     </div>
@@ -47,9 +44,9 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import { mapState } from 'vuex';
 import BeatmapInfo from './beatmapInfo/BeatmapInfo.vue';
 import { Beatmap } from '@srcModels/beatmap';
-import { mapState } from 'vuex';
 
 export default Vue.extend({
     name: 'BeatmapTableRow',

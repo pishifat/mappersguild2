@@ -7,8 +7,7 @@
         <div class="radial-divisor mx-auto my-4" />
 
         <guest-difficulties
-            @update:fetch-limit="fetchLimit += 30"
-            @load-beatmaps="loadBeatmaps($event)"
+            :is-loading-guest-beatmaps="isLoadingGuestBeatmaps"
         />
 
         <div class="radial-divisor mx-auto my-4" />
@@ -16,10 +15,12 @@
         <other-beatmaps />
 
         <!-- beatmap info modal -->
-        <edit-beatmap />
+        <edit-beatmap-modal />
 
         <!-- create beatmap modal -->
-        <create-beatmap />
+        <create-beatmap-modal />
+
+        <toast-messages />
 
         <notifications-access v-if="userGroup != 'spectator'" />
     </div>
@@ -30,14 +31,14 @@ import Vue from 'vue';
 import { mapState } from 'vuex';
 import Axios from 'axios';
 import $ from 'jquery';
-import CreateBeatmap from '@components/beatmaps/CreateBeatmap.vue';
+import CreateBeatmapModal from '@components/beatmaps/CreateBeatmapModal.vue';
 import NotificationsAccess from '@components/NotificationsAccess.vue';
+import ToastMessages from '@components/ToastMessages.vue';
 import BeatmapPageFilters from './BeatmapPageFilters.vue';
 import HostedBeatmaps from './HostedBeatmaps.vue';
 import GuestDifficulties from './GuestDifficulties.vue';
 import OtherBeatmaps from './OtherBeatmaps.vue';
-import EditBeatmap from './EditBeatmap.vue';
-import { Quest } from '@srcModels/quest';
+import EditBeatmapModal from './EditBeatmapModal.vue';
 
 export default Vue.extend({
     name: 'BeatmapPage',
@@ -46,17 +47,14 @@ export default Vue.extend({
         HostedBeatmaps,
         GuestDifficulties,
         OtherBeatmaps,
-        EditBeatmap,
-        CreateBeatmap,
+        EditBeatmapModal,
+        CreateBeatmapModal,
         NotificationsAccess,
+        ToastMessages,
     },
     data() {
         return {
-            info: null as null | string,
-            isLoading: false,
-            firstLoadingComplete: false,
-            fetchLimit: 30,
-            allQuests: [] as Quest[],
+            isLoadingGuestBeatmaps: true,
         };
     },
     computed: mapState([
@@ -66,53 +64,36 @@ export default Vue.extend({
         'filterQuest',
         'filterValue',
     ]),
-    created() {
-        Axios
-            .get('/beatmaps/relevantInfo')
-            .then(response => {
-                this.$store.commit('setUserBeatmaps', response.data.beatmaps);
-                this.$store.commit('setUserOsuId', response.data.userOsuId);
-                this.$store.commit('setUserId', response.data.userMongoId);
-                this.$store.commit('setUsername', response.data.username);
-                this.$store.commit('setUserGroup', response.data.group);
-                this.$store.commit('setFilterMode', response.data.mainMode);
-            })
-            .then(() => {
-                $('#loading').fadeOut();
-                $('#app')
-                    .attr('style', 'visibility: visible')
-                    .hide()
-                    .fadeIn();
-            })
-            .then(() => {
-                this.loadBeatmaps();
-            });
+    async created() {
+        const res = await Axios.get('/beatmaps/relevantInfo');
+
+        if (res.data) {
+            this.$store.commit('setUserBeatmaps', res.data.beatmaps);
+            this.$store.commit('setUserOsuId', res.data.userOsuId);
+            this.$store.commit('setUserId', res.data.userMongoId);
+            this.$store.commit('setUsername', res.data.username);
+            this.$store.commit('setUserGroup', res.data.group);
+            this.$store.commit('setFilterMode', res.data.mainMode);
+        }
+
+        $('#loading').fadeOut();
+        $('#app')
+            .attr('style', 'visibility: visible')
+            .hide()
+            .fadeIn();
+
+        await this.loadGuestBeatmaps();
+        this.isLoadingGuestBeatmaps = false;
+
+        await this.$store.dispatch('loadOthersBeatmaps');
     },
     methods: {
-        async loadBeatmaps(e?): Promise<void> {
-            if (e) e.target.disabled = true;
+        async loadGuestBeatmaps(): Promise<void> {
+            const res = await Axios.get('/beatmaps/guestBeatmaps');
 
-            let mode = this.filterMode;
-            this.isLoading = true;
-
-            if (!this.filterMode.length) mode = 'any';
-
-            const status = this.filterStatus ? `&status=${this.filterStatus}` : '';
-            const quest = this.filterQuest ? `&quest=${this.filterQuest}` : '';
-            const search = this.filterValue ? `&search=${this.filterValue}` : '';
-
-            const response = await Axios.get(`/beatmaps/loadBeatmaps?mode=${mode}&limit=${this.fetchLimit + status + quest + search}`);
-            this.$store.commit('setAllBeatmaps', response.data.allBeatmaps);
-            this.$store.commit('setUserBeatmaps', response.data.userBeatmaps);
-
-            this.isLoading = false;
-            this.firstLoadingComplete = true;
-
-            if (e) e.target.disabled = false;
-        },
-        updateBeatmap(bm): void {
-            this.$store.dispatch('updateBeatmap', bm);
-            this.info = '';
+            if (res?.data?.userBeatmaps) {
+                this.$store.commit('setUserBeatmaps', res.data.userBeatmaps);
+            }
         },
     },
 });

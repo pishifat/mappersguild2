@@ -1,6 +1,6 @@
 <template>
     <div
-        v-if="selectedBeatmap.status == 'WIP' && remainingTasks.length"
+        v-if="beatmap.status == 'WIP' && remainingTasks.length"
         class="row mt-2 mb-3"
     >
         <div class="col-sm-12 form-inline">
@@ -20,7 +20,7 @@
                 </select>
 
                 <select
-                    v-if="selectedBeatmap.mode == 'hybrid' && !taskToAddCollaborator"
+                    v-if="beatmap.mode == 'hybrid' && !taskToAddCollaborator"
                     v-model="selectedMode"
                     class="form-control"
                 >
@@ -45,7 +45,7 @@
                     type="text"
                     placeholder="request to... (if needed)"
                     maxlength="18"
-                    @keyup.enter="taskToAddCollaborator ? addCollab($event) : requestTask(selectedBeatmap.id, $event)"
+                    @keyup.enter="taskToAddCollaborator ? addCollab($event) : requestTask(beatmap.id, $event)"
                 >
 
                 <button
@@ -53,7 +53,7 @@
                     data-toggle="tooltip"
                     data-placement="top"
                     title="add difficulty"
-                    @click="taskToAddCollaborator ? addCollab($event) : addTask(selectedBeatmap.id, $event)"
+                    @click="taskToAddCollaborator ? addCollab($event) : addTask(beatmap.id, $event)"
                 >
                     <i class="fas fa-plus" />
                 </button>
@@ -76,7 +76,6 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { mapState } from 'vuex';
 import { TaskName } from '@srcModels/task';
 import { BeatmapMode, Beatmap } from '@srcModels/beatmap';
 
@@ -85,23 +84,24 @@ export default Vue.extend({
     props: {
         isHost: Boolean,
         taskToAddCollaborator: Object,
+        beatmap: {
+            type: Object as () => Beatmap,
+            required: true,
+        },
     },
     data () {
         return {
-            selectedTask: 'Easy' as TaskName,
-            selectedMode: 'osu' as BeatmapMode,
+            selectedTask: TaskName.Easy,
+            selectedMode: BeatmapMode.Osu,
             requestTaskUsername: '',
         };
     },
     computed: {
-        ...mapState([
-            'selectedBeatmap',
-        ]),
         remainingTasks(): string[] {
             let possibleTasks = Object.values(TaskName);
 
-            if (this.selectedBeatmap.tasksLocked && this.selectedBeatmap.tasksLocked.length && !this.isHost) {
-                possibleTasks = possibleTasks.filter(t => !this.selectedBeatmap.tasksLocked.includes(t));
+            if (this.beatmap.tasksLocked && this.beatmap.tasksLocked.length && !this.isHost) {
+                possibleTasks = possibleTasks.filter(t => !this.beatmap.tasksLocked.includes(t));
             }
 
             // eslint-disable-next-line vue/no-side-effects-in-computed-properties
@@ -120,10 +120,10 @@ export default Vue.extend({
 
             let mode: BeatmapMode;
 
-            if (this.selectedBeatmap.mode == BeatmapMode.Hybrid) {
+            if (this.beatmap.mode == BeatmapMode.Hybrid) {
                 mode = this.selectedMode;
             } else {
-                mode = this.selectedBeatmap.mode;
+                mode = this.beatmap.mode;
             }
 
             const bm = await this.executePost<Beatmap>('/beatmaps/addTask/' + id, {
@@ -132,7 +132,6 @@ export default Vue.extend({
             }, e);
 
             if (this.isError(bm)) {
-                this.$emit('update:info', bm.error);
                 this.$emit('update:invite-confirm', null);
             } else {
                 this.$store.dispatch('updateBeatmap', bm);
@@ -141,10 +140,10 @@ export default Vue.extend({
         async requestTask(id, e): Promise<void> {
             let mode;
 
-            if (this.selectedBeatmap.mode == BeatmapMode.Hybrid) {
+            if (this.beatmap.mode == BeatmapMode.Hybrid) {
                 mode = this.selectedMode;
             } else {
-                mode = this.selectedBeatmap.mode;
+                mode = this.beatmap.mode;
             }
 
             const bm = await this.executePost<Beatmap>('/beatmaps/requestTask/' + id, {
@@ -154,7 +153,6 @@ export default Vue.extend({
             }, e);
 
             if (this.isError(bm)) {
-                this.$emit('update:info', bm.error);
                 this.$emit('update:invite-confirm', null);
             } else {
                 this.$store.dispatch('updateBeatmap', bm);
@@ -164,10 +162,10 @@ export default Vue.extend({
         async addCollab(e): Promise<void> {
             let mode;
 
-            if (this.selectedBeatmap.mode == BeatmapMode.Hybrid) {
+            if (this.beatmap.mode == BeatmapMode.Hybrid) {
                 mode = this.taskToAddCollaborator.mode;
             } else {
-                mode = this.selectedBeatmap.mode;
+                mode = this.beatmap.mode;
             }
 
             const bm = await this.executePost<Beatmap>('/beatmaps/task/' + this.taskToAddCollaborator.id + '/addCollab', {
@@ -177,11 +175,9 @@ export default Vue.extend({
             }, e);
 
             if (this.isError(bm)) {
-                this.$emit('update:info', bm.error);
                 this.$emit('update:invite-confirm', null);
             } else {
                 this.$store.dispatch('updateBeatmap', bm);
-                this.$emit('update:info', null);
                 this.$emit('update:invite-confirm', 'Collab invite sent!');
             }
         },

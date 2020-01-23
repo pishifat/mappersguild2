@@ -73,7 +73,8 @@
       "models/**/*",
       "routes/**/*",
       "helpers/**/*",
-      "src/**/*"
+      "src/**/*",
+      "typing/**/*"
     ],
     "files": [
       "./app.ts"

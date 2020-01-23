@@ -15,7 +15,7 @@
                         :placeholder="placeholder"
                         autocomplete="off"
                         :value="filterValue"
-                        @key.enter="setFilterValue($event.target.value)"
+                        @keyup.enter="updateFilterValue($event.target.value)"
                     >
                     <div v-if="placeholder != 'quest name...'" class="input-group-append">
                         <button
@@ -42,8 +42,8 @@
                         <a
                             href="#"
                             class="mode"
-                            :class="getSortClass('any')"
-                            @click.prevent="setFilterMode('any')"
+                            :class="getModeSortClass('any')"
+                            @click.prevent="updateFilterMode('any')"
                         >
                             Any
                         </a>
@@ -51,8 +51,8 @@
                             id="osu"
                             href="#"
                             class="mode"
-                            :class="getSortClass('osu')"
-                            @click.prevent="setFilterMode('osu')"
+                            :class="getModeSortClass('osu')"
+                            @click.prevent="updateFilterMode('osu')"
                         >
                             osu!
                         </a>
@@ -60,8 +60,8 @@
                             id="taiko"
                             href="#"
                             class="mode"
-                            :class="getSortClass('taiko')"
-                            @click.prevent="setFilterMode('taiko')"
+                            :class="getModeSortClass('taiko')"
+                            @click.prevent="updateFilterMode('taiko')"
                         >
                             osu!taiko
                         </a>
@@ -69,8 +69,8 @@
                             id="catch"
                             href="#"
                             class="mode"
-                            :class="getSortClass('catch')"
-                            @click.prevent="setFilterMode('catch')"
+                            :class="getModeSortClass('catch')"
+                            @click.prevent="updateFilterMode('catch')"
                         >
                             osu!catch
                         </a>
@@ -78,8 +78,8 @@
                             id="mania"
                             href="#"
                             class="mode"
-                            :class="getSortClass('mania')"
-                            @click.prevent="setFilterMode('mania');"
+                            :class="getModeSortClass('mania')"
+                            @click.prevent="updateFilterMode('mania');"
                         >
                             osu!mania
                         </a>
@@ -92,11 +92,46 @@
                         Status
                     </div>
                     <div class="col">
-                        <a href="#" class="status sorted" @click.prevent="setFilterStatus('any')">Any</a>
-                        <a href="#" class="status unsorted" @click.prevent="setFilterStatus('WIP')">WIP</a>
-                        <a href="#" class="status unsorted" @click.prevent="setFilterStatus('Done')">Done</a>
-                        <a href="#" class="status unsorted" @click.prevent="setFilterStatus('Qualified')">Qualified</a>
-                        <a href="#" class="status unsorted" @click.prevent="setFilterStatus('Ranked')">Ranked</a>
+                        <a
+                            href="#"
+                            class="status"
+                            :class="getStatusSortClass('any')"
+                            @click.prevent="updateFilterStatus('any')"
+                        >
+                            Any
+                        </a>
+                        <a
+                            href="#"
+                            class="status"
+                            :class="getStatusSortClass('WIP')"
+                            @click.prevent="updateFilterStatus('WIP')"
+                        >
+                            WIP
+                        </a>
+                        <a
+                            href="#"
+                            class="status"
+                            :class="getStatusSortClass('Done')"
+                            @click.prevent="updateFilterStatus('Done')"
+                        >
+                            Done
+                        </a>
+                        <a
+                            href="#"
+                            class="status"
+                            :class="getStatusSortClass('Qualified')"
+                            @click.prevent="updateFilterStatus('Qualified')"
+                        >
+                            Qualified
+                        </a>
+                        <a
+                            href="#"
+                            class="status"
+                            :class="getStatusSortClass('Ranked')"
+                            @click.prevent="updateFilterStatus('Ranked')"
+                        >
+                            Ranked
+                        </a>
                     </div>
                 </div>
 
@@ -105,8 +140,22 @@
                         Quest
                     </div>
                     <div class="col">
-                        <a href="#" class="quest sorted" @click.prevent="setFilterQuest('any')">Any</a>
-                        <a href="#" class="quest unsorted" @click.prevent="setFilterQuest('none')">None</a>
+                        <a
+                            href="#"
+                            class="quest"
+                            :class="getQuestSortClass('any')"
+                            @click.prevent="updateFilterQuest('any')"
+                        >
+                            Any
+                        </a>
+                        <a
+                            href="#"
+                            class="quest"
+                            :class="getQuestSortClass('none')"
+                            @click.prevent="updateFilterQuest('none')"
+                        >
+                            None
+                        </a>
                     </div>
                 </div>
             </div>
@@ -116,13 +165,15 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { FilterMode } from '../models/extras';
-import { mapState, mapMutations } from 'vuex';
+import { mapState, mapMutations, mapActions } from 'vuex';
 
 export default Vue.extend({
     props: {
         allQuests: Array,
-        placeholder: String,
+        placeholder: {
+            type: String,
+            required: true,
+        },
         isLoading: Boolean,
     },
     computed: mapState([
@@ -138,15 +189,35 @@ export default Vue.extend({
             'setFilterStatus',
             'setFilterQuest',
         ]),
-        getSortClass(mode: FilterMode): 'sorted' | 'unsorted' {
+        ...mapActions([
+            'updateFilterValue',
+            'updateFilterMode',
+            'updateFilterStatus',
+            'updateFilterQuest',
+        ]),
+        getModeSortClass(mode: string): 'sorted' | 'unsorted' {
             if (this.filterMode === mode) {
                 return 'sorted';
             }
 
             return 'unsorted';
         },
+        getStatusSortClass(status: string): 'sorted' | 'unsorted' {
+            if (this.filterStatus === status) {
+                return 'sorted';
+            }
+
+            return 'unsorted';
+        },
+        getQuestSortClass(quest: 'any' | 'none'): 'sorted' | 'unsorted' {
+            if (this.filterQuest === quest) {
+                return 'sorted';
+            }
+
+            return 'unsorted';
+        },
         selfFilter(): void {
-            this.$store.commit('setFilterValue', this.$store.state.username);
+            this.setFilterValue(this.$store.state.username);
         },
     },
 });

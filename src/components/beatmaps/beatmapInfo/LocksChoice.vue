@@ -5,7 +5,7 @@
                 <div>
                     Locks
                     <a
-                        v-if="selectedBeatmap.tasksLocked.length != 6"
+                        v-if="beatmap.tasksLocked.length != 6"
                         class="text-success small ml-1"
                         href="#"
                         @click.prevent="showLocksInput = !showLocksInput"
@@ -14,10 +14,10 @@
                     </a>
                 </div>
                 <div class="small ml-3">
-                    <i v-if="selectedBeatmap.tasksLocked.length == 0">none</i>
-                    <div v-if="selectedBeatmap.tasksLocked.length > 0">
+                    <i v-if="beatmap.tasksLocked.length == 0">none</i>
+                    <div v-if="beatmap.tasksLocked.length > 0">
                         <div
-                            v-for="task in selectedBeatmap.tasksLocked"
+                            v-for="task in beatmap.tasksLocked"
                             :key="task.id"
                         >
                             <a
@@ -77,11 +77,17 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { mapState } from 'vuex';
 import { Beatmap } from '@srcModels/beatmap';
+import { TaskName } from '../../../models/task';
 
 export default Vue.extend({
     name: 'LocksChoice',
+    props: {
+        beatmap: {
+            type: Object as () => Beatmap,
+            required: true,
+        },
+    },
     data () {
         return {
             lockTaskSelection: '',
@@ -89,21 +95,11 @@ export default Vue.extend({
         };
     },
     computed: {
-        ...mapState([
-            'selectedBeatmap',
-        ]),
         remainingTasks(): string[] {
-            let possibleTasks = [
-                'Easy',
-                'Normal',
-                'Hard',
-                'Insane',
-                'Expert',
-                'Storyboard',
-            ];
+            let possibleTasks: TaskName[] = Object.values(TaskName);
 
-            if (this.selectedBeatmap?.tasksLocked?.length) {
-                possibleTasks = possibleTasks.filter(t => !this.selectedBeatmap.tasksLocked.includes(t));
+            if (this.beatmap?.tasksLocked?.length) {
+                possibleTasks = possibleTasks.filter(t => !this.beatmap.tasksLocked.includes(t));
             }
 
             // eslint-disable-next-line vue/no-side-effects-in-computed-properties
@@ -113,7 +109,7 @@ export default Vue.extend({
         },
     },
     watch: {
-        selectedBeatmap (): void {
+        beatmap (): void {
             this.showLocksInput = false;
         },
     },
@@ -121,12 +117,12 @@ export default Vue.extend({
         async unlockTask(task, e): Promise<void> {
             e.target.classList.add('fake-button-disable');
 
-            const bm = await this.executePost(
-                '/beatmaps/unlockTask/' + this.selectedBeatmap._id,
+            const bm = await this.executePost<Beatmap>(
+                '/beatmaps/unlockTask/' + this.beatmap.id,
                 { task }
             );
 
-            if (bm) {
+            if (!this.isError(bm)) {
                 this.$store.dispatch('updateBeatmap', bm);
             }
 
@@ -134,14 +130,12 @@ export default Vue.extend({
         },
         async lockTask(e): Promise<void> {
             const bm = await this.executePost<Beatmap>(
-                '/beatmaps/lockTask/' + this.selectedBeatmap._id,
+                '/beatmaps/lockTask/' + this.beatmap.id,
                 { task: this.lockTaskSelection },
                 e
             );
 
-            if (this.isError(bm)) {
-                this.$emit('update:info', bm.error);
-            } else {
+            if (!this.isError(bm)) {
                 this.$store.dispatch('updateBeatmap', bm);
             }
         },

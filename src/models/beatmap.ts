@@ -18,7 +18,7 @@ export enum BeatmapMode {
     Hybrid = 'hybrid',
 }
 
-export enum ModeOrAny {
+export enum BeatmapModeOrAny {
     Osu = 'osu',
     Taiko = 'taiko',
     Catch = 'catch',

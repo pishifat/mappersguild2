@@ -6,11 +6,6 @@ export interface ResponseError {
 }
 
 export default Vue.extend({
-    data () {
-        return {
-            info: '',
-        };
-    },
     methods: {
         async executePost<T>(path: string, data: object = {}, e?): Promise<T | ResponseError> {
             if (e) e.target.disabled = true;
@@ -21,14 +16,14 @@ export default Vue.extend({
                 const res = await Axios.post(path, data);
 
                 if (res.data.error) {
-                    this.info = res.data.error;
+                    this.$store.dispatch('updateToastMessages', res.data.error);
 
                     return { error: res.data.error };
                 } else {
                     return res.data;
                 }
             } catch (error) {
-                this.info = 'Something went wrong!';
+                this.$store.dispatch('updateToastMessages', 'Something went wrong!');
 
                 return { error: 'Something went wrong!' };
             } finally {

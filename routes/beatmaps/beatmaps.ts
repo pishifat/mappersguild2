@@ -1,6 +1,6 @@
 import express from 'express';
 import { BeatmapService, Beatmap, ModeOrAny, BeatmapMode, BeatmapStatus } from '../../models/beatmap/beatmap';
-import { TaskService, Task, TaskStatus } from '../../models/beatmap/task';
+import { TaskService, Task, TaskStatus, TaskName } from '../../models/beatmap/task';
 import { UserService } from '../../models/user';
 import { QuestService, Quest } from '../../models/quest';
 import { NotificationService } from '../../models/notification';
@@ -47,120 +47,86 @@ beatmapsRouter.get('/relevantInfo', async (req, res) => {
     });
 });
 
-/* GET mode-specific beatmaps */
-beatmapsRouter.get('/loadBeatmaps', async (req, res) => {
-    if (!req.query.mode || !req.query.limit) {
-        return res.json({ error: 'Missing mode filter...' });
-    }
-
-    let userBeatmapsQuery = {};
-    let allBeatmapsQuery = {};
-    const mode = req.query.mode as ModeOrAny;
-    const limit = parseInt(req.query.limit);
-    const status = req.query.status as BeatmapStatus | undefined;
-    const quest = req.query.quest as 'none' | undefined;
-    const search = req.query.search as string | undefined;
+/* GET guest difficulty related beatmaps */
+beatmapsRouter.get('/guestBeatmaps', async (req, res) => {
     const ownTasks = await TaskService.queryAll({
         query: { mappers: req.session?.mongoId },
         select: '_id',
     });
 
-    if (mode != ModeOrAny.Any) {
-        userBeatmapsQuery = {
-            $and: [
-                {
-                    $or: [
-                        { mode },
-                        { mode: BeatmapMode.Hybrid },
-                    ],
-                },
-                {
-                    tasks: {
-                        $in: ownTasks,
-                    },
-                },
-            ],
-        };
-
-        allBeatmapsQuery = {
-            $or: [
-                { mode },
-                { mode: BeatmapMode.Hybrid },
-            ],
-        };
-    } else {
-        userBeatmapsQuery = {
+    const userBeatmaps = await BeatmapService.queryAll({
+        query: {
             tasks: {
                 $in: ownTasks,
             },
-        };
+        },
+        useDefaults: true,
+    });
+
+    res.json({ userBeatmaps });
+});
+
+/* GET mode-specific beatmaps */
+beatmapsRouter.get('/search', async (req, res) => {
+    if (!req.query.mode || !req.query.limit) {
+        return res.json({ error: 'Missing mode filter...' });
     }
 
-    // need to add this somehow here
-    // filter(): void {
-    //     this.pageObjs = this.allObjs.filter(b => {
-    //         let valid = b.song.artist + ' ' + b.song.title + ' ' + b.host.username;
-    //         b.tasks.forEach(task => {
-    //             task.mappers.forEach(mapper => {
-    //                 valid += ' ' + mapper.username;
-    //             });
-    //         });
-    //         valid = valid.toLowerCase();
+    const mode = req.query.mode as ModeOrAny;
+    const limit = parseInt(req.query.limit);
+    const status = req.query.status as BeatmapStatus | undefined;
+    const quest = req.query.quest as 'none' | undefined;
+    const search = req.query.search as string | undefined;
 
-    //         const tags = this.filterValue
-    //             .toLowerCase()
-    //             .trim()
-    //             .split(' ');
-    //         let count = 0;
-    //         tags.forEach(tag => {
-    //             if (valid.includes(tag)) {
-    //                 count++;
-    //             }
-    //         });
+    let allBeatmaps = await BeatmapService.queryAll({
+        query: {
+            ...(mode != ModeOrAny.Any ? {
+                $or: [
+                    { mode },
+                    { mode: BeatmapMode.Hybrid },
+                ],
+            } : {}),
+            ...(status ? { status } : {}),
+            ...(quest ? { quest: { $exists: false } } : {}),
+            host: { $ne: req.session?.mongoId },
+        },
+        useDefaults: true,
+        // this actually returns every map, pretty dumb, need to fix somehow
+        limit: search ? undefined: limit,
+    });
 
-    //         if (count == tags.length) {
-    //             return true;
-    //         }
+    if (search && !BeatmapService.isError(allBeatmaps)) {
+        const tags = search
+            .toLowerCase()
+            .trim()
+            .split(' ')
+            .filter(t => t.length);
 
-    //         return false;
-    //     });
-    // },
+        allBeatmaps = allBeatmaps.filter(b => {
+            let searchableTags = b.song.artist + ' ' + b.song.title + ' ' + b.host.username;
+            b.tasks.forEach(task => {
+                task.mappers.forEach(mapper => {
+                    searchableTags += ' ' + mapper.username;
+                });
+            });
 
-    const [userBeatmaps, allBeatmaps] = await Promise.all([
-        BeatmapService.queryAll({
-            query: userBeatmapsQuery,
-            useDefaults: true,
-        }),
-        BeatmapService.queryAll({
-            query: {
-                ...allBeatmapsQuery,
-                ...(status ? { status } : {}),
-                ...(quest ? { quest: { $exists: false } } : {}),
-                ...(search ? {
-                    $or: [
-                        { 'host.username': new RegExp(search, 'i') },
-                        { 'song.artist': new RegExp(search, 'i') },
-                        { 'song.title': new RegExp(search, 'i') },
-                    ],
-                } : {}),
-            },
-            useDefaults: true,
-            limit,
-        }),
-    ]);
+            searchableTags = searchableTags.toLowerCase();
 
-    res.json({ userBeatmaps, allBeatmaps });
+            return tags.some(t => searchableTags.includes(t));
+        });
+    }
+
+    res.json({ allBeatmaps });
 });
 
 /* GET artists for new map entry */
 beatmapsRouter.get('/artists/', async (req, res) => {
-    const fa = await FeaturedArtistService.queryAll({
+    const featuredArtists = await FeaturedArtistService.queryAll({
         query: { osuId: { $exists: true } },
     });
 
-    res.json(fa);
+    res.json(featuredArtists);
 });
-
 
 /* GET songs for new map entry */
 beatmapsRouter.get('/songs/:labelId', canFail(async (req, res) => {
@@ -180,7 +146,7 @@ beatmapsRouter.get('/findUserQuests/', async (req, res) => {
 
 /* POST create new map */
 beatmapsRouter.post('/create', isNotSpectator, canFail(async (req, res) => {
-    if (req.body.song == 'none') {
+    if (!req.body.song) {
         return res.json({ error: 'Missing song!' });
     }
 
@@ -188,12 +154,12 @@ beatmapsRouter.post('/create', isNotSpectator, canFail(async (req, res) => {
         return res.json({ error: 'Select at least one difficulty to map!' });
     }
 
-    const newTasks = req.body.tasks.split('|');
-    const realTasks: Task['_id'][] = [];
+    const tasks: TaskName[] = req.body.tasks;
+    const createdTasks: Task['_id'][] = [];
 
-    for (let i = 0; i < newTasks.length; i++) {
+    for (let i = 0; i < tasks.length; i++) {
         const t = await TaskService.create({
-            name: newTasks[i],
+            name: tasks[i],
             mappers: req.session?.mongoId,
             mode: req.body.mode,
         });
@@ -202,16 +168,16 @@ beatmapsRouter.post('/create', isNotSpectator, canFail(async (req, res) => {
             return res.json({ error: 'Missing task!' });
         }
 
-        realTasks.push(t._id);
+        createdTasks.push(t._id);
     }
 
-    let locks = [];
+    let locks: TaskName[] = [];
 
     if (req.body.tasksLocked) {
-        locks = req.body.tasksLocked.split('|');
+        locks = req.body.tasksLocked;
     }
 
-    const newBeatmap = await BeatmapService.create(req.session?.mongoId, realTasks, locks, req.body.song, req.body.mode);
+    const newBeatmap = await BeatmapService.create(req.session?.mongoId, createdTasks, locks, req.body.song, req.body.mode);
 
     if (!newBeatmap || BeatmapService.isError(newBeatmap)) {
         return res.json(defaultErrorMessage);
@@ -219,7 +185,7 @@ beatmapsRouter.post('/create', isNotSpectator, canFail(async (req, res) => {
 
     const b = await BeatmapService.queryByIdOrFail(newBeatmap._id, { defaultPopulate: true });
 
-    res.json({ beatmap: b });
+    res.json(b);
 
     LogService.create(
         req.session?.mongoId,

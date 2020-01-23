@@ -6,8 +6,8 @@
 
         <button
             class="btn btn-sm"
-            :class="selectedBeatmap.status == 'Done' ? 'btn-success' : 'btn-outline-success'"
-            :disabled="selectedBeatmap.status == 'Done'"
+            :class="beatmap.status == 'Done' ? 'btn-success' : 'btn-outline-success'"
+            :disabled="beatmap.status == 'Done'"
             data-toggle="tooltip"
             data-placement="bottom"
             title="mark mapset and all diffs as done"
@@ -18,8 +18,8 @@
 
         <button
             class="btn btn-sm"
-            :class="selectedBeatmap.status == 'WIP' ? 'btn-warning' : 'btn-outline-warning'"
-            :disabled="selectedBeatmap.status == 'WIP'"
+            :class="beatmap.status == 'WIP' ? 'btn-warning' : 'btn-outline-warning'"
+            :disabled="beatmap.status == 'WIP'"
             data-toggle="tooltip"
             data-placement="bottom"
             title="mark mapset as work-in-progress"
@@ -32,26 +32,25 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { mapState } from 'vuex';
+import { Beatmap } from '@srcModels/beatmap';
 
 export default Vue.extend({
     name: 'StatusChoice',
-    computed: {
-        ...mapState([
-            'selectedBeatmap',
-        ]),
+    props: {
+        beatmap: {
+            type: Object as () => Beatmap,
+            required: true,
+        },
     },
     methods: {
         async setStatus(status, e): Promise<void> {
-            const beatmap = await this.executePost(
-                '/beatmaps/setStatus/' + this.selectedBeatmap._id,
+            const beatmap = await this.executePost<Beatmap>(
+                '/beatmaps/setStatus/' + this.beatmap.id,
                 { status },
                 e
             );
 
-            if (this.isError(beatmap)) {
-                this.$emit('update:info', beatmap.error);
-            } else {
+            if (!this.isError(beatmap)) {
                 this.$store.dispatch('updateBeatmap', beatmap);
             }
         },

@@ -60,7 +60,9 @@
                 </div>
                 <div class="modal-body" style="overflow: hidden;">
                     <img src="../../images/the_A.png" class="the-a-background">
-                    <beatmap-info />
+                    <beatmap-info
+                        :beatmap="selectedBeatmap"
+                    />
                 </div>
             </div>
         </div>

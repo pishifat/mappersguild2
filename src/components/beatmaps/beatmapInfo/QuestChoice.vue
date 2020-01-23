@@ -18,7 +18,7 @@
                     </a>
                 </div>
                 <div class="small ml-3 text-white-50">
-                    <span v-if="selectedBeatmap.quest">{{ selectedBeatmap.quest.name }}</span>
+                    <span v-if="beatmap.quest">{{ beatmap.quest.name }}</span>
                     <i v-else>none</i>
                 </div>
             </div>
@@ -64,11 +64,17 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { mapState } from 'vuex';
 import Axios from 'axios';
+import { Beatmap } from '@srcModels/beatmap';
 
 export default Vue.extend({
     name: 'QuestChoice',
+    props: {
+        beatmap: {
+            type: Object as () => Beatmap,
+            required: true,
+        },
+    },
     data () {
         return {
             userQuests: null,
@@ -76,32 +82,25 @@ export default Vue.extend({
             dropdownQuestId: '',
         };
     },
-    computed: {
-        ...mapState([
-            'selectedBeatmap',
-        ]),
-    },
     watch: {
-        selectedBeatmap (): void {
+        beatmap (): void {
             this.showQuestInput = false;
-            this.dropdownQuestId = this.selectedBeatmap.quest?._id;
+            this.dropdownQuestId = this.beatmap.quest?.id;
         },
     },
-    // async created() {
-    //     const response = await Axios.get('/beatmaps/findUserQuests');
-    //     this.userQuests = response.data.userQuests;
-    // },
+    async created() {
+        const response = await Axios.get('/beatmaps/findUserQuests');
+        this.userQuests = response.data.userQuests;
+    },
     methods: {
         async saveQuest(e): Promise<void> {
-            const bm = await this.executePost(
-                '/beatmaps/saveQuest/' + this.selectedBeatmap._id,
+            const bm = await this.executePost<Beatmap>(
+                '/beatmaps/saveQuest/' + this.beatmap.id,
                 { questId: this.dropdownQuestId },
                 e
             );
 
-            if (this.isError(bm)) {
-                this.$emit('update:info', bm.error);
-            } else {
+            if (!this.isError(bm)) {
                 this.$store.dispatch('updateBeatmap', bm);
             }
         },

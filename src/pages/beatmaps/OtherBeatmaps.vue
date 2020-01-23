@@ -2,14 +2,18 @@
     <div class="container bg-container py-3">
         <h5 class="ml-2">
             <a href="#otherBeatmaps" data-toggle="collapse">
-                Other beatmaps ({{ otherBeatmaps ? otherBeatmaps.length : '...' }})
+                Other beatmaps ({{ otherBeatmaps && !isLoadingOtherBeatmaps ? otherBeatmaps.length : '...' }})
                 <i class="fas fa-angle-down" />
             </a>
-            <span v-if="isLoading" class="text-white-50" style="font-size: 9pt;">loading...</span>
         </h5>
 
-        <div v-if="otherBeatmaps" id="otherBeatmaps" class="collapse">
-            <p v-if="!otherBeatmaps.length" class="ml-5 text-white-50">
+        <div
+            v-if="otherBeatmaps"
+            id="otherBeatmaps"
+            class="collapse"
+            :style="isLoadingOtherBeatmaps ? 'opacity: 0.3': ''"
+        >
+            <p v-if="!otherBeatmaps.length && !isLoadingOtherBeatmaps" class="ml-5 text-white-50">
                 None...
             </p>
 
@@ -17,18 +21,14 @@
                 v-for="beatmap in otherBeatmaps"
                 :key="beatmap.id"
                 :beatmap="beatmap"
-                :user-osu-id="userOsuId"
             />
 
-            <div class="text-center">
+            <div v-if="!filterValue" class="text-center">
                 <button
                     class="btn btn-sm btn-outline-info my-4"
-                    data-toggle="tooltip"
-                    data-placement="top"
-                    title="toggle visibility of less active beatmaps"
                     @click.prevent="showMore($event)"
                 >
-                    <i class="fas fa-angle-down mr-1" /> show older beatmaps <i class="fas fa-angle-down ml-1" />
+                    <i class="fas fa-angle-down mr-1" /> show more <i class="fas fa-angle-down ml-1" />
                 </button>
             </div>
         </div>
@@ -44,19 +44,18 @@ export default Vue.extend({
     components: {
         BeatmapTableRow,
     },
-    data () {
-        return {
-            isLoading: false,
-        };
-    },
     computed: mapState({
         otherBeatmaps: 'allBeatmaps',
         userOsuId: 'userOsuId',
+        isLoadingOtherBeatmaps: 'isLoadingOtherBeatmaps',
+        filterValue: 'filterValue',
     }),
     methods: {
-        showMore(e): void {
-            this.$emit('update:fetch-limit');
-            this.$emit('load-beatmaps', e);
+        async showMore(e): Promise<void> {
+            e.target.disabled = true;
+            this.$store.commit('increaseFetchLimit');
+            await this.$store.dispatch('loadOthersBeatmaps');
+            e.target.disabled = false;
         },
     },
 });
