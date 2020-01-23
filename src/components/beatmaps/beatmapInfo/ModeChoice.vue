@@ -63,7 +63,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { Beatmap } from '@srcModels/beatmap';
+import { Beatmap } from '@models/beatmap';
 
 export default Vue.extend({
     name: 'ModeChoice',
@@ -75,7 +75,7 @@ export default Vue.extend({
     },
     methods: {
         async setMode(id, mode, e): Promise<void> {
-            const beatmap = await this.executePost<Beatmap>('/beatmaps/setMode/' + id, { mode }, e);
+            const beatmap = await this.executePost<Beatmap>(`/beatmaps/${id}/setMode`, { mode }, e);
 
             if (!this.isError(beatmap)) {
                 this.$store.dispatch('updateBeatmap', beatmap);

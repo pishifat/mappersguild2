@@ -32,7 +32,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { Beatmap } from '@srcModels/beatmap';
+import { Beatmap } from '@models/beatmap';
 
 export default Vue.extend({
     name: 'StatusChoice',
@@ -45,7 +45,7 @@ export default Vue.extend({
     methods: {
         async setStatus(status, e): Promise<void> {
             const beatmap = await this.executePost<Beatmap>(
-                '/beatmaps/setStatus/' + this.beatmap.id,
+                `/beatmaps/${this.beatmap.id}/setStatus`,
                 { status },
                 e
             );

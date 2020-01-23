@@ -1,13 +1,12 @@
 import express from 'express';
 import { BeatmapService, Beatmap, ModeOrAny, BeatmapMode, BeatmapStatus } from '../../models/beatmap/beatmap';
-import { TaskService, Task, TaskStatus, TaskName } from '../../models/beatmap/task';
-import { UserService } from '../../models/user';
-import { QuestService, Quest } from '../../models/quest';
+import { TaskService, Task, TaskName } from '../../models/beatmap/task';
+import { QuestService } from '../../models/quest';
 import { NotificationService } from '../../models/notification';
 import { LogService, LogCategory } from '../../models/log';
 import { isLoggedIn, isNotSpectator, isBn } from '../../helpers/middlewares';
 import { defaultErrorMessage, canFail } from '../../helpers/helpers';
-import { isValidBeatmap, isBeatmapHost } from './middlewares';
+import { isValidBeatmap } from './middlewares';
 
 const beatmapsRouter = express.Router();
 
@@ -119,7 +118,7 @@ beatmapsRouter.get('/search', async (req, res) => {
 });
 
 /* GET quests for linking quest to beatmap */
-beatmapsRouter.get('/findUserQuests/', async (req, res) => {
+beatmapsRouter.get('/users/quests', async (req, res) => {
     const userQuests = await QuestService.getUserQuests(req.session?.mongoId);
 
     res.json({ userQuests });
@@ -177,29 +176,29 @@ beatmapsRouter.post('/create', isNotSpectator, canFail(async (req, res) => {
 }));
 
 /* POST modder from extended view, returns new modders list. */
-beatmapsRouter.post('/updateModder/:mapId', isNotSpectator, canFail(async (req, res) => {
+beatmapsRouter.post('/:id/updateModder', isNotSpectator, canFail(async (req, res) => {
     const isAlreadyModder = await BeatmapService.queryOne({
         query: {
-            _id: req.params.mapId,
+            _id: req.params.id,
             modders: req.session?.mongoId,
         },
     });
     let update;
 
-    if (!isAlreadyModder) {
-        update = { $push: { modders: req.session?.mongoId } };
-    } else {
+    if (isAlreadyModder) {
         update = { $pull: { modders: req.session?.mongoId } };
+    } else {
+        update = { $push: { modders: req.session?.mongoId } };
     }
 
-    let b = await BeatmapService.queryByIdOrFail(req.params.mapId);
+    let b = await BeatmapService.queryByIdOrFail(req.params.id);
 
     if (b.status == BeatmapStatus.Ranked) {
         return res.json({ error: 'Mapset ranked' });
     }
 
-    await BeatmapService.update(req.params.mapId, update);
-    b = await BeatmapService.queryByIdOrFail(req.params.mapId, { defaultPopulate: true });
+    await BeatmapService.update(req.params.id, update);
+    b = await BeatmapService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
 
     res.json(b);
 
@@ -235,17 +234,19 @@ beatmapsRouter.post('/updateModder/:mapId', isNotSpectator, canFail(async (req, 
 }));
 
 /* POST bn from extended view, returns new bns list. */
-beatmapsRouter.post('/updateBn/:mapId', isNotSpectator, isBn, isValidBeatmap, async (req, res) => {
+beatmapsRouter.post('/:id/updateBn', isNotSpectator, isBn, isValidBeatmap, async (req, res) => {
     const b: Beatmap = res.locals.beatmap;
     const isAlreadyBn = await BeatmapService.queryOne({
         query: {
-            _id: req.params.mapId,
+            _id: req.params.id,
             bns: req.session?.mongoId,
         },
     });
     let update;
 
-    if (!isAlreadyBn) {
+    if (isAlreadyBn) {
+        update = { $pull: { bns: req.session?.mongoId } };
+    } else {
         let hasTask = false;
 
         b.tasks.forEach(task => {
@@ -261,12 +262,10 @@ beatmapsRouter.post('/updateBn/:mapId', isNotSpectator, isBn, isValidBeatmap, as
         }
 
         update = { $push: { bns: req.session?.mongoId } };
-    } else {
-        update = { $pull: { bns: req.session?.mongoId } };
     }
 
-    await BeatmapService.update(req.params.mapId, update);
-    const updatedBeatmap = await BeatmapService.queryById(req.params.mapId, { defaultPopulate: true });
+    await BeatmapService.update(req.params.id, update);
+    const updatedBeatmap = await BeatmapService.queryById(req.params.id, { defaultPopulate: true });
 
     if (!updatedBeatmap || BeatmapService.isError(updatedBeatmap)) {
         return res.json(defaultErrorMessage);
@@ -304,251 +303,5 @@ beatmapsRouter.post('/updateBn/:mapId', isNotSpectator, isBn, isValidBeatmap, as
         );
     }
 });
-
-//#region Host exclusive routes
-
-/* POST set game mode. */
-beatmapsRouter.post('/setMode/:mapId', isNotSpectator, isValidBeatmap, isBeatmapHost, async (req, res) => {
-    let b = await BeatmapService.queryById(req.params.mapId, { defaultPopulate: true });
-
-    if (!b || BeatmapService.isError(b)) {
-        return res.json(defaultErrorMessage);
-    }
-
-    if (req.body.mode != 'hybrid') {
-        if (b.quest && !(b.quest as Quest).modes.includes(req.body.mode)) {
-            return res.json({ error: `The selected quest doesn't support beatmaps of this mode!` });
-        }
-
-        for (let i = 0; i < b.tasks.length; i++) {
-            const task = b.tasks[i];
-
-            await TaskService.update(task.id, { mode: req.body.mode });
-        }
-    }
-
-    await BeatmapService.update(req.params.mapId, { mode: req.body.mode });
-    b = await BeatmapService.queryById(req.params.mapId, { defaultPopulate: true });
-
-    if (!b || BeatmapService.isError(b)) {
-        return res.json(defaultErrorMessage);
-    }
-
-    res.json(b);
-
-    LogService.create(
-        req.session?.mongoId,
-        `changed mode of "${b.song.artist} - ${b.song.title}" to "${req.body.mode}"`,
-        b._id,
-        LogCategory.Beatmap
-    );
-});
-
-/* POST set status of the beatmapset from extended view. */
-beatmapsRouter.post('/setStatus/:mapId', isNotSpectator, isValidBeatmap, isBeatmapHost, async (req, res) => {
-    const validBeatmap: Beatmap = res.locals.beatmap;
-
-    if (req.body.status == 'Done') {
-        if (validBeatmap.tasks.length == 0) {
-            return res.json({ error: `You can't mark an empty mapset as complete!` });
-        }
-
-        if (validBeatmap.tasks.length == 1 && validBeatmap.tasks[0].name == 'Storyboard') {
-            return res.json({ error: `You can't mark a mapset without difficulties as complete!` });
-        }
-
-        for (let i = 0; i < validBeatmap.tasks.length; i++) {
-            await TaskService.update(validBeatmap.tasks[i].id, { status: TaskStatus.Done });
-        }
-
-        await BeatmapService.update(req.params.mapId, {
-            tasksLocked: ['Easy', 'Normal', 'Hard', 'Insane', 'Expert', 'Storyboard'],
-        });
-    }
-
-    await BeatmapService.update(req.params.mapId, { status: req.body.status });
-    const updatedBeatmap = await BeatmapService.queryById(req.params.mapId, { defaultPopulate: true });
-
-    if (!updatedBeatmap || BeatmapService.isError(updatedBeatmap)) {
-        return res.json(defaultErrorMessage);
-    }
-
-    res.json(updatedBeatmap);
-
-    LogService.create(
-        req.session?.mongoId,
-        `changed status of "${updatedBeatmap.song.artist} - ${updatedBeatmap.song.title}"`,
-        updatedBeatmap._id,
-        LogCategory.Beatmap
-    );
-});
-
-/* POST quest to map */
-beatmapsRouter.post('/saveQuest/:mapId', isNotSpectator, isValidBeatmap, isBeatmapHost, async (req, res) => {
-    let b = res.locals.beatmap;
-
-    if (req.body.questId.length) {
-        const q = await QuestService.queryOne({
-            query: { _id: req.body.questId },
-            populate: [{ path: 'currentParty',  select: 'members' }],
-        });
-
-        if (!q || QuestService.isError(q)) {
-            return defaultErrorMessage;
-        }
-
-        let invalidMapper = false;
-        let invalidMode = false;
-
-        for (let i = 0; i < b.tasks.length; i++) {
-            const task = b.tasks[i];
-
-            if (q.modes.indexOf(task.mode) < 0) {
-                invalidMode = true;
-            }
-
-            for (let j = 0; j < task.mappers.length; j++) {
-                const u = await UserService.queryById(task.mappers[j]._id);
-
-                if (!u || UserService.isError(u)) {
-                    invalidMapper = true;
-                    continue;
-                }
-
-                if (q.currentParty.members.indexOf(u._id) < 0) {
-                    invalidMapper = true;
-                }
-            }
-        }
-
-        if (invalidMapper) {
-            return res.json({ error: `Some of this mapset's mappers are not assigned to your quest!` });
-        }
-
-        if (invalidMode) {
-            return res.json({ error: `Some of this mapset's difficulties are not the correct mode for this quest!` });
-        }
-    } else {
-        await BeatmapService.update(req.params.mapId, { quest: null });
-    }
-
-    await BeatmapService.update(req.params.mapId, { quest: req.body.questId });
-    b = await BeatmapService.queryById(req.params.mapId, { defaultPopulate: true });
-
-    if (BeatmapService.isError(b)) {
-        return res.json(defaultErrorMessage);
-    }
-
-    res.json(b);
-
-    LogService.create(
-        req.session?.mongoId,
-        `${req.body.questId.length ? 'linked quest to' : 'unlinked quest from'} "${b.song.artist} - ${b.song.title}"`,
-        b._id,
-        LogCategory.Beatmap
-    );
-});
-
-/* POST edit link from extended view. */
-beatmapsRouter.post('/setLink/:mapId', isNotSpectator, isValidBeatmap, isBeatmapHost, async (req, res) => {
-    let url = req.body.url;
-
-    if (url.length == 0) {
-        url = undefined;
-    }
-
-    const regexp = /(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/;
-
-    if (!regexp.test(url)) {
-        return res.json({ error: 'Not a valid URL' });
-    }
-
-    let b = res.locals.beatmap;
-
-    await BeatmapService.update(req.params.mapId, { url });
-    b = await BeatmapService.queryById(req.params.mapId, { defaultPopulate: true });
-
-    if (BeatmapService.isError(b)) {
-        return res.json(defaultErrorMessage);
-    }
-
-    res.json(b);
-
-    LogService.create(
-        req.session?.mongoId,
-        `edited link on "${b.song.artist} - ${b.song.title}"`,
-        b._id,
-        LogCategory.Beatmap
-    );
-});
-
-/* POST locks task from extended view. */
-beatmapsRouter.post('/lockTask/:mapId', isNotSpectator, isValidBeatmap, isBeatmapHost, canFail(async (req, res) => {
-    if (!req.body.task) {
-        return res.json({ error: 'Not a valid task' });
-    }
-
-    let b: Beatmap = res.locals.beatmap;
-
-    await BeatmapService.update(req.params.mapId, {
-        $push: { tasksLocked: req.body.task },
-    });
-
-    b = await BeatmapService.queryByIdOrFail(req.params.mapId, { defaultPopulate: true });
-
-    res.json(b);
-
-    LogService.create(
-        req.session?.mongoId,
-        `locked claims for "${req.body.task}" on "${b.song.artist} - ${b.song.title}"`,
-        b._id,
-        LogCategory.Beatmap
-    );
-}));
-
-/* POST unlocks task from extended view. */
-beatmapsRouter.post('/unlockTask/:mapId', isNotSpectator, isValidBeatmap, isBeatmapHost, async (req, res) => {
-    let b = res.locals.beatmap;
-
-    await BeatmapService.update(req.params.mapId, {
-        $pull: { tasksLocked: req.body.task },
-    });
-
-    b = await BeatmapService.queryById(req.params.mapId, { defaultPopulate: true });
-
-    if (BeatmapService.isError(b)) {
-        return res.json(defaultErrorMessage);
-    }
-
-    res.json(b);
-
-    LogService.create(
-        req.session?.mongoId,
-        `unlocked claims for "${req.body.task}" on "${b.song.artist} - ${b.song.title}"`,
-        b._id,
-        LogCategory.Beatmap
-    );
-});
-
-/* POST delete map */
-beatmapsRouter.post('/delete/:mapId', isNotSpectator, isValidBeatmap, isBeatmapHost, async (req, res) => {
-    const b = res.locals.beatmap;
-
-    for (let i = 0; i < b.tasks.length; i++) {
-        await TaskService.remove(b.tasks[i]);
-    }
-
-    await BeatmapService.remove(req.params.mapId);
-    res.json(b);
-
-    LogService.create(
-        req.session?.mongoId,
-        `deleted "${b.song.artist} - ${b.song.title}"`,
-        b._id,
-        LogCategory.Beatmap
-    );
-});
-
-//#endregion
 
 export default beatmapsRouter;

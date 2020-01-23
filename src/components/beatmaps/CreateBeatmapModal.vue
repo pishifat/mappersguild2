@@ -156,8 +156,8 @@
 <script lang="ts">
 import Vue from 'vue';
 import Axios from 'axios';
-import { FeaturedSong } from '@srcModels/featuredSong';
-import { Beatmap } from '@srcModels/beatmap';
+import { FeaturedSong } from '@models/featuredSong';
+import { Beatmap } from '@models/beatmap';
 
 export default Vue.extend({
     name: 'CreateBeatmapModal',

@@ -6,7 +6,8 @@ import { UserService } from '../../models/user';
 const inviteError = 'Invite not sent: ';
 
 export async function isValidBeatmap(req: express.Request, res: express.Response, next: express.NextFunction): Promise<express.Response | void> {
-    const b = await BeatmapService.queryById(req.params.mapId, { defaultPopulate: true });
+    const id = req.params.id || req.params.mapId;
+    const b = await BeatmapService.queryById(id, { defaultPopulate: true });
 
     if (!b || BeatmapService.isError(b)) {
         return res.json(defaultErrorMessage);

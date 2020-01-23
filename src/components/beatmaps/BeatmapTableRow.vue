@@ -46,7 +46,7 @@
 import Vue from 'vue';
 import { mapState } from 'vuex';
 import BeatmapInfo from './beatmapInfo/BeatmapInfo.vue';
-import { Beatmap } from '@srcModels/beatmap';
+import { Beatmap } from '@models/beatmap';
 
 export default Vue.extend({
     name: 'BeatmapTableRow',

@@ -59,7 +59,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { Beatmap } from '@srcModels/beatmap';
+import { Beatmap } from '@models/beatmap';
 
 export default Vue.extend({
     name: 'BeatmapLink',
@@ -88,7 +88,7 @@ export default Vue.extend({
     },
     methods: {
         async saveLink(e): Promise<void> {
-            const bm = await this.executePost<Beatmap>('/beatmaps/setLink/' + this.beatmap.id, { url: this.url }, e);
+            const bm = await this.executePost<Beatmap>(`/beatmaps/${this.beatmap.id}/setLink`, { url: this.url }, e);
 
             if (!this.isError(bm)) {
                 this.showLinkInput = false;

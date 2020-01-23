@@ -76,8 +76,8 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { TaskName } from '@srcModels/task';
-import { BeatmapMode, Beatmap } from '@srcModels/beatmap';
+import { TaskName } from '@models/task';
+import { BeatmapMode, Beatmap } from '@models/beatmap';
 
 export default Vue.extend({
     name: 'NewTask',

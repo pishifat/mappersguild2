@@ -77,7 +77,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { Beatmap } from '@srcModels/beatmap';
+import { Beatmap } from '@models/beatmap';
 import { TaskName } from '../../../models/task';
 
 export default Vue.extend({
@@ -118,7 +118,7 @@ export default Vue.extend({
             e.target.classList.add('fake-button-disable');
 
             const bm = await this.executePost<Beatmap>(
-                '/beatmaps/unlockTask/' + this.beatmap.id,
+                `/beatmaps/${this.beatmap.id}/unlockTask`,
                 { task }
             );
 
@@ -130,7 +130,7 @@ export default Vue.extend({
         },
         async lockTask(e): Promise<void> {
             const bm = await this.executePost<Beatmap>(
-                '/beatmaps/lockTask/' + this.beatmap.id,
+                `/beatmaps/${this.beatmap.id}/lockTask`,
                 { task: this.lockTaskSelection },
                 e
             );

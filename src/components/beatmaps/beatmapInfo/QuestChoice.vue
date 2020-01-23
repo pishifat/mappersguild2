@@ -65,7 +65,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import Axios from 'axios';
-import { Beatmap } from '@srcModels/beatmap';
+import { Beatmap } from '@models/beatmap';
 
 export default Vue.extend({
     name: 'QuestChoice',
@@ -89,13 +89,13 @@ export default Vue.extend({
         },
     },
     async created() {
-        const response = await Axios.get('/beatmaps/findUserQuests');
+        const response = await Axios.get('/beatmaps/users/quests');
         this.userQuests = response.data.userQuests;
     },
     methods: {
         async saveQuest(e): Promise<void> {
             const bm = await this.executePost<Beatmap>(
-                '/beatmaps/saveQuest/' + this.beatmap.id,
+                `/beatmaps/${this.beatmap.id}/saveQuest`,
                 { questId: this.dropdownQuestId },
                 e
             );

@@ -34,7 +34,7 @@ export interface Beatmap extends Document {
     song: FeaturedSong;
     host: User | User['_id'];
     status: BeatmapStatus;
-    tasks: Task[];
+    tasks: Task[] | Task['_id'][];
     tasksLocked: TaskName[];
     modders: User[];
     bns: User[];

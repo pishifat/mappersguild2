@@ -99,7 +99,7 @@ import ModdersList from './ModdersList.vue';
 import NominatorsList from './NominatorsList.vue';
 import BeatmapLink from './BeatmapLink.vue';
 import LocksChoice from './LocksChoice.vue';
-import { Beatmap } from '@srcModels/beatmap';
+import { Beatmap } from '@models/beatmap';
 
 export default Vue.extend({
     name: 'BeatmapInfo',
@@ -148,7 +148,7 @@ export default Vue.extend({
 
             if (result) {
                 e.target.disabled = true;
-                const bm = await this.executePost('/beatmaps/delete/' + this.beatmap.id, {}, e);
+                const bm = await this.executePost(`/beatmaps/${this.beatmap.id}/delete`, {}, e);
 
                 if (!this.isError(bm)) {
                     ($('#editBeatmap') as any).modal('hide');

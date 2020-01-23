@@ -49,7 +49,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import { mapState } from 'vuex';
-import { Beatmap } from '@srcModels/beatmap';
+import { Beatmap } from '@models/beatmap';
 
 export default Vue.extend({
     name: 'NominatorsList',
@@ -71,7 +71,7 @@ export default Vue.extend({
     methods: {
         async updateBn(e): Promise<void> {
             e.target.classList.add('fake-button-disable');
-            const bm = await this.executePost<Beatmap>('/beatmaps/updateBn/' + this.beatmap.id);
+            const bm = await this.executePost<Beatmap>(`/beatmaps/${this.beatmap.id}/updateBn`);
 
             if (!this.isError(bm)) {
                 this.$store.dispatch('updateBeatmap', bm);

@@ -42,7 +42,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import { mapState } from 'vuex';
-import { Beatmap } from '@srcModels/beatmap';
+import { Beatmap } from '@models/beatmap';
 
 export default Vue.extend({
     name: 'ModdersList',
@@ -64,7 +64,7 @@ export default Vue.extend({
     methods: {
         async updateModder(e): Promise<void> {
             e.target.classList.add('fake-button-disable');
-            const bm = await this.executePost('/beatmaps/updateModder/' + this.beatmap.id);
+            const bm = await this.executePost(`/beatmaps/${this.beatmap.id}/updateModder`);
 
             if (!this.isError(bm)) {
                 this.$store.dispatch('updateBeatmap', bm);

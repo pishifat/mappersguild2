@@ -12,6 +12,7 @@ import hbs from 'hbs';
 
 import indexRouter from './routes/index';
 import beatmapsRouter from './routes/beatmaps/beatmaps';
+import beatmapsHostRouter from './routes/beatmaps/beatmapsHost';
 import tasksRouter from './routes/beatmaps/tasks';
 import featuredArtistsRouter from './routes/beatmaps/featuredArtists';
 import questsRouter from './routes/quests';
@@ -74,6 +75,7 @@ app.use(
 app.use('/', indexRouter);
 app.use('/faq', faqRouter);
 app.use('/beatmaps', beatmapsRouter);
+app.use('/beatmaps', beatmapsHostRouter);
 app.use('/beatmaps', tasksRouter);
 app.use('/featuredArtists', featuredArtistsRouter);
 app.use('/users', usersRouter);
