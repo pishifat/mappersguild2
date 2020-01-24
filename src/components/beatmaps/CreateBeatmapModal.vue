@@ -194,7 +194,10 @@ export default Vue.extend({
     methods: {
         async setArtist(e): Promise<void> {
             if (!this.selectedArtist) {
-                this.$store.dispatch('updateToastMessages', 'Select an artist!');
+                this.$store.dispatch('updateToastMessages', {
+                    message: 'Select an artist!',
+                    type: 'info',
+                });
 
                 return;
             }
@@ -215,7 +218,10 @@ export default Vue.extend({
         },
         async saveNewMap (e): Promise<void> {
             if (!this.selectedSong) {
-                this.$store.commit('updateToastMessages', 'Select a song!');
+                this.$store.commit('updateToastMessages', {
+                    message: 'Select a song!',
+                    type: 'info',
+                });
 
                 return;
             }

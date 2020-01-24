@@ -5,7 +5,6 @@
                 My mapsets ({{ hostedBeatmaps ? hostedBeatmaps.length : '...' }})
                 <i class="fas fa-angle-down" />
             </a>
-            <span v-if="isLoading" class="text-white-50" style="font-size: 9pt;">loading...</span>
         </h5>
 
         <div v-if="hostedBeatmaps" id="hostedBeatmaps" class="show">
@@ -31,11 +30,6 @@ import BeatmapCard from '../../components/beatmaps/BeatmapCard.vue';
 export default Vue.extend({
     components: {
         BeatmapCard,
-    },
-    data () {
-        return {
-            isLoading: false,
-        };
     },
     computed: mapGetters([
         'hostedBeatmaps',

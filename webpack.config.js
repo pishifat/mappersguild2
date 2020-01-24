@@ -5,11 +5,11 @@ const path = require('path');
 module.exports = {
     entry: {
         maps: './src/beatmaps.ts',
+        quests: './src/quests.ts',
         // users: './src/users.js',
         // notifications: './src/notifications.js',
         // admin: './src/admin.js',
         // artists: './src/artists.js',
-        // quests: './src/quests.js',
     },
     output: {
         filename: '[name].js',
@@ -58,7 +58,7 @@ module.exports = {
             '@src': path.resolve(__dirname, 'src/'),
             '@models': path.resolve(__dirname, 'src/models/'),
             '@components': path.resolve(__dirname, 'src/components/'),
-            '@pages/*': path.resolve(__dirname, 'src/pages/'),
+            '@pages': path.resolve(__dirname, 'src/pages/'),
         },
     },
     devServer: {
@@ -71,5 +71,6 @@ module.exports = {
     },
     externals: {
         jquery: 'jQuery',
+        axios: 'axios',
     },
 };

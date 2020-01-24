@@ -533,3 +533,7 @@ a:active {
 [v-cloak] * {
     display: none;
 }
+
+.loading-data {
+    opacity: 0.3;
+}

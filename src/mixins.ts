@@ -16,14 +16,14 @@ export default Vue.extend({
                 const res = await Axios.post(path, data);
 
                 if (res.data.error) {
-                    this.$store.dispatch('updateToastMessages', res.data.error);
+                    this.$store.dispatch('updateToastMessages', { message: res.data.error });
 
                     return { error: res.data.error };
                 } else {
                     return res.data;
                 }
             } catch (error) {
-                this.$store.dispatch('updateToastMessages', 'Something went wrong!');
+                this.$store.dispatch('updateToastMessages', { message: 'Something went wrong!' });
 
                 return { error: 'Something went wrong!' };
             } finally {

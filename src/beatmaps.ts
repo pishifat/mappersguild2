@@ -12,6 +12,11 @@ import mixins from './mixins';
 Vue.mixin(mixins);
 Vue.use(Vuex);
 
+interface ToastMessage {
+    message: string;
+    type?: 'error' | 'success' | 'info';
+}
+
 const store = new Vuex.Store({
     state: {
         userId: null as null | User['id'],
@@ -27,7 +32,7 @@ const store = new Vuex.Store({
         selectedBeatmap: null as null | Beatmap,
         fetchLimit: 30,
         isLoadingOtherBeatmaps: true,
-        toastMessages: [] as string[],
+        toastMessages: [] as ToastMessage[],
     },
     mutations: {
         setUserId (state, id: User['id']): void {
@@ -63,7 +68,7 @@ const store = new Vuex.Store({
         setIsLoadingOtherBeatmaps (state, value: boolean): void {
             state.isLoadingOtherBeatmaps = value;
         },
-        addToastMessage (state, message: string): void {
+        addToastMessage (state, message: ToastMessage): void {
             state.toastMessages.push(message);
         },
         removeFirstToastMessage (state): void {
@@ -189,7 +194,7 @@ const store = new Vuex.Store({
 
             commit('setIsLoadingOtherBeatmaps', false);
         },
-        updateToastMessages ({ commit }, message: string): void {
+        updateToastMessages ({ commit }, message: ToastMessage): void {
             commit('addToastMessage', message);
 
             setTimeout(() => {

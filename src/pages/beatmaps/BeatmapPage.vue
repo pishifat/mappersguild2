@@ -1,6 +1,6 @@
 <template>
     <div v-cloak>
-        <beatmap-page-filters @load-beatmaps="loadBeatmaps()" />
+        <beatmap-page-filters />
 
         <hosted-beatmaps />
 
@@ -90,6 +90,7 @@ export default Vue.extend({
             const res = await Axios.get('/beatmaps/guestBeatmaps');
 
             if (res?.data?.userBeatmaps) {
+                // includes hosted beatmaps too so yea
                 this.$store.commit('setUserBeatmaps', res.data.userBeatmaps);
             }
         },

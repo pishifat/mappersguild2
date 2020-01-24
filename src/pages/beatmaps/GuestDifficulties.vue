@@ -11,7 +11,7 @@
             v-if="guestDifficultyBeatmaps"
             id="guestDifficultyBeatmaps"
             class="collapse"
-            :style="isLoadingGuestBeatmaps ? 'opacity: 0.3': ''"
+            :class="{ 'loading-data' : isLoadingGuestBeatmaps }"
         >
             <p v-if="!guestDifficultyBeatmaps.length && !isLoadingGuestBeatmaps" class="ml-5 text-white-50">
                 None...

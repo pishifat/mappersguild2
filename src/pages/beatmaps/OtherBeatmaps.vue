@@ -11,7 +11,7 @@
             v-if="otherBeatmaps"
             id="otherBeatmaps"
             class="collapse"
-            :style="isLoadingOtherBeatmaps ? 'opacity: 0.3': ''"
+            :class="{ 'loading-data' : isLoadingOtherBeatmaps }"
         >
             <p v-if="!otherBeatmaps.length && !isLoadingOtherBeatmaps" class="ml-5 text-white-50">
                 None...

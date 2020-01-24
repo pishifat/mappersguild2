@@ -1,12 +1,15 @@
 <template>
     <div style="position: fixed; bottom: 20px; left: 20px; z-index: 2000;">
         <div
-            v-for="(message, i) in toastMessages"
+            v-for="(toast, i) in toastMessages"
             :key="i"
             class="toast show"
         >
-            <div class="toast-body bg-danger">
-                {{ message }}
+            <div
+                class="toast-body"
+                :class="getToastTypeClass(toast)"
+            >
+                {{ toast.message }}
             </div>
         </div>
     </div>
@@ -19,6 +22,14 @@ import { mapState } from 'vuex';
 export default Vue.extend({
     computed: {
         ...mapState(['toastMessages']),
+    },
+    methods: {
+        getToastTypeClass(toast): string {
+            if (toast.type === 'success') return 'bg-success';
+            if (toast.type === 'info') return 'bg-info';
+
+            return 'bg-danger';
+        },
     },
 });
 </script>

@@ -62,31 +62,36 @@ questsRouter.get('/', (req, res) => {
 
 /* GET relevant quest info */
 questsRouter.get('/relevantInfo', async (req, res) => {
-    const all = await QuestService.queryAll({
+    const openQuests = await QuestService.queryAll({
         query: { modes: res.locals.userRequest.mainMode, status: 'open' },
         useDefaults: true,
     });
 
-    res.json({ all, userId: req.session?.mongoId, group: res.locals.userRequest.group, mainMode: res.locals.userRequest.mainMode });
+    res.json({
+        openQuests,
+        userMongoId: req.session?.mongoId,
+        group: res.locals.userRequest.group,
+        mainMode: res.locals.userRequest.mainMode,
+    });
 });
 
 /* GET relevant quest info */
-questsRouter.get('/loadQuests/:mode', async (req, res) => {
-    let all: BasicError | Quest[];
+questsRouter.get('/search', async (req, res) => {
+    let quests: BasicError | Quest[];
 
-    if (req.params.mode != 'any') {
-        all = await QuestService.queryAll({
-            query: { modes: req.params.mode, status: { $ne: 'hidden' } },
+    if (req.query.mode != 'any') {
+        quests = await QuestService.queryAll({
+            query: { modes: req.query.mode, status: { $ne: 'hidden' } },
             useDefaults: true,
         });
     } else {
-        all = await QuestService.queryAll({
+        quests = await QuestService.queryAll({
             query: { status: { $ne: 'hidden' } },
             useDefaults: true,
         });
     }
 
-    res.json({ all });
+    res.json({ quests });
 });
 
 /* POST create party */
@@ -239,7 +244,7 @@ questsRouter.post('/inviteToParty/:partyId/:questId', isNotSpectator, canFail(as
         }
     }
 
-    res.json(true); // ????
+    res.json({ success: 'Invite sent!' });
 
     InviteService.createPartyInvite(
         u.id,
