@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
+const User = require('../user.js');
 const logs = require('../log');
 
 const judgingSchema = new mongoose.Schema({
+    judge: { type: 'ObjectId', ref: 'User' },
     comment: { type: String },
     vote: { type: Number, enum: [0, 1, 2, 3] },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
@@ -46,12 +48,19 @@ class JudgingService
         }
     }
 
-    async create(comment, vote) {
+    async create(userId, comment, vote) {
         try {
-            return await Judging.create({ 
-                comment,
-                vote
-            });
+            if(comment){
+                return await Judging.create({ 
+                    judge: userId,
+                    comment,
+                });
+            }else if(vote){
+                return await Judging.create({ 
+                    judge: userId,
+                    vote,
+                });
+            }
         } catch(error) {
             logs.service.create(null, error, null, 'error'); 
             return { error: error._message };

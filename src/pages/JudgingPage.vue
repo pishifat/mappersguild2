@@ -3,14 +3,21 @@
     <div class="container bg-container py-1">
 		<div class="row">
 			<div class="col">
-				<button class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#contestAdd">Add contest</button>
-                <button class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#entryAdd">Add entry</button>
+                <h5>
+                    This is a title
+                    <button class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#contestAdd">Add contest</button>
+                    <button class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#entryAdd">Add entry</button>
+                    <button class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#judgeAdd">Add judge</button>
+                </h5>
                 <transition-group name="list" tag="div" class="row">
                     <entry-card
                         v-for="entry in entries"
                         :key="entry.id"
                         :entry="entry"
                         :user-id="userId"
+                        :first-occupied.sync="firstOccupied"
+                        :second-occupied.sync="secondOccupied"
+                        :third-occupied.sync="thirdOccupied"
                         @update-entry="updateEntry($event)"
                     ></entry-card>
                 </transition-group>
@@ -20,6 +27,11 @@
 
     <add-element
         :type="'entry'"
+        :contests="contests"
+    />
+    <add-element
+        :type="'judge'"
+        :contests="contests"
     />
     <add-element
         :type="'contest'"
@@ -37,8 +49,20 @@ export default {
         AddElement,
         EntryCard
     },
+    data() {
+        return {
+            entries: null,
+            contests: null,
+            userId: null,
+            firstOccupied: false,
+            secondOccupied: false,
+            thirdOccupied: false,
+        };
+    },
     watch: {
-        
+        entries() {
+            this.findOccupiedVotes();
+        }
     },
     methods: {
         executePost: async function(path, data, e) {
@@ -58,18 +82,32 @@ export default {
             }
             if (e) e.target.disabled = false;
         },
-    },
-    data() {
-        return {
-            entries: null,
-            userId: null,
-        };
+        findOccupiedVotes() {
+            this.thirdOccupied = this.secondOccupied = this.firstOccupied = false;
+            this.entries.forEach(entry => {
+                for (let i = 0; i < entry.evaluations.length; i++) {
+                    const evaluation = entry.evaluations[i];
+                    if(evaluation.judge.id == this.userId){
+                        if(evaluation.vote == 1) this.thirdOccupied = true;
+                        else if(evaluation.vote == 2) this.secondOccupied = true;
+                        else if(evaluation.vote == 3) this.firstOccupied = true;
+                        break;
+                    }
+                }
+            })
+        },
+        updateEntry: function (entry) {
+			let i = this.entries.findIndex(e => e.id == entry.id);
+            this.entries[i] = entry;
+            this.findOccupiedVotes();
+		},
     },
     created() {
         axios
             .get('/judging/relevantInfo')
             .then(response => {
                 this.entries = response.data.entries;
+                this.contests = response.data.contests;
                 this.userId = response.data.userId;
             })
             .then(function() {

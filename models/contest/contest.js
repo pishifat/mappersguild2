@@ -1,8 +1,14 @@
 const mongoose = require('mongoose');
+const User = require('../user.js');
+const Entry = require('./entry.js');
 const logs = require('../log');
 
 const contestSchema = new mongoose.Schema({
     name: { type: String },
+    isActive: { type: Boolean, default: true },
+    entries: [{ type: 'ObjectId', ref: 'Entry' }],
+    judges: [{ type: 'ObjectId', ref: 'User' }],
+    voters: [{ type: 'ObjectId', ref: 'User' }],
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const Contest = mongoose.model('Contest', contestSchema);
@@ -20,7 +26,11 @@ class ContestService
         if (populate) {
             for (let i = 0; i < populate.length; i++) {
                 const p = populate[i];
-                query.populate(p.populate, p.display);
+                if (p.innerPopulate) {
+                    query.populate({ path: p.innerPopulate, populate: p.populate });
+                } else {
+                    query.populate(p.populate, p.display);
+                }
             }
         }
 

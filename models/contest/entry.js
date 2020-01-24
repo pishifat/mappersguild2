@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
-const Contest = require('./contest.js');
+const User = require('../user.js');
 const Judging = require('./judging.js');
 const logs = require('../log');
 
 const entrySchema = new mongoose.Schema({
-    contest: { type: 'ObjectId', ref: 'Contest' },
-    entryName: { type: String },
+    name: { type: String },
+    creator: { type: 'ObjectId', ref: 'User' },
     evaluations: [{ type: 'ObjectId', ref: 'Judging' }]
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
@@ -24,7 +24,11 @@ class EntryService
         if (populate) {
             for (let i = 0; i < populate.length; i++) {
                 const p = populate[i];
-                query.populate(p.populate, p.display);
+                if (p.innerPopulate) {
+                    query.populate({ path: p.innerPopulate, populate: p.populate });
+                } else {
+                    query.populate(p.populate, p.display);
+                }
             }
         }
 
@@ -49,11 +53,11 @@ class EntryService
         }
     }
 
-    async create(contestName, entryName) {
+    async create(name, userId) {
         try {
             return await Entry.create({ 
-                contestName,
-                entryName,
+                name,
+                creator: userId
             });
         } catch(error) {
             logs.service.create(null, error, null, 'error'); 
