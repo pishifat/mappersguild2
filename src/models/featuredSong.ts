@@ -1,6 +1,7 @@
 import { User } from './user';
 
 export interface FeaturedSong {
+    id: string;
     artist: string;
     title: string;
     featuredArtist: FeaturedArtist;

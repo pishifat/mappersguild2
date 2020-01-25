@@ -13,80 +13,80 @@
                 <div class="modal-body" style="overflow: hidden">
                     <p>
                         <input
+                            v-model="name"
                             class="form-control-sm w-100"
                             type="text"
                             autocomplete="off"
                             placeholder="name..."
-                            v-model="name"
-                        />
+                        >
                     </p>
                     <p>
                         <input
+                            v-model="reward"
                             class="form-control-sm w-100"
                             type="text"
                             autocomplete="off"
                             placeholder="reward..."
-                            v-model="reward"
-                        />
+                        >
                     </p>
                     <p>
                         <textarea
+                            v-model="description"
                             class="form-control-sm w-100"
                             type="text"
                             autocomplete="off"
                             placeholder="description..."
-                            v-model="description"
                         />
                     </p>
                     <p>
                         <input
+                            v-model="timeframe"
                             class="form-control-sm w-100"
                             type="text"
                             autocomplete="off"
                             placeholder="timeframe (days)..."
-                            v-model="timeframe"
-                        />
+                        >
                     </p>
                     <p>
                         <input
+                            v-model="minParty"
                             class="form-control-sm w-100"
                             type="text"
                             autocomplete="off"
                             placeholder="minimum party..."
-                            v-model="minParty"
-                        />
+                        >
                     </p>
                     <p>
                         <input
+                            v-model="maxParty"
                             class="form-control-sm w-100"
                             type="text"
                             autocomplete="off"
                             placeholder="maximum party..."
-                            v-model="maxParty"
-                        />
+                        >
                     </p>
                     <p>
                         <input
+                            v-model="minRank"
                             class="form-control-sm w-100"
                             type="text"
                             autocomplete="off"
                             placeholder="minimum rank..."
-                            v-model="minRank"
-                        />
+                        >
                     </p>
                     <p>
                         <input
+                            v-model="osuId"
                             class="form-control-sm w-100"
                             type="text"
                             autocomplete="off"
                             placeholder="artist osu ID..."
-                            v-model="osuId"
-                        />
+                        >
                     </p>
                     <p>
-                    <button class="btn btn-sm btn-outline-info" @click="addQuest($event)">
-                        Add quest
-                    </button>
+                        <button class="btn btn-sm btn-outline-info" @click="addQuest($event)">
+                            Add quest
+                        </button>
                     </p>
                 </div>
             </div>
@@ -94,52 +94,17 @@
     </div>
 </template>
 
-<script>
-export default {
-    name: 'add-quest',
-    methods: {
-        executePost: async function(path, data, e) {
-            if (e) e.target.disabled = true;
+<script lang="ts">
+import Vue from 'vue';
 
-            try {
-                const res = await axios.post(path, data);
-
-                if (res.data.error) {
-                    this.info = res.data.error;
-                } else {
-                    if (e) e.target.disabled = false;
-                    return res.data;
-                }
-            } catch (error) {
-                console.log(error);
-            }
-
-            if (e) e.target.disabled = false;
-        },
-        addQuest: async function(e) {
-            const q = await this.executePost('/admin/addQuest/', {
-                name: this.name, 
-                reward: this.reward, 
-                descriptionMain: this.description, 
-                timeframe: this.timeframe*(24*3600*1000), 
-                minParty: this.minParty, 
-                maxParty: this.maxParty, 
-                minRank: this.minRank, 
-                art: this.osuId, 
-                color: this.color,
-                }, e);
-            if (q) {
-                this.$emit('add-quest', q);
-                $('#addQuest').modal('hide');
-            }
-        },
-    },
+export default Vue.extend({
+    name: 'AddQuest',
     data() {
         return {
             name: null,
             reward: null,
             description: null,
-            timeframe: null,
+            timeframe: 0,
             minParty: null,
             maxParty: null,
             minRank: null,
@@ -147,5 +112,25 @@ export default {
             color: null,
         };
     },
-};
+    methods: {
+        async addQuest(e): Promise<void> {
+            const q = await this.executePost('/admin/addQuest/', {
+                name: this.name,
+                reward: this.reward,
+                descriptionMain: this.description,
+                timeframe: this.timeframe * (24*3600*1000),
+                minParty: this.minParty,
+                maxParty: this.maxParty,
+                minRank: this.minRank,
+                art: this.osuId,
+                color: this.color,
+            }, e);
+
+            if (!this.isError(q)) {
+                this.$emit('add-quest', q);
+                ($('#addQuest') as any).modal('hide');
+            }
+        },
+    },
+});
 </script>

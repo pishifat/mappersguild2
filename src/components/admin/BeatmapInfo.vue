@@ -1,10 +1,15 @@
 <template>
     <div id="editBeatmap" class="modal fade" tabindex="-1">
         <div class="modal-dialog">
-            <div class="modal-content bg-dark" v-if="beatmap">
+            <div v-if="beatmap" class="modal-content bg-dark">
                 <div class="modal-header text-dark bg-rest">
                     <h5 class="modal-title">
-                        <a v-if="beatmap.url" :href="beatmap.url" class="text-dark" target="_blank">
+                        <a
+                            v-if="beatmap.url"
+                            :href="beatmap.url"
+                            class="text-dark"
+                            target="_blank"
+                        >
                             {{ beatmap.song.artist }} - {{ beatmap.song.title }}
                         </a>
                         <span v-else>{{ beatmap.song.artist }} - {{ beatmap.song.title }}</span>
@@ -17,10 +22,18 @@
                 <div class="modal-body" style="overflow: hidden">
                     <p class="form-row">
                         <select v-model="status" class="form-control form-control-sm w-25 mx-2">
-                            <option value="WIP">WIP</option>
-                            <option value="Done">Done</option>
-                            <option value="Qualified">Qualified</option>
-                            <option value="Ranked">Ranked</option>
+                            <option value="WIP">
+                                WIP
+                            </option>
+                            <option value="Done">
+                                Done
+                            </option>
+                            <option value="Qualified">
+                                Qualified
+                            </option>
+                            <option value="Ranked">
+                                Ranked
+                            </option>
                         </select>
                         <button class="btn btn-sm btn-outline-info" @click="updateBeatmapStatus($event)">
                             Save status
@@ -28,8 +41,8 @@
                     </p>
                     <p class="form-row">
                         <select v-model="taskId" class="form-control form-control-sm w-50 mx-2">
-                            <option v-for="task in sortedTasks" :value="task.id" :key="task.id">
-                                {{task.name}} --- 
+                            <option v-for="task in sortedTasks" :key="task.id" :value="task.id">
+                                {{ task.name }} ---
                                 <template v-for="(mapper, i) in task.mappers">
                                     {{ mapper.username + (i < task.mappers.length - 1 ? ', ' : '') }}
                                 </template>
@@ -42,8 +55,8 @@
                     </p>
                     <p class="form-row">
                         <select v-model="modderId" class="form-control form-control-sm w-50 mx-2">
-                            <option v-for="modder in beatmap.modders" :value="modder.id" :key="modder.id">
-                                {{modder.username}}
+                            <option v-for="modder in beatmap.modders" :key="modder.id" :value="modder.id">
+                                {{ modder.username }}
                             </option>
                         </select>
                         <button class="btn btn-sm btn-outline-danger" @click="deleteModder($event)">
@@ -51,26 +64,32 @@
                         </button>
                     </p>
                     <p v-if="beatmap.url" class="min-spacing small text-white-50">
-                        Current URL: 
+                        Current URL:
                         <a :href="beatmap.url" target="_blank">{{ beatmap.url }}</a>
                     </p>
                     <p>
                         <input
+                            v-model="beatmapUrl"
                             class="form-control-sm mx-2 w-75"
                             type="text"
                             autocomplete="off"
                             placeholder="beatmap url..."
-                            v-model="beatmapUrl"
-                        />
+                        >
                         <button class="btn btn-sm btn-outline-info" @click="updateUrl($event)">
                             Save URL
                         </button>
                     </p>
                     <p v-if="storyboardTaskId" class="form-row">
                         <select v-model="storyboardQuality" class="form-control form-control-sm w-25 mx-2">
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
+                            <option value="1">
+                                1
+                            </option>
+                            <option value="2">
+                                2
+                            </option>
+                            <option value="3">
+                                3
+                            </option>
                         </select>
                         <button class="btn btn-sm btn-outline-info" @click="updateStoryboardQuality($event)">
                             Save Storyboard Quality
@@ -78,12 +97,12 @@
                     </p>
                     <p>
                         <input
+                            v-model="packId"
                             class="form-control-sm mx-2 w-50"
                             type="text"
                             autocomplete="off"
                             placeholder="osu! beatmap pack ID..."
-                            v-model="packId"
-                        />
+                        >
                         <button class="btn btn-sm btn-outline-info" @click="updatePackId($event)">
                             Save pack ID
                         </button>
@@ -94,89 +113,15 @@
     </div>
 </template>
 
-<script>
-export default {
-    name: 'beatmap-info',
-    props: ['beatmap'],
-    watch: {
-        beatmap: function() {
-            this.status = this.beatmap.status;
-            this.taskId = null;
-            this.modderId = null;
-            this.beatmapUrl = this.beatmap.url;
-            this.storyboardQuality = null;
-            this.storyboardTaskId = null;
-            this.packId = this.beatmap.packId;
-            this.beatmap.tasks.forEach(task => {
-                if(task.name == 'Storyboard'){
-                    if(task.sbQuality) this.storyboardQuality = task.sbQuality;
-                    this.storyboardTaskId = task.id;
-                }
-            });
-        },
-    },
-    computed: {
-        sortedTasks: function() {
-            let sortOrder = ['Easy', 'Normal', 'Hard', 'Insane', 'Expert', 'Storyboard'];
-            return this.beatmap.tasks.sort(function(a, b) {
-                return sortOrder.indexOf(a.name) - sortOrder.indexOf(b.name);
-            });
-        }
-    },
-    methods: {
-        executePost: async function(path, data, e) {
-            if (e) e.target.disabled = true;
+<script lang="ts">
+import Vue from 'vue';
 
-            try {
-                const res = await axios.post(path, data);
-
-                if (res.data.error) {
-                    this.info = res.data.error;
-                } else {
-                    if (e) e.target.disabled = false;
-                    return res.data;
-                }
-            } catch (error) {
-                console.log(error);
-            }
-
-            if (e) e.target.disabled = false;
-        },
-        updateBeatmapStatus: async function(e) {
-            const b = await this.executePost('/admin/updateBeatmapStatus/' + this.beatmap.id, { status: this.status }, e);
-            if (b) {
-                this.$emit('update-beatmap', b);
-            }
-        },
-        deleteTask: async function(e) {
-            const b = await this.executePost('/admin/deleteTask/' + this.beatmap.id, { taskId: this.taskId }, e);
-            if (b) {
-                this.$emit('update-beatmap', b);
-            }
-        },
-        deleteModder: async function(e) {
-            const b = await this.executePost('/admin/deleteModder/' + this.beatmap.id, { modderId: this.modderId }, e);
-            if (b) {
-                this.$emit('update-beatmap', b);
-            }
-        },
-        updateUrl: async function(e) {
-            const b = await this.executePost('/admin/updateUrl/' + this.beatmap.id, { url: this.beatmapUrl }, e);
-            if (b) {
-                this.$emit('update-beatmap', b);
-            }
-        },
-        updateStoryboardQuality: async function(taskId, e) {
-            const b = await this.executePost('/admin/updateStoryboardQuality/' + this.beatmap.id, { storyboardQuality: this.storyboardQuality, taskId: this.storyboardTaskId }, e);
-            if (b) {
-                this.$emit('update-beatmap', b);
-            }
-        },
-        updatePackId: async function(e) {
-            const b = await this.executePost('/admin/updatePackId/' + this.beatmap.id, { packId: this.packId }, e);
-            if (b) {
-                this.$emit('update-beatmap', b);
-            }
+export default Vue.extend({
+    name: 'BeatmapInfo',
+    props: {
+        beatmap: {
+            type: Object,
+            default: null,
         },
     },
     data() {
@@ -190,5 +135,75 @@ export default {
             packId: null,
         };
     },
-};
+    computed: {
+        sortedTasks(): object[] {
+            const sortOrder = ['Easy', 'Normal', 'Hard', 'Insane', 'Expert', 'Storyboard'];
+
+            return [...this.beatmap.tasks].sort(function(a, b) {
+                return sortOrder.indexOf(a.name) - sortOrder.indexOf(b.name);
+            });
+        },
+    },
+    watch: {
+        beatmap(): void {
+            this.status = this.beatmap.status;
+            this.taskId = null;
+            this.modderId = null;
+            this.beatmapUrl = this.beatmap.url;
+            this.storyboardQuality = null;
+            this.storyboardTaskId = null;
+            this.packId = this.beatmap.packId;
+            this.beatmap.tasks.forEach(task => {
+                if (task.name == 'Storyboard') {
+                    if (task.sbQuality) this.storyboardQuality = task.sbQuality;
+                    this.storyboardTaskId = task.id;
+                }
+            });
+        },
+    },
+    methods: {
+        async updateBeatmapStatus(e): Promise<void> {
+            const b = await this.executePost('/admin/updateBeatmapStatus/' + this.beatmap.id, { status: this.status }, e);
+
+            if (b) {
+                this.$emit('update-beatmap', b);
+            }
+        },
+        async deleteTask(e): Promise<void> {
+            const b = await this.executePost('/admin/deleteTask/' + this.beatmap.id, { taskId: this.taskId }, e);
+
+            if (b) {
+                this.$emit('update-beatmap', b);
+            }
+        },
+        async deleteModder(e): Promise<void> {
+            const b = await this.executePost('/admin/deleteModder/' + this.beatmap.id, { modderId: this.modderId }, e);
+
+            if (b) {
+                this.$emit('update-beatmap', b);
+            }
+        },
+        async updateUrl(e): Promise<void> {
+            const b = await this.executePost('/admin/updateUrl/' + this.beatmap.id, { url: this.beatmapUrl }, e);
+
+            if (b) {
+                this.$emit('update-beatmap', b);
+            }
+        },
+        async updateStoryboardQuality(taskId, e): Promise<void> {
+            const b = await this.executePost('/admin/updateStoryboardQuality/' + this.beatmap.id, { storyboardQuality: this.storyboardQuality, taskId: this.storyboardTaskId }, e);
+
+            if (b) {
+                this.$emit('update-beatmap', b);
+            }
+        },
+        async updatePackId(e): Promise<void> {
+            const b = await this.executePost('/admin/updatePackId/' + this.beatmap.id, { packId: this.packId }, e);
+
+            if (b) {
+                this.$emit('update-beatmap', b);
+            }
+        },
+    },
+});
 </script>
