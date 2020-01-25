@@ -6,7 +6,7 @@ module.exports = {
     entry: {
         maps: './src/beatmaps.ts',
         quests: './src/quests.ts',
-        // users: './src/users.js',
+        users: './src/users.ts',
         // notifications: './src/notifications.js',
         // admin: './src/admin.js',
         // artists: './src/artists.js',

@@ -217,7 +217,7 @@ export default Vue.extend({
             return 'unsorted';
         },
         selfFilter(): void {
-            this.setFilterValue(this.$store.state.username);
+            this.updateFilterValue(this.$store.state.username);
         },
     },
 });

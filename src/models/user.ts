@@ -34,4 +34,5 @@ export interface User {
     penaltyPoints: number;
     totalPoints: number;
     mainMode: Omit<BeatmapMode, BeatmapMode.Hybrid>;
+    createdAt: Date;
 }

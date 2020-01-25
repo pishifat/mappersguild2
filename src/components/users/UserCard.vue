@@ -14,8 +14,9 @@
                     class="text-shadow"
                     target="_blank"
                     @click.stop
-                    >{{ user.username }}</a
                 >
+                    {{ user.username }}
+                </a>
             </div>
             <div class="card-body text-white-50">
                 <p class="card-text text-shadow small">
@@ -38,16 +39,25 @@
     </div>
 </template>
 
-<script>
-export default {
-    name: 'user-card',
-    props: ['user', 'filterMode'],
-    methods: {
-        selectUser: function() {
-            this.$emit('update:selectedUser', this.user);
+<script lang="ts">
+import Vue from 'vue';
+import { mapState } from 'vuex';
+
+export default Vue.extend({
+    name: 'UserCard',
+    props: {
+        user: {
+            type: Object,
+            required: true,
         },
     },
-};
+    computed: mapState(['filterMode']),
+    methods: {
+        selectUser(): void {
+            this.$store.commit('setSelectedUserId', this.user.id);
+        },
+    },
+});
 </script>
 
 <style>
@@ -62,9 +72,11 @@ export default {
     box-shadow: 0 1px 1rem rgba(10, 10, 25);
     background-color: rgba(10, 10, 25);
 }
+
 .card-body {
     padding: 0.5rem 1rem 0.5rem 3.5rem;
 }
+
 .card-header {
     padding: 0.5rem 1rem 0.5rem 3.5rem;
 }

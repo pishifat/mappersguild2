@@ -7,6 +7,7 @@ import { Beatmap, BeatmapMode } from '@models/beatmap';
 import { User, UserGroup } from '@models/user';
 import { BeatmapStatus } from '@models/beatmap';
 import { FilterMode } from '@models/extras';
+import { TaskName } from '@models/task';
 import mixins from './mixins';
 
 Vue.mixin(mixins);
@@ -78,7 +79,7 @@ const store = new Vuex.Store({
             state.fetchLimit += 50;
         },
         setSelectedBeatmap (state, beatmap: Beatmap): void {
-            const sortOrder = ['Easy', 'Normal', 'Hard', 'Insane', 'Expert', 'Storyboard'];
+            const sortOrder = Object.values(TaskName);
 
             beatmap.tasks.sort(function(a, b) {
                 return sortOrder.indexOf(a.name) - sortOrder.indexOf(b.name);
