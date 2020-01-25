@@ -139,7 +139,7 @@ indexRouter.get('/callback', async (req, res) => {
         req.session!.accessToken = response.access_token;
         req.session!.refreshToken = response.refresh_token;
 
-        response = await getUserInfo(req.session?.accessToken);
+        response = await getUserInfo(req.session!.accessToken!);
 
         if (isOsuReponseError(response)) {
             res.status(500).render('error');

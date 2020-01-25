@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "prod": "set NODE_ENV=production&& node ./dist/app.js",
-    "build": "webpack --mode production --config webpack.prod.config.js",
-    "build-app": "tsc",
+    "build-src": "webpack --mode production --config webpack.prod.config.js",
+    "build-app": "tsc --project tsconfig.prod.json",
     "dev": "run-p -rl watch-app watch-src",
     "watch-app": "ts-node-dev --respawn --transpileOnly --no-notify app.ts",
     "watch-src": "webpack-dev-server --mode development --port 8080 --watch"
@@ -31,6 +31,7 @@
     "@types/mongoose": "^5.5.35",
     "@typescript-eslint/eslint-plugin": "^2.13.0",
     "@typescript-eslint/parser": "^2.13.0",
+    "copy-webpack-plugin": "^5.1.1",
     "css-loader": "^2.1.1",
     "eslint": "^6.8.0",
     "eslint-plugin-vue": "^6.1.2",
