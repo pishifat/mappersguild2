@@ -29,6 +29,7 @@
                     placeholder="enter to submit..."
                     style="border-radius: 5px 5px 5px 5px;"
                     v-model="tempComment"
+                    maxlength="1000"
                     @keyup.enter="updateComment($event)"
                     @change="updateComment($event)"
                 >

@@ -8,7 +8,7 @@ const api = require('../models/api.js');
 const router = express.Router();
 
 router.use(api.isLoggedIn);
-router.use(api.isAdmin);
+router.use(api.isJudge);
 
 //population
 const entryPopulate = [
@@ -26,20 +26,25 @@ router.get('/', async (req, res, next) => {
 });
 
 router.get('/relevantInfo', async (req, res, next) => {
-    //todo: only load contest entries for active contest
-    let e = await entries.service.query({}, entryPopulate, {name: 1}, true);
-    let c = await contests.service.query({}, { isActive: true }, {name: 1}, true);
-    res.json({entries: e, contests: c, userId: req.session.mongoId});
+    let e = [];
+    let c = await contests.service.query({ isActive: true }, {}, {name: 1}, true);
+    for (let i = 0; i < c.length; i++) {
+        if(c[i].judges.includes(req.session.mongoId)){
+            //todo: only load contest entries for active contest
+            e = await entries.service.query({}, entryPopulate, {name: 1}, true);
+        }
+    }
+    res.json({entries: e, contests: c, userId: req.session.mongoId, isAdmin: res.locals.userRequest.osuId == 3178418});
 });
 
 /* POST new contest */
-router.post('/createContest', async (req, res) => {
+router.post('/createContest', api.isSuperAdmin, async (req, res) => {
     let c = await contests.service.create(req.body.name);
     res.json(c);
 });
 
 /* POST new contest entry */
-router.post('/createEntry', async (req, res) => {
+router.post('/createEntry', api.isSuperAdmin, async (req, res) => {
     let c = await contests.service.query({_id: req.body.contest});
     if(!c){
         return res.json({ error: 'Contest does not exist!' });
@@ -52,6 +57,24 @@ router.post('/createEntry', async (req, res) => {
     let e = await entries.service.create(req.body.name, u._id);
     await contests.service.update(c.id, { $push: { entries: e } });
     res.json(e);
+});
+
+/* POST add judge */
+router.post('/addJudge/:id', api.isSuperAdmin, async (req, res) => {
+    let c = await contests.service.query({_id: req.params.id});
+    if(!c){
+        return res.json({ error: 'Contest does not exist!' });
+    }
+    let osuId = parseInt(req.body.osuId);
+    let u = await users.service.query({ osuId: osuId });
+    if(!u || isNaN(osuId)){
+        return res.json({ error: 'User does not exist!' });
+    }
+    if(c.judges.includes(u.id)){
+        return res.json({ error: 'User is already a judge!' });
+    }
+    await contests.service.update(c.id, { $push: { judges: u.id } });
+    res.json(c);
 });
 
 /* POST update entry comment */
@@ -102,24 +125,6 @@ router.post('/updateVote/:id', async (req, res) => {
     }
     e = await entries.service.query({_id: req.params.id}, entryPopulate);
     res.json(e)
-});
-
-/* POST update entry vote */
-router.post('/addJudge/:id', async (req, res) => {
-    let c = await contests.service.query({_id: req.params.id});
-    if(!c){
-        return res.json({ error: 'Contest does not exist!' });
-    }
-    let osuId = parseInt(req.body.osuId);
-    let u = await users.service.query({ osuId: osuId });
-    if(!u || isNaN(osuId)){
-        return res.json({ error: 'User does not exist!' });
-    }
-    if(c.judges.includes(u.id)){
-        return res.json({ error: 'User is already a judge!' });
-    }
-    await contests.service.update(c.id, { $push: { judges: u.id } });
-    res.json(c);
 });
 
 

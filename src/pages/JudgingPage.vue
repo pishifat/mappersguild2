@@ -3,13 +3,15 @@
     <div class="container bg-container py-1">
 		<div class="row">
 			<div class="col">
-                <h5>
-                    This is a title
-                    <button class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#contestAdd">Add contest</button>
-                    <button class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#entryAdd">Add entry</button>
-                    <button class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#judgeAdd">Add judge</button>
+                <h5 class="my-2">
+                    Monthly Beatmapping Contest #1
+                    <span v-if="isAdmin">
+                        <button class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#contestAdd">Add contest</button>
+                        <button class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#entryAdd">Add entry</button>
+                        <button class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#judgeAdd">Add judge</button>
+                    </span>
                 </h5>
-                <transition-group name="list" tag="div" class="row">
+                <transition-group v-if="entries && entries.length" name="list" tag="div" class="row">
                     <entry-card
                         v-for="entry in entries"
                         :key="entry.id"
@@ -21,6 +23,9 @@
                         @update-entry="updateEntry($event)"
                     ></entry-card>
                 </transition-group>
+                <p v-else class="ml-4">
+                    No entries...
+                </p>
 			</div>
 		</div>
 	</div>
@@ -54,6 +59,7 @@ export default {
             entries: null,
             contests: null,
             userId: null,
+            isAdmin: null,
             firstOccupied: false,
             secondOccupied: false,
             thirdOccupied: false,
@@ -109,6 +115,7 @@ export default {
                 this.entries = response.data.entries;
                 this.contests = response.data.contests;
                 this.userId = response.data.userId;
+                this.isAdmin = response.data.isAdmin;
             })
             .then(function() {
                 $('#loading').fadeOut();

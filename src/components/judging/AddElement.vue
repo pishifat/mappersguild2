@@ -26,7 +26,7 @@
                             v-model="osuId"
                         />
                     </p>
-                    <p v-if="!type == 'judge'" class="form-row">
+                    <p v-if="type != 'judge'" class="form-row">
                         <input
                             class="form-control-sm w-100"
                             type="text"
