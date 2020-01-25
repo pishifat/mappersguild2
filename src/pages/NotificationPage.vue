@@ -52,6 +52,8 @@
 
         <limited-map-info v-if="selectedMap" :beatmap="selectedMap" />
         <limited-party-info v-if="selectedParty" :party="selectedParty" />
+
+        <toast-messages />
     </div>
 </template>
 
@@ -62,6 +64,7 @@ import NotificationCard from '@components/notifications/NotificationCard.vue';
 import InviteCard from '@components/notifications/InviteCard.vue';
 import LimitedMapInfo from '@components/notifications/LimitedMapInfo.vue';
 import LimitedPartyInfo from '@components/notifications/LimitedPartyInfo.vue';
+import ToastMessages from '@components/ToastMessages.vue';
 import { Notification, Invite } from '@models/notification';
 
 export default Vue.extend({
@@ -71,6 +74,7 @@ export default Vue.extend({
         InviteCard,
         LimitedMapInfo,
         LimitedPartyInfo,
+        ToastMessages,
     },
     data() {
         return {

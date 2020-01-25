@@ -17,9 +17,10 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import FilterBox from '../../components/FilterBox.vue';
+import FilterBox from '@components/FilterBox.vue';
 
 export default Vue.extend({
+    name: 'BeatmapPageFilters',
     components: {
         FilterBox,
     },

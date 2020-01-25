@@ -8,8 +8,8 @@ module.exports = {
         quests: './src/quests.ts',
         users: './src/users.ts',
         notifications: './src/notifications.ts',
-        // admin: './src/admin.js',
-        // artists: './src/artists.js',
+        admin: './src/admin.ts',
+        artists: './src/artists.ts',
     },
     output: {
         filename: '[name].js',

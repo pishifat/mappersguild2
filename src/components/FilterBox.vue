@@ -34,7 +34,7 @@
         </div>
         <div class="row small">
             <div class="col">
-                <div class="row mt-3">
+                <div v-if="filterMode !== undefined" class="row mt-3">
                     <div class="col-auto filter-title">
                         Mode
                     </div>
@@ -169,7 +169,6 @@ import { mapState, mapMutations, mapActions } from 'vuex';
 
 export default Vue.extend({
     props: {
-        allQuests: Array,
         placeholder: {
             type: String,
             required: true,

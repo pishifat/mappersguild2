@@ -41,6 +41,8 @@
 
         <user-info />
 
+        <toast-messages />
+
         <notifications-access v-if="userGroup != 'spectator'" />
     </div>
 </template>
@@ -51,6 +53,7 @@ import Axios from 'axios';
 import { mapGetters, mapState } from 'vuex';
 import UserCard from '@components/users/UserCard.vue';
 import UserInfo from '@components/users/UserInfo.vue';
+import ToastMessages from '@components/ToastMessages.vue';
 import UserPageFilters from '@pages/users/UserPageFilters.vue';
 import NotificationsAccess from '@components/NotificationsAccess.vue';
 
@@ -60,6 +63,7 @@ export default Vue.extend({
         UserCard,
         UserInfo,
         UserPageFilters,
+        ToastMessages,
         NotificationsAccess,
     },
     computed: {
