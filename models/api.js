@@ -195,7 +195,7 @@ async function isNotSpectator(req, res, next) {
 
 //this is temporary and bad
 async function isJudge(req, res, next) {
-    let judges = [3178418, 918297, 8972308, 4236057, 5226970, 6175280, 2202645, 1541323, 10974170, 2140676, 1314547, 5999631, 8953955];
+    let judges = [3178418, 918297, 8972308, 4236057, 5226970, 6175280, 2202645, 1541323, 10974170, 2140676, 1314547, 5999631, 8953955, 3795679];
     if(judges.includes(res.locals.userRequest.osuId)){
         next();
     }else{
