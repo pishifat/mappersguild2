@@ -9,6 +9,7 @@ module.exports = {
         admin: './src/admin.js',
         artists: './src/artists.js',
         quests: './src/quests.js',
+        judging: './src/judging.js',
     },
     output: {
         filename: '[name].js',

@@ -19,6 +19,7 @@ const notificationsRouter = require('./routes/notifications');
 const adminRouter = require('./routes/admin');
 const artistsRouter = require('./routes/artists');
 const questsRouter = require('./routes/quests');
+const judgingRouter = require('./routes/judging');
 const logs = require('./models/log');
 
 const app = express();
@@ -63,6 +64,7 @@ app.use('/notifications', notificationsRouter);
 app.use('/admin', adminRouter)
 app.use('/artists', artistsRouter);
 app.use('/quests', questsRouter);
+app.use('/judging', judgingRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
