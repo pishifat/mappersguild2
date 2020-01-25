@@ -12,14 +12,16 @@
                     <transition-group name="list" tag="div" class="row">
                         <notification-card
                             v-for="notification in notifications"
-                            :notification="notification"
                             :key="notification.id"
+                            :notification="notification"
                             @update:selectedMap="selectedMap = $event"
                             @update:selectedParty="selectedParty = $event"
                             @hide-notification="hideNotification($event)"
-                        ></notification-card>
+                        />
                     </transition-group>
-                    <p v-if="!notifications || notifications.length == 0" class="ml-4">No notifications...</p>
+                    <p v-if="!notifications.length" class="ml-4">
+                        No notifications...
+                    </p>
                 </div>
 
                 <div class="col-md-6">
@@ -32,75 +34,93 @@
                     <transition-group name="list" tag="div" class="row">
                         <invite-card
                             v-for="invite in invites"
-                            :invite="invite"
                             :key="invite.id"
+                            :invite="invite"
                             @update:info="info = $event"
                             @update:selectedMap="selectedMap = $event"
                             @update:selectedParty="selectedParty = $event"
                             @hide-invite="hideInvite($event)"
                             @hide-accepted-invite="hideAcceptedInvite($event)"
-                        ></invite-card>
+                        />
                     </transition-group>
-                    <p v-if="!invites || invites.length == 0" class="ml-4">No invites...</p>
+                    <p v-if="!invites.length" class="ml-4">
+                        No invites...
+                    </p>
                 </div>
             </div>
         </div>
 
-        <limited-map-info :beatmap="selectedMap"></limited-map-info>
-        <limited-party-info :party="selectedParty"></limited-party-info>
+        <limited-map-info v-if="selectedMap" :beatmap="selectedMap" />
+        <limited-party-info v-if="selectedParty" :party="selectedParty" />
     </div>
 </template>
 
-<script>
-import NotificationCard from '../components/notifications/NotificationCard.vue';
-import InviteCard from '../components/notifications/InviteCard.vue';
-import LimitedMapInfo from '../components/LimitedMapInfo.vue';
-import LimitedPartyInfo from '../components/LimitedPartyInfo.vue';
+<script lang="ts">
+import Vue from 'vue';
+import Axios from 'axios';
+import NotificationCard from '@components/notifications/NotificationCard.vue';
+import InviteCard from '@components/notifications/InviteCard.vue';
+import LimitedMapInfo from '@components/notifications/LimitedMapInfo.vue';
+import LimitedPartyInfo from '@components/notifications/LimitedPartyInfo.vue';
+import { Notification, Invite } from '@models/notification';
 
-export default {
-    name: 'notification-page',
+export default Vue.extend({
+    name: 'NotificationPage',
     components: {
         NotificationCard,
         InviteCard,
         LimitedMapInfo,
         LimitedPartyInfo,
     },
+    data() {
+        return {
+            notifications: [] as Notification[],
+            invites: [] as Invite[],
+            info: '',
+            selectedMap: null,
+            selectedParty: null,
+        };
+    },
+    async created() {
+        const res = await Axios.get('/notifications/relevantInfo');
+
+        if (res.data) {
+            this.notifications = res.data.notifications;
+            this.invites = res.data.invites;
+        }
+
+        $('#loading').fadeOut();
+        $('#app')
+            .attr('style', 'visibility: visible')
+            .hide()
+            .fadeIn();
+    },
+    mounted() {
+        setInterval(() => {
+            Axios.get('/notifications/relevantInfo').then(response => {
+                this.notifications = response.data.notifications;
+                this.invites = response.data.invites;
+            });
+        }, 30000);
+    },
     methods: {
-        executePost: async function(path, data, e) {
-            if (e) e.target.disabled = true;
-
-            try {
-                const res = await axios.post(path, data);
-
-                if (res.data.error) {
-                    this.info = res.data.error;
-                } else {
-                    if (e) e.target.disabled = false;
-                    return res.data;
-                }
-            } catch (error) {
-                console.log(error);
-            }
-
-            if (e) e.target.disabled = false;
-        },
-        //mark as read
-        hideNotification: async function(args) {
-            let id = args.id;
-            let e = args.e;
+        async hideNotification(args): Promise<void> {
+            const id = args.id;
+            const e = args.e;
             const i = this.notifications.findIndex(notif => notif.id === id);
             this.notifications.splice(i, 1);
             await this.executePost('/notifications/hideNotification/' + id, {}, e);
         },
         //mark all as read
-        hideAll: async function(e) {
-            this.notifications = null;
+        async hideAll(e): Promise<void> {
+            this.notifications = [];
             await this.executePost('/notifications/hideAll/', {}, e);
         },
         //accept various invites
-        acceptInvite: async function(id, actionType, e) {
-            this.info = null;
+        async acceptInvite(id, actionType, e): Promise<void> {
+            this.info = '';
             let invite;
+
             if (actionType == 'collaborate in a difficulty') {
                 invite = await this.executePost('/notifications/acceptCollab/' + id, {}, e);
             } else if (actionType == 'create a difficulty') {
@@ -117,58 +137,26 @@ export default {
             }
         },
         //decline invite
-        hideInvite: async function(args) {
-            let id = args.id;
-            let e = args.e;
+        async hideInvite(args): Promise<void> {
+            const id = args.id;
+            const e = args.e;
             const i = this.invites.findIndex(inv => inv.id === id);
             this.invites.splice(i, 1);
             await this.executePost('/notifications/hideInvite/' + id, {}, e);
         },
         //decline invite
-        hideAcceptedInvite: async function(args) {
-            let id = args.id;
-            let e = args.e;
+        async hideAcceptedInvite(args): Promise<void> {
+            const id = args.id;
+            const e = args.e;
             const i = this.invites.findIndex(inv => inv.id === id);
             this.invites.splice(i, 1);
             await this.executePost('/notifications/hideAcceptedInvite/' + id, {}, e);
         },
         //decline all invites
-        declineAll: async function(e) {
-            this.invites = null;
+        async declineAll(e): Promise<void> {
+            this.invites = [];
             await this.executePost('/notifications/declineAll/', {}, e);
         },
     },
-    data() {
-        return {
-            notifications: null,
-            invites: null,
-            info: '',
-            selectedMap: null,
-            selectedParty: null,
-        };
-    },
-    created() {
-        axios
-            .get('/notifications/relevantInfo')
-            .then(response => {
-                this.notifications = response.data.notifications;
-                this.invites = response.data.invites;
-            })
-            .then(function() {
-                $('#loading').fadeOut();
-                $('#app')
-                    .attr('style', 'visibility: visible')
-                    .hide()
-                    .fadeIn();
-            });
-    },
-    mounted() {
-        setInterval(() => {
-            axios.get('/notifications/relevantInfo').then(response => {
-                this.notifications = response.data.notifications;
-                this.invites = response.data.invites;
-            });
-        }, 30000);
-    },
-};
+});
 </script>

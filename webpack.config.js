@@ -7,7 +7,7 @@ module.exports = {
         maps: './src/beatmaps.ts',
         quests: './src/quests.ts',
         users: './src/users.ts',
-        // notifications: './src/notifications.js',
+        notifications: './src/notifications.ts',
         // admin: './src/admin.js',
         // artists: './src/artists.js',
     },
