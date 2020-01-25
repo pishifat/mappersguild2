@@ -14,6 +14,9 @@
                         <option v-if="!firstOccupied || this.userVote == 3" value=3>1st</option>
                     </select>
                 </div>
+                <div v-if="isAdmin" class="col-sm-6 d-flex align-items-center small text-white-50">
+                    {{ findVoteInfo() }}
+                </div>
             </div>
             <!--notes-->
             <div class="min-spacing mb-1 ml-2">
@@ -34,6 +37,14 @@
                     @change="updateComment($event)"
                 >
             </div>
+            <div v-if="isAdmin">
+                <ul style="list-style-type: disc">
+                    <li v-for="evaluation in entry.evaluations" :key="evaluation.id" class="small text-white-50">
+                        {{ evaluation.judge.username }} ({{ evaluation.vote }})<br>
+                        {{ evaluation.comment }}
+                    </li>
+                </ul>
+            </div>
             <p v-if="info" class="errors">
                 {{ info }}
             </p>
@@ -51,6 +62,7 @@ export default {
         firstOccupied: Boolean,
         secondOccupied: Boolean,
         thirdOccupied: Boolean,
+        isAdmin: Boolean,
     },
     mounted () {
         for (let i = 0; i < this.entry.evaluations.length; i++) {
@@ -105,6 +117,19 @@ export default {
                 }
             }
         },
+        findVoteInfo: function () {
+            let first = 0;
+            let second = 0;
+            let third = 0;
+            let total = 0;
+            this.entry.evaluations.forEach(evaluation => {
+                if(evaluation.vote == 1) third++;
+                else if(evaluation.vote == 2) second++;
+                else if(evaluation.vote == 3) first++;
+                total += evaluation.vote;
+            });
+            return `total: ${total} / first: ${first} / second: ${second} / third: ${third}`
+        }
     },
     data() {
         return {

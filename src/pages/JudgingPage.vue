@@ -20,6 +20,7 @@
                         :first-occupied.sync="firstOccupied"
                         :second-occupied.sync="secondOccupied"
                         :third-occupied.sync="thirdOccupied"
+                        :is-admin="isAdmin"
                         @update-entry="updateEntry($event)"
                     ></entry-card>
                 </transition-group>
