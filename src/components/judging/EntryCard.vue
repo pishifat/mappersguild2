@@ -1,6 +1,6 @@
 <template>
 <div class="col-sm-12 my-1">
-    <div class="card static-card" :class="userVote == 1 ? 'third-favorite' : userVote == 2 ? 'second-favorite' : userVote == 3 ? 'first-favorite' : 'bg-dark'">
+    <div class="card static-card" :class="userVote == 1 ? 'fifth-favorite' : userVote == 2 ? 'fourth-favorite' : userVote == 3 ? 'third-favorite' : userVote == 4 ? 'second-favorite' : userVote == 5 ? 'first-favorite' : 'bg-dark'">
         <div class="card-body text-shadow min-spacing">
             <div class="min-spacing mt-1 row">
                 <div class="col-sm-2 d-flex align-items-center">
@@ -9,9 +9,11 @@
                 <div class="col-sm-2">
                     <select v-model="tempVote" @change="updateVote()" class="form-control form-control-sm mx-2">
                         <option value=0>no value</option>
-                        <option v-if="!thirdOccupied || this.userVote == 1" value=1>3rd</option>
-                        <option v-if="!secondOccupied || this.userVote == 2" value=2>2nd</option>
-                        <option v-if="!firstOccupied || this.userVote == 3" value=3>1st</option>
+                        <option v-if="!fifthOccupied || this.userVote == 1" value=1>5th</option>
+                        <option v-if="!fourthOccupied || this.userVote == 2" value=2>4th</option>
+                        <option v-if="!thirdOccupied || this.userVote == 3" value=3>3rd</option>
+                        <option v-if="!secondOccupied || this.userVote == 4" value=4>2nd</option>
+                        <option v-if="!firstOccupied || this.userVote == 5" value=5>1st</option>
                     </select>
                 </div>
                 <div v-if="isAdmin" class="col-sm-6 d-flex align-items-center small text-white-50">
@@ -62,6 +64,8 @@ export default {
         firstOccupied: Boolean,
         secondOccupied: Boolean,
         thirdOccupied: Boolean,
+        fourthOccupied: Boolean,
+        fifthOccupied: Boolean,
         isAdmin: Boolean,
     },
     mounted () {
@@ -121,14 +125,18 @@ export default {
             let first = 0;
             let second = 0;
             let third = 0;
+            let fourth = 0;
+            let fifth = 0;
             let total = 0;
             this.entry.evaluations.forEach(evaluation => {
-                if(evaluation.vote == 1) third++;
-                else if(evaluation.vote == 2) second++;
-                else if(evaluation.vote == 3) first++;
+                if(evaluation.vote == 1) fifth++;
+                else if(evaluation.vote == 2) fourth++;
+                else if(evaluation.vote == 3) third++;
+                else if(evaluation.vote == 4) second++;
+                else if(evaluation.vote == 5) first++;
                 total += evaluation.vote;
             });
-            return `total: ${total} / first: ${first} / second: ${second} / third: ${third}`
+            return `total: ${total} / first: ${first} / second: ${second} / third: ${third} / fourth: ${fourth} / fifth: ${fifth}`
         }
     },
     data() {
@@ -166,6 +174,14 @@ input:focus {
 
 .w-10 {
     width: 10%;
+}
+
+.fifth-favorite {
+    background-color: rgba(37, 119, 62, 0.1)!important;
+}
+
+.fourth-favorite {
+    background-color: rgba(53, 111, 138, 0.1)!important;
 }
 
 .third-favorite {

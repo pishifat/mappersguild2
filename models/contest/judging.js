@@ -5,7 +5,7 @@ const logs = require('../log');
 const judgingSchema = new mongoose.Schema({
     judge: { type: 'ObjectId', ref: 'User' },
     comment: { type: String },
-    vote: { type: Number, enum: [0, 1, 2, 3], default: 0 },
+    vote: { type: Number, enum: [0, 1, 2, 3, 4, 5], default: 0 },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const Judging = mongoose.model('Judging', judgingSchema);

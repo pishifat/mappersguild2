@@ -20,6 +20,8 @@
                         :first-occupied.sync="firstOccupied"
                         :second-occupied.sync="secondOccupied"
                         :third-occupied.sync="thirdOccupied"
+                        :fourth-occupied.sync="fourthOccupied"
+                        :fifth-occupied.sync="fifthOccupied"
                         :is-admin="isAdmin"
                         @update-entry="updateEntry($event)"
                     ></entry-card>
@@ -64,6 +66,8 @@ export default {
             firstOccupied: false,
             secondOccupied: false,
             thirdOccupied: false,
+            fourthOccupied: false,
+            fifthOccupied: false,
         };
     },
     watch: {
@@ -90,14 +94,16 @@ export default {
             if (e) e.target.disabled = false;
         },
         findOccupiedVotes() {
-            this.thirdOccupied = this.secondOccupied = this.firstOccupied = false;
+            this.fifthOccupied = this.fourthOccupied = this.thirdOccupied = this.secondOccupied = this.firstOccupied = false;
             this.entries.forEach(entry => {
                 for (let i = 0; i < entry.evaluations.length; i++) {
                     const evaluation = entry.evaluations[i];
                     if(evaluation.judge.id == this.userId){
-                        if(evaluation.vote == 1) this.thirdOccupied = true;
-                        else if(evaluation.vote == 2) this.secondOccupied = true;
-                        else if(evaluation.vote == 3) this.firstOccupied = true;
+                        if(evaluation.vote == 1) this.fifthOccupied = true;
+                        else if(evaluation.vote == 2) this.fourthOccupied = true;
+                        else if(evaluation.vote == 3) this.thirdOccupied = true;
+                        else if(evaluation.vote == 4) this.secondOccupied = true;
+                        else if(evaluation.vote == 5) this.firstOccupied = true;
                         break;
                     }
                 }
