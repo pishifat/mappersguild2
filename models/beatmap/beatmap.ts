@@ -83,20 +83,24 @@ BeatmapSchema.virtual('mappers').get(function(this: Beatmap) {
 
 class BeatmapService extends BaseService<Beatmap> {
     constructor() {
-        super(BeatmapModel, { updatedAt: -1 }, [
-            { path: 'host', select: '_id osuId username' },
-            { path: 'bns', select: '_id osuId username' },
-            { path: 'modders', select: '_id osuId username' },
-            { path: 'quest', select: '_id name art color modes' },
-            { path: 'song',select: 'artist title' },
-            {
-                path: 'tasks',
-                populate: {
-                    path: 'mappers',
-                    select: '_id osuId username',
+        super(
+            BeatmapModel,
+            { updatedAt: -1 },
+            [
+                { path: 'host', select: '_id osuId username' },
+                { path: 'bns', select: '_id osuId username' },
+                { path: 'modders', select: '_id osuId username' },
+                { path: 'quest', select: '_id name art modes' },
+                { path: 'song',select: 'artist title' },
+                {
+                    path: 'tasks',
+                    populate: {
+                        path: 'mappers',
+                        select: '_id osuId username',
+                    },
                 },
-            },
-        ]);
+            ]
+        );
     }
 
     async create(

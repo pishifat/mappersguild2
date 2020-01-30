@@ -32,9 +32,13 @@ const LogModel = mongoose.model<Log>('Log', logSchema);
 class LogService extends BaseService<Log>
 {
     constructor() {
-        super(LogModel, { createdAt: -1 }, [
-            { path: 'user', select: 'username' },
-        ]);
+        super(
+            LogModel,
+            { createdAt: -1 },
+            [
+                { path: 'user', select: 'username' },
+            ]
+        );
     }
 
     async create(

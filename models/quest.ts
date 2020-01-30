@@ -20,7 +20,6 @@ export interface Quest extends Document {
     maxParty: number;
     minRank: number;
     art: number;
-    color: string;
     status: QuestStatus;
     parties: Party[];
     modes: Omit<BeatmapMode, BeatmapMode.Hybrid>[];
@@ -47,7 +46,7 @@ const questSchema = new Schema({
     color: { type: String, default: '#ffa658' },
     status: { type: String, enum: ['open', 'wip', 'done'], default: 'open' },
     parties: [{ type: 'ObjectId', ref: 'Party' }],
-    modes: { type: [String], default: ['osu', 'taiko', 'catch', 'mania'], required: true },
+    modes: [{ type: String, default: ['osu', 'taiko', 'catch', 'mania'], required: true }],
 
     accepted: { type: Date },
     deadline: { type: Date },
@@ -71,12 +70,16 @@ const QuestModel = mongoose.model<Quest>('Quest', questSchema);
 class QuestService extends BaseService<Quest>
 {
     constructor() {
-        super(QuestModel, { createdAt: -1 }, [
-            { path: 'parties',  populate: { path: 'members leader' } },
-            { path: 'currentParty',  populate: { path: 'members leader' } },
-            { path: 'associatedMaps',  populate: { path: 'song host tasks' } },
-            { path: 'completedMembers',  select: 'username osuId rank' },
-        ]);
+        super(
+            QuestModel,
+            { createdAt: -1 },
+            [
+                { path: 'parties',  populate: { path: 'members leader' } },
+                { path: 'currentParty',  populate: { path: 'members leader' } },
+                { path: 'associatedMaps',  populate: { path: 'song host tasks' } },
+                { path: 'completedMembers',  select: 'username osuId rank' },
+            ]
+        );
     }
 
     async create(questData: Partial<Quest>): Promise<Quest | BasicError> {

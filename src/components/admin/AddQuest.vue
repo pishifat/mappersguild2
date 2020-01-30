@@ -109,7 +109,6 @@ export default Vue.extend({
             maxParty: null,
             minRank: null,
             osuId: null,
-            color: null,
         };
     },
     methods: {
@@ -123,7 +122,6 @@ export default Vue.extend({
                 maxParty: this.maxParty,
                 minRank: this.minRank,
                 art: this.osuId,
-                color: this.color,
             }, e);
 
             if (!this.isError(q)) {

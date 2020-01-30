@@ -52,9 +52,11 @@ const TaskModel = mongoose.model<Task>('Task', taskSchema);
 class TaskService extends BaseService<Task>
 {
     constructor() {
-        super(TaskModel, { updatedAt: -1 }, [
-            //
-        ]);
+        super(
+            TaskModel,
+            { updatedAt: -1 },
+            []
+        );
     }
 
     async create(data: Partial<Task>): Promise<Task | BasicError> {

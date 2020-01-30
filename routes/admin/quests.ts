@@ -175,7 +175,6 @@ adminQuestsRouter.post('/duplicateQuest/:id', isSuperAdmin, canFail(async (req, 
         maxParty: q.maxParty,
         minRank: q.minRank,
         art: q.art,
-        color: q.color,
         modes: ['osu', 'taiko', 'catch', 'mania'],
     };
     const newQuest = await QuestService.create(body);

@@ -17,7 +17,7 @@ const partySchema = new Schema({
     members: [{ type: 'ObjectId', ref: 'User' }],
     lock: { type: Boolean, default: false },
     rank: { type: Number, default: 0 },
-    modes: { type: [String], required: true },
+    modes: [{ type: String, required: true }],
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const PartyModel = mongoose.model<Party>('Party', partySchema);
@@ -25,15 +25,19 @@ const PartyModel = mongoose.model<Party>('Party', partySchema);
 class PartyService extends BaseService<Party>
 {
     constructor() {
-        super(PartyModel, { updatedAt: -1 }, [
-            { path: 'members', select: 'username osuId rank' },
-            { path: 'leader', select: 'username osuId' },
-        ]);
+        super(
+            PartyModel,
+            { updatedAt: -1 },
+            [
+                { path: 'members', select: 'username osuId rank' },
+                { path: 'leader', select: 'username osuId' },
+            ]
+        );
     }
 
     async create(userId: User['_id'], mode: Omit<BeatmapMode, BeatmapMode.Hybrid>): Promise<Party | BasicError> {
         try {
-            const party: Partial<Party> = new PartyModel({
+            const party: Party = new PartyModel({
                 leader: userId,
                 members: userId,
                 modes: [mode],

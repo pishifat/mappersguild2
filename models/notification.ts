@@ -39,17 +39,21 @@ const NotificationModel = mongoose.model<Notification>('Notification', notificat
 class NotificationService extends BaseService<Notification>
 {
     constructor() {
-        super(NotificationModel, { updatedAt: -1 }, [
-            { path: 'sender', select: 'username osuId' },
-            { path: 'map', populate: { path: 'song host' } },
-            {
-                path: 'map', populate: {
-                    path: 'tasks', populate: { path: 'mappers' },
+        super(
+            NotificationModel,
+            { updatedAt: -1 },
+            [
+                { path: 'sender', select: 'username osuId' },
+                { path: 'map', populate: { path: 'song host' } },
+                {
+                    path: 'map', populate: {
+                        path: 'tasks', populate: { path: 'mappers' },
+                    },
                 },
-            },
-            { path: 'party', populate: { path: 'members leader' } },
-            { path: 'quest', select: 'name' },
-        ]);
+                { path: 'party', populate: { path: 'members leader' } },
+                { path: 'quest', select: 'name' },
+            ]
+        );
     }
 
     async create(

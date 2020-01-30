@@ -55,21 +55,25 @@ const InviteModel = mongoose.model<Invite>('Invite', inviteSchema);
 class InviteService extends BaseService<Invite>
 {
     constructor() {
-        super(InviteModel, { updatedAt: -1 }, [
-            { path: 'sender', select: 'username osuId' },
-            { path: 'map', populate: { path: 'song host' } },
-            {
-                path: 'map', populate: {
-                    path: 'tasks', populate: { path: 'mappers' },
+        super(
+            InviteModel,
+            { updatedAt: -1 },
+            [
+                { path: 'sender', select: 'username osuId' },
+                { path: 'map', populate: { path: 'song host' } },
+                {
+                    path: 'map', populate: {
+                        path: 'tasks', populate: { path: 'mappers' },
+                    },
                 },
-            },
-            { path: 'party', populate: { path: 'members leader' } },
-            {
-                path: 'quest', populate: {
-                    path: 'currentParty', populate: { path: 'members' },
+                { path: 'party', populate: { path: 'members leader' } },
+                {
+                    path: 'quest', populate: {
+                        path: 'currentParty', populate: { path: 'members' },
+                    },
                 },
-            },
-        ]);
+            ]
+        );
     }
 
     async createMapInvite(

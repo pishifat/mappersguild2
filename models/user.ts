@@ -99,9 +99,13 @@ const UserModel = mongoose.model<User>('User', UserSchema);
 class UserService extends BaseService<User>
 {
     constructor() {
-        super(UserModel, { createdAt: -1 }, [
-            { path: 'completedQuests', select: 'name completed' },
-        ]);
+        super(
+            UserModel,
+            { createdAt: -1 },
+            [
+                { path: 'completedQuests', select: 'name completed' },
+            ]
+        );
     }
 
     async create(

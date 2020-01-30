@@ -379,7 +379,6 @@ questsRouter.post('/acceptQuest/:partyId/:questId', isNotSpectator, canFail(asyn
             maxParty: q.maxParty,
             minRank: q.minRank,
             art: q.art,
-            color: q.color,
             modes: p.modes,
             accepted: new Date(),
             status: QuestStatus.WIP,

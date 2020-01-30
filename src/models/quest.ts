@@ -18,7 +18,6 @@ export interface Quest {
     maxParty: number;
     minRank: number;
     art: number;
-    color: string;
     status: QuestStatus;
     parties: Party[];
     modes: Omit<BeatmapMode, BeatmapMode.Hybrid>[];

@@ -63,9 +63,13 @@ const FeaturedArtistModel = mongoose.model<FeaturedArtist>('FeaturedArtist', fea
 class FeaturedArtistService extends BaseService<FeaturedArtist>
 {
     constructor() {
-        super(FeaturedArtistModel, { title: -1 }, [
-            { path: 'songs', select: 'artist title' },
-        ]);
+        super(
+            FeaturedArtistModel,
+            { title: -1 },
+            [
+                { path: 'songs', select: 'artist title' },
+            ]
+        );
     }
 
     async create(label: FeaturedArtist['label'], osuId?: User['osuId'] | undefined): Promise<FeaturedArtist | BasicError> {
