@@ -18,7 +18,7 @@ export interface Invite extends Document {
     recipient: User;
     sender: User;
     /** Can be any of these objects (Beatmap | Party) */
-    modified: Beatmap | Party;
+    modified: Beatmap | Party | Beatmap['_id'] | Party['_id'];
     info: string;
     actionType: ActionType;
     accepted: boolean;

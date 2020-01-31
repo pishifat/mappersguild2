@@ -111,7 +111,16 @@ export async function beatmapsetInfo(setId: number): Promise<OsuBeatmapResponse 
         const res = await axios.get(url);
 
         if (res?.data?.length > 0) {
-            return res.data[0];
+            const beatmapResponse = res.data[0];
+            beatmapResponse.approved = parseInt(beatmapResponse.approved);
+            beatmapResponse.beatmap_id = parseInt(beatmapResponse.beatmap_id);
+            beatmapResponse.beatmapset_id = parseInt(beatmapResponse.beatmapset_id);
+            beatmapResponse.creator_id = parseInt(beatmapResponse.creator_id);
+            beatmapResponse.hit_length = parseInt(beatmapResponse.hit_length);
+            beatmapResponse.total_length = parseInt(beatmapResponse.total_length);
+            beatmapResponse.mode = parseInt(beatmapResponse.mode);
+
+            return beatmapResponse;
         }
 
         return defaultErrorMessage;

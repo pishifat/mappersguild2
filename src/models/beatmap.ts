@@ -18,15 +18,6 @@ export enum BeatmapMode {
     Hybrid = 'hybrid',
 }
 
-export enum BeatmapModeOrAny {
-    Osu = 'osu',
-    Taiko = 'taiko',
-    Catch = 'catch',
-    Mania = 'mania',
-    Hybrid = 'hybrid',
-    Any = 'any',
-}
-
 export interface Beatmap {
     id: string;
     song: FeaturedSong;

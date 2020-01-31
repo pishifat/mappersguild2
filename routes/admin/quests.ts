@@ -114,7 +114,7 @@ adminQuestsRouter.post('/dropQuest/:id', isSuperAdmin, canFail(async (req, res) 
     await PartyService.remove(q.currentParty.id);
 
     if (openQuest && !QuestService.isError(openQuest)) {
-        res.json({});
+        res.json({ success: 'quest dropped' });
     } else {
         q = await QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
 
@@ -130,11 +130,9 @@ adminQuestsRouter.post('/completeQuest/:id', isSuperAdmin, canFail(async (req, r
 
     if (quest.status == QuestStatus.WIP) {
         //webhook
-        let memberUsernames: string[] = [];
-        quest.currentParty.members.forEach(member => {
-            memberUsernames.push(member.username);
-        });
-        const memberList = memberUsernames.join(', ');
+        const memberList = quest.currentParty.members
+            .map(m => m.username)
+            .join(', ');
 
         webhookPost([{
             author: {
@@ -151,8 +149,6 @@ adminQuestsRouter.post('/completeQuest/:id', isSuperAdmin, canFail(async (req, r
                 value: memberList,
             }],
         }]);
-
-        return res.json({});
 
         //quest changes
         await PartyService.remove(quest.currentParty.id);

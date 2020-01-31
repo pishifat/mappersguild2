@@ -44,7 +44,7 @@ async function updatePartyInfo(id: string): Promise<object> {
 }
 
 //valid task check (doesn't have lock check, has special task checks)
-async function addTaskChecks(userId: User['_id'], b: Beatmap, invite: Invite): Promise<BasicResponse> {
+async function addTaskChecks(userId: User['_id'], b: Beatmap, invite: Invite, isNewTask: boolean): Promise<BasicResponse> {
     if (!b) {
         return { error: 'This map no longer exists!' };
     }
@@ -97,18 +97,20 @@ async function addTaskChecks(userId: User['_id'], b: Beatmap, invite: Invite): P
         return { error: 'Cannot create a difficulty while in BN list!' };
     }
 
-    let t = await TaskService.queryById(invite.modified._id);
+    if (!isNewTask) {
+        let t = await TaskService.queryById(invite.modified);
 
-    if (!t) {
-        return { error: `Task doesn't exist anymore!` };
-    }
+        if (!t) {
+            return { error: `Task doesn't exist anymore!` };
+        }
 
-    t = await TaskService.queryOne({ query: { _id: invite.modified._id, mappers: userId } });
+        t = await TaskService.queryOne({ query: { _id: invite.modified, mappers: userId } });
 
-    if (t && !TaskService.isError(t)) {
-        await InviteService.update(invite.map.id, { visible: false });
+        if (t && !TaskService.isError(t)) {
+            await InviteService.update(invite.map.id, { visible: false });
 
-        return { error: `You're already a mapper on this task!` };
+            return { error: `You're already a mapper on this task!` };
+        }
     }
 
     return { success: 'ok' };
@@ -211,11 +213,14 @@ notificationsRouter.post('/acceptCollab/:id', isNotSpectator, canFail(async (req
         return res.json({ error: `Mapset no longer exists!` });
     }
 
+    // is invite.modified id or object?
+
     const b = await BeatmapService.queryOneOrFail({
         query: { tasks: (invite.modified as Beatmap)._id },
         populate: beatmapPopulate,
     });
-    const valid = await addTaskChecks(req.session?.mongoId, b, invite);
+
+    const valid = await addTaskChecks(req.session?.mongoId, b, invite, false);
 
     if (valid.error) {
         return res.json(valid);
@@ -255,7 +260,7 @@ notificationsRouter.post('/acceptDiff/:id', isNotSpectator, canFail(async (req, 
     }
 
     let b = await BeatmapService.queryByIdOrFail(invite.map._id, { populate: beatmapPopulate });
-    const valid = await addTaskChecks(req.session.mongoId, b, invite);
+    const valid = await addTaskChecks(req.session.mongoId, b, invite, true);
 
     if (valid.error) {
         return res.json(valid);

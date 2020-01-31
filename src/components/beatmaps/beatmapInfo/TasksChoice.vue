@@ -137,17 +137,7 @@
                     :beatmap="beatmap"
                     :is-host="isHost"
                     :task-to-add-collaborator.sync="taskToAddCollaborator"
-                    @update:invite-confirm="inviteConfirmMessage = $event"
                 />
-            </div>
-
-            <div
-                v-if="inviteConfirmMessage"
-                class="col-sm-12 mt-2 text-center"
-            >
-                <span class="mr-auto confirm">
-                    {{ inviteConfirmMessage }}
-                </span>
             </div>
         </template>
     </div>
@@ -177,7 +167,6 @@ export default Vue.extend({
     },
     data () {
         return {
-            inviteConfirmMessage: null,
             taskToAddCollaborator: null as null | Task,
         };
     },

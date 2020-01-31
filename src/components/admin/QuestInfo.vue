@@ -37,21 +37,23 @@
                             placeholder="quest description..."
                         />
                     </p>
-                    <p v-if="quest.status == 'wip'">
-                        <button class="btn btn-sm btn-outline-danger" @click="dropQuest($event)">
-                            Drop quest
-                        </button>
-                    </p>
-                    <p v-if="quest.status == 'wip'">
-                        <button class="btn btn-sm btn-outline-success" @click="completeQuest($event)">
-                            Complete quest
-                        </button>
-                    </p>
-                    <p v-if="quest.status == 'wip'">
-                        <button class="btn btn-sm btn-outline-info" @click="resetQuestDeadline($event)">
-                            Reset quest deadline
-                        </button>
-                    </p>
+                    <template v-if="quest.status == 'wip'">
+                        <p>
+                            <button class="btn btn-sm btn-outline-danger" @click="dropQuest($event)">
+                                Drop quest
+                            </button>
+                        </p>
+                        <p>
+                            <button class="btn btn-sm btn-outline-success" @click="completeQuest($event)">
+                                Complete quest
+                            </button>
+                        </p>
+                        <p>
+                            <button class="btn btn-sm btn-outline-info" @click="resetQuestDeadline($event)">
+                                Reset quest deadline
+                            </button>
+                        </p>
+                    </template>
                     <p>
                         <button class="btn btn-sm btn-outline-info" @click="duplicateQuest($event)">
                             Duplicate quest

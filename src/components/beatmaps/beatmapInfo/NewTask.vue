@@ -66,7 +66,7 @@
         >
             <small>
                 Adding collaborator for the selected difficulty
-                <a class="text-danger" href="#" @click="$emit('update:task-to-add-collaborator', null)">
+                <a class="text-danger" href="#" @click.prevent="$emit('update:task-to-add-collaborator', null)">
                     <i class="fas fa-times-circle" />
                 </a>
             </small>
@@ -131,9 +131,7 @@ export default Vue.extend({
                 mode,
             }, e);
 
-            if (this.isError(bm)) {
-                this.$emit('update:invite-confirm', null);
-            } else {
+            if (!this.isError(bm)) {
                 this.$store.dispatch('updateBeatmap', bm);
             }
         },
@@ -152,11 +150,12 @@ export default Vue.extend({
                 mode,
             }, e);
 
-            if (this.isError(bm)) {
-                this.$emit('update:invite-confirm', null);
-            } else {
+            if (!this.isError(bm)) {
                 this.$store.dispatch('updateBeatmap', bm);
-                this.$emit('update:invite-confirm', 'Difficulty request sent!');
+                this.$store.dispatch('updateToastMessages', {
+                    message: 'Difficulty request sent!',
+                    type: 'success',
+                });
             }
         },
         async addCollab(e): Promise<void> {
@@ -174,11 +173,12 @@ export default Vue.extend({
                 mode,
             }, e);
 
-            if (this.isError(bm)) {
-                this.$emit('update:invite-confirm', null);
-            } else {
+            if (!this.isError(bm)) {
                 this.$store.dispatch('updateBeatmap', bm);
-                this.$emit('update:invite-confirm', 'Collab invite sent!');
+                this.$store.dispatch('updateToastMessages', {
+                    message: 'Collab invite sent!',
+                    type: 'success',
+                });
             }
         },
     },

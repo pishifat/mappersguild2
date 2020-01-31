@@ -1,5 +1,5 @@
 import express from 'express';
-import { BeatmapService, Beatmap, ModeOrAny, BeatmapMode, BeatmapStatus } from '../../models/beatmap/beatmap';
+import { BeatmapService, Beatmap, BeatmapMode, BeatmapStatus } from '../../models/beatmap/beatmap';
 import { TaskService, Task, TaskName } from '../../models/beatmap/task';
 import { QuestService } from '../../models/quest';
 import { NotificationService } from '../../models/notification';
@@ -70,7 +70,7 @@ beatmapsRouter.get('/search', async (req, res) => {
         return res.json({ error: 'Missing mode filter...' });
     }
 
-    const mode = req.query.mode as ModeOrAny;
+    const mode = req.query.mode as BeatmapMode | 'any';
     const limit = parseInt(req.query.limit);
     const status = req.query.status as BeatmapStatus | undefined;
     const quest = req.query.quest as 'none' | undefined;
@@ -78,7 +78,7 @@ beatmapsRouter.get('/search', async (req, res) => {
 
     let allBeatmaps = await BeatmapService.queryAll({
         query: {
-            ...(mode != ModeOrAny.Any ? {
+            ...(mode != 'any' ? {
                 $or: [
                     { mode },
                     { mode: BeatmapMode.Hybrid },

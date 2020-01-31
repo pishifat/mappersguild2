@@ -87,42 +87,6 @@ async function addTaskChecks(userId: Beatmap['_id'], b: Beatmap, taskName: TaskN
 
 const inviteError = 'Invite not sent: ';
 
-async function inviteChecks(u: User, senderId: User['_id']): Promise<BasicResponse> {
-    if (!u.invites) {
-        return { error: inviteError + 'User has invites disabled!' };
-    }
-
-    const recipientInvites = await InviteService.queryAll({
-        query: { recipient: u._id, visible: true },
-    });
-
-    if (InviteService.isError(recipientInvites)) {
-        return defaultErrorMessage;
-    }
-
-    if (recipientInvites.length > 2) {
-        return { error: inviteError + 'User has too many pending invites!' };
-    }
-
-    const senderInvite = await InviteService.queryOne({
-        query: {
-            recipient: u._id,
-            sender: senderId,
-            visible: true,
-        },
-    });
-
-    if (senderInvite) {
-        return {
-            error:
-                inviteError +
-                'Wait for the user to reply to your previous invite before sending another!',
-        };
-    }
-
-    return { success: 'ok' };
-}
-
 /* POST create task from extended view. */
 tasksRouter.post('/addTask/:mapId', isNotSpectator, isValidBeatmap, async (req, res) => {
     let b = res.locals.beatmap;
@@ -237,10 +201,9 @@ tasksRouter.post('/task/:taskId/addCollab', isNotSpectator, isValidUser, async (
     // TOTEST
 
     const u = res.locals.user;
-    let validity = await inviteChecks(u, req.session?.mongoId);
 
-    if (validity.error) {
-        return res.json(validity);
+    if (!u.invites) {
+        return { error: inviteError + 'User has invites disabled!' };
     }
 
     const [t, b] = await Promise.all([
@@ -259,20 +222,15 @@ tasksRouter.post('/task/:taskId/addCollab', isNotSpectator, isValidUser, async (
         }),
     ]);
 
-    if (!t || TaskService.isError(t) || !b || BeatmapService.isError(b)) {
+    if (t || !b || BeatmapService.isError(b)) {
         return res.json({ error: inviteError + 'User is already a collaborator' });
     }
-
-    // if (b.status == 'Ranked') {
-    //     Should be done in query ^
-    //     return res.json({ error: 'Mapset ranked' });
-    // }
 
     if (!req.body.mode) {
         req.body.mode = b.mode;
     }
 
-    validity = await addTaskChecks(u.id, b, req.body.taskName, req.body.mode, b.host._id.toString() == req.session?.mongoId);
+    const validity = await addTaskChecks(u.id, b, req.body.taskName, req.body.mode, b.host._id.toString() == req.session?.mongoId);
 
     if (validity.error) {
         return res.json(validity);
@@ -281,12 +239,10 @@ tasksRouter.post('/task/:taskId/addCollab', isNotSpectator, isValidUser, async (
     const updatedTask = await TaskService.queryById(req.params.taskId);
 
     if (!updatedTask || TaskService.isError(updatedTask)) {
-        return res.json({ error: inviteError + 'User is already a collaborator' });
+        return res.json({ error: inviteError + 'Task does not exist!' });
     }
 
-    res.json(b);
-
-    InviteService.createMapInvite(
+    const newInvite = await InviteService.createMapInvite(
         u.id,
         req.session?.mongoId,
         req.params.taskId,
@@ -296,6 +252,12 @@ tasksRouter.post('/task/:taskId/addCollab', isNotSpectator, isValidUser, async (
         req.body.taskName,
         req.body.mode
     );
+
+    if (!newInvite || InviteService.isError(newInvite)) {
+        return res.json({ error: inviteError + 'Invite generation failed!' });
+    }
+
+    res.json(b);
 });
 
 /* POST remove collab user from task. */
@@ -408,13 +370,11 @@ tasksRouter.post('/requestTask/:mapId', isNotSpectator, isValidUser, isValidBeat
     const u: User = res.locals.user;
     const b: Beatmap = res.locals.beatmap;
 
-    let valid = await inviteChecks(u, req.session?.mongoId);
-
-    if (valid.error) {
-        return res.json(valid);
+    if (!u.invites) {
+        return { error: inviteError + 'User has invites disabled!' };
     }
 
-    valid = await addTaskChecks(u.id, b, req.body.taskName, req.body.mode, true);
+    const valid = await addTaskChecks(u.id, b, req.body.taskName, req.body.mode, true);
 
     if (valid.error) {
         return res.json(valid);
