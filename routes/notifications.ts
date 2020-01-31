@@ -259,7 +259,7 @@ notificationsRouter.post('/acceptDiff/:id', isNotSpectator, canFail(async (req, 
         return res.json({ error: `Mapset no longer exists!` });
     }
 
-    let b = await BeatmapService.queryByIdOrFail(invite.map._id, { populate: beatmapPopulate });
+    const b = await BeatmapService.queryByIdOrFail(invite.map._id, { populate: beatmapPopulate });
     const valid = await addTaskChecks(req.session.mongoId, b, invite, true);
 
     if (valid.error) {
@@ -280,26 +280,28 @@ notificationsRouter.post('/acceptDiff/:id', isNotSpectator, canFail(async (req, 
 
     const t = await TaskService.create({ name: invite.taskName, mappers: req.session.mongoId, mode: invite.taskMode });
 
-    if (TaskService.isError(t)) {
-        return defaultErrorMessage;
+    if (!TaskService.isError(t)) {
+        return;
     }
 
     await BeatmapService.update(invite.map.id, { $push: { tasks: t._id } });
-    b = await BeatmapService.queryByIdOrFail(invite.map.id, beatmapPopulate);
+    const updateBeatmap = await BeatmapService.queryById(invite.map.id, { populate: beatmapPopulate });
 
-    LogService.create(
-        req.session.mongoId,
-        `added "${invite.taskName}" difficulty to "${b.song.artist} - ${b.song.title}"`,
-        b._id,
-        LogCategory.Beatmap
-    );
-    NotificationService.create(
-        b.id,
-        `accepted the invite to create a difficulty on your mapset`,
-        invite.sender,
-        invite.recipient,
-        b.id
-    );
+    if (updateBeatmap && !BeatmapService.isError(updateBeatmap)) {
+        LogService.create(
+            req.session.mongoId,
+            `added "${invite.taskName}" difficulty to "${b.song.artist} - ${b.song.title}"`,
+            updateBeatmap._id,
+            LogCategory.Beatmap
+        );
+        NotificationService.create(
+            updateBeatmap.id,
+            `accepted the invite to create a difficulty on your mapset`,
+            invite.sender,
+            invite.recipient,
+            updateBeatmap.id
+        );
+    }
 }));
 
 /* POST accept join party */
