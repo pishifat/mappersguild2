@@ -280,7 +280,7 @@ notificationsRouter.post('/acceptDiff/:id', isNotSpectator, canFail(async (req, 
 
     const t = await TaskService.create({ name: invite.taskName, mappers: req.session.mongoId, mode: invite.taskMode });
 
-    if (!TaskService.isError(t)) {
+    if (TaskService.isError(t)) {
         return;
     }
 
