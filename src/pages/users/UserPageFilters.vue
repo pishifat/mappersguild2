@@ -1,7 +1,7 @@
 <template>
     <div class="container bg-container py-3 mb-2">
         <filter-box
-            placeholder="username..."
+            placeholder="enter to search for username..."
         />
 
         <div class="row small mt-3">

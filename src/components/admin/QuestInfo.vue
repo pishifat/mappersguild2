@@ -37,14 +37,19 @@
                             placeholder="quest description..."
                         />
                     </p>
-                    <p>
+                    <p v-if="quest.status == 'wip'">
                         <button class="btn btn-sm btn-outline-danger" @click="dropQuest($event)">
                             Drop quest
                         </button>
                     </p>
-                    <p>
+                    <p v-if="quest.status == 'wip'">
                         <button class="btn btn-sm btn-outline-success" @click="completeQuest($event)">
                             Complete quest
+                        </button>
+                    </p>
+                    <p v-if="quest.status == 'wip'">
+                        <button class="btn btn-sm btn-outline-info" @click="resetQuestDeadline($event)">
+                            Reset quest deadline
                         </button>
                     </p>
                     <p>
@@ -58,11 +63,6 @@
                             autocomplete="off"
                             placeholder="new quest name..."
                         >
-                    </p>
-                    <p>
-                        <button class="btn btn-sm btn-outline-info" @click="resetQuestDeadline($event)">
-                            Reset quest deadline
-                        </button>
                     </p>
                     <p>
                         <a href="#" @click.prevent="toggleQuestMode('osu')">

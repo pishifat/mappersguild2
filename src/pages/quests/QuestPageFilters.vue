@@ -1,7 +1,7 @@
 <template>
     <div class="container bg-container py-3 mb-2">
         <filter-box
-            placeholder="quest name..."
+            placeholder="enter to search for quest..."
         />
     </div>
 </template>

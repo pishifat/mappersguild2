@@ -11,25 +11,26 @@
             v-if="otherBeatmaps"
             id="otherBeatmaps"
             class="collapse"
-            :class="{ 'loading-data' : isLoadingOtherBeatmaps }"
         >
-            <p v-if="!otherBeatmaps.length && !isLoadingOtherBeatmaps" class="ml-5 text-white-50">
-                None...
-            </p>
+            <div :class="{ 'loading-data' : isLoadingOtherBeatmaps }">
+                <p v-if="!otherBeatmaps.length && !isLoadingOtherBeatmaps" class="ml-5 text-white-50">
+                    None...
+                </p>
 
-            <beatmap-table-row
-                v-for="beatmap in otherBeatmaps"
-                :key="beatmap.id"
-                :beatmap="beatmap"
-            />
+                <beatmap-table-row
+                    v-for="beatmap in otherBeatmaps"
+                    :key="beatmap.id"
+                    :beatmap="beatmap"
+                />
 
-            <div v-if="!filterValue" class="text-center">
-                <button
-                    class="btn btn-sm btn-outline-info my-4"
-                    @click.prevent="showMore($event)"
-                >
-                    <i class="fas fa-angle-down mr-1" /> show more <i class="fas fa-angle-down ml-1" />
-                </button>
+                <div v-if="!filterValue" class="text-center">
+                    <button
+                        class="btn btn-sm btn-outline-info my-4"
+                        @click.prevent="showMore($event)"
+                    >
+                        <i class="fas fa-angle-down mr-1" /> show more <i class="fas fa-angle-down ml-1" />
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -54,7 +55,7 @@ export default Vue.extend({
         async showMore(e): Promise<void> {
             e.target.disabled = true;
             this.$store.commit('increaseFetchLimit');
-            await this.$store.dispatch('loadOthersBeatmaps');
+            await this.$store.dispatch('loadOtherBeatmaps');
             e.target.disabled = false;
         },
     },

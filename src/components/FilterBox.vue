@@ -17,15 +17,6 @@
                         :value="filterValue"
                         @keyup.enter="updateFilterValue($event.target.value)"
                     >
-                    <div v-if="placeholder != 'quest name...'" class="input-group-append">
-                        <button
-                            class="btn btn-outline-secondary"
-                            type="button"
-                            @click="selfFilter"
-                        >
-                            <i class="fas fa-user-circle" />
-                        </button>
-                    </div>
                     <div class="input-group-append">
                         <slot />
                     </div>
@@ -214,9 +205,6 @@ export default Vue.extend({
             }
 
             return 'unsorted';
-        },
-        selfFilter(): void {
-            this.updateFilterValue(this.$store.state.username);
         },
     },
 });

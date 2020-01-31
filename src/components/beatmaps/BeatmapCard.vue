@@ -65,13 +65,7 @@ export default Vue.extend({
             defaultUrl: 'https://osu.ppy.sh/images/layout/beatmaps/default-bg.png',
         };
     },
-    methods: {
-        ...mapMutations([
-            'setSelectedBeatmap',
-        ]),
-        fallbackImage(e): void {
-            e.target.src = this.defaultUrl;
-        },
+    computed: {
         statusBorder(): string {
             if (this.beatmap.status == 'WIP') {
                 return 'card-status-wip';
@@ -84,6 +78,14 @@ export default Vue.extend({
             }
 
             return '';
+        },
+    },
+    methods: {
+        ...mapMutations([
+            'setSelectedBeatmap',
+        ]),
+        fallbackImage(e): void {
+            e.target.src = this.defaultUrl;
         },
         formatMetadata(artist, title): string {
             const str = artist + ' - ' + title;

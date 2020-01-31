@@ -80,7 +80,7 @@ export default Vue.extend({
 
         await Promise.all([
             this.loadGuestBeatmaps(),
-            this.$store.dispatch('loadOthersBeatmaps'),
+            this.$store.dispatch('loadOtherBeatmaps'),
         ]);
 
         this.isLoadingGuestBeatmaps = false;

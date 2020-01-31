@@ -113,9 +113,13 @@ adminQuestsRouter.post('/dropQuest/:id', isSuperAdmin, canFail(async (req, res) 
 
     await PartyService.remove(q.currentParty.id);
 
-    q = await QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+    if (openQuest && !QuestService.isError(openQuest)) {
+        res.json({});
+    } else {
+        q = await QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
 
-    res.json(q);
+        res.json(q);
+    }
 
     LogService.create(req.session?.mongoId, `forced party to drop quest "${q.name}"`, req.params.id, LogCategory.Quest);
 }));
@@ -126,9 +130,11 @@ adminQuestsRouter.post('/completeQuest/:id', isSuperAdmin, canFail(async (req, r
 
     if (quest.status == QuestStatus.WIP) {
         //webhook
-        let memberList = '';
-
-        memberList = quest.currentParty.members.join(', ');
+        let memberUsernames: string[] = [];
+        quest.currentParty.members.forEach(member => {
+            memberUsernames.push(member.username);
+        });
+        const memberList = memberUsernames.join(', ');
 
         webhookPost([{
             author: {
@@ -145,6 +151,8 @@ adminQuestsRouter.post('/completeQuest/:id', isSuperAdmin, canFail(async (req, r
                 value: memberList,
             }],
         }]);
+
+        return res.json({});
 
         //quest changes
         await PartyService.remove(quest.currentParty.id);

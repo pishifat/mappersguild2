@@ -1,7 +1,7 @@
 <template>
     <div class="container bg-container py-3 mb-2">
         <filter-box
-            placeholder="song/username..."
+            placeholder="enter to search for song/username..."
         >
             <button
                 class="btn btn-outline-info"

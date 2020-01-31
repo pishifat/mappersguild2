@@ -64,7 +64,7 @@
 
                     <div class="col-sm-1 text-center">
                         <div id="collapse-arrow">
-                            <i class="fas fa-2x" :class="wasClicked ? 'fa-caret-right' : 'fa-caret-down'" />
+                            <i class="fas fa-2x" :class="wasClicked ? 'fa-caret-up' : 'fa-caret-down'" />
                         </div>
                     </div>
 

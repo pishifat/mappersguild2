@@ -87,7 +87,7 @@
 
             <!-- ACCEPT QUEST -->
             <button
-                v-else-if="quest.status === 'wip' && party.rank >= quest.minRank && party.members.length >= quest.minParty && party.members.length <= quest.maxParty"
+                v-else-if="quest.status === 'open' && party.rank >= quest.minRank && party.members.length >= quest.minParty && party.members.length <= quest.maxParty"
                 class="btn btn-sm btn-outline-success mx-2 my-2"
                 @click.prevent="acceptQuest($event)"
             >

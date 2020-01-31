@@ -324,9 +324,9 @@ questsRouter.post('/acceptQuest/:partyId/:questId', isNotSpectator, canFail(asyn
 
     const q = await QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
 
-    if (p.members.length <= q.minParty
-        || p.members.length >= q.maxParty
-        || p.rank <= q.minRank
+    if (p.members.length < q.minParty
+        || p.members.length > q.maxParty
+        || p.rank < q.minRank
     ) {
         return res.json({ error: 'Something went wrong!' });
     }

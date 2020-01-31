@@ -166,21 +166,21 @@ const store = new Vuex.Store({
         },
         async updateFilterMode ({ commit, dispatch }, mode: string): Promise<void> {
             commit('setFilterMode', mode);
-            await dispatch('loadOthersBeatmaps');
+            await dispatch('loadOtherBeatmaps');
         },
         async updateFilterStatus ({ commit, dispatch }, status: string): Promise<void> {
             commit('setFilterStatus', status);
-            await dispatch('loadOthersBeatmaps');
+            await dispatch('loadOtherBeatmaps');
         },
         async updateFilterQuest ({ commit, dispatch }, quest: string): Promise<void> {
             commit('setFilterQuest', quest);
-            await dispatch('loadOthersBeatmaps');
+            await dispatch('loadOtherBeatmaps');
         },
         async updateFilterValue ({ commit, dispatch }, value: string): Promise<void> {
             commit('setFilterValue', value);
-            await dispatch('loadOthersBeatmaps');
+            await dispatch('loadOtherBeatmaps');
         },
-        async loadOthersBeatmaps ({ commit, state }): Promise<void> {
+        async loadOtherBeatmaps ({ commit, state }): Promise<void> {
             commit('setIsLoadingOtherBeatmaps', true);
 
             const status = state.filterStatus !== 'any' ? `&status=${state.filterStatus}` : '';

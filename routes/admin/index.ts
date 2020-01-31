@@ -33,7 +33,7 @@ adminRouter.get('/relevantInfo/', async (req, res) => {
         for (let i = 0; i < allBeatmaps.length; i++) {
             const bm = allBeatmaps[i];
 
-            if ((bm.status == BeatmapStatus.Done || bm.status == 'Qualified') && bm.url) {
+            if ((bm.status == BeatmapStatus.Done || bm.status == BeatmapStatus.Qualified) && bm.url) {
                 if (bm.url.indexOf('osu.ppy.sh/beatmapsets/') == -1) {
                     (bm.status as string) = `${bm.status} (invalid link)`;
                     actionBeatmaps.push(bm);
@@ -57,7 +57,7 @@ adminRouter.get('/relevantInfo/', async (req, res) => {
                                 status = 'Loved';
                                 break;
                             case 3:
-                                status = 'Qualified';
+                                status = BeatmapStatus.Qualified;
                                 break;
                             case 2:
                                 status = 'Approved';
@@ -72,8 +72,10 @@ adminRouter.get('/relevantInfo/', async (req, res) => {
                     }
 
                     if (bm.status != status) {
-                        if (status == 'Qualified') {
+                        if (status == 'Qualified' && bm.status == 'Done') {
                             await BeatmapService.update(bm.id, { status: 'Qualified' });
+                        } else if (status == 'Done' && bm.status == 'Qualified') {
+                            await BeatmapService.update(bm.id, { status: 'Done' });
                         } else {
                             (bm.status as string) = `${bm.status} (osu: ${status})`;
                             actionBeatmaps.push(bm);

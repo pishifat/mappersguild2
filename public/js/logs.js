@@ -2,16 +2,16 @@ $(function () {
     let skip = 100;
 
     $('#showMore').click(function () {
-        $('#showMore').prop("disabled", true);
+        $('#showMore').prop('disabled', true);
         $.getJSON(`/logs/more/${skip}`).done(function (logs) {
             skip += 100;
-            $('#showMore').prop("disabled", false);
+            $('#showMore').prop('disabled', false);
 
             $.each(logs, function (k, log) {
                 $(`<tr>
                     <td scope="row">${new Date(log.createdAt).toString().slice(4,24)} GMT</td>
                     <td scope="row">${log.user.username}</td>
-                    <td scope="row">${log.action.length > 120 ? log.action.slice(0,120) + "..." : log.action}</td>
+                    <td scope="row">${log.action.length > 120 ? log.action.slice(0,120) + '...' : log.action}</td>
                 </tr>`).hide().appendTo('tbody').fadeIn();
             });
         });
