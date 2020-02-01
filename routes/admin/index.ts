@@ -1,8 +1,10 @@
 import express from 'express';
 import { isLoggedIn, isAdmin } from '../../helpers/middlewares';
-import { QuestService, Quest, QuestStatus } from '../../models/quest';
+import { QuestService, Quest } from '../../models/quest';
+import { QuestStatus } from '../../interfaces/quest';
 import { UserService, User } from '../../models/user';
-import { BeatmapService, Beatmap, BeatmapStatus } from '../../models/beatmap/beatmap';
+import { BeatmapService, Beatmap } from '../../models/beatmap/beatmap';
+import { BeatmapStatus } from '../../interfaces/beatmap/beatmap';
 import { LogService } from '../../models/log';
 import { beatmapsetInfo, isOsuReponseError } from '../../helpers/osuApi';
 

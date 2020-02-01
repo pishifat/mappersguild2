@@ -1,24 +1,10 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import BaseService from './baseService';
-import { User } from './user';
 import { defaultErrorMessage, BasicError } from '../helpers/helpers';
+import { User } from './user';
+import { Log as ILog } from '../interfaces/log';
 
-export enum LogCategory {
-    Beatmap = 'beatmap',
-    Quest = 'quest',
-    Party = 'party',
-    User = 'user',
-    Artist = 'artist',
-    Error= 'error',
-}
-
-export interface Log extends Document {
-    user: User;
-    action: string;
-    modified: object;
-    // modified: ???;
-    category: LogCategory;
-}
+export interface Log extends ILog, Document {}
 
 const logSchema = new Schema({
     user: { type: 'ObjectId', ref: 'User' },

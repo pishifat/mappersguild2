@@ -1,25 +1,9 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import BaseService from './baseService';
-import { User } from './user';
-import { Beatmap } from './beatmap/beatmap';
-import { Party } from './party';
 import { defaultErrorMessage, BasicError } from '../helpers/helpers';
-import { Task } from './beatmap/task';
-import { Invite } from './invite';
-import { Quest } from './quest';
+import { Notification as INotification } from '../interfaces/notification';
 
-export interface Notification extends Document {
-    recipient: User;
-    sender: User;
-    /** Can be any of these objects (Beatmap | Party | Task | Invite) */
-    modified: Beatmap | Party | Task | Invite;
-    info: string;
-    visible: boolean;
-    /** exists to link map when relevant. can be duplicate of "modified", but isn't because modified could be a task as well */
-    map: Beatmap;
-    party: Party;
-    quest: Quest;
-}
+export interface Notification extends INotification, Document {}
 
 const notificationSchema = new Schema({
     recipient: { type: 'ObjectId', ref: 'User', required: true },

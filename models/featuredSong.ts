@@ -1,13 +1,9 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import BaseService from './baseService';
 import { BasicError } from '../helpers/helpers';
-// import { FeaturedArtist } from './featuredArtist';
+import { FeaturedSong as IFeaturedSong } from '../interfaces/featuredSong';
 
-export interface FeaturedSong extends Document {
-    artist: string;
-    title: string;
-    // featuredArtist: FeaturedArtist;
-}
+export interface FeaturedSong extends IFeaturedSong, Document {}
 
 const featuredSongSchema = new Schema({
     artist: { type: String, required: true },

@@ -2,12 +2,16 @@ import express from 'express';
 import { isLoggedIn, isNotSpectator } from '../helpers/middlewares';
 import { PartyService, Party } from '../models/party';
 import { defaultErrorMessage, BasicError, canFail, BasicResponse } from '../helpers/helpers';
-import { BeatmapMode, BeatmapService } from '../models/beatmap/beatmap';
-import { QuestService, Quest, QuestStatus } from '../models/quest';
-import { LogService, LogCategory } from '../models/log';
+import { BeatmapService } from '../models/beatmap/beatmap';
+import { BeatmapMode } from '../interfaces/beatmap/beatmap';
+import { QuestService, Quest } from '../models/quest';
+import { QuestStatus } from '../interfaces/quest';
+import { LogService } from '../models/log';
+import { LogCategory } from '../interfaces/log';
 import { webhookPost } from '../helpers/discordApi';
 import { UserService, User } from '../models/user';
-import { InviteService, ActionType } from '../models/invite';
+import { InviteService } from '../models/invite';
+import { ActionType } from '../interfaces/invite';
 
 const questsRouter = express.Router();
 
@@ -210,14 +214,6 @@ questsRouter.post('/inviteToParty/:partyId/:questId', isNotSpectator, canFail(as
 
     if (!u.invites) {
         return res.json({ error: inviteError + 'User has invites disabled!' });
-    }
-
-    const pendingInvite = await InviteService.queryOne({
-        query: { recipient: u._id, sender: req.session.mongoId, visible: true },
-    });
-
-    if (pendingInvite && !InviteService.isError(pendingInvite)) {
-        return res.json({ error: inviteError + 'Wait for the user to reply to your previous invite before sending another!' });
     }
 
     const q = await QuestService.queryById(req.params.questId, { defaultPopulate: true });
