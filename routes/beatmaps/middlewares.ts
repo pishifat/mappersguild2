@@ -1,5 +1,6 @@
 import express from 'express';
-import { BeatmapService, BeatmapStatus } from '../../models/beatmap/beatmap';
+import { BeatmapService } from '../../models/beatmap/beatmap';
+import { BeatmapStatus } from '../../interfaces/beatmap/beatmap';
 import { defaultErrorMessage } from '../../helpers/helpers';
 import { UserService } from '../../models/user';
 

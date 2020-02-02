@@ -1,7 +1,10 @@
 import express from 'express';
 import { isLoggedIn, isAdmin, isSuperAdmin } from '../../helpers/middlewares';
-import { QuestService, QuestStatus, Quest } from '../../models/quest';
-import { LogService, LogCategory } from '../../models/log';
+import { QuestService, Quest } from '../../models/quest';
+import { QuestStatus } from '../../interfaces/quest';
+import { LogService } from '../../models/log';
+import { User } from '../../models/user';
+import { LogCategory } from '../../interfaces/log';
 import { webhookPost } from '../../helpers/discordApi';
 import { UserService } from '../../models/user';
 import { BeatmapService } from '../../models/beatmap/beatmap';
@@ -99,19 +102,19 @@ adminQuestsRouter.post('/dropQuest/:id', isSuperAdmin, canFail(async (req, res) 
     }
 
     for (let i = 0; i < q.currentParty.members.length; i++) {
-        const member = await UserService.queryByIdOrFail(q.currentParty.members[i] as any);
+        const member = await UserService.queryByIdOrFail(q.currentParty.members[i]);
         await UserService.update(member._id, { penaltyPoints: (member.penaltyPoints + q.reward) });
     }
 
     const maps = await BeatmapService.queryAllOrFail({});
 
     for (let i = 0; i < maps.length; i++) {
-        if (maps[i].quest && maps[i].quest.toString() == q._id.toString()) {
+        if (maps[i].quest && maps[i].quest.toString() == q.id) {
             BeatmapService.updateOrFail(maps[i]._id, { quest: undefined });
         }
     }
 
-    await PartyService.remove(q.currentParty.id);
+    await PartyService.remove(q.currentParty._id);
 
     if (openQuest && !QuestService.isError(openQuest)) {
         res.json({ success: 'quest dropped' });
@@ -130,7 +133,7 @@ adminQuestsRouter.post('/completeQuest/:id', isSuperAdmin, canFail(async (req, r
 
     if (quest.status == QuestStatus.WIP) {
         //webhook
-        const memberList = quest.currentParty.members
+        const memberList = (quest.currentParty.members as User[])
             .map(m => m.username)
             .join(', ');
 
@@ -151,7 +154,7 @@ adminQuestsRouter.post('/completeQuest/:id', isSuperAdmin, canFail(async (req, r
         }]);
 
         //quest changes
-        await PartyService.remove(quest.currentParty.id);
+        await PartyService.remove(quest.currentParty._id);
         await QuestService.update(quest._id, {
             status: QuestStatus.Done,
             currentParty: null,

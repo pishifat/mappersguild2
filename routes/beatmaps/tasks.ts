@@ -1,14 +1,18 @@
 import express from 'express';
-import { BeatmapService, Beatmap, BeatmapMode, BeatmapStatus } from '../../models/beatmap/beatmap';
-import { TaskService, TaskName } from '../../models/beatmap/task';
+import { BeatmapService, Beatmap } from '../../models/beatmap/beatmap';
+import { BeatmapMode, BeatmapStatus } from '../../interfaces/beatmap/beatmap';
+import { TaskService } from '../../models/beatmap/task';
+import { TaskName } from '../../interfaces/beatmap/task';
 import { User, UserService } from '../../models/user';
 import { isLoggedIn, isNotSpectator } from '../../helpers/middlewares';
 import { defaultErrorMessage, BasicResponse } from '../../helpers/helpers';
 import { isValidBeatmap, isValidUser, isBeatmapHost } from './middlewares';
 import { QuestService } from '../../models/quest';
-import { InviteService, ActionType } from '../../models/invite';
+import { InviteService } from '../../models/invite';
+import { ActionType } from '../../interfaces/invite';
 import { NotificationService } from '../../models/notification';
-import { LogService, LogCategory } from '../../models/log';
+import { LogService } from '../../models/log';
+import { LogCategory } from '../../interfaces/log';
 
 const tasksRouter = express.Router();
 
@@ -230,7 +234,7 @@ tasksRouter.post('/task/:taskId/addCollab', isNotSpectator, isValidUser, async (
         req.body.mode = b.mode;
     }
 
-    const validity = await addTaskChecks(u.id, b, req.body.taskName, req.body.mode, b.host._id.toString() == req.session?.mongoId);
+    const validity = await addTaskChecks(u.id, b, req.body.taskName, req.body.mode, b.host.id == req.session?.mongoId);
 
     if (validity.error) {
         return res.json(validity);

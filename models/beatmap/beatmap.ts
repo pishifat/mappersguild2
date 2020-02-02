@@ -1,43 +1,10 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import BaseService from '../baseService';
-import { User } from '../user';
-import { Task, TaskName } from './task';
-import { FeaturedSong } from '../featuredSong';
-import { Quest } from '../quest';
 import { BasicError } from '../../helpers/helpers';
+import { Beatmap as IBeatmap } from '../../interfaces/beatmap/beatmap';
+import { User } from '../user';
 
-export enum BeatmapStatus {
-    WIP = 'WIP',
-    Done = 'Done',
-    Qualified = 'Qualified',
-    Ranked = 'Ranked',
-}
-
-export enum BeatmapMode {
-    Osu = 'osu',
-    Taiko = 'taiko',
-    Catch = 'catch',
-    Mania = 'mania',
-    Hybrid = 'hybrid',
-}
-
-export interface Beatmap extends Document {
-    song: FeaturedSong;
-    host: User | User['_id'];
-    status: BeatmapStatus;
-    tasks: Task[] | Task['_id'][];
-    tasksLocked: TaskName[];
-    modders: User[];
-    bns: User[];
-    quest: Quest;
-    url: string;
-    mode: BeatmapMode;
-    length: number;
-    packId: number;
-    mappers: User[];
-    updatedAt: Date;
-    createdAt: Date;
-}
+export interface Beatmap extends IBeatmap, Document {}
 
 const BeatmapSchema = new Schema({
     song: { type: 'ObjectId', ref: 'FeaturedSong' },
