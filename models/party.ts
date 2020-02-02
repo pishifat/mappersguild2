@@ -1,11 +1,16 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import BaseService from './baseService';
-import { BasicError } from '../helpers/helpers';
 import { User } from './user';
-import { BeatmapMode } from '../interfaces/beatmap/beatmap';
-import { Party as IParty } from '../interfaces/party';
+import { BeatmapMode } from './beatmap/beatmap';
+import { BasicError } from '../helpers/helpers';
 
-export interface Party extends IParty, Document {}
+export interface Party extends Document {
+    leader: User;
+    members: User[];
+    lock: boolean;
+    rank: number;
+    modes: Omit<BeatmapMode, BeatmapMode.Hybrid>[];
+}
 
 const partySchema = new Schema({
     leader: { type: 'ObjectId', ref: 'User' },

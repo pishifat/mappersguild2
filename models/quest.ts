@@ -1,10 +1,38 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import BaseService from './baseService';
-import { BasicError } from '../helpers/helpers';
 import { User } from './user';
-import { Quest as IQuest } from '../interfaces/quest';
+import { Beatmap, BeatmapMode } from './beatmap/beatmap';
+import { Party } from './party';
+import { BasicError } from '../helpers/helpers';
 
-export interface Quest extends IQuest, Document {}
+export enum QuestStatus {
+    Open = 'open',
+    WIP = 'wip',
+    Done = 'done'
+}
+
+export interface Quest extends Document {
+    name: string;
+    reward: number;
+    descriptionMain: string;
+    timeframe: number;
+    minParty: number;
+    maxParty: number;
+    minRank: number;
+    art: number;
+    status: QuestStatus;
+    parties: Party[];
+    modes: Omit<BeatmapMode, BeatmapMode.Hybrid>[];
+    accepted: Date;
+    deadline: Date;
+    currentParty: Party;
+    completed: Date;
+    completedMembers: User[];
+    /** virtual field to populate */
+    associatedMaps: Beatmap[];
+    /** Get the days between today and accepted date */
+    overLimit: boolean;
+}
 
 const questSchema = new Schema({
     name: { type: String, required: true },

@@ -1,7 +1,6 @@
 import express from 'express';
 import { isLoggedIn, isAdmin, isSuperAdmin } from '../../helpers/middlewares';
-import { BeatmapService } from '../../models/beatmap/beatmap';
-import { BeatmapStatus } from '../../interfaces/beatmap/beatmap';
+import { BeatmapService, BeatmapStatus } from '../../models/beatmap/beatmap';
 import { canFail, defaultErrorMessage } from '../../helpers/helpers';
 import { TaskService, Task } from '../../models/beatmap/task';
 import { beatmapsetInfo, isOsuReponseError } from '../../helpers/osuApi';

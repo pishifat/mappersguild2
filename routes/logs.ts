@@ -1,8 +1,7 @@
 import express from 'express';
 import { isLoggedIn } from '../helpers/middlewares';
-import { LogService } from '../models/log';
-import { LogCategory } from '../interfaces/log';
-import { UserGroup } from '../interfaces/user';
+import { LogService, LogCategory } from '../models/log';
+import { UserGroup } from '../models/user';
 
 const logsRouter = express.Router();
 

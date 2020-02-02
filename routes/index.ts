@@ -3,11 +3,10 @@ import express from 'express';
 import config from '../config.json';
 import crypto from 'crypto';
 import { UserService } from '../models/user';
-import { LogService } from '../models/log';
-import { LogCategory } from '../interfaces/log';
+import { LogService, LogCategory } from '../models/log';
 import { isLoggedIn } from '../helpers/middlewares';
 import { getToken, getUserInfo, isOsuReponseError } from '../helpers/osuApi';
-import { UserGroup } from '../interfaces/user';
+import { UserGroup } from '../models/user';
 import { webhookPost } from '../helpers/discordApi';
 
 const indexRouter = express.Router();

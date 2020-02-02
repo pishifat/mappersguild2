@@ -1,11 +1,8 @@
 import express from 'express';
-import { BeatmapService, Beatmap } from '../../models/beatmap/beatmap';
-import { BeatmapMode, BeatmapStatus } from '../../interfaces/beatmap/beatmap';
-import { TaskService } from '../../models/beatmap/task';
-import { TaskName, TaskStatus } from '../../interfaces/beatmap/task';
+import { BeatmapService, Beatmap, BeatmapMode, BeatmapStatus } from '../../models/beatmap/beatmap';
+import { TaskService, TaskName, TaskStatus } from '../../models/beatmap/task';
 import { QuestService } from '../../models/quest';
-import { LogService } from '../../models/log';
-import { LogCategory } from '../../interfaces/log';
+import { LogService, LogCategory } from '../../models/log';
 import { isLoggedIn, isNotSpectator } from '../../helpers/middlewares';
 import { defaultErrorMessage, canFail } from '../../helpers/helpers';
 import { isValidBeatmap, isBeatmapHost } from './middlewares';
@@ -125,12 +122,11 @@ beatmapsHostRouter.post('/:id/saveQuest', isValidBeatmap, isBeatmapHost, canFail
         if (invalidMode) {
             return res.json({ error: `Some of this mapset's difficulties are not the correct mode for this quest!` });
         }
-
-        await BeatmapService.update(req.params.id, { quest: req.body.questId });
     } else {
         await BeatmapService.update(req.params.id, { quest: null });
     }
 
+    await BeatmapService.update(req.params.id, { quest: req.body.questId });
     b = await BeatmapService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
 
     res.json(b);

@@ -1,13 +1,11 @@
 import express from 'express';
 import { isLoggedIn, isAdmin, isSuperAdmin } from '../../helpers/middlewares';
-import { QuestStatus } from '../../interfaces/quest';
+import { QuestStatus } from '../../models/quest';
 import { UserService } from '../../models/user';
-import { BeatmapService } from '../../models/beatmap/beatmap';
-import { BeatmapStatus } from '../../interfaces/beatmap/beatmap';
+import { BeatmapService, BeatmapStatus } from '../../models/beatmap/beatmap';
 import { canFail, defaultErrorMessage } from '../../helpers/helpers';
-import { LogService } from '../../models/log';
-import { LogCategory } from '../../interfaces/log';
-import { TaskName } from '../../interfaces/beatmap/task';
+import { LogService, LogCategory } from '../../models/log';
+import { TaskName } from '../../models/beatmap/task';
 
 const adminUsersRouter = express.Router();
 
@@ -123,7 +121,7 @@ adminUsersRouter.post('/updateUserPoints', isSuperAdmin, canFail(async (req, res
             //task points
             map.tasks.forEach(task => {
                 task.mappers.forEach(mapper => {
-                    if (mapper.id == user.id) {
+                    if (mapper._id.toString() == user._id.toString()) {
                         if (task.name != TaskName.Storyboard) {
                             let questBonus = 0;
 

@@ -1,12 +1,9 @@
 import express from 'express';
-import { BeatmapService, Beatmap } from '../../models/beatmap/beatmap';
-import { BeatmapMode, BeatmapStatus } from '../../interfaces/beatmap/beatmap';
-import { TaskService, Task } from '../../models/beatmap/task';
-import { TaskName } from '../../interfaces/beatmap/task';
+import { BeatmapService, Beatmap, BeatmapMode, BeatmapStatus } from '../../models/beatmap/beatmap';
+import { TaskService, Task, TaskName } from '../../models/beatmap/task';
 import { QuestService } from '../../models/quest';
 import { NotificationService } from '../../models/notification';
-import { LogService } from '../../models/log';
-import { LogCategory } from '../../interfaces/log';
+import { LogService, LogCategory } from '../../models/log';
 import { isLoggedIn, isNotSpectator, isBn } from '../../helpers/middlewares';
 import { defaultErrorMessage, canFail } from '../../helpers/helpers';
 import { isValidBeatmap } from './middlewares';

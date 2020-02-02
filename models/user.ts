@@ -1,9 +1,42 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import BaseService from './baseService';
+import { BeatmapMode } from './beatmap/beatmap';
+import { Quest } from './quest';
 import { BasicError } from '../helpers/helpers';
-import { User as IUser } from '../interfaces/user';
 
-export interface User extends IUser, Document {}
+export enum UserGroup {
+    User = 'user',
+    Admin = 'admin',
+    Spectator = 'spectator',
+}
+
+export interface User extends Document {
+    osuId: number;
+    username: string;
+    group: UserGroup;
+    invites: boolean;
+    badge: number;
+    completedQuests: Quest[];
+
+    rank: number;
+    easyPoints: number;
+    normalPoints: number;
+    hardPoints: number;
+    insanePoints: number;
+    expertPoints: number;
+    storyboardPoints: number;
+    questPoints: number;
+    modPoints: number;
+    hostPoints: number;
+    osuPoints: number;
+    taikoPoints: number;
+    catchPoints: number;
+    maniaPoints: number;
+    legacyPoints: number;
+    penaltyPoints: number;
+    totalPoints: number;
+    mainMode: Omit<BeatmapMode, BeatmapMode.Hybrid>;
+}
 
 const UserSchema = new Schema({
     osuId: { type: Number, required: true, unique: true },

@@ -2,16 +2,13 @@ import express from 'express';
 import { isLoggedIn, isUser, isNotSpectator } from '../helpers/middlewares';
 import { PartyService } from '../models/party';
 import { defaultErrorMessage, canFail, BasicResponse } from '../helpers/helpers';
-import { BeatmapService, Beatmap } from '../models/beatmap/beatmap';
-import { BeatmapMode } from '../interfaces/beatmap/beatmap';
+import { BeatmapMode, BeatmapService, Beatmap } from '../models/beatmap/beatmap';
 import { QuestService } from '../models/quest';
-import { TaskService } from '../models/beatmap/task';
-import { TaskName, TaskMode } from '../interfaces/beatmap/task';
+import { TaskService, TaskName, TaskMode } from '../models/beatmap/task';
 import { User } from '../models/user';
 import { Invite, InviteService } from '../models/invite';
 import { NotificationService } from '../models/notification';
-import { LogService } from '../models/log';
-import { LogCategory } from '../interfaces/log';
+import { LogService, LogCategory } from '../models/log';
 
 const notificationsRouter = express.Router();
 
@@ -110,7 +107,7 @@ async function addTaskChecks(userId: User['_id'], b: Beatmap, invite: Invite, is
         t = await TaskService.queryOne({ query: { _id: invite.modified, mappers: userId } });
 
         if (t && !TaskService.isError(t)) {
-            await InviteService.update(invite.map._id, { visible: false });
+            await InviteService.update(invite.map.id, { visible: false });
 
             return { error: `You're already a mapper on this task!` };
         }
@@ -287,8 +284,8 @@ notificationsRouter.post('/acceptDiff/:id', isNotSpectator, canFail(async (req, 
         return;
     }
 
-    await BeatmapService.update(invite.map._id, { $push: { tasks: t._id } });
-    const updateBeatmap = await BeatmapService.queryById(invite.map._id, { populate: beatmapPopulate });
+    await BeatmapService.update(invite.map.id, { $push: { tasks: t._id } });
+    const updateBeatmap = await BeatmapService.queryById(invite.map.id, { populate: beatmapPopulate });
 
     if (updateBeatmap && !BeatmapService.isError(updateBeatmap)) {
         LogService.create(
@@ -310,7 +307,7 @@ notificationsRouter.post('/acceptDiff/:id', isNotSpectator, canFail(async (req, 
 /* POST accept join party */
 notificationsRouter.post('/acceptJoin/:id', isNotSpectator, canFail(async (req, res) => {
     let invite = await InviteService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
-    const q = await QuestService.queryByIdOrFail(invite.quest._id, { defaultPopulate: true });
+    const q = await QuestService.queryByIdOrFail(invite.quest.id, { defaultPopulate: true });
     const currentParties = await PartyService.queryAll({ query: { members: req.session.mongoId } });
     let duplicate = false;
 
@@ -351,7 +348,7 @@ notificationsRouter.post('/acceptJoin/:id', isNotSpectator, canFail(async (req, 
     invite = await InviteService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
     res.json(invite);
 
-    await PartyService.update(invite.party._id, { $push: { members: req.session.mongoId } });
+    await PartyService.update(invite.party.id, { $push: { members: req.session.mongoId } });
     await updatePartyInfo(p._id);
 
     LogService.create(req.session.mongoId, `joined a party for quest ${q.name}`, p._id, LogCategory.Party);

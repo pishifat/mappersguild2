@@ -1,9 +1,43 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import BaseService from '../baseService';
+import { User } from '../user';
 import { BasicError } from '../../helpers/helpers';
-import { Task as ITask } from '../../interfaces/beatmap/task';
 
-export interface Task extends ITask, Document {}
+export enum TaskName {
+    Easy = 'Easy',
+    Normal = 'Normal',
+    Hard = 'Hard',
+    Insane = 'Insane',
+    Expert = 'Expert',
+    Storyboard = 'Storyboard',
+}
+
+export enum TaskMode {
+    Osu = 'osu',
+    Taiko = 'taiko',
+    Catch = 'catch',
+    Mania = 'mania',
+    SB = 'sb',
+}
+
+export enum TaskStatus {
+    WIP = 'WIP',
+    Done = 'Done',
+}
+
+export enum SBQuality {
+    Meh = 1,
+    Ok = 2,
+    Nice = 3,
+}
+
+export interface Task extends Document {
+    name: TaskName;
+    mode: TaskMode;
+    mappers: User[] | User['_id'][];
+    status: TaskStatus;
+    sbQuality: SBQuality;
+}
 
 const taskSchema = new Schema({
     name: { type: String, enum: ['Easy', 'Normal', 'Hard', 'Insane', 'Expert', 'Storyboard'], required: true },

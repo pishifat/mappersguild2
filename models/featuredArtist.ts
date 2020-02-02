@@ -1,10 +1,35 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import BaseService from './baseService';
-import { BasicError } from '../helpers/helpers';
 import { User } from './user';
-import { FeaturedArtist as IFeaturedArtist } from '../interfaces/featuredArtist';
+import { FeaturedSong } from './featuredSong';
+import { BasicError } from '../helpers/helpers';
 
-export interface FeaturedArtist extends IFeaturedArtist, Document {}
+export interface FeaturedArtist extends Document {
+    label: string;
+    osuId: number;
+    songs: FeaturedSong[];
+
+    isContacted: boolean;
+    isResponded: boolean;
+    tracksSelected: boolean;
+    contractSent: boolean;
+    contractSigned: boolean;
+    contractPaid: boolean;
+    songsTimed: boolean;
+    songsReceived: boolean;
+    assetsReceived: boolean;
+    bioWritten: boolean;
+    isInvited: boolean;
+    isUpToDate: boolean;
+    isStalled: boolean;
+    isRejected: boolean;
+    isPriority: boolean;
+
+    lastContacted: Date;
+    projectedRelease: Date;
+    notes: string;
+    assignedUser: User;
+}
 
 const featuredArtistSchema = new Schema({
     label: { type: String, required: true },
