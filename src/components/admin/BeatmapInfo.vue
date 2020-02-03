@@ -115,28 +115,30 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import { Beatmap } from '../../../interfaces/beatmap/beatmap';
+import { Task } from '../../../interfaces/beatmap/task';
 
 export default Vue.extend({
     name: 'BeatmapInfo',
     props: {
         beatmap: {
-            type: Object,
+            type: Object as () => Beatmap,
             default: null,
         },
     },
     data() {
         return {
-            status: null,
+            status: 'WIP',
             taskId: null,
             modderId: null,
-            beatmapUrl: null,
+            beatmapUrl: '',
             storyboardQuality: null,
             storyboardTaskId: null,
-            packId: null,
+            packId: 0,
         };
     },
     computed: {
-        sortedTasks(): object[] {
+        sortedTasks(): Task[] {
             const sortOrder = ['Easy', 'Normal', 'Hard', 'Insane', 'Expert', 'Storyboard'];
 
             return [...this.beatmap.tasks].sort(function(a, b) {
@@ -190,7 +192,7 @@ export default Vue.extend({
                 this.$emit('update-beatmap', b);
             }
         },
-        async updateStoryboardQuality(taskId, e): Promise<void> {
+        async updateStoryboardQuality(e): Promise<void> {
             const b = await this.executePost('/admin/updateStoryboardQuality/' + this.beatmap.id, { storyboardQuality: this.storyboardQuality, taskId: this.storyboardTaskId }, e);
 
             if (b) {

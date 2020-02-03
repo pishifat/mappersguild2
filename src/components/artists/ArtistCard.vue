@@ -64,7 +64,7 @@
                             data-toggle="tooltip"
                             data-placement="top"
                             title="delete"
-                            @click.prevent="deleteArtist()"
+                            @click.prevent="removeArtist()"
                         >
                             <i class="fas fa-trash" />
                         </a>
@@ -227,7 +227,7 @@
                 </div>
                 <!--notes-->
                 <div class="min-spacing mb-1 ml-2">
-                    <a href="#" @click.prevent="updateNotes()">
+                    <a href="#" @click.prevent="updateNotes(null)">
                         <i class="fas fa-edit" />
                     </a>
                     <span v-if="!showNotesInput" class="small text-shadow min-spacing text-white-50" v-html="filterLinks(artist.notes)" />
@@ -328,119 +328,119 @@ export default Vue.extend({
             this.contactedInput = month + '-' + day + '-' + year;
             this.updateLastContacted();
         },
-        async toggleIsContacted (e): Promise<void> {
-            const artist = await this.executePost('/artists/toggleIsContacted/' + this.artist.id, { value: !this.artist.isContacted }, e);
+        async toggleIsContacted (): Promise<void> {
+            const artist = await this.executePost('/artists/toggleIsContacted/' + this.artist.id, { value: !this.artist.isContacted });
 
             if (artist) {
                 this.updateArtist(artist);
             }
         },
-        async toggleIsResponded (e): Promise<void> {
-            const artist = await this.executePost('/artists/toggleIsResponded/' + this.artist.id, { value: !this.artist.isResponded }, e);
+        async toggleIsResponded (): Promise<void> {
+            const artist = await this.executePost('/artists/toggleIsResponded/' + this.artist.id, { value: !this.artist.isResponded });
 
             if (artist) {
                 this.updateArtist(artist);
             }
         },
-        async toggleIsRejected (e): Promise<void> {
-            const artist = await this.executePost('/artists/toggleIsRejected/' + this.artist.id, { value: !this.artist.isRejected }, e);
+        async toggleIsRejected (): Promise<void> {
+            const artist = await this.executePost('/artists/toggleIsRejected/' + this.artist.id, { value: !this.artist.isRejected });
 
             if (artist) {
                 this.updateArtist(artist);
             }
         },
-        async toggleTracksSelected (e): Promise<void> {
-            const artist = await this.executePost('/artists/toggleTracksSelected/' + this.artist.id, { value: !this.artist.tracksSelected }, e);
+        async toggleTracksSelected (): Promise<void> {
+            const artist = await this.executePost('/artists/toggleTracksSelected/' + this.artist.id, { value: !this.artist.tracksSelected });
 
             if (artist) {
                 this.updateArtist(artist);
             }
         },
-        async toggleContractSent (e): Promise<void> {
-            const artist = await this.executePost('/artists/toggleContractSent/' + this.artist.id, { value: !this.artist.contractSent }, e);
+        async toggleContractSent (): Promise<void> {
+            const artist = await this.executePost('/artists/toggleContractSent/' + this.artist.id, { value: !this.artist.contractSent });
 
             if (artist) {
                 this.updateArtist(artist);
             }
         },
-        async toggleContractSigned (e): Promise<void> {
-            const artist = await this.executePost('/artists/toggleContractSigned/' + this.artist.id, { value: !this.artist.contractSigned }, e);
+        async toggleContractSigned (): Promise<void> {
+            const artist = await this.executePost('/artists/toggleContractSigned/' + this.artist.id, { value: !this.artist.contractSigned });
 
             if (artist) {
                 this.updateArtist(artist);
             }
         },
-        async toggleContractPaid (e): Promise<void> {
-            const artist = await this.executePost('/artists/toggleContractPaid/' + this.artist.id, { value: !this.artist.contractPaid }, e);
+        async toggleContractPaid (): Promise<void> {
+            const artist = await this.executePost('/artists/toggleContractPaid/' + this.artist.id, { value: !this.artist.contractPaid });
 
             if (artist) {
                 this.updateArtist(artist);
             }
         },
-        async toggleSongsTimed (e): Promise<void> {
-            const artist = await this.executePost('/artists/toggleSongsTimed/' + this.artist.id, { value: !this.artist.songsTimed }, e);
+        async toggleSongsTimed (): Promise<void> {
+            const artist = await this.executePost('/artists/toggleSongsTimed/' + this.artist.id, { value: !this.artist.songsTimed });
 
             if (artist) {
                 this.updateArtist(artist);
             }
         },
-        async toggleSongsReceived (e): Promise<void> {
-            const artist = await this.executePost('/artists/toggleSongsReceived/' + this.artist.id, { value: !this.artist.songsReceived }, e);
+        async toggleSongsReceived (): Promise<void> {
+            const artist = await this.executePost('/artists/toggleSongsReceived/' + this.artist.id, { value: !this.artist.songsReceived });
 
             if (artist) {
                 this.updateArtist(artist);
             }
         },
-        async toggleAssetsReceived (e): Promise<void> {
-            const artist = await this.executePost('/artists/toggleAssetsReceived/' + this.artist.id, { value: !this.artist.assetsReceived }, e);
+        async toggleAssetsReceived (): Promise<void> {
+            const artist = await this.executePost('/artists/toggleAssetsReceived/' + this.artist.id, { value: !this.artist.assetsReceived });
 
             if (artist) {
                 this.updateArtist(artist);
             }
         },
-        async toggleBioWritten (e): Promise<void> {
-            const artist = await this.executePost('/artists/toggleBioWritten/' + this.artist.id, { value: !this.artist.bioWritten }, e);
+        async toggleBioWritten (): Promise<void> {
+            const artist = await this.executePost('/artists/toggleBioWritten/' + this.artist.id, { value: !this.artist.bioWritten });
 
             if (artist) {
                 this.updateArtist(artist);
             }
         },
-        async toggleIsInvited (e): Promise<void> {
-            const artist = await this.executePost('/artists/toggleIsInvited/' + this.artist.id, { value: !this.artist.isInvited }, e);
+        async toggleIsInvited (): Promise<void> {
+            const artist = await this.executePost('/artists/toggleIsInvited/' + this.artist.id, { value: !this.artist.isInvited });
 
             if (artist) {
                 this.updateArtist(artist);
             }
         },
-        async toggleIsUpToDate (e): Promise<void> {
-            const artist = await this.executePost('/artists/toggleIsUpToDate/' + this.artist.id, { value: !this.artist.isUpToDate }, e);
+        async toggleIsUpToDate (): Promise<void> {
+            const artist = await this.executePost('/artists/toggleIsUpToDate/' + this.artist.id, { value: !this.artist.isUpToDate });
 
             if (artist) {
                 this.updateArtist(artist);
             }
         },
-        async updateProjectedRelease (e): Promise<void> {
+        async updateProjectedRelease (): Promise<void> {
             const dateSplit = this.dateInput.split('-');
             const date = new Date(
                 parseInt(dateSplit[2], 10),
                 parseInt(dateSplit[0], 10) - 1,
                 parseInt(dateSplit[1], 10)
             );
-            const artist = await this.executePost('/artists/updateProjectedRelease/' + this.artist.id, { date }, e);
+            const artist = await this.executePost('/artists/updateProjectedRelease/' + this.artist.id, { date });
 
             if (artist) {
                 this.updateArtist(artist);
                 this.showDateInput = false;
             }
         },
-        async updateLastContacted (e?): Promise<void> {
+        async updateLastContacted (): Promise<void> {
             const dateSplit = this.contactedInput.split('-');
             const date = new Date(
                 parseInt(dateSplit[2], 10),
                 parseInt(dateSplit[0], 10) - 1,
                 parseInt(dateSplit[1], 10)
             );
-            const artist = await this.executePost('/artists/updateLastContacted/' + this.artist.id, { date }, e);
+            const artist = await this.executePost('/artists/updateLastContacted/' + this.artist.id, { date });
 
             if (artist) {
                 this.updateArtist(artist);
@@ -462,28 +462,28 @@ export default Vue.extend({
                 }
             }
         },
-        async reset (e): Promise<void> {
-            const artist = await this.executePost('/artists/reset/' + this.artist.id, {}, e);
+        async reset (): Promise<void> {
+            const artist = await this.executePost('/artists/reset/' + this.artist.id, {});
 
             if (artist) {
                 this.updateArtist(artist);
             }
         },
-        async toggleIsPriority (e): Promise<void> {
-            const artist = await this.executePost('/artists/toggleIsPriority/' + this.artist.id, { value: !this.artist.isPriority }, e);
+        async toggleIsPriority (): Promise<void> {
+            const artist = await this.executePost('/artists/toggleIsPriority/' + this.artist.id, { value: !this.artist.isPriority });
 
             if (artist) {
                 this.updateArtist(artist);
             }
         },
-        async deleteArtist (e): Promise<void> {
-            const artist = await this.executePost('/artists/deleteArtist/' + this.artist.id, {}, e);
+        async removeArtist (): Promise<void> {
+            const artist = await this.executePost('/artists/deleteArtist/' + this.artist.id, {});
 
             if (artist) {
                 this.deleteArtist(artist);
             }
         },
-        async assignUser (e): Promise<void> {
+        async assignUser (): Promise<void> {
             let result;
 
             if (this.artist.assignedUser) {
@@ -493,15 +493,15 @@ export default Vue.extend({
             }
 
             if (result) {
-                const artist = await this.executePost('/artists/assignUser/' + this.artist.id, {}, e);
+                const artist = await this.executePost('/artists/assignUser/' + this.artist.id, {});
 
                 if (artist) {
                     this.updateArtist(artist);
                 }
             }
         },
-        async unassignUser (e): Promise<void> {
-            const artist = await this.executePost('/artists/unassignUser/' + this.artist.id, {}, e);
+        async unassignUser (): Promise<void> {
+            const artist = await this.executePost('/artists/unassignUser/' + this.artist.id, {});
 
             if (artist) {
                 this.updateArtist(artist);

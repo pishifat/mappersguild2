@@ -3,7 +3,9 @@ import BaseService from './baseService';
 import { BasicError } from '../helpers/helpers';
 import { User as IUser } from '../interfaces/user';
 
-export interface User extends IUser, Document {}
+export interface User extends IUser, Document {
+    id: string;
+}
 
 const UserSchema = new Schema({
     osuId: { type: Number, required: true, unique: true },

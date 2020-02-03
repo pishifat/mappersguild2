@@ -191,11 +191,11 @@ tasksRouter.post('/removeTask/:id', isNotSpectator, async (req, res) => {
 
     if (updatedBeatmap.host.id != req.session?.mongoId) {
         NotificationService.create(
-            updatedBeatmap.id,
+            updatedBeatmap._id,
             `removed task "${t.name}" from your mapset`,
             updatedBeatmap.host.id,
             req.session?.mongoId,
-            updatedBeatmap.id
+            updatedBeatmap._id
         );
     }
 });
@@ -252,7 +252,7 @@ tasksRouter.post('/task/:taskId/addCollab', isNotSpectator, isValidUser, async (
         req.params.taskId,
         `wants to collaborate with you on the "${updatedTask.name}" difficulty of`,
         ActionType.Collab,
-        b.id,
+        b._id,
         req.body.taskName,
         req.body.mode
     );
@@ -360,11 +360,11 @@ tasksRouter.post('/setTaskStatus/:taskId', isNotSpectator, async (req, res) => {
 
     if (b.host.id != req.session?.mongoId) {
         NotificationService.create(
-            b.id,
+            b._id,
             `changed status of "${t.name}" on your mapset`,
             b.host.id,
             req.session?.mongoId,
-            b.id
+            b._id
         );
     }
 });
@@ -387,12 +387,12 @@ tasksRouter.post('/requestTask/:mapId', isNotSpectator, isValidUser, isValidBeat
     res.json(b);
 
     InviteService.createMapInvite(
-        u.id,
+        u._id,
         req.session?.mongoId,
-        b.id,
+        b._id,
         `wants you to create the ${req.body.taskName != TaskName.Storyboard ? req.body.mode + ' difficulty' : 'task'} ${req.body.taskName} for their mapset of`,
         ActionType.Create,
-        b.id,
+        b._id,
         req.body.taskName,
         req.body.mode
     );

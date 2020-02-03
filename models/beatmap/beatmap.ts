@@ -4,7 +4,9 @@ import { BasicError } from '../../helpers/helpers';
 import { Beatmap as IBeatmap } from '../../interfaces/beatmap/beatmap';
 import { User } from '../user';
 
-export interface Beatmap extends IBeatmap, Document {}
+export interface Beatmap extends IBeatmap, Document {
+    id: string;
+}
 
 const BeatmapSchema = new Schema({
     song: { type: 'ObjectId', ref: 'FeaturedSong' },

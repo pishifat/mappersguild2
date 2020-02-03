@@ -3,7 +3,9 @@ import BaseService from '../baseService';
 import { BasicError } from '../../helpers/helpers';
 import { Task as ITask } from '../../interfaces/beatmap/task';
 
-export interface Task extends ITask, Document {}
+export interface Task extends ITask, Document {
+    id: string;
+}
 
 const taskSchema = new Schema({
     name: { type: String, enum: ['Easy', 'Normal', 'Hard', 'Insane', 'Expert', 'Storyboard'], required: true },

@@ -4,7 +4,9 @@ import { BasicError } from '../helpers/helpers';
 import { User } from './user';
 import { FeaturedArtist as IFeaturedArtist } from '../interfaces/featuredArtist';
 
-export interface FeaturedArtist extends IFeaturedArtist, Document {}
+export interface FeaturedArtist extends IFeaturedArtist, Document {
+    id: string;
+}
 
 const featuredArtistSchema = new Schema({
     label: { type: String, required: true },

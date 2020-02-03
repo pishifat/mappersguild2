@@ -88,27 +88,28 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { FeaturedSong } from '@models/featuredSong';
+import { FeaturedArtist } from '../../../interfaces/featuredArtist';
+import { FeaturedSong } from '../../../interfaces/featuredSong';
 
 export default Vue.extend({
     name: 'FeaturedArtistInfo',
     props: {
         featuredArtist: {
-            type: Object,
+            type: Object as () => FeaturedArtist,
             default: null,
         },
     },
     data() {
         return {
-            osuId: null,
-            name: null,
+            osuId: 0,
+            name: '',
             selectedSong: null as null | FeaturedSong,
             artist: '',
             title: '',
         };
     },
     computed: {
-        alphabeticalSongs(): object[] {
+        alphabeticalSongs(): FeaturedSong[] {
             return [...this.featuredArtist.songs].sort((a,b) => {
                 if (a.title.toLowerCase() > b.title.toLowerCase()) return 1;
                 else if (b.title.toLowerCase() > a.title.toLowerCase()) return -1;

@@ -4,7 +4,9 @@ import { defaultErrorMessage, BasicError } from '../helpers/helpers';
 import { User } from './user';
 import { Log as ILog } from '../interfaces/log';
 
-export interface Log extends ILog, Document {}
+export interface Log extends ILog, Document {
+    id: string;
+}
 
 const logSchema = new Schema({
     user: { type: 'ObjectId', ref: 'User' },

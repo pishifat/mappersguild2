@@ -43,19 +43,20 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import { User } from '../../../interfaces/user';
 
 export default Vue.extend({
     name: 'UserInfo',
     props: {
         user: {
-            type: Object,
+            type: Object as () => User,
             default: null,
         },
     },
     data() {
         return {
-            penaltyPoints: null,
-            badge: null,
+            penaltyPoints: 0,
+            badge: 0,
         };
     },
     computed: {

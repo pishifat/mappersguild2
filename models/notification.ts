@@ -3,7 +3,9 @@ import BaseService from './baseService';
 import { defaultErrorMessage, BasicError } from '../helpers/helpers';
 import { Notification as INotification } from '../interfaces/notification';
 
-export interface Notification extends INotification, Document {}
+export interface Notification extends INotification, Document {
+    id: string;
+}
 
 const notificationSchema = new Schema({
     recipient: { type: 'ObjectId', ref: 'User', required: true },

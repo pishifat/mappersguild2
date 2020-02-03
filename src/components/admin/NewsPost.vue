@@ -83,8 +83,8 @@ export default Vue.extend({
     data() {
         return {
             date: '2019-11-29',
-            beatmaps: null,
-            quests: null,
+            beatmaps: {},
+            quests: {},
             info: null,
         };
     },

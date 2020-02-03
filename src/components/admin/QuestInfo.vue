@@ -135,20 +135,21 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import { Quest } from '../../../interfaces/quest';
 
 export default Vue.extend({
     name: 'QuestInfo',
     props: {
         quest: {
-            type: Object,
+            type: Object as () => Quest,
             default: null,
         },
     },
     data() {
         return {
-            renameQuestName: null,
-            description: null,
-            duplicateQuestName: null,
+            renameQuestName: '',
+            description: '',
+            duplicateQuestName: '',
         };
     },
     watch: {

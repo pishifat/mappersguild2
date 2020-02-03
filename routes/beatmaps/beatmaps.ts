@@ -213,11 +213,11 @@ beatmapsRouter.post('/:id/updateModder', isNotSpectator, canFail(async (req, res
             LogCategory.Beatmap
         );
         NotificationService.create(
-            b.id,
+            b._id,
             `removed themself from the modder list of your mapset`,
             b.host.id,
             req.session?.mongoId,
-            b.id
+            b._id
         );
     } else {
         LogService.create(
@@ -227,11 +227,11 @@ beatmapsRouter.post('/:id/updateModder', isNotSpectator, canFail(async (req, res
             LogCategory.Beatmap
         );
         NotificationService.create(
-            b.id,
+            b._id,
             `modded your mapset`,
             b.host.id,
             req.session?.mongoId,
-            b.id
+            b._id
         );
     }
 }));
@@ -284,11 +284,11 @@ beatmapsRouter.post('/:id/updateBn', isNotSpectator, isBn, isValidBeatmap, async
             LogCategory.Beatmap
         );
         NotificationService.create(
-            updatedBeatmap.id,
+            updatedBeatmap._id,
             `removed themself from the Beatmap Nominator list on your mapset`,
             updatedBeatmap.host.id,
             req.session?.mongoId,
-            updatedBeatmap.id
+            updatedBeatmap._id
         );
     } else {
         LogService.create(
@@ -298,11 +298,11 @@ beatmapsRouter.post('/:id/updateBn', isNotSpectator, isBn, isValidBeatmap, async
             LogCategory.Beatmap
         );
         NotificationService.create(
-            updatedBeatmap.id,
+            updatedBeatmap._id,
             `added themself to the Beatmap Nominator list on your mapset`,
             updatedBeatmap.host.id,
             req.session?.mongoId,
-            updatedBeatmap.id
+            updatedBeatmap._id
         );
     }
 });

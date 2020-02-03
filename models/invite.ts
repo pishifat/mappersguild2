@@ -3,7 +3,9 @@ import BaseService from './baseService';
 import { defaultErrorMessage, BasicError } from '../helpers/helpers';
 import { Invite as IInvite } from '../interfaces/invite';
 
-export interface Invite extends IInvite, Document {}
+export interface Invite extends IInvite, Document {
+    id: string;
+}
 
 const inviteSchema = new Schema({
     recipient: { type: 'ObjectId', ref: 'User', required: true },

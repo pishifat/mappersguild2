@@ -33,7 +33,8 @@ adminBeatmapsRouter.post('/updateBeatmapStatus/:id', isSuperAdmin, canFail(async
 
     if (req.body.status == BeatmapStatus.Done) {
         for (let i = 0; i < b.tasks.length; i++) {
-            await TaskService.update(b.tasks[i] as any, { status: BeatmapStatus.Done });
+            console.log(b.tasks[i]);
+            await TaskService.update(b.tasks[i] as Task['_id'], { status: BeatmapStatus.Done });
         }
     }
 

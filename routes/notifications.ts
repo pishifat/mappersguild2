@@ -4,7 +4,7 @@ import { PartyService } from '../models/party';
 import { defaultErrorMessage, canFail, BasicResponse } from '../helpers/helpers';
 import { BeatmapService, Beatmap } from '../models/beatmap/beatmap';
 import { BeatmapMode } from '../interfaces/beatmap/beatmap';
-import { QuestService } from '../models/quest';
+import { Quest, QuestService } from '../models/quest';
 import { TaskService } from '../models/beatmap/task';
 import { TaskName, TaskMode } from '../interfaces/beatmap/task';
 import { User } from '../models/user';
@@ -70,7 +70,7 @@ async function addTaskChecks(userId: User['_id'], b: Beatmap, invite: Invite, is
     }
 
     if (b.quest && invite.taskName != TaskName.Storyboard) {
-        const q = await QuestService.queryById(b.quest as any, { defaultPopulate: true });
+        const q = await QuestService.queryById(b.quest as Quest['_id'], { defaultPopulate: true });
         let valid = false;
 
         if (!q || QuestService.isError(q)) {
@@ -174,7 +174,7 @@ notificationsRouter.post('/hideInvite/:id', isNotSpectator, canFail(async (req, 
 
     if (inv.map) {
         NotificationService.create(
-            inv.id,
+            inv._id,
             `rejected your invite to ${inv.actionType} on the mapset`,
             inv.sender,
             inv.recipient,
@@ -182,7 +182,7 @@ notificationsRouter.post('/hideInvite/:id', isNotSpectator, canFail(async (req, 
         );
     } else {
         NotificationService.createPartyNotification(
-            inv.id,
+            inv._id,
             `rejected your invite to join the party`,
             inv.sender,
             inv.recipient,
@@ -246,11 +246,11 @@ notificationsRouter.post('/acceptCollab/:id', isNotSpectator, canFail(async (req
         LogCategory.Beatmap
     );
     NotificationService.create(
-        t.id,
+        t._id,
         `accepted your invite to collaborate on the "${t.name}" difficulty on your mapset`,
         invite.sender,
         invite.recipient,
-        b.id
+        b._id
     );
 }));
 
@@ -298,11 +298,11 @@ notificationsRouter.post('/acceptDiff/:id', isNotSpectator, canFail(async (req, 
             LogCategory.Beatmap
         );
         NotificationService.create(
-            updateBeatmap.id,
+            updateBeatmap._id,
             `accepted the invite to create a difficulty on your mapset`,
             invite.sender,
             invite.recipient,
-            updateBeatmap.id
+            updateBeatmap._id
         );
     }
 }));
@@ -356,12 +356,12 @@ notificationsRouter.post('/acceptJoin/:id', isNotSpectator, canFail(async (req, 
 
     LogService.create(req.session.mongoId, `joined a party for quest ${q.name}`, p._id, LogCategory.Party);
     NotificationService.createPartyNotification(
-        p.id,
+        p._id,
         `accepted the invite to join your party`,
         invite.sender,
         invite.recipient,
-        p.id,
-        q.id
+        p._id,
+        q._id
     );
 }));
 

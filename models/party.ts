@@ -5,7 +5,9 @@ import { User } from './user';
 import { BeatmapMode } from '../interfaces/beatmap/beatmap';
 import { Party as IParty } from '../interfaces/party';
 
-export interface Party extends IParty, Document {}
+export interface Party extends IParty, Document {
+    id: string;
+}
 
 const partySchema = new Schema({
     leader: { type: 'ObjectId', ref: 'User' },

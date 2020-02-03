@@ -243,7 +243,7 @@ questsRouter.post('/inviteToParty/:partyId/:questId', isNotSpectator, canFail(as
     res.json({ success: 'Invite sent!' });
 
     InviteService.createPartyInvite(
-        u.id,
+        u._id,
         req.session.mongoId,
         req.params.partyId,
         `wants you to join their party`,

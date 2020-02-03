@@ -73,7 +73,7 @@
         <div class="row">
             <div class="col-sm text-right">
                 <span class="small text-white-50">
-                    Created: {{ beatmap.createdAt.slice(0, 10) }}
+                    Created: {{ beatmap.createdAt.toString().slice(0, 10) }}
                 </span>
                 <button
                     v-if="isHost && !isRanked"
@@ -99,7 +99,7 @@ import ModdersList from './ModdersList.vue';
 import NominatorsList from './NominatorsList.vue';
 import BeatmapLink from './BeatmapLink.vue';
 import LocksChoice from './LocksChoice.vue';
-import { Beatmap } from '@models/beatmap';
+import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
 
 export default Vue.extend({
     name: 'BeatmapInfo',

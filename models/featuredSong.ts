@@ -3,7 +3,9 @@ import BaseService from './baseService';
 import { BasicError } from '../helpers/helpers';
 import { FeaturedSong as IFeaturedSong } from '../interfaces/featuredSong';
 
-export interface FeaturedSong extends IFeaturedSong, Document {}
+export interface FeaturedSong extends IFeaturedSong, Document {
+    id: string;
+}
 
 const featuredSongSchema = new Schema({
     artist: { type: String, required: true },

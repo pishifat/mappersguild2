@@ -4,7 +4,9 @@ import { BasicError } from '../helpers/helpers';
 import { User } from './user';
 import { Quest as IQuest } from '../interfaces/quest';
 
-export interface Quest extends IQuest, Document {}
+export interface Quest extends IQuest, Document {
+    id: string;
+}
 
 const questSchema = new Schema({
     name: { type: String, required: true },
