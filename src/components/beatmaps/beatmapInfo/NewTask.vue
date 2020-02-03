@@ -76,14 +76,17 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { TaskName } from '@models/task';
-import { BeatmapMode, Beatmap } from '@models/beatmap';
+import { Beatmap, BeatmapMode } from '../../../../interfaces/beatmap/beatmap';
+import { Task, TaskName } from '../../../../interfaces/beatmap/task';
 
 export default Vue.extend({
     name: 'NewTask',
     props: {
         isHost: Boolean,
-        taskToAddCollaborator: Object,
+        taskToAddCollaborator: {
+            type: Object as () => Task,
+            default: null,
+        },
         beatmap: {
             type: Object as () => Beatmap,
             required: true,

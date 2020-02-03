@@ -42,7 +42,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import { mapState } from 'vuex';
-import { Beatmap } from '@models/beatmap';
+import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
 
 export default Vue.extend({
     name: 'ModdersList',

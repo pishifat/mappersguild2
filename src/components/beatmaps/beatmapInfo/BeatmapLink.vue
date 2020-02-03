@@ -59,7 +59,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { Beatmap } from '@models/beatmap';
+import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
 
 export default Vue.extend({
     name: 'BeatmapLink',

@@ -65,7 +65,8 @@
 <script lang="ts">
 import Vue from 'vue';
 import Axios from 'axios';
-import { Beatmap } from '@models/beatmap';
+import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
+import { Quest } from '../../../../interfaces/quest';
 
 export default Vue.extend({
     name: 'QuestChoice',
@@ -77,7 +78,7 @@ export default Vue.extend({
     },
     data () {
         return {
-            userQuests: null,
+            userQuests: [] as Quest[],
             showQuestInput: false,
             dropdownQuestId: '',
         };

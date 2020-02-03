@@ -18,7 +18,7 @@
                     <div v-if="beatmap.tasksLocked.length > 0">
                         <div
                             v-for="task in beatmap.tasksLocked"
-                            :key="task.id"
+                            :key="task"
                         >
                             <a
                                 href="#"
@@ -77,8 +77,8 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { Beatmap } from '@models/beatmap';
-import { TaskName } from '../../../models/task';
+import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
+import { TaskName } from '../../../../interfaces/beatmap/task';
 
 export default Vue.extend({
     name: 'LocksChoice',
