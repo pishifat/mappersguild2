@@ -53,7 +53,6 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import Axios from 'axios';
 import { Invite } from '../../../interfaces/invite';
 
 export default Vue.extend({
@@ -70,25 +69,6 @@ export default Vue.extend({
         };
     },
     methods: {
-        async executePost (path, data, e): Promise<void> {
-            if (e) e.target.disabled = true;
-
-            try {
-                const res = await Axios.post(path, data);
-
-                if (res.data.error) {
-                    this.info = res.data.error;
-                } else {
-                    if (e) e.target.disabled = false;
-
-                    return res.data;
-                }
-            } catch (error) {
-                console.log(error);
-            }
-
-            if (e) e.target.disabled = false;
-        },
         selectBeatmap (): void {
             this.$emit('update:selectedMap', this.invite.map);
         },

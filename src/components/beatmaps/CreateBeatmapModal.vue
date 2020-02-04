@@ -155,7 +155,6 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import Axios from 'axios';
 import { FeaturedSong } from '../../../interfaces/featuredSong';
 import { FeaturedArtist } from '../../../interfaces/featuredArtist';
 import { Beatmap } from '../../../interfaces/beatmap/beatmap';
@@ -181,10 +180,10 @@ export default Vue.extend({
         };
     },
     async created () {
-        const res = await Axios.get('/featuredArtists');
+        const res: any = await this.executeGet('/featuredArtists');
 
-        if (res.data && !res.data.error) {
-            this.featuredArtists = res.data.sort((a, b) => {
+        if (res) {
+            this.featuredArtists = res.sort((a, b) => {
                 if (a.label.toLowerCase() > b.label.toLowerCase()) return 1;
                 if (b.label.toLowerCase() > a.label.toLowerCase()) return -1;
 
@@ -204,10 +203,10 @@ export default Vue.extend({
             }
 
             e.target.disabled = true;
-            const res = await Axios.get(`/featuredArtists/${this.selectedArtist}/songs`);
+            const res: any = await this.executeGet(`/featuredArtists/${this.selectedArtist}/songs`);
 
-            if (res.data && !res.data.error) {
-                this.featuredSongs = res.data.sort((a,b) => {
+            if (res) {
+                this.featuredSongs = res.sort((a,b) => {
                     if (a.title.toLowerCase() > b.title.toLowerCase()) return 1;
                     if (b.title.toLowerCase() > a.title.toLowerCase()) return -1;
 

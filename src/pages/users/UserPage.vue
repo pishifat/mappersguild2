@@ -49,7 +49,6 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import Axios from 'axios';
 import { mapGetters, mapState } from 'vuex';
 import UserCard from '@components/users/UserCard.vue';
 import UserInfo from '@components/users/UserInfo.vue';
@@ -79,13 +78,13 @@ export default Vue.extend({
         },
     },
     async created () {
-        let res = await Axios.get('/users/relevantInfo');
+        const res: any = await this.executeGet('/users/relevantInfo');
 
-        if (res.data) {
-            this.$store.commit('setUsers', res.data.users);
-            this.$store.commit('setUserId', res.data.userId);
-            this.$store.commit('setUsername', res.data.username);
-            this.$store.commit('setUserGroup', res.data.group);
+        if (res) {
+            this.$store.commit('setUsers', res.users);
+            this.$store.commit('setUserId', res.userId);
+            this.$store.commit('setUsername', res.username);
+            this.$store.commit('setUserGroup', res.group);
         }
 
         $('#loading').fadeOut();
@@ -95,10 +94,11 @@ export default Vue.extend({
             .fadeIn();
 
         // getting all bms is too heavy, so doing it later
-        res = await Axios.get(`/users/beatmaps`);
 
-        if (res.data?.beatmaps) {
-            this.$store.commit('setBeatmaps', res.data.beatmaps);
+        const res2: any = await this.executeGet('/users/beatmaps');
+
+        if (res2) {
+            this.$store.commit('setBeatmaps', res2.beatmaps);
         }
     },
     methods: {

@@ -39,7 +39,7 @@
                             <samp class="small text-white-50">
                                 This quest was completed by
                                 <span v-for="(member, i) in quest.completedMembers" :key="member.id">
-                                    **[{{ member.username }}]({{ 'https://osu.ppy.sh/users/' + member.osuId }})**{{ (i < quest.completedMembers.length - 2 ? ', ' : i < quest.completedMembers.length - 1 ? ' and' : '.') }}
+                                    **[{{ member.username }}]({{ 'https://osu.ppy.sh/users/' + member.osuId }})**{{ separateUsername(i, quest.completedMembers.length) }}
                                 </span>
                             </samp><br><br>
                             <span v-for="beatmap in quest.associatedMaps" :key="beatmap.id">
@@ -65,9 +65,6 @@
                             </samp><br>
                         </span>
                     </div>
-                    <p v-if="info" class="errors">
-                        {{ info }}
-                    </p>
                 </div>
             </div>
         </div>
@@ -76,33 +73,25 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import Axios from 'axios';
+import { Beatmap } from '../../../interfaces/beatmap/beatmap';
+import { Quest } from '../../../interfaces/quest';
 
 export default Vue.extend({
     name: 'NewsPost',
     data() {
         return {
             date: '2019-11-29',
-            beatmaps: {},
-            quests: {},
-            info: null,
+            beatmaps: {} as Beatmap[],
+            quests: {} as Quest[],
         };
     },
     methods: {
         async loadNewsInfo(e): Promise<void> {
-            e.target.disabled = true;
-            const res = await Axios.get('/admin/loadNewsInfo/' + this.date);
+            const res: any = await this.executeGet('/admin/loadNewsInfo/' + this.date, e);
 
             if (res) {
-                e.target.disabled = false;
-
-                if (res.data.error) {
-                    this.info = res.data.error;
-                } else {
-                    this.info = null;
-                    this.beatmaps = res.data.beatmaps;
-                    this.quests = res.data.quests;
-                }
+                this.beatmaps = res.beatmaps;
+                this.quests = res.quests;
             }
         },
         questModes(modes): string {
@@ -123,6 +112,15 @@ export default Vue.extend({
             }
 
             return text;
+        },
+        separateUsername(i, length): string {
+            if (i < length - 2) {
+                return ', ';
+            } else if (i < length - 1) {
+                return ' and';
+            } else {
+                return '';
+            }
         },
     },
 });

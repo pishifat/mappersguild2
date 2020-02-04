@@ -59,7 +59,6 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import Axios from 'axios';
 import NotificationCard from '@components/notifications/NotificationCard.vue';
 import InviteCard from '@components/notifications/InviteCard.vue';
 import LimitedMapInfo from '@components/notifications/LimitedMapInfo.vue';
@@ -87,11 +86,11 @@ export default Vue.extend({
         };
     },
     async created() {
-        const res = await Axios.get('/notifications/relevantInfo');
+        const res: any = await this.executeGet('/notifications/relevantInfo');
 
-        if (res.data) {
-            this.notifications = res.data.notifications;
-            this.invites = res.data.invites;
+        if (res) {
+            this.notifications = res.notifications;
+            this.invites = res.invites;
         }
 
         $('#loading').fadeOut();
@@ -99,14 +98,6 @@ export default Vue.extend({
             .attr('style', 'visibility: visible')
             .hide()
             .fadeIn();
-    },
-    mounted() {
-        setInterval(() => {
-            Axios.get('/notifications/relevantInfo').then(response => {
-                this.notifications = response.data.notifications;
-                this.invites = response.data.invites;
-            });
-        }, 30000);
     },
     methods: {
         async hideNotification(args): Promise<void> {

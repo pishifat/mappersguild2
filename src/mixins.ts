@@ -7,6 +7,30 @@ export interface ResponseError {
 
 export default Vue.extend({
     methods: {
+        async executeGet<T>(path: string, e?): Promise<T | ResponseError> {
+            if (e) e.target.disabled = true;
+
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            ($(`[data-toggle='tooltip']`) as any).tooltip('hide');
+
+            try {
+                const res = await Axios.get(path);
+
+                if (res.data.error) {
+                    this.$store.dispatch('updateToastMessages', { message: res.data.error });
+
+                    return { error: res.data.error };
+                } else {
+                    return res.data;
+                }
+            } catch (error) {
+                this.$store.dispatch('updateToastMessages', { message: 'Something went wrong!' });
+
+                return { error: 'Something went wrong!' };
+            } finally {
+                if (e) e.target.disabled = false;
+            }
+        },
         async executePost<T>(path: string, data: object = {}, e?): Promise<T | ResponseError> {
             if (e) e.target.disabled = true;
 

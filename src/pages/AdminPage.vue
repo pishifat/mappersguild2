@@ -472,7 +472,6 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import Axios from 'axios';
 import NewsPost from '../components/admin/NewsPost.vue';
 import BeatmapInfo from '../components/admin/BeatmapInfo.vue';
 import AddQuest from '../components/admin/AddQuest.vue';
@@ -517,17 +516,17 @@ export default Vue.extend({
             calculatingPoints: false,
         };
     },
-    async mounted() {
+    async created() {
         $('#loading').fadeOut();
         $('#app').attr('style', 'visibility: visible').hide().fadeIn();
-        const res = await Axios.get('/admin/relevantInfo');
+        const res: any = await this.executeGet('/admin/relevantInfo');
 
-        if (res.data) {
-            this.actionBeatmaps = res.data.actionBeatmaps;
+        if (res) {
+            this.actionBeatmaps = res.actionBeatmaps;
             this.actionBeatmapsLoading = false;
-            this.actionQuests = res.data.actionQuests;
+            this.actionQuests = res.actionQuests;
             this.actionQuestsLoading = false;
-            this.actionUsers = res.data.actionUsers;
+            this.actionUsers = res.actionUsers;
             this.actionUsersLoading = false;
         }
     },
@@ -600,10 +599,10 @@ export default Vue.extend({
             if (!this.beatmaps.length) {
                 this.beatmapsLoading = true;
 
-                const res = await Axios.get('/admin/loadBeatmaps');
+                const res: any = await this.executeGet('/admin/loadBeatmaps');
 
-                if (res.data) {
-                    this.beatmaps = res.data.b;
+                if (res) {
+                    this.beatmaps = res.b;
                     this.beatmapsLoading = false;
                 }
             }
@@ -612,10 +611,10 @@ export default Vue.extend({
             if (!this.quests.length) {
                 this.questsLoading = true;
 
-                const res = await Axios.get('/admin/loadQuests');
+                const res: any = await this.executeGet('/admin/loadQuests');
 
-                if (res.data) {
-                    this.quests = res.data.q;
+                if (res) {
+                    this.quests = res.q;
                     this.questsLoading = false;
                 }
             }
@@ -624,10 +623,10 @@ export default Vue.extend({
             if (!this.users.length) {
                 this.usersLoading = true;
 
-                const res = await Axios.get('/admin/loadUsers');
+                const res: any = await this.executeGet('/admin/loadUsers');
 
-                if (res.data) {
-                    this.users = res.data.u;
+                if (res) {
+                    this.users = res.u;
                     this.usersLoading = false;
                 }
             }
@@ -636,10 +635,10 @@ export default Vue.extend({
             if (!this.featuredArtists.length) {
                 this.featuredArtistsLoading = true;
 
-                const res = await Axios.get('/admin/loadFeaturedArtists');
+                const res: any = await this.executeGet('/admin/loadFeaturedArtists');
 
-                if (res.data) {
-                    this.featuredArtists = res.data.fa;
+                if (res) {
+                    this.featuredArtists = res.fa;
                     this.featuredArtistsLoading = false;
                 }
             }

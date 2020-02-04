@@ -30,7 +30,6 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import Axios from 'axios';
 import { mapState, mapGetters } from 'vuex';
 import NotificationsAccess from '@components/NotificationsAccess.vue';
 import ToastMessages from '@components/ToastMessages.vue';
@@ -61,13 +60,13 @@ export default Vue.extend({
         ]),
     },
     async created () {
-        const res = await Axios.get('/quests/relevantInfo');
+        const res: any = await this.executeGet('/quests/relevantInfo');
 
-        if (res.data) {
-            this.$store.commit('setQuests', res.data.openQuests);
-            this.$store.commit('setUserId', res.data.userMongoId);
-            this.$store.commit('setUserGroup', res.data.group);
-            this.$store.commit('setFilterMode', res.data.mainMode);
+        if (res) {
+            this.$store.commit('setQuests', res.openQuests);
+            this.$store.commit('setUserId', res.userMongoId);
+            this.$store.commit('setUserGroup', res.group);
+            this.$store.commit('setFilterMode', res.mainMode);
         }
 
         $('#loading').fadeOut();

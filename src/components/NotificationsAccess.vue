@@ -31,7 +31,6 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import Axios from 'axios';
 
 export default Vue.extend({
     data () {
@@ -40,23 +39,13 @@ export default Vue.extend({
             invites: null,
         };
     },
-    created () {
-        Axios
-            .get('/notifications/relevantInfo')
-            .then(response => {
-                this.notifications = response.data.notifications.length;
-                this.invites = response.data.invites.length;
-            });
-    },
-    mounted () {
-        setInterval(() => {
-            Axios
-                .get('/notifications/relevantInfo')
-                .then(response => {
-                    this.notifications = response.data.notifications.length;
-                    this.invites = response.data.invites.length;
-                });
-        }, 300000);
+    async created () {
+        const res: any = await this.executeGet('/notifications/relevantInfo');
+
+        if (res) {
+            this.notifications = res.notifications.length;
+            this.invites = res.invites.length;
+        }
     },
 });
 </script>

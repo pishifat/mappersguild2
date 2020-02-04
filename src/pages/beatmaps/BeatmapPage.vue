@@ -29,7 +29,6 @@
 <script lang="ts">
 import Vue from 'vue';
 import { mapState } from 'vuex';
-import Axios from 'axios';
 import $ from 'jquery';
 import CreateBeatmapModal from '@components/beatmaps/CreateBeatmapModal.vue';
 import NotificationsAccess from '@components/NotificationsAccess.vue';
@@ -61,15 +60,15 @@ export default Vue.extend({
         'userGroup',
     ]),
     async created() {
-        const res = await Axios.get('/beatmaps/relevantInfo');
+        const res: any = await this.executeGet('/beatmaps/relevantInfo');
 
-        if (res.data) {
-            this.$store.commit('setUserBeatmaps', res.data.beatmaps);
-            this.$store.commit('setUserOsuId', res.data.userOsuId);
-            this.$store.commit('setUserId', res.data.userMongoId);
-            this.$store.commit('setUsername', res.data.username);
-            this.$store.commit('setUserGroup', res.data.group);
-            this.$store.commit('setFilterMode', res.data.mainMode);
+        if (res) {
+            this.$store.commit('setUserBeatmaps', res.beatmaps);
+            this.$store.commit('setUserOsuId', res.userOsuId);
+            this.$store.commit('setUserId', res.userMongoId);
+            this.$store.commit('setUsername', res.username);
+            this.$store.commit('setUserGroup', res.group);
+            this.$store.commit('setFilterMode', res.mainMode);
         }
 
         $('#loading').fadeOut();
@@ -87,11 +86,10 @@ export default Vue.extend({
     },
     methods: {
         async loadGuestBeatmaps(): Promise<void> {
-            const res = await Axios.get('/beatmaps/guestBeatmaps');
+            const res: any = await this.executeGet('/beatmaps/guestBeatmaps');
 
-            if (res?.data?.userBeatmaps) {
-                // includes hosted beatmaps too so yea
-                this.$store.commit('setUserBeatmaps', res.data.userBeatmaps);
+            if (res) {
+                this.$store.commit('setUserBeatmaps', res.userBeatmaps);
             }
         },
     },

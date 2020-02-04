@@ -90,8 +90,8 @@ export default Vue.extend({
         },
     },
     async created() {
-        const response = await Axios.get('/beatmaps/users/quests');
-        this.userQuests = response.data.userQuests;
+        const res: any = await this.executeGet('/beatmaps/users/quests');
+        this.userQuests = res.userQuests;
     },
     methods: {
         async saveQuest(e): Promise<void> {

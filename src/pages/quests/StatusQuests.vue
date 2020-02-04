@@ -35,6 +35,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import { Quest } from '../../../interfaces/quest';
 import QuestCard from '@components/quests/QuestCard.vue';
 import { mapState } from 'vuex';
 

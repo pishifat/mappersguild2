@@ -16,7 +16,6 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import Axios from 'axios';
 import AddArtist from '@components/artists/AddArtist.vue';
 import ToastMessages from '@components/ToastMessages.vue';
 import ArtistPageFilters from './ArtistPageFilters.vue';
@@ -33,11 +32,11 @@ export default Vue.extend({
         ToastMessages,
     },
     async created () {
-        const res = await Axios.get('/artists/relevantInfo');
+        const res: any = await this.executeGet('/artists/relevantInfo');
 
-        if (res.data) {
-            this.$store.commit('setArtists', res.data.artists);
-            this.$store.commit('setUserId', res.data.userId);
+        if (res) {
+            this.$store.commit('setArtists', res.artists);
+            this.$store.commit('setUserId', res.userId);
         }
 
         $('#loading').fadeOut();
