@@ -52,6 +52,7 @@ export default Vue.extend({
 
             if (!this.isError(artist)) {
                 this.$store.commit('addArtist', artist);
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 ($('#addArtist') as any).modal('hide');
             }
         },

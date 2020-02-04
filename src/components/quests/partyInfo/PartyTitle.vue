@@ -39,7 +39,8 @@
 <script lang="ts">
 import Vue from 'vue';
 import { mapState } from 'vuex';
-import { Quest } from '@models/quest';
+import { Quest } from '../../../../interfaces/quest';
+import { Party } from '../../../../interfaces/party';
 import LockDetail from './LockDetail.vue';
 
 export default Vue.extend({
@@ -49,7 +50,7 @@ export default Vue.extend({
     },
     props: {
         party: {
-            type: Object,
+            type: Object as () => Party,
             required: true,
         },
         status: {

@@ -23,11 +23,12 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
 
 export default Vue.extend({
     props: {
         associatedMaps: {
-            type: Array,
+            type: Array as () => Beatmap[],
             required: true,
         },
     },

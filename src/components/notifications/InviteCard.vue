@@ -39,7 +39,7 @@
             </div>
 
             <div class="card-footer notification-card-spacing mx-2">
-                <span class="card-text text-shadow small">{{ invite.createdAt.slice(0,10) }}</span> <span class="errors small text-shadow">{{ info }}</span>
+                <span class="card-text text-shadow small">{{ invite.createdAt.toString().slice(0,10) }}</span> <span class="errors small text-shadow">{{ info }}</span>
                 <button class="btn btn-outline-danger notification-button float-right mx-1" @click.prevent="hideInvite($event)">
                     Decline
                 </button>
@@ -54,7 +54,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import Axios from 'axios';
-import { Invite } from '@models/notification';
+import { Invite } from '../../../interfaces/invite';
 
 export default Vue.extend({
     name: 'InviteCard',

@@ -112,7 +112,6 @@ adminRouter.get('/relevantInfo/', async (req, res) => {
             }
 
             if (valid) {
-                (q.status as string) = 'wip: all Ranked';
                 actionQuests.push(q);
             }
         }

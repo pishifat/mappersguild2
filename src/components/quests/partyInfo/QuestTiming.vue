@@ -4,14 +4,14 @@
             <!-- when done -->
             <p v-if="quest.status === 'done'" class="small text-shadow min-spacing ml-3">
                 Completed:
-                <span class="text-white-50">{{ quest.completed.slice(0,10) }}</span>
+                <span class="text-white-50">{{ quest.completed.toString().slice(0,10) }}</span>
             </p>
 
             <!-- quest info when wip -->
             <div v-if="quest.status === 'wip'">
                 <div class="small text-shadow ml-3">
                     Deadline:
-                    <span class="text-white-50">{{ quest.deadline.slice(0,10) }}</span>
+                    <span class="text-white-50">{{ quest.deadline.toString().slice(0,10) }}</span>
                 </div>
                 <div class="small text-shadow min-spacing ml-3">
                     Time remaining:
@@ -24,11 +24,12 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import { Quest } from '../../../../interfaces/quest';
 
 export default Vue.extend({
     props: {
         quest: {
-            type: Object,
+            type: Object as () => Quest,
             required: true,
         },
     },

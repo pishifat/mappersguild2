@@ -1,9 +1,8 @@
 import express from 'express';
-import { isLoggedIn, isNotSpectator } from '../helpers/middlewares';
+import { isLoggedIn } from '../helpers/middlewares';
 import { UserService } from '../models/user';
 import { BeatmapService } from '../models/beatmap/beatmap';
 import { QuestService, Quest } from '../models/quest';
-import { canFail } from '../helpers/helpers';
 
 const usersRouter = express.Router();
 
@@ -90,14 +89,5 @@ usersRouter.get('/:sort', async (req, res) => {
         sort: req.params.sort,
     }));
 });
-
-/* POST switch user notifications */
-usersRouter.post('/switchInvites', isNotSpectator, canFail(async (req, res) => {
-    let u = await UserService.queryByIdOrFail(req.session?.mongoId);
-    await UserService.updateOrFail(req.session?.mongoId, { invites: !u.invites });
-    u = await UserService.queryByIdOrFail(req.session.mongoId, { defaultPopulate: true });
-
-    res.json(u);
-}));
 
 export default usersRouter;

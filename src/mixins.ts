@@ -10,6 +10,7 @@ export default Vue.extend({
         async executePost<T>(path: string, data: object = {}, e?): Promise<T | ResponseError> {
             if (e) e.target.disabled = true;
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ($(`[data-toggle='tooltip']`) as any).tooltip('hide');
 
             try {
@@ -32,6 +33,9 @@ export default Vue.extend({
         },
         isError<T>(error: T | ResponseError): error is ResponseError {
             return (error as ResponseError).error !== undefined;
+        },
+        listUser(username: string, i: number, length: number): string {
+            return username + (i < length - 1 ? ', ' : '');
         },
     },
 });

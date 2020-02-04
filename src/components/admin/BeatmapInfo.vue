@@ -44,7 +44,7 @@
                             <option v-for="task in sortedTasks" :key="task.id" :value="task.id">
                                 {{ task.name }} ---
                                 <template v-for="(mapper, i) in task.mappers">
-                                    {{ mapper.username + (i < task.mappers.length - 1 ? ', ' : '') }}
+                                    {{ listUser(mapper.username, i, task.mappers.length) }}
                                 </template>
                                 {{ task.name == 'Storyboard' ? ' --- ' + task.sbQuality : '' }}
                             </option>

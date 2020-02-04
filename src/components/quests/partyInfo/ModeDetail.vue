@@ -74,11 +74,12 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import { Party } from '../../../../interfaces/party';
 
 export default Vue.extend({
     props: {
         party: {
-            type: Object,
+            type: Object as () => Party,
             required: true,
         },
         questId: {

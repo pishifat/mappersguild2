@@ -23,11 +23,12 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import { User } from '../../../../interfaces/user';
 
 export default Vue.extend({
     props: {
         members: {
-            type: Array,
+            type: Array as () => User[],
             required: true,
         },
     },

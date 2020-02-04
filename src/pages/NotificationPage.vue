@@ -65,7 +65,8 @@ import InviteCard from '@components/notifications/InviteCard.vue';
 import LimitedMapInfo from '@components/notifications/LimitedMapInfo.vue';
 import LimitedPartyInfo from '@components/notifications/LimitedPartyInfo.vue';
 import ToastMessages from '@components/ToastMessages.vue';
-import { Notification, Invite } from '@models/notification';
+import { Notification } from '../../interfaces/notification';
+import { Invite } from '../../interfaces/invite';
 
 export default Vue.extend({
     name: 'NotificationPage',

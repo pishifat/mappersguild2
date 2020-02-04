@@ -29,4 +29,5 @@ export interface Invite extends Document {
     taskMode: TaskMode;
     party: Party;
     quest: Quest;
+    createdAt: Date;
 }

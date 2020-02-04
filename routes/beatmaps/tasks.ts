@@ -206,10 +206,6 @@ tasksRouter.post('/task/:taskId/addCollab', isNotSpectator, isValidUser, async (
 
     const u = res.locals.user;
 
-    if (!u.invites) {
-        return { error: inviteError + 'User has invites disabled!' };
-    }
-
     const [t, b] = await Promise.all([
         TaskService.queryOne({
             query: {
@@ -373,10 +369,6 @@ tasksRouter.post('/setTaskStatus/:taskId', isNotSpectator, async (req, res) => {
 tasksRouter.post('/requestTask/:mapId', isNotSpectator, isValidUser, isValidBeatmap, isBeatmapHost, async (req, res) => {
     const u: User = res.locals.user;
     const b: Beatmap = res.locals.beatmap;
-
-    if (!u.invites) {
-        return { error: inviteError + 'User has invites disabled!' };
-    }
 
     const valid = await addTaskChecks(u.id, b, req.body.taskName, req.body.mode, true);
 

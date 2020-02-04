@@ -147,9 +147,9 @@
 import Vue from 'vue';
 import { mapState } from 'vuex';
 import NewTask from './NewTask.vue';
-import { User } from '@models/user';
-import { Task } from '@models/task';
-import { Beatmap } from '@models/beatmap';
+import { User } from '../../../../interfaces/user';
+import { Task } from '../../../../interfaces/beatmap/task';
+import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
 
 export default Vue.extend({
     name: 'TasksChoice',

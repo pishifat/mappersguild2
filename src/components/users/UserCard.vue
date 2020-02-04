@@ -42,12 +42,13 @@
 <script lang="ts">
 import Vue from 'vue';
 import { mapState } from 'vuex';
+import { User } from '../../../interfaces/user';
 
 export default Vue.extend({
     name: 'UserCard',
     props: {
         user: {
-            type: Object,
+            type: Object as () => User,
             required: true,
         },
     },

@@ -3,8 +3,8 @@ import Vuex from 'vuex';
 import ArtistPage from './pages/artists/ArtistPage.vue';
 import './bootstrap';
 import mixins from './mixins';
-import { FeaturedArtist } from '@models/featuredSong';
-import { User } from '@models/user';
+import { FeaturedArtist } from '../interfaces/featuredArtist';
+import { User } from '../interfaces/user';
 
 Vue.mixin(mixins);
 Vue.use(Vuex);

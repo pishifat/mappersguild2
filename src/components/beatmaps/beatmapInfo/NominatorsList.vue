@@ -38,7 +38,7 @@
                         :href="'https://osu.ppy.sh/users/' + bn.osuId"
                         target="_blank"
                     >
-                        {{ bn.username + (i < beatmap.bns.length - 1 ? ', ' : '') }}
+                        {{ listUser(bn.username, i, beatmap.bns.length) }}
                     </a>
                 </template>
             </span>

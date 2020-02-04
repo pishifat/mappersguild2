@@ -212,10 +212,6 @@ questsRouter.post('/inviteToParty/:partyId/:questId', isNotSpectator, canFail(as
         }, inviteError + cannotFindUserMessage);
     }
 
-    if (!u.invites) {
-        return res.json({ error: inviteError + 'User has invites disabled!' });
-    }
-
     const q = await QuestService.queryById(req.params.questId, { defaultPopulate: true });
     const currentParties = await PartyService.queryAll({ query: { members: u._id } });
 

@@ -30,7 +30,7 @@
                             :href="'https://osu.ppy.sh/users/' + modder.osuId"
                             target="_blank"
                         >
-                            {{ modder.username + (i < beatmap.modders.length - 1 ? ', ' : '') }}
+                            {{ listUser(modder.username, i, beatmap.modders.length) }}
                         </a>
                     </template>
                 </span>

@@ -30,12 +30,13 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import { Quest } from '../../../interfaces/quest';
 
 export default Vue.extend({
     name: 'QuestSize',
     props: {
         quest: {
-            type: Object,
+            type: Object as () => Quest,
             required: true,
         },
     },

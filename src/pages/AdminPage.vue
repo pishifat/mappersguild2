@@ -441,48 +441,6 @@
 
         <div class="radial-divisor mx-auto my-4" />
 
-        <div class="container bg-container py-1">
-            <div class="row">
-                <div class="col">
-                    <h5 class="ml-4 mt-2">
-                        <a href="#errors" data-toggle="collapse" @click.prevent="loadErrors()">
-                            Errors
-                            <i class="fas fa-angle-down" />
-                        </a>
-                        <span v-if="errorsLoading" class="ml-2 small text-white-50">loading...</span>
-                    </h5>
-                    <div id="errors" class="collapse">
-                        <table v-if="errors" class="table table-sm table-dark table-hover">
-                            <thead>
-                                <th scope="col">
-                                    USER
-                                </th>
-                                <th scope="col">
-                                    ERROR
-                                </th>
-                                <th scope="col">
-                                    DATE
-                                </th>
-                            </thead>
-                            <tbody>
-                                <tr v-for="error in errors" :key="error.id" class="text-white-50">
-                                    <td scope="row">
-                                        {{ error.user ? error.user.username : '...' }}
-                                    </td>
-                                    <td scope="row">
-                                        {{ error.action.length > 125 ? error.action.slice(0,125) + '...' : error.action }}
-                                    </td>
-                                    <td scope="row">
-                                        {{ error.createdAt }}
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <news-post />
 
         <beatmap-info
@@ -521,10 +479,10 @@ import AddQuest from '../components/admin/AddQuest.vue';
 import QuestInfo from '../components/admin/QuestInfo.vue';
 import UserInfo from '../components/admin/UserInfo.vue';
 import FeaturedArtistInfo from '../components/admin/FeaturedArtistInfo.vue';
-import { Beatmap } from '@models/beatmap';
-import { Quest } from '@models/quest';
-import { User } from '@models/user';
-import { FeaturedArtist } from '@models/featuredSong';
+import { Beatmap } from '../../interfaces/beatmap/beatmap';
+import { Quest } from '../../interfaces/quest';
+import { User } from '../../interfaces/user';
+import { FeaturedArtist } from '../../interfaces/featuredArtist';
 
 export default Vue.extend({
     name: 'AdminPage',
@@ -556,8 +514,6 @@ export default Vue.extend({
             featuredArtists: [] as FeaturedArtist[],
             featuredArtistsLoading: false,
             selectedFeaturedArtist: null as null | FeaturedArtist,
-            errors: null,
-            errorsLoading: false,
             calculatingPoints: false,
         };
     },
@@ -685,18 +641,6 @@ export default Vue.extend({
                 if (res.data) {
                     this.featuredArtists = res.data.fa;
                     this.featuredArtistsLoading = false;
-                }
-            }
-        },
-        async loadErrors(): Promise<void> {
-            if (!this.errors) {
-                this.errorsLoading = true;
-
-                const res = await Axios.get('/admin/loadErrors');
-
-                if (res.data) {
-                    this.errors = res.data.e;
-                    this.errorsLoading = false;
                 }
             }
         },

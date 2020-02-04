@@ -156,14 +156,15 @@
 <script lang="ts">
 import Vue from 'vue';
 import Axios from 'axios';
-import { FeaturedSong } from '@models/featuredSong';
-import { Beatmap } from '@models/beatmap';
+import { FeaturedSong } from '../../../interfaces/featuredSong';
+import { FeaturedArtist } from '../../../interfaces/featuredArtist';
+import { Beatmap } from '../../../interfaces/beatmap/beatmap';
 
 export default Vue.extend({
     name: 'CreateBeatmapModal',
     data () {
         return {
-            featuredArtists: [],
+            featuredArtists: [] as FeaturedArtist[],
             featuredSongs: [] as FeaturedSong[],
             selectedArtist: '',
             selectedSong: '',
@@ -234,8 +235,11 @@ export default Vue.extend({
             }, e);
 
             if (!this.isError(beatmap)) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 ($('#addBeatmap') as any).modal('hide');
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 ($('.quest-collapse-wip') as any).collapse();
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 ($('#othersWip') as any).collapse('show');
                 this.$store.commit('addBeatmap', beatmap);
             }

@@ -25,6 +25,9 @@
                 <div class="col-sm-3 small">
                     <span class="text-white-50">Hosted by</span>
                     <a :href="'https://osu.ppy.sh/users/' + beatmap.host.osuId" target="_blank" @click.stop>{{ beatmap.host.username }}</a>
+                    <i v-if="beatmap.mode == 'taiko'" class="fas fa-drum text-white-50" />
+                    <i v-else-if="beatmap.mode == 'catch'" class="fas fa-apple-alt text-white-50" />
+                    <i v-else-if="beatmap.mode == 'mania'" class="fas fa-stream text-white-50" />
                 </div>
                 <div v-if="beatmap.url" class="col-sm-1 d-flex justify-content-end">
                     <a :href="beatmap.url" target="_blank">
@@ -46,7 +49,7 @@
 import Vue from 'vue';
 import { mapState } from 'vuex';
 import BeatmapInfo from './beatmapInfo/BeatmapInfo.vue';
-import { Beatmap } from '@models/beatmap';
+import { Beatmap } from '../../../interfaces/beatmap/beatmap';
 
 export default Vue.extend({
     name: 'BeatmapTableRow',

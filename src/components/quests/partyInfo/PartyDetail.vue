@@ -42,6 +42,7 @@ import QuestTiming from './QuestTiming.vue';
 import MembersDetail from './MembersDetail.vue';
 import ModeDetail from './ModeDetail.vue';
 import { mapState } from 'vuex';
+import { Party } from '../../../../interfaces/party';
 
 export default Vue.extend({
     name: 'PartyDetail',
@@ -54,8 +55,8 @@ export default Vue.extend({
     },
     props: {
         party: {
-            type: Object,
-            default: (): object => { return {}; },
+            type: Object as () => Party,
+            default: null,
         },
         quest: {
             type: Object,

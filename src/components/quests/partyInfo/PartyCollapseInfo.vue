@@ -55,7 +55,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { Quest } from '@models/quest';
+import { Quest } from '../../../../interfaces/quest';
 import PartyDetail from './PartyDetail.vue';
 import AssociatedBeatmaps from './AssociatedBeatmaps.vue';
 

@@ -17,7 +17,9 @@
                     </p>
                     <p class="indent text-shadow">
                         <template v-for="(member, i) in party.members">
-                            <a :key="i" :href="'https://osu.ppy.sh/users/' + member.osuId" target="_blank">{{ member.username + (i < party.members.length - 1 ? ', ' : '') }}</a>
+                            <a :key="i" :href="'https://osu.ppy.sh/users/' + member.osuId" target="_blank">
+                                {{ listUser(member.username, i, party.members.length) }}
+                            </a>
                         </template>
                     </p>
                     <p class="text-shadow">

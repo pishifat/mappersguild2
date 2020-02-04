@@ -100,14 +100,15 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { Quest } from '@models/quest';
+import { Quest } from '../../../../interfaces/quest';
+import { Party } from '../../../../interfaces/party';
 import { mapState } from 'vuex';
 
 export default Vue.extend({
     name: 'LeaderActions',
     props: {
         party: {
-            type: Object,
+            type: Object as () => Party,
             required: true,
         },
         status: {
@@ -175,7 +176,7 @@ export default Vue.extend({
         async kickPartyMember(e): Promise<void> {
             if (!this.dropdownUserId) {
                 this.$store.dispatch('updateToastMessages', {
-                    message: 'Select a member to kick ):',
+                    message: 'Select a member to kick :(',
                     type: 'info',
                 });
 

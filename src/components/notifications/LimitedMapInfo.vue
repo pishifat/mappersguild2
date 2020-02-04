@@ -37,7 +37,9 @@
                                             </td>
                                             <td scope="row">
                                                 <template v-for="(mapper, i) in task.mappers">
-                                                    <a :key="mapper.id" :href="'https://osu.ppy.sh/users/' + mapper.osuId" target="_blank">{{ mapper.username + (i < task.mappers.length - 1 ? ', ' : '') }}</a>
+                                                    <a :key="mapper.id" :href="'https://osu.ppy.sh/users/' + mapper.osuId" target="_blank">
+                                                        {{ listUser(mapper.username, i, task.mappers.length) }}
+                                                    </a>
                                                 </template>
                                             </td>
                                             <td v-if="beatmap.status != 'Ranked'" scope="row" :class="task.status.toLowerCase()">
@@ -57,8 +59,8 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { Beatmap } from '@models/beatmap';
-import { TaskName } from '@models/task';
+import { Beatmap } from '../../../interfaces/beatmap/beatmap';
+import { TaskName } from '../../../interfaces/beatmap/task';
 
 export default Vue.extend({
     name: 'LimitedMapInfo',

@@ -4,9 +4,9 @@ import Axios from 'axios';
 import mixins from './mixins';
 import './bootstrap';
 import UserPage from './pages/users/UserPage.vue';
-import { User, UserGroup } from '@models/user';
-import { FilterMode } from '@models/extras';
-import { Beatmap } from '@models/beatmap';
+import { User, UserGroup } from '../interfaces/user';
+import { FilterMode } from '../interfaces/extras';
+import { Beatmap } from '../interfaces/beatmap/beatmap';
 
 $(document).ready(function() {
     $('#limitedEditBeatmap').on('hide.bs.modal', function() {

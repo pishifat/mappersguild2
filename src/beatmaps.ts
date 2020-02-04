@@ -3,11 +3,10 @@ import Vuex from 'vuex';
 import Axios from 'axios';
 import BeatmapPage from './pages/beatmaps/BeatmapPage.vue';
 import './bootstrap.ts';
-import { Beatmap, BeatmapMode } from '@models/beatmap';
-import { User, UserGroup } from '@models/user';
-import { BeatmapStatus } from '@models/beatmap';
-import { FilterMode } from '@models/extras';
-import { TaskName } from '@models/task';
+import { Beatmap, BeatmapMode, BeatmapStatus } from '../interfaces/beatmap/beatmap';
+import { User, UserGroup } from '../interfaces/user';
+import { FilterMode } from '../interfaces/extras';
+import { TaskName } from '../interfaces/beatmap/task';
 import mixins from './mixins';
 
 Vue.mixin(mixins);

@@ -13,7 +13,6 @@ export interface User extends Document {
     osuId: number;
     username: string;
     group: UserGroup;
-    invites: boolean;
     badge: number;
     completedQuests: Quest[];
 
@@ -35,4 +34,5 @@ export interface User extends Document {
     penaltyPoints: number;
     totalPoints: number;
     mainMode: Omit<BeatmapMode, BeatmapMode.Hybrid>;
+    createdAt: Date;
 }

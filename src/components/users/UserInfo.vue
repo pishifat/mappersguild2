@@ -277,9 +277,6 @@
                                     {{ quest.name.length > 40 ? quest.name.slice(0,40) + "..." : quest.name }}
                                 </li>
                             </ul>
-                            <p class="text-shadow small">
-                                Invites: <span class="text-white-50">{{ selectedUser.invites ? 'Enabled' : 'Disabled' }}</span>
-                            </p>
                         </div>
                     </div>
                     <div class="radial-divisor mx-auto my-3" />
@@ -327,14 +324,6 @@
                         </table>
                         <div class="radial-divisor mx-auto my-3" />
                     </span>
-                    <button
-                        v-if="selectedUser.osuId == userId"
-                        class="btn btn-sm justify-content-center"
-                        :class="{ 'btn-outline-info': !selectedUser.invites, 'btn-outline-danger': selectedUser.invites }"
-                        @click="switchInvites($event)"
-                    >
-                        {{ selectedUser.invites ? 'Disable invites' : 'Enable invites' }}
-                    </button>
                     <p class="text-shadow float-right">
                         Joined: {{ selectedUser.createdAt.slice(0, 10) }}
                     </p>
@@ -348,18 +337,21 @@
 import Vue from 'vue';
 import { mapState, mapGetters } from 'vuex';
 import Axios from 'axios';
-import { Beatmap } from '@models/beatmap';
+import { Quest } from '../../../interfaces/quest';
+import { Beatmap } from '../../../interfaces/beatmap/beatmap';
 
 export default Vue.extend({
     name: 'UserInfo',
     data() {
         return {
-            currentQuests: [],
+            currentQuests: [] as Quest[],
         };
     },
     computed: {
         ...mapState({
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             beatmaps: (state: any) => state.beatmaps as Beatmap[],
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             userId: (state: any) => state.userId as string,
         }),
         ...mapGetters([

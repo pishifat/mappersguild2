@@ -4,10 +4,9 @@ import Axios from 'axios';
 import QuestPage from '@pages/quests/QuestPage.vue';
 import './bootstrap.ts';
 import mixins from './mixins';
-import { User, UserGroup } from '@models/user';
-import { Quest } from '@models/quest';
-import { QuestStatus } from '@models/quest';
-import { FilterMode } from '@models/extras';
+import { User, UserGroup } from '../interfaces/user';
+import { Quest, QuestStatus } from '../interfaces/quest';
+import { FilterMode } from '../interfaces/extras';
 
 Vue.mixin(mixins);
 Vue.use(Vuex);
