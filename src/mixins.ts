@@ -10,8 +10,7 @@ export default Vue.extend({
         async executeGet<T>(path: string, e?): Promise<T | ResponseError> {
             if (e) e.target.disabled = true;
 
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            ($(`[data-toggle='tooltip']`) as any).tooltip('hide');
+            ($(`[data-toggle='tooltip']`)).tooltip('hide');
 
             try {
                 const res = await Axios.get(path);
@@ -34,8 +33,7 @@ export default Vue.extend({
         async executePost<T>(path: string, data: object = {}, e?): Promise<T | ResponseError> {
             if (e) e.target.disabled = true;
 
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            ($(`[data-toggle='tooltip']`) as any).tooltip('hide');
+            ($(`[data-toggle='tooltip']`)).tooltip('hide');
 
             try {
                 const res = await Axios.post(path, data);

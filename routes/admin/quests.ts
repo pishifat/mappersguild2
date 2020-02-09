@@ -32,7 +32,7 @@ adminQuestsRouter.post('/addQuest/', isSuperAdmin, async (req, res) => {
     const quest = await QuestService.create(req.body);
 
     if (!QuestService.isError(quest)) {
-        LogService.create(req.session?.mongoId, `created quest "${quest.name}"`, quest._id, LogCategory.Quest);
+        LogService.create(req.session?.mongoId, `created quest "${quest.name}"`, LogCategory.Quest);
 
         webhookPost([{
             author: {
@@ -124,7 +124,7 @@ adminQuestsRouter.post('/dropQuest/:id', isSuperAdmin, canFail(async (req, res) 
         res.json(q);
     }
 
-    LogService.create(req.session?.mongoId, `forced party to drop quest "${q.name}"`, req.params.id, LogCategory.Quest);
+    LogService.create(req.session?.mongoId, `forced party to drop quest "${q.name}"`, LogCategory.Quest);
 }));
 
 /* POST complete quest */
@@ -167,7 +167,7 @@ adminQuestsRouter.post('/completeQuest/:id', isSuperAdmin, canFail(async (req, r
 
     res.json(quest);
 
-    LogService.create(req.session.mongoId, `marked quest "${quest.name}" as complete`, req.params.id, LogCategory.Quest);
+    LogService.create(req.session.mongoId, `marked quest "${quest.name}" as complete`, LogCategory.Quest);
 }));
 
 /* POST duplicate quest */
@@ -222,7 +222,7 @@ adminQuestsRouter.post('/deleteQuest/:id', isSuperAdmin, canFail(async (req, res
         await QuestService.removeOrFail(req.params.id);
         res.json(q);
 
-        LogService.create(req.session.mongoId, `deleted quest "${q.name}"`, req.params.id, LogCategory.Quest);
+        LogService.create(req.session.mongoId, `deleted quest "${q.name}"`, LogCategory.Quest);
     } else {
         res.json({});
     }

@@ -38,16 +38,4 @@ logsRouter.get('/more/:skip', async (req, res) => {
     }));
 });
 
-/* POST creates a test log */
-logsRouter.post('/create', async (req, res) => {
-    const log = await LogService.create(
-        req.session?.mongoId,
-        req.body.action,
-        req.body.modified,
-        req.body.category
-    );
-
-    res.json(log);
-});
-
 export default logsRouter;

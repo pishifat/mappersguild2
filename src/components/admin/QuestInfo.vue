@@ -209,8 +209,7 @@ export default Vue.extend({
                 const q = await this.executePost('/admin/deleteQuest/' + this.quest.id, {}, e);
 
                 if (q) {
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    ($('#editQuest') as any).modal('hide');
+                    ($('#editQuest')).modal('hide');
                     this.$emit('delete-quest', q);
                 }
             }

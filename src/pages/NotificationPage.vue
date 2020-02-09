@@ -114,7 +114,6 @@ export default Vue.extend({
         },
         //accept various invites
         async acceptInvite(id, actionType, e): Promise<void> {
-            this.info = '';
             let invite;
 
             if (actionType == 'collaborate in a difficulty') {

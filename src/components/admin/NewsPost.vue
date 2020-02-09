@@ -81,8 +81,8 @@ export default Vue.extend({
     data() {
         return {
             date: '2019-11-29',
-            beatmaps: {} as Beatmap[],
-            quests: {} as Quest[],
+            beatmaps: [] as Beatmap[],
+            quests: [] as Quest[],
         };
     },
     methods: {

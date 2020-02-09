@@ -180,7 +180,7 @@ export default Vue.extend({
         };
     },
     async created () {
-        const res: any = await this.executeGet('/featuredArtists');
+        const res: any = await this.executeGet<FeaturedArtist[]>('/featuredArtists');
 
         if (res) {
             this.featuredArtists = res.sort((a, b) => {
@@ -203,7 +203,7 @@ export default Vue.extend({
             }
 
             e.target.disabled = true;
-            const res: any = await this.executeGet(`/featuredArtists/${this.selectedArtist}/songs`);
+            const res: any = await this.executeGet<FeaturedSong[]>(`/featuredArtists/${this.selectedArtist}/songs`);
 
             if (res) {
                 this.featuredSongs = res.sort((a,b) => {
@@ -234,12 +234,9 @@ export default Vue.extend({
             }, e);
 
             if (!this.isError(beatmap)) {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                ($('#addBeatmap') as any).modal('hide');
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                ($('.quest-collapse-wip') as any).collapse();
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                ($('#othersWip') as any).collapse('show');
+                ($('#addBeatmap')).modal('hide');
+                ($('.quest-collapse-wip')).collapse();
+                ($('#othersWip')).collapse('show');
                 this.$store.commit('addBeatmap', beatmap);
             }
         },

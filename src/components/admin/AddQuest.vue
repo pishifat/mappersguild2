@@ -126,7 +126,7 @@ export default Vue.extend({
 
             if (!this.isError(q)) {
                 this.$emit('add-quest', q);
-                ($('#addQuest') as any).modal('hide');
+                ($('#addQuest')).modal('hide');
             }
         },
     },

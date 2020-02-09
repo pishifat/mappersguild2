@@ -28,7 +28,7 @@ adminUsersRouter.post('/updatePenaltyPoints/:id', isSuperAdmin, canFail(async (r
 
     res.json(user);
 
-    LogService.create(req.session.mongoId, `edited penalty points of "${user.username}" to ${req.body.penaltyPoints}`, req.params.id, LogCategory.User);
+    LogService.create(req.session.mongoId, `edited penalty points of "${user.username}" to ${req.body.penaltyPoints}`, LogCategory.User);
 }));
 
 /* POST update user badge */

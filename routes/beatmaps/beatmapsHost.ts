@@ -40,7 +40,6 @@ beatmapsHostRouter.post('/:id/setMode', isValidBeatmap, isBeatmapHost, canFail(a
     LogService.create(
         req.session?.mongoId,
         `changed mode of "${b.song.artist} - ${b.song.title}" to "${req.body.mode}"`,
-        b._id,
         LogCategory.Beatmap
     );
 }));
@@ -75,7 +74,6 @@ beatmapsHostRouter.post('/:id/setStatus', isValidBeatmap, isBeatmapHost, canFail
     LogService.create(
         req.session?.mongoId,
         `changed status of "${updatedBeatmap.song.artist} - ${updatedBeatmap.song.title}"`,
-        updatedBeatmap._id,
         LogCategory.Beatmap
     );
 }));
@@ -138,7 +136,6 @@ beatmapsHostRouter.post('/:id/saveQuest', isValidBeatmap, isBeatmapHost, canFail
     LogService.create(
         req.session?.mongoId,
         `${req.body.questId.length ? 'linked quest to' : 'unlinked quest from'} "${b.song.artist} - ${b.song.title}"`,
-        b._id,
         LogCategory.Beatmap
     );
 }));
@@ -167,7 +164,6 @@ beatmapsHostRouter.post('/:id/setLink', isValidBeatmap, isBeatmapHost, canFail(a
     LogService.create(
         req.session?.mongoId,
         `edited link on "${b.song.artist} - ${b.song.title}"`,
-        b._id,
         LogCategory.Beatmap
     );
 }));
@@ -189,7 +185,6 @@ beatmapsHostRouter.post('/:id/lockTask', isValidBeatmap, isBeatmapHost, canFail(
     LogService.create(
         req.session?.mongoId,
         `locked claims for "${req.body.task}" on "${b.song.artist} - ${b.song.title}"`,
-        b._id,
         LogCategory.Beatmap
     );
 }));
@@ -207,7 +202,6 @@ beatmapsHostRouter.post('/:id/unlockTask', isValidBeatmap, isBeatmapHost, canFai
     LogService.create(
         req.session?.mongoId,
         `unlocked claims for "${req.body.task}" on "${b.song.artist} - ${b.song.title}"`,
-        b._id,
         LogCategory.Beatmap
     );
 }));
@@ -226,7 +220,6 @@ beatmapsHostRouter.post('/:id/delete', isValidBeatmap, isBeatmapHost, async (req
     LogService.create(
         req.session?.mongoId,
         `deleted "${b.song.artist} - ${b.song.title}"`,
-        b._id,
         LogCategory.Beatmap
     );
 });

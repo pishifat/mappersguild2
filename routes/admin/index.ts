@@ -5,7 +5,6 @@ import { QuestStatus } from '../../interfaces/quest';
 import { UserService, User } from '../../models/user';
 import { BeatmapService, Beatmap } from '../../models/beatmap/beatmap';
 import { BeatmapStatus } from '../../interfaces/beatmap/beatmap';
-import { LogService } from '../../models/log';
 import { beatmapsetInfo, isOsuReponseError } from '../../helpers/osuApi';
 
 const adminRouter = express.Router();
@@ -163,18 +162,6 @@ adminRouter.get('/loadNewsInfo/:date', async (req, res) => {
     ]);
 
     res.json({ beatmaps: b, quests: q });
-});
-
-/* GET errors */
-adminRouter.get('/loadErrors/', async (req, res) => {
-    const e = await LogService.queryAll({
-        query: { category: 'error' },
-        populate: [{ path: 'user', select: 'username' }],
-        sort: { createdAt: -1 },
-        limit: 100,
-    });
-
-    res.json({ e });
 });
 
 export default adminRouter;

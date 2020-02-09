@@ -14,7 +14,5 @@ export interface Log extends Document {
     id: string;
     user: User;
     action: string;
-    modified: object;
-    // modified: ???;
     category: LogCategory;
 }

@@ -135,7 +135,6 @@ tasksRouter.post('/addTask/:mapId', isNotSpectator, isValidBeatmap, async (req, 
     LogService.create(
         req.session?.mongoId,
         `added "${req.body.taskName}" difficulty to "${b.song.artist} - ${b.song.title}"`,
-        b._id,
         LogCategory.Beatmap
     );
 
@@ -185,7 +184,6 @@ tasksRouter.post('/removeTask/:id', isNotSpectator, async (req, res) => {
     LogService.create(
         req.session?.mongoId,
         `removed "${t.name}" from "${updatedBeatmap.song.artist} - ${updatedBeatmap.song.title}"`,
-        updatedBeatmap._id,
         LogCategory.Beatmap
     );
 
@@ -300,7 +298,6 @@ tasksRouter.post('/task/:taskId/removeCollab', isNotSpectator, async (req, res) 
         `removed "${u.username}" from collab mapper of "${updatedTask.name}" on "${updatedB.song.artist} - ${
             updatedB.song.title
         }"`,
-        updatedB._id,
         LogCategory.Beatmap
     );
 });
@@ -350,7 +347,6 @@ tasksRouter.post('/setTaskStatus/:taskId', isNotSpectator, async (req, res) => {
     LogService.create(
         req.session?.mongoId,
         `changed status of "${t.name}" on "${b.song.artist} - ${b.song.title}"`,
-        b._id,
         LogCategory.Beatmap
     );
 

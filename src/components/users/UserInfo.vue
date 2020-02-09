@@ -349,9 +349,7 @@ export default Vue.extend({
     },
     computed: {
         ...mapState({
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             beatmaps: (state: any) => state.beatmaps as Beatmap[],
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             userId: (state: any) => state.userId as string,
         }),
         ...mapGetters([

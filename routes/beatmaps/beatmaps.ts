@@ -173,7 +173,6 @@ beatmapsRouter.post('/create', isNotSpectator, canFail(async (req, res) => {
     LogService.create(
         req.session?.mongoId,
         `created new map "${b.song.artist} - ${b.song.title}"`,
-        b._id,
         LogCategory.Beatmap
     );
 }));
@@ -209,7 +208,6 @@ beatmapsRouter.post('/:id/updateModder', isNotSpectator, canFail(async (req, res
         LogService.create(
             req.session?.mongoId,
             `removed from modder list on "${b.song.artist} - ${b.song.title}"`,
-            b._id,
             LogCategory.Beatmap
         );
         NotificationService.create(
@@ -223,7 +221,6 @@ beatmapsRouter.post('/:id/updateModder', isNotSpectator, canFail(async (req, res
         LogService.create(
             req.session?.mongoId,
             `modded "${b.song.artist} - ${b.song.title}"`,
-            b._id,
             LogCategory.Beatmap
         );
         NotificationService.create(
@@ -280,7 +277,6 @@ beatmapsRouter.post('/:id/updateBn', isNotSpectator, isBn, isValidBeatmap, async
         LogService.create(
             req.session?.mongoId,
             `removed from Beatmap Nominator list on "${updatedBeatmap.song.artist} - ${updatedBeatmap.song.title}"`,
-            updatedBeatmap._id,
             LogCategory.Beatmap
         );
         NotificationService.create(
@@ -294,7 +290,6 @@ beatmapsRouter.post('/:id/updateBn', isNotSpectator, isBn, isValidBeatmap, async
         LogService.create(
             req.session?.mongoId,
             `added to Beatmap Nominator list on "${updatedBeatmap.song.artist} - ${updatedBeatmap.song.title}"`,
-            updatedBeatmap._id,
             LogCategory.Beatmap
         );
         NotificationService.create(

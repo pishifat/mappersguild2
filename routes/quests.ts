@@ -108,7 +108,7 @@ questsRouter.post('/createParty/:id', isNotSpectator, canFail(async (req, res) =
     const q = await QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
     res.json(q);
 
-    LogService.create(req.session.mongoId, `created a party for ${q.name}`, p._id, LogCategory.Party);
+    LogService.create(req.session.mongoId, `created a party for ${q.name}`, LogCategory.Party);
 }));
 
 /* POST delete party */
@@ -118,16 +118,16 @@ questsRouter.post('/deleteParty/:partyId/:questId', isNotSpectator, canFail(asyn
     const q = await QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
     res.json(q);
 
-    LogService.create(req.session.mongoId, `deleted a party for ${q.name}`, p._id, LogCategory.Party);
+    LogService.create(req.session.mongoId, `deleted a party for ${q.name}`, LogCategory.Party);
 }));
 
 /* POST toggle party lock */
 questsRouter.post('/togglePartyLock/:partyId/:questId', isNotSpectator, canFail(async (req, res) => {
-    const p = await PartyService.updateOrFail(req.params.partyId, { lock: !req.body.lock });
+    await PartyService.updateOrFail(req.params.partyId, { lock: !req.body.lock });
     const q = await QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
     res.json(q);
 
-    LogService.create(req.session.mongoId, `toggled lock on party for ${q.name}`, p._id, LogCategory.Party);
+    LogService.create(req.session.mongoId, `toggled lock on party for ${q.name}`, LogCategory.Party);
 }));
 
 /* POST toggle party mode */
@@ -143,12 +143,12 @@ questsRouter.post('/togglePartyMode/:partyId/:questId', isNotSpectator, canFail(
     const q = await QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
     res.json(q);
 
-    LogService.create(req.session.mongoId, `toggled "${req.body.mode}" mode on party for ${q.name}`, p._id, LogCategory.Party);
+    LogService.create(req.session.mongoId, `toggled "${req.body.mode}" mode on party for ${q.name}`, LogCategory.Party);
 }));
 
 /* POST join party */
 questsRouter.post('/joinParty/:partyId/:questId', isNotSpectator, canFail(async (req, res) => {
-    const p = await PartyService.updateOrFail(req.params.partyId, { $push: { members: req.session?.mongoId } });
+    await PartyService.updateOrFail(req.params.partyId, { $push: { members: req.session?.mongoId } });
 
     await updatePartyInfo(req.params.partyId);
 
@@ -156,12 +156,12 @@ questsRouter.post('/joinParty/:partyId/:questId', isNotSpectator, canFail(async 
 
     res.json(q);
 
-    LogService.create(req.session.mongoId, `joined party for ${q.name}`, p._id, LogCategory.Party);
+    LogService.create(req.session.mongoId, `joined party for ${q.name}`, LogCategory.Party);
 }));
 
 /* POST leave party */
 questsRouter.post('/leaveParty/:partyId/:questId', isNotSpectator, canFail(async (req, res) => {
-    const p = await PartyService.updateOrFail(req.params.partyId, { $pull: { members: req.session?.mongoId } });
+    await PartyService.updateOrFail(req.params.partyId, { $pull: { members: req.session?.mongoId } });
 
     await updatePartyInfo(req.params.partyId);
 
@@ -169,7 +169,7 @@ questsRouter.post('/leaveParty/:partyId/:questId', isNotSpectator, canFail(async
 
     res.json(q);
 
-    LogService.create(req.session.mongoId, `left party for ${q.name}`, p._id, LogCategory.Party);
+    LogService.create(req.session.mongoId, `left party for ${q.name}`, LogCategory.Party);
 
     if (q.status == QuestStatus.WIP && q.overLimit) {
         const u = await UserService.queryByIdOrFail(req.session.mongoId);
@@ -258,11 +258,11 @@ questsRouter.post('/transferPartyLeader/:partyId/:questId', isNotSpectator, canF
     const u = await UserService.queryByIdOrFail(req.body.userId, {}, cannotFindUserMessage);
 
 
-    const p = await PartyService.updateOrFail(req.params.partyId, { leader: u._id });
+    await PartyService.updateOrFail(req.params.partyId, { leader: u._id });
     const q = await QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
     res.json(q);
 
-    LogService.create(req.session.mongoId, `transferred party leader in party for ${q.name}`, p._id, LogCategory.Party);
+    LogService.create(req.session.mongoId, `transferred party leader in party for ${q.name}`, LogCategory.Party);
 }));
 
 /* POST kick party member */
@@ -272,12 +272,12 @@ questsRouter.post('/kickPartyMember/:partyId/:questId', isNotSpectator, canFail(
     }
 
     const u = await UserService.queryByIdOrFail(req.body.userId, {}, cannotFindUserMessage);
-    const p = await PartyService.updateOrFail(req.params.partyId, { $pull: { members: u._id } });
+    await PartyService.updateOrFail(req.params.partyId, { $pull: { members: u._id } });
     const q = await QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
 
     res.json(q);
 
-    LogService.create(req.session.mongoId, `kicked member from party for ${q.name}`, p._id, LogCategory.Party);
+    LogService.create(req.session.mongoId, `kicked member from party for ${q.name}`, LogCategory.Party);
 
     if (q.status == QuestStatus.WIP && q.overLimit) {
         await UserService.update(u._id, { penaltyPoints: (u.penaltyPoints + q.reward) });
@@ -405,7 +405,7 @@ questsRouter.post('/acceptQuest/:partyId/:questId', isNotSpectator, canFail(asyn
         }
     }
 
-    LogService.create(req.session.mongoId, `party accepted quest "${q.name}" for mode${p.modes.length > 1 ? 's' : ''} "${modeList}"`, q._id, LogCategory.Quest );
+    LogService.create(req.session.mongoId, `party accepted quest "${q.name}" for mode${p.modes.length > 1 ? 's' : ''} "${modeList}"`, LogCategory.Quest );
 
     //webhook
     let memberList = '';
@@ -506,7 +506,7 @@ questsRouter.post('/dropQuest/:partyId/:questId', isNotSpectator, canFail(async 
         }
     }
 
-    LogService.create(req.session.mongoId, `party dropped quest "${q.name}" for mode${q.modes.length > 1 ? 's' : ''} "${modeList}"`, q._id, LogCategory.Quest );
+    LogService.create(req.session.mongoId, `party dropped quest "${q.name}" for mode${q.modes.length > 1 ? 's' : ''} "${modeList}"`, LogCategory.Quest );
 
     //webhook
     let memberList = '';

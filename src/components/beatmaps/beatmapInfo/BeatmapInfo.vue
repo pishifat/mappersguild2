@@ -151,8 +151,7 @@ export default Vue.extend({
                 const bm = await this.executePost(`/beatmaps/${this.beatmap.id}/delete`, {}, e);
 
                 if (!this.isError(bm)) {
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    ($('#editBeatmap') as any).modal('hide');
+                    ($('#editBeatmap')).modal('hide');
                     this.$store.commit('deleteBeatmap', bm);
                 }
 

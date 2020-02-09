@@ -53,9 +53,9 @@ indexRouter.get('/login', async (req, res, next) => {
                         },
                         color: 14707049,
                     }]);
-                    LogService.create(req.session.mongoId, `joined the Mappers' Guild`, newUser._id, LogCategory.User);
+                    LogService.create(req.session.mongoId, `joined the Mappers' Guild`, LogCategory.User);
                 } else {
-                    LogService.create(req.session.mongoId, `verified their account for the first time`, newUser._id, LogCategory.User);
+                    LogService.create(req.session.mongoId, `verified their account for the first time`, LogCategory.User);
                 }
 
                 return next();
@@ -79,7 +79,7 @@ indexRouter.get('/login', async (req, res, next) => {
                         },
                         color: 14707049,
                     }]);
-                    LogService.create(u._id, `joined the Mappers' Guild`, u._id, LogCategory.User);
+                    LogService.create(u._id, `joined the Mappers' Guild`, LogCategory.User);
                 }
             }
 

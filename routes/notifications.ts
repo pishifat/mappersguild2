@@ -242,7 +242,6 @@ notificationsRouter.post('/acceptCollab/:id', isNotSpectator, canFail(async (req
     LogService.create(
         req.session.mongoId,
         `added as collab mapper to "${t.name}" on "${b.song.artist} - ${b.song.title}"`,
-        b._id,
         LogCategory.Beatmap
     );
     NotificationService.create(
@@ -294,7 +293,6 @@ notificationsRouter.post('/acceptDiff/:id', isNotSpectator, canFail(async (req, 
         LogService.create(
             req.session.mongoId,
             `added "${invite.taskName}" difficulty to "${b.song.artist} - ${b.song.title}"`,
-            updateBeatmap._id,
             LogCategory.Beatmap
         );
         NotificationService.create(
@@ -354,7 +352,7 @@ notificationsRouter.post('/acceptJoin/:id', isNotSpectator, canFail(async (req, 
     await PartyService.update(invite.party._id, { $push: { members: req.session.mongoId } });
     await updatePartyInfo(p._id);
 
-    LogService.create(req.session.mongoId, `joined a party for quest ${q.name}`, p._id, LogCategory.Party);
+    LogService.create(req.session.mongoId, `joined a party for quest ${q.name}`, LogCategory.Party);
     NotificationService.createPartyNotification(
         p._id,
         `accepted the invite to join your party`,
