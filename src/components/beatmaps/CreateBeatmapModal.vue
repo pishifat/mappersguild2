@@ -218,7 +218,7 @@ export default Vue.extend({
         },
         async saveNewMap (e): Promise<void> {
             if (!this.selectedSong) {
-                this.$store.commit('updateToastMessages', {
+                this.$store.dispatch('updateToastMessages', {
                     message: 'Select a song!',
                     type: 'info',
                 });

@@ -7,6 +7,7 @@ import UserPage from './pages/users/UserPage.vue';
 import { User, UserGroup } from '../interfaces/user';
 import { FilterMode } from '../interfaces/extras';
 import { Beatmap } from '../interfaces/beatmap/beatmap';
+import toastsModule from './toasts';
 
 $(document).ready(function() {
     $('#limitedEditBeatmap').on('hide.bs.modal', function() {
@@ -17,12 +18,10 @@ $(document).ready(function() {
 Vue.mixin(mixins);
 Vue.use(Vuex);
 
-interface ToastMessage {
-    message: string;
-    type?: 'error' | 'success' | 'info';
-}
-
 const store = new Vuex.Store({
+    modules: {
+        Toasts: toastsModule,
+    },
     state: {
         userId: null as null | User['id'],
         username: '' as User['username'],
@@ -34,7 +33,6 @@ const store = new Vuex.Store({
         filterMode: 'any' as FilterMode,
         sortBy: 'createdAt' as 'username' | 'rank' | 'createdAt',
         sortDesc: false,
-        toastMessages: [] as ToastMessage[],
         pagination: {
             page: 1,
             limit: 16,
@@ -87,12 +85,6 @@ const store = new Vuex.Store({
         },
         updatePaginationMaxPages (state, value: number): void {
             state.pagination.maxPages = value;
-        },
-        addToastMessage (state, message: ToastMessage): void {
-            state.toastMessages.push(message);
-        },
-        removeFirstToastMessage (state): void {
-            state.toastMessages.splice(0, 1);
         },
     },
     getters: {
@@ -193,13 +185,6 @@ const store = new Vuex.Store({
             }
 
             commit('setSortBy', sortBy);
-        },
-        updateToastMessages ({ commit }, message: ToastMessage): void {
-            commit('addToastMessage', message);
-
-            setTimeout(() => {
-                commit('removeFirstToastMessage');
-            }, 5000);
         },
     },
     strict: process.env.NODE_ENV !== 'production',

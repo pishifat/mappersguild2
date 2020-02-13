@@ -5,21 +5,19 @@ import './bootstrap';
 import mixins from './mixins';
 import { FeaturedArtist } from '../interfaces/featuredArtist';
 import { User } from '../interfaces/user';
+import toastsModule from './toasts';
 
 Vue.mixin(mixins);
 Vue.use(Vuex);
 
-interface ToastMessage {
-    message: string;
-    type?: 'error' | 'success' | 'info';
-}
-
 const store = new Vuex.Store({
+    modules: {
+        Toasts: toastsModule,
+    },
     state: {
         userId: null as null | User['id'],
         artists: [] as FeaturedArtist[],
         filterValue: '',
-        toastMessages: [] as ToastMessage[],
     },
     mutations: {
         setUserId (state, id: User['id']): void {
@@ -30,12 +28,6 @@ const store = new Vuex.Store({
         },
         setFilterValue (state, value: string): void {
             state.filterValue = value;
-        },
-        addToastMessage (state, message: ToastMessage): void {
-            state.toastMessages.push(message);
-        },
-        removeFirstToastMessage (state): void {
-            state.toastMessages.splice(0, 1);
         },
         updateArtist (state, artist: FeaturedArtist): void {
             const i = state.artists.findIndex(a => a.id === artist.id);
@@ -156,13 +148,6 @@ const store = new Vuex.Store({
     actions: {
         updateFilterValue ({ commit }, value: string): void {
             commit('setFilterValue', value);
-        },
-        updateToastMessages ({ commit }, message: ToastMessage): void {
-            commit('addToastMessage', message);
-
-            setTimeout(() => {
-                commit('removeFirstToastMessage');
-            }, 5000);
         },
     },
     strict: process.env.NODE_ENV !== 'production',

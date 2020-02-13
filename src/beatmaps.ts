@@ -8,16 +8,15 @@ import { User, UserGroup } from '../interfaces/user';
 import { FilterMode } from '../interfaces/extras';
 import { TaskName } from '../interfaces/beatmap/task';
 import mixins from './mixins';
+import toastsModule from './toasts';
 
 Vue.mixin(mixins);
 Vue.use(Vuex);
 
-interface ToastMessage {
-    message: string;
-    type?: 'error' | 'success' | 'info';
-}
-
 const store = new Vuex.Store({
+    modules: {
+        Toasts: toastsModule,
+    },
     state: {
         userId: null as null | User['id'],
         userOsuId: null as null | User['osuId'],
@@ -32,7 +31,6 @@ const store = new Vuex.Store({
         selectedBeatmap: null as null | Beatmap,
         fetchLimit: 30,
         isLoadingOtherBeatmaps: true,
-        toastMessages: [] as ToastMessage[],
     },
     mutations: {
         setUserId (state, id: User['id']): void {
@@ -67,12 +65,6 @@ const store = new Vuex.Store({
         },
         setIsLoadingOtherBeatmaps (state, value: boolean): void {
             state.isLoadingOtherBeatmaps = value;
-        },
-        addToastMessage (state, message: ToastMessage): void {
-            state.toastMessages.push(message);
-        },
-        removeFirstToastMessage (state): void {
-            state.toastMessages.splice(0, 1);
         },
         increaseFetchLimit (state): void {
             state.fetchLimit += 50;
@@ -193,13 +185,6 @@ const store = new Vuex.Store({
             }
 
             commit('setIsLoadingOtherBeatmaps', false);
-        },
-        updateToastMessages ({ commit }, message: ToastMessage): void {
-            commit('addToastMessage', message);
-
-            setTimeout(() => {
-                commit('removeFirstToastMessage');
-            }, 5000);
         },
     },
     strict: process.env.NODE_ENV !== 'production',

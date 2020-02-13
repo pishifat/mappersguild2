@@ -21,7 +21,9 @@ import { mapState } from 'vuex';
 
 export default Vue.extend({
     computed: {
-        ...mapState(['toastMessages']),
+        ...mapState({
+            toastMessages: (state: any) => state.Toasts.toastMessages,
+        }),
     },
     methods: {
         getToastTypeClass(toast): string {

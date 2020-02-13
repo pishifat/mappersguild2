@@ -393,13 +393,6 @@ export default Vue.extend({
 
             return tasks.slice(0, -2);
         },
-        async switchInvites(e): Promise<void> {
-            const u = await this.executePost('/users/switchInvites/', {}, e);
-
-            if (!this.isError(u)) {
-                this.$store.commit('updateUser', u);
-            }
-        },
     },
 });
 </script>

@@ -7,16 +7,15 @@ import mixins from './mixins';
 import { User, UserGroup } from '../interfaces/user';
 import { Quest, QuestStatus } from '../interfaces/quest';
 import { FilterMode } from '../interfaces/extras';
+import toastsModule from './toasts';
 
 Vue.mixin(mixins);
 Vue.use(Vuex);
 
-interface ToastMessage {
-    message: string;
-    type?: 'error' | 'success' | 'info';
-}
-
 const store = new Vuex.Store({
+    modules: {
+        Toasts: toastsModule,
+    },
     state: {
         userId: null as null | User['id'],
         userGroup: null as null | UserGroup,
@@ -24,7 +23,6 @@ const store = new Vuex.Store({
         filterValue: '',
         filterMode: 'any' as FilterMode,
         isLoadingQuests: true,
-        toastMessages: [] as ToastMessage[],
     },
     mutations: {
         setUserId (state, id: User['id']): void {
@@ -44,12 +42,6 @@ const store = new Vuex.Store({
         },
         setIsLoadingQuests (state, value: boolean): void {
             state.isLoadingQuests = value;
-        },
-        addToastMessage (state, message: ToastMessage): void {
-            state.toastMessages.push(message);
-        },
-        removeFirstToastMessage (state): void {
-            state.toastMessages.splice(0, 1);
         },
         updateQuest (state, quest: Quest): void {
             const i = state.quests.findIndex(b => b.id === quest.id);
@@ -109,13 +101,6 @@ const store = new Vuex.Store({
             }
 
             commit('setIsLoadingQuests', false);
-        },
-        updateToastMessages ({ commit }, message: ToastMessage): void {
-            commit('addToastMessage', message);
-
-            setTimeout(() => {
-                commit('removeFirstToastMessage');
-            }, 5000);
         },
     },
     strict: process.env.NODE_ENV !== 'production',

@@ -3,35 +3,14 @@ import Vuex from 'vuex';
 import NotificationPage from './pages/NotificationPage.vue';
 import './bootstrap';
 import mixins from './mixins';
+import toastsModule from './toasts';
 
 Vue.mixin(mixins);
 Vue.use(Vuex);
 
-interface ToastMessage {
-    message: string;
-    type?: 'error' | 'success' | 'info';
-}
-
 const store = new Vuex.Store({
-    state: {
-        toastMessages: [] as ToastMessage[],
-    },
-    mutations: {
-        addToastMessage (state, message: ToastMessage): void {
-            state.toastMessages.push(message);
-        },
-        removeFirstToastMessage (state): void {
-            state.toastMessages.splice(0, 1);
-        },
-    },
-    actions: {
-        updateToastMessages ({ commit }, message: ToastMessage): void {
-            commit('addToastMessage', message);
-
-            setTimeout(() => {
-                commit('removeFirstToastMessage');
-            }, 5000);
-        },
+    modules: {
+        Toasts: toastsModule,
     },
     strict: process.env.NODE_ENV !== 'production',
 });
