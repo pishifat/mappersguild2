@@ -26,6 +26,7 @@ import adminBeatmapsRouter from './routes/admin/beatmaps';
 import adminFeaturedArtistsRouter from './routes/admin/featuredArtists';
 import adminQuestsRouter from './routes/admin/quests';
 import artistsRouter from './routes/artists';
+import judgingRouter from './routes/judging';
 
 const app = express();
 const MongoStore = MongoStoreSession(session);
@@ -88,6 +89,7 @@ app.use('/admin', adminFeaturedArtistsRouter);
 app.use('/admin', adminQuestsRouter);
 app.use('/artists', artistsRouter);
 app.use('/quests', questsRouter);
+app.use('/judging', judgingRouter);
 
 // catch 404
 app.use((req, res) => {

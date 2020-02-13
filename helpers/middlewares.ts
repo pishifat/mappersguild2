@@ -73,3 +73,12 @@ export async function isBn(req, res, next): Promise<void> {
 
     res.status(403).render('error', { message: 'unauthorized' });
 }
+
+export function isJudge(req, res, next): void {
+    if (res.locals.userRequest.isJudge) {
+        next();
+    } else {
+        res.redirect('/');
+    }
+}
+

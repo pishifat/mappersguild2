@@ -11,6 +11,7 @@ module.exports = {
         admin: './src/admin.ts',
         artists: './src/artists.ts',
         quests: './src/quests.ts',
+        judging: './src/judging.ts',
         //notificationsComponent: './src/notificationsComponent.js', // Whenever need to rebuild the notif thing at bottom
     },
     output: {

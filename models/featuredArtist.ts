@@ -49,7 +49,7 @@ class FeaturedArtistService extends BaseService<FeaturedArtist>
         );
     }
 
-    async create(label: FeaturedArtist['label'], osuId?: User['osuId'] | undefined): Promise<FeaturedArtist | BasicError> {
+    async create(label: FeaturedArtist['label'], osuId?: number | undefined): Promise<FeaturedArtist | BasicError> {
         try {
             if (osuId) {
                 return await FeaturedArtistModel.create({

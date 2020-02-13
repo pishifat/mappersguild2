@@ -10,6 +10,7 @@ module.exports = {
         notifications: './src/notifications.ts',
         admin: './src/admin.ts',
         artists: './src/artists.ts',
+        judging: './src/judging.ts',
     },
     output: {
         filename: '[name].js',
