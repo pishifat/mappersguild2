@@ -7,7 +7,7 @@ import UserPage from './pages/users/UserPage.vue';
 import { User, UserGroup } from '../interfaces/user';
 import { FilterMode } from '../interfaces/extras';
 import { Beatmap } from '../interfaces/beatmap/beatmap';
-import toastsModule from './toasts';
+import toastsModule from './modules/toasts';
 
 $(document).ready(function() {
     $('#limitedEditBeatmap').on('hide.bs.modal', function() {
@@ -20,7 +20,7 @@ Vue.use(Vuex);
 
 const store = new Vuex.Store({
     modules: {
-        Toasts: toastsModule,
+        toasts: toastsModule,
     },
     state: {
         userId: null as null | User['id'],

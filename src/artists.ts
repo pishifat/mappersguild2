@@ -5,14 +5,14 @@ import './bootstrap';
 import mixins from './mixins';
 import { FeaturedArtist } from '../interfaces/featuredArtist';
 import { User } from '../interfaces/user';
-import toastsModule from './toasts';
+import toastsModule from './modules/toasts';
 
 Vue.mixin(mixins);
 Vue.use(Vuex);
 
 const store = new Vuex.Store({
     modules: {
-        Toasts: toastsModule,
+        toasts: toastsModule,
     },
     state: {
         userId: null as null | User['id'],

@@ -7,14 +7,14 @@ import mixins from './mixins';
 import { User, UserGroup } from '../interfaces/user';
 import { Quest, QuestStatus } from '../interfaces/quest';
 import { FilterMode } from '../interfaces/extras';
-import toastsModule from './toasts';
+import toastsModule from './modules/toasts';
 
 Vue.mixin(mixins);
 Vue.use(Vuex);
 
 const store = new Vuex.Store({
     modules: {
-        Toasts: toastsModule,
+        toasts: toastsModule,
     },
     state: {
         userId: null as null | User['id'],

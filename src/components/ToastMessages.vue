@@ -22,7 +22,7 @@ import { mapState } from 'vuex';
 export default Vue.extend({
     computed: {
         ...mapState({
-            toastMessages: (state: any) => state.Toasts.toastMessages,
+            toastMessages: (state: any) => state.toasts.toastMessages,
         }),
     },
     methods: {

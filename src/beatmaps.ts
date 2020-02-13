@@ -8,14 +8,14 @@ import { User, UserGroup } from '../interfaces/user';
 import { FilterMode } from '../interfaces/extras';
 import { TaskName } from '../interfaces/beatmap/task';
 import mixins from './mixins';
-import toastsModule from './toasts';
+import toastsModule from './modules/toasts';
 
 Vue.mixin(mixins);
 Vue.use(Vuex);
 
 const store = new Vuex.Store({
     modules: {
-        Toasts: toastsModule,
+        toasts: toastsModule,
     },
     state: {
         userId: null as null | User['id'],
