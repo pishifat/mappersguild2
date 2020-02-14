@@ -1,7 +1,7 @@
 import { User } from '../user';
 import { Judging } from './judging';
 
-export interface Entry {
+export interface Submission {
     _id: any;
     id: string;
     name: string;

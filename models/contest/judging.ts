@@ -31,7 +31,7 @@ class JudgingService extends BaseService<Judging>
         );
     }
 
-    async create(userId: User['_id'], comment: string | null, vote: JudgingPlacement | null): Promise<Judging | BasicError> {
+    async create(userId: User['_id'], comment?: string, vote?: JudgingPlacement): Promise<Judging | BasicError> {
         try {
             if (comment) {
                 return await JudgingModel.create({

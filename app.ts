@@ -27,6 +27,7 @@ import adminFeaturedArtistsRouter from './routes/admin/featuredArtists';
 import adminQuestsRouter from './routes/admin/quests';
 import artistsRouter from './routes/artists';
 import judgingRouter from './routes/judging';
+import adminContestsRouter from './routes/admin/contests';
 
 const app = express();
 const MongoStore = MongoStoreSession(session);
@@ -60,6 +61,8 @@ const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
     require('./models/featuredSong'); // mongoose isn't detecting it for some reason otherwise
+    require('./models/contest/submission');
+    require('./models/contest/judging');
     console.log('connected');
 });
 
@@ -90,6 +93,7 @@ app.use('/admin', adminQuestsRouter);
 app.use('/artists', artistsRouter);
 app.use('/quests', questsRouter);
 app.use('/judging', judgingRouter);
+app.use('/admin/contests', adminContestsRouter);
 
 // catch 404
 app.use((req, res) => {

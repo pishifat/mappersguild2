@@ -1,12 +1,12 @@
 import { User } from '../user';
-import { Entry } from './entry';
+import { Submission } from './submission';
 
 export interface Contest {
     _id: any;
     id: string;
     name: string;
     isActive: boolean;
-    entries: Entry[];
+    submissions: Submission[];
     judges: User[];
     voters: User[];
 }

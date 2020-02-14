@@ -11,6 +11,7 @@ module.exports = {
         admin: './src/admin.ts',
         artists: './src/artists.ts',
         judging: './src/judging.ts',
+        adminContests: './src/admin/contests.ts',
     },
     output: {
         filename: '[name].js',

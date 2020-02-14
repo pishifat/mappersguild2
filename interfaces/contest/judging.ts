@@ -1,12 +1,12 @@
 import { User } from '../user';
 
 export enum JudgingPlacement {
-    first = 5,
-    second = 4,
-    third = 3,
-    fourth = 2,
-    fifth = 1,
-    none = 0,
+    First = 5,
+    Second = 4,
+    Third = 3,
+    Fourth = 2,
+    Fifth = 1,
+    None = 0,
 }
 
 export interface Judging {

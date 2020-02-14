@@ -13,7 +13,6 @@ export interface User extends Document {
     osuId: number;
     username: string;
     group: UserGroup;
-    isJudge: boolean;
     badge: number;
     completedQuests: Quest[];
 

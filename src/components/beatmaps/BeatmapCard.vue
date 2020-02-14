@@ -5,7 +5,6 @@
             :class="statusBorder"
             data-toggle="modal"
             data-target="#editBeatmap"
-            :data-mapid="beatmap.id"
         >
             <img
                 class="card-img"
@@ -67,14 +66,8 @@ export default Vue.extend({
     },
     computed: {
         statusBorder(): string {
-            if (this.beatmap.status == 'WIP') {
-                return 'card-status-wip';
-            } else if (this.beatmap.status == 'Done') {
-                return 'card-status-done';
-            } else if (this.beatmap.status == 'Qualified') {
-                return 'card-status-qualified';
-            } else if (this.beatmap.status == 'Ranked') {
-                return 'card-status-ranked';
+            if (this.beatmap.status) {
+                return 'card-status' + this.beatmap.status.toLowerCase();
             }
 
             return '';

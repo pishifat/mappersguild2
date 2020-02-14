@@ -1,24 +1,59 @@
 <template>
-    <div>
-        <p>hello</p>
+    <div v-cloak>
+        <div
+            v-for="contest in contests"
+            :key="contest.id"
+            class="container bg-container py-1"
+        >
+            <div class="row">
+                <div class="col">
+                    <h5 class="my-2">
+                        {{ contest.name }}
+                    </h5>
+
+                    <transition-group
+                        v-if="contest.submissions.length"
+                        name="list"
+                        tag="div"
+                        class="row"
+                    >
+                        <submission-card
+                            v-for="submission in contest.submissions"
+                            :key="submission.id"
+                            :submission="submission"
+                        />
+                    </transition-group>
+
+                    <p v-else class="ml-4">
+                        No submissions...
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <toast-messages />
     </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
-//import ToastMessages from '@components/ToastMessages.vue';
+import ToastMessages from '@components/ToastMessages.vue';
+import SubmissionCard from '@components/judging/SubmissionCard.vue';
+import { mapState } from 'vuex';
 
 export default Vue.extend({
     name: 'JudgingPage',
     components: {
-        //ToastMessages,
+        ToastMessages,
+        SubmissionCard,
     },
+    computed: mapState(['contests']),
     async created () {
         const res: any = await this.executeGet('/judging/relevantInfo');
 
-        if (res) {
-            //this.$store.commit('setArtists', res.artists);
-            //this.$store.commit('setUserId', res.userId);
+        if (!this.isError(res)) {
+            this.$store.commit('setContests', res.contests);
+            this.$store.commit('setUserId', res.userId);
         }
 
         $('#loading').fadeOut();
@@ -29,11 +64,3 @@ export default Vue.extend({
     },
 });
 </script>
-
-<style>
-.collapsing {
-    -webkit-transition: none;
-    transition: none;
-    display: none;
-}
-</style>

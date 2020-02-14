@@ -10,7 +10,7 @@ export interface Contest extends IContest, Document {
 const contestSchema = new Schema({
     name: { type: String },
     isActive: { type: Boolean, default: true },
-    entries: [{ type: 'ObjectId', ref: 'Entry' }],
+    submissions: [{ type: 'ObjectId', ref: 'Submission' }],
     judges: [{ type: 'ObjectId', ref: 'User' }],
     voters: [{ type: 'ObjectId', ref: 'User' }],
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
@@ -25,7 +25,7 @@ class ContestService extends BaseService<Contest>
             { name: 1 },
             [
                 {
-                    path: 'entries',
+                    path: 'submissions',
                     populate: {
                         path: 'evaluations',
                         populate: {

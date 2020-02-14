@@ -1,14 +1,38 @@
 import express from 'express';
-import { isAdmin, isLoggedIn } from '../helpers/middlewares';
-import { UserService } from '../models/user';
+import { isLoggedIn } from '../helpers/middlewares';
 import { ContestService } from '../models/contest/contest';
-import { EntryService } from '../models/contest/entry';
+import { SubmissionService } from '../models/contest/submission';
 import { JudgingService } from '../models/contest/judging';
+import { UserGroup } from '../interfaces/user';
+import { canFail, defaultErrorMessage } from '../helpers/helpers';
+import { Judging } from '../interfaces/contest/judging';
 
 const judgingRouter = express.Router();
 
+async function isJudge(req, res, next): Promise<void> {
+    //if population doesn't work here, there's a problem
+    const contests = await ContestService.queryAll({
+        query: {
+            isActive: true,
+            judges: res.locals.userRequest._id,
+        },
+        defaultPopulate: true,
+        select: '_id name submissions judges',
+    });
+
+    if ((!ContestService.isError(contests) && contests.length) ||
+        res.locals.userRequest.group == UserGroup.Admin
+    ) {
+        res.locals.contests = contests;
+
+        return next();
+    }
+
+    return res.redirect('/');
+}
+
 judgingRouter.use(isLoggedIn);
-judgingRouter.use(isAdmin);
+judgingRouter.use(isJudge);
 
 /* GET parties page. */
 judgingRouter.get('/', (req, res) => {
@@ -20,18 +44,57 @@ judgingRouter.get('/', (req, res) => {
     });
 });
 
-judgingRouter.get('/relevantInfo', async (req, res) => {
-    //if population doesn't work here, there's a problem
-    const c = await ContestService.queryOneOrFail({
-        query: {
-            isActive: true,
-        },
+judgingRouter.get('/relevantInfo', (req, res) => {
+    res.json({
+        contests: res.locals.contests,
+        userId: req.session?.mongoId,
+    });
+});
+
+/* POST update submission comment */
+judgingRouter.post('/updateSubmission/:submissionId', canFail(async (req, res) => {
+    let submission = await SubmissionService.queryByIdOrFail(req.params.submissionId, {
+        defaultPopulate: true,
+    });
+    const userEvaluation = submission.evaluations.find(e => e.judge.id === req.session.mongoId);
+    let vote: number | undefined;
+
+    if (req.body.vote !== undefined) {
+        vote = parseInt(req.body.vote);
+
+        if (isNaN(vote)) {
+            vote = undefined;
+        }
+    }
+
+    if (!userEvaluation) {
+        const j = await JudgingService.create(req.session.mongoId, req.body.comment, vote);
+
+        if (JudgingService.isError(j)) {
+            return res.json(defaultErrorMessage);
+        }
+
+        submission.evaluations.push(j);
+        await SubmissionService.saveOrFail(submission);
+    } else {
+        const updatedValues: Partial<Judging> = {};
+
+        if (req.body.comment !== undefined) {
+            updatedValues.comment = req.body.comment;
+        }
+
+        if (vote !== undefined) {
+            updatedValues.vote = vote;
+        }
+
+        await JudgingService.update(userEvaluation.id, updatedValues);
+    }
+
+    submission = await SubmissionService.queryByIdOrFail(req.params.submissionId, {
         defaultPopulate: true,
     });
 
-    console.log(c);
-
-    res.json({ contest: c, userId: req.session?.mongoId, isAdmin: res.locals.userRequest.osuId == 3178418 });
-});
+    res.json(submission);
+}));
 
 export default judgingRouter;
