@@ -6,8 +6,8 @@
             class="container bg-container py-1"
         >
             <div class="row">
-                <div class="col">
-                    <h5 class="my-2">
+                <div class="col-sm">
+                    <h5 class="my-2 text-center">
                         {{ contest.name }}
                     </h5>
 

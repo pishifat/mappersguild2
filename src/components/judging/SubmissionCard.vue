@@ -1,23 +1,36 @@
 <template>
     <div class="col-sm-12 my-1">
-        <!-- :class="userVote == 1 ? 'fifth-favorite' : userVote == 2 ? 'fourth-favorite' : userVote == 3 ? 'third-favorite' : userVote == 4 ? 'second-favorite' : userVote == 5 ? 'first-favorite' : 'bg-dark'" -->
         <div
             class="card static-card"
+            :class="relatedJudging.vote == 1 ? 'fifth-favorite' :
+                relatedJudging.vote == 2 ? 'fourth-favorite' :
+                relatedJudging.vote == 3 ? 'third-favorite' :
+                relatedJudging.vote == 4 ? 'second-favorite' :
+                relatedJudging.vote == 5 ? 'first-favorite' :
+                'bg-dark'"
         >
-            <div class="card-body text-shadow min-spacing">
-                <div class="col-sm-2 d-flex align-items-center">
-                    {{ submission.name }}
+            <div class="card-body text-shadow p-2">
+                <div class="row">
+                    <div class="col-sm-6">
+                        {{ submission.name }}
+                    </div>
+
+                    <div class="col-sm-6 text-right">
+                        <judging-vote
+                            :submission-id="submission.id"
+                            :saved-vote="relatedJudging && relatedJudging.vote"
+                        />
+                    </div>
                 </div>
 
-                <judging-vote
-                    :submission-id="submission.id"
-                    :saved-vote="relatedJudging && relatedJudging.vote"
-                />
-
-                <judging-notes
-                    :submission-id="submission.id"
-                    :saved-comment="relatedJudging && relatedJudging.comment"
-                />
+                <div class="row">
+                    <div class="col-sm">
+                        <judging-notes
+                            :submission-id="submission.id"
+                            :saved-comment="relatedJudging && relatedJudging.comment"
+                        />
+                    </div>
+                </div>
             </div>
         </div>
     </div>
