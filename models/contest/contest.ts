@@ -8,7 +8,7 @@ export interface Contest extends IContest, Document {
 }
 
 const contestSchema = new Schema({
-    name: { type: String },
+    name: { type: String, required: true },
     isActive: { type: Boolean, default: true },
     submissions: [{ type: 'ObjectId', ref: 'Submission' }],
     judges: [{ type: 'ObjectId', ref: 'User' }],
@@ -26,6 +26,7 @@ class ContestService extends BaseService<Contest>
             [
                 {
                     path: 'submissions',
+                    select: '_id name evaluations',
                     populate: {
                         path: 'evaluations',
                         populate: {

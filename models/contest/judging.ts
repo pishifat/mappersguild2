@@ -9,7 +9,7 @@ export interface Judging extends IJudging, Document {
 }
 
 const judgingSchema = new Schema({
-    judge: { type: 'ObjectId', ref: 'User' },
+    judge: { type: 'ObjectId', ref: 'User', required: true },
     comment: { type: String },
     vote: { type: Number, enum: [0, 1, 2, 3, 4, 5], default: 0 },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });

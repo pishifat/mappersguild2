@@ -61,8 +61,6 @@ const store = new Vuex.Store<JudgingState>({
             return usedVotes;
         },
     },
-    actions: {
-    },
     strict: process.env.NODE_ENV !== 'production',
 });
 

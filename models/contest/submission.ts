@@ -9,8 +9,8 @@ export interface Submission extends ISubmission, Document {
 }
 
 const submissionSchema = new Schema({
-    name: { type: String },
-    creator: { type: 'ObjectId', ref: 'User' },
+    name: { type: String, required: true },
+    creator: { type: 'ObjectId', ref: 'User', required: true },
     evaluations: [{ type: 'ObjectId', ref: 'Judging' }],
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
@@ -38,7 +38,7 @@ class SubmissionService extends BaseService<Submission>
         try {
             return await SubmissionModel.create({
                 name,
-                userId,
+                creator: userId,
             });
         } catch (error) {
             return { error: error._message };

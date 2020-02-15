@@ -1,7 +1,7 @@
 <template>
     <div class="container bg-container py-3 mb-2">
         <input
-            v-model="contestName"
+            v-model.trim="contestName"
             class="form-control mb-2"
             type="text"
             placeholder="name"
@@ -29,14 +29,14 @@ export default Vue.extend({
     },
     methods: {
         async addContest(e): Promise<void> {
-            const contest = await this.executePost(`/admin/contests/create`, {}, e);
+            const contest = await this.executePost(`/admin/contests/create`, { name: this.contestName }, e);
 
             if (!this.isError(contest)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `Contest created`,
                     type: 'info',
                 });
-                this.$store.dispatch('addContest', contest);
+                this.$store.commit('addContest', contest);
             }
         },
     },

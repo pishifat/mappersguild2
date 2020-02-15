@@ -24,6 +24,39 @@ const store = new Vuex.Store<ContestState>({
         setContests (state, contests: Contest[]): void {
             state.contests = contests;
         },
+        addContest (state, contest: Contest): void {
+            state.contests.push(contest);
+        },
+        addSubmission (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+            contest?.submissions.push(payload.submission);
+        },
+        deleteSubmission (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                const submissionIndex = contest.submissions.findIndex(s => s.id == payload.submissionId);
+
+                if (submissionIndex !== -1) {
+                    contest.submissions.splice(submissionIndex, 1);
+                }
+            }
+        },
+        addJudge (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+            contest?.judges.push(payload.judge);
+        },
+        deleteJudge (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                const judgeIndex = contest.judges.findIndex(s => s.id == payload.judgeId);
+
+                if (judgeIndex !== -1) {
+                    contest.judges.splice(judgeIndex, 1);
+                }
+            }
+        },
     },
     getters: {
     },
