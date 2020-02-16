@@ -92,7 +92,7 @@ app.use('/artists', artistsRouter);
 app.use('/admin', adminRouter);
 app.use('/admin/users', adminUsersRouter);
 app.use('/admin/beatmaps', adminBeatmapsRouter);
-app.use('/admin', adminFeaturedArtistsRouter);
+app.use('/admin/featuredArtists', adminFeaturedArtistsRouter);
 app.use('/admin/quests', adminQuestsRouter);
 app.use('/admin/contests', adminContestsRouter);
 

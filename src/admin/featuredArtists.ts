@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import BeatmapPage from '../pages/admin/BeatmapPage.vue';
+import FeaturedArtistPage from '../pages/admin/FeaturedArtistPage.vue';
 import '../bootstrap';
 import mixins from '../mixins';
 import toastsModule from '../modules/toasts';
@@ -19,6 +19,6 @@ new Vue({
     el: '#app',
     store,
     components: {
-        BeatmapPage,
+        FeaturedArtistPage,
     },
 });

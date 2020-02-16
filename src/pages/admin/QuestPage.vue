@@ -39,6 +39,8 @@
             @update-quest="updateQuest($event)"
             @delete-quest="deleteQuest($event)"
         />
+
+        <toast-messages />
     </div>
 </template>
 
@@ -47,6 +49,7 @@ import Vue from 'vue';
 import AddQuest from '../../components/admin/quests/AddQuest.vue';
 import QuestInfo from '../../components/admin/quests/QuestInfo.vue';
 import DataTable from '../../components/admin/DataTable.vue';
+import ToastMessages from '../../components/ToastMessages.vue';
 import { Quest } from '../../../interfaces/quest';
 
 export default Vue.extend({
@@ -54,6 +57,7 @@ export default Vue.extend({
         DataTable,
         AddQuest,
         QuestInfo,
+        ToastMessages,
     },
     data () {
         return {

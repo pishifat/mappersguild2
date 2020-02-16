@@ -8,19 +8,30 @@ const adminFeaturedArtistsRouter = express.Router();
 
 adminFeaturedArtistsRouter.use(isLoggedIn);
 adminFeaturedArtistsRouter.use(isAdmin);
+adminFeaturedArtistsRouter.use(isSuperAdmin);
+
+/* GET users - admin page */
+adminFeaturedArtistsRouter.get('/', (req, res) => {
+    res.render('admin/featuredArtists', {
+        title: 'FA - Admin',
+        script: '../javascripts/adminFeaturedArtists.js',
+        loggedInAs: req.session?.osuId,
+        userTotalPoints: res.locals.userRequest.totalPoints,
+    });
+});
 
 /* GET featured artists */
-adminFeaturedArtistsRouter.get('/loadFeaturedArtists/', async (req, res) => {
-    const fa = await FeaturedArtistService.queryAll({
+adminFeaturedArtistsRouter.get('/load', async (req, res) => {
+    const featuredArtists = await FeaturedArtistService.queryAll({
         defaultPopulate: true,
         sort: { osuId: 1, label: 1 },
     });
 
-    res.json({ fa });
+    res.json(featuredArtists);
 });
 
 /* POST update artist osuId */
-adminFeaturedArtistsRouter.post('/updateFeaturedArtistOsuId/:id', isSuperAdmin, canFail(async (req, res) => {
+adminFeaturedArtistsRouter.post('/:id/updateOsuId', canFail(async (req, res) => {
     let fa = await FeaturedArtistService.updateOrFail(req.params.id, { osuId: req.body.osuId });
     fa = await FeaturedArtistService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
 
@@ -28,7 +39,7 @@ adminFeaturedArtistsRouter.post('/updateFeaturedArtistOsuId/:id', isSuperAdmin, 
 }));
 
 /* POST update artist name */
-adminFeaturedArtistsRouter.post('/updateFeaturedArtistName/:id', isSuperAdmin, canFail(async (req, res) => {
+adminFeaturedArtistsRouter.post('/:id/updateName', canFail(async (req, res) => {
     let fa = await FeaturedArtistService.updateOrFail(req.params.id, { label: req.body.name });
     fa = await FeaturedArtistService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
 
@@ -36,7 +47,7 @@ adminFeaturedArtistsRouter.post('/updateFeaturedArtistName/:id', isSuperAdmin, c
 }));
 
 /* POST add song to artist */
-adminFeaturedArtistsRouter.post('/addSong/:id', isSuperAdmin, canFail(async (req, res) => {
+adminFeaturedArtistsRouter.post('/:id/songs/create', canFail(async (req, res) => {
     const song = await FeaturedSongService.createOrFail(req.body.artist.trim(), req.body.title.trim());
     let fa = await FeaturedArtistService.updateOrFail(req.params.id, { $push: { songs: song } });
     fa = await FeaturedArtistService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
@@ -45,17 +56,17 @@ adminFeaturedArtistsRouter.post('/addSong/:id', isSuperAdmin, canFail(async (req
 }));
 
 /* POST edit metadata */
-adminFeaturedArtistsRouter.post('/editSong/:id', isSuperAdmin, canFail(async (req, res) => {
-    await FeaturedSongService.updateOrFail(req.body.songId, { artist: req.body.artist.trim(), title: req.body.title.trim() });
+adminFeaturedArtistsRouter.post('/:id/songs/:songId/update', canFail(async (req, res) => {
+    await FeaturedSongService.updateOrFail(req.params.songId, { artist: req.body.artist.trim(), title: req.body.title.trim() });
     const fa = await FeaturedArtistService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
 
     res.json(fa);
 }));
 
 /* POST remove song from artist */
-adminFeaturedArtistsRouter.post('/deleteSong/:id', isSuperAdmin, canFail(async (req, res) => {
-    await FeaturedArtistService.updateOrFail(req.params.id, { $pull: { songs: req.body.songId } });
-    await FeaturedSongService.removeOrFail(req.body.songId);
+adminFeaturedArtistsRouter.post('/:id/songs/:songId/delete', canFail(async (req, res) => {
+    await FeaturedArtistService.updateOrFail(req.params.id, { $pull: { songs: req.params.songId } });
+    await FeaturedSongService.removeOrFail(req.params.songId);
     const fa = await FeaturedArtistService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
 
     res.json(fa);

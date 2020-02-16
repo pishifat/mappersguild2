@@ -25,7 +25,6 @@ adminUsersRouter.get('/', (req, res) => {
     });
 });
 
-
 /* GET users */
 adminUsersRouter.get('/load', async (req, res) => {
     const users = await UserService.queryAll({ sort: { username: 1 } });

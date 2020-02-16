@@ -189,76 +189,21 @@
 
         <div class="radial-divisor mx-auto my-4" />
 
-        <div class="container bg-container py-1">
-            <div class="row">
-                <div class="col">
-                    <h5 class="ml-4 mt-2">
-                        <a href="#featuredArtists" data-toggle="collapse" @click.prevent="loadFeaturedArtists()">
-                            Featured Artists
-                            <i class="fas fa-angle-down" />
-                        </a>
-                        <span v-if="featuredArtistsLoading" class="ml-2 small text-white-50">loading...</span>
-                    </h5>
-                    <div id="featuredArtists" class="collapse">
-                        <table v-if="featuredArtists.length" class="table table-sm table-dark table-hover">
-                            <thead>
-                                <th scope="col">
-                                    ARTIST
-                                </th>
-                                <th scope="col">
-                                    EDIT
-                                </th>
-                            </thead>
-                            <tbody>
-                                <tr v-for="featuredArtist in featuredArtists" :key="featuredArtist.id" class="text-white-50">
-                                    <td scope="row">
-                                        <a v-if="featuredArtist.osuId" :href="'https://osu.ppy.sh/beatmaps/artists/' + featuredArtist.osuId" target="_blank">{{ featuredArtist.label }}</a>
-                                        <span v-else>{{ featuredArtist.label }}</span>
-                                    </td>
-                                    <td scope="row">
-                                        <a
-                                            href="#"
-                                            data-toggle="modal"
-                                            data-target="#editFeaturedArtist"
-                                            :data-id="featuredArtist.id"
-                                            @click.prevent="selectedFeaturedArtist = featuredArtist"
-                                        >
-                                            edit
-                                        </a>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="radial-divisor mx-auto my-4" />
-
         <news-post />
-
-        <featured-artist-info
-            :featured-artist="selectedFeaturedArtist"
-            @update-featured-artist="updateFeaturedArtist($event)"
-        />
     </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
 import NewsPost from '../components/admin/NewsPost.vue';
-import FeaturedArtistInfo from '../components/admin/FeaturedArtistInfo.vue';
 import { Beatmap } from '../../interfaces/beatmap/beatmap';
 import { Quest } from '../../interfaces/quest';
 import { User } from '../../interfaces/user';
-import { FeaturedArtist } from '../../interfaces/featuredArtist';
 
 export default Vue.extend({
     name: 'AdminPage',
     components: {
         NewsPost,
-        FeaturedArtistInfo,
     },
     data() {
         return {
@@ -268,23 +213,12 @@ export default Vue.extend({
             actionQuestsLoading: true,
             actionUsers: [] as User[],
             actionUsersLoading: true,
-            beatmaps: [] as Beatmap[],
-            beatmapsLoading: false,
             selectedBeatmap: null as null | Beatmap,
-            quests: [] as Quest[],
-            questsLoading: false,
             selectedQuest: null as null | Quest,
-            users: [] as User[],
-            usersLoading: false,
             selectedUser: null as null | User,
-            featuredArtists: [] as FeaturedArtist[],
-            featuredArtistsLoading: false,
-            selectedFeaturedArtist: null as null | FeaturedArtist,
         };
     },
     async created() {
-        $('#loading').fadeOut();
-        $('#app').attr('style', 'visibility: visible').hide().fadeIn();
         const res: any = await this.executeGet('/admin/relevantInfo');
 
         if (res) {
@@ -295,6 +229,12 @@ export default Vue.extend({
             this.actionUsers = res.actionUsers;
             this.actionUsersLoading = false;
         }
+
+        $('#loading').fadeOut();
+        $('#app')
+            .attr('style', 'visibility: visible')
+            .hide()
+            .fadeIn();
     },
     methods: {
         generateMetadata(song): string {
@@ -307,35 +247,6 @@ export default Vue.extend({
             }
 
             return metadata;
-        },
-        updateFeaturedArtist(fa): void {
-            const i = this.featuredArtists.findIndex(featuredArtist => featuredArtist.id == fa.id);
-            this.featuredArtists[i] = fa;
-            this.selectedFeaturedArtist = fa;
-        },
-        async loadBeatmaps(): Promise<void> {
-            if (!this.beatmaps.length) {
-                this.beatmapsLoading = true;
-
-                const res: any = await this.executeGet('/admin/loadBeatmaps');
-
-                if (res) {
-                    this.beatmaps = res.b;
-                    this.beatmapsLoading = false;
-                }
-            }
-        },
-        async loadFeaturedArtists(): Promise<void> {
-            if (!this.featuredArtists.length) {
-                this.featuredArtistsLoading = true;
-
-                const res: any = await this.executeGet('/admin/loadFeaturedArtists');
-
-                if (res) {
-                    this.featuredArtists = res.fa;
-                    this.featuredArtistsLoading = false;
-                }
-            }
         },
     },
 });

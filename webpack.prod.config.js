@@ -16,6 +16,7 @@ module.exports = {
         adminBeatmaps: './src/admin/beatmaps.ts',
         adminQuests: './src/admin/quests.ts',
         adminUsers: './src/admin/users.ts',
+        adminFeaturedArtists: './src/admin/featuredArtists.ts',
         //notificationsComponent: './src/notificationsComponent.js', // Whenever need to rebuild the notif thing at bottom
     },
     output: {

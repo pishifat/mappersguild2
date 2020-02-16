@@ -34,6 +34,8 @@
             :beatmap="selectedBeatmap"
             @update-beatmap="updateBeatmap($event)"
         />
+
+        <toast-messages />
     </div>
 </template>
 
@@ -41,12 +43,14 @@
 import Vue from 'vue';
 import BeatmapInfo from '../../components/admin/BeatmapInfo.vue';
 import DataTable from '../../components/admin/DataTable.vue';
+import ToastMessages from '../../components/ToastMessages.vue';
 import { Beatmap } from '../../../interfaces/beatmap/beatmap';
 
 export default Vue.extend({
     components: {
         DataTable,
         BeatmapInfo,
+        ToastMessages,
     },
     filters: {
         formatMetadata(song): string {

@@ -47,6 +47,8 @@
             :user="selectedUser"
             @update-user="updateUser($event)"
         />
+
+        <toast-messages />
     </div>
 </template>
 
@@ -54,12 +56,14 @@
 import Vue from 'vue';
 import UserInfo from '../../components/admin/UserInfo.vue';
 import DataTable from '../../components/admin/DataTable.vue';
+import ToastMessages from '../../components/ToastMessages.vue';
 import { User } from '../../../interfaces/user';
 
 export default Vue.extend({
     components: {
         DataTable,
         UserInfo,
+        ToastMessages,
     },
     data () {
         return {

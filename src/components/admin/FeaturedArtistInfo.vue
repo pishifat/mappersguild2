@@ -1,5 +1,5 @@
 <template>
-    <div id="editFeaturedArtist" class="modal fade" tabindex="-1">
+    <div id="edit" class="modal fade" tabindex="-1">
         <div class="modal-dialog">
             <div v-if="featuredArtist" class="modal-content bg-dark">
                 <div class="modal-header text-dark bg-rest">
@@ -132,21 +132,21 @@ export default Vue.extend({
     },
     methods: {
         async updateOsuId(e): Promise<void> {
-            const fa = await this.executePost('/admin/updateFeaturedArtistOsuId/' + this.featuredArtist.id, { osuId: this.osuId }, e);
+            const fa = await this.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/updateOsuId`, { osuId: this.osuId }, e);
 
             if (fa) {
                 this.$emit('update-featured-artist', fa);
             }
         },
         async updateName(e): Promise<void> {
-            const fa = await this.executePost('/admin/updateFeaturedArtistName/' + this.featuredArtist.id, { name: this.name }, e);
+            const fa = await this.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/updateName`, { name: this.name }, e);
 
             if (fa) {
                 this.$emit('update-featured-artist', fa);
             }
         },
         async addSong(e): Promise<void> {
-            const fa = await this.executePost('/admin/addSong/' + this.featuredArtist.id, { artist: this.artist, title: this.title }, e);
+            const fa = await this.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/songs/create`, { artist: this.artist, title: this.title }, e);
 
             if (fa) {
                 this.$emit('update-featured-artist', fa);
@@ -159,7 +159,7 @@ export default Vue.extend({
                 return;
             }
 
-            const fa = await this.executePost('/admin/editSong/' + this.featuredArtist.id, { songId: this.selectedSong.id, artist: this.artist, title: this.title }, e);
+            const fa = await this.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/songs/${this.selectedSong.id}/update`, { artist: this.artist, title: this.title }, e);
 
             if (fa) {
                 this.$emit('update-featured-artist', fa);
@@ -172,7 +172,7 @@ export default Vue.extend({
                 return;
             }
 
-            const fa = await this.executePost('/admin/deleteSong/' + this.featuredArtist.id, { songId: this.selectedSong.id }, e);
+            const fa = await this.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/songs/${this.selectedSong.id}/delete`, {}, e);
 
             if (fa) {
                 this.$emit('update-featured-artist', fa);
