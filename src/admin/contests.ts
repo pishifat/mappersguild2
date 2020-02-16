@@ -58,10 +58,6 @@ const store = new Vuex.Store<ContestState>({
             }
         },
     },
-    getters: {
-    },
-    actions: {
-    },
     strict: process.env.NODE_ENV !== 'production',
 });
 

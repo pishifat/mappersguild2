@@ -1,5 +1,5 @@
 <template>
-    <div id="editQuest" class="modal fade" tabindex="-1">
+    <div id="edit" class="modal fade" tabindex="-1">
         <div class="modal-dialog">
             <div v-if="quest" class="modal-content bg-dark">
                 <div class="modal-header text-dark bg-rest">
@@ -135,7 +135,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { Quest } from '../../../interfaces/quest';
+import { Quest } from '../../../../interfaces/quest';
 
 export default Vue.extend({
     name: 'QuestInfo',
@@ -161,42 +161,42 @@ export default Vue.extend({
     },
     methods: {
         async renameQuest(e): Promise<void> {
-            const q = await this.executePost('/admin/renameQuest/' + this.quest.id, { name: this.renameQuestName }, e);
+            const q = await this.executePost(`/admin/quests/${this.quest.id}/rename`, { name: this.renameQuestName }, e);
 
             if (q) {
                 this.$emit('update-quest', q);
             }
         },
         async updateDescription(e): Promise<void> {
-            const q = await this.executePost('/admin/updateDescription/' + this.quest.id, { description: this.description }, e);
+            const q = await this.executePost(`/admin/quests/${this.quest.id}/updateDescription/`, { description: this.description }, e);
 
             if (q) {
                 this.$emit('update-quest', q);
             }
         },
         async dropQuest(e): Promise<void> {
-            const q = await this.executePost('/admin/dropQuest/' + this.quest.id, {}, e);
+            const q = await this.executePost(`/admin/quests/${this.quest.id}/drop`, {}, e);
 
             if (q) {
                 this.$emit('update-quest', q);
             }
         },
         async completeQuest(e): Promise<void> {
-            const q = await this.executePost('/admin/completeQuest/' + this.quest.id, {}, e);
+            const q = await this.executePost(`/admin/quests/${this.quest.id}/complete`, {}, e);
 
             if (q) {
                 this.$emit('update-quest', q);
             }
         },
         async duplicateQuest(e): Promise<void> {
-            const q = await this.executePost('/admin/duplicateQuest/' + this.quest.id, { name: this.duplicateQuestName }, e);
+            const q = await this.executePost(`/admin/quests/${this.quest.id}/duplicate`, { name: this.duplicateQuestName }, e);
 
             if (q) {
                 this.$emit('add-quest', q);
             }
         },
         async resetQuestDeadline(e): Promise<void> {
-            const q = await this.executePost('/admin/resetQuestDeadline/' + this.quest.id, {}, e);
+            const q = await this.executePost(`/admin/quests/${this.quest.id}/reset`, {}, e);
 
             if (q) {
                 this.$emit('update-quest', q);
@@ -206,7 +206,7 @@ export default Vue.extend({
             const result = confirm('Are you sure?');
 
             if (result) {
-                const q = await this.executePost('/admin/deleteQuest/' + this.quest.id, {}, e);
+                const q = await this.executePost(`/admin/quests/${this.quest.id}/delete`, {}, e);
 
                 if (q) {
                     ($('#editQuest')).modal('hide');
@@ -215,7 +215,7 @@ export default Vue.extend({
             }
         },
         async toggleQuestMode(mode): Promise<void> {
-            const q = await this.executePost('/admin/toggleQuestMode/' + this.quest.id, { mode });
+            const q = await this.executePost(`/admin/quests/${this.quest.id}/toggleMode`, { mode });
 
             if (q) {
                 this.$emit('update-quest', q);

@@ -49,9 +49,7 @@ adminContestsRouter.get('/relevantInfo', async (req, res) => {
         defaultSort: true,
     });
 
-    res.json({
-        contests,
-    });
+    res.json(contests);
 });
 
 /* POST create a contest */

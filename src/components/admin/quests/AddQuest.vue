@@ -113,7 +113,7 @@ export default Vue.extend({
     },
     methods: {
         async addQuest(e): Promise<void> {
-            const q = await this.executePost('/admin/addQuest/', {
+            const q = await this.executePost('/admin/quests/create', {
                 name: this.name,
                 reward: this.reward,
                 descriptionMain: this.description,
@@ -126,7 +126,7 @@ export default Vue.extend({
 
             if (!this.isError(q)) {
                 this.$emit('add-quest', q);
-                ($('#addQuest')).modal('hide');
+                $('#addQuest').modal('hide');
             }
         },
     },

@@ -83,16 +83,17 @@ app.use('/beatmaps', beatmapsHostRouter);
 app.use('/beatmaps', tasksRouter);
 app.use('/featuredArtists', featuredArtistsRouter);
 app.use('/users', usersRouter);
+app.use('/quests', questsRouter);
 app.use('/logs', logsRouter);
 app.use('/notifications', notificationsRouter);
+app.use('/judging', judgingRouter);
+
+app.use('/artists', artistsRouter);
 app.use('/admin', adminRouter);
 app.use('/admin', adminUsersRouter);
 app.use('/admin', adminBeatmapsRouter);
 app.use('/admin', adminFeaturedArtistsRouter);
-app.use('/admin', adminQuestsRouter);
-app.use('/artists', artistsRouter);
-app.use('/quests', questsRouter);
-app.use('/judging', judgingRouter);
+app.use('/admin/quests', adminQuestsRouter);
 app.use('/admin/contests', adminContestsRouter);
 
 // catch 404

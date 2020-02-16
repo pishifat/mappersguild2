@@ -258,70 +258,6 @@
             <div class="row">
                 <div class="col">
                     <h5 class="ml-4 mt-2">
-                        <a href="#quests" data-toggle="collapse" @click.prevent="loadQuests()">
-                            Quests
-                            <i class="fas fa-angle-down" />
-                        </a>
-                        <span v-if="questsLoading" class="ml-2 small text-white-50">loading...</span>
-                        <button class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#addQuest">
-                            Add quest
-                        </button>
-                    </h5>
-                    <div id="quests" class="collapse">
-                        <table v-if="quests.length" class="table table-sm table-dark table-hover">
-                            <thead>
-                                <th scope="col">
-                                    NAME
-                                </th>
-                                <th scope="col">
-                                    MODES
-                                </th>
-                                <th scope="col">
-                                    STATUS
-                                </th>
-                                <th scope="col">
-                                    EDIT
-                                </th>
-                            </thead>
-                            <tbody>
-                                <tr v-for="quest in quests" :key="quest.id" class="text-white-50">
-                                    <td scope="row">
-                                        {{ quest.name }}
-                                    </td>
-                                    <td scope="row">
-                                        <i v-if="quest.modes.includes('osu')" class="fas fa-circle" />
-                                        <i v-if="quest.modes.includes('taiko')" class="fas fa-drum" />
-                                        <i v-if="quest.modes.includes('catch')" class="fas fa-apple-alt" />
-                                        <i v-if="quest.modes.includes('mania')" class="fas fa-stream" />
-                                    </td>
-                                    <td scope="row">
-                                        {{ quest.status }}
-                                    </td>
-                                    <td scope="row">
-                                        <a
-                                            href="#"
-                                            data-toggle="modal"
-                                            data-target="#editQuest"
-                                            :data-id="quest.id"
-                                            @click.prevent="selectedQuest = quest"
-                                        >
-                                            edit
-                                        </a>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="radial-divisor mx-auto my-4" />
-
-        <div class="container bg-container py-1">
-            <div class="row">
-                <div class="col">
-                    <h5 class="ml-4 mt-2">
                         <a href="#users" data-toggle="collapse" @click.prevent="loadUsers()">
                             Users
                             <i class="fas fa-angle-down" />
@@ -448,16 +384,6 @@
             @update-beatmap="updateBeatmap($event)"
         />
 
-        <add-quest
-            @add-quest="addQuest($event)"
-        />
-
-        <quest-info
-            :quest="selectedQuest"
-            @update-quest="updateQuest($event)"
-            @delete-quest="deleteQuest($event)"
-        />
-
         <user-info
             :user="selectedUser"
             @update-user="updateUser($event)"
@@ -474,8 +400,6 @@
 import Vue from 'vue';
 import NewsPost from '../components/admin/NewsPost.vue';
 import BeatmapInfo from '../components/admin/BeatmapInfo.vue';
-import AddQuest from '../components/admin/AddQuest.vue';
-import QuestInfo from '../components/admin/QuestInfo.vue';
 import UserInfo from '../components/admin/UserInfo.vue';
 import FeaturedArtistInfo from '../components/admin/FeaturedArtistInfo.vue';
 import { Beatmap } from '../../interfaces/beatmap/beatmap';
@@ -488,8 +412,6 @@ export default Vue.extend({
     components: {
         NewsPost,
         BeatmapInfo,
-        AddQuest,
-        QuestInfo,
         UserInfo,
         FeaturedArtistInfo,
     },
@@ -555,28 +477,6 @@ export default Vue.extend({
 
             this.selectedBeatmap = b;
         },
-        updateQuest(q): void {
-            if (this.quests) {
-                const i = this.quests.findIndex(quest => quest.id == q.id);
-                this.quests[i] = q;
-            }
-
-            if (this.actionQuests) {
-                const j = this.actionQuests.findIndex(quest => quest.id == q.id);
-                this.actionQuests[j] = q;
-            }
-
-            this.selectedQuest = q;
-        },
-        addQuest(q): void {
-            if (this.quests) {
-                this.quests.unshift(q);
-            }
-        },
-        deleteQuest(q): void {
-            const i = this.quests.findIndex(quest => quest.id == q.id);
-            this.quests.splice(i, 1);
-        },
         updateUser(u): void {
             if (this.users) {
                 const i = this.users.findIndex(user => user.id == u.id);
@@ -604,18 +504,6 @@ export default Vue.extend({
                 if (res) {
                     this.beatmaps = res.b;
                     this.beatmapsLoading = false;
-                }
-            }
-        },
-        async loadQuests(): Promise<void> {
-            if (!this.quests.length) {
-                this.questsLoading = true;
-
-                const res: any = await this.executeGet('/admin/loadQuests');
-
-                if (res) {
-                    this.quests = res.q;
-                    this.questsLoading = false;
                 }
             }
         },

@@ -13,6 +13,7 @@ module.exports = {
         quests: './src/quests.ts',
         judging: './src/judging.ts',
         adminContests: './src/admin/contests.ts',
+        adminQuests: './src/admin/quests.ts',
         //notificationsComponent: './src/notificationsComponent.js', // Whenever need to rebuild the notif thing at bottom
     },
     output: {

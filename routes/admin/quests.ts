@@ -16,18 +16,28 @@ const adminQuestsRouter = express.Router();
 adminQuestsRouter.use(isLoggedIn);
 adminQuestsRouter.use(isAdmin);
 
+/* GET quests - admin page */
+adminQuestsRouter.get('/', (req, res) => {
+    res.render('admin/quests', {
+        title: 'Quests - Admin',
+        script: '../javascripts/adminQuests.js',
+        loggedInAs: req.session?.osuId,
+        userTotalPoints: res.locals.userRequest.totalPoints,
+    });
+});
+
 /* GET quests */
-adminQuestsRouter.get('/loadQuests/', async (req, res) => {
+adminQuestsRouter.get('/load', async (req, res) => {
     const q = await QuestService.queryAll({
         defaultPopulate: true,
         sort: { status: -1, name: 1 },
     });
 
-    res.json({ q });
+    res.json(q);
 });
 
 /* POST add quest */
-adminQuestsRouter.post('/addQuest/', isSuperAdmin, async (req, res) => {
+adminQuestsRouter.post('/create', isSuperAdmin, async (req, res) => {
     req.body.modes = ['osu', 'taiko', 'catch', 'mania'];
     const quest = await QuestService.create(req.body);
 
@@ -62,7 +72,7 @@ adminQuestsRouter.post('/addQuest/', isSuperAdmin, async (req, res) => {
 });
 
 /* POST rename quest */
-adminQuestsRouter.post('/renameQuest/:id', isSuperAdmin, canFail(async (req, res) => {
+adminQuestsRouter.post('/:id/rename', isSuperAdmin, canFail(async (req, res) => {
     let q = await QuestService.updateOrFail(req.params.id, { name: req.body.name });
     q = await QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
 
@@ -70,7 +80,7 @@ adminQuestsRouter.post('/renameQuest/:id', isSuperAdmin, canFail(async (req, res
 }));
 
 /* POST rename quest */
-adminQuestsRouter.post('/updateDescription/:id', isSuperAdmin, canFail(async (req, res) => {
+adminQuestsRouter.post('/:id/updateDescription', isSuperAdmin, canFail(async (req, res) => {
     let q = await QuestService.updateOrFail(req.params.id, { descriptionMain: req.body.description });
     q = await QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
 
@@ -78,7 +88,7 @@ adminQuestsRouter.post('/updateDescription/:id', isSuperAdmin, canFail(async (re
 }));
 
 /* POST drop quest */
-adminQuestsRouter.post('/dropQuest/:id', isSuperAdmin, canFail(async (req, res) => {
+adminQuestsRouter.post('/:id/drop', isSuperAdmin, canFail(async (req, res) => {
     let q = await QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
     const openQuest = await QuestService.queryOne({
         query: {
@@ -128,7 +138,7 @@ adminQuestsRouter.post('/dropQuest/:id', isSuperAdmin, canFail(async (req, res) 
 }));
 
 /* POST complete quest */
-adminQuestsRouter.post('/completeQuest/:id', isSuperAdmin, canFail(async (req, res) => {
+adminQuestsRouter.post('/:id/complete', isSuperAdmin, canFail(async (req, res) => {
     let quest = await QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
 
     if (quest.status == QuestStatus.WIP) {
@@ -171,7 +181,7 @@ adminQuestsRouter.post('/completeQuest/:id', isSuperAdmin, canFail(async (req, r
 }));
 
 /* POST duplicate quest */
-adminQuestsRouter.post('/duplicateQuest/:id', isSuperAdmin, canFail(async (req, res) => {
+adminQuestsRouter.post('/:id/duplicate', isSuperAdmin, canFail(async (req, res) => {
     const q = await QuestService.queryByIdOrFail(req.params.id);
     const body: Partial<Quest> = {
         name: req.body.name,
@@ -190,7 +200,7 @@ adminQuestsRouter.post('/duplicateQuest/:id', isSuperAdmin, canFail(async (req, 
 }));
 
 /* POST reset quest deadline */
-adminQuestsRouter.post('/resetQuestDeadline/:id', isSuperAdmin, canFail(async (req, res) => {
+adminQuestsRouter.post('/:id/reset', isSuperAdmin, canFail(async (req, res) => {
     const date = new Date();
     date.setDate(date.getDate() + 7);
 
@@ -201,7 +211,7 @@ adminQuestsRouter.post('/resetQuestDeadline/:id', isSuperAdmin, canFail(async (r
 }));
 
 /* POST toggle quest mode */
-adminQuestsRouter.post('/toggleQuestMode/:id', isSuperAdmin, canFail(async (req, res) => {
+adminQuestsRouter.post('/:id/toggleMode', isSuperAdmin, canFail(async (req, res) => {
     let quest = await QuestService.queryByIdOrFail(req.params.id);
 
     if (quest.modes.includes(req.body.mode)) {
@@ -215,7 +225,7 @@ adminQuestsRouter.post('/toggleQuestMode/:id', isSuperAdmin, canFail(async (req,
 }));
 
 /* POST delete quest */
-adminQuestsRouter.post('/deleteQuest/:id', isSuperAdmin, canFail(async (req, res) => {
+adminQuestsRouter.post('/:id/delete', isSuperAdmin, canFail(async (req, res) => {
     const q = await QuestService.queryByIdOrFail(req.params.id);
 
     if (q.status == QuestStatus.Open) {

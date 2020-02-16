@@ -14,10 +14,11 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import ToastMessages from '@components/ToastMessages.vue';
 import ContestInfo from '@components/admin/contests/ContestInfo.vue';
 import AddContest from '@components/admin/contests/AddContest.vue';
+import ToastMessages from '@components/ToastMessages.vue';
 import { mapState } from 'vuex';
+import { Contest } from '../../../interfaces/contest/contest';
 
 export default Vue.extend({
     name: 'ContestPage',
@@ -28,10 +29,10 @@ export default Vue.extend({
     },
     computed: mapState(['contests']),
     async created() {
-        const res: any = await this.executeGet('/admin/contests/relevantInfo');
+        const contests = await this.executeGet<Contest[]>('/admin/contests/relevantInfo');
 
-        if (!this.isError(res)) {
-            this.$store.commit('setContests', res.contests);
+        if (!this.isError(contests)) {
+            this.$store.commit('setContests', contests);
         }
 
         $('#loading').fadeOut();
