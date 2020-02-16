@@ -146,8 +146,14 @@ adminBeatmapsRouter.post('/:id/updateUrl', isSuperAdmin, canFail(async (req, res
     res.json(b);
 }));
 
+
+
+// ---------------------
+// NOT SUPERADMIN ROUTES
+// ---------------------
+
 /* POST update sb quality */
-adminBeatmapsRouter.post('/:id/updateStoryboardQuality', isAdmin, canFail(async (req, res) => {
+adminBeatmapsRouter.post('/:id/updateStoryboardQuality', canFail(async (req, res) => {
     await TaskService.updateOrFail(req.body.taskId, { sbQuality: req.body.storyboardQuality });
     const b = await BeatmapService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
 
@@ -155,7 +161,7 @@ adminBeatmapsRouter.post('/:id/updateStoryboardQuality', isAdmin, canFail(async 
 }));
 
 /* POST update osu beatmap pack ID */
-adminBeatmapsRouter.post('/:id/updatePackId', isAdmin, canFail(async (req, res) => {
+adminBeatmapsRouter.post('/:id/updatePackId', canFail(async (req, res) => {
     await BeatmapService.updateOrFail(req.params.id, { packId: req.body.packId });
     const b = await BeatmapService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
 
