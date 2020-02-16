@@ -1,5 +1,5 @@
 <template>
-    <div id="editBeatmap" class="modal fade" tabindex="-1">
+    <div id="edit" class="modal fade" tabindex="-1">
         <div class="modal-dialog">
             <div v-if="beatmap" class="modal-content bg-dark">
                 <div class="modal-header text-dark bg-rest">
@@ -165,42 +165,42 @@ export default Vue.extend({
     },
     methods: {
         async updateBeatmapStatus(e): Promise<void> {
-            const b = await this.executePost('/admin/updateBeatmapStatus/' + this.beatmap.id, { status: this.status }, e);
+            const b = await this.executePost(`/admin/beatmaps/${this.beatmap.id}/updateStatus`, { status: this.status }, e);
 
             if (b) {
                 this.$emit('update-beatmap', b);
             }
         },
         async deleteTask(e): Promise<void> {
-            const b = await this.executePost('/admin/deleteTask/' + this.beatmap.id, { taskId: this.taskId }, e);
+            const b = await this.executePost(`/admin/beatmaps/${this.beatmap.id}/tasks/${this.taskId}/delete`, {}, e);
 
             if (b) {
                 this.$emit('update-beatmap', b);
             }
         },
         async deleteModder(e): Promise<void> {
-            const b = await this.executePost('/admin/deleteModder/' + this.beatmap.id, { modderId: this.modderId }, e);
+            const b = await this.executePost(`/admin/beatmaps/${this.beatmap.id}/modders/${this.modderId}/delete`, {}, e);
 
             if (b) {
                 this.$emit('update-beatmap', b);
             }
         },
         async updateUrl(e): Promise<void> {
-            const b = await this.executePost('/admin/updateUrl/' + this.beatmap.id, { url: this.beatmapUrl }, e);
+            const b = await this.executePost(`/admin/beatmaps/${this.beatmap.id}/updateUrl`, { url: this.beatmapUrl }, e);
 
             if (b) {
                 this.$emit('update-beatmap', b);
             }
         },
         async updateStoryboardQuality(e): Promise<void> {
-            const b = await this.executePost('/admin/updateStoryboardQuality/' + this.beatmap.id, { storyboardQuality: this.storyboardQuality, taskId: this.storyboardTaskId }, e);
+            const b = await this.executePost(`/admin/beatmaps/${this.beatmap.id}/updateStoryboardQuality`, { storyboardQuality: this.storyboardQuality, taskId: this.storyboardTaskId }, e);
 
             if (b) {
                 this.$emit('update-beatmap', b);
             }
         },
         async updatePackId(e): Promise<void> {
-            const b = await this.executePost('/admin/updatePackId/' + this.beatmap.id, { packId: this.packId }, e);
+            const b = await this.executePost(`/admin/beatmaps/${this.beatmap.id}/updatePackId`, { packId: this.packId }, e);
 
             if (b) {
                 this.$emit('update-beatmap', b);

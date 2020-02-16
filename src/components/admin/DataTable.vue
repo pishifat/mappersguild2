@@ -42,10 +42,6 @@ export default Vue.extend({
             type: Array,
             required: true,
         },
-        modalName: {
-            type: String,
-            required: true,
-        },
         isLoading: Boolean,
     },
 });

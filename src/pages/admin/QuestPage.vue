@@ -3,19 +3,14 @@
         <div class="container bg-container py-1">
             <div class="row">
                 <div class="col">
-                    <h5 class="ml-4 mt-2">
-                        Quests
-
-                        <button class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#addQuest">
-                            Add quest
-                        </button>
-                    </h5>
+                    <button class="btn btn-sm btn-info btn-block" data-toggle="modal" data-target="#addQuest">
+                        Add quest
+                    </button>
 
                     <data-table
                         #default="{ obj }"
                         :data="quests"
                         :headers="['name', 'modes', 'status']"
-                        modal-name="editQuest"
                         @update:selected-id="selectedQuestId = $event"
                     >
                         <td>

@@ -193,71 +193,6 @@
             <div class="row">
                 <div class="col">
                     <h5 class="ml-4 mt-2">
-                        <a href="#beatmaps" data-toggle="collapse" @click.prevent="loadBeatmaps()">
-                            Beatmaps
-                            <i class="fas fa-angle-down" />
-                        </a>
-                        <span v-if="beatmapsLoading" class="ml-2 small text-white-50">loading...</span>
-                    </h5>
-                    <div id="beatmaps" class="collapse">
-                        <table v-if="beatmaps.length" class="table table-sm table-dark table-hover">
-                            <thead>
-                                <th scope="col">
-                                    METADATA
-                                </th>
-                                <th scope="col">
-                                    PACK ID
-                                </th>
-                                <th scope="col">
-                                    STATUS
-                                </th>
-                                <th scope="col">
-                                    EDIT
-                                </th>
-                            </thead>
-                            <tbody>
-                                <tr v-for="beatmap in beatmaps" :key="beatmap.id" class="text-white-50">
-                                    <td scope="row">
-                                        <i v-if="beatmap.mode == 'osu'" class="fas fa-circle" />
-                                        <i v-else-if="beatmap.mode == 'taiko'" class="fas fa-drum" />
-                                        <i v-else-if="beatmap.mode == 'catch'" class="fas fa-apple-alt" />
-                                        <i v-else-if="beatmap.mode == 'mania'" class="fas fa-stream" />
-                                        <a v-if="beatmap.url" :href="beatmap.url">
-                                            {{ generateMetadata(beatmap.song) }}
-                                        </a>
-                                        <span v-else>{{ generateMetadata(beatmap.song) }}</span>
-                                    </td>
-                                    <td scope="row">
-                                        {{ beatmap.packId }}
-                                    </td>
-                                    <td scope="row">
-                                        {{ beatmap.status }}
-                                    </td>
-                                    <td scope="row">
-                                        <a
-                                            href="#"
-                                            data-toggle="modal"
-                                            data-target="#editBeatmap"
-                                            :data-id="beatmap.id"
-                                            @click.prevent="selectedBeatmap = beatmap"
-                                        >
-                                            edit
-                                        </a>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="radial-divisor mx-auto my-4" />
-
-        <div class="container bg-container py-1">
-            <div class="row">
-                <div class="col">
-                    <h5 class="ml-4 mt-2">
                         <a href="#users" data-toggle="collapse" @click.prevent="loadUsers()">
                             Users
                             <i class="fas fa-angle-down" />
@@ -379,11 +314,6 @@
 
         <news-post />
 
-        <beatmap-info
-            :beatmap="selectedBeatmap"
-            @update-beatmap="updateBeatmap($event)"
-        />
-
         <user-info
             :user="selectedUser"
             @update-user="updateUser($event)"
@@ -399,7 +329,6 @@
 <script lang="ts">
 import Vue from 'vue';
 import NewsPost from '../components/admin/NewsPost.vue';
-import BeatmapInfo from '../components/admin/BeatmapInfo.vue';
 import UserInfo from '../components/admin/UserInfo.vue';
 import FeaturedArtistInfo from '../components/admin/FeaturedArtistInfo.vue';
 import { Beatmap } from '../../interfaces/beatmap/beatmap';
@@ -411,7 +340,6 @@ export default Vue.extend({
     name: 'AdminPage',
     components: {
         NewsPost,
-        BeatmapInfo,
         UserInfo,
         FeaturedArtistInfo,
     },
@@ -463,19 +391,6 @@ export default Vue.extend({
             }
 
             return metadata;
-        },
-        updateBeatmap(b): void {
-            if (this.beatmaps) {
-                const i = this.beatmaps.findIndex(beatmap => beatmap.id == b.id);
-                this.beatmaps[i] = b;
-            }
-
-            if (this.actionBeatmaps) {
-                const j = this.actionBeatmaps.findIndex(beatmap => beatmap.id == b.id);
-                this.actionBeatmaps[j] = b;
-            }
-
-            this.selectedBeatmap = b;
         },
         updateUser(u): void {
             if (this.users) {

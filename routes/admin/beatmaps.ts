@@ -12,10 +12,19 @@ const adminBeatmapsRouter = express.Router();
 adminBeatmapsRouter.use(isLoggedIn);
 adminBeatmapsRouter.use(isAdmin);
 
+/* GET beatmaps - admin page */
+adminBeatmapsRouter.get('/', (req, res) => {
+    res.render('admin/beatmaps', {
+        title: 'Beatmaps - Admin',
+        script: '../javascripts/adminBeatmaps.js',
+        loggedInAs: req.session?.osuId,
+        userTotalPoints: res.locals.userRequest.totalPoints,
+    });
+});
 
 /* GET beatmaps */
-adminBeatmapsRouter.get('/loadBeatmaps/', async (req, res) => {
-    const b = await BeatmapService.queryAll({
+adminBeatmapsRouter.get('/load', async (req, res) => {
+    const beatmaps = await BeatmapService.queryAll({
         defaultPopulate: true,
         sort: {
             status: 1,
@@ -24,11 +33,11 @@ adminBeatmapsRouter.get('/loadBeatmaps/', async (req, res) => {
         },
     });
 
-    res.json({ b });
+    res.json(beatmaps);
 });
 
 /* POST update map status */
-adminBeatmapsRouter.post('/updateBeatmapStatus/:id', isSuperAdmin, canFail(async (req, res) => {
+adminBeatmapsRouter.post('/:id/updateStatus', isSuperAdmin, canFail(async (req, res) => {
     let b = await BeatmapService.updateOrFail(req.params.id, { status: req.body.status });
 
     if (req.body.status == BeatmapStatus.Done) {
@@ -106,14 +115,14 @@ adminBeatmapsRouter.post('/updateBeatmapStatus/:id', isSuperAdmin, canFail(async
 }));
 
 /* POST delete task */
-adminBeatmapsRouter.post('/deleteTask/:id', isSuperAdmin, canFail(async (req, res) => {
+adminBeatmapsRouter.post('/:id/tasks/:taskId/delete', isSuperAdmin, canFail(async (req, res) => {
     await Promise.all([
         BeatmapService.updateOrFail(req.params.id, {
             $pull: {
-                tasks: req.body.taskId,
+                tasks: req.params.taskId,
             },
         }),
-        TaskService.removeOrFail(req.body.taskId),
+        TaskService.removeOrFail(req.params.taskId),
     ]);
 
     const b = await BeatmapService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
@@ -122,15 +131,15 @@ adminBeatmapsRouter.post('/deleteTask/:id', isSuperAdmin, canFail(async (req, re
 }));
 
 /* POST delete modder */
-adminBeatmapsRouter.post('/deleteModder/:id', isSuperAdmin, canFail(async (req, res) => {
-    await BeatmapService.updateOrFail(req.params.id, { $pull: { modders: req.body.modderId } });
+adminBeatmapsRouter.post('/:id/modders/:modderId/delete', isSuperAdmin, canFail(async (req, res) => {
+    await BeatmapService.updateOrFail(req.params.id, { $pull: { modders: req.params.modderId } });
     const b = await BeatmapService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
 
     res.json(b);
 }));
 
 /* POST update map url */
-adminBeatmapsRouter.post('/updateUrl/:id', isSuperAdmin, canFail(async (req, res) => {
+adminBeatmapsRouter.post('/:id/updateUrl', isSuperAdmin, canFail(async (req, res) => {
     await BeatmapService.updateOrFail(req.params.id, { url: req.body.url });
     const b = await BeatmapService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
 
@@ -138,7 +147,7 @@ adminBeatmapsRouter.post('/updateUrl/:id', isSuperAdmin, canFail(async (req, res
 }));
 
 /* POST update sb quality */
-adminBeatmapsRouter.post('/updateStoryboardQuality/:id', isAdmin, canFail(async (req, res) => {
+adminBeatmapsRouter.post('/:id/updateStoryboardQuality', isAdmin, canFail(async (req, res) => {
     await TaskService.updateOrFail(req.body.taskId, { sbQuality: req.body.storyboardQuality });
     const b = await BeatmapService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
 
@@ -146,7 +155,7 @@ adminBeatmapsRouter.post('/updateStoryboardQuality/:id', isAdmin, canFail(async 
 }));
 
 /* POST update osu beatmap pack ID */
-adminBeatmapsRouter.post('/updatePackId/:id', isAdmin, canFail(async (req, res) => {
+adminBeatmapsRouter.post('/:id/updatePackId', isAdmin, canFail(async (req, res) => {
     await BeatmapService.updateOrFail(req.params.id, { packId: req.body.packId });
     const b = await BeatmapService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
 
