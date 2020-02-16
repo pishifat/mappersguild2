@@ -4,26 +4,26 @@
             <div class="row">
                 <div class="col-sm">
                     <data-table
-                        #default="{ obj }"
+                        #default="{ obj: beatmap }"
                         :data="beatmaps"
                         :headers="['METADATA', 'PACK ID', 'STATUS']"
                         @update:selected-id="selectedBeatmapId = $event"
                     >
                         <td class="text-truncate">
-                            <i v-if="obj.mode == 'osu'" class="fas fa-circle" />
-                            <i v-else-if="obj.mode == 'taiko'" class="fas fa-drum" />
-                            <i v-else-if="obj.mode == 'catch'" class="fas fa-apple-alt" />
-                            <i v-else-if="obj.mode == 'mania'" class="fas fa-stream" />
-                            <a v-if="obj.url" :href="obj.url">
-                                {{ obj.song | formatMetadata }}
+                            <i v-if="beatmap.mode == 'osu'" class="fas fa-circle" />
+                            <i v-else-if="beatmap.mode == 'taiko'" class="fas fa-drum" />
+                            <i v-else-if="beatmap.mode == 'catch'" class="fas fa-apple-alt" />
+                            <i v-else-if="beatmap.mode == 'mania'" class="fas fa-stream" />
+                            <a v-if="beatmap.url" :href="beatmap.url">
+                                {{ beatmap.song | formatMetadata }}
                             </a>
-                            <span v-else>{{ obj.song | formatMetadata }}</span>
+                            <span v-else>{{ beatmap.song | formatMetadata }}</span>
                         </td>
                         <td>
-                            {{ obj.packId }}
+                            {{ beatmap.packId }}
                         </td>
                         <td>
-                            {{ obj.status }}
+                            {{ beatmap.status }}
                         </td>
                     </data-table>
                 </div>

@@ -1,5 +1,5 @@
 <template>
-    <div id="editUser" class="modal fade" tabindex="-1">
+    <div id="edit" class="modal fade" tabindex="-1">
         <div class="modal-dialog">
             <div v-if="user" class="modal-content bg-dark">
                 <div class="modal-header text-dark" :class="'bg-rank-' + user.rank">
@@ -70,14 +70,14 @@ export default Vue.extend({
     },
     methods: {
         async updatePenaltyPoints(e): Promise<void> {
-            const u = await this.executePost('/admin/updatePenaltyPoints/' + this.user.id, { penaltyPoints: this.penaltyPoints }, e);
+            const u = await this.executePost(`/admin/users/${this.user.id}/updatePenaltyPoints`, { penaltyPoints: this.penaltyPoints }, e);
 
             if (u) {
                 this.$emit('update-user', u);
             }
         },
         async updateBadge(e): Promise<void> {
-            const u = await this.executePost('/admin/updateBadge/' + this.user.id, { badge: this.badge }, e);
+            const u = await this.executePost(`/admin/users/${this.user.id}/updateBadge`, { badge: this.badge }, e);
 
             if (u) {
                 this.$emit('update-user', u);

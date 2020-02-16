@@ -193,82 +193,6 @@
             <div class="row">
                 <div class="col">
                     <h5 class="ml-4 mt-2">
-                        <a href="#users" data-toggle="collapse" @click.prevent="loadUsers()">
-                            Users
-                            <i class="fas fa-angle-down" />
-                        </a>
-                        <span v-if="usersLoading" class="ml-2 small text-white-50">loading...</span>
-                        <button class="btn btn-sm btn-outline-info" @click="updateUserPoints($event)">
-                            Update user points
-                        </button>
-                        <span v-if="calculatingPoints" class="ml-2 small text-white-50">calculating points...</span>
-                    </h5>
-                    <div id="users" class="collapse">
-                        <table v-if="users.length" class="table table-sm table-dark table-hover">
-                            <thead>
-                                <th scope="col">
-                                    USERNAME
-                                </th>
-                                <th scope="col">
-                                    RANK
-                                </th>
-                                <th scope="col">
-                                    BADGE
-                                </th>
-                                <th scope="col">
-                                    EDIT
-                                </th>
-                            </thead>
-                            <tbody>
-                                <tr v-for="user in users" :key="user.id" class="text-white-50">
-                                    <td scope="row">
-                                        <a :href="'https://osu.ppy.sh/users/' + user.osuId" target="_blank">{{ user.username }}</a>
-                                    </td>
-                                    <td scope="row">
-                                        <i
-                                            v-if="user.rank > 0"
-                                            class="fas fa-crown"
-                                            :class="user.rank == 1 ? 'text-rank-1' : user.rank == 2 ? 'text-rank-2' : 'text-rank-3'"
-                                            data-toggle="tooltip"
-                                            data-placement="top"
-                                            :title="user.rank == 1 ? 'rank 1 user' : user.rank == 2 ? 'rank 2 user' : 'rank 3 user'"
-                                        />
-                                    </td>
-                                    <td scope="row" :class="{ 'bg-open': user.rank != user.badge }">
-                                        <i
-                                            v-if="user.badge > 0"
-                                            class="fas fa-crown"
-                                            :class="user.badge == 1 ? 'text-rank-1' : user.badge == 2 ? 'text-rank-2' : 'text-rank-3'"
-                                            data-toggle="tooltip"
-                                            data-placement="top"
-                                            :title="user.badge == 1 ? 'rank 1 user' : user.badge == 2 ? 'rank 2 user' : 'rank 3 user'"
-                                        />
-                                    </td>
-                                    <td scope="row">
-                                        <a
-                                            href="#"
-                                            data-toggle="modal"
-                                            data-target="#editUser"
-                                            :data-id="user.id"
-                                            @click.prevent="selectedUser = user"
-                                        >
-                                            edit
-                                        </a>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="radial-divisor mx-auto my-4" />
-
-        <div class="container bg-container py-1">
-            <div class="row">
-                <div class="col">
-                    <h5 class="ml-4 mt-2">
                         <a href="#featuredArtists" data-toggle="collapse" @click.prevent="loadFeaturedArtists()">
                             Featured Artists
                             <i class="fas fa-angle-down" />
@@ -314,11 +238,6 @@
 
         <news-post />
 
-        <user-info
-            :user="selectedUser"
-            @update-user="updateUser($event)"
-        />
-
         <featured-artist-info
             :featured-artist="selectedFeaturedArtist"
             @update-featured-artist="updateFeaturedArtist($event)"
@@ -329,7 +248,6 @@
 <script lang="ts">
 import Vue from 'vue';
 import NewsPost from '../components/admin/NewsPost.vue';
-import UserInfo from '../components/admin/UserInfo.vue';
 import FeaturedArtistInfo from '../components/admin/FeaturedArtistInfo.vue';
 import { Beatmap } from '../../interfaces/beatmap/beatmap';
 import { Quest } from '../../interfaces/quest';
@@ -340,7 +258,6 @@ export default Vue.extend({
     name: 'AdminPage',
     components: {
         NewsPost,
-        UserInfo,
         FeaturedArtistInfo,
     },
     data() {
@@ -363,7 +280,6 @@ export default Vue.extend({
             featuredArtists: [] as FeaturedArtist[],
             featuredArtistsLoading: false,
             selectedFeaturedArtist: null as null | FeaturedArtist,
-            calculatingPoints: false,
         };
     },
     async created() {
@@ -392,19 +308,6 @@ export default Vue.extend({
 
             return metadata;
         },
-        updateUser(u): void {
-            if (this.users) {
-                const i = this.users.findIndex(user => user.id == u.id);
-                this.users[i] = u;
-            }
-
-            if (this.actionUsers) {
-                const j = this.actionUsers.findIndex(user => user.id == u.id);
-                this.actionUsers[j] = u;
-            }
-
-            this.selectedUser = u;
-        },
         updateFeaturedArtist(fa): void {
             const i = this.featuredArtists.findIndex(featuredArtist => featuredArtist.id == fa.id);
             this.featuredArtists[i] = fa;
@@ -422,18 +325,6 @@ export default Vue.extend({
                 }
             }
         },
-        async loadUsers(): Promise<void> {
-            if (!this.users.length) {
-                this.usersLoading = true;
-
-                const res: any = await this.executeGet('/admin/loadUsers');
-
-                if (res) {
-                    this.users = res.u;
-                    this.usersLoading = false;
-                }
-            }
-        },
         async loadFeaturedArtists(): Promise<void> {
             if (!this.featuredArtists.length) {
                 this.featuredArtistsLoading = true;
@@ -444,14 +335,6 @@ export default Vue.extend({
                     this.featuredArtists = res.fa;
                     this.featuredArtistsLoading = false;
                 }
-            }
-        },
-        async updateUserPoints(e): Promise<void> {
-            this.calculatingPoints = true;
-            const success = await this.executePost('/admin/updateUserPoints/', {}, e);
-
-            if (success) {
-                this.calculatingPoints = false;
             }
         },
     },

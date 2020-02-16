@@ -13,16 +13,28 @@ const adminUsersRouter = express.Router();
 
 adminUsersRouter.use(isLoggedIn);
 adminUsersRouter.use(isAdmin);
+adminUsersRouter.use(isSuperAdmin);
+
+/* GET users - admin page */
+adminUsersRouter.get('/', (req, res) => {
+    res.render('admin/users', {
+        title: 'Users - Admin',
+        script: '../javascripts/adminUsers.js',
+        loggedInAs: req.session?.osuId,
+        userTotalPoints: res.locals.userRequest.totalPoints,
+    });
+});
+
 
 /* GET users */
-adminUsersRouter.get('/loadUsers/', async (req, res) => {
-    const u = await UserService.queryAll({ sort: { username: 1 } });
+adminUsersRouter.get('/load', async (req, res) => {
+    const users = await UserService.queryAll({ sort: { username: 1 } });
 
-    res.json({ u });
+    res.json(users);
 });
 
 /* POST update user penatly points */
-adminUsersRouter.post('/updatePenaltyPoints/:id', isSuperAdmin, canFail(async (req, res) => {
+adminUsersRouter.post('/:id/updatePenaltyPoints', canFail(async (req, res) => {
     await UserService.updateOrFail(req.params.id, { penaltyPoints: req.body.penaltyPoints });
     const user = await UserService.queryByIdOrFail(req.params.id);
 
@@ -32,7 +44,7 @@ adminUsersRouter.post('/updatePenaltyPoints/:id', isSuperAdmin, canFail(async (r
 }));
 
 /* POST update user badge */
-adminUsersRouter.post('/updateBadge/:id', isSuperAdmin, canFail(async (req, res) => {
+adminUsersRouter.post('/:id/updateBadge', canFail(async (req, res) => {
     await UserService.updateOrFail(req.params.id, { badge: req.body.badge });
     const user = await UserService.queryByIdOrFail(req.params.id);
 
@@ -65,7 +77,7 @@ interface Points {
 }
 
 /* POST update user points */
-adminUsersRouter.post('/updateUserPoints', isSuperAdmin, canFail(async (req, res) => {
+adminUsersRouter.post('/updatePoints', canFail(async (req, res) => {
     const u = await UserService.queryAllOrFail({});
 
     const maps = await BeatmapService.queryAll({

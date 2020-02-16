@@ -14,6 +14,7 @@ module.exports = {
         adminContests: './src/admin/contests.ts',
         adminBeatmaps: './src/admin/beatmaps.ts',
         adminQuests: './src/admin/quests.ts',
+        adminUsers: './src/admin/users.ts',
     },
     output: {
         filename: '[name].js',

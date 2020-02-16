@@ -8,22 +8,22 @@
                     </button>
 
                     <data-table
-                        #default="{ obj }"
+                        #default="{ obj: quest }"
                         :data="quests"
                         :headers="['name', 'modes', 'status']"
                         @update:selected-id="selectedQuestId = $event"
                     >
                         <td>
-                            {{ obj.name }}
+                            {{ quest.name }}
                         </td>
                         <td>
-                            <i v-if="obj.modes.includes('osu')" class="fas fa-circle" />
-                            <i v-if="obj.modes.includes('taiko')" class="fas fa-drum" />
-                            <i v-if="obj.modes.includes('catch')" class="fas fa-apple-alt" />
-                            <i v-if="obj.modes.includes('mania')" class="fas fa-stream" />
+                            <i v-if="quest.modes.includes('osu')" class="fas fa-circle" />
+                            <i v-if="quest.modes.includes('taiko')" class="fas fa-drum" />
+                            <i v-if="quest.modes.includes('catch')" class="fas fa-apple-alt" />
+                            <i v-if="quest.modes.includes('mania')" class="fas fa-stream" />
                         </td>
                         <td>
-                            {{ obj.status }}
+                            {{ quest.status }}
                         </td>
                     </data-table>
                 </div>

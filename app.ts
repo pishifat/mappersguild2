@@ -90,7 +90,7 @@ app.use('/judging', judgingRouter);
 
 app.use('/artists', artistsRouter);
 app.use('/admin', adminRouter);
-app.use('/admin', adminUsersRouter);
+app.use('/admin/users', adminUsersRouter);
 app.use('/admin/beatmaps', adminBeatmapsRouter);
 app.use('/admin', adminFeaturedArtistsRouter);
 app.use('/admin/quests', adminQuestsRouter);
