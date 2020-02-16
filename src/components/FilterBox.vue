@@ -4,9 +4,13 @@
             <div class="col">
                 <div class="input-group">
                     <div class="input-group-prepend">
-                        <div class="input-group-text">
+                        <button
+                            class="btn btn-outline-info"
+                            href="#"
+                            @click.prevent="updateFilterValue(newFilterValue)"
+                        >
                             <i class="fas fa-search" />
-                        </div>
+                        </button>
                     </div>
                     <input
                         class="form-control"
@@ -15,6 +19,7 @@
                         :placeholder="placeholder"
                         autocomplete="off"
                         :value="filterValue"
+                        @input="newFilterValue = $event.target.value"
                         @keyup.enter="updateFilterValue($event.target.value)"
                     >
                     <div class="input-group-append">
@@ -165,6 +170,11 @@ export default Vue.extend({
             required: true,
         },
         isLoading: Boolean,
+    },
+    data () {
+        return {
+            newFilterValue: '',
+        };
     },
     computed: mapState([
         'filterValue',
