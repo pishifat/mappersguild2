@@ -5,9 +5,6 @@
                 <div class="col">
                     <h3 class="ml-2 mt-2">
                         Action Needed
-                        <button class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#newsPost">
-                            Create news post
-                        </button>
                     </h3>
                     <h5 class="ml-4 mt-2">
                         <a href="#actionBeatmaps" data-toggle="collapse">
@@ -189,8 +186,6 @@
 
         <div class="radial-divisor mx-auto my-4" />
 
-        <news-post />
-
         <beatmap-info
             :beatmap="selectedBeatmap"
             @update-beatmap="updateBeatmap($event)"
@@ -211,7 +206,6 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import NewsPost from '../components/admin/NewsPost.vue';
 import BeatmapInfo from '../components/admin/BeatmapInfo.vue';
 import QuestInfo from '../components/admin/quests/QuestInfo.vue';
 import UserInfo from '../components/admin/UserInfo.vue';
@@ -222,7 +216,6 @@ import { User } from '../../interfaces/user';
 export default Vue.extend({
     name: 'AdminPage',
     components: {
-        NewsPost,
         BeatmapInfo,
         QuestInfo,
         UserInfo,

@@ -136,35 +136,4 @@ adminRouter.get('/relevantInfo/', canFail(async (req, res) => {
     res.json({ actionBeatmaps, actionQuests, actionUsers });
 }));
 
-/* GET news info */
-adminRouter.get('/loadNewsInfo/:date', async (req, res) => {
-    if (isNaN(Date.parse(req.params.date))) {
-        return res.json( { error: 'Invalid date' } );
-    }
-
-    const date = new Date(req.params.date);
-
-    const [b, q] = await Promise.all([
-        BeatmapService.queryAll({
-            query: {
-                updatedAt: { $gte: date },
-                status: BeatmapStatus.Ranked,
-                $or: [
-                    { quest: { $exists: false } },
-                    { quest: { $eq: null } },
-                ],
-            },
-            defaultPopulate: true,
-            sort: { mode: 1, createdAt: -1 },
-        }),
-        QuestService.queryAll({
-            query: { completed: { $gte: date } },
-            defaultPopulate: true,
-            sort: { name: 1 },
-        }),
-    ]);
-
-    res.json({ beatmaps: b, quests: q });
-});
-
 export default adminRouter;

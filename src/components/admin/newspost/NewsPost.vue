@@ -30,11 +30,11 @@
                         <span v-for="quest in quests" :key="quest.id">
                             <br><samp class="small text-white-50">
                                 {{ quest.art && quest.associatedMaps.length ?
-                                    '![' + quest.associatedMaps[0].song.artist + ' header](https://assets.ppy.sh/artists/' + quest.art + '/header.jpg' :
+                                    '![' + quest.associatedMaps[0].song.artist + ' header](https://assets.ppy.sh/artists/' + quest.art + '/header.jpg)' :
                                     '![Mystery header](/wiki/shared/news/banners/mappersguild-mystery.jpg)' }}
                             </samp><br><br>
                             <samp class="small text-white-50">
-                                For the **{{ quest.name + ' (' + questModes(quest.modes) + ')' }}** quest, the mappers had to {{ quest.descriptionMain.substring(0,1).toLowerCase() + quest.descriptionMain.substring(1) }}
+                                For the **{{ quest.name + ' (' + questModes(quest.modes) + ')' }}** quest, the mapper{{ quest.completedMembers.length == 1 ? '' : 's' }} had to {{ quest.descriptionMain.substring(0,1).toLowerCase() + quest.descriptionMain.substring(1) }}
                             </samp><br><br>
                             <samp class="small text-white-50">
                                 This quest was completed by
@@ -45,9 +45,11 @@
                             <span v-for="beatmap in quest.associatedMaps" :key="beatmap.id">
                                 <samp class="small text-white-50">
                                     - [{{ beatmap.song.artist }} - {{ beatmap.song.title }}]({{ beatmap.url }})
-                                    by
+                                    {{ beatmap.mappers.length > 1 ? 'hosted by' : 'by' }}
                                     [{{ beatmap.host.username }}]({{ 'https://osu.ppy.sh/users/' + beatmap.host.osuId }})
-                                    ({{ beatmap.mode == 'osu' ? 'osu!' : beatmap.mode == 'hybrid' ? 'hybrid' : 'osu!' + beatmap.mode }})
+                                    <span v-if="quest.modes.length > 1">
+                                        ({{ beatmap.mode == 'osu' ? 'osu!' : beatmap.mode == 'hybrid' ? 'hybrid' : 'osu!' + beatmap.mode }})
+                                    </span>
                                 </samp><br>
                             </span>
                         </span>
@@ -56,14 +58,46 @@
                         Other beatmap data:
                     </p>
                     <div v-if="beatmaps" class="copy-paste">
-                        <span v-for="beatmap in beatmaps" :key="beatmap.id">
-                            <samp class="small text-white-50">
-                                - [{{ beatmap.song.artist }} - {{ beatmap.song.title }}]({{ beatmap.url }})
-                                by
-                                [{{ beatmap.host.username }}]({{ 'https://osu.ppy.sh/users/' + beatmap.host.osuId }})
-                                ({{ beatmap.mode == 'osu' ? 'osu!' : beatmap.mode == 'hybrid' ? 'hybrid' : 'osu!' + beatmap.mode }})
-                            </samp><br>
-                        </span>
+                        <samp class="small text-white-50">
+                            [**osu!**](#osu)
+                        </samp><br>
+                        <samp class="small text-white-50">
+                            [**osu!taiko**](#taiko)
+                        </samp><br>
+                        <samp class="small text-white-50">
+                            [**osu!catch**](#catch)
+                        </samp><br>
+                        <samp class="small text-white-50">
+                            [**osu!mania**](#mania)
+                        </samp><br>
+                        <samp class="small text-white-50">
+                            [**multiple modes**](#hybrid)
+                        </samp><br><br>
+                        <beatmap-list
+                            :beatmaps="osuBeatmaps"
+                            :display-mode="'osu!'"
+                            :raw-mode="'osu'"
+                        />
+                        <beatmap-list
+                            :beatmaps="taikoBeatmaps"
+                            :display-mode="'osu!taiko'"
+                            :raw-mode="'taiko'"
+                        />
+                        <beatmap-list
+                            :beatmaps="catchBeatmaps"
+                            :display-mode="'osu!catch'"
+                            :raw-mode="'catch'"
+                        />
+                        <beatmap-list
+                            :beatmaps="maniaBeatmaps"
+                            :display-mode="'osu!mania'"
+                            :raw-mode="'mania'"
+                        />
+                        <beatmap-list
+                            :beatmaps="hybridBeatmaps"
+                            :display-mode="'multiple modes'"
+                            :raw-mode="'hybrid'"
+                        />
                     </div>
                 </div>
             </div>
@@ -73,11 +107,15 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { Beatmap } from '../../../interfaces/beatmap/beatmap';
-import { Quest } from '../../../interfaces/quest';
+import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
+import { Quest } from '../../../../interfaces/quest';
+import BeatmapList from './BeatmapList.vue';
 
 export default Vue.extend({
     name: 'NewsPost',
+    components: {
+        BeatmapList,
+    },
     data() {
         return {
             date: '2019-11-29',
@@ -85,9 +123,26 @@ export default Vue.extend({
             quests: [] as Quest[],
         };
     },
+    computed: {
+        osuBeatmaps(): Beatmap[] {
+            return this.beatmaps.filter(b => b.mode == 'osu');
+        },
+        taikoBeatmaps(): Beatmap[] {
+            return this.beatmaps.filter(b => b.mode == 'taiko');
+        },
+        catchBeatmaps(): Beatmap[] {
+            return this.beatmaps.filter(b => b.mode == 'catch');
+        },
+        maniaBeatmaps(): Beatmap[] {
+            return this.beatmaps.filter(b => b.mode == 'mania');
+        },
+        hybridBeatmaps(): Beatmap[] {
+            return this.beatmaps.filter(b => b.mode == 'hybrid');
+        },
+    },
     methods: {
         async loadNewsInfo(e): Promise<void> {
-            const res: any = await this.executeGet('/admin/loadNewsInfo/' + this.date, e);
+            const res: any = await this.executeGet('/admin/beatmaps/loadNewsInfo/' + this.date, e);
 
             if (res) {
                 this.beatmaps = res.beatmaps;

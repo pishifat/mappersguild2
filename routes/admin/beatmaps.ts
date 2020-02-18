@@ -2,9 +2,10 @@ import express from 'express';
 import { isLoggedIn, isAdmin, isSuperAdmin } from '../../helpers/middlewares';
 import { BeatmapService } from '../../models/beatmap/beatmap';
 import { BeatmapStatus } from '../../interfaces/beatmap/beatmap';
+import { QuestService } from '../../models/quest';
 import { canFail, defaultErrorMessage } from '../../helpers/helpers';
 import { TaskService, Task } from '../../models/beatmap/task';
-import { beatmapsetInfo, isOsuReponseError } from '../../helpers/osuApi';
+import { beatmapsetInfo, getMaps, isOsuReponseError } from '../../helpers/osuApi';
 import { webhookPost } from '../../helpers/discordApi';
 
 const adminBeatmapsRouter = express.Router();
@@ -164,5 +165,36 @@ adminBeatmapsRouter.post('/:id/updatePackId', canFail(async (req, res) => {
 
     res.json(parseInt(req.body.packId));
 }));
+
+/* GET news info */
+adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
+    if (isNaN(Date.parse(req.params.date))) {
+        return res.json( { error: 'Invalid date' } );
+    }
+
+    const date = new Date(req.params.date);
+
+    const [b, q] = await Promise.all([
+        BeatmapService.queryAll({
+            query: {
+                updatedAt: { $gte: date },
+                status: BeatmapStatus.Ranked,
+            },
+            defaultPopulate: true,
+            sort: { mode: 1, createdAt: -1 },
+        }),
+        QuestService.queryAll({
+            query: { completed: { $gte: date } },
+            defaultPopulate: true,
+            sort: { name: 1 },
+        }),
+    ]);
+
+    const maps = await getMaps(date);
+
+    console.log(maps.length);
+
+    res.json({ beatmaps: b, quests: q });
+});
 
 export default adminBeatmapsRouter;

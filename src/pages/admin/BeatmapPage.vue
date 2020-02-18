@@ -3,6 +3,9 @@
         <div class="container bg-container py-1">
             <div class="row">
                 <div class="col-sm">
+                    <button class="btn btn-sm btn-info btn-block" data-toggle="modal" data-target="#newsPost">
+                        Create news post
+                    </button>
                     <data-table
                         #default="{ obj: beatmap }"
                         :data="beatmaps"
@@ -36,12 +39,15 @@
             @update-beatmap="updateBeatmap($event)"
         />
 
+        <news-post />
+
         <toast-messages />
     </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
+import NewsPost from '../../components/admin/newspost/NewsPost.vue';
 import BeatmapInfo from '../../components/admin/BeatmapInfo.vue';
 import DataTable from '../../components/admin/DataTable.vue';
 import ToastMessages from '../../components/ToastMessages.vue';
@@ -50,6 +56,7 @@ import { mapState } from 'vuex';
 
 export default Vue.extend({
     components: {
+        NewsPost,
         DataTable,
         BeatmapInfo,
         ToastMessages,

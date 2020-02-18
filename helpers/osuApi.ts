@@ -128,3 +128,28 @@ export async function beatmapsetInfo(setId: number): Promise<OsuBeatmapResponse 
         return defaultErrorMessage;
     }
 }
+
+export async function getMaps(date: Date): Promise<OsuBeatmapResponse[] | BasicError> {
+    let beatmaps: OsuBeatmapResponse[] = [];
+    const today = new Date();
+    console.log(today.setDate(today.getDate() - 7));
+
+    try {
+        while (date < new Date(today.setDate(today.getDate() - 7))) {
+            //set some kind of delay or else this will stop part-way through
+            const url = `https://osu.ppy.sh/api/get_beatmaps?k=${config.v1token}&since=${date.toISOString()}`;
+            const res: any = await axios.get(url);
+            date = new Date(res.data[res.data.length - 1].approved_date);
+            beatmaps = beatmaps.concat(res.data);
+            console.log(date);
+        }
+
+        if (beatmaps.length > 0) {
+            return beatmaps;
+        }
+
+        return defaultErrorMessage;
+    } catch (error) {
+        return defaultErrorMessage;
+    }
+}

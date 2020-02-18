@@ -209,25 +209,23 @@ adminUsersRouter.post('/updatePoints', canFail(async (req, res) => {
             pointsObject['Rank']['value'] = 3;
         }
 
-        if (user.username != 'Greenshell') {
-            UserService.update(user._id, {
-                easyPoints: pointsObject['Easy']['total'],
-                normalPoints: pointsObject['Normal']['total'],
-                hardPoints: pointsObject['Hard']['total'],
-                insanePoints: pointsObject['Insane']['total'],
-                expertPoints: pointsObject['Expert']['total'],
-                storyboardPoints: pointsObject['Storyboard']['total'],
-                modPoints: pointsObject['Mod']['total'],
-                hostPoints: pointsObject['Host']['total'],
-                questPoints: pointsObject['QuestReward']['total'],
-                rank: pointsObject['Rank']['value'],
-                osuPoints: pointsObject['osu']['total'],
-                taikoPoints: pointsObject['taiko']['total'],
-                catchPoints: pointsObject['catch']['total'],
-                maniaPoints: pointsObject['mania']['total'],
-                completedQuests: pointsObject['Quests']['list'],
-            });
-        }
+        UserService.update(user._id, {
+            easyPoints: pointsObject['Easy']['total'],
+            normalPoints: pointsObject['Normal']['total'],
+            hardPoints: pointsObject['Hard']['total'],
+            insanePoints: pointsObject['Insane']['total'],
+            expertPoints: pointsObject['Expert']['total'],
+            storyboardPoints: pointsObject['Storyboard']['total'],
+            modPoints: pointsObject['Mod']['total'],
+            hostPoints: pointsObject['Host']['total'],
+            questPoints: pointsObject['QuestReward']['total'],
+            rank: pointsObject['Rank']['value'],
+            osuPoints: pointsObject['osu']['total'],
+            taikoPoints: pointsObject['taiko']['total'],
+            catchPoints: pointsObject['catch']['total'],
+            maniaPoints: pointsObject['mania']['total'],
+            completedQuests: pointsObject['Quests']['list'],
+        });
     });
 
     res.json('user points updated');
