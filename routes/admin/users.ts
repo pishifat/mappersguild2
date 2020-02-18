@@ -36,7 +36,7 @@ adminUsersRouter.get('/load', async (req, res) => {
 adminUsersRouter.post('/:id/updatePenaltyPoints', canFail(async (req, res) => {
     const user = await UserService.updateOrFail(req.params.id, { penaltyPoints: req.body.penaltyPoints });
 
-    res.json(parseInt(req.body.penaltyPoints));
+    res.json(parseInt(req.body.penaltyPoints, 10));
 
     LogService.create(req.session.mongoId, `edited penalty points of "${user.username}" to ${req.body.penaltyPoints}`, LogCategory.User);
 }));
@@ -45,7 +45,7 @@ adminUsersRouter.post('/:id/updatePenaltyPoints', canFail(async (req, res) => {
 adminUsersRouter.post('/:id/updateBadge', canFail(async (req, res) => {
     await UserService.updateOrFail(req.params.id, { badge: req.body.badge });
 
-    res.json(parseInt(req.body.badge));
+    res.json(parseInt(req.body.badge, 10));
 }));
 
 interface PointsValues {

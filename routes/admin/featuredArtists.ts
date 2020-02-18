@@ -34,7 +34,7 @@ adminFeaturedArtistsRouter.get('/load', async (req, res) => {
 adminFeaturedArtistsRouter.post('/:id/updateOsuId', canFail(async (req, res) => {
     await FeaturedArtistService.updateOrFail(req.params.id, { osuId: req.body.osuId });
 
-    res.json(parseInt(req.body.osuId));
+    res.json(parseInt(req.body.osuId, 10));
 }));
 
 /* POST update artist name */

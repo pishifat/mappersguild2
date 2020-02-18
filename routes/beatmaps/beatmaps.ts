@@ -74,7 +74,7 @@ beatmapsRouter.get('/search', async (req, res) => {
     }
 
     const mode = req.query.mode as BeatmapMode | 'any';
-    const limit = parseInt(req.query.limit);
+    const limit = parseInt(req.query.limit, 10);
     const status = req.query.status as BeatmapStatus | undefined;
     const quest = req.query.quest as 'none' | undefined;
     const search = req.query.search as string | undefined;

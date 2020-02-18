@@ -122,7 +122,7 @@ adminContestsRouter.post('/:id/updateResultsPublished', canFail(async (req, res)
 
 /* POST add a judge to the list */
 adminContestsRouter.post('/:id/judges/add', canFail(async (req, res) => {
-    const osuId = parseInt(req.body.osuId);
+    const osuId = parseInt(req.body.osuId, 10);
     const [contest, user] = await Promise.all([
         ContestService.queryByIdOrFail(req.params.id),
         UserService.queryOneOrFail({ query: { osuId } }),
@@ -155,7 +155,7 @@ adminContestsRouter.post('/:id/judges/remove', canFail(async (req, res) => {
 
 /* POST create a submission entry */
 adminContestsRouter.post('/:id/submissions/create', canFail(async (req, res) => {
-    const osuId = parseInt(req.body.osuId);
+    const osuId = parseInt(req.body.osuId, 10);
     const [contest, user] = await Promise.all([
         ContestService.queryByIdOrFail(req.params.id),
         UserService.queryOneOrFail({ query: { osuId } }),

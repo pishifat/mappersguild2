@@ -5,7 +5,7 @@ import { QuestStatus } from '../../interfaces/quest';
 import { UserService, User } from '../../models/user';
 import { BeatmapService, Beatmap } from '../../models/beatmap/beatmap';
 import { BeatmapStatus } from '../../interfaces/beatmap/beatmap';
-import { beatmapsetInfo, isOsuReponseError } from '../../helpers/osuApi';
+import { beatmapsetInfo, isOsuResponseError } from '../../helpers/osuApi';
 import { canFail } from '../../helpers/helpers';
 
 const adminRouter = express.Router();
@@ -53,7 +53,7 @@ adminRouter.get('/relevantInfo/', canFail(async (req, res) => {
                     const bmInfo = await beatmapsetInfo(bmId);
                     let status = '';
 
-                    if (!isOsuReponseError(bmInfo)) {
+                    if (!isOsuResponseError(bmInfo)) {
                         switch (bmInfo.approved) {
                             case 4:
                                 status = 'Loved';

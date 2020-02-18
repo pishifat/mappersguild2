@@ -61,43 +61,53 @@
                         <samp class="small text-white-50">
                             [**osu!**](#osu)
                         </samp><br>
-                        <samp class="small text-white-50">
-                            [**osu!taiko**](#taiko)
-                        </samp><br>
-                        <samp class="small text-white-50">
-                            [**osu!catch**](#catch)
-                        </samp><br>
-                        <samp class="small text-white-50">
-                            [**osu!mania**](#mania)
-                        </samp><br>
-                        <samp class="small text-white-50">
-                            [**multiple modes**](#hybrid)
-                        </samp><br><br>
                         <beatmap-list
                             :beatmaps="osuBeatmaps"
                             :display-mode="'osu!'"
                             :raw-mode="'osu'"
                         />
+                        <samp class="small text-white-50">
+                            [**osu!taiko**](#taiko)
+                        </samp><br>
                         <beatmap-list
                             :beatmaps="taikoBeatmaps"
                             :display-mode="'osu!taiko'"
                             :raw-mode="'taiko'"
                         />
+                        <samp class="small text-white-50">
+                            [**osu!catch**](#catch)
+                        </samp><br>
                         <beatmap-list
                             :beatmaps="catchBeatmaps"
                             :display-mode="'osu!catch'"
                             :raw-mode="'catch'"
                         />
+                        <samp class="small text-white-50">
+                            [**osu!mania**](#mania)
+                        </samp><br>
                         <beatmap-list
                             :beatmaps="maniaBeatmaps"
                             :display-mode="'osu!mania'"
                             :raw-mode="'mania'"
                         />
+                        <samp class="small text-white-50">
+                            [**multiple modes**](#hybrid)
+                        </samp><br><br>
                         <beatmap-list
                             :beatmaps="hybridBeatmaps"
                             :display-mode="'multiple modes'"
                             :raw-mode="'hybrid'"
                         />
+                        <samp class="small text-white-50">
+                            EXTERNAL BEATMAPS (sort these on your own)
+                        </samp><br>
+                        <span v-for="beatmap in externalBeatmaps" :key="beatmap.osuId">
+                            <samp class="small text-white-50">
+                                - [{{ beatmap.artist }} - {{ beatmap.title }}]({{ 'https://osu.ppy.sh/beatmapsets/' + beatmap.osuId }})
+                                hosted by
+                                [{{ beatmap.creator }}]({{ 'https://osu.ppy.sh/users/' + beatmap.creatorOsuId }})
+                            </samp><br>
+                        </span>
                     </div>
                 </div>
             </div>
@@ -121,6 +131,7 @@ export default Vue.extend({
             date: '2019-11-29',
             beatmaps: [] as Beatmap[],
             quests: [] as Quest[],
+            externalBeatmaps: [] as any,
         };
     },
     computed: {
@@ -147,6 +158,7 @@ export default Vue.extend({
             if (res) {
                 this.beatmaps = res.beatmaps;
                 this.quests = res.quests;
+                this.externalBeatmaps = res.externalBeatmaps;
             }
         },
         questModes(modes): string {

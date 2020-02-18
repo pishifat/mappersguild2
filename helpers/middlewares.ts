@@ -1,6 +1,6 @@
 import { UserService } from '../models/user';
 import { UserGroup } from '../interfaces/user';
-import { refreshToken, isOsuReponseError, getUserInfo } from './osuApi';
+import { refreshToken, isOsuResponseError, getUserInfo } from './osuApi';
 
 export async function isLoggedIn(req, res, next): Promise<void> {
     if (req.session.mongoId) {
@@ -10,7 +10,7 @@ export async function isLoggedIn(req, res, next): Promise<void> {
         if (new Date() > new Date(req.session.expireDate - (10 * 3600 * 1000))) {
             const response = await refreshToken(req.session.refreshToken);
 
-            if (!response || isOsuReponseError(response)) {
+            if (!response || isOsuResponseError(response)) {
                 req.session.destroy();
 
                 return res.redirect('/');
@@ -66,7 +66,7 @@ export async function isBn(req, res, next): Promise<void> {
     if (req.session.osuId) {
         const res = await getUserInfo(req.session.accessToken);
 
-        if (!isOsuReponseError(res) && (res.is_nat || res.is_bng)) {
+        if (!isOsuResponseError(res) && (res.is_nat || res.is_bng)) {
             return next();
         }
     }

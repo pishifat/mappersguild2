@@ -60,7 +60,7 @@ judgingRouter.post('/updateSubmission/:submissionId', canFail(async (req, res) =
     let vote: number | undefined;
 
     if (req.body.vote !== undefined) {
-        vote = parseInt(req.body.vote);
+        vote = parseInt(req.body.vote, 10);
 
         if (isNaN(vote)) {
             vote = undefined;

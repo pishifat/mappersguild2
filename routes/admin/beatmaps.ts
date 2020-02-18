@@ -5,7 +5,7 @@ import { BeatmapStatus } from '../../interfaces/beatmap/beatmap';
 import { QuestService } from '../../models/quest';
 import { canFail, defaultErrorMessage } from '../../helpers/helpers';
 import { TaskService, Task } from '../../models/beatmap/task';
-import { beatmapsetInfo, getMaps, isOsuReponseError } from '../../helpers/osuApi';
+import { beatmapsetInfo, getMaps, isOsuResponseError } from '../../helpers/osuApi';
 import { webhookPost } from '../../helpers/discordApi';
 
 const adminBeatmapsRouter = express.Router();
@@ -60,7 +60,7 @@ adminBeatmapsRouter.post('/:id/updateStatus', isSuperAdmin, canFail(async (req, 
 
         const bmInfo = await beatmapsetInfo(parseInt(bmId, 10));
 
-        if (isOsuReponseError(bmInfo)) {
+        if (isOsuResponseError(bmInfo)) {
             return res.json(defaultErrorMessage);
         }
 
@@ -163,7 +163,7 @@ adminBeatmapsRouter.post('/:id/updateStoryboardQuality', canFail(async (req, res
 adminBeatmapsRouter.post('/:id/updatePackId', canFail(async (req, res) => {
     await BeatmapService.updateOrFail(req.params.id, { packId: req.body.packId });
 
-    res.json(parseInt(req.body.packId));
+    res.json(parseInt(req.body.packId, 10));
 }));
 
 /* GET news info */
@@ -175,7 +175,7 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
     const date = new Date(req.params.date);
 
     const [b, q] = await Promise.all([
-        BeatmapService.queryAll({
+        BeatmapService.queryAllOrFail({
             query: {
                 updatedAt: { $gte: date },
                 status: BeatmapStatus.Ranked,
@@ -183,18 +183,60 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
             defaultPopulate: true,
             sort: { mode: 1, createdAt: -1 },
         }),
-        QuestService.queryAll({
+        QuestService.queryAllOrFail({
             query: { completed: { $gte: date } },
             defaultPopulate: true,
             sort: { name: 1 },
         }),
     ]);
 
-    const maps = await getMaps(date);
+    const maps: any = await getMaps(date);
 
-    console.log(maps.length);
+    console.log(maps[0]);
 
-    res.json({ beatmaps: b, quests: q });
+    const osuIds: any = [];
+    const externalBeatmaps: any = [];
+
+    b.forEach(map => {
+        if (map.url) {
+            const indexStart = map.url.indexOf('beatmapsets/') + 'beatmapsets/'.length;
+            const indexEnd = map.url.indexOf('#');
+            let bmId = '';
+
+            if (indexEnd !== -1) {
+                bmId = map.url.slice(indexStart, indexEnd);
+            } else {
+                bmId = map.url.slice(indexStart);
+            }
+
+            const osuId = parseInt(bmId, 10);
+
+            if (osuIds.indexOf(osuId) == -1) {
+                osuIds.push(osuId);
+            }
+        }
+    });
+
+    if (!isOsuResponseError(maps)) {
+        maps.forEach(map => {
+            map.beatmapset_id = parseInt(map.beatmapset_id, 10);
+
+            if (osuIds.indexOf(map.beatmapset_id) == -1) {
+                osuIds.push(map.beatmapset_id);
+
+                if (map.tags.includes('featured artist') || map.tags.includes(' fa ')) {
+                    externalBeatmaps.push({
+                        osuId: map.beatmapset_id,
+                        artist: map.artist,
+                        title: map.title,
+                        creator: map.creator,
+                        creatorOsuId: map.creator_id });
+                }
+            }
+        });
+    }
+
+    res.json({ beatmaps: b, quests: q, externalBeatmaps });
 });
 
 export default adminBeatmapsRouter;

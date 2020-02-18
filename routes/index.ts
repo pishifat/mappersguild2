@@ -6,7 +6,7 @@ import { UserService } from '../models/user';
 import { LogService } from '../models/log';
 import { LogCategory } from '../interfaces/log';
 import { isLoggedIn } from '../helpers/middlewares';
-import { getToken, getUserInfo, isOsuReponseError } from '../helpers/osuApi';
+import { getToken, getUserInfo, isOsuResponseError } from '../helpers/osuApi';
 import { UserGroup } from '../interfaces/user';
 import { webhookPost } from '../helpers/discordApi';
 
@@ -134,7 +134,7 @@ indexRouter.get('/callback', async (req, res) => {
 
     let response = await getToken(req.query.code);
 
-    if (isOsuReponseError(response)) {
+    if (isOsuResponseError(response)) {
         res.status(500).render('error', { message: response.error });
     } else {
         // *1000 because maxAge is miliseconds, oauth is seconds
@@ -144,7 +144,7 @@ indexRouter.get('/callback', async (req, res) => {
 
         response = await getUserInfo(req.session!.accessToken!);
 
-        if (isOsuReponseError(response)) {
+        if (isOsuResponseError(response)) {
             res.status(500).render('error');
         } else {
             req.session!.group = response.ranked_and_approved_beatmapset_count >= 3 ? 'user' : 'spectator';

@@ -34,7 +34,7 @@ logsRouter.get('/more/:skip', async (req, res) => {
         },
         useDefaults: true,
         limit: 100,
-        skip: parseInt(req.params.skip),
+        skip: parseInt(req.params.skip, 10),
     }));
 });
 
