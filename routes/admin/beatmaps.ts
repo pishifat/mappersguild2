@@ -16,7 +16,7 @@ adminBeatmapsRouter.use(isAdmin);
 adminBeatmapsRouter.get('/', (req, res) => {
     res.render('admin/beatmaps', {
         title: 'Beatmaps - Admin',
-        script: '../javascripts/adminBeatmaps.js',
+        script: 'adminBeatmaps.js',
         loggedInAs: req.session?.osuId,
         userTotalPoints: res.locals.userRequest.totalPoints,
     });

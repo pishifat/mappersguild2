@@ -12,7 +12,7 @@ logsRouter.use(isLoggedIn);
 logsRouter.get('/', async (req, res) => {
     res.render('logs', {
         title: 'Logs',
-        script: '../js/logs.js',
+        script: 'logs.js',
         isLogs: true,
         logs: await LogService.queryAll({
             query: { category: { $ne: LogCategory.Error } },

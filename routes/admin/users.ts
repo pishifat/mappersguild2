@@ -19,7 +19,7 @@ adminUsersRouter.use(isSuperAdmin);
 adminUsersRouter.get('/', (req, res) => {
     res.render('admin/users', {
         title: 'Users - Admin',
-        script: '../javascripts/adminUsers.js',
+        script: 'adminUsers.js',
         loggedInAs: req.session?.osuId,
         userTotalPoints: res.locals.userRequest.totalPoints,
     });
