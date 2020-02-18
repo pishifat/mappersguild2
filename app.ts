@@ -45,7 +45,9 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), {
+    maxAge: '10d', // 10d cuz css doesn't have a hash, yet
+}));
 app.use(
     bodyParser.urlencoded({
         extended: true,
