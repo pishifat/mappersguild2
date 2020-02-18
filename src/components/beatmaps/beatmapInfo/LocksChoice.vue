@@ -3,14 +3,14 @@
         <div id="locks" class="row mb-1">
             <div class="col">
                 <div>
-                    Locks 
-                    <a 
+                    Locks
+                    <a
                         v-if="beatmap.tasksLocked.length != 6"
-                        @click.prevent="showLocksInput = !showLocksInput"
                         class="text-success small ml-1"
                         href="#"
+                        @click.prevent="showLocksInput = !showLocksInput"
                     >
-                        <i class="fas fa-edit"></i>
+                        <i class="fas fa-edit" />
                     </a>
                 </div>
                 <div class="small ml-3">
@@ -18,17 +18,17 @@
                     <div v-if="beatmap.tasksLocked.length > 0">
                         <div
                             v-for="task in beatmap.tasksLocked"
-                            :key="task.id"
+                            :key="task"
                         >
                             <a
                                 href="#"
                                 class="text-danger"
-                                @click.prevent="unlockTask(task, $event)"
                                 data-toggle="tooltip"
                                 data-placement="left"
                                 title="unlock"
+                                @click.prevent="unlockTask(task, $event)"
                             >
-                                <i class="fas fa-minus"></i>
+                                <i class="fas fa-minus" />
                             </a>
                             <span class="text-white-50">
                                 {{ task }}
@@ -39,7 +39,7 @@
             </div>
         </div>
 
-        <div 
+        <div
             v-if="showLocksInput"
             class="row"
         >
@@ -51,6 +51,7 @@
                     >
                         <option
                             v-for="task in remainingTasks"
+                            :key="task"
                             :value="task"
                         >
                             {{ task }}
@@ -58,14 +59,14 @@
                     </select>
                     <div class="input-group-append">
                         <button
-                            class="btn btn-outline-info"
                             id="lockTask"
-                            @click="lockTask($event)"
+                            class="btn btn-outline-info"
                             data-toggle="tooltip"
                             data-placement="right"
                             title="prevent other mappers from claiming a difficulty"
+                            @click="lockTask($event)"
                         >
-                            <i class="fas fa-lock"></i>
+                            <i class="fas fa-lock" />
                         </button>
                     </div>
                 </div>
@@ -74,84 +75,70 @@
     </div>
 </template>
 
-<script>
-import mixin from '../../../mixins.js';
+<script lang="ts">
+import Vue from 'vue';
+import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
+import { TaskName } from '../../../../interfaces/beatmap/task';
 
-export default {
-    name: 'locks-choice',
-    mixins: [ mixin ],
+export default Vue.extend({
+    name: 'LocksChoice',
     props: {
-        beatmap: Object,
-    },
-    watch: {
-        beatmap () {
-            this.showLocksInput = false;
-        }
-    },
-    mounted () {
-        this.sortLocks();
-    },
-    computed: {
-        remainingTasks() {
-            let possibleTasks = [
-                'Easy',
-                'Normal',
-                'Hard',
-                'Insane',
-                'Expert',
-                'Storyboard',
-            ];
-
-            if (this.beatmap && this.beatmap.tasksLocked && this.beatmap.tasksLocked.length) {
-                possibleTasks = possibleTasks.filter(t => !this.beatmap.tasksLocked.includes(t));
-                
-            }
-            
-            this.lockTaskSelection = possibleTasks[0] || null;
-            return possibleTasks;
+        beatmap: {
+            type: Object as () => Beatmap,
+            required: true,
         },
     },
     data () {
         return {
-            lockTaskSelection: null,
+            lockTaskSelection: '',
             showLocksInput: false,
-        }
+        };
+    },
+    computed: {
+        remainingTasks(): string[] {
+            let possibleTasks: TaskName[] = Object.values(TaskName);
+
+            if (this.beatmap?.tasksLocked?.length) {
+                possibleTasks = possibleTasks.filter(t => !this.beatmap.tasksLocked.includes(t));
+            }
+
+            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+            this.lockTaskSelection = possibleTasks[0] || '';
+
+            return possibleTasks;
+        },
+    },
+    watch: {
+        beatmap (): void {
+            this.showLocksInput = false;
+        },
     },
     methods: {
-        unlockTask: async function(task, e) {
+        async unlockTask(task, e): Promise<void> {
             e.target.classList.add('fake-button-disable');
 
-            const bm = await this.executePost(
-                '/beatmaps/unlockTask/' + this.beatmap._id, 
+            const bm = await this.executePost<Beatmap>(
+                `/beatmaps/${this.beatmap.id}/unlockTask`,
                 { task }
             );
 
-            if (bm) {
-                this.editLinkInput = null;
-                this.$emit('update:beatmap', bm);
+            if (!this.isError(bm)) {
+                this.$store.dispatch('updateBeatmap', bm);
             }
 
             e.target.classList.remove('fake-button-disable');
         },
-        lockTask: async function(e) {
-            const bm = await this.executePost(
-                '/beatmaps/lockTask/' + this.beatmap._id,
+        async lockTask(e): Promise<void> {
+            const bm = await this.executePost<Beatmap>(
+                `/beatmaps/${this.beatmap.id}/lockTask`,
                 { task: this.lockTaskSelection },
                 e
             );
-            
-            if (!bm || bm.error) {
-                this.$emit('update:info', (bm && bm.error) || 'Something went wrong!');
-            } else {
-                this.$emit('update:beatmap', bm);
+
+            if (!this.isError(bm)) {
+                this.$store.dispatch('updateBeatmap', bm);
             }
         },
-        sortLocks: function() {
-            let sortOrder = ['Easy', 'Normal', 'Hard', 'Insane', 'Expert', 'Storyboard'];
-            this.beatmap.tasksLocked.sort(function(a, b) {
-                return sortOrder.indexOf(a) - sortOrder.indexOf(b);
-            });
-        },
     },
-}
+});
 </script>

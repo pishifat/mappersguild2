@@ -1,7 +1,7 @@
 <template>
     <div id="editUser" class="modal fade" tabindex="-1">
         <div class="modal-dialog">
-            <div class="modal-content bg-dark" v-if="user">
+            <div v-if="user" class="modal-content bg-dark">
                 <div class="modal-header text-dark" :class="'bg-rank-' + user.rank">
                     <h5 class="modal-title">
                         <a :href="'https://osu.ppy.sh/users/' + user.osuId" class="text-dark" target="_blank">
@@ -15,22 +15,22 @@
                 <div class="modal-body" style="overflow: hidden">
                     <p>
                         <input
+                            v-model="penaltyPoints"
                             class="form-control-sm mx-2"
                             type="text"
                             autocomplete="off"
-                            v-model="penaltyPoints"
-                        />
+                        >
                         <button class="btn btn-sm btn-outline-info" @click="updatePenaltyPoints($event)">
                             Save penalty points
                         </button>
                     </p>
                     <p>
                         <input
+                            v-model="badge"
                             class="form-control-sm mx-2"
                             type="text"
                             autocomplete="off"
-                            v-model="badge"
-                        />
+                        >
                         <button class="btn btn-sm btn-outline-info" @click="updateBadge($event)">
                             Save badge
                         </button>
@@ -41,56 +41,62 @@
     </div>
 </template>
 
-<script>
-export default {
-    name: 'user-info',
-    props: ['user'],
-    watch: {
-        user: function() {
-            this.penaltyPoints = this.user.penaltyPoints || 0;
-            this.badge = this.user.badge || 0;
-        },
-    },
-    computed: {
+<script lang="ts">
+import Vue from 'vue';
+import { User } from '../../../interfaces/user';
 
-    },
-    methods: {
-        executePost: async function(path, data, e) {
-            if (e) e.target.disabled = true;
-
-            try {
-                const res = await axios.post(path, data);
-
-                if (res.data.error) {
-                    this.info = res.data.error;
-                } else {
-                    if (e) e.target.disabled = false;
-                    return res.data;
-                }
-            } catch (error) {
-                console.log(error);
-            }
-
-            if (e) e.target.disabled = false;
-        },
-        updatePenaltyPoints: async function(e) {
-            const u = await this.executePost('/admin/updatePenaltyPoints/' + this.user.id, {penaltyPoints: this.penaltyPoints}, e);
-            if (u) {
-                this.$emit('update-user', u);
-            }
-        },
-        updateBadge: async function(e) {
-            const u = await this.executePost('/admin/updateBadge/' + this.user.id, {badge: this.badge}, e);
-            if (u) {
-                this.$emit('update-user', u);
-            }
+export default Vue.extend({
+    name: 'UserInfo',
+    props: {
+        user: {
+            type: Object as () => User,
+            default: null,
         },
     },
     data() {
         return {
-            penaltyPoints: null,
-            badge: null,
+            penaltyPoints: 0,
+            badge: 0,
         };
     },
-};
+    computed: {
+
+    },
+    watch: {
+        user(): void {
+            this.penaltyPoints = this.user.penaltyPoints || 0;
+            this.badge = this.user.badge || 0;
+        },
+    },
+    methods: {
+        async updatePenaltyPoints(e): Promise<void> {
+            const penaltyPoints = await this.executePost(`/admin/users/${this.user.id}/updatePenaltyPoints`, { penaltyPoints: this.penaltyPoints }, e);
+
+            if (!this.isError(penaltyPoints)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `set penalty points to ${penaltyPoints}`,
+                    type: 'info',
+                });
+                this.$store.commit('updatePenaltyPoints', {
+                    userId: this.user.id,
+                    penaltyPoints,
+                });
+            }
+        },
+        async updateBadge(e): Promise<void> {
+            const badge = await this.executePost(`/admin/users/${this.user.id}/updateBadge`, { badge: this.badge }, e);
+
+            if (badge) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `set badge to ${badge}`,
+                    type: 'info',
+                });
+                this.$store.commit('updateBadge', {
+                    userId: this.user.id,
+                    badge,
+                });
+            }
+        },
+    },
+});
 </script>

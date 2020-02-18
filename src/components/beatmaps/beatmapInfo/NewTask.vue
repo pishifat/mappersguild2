@@ -12,41 +12,50 @@
                 >
                     <option
                         v-for="task in remainingTasks"
+                        :key="task"
                         :value="task"
                     >
                         {{ task }}
                     </option>
                 </select>
-                
+
                 <select
                     v-if="beatmap.mode == 'hybrid' && !taskToAddCollaborator"
                     v-model="selectedMode"
                     class="form-control"
                 >
-                    <option value="osu">osu!</option>
-                    <option value="taiko">osu!taiko</option>
-                    <option value="catch">osu!catch</option>
-                    <option value="mania">osu!mania</option>
+                    <option value="osu">
+                        osu!
+                    </option>
+                    <option value="taiko">
+                        osu!taiko
+                    </option>
+                    <option value="catch">
+                        osu!catch
+                    </option>
+                    <option value="mania">
+                        osu!mania
+                    </option>
                 </select>
 
                 <input
                     v-if="isHost || taskToAddCollaborator"
+                    v-model="requestTaskUsername"
                     class="form-control w-25"
                     type="text"
                     placeholder="request to... (if needed)"
                     maxlength="18"
-                    v-model="requestTaskUsername"
                     @keyup.enter="taskToAddCollaborator ? addCollab($event) : requestTask(beatmap.id, $event)"
-                />
+                >
 
                 <button
                     class="btn btn-sm btn-outline-info ml-1"
-                    @click="taskToAddCollaborator ? addCollab($event) : addTask(beatmap.id, $event)"
                     data-toggle="tooltip"
                     data-placement="top"
                     title="add difficulty"
+                    @click="taskToAddCollaborator ? addCollab($event) : addTask(beatmap.id, $event)"
                 >
-                    <i class="fas fa-plus"></i>
+                    <i class="fas fa-plus" />
                 </button>
             </div>
         </div>
@@ -56,123 +65,125 @@
             class="col-sm-12 mt-1 text-center"
         >
             <small>
-                Adding collaborator for the selected difficulty 
-                <a class="text-danger" href="#" @click="$emit('update:task-to-add-collaborator', null)">
-                    <i class="fas fa-times-circle"></i>
+                Adding collaborator for the selected difficulty
+                <a class="text-danger" href="#" @click.prevent="$emit('update:task-to-add-collaborator', null)">
+                    <i class="fas fa-times-circle" />
                 </a>
             </small>
         </div>
     </div>
 </template>
 
-<script>
-import mixin from '../../../mixins.js';
+<script lang="ts">
+import Vue from 'vue';
+import { Beatmap, BeatmapMode } from '../../../../interfaces/beatmap/beatmap';
+import { Task, TaskName } from '../../../../interfaces/beatmap/task';
 
-export default {
-    name: 'new-task',
-    mixins: [ mixin ],
+export default Vue.extend({
+    name: 'NewTask',
     props: {
-        beatmap: Object,
         isHost: Boolean,
-        taskToAddCollaborator: Object,
+        taskToAddCollaborator: {
+            type: Object as () => Task,
+            default: null,
+        },
+        beatmap: {
+            type: Object as () => Beatmap,
+            required: true,
+        },
     },
     data () {
         return {
-            selectedTask: 'Easy',
-            selectedMode: 'osu',
-            requestTaskUsername: null,
-        }
+            selectedTask: TaskName.Easy,
+            selectedMode: BeatmapMode.Osu,
+            requestTaskUsername: '',
+        };
     },
     computed: {
-        remainingTasks() {
-            let possibleTasks = [
-                'Easy',
-                'Normal',
-                'Hard',
-                'Insane',
-                'Expert',
-                'Storyboard',
-            ];
+        remainingTasks(): string[] {
+            let possibleTasks = Object.values(TaskName);
 
             if (this.beatmap.tasksLocked && this.beatmap.tasksLocked.length && !this.isHost) {
                 possibleTasks = possibleTasks.filter(t => !this.beatmap.tasksLocked.includes(t));
             }
-            
-            this.selectedTask = possibleTasks[0] || null;
+
+            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+            this.selectedTask = possibleTasks[0] || '';
+
             return possibleTasks;
         },
     },
     methods: {
-        addTask: async function(id, e) {
+        async addTask(id, e): Promise<void> {
             if (this.requestTaskUsername && this.requestTaskUsername.length) {
                 this.requestTask(id, e);
+
                 return;
             }
 
-            let mode;
-            if (this.beatmap.mode == 'hybrid') {
+            let mode: BeatmapMode;
+
+            if (this.beatmap.mode == BeatmapMode.Hybrid) {
                 mode = this.selectedMode;
-            }else{
+            } else {
                 mode = this.beatmap.mode;
             }
 
-            const bm = await this.executePost('/beatmaps/addTask/' + id, { 
-                taskName: this.selectedTask, 
-                mode
+            const bm = await this.executePost<Beatmap>('/beatmaps/addTask/' + id, {
+                taskName: this.selectedTask,
+                mode,
             }, e);
 
-            if (!bm || bm.error) {
-                this.$emit('update:info', bm.error);
-                this.$emit('update:invite-confirm', null);
-            } else {
-                this.$emit('update:beatmap', bm);
+            if (!this.isError(bm)) {
+                this.$store.dispatch('updateBeatmap', bm);
             }
         },
-        requestTask: async function(id, e) {
+        async requestTask(id, e): Promise<void> {
             let mode;
-            if (this.beatmap.mode == 'hybrid') {
+
+            if (this.beatmap.mode == BeatmapMode.Hybrid) {
                 mode = this.selectedMode;
-            }else{
+            } else {
                 mode = this.beatmap.mode;
             }
 
-            const bm = await this.executePost('/beatmaps/requestTask/' + id, { 
-                taskName: this.selectedTask, 
-                user: this.requestTaskUsername, 
-                mode 
+            const bm = await this.executePost<Beatmap>('/beatmaps/requestTask/' + id, {
+                taskName: this.selectedTask,
+                user: this.requestTaskUsername,
+                mode,
             }, e);
 
-            if (!bm || bm.error) {
-                this.$emit('update:info', bm.error);
-                this.$emit('update:invite-confirm', null);
-            } else {
-                this.$emit('update:beatmap', bm);
-                this.$emit('update:invite-confirm', 'Difficulty request sent!');
+            if (!this.isError(bm)) {
+                this.$store.dispatch('updateBeatmap', bm);
+                this.$store.dispatch('updateToastMessages', {
+                    message: 'Difficulty request sent!',
+                    type: 'success',
+                });
             }
         },
-        addCollab: async function(e) {
+        async addCollab(e): Promise<void> {
             let mode;
-            if (this.beatmap.mode == 'hybrid') {
+
+            if (this.beatmap.mode == BeatmapMode.Hybrid) {
                 mode = this.taskToAddCollaborator.mode;
-            }else{
+            } else {
                 mode = this.beatmap.mode;
             }
 
-            const bm = await this.executePost('/beatmaps/task/' + this.taskToAddCollaborator.id + '/addCollab', { 
-                user: this.requestTaskUsername, 
+            const bm = await this.executePost<Beatmap>('/beatmaps/task/' + this.taskToAddCollaborator.id + '/addCollab', {
+                user: this.requestTaskUsername,
                 taskName: this.taskToAddCollaborator.name,
                 mode,
             }, e);
 
-            if (!bm || bm.error) {
-                this.$emit('update:info', (bm && bm.error) || 'Something went wrong!');
-                this.$emit('update:invite-confirm', null);
-            } else {
-                this.$emit('update:beatmap', bm);
-                this.$emit('update:info', null);
-                this.$emit('update:invite-confirm', 'Collab invite sent!');
+            if (!this.isError(bm)) {
+                this.$store.dispatch('updateBeatmap', bm);
+                this.$store.dispatch('updateToastMessages', {
+                    message: 'Collab invite sent!',
+                    type: 'success',
+                });
             }
         },
     },
-}
+});
 </script>

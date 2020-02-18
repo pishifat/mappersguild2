@@ -1,62 +1,31 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const { entry, rules, resolve, externals } = require('./webpack.base.config');
 const path = require('path');
 
 module.exports = {
-    entry: {
-        maps: './src/maps.js',
-        users: './src/users.js',
-        notifications: './src/notifications.js',
-        admin: './src/admin.js',
-        artists: './src/artists.js',
-        quests: './src/quests.js',
-        judging: './src/judging.js',
-    },
+    entry,
     output: {
         filename: '[name].js',
-        path: path.resolve(__dirname, 'public/javascripts/'),
-        publicPath: '/'
+        path: path.resolve(__dirname, 'public/js/'),
+        publicPath: '/',
     },
     mode: 'development',
+    devtool: '#eval-source-map',
     module: {
-        rules: [
-            {
-                test: /\.vue$/,
-                exclude: /node_modules/,
-                loader: 'vue-loader'
-            },
-            {
-                test: /\.js$/,
-                exclude: /node_modules/,
-                loader: 'babel-loader'
-            },
-            {
-                test: /\.(png|svg|jpg|gif)$/,
-                use: [{
-                    loader: 'file-loader',
-                    options: {
-                        outputPath: '../images'
-                    }
-                }]
-            },
-            {
-                test: /\.css$/,
-                use: ['vue-style-loader', 'css-loader'],
-            },
-        ]
+        rules,
     },
     plugins: [
-        new VueLoaderPlugin()
+        new VueLoaderPlugin(),
     ],
-    resolve: {
-        alias: {
-            vue: 'vue/dist/vue.js',
-        },
-    },
+    resolve,
     devServer: {
-        publicPath: '/javascripts/',
+        publicPath: '/js/',
+        stats: 'minimal',
         port: 8080,
         proxy: {
-          '/': 'http://localhost:3000'
-        }
-    }
+            '/': 'http://localhost:3000',
+        },
+    },
+    externals,
 };

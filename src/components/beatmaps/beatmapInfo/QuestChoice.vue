@@ -3,18 +3,18 @@
         <div class="row mb-2">
             <div class="col">
                 <div>
-                    Quest 
+                    Quest
                     <a
-                        href="#"
                         id="editLink"
+                        href="#"
                         :class="showQuestInput ? 'text-danger' : ''"
                         class="text-success small ml-1"
-                        @click.prevent="showQuestInput ? unsetQuest() : setQuest()"
                         data-toggle="tooltip"
                         data-placement="right"
                         title="connect mapset with a quest"
+                        @click.prevent="showQuestInput = !showQuestInput"
                     >
-                        <i class="fas fa-edit"></i>
+                        <i class="fas fa-edit" />
                     </a>
                 </div>
                 <div class="small ml-3 text-white-50">
@@ -48,10 +48,10 @@
                     <div class="input-group-append">
                         <button
                             class="btn btn-outline-info"
-                            @click="saveQuest($event)"
                             data-toggle="tooltip"
                             data-placement="top"
                             title="link beatmap to quest"
+                            @click="saveQuest($event)"
                         >
                             Save
                         </button>
@@ -62,55 +62,49 @@
     </div>
 </template>
 
-<script>
-import mixin from '../../../mixins.js';
+<script lang="ts">
+import Vue from 'vue';
+import Axios from 'axios';
+import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
+import { Quest } from '../../../../interfaces/quest';
 
-export default {
-    name: 'quest-choice',
-    mixins: [ mixin ],
+export default Vue.extend({
+    name: 'QuestChoice',
     props: {
-        beatmap: Object,
-    },
-    watch: {
-        beatmap () {
-            this.showQuestInput = false;
-        }
+        beatmap: {
+            type: Object as () => Beatmap,
+            required: true,
+        },
     },
     data () {
         return {
-            userQuests: null,
+            userQuests: [] as Quest[],
             showQuestInput: false,
-            dropdownQuestId: (this.beatmap.quest && this.beatmap.quest._id) || '',
-        }
+            dropdownQuestId: '',
+        };
+    },
+    watch: {
+        beatmap (): void {
+            this.showQuestInput = false;
+            this.dropdownQuestId = this.beatmap.quest?.id;
+        },
+    },
+    async created() {
+        const res: any = await this.executeGet('/beatmaps/users/quests');
+        this.userQuests = res.userQuests;
     },
     methods: {
-        async setQuest() {
-            const response = await axios.get('/beatmaps/findUserQuests');
-            this.userQuests = response.data.userQuests;
-            this.showQuestInput = true;
-        },
-        unsetQuest() {
-            this.showQuestInput = false;
-        },
-        saveQuest: async function(e) {
-            const bm = await this.executePost(
-                '/beatmaps/saveQuest/' + this.beatmap._id,
+        async saveQuest(e): Promise<void> {
+            const bm = await this.executePost<Beatmap>(
+                `/beatmaps/${this.beatmap.id}/saveQuest`,
                 { questId: this.dropdownQuestId },
                 e
             );
-            
-            if (!bm || bm.error) {
-                this.$emit('update:info', (bm && bm.error) || 'Something went wrong!');
-            } else {
-                this.$emit('update:beatmap', bm);
 
-                // needed at all?
-                // axios.get('/beatmaps/relevantInfo').then(response => {
-                //     this.$parent.allQuests = response.data.allQuests;
-                //     this.$parent.beatmaps = response.data.beatmaps;
-                // });
+            if (!this.isError(bm)) {
+                this.$store.dispatch('updateBeatmap', bm);
             }
         },
-    }
-}
+    },
+});
 </script>

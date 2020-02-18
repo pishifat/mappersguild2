@@ -155,9 +155,6 @@
 </div>
 
 {{#if isNotSpectator }}
-<div id="notifications">
-    <notifications-access></notifications-access>
-</div>
 <form action="/bnsite" method="GET">
     <button id="bnsite" class="btn btn-sm btn-mg" style="
         position: fixed; 
@@ -167,8 +164,6 @@
     >visit BN/NAT site
     </button>
 </form>
-
-<script src="../js/notificationsComponent.js"></script>
 {{else}}
 <form action="/bnsite" method="GET">
     <button id="bnsite" class="btn btn-sm btn-mg" style="

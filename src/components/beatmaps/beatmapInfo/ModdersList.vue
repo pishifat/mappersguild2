@@ -2,20 +2,20 @@
     <div id="modders" class="row mb-2">
         <div class="col">
             <div>
-                Modders ({{ beatmap.modders.length }}) 
+                Modders ({{ beatmap.modders.length }})
                 <small
+                    v-if="canEdit"
                     class="ml-1"
                     data-toggle="tooltip"
                     data-placement="right"
                     title="add/remove yourself from modder list"
-                    v-if="canEdit"
                 >
                     <a
                         href="#"
                         :class="isModder ? 'text-danger' : 'text-success'"
                         @click.prevent="updateModder($event)"
                     >
-                        <i class="fas" :class="isModder ? 'fa-minus' : 'fa-plus'"></i>
+                        <i class="fas" :class="isModder ? 'fa-minus' : 'fa-plus'" />
                     </a>
                 </small>
             </div>
@@ -26,11 +26,11 @@
                 <span v-else>
                     <template v-for="(modder, i) in beatmap.modders">
                         <a
+                            :key="modder.id"
                             :href="'https://osu.ppy.sh/users/' + modder.osuId"
                             target="_blank"
-                            :key="modder.id"
                         >
-                                {{ modder.username + (i < beatmap.modders.length - 1 ? ', ' : '') }}
+                            {{ listUser(modder.username, i, beatmap.modders.length) }}
                         </a>
                     </template>
                 </span>
@@ -39,35 +39,39 @@
     </div>
 </template>
 
-<script>
-import mixin from '../../../mixins.js';
+<script lang="ts">
+import Vue from 'vue';
+import { mapState } from 'vuex';
+import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
 
-export default {
-    name: 'modders-list',
-    mixins: [ mixin ],
+export default Vue.extend({
+    name: 'ModdersList',
     props: {
-        beatmap: Object,
         canEdit: Boolean,
-        userOsuId: Number,
+        beatmap: {
+            type: Object as () => Beatmap,
+            required: true,
+        },
     },
     computed: {
-        isModder() {
+        ...mapState([
+            'userOsuId',
+        ]),
+        isModder(): boolean {
             return this.beatmap.modders.some(m => m.osuId == this.userOsuId);
         },
     },
     methods: {
-        async updateModder(e) {
+        async updateModder(e): Promise<void> {
             e.target.classList.add('fake-button-disable');
-            const bm = await this.executePost('/beatmaps/updateModder/' + this.beatmap._id);
-            
-            if (!bm || bm.error) {
-                this.$emit('update:info', (bm && bm.error) || 'Something went wrong!');
-            } else {
-                this.$emit('update:beatmap', bm);
+            const bm = await this.executePost(`/beatmaps/${this.beatmap.id}/updateModder`);
+
+            if (!this.isError(bm)) {
+                this.$store.dispatch('updateBeatmap', bm);
             }
 
             e.target.classList.remove('fake-button-disable');
         },
     },
-}
+});
 </script>

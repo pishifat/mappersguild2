@@ -1,11 +1,11 @@
 <template>
     <div id="extendedInfo" class="modal fade" tabindex="-1">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content bg-dark" v-if="user">
-                <div class="modal-header text-dark" :class="'bg-rank-' + user.rank">
+            <div v-if="selectedUser" class="modal-content bg-dark">
+                <div class="modal-header text-dark" :class="'bg-rank-' + selectedUser.rank">
                     <h5 class="modal-title">
-                        <a :href="'https://osu.ppy.sh/users/' + user.osuId" class="text-dark" target="_blank">
-                            {{ user.username }}
+                        <a :href="'https://osu.ppy.sh/users/' + selectedUser.osuId" class="text-dark" target="_blank">
+                            {{ selectedUser.username }}
                         </a>
                     </h5>
                     <button type="button" class="close" data-dismiss="modal">
@@ -13,15 +13,19 @@
                     </button>
                 </div>
                 <div class="modal-body" style="overflow: hidden">
-                    <img src="../../images/the_A.png" class="the-a-background" />
+                    <img src="../../images/the_A.png" class="the-a-background">
                     <div class="row col-lg-12">
                         <table class="table table-sm table-dark table-hover col-md-6">
                             <thead>
-                                <td scope="col">Task</td>
-                                <td scope="col">Points</td>
+                                <td scope="col">
+                                    Task
+                                </td>
+                                <td scope="col">
+                                    Points
+                                </td>
                             </thead>
                             <tbody>
-                                <tr v-if="user.easyPoints">
+                                <tr v-if="selectedUser.easyPoints">
                                     <td
                                         scope="row"
                                         data-toggle="tooltip"
@@ -31,10 +35,10 @@
                                         Mapping <i class="easy">Easy</i> difficulties
                                     </td>
                                     <td scope="row" style="padding: 1px;">
-                                        {{ Math.round(user.easyPoints * 10) / 10 }}
+                                        {{ Math.round(selectedUser.easyPoints * 10) / 10 }}
                                     </td>
                                 </tr>
-                                <tr v-if="user.normalPoints">
+                                <tr v-if="selectedUser.normalPoints">
                                     <td
                                         scope="row"
                                         data-toggle="tooltip"
@@ -44,10 +48,10 @@
                                         Mapping <i class="normal">Normal</i> difficulties
                                     </td>
                                     <td scope="row" style="padding: 1px;">
-                                        {{ Math.round(user.normalPoints * 10) / 10 }}
+                                        {{ Math.round(selectedUser.normalPoints * 10) / 10 }}
                                     </td>
                                 </tr>
-                                <tr v-if="user.hardPoints">
+                                <tr v-if="selectedUser.hardPoints">
                                     <td
                                         scope="row"
                                         data-toggle="tooltip"
@@ -57,10 +61,10 @@
                                         Mapping <i class="hard">Hard</i> difficulties
                                     </td>
                                     <td scope="row" style="padding: 1px;">
-                                        {{ Math.round(user.hardPoints * 10) / 10 }}
+                                        {{ Math.round(selectedUser.hardPoints * 10) / 10 }}
                                     </td>
                                 </tr>
-                                <tr v-if="user.insanePoints">
+                                <tr v-if="selectedUser.insanePoints">
                                     <td
                                         scope="row"
                                         data-toggle="tooltip"
@@ -70,10 +74,10 @@
                                         Mapping <i class="insane">Insane</i> difficulties
                                     </td>
                                     <td scope="row" style="padding: 1px;">
-                                        {{ Math.round(user.insanePoints * 10) / 10 }}
+                                        {{ Math.round(selectedUser.insanePoints * 10) / 10 }}
                                     </td>
                                 </tr>
-                                <tr v-if="user.expertPoints">
+                                <tr v-if="selectedUser.expertPoints">
                                     <td
                                         scope="row"
                                         data-toggle="tooltip"
@@ -83,10 +87,10 @@
                                         Mapping <i class="expert">Expert</i> difficulties
                                     </td>
                                     <td scope="row" style="padding: 1px;">
-                                        {{ Math.round(user.expertPoints * 10) / 10 }}
+                                        {{ Math.round(selectedUser.expertPoints * 10) / 10 }}
                                     </td>
                                 </tr>
-                                <tr v-if="user.storyboardPoints">
+                                <tr v-if="selectedUser.storyboardPoints">
                                     <td
                                         scope="row"
                                         data-toggle="tooltip"
@@ -96,10 +100,10 @@
                                         Creating storyboards
                                     </td>
                                     <td scope="row" style="padding: 1px;">
-                                        {{ Math.round(user.storyboardPoints * 10) / 10 }}
+                                        {{ Math.round(selectedUser.storyboardPoints * 10) / 10 }}
                                     </td>
                                 </tr>
-                                <tr v-if="user.questPoints">
+                                <tr v-if="selectedUser.questPoints">
                                     <td
                                         scope="row"
                                         data-toggle="tooltip"
@@ -109,10 +113,10 @@
                                         Completing quests
                                     </td>
                                     <td scope="row" style="padding: 1px;">
-                                        {{ Math.round(user.questPoints * 10) / 10 }}
+                                        {{ Math.round(selectedUser.questPoints * 10) / 10 }}
                                     </td>
                                 </tr>
-                                <tr v-if="user.modPoints">
+                                <tr v-if="selectedUser.modPoints">
                                     <td
                                         scope="row"
                                         data-toggle="tooltip"
@@ -122,10 +126,10 @@
                                         Modding mapsets
                                     </td>
                                     <td scope="row" style="padding: 1px;">
-                                        {{ Math.round(user.modPoints * 10) / 10 }}
+                                        {{ Math.round(selectedUser.modPoints * 10) / 10 }}
                                     </td>
                                 </tr>
-                                <tr v-if="user.hostPoints">
+                                <tr v-if="selectedUser.hostPoints">
                                     <td
                                         scope="row"
                                         data-toggle="tooltip"
@@ -135,10 +139,10 @@
                                         Hosting mapsets
                                     </td>
                                     <td scope="row" style="padding: 1px;">
-                                        {{ Math.round(user.hostPoints * 10) / 10 }}
+                                        {{ Math.round(selectedUser.hostPoints * 10) / 10 }}
                                     </td>
                                 </tr>
-                                <tr v-if="user.legacyPoints">
+                                <tr v-if="selectedUser.legacyPoints">
                                     <td
                                         scope="row"
                                         data-toggle="tooltip"
@@ -148,10 +152,10 @@
                                         Legacy points
                                     </td>
                                     <td scope="row" style="padding: 1px;">
-                                        {{ Math.round(user.legacyPoints * 10) / 10 }}
+                                        {{ Math.round(selectedUser.legacyPoints * 10) / 10 }}
                                     </td>
                                 </tr>
-                                <tr v-if="user.penaltyPoints">
+                                <tr v-if="selectedUser.penaltyPoints">
                                     <td
                                         scope="row"
                                         data-toggle="tooltip"
@@ -161,10 +165,10 @@
                                         Dropping quests
                                     </td>
                                     <td scope="row" style="padding: 1px;">
-                                        -{{ Math.round(user.penaltyPoints * 10) / 10 }}
+                                        -{{ Math.round(selectedUser.penaltyPoints * 10) / 10 }}
                                     </td>
                                 </tr>
-                                <tr v-if="user.osuPoints">
+                                <tr v-if="selectedUser.osuPoints">
                                     <td
                                         scope="row"
                                         data-toggle="tooltip"
@@ -174,10 +178,10 @@
                                         <i>Total osu! points</i>
                                     </td>
                                     <td scope="row" style="padding: 1px;">
-                                        {{ Math.round(user.osuPoints * 10) / 10 }}
+                                        {{ Math.round(selectedUser.osuPoints * 10) / 10 }}
                                     </td>
                                 </tr>
-                                <tr v-if="user.taikoPoints">
+                                <tr v-if="selectedUser.taikoPoints">
                                     <td
                                         scope="row"
                                         data-toggle="tooltip"
@@ -187,10 +191,10 @@
                                         <i>Total osu! taiko points</i>
                                     </td>
                                     <td scope="row" style="padding: 1px;">
-                                        {{ Math.round(user.taikoPoints * 10) / 10 }}
+                                        {{ Math.round(selectedUser.taikoPoints * 10) / 10 }}
                                     </td>
                                 </tr>
-                                <tr v-if="user.catchPoints">
+                                <tr v-if="selectedUser.catchPoints">
                                     <td
                                         scope="row"
                                         data-toggle="tooltip"
@@ -200,10 +204,10 @@
                                         <i>Total osu! catch points</i>
                                     </td>
                                     <td scope="row" style="padding: 1px;">
-                                        {{ Math.round(user.catchPoints * 10) / 10 }}
+                                        {{ Math.round(selectedUser.catchPoints * 10) / 10 }}
                                     </td>
                                 </tr>
-                                <tr v-if="user.maniaPoints">
+                                <tr v-if="selectedUser.maniaPoints">
                                     <td
                                         scope="row"
                                         data-toggle="tooltip"
@@ -213,7 +217,7 @@
                                         <i>Total osu! mania points</i>
                                     </td>
                                     <td scope="row" style="padding: 1px;">
-                                        {{ Math.round(user.maniaPoints * 10) / 10 }}
+                                        {{ Math.round(selectedUser.maniaPoints * 10) / 10 }}
                                     </td>
                                 </tr>
                                 <tr>
@@ -227,7 +231,7 @@
                                         <i>Total points</i>
                                     </td>
                                     <td scope="row" style="padding: 1px; font-size: 12pt">
-                                        {{ user.totalPoints }}
+                                        {{ selectedUser.totalPoints }}
                                     </td>
                                 </tr>
                             </tbody>
@@ -236,45 +240,47 @@
                             <p
                                 class="text-shadow small"
                             >
-                                Rank: 
-                                <i 
-                                    v-if="user.rank > 0"
-                                    class="fas fa-crown" 
-                                    :class="user.rank == 1 ? 'text-rank-1' : user.rank == 2 ? 'text-rank-2' : 'text-rank-3'"
+                                Rank:
+                                <i
+                                    v-if="selectedUser.rank > 0"
+                                    class="fas fa-crown"
+                                    :class="selectedUser.rank == 1 ? 'text-rank-1' : selectedUser.rank == 2 ? 'text-rank-2' : 'text-rank-3'"
                                     data-toggle="tooltip"
                                     data-placement="top"
-                                    :title="user.rank == 1 ? 'rank 1 user' : user.rank == 2 ? 'rank 2 user' : 'rank 3 user'"
-                                    >
-                                </i>
+                                    :title="selectedUser.rank == 1 ? 'rank 1 user' : selectedUser.rank == 2 ? 'rank 2 user' : 'rank 3 user'"
+                                />
                                 <span v-else class="text-white-50">
                                     None
                                 </span>
                             </p>
-                            <p v-if="currentQuests.length" class="text-shadow small min-spacing">Current Quests:</p>
+                            <p v-if="currentQuests.length" class="text-shadow small min-spacing">
+                                Current Quests:
+                            </p>
                             <ul class="min-spacing mb-2 ml-4">
                                 <li
-                                    class="small text-shadow text-white-50"
                                     v-for="quest in currentQuests"
                                     :key="quest.id"
+                                    class="small text-shadow text-white-50"
                                 >
                                     {{ quest.name.length > 40 ? quest.name.slice(0,40) + "..." : quest.name }}
                                 </li>
                             </ul>
-                            <p v-if="user.completedQuests.length" class="text-shadow small min-spacing">Completed Quests:</p>
+                            <p v-if="selectedUser.completedQuests.length" class="text-shadow small min-spacing">
+                                Completed Quests:
+                            </p>
                             <ul class="min-spacing mb-2 ml-4">
                                 <li
-                                    class="small text-shadow text-white-50"
-                                    v-for="quest in user.completedQuests"
+                                    v-for="quest in selectedUser.completedQuests"
                                     :key="quest.id"
+                                    class="small text-shadow text-white-50"
                                 >
                                     {{ quest.name.length > 40 ? quest.name.slice(0,40) + "..." : quest.name }}
                                 </li>
                             </ul>
-                            <p class="text-shadow small">Invites: <span class="text-white-50">{{ user.invites ? 'Enabled' : 'Disabled' }}</span></p>
                         </div>
                     </div>
-                    <div class="radial-divisor mx-auto my-3"></div>
-                    <span v-if="!beatmaps"><p>Loading beatmaps...</p></span>
+                    <div class="radial-divisor mx-auto my-3" />
+                    <span v-if="!beatmaps.length"><p>Loading beatmaps...</p></span>
                     <span v-if="userMaps && userMaps.length">
                         <p class="text-shadow">Mappers' Guild Maps:</p>
                         <table class="table table-sm table-dark table-hover">
@@ -295,9 +301,9 @@
                                         <template v-else>
                                             <span class="text-white-50">{{ map.song.artist }} - {{ map.song.title }}</span>
                                         </template>
-                                        <i v-if="map.mode == 'taiko'" class="fas fa-drum"></i>
-                                        <i v-else-if="map.mode == 'catch'" class="fas fa-apple-alt"></i>
-                                        <i v-else-if="map.mode == 'mania'" class="fas fa-stream"></i>
+                                        <i v-if="map.mode == 'taiko'" class="fas fa-drum" />
+                                        <i v-else-if="map.mode == 'catch'" class="fas fa-apple-alt" />
+                                        <i v-else-if="map.mode == 'mania'" class="fas fa-stream" />
                                     </td>
                                     <td scope="row">
                                         <a
@@ -316,91 +322,77 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <div class="radial-divisor mx-auto my-3"></div>
+                        <div class="radial-divisor mx-auto my-3" />
                     </span>
-                    <button
-                        v-if="user.osuId == userId"
-                        class="btn btn-sm justify-content-center"
-                        :class="{ 'btn-outline-info': !user.invites, 'btn-outline-danger': user.invites }"
-                        @click="switchInvites($event)"
-                    >
-                        {{ user.invites ? 'Disable invites' : 'Enable invites' }}
-                    </button>
-                    <p class="text-shadow float-right">Joined: {{ user.createdAt.slice(0, 10) }}</p>
+                    <p class="text-shadow float-right">
+                        Joined: {{ selectedUser.createdAt.slice(0, 10) }}
+                    </p>
                 </div>
             </div>
         </div>
     </div>
 </template>
 
-<script>
-export default {
-    name: 'user-info',
-    props: ['user', 'beatmaps', 'userId'],
-    watch: {
-        user: function() {
-            this.currentQuests = [];
-            axios
-                .get(`/users/findCurrentQuests/${this.user.id}`)
-                .then(response => {
-                    this.currentQuests = response.data.currentQuests;
-                });
-        },
+<script lang="ts">
+import Vue from 'vue';
+import { mapState, mapGetters } from 'vuex';
+import Axios from 'axios';
+import { Quest } from '../../../interfaces/quest';
+import { Beatmap } from '../../../interfaces/beatmap/beatmap';
+
+export default Vue.extend({
+    name: 'UserInfo',
+    data() {
+        return {
+            currentQuests: [] as Quest[],
+        };
     },
     computed: {
-        userMaps: function() {
-            if ( this.beatmaps) {
+        ...mapState({
+            beatmaps: (state: any) => state.beatmaps as Beatmap[],
+            userId: (state: any) => state.userId as string,
+        }),
+        ...mapGetters([
+            'selectedUser',
+        ]),
+        userMaps(): Beatmap[] {
+            if (this.beatmaps) {
                 return this.beatmaps.filter(b => {
                     return b.tasks.some(t => {
                         return t.mappers.some(m => {
-                            return m.id == this.user.id;
+                            return m.id == this.selectedUser.id;
                         });
                     });
                 });
             }
+
+            return [];
+        },
+    },
+    watch: {
+        async selectedUser(): Promise<void> {
+            this.currentQuests = [];
+            const res = await Axios.get(`/users/findCurrentQuests/${this.selectedUser.id}`);
+
+            if (res.data?.currentQuests) {
+                this.currentQuests = res.data.currentQuests;
+            }
         },
     },
     methods: {
-        executePost: async function(path, data, e) {
-            if (e) e.target.disabled = true;
-
-            try {
-                const res = await axios.post(path, data);
-
-                if (res.data.error) {
-                    this.info = res.data.error;
-                } else {
-                    if (e) e.target.disabled = false;
-                    return res.data;
-                }
-            } catch (error) {
-                console.log(error);
-            }
-
-            if (e) e.target.disabled = false;
-        },
-        userTasks: function(beatmap) {
+        userTasks(beatmap: Beatmap): string {
             let tasks = '';
+
             beatmap.tasks.forEach(task => {
                 task.mappers.forEach(mapper => {
-                    if (mapper._id == this.user.id) {
+                    if (mapper.id == this.selectedUser.id) {
                         tasks += task.name + ', ';
                     }
                 });
             });
+
             return tasks.slice(0, -2);
         },
-        switchInvites: async function(e) {
-            const u = await this.executePost('/users/switchInvites/', {}, e);
-            if (u) {
-                this.$emit('update-user', u);
-            }
-        },
     },
-    data() {
-        return {
-            currentQuests: [],
-        };
-    },
-};
+});
 </script>

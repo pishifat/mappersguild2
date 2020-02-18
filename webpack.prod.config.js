@@ -1,56 +1,49 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
+/* eslint-disable @typescript-eslint/no-var-requires */
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const CopyPlugin = require('copy-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const ManifestPlugin = require('webpack-manifest-plugin');
+const { entry, rules, resolve, externals } = require('./webpack.base.config');
 const path = require('path');
 
 module.exports = {
-    entry: {
-        maps: './src/maps.js',
-        users: './src/users.js',
-        notifications: './src/notifications.js',
-        admin: './src/admin.js',
-        artists: './src/artists.js',
-        quests: './src/quests.js',
-        judging: './src/judging.js',
-        //notificationsComponent: './src/notificationsComponent.js', // Whenever need to rebuild the notif thing at bottom
-    },
+    entry,
     output: {
-        filename: '[name].js',
-        path: path.resolve(__dirname, 'public/javascripts/'),
-        publicPath: '/'
+        filename: '[name].[contenthash].js',
+        path: path.resolve(__dirname, 'dist/public/js/'),
+        publicPath: '/',
     },
     mode: 'production',
     module: {
-        rules: [
-            {
-                test: /\.vue$/,
-                exclude: /node_modules/,
-                loader: 'vue-loader'
-            },
-            {
-                test: /\.js$/,
-                exclude: /node_modules/,
-                loader: 'babel-loader'
-            },
-            {
-                test: /\.(png|svg|jpg|gif)$/,
-                use: [{
-                    loader: 'file-loader',
-                    options: {
-                        outputPath: '../images'
-                    }
-                }]
-            },
-            {
-                test: /\.css$/,
-                use: ['vue-style-loader', 'css-loader'],
-            },
-        ]
+        rules,
     },
     plugins: [
-        new VueLoaderPlugin()
+        new CleanWebpackPlugin(),
+        new VueLoaderPlugin(),
+        new CopyPlugin([
+            { from: 'public', to: path.resolve(__dirname, 'dist/public') },
+            { from: 'views', to: path.resolve(__dirname, 'dist/views') },
+        ]),
+        new ManifestPlugin({
+            fileName: path.resolve(__dirname, 'dist/manifest.json'),
+            publicPath: '/js/',
+            filter: (file) => file.name.endsWith('.js'),
+        }),
     ],
-    resolve: {
-        alias: {
-            vue: 'vue/dist/vue.min.js',
-        }
+    resolve,
+    externals,
+    optimization: {
+        moduleIds: 'hashed',
+        runtimeChunk: 'single',
+        splitChunks: {
+            cacheGroups: {
+                vendors: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: 'vendors',
+                    chunks: 'all',
+                },
+            },
+        },
     },
 };

@@ -3,40 +3,42 @@
         <div>
             Potential Nominators ({{ beatmap.bns.length }})
             <small
+                v-if="canEdit"
                 class="ml-1"
                 data-toggle="tooltip"
                 data-placement="right"
                 title="add/remove yourself from potential BN list"
-                v-if="canEdit"
             >
                 <a
-                    href="#"
                     v-if="isBn"
+                    href="#"
                     class="text-danger"
                     @click.prevent="updateBn($event)"
                 >
-                    <i class="fas fa-minus"></i>
+                    <i class="fas fa-minus" />
                 </a>
                 <a
-                    href="#"
                     v-if="!isBn && beatmap.bns.length < 2"
+                    href="#"
                     class="text-success"
                     @click.prevent="updateBn($event)"
                 >
-                    <i class="fas fa-plus"></i>
+                    <i class="fas fa-plus" />
                 </a>
             </small>
         </div>
+
         <div class="small ml-3">
             <i v-if="beatmap.bns.length == 0" class="text-white-50">none</i>
+
             <span v-else>
                 <template v-for="(bn, i) in beatmap.bns">
                     <a
+                        :key="bn.id"
                         :href="'https://osu.ppy.sh/users/' + bn.osuId"
                         target="_blank"
-                        :key="bn.id"
                     >
-                        {{ bn.username + (i < beatmap.bns.length - 1 ? ', ' : '') }}
+                        {{ listUser(bn.username, i, beatmap.bns.length) }}
                     </a>
                 </template>
             </span>
@@ -44,35 +46,39 @@
     </div>
 </template>
 
-<script>
-import mixin from '../../../mixins.js';
+<script lang="ts">
+import Vue from 'vue';
+import { mapState } from 'vuex';
+import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
 
-export default {
-    name: 'nominators-list',
-    mixins: [ mixin ],
+export default Vue.extend({
+    name: 'NominatorsList',
     props: {
-        beatmap: Object,
         canEdit: Boolean,
-        userOsuId: Number,
+        beatmap: {
+            type: Object as () => Beatmap,
+            required: true,
+        },
     },
     computed: {
-        isBn() {
+        ...mapState([
+            'userOsuId',
+        ]),
+        isBn(): boolean {
             return this.beatmap.bns.some(bn => bn.osuId == this.userOsuId);
         },
     },
     methods: {
-        updateBn: async function(e) {
+        async updateBn(e): Promise<void> {
             e.target.classList.add('fake-button-disable');
-            const bm = await this.executePost('/beatmaps/updateBn/' + this.beatmap._id);
+            const bm = await this.executePost<Beatmap>(`/beatmaps/${this.beatmap.id}/updateBn`);
 
-            if (!bm || bm.error) {
-                this.$emit('update:info', bm.error);
-            } else {
-                this.$emit('update:beatmap', bm);
+            if (!this.isError(bm)) {
+                this.$store.dispatch('updateBeatmap', bm);
             }
 
             e.target.classList.remove('fake-button-disable');
         },
     },
-}
+});
 </script>

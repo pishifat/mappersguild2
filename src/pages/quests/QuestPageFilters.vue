@@ -1,0 +1,18 @@
+<template>
+    <div class="container bg-container py-3 mb-2">
+        <filter-box
+            placeholder="enter to search for quest..."
+        />
+    </div>
+</template>
+
+<script lang="ts">
+import Vue from 'vue';
+import FilterBox from '../../components/FilterBox.vue';
+
+export default Vue.extend({
+    components: {
+        FilterBox,
+    },
+});
+</script>

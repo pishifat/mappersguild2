@@ -1,13 +1,18 @@
 <template>
-    <div id="editFeaturedArtist" class="modal fade" tabindex="-1">
+    <div id="edit" class="modal fade" tabindex="-1">
         <div class="modal-dialog">
-            <div class="modal-content bg-dark" v-if="featuredArtist">
+            <div v-if="featuredArtist" class="modal-content bg-dark">
                 <div class="modal-header text-dark bg-rest">
                     <h5 class="modal-title">
-                        <a v-if="featuredArtist.osuId" :href="'https://osu.ppy.sh/beatmaps/artists/' + featuredArtist.osuId" class="text-dark" target="_blank">
+                        <a
+                            v-if="featuredArtist.osuId"
+                            :href="'https://osu.ppy.sh/beatmaps/artists/' + featuredArtist.osuId"
+                            class="text-dark"
+                            target="_blank"
+                        >
                             {{ featuredArtist.label }}
                         </a>
-                        <span v-else>{{ featuredArtist.label}}</span>
+                        <span v-else>{{ featuredArtist.label }}</span>
                         ({{ featuredArtist.songs.length }})
                     </h5>
                     <button type="button" class="close" data-dismiss="modal">
@@ -18,51 +23,51 @@
                     <p>
                         <button class="btn btn-sm btn-outline-info" @click="updateOsuId($event)">
                             Save osu! ID
-                        </button> 
+                        </button>
                         <input
+                            v-model="osuId"
                             class="form-control-sm mx-2 w-50"
                             type="text"
                             autocomplete="off"
                             placeholder="osu id..."
-                            v-model="osuId"
-                        />
+                        >
                     </p>
                     <p>
                         <button class="btn btn-sm btn-outline-info" @click="updateName($event)">
                             Save name
-                        </button> 
+                        </button>
                         <input
+                            v-model="name"
                             class="form-control-sm mx-2 w-50"
                             type="text"
                             autocomplete="off"
                             placeholder="artist name..."
-                            v-model="name"
-                        />
+                        >
                     </p>
                     <p>
-                        <select v-model="selectedSong" class="form-control form-control-sm" id="editSongSelection">
-                            <option v-for="song in alphabeticalSongs" :value="song" :key="song.id">
-                                {{song.title}} --- ({{song.artist}})
+                        <select id="editSongSelection" v-model="selectedSong" class="form-control form-control-sm">
+                            <option v-for="song in alphabeticalSongs" :key="song.id" :value="song">
+                                {{ song.title }} --- ({{ song.artist }})
                             </option>
                         </select>
                     </p>
                     <p>
                         <input
+                            v-model="artist"
                             class="form-control-sm mx-2 w-75"
                             type="text"
                             autocomplete="off"
                             placeholder="artist..."
-                            v-model="artist"
-                        />
+                        >
                     </p>
                     <p>
                         <input
+                            v-model="title"
                             class="form-control-sm mx-2 w-75"
                             type="text"
                             autocomplete="off"
                             placeholder="title..."
-                            v-model="title"
-                        />
+                        >
                     </p>
                     <p>
                         <button class="btn btn-sm btn-outline-info" @click="addSong($event)">
@@ -81,88 +86,133 @@
     </div>
 </template>
 
-<script>
-export default {
-    name: 'featured-artist-info',
-    props: ['featured-artist'],
-    watch: {
-        featuredArtist: function() {
-            this.osuId = this.featuredArtist.osuId;
-            this.name = this.featuredArtist.label;
-            this.title = null;
-        },
-        selectedSong: function() {
-            this.artist = this.selectedSong.artist;
-            this.title = this.selectedSong.title;
-        },
-    },
-    computed: {
-        alphabeticalSongs: function() {
-            return this.featuredArtist.songs.sort((a,b) => {
-                if(a.title.toLowerCase() > b.title.toLowerCase()) return 1;
-                else if(b.title.toLowerCase() > a.title.toLowerCase()) return -1;
-                else return 0;
-            });
-        }
-    },
-    methods: {
-        executePost: async function(path, data, e) {
-            if (e) e.target.disabled = true;
+<script lang="ts">
+import Vue from 'vue';
+import { FeaturedArtist } from '../../../interfaces/featuredArtist';
+import { FeaturedSong } from '../../../interfaces/featuredSong';
 
-            try {
-                const res = await axios.post(path, data);
-
-                if (res.data.error) {
-                    this.info = res.data.error;
-                } else {
-                    if (e) e.target.disabled = false;
-                    return res.data;
-                }
-            } catch (error) {
-                console.log(error);
-            }
-
-            if (e) e.target.disabled = false;
-        },
-        updateOsuId: async function(e) {
-            const fa = await this.executePost('/admin/updateFeaturedArtistOsuId/' + this.featuredArtist.id, { osuId: this.osuId }, e);
-            if (fa) {
-                this.$emit('update-featured-artist', fa);
-            }
-        },
-        updateName: async function(e) {
-            const fa = await this.executePost('/admin/updateFeaturedArtistName/' + this.featuredArtist.id, { name: this.name }, e);
-            if (fa) {
-                this.$emit('update-featured-artist', fa);
-            }
-        },
-        addSong: async function(e) {
-            const fa = await this.executePost('/admin/addSong/' + this.featuredArtist.id, { artist: this.artist, title: this.title }, e);
-            if (fa) {
-                this.$emit('update-featured-artist', fa);
-            }
-        },
-        editSong: async function(e) {
-            const fa = await this.executePost('/admin/editSong/' + this.featuredArtist.id, { songId: this.selectedSong.id, artist: this.artist, title: this.title }, e);
-            if (fa) {
-                this.$emit('update-featured-artist', fa);
-            }
-        },
-        deleteSong: async function(e) {
-            const fa = await this.executePost('/admin/deleteSong/' + this.featuredArtist.id, { songId: this.selectedSong.id }, e);
-            if (fa) {
-                this.$emit('update-featured-artist', fa);
-            }
+export default Vue.extend({
+    name: 'FeaturedArtistInfo',
+    props: {
+        featuredArtist: {
+            type: Object as () => FeaturedArtist,
+            default: null,
         },
     },
     data() {
         return {
-            osuId: null,
-            name: null,
-            selectedSong: null,
-            artist: null,
-            title: null,
+            osuId: 0,
+            name: '',
+            selectedSong: null as null | FeaturedSong,
+            artist: '',
+            title: '',
         };
     },
-};
+    computed: {
+        alphabeticalSongs(): FeaturedSong[] {
+            return [...this.featuredArtist.songs].sort((a,b) => {
+                if (a.title.toLowerCase() > b.title.toLowerCase()) return 1;
+                else if (b.title.toLowerCase() > a.title.toLowerCase()) return -1;
+                else return 0;
+            });
+        },
+    },
+    watch: {
+        featuredArtist(): void {
+            this.osuId = this.featuredArtist.osuId;
+            this.name = this.featuredArtist.label;
+            this.title = '';
+        },
+        selectedSong(): void {
+            if (this.selectedSong) {
+                this.artist = this.selectedSong.artist;
+                this.title = this.selectedSong.title;
+            }
+        },
+    },
+    methods: {
+        async updateOsuId(e): Promise<void> {
+            const osuId = await this.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/updateOsuId`, { osuId: this.osuId }, e);
+
+            if (!this.isError(osuId)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated osu id`,
+                    type: 'info',
+                });
+                this.$store.commit('updateOsuId', {
+                    featuredArtistId: this.featuredArtist.id,
+                    osuId,
+                });
+            }
+        },
+        async updateName(e): Promise<void> {
+            const name = await this.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/updateName`, { name: this.name }, e);
+
+            if (!this.isError(name)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated name`,
+                    type: 'info',
+                });
+                this.$store.commit('updateName', {
+                    featuredArtistId: this.featuredArtist.id,
+                    name,
+                });
+            }
+        },
+        async addSong(e): Promise<void> {
+            const song = await this.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/songs/create`, { artist: this.artist, title: this.title }, e);
+
+            if (!this.isError(song)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `added song`,
+                    type: 'info',
+                });
+                this.$store.commit('addSong', {
+                    featuredArtistId: this.featuredArtist.id,
+                    song,
+                });
+            }
+        },
+        async editSong(e): Promise<void> {
+            if (!this.selectedSong) {
+                this.$store.dispatch('updateToastMessages', { message: 'Select a song' });
+
+                return;
+            }
+
+            const song = await this.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/songs/${this.selectedSong.id}/update`, { artist: this.artist, title: this.title }, e);
+
+            if (!this.isError(song)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated song`,
+                    type: 'info',
+                });
+                this.$store.commit('updateSong', {
+                    featuredArtistId: this.featuredArtist.id,
+                    song,
+                });
+            }
+        },
+        async deleteSong(e): Promise<void> {
+            if (!this.selectedSong) {
+                this.$store.dispatch('updateToastMessages', { message: 'Select a song' });
+
+                return;
+            }
+
+            const res = await this.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/songs/${this.selectedSong.id}/delete`, {}, e);
+
+            if (!this.isError(res)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `deleted song`,
+                    type: 'info',
+                });
+                this.$store.commit('deleteSong', {
+                    featuredArtistId: this.featuredArtist.id,
+                    songId: this.selectedSong.id,
+                });
+            }
+        },
+    },
+});
 </script>

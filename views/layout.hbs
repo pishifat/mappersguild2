@@ -13,7 +13,6 @@
     <link rel="icon" type="image/png" href="../images/mg-icon.png">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css"
         integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 </head>
 
 <body class="text-light">
@@ -92,11 +91,17 @@
         </div>
         {{/unless}}
 
+        {{#unless isIndex}}
+        {{#unless isFaq}}
+        {{#unless isLogs}}
         <div id="loading">
-            <img id="load">
+            <img src="/images/small.png" id="load">
         </div>
+        {{/unless}}
+        {{/unless}}
+        {{/unless}}
 
-        {{{body}}}
+        {{{ body }}}
     </div>
 
     <footer class="text-center mt-1">
@@ -111,9 +116,29 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"
         integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
         crossorigin="anonymous"></script>
+
+    {{#with @manifest}}
+        <script src="{{'runtime.js'}}"></script>
+        <script src="{{'vendors.js'}}"></script>
+    {{/with}}
+
     {{#if script}}
-    <script src="{{{script}}}"></script>
+    <script src="{{getValue @manifest script}}"></script>
     {{/if}}
+
+
+    {{#if isNotSpectator}}
+    {{#ifStaticPage isIndex isFaq isLogs}}
+        <div id="notifications">
+            <notifications-access></notifications-access>
+        </div>
+        
+        {{#with @manifest}}
+            <script src="{{'notificationsComponent.js'}}"></script>
+        {{/with}}
+    {{/ifStaticPage}}
+    {{/if}}
+
 </body>
 
 </html>

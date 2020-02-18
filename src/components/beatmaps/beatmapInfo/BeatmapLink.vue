@@ -5,16 +5,16 @@
                 <div>
                     Link
                     <a
-                        href="#"
                         id="editLink"
-                        :class="showLinkInput ? 'text-danger' : ''"
+                        href="#"
                         class="text-success small ml-1"
-                        @click.prevent="showLinkInput ? unsetLink() : setLink()"
+                        :class="{ 'text-danger': showLinkInput }"
                         data-toggle="tooltip"
                         data-placement="right"
                         title="edit link"
+                        @click.prevent="showLinkInput = !showLinkInput"
                     >
-                        <i class="fas fa-edit"></i>
+                        <i class="fas fa-edit" />
                     </a>
                 </div>
                 <div class="small ml-3">
@@ -32,21 +32,21 @@
             <div class="col-sm-12">
                 <div class="input-group input-group-sm">
                     <input
+                        v-model="url"
                         class="form-control form-control-sm"
                         type="text"
                         placeholder="URL"
-                        v-model="url"
                         @keyup.enter="saveLink($event)"
-                    />
+                    >
                     <div class="input-group-append">
                         <button
+                            id="addLinkButton"
                             class="btn btn-outline-info"
                             type="submit"
-                            id="addLinkButton"
-                            @click="saveLink($event)"
                             data-toggle="tooltip"
                             data-placement="right"
                             title="use new osu!web link for card image"
+                            @click="saveLink($event)"
                         >
                             Save
                         </button>
@@ -57,46 +57,44 @@
     </div>
 </template>
 
-<script>
-import mixin from '../../../mixins.js';
+<script lang="ts">
+import Vue from 'vue';
+import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
 
-export default {
-    name: 'beatmap-link',
-    mixins: [ mixin ],
+export default Vue.extend({
+    name: 'BeatmapLink',
     props: {
-        beatmap: Object,
-    },
-    watch: {
-        beatmap() {
-            if (this.beatmap) {
-                this.showLinkInput = false;
-                this.url = this.beatmap.url;
-            }
+        beatmap: {
+            type: Object as () => Beatmap,
+            required: true,
         },
     },
     data () {
         return {
-            url: null,
+            url: '',
             showLinkInput: false,
-        }
+        };
     },
-    methods: {
-        setLink() {
-            this.showLinkInput = true;
-        },
-        unsetLink() {
-            this.showLinkInput = false;
-        },
-        saveLink: async function(e) {
-            const bm = await this.executePost('/beatmaps/setLink/' + this.beatmap._id, { url: this.url }, e);
-
-            if (!bm || bm.error) {
-                this.$emit('update:info', (bm && bm.error) || 'Something went wrong!');
-            } else {
-                this.showLinkInput = null;
-                this.$emit('update:beatmap', bm);
+    watch: {
+        beatmap (b: Beatmap): void {
+            if (b) {
+                this.showLinkInput = false;
+                this.url = b.url;
             }
         },
     },
-}
+    created () {
+        this.url = this.beatmap.url;
+    },
+    methods: {
+        async saveLink(e): Promise<void> {
+            const bm = await this.executePost<Beatmap>(`/beatmaps/${this.beatmap.id}/setLink`, { url: this.url }, e);
+
+            if (!this.isError(bm)) {
+                this.showLinkInput = false;
+                this.$store.dispatch('updateBeatmap', bm);
+            }
+        },
+    },
+});
 </script>
