@@ -38,7 +38,7 @@ judgingRouter.use(isJudge);
 judgingRouter.get('/', (req, res) => {
     res.render('judging', {
         title: 'Judging',
-        script: '../javascripts/judging.js',
+        script: 'judging.js',
         loggedInAs: req.session?.osuId,
         userTotalPoints: res.locals.userRequest.totalPoints,
     });

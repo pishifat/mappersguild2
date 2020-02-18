@@ -17,7 +17,7 @@ const defaultPopulate = [
 artistsRouter.get('/', (req, res) => {
     res.render('artists', {
         title: 'Artists',
-        script: '../javascripts/artists.js',
+        script: 'artists.js',
         loggedInAs: req.session?.osuId,
         userTotalPoints: res.locals.userRequest.totalPoints,
     });

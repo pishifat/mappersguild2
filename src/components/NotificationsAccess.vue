@@ -31,20 +31,21 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import Axios from 'axios';
 
 export default Vue.extend({
     data () {
         return {
-            notifications: null,
-            invites: null,
+            notifications: '..',
+            invites: '..',
         };
     },
     async created () {
-        const res: any = await this.executeGet('/notifications/relevantInfo');
+        const res: any = await Axios.get('/notifications/relevantInfo');
 
-        if (res) {
-            this.notifications = res.notifications.length;
-            this.invites = res.invites.length;
+        if (res.data && !res.data.error) {
+            this.notifications = res.data.notifications.length;
+            this.invites = res.data.invites.length;
         }
     },
 });

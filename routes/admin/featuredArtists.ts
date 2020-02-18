@@ -14,7 +14,7 @@ adminFeaturedArtistsRouter.use(isSuperAdmin);
 adminFeaturedArtistsRouter.get('/', (req, res) => {
     res.render('admin/featuredArtists', {
         title: 'FA - Admin',
-        script: '../javascripts/adminFeaturedArtists.js',
+        script: 'adminFeaturedArtists.js',
         loggedInAs: req.session?.osuId,
         userTotalPoints: res.locals.userRequest.totalPoints,
     });

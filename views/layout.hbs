@@ -109,7 +109,6 @@
         <div class="guild-section"></div>
     </footer>
 
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
         integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
@@ -117,9 +116,29 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"
         integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
         crossorigin="anonymous"></script>
+
+    {{#with @manifest}}
+        <script src="{{'runtime.js'}}"></script>
+        <script src="{{'vendors.js'}}"></script>
+    {{/with}}
+
     {{#if script}}
-    <script src="{{{script}}}"></script>
+    <script src="{{getValue @manifest script}}"></script>
     {{/if}}
+
+
+    {{#if isNotSpectator}}
+    {{#ifStaticPage isIndex isFaq isLogs}}
+        <div id="notifications">
+            <notifications-access></notifications-access>
+        </div>
+        
+        {{#with @manifest}}
+            <script src="{{'notificationsComponent.js'}}"></script>
+        {{/with}}
+    {{/ifStaticPage}}
+    {{/if}}
+
 </body>
 
 </html>

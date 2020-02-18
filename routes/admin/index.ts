@@ -17,7 +17,7 @@ adminRouter.use(isAdmin);
 adminRouter.get('/', (req, res) => {
     res.render('admin', {
         title: 'Admin',
-        script: '../javascripts/admin.js',
+        script: 'admin.js',
         loggedInAs: req.session?.osuId,
         userTotalPoints: res.locals.userRequest.totalPoints,
     });

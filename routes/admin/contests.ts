@@ -14,7 +14,7 @@ adminContestsRouter.use(isAdmin);
 adminContestsRouter.get('/', (req, res) => {
     res.render('admin/contests', {
         title: 'Contests Admin',
-        script: '../javascripts/adminContests.js',
+        script: 'adminContests.js',
         loggedInAs: req.session?.osuId,
         userTotalPoints: res.locals.userRequest.totalPoints,
     });

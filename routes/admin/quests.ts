@@ -21,7 +21,7 @@ adminQuestsRouter.use(isSuperAdmin);
 adminQuestsRouter.get('/', (req, res) => {
     res.render('admin/quests', {
         title: 'Quests - Admin',
-        script: '../javascripts/adminQuests.js',
+        script: 'adminQuests.js',
         loggedInAs: req.session?.osuId,
         userTotalPoints: res.locals.userRequest.totalPoints,
     });

@@ -61,7 +61,7 @@ async function updatePartyInfo(id: Party['_id']): Promise<BasicResponse> {
 questsRouter.get('/', (req, res) => {
     res.render('quests', {
         title: 'Quests',
-        script: '../javascripts/quests.js',
+        script: 'quests.js',
         isQuests: true,
         loggedInAs: req.session?.osuId,
         userTotalPoints: res.locals.userRequest.totalPoints,

@@ -9,6 +9,8 @@ import session from 'express-session';
 import MongoStoreSession from 'connect-mongo';
 import config from './config.json';
 import hbs from 'hbs';
+import manifest from './manifest.json';
+import './helpers/hbs';
 
 import indexRouter from './routes/index';
 import beatmapsRouter from './routes/beatmaps/beatmaps';
@@ -35,6 +37,8 @@ const MongoStore = MongoStoreSession(session);
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
+hbs.localsAsTemplateData(app);
+app.locals.manifest = manifest;
 
 // settings/middlewares
 app.use(logger('dev'));
@@ -115,19 +119,6 @@ app.use((err, req, res, next) => {
     } else {
         res.status(err.status || 500);
         res.render('error');
-    }
-});
-
-// handlebar helper
-hbs.registerHelper('shortDate', (date) => {
-    return date.toString().slice(4, 24);
-});
-
-hbs.registerHelper('shortAction', (action) => {
-    if (action.length > 120) {
-        return action.toString().slice(0, 120) + '...';
-    } else {
-        return action;
     }
 });
 

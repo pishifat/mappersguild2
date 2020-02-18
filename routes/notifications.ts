@@ -125,7 +125,7 @@ async function addTaskChecks(userId: User['_id'], b: Beatmap, invite: Invite, is
 notificationsRouter.get('/', (req, res) => {
     res.render('notifications', {
         title: 'Notifications/Invites',
-        script: '../javascripts/notifications.js',
+        script: 'notifications.js',
         isNotifications: true,
         loggedInAs: req.session?.osuId,
         userTotalPoints: res.locals.userRequest.totalPoints,
