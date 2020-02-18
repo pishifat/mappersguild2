@@ -165,45 +165,88 @@ export default Vue.extend({
     },
     methods: {
         async updateBeatmapStatus(e): Promise<void> {
-            const b = await this.executePost(`/admin/beatmaps/${this.beatmap.id}/updateStatus`, { status: this.status }, e);
+            const status = await this.executePost(`/admin/beatmaps/${this.beatmap.id}/updateStatus`, { status: this.status }, e);
 
-            if (b) {
-                this.$emit('update-beatmap', b);
+            if (!this.isError(status)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated beatmap status`,
+                    type: 'info',
+                });
+                this.$store.commit('updateBeatmapStatus', {
+                    beatmapId: this.beatmap.id,
+                    status,
+                });
             }
         },
         async deleteTask(e): Promise<void> {
-            const b = await this.executePost(`/admin/beatmaps/${this.beatmap.id}/tasks/${this.taskId}/delete`, {}, e);
+            const res = await this.executePost(`/admin/beatmaps/${this.beatmap.id}/tasks/${this.taskId}/delete`, {}, e);
 
-            if (b) {
-                this.$emit('update-beatmap', b);
+            if (!this.isError(res)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `deleted task`,
+                    type: 'info',
+                });
+                this.$store.commit('deleteTask', {
+                    beatmapId: this.beatmap.id,
+                    taskId: this.taskId,
+                });
             }
         },
         async deleteModder(e): Promise<void> {
-            const b = await this.executePost(`/admin/beatmaps/${this.beatmap.id}/modders/${this.modderId}/delete`, {}, e);
+            const res = await this.executePost(`/admin/beatmaps/${this.beatmap.id}/modders/${this.modderId}/delete`, {}, e);
 
-            if (b) {
-                this.$emit('update-beatmap', b);
+            if (!this.isError(res)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `deleted modder`,
+                    type: 'info',
+                });
+                this.$store.commit('deleteModder', {
+                    beatmapId: this.beatmap.id,
+                    modderId: this.modderId,
+                });
             }
         },
         async updateUrl(e): Promise<void> {
-            const b = await this.executePost(`/admin/beatmaps/${this.beatmap.id}/updateUrl`, { url: this.beatmapUrl }, e);
+            const url = await this.executePost(`/admin/beatmaps/${this.beatmap.id}/updateUrl`, { url: this.beatmapUrl }, e);
 
-            if (b) {
-                this.$emit('update-beatmap', b);
+            if (!this.isError(url)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated URL`,
+                    type: 'info',
+                });
+                this.$store.commit('updateUrl', {
+                    beatmapId: this.beatmap.id,
+                    url,
+                });
             }
         },
         async updateStoryboardQuality(e): Promise<void> {
-            const b = await this.executePost(`/admin/beatmaps/${this.beatmap.id}/updateStoryboardQuality`, { storyboardQuality: this.storyboardQuality, taskId: this.storyboardTaskId }, e);
+            const task = await this.executePost(`/admin/beatmaps/${this.beatmap.id}/updateStoryboardQuality`, { storyboardQuality: this.storyboardQuality, taskId: this.storyboardTaskId }, e);
 
-            if (b) {
-                this.$emit('update-beatmap', b);
+            if (!this.isError(task)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated storyboard quality`,
+                    type: 'info',
+                });
+                this.$store.commit('updateStoryboardQuality', {
+                    beatmapId: this.beatmap.id,
+                    taskId: this.storyboardTaskId,
+                    task,
+                });
             }
         },
         async updatePackId(e): Promise<void> {
-            const b = await this.executePost(`/admin/beatmaps/${this.beatmap.id}/updatePackId`, { packId: this.packId }, e);
+            const packId = await this.executePost(`/admin/beatmaps/${this.beatmap.id}/updatePackId`, { packId: this.packId }, e);
 
-            if (b) {
-                this.$emit('update-beatmap', b);
+            if (!this.isError(packId)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated pack id`,
+                    type: 'info',
+                });
+                this.$store.commit('updatePackId', {
+                    beatmapId: this.beatmap.id,
+                    packId,
+                });
             }
         },
     },

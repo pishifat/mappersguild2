@@ -111,9 +111,7 @@ adminBeatmapsRouter.post('/:id/updateStatus', isSuperAdmin, canFail(async (req, 
         }]);
     }
 
-    b = await BeatmapService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
-
-    res.json(b);
+    res.json(req.body.status);
 }));
 
 /* POST delete task */
@@ -127,25 +125,21 @@ adminBeatmapsRouter.post('/:id/tasks/:taskId/delete', isSuperAdmin, canFail(asyn
         TaskService.removeOrFail(req.params.taskId),
     ]);
 
-    const b = await BeatmapService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
-
-    res.json(b);
+    res.json({ success: 'ok' });
 }));
 
 /* POST delete modder */
 adminBeatmapsRouter.post('/:id/modders/:modderId/delete', isSuperAdmin, canFail(async (req, res) => {
     await BeatmapService.updateOrFail(req.params.id, { $pull: { modders: req.params.modderId } });
-    const b = await BeatmapService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
 
-    res.json(b);
+    res.json({ success: 'ok' });
 }));
 
 /* POST update map url */
 adminBeatmapsRouter.post('/:id/updateUrl', isSuperAdmin, canFail(async (req, res) => {
     await BeatmapService.updateOrFail(req.params.id, { url: req.body.url });
-    const b = await BeatmapService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
 
-    res.json(b);
+    res.json(req.body.url);
 }));
 
 
@@ -156,18 +150,19 @@ adminBeatmapsRouter.post('/:id/updateUrl', isSuperAdmin, canFail(async (req, res
 
 /* POST update sb quality */
 adminBeatmapsRouter.post('/:id/updateStoryboardQuality', canFail(async (req, res) => {
-    await TaskService.updateOrFail(req.body.taskId, { sbQuality: req.body.storyboardQuality });
-    const b = await BeatmapService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+    const task = await TaskService.updateOrFail(req.body.taskId, { sbQuality: req.body.storyboardQuality });
+    await task.populate({
+        path: 'mappers',
+    }).execPopulate();
 
-    res.json(b);
+    res.json(task);
 }));
 
 /* POST update osu beatmap pack ID */
 adminBeatmapsRouter.post('/:id/updatePackId', canFail(async (req, res) => {
     await BeatmapService.updateOrFail(req.params.id, { packId: req.body.packId });
-    const b = await BeatmapService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
 
-    res.json(b);
+    res.json(parseInt(req.body.packId));
 }));
 
 export default adminBeatmapsRouter;

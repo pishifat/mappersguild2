@@ -46,6 +46,7 @@ import BeatmapInfo from '../../components/admin/BeatmapInfo.vue';
 import DataTable from '../../components/admin/DataTable.vue';
 import ToastMessages from '../../components/ToastMessages.vue';
 import { Beatmap } from '../../../interfaces/beatmap/beatmap';
+import { mapState } from 'vuex';
 
 export default Vue.extend({
     components: {
@@ -72,11 +73,11 @@ export default Vue.extend({
     },
     data () {
         return {
-            beatmaps: [] as Beatmap[],
             selectedBeatmapId: '',
         };
     },
     computed: {
+        ...mapState(['beatmaps']),
         selectedBeatmap(): undefined | Beatmap {
             return this.beatmaps.find(b => b.id === this.selectedBeatmapId);
         },
@@ -85,7 +86,7 @@ export default Vue.extend({
         const beatmaps = await this.executeGet<Beatmap[]>('/admin/beatmaps/load');
 
         if (!this.isError(beatmaps)) {
-            this.beatmaps = beatmaps;
+            this.$store.commit('setBeatmaps', beatmaps);
         }
 
         $('#loading').fadeOut();
