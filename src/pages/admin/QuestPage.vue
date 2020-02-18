@@ -11,6 +11,7 @@
                         #default="{ obj: quest }"
                         :data="quests"
                         :headers="['name', 'modes', 'status']"
+                        :custom-data-target="'#editQuest'"
                         @update:selected-id="selectedQuestId = $event"
                     >
                         <td>

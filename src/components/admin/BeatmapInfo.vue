@@ -1,5 +1,5 @@
 <template>
-    <div id="edit" class="modal fade" tabindex="-1">
+    <div id="editBeatmap" class="modal fade" tabindex="-1">
         <div class="modal-dialog">
             <div v-if="beatmap" class="modal-content bg-dark">
                 <div class="modal-header text-dark bg-rest">

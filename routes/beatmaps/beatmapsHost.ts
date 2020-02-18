@@ -27,12 +27,14 @@ beatmapsHostRouter.post('/:id/setMode', isValidBeatmap, isBeatmapHost, canFail(a
 
         for (let i = 0; i < b.tasks.length; i++) {
             const task = b.tasks[i];
-
-            await TaskService.update(task.id, { mode: req.body.mode });
+            task.mode = req.body.mode;
+            await TaskService.saveOrFail(task);
         }
     }
 
-    await BeatmapService.update(req.params.id, { mode: req.body.mode });
+    b.mode = req.body.mode;
+    await BeatmapService.saveOrFail(b);
+
     b = await BeatmapService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
 
     res.json(b);
@@ -58,15 +60,18 @@ beatmapsHostRouter.post('/:id/setStatus', isValidBeatmap, isBeatmapHost, canFail
         }
 
         for (let i = 0; i < validBeatmap.tasks.length; i++) {
-            await TaskService.update(validBeatmap.tasks[i].id, { status: TaskStatus.Done });
+            const task = validBeatmap.tasks[i];
+            task.status = TaskStatus.Done;
+            await TaskService.saveOrFail(task);
         }
 
-        await BeatmapService.update(req.params.id, {
-            tasksLocked: Object.values(TaskName),
-        });
+        validBeatmap.tasksLocked = Object.values(TaskName);
+        await BeatmapService.saveOrFail(validBeatmap);
     }
 
-    await BeatmapService.update(req.params.id, { status: req.body.status });
+    validBeatmap.status = req.body.status;
+    await BeatmapService.saveOrFail(validBeatmap);
+
     const updatedBeatmap = await BeatmapService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
 
     res.json(updatedBeatmap);
@@ -124,7 +129,8 @@ beatmapsHostRouter.post('/:id/saveQuest', isValidBeatmap, isBeatmapHost, canFail
             return res.json({ error: `Some of this mapset's difficulties are not the correct mode for this quest!` });
         }
 
-        await BeatmapService.update(req.params.id, { quest: req.body.questId });
+        b.quest = req.body.questId;
+        await BeatmapService.saveOrFail(b);
     } else {
         await BeatmapService.update(req.params.id, { quest: null });
     }
@@ -148,7 +154,7 @@ beatmapsHostRouter.post('/:id/setLink', isValidBeatmap, isBeatmapHost, canFail(a
         url = undefined;
     }
 
-    const regexp = /(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/;
+    const regexp = /^(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/;
 
     if (!regexp.test(url)) {
         return res.json({ error: 'Not a valid URL' });
@@ -156,7 +162,9 @@ beatmapsHostRouter.post('/:id/setLink', isValidBeatmap, isBeatmapHost, canFail(a
 
     let b: Beatmap = res.locals.beatmap;
 
-    await BeatmapService.update(req.params.id, { url });
+    b.url = url;
+    await BeatmapService.saveOrFail(b);
+
     b = await BeatmapService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
 
     res.json(b);
@@ -174,11 +182,12 @@ beatmapsHostRouter.post('/:id/lockTask', isValidBeatmap, isBeatmapHost, canFail(
         return res.json({ error: 'Not a valid task' });
     }
 
-    await BeatmapService.update(req.params.id, {
-        $push: { tasksLocked: req.body.task },
-    });
+    let b: Beatmap = res.locals.beatmap;
 
-    const b = await BeatmapService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+    b.tasksLocked.push(req.body.task);
+    await BeatmapService.save(b);
+
+    b = await BeatmapService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
 
     res.json(b);
 

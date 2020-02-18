@@ -6,6 +6,9 @@ export interface Contest {
     id: string;
     name: string;
     isActive: boolean;
+    contestStart: Date;
+    judgingStart: Date;
+    resultsPublished: Date;
     submissions: Submission[];
     judges: User[];
     voters: User[];

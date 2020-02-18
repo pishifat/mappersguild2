@@ -57,6 +57,34 @@ const store = new Vuex.Store<ContestState>({
                 }
             }
         },
+        toggleActivity (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                contest.isActive = payload.isActive;
+            }
+        },
+        updateContestStart (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                contest.contestStart = payload.contestStart;
+            }
+        },
+        updateJudgingStart (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                contest.judgingStart = payload.judgingStart;
+            }
+        },
+        updateResultsPublished (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                contest.resultsPublished = payload.resultsPublished;
+            }
+        },
     },
     strict: process.env.NODE_ENV !== 'production',
 });

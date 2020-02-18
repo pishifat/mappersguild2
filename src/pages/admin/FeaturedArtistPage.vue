@@ -40,6 +40,7 @@ import FeaturedArtistInfo from '../../components/admin/FeaturedArtistInfo.vue';
 import DataTable from '../../components/admin/DataTable.vue';
 import ToastMessages from '../../components/ToastMessages.vue';
 import { FeaturedArtist } from '../../../interfaces/featuredArtist';
+import { mapState } from 'vuex';
 
 export default Vue.extend({
     components: {
@@ -49,11 +50,11 @@ export default Vue.extend({
     },
     data () {
         return {
-            featuredArtists: [] as FeaturedArtist[],
             selectedFeaturedArtistId: '',
         };
     },
     computed: {
+        ...mapState(['featuredArtists']),
         selectedFeaturedArtist(): undefined | FeaturedArtist {
             return this.featuredArtists.find(fa => fa.id === this.selectedFeaturedArtistId);
         },
@@ -62,7 +63,7 @@ export default Vue.extend({
         const featuredArtists = await this.executeGet<FeaturedArtist[]>('/admin/featuredArtists/load');
 
         if (!this.isError(featuredArtists)) {
-            this.featuredArtists = featuredArtists;
+            this.$store.commit('setFeaturedArtists', featuredArtists);
         }
 
         $('#loading').fadeOut();

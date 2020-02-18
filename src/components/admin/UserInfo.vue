@@ -1,5 +1,5 @@
 <template>
-    <div id="edit" class="modal fade" tabindex="-1">
+    <div id="editUser" class="modal fade" tabindex="-1">
         <div class="modal-dialog">
             <div v-if="user" class="modal-content bg-dark">
                 <div class="modal-header text-dark" :class="'bg-rank-' + user.rank">

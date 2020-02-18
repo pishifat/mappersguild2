@@ -190,12 +190,31 @@
         <div class="radial-divisor mx-auto my-4" />
 
         <news-post />
+
+        <beatmap-info
+            :beatmap="selectedBeatmap"
+            @update-beatmap="updateBeatmap($event)"
+        />
+
+        <quest-info
+            :quest="selectedQuest"
+            @update-quest="updateQuest($event)"
+            @delete-quest="deleteQuest($event)"
+        />
+
+        <user-info
+            :user="selectedUser"
+            @update-user="updateUser($event)"
+        />
     </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
 import NewsPost from '../components/admin/NewsPost.vue';
+import BeatmapInfo from '../components/admin/BeatmapInfo.vue';
+import QuestInfo from '../components/admin/quests/QuestInfo.vue';
+import UserInfo from '../components/admin/UserInfo.vue';
 import { Beatmap } from '../../interfaces/beatmap/beatmap';
 import { Quest } from '../../interfaces/quest';
 import { User } from '../../interfaces/user';
@@ -204,6 +223,9 @@ export default Vue.extend({
     name: 'AdminPage',
     components: {
         NewsPost,
+        BeatmapInfo,
+        QuestInfo,
+        UserInfo,
     },
     data() {
         return {
@@ -247,6 +269,31 @@ export default Vue.extend({
             }
 
             return metadata;
+        },
+        updateBeatmap(b): void {
+            const i = this.actionBeatmaps.findIndex(beatmap => beatmap.id == b.id);
+
+            if (i !== -1) {
+                Vue.set(this.actionBeatmaps, i, b);
+            }
+        },
+        deleteQuest(q): void {
+            const i = this.actionQuests.findIndex(quest => quest.id == q.id);
+            this.actionQuests.splice(i, 1);
+        },
+        updateQuest(q): void {
+            const i = this.actionQuests.findIndex(quest => quest.id == q.id);
+
+            if (i !== -1) {
+                Vue.set(this.actionQuests, i, q);
+            }
+        },
+        updateUser(u): void {
+            const i = this.actionUsers.findIndex(user => user.id == u.id);
+
+            if (i !== -1) {
+                Vue.set(this.actionUsers, i, u);
+            }
         },
     },
 });

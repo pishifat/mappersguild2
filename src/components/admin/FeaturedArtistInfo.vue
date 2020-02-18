@@ -132,10 +132,17 @@ export default Vue.extend({
     },
     methods: {
         async updateOsuId(e): Promise<void> {
-            const fa = await this.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/updateOsuId`, { osuId: this.osuId }, e);
+            const osuId = await this.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/updateOsuId`, { osuId: this.osuId }, e);
 
-            if (fa) {
-                this.$emit('update-featured-artist', fa);
+            if (!this.isError(osuId)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated osu id`,
+                    type: 'info',
+                });
+                this.$store.commit('updateOsuId', {
+                    featuredArtistId: this.featuredArtist.id,
+                    osuId,
+                });
             }
         },
         async updateName(e): Promise<void> {

@@ -1,7 +1,6 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import BaseService from './baseService';
 import { BasicError } from '../helpers/helpers';
-import { User } from './user';
 import { FeaturedArtist as IFeaturedArtist } from '../interfaces/featuredArtist';
 
 export interface FeaturedArtist extends IFeaturedArtist, Document {

@@ -14,7 +14,7 @@
                         <a
                             href="#"
                             data-toggle="modal"
-                            data-target="#edit"
+                            :data-target="customDataTarget || '#edit'"
                             @click.prevent="$emit('update:selected-id', obj.id)"
                         >
                             edit
@@ -43,6 +43,10 @@ export default Vue.extend({
             required: true,
         },
         isLoading: Boolean,
+        customDataTarget: {
+            type: String,
+            default: null,
+        },
     },
 });
 </script>

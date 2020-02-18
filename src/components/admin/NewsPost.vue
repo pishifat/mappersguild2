@@ -29,7 +29,7 @@
                     <div v-if="quests" class="copy-paste">
                         <span v-for="quest in quests" :key="quest.id">
                             <br><samp class="small text-white-50">
-                                {{ quest.art ?
+                                {{ quest.art && quest.associatedMaps.length ?
                                     '![' + quest.associatedMaps[0].song.artist + ' header](https://assets.ppy.sh/artists/' + quest.art + '/header.jpg' :
                                     '![Mystery header](/wiki/shared/news/banners/mappersguild-mystery.jpg)' }}
                             </samp><br><br>

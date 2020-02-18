@@ -13,6 +13,7 @@
                         #default="{ obj: user }"
                         :data="users"
                         :headers="['USERNAME', 'RANK', 'BADGE']"
+                        :custom-data-target="'#editUser'"
                         @update:selected-id="selectedUserId = $event"
                     >
                         <td>

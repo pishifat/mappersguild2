@@ -41,7 +41,9 @@ async function updatePartyInfo(id: string): Promise<object> {
         }
     });
 
-    await PartyService.update(id, { rank: Math.round(rank / p.members.length), modes });
+    p.rank = Math.round(rank / p.members.length);
+    p.modes = modes;
+    await PartyService.saveOrFail(p);
 
     return { success: 'ok' };
 }
@@ -160,7 +162,8 @@ notificationsRouter.post('/hideAll/', isNotSpectator, canFail(async (req, res) =
     });
 
     notifs.forEach(n => {
-        NotificationService.update(n._id, { visible: false });
+        n.visible = false;
+        NotificationService.saveOrFail(n);
     });
 
     res.json({});
@@ -202,7 +205,8 @@ notificationsRouter.post('/declineAll/', isNotSpectator, canFail(async (req, res
     const invs = await InviteService.queryAllOrFail({ query: { recipient: req.session.mongoId, visible: true } });
 
     invs.forEach(inv => {
-        InviteService.update(inv._id, { visible: false });
+        inv.visible = false;
+        InviteService.saveOrFail(inv);
     });
 
     res.json({});
@@ -233,7 +237,9 @@ notificationsRouter.post('/acceptCollab/:id', isNotSpectator, canFail(async (req
         return res.json({ error: 'Mapset ranked' });
     }
 
-    await InviteService.update(req.params.id, { visible: false });
+    invite.visible = false;
+    await InviteService.saveOrFail(invite);
+
     invite = await InviteService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
     res.json(invite);
 
@@ -272,7 +278,9 @@ notificationsRouter.post('/acceptDiff/:id', isNotSpectator, canFail(async (req, 
         return res.json({ error: `Mapset already marked as ${b.status.toLowerCase()}` });
     }
 
-    await InviteService.update(req.params.id, { visible: false });
+    invite.visible = false;
+    await InviteService.saveOrFail(invite);
+
     invite = await InviteService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
     res.json(invite);
 
@@ -345,7 +353,9 @@ notificationsRouter.post('/acceptJoin/:id', isNotSpectator, canFail(async (req, 
         }
     }
 
-    await InviteService.update(req.params.id, { visible: false });
+    invite.visible = false;
+    await InviteService.saveOrFail(invite);
+
     invite = await InviteService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
     res.json(invite);
 

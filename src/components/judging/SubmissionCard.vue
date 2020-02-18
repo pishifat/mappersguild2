@@ -2,12 +2,13 @@
     <div class="col-sm-12 my-1">
         <div
             class="card static-card"
-            :class="relatedJudging.vote == 1 ? 'fifth-favorite' :
+            :class="!relatedJudging || !relatedJudging.vote ? 'bg-dark' :
+                relatedJudging.vote == 1 ? 'fifth-favorite' :
                 relatedJudging.vote == 2 ? 'fourth-favorite' :
                 relatedJudging.vote == 3 ? 'third-favorite' :
                 relatedJudging.vote == 4 ? 'second-favorite' :
                 relatedJudging.vote == 5 ? 'first-favorite' :
-                'bg-dark'"
+                ''"
         >
             <div class="card-body text-shadow p-2">
                 <div class="row">

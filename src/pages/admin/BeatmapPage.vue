@@ -7,6 +7,7 @@
                         #default="{ obj: beatmap }"
                         :data="beatmaps"
                         :headers="['METADATA', 'PACK ID', 'STATUS']"
+                        :custom-data-target="'#editBeatmap'"
                         @update:selected-id="selectedBeatmapId = $event"
                     >
                         <td class="text-truncate">

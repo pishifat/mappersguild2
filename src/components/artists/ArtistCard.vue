@@ -99,7 +99,7 @@
                         <span v-if="showContactedInput" class="small float-right">
                             <input
                                 v-model="contactedInput"
-                                class="custom-input small w-50"
+                                class="small w-50"
                                 type="text"
                                 placeholder="mm-dd-yyyy"
                                 style="border-radius: 5px 5px 5px 5px; "
@@ -209,7 +209,7 @@
                         <p v-if="showDateInput" class="small ml-3">
                             <input
                                 v-model="dateInput"
-                                class="custom-input small w-50"
+                                class="small w-50"
                                 type="text"
                                 placeholder="mm-dd-yyyy"
                                 style="border-radius: 5px 5px 5px 5px; "
@@ -234,7 +234,7 @@
                     <input
                         v-if="showNotesInput"
                         v-model="notes"
-                        class="custom-input small w-75"
+                        class="small w-75"
                         rows="4"
                         type="text"
                         placeholder="enter to submit..."

@@ -44,7 +44,11 @@ async function updatePartyInfo(id: Party['_id']): Promise<BasicResponse> {
         }
     });
 
-    const updatedParty = await PartyService.update(id, { rank: Math.round(rank / p.members.length), modes });
+    p.rank = Math.round(rank / p.members.length);
+    p.modes = modes;
+    await PartyService.saveOrFail(p);
+
+    const updatedParty = await PartyService.queryById(id);
 
     if (!updatedParty || PartyService.isError(updatedParty)) {
         return defaultErrorMessage;
@@ -173,7 +177,8 @@ questsRouter.post('/leaveParty/:partyId/:questId', isNotSpectator, canFail(async
 
     if (q.status == QuestStatus.WIP && q.overLimit) {
         const u = await UserService.queryByIdOrFail(req.session.mongoId);
-        UserService.update(u._id, { penaltyPoints: (u.penaltyPoints + q.reward) });
+        u.penaltyPoints = u.penaltyPoints + q.reward;
+        UserService.saveOrFail(u);
     }
 
     if (q.associatedMaps) {
@@ -280,7 +285,8 @@ questsRouter.post('/kickPartyMember/:partyId/:questId', isNotSpectator, canFail(
     LogService.create(req.session.mongoId, `kicked member from party for ${q.name}`, LogCategory.Party);
 
     if (q.status == QuestStatus.WIP && q.overLimit) {
-        await UserService.update(u._id, { penaltyPoints: (u.penaltyPoints + q.reward) });
+        u.penaltyPoints = u.penaltyPoints + q.reward;
+        await UserService.saveOrFail(u);
     }
 
     if (q.associatedMaps) {
@@ -343,13 +349,12 @@ questsRouter.post('/acceptQuest/:partyId/:questId', isNotSpectator, canFail(asyn
     }
 
     if (q.modes.length == p.modes.length) {
-        await QuestService.update(q._id, {
-            accepted: new Date().getTime(),
-            status: QuestStatus.WIP,
-            deadline: new Date().getTime() + q.timeframe,
-            parties: [],
-            currentParty: p._id,
-        });
+        q.accepted = new Date();
+        q.status = QuestStatus.WIP;
+        q.deadline = new Date(new Date().getTime() + q.timeframe);
+        q.parties = [];
+        q.currentParty = p._id;
+        await QuestService.saveOrFail(q);
     } else {
         for (let i = 0; i < p.modes.length; i++) {
             const mode = p.modes[i];
@@ -377,14 +382,6 @@ questsRouter.post('/acceptQuest/:partyId/:questId', isNotSpectator, canFail(asyn
             deadline: new Date(new Date().getTime() + q.timeframe),
             currentParty: p._id,
         });
-
-        // ???
-        // await QuestService.update(newQuest._id, {
-        //     accepted: new Date().getTime(),
-        //     status: QuestStatus.WIP,
-        //     deadline: new Date().getTime() + newQuest.timeframe,
-        //     currentParty: p._id,
-        // });
     }
 
     const allQuests = await QuestService.queryAll({
@@ -463,9 +460,8 @@ questsRouter.post('/dropQuest/:partyId/:questId', isNotSpectator, canFail(async 
             const u = await UserService.queryById(p.members[i].id);
 
             if (u && !UserService.isError(u)) {
-                await UserService.update(p.members[i]._id, {
-                    penaltyPoints: (u.penaltyPoints + q.reward),
-                });
+                u.penaltyPoints = u.penaltyPoints + q.reward;
+                await UserService.saveOrFail(u);
             }
         }
     }

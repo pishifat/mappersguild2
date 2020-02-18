@@ -64,11 +64,13 @@ indexRouter.get('/login', async (req, res, next) => {
             }
         } else {
             if (u.username != req.session.username) {
-                await UserService.update(u._id, { username: req.session.username });
+                u.username = req.session.username;
+                await UserService.saveOrFail(u);
             }
 
             if (u.group != req.session.group && u.group != 'admin') {
-                await UserService.update(u._id, { group: req.session.group });
+                u.group = req.session.group;
+                await UserService.saveOrFail(u);
 
                 if (req.session.group == 'user') {
                     webhookPost([{

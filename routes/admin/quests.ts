@@ -114,7 +114,8 @@ adminQuestsRouter.post('/:id/drop', canFail(async (req, res) => {
 
     for (let i = 0; i < q.currentParty.members.length; i++) {
         const member = await UserService.queryByIdOrFail(q.currentParty.members[i]);
-        await UserService.update(member._id, { penaltyPoints: (member.penaltyPoints + q.reward) });
+        member.penaltyPoints = member.penaltyPoints + q.reward;
+        await UserService.saveOrFail(member);
     }
 
     const maps = await BeatmapService.queryAllOrFail({});

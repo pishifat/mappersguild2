@@ -74,9 +74,11 @@ adminRouter.get('/relevantInfo/', async (req, res) => {
 
                     if (bm.status != status) {
                         if (status == 'Qualified' && bm.status == 'Done') {
-                            await BeatmapService.update(bm.id, { status: 'Qualified' });
+                            bm.status = BeatmapStatus.Qualified;
+                            await BeatmapService.saveOrFail(bm);
                         } else if (status == 'Done' && bm.status == 'Qualified') {
-                            await BeatmapService.update(bm.id, { status: 'Done' });
+                            bm.status = BeatmapStatus.Done;
+                            await BeatmapService.saveOrFail(bm);
                         } else {
                             (bm.status as string) = `${bm.status} (osu: ${status})`;
                             actionBeatmaps.push(bm);

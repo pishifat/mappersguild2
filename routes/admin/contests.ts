@@ -62,6 +62,64 @@ adminContestsRouter.post('/create', async (req, res) => {
     res.json(contest);
 });
 
+/* POST toggle contest activity */
+adminContestsRouter.post('/:id/contests/toggleActivity', canFail(async (req, res) => {
+    const contest = await ContestService.queryByIdOrFail(req.params.id);
+
+    contest.isActive = !contest.isActive;
+    await ContestService.saveOrFail(contest);
+
+    res.json(contest.isActive);
+}));
+
+/* POST update contest start date */
+adminContestsRouter.post('/:id/contests/updateContestStart', canFail(async (req, res) => {
+    const newContestStart = new Date(req.body.date);
+
+    if (!(newContestStart instanceof Date && !isNaN(newContestStart.getTime()))) {
+        return res.json({ error: 'Invalid date' });
+    }
+
+    const contest = await ContestService.queryByIdOrFail(req.params.id);
+
+    contest.contestStart = newContestStart;
+    ContestService.saveOrFail(contest);
+
+    res.json(newContestStart);
+}));
+
+/* POST update judging start date */
+adminContestsRouter.post('/:id/contests/updateJudgingStart', canFail(async (req, res) => {
+    const newJudgingStart = new Date(req.body.date);
+
+    if (!(newJudgingStart instanceof Date && !isNaN(newJudgingStart.getTime()))) {
+        return res.json({ error: 'Invalid date' });
+    }
+
+    const contest = await ContestService.queryByIdOrFail(req.params.id);
+
+    contest.judgingStart = newJudgingStart;
+    ContestService.saveOrFail(contest);
+
+    res.json(newJudgingStart);
+}));
+
+/* POST update results published date */
+adminContestsRouter.post('/:id/contests/updateResultsPublished', canFail(async (req, res) => {
+    const newResultsPublished = new Date(req.body.date);
+
+    if (!(newResultsPublished instanceof Date && !isNaN(newResultsPublished.getTime()))) {
+        return res.json({ error: 'Invalid date' });
+    }
+
+    const contest = await ContestService.queryByIdOrFail(req.params.id);
+
+    contest.resultsPublished = newResultsPublished;
+    ContestService.saveOrFail(contest);
+
+    res.json(newResultsPublished);
+}));
+
 /* POST add a judge to the list */
 adminContestsRouter.post('/:id/judges/add', canFail(async (req, res) => {
     const osuId = parseInt(req.body.osuId);

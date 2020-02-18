@@ -127,7 +127,9 @@ tasksRouter.post('/addTask/:mapId', isNotSpectator, isValidBeatmap, async (req, 
         return res.json(defaultErrorMessage);
     }
 
-    await BeatmapService.update(req.params.mapId, { $push: { tasks: t._id } });
+    b.tasks.push(t._id);
+    await BeatmapService.saveOrFail(b);
+
     b = await BeatmapService.queryById(req.params.mapId, { defaultPopulate: true });
 
     res.json(b);
@@ -151,7 +153,6 @@ tasksRouter.post('/addTask/:mapId', isNotSpectator, isValidBeatmap, async (req, 
 
 /* POST delete task from extended view. */
 tasksRouter.post('/removeTask/:id', isNotSpectator, async (req, res) => {
-    // TOTEST
     const [b, t] = await Promise.all([
         BeatmapService.queryOne({
             query: {
@@ -166,7 +167,6 @@ tasksRouter.post('/removeTask/:id', isNotSpectator, async (req, res) => {
         return res.json(defaultErrorMessage);
     }
 
-    // Should go in query ^
     if (t.mappers.indexOf(req.session?.mongoId) < 0 && b.host != req.session?.mongoId) {
         return res.json({ error: 'Not mapper' });
     }
@@ -200,8 +200,6 @@ tasksRouter.post('/removeTask/:id', isNotSpectator, async (req, res) => {
 
 /* POST invite collab user to task. */
 tasksRouter.post('/task/:taskId/addCollab', isNotSpectator, isValidUser, async (req, res) => {
-    // TOTEST
-
     const u = res.locals.user;
 
     const [t, b] = await Promise.all([
@@ -260,7 +258,6 @@ tasksRouter.post('/task/:taskId/addCollab', isNotSpectator, isValidUser, async (
 
 /* POST remove collab user from task. */
 tasksRouter.post('/task/:taskId/removeCollab', isNotSpectator, async (req, res) => {
-    // TOTEST
     const [u, b, t] = await Promise.all([
         UserService.queryById(req.body.user),
         BeatmapService.queryOne({
@@ -277,9 +274,6 @@ tasksRouter.post('/task/:taskId/removeCollab', isNotSpectator, async (req, res) 
         }),
     ]);
 
-    // if (b.status == 'Ranked') {
-    //     return res.json({ error: 'Mapset ranked' });
-    // }
     if (!u || UserService.isError(u) || !b || BeatmapService.isError(b) || !t || TaskService.isError(t)) {
         return res.json({ error: 'Cannot find user or beatmap!' });
     }
@@ -304,7 +298,7 @@ tasksRouter.post('/task/:taskId/removeCollab', isNotSpectator, async (req, res) 
 
 /* POST set status of the task selected from extended view. */
 tasksRouter.post('/setTaskStatus/:taskId', isNotSpectator, async (req, res) => {
-    let t = await TaskService.queryById(req.params.taskId);
+    const t = await TaskService.queryById(req.params.taskId);
 
     if (!t || TaskService.isError(t)) {
         return res.json(defaultErrorMessage);
@@ -322,15 +316,12 @@ tasksRouter.post('/setTaskStatus/:taskId', isNotSpectator, async (req, res) => {
         return res.json(defaultErrorMessage);
     }
 
-    // if (b.status == 'Ranked') {
-    //     // Should be done in query ^
-    //     return res.json({ error: 'Mapset ranked' });
-    // }
     if (t.mappers.indexOf(req.session?.mongoId) < 0 && req.session?.mongoId != b.host.id) {
         return res.json({ error: 'Not mapper' });
     }
 
-    t = await TaskService.update(req.params.taskId, { status: req.body.status });
+    t.status = req.body.status;
+    await TaskService.saveOrFail(t);
 
     if (!t || TaskService.isError(t)) {
         return res.json(defaultErrorMessage);

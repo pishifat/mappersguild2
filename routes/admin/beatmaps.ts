@@ -63,7 +63,9 @@ adminBeatmapsRouter.post('/:id/updateStatus', isSuperAdmin, canFail(async (req, 
             return res.json(defaultErrorMessage);
         }
 
-        await BeatmapService.update(b._id, { length: bmInfo.hit_length });
+        b.length = bmInfo.hit_length;
+        await BeatmapService.saveOrFail(b);
+
         b = await BeatmapService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
 
         const gdUsernames: string[] = [];
