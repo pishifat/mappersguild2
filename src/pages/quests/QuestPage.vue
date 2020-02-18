@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-cloak>
         <quest-page-filters />
 
         <status-quests

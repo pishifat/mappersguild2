@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-cloak>
         <add-contest />
 
         <contest-info

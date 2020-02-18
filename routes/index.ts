@@ -6,6 +6,7 @@ import { UserService } from '../models/user';
 import { LogService } from '../models/log';
 import { LogCategory } from '../interfaces/log';
 import { isLoggedIn } from '../helpers/middlewares';
+import { canFail } from '../helpers/helpers';
 import { getToken, getUserInfo, isOsuResponseError } from '../helpers/osuApi';
 import { UserGroup } from '../interfaces/user';
 import { webhookPost } from '../helpers/discordApi';
@@ -34,7 +35,7 @@ indexRouter.get('/', async (req, res, next) => {
 });
 
 /* GET user's code to login */
-indexRouter.get('/login', async (req, res, next) => {
+indexRouter.get('/login', canFail(async (req, res, next) => {
     if (req.session?.osuId && req.session?.username) {
         const u = await UserService.queryOne({ query: { osuId: req.session.osuId } });
 
@@ -100,7 +101,7 @@ indexRouter.get('/login', async (req, res, next) => {
         const hashedState = Buffer.from(req.cookies._state).toString('base64');
         res.redirect(`https://osu.ppy.sh/oauth/authorize?response_type=code&client_id=${config.id}&redirect_uri=${encodeURIComponent(config.redirect)}&state=${hashedState}&scope=identify`);
     }
-}, isLoggedIn, (req, res) => {
+}), isLoggedIn, (req, res) => {
     if (res.locals.userRequest.group == 'admin') {
         res.redirect('/artists');
     } else {

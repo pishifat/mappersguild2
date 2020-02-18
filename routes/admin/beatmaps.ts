@@ -167,7 +167,7 @@ adminBeatmapsRouter.post('/:id/updatePackId', canFail(async (req, res) => {
 }));
 
 /* GET news info */
-adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
+adminBeatmapsRouter.get('/loadNewsInfo/:date', canFail(async (req, res) => {
     if (isNaN(Date.parse(req.params.date))) {
         return res.json( { error: 'Invalid date' } );
     }
@@ -191,8 +191,6 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
     ]);
 
     const maps: any = await getMaps(date);
-
-    console.log(maps[0]);
 
     const osuIds: any = [];
     const externalBeatmaps: any = [];
@@ -237,6 +235,6 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
     }
 
     res.json({ beatmaps: b, quests: q, externalBeatmaps });
-});
+}));
 
 export default adminBeatmapsRouter;

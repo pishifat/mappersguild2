@@ -137,7 +137,7 @@ function sleep(ms): Promise<void> {
 
 export async function getMaps(date: Date): Promise<OsuBeatmapResponse[] | BasicError> {
     let beatmaps: OsuBeatmapResponse[] = [];
-    const today = new Date('2019-11-29');
+    const today = new Date();
     console.log(today.setDate(today.getDate() - 7));
 
     try {

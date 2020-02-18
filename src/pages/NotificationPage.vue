@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-cloak>
         <div class="container bg-container py-3 mb-2">
             <div class="row">
                 <div class="col-md-6">

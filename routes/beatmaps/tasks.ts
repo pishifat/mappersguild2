@@ -5,7 +5,7 @@ import { TaskService } from '../../models/beatmap/task';
 import { TaskName } from '../../interfaces/beatmap/task';
 import { User, UserService } from '../../models/user';
 import { isLoggedIn, isNotSpectator } from '../../helpers/middlewares';
-import { defaultErrorMessage, BasicResponse } from '../../helpers/helpers';
+import { defaultErrorMessage, BasicResponse, canFail } from '../../helpers/helpers';
 import { isValidBeatmap, isValidUser, isBeatmapHost } from './middlewares';
 import { QuestService } from '../../models/quest';
 import { InviteService } from '../../models/invite';
@@ -92,7 +92,7 @@ async function addTaskChecks(userId: Beatmap['_id'], b: Beatmap, taskName: TaskN
 const inviteError = 'Invite not sent: ';
 
 /* POST create task from extended view. */
-tasksRouter.post('/addTask/:mapId', isNotSpectator, isValidBeatmap, async (req, res) => {
+tasksRouter.post('/addTask/:mapId', isNotSpectator, isValidBeatmap, canFail(async (req, res) => {
     let b = res.locals.beatmap;
     const isHost = b.host.id == req.session?.mongoId;
     const valid = await addTaskChecks(
@@ -149,7 +149,7 @@ tasksRouter.post('/addTask/:mapId', isNotSpectator, isValidBeatmap, async (req, 
             b.id
         );
     }
-});
+}));
 
 /* POST delete task from extended view. */
 tasksRouter.post('/removeTask/:id', isNotSpectator, async (req, res) => {
@@ -297,7 +297,7 @@ tasksRouter.post('/task/:taskId/removeCollab', isNotSpectator, async (req, res) 
 });
 
 /* POST set status of the task selected from extended view. */
-tasksRouter.post('/setTaskStatus/:taskId', isNotSpectator, async (req, res) => {
+tasksRouter.post('/setTaskStatus/:taskId', isNotSpectator, canFail(async (req, res) => {
     const t = await TaskService.queryByIdOrFail(req.params.taskId);
 
     let b = await BeatmapService.queryOne({
@@ -346,7 +346,7 @@ tasksRouter.post('/setTaskStatus/:taskId', isNotSpectator, async (req, res) => {
             b._id
         );
     }
-});
+}));
 
 /* POST request added task*/
 tasksRouter.post('/requestTask/:mapId', isNotSpectator, isValidUser, isValidBeatmap, isBeatmapHost, async (req, res) => {

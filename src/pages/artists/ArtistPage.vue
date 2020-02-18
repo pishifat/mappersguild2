@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-cloak>
         <artist-page-filters />
 
         <artists-in-progress />

@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-cloak>
         <user-page-filters />
 
         <div class="container bg-container py-3">
