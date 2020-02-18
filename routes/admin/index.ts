@@ -6,6 +6,7 @@ import { UserService, User } from '../../models/user';
 import { BeatmapService, Beatmap } from '../../models/beatmap/beatmap';
 import { BeatmapStatus } from '../../interfaces/beatmap/beatmap';
 import { beatmapsetInfo, isOsuReponseError } from '../../helpers/osuApi';
+import { canFail } from '../../helpers/helpers';
 
 const adminRouter = express.Router();
 
@@ -23,7 +24,7 @@ adminRouter.get('/', (req, res) => {
 });
 
 /* GET relevant info for page load */
-adminRouter.get('/relevantInfo/', async (req, res) => {
+adminRouter.get('/relevantInfo/', canFail(async (req, res) => {
     const allBeatmaps = await BeatmapService.queryAll({
         defaultPopulate: true,
         sort: { status: 1, mode: 1 },
@@ -133,7 +134,7 @@ adminRouter.get('/relevantInfo/', async (req, res) => {
     }
 
     res.json({ actionBeatmaps, actionQuests, actionUsers });
-});
+}));
 
 /* GET news info */
 adminRouter.get('/loadNewsInfo/:date', async (req, res) => {

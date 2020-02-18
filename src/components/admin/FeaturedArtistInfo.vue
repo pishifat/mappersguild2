@@ -146,17 +146,31 @@ export default Vue.extend({
             }
         },
         async updateName(e): Promise<void> {
-            const fa = await this.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/updateName`, { name: this.name }, e);
+            const name = await this.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/updateName`, { name: this.name }, e);
 
-            if (fa) {
-                this.$emit('update-featured-artist', fa);
+            if (!this.isError(name)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated name`,
+                    type: 'info',
+                });
+                this.$store.commit('updateName', {
+                    featuredArtistId: this.featuredArtist.id,
+                    name,
+                });
             }
         },
         async addSong(e): Promise<void> {
-            const fa = await this.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/songs/create`, { artist: this.artist, title: this.title }, e);
+            const song = await this.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/songs/create`, { artist: this.artist, title: this.title }, e);
 
-            if (fa) {
-                this.$emit('update-featured-artist', fa);
+            if (!this.isError(song)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `added song`,
+                    type: 'info',
+                });
+                this.$store.commit('addSong', {
+                    featuredArtistId: this.featuredArtist.id,
+                    song,
+                });
             }
         },
         async editSong(e): Promise<void> {
@@ -166,10 +180,17 @@ export default Vue.extend({
                 return;
             }
 
-            const fa = await this.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/songs/${this.selectedSong.id}/update`, { artist: this.artist, title: this.title }, e);
+            const song = await this.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/songs/${this.selectedSong.id}/update`, { artist: this.artist, title: this.title }, e);
 
-            if (fa) {
-                this.$emit('update-featured-artist', fa);
+            if (!this.isError(song)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated song`,
+                    type: 'info',
+                });
+                this.$store.commit('updateSong', {
+                    featuredArtistId: this.featuredArtist.id,
+                    song,
+                });
             }
         },
         async deleteSong(e): Promise<void> {
@@ -179,10 +200,17 @@ export default Vue.extend({
                 return;
             }
 
-            const fa = await this.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/songs/${this.selectedSong.id}/delete`, {}, e);
+            const res = await this.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/songs/${this.selectedSong.id}/delete`, {}, e);
 
-            if (fa) {
-                this.$emit('update-featured-artist', fa);
+            if (!this.isError(res)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `deleted song`,
+                    type: 'info',
+                });
+                this.$store.commit('deleteSong', {
+                    featuredArtistId: this.featuredArtist.id,
+                    songId: this.selectedSong.id,
+                });
             }
         },
     },

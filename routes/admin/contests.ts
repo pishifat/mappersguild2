@@ -63,7 +63,7 @@ adminContestsRouter.post('/create', async (req, res) => {
 });
 
 /* POST toggle contest activity */
-adminContestsRouter.post('/:id/contests/toggleActivity', canFail(async (req, res) => {
+adminContestsRouter.post('/:id/toggleActivity', canFail(async (req, res) => {
     const contest = await ContestService.queryByIdOrFail(req.params.id);
 
     contest.isActive = !contest.isActive;
@@ -73,7 +73,7 @@ adminContestsRouter.post('/:id/contests/toggleActivity', canFail(async (req, res
 }));
 
 /* POST update contest start date */
-adminContestsRouter.post('/:id/contests/updateContestStart', canFail(async (req, res) => {
+adminContestsRouter.post('/:id/updateContestStart', canFail(async (req, res) => {
     const newContestStart = new Date(req.body.date);
 
     if (!(newContestStart instanceof Date && !isNaN(newContestStart.getTime()))) {
@@ -89,7 +89,7 @@ adminContestsRouter.post('/:id/contests/updateContestStart', canFail(async (req,
 }));
 
 /* POST update judging start date */
-adminContestsRouter.post('/:id/contests/updateJudgingStart', canFail(async (req, res) => {
+adminContestsRouter.post('/:id/updateJudgingStart', canFail(async (req, res) => {
     const newJudgingStart = new Date(req.body.date);
 
     if (!(newJudgingStart instanceof Date && !isNaN(newJudgingStart.getTime()))) {
@@ -105,7 +105,7 @@ adminContestsRouter.post('/:id/contests/updateJudgingStart', canFail(async (req,
 }));
 
 /* POST update results published date */
-adminContestsRouter.post('/:id/contests/updateResultsPublished', canFail(async (req, res) => {
+adminContestsRouter.post('/:id/updateResultsPublished', canFail(async (req, res) => {
     const newResultsPublished = new Date(req.body.date);
 
     if (!(newResultsPublished instanceof Date && !isNaN(newResultsPublished.getTime()))) {

@@ -89,7 +89,7 @@ export default Vue.extend({
     },
     methods: {
         async updateContestStart(e): Promise<void> {
-            const contestStart = await this.executePost(`/admin/contests/${this.contestId}/contests/updateContestStart`, { date: this.newContestStart }, e);
+            const contestStart = await this.executePost(`/admin/contests/${this.contestId}/updateContestStart`, { date: this.newContestStart }, e);
 
             if (!this.isError(contestStart)) {
                 this.$store.dispatch('updateToastMessages', {
@@ -103,7 +103,7 @@ export default Vue.extend({
             }
         },
         async updateJudgingStart(e): Promise<void> {
-            const judgingStart = await this.executePost(`/admin/contests/${this.contestId}/contests/updateJudgingStart`, { date: this.newJudgingStart }, e);
+            const judgingStart = await this.executePost(`/admin/contests/${this.contestId}/updateJudgingStart`, { date: this.newJudgingStart }, e);
 
             if (!this.isError(judgingStart)) {
                 this.$store.dispatch('updateToastMessages', {
@@ -117,7 +117,7 @@ export default Vue.extend({
             }
         },
         async updateResultsPublished(e): Promise<void> {
-            const resultsPublished = await this.executePost(`/admin/contests/${this.contestId}/contests/updateResultsPublished`, { date: this.newResultsPublished }, e);
+            const resultsPublished = await this.executePost(`/admin/contests/${this.contestId}/updateResultsPublished`, { date: this.newResultsPublished }, e);
 
             if (!this.isError(resultsPublished)) {
                 this.$store.dispatch('updateToastMessages', {

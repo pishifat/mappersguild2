@@ -63,7 +63,7 @@ export default Vue.extend({
     },
     methods: {
         async toggleActivity(e): Promise<void> {
-            const isActive = await this.executePost(`/admin/contests/${this.contest.id}/contests/toggleActivity`, {}, e);
+            const isActive = await this.executePost(`/admin/contests/${this.contest.id}/toggleActivity`, {}, e);
 
             if (!this.isError(isActive)) {
                 this.$store.dispatch('updateToastMessages', {

@@ -298,11 +298,7 @@ tasksRouter.post('/task/:taskId/removeCollab', isNotSpectator, async (req, res) 
 
 /* POST set status of the task selected from extended view. */
 tasksRouter.post('/setTaskStatus/:taskId', isNotSpectator, async (req, res) => {
-    const t = await TaskService.queryById(req.params.taskId);
-
-    if (!t || TaskService.isError(t)) {
-        return res.json(defaultErrorMessage);
-    }
+    const t = await TaskService.queryByIdOrFail(req.params.taskId);
 
     let b = await BeatmapService.queryOne({
         query: {

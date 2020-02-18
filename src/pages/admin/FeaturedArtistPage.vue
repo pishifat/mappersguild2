@@ -27,7 +27,6 @@
 
         <featured-artist-info
             :featured-artist="selectedFeaturedArtist"
-            @update-featured-artist="updateFeaturedArtist($event)"
         />
 
         <toast-messages />
@@ -71,15 +70,6 @@ export default Vue.extend({
             .attr('style', 'visibility: visible')
             .hide()
             .fadeIn();
-    },
-    methods: {
-        updateFeaturedArtist(fa): void {
-            const i = this.featuredArtists.findIndex(featuredArtist => featuredArtist.id == fa.id);
-
-            if (i !== -1) {
-                Vue.set(this.featuredArtists, i, fa);
-            }
-        },
     },
 });
 </script>
