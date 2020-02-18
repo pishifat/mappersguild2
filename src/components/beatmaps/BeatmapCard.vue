@@ -67,7 +67,7 @@ export default Vue.extend({
     computed: {
         statusBorder(): string {
             if (this.beatmap.status) {
-                return 'card-status' + this.beatmap.status.toLowerCase();
+                return 'card-status-' + this.beatmap.status.toLowerCase();
             }
 
             return '';
