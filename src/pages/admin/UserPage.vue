@@ -59,6 +59,7 @@ import UserInfo from '../../components/admin/UserInfo.vue';
 import DataTable from '../../components/admin/DataTable.vue';
 import ToastMessages from '../../components/ToastMessages.vue';
 import { User } from '../../../interfaces/user';
+import { mapState } from 'vuex';
 
 export default Vue.extend({
     components: {
@@ -68,12 +69,12 @@ export default Vue.extend({
     },
     data () {
         return {
-            users: [] as User[],
             selectedUserId: '',
             calculatingPoints: false,
         };
     },
     computed: {
+        ...mapState(['users']),
         selectedUser(): undefined | User {
             return this.users.find(u => u.id === this.selectedUserId);
         },
@@ -82,7 +83,7 @@ export default Vue.extend({
         const users = await this.executeGet<User[]>('/admin/users/load');
 
         if (!this.isError(users)) {
-            this.users = users;
+            this.$store.commit('setUsers', users);
         }
 
         $('#loading').fadeOut();

@@ -4,13 +4,40 @@ import UserPage from '../pages/admin/UserPage.vue';
 import '../bootstrap';
 import mixins from '../mixins';
 import toastsModule from '../modules/toasts';
+import { User } from '../../interfaces/user';
 
 Vue.mixin(mixins);
 Vue.use(Vuex);
 
-const store = new Vuex.Store({
+interface UserState {
+    users: User[];
+}
+
+const store = new Vuex.Store<UserState>({
     modules: {
         toasts: toastsModule,
+    },
+    state: {
+        users: [],
+    },
+    mutations: {
+        setUsers (state, users: User[]): void {
+            state.users = users;
+        },
+        updatePenaltyPoints (state, payload): void {
+            const user = state.users.find(u => u.id == payload.userId);
+
+            if (user) {
+                user.penaltyPoints = payload.penaltyPoints;
+            }
+        },
+        updateBadge (state, payload): void {
+            const user = state.users.find(u => u.id == payload.userId);
+
+            if (user) {
+                user.badge = payload.badge;
+            }
+        },
     },
     strict: process.env.NODE_ENV !== 'production',
 });

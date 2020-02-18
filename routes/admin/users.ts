@@ -34,10 +34,9 @@ adminUsersRouter.get('/load', async (req, res) => {
 
 /* POST update user penatly points */
 adminUsersRouter.post('/:id/updatePenaltyPoints', canFail(async (req, res) => {
-    await UserService.updateOrFail(req.params.id, { penaltyPoints: req.body.penaltyPoints });
-    const user = await UserService.queryByIdOrFail(req.params.id);
+    const user = await UserService.updateOrFail(req.params.id, { penaltyPoints: req.body.penaltyPoints });
 
-    res.json(user);
+    res.json(parseInt(req.body.penaltyPoints));
 
     LogService.create(req.session.mongoId, `edited penalty points of "${user.username}" to ${req.body.penaltyPoints}`, LogCategory.User);
 }));
@@ -45,9 +44,8 @@ adminUsersRouter.post('/:id/updatePenaltyPoints', canFail(async (req, res) => {
 /* POST update user badge */
 adminUsersRouter.post('/:id/updateBadge', canFail(async (req, res) => {
     await UserService.updateOrFail(req.params.id, { badge: req.body.badge });
-    const user = await UserService.queryByIdOrFail(req.params.id);
 
-    res.json(user);
+    res.json(parseInt(req.body.badge));
 }));
 
 interface PointsValues {
@@ -94,6 +92,7 @@ adminUsersRouter.post('/updatePoints', canFail(async (req, res) => {
     }
 
     u.forEach(user => {
+        console.log(user.username);
         const pointsObject: Points = {
             Easy: { num: 5, total: 0 },
             Normal: { num: 6, total: 0 },
@@ -210,23 +209,25 @@ adminUsersRouter.post('/updatePoints', canFail(async (req, res) => {
             pointsObject['Rank']['value'] = 3;
         }
 
-        UserService.update(user._id, {
-            easyPoints: pointsObject['Easy']['total'],
-            normalPoints: pointsObject['Normal']['total'],
-            hardPoints: pointsObject['Hard']['total'],
-            insanePoints: pointsObject['Insane']['total'],
-            expertPoints: pointsObject['Expert']['total'],
-            storyboardPoints: pointsObject['Storyboard']['total'],
-            modPoints: pointsObject['Mod']['total'],
-            hostPoints: pointsObject['Host']['total'],
-            questPoints: pointsObject['QuestReward']['total'],
-            rank: pointsObject['Rank']['value'],
-            osuPoints: pointsObject['osu']['total'],
-            taikoPoints: pointsObject['taiko']['total'],
-            catchPoints: pointsObject['catch']['total'],
-            maniaPoints: pointsObject['mania']['total'],
-            completedQuests: pointsObject['Quests']['list'],
-        });
+        if (user.username != 'Greenshell') {
+            UserService.update(user._id, {
+                easyPoints: pointsObject['Easy']['total'],
+                normalPoints: pointsObject['Normal']['total'],
+                hardPoints: pointsObject['Hard']['total'],
+                insanePoints: pointsObject['Insane']['total'],
+                expertPoints: pointsObject['Expert']['total'],
+                storyboardPoints: pointsObject['Storyboard']['total'],
+                modPoints: pointsObject['Mod']['total'],
+                hostPoints: pointsObject['Host']['total'],
+                questPoints: pointsObject['QuestReward']['total'],
+                rank: pointsObject['Rank']['value'],
+                osuPoints: pointsObject['osu']['total'],
+                taikoPoints: pointsObject['taiko']['total'],
+                catchPoints: pointsObject['catch']['total'],
+                maniaPoints: pointsObject['mania']['total'],
+                completedQuests: pointsObject['Quests']['list'],
+            });
+        }
     });
 
     res.json('user points updated');

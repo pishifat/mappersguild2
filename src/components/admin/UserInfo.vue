@@ -70,17 +70,31 @@ export default Vue.extend({
     },
     methods: {
         async updatePenaltyPoints(e): Promise<void> {
-            const u = await this.executePost(`/admin/users/${this.user.id}/updatePenaltyPoints`, { penaltyPoints: this.penaltyPoints }, e);
+            const penaltyPoints = await this.executePost(`/admin/users/${this.user.id}/updatePenaltyPoints`, { penaltyPoints: this.penaltyPoints }, e);
 
-            if (u) {
-                this.$emit('update-user', u);
+            if (!this.isError(penaltyPoints)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `set penalty points to ${penaltyPoints}`,
+                    type: 'info',
+                });
+                this.$store.commit('updatePenaltyPoints', {
+                    userId: this.user.id,
+                    penaltyPoints,
+                });
             }
         },
         async updateBadge(e): Promise<void> {
-            const u = await this.executePost(`/admin/users/${this.user.id}/updateBadge`, { badge: this.badge }, e);
+            const badge = await this.executePost(`/admin/users/${this.user.id}/updateBadge`, { badge: this.badge }, e);
 
-            if (u) {
-                this.$emit('update-user', u);
+            if (badge) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `set badge to ${badge}`,
+                    type: 'info',
+                });
+                this.$store.commit('updateBadge', {
+                    userId: this.user.id,
+                    badge,
+                });
             }
         },
     },
