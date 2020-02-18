@@ -1,4 +1,4 @@
-import Vue, { VNode } from 'vue';
+import Vue from 'vue';
 import Vuex from 'vuex';
 import Axios from 'axios';
 import mixins from './mixins';
@@ -193,5 +193,7 @@ const store = new Vuex.Store({
 new Vue({
     el: '#app',
     store,
-    render: (h): VNode => h(UserPage),
+    components: {
+        UserPage,
+    },
 });

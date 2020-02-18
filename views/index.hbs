@@ -1,6 +1,6 @@
 <div class="landing">
     <img class="w-50 mx-auto d-block img-fluid" src="../images/mg-logo.png" style="min-width: 300px;">
-    <h1 class="text-center" style="color:#FF5E37"><%= title %></h1>
+    <h1 class="text-center" style="color:#FF5E37">{{title}}</h1>
     <h1 class="text-center" style="color:#FF5E37; font-size: 12pt;">learn more below</h1>
 </div>
 <div id="bottom">
@@ -131,7 +131,7 @@
 
 </div>
 
-<% if (!loggedInAs) { %>
+{{#unless loggedInAs}}
 
 <div class="radial-divisor mx-auto my-4"></div>
 
@@ -148,13 +148,13 @@
     </form>
 </div>
 
-<% } %>
+{{/unless}}
 
 <div class="text-center" style="margin-bottom: 50px;">
     <img src="../images/mg-logo.png" style="width:171px; height: 150px; margin-top: 50px;">
 </div>
 
-<% if (isNotSpectator) { %>
+{{#if isNotSpectator }}
 <div id="notifications">
     <notifications-access></notifications-access>
 </div>
@@ -169,7 +169,7 @@
 </form>
 
 <script src="../js/notificationsComponent.js"></script>
-<% } else { %>
+{{else}}
 <form action="/bnsite" method="GET">
     <button id="bnsite" class="btn btn-sm btn-mg" style="
         position: fixed; 
@@ -179,4 +179,4 @@
     >visit BN/NAT site
     </button>
 </form>
-<% } %>
+{{/if}}

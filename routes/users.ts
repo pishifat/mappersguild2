@@ -22,6 +22,7 @@ const questPopulate = [
 usersRouter.get('/', (req, res) => {
     res.render('users', {
         title: 'Users',
+        script: '../javascripts/users.js',
         isUsers: true,
         loggedInAs: req.session?.osuId,
         userTotalPoints: res.locals.userRequest.totalPoints,
