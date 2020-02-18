@@ -1,28 +1,20 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
-const CopyPlugin = require('copy-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const { entry } = require('./webpack.base.config');
 const path = require('path');
 
 module.exports = {
     entry: {
-        maps: './src/beatmaps.ts',
-        users: './src/users.ts',
-        notifications: './src/notifications.ts',
-        admin: './src/admin.ts',
-        artists: './src/artists.ts',
-        quests: './src/quests.ts',
-        judging: './src/judging.ts',
-        adminContests: './src/admin/contests.ts',
-        adminBeatmaps: './src/admin/beatmaps.ts',
-        adminQuests: './src/admin/quests.ts',
-        adminUsers: './src/admin/users.ts',
-        adminFeaturedArtists: './src/admin/featuredArtists.ts',
+        ...entry,
         //notificationsComponent: './src/notificationsComponent.js', // Whenever need to rebuild the notif thing at bottom
     },
     output: {
-        filename: '[name].js',
-        path: path.resolve(__dirname, 'dist/public/javascripts/'),
-        publicPath: '/',
+        filename: '[name].[contenthash].js',
+        path: path.resolve(__dirname, 'dist/public/js/'),
+        publicPath: '/js/',
     },
     mode: 'production',
     module: {
@@ -53,14 +45,27 @@ module.exports = {
                 test: /\.css$/,
                 use: ['vue-style-loader', 'css-loader'],
             },
+            {
+                test: /\.ejs$/,
+                loader: 'ejs-loader',
+            },
         ],
     },
     plugins: [
-        new VueLoaderPlugin(),
-        new CopyPlugin([
+        new CleanWebpackPlugin(),
+        new CopyWebpackPlugin([
             { from: 'public', to: path.resolve(__dirname, 'dist/public') },
-            { from: 'views', to: path.resolve(__dirname, 'dist/views') },
+            { from: 'views/error.ejs', to: path.resolve(__dirname, 'dist/public/views') },
+            { from: 'views/index.ejs', to: path.resolve(__dirname, 'dist/public/views') },
+            { from: 'views/faq.ejs', to: path.resolve(__dirname, 'dist/public/views') },
+            { from: 'views/layout.ejs', to: path.resolve(__dirname, 'dist/public/views') },
         ]),
+        new HtmlWebpackPlugin({
+            chunks: ['beatmaps', 'vendors', 'runtime'],
+            filename: path.resolve(__dirname, 'dist/views/beatmaps.ejs'),
+            template: 'views/base.ejs',
+        }),
+        new VueLoaderPlugin(),
     ],
     resolve: {
         extensions: ['.ts', '.js', '.json'],
@@ -74,5 +79,19 @@ module.exports = {
     externals: {
         jquery: 'jQuery',
         axios: 'axios',
+    },
+    optimization: {
+        moduleIds: 'hashed',
+        runtimeChunk: 'single',
+        splitChunks: {
+            chunks: 'all',
+            cacheGroups: {
+                vendors: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: 'vendors',
+                    chunks: 'all',
+                },
+            },
+        },
     },
 };

@@ -1,4 +1,4 @@
-import Vue from 'vue';
+import Vue, { VNode } from 'vue';
 import Vuex from 'vuex';
 import Axios from 'axios';
 import QuestPage from '@pages/quests/QuestPage.vue';
@@ -109,7 +109,5 @@ const store = new Vuex.Store({
 new Vue({
     el: '#app',
     store,
-    components: {
-        QuestPage,
-    },
+    render: (h): VNode => h(QuestPage),
 });

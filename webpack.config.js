@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
 
 module.exports = {
     entry: {
-        maps: './src/beatmaps.ts',
+        beatmaps: './src/beatmaps.ts',
         quests: './src/quests.ts',
         users: './src/users.ts',
         notifications: './src/notifications.ts',
@@ -19,8 +20,8 @@ module.exports = {
     },
     output: {
         filename: '[name].js',
-        path: path.resolve(__dirname, 'public/javascripts/'),
-        publicPath: '/',
+        path: path.resolve(__dirname, 'public/js/'),
+        publicPath: '/js/',
     },
     mode: 'development',
     devtool: '#eval-source-map',
@@ -52,9 +53,18 @@ module.exports = {
                 test: /\.css$/,
                 use: ['vue-style-loader', 'css-loader'],
             },
+            {
+                test: /\.ejs$/,
+                loader: 'ejs-loader',
+            },
         ],
     },
     plugins: [
+        new HtmlWebpackPlugin({
+            chunks: ['beatmaps'],
+            filename: path.resolve(__dirname, 'views/beatmaps.ejs'),
+            template: 'views/base.ejs',
+        }),
         new VueLoaderPlugin(),
     ],
     resolve: {
@@ -67,7 +77,7 @@ module.exports = {
         },
     },
     devServer: {
-        publicPath: '/javascripts/',
+        publicPath: '/js/',
         stats: 'minimal',
         port: 8080,
         proxy: {

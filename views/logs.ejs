@@ -8,13 +8,13 @@
                     <td scope="col">action</td>
                 </thead>
                 <tbody>
-                    {{#each logs}}
+                    <% logs.foreach(l => { %>
                     <tr>
-                        <td scope="row">{{shortDate createdAt}} GMT</td>
-                        <td scope="row">{{user.username}}</td>
-                        <td scope="row">{{shortAction action}}</td>
+                        <td scope="row"><% l.createdAt.toString().slice(4, 24) %> GMT</td>
+                        <td scope="row"><% l.user.username%></td>
+                        <td scope="row"><% l.action %></td>
                     </tr>
-                    {{/each}}
+                    <% } %>
                 </tbody>
             </table>
             <div class="text-center">
@@ -26,11 +26,10 @@
     </div>
 </div>
 
-{{#if isNotSpectator}}
+<% if (isNotSpectator) { %>
     <div id="notifications">
         <notifications-access></notifications-access>
     </div>
 
-    <script src="../js/notificationsComponent.js"></script>
-{{/if}}
-
+    <script src="/js/notificationsComponent.js"></script>
+<% } %>

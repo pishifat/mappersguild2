@@ -69,7 +69,7 @@ select option {
 
 #app {
     min-height: calc(80vh);
-    visibility: hidden;
+    /* visibility: hidden; */
 }
 
 #push {

@@ -8,7 +8,7 @@ import mongoose from 'mongoose';
 import session from 'express-session';
 import MongoStoreSession from 'connect-mongo';
 import config from './config.json';
-import hbs from 'hbs';
+import ejs from 'express-ejs-layouts';
 
 import indexRouter from './routes/index';
 import beatmapsRouter from './routes/beatmaps/beatmaps';
@@ -34,7 +34,9 @@ const MongoStore = MongoStoreSession(session);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'hbs');
+app.set('view engine', 'ejs');
+app.set('layout extractScripts', true);
+app.use(ejs);
 
 // settings/middlewares
 app.use(logger('dev'));
@@ -119,17 +121,17 @@ app.use((err, req, res, next) => {
 });
 
 // handlebar helper
-hbs.registerHelper('shortDate', (date) => {
-    return date.toString().slice(4, 24);
-});
+// hbs.registerHelper('shortDate', (date) => {
+//     return date.toString().slice(4, 24);
+// });
 
-hbs.registerHelper('shortAction', (action) => {
-    if (action.length > 120) {
-        return action.toString().slice(0, 120) + '...';
-    } else {
-        return action;
-    }
-});
+// hbs.registerHelper('shortAction', (action) => {
+//     if (action.length > 120) {
+//         return action.toString().slice(0, 120) + '...';
+//     } else {
+//         return action;
+//     }
+// });
 
 // server setup
 const port = process.env.PORT || '3000';

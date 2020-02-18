@@ -19,7 +19,6 @@ beatmapsRouter.use(isLoggedIn);
 beatmapsRouter.get('/', (req, res) => {
     res.render('beatmaps', {
         title: 'Beatmaps',
-        script: '../javascripts/maps.js',
         isMaps: true,
         loggedInAs: req.session?.osuId,
         userTotalPoints: res.locals.userRequest.totalPoints,
