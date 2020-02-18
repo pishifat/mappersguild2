@@ -44,7 +44,7 @@ const store = new Vuex.Store({
             state.isLoadingQuests = value;
         },
         updateQuest (state, quest: Quest): void {
-            const i = state.quests.findIndex(b => b.id === quest.id);
+            const i = state.quests.findIndex(q => q.id === quest.id);
             if (i !== -1) Vue.set(state.quests, i, quest);
         },
     },

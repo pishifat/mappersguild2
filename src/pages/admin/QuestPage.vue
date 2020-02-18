@@ -52,6 +52,7 @@ import QuestInfo from '../../components/admin/quests/QuestInfo.vue';
 import DataTable from '../../components/admin/DataTable.vue';
 import ToastMessages from '../../components/ToastMessages.vue';
 import { Quest } from '../../../interfaces/quest';
+import { mapState } from 'vuex';
 
 export default Vue.extend({
     components: {
@@ -62,11 +63,11 @@ export default Vue.extend({
     },
     data () {
         return {
-            quests: [] as Quest[],
             selectedQuestId: '',
         };
     },
     computed: {
+        ...mapState(['quests']),
         selectedQuest(): undefined | Quest {
             return this.quests.find(q => q.id === this.selectedQuestId);
         },
@@ -75,7 +76,7 @@ export default Vue.extend({
         const quests = await this.executeGet<Quest[]>('/admin/quests/load');
 
         if (!this.isError(quests)) {
-            this.quests = quests;
+            this.$store.commit('setQuests', quests);
         }
 
         $('#loading').fadeOut();

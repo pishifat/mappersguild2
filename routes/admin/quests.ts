@@ -74,18 +74,16 @@ adminQuestsRouter.post('/create', async (req, res) => {
 
 /* POST rename quest */
 adminQuestsRouter.post('/:id/rename', canFail(async (req, res) => {
-    let q = await QuestService.updateOrFail(req.params.id, { name: req.body.name });
-    q = await QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+    await QuestService.updateOrFail(req.params.id, { name: req.body.name });
 
-    res.json(q);
+    res.json(req.body.name);
 }));
 
 /* POST rename quest */
 adminQuestsRouter.post('/:id/updateDescription', canFail(async (req, res) => {
-    let q = await QuestService.updateOrFail(req.params.id, { descriptionMain: req.body.description });
-    q = await QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+    await QuestService.updateOrFail(req.params.id, { descriptionMain: req.body.description });
 
-    res.json(q);
+    res.json(req.body.description);
 }));
 
 /* POST drop quest */
@@ -129,7 +127,7 @@ adminQuestsRouter.post('/:id/drop', canFail(async (req, res) => {
     await PartyService.remove(q.currentParty._id);
 
     if (openQuest && !QuestService.isError(openQuest)) {
-        res.json({ success: 'quest dropped' });
+        res.json(q);
     } else {
         q = await QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
 
@@ -207,10 +205,24 @@ adminQuestsRouter.post('/:id/reset', canFail(async (req, res) => {
     date.setDate(date.getDate() + 7);
 
     await QuestService.updateOrFail(req.params.id, { deadline: date });
-    const quest = await QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
 
-    res.json(quest);
+    res.json(date);
 }));
+
+/* POST delete quest */
+adminQuestsRouter.post('/:id/delete', canFail(async (req, res) => {
+    const q = await QuestService.queryByIdOrFail(req.params.id);
+
+    if (q.status == QuestStatus.Open) {
+        await QuestService.removeOrFail(req.params.id);
+        res.json({ success: 'ok' });
+
+        LogService.create(req.session.mongoId, `deleted quest "${q.name}"`, LogCategory.Quest);
+    } else {
+        res.json({ success: 'ok' });
+    }
+}));
+
 
 /* POST toggle quest mode */
 adminQuestsRouter.post('/:id/toggleMode', canFail(async (req, res) => {
@@ -224,20 +236,6 @@ adminQuestsRouter.post('/:id/toggleMode', canFail(async (req, res) => {
 
     quest = await QuestService.queryByIdOrFail(req.params.id);
     res.json(quest);
-}));
-
-/* POST delete quest */
-adminQuestsRouter.post('/:id/delete', canFail(async (req, res) => {
-    const q = await QuestService.queryByIdOrFail(req.params.id);
-
-    if (q.status == QuestStatus.Open) {
-        await QuestService.removeOrFail(req.params.id);
-        res.json(q);
-
-        LogService.create(req.session.mongoId, `deleted quest "${q.name}"`, LogCategory.Quest);
-    } else {
-        res.json({});
-    }
 }));
 
 export default adminQuestsRouter;

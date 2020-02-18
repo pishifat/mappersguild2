@@ -161,64 +161,118 @@ export default Vue.extend({
     },
     methods: {
         async renameQuest(e): Promise<void> {
-            const q = await this.executePost(`/admin/quests/${this.quest.id}/rename`, { name: this.renameQuestName }, e);
+            const name = await this.executePost(`/admin/quests/${this.quest.id}/rename`, { name: this.renameQuestName }, e);
 
-            if (q) {
-                this.$emit('update-quest', q);
+            if (!this.isError(name)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `renamed quest`,
+                    type: 'info',
+                });
+                this.$store.commit('renameQuest', {
+                    questId: this.quest.id,
+                    name,
+                });
             }
         },
         async updateDescription(e): Promise<void> {
-            const q = await this.executePost(`/admin/quests/${this.quest.id}/updateDescription/`, { description: this.description }, e);
+            const description = await this.executePost(`/admin/quests/${this.quest.id}/updateDescription/`, { description: this.description }, e);
 
-            if (q) {
-                this.$emit('update-quest', q);
+            if (!this.isError(description)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated quest description`,
+                    type: 'info',
+                });
+                this.$store.commit('updateDescription', {
+                    questId: this.quest.id,
+                    description,
+                });
             }
         },
         async dropQuest(e): Promise<void> {
-            const q = await this.executePost(`/admin/quests/${this.quest.id}/drop`, {}, e);
+            const quest = await this.executePost(`/admin/quests/${this.quest.id}/drop`, {}, e);
 
-            if (q) {
-                this.$emit('update-quest', q);
+            if (!this.isError(quest)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `quest force dropped`,
+                    type: 'info',
+                });
+                this.$store.commit('updateQuest', {
+                    questId: this.quest.id,
+                    quest,
+                });
             }
         },
         async completeQuest(e): Promise<void> {
-            const q = await this.executePost(`/admin/quests/${this.quest.id}/complete`, {}, e);
+            const quest = await this.executePost(`/admin/quests/${this.quest.id}/complete`, {}, e);
 
-            if (q) {
-                this.$emit('update-quest', q);
+            if (!this.isError(quest)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `quest marked as complete`,
+                    type: 'info',
+                });
+                this.$store.commit('updateQuest', {
+                    questId: this.quest.id,
+                    quest,
+                });
             }
         },
         async duplicateQuest(e): Promise<void> {
-            const q = await this.executePost(`/admin/quests/${this.quest.id}/duplicate`, { name: this.duplicateQuestName }, e);
+            const quest = await this.executePost(`/admin/quests/${this.quest.id}/duplicate`, { name: this.duplicateQuestName }, e);
 
-            if (q) {
-                this.$emit('add-quest', q);
+            if (!this.isError(quest)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `quest duplicated`,
+                    type: 'info',
+                });
+                this.$store.commit('addQuest', {
+                    quest,
+                });
             }
         },
         async resetQuestDeadline(e): Promise<void> {
-            const q = await this.executePost(`/admin/quests/${this.quest.id}/reset`, {}, e);
+            const deadline = await this.executePost(`/admin/quests/${this.quest.id}/reset`, {}, e);
 
-            if (q) {
-                this.$emit('update-quest', q);
+            if (!this.isError(deadline)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `reset quest deadline to ${deadline}`,
+                    type: 'info',
+                });
+                this.$store.commit('resetQuestDeadline', {
+                    questId: this.quest.id,
+                    deadline,
+                });
             }
         },
         async deleteQuest(e): Promise<void> {
             const result = confirm('Are you sure?');
 
             if (result) {
-                const q = await this.executePost(`/admin/quests/${this.quest.id}/delete`, {}, e);
+                const res = await this.executePost(`/admin/quests/${this.quest.id}/delete`, {}, e);
 
-                if (q) {
+                if (!this.isError(res)) {
                     ($('#editQuest')).modal('hide');
-                    this.$emit('delete-quest', q);
+                    this.$store.dispatch('updateToastMessages', {
+                        message: `quest deleted`,
+                        type: 'info',
+                    });
+                    this.$store.commit('deleteQuest', {
+                        questId: this.quest.id,
+                    });
                 }
             }
         },
         async toggleQuestMode(mode): Promise<void> {
-            const q = await this.executePost(`/admin/quests/${this.quest.id}/toggleMode`, { mode });
+            const quest = await this.executePost(`/admin/quests/${this.quest.id}/toggleMode`, { mode });
 
-            if (q) {
-                this.$emit('update-quest', q);
+            if (!this.isError(quest)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `changed quest modes`,
+                    type: 'info',
+                });
+                this.$store.commit('updateQuest', {
+                    questId: this.quest.id,
+                    quest,
+                });
             }
         },
     },
