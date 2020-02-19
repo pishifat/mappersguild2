@@ -73,7 +73,7 @@ adminBeatmapsRouter.post('/:id/updateStatus', isSuperAdmin, canFail(async (req, 
 
         b.tasks.forEach((task: Task) => {
             task.mappers.forEach(mapper => {
-                if (gdUsernames.indexOf(mapper.username) == -1 && mapper.username != b.host.username) {
+                if (!gdUsernames.includes(mapper.username) && mapper.username != b.host.username) {
                     gdUsernames.push(mapper.username);
                 }
             });
@@ -209,7 +209,7 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', canFail(async (req, res) => {
 
             const osuId = parseInt(bmId, 10);
 
-            if (osuIds.indexOf(osuId) == -1) {
+            if (!osuIds.includes(osuId)) {
                 osuIds.push(osuId);
             }
         }
@@ -219,10 +219,11 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', canFail(async (req, res) => {
         maps.forEach(map => {
             map.beatmapset_id = parseInt(map.beatmapset_id, 10);
 
-            if (osuIds.indexOf(map.beatmapset_id) == -1) {
+            if (!osuIds.includes(map.beatmapset_id)) {
                 osuIds.push(map.beatmapset_id);
+                map.tags = map.tags.split(' ');
 
-                if (map.tags.includes('featured artist') || map.tags.includes(' fa ')) {
+                if (map.tags.includes('featured artist') || map.tags.includes('fa')) {
                     externalBeatmaps.push({
                         osuId: map.beatmapset_id,
                         artist: map.artist,

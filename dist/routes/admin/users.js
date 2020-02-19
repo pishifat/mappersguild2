@@ -63,7 +63,6 @@ adminUsersRouter.post('/updatePoints', helpers_1.canFail((req, res) => __awaiter
         return res.json(helpers_1.defaultErrorMessage);
     }
     u.forEach(user => {
-        console.log(user.username);
         const pointsObject = {
             Easy: { num: 5, total: 0 },
             Normal: { num: 6, total: 0 },

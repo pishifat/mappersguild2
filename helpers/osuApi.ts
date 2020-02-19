@@ -138,16 +138,17 @@ function sleep(ms): Promise<void> {
 export async function getMaps(date: Date): Promise<OsuBeatmapResponse[] | BasicError> {
     let beatmaps: OsuBeatmapResponse[] = [];
     const today = new Date();
-    console.log(today.setDate(today.getDate() - 7));
 
     try {
         while (date < new Date(today.setDate(today.getDate() - 7))) {
             const url = `https://osu.ppy.sh/api/get_beatmaps?k=${config.v1token}&since=${date.toISOString()}`;
-            const res: any = await axios.get(url);
-            date = new Date(res.data[res.data.length - 1].approved_date);
-            beatmaps = beatmaps.concat(res.data);
-            console.log(date);
-            await sleep(2000);
+            const res = await axios.get<OsuBeatmapResponse[]>(url);
+
+            if (res.data.length) {
+                date = new Date(res.data[res.data.length - 1].approved_date);
+                beatmaps = beatmaps.concat(res.data);
+                await sleep(2000);
+            }
         }
 
         if (beatmaps.length > 0) {
