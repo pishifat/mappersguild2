@@ -192,12 +192,3 @@ export default Vue.extend({
     },
 });
 </script>
-
-<style>
-.copy-paste {
-    background-color: darkslategray;
-    margin: 0.75rem 0.75rem 0.75rem 0.75rem;
-    padding: 0.75rem 0.75rem 0.75rem 0.75rem;
-    box-shadow: 1px 1px 2px 1px black;
-}
-</style>

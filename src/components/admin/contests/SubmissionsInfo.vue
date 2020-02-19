@@ -66,6 +66,10 @@
                         <judging-detail
                             :evaluations="submission.evaluations"
                         />
+                        <message-template
+                            :evaluations="submission.evaluations"
+                            :osu-id="submission.creator.osuId"
+                        />
                     </div>
                 </div>
             </div>
@@ -78,11 +82,13 @@
 <script lang="ts">
 import Vue from 'vue';
 import JudgingDetail from './JudgingDetail.vue';
+import MessageTemplate from './MessageTemplate.vue';
 
 export default Vue.extend({
     name: 'SubmissionsInfo',
     components: {
         JudgingDetail,
+        MessageTemplate,
     },
     props: {
         contestId: {
