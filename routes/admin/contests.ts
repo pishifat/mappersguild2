@@ -1,5 +1,5 @@
 import express from 'express';
-import { isLoggedIn, isAdmin } from '../../helpers/middlewares';
+import { isLoggedIn, isSuperAdmin } from '../../helpers/middlewares';
 import { canFail, defaultErrorMessage } from '../../helpers/helpers';
 import { ContestService } from '../../models/contest/contest';
 import { UserService } from '../../models/user';
@@ -8,7 +8,7 @@ import { SubmissionService } from '../../models/contest/submission';
 const adminContestsRouter = express.Router();
 
 adminContestsRouter.use(isLoggedIn);
-adminContestsRouter.use(isAdmin);
+adminContestsRouter.use(isSuperAdmin);
 
 /* GET contest - admin page */
 adminContestsRouter.get('/', (req, res) => {
