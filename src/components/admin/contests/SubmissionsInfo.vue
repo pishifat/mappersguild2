@@ -27,7 +27,7 @@
 
         <div v-if="submissions.length">
             <div
-                v-for="submission in submissions"
+                v-for="submission in sortedSubmissions"
                 :key="submission.id"
             >
                 <div class="card card-body static-card p-3">
@@ -38,7 +38,7 @@
                         >
                             {{ submission.name }}
                             by {{ submission.creator.username }}
-                            ({{ getTotalPoints(submission.evaluations) }} points in {{ submission.evaluations.length }} evaluations)
+                            ({{ submission.total }} points in {{ submission.evaluations.length }} evaluations)
                         </a>
 
                         <a
@@ -83,6 +83,7 @@
 import Vue from 'vue';
 import JudgingDetail from './JudgingDetail.vue';
 import MessageTemplate from './MessageTemplate.vue';
+import { Submission } from '../../../../interfaces/contest/submission';
 
 export default Vue.extend({
     name: 'SubmissionsInfo',
@@ -96,7 +97,7 @@ export default Vue.extend({
             required: true,
         },
         submissions: {
-            type: Array,
+            type: Array as () => Submission[],
             required: true,
         },
     },
@@ -107,6 +108,32 @@ export default Vue.extend({
             showDetail: false,
             confirmDelete: null,
         };
+    },
+    computed: {
+        sortedSubmissions(): any[] {
+            const sortedSubmissions: any = [...this.submissions];
+
+            for (let i = 0; i < sortedSubmissions.length; i++) {
+                const submission = sortedSubmissions[i];
+                const total = submission.evaluations.reduce((acc, e) => {
+                    if (e.vote) {
+                        return acc + e.vote;
+                    }
+
+                    return acc;
+                }, 0);
+                sortedSubmissions[i].total = total;
+            }
+
+            sortedSubmissions.sort((a, b) => {
+                if (a.total > b.total) return -1;
+                if (b.total > a.total) return 1;
+
+                return 0;
+            });
+
+            return sortedSubmissions;
+        },
     },
     methods: {
         async addSubmission(e): Promise<void> {
@@ -139,15 +166,6 @@ export default Vue.extend({
                     submissionId,
                 });
             }
-        },
-        getTotalPoints(evaluations): number {
-            return evaluations.reduce((acc, e) => {
-                if (e.vote) {
-                    return acc + e.vote;
-                }
-
-                return acc;
-            }, 0);
         },
     },
 });
