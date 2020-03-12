@@ -45,7 +45,7 @@
                             <span v-for="beatmap in quest.associatedMaps" :key="beatmap.id">
                                 <samp class="small text-white-50">
                                     - [{{ beatmap.song.artist }} - {{ beatmap.song.title }}]({{ beatmap.url }})
-                                    {{ beatmap.mappers.length > 1 ? 'hosted by' : 'by' }}
+                                    {{ hasMultipleMappers(beatmap.tasks) ? 'hosted by' : 'by' }}
                                     [{{ beatmap.host.username }}]({{ 'https://osu.ppy.sh/users/' + beatmap.host.osuId }})
                                     <span v-if="quest.modes.length > 1">
                                         ({{ beatmap.mode == 'osu' ? 'osu!' : beatmap.mode == 'hybrid' ? 'hybrid' : 'osu!' + beatmap.mode }})
@@ -188,6 +188,18 @@ export default Vue.extend({
             } else {
                 return '';
             }
+        },
+        hasMultipleMappers(tasks): boolean {
+            const mappers: string[] = [];
+            tasks.forEach(task => {
+                task.mappers.forEach(mapper => {
+                    if (!mappers.includes(mapper)) {
+                        mappers.push(mapper);
+                    }
+                });
+            });
+            if (mappers.length > 1) return true;
+            else return false;
         },
     },
 });
