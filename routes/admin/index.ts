@@ -6,7 +6,7 @@ import { UserService, User } from '../../models/user';
 import { BeatmapService, Beatmap } from '../../models/beatmap/beatmap';
 import { BeatmapStatus } from '../../interfaces/beatmap/beatmap';
 import { beatmapsetInfo, isOsuResponseError } from '../../helpers/osuApi';
-import { canFail } from '../../helpers/helpers';
+import { canFail, findBeatmapsetId } from '../../helpers/helpers';
 
 const adminRouter = express.Router();
 
@@ -40,17 +40,9 @@ adminRouter.get('/relevantInfo/', canFail(async (req, res) => {
                     (bm.status as string) = `${bm.status} (invalid link)`;
                     actionBeatmaps.push(bm);
                 } else {
-                    const indexStart = bm.url.indexOf('beatmapsets/') + 'beatmapsets/'.length;
-                    const indexEnd = bm.url.indexOf('#');
-                    let bmId;
+                    const osuId = findBeatmapsetId(bm.url);
 
-                    if (indexEnd !== -1) {
-                        bmId = bm.url.slice(indexStart, indexEnd);
-                    } else {
-                        bmId = bm.url.slice(indexStart);
-                    }
-
-                    const bmInfo = await beatmapsetInfo(bmId);
+                    const bmInfo = await beatmapsetInfo(osuId);
                     let status = '';
 
                     if (!isOsuResponseError(bmInfo)) {

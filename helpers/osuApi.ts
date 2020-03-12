@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/camelcase */
-import { defaultErrorMessage, BasicError } from './helpers';
+import { defaultErrorMessage, sleep, BasicError } from './helpers';
 import querystring from 'querystring';
 import config from '../config.json';
 import axios, { AxiosRequestConfig } from 'axios';
@@ -129,10 +129,6 @@ export async function beatmapsetInfo(setId: number): Promise<OsuBeatmapResponse 
     } catch (error) {
         return defaultErrorMessage;
     }
-}
-
-function sleep(ms): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 export async function getMaps(date: Date): Promise<OsuBeatmapResponse[] | BasicError> {

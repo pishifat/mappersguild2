@@ -92,7 +92,6 @@ adminUsersRouter.post('/updatePoints', canFail(async (req, res) => {
     }
 
     u.forEach(user => {
-        console.log(user.username);
         const pointsObject: Points = {
             Easy: { num: 5, total: 0 },
             Normal: { num: 6, total: 0 },
