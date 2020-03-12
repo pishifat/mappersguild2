@@ -48,16 +48,8 @@ adminRouter.get('/relevantInfo/', helpers_1.canFail((req, res) => __awaiter(void
                     actionBeatmaps.push(bm);
                 }
                 else {
-                    const indexStart = bm.url.indexOf('beatmapsets/') + 'beatmapsets/'.length;
-                    const indexEnd = bm.url.indexOf('#');
-                    let bmId;
-                    if (indexEnd !== -1) {
-                        bmId = bm.url.slice(indexStart, indexEnd);
-                    }
-                    else {
-                        bmId = bm.url.slice(indexStart);
-                    }
-                    const bmInfo = yield osuApi_1.beatmapsetInfo(bmId);
+                    const osuId = helpers_1.findBeatmapsetId(bm.url);
+                    const bmInfo = yield osuApi_1.beatmapsetInfo(osuId);
                     let status = '';
                     if (!osuApi_1.isOsuResponseError(bmInfo)) {
                         switch (bmInfo.approved) {

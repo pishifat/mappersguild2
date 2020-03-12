@@ -114,22 +114,19 @@ function beatmapsetInfo(setId) {
     });
 }
 exports.beatmapsetInfo = beatmapsetInfo;
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
 function getMaps(date) {
     return __awaiter(this, void 0, void 0, function* () {
         let beatmaps = [];
         const today = new Date();
-        console.log(today.setDate(today.getDate() - 7));
         try {
             while (date < new Date(today.setDate(today.getDate() - 7))) {
                 const url = `https://osu.ppy.sh/api/get_beatmaps?k=${config_json_1.default.v1token}&since=${date.toISOString()}`;
                 const res = yield axios_1.default.get(url);
-                date = new Date(res.data[res.data.length - 1].approved_date);
-                beatmaps = beatmaps.concat(res.data);
-                console.log(date);
-                yield sleep(2000);
+                if (res.data.length) {
+                    date = new Date(res.data[res.data.length - 1].approved_date);
+                    beatmaps = beatmaps.concat(res.data);
+                    yield helpers_1.sleep(2000);
+                }
             }
             if (beatmaps.length > 0) {
                 return beatmaps;

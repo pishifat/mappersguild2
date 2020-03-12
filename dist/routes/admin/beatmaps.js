@@ -52,16 +52,8 @@ adminBeatmapsRouter.post('/:id/updateStatus', middlewares_1.isSuperAdmin, helper
         }
     }
     if (req.body.status == beatmap_2.BeatmapStatus.Ranked) {
-        const indexStart = b.url.indexOf('beatmapsets/') + 'beatmapsets/'.length;
-        const indexEnd = b.url.indexOf('#');
-        let bmId = '';
-        if (indexEnd !== -1) {
-            bmId = b.url.slice(indexStart, indexEnd);
-        }
-        else {
-            bmId = b.url.slice(indexStart);
-        }
-        const bmInfo = yield osuApi_1.beatmapsetInfo(parseInt(bmId, 10));
+        const osuId = helpers_1.findBeatmapsetId(b.url);
+        const bmInfo = yield osuApi_1.beatmapsetInfo(osuId);
         if (osuApi_1.isOsuResponseError(bmInfo)) {
             return res.json(helpers_1.defaultErrorMessage);
         }
@@ -71,7 +63,7 @@ adminBeatmapsRouter.post('/:id/updateStatus', middlewares_1.isSuperAdmin, helper
         const gdUsernames = [];
         b.tasks.forEach((task) => {
             task.mappers.forEach(mapper => {
-                if (gdUsernames.indexOf(mapper.username) == -1 && mapper.username != b.host.username) {
+                if (!gdUsernames.includes(mapper.username) && mapper.username != b.host.username) {
                     gdUsernames.push(mapper.username);
                 }
             });
@@ -96,7 +88,7 @@ adminBeatmapsRouter.post('/:id/updateStatus', middlewares_1.isSuperAdmin, helper
                     icon_url: 'https://a.ppy.sh/' + b.host.osuId,
                 },
                 thumbnail: {
-                    url: `https://assets.ppy.sh/beatmaps/${bmId}/covers/list.jpg`,
+                    url: `https://assets.ppy.sh/beatmaps/${osuId}/covers/list.jpg`,
                 },
                 color: 10221039,
                 fields: [
@@ -159,22 +151,25 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', helpers_1.canFail((req, res) => _
             sort: { name: 1 },
         }),
     ]);
+    const accuratelyDatedBeatmaps = [];
+    for (const beatmap of b) {
+        const osuId = helpers_1.findBeatmapsetId(beatmap.url);
+        const osuBeatmapResponse = yield osuApi_1.beatmapsetInfo(osuId);
+        if (!osuApi_1.isOsuResponseError(osuBeatmapResponse)) {
+            const rankedDate = new Date(osuBeatmapResponse.approved_date);
+            if (rankedDate > date) {
+                accuratelyDatedBeatmaps.push(beatmap);
+            }
+        }
+        yield helpers_1.sleep(100);
+    }
     const maps = yield osuApi_1.getMaps(date);
     const osuIds = [];
     const externalBeatmaps = [];
     b.forEach(map => {
         if (map.url) {
-            const indexStart = map.url.indexOf('beatmapsets/') + 'beatmapsets/'.length;
-            const indexEnd = map.url.indexOf('#');
-            let bmId = '';
-            if (indexEnd !== -1) {
-                bmId = map.url.slice(indexStart, indexEnd);
-            }
-            else {
-                bmId = map.url.slice(indexStart);
-            }
-            const osuId = parseInt(bmId, 10);
-            if (osuIds.indexOf(osuId) == -1) {
+            const osuId = helpers_1.findBeatmapsetId(map.url);
+            if (!osuIds.includes(osuId)) {
                 osuIds.push(osuId);
             }
         }
@@ -182,9 +177,10 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', helpers_1.canFail((req, res) => _
     if (!osuApi_1.isOsuResponseError(maps)) {
         maps.forEach(map => {
             map.beatmapset_id = parseInt(map.beatmapset_id, 10);
-            if (osuIds.indexOf(map.beatmapset_id) == -1) {
+            if (!osuIds.includes(map.beatmapset_id)) {
                 osuIds.push(map.beatmapset_id);
-                if (map.tags.includes('featured artist') || map.tags.includes(' fa ')) {
+                map.tags = map.tags.split(' ');
+                if ((map.tags.includes('featured') && map.tags.includes('artist')) || map.tags.includes('fa')) {
                     externalBeatmaps.push({
                         osuId: map.beatmapset_id,
                         artist: map.artist,
@@ -196,6 +192,6 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', helpers_1.canFail((req, res) => _
             }
         });
     }
-    res.json({ beatmaps: b, quests: q, externalBeatmaps });
+    res.json({ beatmaps: accuratelyDatedBeatmaps, quests: q, externalBeatmaps });
 })));
 exports.default = adminBeatmapsRouter;

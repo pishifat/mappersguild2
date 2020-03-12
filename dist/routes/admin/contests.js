@@ -20,7 +20,7 @@ const user_1 = require("../../models/user");
 const submission_1 = require("../../models/contest/submission");
 const adminContestsRouter = express_1.default.Router();
 adminContestsRouter.use(middlewares_1.isLoggedIn);
-adminContestsRouter.use(middlewares_1.isAdmin);
+adminContestsRouter.use(middlewares_1.isSuperAdmin);
 adminContestsRouter.get('/', (req, res) => {
     var _a;
     res.render('admin/contests', {
