@@ -23,18 +23,21 @@ const UserSchema = new Schema({
     questPoints: { type: Number, default: 0 },
     modPoints: { type: Number, default: 0 },
     hostPoints: { type: Number, default: 0 },
+    contestParticipantPoints: { type: Number, default: 0 },
+    contestJudgePoints: { type: Number, default: 0 },
+    contestVotePoints: { type: Number, default: 0 },
     osuPoints: { type: Number, default: 0 },
     taikoPoints: { type: Number, default: 0 },
     catchPoints: { type: Number, default: 0 },
     maniaPoints: { type: Number, default: 0 },
-    legacyPoints: { type: Number, default: 0 },
     penaltyPoints: { type: Number, default: 0 },
     completedQuests: [{ type: 'ObjectId', ref: 'Quest' }],
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 UserSchema.virtual('totalPoints').get(function(this: User) {
     return Math.round((this.easyPoints + this.normalPoints + this.hardPoints + this.insanePoints + this.expertPoints +
-        this.storyboardPoints + this.questPoints + this.modPoints + this.hostPoints + this.legacyPoints - this.penaltyPoints)*10)/10;
+        this.storyboardPoints + this.questPoints + this.modPoints + this.hostPoints +
+        this.contestParticipantPoints + this.contestJudgePoints + this.contestVotePoints - this.penaltyPoints)*10)/10;
 });
 
 UserSchema.virtual('mainMode').get(function(this: User) {

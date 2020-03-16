@@ -26,11 +26,13 @@ export interface User extends Document {
     questPoints: number;
     modPoints: number;
     hostPoints: number;
+    contestParticipantPoints: number;
+    contestJudgePoints: number;
+    contestVotePoints: number;
     osuPoints: number;
     taikoPoints: number;
     catchPoints: number;
     maniaPoints: number;
-    legacyPoints: number;
     penaltyPoints: number;
     totalPoints: number;
     mainMode: Omit<BeatmapMode, BeatmapMode.Hybrid>;
