@@ -29,7 +29,8 @@ indexRouter.get('/', async (req, res, next) => {
         title: `Mappers' Guild`,
         isIndex: true,
         loggedInAs: req.session?.osuId,
-        isNotSpectator: res.locals.userRequest.group != 'spectator',
+        isNotSpectator: res.locals.userRequest.group != UserGroup.Spectator,
+        userMongoId: req.session?.mongoId,
         userTotalPoints: res.locals.userRequest.totalPoints,
     });
 });

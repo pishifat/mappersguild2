@@ -19,6 +19,7 @@ artistsRouter.get('/', (req, res) => {
         title: 'Artists',
         script: 'artists.js',
         loggedInAs: req.session?.osuId,
+        userMongoId: req.session?.mongoId,
         userTotalPoints: res.locals.userRequest.totalPoints,
     });
 });

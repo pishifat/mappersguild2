@@ -276,6 +276,8 @@ export default Vue.extend({
     },
     watch: {
         async selectedUser(): Promise<void> {
+            history.pushState(null, 'Users', `/users?id=${this.selectedUser.id}`);
+
             this.currentQuests = [];
             const res = await Axios.get(`/users/findCurrentQuests/${this.selectedUser.id}`);
 

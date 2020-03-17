@@ -22,6 +22,7 @@ beatmapsRouter.get('/', (req, res) => {
         script: 'beatmaps.js',
         isMaps: true,
         loggedInAs: req.session?.osuId,
+        userMongoId: req.session?.mongoId,
         userTotalPoints: res.locals.userRequest.totalPoints,
     });
 });

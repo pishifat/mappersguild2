@@ -21,7 +21,7 @@ export default Vue.extend({
     name: 'UserPointsRow',
     props: {
         points: {
-            type: String,
+            type: Number,
             required: true,
         },
         display: {

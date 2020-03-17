@@ -70,7 +70,10 @@ export default Vue.extend({
             'pagination',
             'userGroup',
         ]),
-        ...mapGetters(['paginatedUsers']),
+        ...mapGetters([
+            'paginatedUsers',
+            'allUsers',
+        ]),
     },
     watch: {
         paginatedUsers (): void {
@@ -85,6 +88,16 @@ export default Vue.extend({
             this.$store.commit('setUserId', res.userId);
             this.$store.commit('setUsername', res.username);
             this.$store.commit('setUserGroup', res.group);
+            const params: any = new URLSearchParams(document.location.search.substring(1));
+
+            if (params.get('id') && params.get('id').length) {
+                const i = this.allUsers.findIndex(u => u.id == params.get('id'));
+
+                if (i >= 0) {
+                    this.$store.commit('setSelectedUserId', params.get('id'));
+                    $('#extendedInfo').modal('show');
+                }
+            }
         }
 
         $('#loading').fadeOut();

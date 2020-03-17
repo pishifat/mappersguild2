@@ -64,6 +64,7 @@ questsRouter.get('/', (req, res) => {
         script: 'quests.js',
         isQuests: true,
         loggedInAs: req.session?.osuId,
+        userMongoId: req.session?.mongoId,
         userTotalPoints: res.locals.userRequest.totalPoints,
     });
 });

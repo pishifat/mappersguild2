@@ -25,6 +25,7 @@ usersRouter.get('/', (req, res) => {
         script: 'users.js',
         isUsers: true,
         loggedInAs: req.session?.osuId,
+        userMongoId: req.session?.mongoId,
         userTotalPoints: res.locals.userRequest.totalPoints,
     });
 });

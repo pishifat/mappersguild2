@@ -23,6 +23,7 @@ adminUsersRouter.get('/', (req, res) => {
         title: 'Users - Admin',
         script: 'adminUsers.js',
         loggedInAs: req.session?.osuId,
+        userMongoId: req.session?.mongoId,
         userTotalPoints: res.locals.userRequest.totalPoints,
     });
 });

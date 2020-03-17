@@ -151,6 +151,9 @@ const store = new Vuex.Store({
         selectedUser: (state): User | undefined => {
             return state.users.find(u => u.id === state.selectedUserId);
         },
+        allUsers: (state): User[] => {
+            return state.users;
+        },
     },
     actions: {
         updateFilterMode ({ commit }, mode: string): void {

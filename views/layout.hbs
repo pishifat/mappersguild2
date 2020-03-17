@@ -55,7 +55,7 @@
                 <img src="https://a.ppy.sh/{{loggedInAs}}" class="rounded-circle nav-avatar ml-2">
             </a>
             <div class="dropdown-menu dropdown-menu-right">
-                <span class="dropdown-item">Total points: {{userTotalPoints}}</span>
+                <a href="/users?id={{userMongoId}}" class="dropdown-item">Total points: {{userTotalPoints}}</a>
                 <div class="dropdown-divider"></div>
                 <form action="/logout" method="GET">
                     <button class="btn btn-sm btn-outline-danger float-right mr-2" type="submit">Log Out</button>

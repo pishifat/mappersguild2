@@ -16,6 +16,7 @@ adminFeaturedArtistsRouter.get('/', (req, res) => {
         title: 'FA - Admin',
         script: 'adminFeaturedArtists.js',
         loggedInAs: req.session?.osuId,
+        userMongoId: req.session?.mongoId,
         userTotalPoints: res.locals.userRequest.totalPoints,
     });
 });

@@ -128,6 +128,7 @@ notificationsRouter.get('/', (req, res) => {
         script: 'notifications.js',
         isNotifications: true,
         loggedInAs: req.session?.osuId,
+        userMongoId: req.session?.mongoId,
         userTotalPoints: res.locals.userRequest.totalPoints,
     });
 });

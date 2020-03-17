@@ -40,6 +40,7 @@ judgingRouter.get('/', (req, res) => {
         title: 'Judging',
         script: 'judging.js',
         loggedInAs: req.session?.osuId,
+        userMongoId: req.session?.mongoId,
         userTotalPoints: res.locals.userRequest.totalPoints,
     });
 });

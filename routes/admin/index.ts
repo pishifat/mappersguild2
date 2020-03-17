@@ -19,6 +19,7 @@ adminRouter.get('/', (req, res) => {
         title: 'Admin',
         script: 'admin.js',
         loggedInAs: req.session?.osuId,
+        userMongoId: req.session?.mongoId,
         userTotalPoints: res.locals.userRequest.totalPoints,
     });
 });
