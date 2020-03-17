@@ -28,12 +28,13 @@ const questPopulate = [
     { path: 'currentParty', populate: { path: 'members leader' } },
 ];
 usersRouter.get('/', (req, res) => {
-    var _a;
+    var _a, _b;
     res.render('users', {
         title: 'Users',
         script: 'users.js',
         isUsers: true,
         loggedInAs: (_a = req.session) === null || _a === void 0 ? void 0 : _a.osuId,
+        userMongoId: (_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId,
         userTotalPoints: res.locals.userRequest.totalPoints,
     });
 });

@@ -34,12 +34,13 @@ indexRouter.get('/', (req, res, next) => __awaiter(void 0, void 0, void 0, funct
     }
     res.render('index', { title: `Mappers' Guild`, isIndex: true });
 }), middlewares_1.isLoggedIn, (req, res) => {
-    var _a;
+    var _a, _b;
     res.render('index', {
         title: `Mappers' Guild`,
         isIndex: true,
         loggedInAs: (_a = req.session) === null || _a === void 0 ? void 0 : _a.osuId,
-        isNotSpectator: res.locals.userRequest.group != 'spectator',
+        isNotSpectator: res.locals.userRequest.group != user_2.UserGroup.Spectator,
+        userMongoId: (_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId,
         userTotalPoints: res.locals.userRequest.totalPoints,
     });
 });

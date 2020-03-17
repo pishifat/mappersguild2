@@ -20,7 +20,7 @@ const user_1 = require("../interfaces/user");
 const logsRouter = express_1.default.Router();
 logsRouter.use(middlewares_1.isLoggedIn);
 logsRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _a, _b;
     res.render('logs', {
         title: 'Logs',
         script: 'logs.js',
@@ -32,6 +32,7 @@ logsRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         }),
         loggedInAs: (_a = req.session) === null || _a === void 0 ? void 0 : _a.osuId,
         isNotSpectator: res.locals.userRequest.group != user_1.UserGroup.Spectator,
+        userMongoId: (_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId,
         userTotalPoints: res.locals.userRequest.totalPoints,
     });
 }));

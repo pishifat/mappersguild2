@@ -22,16 +22,18 @@ const helpers_1 = require("../../helpers/helpers");
 const log_1 = require("../../models/log");
 const log_2 = require("../../interfaces/log");
 const task_1 = require("../../interfaces/beatmap/task");
+const contest_1 = require("../../models/contest/contest");
 const adminUsersRouter = express_1.default.Router();
 adminUsersRouter.use(middlewares_1.isLoggedIn);
 adminUsersRouter.use(middlewares_1.isAdmin);
 adminUsersRouter.use(middlewares_1.isSuperAdmin);
 adminUsersRouter.get('/', (req, res) => {
-    var _a;
+    var _a, _b;
     res.render('admin/users', {
         title: 'Users - Admin',
         script: 'adminUsers.js',
         loggedInAs: (_a = req.session) === null || _a === void 0 ? void 0 : _a.osuId,
+        userMongoId: (_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId,
         userTotalPoints: res.locals.userRequest.totalPoints,
     });
 });
@@ -59,9 +61,47 @@ adminUsersRouter.post('/updatePoints', helpers_1.canFail((req, res) => __awaiter
             { path: 'tasks', populate: { path: 'mappers' } },
         ],
     });
-    if (beatmap_1.BeatmapService.isError(maps)) {
+    const contests = yield contest_1.ContestService.queryAll({
+        populate: [
+            {
+                path: 'submissions',
+                populate: [
+                    {
+                        path: 'creator',
+                        select: '_id osuId username',
+                    },
+                ],
+            },
+            {
+                path: 'judges',
+            },
+            {
+                path: 'voters',
+            },
+        ],
+        defaultSort: true,
+    });
+    if (beatmap_1.BeatmapService.isError(maps) || contest_1.ContestService.isError(contests)) {
         return res.json(helpers_1.defaultErrorMessage);
     }
+    const contestParticipantIds = [];
+    const contestJudgeIds = [];
+    const contestVoteIds = [];
+    contests.forEach(contest => {
+        contest.submissions.forEach(submission => {
+            if (submission.creator.osuId != 3178418) {
+                contestParticipantIds.push(submission.creator.id);
+            }
+        });
+        contest.judges.forEach(judge => {
+            if (judge.osuId != 3178418) {
+                contestJudgeIds.push(judge.id);
+            }
+        });
+        contest.voters.forEach(voter => {
+            contestVoteIds.push(voter.id);
+        });
+    });
     u.forEach(user => {
         const pointsObject = {
             Easy: { num: 5, total: 0 },
@@ -78,6 +118,9 @@ adminUsersRouter.post('/updatePoints', helpers_1.canFail((req, res) => __awaiter
             taiko: { total: 0 },
             catch: { total: 0 },
             mania: { total: 0 },
+            ContestParticipant: { total: 0 },
+            ContestJudge: { total: 0 },
+            ContestVote: { total: 0 },
             Quests: {
                 list: [],
             },
@@ -146,6 +189,29 @@ adminUsersRouter.post('/updatePoints', helpers_1.canFail((req, res) => __awaiter
                 }
             }
         });
+        contests.forEach(contest => {
+            if (contestParticipantIds.includes(user.id)) {
+                contest.submissions.forEach(submission => {
+                    if (submission.creator.id == user.id && user.osuId != 3178418) {
+                        pointsObject['ContestParticipant']['total'] += 5;
+                    }
+                });
+            }
+            if (contestJudgeIds.includes(user.id)) {
+                contest.judges.forEach(judge => {
+                    if (judge.id == user.id) {
+                        pointsObject['ContestJudge']['total'] += 1;
+                    }
+                });
+            }
+            if (contestVoteIds.includes(user.id)) {
+                contest.voters.forEach(voter => {
+                    if (voter.id == user.id) {
+                        pointsObject['ContestVote']['total'] += 1;
+                    }
+                });
+            }
+        });
         const totalPoints = pointsObject['Easy']['total'] +
             pointsObject['Normal']['total'] +
             pointsObject['Hard']['total'] +
@@ -155,7 +221,10 @@ adminUsersRouter.post('/updatePoints', helpers_1.canFail((req, res) => __awaiter
             pointsObject['Mod']['total'] +
             pointsObject['Host']['total'] +
             pointsObject['QuestReward']['total'] +
-            user.legacyPoints - user.penaltyPoints;
+            pointsObject['ContestParticipant']['total'] +
+            pointsObject['ContestJudge']['total'] +
+            pointsObject['ContestVote']['total'] -
+            user.penaltyPoints;
         if (totalPoints < 100) {
             pointsObject['Rank']['value'] = 0;
         }
@@ -183,6 +252,9 @@ adminUsersRouter.post('/updatePoints', helpers_1.canFail((req, res) => __awaiter
             taikoPoints: pointsObject['taiko']['total'],
             catchPoints: pointsObject['catch']['total'],
             maniaPoints: pointsObject['mania']['total'],
+            contestParticipantPoints: pointsObject['ContestParticipant']['total'],
+            contestJudgePoints: pointsObject['ContestJudge']['total'],
+            contestVotePoints: pointsObject['ContestVote']['total'],
             completedQuests: pointsObject['Quests']['list'],
         });
     });

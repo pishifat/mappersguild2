@@ -28,11 +28,12 @@ adminQuestsRouter.use(middlewares_1.isLoggedIn);
 adminQuestsRouter.use(middlewares_1.isAdmin);
 adminQuestsRouter.use(middlewares_1.isSuperAdmin);
 adminQuestsRouter.get('/', (req, res) => {
-    var _a;
+    var _a, _b;
     res.render('admin/quests', {
         title: 'Quests - Admin',
         script: 'adminQuests.js',
         loggedInAs: (_a = req.session) === null || _a === void 0 ? void 0 : _a.osuId,
+        userMongoId: (_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId,
         userTotalPoints: res.locals.userRequest.totalPoints,
     });
 });

@@ -72,15 +72,15 @@ function isNotSpectator(req, res, next) {
     }
 }
 exports.isNotSpectator = isNotSpectator;
-function isBn(req, res, next) {
+function isBn(accessToken) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (req.session.osuId) {
-            const res = yield osuApi_1.getUserInfo(req.session.accessToken);
+        if (accessToken) {
+            const res = yield osuApi_1.getUserInfo(accessToken);
             if (!osuApi_1.isOsuResponseError(res) && (res.is_nat || res.is_bng)) {
-                return next();
+                return true;
             }
         }
-        res.status(403).render('error', { message: 'unauthorized' });
+        return false;
     });
 }
 exports.isBn = isBn;

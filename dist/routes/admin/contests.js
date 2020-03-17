@@ -22,11 +22,12 @@ const adminContestsRouter = express_1.default.Router();
 adminContestsRouter.use(middlewares_1.isLoggedIn);
 adminContestsRouter.use(middlewares_1.isSuperAdmin);
 adminContestsRouter.get('/', (req, res) => {
-    var _a;
+    var _a, _b;
     res.render('admin/contests', {
         title: 'Contests Admin',
         script: 'adminContests.js',
         loggedInAs: (_a = req.session) === null || _a === void 0 ? void 0 : _a.osuId,
+        userMongoId: (_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId,
         userTotalPoints: res.locals.userRequest.totalPoints,
     });
 });

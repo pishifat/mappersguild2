@@ -23,11 +23,12 @@ const defaultPopulate = [
     { path: 'assignedUser', select: 'username osuId' },
 ];
 artistsRouter.get('/', (req, res) => {
-    var _a;
+    var _a, _b;
     res.render('artists', {
         title: 'Artists',
         script: 'artists.js',
         loggedInAs: (_a = req.session) === null || _a === void 0 ? void 0 : _a.osuId,
+        userMongoId: (_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId,
         userTotalPoints: res.locals.userRequest.totalPoints,
     });
 });

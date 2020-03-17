@@ -14,16 +14,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const user_1 = require("../models/user");
+const user_2 = require("../interfaces/user");
 const faqRouter = express_1.default.Router();
 faqRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _a, _b;
     let response = {
         title: 'Frequently Asked Questions',
         isFaq: true,
     };
     const u = yield user_1.UserService.queryById((_a = req.session) === null || _a === void 0 ? void 0 : _a.mongoId);
     if (u && !user_1.UserService.isError(u)) {
-        response = Object.assign(Object.assign({}, response), { loggedInAs: u.osuId, isNotSpectator: u.group != 'spectator', userTotalPoints: u.totalPoints });
+        response = Object.assign(Object.assign({}, response), { loggedInAs: u.osuId, isNotSpectator: res.locals.userRequest.group != user_2.UserGroup.Spectator, userMongoId: (_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId, userTotalPoints: u.totalPoints });
     }
     res.render('faq', response);
 }));
