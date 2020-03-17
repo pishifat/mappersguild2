@@ -62,14 +62,14 @@ export function isNotSpectator(req, res, next): void {
     }
 }
 
-export async function isBn(req, res, next): Promise<void> {
-    if (req.session.osuId) {
-        const res = await getUserInfo(req.session.accessToken);
+export async function isBn(accessToken): Promise<boolean> {
+    if (accessToken) {
+        const res = await getUserInfo(accessToken);
 
         if (!isOsuResponseError(res) && (res.is_nat || res.is_bng)) {
-            return next();
+            return true;
         }
     }
 
-    res.status(403).render('error', { message: 'unauthorized' });
+    return false;
 }

@@ -235,7 +235,7 @@ beatmapsRouter.post('/:id/updateModder', isNotSpectator, canFail(async (req, res
 }));
 
 /* POST bn from extended view, returns new bns list. */
-beatmapsRouter.post('/:id/updateBn', isNotSpectator, isBn, isValidBeatmap, async (req, res) => {
+beatmapsRouter.post('/:id/updateBn', isNotSpectator, isValidBeatmap, async (req, res) => {
     const b: Beatmap = res.locals.beatmap;
     const isAlreadyBn = await BeatmapService.queryOne({
         query: {
@@ -247,7 +247,7 @@ beatmapsRouter.post('/:id/updateBn', isNotSpectator, isBn, isValidBeatmap, async
 
     if (isAlreadyBn) {
         update = { $pull: { bns: req.session?.mongoId } };
-    } else {
+    } else if (isBn(req.session?.accessToken)) {
         let hasTask = false;
 
         b.tasks.forEach(task => {
@@ -263,6 +263,8 @@ beatmapsRouter.post('/:id/updateBn', isNotSpectator, isBn, isValidBeatmap, async
         }
 
         update = { $push: { bns: req.session?.mongoId } };
+    } else {
+        return res.json(defaultErrorMessage);
     }
 
     await BeatmapService.update(req.params.id, update);
