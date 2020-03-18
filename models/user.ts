@@ -31,6 +31,7 @@ const UserSchema = new Schema({
     catchPoints: { type: Number, default: 0 },
     maniaPoints: { type: Number, default: 0 },
     penaltyPoints: { type: Number, default: 0 },
+    spentPoints: { type: Number, default: 0 },
     completedQuests: [{ type: 'ObjectId', ref: 'Quest' }],
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
@@ -38,6 +39,10 @@ UserSchema.virtual('totalPoints').get(function(this: User) {
     return Math.round((this.easyPoints + this.normalPoints + this.hardPoints + this.insanePoints + this.expertPoints +
         this.storyboardPoints + this.questPoints + this.modPoints + this.hostPoints +
         this.contestParticipantPoints + this.contestJudgePoints + this.contestVotePoints - this.penaltyPoints)*10)/10;
+});
+
+UserSchema.virtual('availablePoints').get(function(this: User) {
+    return this.totalPoints - this.spentPoints;
 });
 
 UserSchema.virtual('mainMode').get(function(this: User) {
@@ -101,4 +106,6 @@ class UserService extends BaseService<User>
 
 const service = new UserService();
 
-export { service as UserService };
+const populatePointsVirtuals = 'osuId username rank easyPoints normalPoints hardPoints insanePoints expertPoints storyboardPoints questPoints modPoints hostPoints contestParticipantPoints contestJudgePoints contestVotePoints penaltyPoints';
+
+export { service as UserService, populatePointsVirtuals };

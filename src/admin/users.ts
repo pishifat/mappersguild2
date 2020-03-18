@@ -31,6 +31,13 @@ const store = new Vuex.Store<UserState>({
                 user.penaltyPoints = payload.penaltyPoints;
             }
         },
+        updateSpentPoints (state, payload): void {
+            const user = state.users.find(u => u.id == payload.userId);
+
+            if (user) {
+                user.spentPoints = payload.spentPoints;
+            }
+        },
         updateBadge (state, payload): void {
             const user = state.users.find(u => u.id == payload.userId);
 

@@ -49,8 +49,12 @@ export default Vue.extend({
             required: true,
         },
         quests: {
-            type: Array,
+            type: Array as () => Quest[],
             required: true,
+        },
+        availablePoints: {
+            type: Number,
+            default: 0,
         },
         isFirstLoadDone: Boolean,
     },

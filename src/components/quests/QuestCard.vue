@@ -69,8 +69,12 @@
                     </div>
 
                 </a>
-                <!-- collapse with party/parties info -->
+                <expiration-collapse-info
+                    v-if="quest.isExpired"
+                    :quest="quest"
+                />
                 <party-collapse-info
+                    v-else
                     :quest="quest"
                     :member-of-any-party="memberOfAnyParty"
                 />
@@ -87,6 +91,7 @@ import QuestReward from './QuestReward.vue';
 import QuestTime from './QuestTime.vue';
 import QuestModes from './QuestModes.vue';
 import PartyCollapseInfo from './partyInfo/PartyCollapseInfo.vue';
+import ExpirationCollapseInfo from './expirationInfo/ExpirationCollapseInfo.vue';
 
 export default Vue.extend({
     name: 'QuestCard',
@@ -96,11 +101,16 @@ export default Vue.extend({
         QuestTime,
         QuestModes,
         PartyCollapseInfo,
+        ExpirationCollapseInfo,
     },
     props: {
         quest: {
             type: Object,
             required: true,
+        },
+        availablePoints: {
+            type: Number,
+            default: 0,
         },
     },
     data () {

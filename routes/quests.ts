@@ -22,6 +22,10 @@ const beatmapPopulate = [
     { path: 'tasks', populate: { path: 'mappers' } },
 ];
 
+const pointsPopulate = [
+    { path: 'members', select: 'osuId username rank easyPoints normalPoints hardPoints insanePoints expertPoints storyboardPoints questPoints modPoints hostPoints contestParticipantPoints contestJudgePoints contestVotePoints penaltyPoints spentPoints' },
+];
+
 const cannotFindUserMessage = 'Cannot find user!';
 
 //updating party rank and modes when leaving/kicking/joining
@@ -72,7 +76,7 @@ questsRouter.get('/', (req, res) => {
 /* GET relevant quest info */
 questsRouter.get('/relevantInfo', async (req, res) => {
     const openQuests = await QuestService.queryAll({
-        query: { modes: res.locals.userRequest.mainMode, status: 'open' },
+        query: { modes: res.locals.userRequest.mainMode, status: 'open', expiration: { $gt: new Date() } },
         useDefaults: true,
     });
 
@@ -81,6 +85,7 @@ questsRouter.get('/relevantInfo', async (req, res) => {
         userMongoId: req.session?.mongoId,
         group: res.locals.userRequest.group,
         mainMode: res.locals.userRequest.mainMode,
+        availablePoints: res.locals.userRequest.availablePoints,
     });
 });
 
@@ -315,7 +320,9 @@ questsRouter.post('/kickPartyMember/:partyId/:questId', isNotSpectator, canFail(
 
 /* POST accepts quest. */
 questsRouter.post('/acceptQuest/:partyId/:questId', isNotSpectator, canFail(async (req, res) => {
-    const p = await PartyService.queryByIdOrFail(req.params.partyId, { defaultPopulate: true }, `Party doesn't exist!`);
+    const p = await PartyService.queryByIdOrFail(req.params.partyId, { populate: pointsPopulate }, `Party doesn't exist!`);
+
+    // check if all members have enough points available to accept quest
 
     if (!p.modes.length) {
         return res.json({ error: 'Your party has no modes selected!' });
@@ -536,6 +543,106 @@ questsRouter.post('/dropQuest/:partyId/:questId', isNotSpectator, canFail(async 
     }]);
 
     PartyService.remove(req.params.partyId);
+}));
+
+/* POST reopen expired quest. */
+questsRouter.post('/reopenQuest/:questId', isNotSpectator, canFail(async (req, res) => {
+    const quest = await QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
+
+    const openQuest = await QuestService.queryOne({
+        query: {
+            name: quest.name,
+            status: QuestStatus.Open,
+        },
+    });
+
+    const newExpiration = new Date();
+    newExpiration.setDate(newExpiration.getDate() + 90);
+
+    if (req.body.status == QuestStatus.Open) {
+        if (openQuest && !QuestService.isError(openQuest) && !openQuest.isExpired) {
+            await Promise.all([
+                QuestService.update(openQuest._id, {
+                    $push: { modes: quest.modes },
+                    expiration: newExpiration,
+                }),
+                QuestService.remove(req.params.questId),
+            ]);
+        } else {
+            await QuestService.update(req.params.questId, {
+                expiration: newExpiration,
+            });
+        }
+    }
+    // for use when reviving completed quests
+    /* else if (req.body.status == QuestStatus.Done) {
+        const wipQuests = await QuestService.queryAll({
+            query: {
+                name: quest.name,
+                status: QuestStatus.WIP,
+            },
+        });
+        const wipQuestModes: any[] = [];
+
+        if (wipQuests && !QuestService.isError(wipQuests)) {
+            wipQuests.forEach(quest => {
+                quest.modes.forEach(mode => {
+                    wipQuestModes.push(mode);
+                });
+            });
+        }
+
+        const modes = [BeatmapMode.Osu, BeatmapMode.Taiko, BeatmapMode.Catch, BeatmapMode.Mania];
+        wipQuestModes.forEach(mode => {
+            const i = modes.indexOf(mode);
+            if (i !== -1) modes.splice(i, 1);
+        });
+
+        if (openQuest && !QuestService.isError(openQuest)) {
+            await QuestService.update(openQuest._id, {
+                name: `${openQuest.name} redux`,
+                modes,
+                expiration: newExpiration,
+            });
+        } else {
+            await QuestService.create({
+                name: `${quest.name} redux`,
+                reward: quest.reward,
+                descriptionMain: quest.descriptionMain,
+                timeframe: quest.timeframe,
+                minParty: quest.minParty,
+                maxParty: quest.maxParty,
+                minRank: quest.minRank,
+                art: quest.art,
+                modes,
+            });
+        }
+    }*/
+
+    const spentPoints = (res.locals.userRequest.spentPoints += req.body.price);
+    await UserService.update(req.session.mongoId, { spentPoints });
+
+    const allQuests = await QuestService.queryAll({ useDefaults: true });
+
+    res.json({ quests: allQuests, availablePoints: res.locals.userRequest.availablePoints });
+
+    LogService.create(req.session.mongoId, `re-opened quest "${quest.name}"`, LogCategory.Quest );
+
+    webhookPost([{
+        author: {
+            name: `Quest re-opened: "${quest.name}"`,
+            url: `https://mappersguild.com/quests`,
+            icon_url: `https://a.ppy.sh/${req.session.osuId}`,
+        },
+        color: 8677281,
+        thumbnail: {
+            url: `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`,
+        },
+        fields: [{
+            name: 'Objective',
+            value: `${quest.descriptionMain}`,
+        }],
+    }]);
 }));
 
 export default questsRouter;

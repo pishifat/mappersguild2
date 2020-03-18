@@ -2,6 +2,7 @@ import express from 'express';
 import { isLoggedIn, isAdmin, isSuperAdmin } from '../../helpers/middlewares';
 import { QuestService, Quest } from '../../models/quest';
 import { QuestStatus } from '../../interfaces/quest';
+import { BeatmapMode } from '../../interfaces/beatmap/beatmap';
 import { LogService } from '../../models/log';
 import { User } from '../../models/user';
 import { LogCategory } from '../../interfaces/log';
@@ -40,7 +41,9 @@ adminQuestsRouter.get('/load', async (req, res) => {
 
 /* POST add quest */
 adminQuestsRouter.post('/create', async (req, res) => {
-    req.body.modes = ['osu', 'taiko', 'catch', 'mania'];
+    req.body.modes = [ BeatmapMode.Osu, BeatmapMode.Taiko, BeatmapMode.Catch, BeatmapMode.Mania ];
+    req.body.expiration = new Date();
+    req.body.expiration.setDate(req.body.expiration.getDate() + 90);
     const quest = await QuestService.create(req.body);
 
     if (!QuestService.isError(quest)) {
@@ -70,7 +73,9 @@ adminQuestsRouter.post('/create', async (req, res) => {
         }]);
     }
 
-    res.json(quest);
+    const allQuests = await QuestService.queryAll({ useDefaults: true });
+
+    res.json(allQuests);
 });
 
 /* POST rename quest */
@@ -183,6 +188,8 @@ adminQuestsRouter.post('/:id/complete', canFail(async (req, res) => {
 
 /* POST duplicate quest */
 adminQuestsRouter.post('/:id/duplicate', canFail(async (req, res) => {
+    const expiration = new Date();
+    expiration.setDate(expiration.getDate() + 90);
     const q = await QuestService.queryByIdOrFail(req.params.id);
     const body: Partial<Quest> = {
         name: req.body.name,
@@ -193,11 +200,14 @@ adminQuestsRouter.post('/:id/duplicate', canFail(async (req, res) => {
         maxParty: q.maxParty,
         minRank: q.minRank,
         art: q.art,
-        modes: ['osu', 'taiko', 'catch', 'mania'],
+        modes: [ BeatmapMode.Osu, BeatmapMode.Taiko, BeatmapMode.Catch, BeatmapMode.Mania ],
+        expiration,
     };
-    const newQuest = await QuestService.create(body);
+    await QuestService.create(body);
 
-    res.json(newQuest);
+    const allQuests = await QuestService.queryAll({ useDefaults: true });
+
+    res.json(allQuests);
 }));
 
 /* POST reset quest deadline */
@@ -237,6 +247,19 @@ adminQuestsRouter.post('/:id/toggleMode', canFail(async (req, res) => {
 
     quest = await QuestService.queryByIdOrFail(req.params.id);
     res.json(quest);
+}));
+
+/* POST update quest expiration */
+adminQuestsRouter.post('/:id/updateExpiration', canFail(async (req, res) => {
+    const date = new Date(req.body.expiration);
+
+    if (!(date instanceof Date && !isNaN(date.getTime()))) {
+        return res.json({ error: 'Invalid date' });
+    }
+
+    await QuestService.updateOrFail(req.params.id, { expiration: date });
+
+    res.json(date);
 }));
 
 export default adminQuestsRouter;

@@ -56,6 +56,13 @@ const store = new Vuex.Store<QuestState>({
                 quest.deadline = payload.deadline;
             }
         },
+        updateExpiration (state, payload): void {
+            const quest = state.quests.find(q => q.id == payload.questId);
+
+            if (quest) {
+                quest.expiration = payload.expiration;
+            }
+        },
     },
     strict: process.env.NODE_ENV !== 'production',
 });

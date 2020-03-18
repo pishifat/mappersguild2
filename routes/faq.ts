@@ -1,6 +1,5 @@
 import express from 'express';
 import { UserService } from '../models/user';
-import { UserGroup } from '../interfaces/user';
 
 const faqRouter = express.Router();
 
@@ -16,7 +15,6 @@ faqRouter.get('/', async (req, res) => {
         response = {
             ...response,
             loggedInAs: u.osuId,
-            isNotSpectator: res.locals.userRequest.group != UserGroup.Spectator,
             userMongoId: req.session?.mongoId,
             userTotalPoints: u.totalPoints,
         };

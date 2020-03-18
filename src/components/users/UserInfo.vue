@@ -128,11 +128,19 @@
                                     :tooltip-title="'mapping osu!mania game mode'"
                                 />
                                 <tr>
-                                    <td scope="row" style="padding: 1px; font-size: 12pt">
-                                        Total points
+                                    <td scope="row">
+                                        Total points earned
                                     </td>
-                                    <td scope="row" style="padding: 1px; font-size: 12pt">
+                                    <td scope="row">
                                         {{ selectedUser.totalPoints }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td scope="row">
+                                        Available points
+                                    </td>
+                                    <td scope="row">
+                                        {{ selectedUser.availablePoints }}
                                     </td>
                                 </tr>
                             </tbody>

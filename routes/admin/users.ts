@@ -44,6 +44,15 @@ adminUsersRouter.post('/:id/updatePenaltyPoints', canFail(async (req, res) => {
     LogService.create(req.session.mongoId, `edited penalty points of "${user.username}" to ${req.body.penaltyPoints}`, LogCategory.User);
 }));
 
+/* POST update user spent points */
+adminUsersRouter.post('/:id/updateSpentPoints', canFail(async (req, res) => {
+    const user = await UserService.updateOrFail(req.params.id, { spentPoints: req.body.spentPoints });
+
+    res.json(parseInt(req.body.spentPoints, 10));
+
+    LogService.create(req.session.mongoId, `edited spent points of "${user.username}" to ${req.body.spentPoints}`, LogCategory.User);
+}));
+
 /* POST update user badge */
 adminUsersRouter.post('/:id/updateBadge', canFail(async (req, res) => {
     await UserService.updateOrFail(req.params.id, { badge: req.body.badge });

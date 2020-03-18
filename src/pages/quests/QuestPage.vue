@@ -22,6 +22,11 @@
             :quests="completeQuests"
         />
 
+        <status-quests
+            status="Expired"
+            :quests="expiredQuests"
+        />
+
         <toast-messages />
 
         <notifications-access v-if="userGroup != 'spectator'" />
@@ -57,6 +62,7 @@ export default Vue.extend({
             'openQuests',
             'wipQuests',
             'completeQuests',
+            'expiredQuests',
         ]),
     },
     async created () {
@@ -67,6 +73,7 @@ export default Vue.extend({
             this.$store.commit('setUserId', res.userMongoId);
             this.$store.commit('setUserGroup', res.group);
             this.$store.commit('setFilterMode', res.mainMode);
+            this.$store.commit('setAvailablePoints', res.availablePoints);
         }
 
         $('#loading').fadeOut();

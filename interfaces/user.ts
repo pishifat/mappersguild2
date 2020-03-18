@@ -35,6 +35,8 @@ export interface User extends Document {
     maniaPoints: number;
     penaltyPoints: number;
     totalPoints: number;
+    spentPoints: number;
+    availablePoints: number;
     mainMode: Omit<BeatmapMode, BeatmapMode.Hybrid>;
     createdAt: Date;
 }

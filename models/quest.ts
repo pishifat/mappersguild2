@@ -21,10 +21,12 @@ const questSchema = new Schema({
     status: { type: String, enum: ['open', 'wip', 'done'], default: 'open' },
     parties: [{ type: 'ObjectId', ref: 'Party' }],
     modes: [{ type: String, default: ['osu', 'taiko', 'catch', 'mania'], required: true }],
-
+    expiration: { type: Date },
+    //status is wip
     accepted: { type: Date },
     deadline: { type: Date },
     currentParty: { type: 'ObjectId', ref: 'Party' },
+    //status is done
     completed: { type: Date },
     completedMembers: [{ type: 'ObjectId', ref: 'User' }],
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
@@ -37,6 +39,10 @@ questSchema.virtual('associatedMaps', {
 
 questSchema.virtual('overLimit').get(function (this: Quest) {
     return ((+new Date() - +this.accepted) / (24*3600*1000)) > 7;
+});
+
+questSchema.virtual('isExpired').get(function (this: Quest) {
+    return ((+new Date() > +this.expiration) && this.status == 'open');
 });
 
 const QuestModel = mongoose.model<Quest>('Quest', questSchema);

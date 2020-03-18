@@ -23,6 +23,7 @@ const store = new Vuex.Store({
         filterValue: '',
         filterMode: 'any' as FilterMode,
         isLoadingQuests: true,
+        availablePoints: null as null | User['availablePoints'],
     },
     mutations: {
         setUserId (state, id: User['id']): void {
@@ -42,6 +43,9 @@ const store = new Vuex.Store({
         },
         setIsLoadingQuests (state, value: boolean): void {
             state.isLoadingQuests = value;
+        },
+        setAvailablePoints (state, value: User['availablePoints']): void {
+            state.availablePoints = value;
         },
         updateQuest (state, quest: Quest): void {
             const i = state.quests.findIndex(q => q.id === quest.id);
@@ -66,13 +70,20 @@ const store = new Vuex.Store({
             return quests;
         },
         openQuests: (state, getters): Quest[] => {
-            return getters.filteredQuests.filter(q => q.status == QuestStatus.Open);
+            return getters.filteredQuests.filter(q => q.status == QuestStatus.Open && !q.isExpired);
         },
         wipQuests: (state, getters): Quest[] => {
             return getters.filteredQuests.filter(q => q.status == QuestStatus.WIP);
         },
         completeQuests: (state, getters): Quest[] => {
             return getters.filteredQuests.filter(q => q.status == QuestStatus.Done);
+        },
+        expiredQuests: (state, getters): Quest[] => {
+            return getters.filteredQuests.filter(q => q.isExpired);
+        },
+        availablePoints: (state): number => {
+            if (state.availablePoints) return state.availablePoints;
+            else return 0;
         },
     },
     actions: {

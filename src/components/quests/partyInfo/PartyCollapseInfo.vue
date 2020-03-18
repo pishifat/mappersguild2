@@ -38,7 +38,15 @@
                         v-else
                         :quest="quest"
                     />
+
+                    <expiration-date
+                        v-if="quest.status == 'open'"
+                        :is-expired="quest.isExpired"
+                        :expiration="new Date(quest.expiration)"
+                    />
                 </div>
+
+
 
                 <div
                     v-if="quest.status == 'done' || quest.status == 'wip'"
@@ -46,6 +54,13 @@
                 >
                     <associated-beatmaps
                         :associated-maps="quest.associatedMaps"
+                    />
+                </div>
+                <div v-if="quest.status == 'done'" class="col-sm-12">
+                    <reopen-quest
+                        :quest-id="quest.id"
+                        :status="quest.status"
+                        :price="quest.reward*20 + 100"
                     />
                 </div>
             </div>
@@ -58,16 +73,28 @@ import Vue from 'vue';
 import { Quest } from '../../../../interfaces/quest';
 import PartyDetail from './PartyDetail.vue';
 import AssociatedBeatmaps from './AssociatedBeatmaps.vue';
+import ExpirationDate from '../expirationInfo/ExpirationDate.vue';
+import ReopenQuest from '../expirationInfo/ReopenQuest.vue';
 
 export default Vue.extend({
     components: {
         PartyDetail,
         AssociatedBeatmaps,
+        ExpirationDate,
+        ReopenQuest,
     },
     props: {
         quest: {
             type: Object as () => Quest,
             required: true,
+        },
+        availablePoints: {
+            type: Number,
+            default: 0,
+        },
+        test: {
+            type: Number,
+            default: 0,
         },
         memberOfAnyParty: Boolean,
     },

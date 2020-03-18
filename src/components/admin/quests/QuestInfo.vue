@@ -67,6 +67,18 @@
                         >
                     </p>
                     <p>
+                        <button class="btn btn-sm btn-outline-info" @click="updateExpiration($event)">
+                            Set expiration date
+                        </button>
+                        <input
+                            v-model="expiration"
+                            class="form-control-sm mx-2 w-50"
+                            type="text"
+                            autocomplete="off"
+                            :placeholder="quest.expiration"
+                        > {{ quest.isExpired }}
+                    </p>
+                    <p>
                         <a href="#" @click.prevent="toggleQuestMode('osu')">
                             <i
                                 class="fas fa-circle"
@@ -150,6 +162,7 @@ export default Vue.extend({
             renameQuestName: '',
             description: '',
             duplicateQuestName: '',
+            expiration: '',
         };
     },
     watch: {
@@ -157,6 +170,7 @@ export default Vue.extend({
             this.renameQuestName = this.quest.name;
             this.description = this.quest.descriptionMain;
             this.duplicateQuestName = this.quest.name;
+            this.expiration = this.quest.expiration ? this.quest.expiration.toString() : '';
         },
     },
     methods: {
@@ -272,6 +286,21 @@ export default Vue.extend({
                 this.$store.commit('updateQuest', {
                     questId: this.quest.id,
                     quest,
+                });
+            }
+        },
+        async updateExpiration(e): Promise<void> {
+            const expiration = await this.executePost(`/admin/quests/${this.quest.id}/updateExpiration/`, { expiration: this.expiration }, e);
+            console.log(expiration);
+
+            if (!this.isError(expiration)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated quest expiration`,
+                    type: 'info',
+                });
+                this.$store.commit('updateExpiration', {
+                    questId: this.quest.id,
+                    expiration,
                 });
             }
         },

@@ -26,6 +26,17 @@
                     </p>
                     <p>
                         <input
+                            v-model="spentPoints"
+                            class="form-control-sm mx-2"
+                            type="text"
+                            autocomplete="off"
+                        >
+                        <button class="btn btn-sm btn-outline-info" @click="updateSpentPoints($event)">
+                            Save spent points
+                        </button>
+                    </p>
+                    <p>
+                        <input
                             v-model="badge"
                             class="form-control-sm mx-2"
                             type="text"
@@ -56,6 +67,7 @@ export default Vue.extend({
     data() {
         return {
             penaltyPoints: 0,
+            spentPoints: 0,
             badge: 0,
         };
     },
@@ -65,6 +77,7 @@ export default Vue.extend({
     watch: {
         user(): void {
             this.penaltyPoints = this.user.penaltyPoints || 0;
+            this.spentPoints = this.user.spentPoints || 0;
             this.badge = this.user.badge || 0;
         },
     },
@@ -80,6 +93,20 @@ export default Vue.extend({
                 this.$store.commit('updatePenaltyPoints', {
                     userId: this.user.id,
                     penaltyPoints,
+                });
+            }
+        },
+        async updateSpentPoints(e): Promise<void> {
+            const spentPoints = await this.executePost(`/admin/users/${this.user.id}/updateSpentPoints`, { spentPoints: this.spentPoints }, e);
+
+            if (!this.isError(spentPoints)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `set spent points to ${spentPoints}`,
+                    type: 'info',
+                });
+                this.$store.commit('updateSpentPoints', {
+                    userId: this.user.id,
+                    spentPoints,
                 });
             }
         },

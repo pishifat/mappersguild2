@@ -22,6 +22,7 @@ export interface Quest extends Document {
     status: QuestStatus;
     parties: Party[];
     modes: Omit<BeatmapMode, BeatmapMode.Hybrid>[];
+    expiration: Date;
     accepted: Date;
     deadline: Date;
     currentParty: Party;
@@ -31,4 +32,5 @@ export interface Quest extends Document {
     associatedMaps: Beatmap[];
     /** Get the days between today and accepted date */
     overLimit: boolean;
+    isExpired: boolean;
 }
