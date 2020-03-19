@@ -6,6 +6,7 @@
                 :party="party"
                 :status="quest.status"
                 :quest="quest"
+                :price="price"
             />
 
             <party-title
@@ -28,6 +29,8 @@
 
         <members-detail
             :members="quest.status === 'done' ? quest.completedMembers : party.members"
+            :price="price"
+            :status="quest.status"
         />
 
         <hr>
@@ -64,8 +67,13 @@ export default Vue.extend({
         },
         memberOfAnyParty: Boolean,
     },
-    computed: mapState([
-        'userId',
-    ]),
+    computed: {
+        ...mapState([
+            'userId',
+        ]),
+        price(): number {
+            return this.quest.reward*2 + 10;
+        },
+    },
 });
 </script>

@@ -16,6 +16,9 @@
                     data-placement="top"
                     :title="member.rank == 1 ? 'rank 1 user' : member.rank == 2 ? 'rank 2 user' : 'rank 3 user'"
                 />
+                <span v-if="status == 'open' && member.availablePoints < price" class="errors">
+                    {{ `(${member.availablePoints} points available)` }}
+                </span>
             </li>
         </ul>
     </div>
@@ -29,6 +32,14 @@ export default Vue.extend({
     props: {
         members: {
             type: Array as () => User[],
+            required: true,
+        },
+        price: {
+            type: Number,
+            required: true,
+        },
+        status: {
+            type: String,
             required: true,
         },
     },

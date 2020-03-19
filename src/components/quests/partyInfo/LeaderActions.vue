@@ -89,10 +89,11 @@
             <button
                 v-else-if="quest.status === 'open' && party.rank >= quest.minRank && party.members.length >= quest.minParty && party.members.length <= quest.maxParty"
                 class="btn btn-sm btn-outline-success mx-2 my-2"
+                :disabled="!enoughPoints"
                 @click.prevent="acceptQuest($event)"
             >
-                Accept quest
-                <i class="fas fa-check small" />
+                Accept quest for {{ price }} points from each party member
+                <i class="fas fa-coins small" />
             </button>
         </div>
     </div>
@@ -119,6 +120,10 @@ export default Vue.extend({
             type: Object as () => Quest,
             required: true,
         },
+        price: {
+            type: Number,
+            required: true,
+        },
     },
     data () {
         return {
@@ -129,7 +134,16 @@ export default Vue.extend({
     computed: {
         ...mapState([
             'userId',
+            'availablePoints',
         ]),
+        enoughPoints(): boolean {
+            let valid = true;
+            this.party.members.forEach(member => {
+                if (member.availablePoints < this.price) valid = false;
+            });
+
+            return valid;
+        },
     },
     methods: {
         async togglePartyLock(e): Promise<void> {
@@ -218,11 +232,12 @@ export default Vue.extend({
                 }
             }
 
-            if (confirm(`Are you sure? This quest will only allow beatmaps of these modes: ${modesText}`)) {
-                const quests = await this.executePost('/quests/acceptQuest/' + this.party.id + '/' + this.quest.id, {}, e);
+            if (confirm(`Are you sure?\n\nThis quest will only allow beatmaps of these modes: ${modesText}\n\nAll members of your party will spend ${this.price} points.\n\nYou have ${this.availablePoints} points available.`)) {
+                const res: any = await this.executePost('/quests/acceptQuest/' + this.party.id + '/' + this.quest.id, { price: this.price }, e);
 
-                if (!this.isError(quests)) {
-                    this.$store.commit('setQuests', quests);
+                if (!this.isError(res)) {
+                    this.$store.commit('setQuests', res.quests);
+                    this.$store.commit('setAvailablePoints', res.availablePoints);
                 }
             }
         },

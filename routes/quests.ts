@@ -322,21 +322,29 @@ questsRouter.post('/kickPartyMember/:partyId/:questId', isNotSpectator, canFail(
 questsRouter.post('/acceptQuest/:partyId/:questId', isNotSpectator, canFail(async (req, res) => {
     const p = await PartyService.queryByIdOrFail(req.params.partyId, { populate: pointsPopulate }, `Party doesn't exist!`);
 
-    // check if all members have enough points available to accept quest
-
     if (!p.modes.length) {
         return res.json({ error: 'Your party has no modes selected!' });
     }
 
+    // check if all party members can afford quest
+    p.members.forEach(member => {
+        if (member.availablePoints < req.body.price) {
+            return res.json({ error: 'Someone in your party does not have enough points to accept the quest!' });
+        }
+    });
+
     const q = await QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
 
+    // check if quest is valid to accept
     if (p.members.length < q.minParty
         || p.members.length > q.maxParty
         || p.rank < q.minRank
+        || q.isExpired
     ) {
         return res.json({ error: 'Something went wrong!' });
     }
 
+    // check if quest exists for selected modes
     for (let i = 0; i < p.modes.length; i++) {
         const mode = p.modes[i];
         const invalidQuest = await QuestService.queryOne({
@@ -356,6 +364,7 @@ questsRouter.post('/acceptQuest/:partyId/:questId', isNotSpectator, canFail(asyn
         }
     }
 
+    // process quest changes
     if (q.modes.length == p.modes.length) {
         q.accepted = new Date();
         q.status = QuestStatus.WIP;
@@ -392,12 +401,18 @@ questsRouter.post('/acceptQuest/:partyId/:questId', isNotSpectator, canFail(asyn
         });
     }
 
+    // spend points
+    p.members.forEach(member => {
+        UserService.update(member.id, { spentPoints: member.spentPoints + req.body.price });
+    });
+
+    // load all quests
     const allQuests = await QuestService.queryAll({
         query: {},
         useDefaults: true,
     });
 
-    res.json(allQuests);
+    res.json({ quests: allQuests, availablePoints: res.locals.userRequest.availablePoints - req.body.price });
 
     //logs
     let modeList = '';

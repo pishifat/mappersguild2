@@ -37,10 +37,6 @@ export default Vue.extend({
             type: Object as () => Quest,
             required: true,
         },
-        availablePoints: {
-            type: Number,
-            default: 0,
-        },
         memberOfAnyParty: Boolean,
     },
     methods: {
