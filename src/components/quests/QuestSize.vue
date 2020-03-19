@@ -4,12 +4,12 @@
             data-toggle="tooltip"
             data-placement="top"
             :title="
-                'Party Size: ' +
+                'Party size: ' +
                     (
-                        quest.minParty == quest.maxParty ? quest.minParty + ' users' :
-                        quest.status == 'open' ? quest.minParty + '-' + quest.maxParty + ' users' :
-                        quest.status == 'wip' ? quest.currentParty.members.length + ' users' :
-                        quest.status == 'done' ? quest.completedMembers.length + ' users' : ''
+                        quest.minParty == quest.maxParty ? `${quest.minParty} user${quest.maxParty == 1 ? '' : 's'}` :
+                        quest.status == 'open' ? `${quest.minParty}-${quest.maxParty} users` :
+                        quest.status == 'wip' ? `${quest.currentParty.members.length} user${quest.currentParty.members.length == 1 ? '' : 's'}` :
+                        quest.status == 'done' ? `${quest.completedMembers.length} users` : ''
                     )
             "
         >

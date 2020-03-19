@@ -24,13 +24,6 @@ const store = new Vuex.Store<UserState>({
         setUsers (state, users: User[]): void {
             state.users = users;
         },
-        updatePenaltyPoints (state, payload): void {
-            const user = state.users.find(u => u.id == payload.userId);
-
-            if (user) {
-                user.penaltyPoints = payload.penaltyPoints;
-            }
-        },
         updateSpentPoints (state, payload): void {
             const user = state.users.find(u => u.id == payload.userId);
 

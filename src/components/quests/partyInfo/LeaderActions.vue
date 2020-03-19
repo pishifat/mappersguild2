@@ -75,6 +75,16 @@
                 </button>
             </template>
 
+            <!-- EXTEND DEADLINE -->
+            <button
+                v-if="quest.status === 'wip'"
+                class="btn btn-sm btn-outline-danger mx-2 my-2"
+                @click.prevent="extendDeadline($event)"
+            >
+                Extend deadline for 10 points
+                <i class="fas fa-coins small" />
+            </button>
+
             <!-- DROP QUEST -->
             <button
                 v-if="quest.status === 'wip'"
@@ -92,8 +102,8 @@
                 :disabled="!enoughPoints"
                 @click.prevent="acceptQuest($event)"
             >
-                Accept quest for {{ price }} points from each party member
-                <i class="fas fa-coins small" />
+                {{ price ? `Accept quest for ${price} ${price == 1 ? 'point' : 'points'} from each party member` : 'Accept Quest' }}
+                <i class="fas small" :class="price ? 'fa-coins' : 'fa-check'" />
             </button>
         </div>
     </div>
@@ -210,6 +220,16 @@ export default Vue.extend({
                     ) {
                         this.dropQuest(e);
                     }
+                }
+            }
+        },
+        async extendDeadline(e): Promise<void> {
+            if (confirm(`Are you sure?\n\nAll members of your party will spend 10 points.\n\nYou have ${this.availablePoints} points available.`)) {
+                const res: any = await this.executePost('/quests/extendDeadline/' + this.party.id + '/' + this.quest.id, {}, e);
+
+                if (!this.isError(res)) {
+                    this.$store.commit('updateQuest', res.quest);
+                    this.$store.commit('setAvailablePoints', res.availablePoints);
                 }
             }
         },

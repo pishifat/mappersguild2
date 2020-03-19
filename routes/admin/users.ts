@@ -35,15 +35,6 @@ adminUsersRouter.get('/load', async (req, res) => {
     res.json(users);
 });
 
-/* POST update user penatly points */
-adminUsersRouter.post('/:id/updatePenaltyPoints', canFail(async (req, res) => {
-    const user = await UserService.updateOrFail(req.params.id, { penaltyPoints: req.body.penaltyPoints });
-
-    res.json(parseInt(req.body.penaltyPoints, 10));
-
-    LogService.create(req.session.mongoId, `edited penalty points of "${user.username}" to ${req.body.penaltyPoints}`, LogCategory.User);
-}));
-
 /* POST update user spent points */
 adminUsersRouter.post('/:id/updateSpentPoints', canFail(async (req, res) => {
     const user = await UserService.updateOrFail(req.params.id, { spentPoints: req.body.spentPoints });
@@ -97,7 +88,7 @@ adminUsersRouter.post('/updatePoints', canFail(async (req, res) => {
         populate: [
             { path: 'host',  select: '_id osuId username' },
             { path: 'modders',  select: '_id osuId username' },
-            { path: 'quest',  select: '_id name status reward completed deadline' },
+            { path: 'quest',  select: '_id name status price completed deadline' },
             { path: 'tasks',  populate: { path: 'mappers' } },
         ],
     });
@@ -127,6 +118,7 @@ adminUsersRouter.post('/updatePoints', canFail(async (req, res) => {
         return res.json(defaultErrorMessage);
     }
 
+    // contest prep
     const contestParticipantIds: User['id'][] = [];
     const contestJudgeIds: User['id'][] = [];
     const contestVoteIds: User['id'][] = [];
@@ -147,6 +139,7 @@ adminUsersRouter.post('/updatePoints', canFail(async (req, res) => {
         });
     });
 
+    // process each user
     u.forEach(user => {
         const pointsObject: Points = {
             Easy: { num: 5, total: 0 },
@@ -157,7 +150,7 @@ adminUsersRouter.post('/updatePoints', canFail(async (req, res) => {
             Storyboard: { num: 10, total: 0 },
             Mod: { num: 1, total: 0 },
             Host: { num: 5, total: 0 },
-            QuestReward: { num: 0, total: 0 },
+            QuestReward: { num: 7.5, total: 0 },
             Rank: { value: 0 },
             osu: { total: 0 },
             taiko: { total: 0 },
@@ -171,6 +164,7 @@ adminUsersRouter.post('/updatePoints', canFail(async (req, res) => {
             },
         };
 
+        // process each map for each user (yes, this means it loops through every map hundreds of times and is terrible)
         maps.forEach(map => {
             let questParticipation = false;
             let length;
@@ -187,7 +181,7 @@ adminUsersRouter.post('/updatePoints', canFail(async (req, res) => {
                 length = ((map.length - 270) / 5) + 155;
             }
 
-            const lengthNerf = 124.666; //130=3:00, 120=2:30, 124.666=median of all ranked mg maps (2:43)
+            const lengthNerf = 125; //130=3:00, 120=2:30, 125=2:45
 
             //task points
             map.tasks.forEach(task => {
@@ -196,8 +190,19 @@ adminUsersRouter.post('/updatePoints', canFail(async (req, res) => {
                         if (task.name != TaskName.Storyboard) {
                             let questBonus = 0;
 
-                            if (map.quest) {
-                                questBonus = 2;
+                            if (map.quest && map.quest.status == 'done') {
+                                const lateness = (+map.quest.deadline - +map.quest.completed) / (24*3600*1000);
+
+                                if (lateness > 0) {
+                                    questBonus = 2;
+                                } else if (lateness > -20) {
+                                    questBonus = 1.5;
+                                } else if (lateness > -40) {
+                                    questBonus = 1;
+                                } else {
+                                    questBonus = 0.5;
+                                }
+
                                 questBonus *= (length/lengthNerf);
                                 questParticipation = true;
                             }
@@ -238,9 +243,10 @@ adminUsersRouter.post('/updatePoints', canFail(async (req, res) => {
             if (questParticipation) {
                 if (pointsObject['Quests']['list'].indexOf(map.quest._id) < 0 && map.quest.status == QuestStatus.Done) {
                     pointsObject['Quests']['list'].push(map.quest._id);
+                    const lateness = +map.quest.deadline - +map.quest.completed;
 
-                    if (+map.quest.deadline - +map.quest.completed > 0) {
-                        pointsObject['QuestReward']['total'] += map.quest.reward;
+                    if (lateness > 0 && +map.quest.completed > +new Date('2019-03-01')) { //2019-03-01 is when mappers' guild website launched
+                        pointsObject['QuestReward']['total'] += pointsObject['QuestReward']['num'];
                     }
                 }
             }
@@ -288,8 +294,7 @@ adminUsersRouter.post('/updatePoints', canFail(async (req, res) => {
             pointsObject['QuestReward']['total'] +
             pointsObject['ContestParticipant']['total'] +
             pointsObject['ContestJudge']['total'] +
-            pointsObject['ContestVote']['total'] -
-            user.penaltyPoints;
+            pointsObject['ContestVote']['total'];
 
         if (totalPoints < 100) {
             pointsObject['Rank']['value'] = 0;
@@ -322,6 +327,8 @@ adminUsersRouter.post('/updatePoints', canFail(async (req, res) => {
             completedQuests: pointsObject['Quests']['list'],
         });
     });
+
+    console.log('done');
 
     res.json('user points updated');
 }));

@@ -36,8 +36,8 @@
                                         />
                                     </div>
                                     <div class="col-sm-2">
-                                        <quest-reward
-                                            :reward="quest.reward"
+                                        <quest-price
+                                            :price="quest.price"
                                         />
                                     </div>
                                     <div class="col-sm-2">
@@ -87,7 +87,7 @@
 import Vue from 'vue';
 import { mapState } from 'vuex';
 import QuestSize from './QuestSize.vue';
-import QuestReward from './QuestReward.vue';
+import QuestPrice from './QuestPrice.vue';
 import QuestTime from './QuestTime.vue';
 import QuestModes from './QuestModes.vue';
 import PartyCollapseInfo from './partyInfo/PartyCollapseInfo.vue';
@@ -97,7 +97,7 @@ export default Vue.extend({
     name: 'QuestCard',
     components: {
         QuestSize,
-        QuestReward,
+        QuestPrice,
         QuestTime,
         QuestModes,
         PartyCollapseInfo,

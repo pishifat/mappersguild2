@@ -7,7 +7,7 @@ import { BeatmapMode } from '../interfaces/beatmap/beatmap';
 import { Quest, QuestService } from '../models/quest';
 import { TaskService } from '../models/beatmap/task';
 import { TaskName, TaskMode } from '../interfaces/beatmap/task';
-import { User } from '../models/user';
+import { User, UserService } from '../models/user';
 import { Invite, InviteService } from '../models/invite';
 import { NotificationService } from '../models/notification';
 import { LogService } from '../models/log';
@@ -321,6 +321,10 @@ notificationsRouter.post('/acceptJoin/:id', isNotSpectator, canFail(async (req, 
     const currentParties = await PartyService.queryAll({ query: { members: req.session.mongoId } });
     let duplicate = false;
 
+    if (!invite.party) {
+        return res.json({ error: 'That party no longer exists!' });
+    }
+
     if (!PartyService.isError(currentParties)) {
         q.parties.forEach(questParty => {
             currentParties.forEach(userParty => {
@@ -335,8 +339,8 @@ notificationsRouter.post('/acceptJoin/:id', isNotSpectator, canFail(async (req, 
         return res.json({ error: 'You are already in a party for this quest!' });
     }
 
-    if (!invite.party) {
-        return res.json({ error: 'That party no longer exists!' });
+    if (res.locals.userRequest.availablePoints < q.price) {
+        return res.json({ error: 'You do not have enough points available to accept this quest! ' });
     }
 
     const p = await PartyService.queryByIdOrFail(invite.party._id);
@@ -346,10 +350,7 @@ notificationsRouter.post('/acceptJoin/:id', isNotSpectator, canFail(async (req, 
             return res.json({ error: 'Party has too many members!' });
         }
 
-        // if timing window > 7 days, can't invite anymore
-        const timeWindow = (+new Date() - +q.accepted) / (24*3600*1000);
-
-        if (timeWindow > 7) {
+        if (q.overLimit) {
             return res.json({ error: `You cannot join a party that's been running a quest for over a week!` });
         }
     }
@@ -363,7 +364,11 @@ notificationsRouter.post('/acceptJoin/:id', isNotSpectator, canFail(async (req, 
     await PartyService.update(invite.party._id, { $push: { members: req.session.mongoId } });
     await updatePartyInfo(p._id);
 
+    const spentPoints = res.locals.userRequest.spentPoints + q.price;
+    await UserService.update(req.session.mongoId, { spentPoints });
+
     LogService.create(req.session.mongoId, `joined a party for quest ${q.name}`, LogCategory.Party);
+
     NotificationService.createPartyNotification(
         p._id,
         `accepted the invite to join your party`,

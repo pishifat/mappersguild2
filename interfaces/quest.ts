@@ -12,7 +12,7 @@ export interface Quest extends Document {
     _id: any;
     id: string;
     name: string;
-    reward: number;
+    price: number;
     descriptionMain: string;
     timeframe: number;
     minParty: number;

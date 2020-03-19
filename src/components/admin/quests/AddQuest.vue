@@ -22,11 +22,11 @@
                     </p>
                     <p>
                         <input
-                            v-model="reward"
+                            v-model="price"
                             class="form-control-sm w-100"
                             type="text"
                             autocomplete="off"
-                            placeholder="reward..."
+                            placeholder="price..."
                         >
                     </p>
                     <p>
@@ -102,7 +102,7 @@ export default Vue.extend({
     data() {
         return {
             name: null,
-            reward: null,
+            price: null,
             description: null,
             timeframe: 0,
             minParty: null,
@@ -115,7 +115,7 @@ export default Vue.extend({
         async addQuest(e): Promise<void> {
             const quests = await this.executePost('/admin/quests/create', {
                 name: this.name,
-                reward: this.reward,
+                price: this.price,
                 descriptionMain: this.description,
                 timeframe: this.timeframe * (24*3600*1000),
                 minParty: this.minParty,

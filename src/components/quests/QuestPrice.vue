@@ -1,13 +1,13 @@
 <template>
     <small>
-        <i class="fas fa-award mr-1" />
+        <i class="fas fa-coins mr-1" />
         <span
             class="text-white-50"
             data-toggle="tooltip"
             data-placement="top"
-            title="flat points bonus per user, additional ~2 points per difficulty"
+            title="points required from each party member to start quest"
         >
-            {{ reward }}pt{{ reward > 1 ? 's' : '' }}
+            {{ price }}pt{{ price == 1 ? '' : 's' }}
         </span>
     </small>
 </template>
@@ -16,11 +16,11 @@
 import Vue from 'vue';
 
 export default Vue.extend({
-    name: 'QuestReward',
+    name: 'QuestPrice',
     props: {
-        reward: {
+        price: {
             type: Number,
-            required: true,
+            default: 0,
         },
     },
 });

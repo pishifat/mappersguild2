@@ -24,6 +24,18 @@
                         >
                     </p>
                     <p>
+                        <button class="btn btn-sm btn-outline-info" @click="updatePrice($event)">
+                            Update price
+                        </button>
+                        <input
+                            v-model="price"
+                            class="form-control-sm mx-2 w-50"
+                            type="text"
+                            autocomplete="off"
+                            placeholder="price..."
+                        >
+                    </p>
+                    <p>
                         <button class="btn btn-sm btn-outline-info" @click="updateDescription($event)">
                             Update description
                         </button>
@@ -160,6 +172,7 @@ export default Vue.extend({
     data() {
         return {
             renameQuestName: '',
+            price: 0,
             description: '',
             duplicateQuestName: '',
             expiration: '',
@@ -168,6 +181,7 @@ export default Vue.extend({
     watch: {
         quest(): void {
             this.renameQuestName = this.quest.name;
+            this.price = this.quest.price || 0;
             this.description = this.quest.descriptionMain;
             this.duplicateQuestName = this.quest.name;
             this.expiration = this.quest.expiration ? this.quest.expiration.toString() : '';
@@ -185,6 +199,20 @@ export default Vue.extend({
                 this.$store.commit('renameQuest', {
                     questId: this.quest.id,
                     name,
+                });
+            }
+        },
+        async updatePrice(e): Promise<void> {
+            const price = await this.executePost(`/admin/quests/${this.quest.id}/updatePrice`, { price: this.price }, e);
+
+            if (!this.isError(price)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated price`,
+                    type: 'info',
+                });
+                this.$store.commit('updatePrice', {
+                    questId: this.quest.id,
+                    price,
                 });
             }
         },

@@ -33,7 +33,6 @@ export interface User extends Document {
     taikoPoints: number;
     catchPoints: number;
     maniaPoints: number;
-    penaltyPoints: number;
     totalPoints: number;
     spentPoints: number;
     availablePoints: number;

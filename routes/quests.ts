@@ -23,7 +23,7 @@ const beatmapPopulate = [
 ];
 
 const pointsPopulate = [
-    { path: 'members', select: 'osuId username rank easyPoints normalPoints hardPoints insanePoints expertPoints storyboardPoints questPoints modPoints hostPoints contestParticipantPoints contestJudgePoints contestVotePoints penaltyPoints spentPoints' },
+    { path: 'members', select: 'osuId username rank easyPoints normalPoints hardPoints insanePoints expertPoints storyboardPoints questPoints modPoints hostPoints contestParticipantPoints contestJudgePoints contestVotePoints spentPoints' },
 ];
 
 const cannotFindUserMessage = 'Cannot find user!';
@@ -181,12 +181,6 @@ questsRouter.post('/leaveParty/:partyId/:questId', isNotSpectator, canFail(async
 
     LogService.create(req.session.mongoId, `left party for ${q.name}`, LogCategory.Party);
 
-    if (q.status == QuestStatus.WIP && q.overLimit) {
-        const u = await UserService.queryByIdOrFail(req.session.mongoId);
-        u.penaltyPoints = u.penaltyPoints + q.reward;
-        UserService.saveOrFail(u);
-    }
-
     if (q.associatedMaps) {
         for (let i = 0; i < q.associatedMaps.length; i++) {
             let valid = true;
@@ -223,28 +217,29 @@ questsRouter.post('/inviteToParty/:partyId/:questId', isNotSpectator, canFail(as
         }, inviteError + cannotFindUserMessage);
     }
 
-    const q = await QuestService.queryById(req.params.questId, { defaultPopulate: true });
-    const currentParties = await PartyService.queryAll({ query: { members: u._id } });
+    const q = await QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
+    const currentParties = await PartyService.queryAllOrFail({ query: { members: u._id } });
 
-    // no idea if it should continue at all ?
-    if (q && !QuestService.isError(q) && !PartyService.isError(currentParties)) {
-        let duplicate = false;
+    let duplicate = false;
 
-        q.parties.forEach(questParty => {
-            currentParties.forEach(userParty => {
-                if (questParty.id == userParty.id) {
-                    duplicate = true;
-                }
-            });
+    q.parties.forEach(questParty => {
+        currentParties.forEach(userParty => {
+            if (questParty.id == userParty.id) {
+                duplicate = true;
+            }
         });
+    });
 
-        if (duplicate) {
-            return res.json({ error: inviteError + 'User is already in a party for this quest!' });
-        }
+    if (duplicate) {
+        return res.json({ error: inviteError + 'User is already in a party for this quest!' });
+    }
 
-        if (q.status == QuestStatus.WIP && q.overLimit) {
-            return res.json({ error: inviteError + 'Your party has been running a quest for too long to add new members!' });
-        }
+    if (u.availablePoints < q.price) {
+        return res.json( { error: inviteError + 'User does not have enough points to accept this quest!' });
+    }
+
+    if (q.status == QuestStatus.WIP && q.overLimit) {
+        return res.json({ error: inviteError + 'Your party has been running a quest for too long to add new members!' });
     }
 
     res.json({ success: 'Invite sent!' });
@@ -289,11 +284,6 @@ questsRouter.post('/kickPartyMember/:partyId/:questId', isNotSpectator, canFail(
     res.json(q);
 
     LogService.create(req.session.mongoId, `kicked member from party for ${q.name}`, LogCategory.Party);
-
-    if (q.status == QuestStatus.WIP && q.overLimit) {
-        u.penaltyPoints = u.penaltyPoints + q.reward;
-        await UserService.saveOrFail(u);
-    }
 
     if (q.associatedMaps) {
         for (let i = 0; i < q.associatedMaps.length; i++) {
@@ -386,7 +376,7 @@ questsRouter.post('/acceptQuest/:partyId/:questId', isNotSpectator, canFail(asyn
 
         await QuestService.create({
             name: q.name,
-            reward: q.reward,
+            price: q.price,
             descriptionMain: q.descriptionMain,
             timeframe: q.timeframe,
             minParty: q.minParty,
@@ -475,17 +465,6 @@ questsRouter.post('/dropQuest/:partyId/:questId', isNotSpectator, canFail(async 
     if (q.associatedMaps) {
         for (let i = 0; i < q.associatedMaps.length; i++) {
             await BeatmapService.update(q.associatedMaps[i]._id, { quest: null });
-        }
-    }
-
-    if (q.overLimit) {
-        for (let i = 0; i < p.members.length; i++) {
-            const u = await UserService.queryById(p.members[i].id);
-
-            if (u && !UserService.isError(u)) {
-                u.penaltyPoints = u.penaltyPoints + q.reward;
-                await UserService.saveOrFail(u);
-            }
         }
     }
 
@@ -622,7 +601,7 @@ questsRouter.post('/reopenQuest/:questId', isNotSpectator, canFail(async (req, r
         } else {
             await QuestService.create({
                 name: `${quest.name} redux`,
-                reward: quest.reward,
+                price: quest.price,
                 descriptionMain: quest.descriptionMain,
                 timeframe: quest.timeframe,
                 minParty: quest.minParty,
@@ -658,6 +637,41 @@ questsRouter.post('/reopenQuest/:questId', isNotSpectator, canFail(async (req, r
             value: `${quest.descriptionMain}`,
         }],
     }]);
+}));
+
+/* POST extend deadline */
+questsRouter.post('/extendDeadline/:partyId/:questId', isNotSpectator, canFail(async (req, res) => {
+    const party = await PartyService.queryByIdOrFail(req.params.partyId, { populate: pointsPopulate }, `Party doesn't exist!`);
+    let quest = await QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
+
+    let enoughPoints = true;
+    party.members.forEach(member => {
+        if (member.availablePoints < quest.price) {
+            enoughPoints = false;
+        }
+    });
+
+    if (!enoughPoints) {
+        return res.json({ error: 'One or more of your party members do not have enough points to extend the deadline!' });
+    }
+
+    for (let i = 0; i < party.members.length; i++) {
+        const member = party.members[i];
+        const spentPoints = member.spentPoints + 10;
+        await UserService.update(member.id, { spentPoints });
+    }
+
+    const deadline = new Date(quest.deadline);
+    deadline.setDate(deadline.getDate() + 30);
+    quest.deadline = deadline;
+    await QuestService.saveOrFail(quest);
+
+    quest = await QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
+    const user = await UserService.queryByIdOrFail(req.session.mongoId);
+
+    res.json({ quest, availablePoints: user.availablePoints });
+
+    LogService.create(req.session.mongoId, `extended deadline for ${quest.name}`, LogCategory.Party);
 }));
 
 export default questsRouter;

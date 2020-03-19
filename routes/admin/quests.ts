@@ -7,7 +7,6 @@ import { LogService } from '../../models/log';
 import { User } from '../../models/user';
 import { LogCategory } from '../../interfaces/log';
 import { webhookPost } from '../../helpers/discordApi';
-import { UserService } from '../../models/user';
 import { BeatmapService } from '../../models/beatmap/beatmap';
 import { PartyService } from '../../models/party';
 import { canFail } from '../../helpers/helpers';
@@ -67,8 +66,8 @@ adminQuestsRouter.post('/create', async (req, res) => {
                 value: `${quest.minParty == quest.maxParty ? quest.maxParty : quest.minParty + '-' + quest.maxParty} member${quest.maxParty == 1 ? '' : 's'}`,
             },
             {
-                name: 'Bonus',
-                value: `${quest.reward} points for each member`,
+                name: 'Price',
+                value: `${quest.price} points from each member`,
             }],
         }]);
     }
@@ -83,6 +82,14 @@ adminQuestsRouter.post('/:id/rename', canFail(async (req, res) => {
     await QuestService.updateOrFail(req.params.id, { name: req.body.name });
 
     res.json(req.body.name);
+}));
+
+/* POST update price */
+adminQuestsRouter.post('/:id/updatePrice', canFail(async (req, res) => {
+    const price = parseInt(req.body.price, 10);
+    await QuestService.updateOrFail(req.params.id, { price });
+
+    res.json(price);
 }));
 
 /* POST rename quest */
@@ -114,12 +121,6 @@ adminQuestsRouter.post('/:id/drop', canFail(async (req, res) => {
             status: QuestStatus.Open,
             currentParty: null,
         });
-    }
-
-    for (let i = 0; i < q.currentParty.members.length; i++) {
-        const member = await UserService.queryByIdOrFail(q.currentParty.members[i]);
-        member.penaltyPoints = member.penaltyPoints + q.reward;
-        await UserService.saveOrFail(member);
     }
 
     const maps = await BeatmapService.queryAllOrFail({});
@@ -193,7 +194,7 @@ adminQuestsRouter.post('/:id/duplicate', canFail(async (req, res) => {
     const q = await QuestService.queryByIdOrFail(req.params.id);
     const body: Partial<Quest> = {
         name: req.body.name,
-        reward: q.reward,
+        price: q.price,
         descriptionMain: q.descriptionMain,
         timeframe: q.timeframe,
         minParty: q.minParty,

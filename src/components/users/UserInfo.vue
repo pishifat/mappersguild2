@@ -65,7 +65,7 @@
                                     v-if="selectedUser.questPoints"
                                     :points="selectedUser.questPoints"
                                     :display="'completing quests'"
-                                    :tooltip-title="'points reward varies between quests'"
+                                    :tooltip-title="'5 bonus points for completing quests on time'"
                                 />
                                 <user-points-row
                                     v-if="selectedUser.modPoints"
@@ -96,12 +96,6 @@
                                     :points="selectedUser.contestVotePoints"
                                     :display="'MBC voting'"
                                     :tooltip-title="'voting in Monthly Beatmapping Contests'"
-                                />
-                                <user-points-row
-                                    v-if="selectedUser.penaltyPoints"
-                                    :points="selectedUser.penaltyPoints"
-                                    :display="'Dropping quests'"
-                                    :tooltip-title="'penalty for dropping a quest. inverse of quest reward'"
                                 />
                                 <user-points-row
                                     v-if="selectedUser.osuPoints"

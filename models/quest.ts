@@ -10,14 +10,13 @@ export interface Quest extends IQuest, Document {
 
 const questSchema = new Schema({
     name: { type: String, required: true },
-    reward: { type: Number, required: true },
+    price: { type: Number, default: 0 },
     descriptionMain: { type: String, required: true },
     timeframe: { type: Number, required: true },
     minParty: { type: Number, required: true },
     maxParty: { type: Number, required: true },
     minRank: { type: Number, required: true },
     art: { type: Number },
-    color: { type: String, default: '#ffa658' },
     status: { type: String, enum: ['open', 'wip', 'done'], default: 'open' },
     parties: [{ type: 'ObjectId', ref: 'Party' }],
     modes: [{ type: String, default: ['osu', 'taiko', 'catch', 'mania'], required: true }],

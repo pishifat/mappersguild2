@@ -42,6 +42,13 @@ const store = new Vuex.Store<QuestState>({
                 quest.name = payload.name;
             }
         },
+        updatePrice (state, payload): void {
+            const quest = state.quests.find(q => q.id == payload.questId);
+
+            if (quest) {
+                quest.price = payload.price;
+            }
+        },
         updateDescription (state, payload): void {
             const quest = state.quests.find(q => q.id == payload.questId);
 
