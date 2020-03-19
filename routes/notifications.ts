@@ -12,6 +12,7 @@ import { Invite, InviteService } from '../models/invite';
 import { NotificationService } from '../models/notification';
 import { LogService } from '../models/log';
 import { LogCategory } from '../interfaces/log';
+import { QuestStatus } from '../interfaces/quest';
 
 const notificationsRouter = express.Router();
 
@@ -364,8 +365,10 @@ notificationsRouter.post('/acceptJoin/:id', isNotSpectator, canFail(async (req, 
     await PartyService.update(invite.party._id, { $push: { members: req.session.mongoId } });
     await updatePartyInfo(p._id);
 
-    const spentPoints = res.locals.userRequest.spentPoints + q.price;
-    await UserService.update(req.session.mongoId, { spentPoints });
+    if (q.status == QuestStatus.WIP) {
+        const spentPoints = res.locals.userRequest.spentPoints + q.price;
+        await UserService.update(req.session.mongoId, { spentPoints });
+    }
 
     LogService.create(req.session.mongoId, `joined a party for quest ${q.name}`, LogCategory.Party);
 

@@ -220,14 +220,8 @@ questsRouter.post('/inviteToParty/:partyId/:questId', isNotSpectator, canFail(as
     const q = await QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
     const currentParties = await PartyService.queryAllOrFail({ query: { members: u._id } });
 
-    let duplicate = false;
-
-    q.parties.forEach(questParty => {
-        currentParties.forEach(userParty => {
-            if (questParty.id == userParty.id) {
-                duplicate = true;
-            }
-        });
+    const duplicate = q.parties.some(questParty => {
+        return currentParties.some(userParty => questParty.id == userParty.id);
     });
 
     if (duplicate) {
@@ -316,14 +310,14 @@ questsRouter.post('/acceptQuest/:partyId/:questId', isNotSpectator, canFail(asyn
         return res.json({ error: 'Your party has no modes selected!' });
     }
 
+    const q = await QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
+
     // check if all party members can afford quest
     p.members.forEach(member => {
-        if (member.availablePoints < req.body.price) {
+        if (member.availablePoints < q.price) {
             return res.json({ error: 'Someone in your party does not have enough points to accept the quest!' });
         }
     });
-
-    const q = await QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
 
     // check if quest is valid to accept
     if (p.members.length < q.minParty
@@ -393,7 +387,7 @@ questsRouter.post('/acceptQuest/:partyId/:questId', isNotSpectator, canFail(asyn
 
     // spend points
     p.members.forEach(member => {
-        UserService.update(member.id, { spentPoints: member.spentPoints + req.body.price });
+        UserService.update(member.id, { spentPoints: member.spentPoints + q.price });
     });
 
     // load all quests
@@ -402,7 +396,7 @@ questsRouter.post('/acceptQuest/:partyId/:questId', isNotSpectator, canFail(asyn
         useDefaults: true,
     });
 
-    res.json({ quests: allQuests, availablePoints: res.locals.userRequest.availablePoints - req.body.price });
+    res.json({ quests: allQuests, availablePoints: res.locals.userRequest.availablePoints - q.price });
 
     //logs
     let modeList = '';
@@ -613,7 +607,7 @@ questsRouter.post('/reopenQuest/:questId', isNotSpectator, canFail(async (req, r
         }
     }*/
 
-    const spentPoints = (res.locals.userRequest.spentPoints += req.body.price);
+    const spentPoints = (res.locals.userRequest.spentPoints += (quest.price*5 + 100));
     await UserService.update(req.session.mongoId, { spentPoints });
 
     const allQuests = await QuestService.queryAll({ useDefaults: true });
@@ -644,14 +638,9 @@ questsRouter.post('/extendDeadline/:partyId/:questId', isNotSpectator, canFail(a
     const party = await PartyService.queryByIdOrFail(req.params.partyId, { populate: pointsPopulate }, `Party doesn't exist!`);
     let quest = await QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
 
-    let enoughPoints = true;
-    party.members.forEach(member => {
-        if (member.availablePoints < quest.price) {
-            enoughPoints = false;
-        }
-    });
+    const notEnoughPoints = party.members.some(m => m.availablePoints < 10);
 
-    if (!enoughPoints) {
+    if (notEnoughPoints) {
         return res.json({ error: 'One or more of your party members do not have enough points to extend the deadline!' });
     }
 

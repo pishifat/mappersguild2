@@ -56,13 +56,6 @@
                         :associated-maps="quest.associatedMaps"
                     />
                 </div>
-                <div v-if="quest.status == 'done'" class="col-sm-12">
-                    <reopen-quest
-                        :quest-id="quest.id"
-                        :status="quest.status"
-                        :price="quest.price*20 + 100"
-                    />
-                </div>
             </div>
         </div>
     </div>

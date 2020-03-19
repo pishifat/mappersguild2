@@ -150,7 +150,7 @@ adminUsersRouter.post('/updatePoints', canFail(async (req, res) => {
             Storyboard: { num: 10, total: 0 },
             Mod: { num: 1, total: 0 },
             Host: { num: 5, total: 0 },
-            QuestReward: { num: 7.5, total: 0 },
+            QuestReward: { num: 5, total: 0 },
             Rank: { value: 0 },
             osu: { total: 0 },
             taiko: { total: 0 },
@@ -195,9 +195,9 @@ adminUsersRouter.post('/updatePoints', canFail(async (req, res) => {
 
                                 if (lateness > 0) {
                                     questBonus = 2;
-                                } else if (lateness > -20) {
+                                } else if (lateness > -30) {
                                     questBonus = 1.5;
-                                } else if (lateness > -40) {
+                                } else if (lateness > -60) {
                                     questBonus = 1;
                                 } else {
                                     questBonus = 0.5;
