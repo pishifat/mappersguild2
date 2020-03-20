@@ -43,13 +43,16 @@ const UserSchema = new mongoose_1.Schema({
     taikoPoints: { type: Number, default: 0 },
     catchPoints: { type: Number, default: 0 },
     maniaPoints: { type: Number, default: 0 },
-    penaltyPoints: { type: Number, default: 0 },
+    spentPoints: { type: Number, default: 0 },
     completedQuests: [{ type: 'ObjectId', ref: 'Quest' }],
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 UserSchema.virtual('totalPoints').get(function () {
     return Math.round((this.easyPoints + this.normalPoints + this.hardPoints + this.insanePoints + this.expertPoints +
         this.storyboardPoints + this.questPoints + this.modPoints + this.hostPoints +
-        this.contestParticipantPoints + this.contestJudgePoints + this.contestVotePoints - this.penaltyPoints) * 10) / 10;
+        this.contestParticipantPoints + this.contestJudgePoints + this.contestVotePoints) * 10) / 10;
+});
+UserSchema.virtual('availablePoints').get(function () {
+    return Math.round((this.totalPoints - this.spentPoints) * 10) / 10;
 });
 UserSchema.virtual('mainMode').get(function () {
     const modes = [
@@ -99,3 +102,5 @@ class UserService extends baseService_1.default {
 }
 const service = new UserService();
 exports.UserService = service;
+const populatePointsVirtuals = 'osuId username rank easyPoints normalPoints hardPoints insanePoints expertPoints storyboardPoints questPoints modPoints hostPoints contestParticipantPoints contestJudgePoints contestVotePoints';
+exports.populatePointsVirtuals = populatePointsVirtuals;

@@ -20,10 +20,12 @@ const beatmap_1 = require("../models/beatmap/beatmap");
 const quest_1 = require("../models/quest");
 const task_1 = require("../models/beatmap/task");
 const task_2 = require("../interfaces/beatmap/task");
+const user_1 = require("../models/user");
 const invite_1 = require("../models/invite");
 const notification_1 = require("../models/notification");
 const log_1 = require("../models/log");
 const log_2 = require("../interfaces/log");
+const quest_2 = require("../interfaces/quest");
 const notificationsRouter = express_1.default.Router();
 notificationsRouter.use(middlewares_1.isLoggedIn);
 notificationsRouter.use(middlewares_1.isUser);
@@ -231,28 +233,26 @@ notificationsRouter.post('/acceptJoin/:id', middlewares_1.isNotSpectator, helper
     const q = yield quest_1.QuestService.queryByIdOrFail(invite.quest._id, { defaultPopulate: true });
     const currentParties = yield party_1.PartyService.queryAll({ query: { members: req.session.mongoId } });
     let duplicate = false;
+    if (!invite.party) {
+        return res.json({ error: 'That party no longer exists!' });
+    }
     if (!party_1.PartyService.isError(currentParties)) {
-        q.parties.forEach(questParty => {
-            currentParties.forEach(userParty => {
-                if (questParty.id == userParty.id) {
-                    duplicate = true;
-                }
-            });
+        duplicate = q.parties.some(questParty => {
+            return currentParties.some(userParty => questParty.id == userParty.id);
         });
     }
     if (duplicate) {
         return res.json({ error: 'You are already in a party for this quest!' });
     }
-    if (!invite.party) {
-        return res.json({ error: 'That party no longer exists!' });
+    if (res.locals.userRequest.availablePoints < q.price) {
+        return res.json({ error: 'You do not have enough points available to accept this quest! ' });
     }
     const p = yield party_1.PartyService.queryByIdOrFail(invite.party._id);
     if (q.status == 'wip') {
         if (q.currentParty.members.length >= q.maxParty) {
             return res.json({ error: 'Party has too many members!' });
         }
-        const timeWindow = (+new Date() - +q.accepted) / (24 * 3600 * 1000);
-        if (timeWindow > 7) {
+        if (q.overLimit) {
             return res.json({ error: `You cannot join a party that's been running a quest for over a week!` });
         }
     }
@@ -262,6 +262,10 @@ notificationsRouter.post('/acceptJoin/:id', middlewares_1.isNotSpectator, helper
     res.json(invite);
     yield party_1.PartyService.update(invite.party._id, { $push: { members: req.session.mongoId } });
     yield updatePartyInfo(p._id);
+    if (q.status == quest_2.QuestStatus.WIP) {
+        const spentPoints = res.locals.userRequest.spentPoints + q.price;
+        yield user_1.UserService.update(req.session.mongoId, { spentPoints });
+    }
     log_1.LogService.create(req.session.mongoId, `joined a party for quest ${q.name}`, log_2.LogCategory.Party);
     notification_1.NotificationService.createPartyNotification(p._id, `accepted the invite to join your party`, invite.sender, invite.recipient, p._id, q._id);
 })));

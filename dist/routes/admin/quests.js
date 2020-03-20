@@ -16,11 +16,11 @@ const express_1 = __importDefault(require("express"));
 const middlewares_1 = require("../../helpers/middlewares");
 const quest_1 = require("../../models/quest");
 const quest_2 = require("../../interfaces/quest");
+const beatmap_1 = require("../../interfaces/beatmap/beatmap");
 const log_1 = require("../../models/log");
 const log_2 = require("../../interfaces/log");
 const discordApi_1 = require("../../helpers/discordApi");
-const user_1 = require("../../models/user");
-const beatmap_1 = require("../../models/beatmap/beatmap");
+const beatmap_2 = require("../../models/beatmap/beatmap");
 const party_1 = require("../../models/party");
 const helpers_1 = require("../../helpers/helpers");
 const adminQuestsRouter = express_1.default.Router();
@@ -46,7 +46,9 @@ adminQuestsRouter.get('/load', (req, res) => __awaiter(void 0, void 0, void 0, f
 }));
 adminQuestsRouter.post('/create', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
-    req.body.modes = ['osu', 'taiko', 'catch', 'mania'];
+    req.body.modes = [beatmap_1.BeatmapMode.Osu, beatmap_1.BeatmapMode.Taiko, beatmap_1.BeatmapMode.Catch, beatmap_1.BeatmapMode.Mania];
+    req.body.expiration = new Date();
+    req.body.expiration.setDate(req.body.expiration.getDate() + 90);
     const quest = yield quest_1.QuestService.create(req.body);
     if (!quest_1.QuestService.isError(quest)) {
         log_1.LogService.create((_a = req.session) === null || _a === void 0 ? void 0 : _a.mongoId, `created quest "${quest.name}"`, log_2.LogCategory.Quest);
@@ -68,16 +70,22 @@ adminQuestsRouter.post('/create', (req, res) => __awaiter(void 0, void 0, void 0
                         value: `${quest.minParty == quest.maxParty ? quest.maxParty : quest.minParty + '-' + quest.maxParty} member${quest.maxParty == 1 ? '' : 's'}`,
                     },
                     {
-                        name: 'Bonus',
-                        value: `${quest.reward} points for each member`,
+                        name: 'Price',
+                        value: `${quest.price} points from each member`,
                     }],
             }]);
     }
-    res.json(quest);
+    const allQuests = yield quest_1.QuestService.queryAll({ useDefaults: true });
+    res.json(allQuests);
 }));
 adminQuestsRouter.post('/:id/rename', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     yield quest_1.QuestService.updateOrFail(req.params.id, { name: req.body.name });
     res.json(req.body.name);
+})));
+adminQuestsRouter.post('/:id/updatePrice', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const price = parseInt(req.body.price, 10);
+    yield quest_1.QuestService.updateOrFail(req.params.id, { price });
+    res.json(price);
 })));
 adminQuestsRouter.post('/:id/updateDescription', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     yield quest_1.QuestService.updateOrFail(req.params.id, { descriptionMain: req.body.description });
@@ -106,15 +114,10 @@ adminQuestsRouter.post('/:id/drop', helpers_1.canFail((req, res) => __awaiter(vo
             currentParty: null,
         });
     }
-    for (let i = 0; i < q.currentParty.members.length; i++) {
-        const member = yield user_1.UserService.queryByIdOrFail(q.currentParty.members[i]);
-        member.penaltyPoints = member.penaltyPoints + q.reward;
-        yield user_1.UserService.saveOrFail(member);
-    }
-    const maps = yield beatmap_1.BeatmapService.queryAllOrFail({});
+    const maps = yield beatmap_2.BeatmapService.queryAllOrFail({});
     for (let i = 0; i < maps.length; i++) {
         if (maps[i].quest && maps[i].quest.toString() == q.id) {
-            beatmap_1.BeatmapService.updateOrFail(maps[i]._id, { quest: undefined });
+            beatmap_2.BeatmapService.updateOrFail(maps[i]._id, { quest: undefined });
         }
     }
     yield party_1.PartyService.remove(q.currentParty._id);
@@ -161,20 +164,24 @@ adminQuestsRouter.post('/:id/complete', helpers_1.canFail((req, res) => __awaite
     log_1.LogService.create(req.session.mongoId, `marked quest "${quest.name}" as complete`, log_2.LogCategory.Quest);
 })));
 adminQuestsRouter.post('/:id/duplicate', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const expiration = new Date();
+    expiration.setDate(expiration.getDate() + 90);
     const q = yield quest_1.QuestService.queryByIdOrFail(req.params.id);
     const body = {
         name: req.body.name,
-        reward: q.reward,
+        price: q.price,
         descriptionMain: q.descriptionMain,
         timeframe: q.timeframe,
         minParty: q.minParty,
         maxParty: q.maxParty,
         minRank: q.minRank,
         art: q.art,
-        modes: ['osu', 'taiko', 'catch', 'mania'],
+        modes: [beatmap_1.BeatmapMode.Osu, beatmap_1.BeatmapMode.Taiko, beatmap_1.BeatmapMode.Catch, beatmap_1.BeatmapMode.Mania],
+        expiration,
     };
-    const newQuest = yield quest_1.QuestService.create(body);
-    res.json(newQuest);
+    yield quest_1.QuestService.create(body);
+    const allQuests = yield quest_1.QuestService.queryAll({ useDefaults: true });
+    res.json(allQuests);
 })));
 adminQuestsRouter.post('/:id/reset', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const date = new Date();
@@ -203,5 +210,13 @@ adminQuestsRouter.post('/:id/toggleMode', helpers_1.canFail((req, res) => __awai
     }
     quest = yield quest_1.QuestService.queryByIdOrFail(req.params.id);
     res.json(quest);
+})));
+adminQuestsRouter.post('/:id/updateExpiration', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const date = new Date(req.body.expiration);
+    if (!(date instanceof Date && !isNaN(date.getTime()))) {
+        return res.json({ error: 'Invalid date' });
+    }
+    yield quest_1.QuestService.updateOrFail(req.params.id, { expiration: date });
+    res.json(date);
 })));
 exports.default = adminQuestsRouter;
