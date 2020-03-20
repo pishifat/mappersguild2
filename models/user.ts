@@ -41,7 +41,7 @@ UserSchema.virtual('totalPoints').get(function(this: User) {
 });
 
 UserSchema.virtual('availablePoints').get(function(this: User) {
-    return this.totalPoints - this.spentPoints;
+    return Math.round((this.totalPoints - this.spentPoints)*10)/10;
 });
 
 UserSchema.virtual('mainMode').get(function(this: User) {

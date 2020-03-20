@@ -67,14 +67,12 @@ import { Quest } from '../../../../interfaces/quest';
 import PartyDetail from './PartyDetail.vue';
 import AssociatedBeatmaps from './AssociatedBeatmaps.vue';
 import ExpirationDate from '../expirationInfo/ExpirationDate.vue';
-import ReopenQuest from '../expirationInfo/ReopenQuest.vue';
 
 export default Vue.extend({
     components: {
         PartyDetail,
         AssociatedBeatmaps,
         ExpirationDate,
-        ReopenQuest,
     },
     props: {
         quest: {

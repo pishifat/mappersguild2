@@ -319,7 +319,6 @@ export default Vue.extend({
         },
         async updateExpiration(e): Promise<void> {
             const expiration = await this.executePost(`/admin/quests/${this.quest.id}/updateExpiration/`, { expiration: this.expiration }, e);
-            console.log(expiration);
 
             if (!this.isError(expiration)) {
                 this.$store.dispatch('updateToastMessages', {

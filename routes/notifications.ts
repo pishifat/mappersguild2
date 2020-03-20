@@ -327,12 +327,8 @@ notificationsRouter.post('/acceptJoin/:id', isNotSpectator, canFail(async (req, 
     }
 
     if (!PartyService.isError(currentParties)) {
-        q.parties.forEach(questParty => {
-            currentParties.forEach(userParty => {
-                if (questParty.id == userParty.id) {
-                    duplicate = true;
-                }
-            });
+        duplicate = q.parties.some(questParty => {
+            return currentParties.some(userParty => questParty.id == userParty.id);
         });
     }
 

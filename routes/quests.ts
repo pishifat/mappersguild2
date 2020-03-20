@@ -607,7 +607,7 @@ questsRouter.post('/reopenQuest/:questId', isNotSpectator, canFail(async (req, r
         }
     }*/
 
-    const spentPoints = (res.locals.userRequest.spentPoints += (quest.price*5 + 100));
+    const spentPoints = (res.locals.userRequest.spentPoints += (quest.price*3 + 100));
     await UserService.update(req.session.mongoId, { spentPoints });
 
     const allQuests = await QuestService.queryAll({ useDefaults: true });
