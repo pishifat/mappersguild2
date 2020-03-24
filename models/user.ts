@@ -26,6 +26,7 @@ const UserSchema = new Schema({
     contestParticipantPoints: { type: Number, default: 0 },
     contestJudgePoints: { type: Number, default: 0 },
     contestVotePoints: { type: Number, default: 0 },
+    legacyPoints: { type: Number, default: 0 },
     osuPoints: { type: Number, default: 0 },
     taikoPoints: { type: Number, default: 0 },
     catchPoints: { type: Number, default: 0 },

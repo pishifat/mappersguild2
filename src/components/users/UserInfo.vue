@@ -98,6 +98,12 @@
                                     :tooltip-title="'voting in Monthly Beatmapping Contests'"
                                 />
                                 <user-points-row
+                                    v-if="selectedUser.legacyPoints"
+                                    :points="selectedUser.legacyPoints"
+                                    :display="'legacy'"
+                                    :tooltip-title="'points for things that are no longer applicable to Mappers\' Guild'"
+                                />
+                                <user-points-row
                                     v-if="selectedUser.osuPoints"
                                     :points="selectedUser.osuPoints"
                                     :display="'Total osu! points'"

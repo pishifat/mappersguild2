@@ -29,6 +29,7 @@ export interface User extends Document {
     contestParticipantPoints: number;
     contestJudgePoints: number;
     contestVotePoints: number;
+    legacyPoints: number;
     osuPoints: number;
     taikoPoints: number;
     catchPoints: number;
