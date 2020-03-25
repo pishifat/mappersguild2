@@ -37,7 +37,7 @@
                             :href="`#collapse-${submission.id}`"
                         >
                             {{ submission.name }}
-                            by {{ submission.creator.username }}
+                            by {{ submission.creator.username == 'pishifat' ? 'NONE' : submission.creator.username }}
                             ({{ submission.total }} points in {{ submission.evaluations.length }} evaluations)
                         </a>
 
@@ -63,6 +63,11 @@
 
                 <div :id="`collapse-${submission.id}`" class="collapse">
                     <div class="my-2">
+                        <edit-user
+                            :contest-id="contestId"
+                            :submission-id="submission.id"
+                            :creator="submission.creator"
+                        />
                         <judging-detail
                             :evaluations="submission.evaluations"
                         />
@@ -83,6 +88,7 @@
 import Vue from 'vue';
 import JudgingDetail from './JudgingDetail.vue';
 import MessageTemplate from './MessageTemplate.vue';
+import EditUser from './EditUser.vue';
 import { Submission } from '../../../../interfaces/contest/submission';
 
 export default Vue.extend({
@@ -90,6 +96,7 @@ export default Vue.extend({
     components: {
         JudgingDetail,
         MessageTemplate,
+        EditUser,
     },
     props: {
         contestId: {

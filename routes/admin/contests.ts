@@ -184,6 +184,17 @@ adminContestsRouter.post('/:id/submissions/:submissionId/delete', canFail(async 
     res.json(submission);
 }));
 
+/* POST update creator on a submission */
+adminContestsRouter.post('/submissions/:submissionId/updateCreator', canFail(async (req, res) => {
+    const osuId = parseInt(req.body.osuId, 10);
+    const user = await UserService.queryOneOrFail({ query: { osuId } });
+    console.log(user);
+
+    await SubmissionService.updateOrFail(req.params.submissionId, { creator: user.id });
+
+    res.json(user);
+}));
+
 /* POST save an array of users as voters */
 adminContestsRouter.post('/:id/voters/update', async (req, res) => {
     // get array of ids from array of osuids and save them to the contest voters?

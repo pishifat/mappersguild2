@@ -42,6 +42,17 @@ const store = new Vuex.Store<ContestState>({
                 }
             }
         },
+        updateCreator (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                const submissionIndex = contest.submissions.findIndex(s => s.id == payload.submissionId);
+
+                if (submissionIndex !== -1) {
+                    contest.submissions[submissionIndex].creator = payload.creator;
+                }
+            }
+        },
         addJudge (state, payload): void {
             const contest = state.contests.find(c => c.id == payload.contestId);
             contest?.judges.push(payload.judge);
