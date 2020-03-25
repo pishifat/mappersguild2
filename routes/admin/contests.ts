@@ -188,7 +188,6 @@ adminContestsRouter.post('/:id/submissions/:submissionId/delete', canFail(async 
 adminContestsRouter.post('/submissions/:submissionId/updateCreator', canFail(async (req, res) => {
     const osuId = parseInt(req.body.osuId, 10);
     const user = await UserService.queryOneOrFail({ query: { osuId } });
-    console.log(user);
 
     await SubmissionService.updateOrFail(req.params.submissionId, { creator: user.id });
 
