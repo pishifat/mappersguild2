@@ -140,7 +140,7 @@
                                         Available points
                                     </td>
                                     <td scope="row">
-                                        {{ selectedUser.availablePoints }}
+                                        {{ selectedUser.availablePoints }} <i class="fas fa-coins" />
                                     </td>
                                 </tr>
                             </tbody>

@@ -19,20 +19,23 @@
                 </a>
             </div>
             <div class="card-body text-white-50">
-                <p class="card-text text-shadow small">
-                    Total points: {{ user.totalPoints }}
+                <p class="card-text text-shadow small min-spacing">
+                    <b>Total points: {{ user.totalPoints }}</b>
                 </p>
-                <p v-if="filterMode == 'osu'" class="card-text text-shadow small pl-2">
-                    osu! points: {{ Math.round(user.osuPoints * 10) / 10 }}
+                <p class="card-text text-shadow small min-spacing">
+                    Available points: {{ user.availablePoints }} <i class="fas fa-coins" />
                 </p>
-                <p v-else-if="filterMode == 'taiko'" class="card-text text-shadow small pl-2">
-                    osu!taiko points: {{ Math.round(user.taikoPoints * 10) / 10 }}
+                <p v-if="filterMode == 'osu'" class="card-text text-shadow small">
+                    osu! points: {{ Math.round(user.osuPoints*10)/10 }}
                 </p>
-                <p v-else-if="filterMode == 'catch'" class="card-text text-shadow small pl-2">
-                    osu!catch points: {{ Math.round(user.catchPoints * 10) / 10 }}
+                <p v-else-if="filterMode == 'taiko'" class="card-text text-shadow small">
+                    osu!taiko points: {{ Math.round(user.taikoPoints*10)/10 }}
                 </p>
-                <p v-else-if="filterMode == 'mania'" class="card-text text-shadow small pl-2">
-                    osu!mania points: {{ Math.round(user.maniaPoints * 10) / 10 }}
+                <p v-else-if="filterMode == 'catch'" class="card-text text-shadow small">
+                    osu!catch points: {{ Math.round(user.catchPoints*10)/10 }}
+                </p>
+                <p v-else-if="filterMode == 'mania'" class="card-text text-shadow small">
+                    osu!mania points: {{ Math.round(user.maniaPoints*10)/10 }}
                 </p>
             </div>
         </div>
