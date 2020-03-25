@@ -34,6 +34,7 @@ const BeatmapSchema = new mongoose_1.Schema({
     mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania', 'hybrid'], default: 'osu' },
     length: { type: Number },
     packId: { type: Number },
+    rankedDate: { type: Date },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 const BeatmapModel = mongoose_1.default.model('Beatmap', BeatmapSchema);
 BeatmapSchema.virtual('mappers').get(function () {

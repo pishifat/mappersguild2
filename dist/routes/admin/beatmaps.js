@@ -31,7 +31,7 @@ adminBeatmapsRouter.get('/', (req, res) => {
         script: 'adminBeatmaps.js',
         loggedInAs: (_a = req.session) === null || _a === void 0 ? void 0 : _a.osuId,
         userMongoId: (_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId,
-        userTotalPoints: res.locals.userRequest.totalPoints,
+        pointsInfo: res.locals.userRequest.pointsInfo,
     });
 });
 adminBeatmapsRouter.get('/load', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -59,6 +59,7 @@ adminBeatmapsRouter.post('/:id/updateStatus', middlewares_1.isSuperAdmin, helper
             return res.json(helpers_1.defaultErrorMessage);
         }
         b.length = bmInfo.hit_length;
+        b.rankedDate = bmInfo.approved_date;
         yield beatmap_1.BeatmapService.saveOrFail(b);
         b = yield beatmap_1.BeatmapService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
         const gdUsernames = [];

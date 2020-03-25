@@ -31,7 +31,7 @@ adminRouter.get('/', (req, res) => {
         script: 'admin.js',
         loggedInAs: (_a = req.session) === null || _a === void 0 ? void 0 : _a.osuId,
         userMongoId: (_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId,
-        userTotalPoints: res.locals.userRequest.totalPoints,
+        pointsInfo: res.locals.userRequest.pointsInfo,
     });
 });
 adminRouter.get('/relevantInfo/', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {

@@ -23,7 +23,7 @@ faqRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     };
     const u = yield user_1.UserService.queryById((_a = req.session) === null || _a === void 0 ? void 0 : _a.mongoId);
     if (u && !user_1.UserService.isError(u)) {
-        response = Object.assign(Object.assign({}, response), { loggedInAs: u.osuId, userMongoId: (_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId, userTotalPoints: u.totalPoints });
+        response = Object.assign(Object.assign({}, response), { loggedInAs: u.osuId, userMongoId: (_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId, pointsInfo: u.pointsInfo });
     }
     res.render('faq', response);
 }));

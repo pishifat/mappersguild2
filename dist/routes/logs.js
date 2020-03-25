@@ -33,7 +33,7 @@ logsRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         loggedInAs: (_a = req.session) === null || _a === void 0 ? void 0 : _a.osuId,
         isNotSpectator: res.locals.userRequest.group != user_1.UserGroup.Spectator,
         userMongoId: (_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId,
-        userTotalPoints: res.locals.userRequest.totalPoints,
+        pointsInfo: res.locals.userRequest.pointsInfo,
     });
 }));
 logsRouter.get('/more/:skip', (req, res) => __awaiter(void 0, void 0, void 0, function* () {

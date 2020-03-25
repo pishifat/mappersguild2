@@ -34,7 +34,7 @@ adminUsersRouter.get('/', (req, res) => {
         script: 'adminUsers.js',
         loggedInAs: (_a = req.session) === null || _a === void 0 ? void 0 : _a.osuId,
         userMongoId: (_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId,
-        userTotalPoints: res.locals.userRequest.totalPoints,
+        pointsInfo: res.locals.userRequest.pointsInfo,
     });
 });
 adminUsersRouter.get('/load', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -112,7 +112,7 @@ adminUsersRouter.post('/updatePoints', helpers_1.canFail((req, res) => __awaiter
             Storyboard: { num: 10, total: 0 },
             Mod: { num: 1, total: 0 },
             Host: { num: 5, total: 0 },
-            QuestReward: { num: 5, total: 0 },
+            QuestReward: { num: 7, total: 0 },
             Rank: { value: 0 },
             osu: { total: 0 },
             taiko: { total: 0 },
@@ -150,14 +150,14 @@ adminUsersRouter.post('/updatePoints', helpers_1.canFail((req, res) => __awaiter
                         if (task.name != task_1.TaskName.Storyboard) {
                             let questBonus = 0;
                             if (map.quest && map.quest.status == 'done') {
-                                const lateness = (+map.quest.deadline - +map.quest.completed) / (24 * 3600 * 1000);
+                                const lateness = (+map.quest.deadline - +map.rankedDate) / (24 * 3600 * 1000);
                                 if (lateness > 0) {
                                     questBonus = 2;
                                 }
-                                else if (lateness > -30) {
+                                else if (lateness > -20) {
                                     questBonus = 1.5;
                                 }
-                                else if (lateness > -60) {
+                                else if (lateness > -40) {
                                     questBonus = 1;
                                 }
                                 else {
@@ -196,7 +196,7 @@ adminUsersRouter.post('/updatePoints', helpers_1.canFail((req, res) => __awaiter
                 if (pointsObject['Quests']['list'].indexOf(map.quest._id) < 0 && map.quest.status == quest_1.QuestStatus.Done) {
                     pointsObject['Quests']['list'].push(map.quest._id);
                     const lateness = +map.quest.deadline - +map.quest.completed;
-                    if (lateness > 0 && +map.quest.completed > +new Date('2019-03-01')) {
+                    if (lateness > 0 && +map.rankedDate > +new Date('2019-03-01')) {
                         pointsObject['QuestReward']['total'] += pointsObject['QuestReward']['num'];
                     }
                 }

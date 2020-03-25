@@ -33,7 +33,7 @@ beatmapsRouter.get('/', (req, res) => {
         isMaps: true,
         loggedInAs: (_a = req.session) === null || _a === void 0 ? void 0 : _a.osuId,
         userMongoId: (_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId,
-        userTotalPoints: res.locals.userRequest.totalPoints,
+        pointsInfo: res.locals.userRequest.pointsInfo,
     });
 });
 beatmapsRouter.get('/relevantInfo', (req, res) => __awaiter(void 0, void 0, void 0, function* () {

@@ -41,7 +41,7 @@ indexRouter.get('/', (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         loggedInAs: (_a = req.session) === null || _a === void 0 ? void 0 : _a.osuId,
         isNotSpectator: res.locals.userRequest.group != user_2.UserGroup.Spectator,
         userMongoId: (_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId,
-        userTotalPoints: res.locals.userRequest.totalPoints,
+        pointsInfo: res.locals.userRequest.pointsInfo,
     });
 });
 indexRouter.get('/login', helpers_1.canFail((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {

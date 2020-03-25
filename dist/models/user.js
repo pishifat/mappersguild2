@@ -39,6 +39,7 @@ const UserSchema = new mongoose_1.Schema({
     contestParticipantPoints: { type: Number, default: 0 },
     contestJudgePoints: { type: Number, default: 0 },
     contestVotePoints: { type: Number, default: 0 },
+    legacyPoints: { type: Number, default: 0 },
     osuPoints: { type: Number, default: 0 },
     taikoPoints: { type: Number, default: 0 },
     catchPoints: { type: Number, default: 0 },
@@ -53,6 +54,16 @@ UserSchema.virtual('totalPoints').get(function () {
 });
 UserSchema.virtual('availablePoints').get(function () {
     return Math.round((this.totalPoints - this.spentPoints) * 10) / 10;
+});
+UserSchema.virtual('pointsInfo').get(function () {
+    const pointsInfo = {
+        total: this.totalPoints,
+        available: this.availablePoints,
+        mapping: Math.round((this.osuPoints + this.taikoPoints + this.catchPoints + this.maniaPoints) * 10) / 10,
+        quests: this.questPoints,
+        modding: this.modPoints,
+    };
+    return pointsInfo;
 });
 UserSchema.virtual('mainMode').get(function () {
     const modes = [
