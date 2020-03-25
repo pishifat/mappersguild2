@@ -31,7 +31,7 @@ indexRouter.get('/', async (req, res, next) => {
         loggedInAs: req.session?.osuId,
         isNotSpectator: res.locals.userRequest.group != UserGroup.Spectator,
         userMongoId: req.session?.mongoId,
-        userTotalPoints: res.locals.userRequest.totalPoints,
+        pointsInfo: res.locals.userRequest.pointsInfo,
     });
 });
 

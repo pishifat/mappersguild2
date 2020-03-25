@@ -17,7 +17,7 @@ adminContestsRouter.get('/', (req, res) => {
         script: 'adminContests.js',
         loggedInAs: req.session?.osuId,
         userMongoId: req.session?.mongoId,
-        userTotalPoints: res.locals.userRequest.totalPoints,
+        pointsInfo: res.locals.userRequest.pointsInfo,
     });
 });
 

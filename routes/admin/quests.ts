@@ -24,7 +24,7 @@ adminQuestsRouter.get('/', (req, res) => {
         script: 'adminQuests.js',
         loggedInAs: req.session?.osuId,
         userMongoId: req.session?.mongoId,
-        userTotalPoints: res.locals.userRequest.totalPoints,
+        pointsInfo: res.locals.userRequest.pointsInfo,
     });
 });
 

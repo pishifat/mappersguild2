@@ -1,7 +1,7 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import BaseService from './baseService';
 import { BasicError } from '../helpers/helpers';
-import { User as IUser } from '../interfaces/user';
+import { User as IUser, PointsInfo } from '../interfaces/user';
 
 export interface User extends IUser, Document {
     id: string;
@@ -43,6 +43,18 @@ UserSchema.virtual('totalPoints').get(function(this: User) {
 
 UserSchema.virtual('availablePoints').get(function(this: User) {
     return Math.round((this.totalPoints - this.spentPoints)*10)/10;
+});
+
+UserSchema.virtual('pointsInfo').get(function(this: User) {
+    const pointsInfo: PointsInfo = {
+        total: this.totalPoints,
+        available: this.availablePoints,
+        mapping: Math.round((this.osuPoints + this.taikoPoints + this.catchPoints + this.maniaPoints)*10)/10,
+        quests: this.questPoints,
+        modding: this.modPoints,
+    };
+
+    return pointsInfo;
 });
 
 UserSchema.virtual('mainMode').get(function(this: User) {

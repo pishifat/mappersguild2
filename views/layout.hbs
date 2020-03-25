@@ -55,9 +55,12 @@
                 <img src="https://a.ppy.sh/{{loggedInAs}}" class="rounded-circle nav-avatar ml-2">
             </a>
             <div class="dropdown-menu dropdown-menu-right">
-                <a href="/users?id={{userMongoId}}" class="dropdown-item">View points breakdown</a>
-                <span class="dropdown-item disabled">Total points: {{userTotalPoints}}</span>
-                <span class="dropdown-item disabled">Available points: {{userTotalPoints}}</span>
+                <a href="/users?id={{userMongoId}}" class="dropdown-item">View full points breakdown</a>
+                <span class="dropdown-item disabled">Total points: <span class="float-right">{{pointsInfo.total}}</span></span>
+                <span class="dropdown-item disabled">Available points: <span class="float-right">{{pointsInfo.available}}</span></span>
+                <span class="dropdown-item small disabled">Mapping points: <span class="float-right">{{pointsInfo.mapping}}</span></span>
+                <span class="dropdown-item small disabled">Quest points: <span class="float-right">{{pointsInfo.quests}}</span></span>
+                <span class="dropdown-item small disabled">Modding points: <span class="float-right">{{pointsInfo.modding}}</span></span>
                 <div class="dropdown-divider"></div>
                 <form action="/logout" method="GET">
                     <button class="btn btn-sm btn-outline-danger float-right mr-2" type="submit">Log Out</button>

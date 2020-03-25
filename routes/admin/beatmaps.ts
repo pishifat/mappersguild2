@@ -20,7 +20,7 @@ adminBeatmapsRouter.get('/', (req, res) => {
         script: 'adminBeatmaps.js',
         loggedInAs: req.session?.osuId,
         userMongoId: req.session?.mongoId,
-        userTotalPoints: res.locals.userRequest.totalPoints,
+        pointsInfo: res.locals.userRequest.pointsInfo,
     });
 });
 

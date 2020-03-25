@@ -16,7 +16,7 @@ faqRouter.get('/', async (req, res) => {
             ...response,
             loggedInAs: u.osuId,
             userMongoId: req.session?.mongoId,
-            userTotalPoints: u.totalPoints,
+            pointsInfo: u.pointsInfo,
         };
     }
 

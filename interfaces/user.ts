@@ -7,6 +7,14 @@ export enum UserGroup {
     Spectator = 'spectator',
 }
 
+export interface PointsInfo {
+    total: number;
+    available: number;
+    mapping: number;
+    quests: number;
+    modding: number;
+}
+
 export interface User extends Document {
     _id: any;
     id: string;
@@ -37,6 +45,7 @@ export interface User extends Document {
     totalPoints: number;
     spentPoints: number;
     availablePoints: number;
+    pointsInfo: Record<string, any>;
     mainMode: Omit<BeatmapMode, BeatmapMode.Hybrid>;
     createdAt: Date;
 }
