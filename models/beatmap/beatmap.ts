@@ -21,6 +21,7 @@ const BeatmapSchema = new Schema({
     mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania', 'hybrid'], default: 'osu' },
     length: { type: Number },
     packId: { type: Number },
+    rankedDate: { type: Date },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const BeatmapModel = mongoose.model<Beatmap>('Beatmap', BeatmapSchema);

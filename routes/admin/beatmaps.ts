@@ -58,6 +58,7 @@ adminBeatmapsRouter.post('/:id/updateStatus', isSuperAdmin, canFail(async (req, 
         }
 
         b.length = bmInfo.hit_length;
+        b.rankedDate = bmInfo.approved_date;
         await BeatmapService.saveOrFail(b);
 
         b = await BeatmapService.queryByIdOrFail(req.params.id, { defaultPopulate: true });

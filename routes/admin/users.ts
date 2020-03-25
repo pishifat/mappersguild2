@@ -150,7 +150,7 @@ adminUsersRouter.post('/updatePoints', canFail(async (req, res) => {
             Storyboard: { num: 10, total: 0 },
             Mod: { num: 1, total: 0 },
             Host: { num: 5, total: 0 },
-            QuestReward: { num: 5, total: 0 },
+            QuestReward: { num: 7, total: 0 },
             Rank: { value: 0 },
             osu: { total: 0 },
             taiko: { total: 0 },
@@ -191,13 +191,13 @@ adminUsersRouter.post('/updatePoints', canFail(async (req, res) => {
                             let questBonus = 0;
 
                             if (map.quest && map.quest.status == 'done') {
-                                const lateness = (+map.quest.deadline - +map.quest.completed) / (24*3600*1000);
+                                const lateness = (+map.quest.deadline - +map.rankedDate) / (24*3600*1000);
 
                                 if (lateness > 0) {
                                     questBonus = 2;
-                                } else if (lateness > -30) {
+                                } else if (lateness > -20) {
                                     questBonus = 1.5;
-                                } else if (lateness > -60) {
+                                } else if (lateness > -40) {
                                     questBonus = 1;
                                 } else {
                                     questBonus = 0.5;
@@ -220,9 +220,7 @@ adminUsersRouter.post('/updatePoints', canFail(async (req, res) => {
                                 }
 
                             }
-
                         }
-
                     }
                 });
             });
@@ -245,7 +243,7 @@ adminUsersRouter.post('/updatePoints', canFail(async (req, res) => {
                     pointsObject['Quests']['list'].push(map.quest._id);
                     const lateness = +map.quest.deadline - +map.quest.completed;
 
-                    if (lateness > 0 && +map.quest.completed > +new Date('2019-03-01')) { //2019-03-01 is when mappers' guild website launched
+                    if (lateness > 0 && +map.rankedDate > +new Date('2019-03-01')) { //2019-03-01 is when mappers' guild website launched
                         pointsObject['QuestReward']['total'] += pointsObject['QuestReward']['num'];
                     }
                 }

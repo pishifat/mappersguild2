@@ -34,6 +34,7 @@ export interface Beatmap {
     length: number;
     packId: number;
     mappers: User[];
+    rankedDate: Date;
     updatedAt: Date;
     createdAt: Date;
 }

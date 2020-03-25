@@ -121,6 +121,7 @@ export async function beatmapsetInfo(setId: number): Promise<OsuBeatmapResponse 
             beatmapResponse.hit_length = parseInt(beatmapResponse.hit_length, 10);
             beatmapResponse.total_length = parseInt(beatmapResponse.total_length, 10);
             beatmapResponse.mode = parseInt(beatmapResponse.mode, 10);
+            beatmapResponse.approved_date = new Date(beatmapResponse.approved_date);
 
             return beatmapResponse;
         }
