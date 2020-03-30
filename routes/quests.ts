@@ -218,14 +218,16 @@ questsRouter.post('/inviteToParty/:partyId/:questId', isNotSpectator, canFail(as
     }
 
     const q = await QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
-    const currentParties = await PartyService.queryAllOrFail({ query: { members: u._id } });
+    const currentParties = await PartyService.queryAll({ query: { members: u._id } });
 
-    const duplicate = q.parties.some(questParty => {
-        return currentParties.some(userParty => questParty.id == userParty.id);
-    });
+    if (!PartyService.isError(currentParties)) {
+        const duplicate = q.parties.some(questParty => {
+            return currentParties.some(userParty => questParty.id == userParty.id);
+        });
 
-    if (duplicate) {
-        return res.json({ error: inviteError + 'User is already in a party for this quest!' });
+        if (duplicate) {
+            return res.json({ error: inviteError + 'User is already in a party for this quest!' });
+        }
     }
 
     if (u.availablePoints < q.price) {

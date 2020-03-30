@@ -58,10 +58,17 @@ beatmapsRouter.get('/guestBeatmaps', async (req, res) => {
 
     const userBeatmaps = await BeatmapService.queryAll({
         query: {
-            tasks: {
-                $in: ownTasks,
-            },
-        },
+            $or:
+            [
+                {
+                    tasks: {
+                        $in: ownTasks,
+                    },
+                },
+                {
+                    host: req.session?.mongoId,
+                },
+            ] },
         useDefaults: true,
     });
 
