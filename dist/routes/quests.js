@@ -181,12 +181,14 @@ questsRouter.post('/inviteToParty/:partyId/:questId', middlewares_1.isNotSpectat
         }, inviteError + cannotFindUserMessage);
     }
     const q = yield quest_1.QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
-    const currentParties = yield party_1.PartyService.queryAllOrFail({ query: { members: u._id } });
-    const duplicate = q.parties.some(questParty => {
-        return currentParties.some(userParty => questParty.id == userParty.id);
-    });
-    if (duplicate) {
-        return res.json({ error: inviteError + 'User is already in a party for this quest!' });
+    const currentParties = yield party_1.PartyService.queryAll({ query: { members: u._id } });
+    if (!party_1.PartyService.isError(currentParties)) {
+        const duplicate = q.parties.some(questParty => {
+            return currentParties.some(userParty => questParty.id == userParty.id);
+        });
+        if (duplicate) {
+            return res.json({ error: inviteError + 'User is already in a party for this quest!' });
+        }
     }
     if (u.availablePoints < q.price) {
         return res.json({ error: inviteError + 'User does not have enough points to accept this quest!' });

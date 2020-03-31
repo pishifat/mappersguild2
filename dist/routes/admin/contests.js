@@ -149,6 +149,12 @@ adminContestsRouter.post('/:id/submissions/:submissionId/delete', helpers_1.canF
     const submission = yield submission_1.SubmissionService.removeOrFail(req.params.submissionId);
     res.json(submission);
 })));
+adminContestsRouter.post('/submissions/:submissionId/updateCreator', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const osuId = parseInt(req.body.osuId, 10);
+    const user = yield user_1.UserService.queryOneOrFail({ query: { osuId } });
+    yield submission_1.SubmissionService.updateOrFail(req.params.submissionId, { creator: user.id });
+    res.json(user);
+})));
 adminContestsRouter.post('/:id/voters/update', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 }));
 exports.default = adminContestsRouter;
