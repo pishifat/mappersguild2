@@ -36,10 +36,6 @@ questSchema.virtual('associatedMaps', {
     foreignField: 'quest',
 });
 
-questSchema.virtual('overLimit').get(function (this: Quest) {
-    return ((+new Date() - +this.accepted) / (24*3600*1000)) > 7;
-});
-
 questSchema.virtual('isExpired').get(function (this: Quest) {
     return ((+new Date() > +this.expiration) && this.status == 'open');
 });

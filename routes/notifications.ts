@@ -342,14 +342,8 @@ notificationsRouter.post('/acceptJoin/:id', isNotSpectator, canFail(async (req, 
 
     const p = await PartyService.queryByIdOrFail(invite.party._id);
 
-    if (q.status == 'wip') {
-        if (q.currentParty.members.length >= q.maxParty) {
-            return res.json({ error: 'Party has too many members!' });
-        }
-
-        if (q.overLimit) {
-            return res.json({ error: `You cannot join a party that's been running a quest for over a week!` });
-        }
+    if (q.status == 'wip' && q.currentParty.members.length >= q.maxParty) {
+        return res.json({ error: 'Party has too many members!' });
     }
 
     invite.visible = false;

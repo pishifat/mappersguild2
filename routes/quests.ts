@@ -234,10 +234,6 @@ questsRouter.post('/inviteToParty/:partyId/:questId', isNotSpectator, canFail(as
         return res.json( { error: inviteError + 'User does not have enough points to accept this quest!' });
     }
 
-    if (q.status == QuestStatus.WIP && q.overLimit) {
-        return res.json({ error: inviteError + 'Your party has been running a quest for too long to add new members!' });
-    }
-
     res.json({ success: 'Invite sent!' });
 
     InviteService.createPartyInvite(

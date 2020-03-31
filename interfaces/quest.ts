@@ -30,7 +30,5 @@ export interface Quest extends Document {
     completedMembers: User[];
     /** virtual field to populate */
     associatedMaps: Beatmap[];
-    /** Get the days between today and accepted date */
-    overLimit: boolean;
     isExpired: boolean;
 }
