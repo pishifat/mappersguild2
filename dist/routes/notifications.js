@@ -248,13 +248,8 @@ notificationsRouter.post('/acceptJoin/:id', middlewares_1.isNotSpectator, helper
         return res.json({ error: 'You do not have enough points available to accept this quest! ' });
     }
     const p = yield party_1.PartyService.queryByIdOrFail(invite.party._id);
-    if (q.status == 'wip') {
-        if (q.currentParty.members.length >= q.maxParty) {
-            return res.json({ error: 'Party has too many members!' });
-        }
-        if (q.overLimit) {
-            return res.json({ error: `You cannot join a party that's been running a quest for over a week!` });
-        }
+    if (q.status == 'wip' && q.currentParty.members.length >= q.maxParty) {
+        return res.json({ error: 'Party has too many members!' });
     }
     invite.visible = false;
     yield invite_1.InviteService.saveOrFail(invite);

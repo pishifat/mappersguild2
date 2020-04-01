@@ -16,12 +16,15 @@ const express_1 = __importDefault(require("express"));
 const beatmap_1 = require("../../models/beatmap/beatmap");
 const beatmap_2 = require("../../interfaces/beatmap/beatmap");
 const task_1 = require("../../models/beatmap/task");
-const quest_1 = require("../../models/quest");
+const task_2 = require("../../interfaces/beatmap/task");
+const quest_1 = require("../../interfaces/quest");
+const quest_2 = require("../../models/quest");
 const notification_1 = require("../../models/notification");
 const log_1 = require("../../models/log");
 const log_2 = require("../../interfaces/log");
 const middlewares_1 = require("../../helpers/middlewares");
 const helpers_1 = require("../../helpers/helpers");
+const osuApi_1 = require("../../helpers/osuApi");
 const middlewares_2 = require("./middlewares");
 const beatmapsRouter = express_1.default.Router();
 beatmapsRouter.use(middlewares_1.isLoggedIn);
@@ -119,7 +122,7 @@ beatmapsRouter.get('/search', (req, res) => __awaiter(void 0, void 0, void 0, fu
 }));
 beatmapsRouter.get('/users/quests', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _h;
-    const userQuests = yield quest_1.QuestService.getUserQuests((_h = req.session) === null || _h === void 0 ? void 0 : _h.mongoId);
+    const userQuests = yield quest_2.QuestService.getUserQuests((_h = req.session) === null || _h === void 0 ? void 0 : _h.mongoId);
     res.json({ userQuests });
 }));
 beatmapsRouter.post('/create', middlewares_1.isNotSpectator, helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -231,5 +234,38 @@ beatmapsRouter.post('/:id/updateBn', middlewares_1.isNotSpectator, middlewares_2
         log_1.LogService.create((_0 = req.session) === null || _0 === void 0 ? void 0 : _0.mongoId, `added to Beatmap Nominator list on "${updatedBeatmap.song.artist} - ${updatedBeatmap.song.title}"`, log_2.LogCategory.Beatmap);
         notification_1.NotificationService.create(updatedBeatmap._id, `added themself to the Beatmap Nominator list on your mapset`, updatedBeatmap.host.id, (_1 = req.session) === null || _1 === void 0 ? void 0 : _1.mongoId, updatedBeatmap._id);
     }
+}));
+beatmapsRouter.get('/:id/findPoints', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const beatmap = yield beatmap_1.BeatmapService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+    if (!beatmap.url) {
+        return res.json({ error: 'Need a beatmapset link to calculate points!' });
+    }
+    const beatmapsetId = helpers_1.findBeatmapsetId(beatmap.url);
+    if (isNaN(beatmapsetId)) {
+        return res.json({ error: 'Need a beatmapset link to calculate points!' });
+    }
+    const bmInfo = yield osuApi_1.beatmapsetInfo(beatmapsetId);
+    if (osuApi_1.isOsuResponseError(bmInfo)) {
+        return res.json({ error: helpers_1.defaultErrorMessage });
+    }
+    const pointsArray = [];
+    const lengthNerf = helpers_1.findLengthNerf(bmInfo.hit_length);
+    const seconds = bmInfo.hit_length % 60;
+    const minutes = (bmInfo.hit_length - seconds) / 60;
+    const lengthDisplay = `${minutes}m${seconds}s`;
+    let pointsInfo = `based on ${lengthDisplay} length`;
+    beatmap.tasks.forEach(task => {
+        if (task.name != task_2.TaskName.Storyboard) {
+            const taskPoints = helpers_1.findDifficultyPoints(task.name, 1);
+            let questBonus = 0;
+            if (beatmap.quest) {
+                questBonus = helpers_1.findQuestBonus(quest_1.QuestStatus.Done, beatmap.quest.deadline, beatmap.rankedDate, 1);
+                pointsInfo += ', includes quest bonus';
+            }
+            const finalPoints = ((taskPoints + questBonus) * lengthNerf);
+            pointsArray.push(`${task.name}: ${finalPoints.toFixed(1)}`);
+        }
+    });
+    res.json({ pointsArray, pointsInfo });
 }));
 exports.default = beatmapsRouter;

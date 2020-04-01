@@ -104,101 +104,64 @@ adminUsersRouter.post('/updatePoints', helpers_1.canFail((req, res) => __awaiter
     });
     u.forEach(user => {
         const pointsObject = {
-            Easy: { num: 5, total: 0 },
-            Normal: { num: 6, total: 0 },
-            Hard: { num: 7, total: 0 },
-            Insane: { num: 8, total: 0 },
-            Expert: { num: 8, total: 0 },
-            Storyboard: { num: 10, total: 0 },
-            Mod: { num: 1, total: 0 },
-            Host: { num: 5, total: 0 },
-            QuestReward: { num: 7, total: 0 },
-            Rank: { value: 0 },
-            osu: { total: 0 },
-            taiko: { total: 0 },
-            catch: { total: 0 },
-            mania: { total: 0 },
-            ContestParticipant: { total: 0 },
-            ContestJudge: { total: 0 },
-            ContestVote: { total: 0 },
-            Quests: {
-                list: [],
-            },
+            Easy: 0,
+            Normal: 0,
+            Hard: 0,
+            Insane: 0,
+            Expert: 0,
+            Storyboard: 0,
+            Mod: 0,
+            Host: 0,
+            QuestReward: 0,
+            Rank: 0,
+            osu: 0,
+            taiko: 0,
+            catch: 0,
+            mania: 0,
+            ContestParticipant: 0,
+            ContestJudge: 0,
+            ContestVote: 0,
+            Quests: [],
         };
         maps.forEach(map => {
             let questParticipation = false;
-            let length;
-            if (map.length <= 90) {
-                length = map.length;
-            }
-            else if (map.length <= 150) {
-                length = ((map.length - 90) / 2) + 90;
-            }
-            else if (map.length <= 210) {
-                length = ((map.length - 150) / 3) + 120;
-            }
-            else if (map.length <= 270) {
-                length = ((map.length - 210) / 4) + 140;
-            }
-            else {
-                length = ((map.length - 270) / 5) + 155;
-            }
-            const lengthNerf = 125;
+            const lengthNerf = helpers_1.findLengthNerf(map.length);
             map.tasks.forEach(task => {
                 task.mappers.forEach(mapper => {
                     if (mapper.id == user.id) {
                         if (task.name != task_1.TaskName.Storyboard) {
+                            const taskPoints = helpers_1.findDifficultyPoints(task.name, task.mappers.length);
                             let questBonus = 0;
-                            if (map.quest && map.quest.status == 'done') {
-                                const lateness = (+map.quest.deadline - +map.rankedDate) / (24 * 3600 * 1000);
-                                if (lateness > 0) {
-                                    questBonus = 2;
+                            if (map.quest) {
+                                questBonus = helpers_1.findQuestBonus(map.quest.status, map.quest.deadline, map.rankedDate, task.mappers.length);
+                                if (questBonus) {
+                                    questParticipation = true;
                                 }
-                                else if (lateness > -20) {
-                                    questBonus = 1.5;
-                                }
-                                else if (lateness > -40) {
-                                    questBonus = 1;
-                                }
-                                else {
-                                    questBonus = 0.5;
-                                }
-                                questBonus *= (length / lengthNerf);
-                                questParticipation = true;
                             }
-                            let taskPoints = pointsObject[task.name]['num'];
-                            taskPoints *= (length / lengthNerf);
-                            pointsObject[task.name]['total'] += (taskPoints + questBonus) / task.mappers.length;
-                            pointsObject[task.mode]['total'] += (taskPoints + questBonus) / task.mappers.length;
+                            const finalPoints = ((taskPoints + questBonus) * lengthNerf);
+                            pointsObject[task.name] += finalPoints;
+                            pointsObject[task.mode] += finalPoints;
                         }
                         else {
-                            if (task.sbQuality) {
-                                if (task.sbQuality == 2) {
-                                    pointsObject[task.name]['total'] += 7.5 / task.mappers.length;
-                                }
-                                else {
-                                    pointsObject[task.name]['total'] += (task.sbQuality * task.sbQuality + 1) / task.mappers.length;
-                                }
-                            }
+                            const taskPoints = helpers_1.findStoryboardPoints(task.sbQuality);
+                            pointsObject[task.name] += taskPoints;
                         }
                     }
                 });
             });
             map.modders.forEach(modder => {
                 if (modder.id == user.id) {
-                    pointsObject['Mod']['total'] += pointsObject['Mod']['num'];
+                    pointsObject['Mod'] += 1;
                 }
             });
             if (map.host.id == user.id) {
-                pointsObject['Host']['total'] += pointsObject['Host']['num'];
+                pointsObject['Host'] += 5;
             }
             if (questParticipation) {
-                if (pointsObject['Quests']['list'].indexOf(map.quest._id) < 0 && map.quest.status == quest_1.QuestStatus.Done) {
-                    pointsObject['Quests']['list'].push(map.quest._id);
-                    const lateness = +map.quest.deadline - +map.quest.completed;
-                    if (lateness > 0 && +map.rankedDate > +new Date('2019-03-01')) {
-                        pointsObject['QuestReward']['total'] += pointsObject['QuestReward']['num'];
-                    }
+                if (pointsObject['Quests'].indexOf(map.quest._id) < 0 && map.quest.status == quest_1.QuestStatus.Done) {
+                    pointsObject['Quests'].push(map.quest._id);
+                    const questPoints = helpers_1.findQuestPoints(map.quest.deadline, map.quest.completed, map.rankedDate);
+                    pointsObject['QuestReward'] += questPoints;
                 }
             }
         });
@@ -206,68 +169,68 @@ adminUsersRouter.post('/updatePoints', helpers_1.canFail((req, res) => __awaiter
             if (contestParticipantIds.includes(user.id)) {
                 contest.submissions.forEach(submission => {
                     if (submission.creator.id == user.id && user.osuId != 3178418) {
-                        pointsObject['ContestParticipant']['total'] += 5;
+                        pointsObject['ContestParticipant'] += 5;
                     }
                 });
             }
             if (contestJudgeIds.includes(user.id)) {
                 contest.judges.forEach(judge => {
                     if (judge.id == user.id) {
-                        pointsObject['ContestJudge']['total'] += 1;
+                        pointsObject['ContestJudge'] += 1;
                     }
                 });
             }
             if (contestVoteIds.includes(user.id)) {
                 contest.voters.forEach(voter => {
                     if (voter.id == user.id) {
-                        pointsObject['ContestVote']['total'] += 1;
+                        pointsObject['ContestVote'] += 1;
                     }
                 });
             }
         });
-        const totalPoints = pointsObject['Easy']['total'] +
-            pointsObject['Normal']['total'] +
-            pointsObject['Hard']['total'] +
-            pointsObject['Insane']['total'] +
-            pointsObject['Expert']['total'] +
-            pointsObject['Storyboard']['total'] +
-            pointsObject['Mod']['total'] +
-            pointsObject['Host']['total'] +
-            pointsObject['QuestReward']['total'] +
-            pointsObject['ContestParticipant']['total'] +
-            pointsObject['ContestJudge']['total'] +
-            pointsObject['ContestVote']['total'];
+        const totalPoints = pointsObject['Easy'] +
+            pointsObject['Normal'] +
+            pointsObject['Hard'] +
+            pointsObject['Insane'] +
+            pointsObject['Expert'] +
+            pointsObject['Storyboard'] +
+            pointsObject['Mod'] +
+            pointsObject['Host'] +
+            pointsObject['QuestReward'] +
+            pointsObject['ContestParticipant'] +
+            pointsObject['ContestJudge'] +
+            pointsObject['ContestVote'];
         if (totalPoints < 100) {
-            pointsObject['Rank']['value'] = 0;
+            pointsObject['Rank'] = 0;
         }
         else if (totalPoints < 250) {
-            pointsObject['Rank']['value'] = 1;
+            pointsObject['Rank'] = 1;
         }
         else if (totalPoints < 500) {
-            pointsObject['Rank']['value'] = 2;
+            pointsObject['Rank'] = 2;
         }
         else {
-            pointsObject['Rank']['value'] = 3;
+            pointsObject['Rank'] = 3;
         }
         user_1.UserService.update(user._id, {
-            easyPoints: pointsObject['Easy']['total'],
-            normalPoints: pointsObject['Normal']['total'],
-            hardPoints: pointsObject['Hard']['total'],
-            insanePoints: pointsObject['Insane']['total'],
-            expertPoints: pointsObject['Expert']['total'],
-            storyboardPoints: pointsObject['Storyboard']['total'],
-            modPoints: pointsObject['Mod']['total'],
-            hostPoints: pointsObject['Host']['total'],
-            questPoints: pointsObject['QuestReward']['total'],
-            rank: pointsObject['Rank']['value'],
-            osuPoints: pointsObject['osu']['total'],
-            taikoPoints: pointsObject['taiko']['total'],
-            catchPoints: pointsObject['catch']['total'],
-            maniaPoints: pointsObject['mania']['total'],
-            contestParticipantPoints: pointsObject['ContestParticipant']['total'],
-            contestJudgePoints: pointsObject['ContestJudge']['total'],
-            contestVotePoints: pointsObject['ContestVote']['total'],
-            completedQuests: pointsObject['Quests']['list'],
+            easyPoints: pointsObject['Easy'],
+            normalPoints: pointsObject['Normal'],
+            hardPoints: pointsObject['Hard'],
+            insanePoints: pointsObject['Insane'],
+            expertPoints: pointsObject['Expert'],
+            storyboardPoints: pointsObject['Storyboard'],
+            modPoints: pointsObject['Mod'],
+            hostPoints: pointsObject['Host'],
+            questPoints: pointsObject['QuestReward'],
+            rank: pointsObject['Rank'],
+            osuPoints: pointsObject['osu'],
+            taikoPoints: pointsObject['taiko'],
+            catchPoints: pointsObject['catch'],
+            maniaPoints: pointsObject['mania'],
+            contestParticipantPoints: pointsObject['ContestParticipant'],
+            contestJudgePoints: pointsObject['ContestJudge'],
+            contestVotePoints: pointsObject['ContestVote'],
+            completedQuests: pointsObject['Quests'],
         });
     });
     console.log('done');

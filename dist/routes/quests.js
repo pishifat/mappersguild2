@@ -193,9 +193,6 @@ questsRouter.post('/inviteToParty/:partyId/:questId', middlewares_1.isNotSpectat
     if (u.availablePoints < q.price) {
         return res.json({ error: inviteError + 'User does not have enough points to accept this quest!' });
     }
-    if (q.status == quest_2.QuestStatus.WIP && q.overLimit) {
-        return res.json({ error: inviteError + 'Your party has been running a quest for too long to add new members!' });
-    }
     res.json({ success: 'Invite sent!' });
     invite_1.InviteService.createPartyInvite(u._id, req.session.mongoId, req.params.partyId, `wants you to join their party`, invite_2.ActionType.Join, req.params.partyId, req.params.questId);
 })));
