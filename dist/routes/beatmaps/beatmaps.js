@@ -254,18 +254,22 @@ beatmapsRouter.get('/:id/findPoints', (req, res) => __awaiter(void 0, void 0, vo
     const minutes = (bmInfo.hit_length - seconds) / 60;
     const lengthDisplay = `${minutes}m${seconds}s`;
     let pointsInfo = `based on ${lengthDisplay} length`;
+    let validQuest = false;
     beatmap.tasks.forEach(task => {
         if (task.name != task_2.TaskName.Storyboard) {
             const taskPoints = helpers_1.findDifficultyPoints(task.name, 1);
             let questBonus = 0;
             if (beatmap.quest) {
                 questBonus = helpers_1.findQuestBonus(quest_1.QuestStatus.Done, beatmap.quest.deadline, beatmap.rankedDate, 1);
-                pointsInfo += ', includes quest bonus';
+                validQuest = true;
             }
             const finalPoints = ((taskPoints + questBonus) * lengthNerf);
             pointsArray.push(`${task.name}: ${finalPoints.toFixed(1)}`);
         }
     });
+    if (validQuest) {
+        pointsInfo += ', includes quest bonus';
+    }
     res.json({ pointsArray, pointsInfo });
 }));
 exports.default = beatmapsRouter;
