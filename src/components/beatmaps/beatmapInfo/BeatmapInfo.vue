@@ -30,6 +30,12 @@
                             :is-ranked="isRanked"
                             :is-qualified="isQualified"
                         />
+
+                        <!-- points calculation -->
+                        <points
+                            v-if="isHost && beatmap.status != 'Ranked'"
+                            :beatmap="beatmap"
+                        />
                     </div>
                 </div>
             </div>
@@ -99,6 +105,7 @@ import ModdersList from './ModdersList.vue';
 import NominatorsList from './NominatorsList.vue';
 import BeatmapLink from './BeatmapLink.vue';
 import LocksChoice from './LocksChoice.vue';
+import Points from './Points.vue';
 import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
 
 export default Vue.extend({
@@ -112,6 +119,7 @@ export default Vue.extend({
         NominatorsList,
         BeatmapLink,
         LocksChoice,
+        Points,
     },
     props: {
         beatmap: {

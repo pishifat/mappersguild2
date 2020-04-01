@@ -3,12 +3,14 @@ import { BeatmapService, Beatmap } from '../../models/beatmap/beatmap';
 import { BeatmapMode, BeatmapStatus } from '../../interfaces/beatmap/beatmap';
 import { TaskService, Task } from '../../models/beatmap/task';
 import { TaskName } from '../../interfaces/beatmap/task';
+import { QuestStatus } from '../../interfaces/quest';
 import { QuestService } from '../../models/quest';
 import { NotificationService } from '../../models/notification';
 import { LogService } from '../../models/log';
 import { LogCategory } from '../../interfaces/log';
 import { isLoggedIn, isNotSpectator, isBn } from '../../helpers/middlewares';
-import { defaultErrorMessage, canFail } from '../../helpers/helpers';
+import { defaultErrorMessage, canFail, findBeatmapsetId, findDifficultyPoints, findLengthNerf, findQuestBonus } from '../../helpers/helpers';
+import { beatmapsetInfo, isOsuResponseError } from '../../helpers/osuApi';
 import { isValidBeatmap } from './middlewares';
 
 const beatmapsRouter = express.Router();
@@ -310,6 +312,55 @@ beatmapsRouter.post('/:id/updateBn', isNotSpectator, isValidBeatmap, async (req,
             updatedBeatmap._id
         );
     }
+});
+
+/* GET guest difficulty related beatmaps */
+beatmapsRouter.get('/:id/findPoints', async (req, res) => {
+    const beatmap = await BeatmapService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+
+    if (!beatmap.url) {
+        return res.json({ error: 'Need a beatmapset link to calculate points!' });
+    }
+
+    const beatmapsetId = findBeatmapsetId(beatmap.url);
+
+    if (isNaN(beatmapsetId)) {
+        return res.json({ error: 'Need a beatmapset link to calculate points!' });
+    }
+
+    const bmInfo = await beatmapsetInfo(beatmapsetId);
+
+    if (isOsuResponseError(bmInfo)) {
+        return res.json({ error: defaultErrorMessage });
+    }
+
+    const pointsArray: string[] = [];
+
+    const lengthNerf = findLengthNerf(bmInfo.hit_length);
+
+    const seconds = bmInfo.hit_length % 60;
+    const minutes = (bmInfo.hit_length - seconds) / 60;
+    const lengthDisplay = `${minutes}m${seconds}s`;
+
+    let pointsInfo = `based on ${lengthDisplay} length`;
+
+    beatmap.tasks.forEach(task => {
+        if (task.name != TaskName.Storyboard) {
+            const taskPoints = findDifficultyPoints(task.name, 1);
+            let questBonus = 0;
+
+            if (beatmap.quest) {
+                questBonus = findQuestBonus(QuestStatus.Done, beatmap.quest.deadline, beatmap.rankedDate, 1);
+                pointsInfo += ', includes quest bonus';
+            }
+
+            const finalPoints = ((taskPoints + questBonus)*lengthNerf);
+
+            pointsArray.push(`${task.name}: ${finalPoints.toFixed(1)}`);
+        }
+    });
+
+    res.json({ pointsArray, pointsInfo });
 });
 
 export default beatmapsRouter;
