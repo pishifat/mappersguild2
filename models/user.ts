@@ -38,7 +38,7 @@ const UserSchema = new Schema({
 UserSchema.virtual('totalPoints').get(function(this: User) {
     return Math.round((this.easyPoints + this.normalPoints + this.hardPoints + this.insanePoints + this.expertPoints +
         this.storyboardPoints + this.questPoints + this.modPoints + this.hostPoints +
-        this.contestParticipantPoints + this.contestJudgePoints + this.contestVotePoints)*10)/10;
+        this.contestParticipantPoints + this.contestJudgePoints + this.contestVotePoints + this.legacyPoints)*10)/10;
 });
 
 UserSchema.virtual('availablePoints').get(function(this: User) {
