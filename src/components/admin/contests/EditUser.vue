@@ -48,7 +48,6 @@ export default Vue.extend({
     methods: {
         async updateCreator(e): Promise<void> {
             const creator = await this.executePost(`/admin/contests/submissions/${this.submissionId}/updateCreator`, { osuId: this.creatorOsuId }, e);
-            console.log(creator);
 
             if (!this.isError(creator)) {
                 this.$store.dispatch('updateToastMessages', {

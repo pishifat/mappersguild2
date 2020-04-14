@@ -30,12 +30,6 @@
                             :is-ranked="isRanked"
                             :is-qualified="isQualified"
                         />
-
-                        <!-- points calculation -->
-                        <points
-                            v-if="isHost && beatmap.status != 'Ranked'"
-                            :beatmap="beatmap"
-                        />
                     </div>
                 </div>
             </div>
@@ -77,7 +71,13 @@
         <hr>
 
         <div class="row">
-            <div class="col-sm text-right">
+            <!-- points calculation -->
+            <points
+                class="col-sm-8"
+                :beatmap="beatmap"
+            />
+
+            <div class="col-sm-4 text-right">
                 <span class="small text-white-50">
                     Created: {{ beatmap.createdAt.toString().slice(0, 10) }}
                 </span>

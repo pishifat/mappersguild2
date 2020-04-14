@@ -51,7 +51,7 @@ class BeatmapService extends BaseService<Beatmap> {
                 { path: 'host', select: '_id osuId username' },
                 { path: 'bns', select: '_id osuId username' },
                 { path: 'modders', select: '_id osuId username' },
-                { path: 'quest', select: '_id name art modes' },
+                { path: 'quest', select: '_id name art modes deadline' },
                 { path: 'song',select: 'artist title' },
                 {
                     path: 'tasks',
