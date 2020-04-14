@@ -11,7 +11,12 @@
                         data-toggle="tooltip"
                         :title="beatmap.quest.name"
                     >
-                    <a href="#" data-toggle="collapse" :data-target="'#details' + beatmap.id">
+                    <a
+                        href="#"
+                        data-toggle="collapse"
+                        :data-target="'#details' + beatmap.id"
+                        @click="selectBeatmap()"
+                    >
                         {{ formatMetadata() }}
                         <i class="fas fa-angle-down" />
                     </a>
@@ -62,10 +67,16 @@ export default Vue.extend({
             required: true,
         },
     },
-    computed: mapState([
-        'userOsuId',
-    ]),
+    computed: {
+        ...mapState([
+            'userOsuId',
+        ]),
+    },
     methods: {
+        selectBeatmap(): void {
+            history.pushState(null, 'Beatmaps', `/beatmaps?id=${this.beatmap.id}`);
+            this.$store.commit('setSelectedBeatmapId', this.beatmap.id);
+        },
         formatMetadata(): string {
             const str = this.beatmap.song.artist + ' - ' + this.beatmap.song.title;
 

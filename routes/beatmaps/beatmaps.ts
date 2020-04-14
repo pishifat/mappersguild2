@@ -51,6 +51,17 @@ beatmapsRouter.get('/relevantInfo', async (req, res) => {
     });
 });
 
+/* GET map load from URL */
+beatmapsRouter.get('/searchOnLoad/:id', async (req, res) => {
+    const urlBeatmap = await BeatmapService.queryById(req.params.id, { defaultPopulate: true });
+
+    if (!urlBeatmap) {
+        return res.json({ error: 'Beatmap ID does not exist!' });
+    }
+
+    res.json(urlBeatmap);
+});
+
 /* GET guest difficulty related beatmaps */
 beatmapsRouter.get('/guestBeatmaps', async (req, res) => {
     const ownTasks = await TaskService.queryAll({

@@ -29,6 +29,7 @@ const store = new Vuex.Store({
         filterStatus: 'any' as BeatmapStatus | 'any',
         filterQuest: 'any' as 'none' | 'any',
         selectedBeatmap: null as null | Beatmap,
+        selectedBeatmapId: null as null | string,
         fetchLimit: 30,
         isLoadingOtherBeatmaps: true,
     },
@@ -65,6 +66,9 @@ const store = new Vuex.Store({
         },
         setIsLoadingOtherBeatmaps (state, value: boolean): void {
             state.isLoadingOtherBeatmaps = value;
+        },
+        setSelectedBeatmapId (state, id: string): void {
+            state.selectedBeatmapId = id;
         },
         increaseFetchLimit (state): void {
             state.fetchLimit += 50;

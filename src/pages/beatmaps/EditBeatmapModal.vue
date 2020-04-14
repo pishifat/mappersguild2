@@ -81,5 +81,11 @@ export default Vue.extend({
     computed: mapState([
         'selectedBeatmap',
     ]),
+    watch: {
+        selectedBeatmap(): void {
+            history.pushState(null, 'Beatmaps', `/beatmaps?id=${this.selectedBeatmap.id}`);
+            this.$store.commit('setSelectedBeatmapId', this.selectedBeatmap.id);
+        },
+    },
 });
 </script>
