@@ -26,6 +26,7 @@ export async function isLoggedIn(req, res, next): Promise<void> {
         res.locals.userRequest = u;
         next();
     } else {
+        req.session.lastPage = req.originalUrl;
         res.redirect('/');
     }
 }

@@ -103,12 +103,13 @@ indexRouter.get('/login', canFail(async (req, res, next) => {
         res.redirect(`https://osu.ppy.sh/oauth/authorize?response_type=code&client_id=${config.id}&redirect_uri=${encodeURIComponent(config.redirect)}&state=${hashedState}&scope=identify`);
     }
 }), isLoggedIn, (req, res) => {
-    if (res.locals.userRequest.group == 'admin') {
+    if (req?.session?.lastPage) {
+        res.redirect(req.session.lastPage);
+    } else if (res.locals.userRequest.group == 'admin') {
         res.redirect('/artists');
     } else {
         res.redirect('/faq');
     }
-
 });
 
 /* GET logout, by deleting session */
