@@ -31,6 +31,7 @@ function isLoggedIn(req, res, next) {
             next();
         }
         else {
+            req.session.lastPage = req.originalUrl;
             res.redirect('/');
         }
     });

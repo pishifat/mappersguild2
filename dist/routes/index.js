@@ -107,7 +107,11 @@ indexRouter.get('/login', helpers_1.canFail((req, res, next) => __awaiter(void 0
         res.redirect(`https://osu.ppy.sh/oauth/authorize?response_type=code&client_id=${config_json_1.default.id}&redirect_uri=${encodeURIComponent(config_json_1.default.redirect)}&state=${hashedState}&scope=identify`);
     }
 })), middlewares_1.isLoggedIn, (req, res) => {
-    if (res.locals.userRequest.group == 'admin') {
+    var _a, _b;
+    if ((_b = (_a = req) === null || _a === void 0 ? void 0 : _a.session) === null || _b === void 0 ? void 0 : _b.lastPage) {
+        res.redirect(req.session.lastPage);
+    }
+    else if (res.locals.userRequest.group == 'admin') {
         res.redirect('/artists');
     }
     else {
