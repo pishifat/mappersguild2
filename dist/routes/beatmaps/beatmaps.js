@@ -58,6 +58,13 @@ beatmapsRouter.get('/relevantInfo', (req, res) => __awaiter(void 0, void 0, void
         mainMode: res.locals.userRequest.mainMode,
     });
 }));
+beatmapsRouter.get('/searchOnLoad/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const urlBeatmap = yield beatmap_1.BeatmapService.queryById(req.params.id, { defaultPopulate: true });
+    if (!urlBeatmap) {
+        return res.json({ error: 'Beatmap ID does not exist!' });
+    }
+    res.json(urlBeatmap);
+}));
 beatmapsRouter.get('/guestBeatmaps', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _e, _f;
     const ownTasks = yield task_1.TaskService.queryAll({
@@ -248,28 +255,56 @@ beatmapsRouter.get('/:id/findPoints', (req, res) => __awaiter(void 0, void 0, vo
     if (osuApi_1.isOsuResponseError(bmInfo)) {
         return res.json({ error: helpers_1.defaultErrorMessage });
     }
-    const pointsArray = [];
+    const sortOrder = Object.values(task_2.TaskName);
+    beatmap.tasks.sort(function (a, b) {
+        return sortOrder.indexOf(a.name) - sortOrder.indexOf(b.name);
+    });
+    const tasksPointsArray = [];
     const lengthNerf = helpers_1.findLengthNerf(bmInfo.hit_length);
     const seconds = bmInfo.hit_length % 60;
     const minutes = (bmInfo.hit_length - seconds) / 60;
     const lengthDisplay = `${minutes}m${seconds}s`;
     let pointsInfo = `based on ${lengthDisplay} length`;
+    const rankedDate = beatmap.status != 'Ranked' ? new Date() : bmInfo.approved_date;
     let validQuest = false;
+    let questBonus = 0;
+    let totalPoints = 0;
+    const usersPointsArrays = [];
+    const mappers = [];
+    beatmap.tasks.forEach(task => {
+        task.mappers.forEach(mapper => {
+            if (!mappers.includes(mapper.username)) {
+                mappers.push(mapper.username);
+                usersPointsArrays.push([mapper.username, 0]);
+            }
+        });
+    });
     beatmap.tasks.forEach(task => {
         if (task.name != task_2.TaskName.Storyboard) {
             const taskPoints = helpers_1.findDifficultyPoints(task.name, 1);
-            let questBonus = 0;
             if (beatmap.quest) {
-                questBonus = helpers_1.findQuestBonus(quest_1.QuestStatus.Done, beatmap.quest.deadline, beatmap.rankedDate, 1);
+                questBonus = helpers_1.findQuestBonus(quest_1.QuestStatus.Done, beatmap.quest.deadline, rankedDate, 1);
                 validQuest = true;
             }
             const finalPoints = ((taskPoints + questBonus) * lengthNerf);
-            pointsArray.push(`${task.name}: ${finalPoints.toFixed(1)}`);
+            totalPoints += finalPoints;
+            tasksPointsArray.push(`${task.name}: ${finalPoints.toFixed(1)}`);
+            task.mappers.forEach(mapper => {
+                const userTaskPoints = helpers_1.findDifficultyPoints(task.name, task.mappers.length);
+                usersPointsArrays.forEach(userArray => {
+                    if (userArray[0] == mapper.username) {
+                        userArray[1] += Math.round(((userTaskPoints + (questBonus / task.mappers.length)) * lengthNerf) * 10) / 10;
+                    }
+                });
+            });
+        }
+        else {
+            tasksPointsArray.push(`${task.name}: TBD`);
         }
     });
     if (validQuest) {
-        pointsInfo += ', includes quest bonus';
+        pointsInfo += ` + includes ${questBonus == 1 ? questBonus + ' quest bonus point' : questBonus + ' quest bonus points'} per difficulty`;
     }
-    res.json({ pointsArray, pointsInfo });
+    res.json({ tasksPointsArray, usersPointsArrays, pointsInfo, totalPoints });
 }));
 exports.default = beatmapsRouter;

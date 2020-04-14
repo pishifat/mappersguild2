@@ -50,7 +50,7 @@ const UserSchema = new mongoose_1.Schema({
 UserSchema.virtual('totalPoints').get(function () {
     return Math.round((this.easyPoints + this.normalPoints + this.hardPoints + this.insanePoints + this.expertPoints +
         this.storyboardPoints + this.questPoints + this.modPoints + this.hostPoints +
-        this.contestParticipantPoints + this.contestJudgePoints + this.contestVotePoints) * 10) / 10;
+        this.contestParticipantPoints + this.contestJudgePoints + this.contestVotePoints + this.legacyPoints) * 10) / 10;
 });
 UserSchema.virtual('availablePoints').get(function () {
     return Math.round((this.totalPoints - this.spentPoints) * 10) / 10;
