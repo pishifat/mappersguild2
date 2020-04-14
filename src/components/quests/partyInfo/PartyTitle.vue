@@ -61,6 +61,10 @@ export default Vue.extend({
             type: String,
             required: true,
         },
+        questMinimumParty: {
+            type: Number,
+            required: true,
+        },
         memberOfAnyParty: Boolean,
     },
     computed: {
@@ -80,7 +84,7 @@ export default Vue.extend({
             }
         },
         async leaveParty(e): Promise<void> {
-            if (confirm('Are you sure?')) {
+            if (confirm(`Are you sure? ${this.party.members.length == this.questMinimumParty && this.status == 'wip' ? 'This party has the minimum required members to run the quest, so leaving will cause the quest to be dropped.' : ''}`)) {
                 const quest = await this.executePost<Quest>('/quests/leaveParty/' + this.party.id + '/' + this.questId, {}, e);
 
                 if (!this.isError(quest)) {

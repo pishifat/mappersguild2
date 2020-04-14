@@ -207,7 +207,7 @@ export default Vue.extend({
                 return;
             }
 
-            if (confirm(`Are you sure?`)) {
+            if (confirm(`Are you sure? ${this.party.members.length == (this.quest.minParty) && this.quest.status == 'wip' ? 'This party has the minimum required members to run the quest, so kicking will cause the quest to be dropped.' : ''}`)) {
                 const quest = await this.executePost<Quest>('/quests/kickPartyMember/' + this.party.id + '/' + this.quest.id, { userId: this.dropdownUserId }, e);
 
                 if (!this.isError(quest)) {

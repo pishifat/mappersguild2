@@ -13,6 +13,7 @@
                 :party="party"
                 :status="quest.status"
                 :quest-id="quest.id"
+                :quest-minimum-party="quest.minParty"
                 :member-of-any-party="memberOfAnyParty"
             />
         </template>
