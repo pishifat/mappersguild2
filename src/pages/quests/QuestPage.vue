@@ -29,6 +29,8 @@
 
         <toast-messages />
 
+        <submit-quest-modal />
+
         <notifications-access v-if="userGroup != 'spectator'" />
     </div>
 </template>
@@ -40,6 +42,7 @@ import NotificationsAccess from '@components/NotificationsAccess.vue';
 import ToastMessages from '@components/ToastMessages.vue';
 import QuestPageFilters from '@pages/quests/QuestPageFilters.vue';
 import StatusQuests from '@pages/quests/StatusQuests.vue';
+import SubmitQuestModal from '@components/quests/SubmitQuestModal.vue';
 
 export default Vue.extend({
     name: 'QuestPage',
@@ -48,6 +51,7 @@ export default Vue.extend({
         QuestPageFilters,
         StatusQuests,
         ToastMessages,
+        SubmitQuestModal,
     },
     data () {
         return {
@@ -72,6 +76,7 @@ export default Vue.extend({
             this.$store.commit('setQuests', res.openQuests);
             this.$store.commit('setUserId', res.userMongoId);
             this.$store.commit('setUserGroup', res.group);
+            this.$store.commit('setUserRank', res.rank);
             this.$store.commit('setFilterMode', res.mainMode);
             this.$store.commit('setAvailablePoints', res.availablePoints);
         }

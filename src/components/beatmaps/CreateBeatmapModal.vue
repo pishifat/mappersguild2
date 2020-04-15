@@ -4,7 +4,7 @@
             <div class="modal-content bg-dark">
                 <div class="modal-header bg-done">
                     <h5 class="modal-title text-dark">
-                        Add Beatmap
+                        Add beatmap
                     </h5>
                     <button type="button" class="close" data-dismiss="modal">
                         <span>&times;</span>
@@ -27,6 +27,9 @@
                                     >
                                         <option value="" disabled>
                                             Select an artist
+                                        </option>
+                                        <option value="-" disabled>
+                                            ---
                                         </option>
                                         <option
                                             v-for="featuredArtist in featuredArtists"
@@ -59,6 +62,9 @@
                                         <option value="" disabled>
                                             Select an artist to view songs
                                         </option>
+                                        <option value="-" disabled>
+                                            ---
+                                        </option>
                                         <option v-for="featuredSong in featuredSongs" :key="featuredSong.id" :value="featuredSong.id">
                                             {{ featuredSong.title }} --- ({{ featuredSong.artist }})
                                         </option>
@@ -88,7 +94,7 @@
                                         {{ mode.name }}
                                     </label>
                                 </div>
-                                <br><small class="text-shadow">If you want a hybrid mapset, change this later.</small>
+                                <br><small class="text-shadow text-white-50">If you want a hybrid mapset, change this later.</small>
                             </div>
                         </div>
 
@@ -118,7 +124,7 @@
 
                         <p class="text-shadow">
                             Select one or more difficulties <i>you don't want anyone else to claim</i>. These can be changed later: <br>
-                            <small class="text-shadow">For example, if you don't want any guest difficulties, you should mark everything</small>
+                            <small class="text-white-50">For example, if you don't want any guest difficulties, you should mark everything.</small>
                         </p>
                         <div class="form-group row">
                             <div class="col-sm-10">

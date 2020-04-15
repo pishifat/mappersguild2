@@ -19,6 +19,7 @@ const store = new Vuex.Store({
     state: {
         userId: null as null | User['id'],
         userGroup: null as null | UserGroup,
+        userRank: null as null | User['rank'],
         quests: [] as Quest[],
         filterValue: '',
         filterMode: 'any' as FilterMode,
@@ -31,6 +32,9 @@ const store = new Vuex.Store({
         },
         setUserGroup (state, group: UserGroup): void {
             state.userGroup = group;
+        },
+        setUserRank (state, rank: number): void {
+            state.userRank = rank;
         },
         setQuests (state, quests: Quest[]): void {
             state.quests = quests;

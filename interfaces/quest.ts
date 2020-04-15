@@ -5,16 +5,20 @@ import { Party } from './party';
 export enum QuestStatus {
     Open = 'open',
     WIP = 'wip',
-    Done = 'done'
+    Done = 'done',
+    Pending = 'pending',
+    Rejected = 'rejected',
 }
 
 export interface Quest extends Document {
     _id: any;
     id: string;
+    creator: User;
     name: string;
     price: number;
     descriptionMain: string;
     timeframe: number;
+    requiredMapsets: number;
     minParty: number;
     maxParty: number;
     minRank: number;

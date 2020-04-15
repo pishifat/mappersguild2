@@ -12,6 +12,7 @@ import { webhookPost } from '../helpers/discordApi';
 import { UserService, User } from '../models/user';
 import { InviteService } from '../models/invite';
 import { ActionType } from '../interfaces/invite';
+import { FeaturedArtistService } from '../models/featuredArtist';
 
 const questsRouter = express.Router();
 
@@ -84,6 +85,7 @@ questsRouter.get('/relevantInfo', async (req, res) => {
         openQuests,
         userMongoId: req.session?.mongoId,
         group: res.locals.userRequest.group,
+        rank: res.locals.userRequest.rank,
         mainMode: res.locals.userRequest.mainMode,
         availablePoints: res.locals.userRequest.availablePoints,
     });
@@ -660,5 +662,51 @@ questsRouter.post('/extendDeadline/:partyId/:questId', isNotSpectator, canFail(a
 
     LogService.create(req.session.mongoId, `extended deadline for ${quest.name}`, LogCategory.Party);
 }));
+
+/* POST add quest */
+questsRouter.post('/submitQuest', async (req, res) => {
+    req.body.modes = [ BeatmapMode.Osu, BeatmapMode.Taiko, BeatmapMode.Catch, BeatmapMode.Mania ];
+    req.body.expiration = new Date();
+    req.body.expiration.setDate(req.body.expiration.getDate() + 90);
+    req.body.minRank = 0;
+    req.body.status = 'pending';
+    req.body.creator = req?.session?.mongoId;
+    const artist = await FeaturedArtistService.queryOne({ query: { osuId: req.body.art } });
+
+    if (!artist || FeaturedArtistService.isError(artist)) {
+        req.body.art = 0;
+    }
+
+    const quest = await QuestService.create(req.body);
+
+    if (QuestService.isError(quest)) {
+        return res.json({ error: 'Quest could not be created!' });
+    }
+
+    // calculate points spent
+    let points = 100;
+
+    if (!quest.art) {
+        points += 50;
+    }
+
+    if (quest.requiredMapsets < 1) {
+        points = 727;
+    } else if (quest.requiredMapsets == 1) {
+        points += 300;
+    } else if (quest.requiredMapsets == 2) {
+        points += 200;
+    } else if (quest.requiredMapsets < 10) {
+        points += (10-quest.requiredMapsets)*15 - 5;
+    }
+
+    const user = await UserService.queryByIdOrFail(req?.session?.mongoId, {}, cannotFindUserMessage);
+    user.spentPoints += points;
+    await UserService.saveOrFail(user);
+
+    res.json(true);
+
+    LogService.create(req.session?.mongoId, `submitted quest for approval`, LogCategory.Quest);
+});
 
 export default questsRouter;
