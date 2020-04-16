@@ -89,21 +89,18 @@ adminRouter.get('/relevantInfo/', canFail(async (req, res) => {
         query: { status: QuestStatus.WIP },
         defaultPopulate: true,
     });
-    const actionQuests: Quest[] = [];
+    let actionQuests: Quest[] = [];
 
     if (!QuestService.isError(allQuests)) {
         for (let i = 0; i < allQuests.length; i++) {
             const q = allQuests[i];
             let valid = true;
 
-            if (!q.associatedMaps.length) {
+            // if no associated maps or not enough associated maps
+            if (!q.associatedMaps.length ||
+                q.associatedMaps.length < q.requiredMapsets ||
+                q.associatedMaps.some(b => b.status != BeatmapStatus.Ranked)) {
                 valid = false;
-            } else {
-                q.associatedMaps.forEach(b => {
-                    if (b.status != BeatmapStatus.Ranked) {
-                        valid = false;
-                    }
-                });
             }
 
             if (valid) {
@@ -112,6 +109,14 @@ adminRouter.get('/relevantInfo/', canFail(async (req, res) => {
         }
     }
 
+    const pendingQuests = await QuestService.queryAll({
+        query: { status: QuestStatus.Pending },
+        defaultPopulate: true,
+    });
+
+    if (!QuestService.isError(pendingQuests)) {
+        actionQuests = actionQuests.concat(pendingQuests);
+    }
 
     const allUsers = await UserService.queryAll({});
     const actionUsers: User[] = [];

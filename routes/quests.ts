@@ -1,7 +1,7 @@
 import express from 'express';
 import { isLoggedIn, isNotSpectator } from '../helpers/middlewares';
 import { PartyService, Party } from '../models/party';
-import { defaultErrorMessage, BasicError, canFail, BasicResponse } from '../helpers/helpers';
+import { defaultErrorMessage, BasicError, canFail, BasicResponse, findSubmitQuestPointsSpent } from '../helpers/helpers';
 import { BeatmapService } from '../models/beatmap/beatmap';
 import { BeatmapMode } from '../interfaces/beatmap/beatmap';
 import { QuestService, Quest } from '../models/quest';
@@ -665,9 +665,8 @@ questsRouter.post('/extendDeadline/:partyId/:questId', isNotSpectator, canFail(a
 
 /* POST add quest */
 questsRouter.post('/submitQuest', async (req, res) => {
+    //quest creation
     req.body.modes = [ BeatmapMode.Osu, BeatmapMode.Taiko, BeatmapMode.Catch, BeatmapMode.Mania ];
-    req.body.expiration = new Date();
-    req.body.expiration.setDate(req.body.expiration.getDate() + 90);
     req.body.minRank = 0;
     req.body.status = 'pending';
     req.body.creator = req?.session?.mongoId;
@@ -683,24 +682,17 @@ questsRouter.post('/submitQuest', async (req, res) => {
         return res.json({ error: 'Quest could not be created!' });
     }
 
-    // calculate points spent
-    let points = 100;
-
-    if (!quest.art) {
-        points += 50;
-    }
-
-    if (quest.requiredMapsets < 1) {
-        points = 727;
-    } else if (quest.requiredMapsets == 1) {
-        points += 300;
-    } else if (quest.requiredMapsets == 2) {
-        points += 200;
-    } else if (quest.requiredMapsets < 10) {
-        points += (10-quest.requiredMapsets)*15 - 5;
-    }
+    // points
+    const points = findSubmitQuestPointsSpent(quest.art, quest.requiredMapsets);
 
     const user = await UserService.queryByIdOrFail(req?.session?.mongoId, {}, cannotFindUserMessage);
+
+    if (user.availablePoints < points) {
+        QuestService.remove(quest.id);
+
+        return res.json({ error: 'Not enough points to perform this action!' });
+    }
+
     user.spentPoints += points;
     await UserService.saveOrFail(user);
 

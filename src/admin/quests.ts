@@ -49,6 +49,13 @@ const store = new Vuex.Store<QuestState>({
                 quest.price = payload.price;
             }
         },
+        updateRequiredMapsets (state, payload): void {
+            const quest = state.quests.find(q => q.id == payload.questId);
+
+            if (quest) {
+                quest.requiredMapsets = payload.requiredMapsets;
+            }
+        },
         updateDescription (state, payload): void {
             const quest = state.quests.find(q => q.id == payload.questId);
 

@@ -102,6 +102,26 @@ export function findStoryboardPoints(storyboardQuality: Task['sbQuality']): numb
     }
 }
 
+export function findSubmitQuestPointsSpent(questArtist: number, requiredMapsets: number): number {
+    let points = 100;
+
+    if (!questArtist) {
+        points += 50;
+    }
+
+    if (requiredMapsets < 1) {
+        points = 727;
+    } else if (requiredMapsets == 1) {
+        points += 300;
+    } else if (requiredMapsets == 2) {
+        points += 200;
+    } else if (requiredMapsets < 10) {
+        points += (10-requiredMapsets)*15 - 5;
+    }
+
+    return points;
+}
+
 export const defaultErrorMessage = { error: 'Something went wrong!' };
 
 export interface BasicResponse {

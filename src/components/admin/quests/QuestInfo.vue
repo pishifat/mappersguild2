@@ -4,7 +4,10 @@
             <div v-if="quest" class="modal-content bg-dark">
                 <div class="modal-header text-dark bg-rest">
                     <h5 class="modal-title">
-                        {{ quest.name }}
+                        {{ quest.name }} by
+                        <a :href="'https://osu.ppy.sh/users/' + quest.creator.osuId" class="text-dark" target="_blank">
+                            {{ quest.creator.username }}
+                        </a>
                     </h5>
                     <button type="button" class="close" data-dismiss="modal">
                         <span>&times;</span>
@@ -33,6 +36,18 @@
                             type="text"
                             autocomplete="off"
                             placeholder="price..."
+                        >
+                    </p>
+                    <p>
+                        <button class="btn btn-sm btn-outline-info" @click="updateRequiredMapsets($event)">
+                            Update required mapsets
+                        </button>
+                        <input
+                            v-model="requiredMapsets"
+                            class="form-control-sm mx-2 w-50"
+                            type="text"
+                            autocomplete="off"
+                            placeholder="required mapsets..."
                         >
                     </p>
                     <p>
@@ -173,6 +188,7 @@ export default Vue.extend({
         return {
             renameQuestName: '',
             price: 0,
+            requiredMapsets: 0,
             description: '',
             duplicateQuestName: '',
             expiration: '',
@@ -182,6 +198,7 @@ export default Vue.extend({
         quest(): void {
             this.renameQuestName = this.quest.name;
             this.price = this.quest.price || 0;
+            this.requiredMapsets = this.quest.requiredMapsets || 0;
             this.description = this.quest.descriptionMain;
             this.duplicateQuestName = this.quest.name;
             this.expiration = this.quest.expiration ? this.quest.expiration.toString() : '';
@@ -216,6 +233,20 @@ export default Vue.extend({
                 });
             }
         },
+        async updateRequiredMapsets(e): Promise<void> {
+            const requiredMapsets = await this.executePost(`/admin/quests/${this.quest.id}/updateRequiredMapsets`, { requiredMapsets: this.requiredMapsets }, e);
+
+            if (!this.isError(requiredMapsets)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated required mapsets`,
+                    type: 'info',
+                });
+                this.$store.commit('updateRequiredMapsets', {
+                    questId: this.quest.id,
+                    requiredMapsets,
+                });
+            }
+        },
         async updateDescription(e): Promise<void> {
             const description = await this.executePost(`/admin/quests/${this.quest.id}/updateDescription/`, { description: this.description }, e);
 
@@ -238,10 +269,7 @@ export default Vue.extend({
                     message: `quest force dropped`,
                     type: 'info',
                 });
-                this.$store.commit('updateQuest', {
-                    questId: this.quest.id,
-                    quest,
-                });
+                this.$store.commit('updateQuest', quest);
             }
         },
         async completeQuest(e): Promise<void> {
@@ -252,10 +280,7 @@ export default Vue.extend({
                     message: `quest marked as complete`,
                     type: 'info',
                 });
-                this.$store.commit('updateQuest', {
-                    questId: this.quest.id,
-                    quest,
-                });
+                this.$store.commit('updateQuest', quest);
             }
         },
         async duplicateQuest(e): Promise<void> {
@@ -311,10 +336,7 @@ export default Vue.extend({
                     message: `changed quest modes`,
                     type: 'info',
                 });
-                this.$store.commit('updateQuest', {
-                    questId: this.quest.id,
-                    quest,
-                });
+                this.$store.commit('updateQuest', quest);
             }
         },
         async updateExpiration(e): Promise<void> {

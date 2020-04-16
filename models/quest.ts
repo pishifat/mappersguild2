@@ -55,6 +55,7 @@ class QuestService extends BaseService<Quest>
                 { path: 'currentParty',  populate: { path: 'members leader' } },
                 { path: 'associatedMaps',  populate: { path: 'song host tasks' } },
                 { path: 'completedMembers',  select: 'username osuId rank' },
+                { path: 'creator',  select: 'username osuId' },
             ]
         );
     }

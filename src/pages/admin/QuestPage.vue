@@ -3,7 +3,7 @@
         <div class="container bg-container py-1">
             <div class="row">
                 <div class="col">
-                    <button class="btn btn-sm btn-info btn-block" data-toggle="modal" data-target="#addQuest">
+                    <button class="btn btn-sm btn-info btn-block" data-toggle="modal" data-target="#submitQuest">
                         Add quest
                     </button>
 
@@ -31,8 +31,8 @@
             </div>
         </div>
 
-        <add-quest
-            @add-quest="addQuest($event)"
+        <submit-quest-modal
+            :is-admin="true"
         />
 
         <quest-info
@@ -47,7 +47,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import AddQuest from '../../components/admin/quests/AddQuest.vue';
+import SubmitQuestModal from '../../components/quests/SubmitQuestModal.vue';
 import QuestInfo from '../../components/admin/quests/QuestInfo.vue';
 import DataTable from '../../components/admin/DataTable.vue';
 import ToastMessages from '../../components/ToastMessages.vue';
@@ -57,7 +57,7 @@ import { mapState } from 'vuex';
 export default Vue.extend({
     components: {
         DataTable,
-        AddQuest,
+        SubmitQuestModal,
         QuestInfo,
         ToastMessages,
     },
@@ -86,9 +86,6 @@ export default Vue.extend({
             .fadeIn();
     },
     methods: {
-        addQuest(q): void {
-            this.quests.unshift(q);
-        },
         deleteQuest(q): void {
             const i = this.quests.findIndex(quest => quest.id == q.id);
             this.quests.splice(i, 1);

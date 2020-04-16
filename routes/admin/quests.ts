@@ -43,6 +43,7 @@ adminQuestsRouter.post('/create', async (req, res) => {
     req.body.modes = [ BeatmapMode.Osu, BeatmapMode.Taiko, BeatmapMode.Catch, BeatmapMode.Mania ];
     req.body.expiration = new Date();
     req.body.expiration.setDate(req.body.expiration.getDate() + 90);
+    req.body.creator = req?.session?.mongoId;
     const quest = await QuestService.create(req.body);
 
     if (!QuestService.isError(quest)) {
@@ -77,6 +78,59 @@ adminQuestsRouter.post('/create', async (req, res) => {
     res.json(allQuests);
 });
 
+/* POST publish quest */
+adminQuestsRouter.post('/:id/publish', async (req, res) => {
+    const quest = await QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+
+    const expiration = new Date();
+    expiration.setDate(expiration.getDate() + 90);
+    quest.expiration = expiration;
+
+    quest.status = QuestStatus.Open;
+
+    await QuestService.save(quest);
+
+    LogService.create(req.session?.mongoId, `published quest "${quest.name}" by "${quest.creator.username}"`, LogCategory.Quest);
+
+    webhookPost([{
+        author: {
+            name: `New Quest: ${quest.name}`,
+            url: `https://mappersguild.com/quests`,
+        },
+        thumbnail: {
+            url: `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`,
+        },
+        color: 16734308,
+        fields: [{
+            name: 'Objective',
+            value: `${quest.descriptionMain}`,
+        },
+        {
+            name: 'Party',
+            value: `${quest.minParty == quest.maxParty ? quest.maxParty : quest.minParty + '-' + quest.maxParty} member${quest.maxParty == 1 ? '' : 's'}`,
+        },
+        {
+            name: 'Price',
+            value: `${quest.price} points from each member`,
+        },
+        {
+            name: 'Creator',
+            value: quest.creator.username,
+        }],
+    }]);
+
+    const allQuests = await QuestService.queryAll({ useDefaults: true });
+
+    res.json(allQuests);
+});
+
+/* POST reject quest */
+adminQuestsRouter.post('/:id/reject', canFail(async (req, res) => {
+    const quest = await QuestService.updateOrFail(req.params.id, { status: 'rejected' });
+
+    res.json(quest);
+}));
+
 /* POST rename quest */
 adminQuestsRouter.post('/:id/rename', canFail(async (req, res) => {
     await QuestService.updateOrFail(req.params.id, { name: req.body.name });
@@ -90,6 +144,14 @@ adminQuestsRouter.post('/:id/updatePrice', canFail(async (req, res) => {
     await QuestService.updateOrFail(req.params.id, { price });
 
     res.json(price);
+}));
+
+/* POST update required mapsets */
+adminQuestsRouter.post('/:id/updateRequiredMapsets', canFail(async (req, res) => {
+    const requiredMapsets = parseInt(req.body.requiredMapsets, 10);
+    await QuestService.updateOrFail(req.params.id, { requiredMapsets });
+
+    res.json(requiredMapsets);
 }));
 
 /* POST rename quest */

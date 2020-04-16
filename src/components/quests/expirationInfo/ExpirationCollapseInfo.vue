@@ -13,7 +13,7 @@
                     <reopen-quest
                         :quest-id="quest.id"
                         :status="quest.status"
-                        :price="quest.price*3 + 100"
+                        :price="quest.price*3 + 80"
                     />
                 </div>
             </div>

@@ -104,7 +104,7 @@
                                         <a
                                             href="#"
                                             data-toggle="modal"
-                                            data-target="#editQuest"
+                                            :data-target="quest.status == 'pending' ? '#reviewQuest' : '#editQuest'"
                                             :data-id="quest.id"
                                             @click.prevent="selectedQuest = quest"
                                         >
@@ -197,6 +197,10 @@
             @delete-quest="deleteQuest($event)"
         />
 
+        <review-quest
+            :quest="selectedQuest"
+        />
+
         <user-info
             :user="selectedUser"
             @update-user="updateUser($event)"
@@ -208,6 +212,7 @@
 import Vue from 'vue';
 import BeatmapInfo from '../components/admin/BeatmapInfo.vue';
 import QuestInfo from '../components/admin/quests/QuestInfo.vue';
+import ReviewQuest from '../components/admin/quests/ReviewQuest.vue';
 import UserInfo from '../components/admin/UserInfo.vue';
 import { Beatmap } from '../../interfaces/beatmap/beatmap';
 import { Quest } from '../../interfaces/quest';
@@ -218,6 +223,7 @@ export default Vue.extend({
     components: {
         BeatmapInfo,
         QuestInfo,
+        ReviewQuest,
         UserInfo,
     },
     data() {

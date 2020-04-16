@@ -4,7 +4,7 @@
             <div class="modal-content bg-dark">
                 <div class="modal-header text-dark bg-rest">
                     <h5 class="modal-title">
-                        Submit quest
+                        {{ isAdmin ? 'Add quest' : 'Submit quest' }}
                     </h5>
                     <button type="button" class="close" data-dismiss="modal">
                         <span>&times;</span>
@@ -15,7 +15,7 @@
                         <div class="form-group row">
                             <!-- artist -->
                             <div class="col-lg-1">
-                                <p class="mb-2" style="margin-top: 3px;">
+                                <p class="mb-2">
                                     Artist:
                                 </p>
                             </div>
@@ -41,7 +41,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-lg-12">
+                            <div v-if="!isAdmin" class="col-lg-12">
                                 <ul class="small text-white-50 mb-2">
                                     <li>This artist's logo will be used as the quest's icon.</li>
                                     <li>If your quest allows songs from a few artists, choose whichever best expresses its theme.</li>
@@ -54,7 +54,7 @@
                         <!-- required mapsets -->
                         <div class="row">
                             <div class="col-lg-12">
-                                <p class="mb-2" style="margin-top: 3px;">
+                                <p :class="isAdmin ? 'mb-3' : 'mb-1'">
                                     Required mapsets:
                                     <input
                                         v-model.number="mapsetCount"
@@ -65,8 +65,8 @@
                                     >
                                 </p>
                             </div>
-                            <div class="col-lg-12">
-                                <ul class="small text-white-50 mb-2">
+                            <div v-if="!isAdmin" class="col-lg-12">
+                                <ul class="small text-white-50 mb-4">
                                     <li>Submitting quest for approval requires you to spend points correlating to how many mapsets are required. The fewer required mapsets, the more points you'll have to spend (and vice versa).</li>
                                     <li>Choosing a number pre-fills various fields, though these can still be customized.</li>
                                 </ul>
@@ -139,7 +139,7 @@
                                     class="form-control-sm w-100"
                                     type="number"
                                     autocomplete="off"
-                                    placeholder="price per party member..."
+                                    placeholder="days..."
                                 >
                             </div>
                             <div class="col-lg-8 d-flex align-items-center">
@@ -173,20 +173,47 @@
                             <div class="col-lg-6 d-flex align-items-center">
                                 <span class="small text-white-50">...members required to accept quest (min/max)</span>
                             </div>
+
+                            <!-- minimum rank (admin only) -->
+                            <div class="col-lg-2 mb-2">
+                                <p class="mb-2">
+                                    Party rank:
+                                </p>
+                            </div>
+                            <div class="col-lg-2">
+                                <input
+                                    v-model.number="minRank"
+                                    class="form-control-sm w-100"
+                                    type="number"
+                                    autocomplete="off"
+                                    placeholder="rank..."
+                                >
+                            </div>
+                            <div class="col-lg-8 d-flex align-items-center">
+                                <span class="small text-white-50">...required to accept quest</span>
+                            </div>
                         </div>
                     </div>
 
                     <div class="radial-divisor mx-auto my-3" />
 
-                    <p class="small text-white-50 mx-4 text-shadow">
-                        Keep in mind that your quest may need revision before it is approved and published on the Mappers' Guild quest listing!
-                    </p>
-                    <p class="small text-white-50 mx-4 text-shadow">
-                        If your quest is rejected, your spent points will be returned and pishifat will send you a message explaining why it was rejected. You may re-submit the quest with changes according to that message.
-                    </p>
+                    <div v-if="!isAdmin" class="small text-white-50 text-shadow mx-4">
+                        <p>
+                            Keep in mind that your quest may need revision before it is approved and published on the Mappers' Guild quest listing!
+                        </p>
+                        <p>
+                            If your quest is rejected, your spent points will be returned and pishifat will send you a message explaining why it was rejected. You may re-submit the quest with changes according to that message.
+                        </p>
+                    </div>
 
-                    <button type="submit" class="btn btn-outline-success btn-block" @click="submitQuest($event)">
-                        Submit quest for approval: {{ points }} pts <i class="fas fa-coins" />
+                    <button
+                        type="submit"
+                        class="btn btn-outline-success btn-block"
+                        :disabled="!enoughPoints"
+                        @click="isAdmin ? addQuest($event) : submitQuest($event)"
+                    >
+                        {{ isAdmin ? 'Add quest' : `Submit quest for approval: ${points} pts` }}
+                        <i v-if="!isAdmin" class="fas fa-coins" />
                     </button>
                 </div>
             </div>
@@ -196,10 +223,14 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import { mapState } from 'vuex';
 import { FeaturedArtist } from '../../../interfaces/featuredArtist';
 
 export default Vue.extend({
     name: 'SubmitQuestModal',
+    props: {
+        isAdmin: Boolean,
+    },
     data() {
         return {
             featuredArtists: [] as FeaturedArtist[],
@@ -211,9 +242,13 @@ export default Vue.extend({
             timeframe: 0,
             minParty: 0,
             maxParty: 0,
+            minRank: 0,
         };
     },
     computed: {
+        ...mapState([
+            'availablePoints',
+        ]),
         packType(): string {
             if (this.mapsetCount == 1) {
                 return 'solo';
@@ -265,6 +300,9 @@ export default Vue.extend({
             }
 
             return points;
+        },
+        enoughPoints(): boolean {
+            return (this.availablePoints - this.points) > 0;
         },
     },
     watch: {
@@ -345,9 +383,27 @@ export default Vue.extend({
 
             if (!this.isError(quests)) {
                 this.$store.dispatch('updateToastMessages', {
-                    message: `quest submitted for approval`,
+                    message: `Quest submitted for approval`,
                     type: 'info',
                 });
+            }
+        },
+        async addQuest(e): Promise<void> {
+            const quests = await this.executePost('/admin/quests/create', {
+                name: this.name,
+                price: this.price,
+                descriptionMain: this.objective,
+                timeframe: this.timeframe * (24*3600*1000),
+                minParty: this.minParty,
+                maxParty: this.maxParty,
+                minRank: this.minRank,
+                art: this.selectedArtistOsuId,
+                requiredMapsets: this.mapsetCount,
+            }, e);
+
+            if (!this.isError(quests)) {
+                this.$store.commit('setQuests', quests);
+                $('#addQuest').modal('hide');
             }
         },
     },
