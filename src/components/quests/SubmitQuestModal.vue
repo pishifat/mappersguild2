@@ -386,6 +386,15 @@ export default Vue.extend({
                     message: `Quest submitted for approval`,
                     type: 'info',
                 });
+                ($('#submitQuest')).modal('hide');
+                this.selectedArtist = '';
+                this.mapsetCount = 6;
+                this.name = '';
+                this.price = 0;
+                this.objective = '';
+                this.timeframe = 0;
+                this.minParty = 0;
+                this.maxParty = 0;
             }
         },
         async addQuest(e): Promise<void> {
@@ -403,7 +412,7 @@ export default Vue.extend({
 
             if (!this.isError(quests)) {
                 this.$store.commit('setQuests', quests);
-                $('#addQuest').modal('hide');
+                $('#submitQuest').modal('hide');
             }
         },
     },
