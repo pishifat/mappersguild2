@@ -9,7 +9,7 @@ import { isLoggedIn } from '../helpers/middlewares';
 import { canFail } from '../helpers/helpers';
 import { getToken, getUserInfo, isOsuResponseError } from '../helpers/osuApi';
 import { UserGroup } from '../interfaces/user';
-import { webhookPost } from '../helpers/discordApi';
+import { webhookPost, webhookColors } from '../helpers/discordApi';
 
 const indexRouter = express.Router();
 
@@ -49,11 +49,12 @@ indexRouter.get('/login', canFail(async (req, res, next) => {
                 if (newUser.group == UserGroup.User) {
                     webhookPost([{
                         author: {
-                            name: `${newUser.username} joined the guild!`,
+                            name: newUser.username,
                             icon_url: `https://a.ppy.sh/${newUser.osuId}`,
                             url: `https://osu.ppy.sh/u/${newUser.osuId}`,
                         },
-                        color: 14707049,
+                        color: webhookColors.lightRed,
+                        description: `Joined the Mappers' Guild!`,
                     }]);
                     LogService.create(req.session.mongoId, `joined the Mappers' Guild`, LogCategory.User);
                 } else {
@@ -77,11 +78,12 @@ indexRouter.get('/login', canFail(async (req, res, next) => {
                 if (req.session.group == 'user') {
                     webhookPost([{
                         author: {
-                            name: `${u.username} joined the guild!`,
+                            name: u.username,
                             icon_url: `https://a.ppy.sh/${u.osuId}`,
                             url: `https://osu.ppy.sh/u/${u.osuId}`,
                         },
-                        color: 14707049,
+                        color: webhookColors.lightRed,
+                        description: `Joined the Mappers' Guild!`,
                     }]);
                     LogService.create(u._id, `joined the Mappers' Guild`, LogCategory.User);
                 }

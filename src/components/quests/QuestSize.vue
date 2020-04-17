@@ -1,5 +1,5 @@
 <template>
-    <small>
+    <small class="pr-2">
         <span
             data-toggle="tooltip"
             data-placement="top"

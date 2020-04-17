@@ -25,6 +25,7 @@ const store = new Vuex.Store({
         filterMode: 'any' as FilterMode,
         isLoadingQuests: true,
         availablePoints: null as null | User['availablePoints'],
+        selectedQuest: null as null | Quest,
     },
     mutations: {
         setUserId (state, id: User['id']): void {
@@ -50,6 +51,9 @@ const store = new Vuex.Store({
         },
         setAvailablePoints (state, value: User['availablePoints']): void {
             state.availablePoints = value;
+        },
+        setSelectedQuest (state, quest: Quest): void {
+            state.selectedQuest = quest;
         },
         updateQuest (state, quest: Quest): void {
             const i = state.quests.findIndex(q => q.id === quest.id);
@@ -91,6 +95,13 @@ const store = new Vuex.Store({
         },
     },
     actions: {
+        updateQuest ({ commit, state }, quest: Quest): void {
+            commit('updateQuest', quest);
+
+            if (state.selectedQuest?.id === quest.id) {
+                commit('setSelectedQuest', quest);
+            }
+        },
         async updateFilterMode ({ commit }, mode: string): Promise<void> {
             commit('setIsLoadingQuests', true);
 

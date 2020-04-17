@@ -78,7 +78,6 @@ export default Vue.extend({
             }
 
             if (urlBeatmap && !urlBeatmap.error) {
-                this.$store.commit('setSelectedBeatmapId', urlBeatmap.id);
                 this.$store.commit('setSelectedBeatmap', urlBeatmap);
                 $('#editBeatmap').modal('show');
             }

@@ -67,9 +67,6 @@ const store = new Vuex.Store({
         setIsLoadingOtherBeatmaps (state, value: boolean): void {
             state.isLoadingOtherBeatmaps = value;
         },
-        setSelectedBeatmapId (state, id: string): void {
-            state.selectedBeatmapId = id;
-        },
         increaseFetchLimit (state): void {
             state.fetchLimit += 50;
         },

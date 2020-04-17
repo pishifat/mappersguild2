@@ -1,7 +1,7 @@
 <template>
     <div
-        :id="'details-' + quest.id"
-        class="collapse"
+        :id="collapse ? 'details-' + quest.id : 'details-modal-' + quest.id"
+        :class="collapse ? 'collapse' : 'show'"
     >
         <div class="card-body static-card">
             <div class="row">
@@ -28,6 +28,7 @@ import ExpirationDate from './ExpirationDate.vue';
 import ReopenQuest from './ReopenQuest.vue';
 
 export default Vue.extend({
+    name: 'ExpirationInfo',
     components: {
         ExpirationDate,
         ReopenQuest,
@@ -38,6 +39,7 @@ export default Vue.extend({
             required: true,
         },
         memberOfAnyParty: Boolean,
+        collapse: Boolean,
     },
     methods: {
     },

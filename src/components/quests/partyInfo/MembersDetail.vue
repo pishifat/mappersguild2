@@ -45,3 +45,11 @@ export default Vue.extend({
     },
 });
 </script>
+
+<style scoped>
+
+ul {
+    list-style-type: none;
+}
+
+</style>

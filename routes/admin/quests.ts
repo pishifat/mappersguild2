@@ -4,9 +4,8 @@ import { QuestService, Quest } from '../../models/quest';
 import { QuestStatus } from '../../interfaces/quest';
 import { BeatmapMode } from '../../interfaces/beatmap/beatmap';
 import { LogService } from '../../models/log';
-import { User } from '../../models/user';
 import { LogCategory } from '../../interfaces/log';
-import { webhookPost } from '../../helpers/discordApi';
+import { webhookPost, webhookColors } from '../../helpers/discordApi';
 import { BeatmapService } from '../../models/beatmap/beatmap';
 import { PartyService } from '../../models/party';
 import { canFail } from '../../helpers/helpers';
@@ -50,20 +49,17 @@ adminQuestsRouter.post('/create', async (req, res) => {
         LogService.create(req.session?.mongoId, `created quest "${quest.name}"`, LogCategory.Quest);
 
         webhookPost([{
-            author: {
-                name: `New Quest: ${quest.name}`,
-                url: `https://mappersguild.com/quests`,
-            },
+            color: webhookColors.orange,
+            description: `New quest: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id})`,
             thumbnail: {
                 url: `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`,
             },
-            color: 16734308,
             fields: [{
                 name: 'Objective',
                 value: `${quest.descriptionMain}`,
             },
             {
-                name: 'Party',
+                name: 'Party size',
                 value: `${quest.minParty == quest.maxParty ? quest.maxParty : quest.minParty + '-' + quest.maxParty} member${quest.maxParty == 1 ? '' : 's'}`,
             },
             {
@@ -94,28 +90,26 @@ adminQuestsRouter.post('/:id/publish', async (req, res) => {
 
     webhookPost([{
         author: {
-            name: `New Quest: ${quest.name}`,
-            url: `https://mappersguild.com/quests`,
+            name: quest.creator.username,
+            url: `https://osu.ppy.sh/users/${quest.creator.osuId}`,
+            icon_url: `https://a.ppy.sh/${quest.creator.osuId}`,
         },
+        color: webhookColors.yellow,
+        description: `New custom quest: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id})`,
         thumbnail: {
             url: `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`,
         },
-        color: 16734308,
         fields: [{
             name: 'Objective',
             value: `${quest.descriptionMain}`,
         },
         {
-            name: 'Party',
+            name: 'Party size',
             value: `${quest.minParty == quest.maxParty ? quest.maxParty : quest.minParty + '-' + quest.maxParty} member${quest.maxParty == 1 ? '' : 's'}`,
         },
         {
             name: 'Price',
             value: `${quest.price} points from each member`,
-        },
-        {
-            name: 'Creator',
-            value: quest.creator.username,
         }],
     }]);
 
@@ -212,17 +206,25 @@ adminQuestsRouter.post('/:id/complete', canFail(async (req, res) => {
 
     if (quest.status == QuestStatus.WIP) {
         //webhook
-        const memberList = (quest.currentParty.members as User[])
-            .map(m => m.username)
-            .join(', ');
+        let memberList = '';
+
+        for (let i = 0; i < quest.currentParty.members.length; i++) {
+            const user = quest.currentParty.members[i];
+            memberList += `[**${user.username}**](https://osu.ppy.sh/users/${user.osuId})`;
+
+            if (i+1 < quest.currentParty.members.length) {
+                memberList += ', ';
+            }
+        }
 
         webhookPost([{
             author: {
-                name: `Party completed quest: "${quest.name}"`,
-                url: `https://mappersguild.com/quests`,
+                name: `${quest.currentParty.leader.username}'s party`,
+                url: `https://osu.ppy.sh/users/${quest.currentParty.leader.osuId}`,
                 icon_url: `https://a.ppy.sh/${quest.currentParty.leader.osuId}`,
             },
-            color: 3138274,
+            color: webhookColors.purple,
+            description: `Completed quest: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id})`,
             thumbnail: {
                 url: `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`,
             },
@@ -255,6 +257,7 @@ adminQuestsRouter.post('/:id/duplicate', canFail(async (req, res) => {
     expiration.setDate(expiration.getDate() + 90);
     const q = await QuestService.queryByIdOrFail(req.params.id);
     const body: Partial<Quest> = {
+        creator: q.creator,
         name: req.body.name,
         price: q.price,
         descriptionMain: q.descriptionMain,
@@ -265,6 +268,7 @@ adminQuestsRouter.post('/:id/duplicate', canFail(async (req, res) => {
         art: q.art,
         modes: [ BeatmapMode.Osu, BeatmapMode.Taiko, BeatmapMode.Catch, BeatmapMode.Mania ],
         expiration,
+        requiredMapsets: q.requiredMapsets,
     };
     await QuestService.create(body);
 

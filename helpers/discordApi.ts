@@ -41,3 +41,35 @@ export async function webhookPost(message: DiscordWebhookMessage[]): Promise<obj
         return defaultErrorMessage;
     }
 }
+
+export const webhookColors = {
+    lightRed: 16742771,     // new member joins
+    darkRed: 8787477,
+    red: 15607337,          // drop quest
+
+    lightOrange: 15639928,
+    darkOrange: 7092736,
+    orange: 15169835,       // create quest (admin)
+
+    lightYellow: 16777104,  // rank 3 tier up
+    darkYellow: 7105536,
+    yellow: 16777022,       // create quest (user)
+
+    lightGreen: 8847214,
+    darkGreen: 1921053,
+    green: 4380222,         // accept quest
+
+    lightBlue: 8643583,
+    darkBlue: 1911891,
+    blue: 6786559,          // map ranked
+
+    lightPurple: 11173873,
+    darkPurple: 4263999,
+    purple: 8536232,        // quest completed
+
+    pink: 16728232,
+    white: 15724527,        // re-open quest
+    brown: 7554849,         // rank 1 tier up
+    gray: 11186352,         // rank 2 tier up
+    black: 2564903,
+};

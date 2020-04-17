@@ -17,6 +17,7 @@ import Vue from 'vue';
 import { mapState } from 'vuex';
 
 export default Vue.extend({
+    name: 'ReopenQuest',
     props: {
         questId: {
             type: String,
@@ -47,6 +48,7 @@ export default Vue.extend({
                 if (!this.isError(res)) {
                     this.$store.commit('setQuests', res.quests);
                     this.$store.commit('setAvailablePoints', res.availablePoints);
+                    $('#editQuest').modal('hide');
                 }
             }
         },

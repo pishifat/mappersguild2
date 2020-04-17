@@ -209,7 +209,7 @@
                     <button
                         type="submit"
                         class="btn btn-outline-success btn-block"
-                        :disabled="!enoughPoints"
+                        :disabled="!enoughPoints && !isAdmin"
                         @click="isAdmin ? addQuest($event) : submitQuest($event)"
                     >
                         {{ isAdmin ? 'Add quest' : `Submit quest for approval: ${points} pts` }}

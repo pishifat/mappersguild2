@@ -75,7 +75,6 @@ export default Vue.extend({
     methods: {
         selectBeatmap(): void {
             history.pushState(null, 'Beatmaps', `/beatmaps?id=${this.beatmap.id}`);
-            this.$store.commit('setSelectedBeatmapId', this.beatmap.id);
         },
         formatMetadata(): string {
             const str = this.beatmap.song.artist + ' - ' + this.beatmap.song.title;

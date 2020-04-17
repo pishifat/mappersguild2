@@ -80,7 +80,7 @@ export default Vue.extend({
             const quest = await this.executePost('/quests/joinParty/' + this.party.id + '/' + this.questId, {}, e);
 
             if (!this.isError(quest)) {
-                this.$store.commit('updateQuest', quest);
+                this.$store.dispatch('updateQuest', quest);
             }
         },
         async leaveParty(e): Promise<void> {
@@ -88,7 +88,7 @@ export default Vue.extend({
                 const quest = await this.executePost<Quest>('/quests/leaveParty/' + this.party.id + '/' + this.questId, {}, e);
 
                 if (!this.isError(quest)) {
-                    this.$store.commit('updateQuest', quest);
+                    this.$store.dispatch('updateQuest', quest);
 
                     // TODO in routes
                     // if leaving a party leads to few members or low rank
@@ -105,6 +105,7 @@ export default Vue.extend({
 
             if (!this.isError(quests)) {
                 this.$store.commit('setQuests', quests);
+                $('#editQuest').modal('hide');
             }
         },
     },

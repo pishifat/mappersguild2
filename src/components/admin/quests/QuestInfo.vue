@@ -5,7 +5,12 @@
                 <div class="modal-header text-dark bg-rest">
                     <h5 class="modal-title">
                         {{ quest.name }} by
-                        <a :href="'https://osu.ppy.sh/users/' + quest.creator.osuId" class="text-dark" target="_blank">
+                        <a
+                            v-if="quest.creator"
+                            :href="'https://osu.ppy.sh/users/' + quest.creator.osuId"
+                            class="text-dark"
+                            target="_blank"
+                        >
                             {{ quest.creator.username }}
                         </a>
                     </h5>

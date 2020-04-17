@@ -9,7 +9,7 @@
                     class="card-header row-highlight row no-gutters align-items-center"
                     :href="'#details-' + quest.id"
                     data-toggle="collapse"
-                    @click="wasClicked = !wasClicked"
+                    @click="selectQuest()"
                 >
                     <div class="col-sm-1 text-center">
                         <span v-if="quest.art">
@@ -69,14 +69,16 @@
                     </div>
 
                 </a>
-                <expiration-collapse-info
+                <expiration-info
                     v-if="quest.isExpired"
                     :quest="quest"
+                    :collapse="true"
                 />
-                <party-collapse-info
+                <party-info
                     v-else
                     :quest="quest"
                     :member-of-any-party="memberOfAnyParty"
+                    :collapse="true"
                 />
             </div>
         </div>
@@ -90,8 +92,8 @@ import QuestSize from './QuestSize.vue';
 import QuestPrice from './QuestPrice.vue';
 import QuestTime from './QuestTime.vue';
 import QuestModes from './QuestModes.vue';
-import PartyCollapseInfo from './partyInfo/PartyCollapseInfo.vue';
-import ExpirationCollapseInfo from './expirationInfo/ExpirationCollapseInfo.vue';
+import PartyInfo from './partyInfo/PartyInfo.vue';
+import ExpirationInfo from './expirationInfo/ExpirationInfo.vue';
 
 export default Vue.extend({
     name: 'QuestCard',
@@ -100,17 +102,13 @@ export default Vue.extend({
         QuestPrice,
         QuestTime,
         QuestModes,
-        PartyCollapseInfo,
-        ExpirationCollapseInfo,
+        PartyInfo,
+        ExpirationInfo,
     },
     props: {
         quest: {
             type: Object,
             required: true,
-        },
-        availablePoints: {
-            type: Number,
-            default: 0,
         },
     },
     data () {
@@ -127,11 +125,18 @@ export default Vue.extend({
         },
         ...mapState([
             'userId',
+            'availablePoints',
         ]),
         memberOfAnyParty(): boolean {
             return this.quest.parties.some(p =>
                 p.members.some(m => m.id === this.userId)
             );
+        },
+    },
+    methods: {
+        selectQuest(): void {
+            this.wasClicked = !this.wasClicked;
+            history.pushState(null, 'Quests', `/quests?id=${this.quest.id}`);
         },
     },
 });

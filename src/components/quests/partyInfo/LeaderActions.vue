@@ -79,6 +79,9 @@
             <button
                 v-if="quest.status === 'wip'"
                 class="btn btn-sm btn-outline-danger mx-2 my-2"
+                data-toggle="tooltip"
+                data-placement="top"
+                title="each party member spends 10 points to extend quest deadline"
                 @click.prevent="extendDeadline($event)"
             >
                 Extend deadline for 10 points
@@ -164,7 +167,7 @@ export default Vue.extend({
             );
 
             if (!this.isError(quest)) {
-                this.$store.commit('updateQuest', quest);
+                this.$store.dispatch('updateQuest', quest);
             }
         },
         async inviteToParty(e): Promise<void> {
@@ -194,7 +197,7 @@ export default Vue.extend({
             );
 
             if (!this.isError(quest)) {
-                this.$store.commit('updateQuest', quest);
+                this.$store.dispatch('updateQuest', quest);
             }
         },
         async kickPartyMember(e): Promise<void> {
@@ -211,7 +214,7 @@ export default Vue.extend({
                 const quest = await this.executePost<Quest>('/quests/kickPartyMember/' + this.party.id + '/' + this.quest.id, { userId: this.dropdownUserId }, e);
 
                 if (!this.isError(quest)) {
-                    this.$store.commit('updateQuest', quest);
+                    this.$store.dispatch('updateQuest', quest);
 
                     // TODO in routes
                     // if kicking someone leads to few members or low rank
@@ -228,7 +231,7 @@ export default Vue.extend({
                 const res: any = await this.executePost('/quests/extendDeadline/' + this.party.id + '/' + this.quest.id, {}, e);
 
                 if (!this.isError(res)) {
-                    this.$store.commit('updateQuest', res.quest);
+                    this.$store.dispatch('updateQuest', res.quest);
                     this.$store.commit('setAvailablePoints', res.availablePoints);
                 }
             }
@@ -238,6 +241,7 @@ export default Vue.extend({
 
             if (!this.isError(quests)) {
                 this.$store.commit('setQuests', quests);
+                $('#editQuest').modal('hide');
             }
         },
         async acceptQuest(e): Promise<void> {
@@ -258,6 +262,7 @@ export default Vue.extend({
                 if (!this.isError(res)) {
                     this.$store.commit('setQuests', res.quests);
                     this.$store.commit('setAvailablePoints', res.availablePoints);
+                    $('#editQuest').modal('hide');
                 }
             }
         },
@@ -266,7 +271,8 @@ export default Vue.extend({
                 const quest = await this.executePost('/quests/deleteParty/' + this.party.id + '/' + this.quest.id, {}, e);
 
                 if (!this.isError(quest)) {
-                    this.$store.commit('updateQuest', quest);
+                    this.$store.dispatch('updateQuest', quest);
+                    $('#editQuest').modal('hide');
                 }
             }
         },

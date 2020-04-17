@@ -11,6 +11,7 @@ import { LogService } from '../../models/log';
 import { LogCategory } from '../../interfaces/log';
 import { TaskName } from '../../interfaces/beatmap/task';
 import { ContestService } from '../../models/contest/contest';
+import { webhookPost, webhookColors } from '../../helpers/discordApi';
 
 const adminUsersRouter = express.Router();
 
@@ -47,9 +48,30 @@ adminUsersRouter.post('/:id/updateSpentPoints', canFail(async (req, res) => {
 
 /* POST update user badge */
 adminUsersRouter.post('/:id/updateBadge', canFail(async (req, res) => {
-    await UserService.updateOrFail(req.params.id, { badge: req.body.badge });
+    const badge = parseInt(req.body.badge, 10);
+    const user = await UserService.updateOrFail(req.params.id, { badge });
 
-    res.json(parseInt(req.body.badge, 10));
+    res.json(badge);
+
+    let rankColor = webhookColors.white;
+
+    if (badge == 1) {
+        rankColor = webhookColors.brown;
+    } else if (badge == 2) {
+        rankColor = webhookColors.gray;
+    } else if (badge == 3) {
+        rankColor = webhookColors.lightYellow;
+    }
+
+    webhookPost([{
+        author: {
+            name: user.username,
+            icon_url: `https://a.ppy.sh/${user.osuId}`,
+            url: `https://osu.ppy.sh/u/${user.osuId}`,
+        },
+        color: rankColor,
+        description: `**Reached rank ${badge}** with ${user.totalPoints} total points`,
+    }]);
 }));
 
 /* POST update user points */

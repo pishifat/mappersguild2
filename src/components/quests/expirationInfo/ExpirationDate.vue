@@ -11,6 +11,7 @@
 import Vue from 'vue';
 
 export default Vue.extend({
+    name: 'ExpirationDate',
     props: {
         isExpired: {
             type: Boolean,

@@ -1,7 +1,7 @@
 <template>
     <div
-        :id="'details-' + quest.id"
-        class="collapse"
+        :id="collapse ? 'details-' + quest.id : 'details-modal-' + quest.id"
+        :class="collapse ? 'collapse' : 'show'"
     >
         <div class="card-body static-card">
             <div class="row">
@@ -79,22 +79,19 @@ export default Vue.extend({
             type: Object as () => Quest,
             required: true,
         },
-        availablePoints: {
-            type: Number,
-            default: 0,
-        },
         test: {
             type: Number,
             default: 0,
         },
         memberOfAnyParty: Boolean,
+        collapse: Boolean,
     },
     methods: {
         async createParty(e): Promise<void> {
             const quest = await this.executePost('/quests/createParty/' + this.quest.id, {}, e);
 
             if (!this.isError(quest)) {
-                this.$store.commit('updateQuest', quest);
+                this.$store.dispatch('updateQuest', quest);
             }
         },
     },

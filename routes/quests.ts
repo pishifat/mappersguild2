@@ -8,7 +8,7 @@ import { QuestService, Quest } from '../models/quest';
 import { QuestStatus } from '../interfaces/quest';
 import { LogService } from '../models/log';
 import { LogCategory } from '../interfaces/log';
-import { webhookPost } from '../helpers/discordApi';
+import { webhookPost, webhookColors } from '../helpers/discordApi';
 import { UserService, User } from '../models/user';
 import { InviteService } from '../models/invite';
 import { ActionType } from '../interfaces/invite';
@@ -25,6 +25,7 @@ const beatmapPopulate = [
 
 const pointsPopulate = [
     { path: 'members', select: 'osuId username rank easyPoints normalPoints hardPoints insanePoints expertPoints storyboardPoints questPoints modPoints hostPoints contestParticipantPoints contestJudgePoints contestVotePoints spentPoints' },
+    { path: 'leader', select: 'osuId username' },
 ];
 
 const cannotFindUserMessage = 'Cannot find user!';
@@ -89,6 +90,18 @@ questsRouter.get('/relevantInfo', async (req, res) => {
         mainMode: res.locals.userRequest.mainMode,
         availablePoints: res.locals.userRequest.availablePoints,
     });
+});
+
+
+/* GET map load from URL */
+questsRouter.get('/searchOnLoad/:id', async (req, res) => {
+    const urlQuest = await QuestService.queryById(req.params.id, { defaultPopulate: true });
+
+    if (!urlQuest) {
+        return res.json({ error: 'Quest ID does not exist!' });
+    }
+
+    res.json(urlQuest);
 });
 
 /* GET relevant quest info */
@@ -348,6 +361,8 @@ questsRouter.post('/acceptQuest/:partyId/:questId', isNotSpectator, canFail(asyn
         }
     }
 
+    let newQuest;
+
     // process quest changes
     if (q.modes.length == p.modes.length) {
         q.accepted = new Date();
@@ -368,7 +383,8 @@ questsRouter.post('/acceptQuest/:partyId/:questId', isNotSpectator, canFail(asyn
             $pull: { parties: p._id },
         });
 
-        await QuestService.create({
+        newQuest = await QuestService.create({
+            creator: q.creator,
             name: q.name,
             price: q.price,
             descriptionMain: q.descriptionMain,
@@ -382,6 +398,7 @@ questsRouter.post('/acceptQuest/:partyId/:questId', isNotSpectator, canFail(asyn
             status: QuestStatus.WIP,
             deadline: new Date(new Date().getTime() + q.timeframe),
             currentParty: p._id,
+            requiredMapsets: q.requiredMapsets,
         });
     }
 
@@ -415,20 +432,22 @@ questsRouter.post('/acceptQuest/:partyId/:questId', isNotSpectator, canFail(asyn
     let memberList = '';
 
     for (let i = 0; i < p.members.length; i++) {
-        memberList += p.members[i].username;
+        const user = p.members[i];
+        memberList += `[**${user.username}**](https://osu.ppy.sh/users/${user.osuId})`;
 
-        if (i != p.members.length - 1) {
+        if (i+1 < p.members.length) {
             memberList += ', ';
         }
     }
 
     webhookPost([{
         author: {
-            name: `Quest accepted: "${q.name}"`,
-            url: `https://mappersguild.com/quests`,
+            name: `${p.leader.username}'s party`,
+            url: `https://osu.ppy.sh/users/${p.leader.osuId}`,
             icon_url: `https://a.ppy.sh/${p.leader.osuId}`,
         },
-        color: 11403103,
+        description: `Accepted quest: [**${q.name}**](https://mappersguild.com/quests?id=${newQuest ? newQuest.id : q.id}) [**${p.modes.join(', ')}**]`,
+        color: webhookColors.green,
         thumbnail: {
             url: `https://assets.ppy.sh/artists/${q.art}/cover.jpg`,
         },
@@ -436,10 +455,6 @@ questsRouter.post('/acceptQuest/:partyId/:questId', isNotSpectator, canFail(asyn
             {
                 name: 'Party members',
                 value: memberList,
-            },
-            {
-                name: 'Modes',
-                value: modeList,
             },
         ],
     }]);
@@ -504,29 +519,28 @@ questsRouter.post('/dropQuest/:partyId/:questId', isNotSpectator, canFail(async 
     let memberList = '';
 
     for (let i = 0; i < p.members.length; i++) {
-        memberList += p.members[i].username;
+        const user = p.members[i];
+        memberList += `[**${user.username}**](https://osu.ppy.sh/users/${user.osuId})`;
 
-        if (i != p.members.length - 1) {
+        if (i+1 < p.members.length) {
             memberList += ', ';
         }
     }
 
     webhookPost([{
         author: {
-            name: `Quest dropped: "${q.name}"`,
-            url: `https://mappersguild.com/quests`,
+            name: `${p.leader.username}'s party`,
+            url: `https://osu.ppy.sh/users/${p.leader.osuId}`,
             icon_url: `https://a.ppy.sh/${p.leader.osuId}`,
         },
-        color: 13710390,
+        color: webhookColors.red,
+        description: `Dropped quest: [**${q.name}**](https://mappersguild.com/quests?id=${openQuest && !QuestService.isError(openQuest) ? openQuest.id : q.id}) [**${p.modes.join(', ')}**]`,
         thumbnail: {
             url: `https://assets.ppy.sh/artists/${q.art}/cover.jpg`,
         },
         fields: [{
             name: 'Party members',
             value: memberList,
-        },{
-            name: 'Modes',
-            value: modeList,
         }],
     }]);
 
@@ -618,11 +632,12 @@ questsRouter.post('/reopenQuest/:questId', isNotSpectator, canFail(async (req, r
 
     webhookPost([{
         author: {
-            name: `Quest re-opened: "${quest.name}"`,
-            url: `https://mappersguild.com/quests`,
+            name: req.session.username,
+            url: `https://osu.ppy.sh/users/${req.session.osuId}`,
             icon_url: `https://a.ppy.sh/${req.session.osuId}`,
         },
-        color: 8677281,
+        color: webhookColors.white,
+        description: `Quest re-opened: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id})`,
         thumbnail: {
             url: `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`,
         },

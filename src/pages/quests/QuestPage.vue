@@ -31,7 +31,11 @@
 
         <submit-quest-modal />
 
-        <notifications-access v-if="userGroup != 'spectator'" />
+        <quest-info-modal />
+
+        <notifications-access
+            v-if="userGroup != 'spectator'"
+        />
     </div>
 </template>
 
@@ -43,6 +47,7 @@ import ToastMessages from '@components/ToastMessages.vue';
 import QuestPageFilters from '@pages/quests/QuestPageFilters.vue';
 import StatusQuests from '@pages/quests/StatusQuests.vue';
 import SubmitQuestModal from '@components/quests/SubmitQuestModal.vue';
+import QuestInfoModal from '@components/quests/QuestInfoModal.vue';
 
 export default Vue.extend({
     name: 'QuestPage',
@@ -52,6 +57,7 @@ export default Vue.extend({
         StatusQuests,
         ToastMessages,
         SubmitQuestModal,
+        QuestInfoModal,
     },
     data () {
         return {
@@ -61,6 +67,7 @@ export default Vue.extend({
     computed: {
         ...mapState([
             'userGroup',
+            'openQuests',
         ]),
         ...mapGetters([
             'openQuests',
@@ -70,15 +77,38 @@ export default Vue.extend({
         ]),
     },
     async created () {
-        const res: any = await this.executeGet('/quests/relevantInfo');
+        const params: any = new URLSearchParams(document.location.search.substring(1));
 
-        if (res) {
-            this.$store.commit('setQuests', res.openQuests);
-            this.$store.commit('setUserId', res.userMongoId);
-            this.$store.commit('setUserGroup', res.group);
-            this.$store.commit('setUserRank', res.rank);
-            this.$store.commit('setFilterMode', res.mainMode);
-            this.$store.commit('setAvailablePoints', res.availablePoints);
+        if (params.get('id') && params.get('id').length) {
+            const [res, urlQuest] = await Promise.all<any, any>([
+                this.executeGet('/quests/relevantInfo'),
+                this.executeGet('/quests/searchOnLoad/' + params.get('id')),
+            ]);
+
+            if (res) {
+                this.$store.commit('setQuests', res.openQuests);
+                this.$store.commit('setUserId', res.userMongoId);
+                this.$store.commit('setUserGroup', res.group);
+                this.$store.commit('setUserRank', res.rank);
+                this.$store.commit('setFilterMode', res.mainMode);
+                this.$store.commit('setAvailablePoints', res.availablePoints);
+            }
+
+            if (urlQuest && !urlQuest.error) {
+                this.$store.commit('setSelectedQuest', urlQuest);
+                $('#editQuest').modal('show');
+            }
+        } else {
+            const res: any = await this.executeGet('/quests/relevantInfo');
+
+            if (res) {
+                this.$store.commit('setQuests', res.openQuests);
+                this.$store.commit('setUserId', res.userMongoId);
+                this.$store.commit('setUserGroup', res.group);
+                this.$store.commit('setUserRank', res.rank);
+                this.$store.commit('setFilterMode', res.mainMode);
+                this.$store.commit('setAvailablePoints', res.availablePoints);
+            }
         }
 
         $('#loading').fadeOut();

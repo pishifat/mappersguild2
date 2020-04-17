@@ -1,6 +1,6 @@
 <template>
     <small>
-        Modes {{ status == 'open' ? 'available' : '' }}:
+        {{ status == 'open' ? 'Modes available' : 'Modes' }}:
         <i
             v-if="modes.includes('osu')"
             class="fas fa-circle"

@@ -5,8 +5,9 @@ import { Beatmap, BeatmapStatus } from '../../interfaces/beatmap/beatmap';
 import { QuestService } from '../../models/quest';
 import { canFail, findBeatmapsetId, sleep, defaultErrorMessage } from '../../helpers/helpers';
 import { TaskService, Task } from '../../models/beatmap/task';
+import { User } from '../../models/user';
 import { beatmapsetInfo, getMaps, isOsuResponseError } from '../../helpers/osuApi';
-import { webhookPost } from '../../helpers/discordApi';
+import { webhookPost, webhookColors } from '../../helpers/discordApi';
 
 const adminBeatmapsRouter = express.Router();
 
@@ -64,45 +65,49 @@ adminBeatmapsRouter.post('/:id/updateStatus', isSuperAdmin, canFail(async (req, 
         b = await BeatmapService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
 
         const gdUsernames: string[] = [];
+        const gdUsers: User[] = [];
+        const modes: string[] = [];
 
         b.tasks.forEach((task: Task) => {
             task.mappers.forEach(mapper => {
                 if (!gdUsernames.includes(mapper.username) && mapper.username != b.host.username) {
                     gdUsernames.push(mapper.username);
+                    gdUsers.push(mapper);
                 }
             });
+
+            if (!modes.includes(task.mode)) {
+                modes.push(task.mode);
+            }
         });
 
         let gdText = '';
 
-        if (!gdUsernames.length) {
+        if (!gdUsers.length) {
             gdText = 'No guest difficulties';
-        } else if (gdUsernames.length > 1) {
-            gdText = 'Guest difficulties: ';
-        } else if (gdUsernames.length == 1) {
-            gdText = 'Guest difficulty: ';
+        } else if (gdUsers.length > 1) {
+            gdText = 'Guest difficulties by ';
+        } else if (gdUsers.length == 1) {
+            gdText = 'Guest difficulty by ';
         }
 
-        if (gdUsernames.length) {
-            gdText += gdUsernames.join(', ');
+        if (gdUsers.length) {
+            for (let i = 0; i < gdUsers.length; i++) {
+                const user = gdUsers[i];
+                gdText += `[**${user.username}**](https://osu.ppy.sh/users/${user.osuId})`;
+
+                if (i+1 < gdUsers.length) {
+                    gdText += ', ';
+                }
+            }
         }
 
         webhookPost([{
-            author: {
-                name: `Ranked: ${b.song.artist} - ${b.song.title}`,
-                url: b.url,
-                icon_url: 'https://a.ppy.sh/' + b.host.osuId,
-            },
+            color: webhookColors.blue,
+            description: `💖 [**${b.song.artist} - ${b.song.title}**](${b.url}) [**${modes.join(', ')}**] has been ranked\n\nHosted by [**${b.host.username}**](https://osu.ppy.sh/users/${b.host.osuId})\n${gdText}`,
             thumbnail: {
                 url: `https://assets.ppy.sh/beatmaps/${osuId}/covers/list.jpg`,
             },
-            color: 10221039,
-            fields: [
-                {
-                    name: `Host: ${b.host.username}`,
-                    value: gdText,
-                },
-            ],
         }]);
     }
 
