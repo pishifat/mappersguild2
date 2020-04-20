@@ -101,4 +101,24 @@ function findStoryboardPoints(storyboardQuality) {
     }
 }
 exports.findStoryboardPoints = findStoryboardPoints;
+function findSubmitQuestPointsSpent(questArtist, requiredMapsets) {
+    let points = 100;
+    if (!questArtist) {
+        points += 50;
+    }
+    if (requiredMapsets < 1) {
+        points = 727;
+    }
+    else if (requiredMapsets == 1) {
+        points += 300;
+    }
+    else if (requiredMapsets == 2) {
+        points += 200;
+    }
+    else if (requiredMapsets < 10) {
+        points += (10 - requiredMapsets) * 15 - 5;
+    }
+    return points;
+}
+exports.findSubmitQuestPointsSpent = findSubmitQuestPointsSpent;
 exports.defaultErrorMessage = { error: 'Something went wrong!' };

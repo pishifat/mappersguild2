@@ -23,6 +23,7 @@ const log_1 = require("../../models/log");
 const log_2 = require("../../interfaces/log");
 const task_1 = require("../../interfaces/beatmap/task");
 const contest_1 = require("../../models/contest/contest");
+const discordApi_1 = require("../../helpers/discordApi");
 const adminUsersRouter = express_1.default.Router();
 adminUsersRouter.use(middlewares_1.isLoggedIn);
 adminUsersRouter.use(middlewares_1.isAdmin);
@@ -47,8 +48,28 @@ adminUsersRouter.post('/:id/updateSpentPoints', helpers_1.canFail((req, res) => 
     log_1.LogService.create(req.session.mongoId, `edited spent points of "${user.username}" to ${req.body.spentPoints}`, log_2.LogCategory.User);
 })));
 adminUsersRouter.post('/:id/updateBadge', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    yield user_1.UserService.updateOrFail(req.params.id, { badge: req.body.badge });
-    res.json(parseInt(req.body.badge, 10));
+    const badge = parseInt(req.body.badge, 10);
+    const user = yield user_1.UserService.updateOrFail(req.params.id, { badge });
+    res.json(badge);
+    let rankColor = discordApi_1.webhookColors.white;
+    if (badge == 1) {
+        rankColor = discordApi_1.webhookColors.brown;
+    }
+    else if (badge == 2) {
+        rankColor = discordApi_1.webhookColors.gray;
+    }
+    else if (badge == 3) {
+        rankColor = discordApi_1.webhookColors.lightYellow;
+    }
+    discordApi_1.webhookPost([{
+            author: {
+                name: user.username,
+                icon_url: `https://a.ppy.sh/${user.osuId}`,
+                url: `https://osu.ppy.sh/u/${user.osuId}`,
+            },
+            color: rankColor,
+            description: `**Reached rank ${badge}** with ${user.totalPoints} total points`,
+        }]);
 })));
 adminUsersRouter.post('/updatePoints', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const u = yield user_1.UserService.queryAllOrFail({});

@@ -358,6 +358,14 @@ select option {
     background-color: var(--rest);
 }
 
+.bg-orange {
+    background-color: var(--guild);
+}
+
+.bg-yellow {
+    background-color: var(--rank-3-bg);
+}
+
 .bg-hidden {
     background-color: var(--blocked);
 }

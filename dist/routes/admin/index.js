@@ -93,25 +93,27 @@ adminRouter.get('/relevantInfo/', helpers_1.canFail((req, res) => __awaiter(void
         query: { status: quest_2.QuestStatus.WIP },
         defaultPopulate: true,
     });
-    const actionQuests = [];
+    let actionQuests = [];
     if (!quest_1.QuestService.isError(allQuests)) {
         for (let i = 0; i < allQuests.length; i++) {
             const q = allQuests[i];
             let valid = true;
-            if (!q.associatedMaps.length) {
+            if (!q.associatedMaps.length ||
+                q.associatedMaps.length < q.requiredMapsets ||
+                q.associatedMaps.some(b => b.status != beatmap_2.BeatmapStatus.Ranked)) {
                 valid = false;
-            }
-            else {
-                q.associatedMaps.forEach(b => {
-                    if (b.status != beatmap_2.BeatmapStatus.Ranked) {
-                        valid = false;
-                    }
-                });
             }
             if (valid) {
                 actionQuests.push(q);
             }
         }
+    }
+    const pendingQuests = yield quest_1.QuestService.queryAll({
+        query: { status: quest_2.QuestStatus.Pending },
+        defaultPopulate: true,
+    });
+    if (!quest_1.QuestService.isError(pendingQuests)) {
+        actionQuests = actionQuests.concat(pendingQuests);
     }
     const allUsers = yield user_1.UserService.queryAll({});
     const actionUsers = [];

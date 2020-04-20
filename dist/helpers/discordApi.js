@@ -34,3 +34,28 @@ function webhookPost(message) {
     });
 }
 exports.webhookPost = webhookPost;
+exports.webhookColors = {
+    lightRed: 16742771,
+    darkRed: 8787477,
+    red: 15607337,
+    lightOrange: 15639928,
+    darkOrange: 7092736,
+    orange: 15169835,
+    lightYellow: 16777104,
+    darkYellow: 7105536,
+    yellow: 16777022,
+    lightGreen: 8847214,
+    darkGreen: 1921053,
+    green: 4380222,
+    lightBlue: 8643583,
+    darkBlue: 1911891,
+    blue: 6786559,
+    lightPurple: 11173873,
+    darkPurple: 4263999,
+    purple: 8536232,
+    pink: 16728232,
+    white: 15724527,
+    brown: 7554849,
+    gray: 11186352,
+    black: 2564903,
+};

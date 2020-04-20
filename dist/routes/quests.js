@@ -17,6 +17,7 @@ const middlewares_1 = require("../helpers/middlewares");
 const party_1 = require("../models/party");
 const helpers_1 = require("../helpers/helpers");
 const beatmap_1 = require("../models/beatmap/beatmap");
+const beatmap_2 = require("../interfaces/beatmap/beatmap");
 const quest_1 = require("../models/quest");
 const quest_2 = require("../interfaces/quest");
 const log_1 = require("../models/log");
@@ -25,6 +26,7 @@ const discordApi_1 = require("../helpers/discordApi");
 const user_1 = require("../models/user");
 const invite_1 = require("../models/invite");
 const invite_2 = require("../interfaces/invite");
+const featuredArtist_1 = require("../models/featuredArtist");
 const questsRouter = express_1.default.Router();
 questsRouter.use(middlewares_1.isLoggedIn);
 const beatmapPopulate = [
@@ -32,6 +34,7 @@ const beatmapPopulate = [
 ];
 const pointsPopulate = [
     { path: 'members', select: 'osuId username rank easyPoints normalPoints hardPoints insanePoints expertPoints storyboardPoints questPoints modPoints hostPoints contestParticipantPoints contestJudgePoints contestVotePoints spentPoints' },
+    { path: 'leader', select: 'osuId username' },
 ];
 const cannotFindUserMessage = 'Cannot find user!';
 function updatePartyInfo(id) {
@@ -81,9 +84,17 @@ questsRouter.get('/relevantInfo', (req, res) => __awaiter(void 0, void 0, void 0
         openQuests,
         userMongoId: (_a = req.session) === null || _a === void 0 ? void 0 : _a.mongoId,
         group: res.locals.userRequest.group,
+        rank: res.locals.userRequest.rank,
         mainMode: res.locals.userRequest.mainMode,
         availablePoints: res.locals.userRequest.availablePoints,
     });
+}));
+questsRouter.get('/searchOnLoad/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const urlQuest = yield quest_1.QuestService.queryById(req.params.id, { defaultPopulate: true });
+    if (!urlQuest) {
+        return res.json({ error: 'Quest ID does not exist!' });
+    }
+    res.json(urlQuest);
 }));
 questsRouter.get('/search', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let quests;
@@ -268,6 +279,7 @@ questsRouter.post('/acceptQuest/:partyId/:questId', middlewares_1.isNotSpectator
             return res.json({ error: 'Quest already exists for selected mode(s)!' });
         }
     }
+    let newQuest;
     if (q.modes.length == p.modes.length) {
         q.accepted = new Date();
         q.status = quest_2.QuestStatus.WIP;
@@ -286,7 +298,8 @@ questsRouter.post('/acceptQuest/:partyId/:questId', middlewares_1.isNotSpectator
         yield quest_1.QuestService.update(q._id, {
             $pull: { parties: p._id },
         });
-        yield quest_1.QuestService.create({
+        newQuest = yield quest_1.QuestService.create({
+            creator: q.creator,
             name: q.name,
             price: q.price,
             descriptionMain: q.descriptionMain,
@@ -300,6 +313,7 @@ questsRouter.post('/acceptQuest/:partyId/:questId', middlewares_1.isNotSpectator
             status: quest_2.QuestStatus.WIP,
             deadline: new Date(new Date().getTime() + q.timeframe),
             currentParty: p._id,
+            requiredMapsets: q.requiredMapsets,
         });
     }
     p.members.forEach(member => {
@@ -320,18 +334,20 @@ questsRouter.post('/acceptQuest/:partyId/:questId', middlewares_1.isNotSpectator
     log_1.LogService.create(req.session.mongoId, `party accepted quest "${q.name}" for mode${p.modes.length > 1 ? 's' : ''} "${modeList}"`, log_2.LogCategory.Quest);
     let memberList = '';
     for (let i = 0; i < p.members.length; i++) {
-        memberList += p.members[i].username;
-        if (i != p.members.length - 1) {
+        const user = p.members[i];
+        memberList += `[**${user.username}**](https://osu.ppy.sh/users/${user.osuId})`;
+        if (i + 1 < p.members.length) {
             memberList += ', ';
         }
     }
     discordApi_1.webhookPost([{
             author: {
-                name: `Quest accepted: "${q.name}"`,
-                url: `https://mappersguild.com/quests`,
+                name: `${p.leader.username}'s party`,
+                url: `https://osu.ppy.sh/users/${p.leader.osuId}`,
                 icon_url: `https://a.ppy.sh/${p.leader.osuId}`,
             },
-            color: 11403103,
+            description: `Accepted quest: [**${q.name}**](https://mappersguild.com/quests?id=${newQuest ? newQuest.id : q.id}) [**${p.modes.join(', ')}**]`,
+            color: discordApi_1.webhookColors.green,
             thumbnail: {
                 url: `https://assets.ppy.sh/artists/${q.art}/cover.jpg`,
             },
@@ -339,10 +355,6 @@ questsRouter.post('/acceptQuest/:partyId/:questId', middlewares_1.isNotSpectator
                 {
                     name: 'Party members',
                     value: memberList,
-                },
-                {
-                    name: 'Modes',
-                    value: modeList,
                 },
             ],
         }]);
@@ -392,27 +404,26 @@ questsRouter.post('/dropQuest/:partyId/:questId', middlewares_1.isNotSpectator, 
     log_1.LogService.create(req.session.mongoId, `party dropped quest "${q.name}" for mode${q.modes.length > 1 ? 's' : ''} "${modeList}"`, log_2.LogCategory.Quest);
     let memberList = '';
     for (let i = 0; i < p.members.length; i++) {
-        memberList += p.members[i].username;
-        if (i != p.members.length - 1) {
+        const user = p.members[i];
+        memberList += `[**${user.username}**](https://osu.ppy.sh/users/${user.osuId})`;
+        if (i + 1 < p.members.length) {
             memberList += ', ';
         }
     }
     discordApi_1.webhookPost([{
             author: {
-                name: `Quest dropped: "${q.name}"`,
-                url: `https://mappersguild.com/quests`,
+                name: `${p.leader.username}'s party`,
+                url: `https://osu.ppy.sh/users/${p.leader.osuId}`,
                 icon_url: `https://a.ppy.sh/${p.leader.osuId}`,
             },
-            color: 13710390,
+            color: discordApi_1.webhookColors.red,
+            description: `Dropped quest: [**${q.name}**](https://mappersguild.com/quests?id=${openQuest && !quest_1.QuestService.isError(openQuest) ? openQuest.id : q.id}) [**${p.modes.join(', ')}**]`,
             thumbnail: {
                 url: `https://assets.ppy.sh/artists/${q.art}/cover.jpg`,
             },
             fields: [{
                     name: 'Party members',
                     value: memberList,
-                }, {
-                    name: 'Modes',
-                    value: modeList,
                 }],
         }]);
     party_1.PartyService.remove(req.params.partyId);
@@ -450,11 +461,12 @@ questsRouter.post('/reopenQuest/:questId', middlewares_1.isNotSpectator, helpers
     log_1.LogService.create(req.session.mongoId, `re-opened quest "${quest.name}"`, log_2.LogCategory.Quest);
     discordApi_1.webhookPost([{
             author: {
-                name: `Quest re-opened: "${quest.name}"`,
-                url: `https://mappersguild.com/quests`,
+                name: req.session.username,
+                url: `https://osu.ppy.sh/users/${req.session.osuId}`,
                 icon_url: `https://a.ppy.sh/${req.session.osuId}`,
             },
-            color: 8677281,
+            color: discordApi_1.webhookColors.white,
+            description: `Quest re-opened: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id})`,
             thumbnail: {
                 url: `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`,
             },
@@ -485,4 +497,29 @@ questsRouter.post('/extendDeadline/:partyId/:questId', middlewares_1.isNotSpecta
     res.json({ quest, availablePoints: user.availablePoints });
     log_1.LogService.create(req.session.mongoId, `extended deadline for ${quest.name}`, log_2.LogCategory.Party);
 })));
+questsRouter.post('/submitQuest', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _e, _f, _g, _h, _j;
+    req.body.modes = [beatmap_2.BeatmapMode.Osu, beatmap_2.BeatmapMode.Taiko, beatmap_2.BeatmapMode.Catch, beatmap_2.BeatmapMode.Mania];
+    req.body.minRank = 0;
+    req.body.status = 'pending';
+    req.body.creator = (_f = (_e = req) === null || _e === void 0 ? void 0 : _e.session) === null || _f === void 0 ? void 0 : _f.mongoId;
+    const artist = yield featuredArtist_1.FeaturedArtistService.queryOne({ query: { osuId: req.body.art } });
+    if (!artist || featuredArtist_1.FeaturedArtistService.isError(artist)) {
+        req.body.art = 0;
+    }
+    const quest = yield quest_1.QuestService.create(req.body);
+    if (quest_1.QuestService.isError(quest)) {
+        return res.json({ error: 'Quest could not be created!' });
+    }
+    const points = helpers_1.findSubmitQuestPointsSpent(quest.art, quest.requiredMapsets);
+    const user = yield user_1.UserService.queryByIdOrFail((_h = (_g = req) === null || _g === void 0 ? void 0 : _g.session) === null || _h === void 0 ? void 0 : _h.mongoId, {}, cannotFindUserMessage);
+    if (user.availablePoints < points) {
+        quest_1.QuestService.remove(quest.id);
+        return res.json({ error: 'Not enough points to perform this action!' });
+    }
+    user.spentPoints += points;
+    yield user_1.UserService.saveOrFail(user);
+    res.json(true);
+    log_1.LogService.create((_j = req.session) === null || _j === void 0 ? void 0 : _j.mongoId, `submitted quest for approval`, log_2.LogCategory.Quest);
+}));
 exports.default = questsRouter;

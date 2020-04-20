@@ -22,15 +22,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const baseService_1 = __importDefault(require("./baseService"));
 const questSchema = new mongoose_1.Schema({
+    creator: { type: 'ObjectId', ref: 'User' },
     name: { type: String, required: true },
     price: { type: Number, default: 0 },
     descriptionMain: { type: String, required: true },
     timeframe: { type: Number, required: true },
+    requiredMapsets: { type: Number },
     minParty: { type: Number, required: true },
     maxParty: { type: Number, required: true },
     minRank: { type: Number, required: true },
     art: { type: Number },
-    status: { type: String, enum: ['open', 'wip', 'done'], default: 'open' },
+    status: { type: String, enum: ['open', 'wip', 'done', 'pending', 'rejected'], default: 'open' },
     parties: [{ type: 'ObjectId', ref: 'Party' }],
     modes: [{ type: String, default: ['osu', 'taiko', 'catch', 'mania'], required: true }],
     expiration: { type: Date },
@@ -56,6 +58,7 @@ class QuestService extends baseService_1.default {
             { path: 'currentParty', populate: { path: 'members leader' } },
             { path: 'associatedMaps', populate: { path: 'song host tasks' } },
             { path: 'completedMembers', select: 'username osuId rank' },
+            { path: 'creator', select: 'username osuId' },
         ]);
     }
     create(questData) {

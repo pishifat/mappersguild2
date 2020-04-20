@@ -63,42 +63,44 @@ adminBeatmapsRouter.post('/:id/updateStatus', middlewares_1.isSuperAdmin, helper
         yield beatmap_1.BeatmapService.saveOrFail(b);
         b = yield beatmap_1.BeatmapService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
         const gdUsernames = [];
+        const gdUsers = [];
+        const modes = [];
         b.tasks.forEach((task) => {
             task.mappers.forEach(mapper => {
                 if (!gdUsernames.includes(mapper.username) && mapper.username != b.host.username) {
                     gdUsernames.push(mapper.username);
+                    gdUsers.push(mapper);
                 }
             });
+            if (!modes.includes(task.mode)) {
+                modes.push(task.mode);
+            }
         });
         let gdText = '';
-        if (!gdUsernames.length) {
+        if (!gdUsers.length) {
             gdText = 'No guest difficulties';
         }
-        else if (gdUsernames.length > 1) {
-            gdText = 'Guest difficulties: ';
+        else if (gdUsers.length > 1) {
+            gdText = 'Guest difficulties by ';
         }
-        else if (gdUsernames.length == 1) {
-            gdText = 'Guest difficulty: ';
+        else if (gdUsers.length == 1) {
+            gdText = 'Guest difficulty by ';
         }
-        if (gdUsernames.length) {
-            gdText += gdUsernames.join(', ');
+        if (gdUsers.length) {
+            for (let i = 0; i < gdUsers.length; i++) {
+                const user = gdUsers[i];
+                gdText += `[**${user.username}**](https://osu.ppy.sh/users/${user.osuId})`;
+                if (i + 1 < gdUsers.length) {
+                    gdText += ', ';
+                }
+            }
         }
         discordApi_1.webhookPost([{
-                author: {
-                    name: `Ranked: ${b.song.artist} - ${b.song.title}`,
-                    url: b.url,
-                    icon_url: 'https://a.ppy.sh/' + b.host.osuId,
-                },
+                color: discordApi_1.webhookColors.blue,
+                description: `💖 [**${b.song.artist} - ${b.song.title}**](${b.url}) [**${modes.join(', ')}**] has been ranked\n\nHosted by [**${b.host.username}**](https://osu.ppy.sh/users/${b.host.osuId})\n${gdText}`,
                 thumbnail: {
                     url: `https://assets.ppy.sh/beatmaps/${osuId}/covers/list.jpg`,
                 },
-                color: 10221039,
-                fields: [
-                    {
-                        name: `Host: ${b.host.username}`,
-                        value: gdText,
-                    },
-                ],
             }]);
     }
     res.json(req.body.status);

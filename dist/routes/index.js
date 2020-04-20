@@ -55,11 +55,12 @@ indexRouter.get('/login', helpers_1.canFail((req, res, next) => __awaiter(void 0
                 if (newUser.group == user_2.UserGroup.User) {
                     discordApi_1.webhookPost([{
                             author: {
-                                name: `${newUser.username} joined the guild!`,
+                                name: newUser.username,
                                 icon_url: `https://a.ppy.sh/${newUser.osuId}`,
                                 url: `https://osu.ppy.sh/u/${newUser.osuId}`,
                             },
-                            color: 14707049,
+                            color: discordApi_1.webhookColors.lightRed,
+                            description: `Joined the Mappers' Guild!`,
                         }]);
                     log_1.LogService.create(req.session.mongoId, `joined the Mappers' Guild`, log_2.LogCategory.User);
                 }
@@ -83,11 +84,12 @@ indexRouter.get('/login', helpers_1.canFail((req, res, next) => __awaiter(void 0
                 if (req.session.group == 'user') {
                     discordApi_1.webhookPost([{
                             author: {
-                                name: `${u.username} joined the guild!`,
+                                name: u.username,
                                 icon_url: `https://a.ppy.sh/${u.osuId}`,
                                 url: `https://osu.ppy.sh/u/${u.osuId}`,
                             },
-                            color: 14707049,
+                            color: discordApi_1.webhookColors.lightRed,
+                            description: `Joined the Mappers' Guild!`,
                         }]);
                     log_1.LogService.create(u._id, `joined the Mappers' Guild`, log_2.LogCategory.User);
                 }

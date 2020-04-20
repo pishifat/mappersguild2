@@ -45,28 +45,26 @@ adminQuestsRouter.get('/load', (req, res) => __awaiter(void 0, void 0, void 0, f
     res.json(q);
 }));
 adminQuestsRouter.post('/create', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _a, _b, _c;
     req.body.modes = [beatmap_1.BeatmapMode.Osu, beatmap_1.BeatmapMode.Taiko, beatmap_1.BeatmapMode.Catch, beatmap_1.BeatmapMode.Mania];
     req.body.expiration = new Date();
     req.body.expiration.setDate(req.body.expiration.getDate() + 90);
+    req.body.creator = (_b = (_a = req) === null || _a === void 0 ? void 0 : _a.session) === null || _b === void 0 ? void 0 : _b.mongoId;
     const quest = yield quest_1.QuestService.create(req.body);
     if (!quest_1.QuestService.isError(quest)) {
-        log_1.LogService.create((_a = req.session) === null || _a === void 0 ? void 0 : _a.mongoId, `created quest "${quest.name}"`, log_2.LogCategory.Quest);
+        log_1.LogService.create((_c = req.session) === null || _c === void 0 ? void 0 : _c.mongoId, `created quest "${quest.name}"`, log_2.LogCategory.Quest);
         discordApi_1.webhookPost([{
-                author: {
-                    name: `New Quest: ${quest.name}`,
-                    url: `https://mappersguild.com/quests`,
-                },
+                color: discordApi_1.webhookColors.orange,
+                description: `New quest: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id})`,
                 thumbnail: {
                     url: `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`,
                 },
-                color: 16734308,
                 fields: [{
                         name: 'Objective',
                         value: `${quest.descriptionMain}`,
                     },
                     {
-                        name: 'Party',
+                        name: 'Party size',
                         value: `${quest.minParty == quest.maxParty ? quest.maxParty : quest.minParty + '-' + quest.maxParty} member${quest.maxParty == 1 ? '' : 's'}`,
                     },
                     {
@@ -78,6 +76,46 @@ adminQuestsRouter.post('/create', (req, res) => __awaiter(void 0, void 0, void 0
     const allQuests = yield quest_1.QuestService.queryAll({ useDefaults: true });
     res.json(allQuests);
 }));
+adminQuestsRouter.post('/:id/publish', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _d;
+    const quest = yield quest_1.QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+    const expiration = new Date();
+    expiration.setDate(expiration.getDate() + 90);
+    quest.expiration = expiration;
+    quest.status = quest_2.QuestStatus.Open;
+    yield quest_1.QuestService.save(quest);
+    log_1.LogService.create((_d = req.session) === null || _d === void 0 ? void 0 : _d.mongoId, `published quest "${quest.name}" by "${quest.creator.username}"`, log_2.LogCategory.Quest);
+    discordApi_1.webhookPost([{
+            author: {
+                name: quest.creator.username,
+                url: `https://osu.ppy.sh/users/${quest.creator.osuId}`,
+                icon_url: `https://a.ppy.sh/${quest.creator.osuId}`,
+            },
+            color: discordApi_1.webhookColors.yellow,
+            description: `New custom quest: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id})`,
+            thumbnail: {
+                url: `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`,
+            },
+            fields: [{
+                    name: 'Objective',
+                    value: `${quest.descriptionMain}`,
+                },
+                {
+                    name: 'Party size',
+                    value: `${quest.minParty == quest.maxParty ? quest.maxParty : quest.minParty + '-' + quest.maxParty} member${quest.maxParty == 1 ? '' : 's'}`,
+                },
+                {
+                    name: 'Price',
+                    value: `${quest.price} points from each member`,
+                }],
+        }]);
+    const allQuests = yield quest_1.QuestService.queryAll({ useDefaults: true });
+    res.json(allQuests);
+}));
+adminQuestsRouter.post('/:id/reject', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const quest = yield quest_1.QuestService.updateOrFail(req.params.id, { status: 'rejected' });
+    res.json(quest);
+})));
 adminQuestsRouter.post('/:id/rename', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     yield quest_1.QuestService.updateOrFail(req.params.id, { name: req.body.name });
     res.json(req.body.name);
@@ -87,12 +125,17 @@ adminQuestsRouter.post('/:id/updatePrice', helpers_1.canFail((req, res) => __awa
     yield quest_1.QuestService.updateOrFail(req.params.id, { price });
     res.json(price);
 })));
+adminQuestsRouter.post('/:id/updateRequiredMapsets', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const requiredMapsets = parseInt(req.body.requiredMapsets, 10);
+    yield quest_1.QuestService.updateOrFail(req.params.id, { requiredMapsets });
+    res.json(requiredMapsets);
+})));
 adminQuestsRouter.post('/:id/updateDescription', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     yield quest_1.QuestService.updateOrFail(req.params.id, { descriptionMain: req.body.description });
     res.json(req.body.description);
 })));
 adminQuestsRouter.post('/:id/drop', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _b;
+    var _e;
     let q = yield quest_1.QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
     const openQuest = yield quest_1.QuestService.queryOne({
         query: {
@@ -128,21 +171,27 @@ adminQuestsRouter.post('/:id/drop', helpers_1.canFail((req, res) => __awaiter(vo
         q = yield quest_1.QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
         res.json(q);
     }
-    log_1.LogService.create((_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId, `forced party to drop quest "${q.name}"`, log_2.LogCategory.Quest);
+    log_1.LogService.create((_e = req.session) === null || _e === void 0 ? void 0 : _e.mongoId, `forced party to drop quest "${q.name}"`, log_2.LogCategory.Quest);
 })));
 adminQuestsRouter.post('/:id/complete', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let quest = yield quest_1.QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
     if (quest.status == quest_2.QuestStatus.WIP) {
-        const memberList = quest.currentParty.members
-            .map(m => m.username)
-            .join(', ');
+        let memberList = '';
+        for (let i = 0; i < quest.currentParty.members.length; i++) {
+            const user = quest.currentParty.members[i];
+            memberList += `[**${user.username}**](https://osu.ppy.sh/users/${user.osuId})`;
+            if (i + 1 < quest.currentParty.members.length) {
+                memberList += ', ';
+            }
+        }
         discordApi_1.webhookPost([{
                 author: {
-                    name: `Party completed quest: "${quest.name}"`,
-                    url: `https://mappersguild.com/quests`,
+                    name: `${quest.currentParty.leader.username}'s party`,
+                    url: `https://osu.ppy.sh/users/${quest.currentParty.leader.osuId}`,
                     icon_url: `https://a.ppy.sh/${quest.currentParty.leader.osuId}`,
                 },
-                color: 3138274,
+                color: discordApi_1.webhookColors.purple,
+                description: `Completed quest: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id})`,
                 thumbnail: {
                     url: `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`,
                 },
@@ -168,6 +217,7 @@ adminQuestsRouter.post('/:id/duplicate', helpers_1.canFail((req, res) => __await
     expiration.setDate(expiration.getDate() + 90);
     const q = yield quest_1.QuestService.queryByIdOrFail(req.params.id);
     const body = {
+        creator: q.creator,
         name: req.body.name,
         price: q.price,
         descriptionMain: q.descriptionMain,
@@ -178,6 +228,7 @@ adminQuestsRouter.post('/:id/duplicate', helpers_1.canFail((req, res) => __await
         art: q.art,
         modes: [beatmap_1.BeatmapMode.Osu, beatmap_1.BeatmapMode.Taiko, beatmap_1.BeatmapMode.Catch, beatmap_1.BeatmapMode.Mania],
         expiration,
+        requiredMapsets: q.requiredMapsets,
     };
     yield quest_1.QuestService.create(body);
     const allQuests = yield quest_1.QuestService.queryAll({ useDefaults: true });
