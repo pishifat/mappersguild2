@@ -7,7 +7,7 @@
         </a>
         <div class="copy-paste small text-white-50">
             <samp>hello, you're getting this message because you submitted an entry for last month's monthly beatmapping contest!</samp><br><br>
-            <samp>your submission was {{ voteCount >= 7 ? '' : 'not' }} a finalist for voting with {{ totalVotes }} {{ totalVotes == 1 ? 'placement' : 'placements' }} in the screening crew members's top 5 maps (screening crew = mappers who narrowed down the finalists)</samp><br><br>
+            <samp>your submission was {{ voteCount >= 13 ? '' : 'not' }} a finalist for voting with {{ totalVotes }} {{ totalVotes == 1 ? 'placement' : 'placements' }} in the screening crew members's top 5 maps (screening crew = mappers who narrowed down the finalists)</samp><br><br>
             <samp>here are some comments the screening crew had on your submission. these are mostly their personal notes, so they're not intended to be constructive feedback. i manually removed extra rude comments (if they existed) and some users didn't leave comments on some submissions</samp><br><br>
             <samp>[notice]</samp>
             <span v-for="(evaluation, i) in evaluations" :key="evaluation.id">

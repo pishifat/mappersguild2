@@ -77,10 +77,16 @@
                                     NAME
                                 </th>
                                 <th scope="col">
+                                    CREATOR
+                                </th>
+                                <th scope="col">
                                     MODES
                                 </th>
                                 <th scope="col">
                                     STATUS
+                                </th>
+                                <th scope="col">
+                                    MAPSETS
                                 </th>
                                 <th scope="col">
                                     EDIT
@@ -92,6 +98,9 @@
                                         {{ quest.name }}
                                     </td>
                                     <td scope="row">
+                                        {{ quest.creator.username }}
+                                    </td>
+                                    <td scope="row">
                                         <i v-if="quest.modes.includes('osu')" class="fas fa-circle" />
                                         <i v-if="quest.modes.includes('taiko')" class="fas fa-drum" />
                                         <i v-if="quest.modes.includes('catch')" class="fas fa-apple-alt" />
@@ -99,6 +108,9 @@
                                     </td>
                                     <td scope="row">
                                         {{ quest.status }}
+                                    </td>
+                                    <td scope="row">
+                                        {{ quest.requiredMapsets }}
                                     </td>
                                     <td scope="row">
                                         <a

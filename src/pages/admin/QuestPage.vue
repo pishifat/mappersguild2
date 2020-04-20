@@ -10,12 +10,15 @@
                     <data-table
                         #default="{ obj: quest }"
                         :data="quests"
-                        :headers="['name', 'modes', 'status']"
+                        :headers="['name', 'creator', 'modes', 'status', 'mapsets']"
                         :custom-data-target="'#editQuest'"
                         @update:selected-id="selectedQuestId = $event"
                     >
                         <td>
                             {{ quest.name }}
+                        </td>
+                        <td>
+                            {{ quest.creator.username }}
                         </td>
                         <td>
                             <i v-if="quest.modes.includes('osu')" class="fas fa-circle" />
@@ -25,6 +28,9 @@
                         </td>
                         <td>
                             {{ quest.status }}
+                        </td>
+                        <td>
+                            {{ quest.requiredMapsets }}
                         </td>
                     </data-table>
                 </div>
