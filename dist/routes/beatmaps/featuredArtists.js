@@ -20,7 +20,7 @@ const featuredArtistsRouter = express_1.default.Router();
 featuredArtistsRouter.use(middlewares_1.isLoggedIn);
 featuredArtistsRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const featuredArtists = yield featuredArtist_1.FeaturedArtistService.queryAll({
-        query: { osuId: { $exists: true } },
+        query: { osuId: { $gt: 0 } },
     });
     res.json(featuredArtists);
 }));
