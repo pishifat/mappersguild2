@@ -10,7 +10,7 @@ featuredArtistsRouter.use(isLoggedIn);
 /* GET artists for new map entry */
 featuredArtistsRouter.get('/', async (req, res) => {
     const featuredArtists = await FeaturedArtistService.queryAll({
-        query: { osuId: { $exists: true } },
+        query: { osuId: { $gt: 0 } },
     });
 
     res.json(featuredArtists);
