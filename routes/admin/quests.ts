@@ -123,6 +123,14 @@ adminQuestsRouter.post('/:id/reject', canFail(async (req, res) => {
     res.json(quest.status);
 }));
 
+/* POST update quest objective */
+adminQuestsRouter.post('/:id/updateArt', canFail(async (req, res) => {
+    const art = parseInt(req.body.art, 10);
+    await QuestService.updateOrFail(req.params.id, { art });
+
+    res.json(art);
+}));
+
 /* POST rename quest */
 adminQuestsRouter.post('/:id/rename', canFail(async (req, res) => {
     await QuestService.updateOrFail(req.params.id, { name: req.body.name });

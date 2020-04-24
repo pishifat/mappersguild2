@@ -115,7 +115,7 @@ const store = new Vuex.Store({
         },
 
         // quests
-        updateArtist (state, payload): void {
+        updateArt (state, payload): void {
             const quest = state.actionQuests.find(q => q.id == payload.questId);
 
             if (quest) {

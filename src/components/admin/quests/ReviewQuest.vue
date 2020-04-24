@@ -17,8 +17,21 @@
                     <div class="container text-shadow">
                         <p class="small text-white-50 min-spacing">
                             Artist
+                            <a href="#" @click.prevent="showArtistInput = !showArtistInput">
+                                <i class="fas fa-edit" />
+                            </a>
                         </p>
-                        <p v-if="quest.art" class="ml-2">
+                        <p v-if="showArtistInput">
+                            <input
+                                v-model.number="artistInput"
+                                class="form-control-sm w-100"
+                                type="number"
+                                autocomplete="off"
+                                placeholder="artist ID..."
+                                @change="updateArt($event)"
+                            >
+                        </p>
+                        <p v-else-if="quest.art" class="ml-2">
                             <a :href="'https://osu.ppy.sh/beatmaps/artists/' + quest.art" target="_blank">
                                 <img :src="'https://assets.ppy.sh/artists/' + quest.art + '/cover.jpg'" class="card-avatar-img">
                             </a>
@@ -197,6 +210,8 @@ export default Vue.extend({
     },
     data() {
         return {
+            showArtistInput: false,
+            artistInput: this.quest.art,
             showNameInput: false,
             nameInput: this.quest.name,
             showObjectiveInput: false,
@@ -214,6 +229,8 @@ export default Vue.extend({
     },
     watch: {
         quest(): void {
+            this.showArtistInput = false;
+            this.artistInput = this.quest.art;
             this.showNameInput = false;
             this.nameInput = this.quest.name;
             this.showObjectiveInput = false;
@@ -255,6 +272,21 @@ export default Vue.extend({
                     status,
                 });
                 $('#reviewQuest').modal('hide');
+            }
+        },
+        async updateArt(e): Promise<void> {
+            const art = await this.executePost(`/admin/quests/${this.quest.id}/updateArt`, { art: this.artistInput }, e);
+
+            if (!this.isError(art)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated artist`,
+                    type: 'info',
+                });
+                this.$store.commit('updateArt', {
+                    questId: this.quest.id,
+                    art,
+                });
+                this.showArtistInput = false;
             }
         },
         async renameQuest(e): Promise<void> {
