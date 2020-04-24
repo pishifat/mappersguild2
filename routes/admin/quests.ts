@@ -113,16 +113,14 @@ adminQuestsRouter.post('/:id/publish', async (req, res) => {
         }],
     }]);
 
-    const allQuests = await QuestService.queryAll({ useDefaults: true });
-
-    res.json(allQuests);
+    res.json(quest.status);
 });
 
 /* POST reject quest */
 adminQuestsRouter.post('/:id/reject', canFail(async (req, res) => {
     const quest = await QuestService.updateOrFail(req.params.id, { status: 'rejected' });
 
-    res.json(quest);
+    res.json(quest.status);
 }));
 
 /* POST rename quest */
@@ -130,6 +128,13 @@ adminQuestsRouter.post('/:id/rename', canFail(async (req, res) => {
     await QuestService.updateOrFail(req.params.id, { name: req.body.name });
 
     res.json(req.body.name);
+}));
+
+/* POST update quest objective */
+adminQuestsRouter.post('/:id/updateDescription', canFail(async (req, res) => {
+    await QuestService.updateOrFail(req.params.id, { descriptionMain: req.body.description });
+
+    res.json(req.body.description);
 }));
 
 /* POST update price */
@@ -148,11 +153,28 @@ adminQuestsRouter.post('/:id/updateRequiredMapsets', canFail(async (req, res) =>
     res.json(requiredMapsets);
 }));
 
-/* POST rename quest */
-adminQuestsRouter.post('/:id/updateDescription', canFail(async (req, res) => {
-    await QuestService.updateOrFail(req.params.id, { descriptionMain: req.body.description });
+/* POST update timeframe */
+adminQuestsRouter.post('/:id/updateTimeframe', canFail(async (req, res) => {
+    const timeframe = parseInt(req.body.timeframe, 10);
+    await QuestService.updateOrFail(req.params.id, { timeframe: timeframe * (24*3600*1000) });
 
-    res.json(req.body.description);
+    res.json(timeframe);
+}));
+
+/* POST update minimum party size */
+adminQuestsRouter.post('/:id/updateMinParty', canFail(async (req, res) => {
+    const minParty = parseInt(req.body.minParty, 10);
+    await QuestService.updateOrFail(req.params.id, { minParty });
+
+    res.json(minParty);
+}));
+
+/* POST update maximum party size */
+adminQuestsRouter.post('/:id/updateMaxParty', canFail(async (req, res) => {
+    const maxParty = parseInt(req.body.maxParty, 10);
+    await QuestService.updateOrFail(req.params.id, { maxParty });
+
+    res.json(maxParty);
 }));
 
 /* POST drop quest */

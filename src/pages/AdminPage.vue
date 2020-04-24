@@ -53,7 +53,7 @@
                                             data-toggle="modal"
                                             data-target="#editBeatmap"
                                             :data-id="beatmap.id"
-                                            @click.prevent="selectedBeatmap = beatmap"
+                                            @click.prevent="$store.commit('setSelectedBeatmap', beatmap)"
                                         >
                                             edit
                                         </a>
@@ -118,7 +118,7 @@
                                             data-toggle="modal"
                                             :data-target="quest.status == 'pending' ? '#reviewQuest' : '#editQuest'"
                                             :data-id="quest.id"
-                                            @click.prevent="selectedQuest = quest"
+                                            @click.prevent="$store.commit('setSelectedQuest', quest)"
                                         >
                                             edit
                                         </a>
@@ -182,7 +182,7 @@
                                             data-toggle="modal"
                                             data-target="#editUser"
                                             :data-id="user.id"
-                                            @click.prevent="selectedUser = user"
+                                            @click.prevent="$store.commit('setSelectedUser', user)"
                                         >
                                             edit
                                         </a>
@@ -199,21 +199,25 @@
         <div class="radial-divisor mx-auto my-4" />
 
         <beatmap-info
+            v-if="selectedBeatmap"
             :beatmap="selectedBeatmap"
             @update-beatmap="updateBeatmap($event)"
         />
 
         <quest-info
+            v-if="selectedQuest"
             :quest="selectedQuest"
             @update-quest="updateQuest($event)"
             @delete-quest="deleteQuest($event)"
         />
 
         <review-quest
+            v-if="selectedQuest"
             :quest="selectedQuest"
         />
 
         <user-info
+            v-if="selectedUser"
             :user="selectedUser"
             @update-user="updateUser($event)"
         />
@@ -222,13 +226,11 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import { mapState } from 'vuex';
 import BeatmapInfo from '../components/admin/BeatmapInfo.vue';
 import QuestInfo from '../components/admin/quests/QuestInfo.vue';
 import ReviewQuest from '../components/admin/quests/ReviewQuest.vue';
 import UserInfo from '../components/admin/UserInfo.vue';
-import { Beatmap } from '../../interfaces/beatmap/beatmap';
-import { Quest } from '../../interfaces/quest';
-import { User } from '../../interfaces/user';
 
 export default Vue.extend({
     name: 'AdminPage',
@@ -238,29 +240,27 @@ export default Vue.extend({
         ReviewQuest,
         UserInfo,
     },
-    data() {
-        return {
-            actionBeatmaps: [] as Beatmap[],
-            actionBeatmapsLoading: true,
-            actionQuests: [] as Quest[],
-            actionQuestsLoading: true,
-            actionUsers: [] as User[],
-            actionUsersLoading: true,
-            selectedBeatmap: null as null | Beatmap,
-            selectedQuest: null as null | Quest,
-            selectedUser: null as null | User,
-        };
-    },
+    computed: mapState([
+        'actionBeatmaps',
+        'actionBeatmapsLoading',
+        'actionQuests',
+        'actionQuestsLoading',
+        'actionUsers',
+        'actionUsersLoading',
+        'selectedBeatmap',
+        'selectedQuest',
+        'selectedUser',
+    ]),
     async created() {
         const res: any = await this.executeGet('/admin/relevantInfo');
 
         if (res) {
-            this.actionBeatmaps = res.actionBeatmaps;
-            this.actionBeatmapsLoading = false;
-            this.actionQuests = res.actionQuests;
-            this.actionQuestsLoading = false;
-            this.actionUsers = res.actionUsers;
-            this.actionUsersLoading = false;
+            this.$store.commit('setActionBeatmaps', res.actionBeatmaps);
+            this.$store.commit('setActionBeatmapsLoading', false);
+            this.$store.commit('setActionQuests', res.actionQuests);
+            this.$store.commit('setActionQuestsLoading', false);
+            this.$store.commit('setActionUsers', res.actionUsers);
+            this.$store.commit('setActionUsersLoading', false);
         }
 
         $('#loading').fadeOut();
@@ -280,31 +280,6 @@ export default Vue.extend({
             }
 
             return metadata;
-        },
-        updateBeatmap(b): void {
-            const i = this.actionBeatmaps.findIndex(beatmap => beatmap.id == b.id);
-
-            if (i !== -1) {
-                Vue.set(this.actionBeatmaps, i, b);
-            }
-        },
-        deleteQuest(q): void {
-            const i = this.actionQuests.findIndex(quest => quest.id == q.id);
-            this.actionQuests.splice(i, 1);
-        },
-        updateQuest(q): void {
-            const i = this.actionQuests.findIndex(quest => quest.id == q.id);
-
-            if (i !== -1) {
-                Vue.set(this.actionQuests, i, q);
-            }
-        },
-        updateUser(u): void {
-            const i = this.actionUsers.findIndex(user => user.id == u.id);
-
-            if (i !== -1) {
-                Vue.set(this.actionUsers, i, u);
-            }
         },
     },
 });

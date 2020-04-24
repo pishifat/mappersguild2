@@ -35,6 +35,7 @@
         </div>
 
         <beatmap-info
+            v-if="selectedBeatmap"
             :beatmap="selectedBeatmap"
             @update-beatmap="updateBeatmap($event)"
         />

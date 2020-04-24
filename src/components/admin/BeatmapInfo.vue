@@ -123,18 +123,18 @@ export default Vue.extend({
     props: {
         beatmap: {
             type: Object as () => Beatmap,
-            default: null,
+            required: true,
         },
     },
     data() {
         return {
-            status: 'WIP',
+            status: this.beatmap.status,
             taskId: null,
             modderId: null,
-            beatmapUrl: '',
+            beatmapUrl: this.beatmap.url,
             storyboardQuality: null,
             storyboardTaskId: null,
-            packId: 0,
+            packId: this.beatmap.packId,
         };
     },
     computed: {

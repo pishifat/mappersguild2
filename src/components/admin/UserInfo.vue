@@ -68,6 +68,12 @@ export default Vue.extend({
             this.badge = this.user.badge || 0;
         },
     },
+    created() {
+        if (this.user) {
+            this.spentPoints = this.user.spentPoints || 0;
+            this.badge = this.user.badge || 0;
+        }
+    },
     methods: {
         async updateSpentPoints(e): Promise<void> {
             const spentPoints = await this.executePost(`/admin/users/${this.user.id}/updateSpentPoints`, { spentPoints: this.spentPoints }, e);

@@ -186,24 +186,24 @@ export default Vue.extend({
     props: {
         quest: {
             type: Object as () => Quest,
-            default: null,
+            required: true,
         },
     },
     data() {
         return {
-            renameQuestName: '',
-            price: 0,
-            requiredMapsets: 0,
-            description: '',
-            duplicateQuestName: '',
-            expiration: '',
+            renameQuestName: this.quest.name,
+            price: this.quest.price,
+            requiredMapsets: this.quest.requiredMapsets,
+            description: this.quest.descriptionMain,
+            duplicateQuestName: this.quest.name,
+            expiration: this.quest.expiration ? this.quest.expiration.toString() : '',
         };
     },
     watch: {
         quest(): void {
             this.renameQuestName = this.quest.name;
-            this.price = this.quest.price || 0;
-            this.requiredMapsets = this.quest.requiredMapsets || 0;
+            this.price = this.quest.price;
+            this.requiredMapsets = this.quest.requiredMapsets;
             this.description = this.quest.descriptionMain;
             this.duplicateQuestName = this.quest.name;
             this.expiration = this.quest.expiration ? this.quest.expiration.toString() : '';

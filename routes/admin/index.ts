@@ -26,6 +26,13 @@ adminRouter.get('/', (req, res) => {
 
 /* GET relevant info for page load */
 adminRouter.get('/relevantInfo/', canFail(async (req, res) => {
+    // section below is often used while testing, so it's here for quick access
+    /*const bm = await BeatmapService.queryOneOrFail({
+        query: { status: 'Qualified' },
+        defaultPopulate: true,
+    });
+    const allBeatmaps: Beatmap[] = [bm];*/
+
     const allBeatmaps = await BeatmapService.queryAll({
         defaultPopulate: true,
         sort: { status: 1, mode: 1 },

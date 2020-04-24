@@ -28,38 +28,125 @@
                         </p>
                         <p class="small text-white-50 min-spacing">
                             Name
+                            <a href="#" @click.prevent="showNameInput = !showNameInput">
+                                <i class="fas fa-edit" />
+                            </a>
                         </p>
-                        <p class="ml-2">
+                        <p v-if="showNameInput">
+                            <input
+                                v-model="nameInput"
+                                class="form-control-sm w-100"
+                                type="text"
+                                autocomplete="off"
+                                placeholder="name..."
+                                @change="renameQuest($event)"
+                            >
+                        </p>
+                        <p v-else class="ml-2">
                             {{ quest.name }}
                         </p>
                         <p class="small text-white-50 min-spacing">
                             Objective
+                            <a href="#" @click.prevent="showObjectiveInput = !showObjectiveInput">
+                                <i class="fas fa-edit" />
+                            </a>
                         </p>
-                        <p class="ml-2">
+                        <p v-if="showObjectiveInput">
+                            <textarea
+                                v-model="objectiveInput"
+                                class="form-control-sm w-100"
+                                rows="2"
+                                type="text"
+                                autocomplete="off"
+                                placeholder="objective..."
+                                @change="updateDescription($event)"
+                            />
+                        </p>
+                        <p v-else class="ml-2">
                             {{ quest.descriptionMain }}
                         </p>
                         <p class="small text-white-50 min-spacing">
                             Required mapsets
+                            <a href="#" @click.prevent="showRequiredMapsetsInput = !showRequiredMapsetsInput">
+                                <i class="fas fa-edit" />
+                            </a>
                         </p>
-                        <p class="ml-2">
+                        <p v-if="showRequiredMapsetsInput">
+                            <input
+                                v-model.number="requiredMapsetsInput"
+                                class="form-control-sm w-100"
+                                type="number"
+                                autocomplete="off"
+                                placeholder="required mapsets..."
+                                @change="updateRequiredMapsets($event)"
+                            >
+                        </p>
+                        <p v-else class="ml-2">
                             {{ quest.requiredMapsets }}
                         </p>
                         <p class="small text-white-50 min-spacing">
                             Price
+                            <a href="#" @click.prevent="showPriceInput = !showPriceInput">
+                                <i class="fas fa-edit" />
+                            </a>
                         </p>
-                        <p class="ml-2">
+                        <p v-if="showPriceInput">
+                            <input
+                                v-model.number="priceInput"
+                                class="form-control-sm w-100"
+                                type="number"
+                                autocomplete="off"
+                                placeholder="price per party member..."
+                                @change="updatePrice($event)"
+                            >
+                        </p>
+                        <p v-else class="ml-2">
                             {{ quest.price }} points per user
                         </p>
                         <p class="small text-white-50 min-spacing">
                             Timeframe
+                            <a href="#" @click.prevent="showTimeframeInput = !showTimeframeInput">
+                                <i class="fas fa-edit" />
+                            </a>
                         </p>
-                        <p class="ml-2">
+                        <p v-if="showTimeframeInput">
+                            <input
+                                v-model.number="timeframeInput"
+                                class="form-control-sm w-100"
+                                type="number"
+                                autocomplete="off"
+                                placeholder="days..."
+                                @change="updateTimeframe($event)"
+                            >
+                        </p>
+                        <p v-else class="ml-2">
                             {{ quest.timeframe / (24*3600*1000) }} days
                         </p>
                         <p class="small text-white-50 min-spacing">
                             Party size
+                            <a href="#" @click.prevent="showPartySizeInput = !showPartySizeInput">
+                                <i class="fas fa-edit" />
+                            </a>
                         </p>
-                        <p class="ml-2">
+                        <p v-if="showPartySizeInput">
+                            <input
+                                v-model.number="minPartyInput"
+                                class="form-control-sm w-100"
+                                type="number"
+                                autocomplete="off"
+                                placeholder="minimum"
+                                @change="updateMinParty($event)"
+                            >
+                            <input
+                                v-model.number="maxPartyInput"
+                                class="form-control-sm w-100"
+                                type="number"
+                                autocomplete="off"
+                                placeholder="maximum"
+                                @change="updateMaxParty($event)"
+                            >
+                        </p>
+                        <p v-else class="ml-2">
                             {{ quest.minParty }}-{{ quest.maxParty }} members
                         </p>
                         <p class="small text-white-50 min-spacing">
@@ -105,32 +192,174 @@ export default Vue.extend({
     props: {
         quest: {
             type: Object as () => Quest,
-            default: null,
+            required: true,
+        },
+    },
+    data() {
+        return {
+            showNameInput: false,
+            nameInput: this.quest.name,
+            showObjectiveInput: false,
+            objectiveInput: this.quest.descriptionMain,
+            showRequiredMapsetsInput: false,
+            requiredMapsetsInput: this.quest.requiredMapsets,
+            showPriceInput: false,
+            priceInput: this.quest.price,
+            showTimeframeInput: false,
+            timeframeInput: this.quest.timeframe / (24*3600*1000),
+            showPartySizeInput: false,
+            minPartyInput: this.quest.minParty,
+            maxPartyInput: this.quest.maxParty,
+        };
+    },
+    watch: {
+        quest(): void {
+            this.showNameInput = false;
+            this.nameInput = this.quest.name;
+            this.showObjectiveInput = false;
+            this.objectiveInput = this.quest.descriptionMain;
+            this.showRequiredMapsetsInput = false;
+            this.requiredMapsetsInput = this.quest.requiredMapsets;
+            this.showPriceInput = false;
+            this.priceInput = this.quest.price;
+            this.showTimeframeInput = false;
+            this.timeframeInput = this.quest.timeframe / (24*3600*1000);
         },
     },
     methods: {
         async acceptPendingQuest(e): Promise<void> {
-            const quest = await this.executePost(`/admin/quests/${this.quest.id}/publish`, {}, e);
+            const status = await this.executePost(`/admin/quests/${this.quest.id}/publish`, {}, e);
 
-            if (!this.isError(quest)) {
+            if (!this.isError(status)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `published quest`,
                     type: 'info',
                 });
-                this.$store.commit('updateQuest', quest);
+                this.$store.commit('updateStatus', {
+                    questId: this.quest.id,
+                    status,
+                });
                 $('#reviewQuest').modal('hide');
             }
         },
         async rejectPendingQuest(e): Promise<void> {
-            const quest = await this.executePost(`/admin/quests/${this.quest.id}/reject`, {}, e);
+            const status = await this.executePost(`/admin/quests/${this.quest.id}/reject`, {}, e);
 
-            if (!this.isError(quest)) {
+            if (!this.isError(status)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `rejected quest`,
                     type: 'info',
                 });
-                this.$store.commit('updateQuest', quest);
+                this.$store.commit('updateStatus', {
+                    questId: this.quest.id,
+                    status,
+                });
                 $('#reviewQuest').modal('hide');
+            }
+        },
+        async renameQuest(e): Promise<void> {
+            const name = await this.executePost(`/admin/quests/${this.quest.id}/rename`, { name: this.nameInput }, e);
+
+            if (!this.isError(name)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `renamed quest`,
+                    type: 'info',
+                });
+                this.$store.commit('renameQuest', {
+                    questId: this.quest.id,
+                    name,
+                });
+                this.showNameInput = false;
+            }
+        },
+        async updateDescription(e): Promise<void> {
+            const description = await this.executePost(`/admin/quests/${this.quest.id}/updateDescription/`, { description: this.objectiveInput }, e);
+
+            if (!this.isError(description)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated quest description`,
+                    type: 'info',
+                });
+                this.$store.commit('updateDescription', {
+                    questId: this.quest.id,
+                    description,
+                });
+                this.showObjectiveInput = false;
+            }
+        },
+        async updateRequiredMapsets(e): Promise<void> {
+            const requiredMapsets = await this.executePost(`/admin/quests/${this.quest.id}/updateRequiredMapsets`, { requiredMapsets: this.requiredMapsetsInput }, e);
+
+            if (!this.isError(requiredMapsets)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated required mapsets`,
+                    type: 'info',
+                });
+                this.$store.commit('updateRequiredMapsets', {
+                    questId: this.quest.id,
+                    requiredMapsets,
+                });
+                this.showRequiredMapsetsInput = false;
+            }
+        },
+        async updatePrice(e): Promise<void> {
+            const price = await this.executePost(`/admin/quests/${this.quest.id}/updatePrice`, { price: this.priceInput }, e);
+
+            if (!this.isError(price)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated price`,
+                    type: 'info',
+                });
+                this.$store.commit('updatePrice', {
+                    questId: this.quest.id,
+                    price,
+                });
+                this.showPriceInput = false;
+            }
+        },
+        async updateTimeframe(e): Promise<void> {
+            const timeframe = await this.executePost(`/admin/quests/${this.quest.id}/updateTimeframe`, { timeframe: this.timeframeInput }, e);
+
+            if (!this.isError(timeframe)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated timeframe`,
+                    type: 'info',
+                });
+                this.$store.commit('updateTimeframe', {
+                    questId: this.quest.id,
+                    timeframe,
+                });
+                this.showTimeframeInput = false;
+            }
+        },
+        async updateMinParty(e): Promise<void> {
+            const minParty = await this.executePost(`/admin/quests/${this.quest.id}/updateMinParty`, { minParty: this.minPartyInput }, e);
+
+            if (!this.isError(minParty)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated minParty`,
+                    type: 'info',
+                });
+                this.$store.commit('updateMinParty', {
+                    questId: this.quest.id,
+                    minParty,
+                });
+                this.showPartySizeInput = false;
+            }
+        },
+        async updateMaxParty(e): Promise<void> {
+            const maxParty = await this.executePost(`/admin/quests/${this.quest.id}/updateMaxParty`, { maxParty: this.maxPartyInput }, e);
+
+            if (!this.isError(maxParty)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated maxParty`,
+                    type: 'info',
+                });
+                this.$store.commit('updateMaxParty', {
+                    questId: this.quest.id,
+                    maxParty,
+                });
+                this.showPartySizeInput = false;
             }
         },
     },
