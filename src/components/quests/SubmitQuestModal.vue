@@ -202,7 +202,7 @@
                             Keep in mind that your quest may need revision before it is approved and published on the Mappers' Guild quest listing!
                         </p>
                         <p>
-                            If your quest is rejected, your spent points will be returned and pishifat will send you a message explaining why it was rejected. You may re-submit the quest with changes according to that message.
+                            If your quest is rejected, your spent points will be returned and pishifat will send you a message explaining why it was rejected. You may re-submit the quest with changes according to that message. Minor wording changes will be modified by pishifat without rejection.
                         </p>
                     </div>
 
