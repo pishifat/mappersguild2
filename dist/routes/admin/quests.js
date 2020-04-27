@@ -109,16 +109,24 @@ adminQuestsRouter.post('/:id/publish', (req, res) => __awaiter(void 0, void 0, v
                     value: `${quest.price} points from each member`,
                 }],
         }]);
-    const allQuests = yield quest_1.QuestService.queryAll({ useDefaults: true });
-    res.json(allQuests);
+    res.json(quest.status);
 }));
 adminQuestsRouter.post('/:id/reject', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const quest = yield quest_1.QuestService.updateOrFail(req.params.id, { status: 'rejected' });
-    res.json(quest);
+    res.json(quest.status);
+})));
+adminQuestsRouter.post('/:id/updateArt', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const art = parseInt(req.body.art, 10);
+    yield quest_1.QuestService.updateOrFail(req.params.id, { art });
+    res.json(art);
 })));
 adminQuestsRouter.post('/:id/rename', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     yield quest_1.QuestService.updateOrFail(req.params.id, { name: req.body.name });
     res.json(req.body.name);
+})));
+adminQuestsRouter.post('/:id/updateDescription', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    yield quest_1.QuestService.updateOrFail(req.params.id, { descriptionMain: req.body.description });
+    res.json(req.body.description);
 })));
 adminQuestsRouter.post('/:id/updatePrice', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const price = parseInt(req.body.price, 10);
@@ -130,9 +138,20 @@ adminQuestsRouter.post('/:id/updateRequiredMapsets', helpers_1.canFail((req, res
     yield quest_1.QuestService.updateOrFail(req.params.id, { requiredMapsets });
     res.json(requiredMapsets);
 })));
-adminQuestsRouter.post('/:id/updateDescription', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    yield quest_1.QuestService.updateOrFail(req.params.id, { descriptionMain: req.body.description });
-    res.json(req.body.description);
+adminQuestsRouter.post('/:id/updateTimeframe', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const timeframe = parseInt(req.body.timeframe, 10);
+    yield quest_1.QuestService.updateOrFail(req.params.id, { timeframe: timeframe * (24 * 3600 * 1000) });
+    res.json(timeframe);
+})));
+adminQuestsRouter.post('/:id/updateMinParty', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const minParty = parseInt(req.body.minParty, 10);
+    yield quest_1.QuestService.updateOrFail(req.params.id, { minParty });
+    res.json(minParty);
+})));
+adminQuestsRouter.post('/:id/updateMaxParty', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const maxParty = parseInt(req.body.maxParty, 10);
+    yield quest_1.QuestService.updateOrFail(req.params.id, { maxParty });
+    res.json(maxParty);
 })));
 adminQuestsRouter.post('/:id/drop', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _e;
