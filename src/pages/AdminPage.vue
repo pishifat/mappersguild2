@@ -1,11 +1,13 @@
 <template>
     <div v-cloak>
-        <div class="container bg-container py-1">
+        <div class="container bg-container py-1 mb-4">
+            <div class="row mx-3 mt-2">
+                <button class="btn btn-sm btn-info btn-block" @click="loadActionBeatmaps($event)">
+                    Load beatmaps
+                </button>
+            </div>
             <div class="row">
                 <div class="col">
-                    <h3 class="ml-2 mt-2">
-                        Action Needed
-                    </h3>
                     <h5 class="ml-4 mt-2">
                         <a href="#actionBeatmaps" data-toggle="collapse">
                             Beatmaps
@@ -61,8 +63,20 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <span v-else-if="!actionBeatmapsLoading" class="text-white-50">None...</span>
+                        <span v-else-if="!actionBeatmapsLoading" class="text-white-50 ml-5">None...</span>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container bg-container py-1 mb-4">
+            <div class="row mx-3 mt-2">
+                <button class="btn btn-sm btn-info btn-block" @click="loadActionQuests($event)">
+                    Load quests
+                </button>
+            </div>
+            <div class="row">
+                <div class="col">
                     <h5 class="ml-4 mt-2">
                         <a href="#actionQuests" data-toggle="collapse">
                             Quests
@@ -126,8 +140,24 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <span v-else-if="!actionQuestsLoading" class="text-white-50">None...</span>
+                        <span v-else-if="!actionQuestsLoading" class="text-white-50 ml-5">None...</span>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container bg-container py-1">
+            <div class="row mx-3 mt-2">
+                <button class="btn btn-sm btn-info btn-block" @click="updateUserPoints($event)">
+                    Update user points
+                </button>
+                <span v-if="calculatingPoints" class="ml-2 small text-white-50">calculating points...</span>
+                <button class="btn btn-sm btn-info btn-block" @click="loadActionUsers($event)">
+                    Load users
+                </button>
+            </div>
+            <div class="row">
+                <div class="col">
                     <h5 class="ml-4 mt-2">
                         <a href="#actionUsers" data-toggle="collapse">
                             Users
@@ -190,7 +220,7 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <span v-else-if="!actionUsersLoading" class="text-white-50">None...</span>
+                        <span v-else-if="!actionUsersLoading" class="text-white-50 ml-5">None...</span>
                     </div>
                 </div>
             </div>
@@ -231,6 +261,9 @@ import BeatmapInfo from '../components/admin/BeatmapInfo.vue';
 import QuestInfo from '../components/admin/quests/QuestInfo.vue';
 import ReviewQuest from '../components/admin/quests/ReviewQuest.vue';
 import UserInfo from '../components/admin/UserInfo.vue';
+import { Beatmap } from '../../interfaces/beatmap/beatmap';
+import { Quest } from '../../interfaces/quest';
+import { User } from '../../interfaces/user';
 
 export default Vue.extend({
     name: 'AdminPage',
@@ -239,6 +272,11 @@ export default Vue.extend({
         QuestInfo,
         ReviewQuest,
         UserInfo,
+    },
+    data() {
+        return {
+            calculatingPoints: false,
+        };
     },
     computed: mapState([
         'actionBeatmaps',
@@ -252,17 +290,12 @@ export default Vue.extend({
         'selectedUser',
     ]),
     async created() {
-        const res: any = await this.executeGet('/admin/relevantInfo');
-
-        if (res) {
-            this.$store.commit('setActionBeatmaps', res.actionBeatmaps);
-            this.$store.commit('setActionBeatmapsLoading', false);
-            this.$store.commit('setActionQuests', res.actionQuests);
-            this.$store.commit('setActionQuestsLoading', false);
-            this.$store.commit('setActionUsers', res.actionUsers);
-            this.$store.commit('setActionUsersLoading', false);
-        }
-
+        await this.$store.commit('setActionBeatmaps', []); // this await is unnecessary but the page doesnt load without an await. i'll fix this eventually
+        this.$store.commit('setActionQuests', []);
+        this.$store.commit('setActionUsers', []);
+        this.$store.commit('setActionBeatmapsLoading', false);
+        this.$store.commit('setActionQuestsLoading', false);
+        this.$store.commit('setActionUsersLoading', false);
         $('#loading').fadeOut();
         $('#app')
             .attr('style', 'visibility: visible')
@@ -280,6 +313,47 @@ export default Vue.extend({
             }
 
             return metadata;
+        },
+        async loadActionBeatmaps(): Promise<void> {
+            this.$store.commit('setActionBeatmaps', []);
+            this.$store.commit('setActionBeatmapsLoading', true);
+            const actionBeatmaps = await this.executeGet<Beatmap[]>('/admin/loadActionBeatmaps');
+
+            if (!this.isError(actionBeatmaps)) {
+                this.$store.commit('setActionBeatmaps', actionBeatmaps);
+            }
+
+            this.$store.commit('setActionBeatmapsLoading', false);
+        },
+        async loadActionQuests(): Promise<void> {
+            this.$store.commit('setActionQuests', []);
+            this.$store.commit('setActionQuestsLoading', true);
+            const actionQuests = await this.executeGet<Quest[]>('/admin/loadActionQuests');
+
+            if (!this.isError(actionQuests)) {
+                this.$store.commit('setActionQuests', actionQuests);
+            }
+
+            this.$store.commit('setActionQuestsLoading', false);
+        },
+        async loadActionUsers(): Promise<void> {
+            this.$store.commit('setActionUsers', []);
+            this.$store.commit('setActionUsersLoading', true);
+            const actionUsers = await this.executeGet<User[]>('/admin/loadActionUsers');
+
+            if (!this.isError(actionUsers)) {
+                this.$store.commit('setActionUsers', actionUsers);
+            }
+
+            this.$store.commit('setActionUsersLoading', false);
+        },
+        async updateUserPoints(e): Promise<void> {
+            this.calculatingPoints = true;
+            const success = await this.executePost('/admin/users/updatePoints', {}, e);
+
+            if (success) {
+                this.calculatingPoints = false;
+            }
         },
     },
 });

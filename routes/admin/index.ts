@@ -141,4 +141,130 @@ adminRouter.get('/relevantInfo/', canFail(async (req, res) => {
     res.json({ actionBeatmaps, actionQuests, actionUsers });
 }));
 
+/* GET beatmaps in need of action */
+adminRouter.get('/loadActionBeatmaps/', canFail(async (req, res) => {
+    // section below is often used while testing, so it's here for quick access
+    /*const bm = await BeatmapService.queryOneOrFail({
+        query: { status: 'Qualified' },
+        defaultPopulate: true,
+    });
+    const allBeatmaps: Beatmap[] = [bm];*/
+
+    const allBeatmaps = await BeatmapService.queryAll({
+        defaultPopulate: true,
+        sort: { status: 1, mode: 1 },
+    });
+    const actionBeatmaps: Beatmap[] = [];
+
+    if (!BeatmapService.isError(allBeatmaps)) {
+        for (let i = 0; i < allBeatmaps.length; i++) {
+            const bm = allBeatmaps[i];
+
+            if ((bm.status == BeatmapStatus.Done || bm.status == BeatmapStatus.Qualified) && bm.url) {
+                if (bm.url.indexOf('osu.ppy.sh/beatmapsets/') == -1) {
+                    (bm.status as string) = `${bm.status} (invalid link)`;
+                    actionBeatmaps.push(bm);
+                } else {
+                    const osuId = findBeatmapsetId(bm.url);
+
+                    const bmInfo = await beatmapsetInfo(osuId);
+                    let status = '';
+
+                    if (!isOsuResponseError(bmInfo)) {
+                        switch (bmInfo.approved) {
+                            case 4:
+                                status = 'Loved';
+                                break;
+                            case 3:
+                                status = BeatmapStatus.Qualified;
+                                break;
+                            case 2:
+                                status = 'Approved';
+                                break;
+                            case 1:
+                                status = BeatmapStatus.Ranked;
+                                break;
+                            default:
+                                status = BeatmapStatus.Done;
+                                break;
+                        }
+                    }
+
+                    if (bm.status != status) {
+                        if (status == 'Qualified' && bm.status == 'Done') {
+                            bm.status = BeatmapStatus.Qualified;
+                            await BeatmapService.saveOrFail(bm);
+                        } else if (status == 'Done' && bm.status == 'Qualified') {
+                            bm.status = BeatmapStatus.Done;
+                            await BeatmapService.saveOrFail(bm);
+                        } else {
+                            (bm.status as string) = `${bm.status} (osu: ${status})`;
+                            actionBeatmaps.push(bm);
+                        }
+
+                    }
+                }
+            }
+        }
+    }
+
+    res.json(actionBeatmaps);
+}));
+
+/* GET quests in need of action */
+adminRouter.get('/loadActionQuests/', canFail(async (req, res) => {
+    const allQuests = await QuestService.queryAll({
+        query: { status: QuestStatus.WIP },
+        defaultPopulate: true,
+    });
+    let actionQuests: Quest[] = [];
+
+    if (!QuestService.isError(allQuests)) {
+        for (let i = 0; i < allQuests.length; i++) {
+            const q = allQuests[i];
+            let valid = true;
+
+            // if no associated maps or not enough associated maps
+            if (!q.associatedMaps.length ||
+                q.associatedMaps.length < q.requiredMapsets ||
+                q.associatedMaps.some(b => b.status != BeatmapStatus.Ranked)) {
+                valid = false;
+            }
+
+            if (valid) {
+                actionQuests.push(q);
+            }
+        }
+    }
+
+    const pendingQuests = await QuestService.queryAll({
+        query: { status: QuestStatus.Pending },
+        defaultPopulate: true,
+    });
+
+    if (!QuestService.isError(pendingQuests)) {
+        actionQuests = actionQuests.concat(pendingQuests);
+    }
+
+    res.json(actionQuests);
+}));
+
+/* GET users in need of action */
+adminRouter.get('/loadActionUsers/', canFail(async (req, res) => {
+    const allUsers = await UserService.queryAll({});
+    const actionUsers: User[] = [];
+
+    if (!UserService.isError(allUsers)) {
+        for (let i = 0; i < allUsers.length; i++) {
+            const u = allUsers[i];
+
+            if (u.badge != u.rank) {
+                actionUsers.push(u);
+            }
+        }
+    }
+
+    res.json(actionUsers);
+}));
+
 export default adminRouter;
