@@ -72,6 +72,14 @@ artistsRouter.post('/toggleisRejected/:id', async (req, res) => {
     res.json(a);
 });
 
+/* POST toggle isDenied */
+artistsRouter.post('/toggleIsDenied/:id', async (req, res) => {
+    let a = await FeaturedArtistService.update(req.params.id, { isDenied: req.body.value });
+    a = await FeaturedArtistService.queryById(req.params.id, { populate: defaultPopulate });
+
+    res.json(a);
+});
+
 /* POST toggle contractSent */
 artistsRouter.post('/toggleContractSent/:id', async (req, res) => {
     let a = await FeaturedArtistService.update(req.params.id, { contractSent: req.body.value });

@@ -26,6 +26,7 @@ const featuredArtistSchema = new Schema({
     isUpToDate: { type: Boolean },
     isStalled: { type: Boolean },
     isRejected: { type: Boolean },
+    isDenied: { type: Boolean },
     isPriority: { type: Boolean },
 
     lastContacted: { type: Date },

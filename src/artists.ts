@@ -67,7 +67,7 @@ const store = new Vuex.Store({
             return getters.filteredArtists.filter(a => a.isUpToDate && a.isContacted);
         },
         rejected: (state, getters): FeaturedArtist[] => {
-            const artists = getters.filteredArtists.filter(a => a.isRejected && !a.isUpToDate && a.isContacted);
+            const artists = getters.filteredArtists.filter(a => (a.isRejected || a.isDenied) && !a.isUpToDate && a.isContacted);
 
             artists.sort(function(a,b) {
                 if (a.lastContacted < b.lastContacted) return 1;
@@ -101,7 +101,7 @@ const store = new Vuex.Store({
             });
         },
         projectedReleaseArtists: (state, getters): FeaturedArtist[] => {
-            const artists = getters.filteredArtists.filter(a => a.projectedRelease && !a.osuId && !a.isUpToDate && !a.isRejected && a.isContacted);
+            const artists = getters.filteredArtists.filter(a => a.projectedRelease && !a.osuId && !a.isUpToDate && !a.isRejected && !a.isDenied && a.isContacted);
 
             return artists.sort((a,b) => {
                 if (a.projectedRelease < b.projectedRelease) return -1;
@@ -111,7 +111,7 @@ const store = new Vuex.Store({
             });
         },
         discussionArtists: (state, getters): FeaturedArtist[] => {
-            const artists = getters.filteredArtists.filter(a => a.isResponded && !a.projectedRelease && !a.osuId && !a.isUpToDate && !a.isRejected && a.isContacted);
+            const artists = getters.filteredArtists.filter(a => a.isResponded && !a.projectedRelease && !a.osuId && !a.isUpToDate && !a.isRejected && !a.isDenied && a.isContacted);
 
             artists.sort((a,b) => {
                 if (a.lastContacted < b.lastContacted) return 1;
@@ -128,7 +128,7 @@ const store = new Vuex.Store({
             });
         },
         contactedArtists: (state, getters): FeaturedArtist[] => {
-            const artists = getters.filteredArtists.filter(a => !a.isResponded && !a.projectedRelease && !a.osuId && !a.isUpToDate && !a.isRejected && a.isContacted);
+            const artists = getters.filteredArtists.filter(a => !a.isResponded && !a.projectedRelease && !a.osuId && !a.isUpToDate && !a.isRejected && !a.isDenied && a.isContacted);
 
             artists.sort((a,b) => {
                 if (a.lastContacted < b.lastContacted) return 1;

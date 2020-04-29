@@ -51,7 +51,9 @@
                         <span v-else-if="artist.contractSent" class="text-white-50">sent contract</span>
                         <!--discussion-->
                         <span v-else-if="artist.tracksSelected" class="text-white-50">tracklist confirmed</span>
-                        <span v-else-if="artist.isRejected" class="text-white-50">offer rejected</span>
+                        <span v-else-if="artist.isRejected && artist.isResponded" class="text-white-50">ghosted mid-discussion</span>
+                        <span v-else-if="artist.isRejected" class="text-white-50">no response</span>
+                        <span v-else-if="artist.isDenied" class="text-white-50">literally said no</span>
                         <span v-else-if="artist.isResponded" class="text-white-50">discussing</span>
                         <span v-else-if="artist.isContacted" class="text-white-50">contacted</span>
                         <span v-else class="text-white-50">not contacted</span>
@@ -135,9 +137,15 @@
                             </a>
                         </p>
                         <p v-if="!artist.tracksSelected" class="small text-shadow min-spacing ml-2">
-                            Offer rejected:
+                            No response/ghosted:
                             <a href="#" @click.stop.prevent="toggleIsRejected()">
                                 <i class="fas" :class="artist.isRejected ? 'icon-valid fa-check' : 'icon-used fa-times'" />
+                            </a>
+                        </p>
+                        <p v-if="!artist.tracksSelected" class="small text-shadow min-spacing ml-2">
+                            Offer denied:
+                            <a href="#" @click.stop.prevent="toggleIsDenied()">
+                                <i class="fas" :class="artist.isDenied ? 'icon-valid fa-check' : 'icon-used fa-times'" />
                             </a>
                         </p>
                     </div>
@@ -344,6 +352,13 @@ export default Vue.extend({
         },
         async toggleIsRejected (): Promise<void> {
             const artist = await this.executePost('/artists/toggleIsRejected/' + this.artist.id, { value: !this.artist.isRejected });
+
+            if (artist) {
+                this.$store.commit('updateArtist', artist);
+            }
+        },
+        async toggleIsDenied (): Promise<void> {
+            const artist = await this.executePost('/artists/toggleIsDenied/' + this.artist.id, { value: !this.artist.isDenied });
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);

@@ -21,7 +21,8 @@ export interface FeaturedArtist {
     isInvited: boolean;
     isUpToDate: boolean;
     isStalled: boolean;
-    isRejected: boolean;
+    isRejected: boolean; // no response
+    isDenied: boolean; // literally said no
     isPriority: boolean;
 
     lastContacted: Date;
