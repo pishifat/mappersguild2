@@ -64,6 +64,11 @@ artistsRouter.post('/toggleisRejected/:id', (req, res) => __awaiter(void 0, void
     a = yield featuredArtist_1.FeaturedArtistService.queryById(req.params.id, { populate: defaultPopulate });
     res.json(a);
 }));
+artistsRouter.post('/toggleIsDenied/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let a = yield featuredArtist_1.FeaturedArtistService.update(req.params.id, { isDenied: req.body.value });
+    a = yield featuredArtist_1.FeaturedArtistService.queryById(req.params.id, { populate: defaultPopulate });
+    res.json(a);
+}));
 artistsRouter.post('/toggleContractSent/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let a = yield featuredArtist_1.FeaturedArtistService.update(req.params.id, { contractSent: req.body.value });
     a = yield featuredArtist_1.FeaturedArtistService.queryById(req.params.id, { populate: defaultPopulate });

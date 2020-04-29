@@ -39,6 +39,7 @@ const featuredArtistSchema = new mongoose_1.Schema({
     isUpToDate: { type: Boolean },
     isStalled: { type: Boolean },
     isRejected: { type: Boolean },
+    isDenied: { type: Boolean },
     isPriority: { type: Boolean },
     lastContacted: { type: Date },
     projectedRelease: { type: Date },
