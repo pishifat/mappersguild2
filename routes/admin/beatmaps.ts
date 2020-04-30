@@ -67,17 +67,22 @@ adminBeatmapsRouter.post('/:id/updateStatus', isSuperAdmin, canFail(async (req, 
         const gdUsernames: string[] = [];
         const gdUsers: User[] = [];
         const modes: string[] = [];
+        let storyboard;
 
         b.tasks.forEach((task: Task) => {
-            task.mappers.forEach(mapper => {
-                if (!gdUsernames.includes(mapper.username) && mapper.username != b.host.username) {
-                    gdUsernames.push(mapper.username);
-                    gdUsers.push(mapper);
-                }
-            });
+            if (task.mode == 'sb' && task.mappers[0].id != b.host.id) {
+                storyboard = task;
+            } else if (task.mode != 'sb') {
+                task.mappers.forEach(mapper => {
+                    if (!gdUsernames.includes(mapper.username) && mapper.username != b.host.username) {
+                        gdUsernames.push(mapper.username);
+                        gdUsers.push(mapper);
+                    }
+                });
 
-            if (!modes.includes(task.mode)) {
-                modes.push(task.mode);
+                if (!modes.includes(task.mode)) {
+                    modes.push(task.mode);
+                }
             }
         });
 
@@ -102,9 +107,15 @@ adminBeatmapsRouter.post('/:id/updateStatus', isSuperAdmin, canFail(async (req, 
             }
         }
 
+        let description = `💖 [**${b.song.artist} - ${b.song.title}**](${b.url}) [**${modes.join(', ')}**] has been ranked\n\nHosted by [**${b.host.username}**](https://osu.ppy.sh/users/${b.host.osuId})\n${gdText}`;
+
+        if (storyboard) {
+            description += `\nStoryboard by [**${storyboard.mappers[0].username}**](https://osu.ppy.sh/users/${storyboard.mappers[0].osuId})`;
+        }
+
         webhookPost([{
             color: webhookColors.blue,
-            description: `💖 [**${b.song.artist} - ${b.song.title}**](${b.url}) [**${modes.join(', ')}**] has been ranked\n\nHosted by [**${b.host.username}**](https://osu.ppy.sh/users/${b.host.osuId})\n${gdText}`,
+            description,
             thumbnail: {
                 url: `https://assets.ppy.sh/beatmaps/${osuId}/covers/list.jpg`,
             },

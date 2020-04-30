@@ -148,6 +148,14 @@ export default Vue.extend({
     },
     watch: {
         beatmap(): void {
+            this.findBeatmapInfo();
+        },
+    },
+    mounted() {
+        this.findBeatmapInfo();
+    },
+    methods: {
+        findBeatmapInfo(): void {
             this.status = this.beatmap.status;
             this.taskId = null;
             this.modderId = null;
@@ -162,8 +170,6 @@ export default Vue.extend({
                 }
             });
         },
-    },
-    methods: {
         async updateBeatmapStatus(e): Promise<void> {
             const status = await this.executePost(`/admin/beatmaps/${this.beatmap.id}/updateStatus`, { status: this.status }, e);
 

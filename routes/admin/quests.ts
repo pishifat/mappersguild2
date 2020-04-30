@@ -1,6 +1,7 @@
 import express from 'express';
 import { isLoggedIn, isAdmin, isSuperAdmin } from '../../helpers/middlewares';
 import { QuestService, Quest } from '../../models/quest';
+import { UserService } from '../../models/user';
 import { QuestStatus } from '../../interfaces/quest';
 import { BeatmapMode } from '../../interfaces/beatmap/beatmap';
 import { LogService } from '../../models/log';
@@ -8,7 +9,7 @@ import { LogCategory } from '../../interfaces/log';
 import { webhookPost, webhookColors } from '../../helpers/discordApi';
 import { BeatmapService } from '../../models/beatmap/beatmap';
 import { PartyService } from '../../models/party';
-import { canFail } from '../../helpers/helpers';
+import { canFail, findSubmitQuestPointsSpent } from '../../helpers/helpers';
 
 const adminQuestsRouter = express.Router();
 
@@ -119,6 +120,17 @@ adminQuestsRouter.post('/:id/publish', async (req, res) => {
 /* POST reject quest */
 adminQuestsRouter.post('/:id/reject', canFail(async (req, res) => {
     const quest = await QuestService.updateOrFail(req.params.id, { status: 'rejected' });
+    await quest.populate({
+        path: 'creator',
+        select: 'id',
+    }).execPopulate();
+
+    const points = findSubmitQuestPointsSpent(quest.art, quest.requiredMapsets);
+
+    const user = await UserService.queryByIdOrFail(quest.creator.id);
+
+    user.spentPoints -= points;
+    await UserService.saveOrFail(user);
 
     res.json(quest.status);
 }));
