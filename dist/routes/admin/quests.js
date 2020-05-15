@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const middlewares_1 = require("../../helpers/middlewares");
 const quest_1 = require("../../models/quest");
+const user_1 = require("../../models/user");
 const quest_2 = require("../../interfaces/quest");
 const beatmap_1 = require("../../interfaces/beatmap/beatmap");
 const log_1 = require("../../models/log");
@@ -113,6 +114,14 @@ adminQuestsRouter.post('/:id/publish', (req, res) => __awaiter(void 0, void 0, v
 }));
 adminQuestsRouter.post('/:id/reject', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const quest = yield quest_1.QuestService.updateOrFail(req.params.id, { status: 'rejected' });
+    yield quest.populate({
+        path: 'creator',
+        select: 'id',
+    }).execPopulate();
+    const points = helpers_1.findSubmitQuestPointsSpent(quest.art, quest.requiredMapsets);
+    const user = yield user_1.UserService.queryByIdOrFail(quest.creator.id);
+    user.spentPoints -= points;
+    yield user_1.UserService.saveOrFail(user);
     res.json(quest.status);
 })));
 adminQuestsRouter.post('/:id/updateArt', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
