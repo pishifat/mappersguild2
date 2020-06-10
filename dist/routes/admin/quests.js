@@ -162,6 +162,7 @@ adminQuestsRouter.post('/:id/updateMaxParty', helpers_1.canFail((req, res) => __
 adminQuestsRouter.post('/:id/drop', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _e;
     let q = yield quest_1.QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+    const party = yield party_1.PartyService.queryByIdOrFail(q.currentParty._id, { defaultPopulate: true });
     const openQuest = yield quest_1.QuestService.queryOne({
         query: {
             name: q.name,
@@ -196,6 +197,30 @@ adminQuestsRouter.post('/:id/drop', helpers_1.canFail((req, res) => __awaiter(vo
         q = yield quest_1.QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
         res.json(q);
     }
+    let memberList = '';
+    for (let i = 0; i < party.members.length; i++) {
+        const user = party.members[i];
+        memberList += `[**${user.username}**](https://osu.ppy.sh/users/${user.osuId})`;
+        if (i + 1 < party.members.length) {
+            memberList += ', ';
+        }
+    }
+    discordApi_1.webhookPost([{
+            author: {
+                name: `${party.leader.username}'s party`,
+                url: `https://osu.ppy.sh/users/${party.leader.osuId}`,
+                icon_url: `https://a.ppy.sh/${party.leader.osuId}`,
+            },
+            color: discordApi_1.webhookColors.red,
+            description: `Dropped quest: [**${q.name}**](https://mappersguild.com/quests?id=${openQuest && !quest_1.QuestService.isError(openQuest) ? openQuest.id : q.id}) [**${party.modes.join(', ')}**]`,
+            thumbnail: {
+                url: `https://assets.ppy.sh/artists/${q.art}/cover.jpg`,
+            },
+            fields: [{
+                    name: 'Party members',
+                    value: memberList,
+                }],
+        }]);
     log_1.LogService.create((_e = req.session) === null || _e === void 0 ? void 0 : _e.mongoId, `forced party to drop quest "${q.name}"`, log_2.LogCategory.Quest);
 })));
 adminQuestsRouter.post('/:id/complete', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -217,7 +242,7 @@ adminQuestsRouter.post('/:id/complete', helpers_1.canFail((req, res) => __awaite
                     icon_url: `https://a.ppy.sh/${quest.currentParty.leader.osuId}`,
                 },
                 color: discordApi_1.webhookColors.purple,
-                description: `Completed quest: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id})`,
+                description: `Completed quest: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id}) [**${quest.currentParty.modes.join(', ')}**]`,
                 thumbnail: {
                     url: `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`,
                 },
