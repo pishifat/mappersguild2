@@ -195,7 +195,9 @@ adminQuestsRouter.post('/:id/updateMaxParty', canFail(async (req, res) => {
 
 /* POST drop quest */
 adminQuestsRouter.post('/:id/drop', canFail(async (req, res) => {
+    // establish data
     let q = await QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+    const party = await PartyService.queryByIdOrFail(q.currentParty._id, { defaultPopulate: true }); // only used in webhook
     const openQuest = await QuestService.queryOne({
         query: {
             name: q.name,
@@ -203,7 +205,7 @@ adminQuestsRouter.post('/:id/drop', canFail(async (req, res) => {
         },
     });
 
-    if (openQuest && !QuestService.isError(openQuest)) {
+    if (openQuest && !QuestService.isError(openQuest)) { // push mode to open quest if it exists and hide existing quest
         await Promise.all([
             QuestService.update(openQuest._id, {
                 $push: { modes: q.modes },
@@ -211,12 +213,13 @@ adminQuestsRouter.post('/:id/drop', canFail(async (req, res) => {
             QuestService.update(req.params.id, { status: 'hidden' }),
         ]);
     } else {
-        await QuestService.update(req.params.id, {
+        await QuestService.update(req.params.id, { // change quest status to open otherwise
             status: QuestStatus.Open,
             currentParty: null,
         });
     }
 
+    // find all beatmaps and remove quest field from any that have dropped quest
     const maps = await BeatmapService.queryAllOrFail({});
 
     for (let i = 0; i < maps.length; i++) {
@@ -225,16 +228,47 @@ adminQuestsRouter.post('/:id/drop', canFail(async (req, res) => {
         }
     }
 
+    // remove party
     await PartyService.remove(q.currentParty._id);
 
-    if (openQuest && !QuestService.isError(openQuest)) {
+    if (openQuest && !QuestService.isError(openQuest)) { // return open quest if original is hidden
         res.json(q);
-    } else {
+    } else { // otherwise return new quest
         q = await QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
 
         res.json(q);
     }
 
+    //webhook
+    let memberList = '';
+
+    for (let i = 0; i < party.members.length; i++) {
+        const user = party.members[i];
+        memberList += `[**${user.username}**](https://osu.ppy.sh/users/${user.osuId})`;
+
+        if (i+1 < party.members.length) {
+            memberList += ', ';
+        }
+    }
+
+    webhookPost([{
+        author: {
+            name: `${party.leader.username}'s party`,
+            url: `https://osu.ppy.sh/users/${party.leader.osuId}`,
+            icon_url: `https://a.ppy.sh/${party.leader.osuId}`,
+        },
+        color: webhookColors.red,
+        description: `Dropped quest: [**${q.name}**](https://mappersguild.com/quests?id=${openQuest && !QuestService.isError(openQuest) ? openQuest.id : q.id}) [**${party.modes.join(', ')}**]`,
+        thumbnail: {
+            url: `https://assets.ppy.sh/artists/${q.art}/cover.jpg`,
+        },
+        fields: [{
+            name: 'Party members',
+            value: memberList,
+        }],
+    }]);
+
+    // logs
     LogService.create(req.session?.mongoId, `forced party to drop quest "${q.name}"`, LogCategory.Quest);
 }));
 
@@ -264,7 +298,7 @@ adminQuestsRouter.post('/:id/complete', canFail(async (req, res) => {
                 icon_url: `https://a.ppy.sh/${quest.currentParty.leader.osuId}`,
             },
             color: webhookColors.purple,
-            description: `Completed quest: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id})`,
+            description: `Completed quest: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id}) [**${quest.currentParty.modes.join(', ')}**]`,
             thumbnail: {
                 url: `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`,
             },
