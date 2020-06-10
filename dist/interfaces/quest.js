@@ -7,4 +7,5 @@ var QuestStatus;
     QuestStatus["Done"] = "done";
     QuestStatus["Pending"] = "pending";
     QuestStatus["Rejected"] = "rejected";
+    QuestStatus["Hidden"] = "hidden";
 })(QuestStatus = exports.QuestStatus || (exports.QuestStatus = {}));

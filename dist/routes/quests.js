@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const middlewares_1 = require("../helpers/middlewares");
 const party_1 = require("../models/party");
+const points_1 = require("../helpers/points");
 const helpers_1 = require("../helpers/helpers");
 const beatmap_1 = require("../models/beatmap/beatmap");
 const beatmap_2 = require("../interfaces/beatmap/beatmap");
@@ -27,6 +28,9 @@ const user_1 = require("../models/user");
 const invite_1 = require("../models/invite");
 const invite_2 = require("../interfaces/invite");
 const featuredArtist_1 = require("../models/featuredArtist");
+const spentPoints_1 = require("../models/spentPoints");
+const spentPoints_2 = require("../interfaces/spentPoints");
+const points_2 = require("../helpers/points");
 const questsRouter = express_1.default.Router();
 questsRouter.use(middlewares_1.isLoggedIn);
 const beatmapPopulate = [
@@ -317,7 +321,8 @@ questsRouter.post('/acceptQuest/:partyId/:questId', middlewares_1.isNotSpectator
         });
     }
     p.members.forEach(member => {
-        user_1.UserService.update(member.id, { spentPoints: member.spentPoints + q.price });
+        spentPoints_1.SpentPointsService.create(spentPoints_2.SpentPointsCategory.AcceptQuest, member._id, q._id);
+        points_2.updateUserPoints(member.id);
     });
     const allQuests = yield quest_1.QuestService.queryAll({
         query: {},
@@ -383,7 +388,7 @@ questsRouter.post('/dropQuest/:partyId/:questId', middlewares_1.isNotSpectator, 
             quest_1.QuestService.update(openQuest._id, {
                 $push: { modes: q.modes },
             }),
-            quest_1.QuestService.remove(req.params.questId),
+            quest_1.QuestService.update(req.params.questId, { status: 'hidden' }),
         ]);
     }
     else {
@@ -430,6 +435,9 @@ questsRouter.post('/dropQuest/:partyId/:questId', middlewares_1.isNotSpectator, 
 })));
 questsRouter.post('/reopenQuest/:questId', middlewares_1.isNotSpectator, helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const quest = yield quest_1.QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
+    if (res.locals.userRequest.availablePoints < (quest.price * 0.5 + 25)) {
+        return res.json({ error: `You don't have enough points to re-open this quest!` });
+    }
     const openQuest = yield quest_1.QuestService.queryOne({
         query: {
             name: quest.name,
@@ -445,7 +453,7 @@ questsRouter.post('/reopenQuest/:questId', middlewares_1.isNotSpectator, helpers
                     $push: { modes: quest.modes },
                     expiration: newExpiration,
                 }),
-                quest_1.QuestService.remove(req.params.questId),
+                quest_1.QuestService.update(req.params.questId, { status: 'hidden' }),
             ]);
         }
         else {
@@ -454,8 +462,8 @@ questsRouter.post('/reopenQuest/:questId', middlewares_1.isNotSpectator, helpers
             });
         }
     }
-    const spentPoints = (res.locals.userRequest.spentPoints += (quest.price * 3 + 100));
-    yield user_1.UserService.update(req.session.mongoId, { spentPoints });
+    spentPoints_1.SpentPointsService.create(spentPoints_2.SpentPointsCategory.ReopenQuest, req.session.mongoId, quest._id);
+    points_2.updateUserPoints(req.session.mongoId);
     const allQuests = yield quest_1.QuestService.queryAll({ useDefaults: true });
     res.json({ quests: allQuests, availablePoints: res.locals.userRequest.availablePoints });
     log_1.LogService.create(req.session.mongoId, `re-opened quest "${quest.name}"`, log_2.LogCategory.Quest);
@@ -483,11 +491,10 @@ questsRouter.post('/extendDeadline/:partyId/:questId', middlewares_1.isNotSpecta
     if (notEnoughPoints) {
         return res.json({ error: 'One or more of your party members do not have enough points to extend the deadline!' });
     }
-    for (let i = 0; i < party.members.length; i++) {
-        const member = party.members[i];
-        const spentPoints = member.spentPoints + 10;
-        yield user_1.UserService.update(member.id, { spentPoints });
-    }
+    party.members.forEach(member => {
+        spentPoints_1.SpentPointsService.create(spentPoints_2.SpentPointsCategory.ExtendDeadline, member.id, quest.id);
+        points_2.updateUserPoints(member.id);
+    });
     const deadline = new Date(quest.deadline);
     deadline.setDate(deadline.getDate() + 30);
     quest.deadline = deadline;
@@ -497,7 +504,7 @@ questsRouter.post('/extendDeadline/:partyId/:questId', middlewares_1.isNotSpecta
     res.json({ quest, availablePoints: user.availablePoints });
     log_1.LogService.create(req.session.mongoId, `extended deadline for ${quest.name}`, log_2.LogCategory.Party);
 })));
-questsRouter.post('/submitQuest', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+questsRouter.post('/submitQuest', middlewares_1.isNotSpectator, helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _e, _f, _g, _h, _j;
     req.body.modes = [beatmap_2.BeatmapMode.Osu, beatmap_2.BeatmapMode.Taiko, beatmap_2.BeatmapMode.Catch, beatmap_2.BeatmapMode.Mania];
     req.body.minRank = 0;
@@ -511,15 +518,15 @@ questsRouter.post('/submitQuest', (req, res) => __awaiter(void 0, void 0, void 0
     if (quest_1.QuestService.isError(quest)) {
         return res.json({ error: 'Quest could not be created!' });
     }
-    const points = helpers_1.findSubmitQuestPointsSpent(quest.art, quest.requiredMapsets);
+    const points = points_1.findCreateQuestPointsSpent(quest.art, quest.requiredMapsets);
     const user = yield user_1.UserService.queryByIdOrFail((_h = (_g = req) === null || _g === void 0 ? void 0 : _g.session) === null || _h === void 0 ? void 0 : _h.mongoId, {}, cannotFindUserMessage);
     if (user.availablePoints < points) {
         quest_1.QuestService.remove(quest.id);
         return res.json({ error: 'Not enough points to perform this action!' });
     }
-    user.spentPoints += points;
-    yield user_1.UserService.saveOrFail(user);
+    spentPoints_1.SpentPointsService.create(spentPoints_2.SpentPointsCategory.CreateQuest, req.session.mongoId, quest._id);
+    points_2.updateUserPoints(req.session.mongoId);
     res.json(true);
     log_1.LogService.create((_j = req.session) === null || _j === void 0 ? void 0 : _j.mongoId, `submitted quest for approval`, log_2.LogCategory.Quest);
-}));
+})));
 exports.default = questsRouter;

@@ -14,15 +14,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const middlewares_1 = require("../helpers/middlewares");
+const points_1 = require("../helpers/points");
 const party_1 = require("../models/party");
 const helpers_1 = require("../helpers/helpers");
 const beatmap_1 = require("../models/beatmap/beatmap");
 const quest_1 = require("../models/quest");
 const task_1 = require("../models/beatmap/task");
 const task_2 = require("../interfaces/beatmap/task");
-const user_1 = require("../models/user");
 const invite_1 = require("../models/invite");
 const notification_1 = require("../models/notification");
+const spentPoints_1 = require("../models/spentPoints");
+const spentPoints_2 = require("../interfaces/spentPoints");
 const log_1 = require("../models/log");
 const log_2 = require("../interfaces/log");
 const quest_2 = require("../interfaces/quest");
@@ -258,8 +260,8 @@ notificationsRouter.post('/acceptJoin/:id', middlewares_1.isNotSpectator, helper
     yield party_1.PartyService.update(invite.party._id, { $push: { members: req.session.mongoId } });
     yield updatePartyInfo(p._id);
     if (q.status == quest_2.QuestStatus.WIP) {
-        const spentPoints = res.locals.userRequest.spentPoints + q.price;
-        yield user_1.UserService.update(req.session.mongoId, { spentPoints });
+        spentPoints_1.SpentPointsService.create(spentPoints_2.SpentPointsCategory.AcceptQuest, req.session.mongoId, q._id);
+        points_1.updateUserPoints(req.session.mongoId);
     }
     log_1.LogService.create(req.session.mongoId, `joined a party for quest ${q.name}`, log_2.LogCategory.Party);
     notification_1.NotificationService.createPartyNotification(p._id, `accepted the invite to join your party`, invite.sender, invite.recipient, p._id, q._id);

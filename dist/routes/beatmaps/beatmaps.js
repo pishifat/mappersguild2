@@ -23,6 +23,7 @@ const notification_1 = require("../../models/notification");
 const log_1 = require("../../models/log");
 const log_2 = require("../../interfaces/log");
 const middlewares_1 = require("../../helpers/middlewares");
+const points_1 = require("../../helpers/points");
 const helpers_1 = require("../../helpers/helpers");
 const osuApi_1 = require("../../helpers/osuApi");
 const middlewares_2 = require("./middlewares");
@@ -260,7 +261,7 @@ beatmapsRouter.get('/:id/findPoints', (req, res) => __awaiter(void 0, void 0, vo
         return sortOrder.indexOf(a.name) - sortOrder.indexOf(b.name);
     });
     const tasksPointsArray = [];
-    const lengthNerf = helpers_1.findLengthNerf(bmInfo.hit_length);
+    const lengthNerf = points_1.findLengthNerf(bmInfo.hit_length);
     const seconds = bmInfo.hit_length % 60;
     const minutes = (bmInfo.hit_length - seconds) / 60;
     const lengthDisplay = `${minutes}m${seconds}s`;
@@ -281,16 +282,16 @@ beatmapsRouter.get('/:id/findPoints', (req, res) => __awaiter(void 0, void 0, vo
     });
     beatmap.tasks.forEach(task => {
         if (task.name != task_2.TaskName.Storyboard) {
-            const taskPoints = helpers_1.findDifficultyPoints(task.name, 1);
+            const taskPoints = points_1.findDifficultyPoints(task.name, 1);
             if (beatmap.quest) {
-                questBonus = helpers_1.findQuestBonus(quest_1.QuestStatus.Done, beatmap.quest.deadline, rankedDate, 1);
+                questBonus = points_1.findQuestBonus(quest_1.QuestStatus.Done, beatmap.quest.deadline, rankedDate, 1);
                 validQuest = true;
             }
             const finalPoints = ((taskPoints + questBonus) * lengthNerf);
             totalPoints += finalPoints;
             tasksPointsArray.push(`${task.name}: ${finalPoints.toFixed(1)}`);
             task.mappers.forEach(mapper => {
-                const userTaskPoints = helpers_1.findDifficultyPoints(task.name, task.mappers.length);
+                const userTaskPoints = points_1.findDifficultyPoints(task.name, task.mappers.length);
                 usersPointsArrays.forEach(userArray => {
                     if (userArray[0] == mapper.username) {
                         userArray[1] += Math.round(((userTaskPoints + (questBonus / task.mappers.length)) * lengthNerf) * 10) / 10;

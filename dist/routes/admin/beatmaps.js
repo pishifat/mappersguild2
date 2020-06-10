@@ -18,6 +18,7 @@ const beatmap_1 = require("../../models/beatmap/beatmap");
 const beatmap_2 = require("../../interfaces/beatmap/beatmap");
 const quest_1 = require("../../models/quest");
 const helpers_1 = require("../../helpers/helpers");
+const points_1 = require("../../helpers/points");
 const task_1 = require("../../models/beatmap/task");
 const osuApi_1 = require("../../helpers/osuApi");
 const discordApi_1 = require("../../helpers/discordApi");
@@ -62,6 +63,10 @@ adminBeatmapsRouter.post('/:id/updateStatus', middlewares_1.isSuperAdmin, helper
         b.rankedDate = bmInfo.approved_date;
         yield beatmap_1.BeatmapService.saveOrFail(b);
         b = yield beatmap_1.BeatmapService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+        for (const modder of b.modders) {
+            points_1.updateUserPoints(modder.id);
+        }
+        points_1.updateUserPoints(b.host.id);
         const gdUsernames = [];
         const gdUsers = [];
         const modes = [];
@@ -99,11 +104,14 @@ adminBeatmapsRouter.post('/:id/updateStatus', middlewares_1.isSuperAdmin, helper
                 if (i + 1 < gdUsers.length) {
                     gdText += ', ';
                 }
+                points_1.updateUserPoints(user.id);
             }
         }
         let description = `💖 [**${b.song.artist} - ${b.song.title}**](${b.url}) [**${modes.join(', ')}**] has been ranked\n\nHosted by [**${b.host.username}**](https://osu.ppy.sh/users/${b.host.osuId})\n${gdText}`;
         if (storyboard) {
-            description += `\nStoryboard by [**${storyboard.mappers[0].username}**](https://osu.ppy.sh/users/${storyboard.mappers[0].osuId})`;
+            const storyboarder = storyboard.mappers[0];
+            description += `\nStoryboard by [**${storyboarder.username}**](https://osu.ppy.sh/users/${storyboarder.osuId})`;
+            points_1.updateUserPoints(storyboarder.id);
         }
         discordApi_1.webhookPost([{
                 color: discordApi_1.webhookColors.blue,
@@ -207,5 +215,22 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', helpers_1.canFail((req, res) => _
         });
     }
     res.json({ beatmaps: accuratelyDatedBeatmaps, quests: q, externalBeatmaps });
+})));
+adminBeatmapsRouter.get('/findBundledBeatmaps', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('in');
+    const easyTasks = yield task_1.TaskService.queryAllOrFail({
+        query: { name: 'Easy' },
+        select: '_id',
+    });
+    const easyBeatmaps = yield beatmap_1.BeatmapService.queryAllOrFail({
+        query: {
+            tasks: {
+                $in: easyTasks,
+            },
+            status: beatmap_2.BeatmapStatus.Ranked,
+        },
+        useDefaults: true,
+    });
+    res.json(easyBeatmaps);
 })));
 exports.default = adminBeatmapsRouter;

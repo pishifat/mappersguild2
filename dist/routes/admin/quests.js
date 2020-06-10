@@ -14,8 +14,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const middlewares_1 = require("../../helpers/middlewares");
+const points_1 = require("../../helpers/points");
 const quest_1 = require("../../models/quest");
-const user_1 = require("../../models/user");
 const quest_2 = require("../../interfaces/quest");
 const beatmap_1 = require("../../interfaces/beatmap/beatmap");
 const log_1 = require("../../models/log");
@@ -24,6 +24,7 @@ const discordApi_1 = require("../../helpers/discordApi");
 const beatmap_2 = require("../../models/beatmap/beatmap");
 const party_1 = require("../../models/party");
 const helpers_1 = require("../../helpers/helpers");
+const spentPoints_1 = require("../../models/spentPoints");
 const adminQuestsRouter = express_1.default.Router();
 adminQuestsRouter.use(middlewares_1.isLoggedIn);
 adminQuestsRouter.use(middlewares_1.isAdmin);
@@ -113,15 +114,11 @@ adminQuestsRouter.post('/:id/publish', (req, res) => __awaiter(void 0, void 0, v
     res.json(quest.status);
 }));
 adminQuestsRouter.post('/:id/reject', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const quest = yield quest_1.QuestService.updateOrFail(req.params.id, { status: 'rejected' });
-    yield quest.populate({
-        path: 'creator',
-        select: 'id',
-    }).execPopulate();
-    const points = helpers_1.findSubmitQuestPointsSpent(quest.art, quest.requiredMapsets);
-    const user = yield user_1.UserService.queryByIdOrFail(quest.creator.id);
-    user.spentPoints -= points;
-    yield user_1.UserService.saveOrFail(user);
+    yield quest_1.QuestService.updateOrFail(req.params.id, { status: 'rejected' });
+    const quest = yield quest_1.QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+    points_1.updateUserPoints(quest.creator.id);
+    const spentPoints = yield spentPoints_1.SpentPointsService.queryOneOrFail({ query: { quest: quest._id } });
+    yield spentPoints_1.SpentPointsService.remove(spentPoints.id);
     res.json(quest.status);
 })));
 adminQuestsRouter.post('/:id/updateArt', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -176,7 +173,7 @@ adminQuestsRouter.post('/:id/drop', helpers_1.canFail((req, res) => __awaiter(vo
             quest_1.QuestService.update(openQuest._id, {
                 $push: { modes: q.modes },
             }),
-            quest_1.QuestService.remove(req.params.id),
+            quest_1.QuestService.update(req.params.id, { status: 'hidden' }),
         ]);
     }
     else {
@@ -211,6 +208,7 @@ adminQuestsRouter.post('/:id/complete', helpers_1.canFail((req, res) => __awaite
             if (i + 1 < quest.currentParty.members.length) {
                 memberList += ', ';
             }
+            points_1.updateUserPoints(user.id);
         }
         discordApi_1.webhookPost([{
                 author: {

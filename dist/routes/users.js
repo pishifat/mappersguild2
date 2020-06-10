@@ -17,6 +17,8 @@ const middlewares_1 = require("../helpers/middlewares");
 const user_1 = require("../models/user");
 const beatmap_1 = require("../models/beatmap/beatmap");
 const quest_1 = require("../models/quest");
+const spentPoints_1 = require("../models/spentPoints");
+const task_1 = require("../models/beatmap/task");
 const usersRouter = express_1.default.Router();
 usersRouter.use(middlewares_1.isLoggedIn);
 const beatmapPopulate = [
@@ -76,7 +78,37 @@ usersRouter.get('/findCurrentQuests/:id', (req, res) => __awaiter(void 0, void 0
             });
         });
     }
-    res.json({ currentQuests });
+    res.json(currentQuests);
+}));
+usersRouter.get('/findSpentPoints/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const spentPoints = yield spentPoints_1.SpentPointsService.queryAll({
+        query: { user: req.params.id },
+        populate: [{ path: 'quest', select: 'price art requiredMapsets name' }],
+        sort: { createdAt: -1 },
+    });
+    res.json(spentPoints);
+}));
+usersRouter.get('/findUserBeatmaps/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const ownTasks = yield task_1.TaskService.queryAll({
+        query: { mappers: req.params.id },
+        select: '_id',
+    });
+    const userBeatmaps = yield beatmap_1.BeatmapService.queryAll({
+        query: {
+            $or: [
+                {
+                    tasks: {
+                        $in: ownTasks,
+                    },
+                },
+                {
+                    host: req.params.id,
+                },
+            ]
+        },
+        useDefaults: true,
+    });
+    res.json(userBeatmaps);
 }));
 usersRouter.get('/:sort', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     res.json(yield user_1.UserService.queryAll({
