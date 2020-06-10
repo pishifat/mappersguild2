@@ -27,7 +27,6 @@ const store = new Vuex.Store({
         username: '' as User['username'],
         userGroup: null as null | UserGroup,
         users: [] as User[],
-        beatmaps: [] as Beatmap[],
         selectedUserId: null as string | null,
         filterValue: '',
         filterMode: 'any' as FilterMode,
@@ -51,9 +50,6 @@ const store = new Vuex.Store({
         },
         setUsers (state, users: User[]): void {
             state.users = users;
-        },
-        setBeatmaps (state, beatmaps: Beatmap[]): void {
-            state.beatmaps = beatmaps;
         },
         setFilterValue (state, value: string): void {
             state.filterValue = value;

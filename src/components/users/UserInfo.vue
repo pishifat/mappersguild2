@@ -188,51 +188,108 @@
                             </ul>
                         </div>
                     </div>
+
                     <div class="radial-divisor mx-auto my-3" />
-                    <span v-if="!beatmaps.length"><p>Loading beatmaps...</p></span>
-                    <span v-if="userMaps && userMaps.length">
-                        <p>Mappers' Guild maps:</p>
-                        <table class="table table-sm table-dark table-hover">
-                            <thead>
-                                <td scope="col">Mapset</td>
-                                <td scope="col">Host</td>
-                                <td scope="col">Status</td>
-                                <td scope="col">Tasks</td>
-                            </thead>
-                            <tbody>
-                                <tr v-for="map in userMaps" :key="map.id">
-                                    <td scope="row">
-                                        <template v-if="map.url">
-                                            <a :href="map.url" target="_blank">
-                                                {{ map.song.artist }} - {{ map.song.title }}
-                                            </a>
-                                        </template>
-                                        <template v-else>
-                                            <span class="text-white-50">{{ map.song.artist }} - {{ map.song.title }}</span>
-                                        </template>
-                                        <i v-if="map.mode == 'taiko'" class="fas fa-drum" />
-                                        <i v-else-if="map.mode == 'catch'" class="fas fa-apple-alt" />
-                                        <i v-else-if="map.mode == 'mania'" class="fas fa-stream" />
-                                    </td>
-                                    <td scope="row">
-                                        <a
-                                            :href="'https://osu.ppy.sh/users/' + map.host.osuId"
-                                            target="_blank"
-                                        >
-                                            {{ map.host.username }}
+                    <p>Mappers' Guild beatmaps:</p>
+                    <table class="table table-sm table-dark table-hover">
+                        <thead>
+                            <td scope="col">
+                                Mapset
+                            </td>
+                            <td scope="col">
+                                Host
+                            </td>
+                            <td scope="col">
+                                Status
+                            </td>
+                            <td scope="col">
+                                Tasks
+                            </td>
+                        </thead>
+                        <tbody>
+                            <tr v-if="!userBeatmaps.length">
+                                <td scope="row">
+                                    ...
+                                </td>
+                                <td scope="row">
+                                    ...
+                                </td>
+                                <td scope="row">
+                                    ...
+                                </td>
+                                <td scope="row">
+                                    ...
+                                </td>
+                            </tr>
+                            <tr v-for="map in userBeatmaps" :key="map.id">
+                                <td scope="row">
+                                    <template v-if="map.url">
+                                        <a :href="map.url" target="_blank">
+                                            {{ map.song.artist }} - {{ map.song.title }}
                                         </a>
-                                    </td>
-                                    <td scope="row" :class="map.status.toLowerCase()">
-                                        {{ map.status }}
-                                    </td>
-                                    <td scope="row" class="text-white-50">
-                                        {{ userTasks(map) }}
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <div class="radial-divisor mx-auto my-3" />
-                    </span>
+                                    </template>
+                                    <template v-else>
+                                        <span class="text-white-50">{{ map.song.artist }} - {{ map.song.title }}</span>
+                                    </template>
+                                    <i v-if="map.mode == 'taiko'" class="fas fa-drum" />
+                                    <i v-else-if="map.mode == 'catch'" class="fas fa-apple-alt" />
+                                    <i v-else-if="map.mode == 'mania'" class="fas fa-stream" />
+                                </td>
+                                <td scope="row">
+                                    <a
+                                        :href="'https://osu.ppy.sh/users/' + map.host.osuId"
+                                        target="_blank"
+                                    >
+                                        {{ map.host.username }}
+                                    </a>
+                                </td>
+                                <td scope="row" :class="map.status.toLowerCase()">
+                                    {{ map.status }}
+                                </td>
+                                <td scope="row" class="text-white-50">
+                                    {{ userTasks(map) }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="radial-divisor mx-auto my-3" />
+
+                    <p>Spent points logs:</p>
+                    <table class="table table-sm table-dark table-hover col-md-12">
+                        <thead>
+                            <td scope="col">
+                                Action
+                            </td>
+                            <td scope="col">
+                                Spent points
+                            </td>
+                        </thead>
+                        <tbody>
+                            <tr v-if="!spentPoints.length">
+                                <td scope="row">
+                                    ...
+                                </td>
+                                <td scope="row">
+                                    ...
+                                </td>
+                            </tr>
+                            <tr v-for="spentPointsEvent in spentPoints" :key="spentPointsEvent.id">
+                                <td scope="row" class="text-white-50">
+                                    {{ findSpentPointsAction (spentPointsEvent.category) }}
+                                    <a :href="'/quests/?id=' + spentPointsEvent.quest.id" target="_blank">
+                                        {{ spentPointsEvent.quest.name }}
+                                    </a>
+                                </td>
+                                <td scope="row" class="text-white-50">
+                                    {{ findSpentPointsValue(spentPointsEvent.category, spentPointsEvent.quest) }} <i class="fas fa-coins" />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="radial-divisor mx-auto my-3" />
+
                     <p class="float-right">
                         Joined: {{ selectedUser.createdAt.slice(0, 10) }}
                     </p>
@@ -245,8 +302,8 @@
 <script lang="ts">
 import Vue from 'vue';
 import { mapState, mapGetters } from 'vuex';
-import Axios from 'axios';
 import { Quest } from '../../../interfaces/quest';
+import { SpentPoints } from '../../../interfaces/spentPoints';
 import { Beatmap } from '../../../interfaces/beatmap/beatmap';
 import UserPointsRow from './UserPointsRow.vue';
 
@@ -258,39 +315,42 @@ export default Vue.extend({
     data() {
         return {
             currentQuests: [] as Quest[],
+            spentPoints: [] as SpentPoints[],
+            userBeatmaps: [] as Beatmap[],
         };
     },
     computed: {
         ...mapState({
-            beatmaps: (state: any) => state.beatmaps as Beatmap[],
             userId: (state: any) => state.userId as string,
         }),
         ...mapGetters([
             'selectedUser',
         ]),
-        userMaps(): Beatmap[] {
-            if (this.beatmaps) {
-                return this.beatmaps.filter(b => {
-                    return b.tasks.some(t => {
-                        return t.mappers.some(m => {
-                            return m.id == this.selectedUser.id;
-                        });
-                    });
-                });
-            }
-
-            return [];
-        },
     },
     watch: {
         async selectedUser(): Promise<void> {
             history.pushState(null, 'Users', `/users?id=${this.selectedUser.id}`);
 
             this.currentQuests = [];
-            const res = await Axios.get(`/users/findCurrentQuests/${this.selectedUser.id}`);
+            this.spentPoints = [];
+            this.userBeatmaps = [];
 
-            if (res.data?.currentQuests) {
-                this.currentQuests = res.data.currentQuests;
+            const [quests, points, beatmaps] = await Promise.all([
+                this.executeGet<any>(`/users/findCurrentQuests/${this.selectedUser.id}`),
+                this.executeGet<any>(`/users/findSpentPoints/${this.selectedUser.id}`),
+                this.executeGet<any>(`/users/findUserBeatmaps/${this.selectedUser.id}`),
+            ]);
+
+            if (quests && !quests.error) {
+                this.currentQuests = quests;
+            }
+
+            if (points && !points.error) {
+                this.spentPoints = points;
+            }
+
+            if (beatmaps && !beatmaps.error) {
+                this.userBeatmaps = beatmaps;
             }
         },
     },
@@ -307,6 +367,53 @@ export default Vue.extend({
             });
 
             return tasks.slice(0, -2);
+        },
+        calculatePoints(quest): number {
+            let points = 100;
+
+            if (!quest.art) {
+                points += 50;
+            }
+
+            if (quest.requiredMapsets < 1) {
+                points = 727;
+            } else if (quest.requiredMapsets == 1) {
+                points += 300;
+            } else if (quest.requiredMapsets == 2) {
+                points += 200;
+            } else if (quest.requiredMapsets < 10) {
+                points += (10-quest.requiredMapsets)*15 - 5;
+            }
+
+            return points;
+        },
+        findSpentPointsAction(category): string {
+            switch (category) {
+                case 'acceptQuest':
+                    return 'Accepted quest:';
+                case 'reopenQuest':
+                    return 'Reopened quest:';
+                case 'extendDeadline':
+                    return 'Extended quest deadline:';
+                case 'createQuest':
+                    return 'Created quest:';
+                default:
+                    return 'undefined action';
+            }
+        },
+        findSpentPointsValue(category, quest): number {
+            switch (category) {
+                case 'acceptQuest':
+                    return quest.price;
+                case 'reopenQuest':
+                    return quest.price*0.5 + 25;
+                case 'extendDeadline':
+                    return 10;
+                case 'createQuest':
+                    return this.calculatePoints(quest);
+                default:
+                    return 0;
+            }
         },
     },
 });

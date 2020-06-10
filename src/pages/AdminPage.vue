@@ -251,6 +251,8 @@
             :user="selectedUser"
             @update-user="updateUser($event)"
         />
+
+        <toast-messages />
     </div>
 </template>
 
@@ -264,6 +266,7 @@ import UserInfo from '../components/admin/UserInfo.vue';
 import { Beatmap } from '../../interfaces/beatmap/beatmap';
 import { Quest } from '../../interfaces/quest';
 import { User } from '../../interfaces/user';
+import ToastMessages from '../components/ToastMessages.vue';
 
 export default Vue.extend({
     name: 'AdminPage',
@@ -272,6 +275,7 @@ export default Vue.extend({
         QuestInfo,
         ReviewQuest,
         UserInfo,
+        ToastMessages,
     },
     data() {
         return {
@@ -349,7 +353,7 @@ export default Vue.extend({
         },
         async updateUserPoints(e): Promise<void> {
             this.calculatingPoints = true;
-            const success = await this.executePost('/admin/users/updatePoints', {}, e);
+            const success = await this.executePost('/admin/users/updateAllUserPoints', {}, e);
 
             if (success) {
                 this.calculatingPoints = false;

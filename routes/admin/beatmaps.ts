@@ -4,6 +4,7 @@ import { BeatmapService } from '../../models/beatmap/beatmap';
 import { Beatmap, BeatmapStatus } from '../../interfaces/beatmap/beatmap';
 import { QuestService } from '../../models/quest';
 import { canFail, findBeatmapsetId, sleep, defaultErrorMessage } from '../../helpers/helpers';
+import { updateUserPoints } from '../../helpers/points';
 import { TaskService, Task } from '../../models/beatmap/task';
 import { User } from '../../models/user';
 import { beatmapsetInfo, getMaps, isOsuResponseError } from '../../helpers/osuApi';
@@ -44,12 +45,14 @@ adminBeatmapsRouter.post('/:id/updateStatus', isSuperAdmin, canFail(async (req, 
     let b = await BeatmapService.updateOrFail(req.params.id, { status: req.body.status });
 
     if (req.body.status == BeatmapStatus.Done) {
+        // set all tasks as Done
         for (let i = 0; i < b.tasks.length; i++) {
             await TaskService.update(b.tasks[i] as Task['_id'], { status: BeatmapStatus.Done });
         }
     }
 
     if (req.body.status == BeatmapStatus.Ranked) {
+        // fetch osu api's beatmap data
         const osuId = findBeatmapsetId(b.url);
 
         const bmInfo = await beatmapsetInfo(osuId);
@@ -58,17 +61,29 @@ adminBeatmapsRouter.post('/:id/updateStatus', isSuperAdmin, canFail(async (req, 
             return res.json(defaultErrorMessage);
         }
 
+        // set length (for task points calculation) and ranked date (for quest points calculation) according to osu! db
         b.length = bmInfo.hit_length;
         b.rankedDate = bmInfo.approved_date;
         await BeatmapService.saveOrFail(b);
 
+        // query for populated beatmap
         b = await BeatmapService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
 
+        // calculate points for modders
+        for (const modder of b.modders) {
+            updateUserPoints(modder.id);
+        }
+
+        // calculate points for host
+        updateUserPoints(b.host.id);
+
+        // establish empty variables
         const gdUsernames: string[] = [];
         const gdUsers: User[] = [];
         const modes: string[] = [];
         let storyboard;
 
+        // fill empty variables with data
         b.tasks.forEach((task: Task) => {
             if (task.mode == 'sb' && task.mappers[0].id != b.host.id) {
                 storyboard = task;
@@ -86,6 +101,7 @@ adminBeatmapsRouter.post('/:id/updateStatus', isSuperAdmin, canFail(async (req, 
             }
         });
 
+        // create template for webhook descriptiuon
         let gdText = '';
 
         if (!gdUsers.length) {
@@ -96,6 +112,7 @@ adminBeatmapsRouter.post('/:id/updateStatus', isSuperAdmin, canFail(async (req, 
             gdText = 'Guest difficulty by ';
         }
 
+        // add users to webhook description
         if (gdUsers.length) {
             for (let i = 0; i < gdUsers.length; i++) {
                 const user = gdUsers[i];
@@ -104,15 +121,22 @@ adminBeatmapsRouter.post('/:id/updateStatus', isSuperAdmin, canFail(async (req, 
                 if (i+1 < gdUsers.length) {
                     gdText += ', ';
                 }
+
+                // update points for all guest difficulty creators
+                updateUserPoints(user.id);
             }
         }
 
         let description = `💖 [**${b.song.artist} - ${b.song.title}**](${b.url}) [**${modes.join(', ')}**] has been ranked\n\nHosted by [**${b.host.username}**](https://osu.ppy.sh/users/${b.host.osuId})\n${gdText}`;
 
+        // add storyboarder to webhook and update points for storyboarder
         if (storyboard) {
-            description += `\nStoryboard by [**${storyboard.mappers[0].username}**](https://osu.ppy.sh/users/${storyboard.mappers[0].osuId})`;
+            const storyboarder = storyboard.mappers[0];
+            description += `\nStoryboard by [**${storyboarder.username}**](https://osu.ppy.sh/users/${storyboarder.osuId})`;
+            updateUserPoints(storyboarder.id);
         }
 
+        // publish webhook
         webhookPost([{
             color: webhookColors.blue,
             description,
@@ -254,6 +278,27 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', canFail(async (req, res) => {
     }
 
     res.json({ beatmaps: accuratelyDatedBeatmaps, quests: q, externalBeatmaps });
+}));
+
+/* GET bundled beatmaps */
+adminBeatmapsRouter.get('/findBundledBeatmaps', canFail(async (req, res) => {
+    console.log('in');
+    const easyTasks = await TaskService.queryAllOrFail({
+        query: { name: 'Easy' },
+        select: '_id',
+    });
+
+    const easyBeatmaps = await BeatmapService.queryAllOrFail({
+        query: {
+            tasks: {
+                $in: easyTasks,
+            },
+            status: BeatmapStatus.Ranked,
+        },
+        useDefaults: true,
+    });
+
+    res.json(easyBeatmaps);
 }));
 
 export default adminBeatmapsRouter;

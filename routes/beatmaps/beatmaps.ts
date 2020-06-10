@@ -9,7 +9,8 @@ import { NotificationService } from '../../models/notification';
 import { LogService } from '../../models/log';
 import { LogCategory } from '../../interfaces/log';
 import { isLoggedIn, isNotSpectator, isBn } from '../../helpers/middlewares';
-import { defaultErrorMessage, canFail, findBeatmapsetId, findDifficultyPoints, findLengthNerf, findQuestBonus } from '../../helpers/helpers';
+import { findDifficultyPoints, findLengthNerf, findQuestBonus } from '../../helpers/points';
+import { defaultErrorMessage, canFail, findBeatmapsetId } from '../../helpers/helpers';
 import { beatmapsetInfo, isOsuResponseError } from '../../helpers/osuApi';
 import { isValidBeatmap } from './middlewares';
 

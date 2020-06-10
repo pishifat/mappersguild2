@@ -105,14 +105,6 @@ export default Vue.extend({
             .attr('style', 'visibility: visible')
             .hide()
             .fadeIn();
-
-        // getting all bms is too heavy, so doing it later
-
-        const res2: any = await this.executeGet('/users/beatmaps');
-
-        if (res2) {
-            this.$store.commit('setBeatmaps', res2.beatmaps);
-        }
     },
     methods: {
         showOlder(): void {

@@ -15,17 +15,6 @@
                 <div class="modal-body" style="overflow: hidden">
                     <p>
                         <input
-                            v-model="spentPoints"
-                            class="form-control-sm mx-2"
-                            type="text"
-                            autocomplete="off"
-                        >
-                        <button class="btn btn-sm btn-outline-info" @click="updateSpentPoints($event)">
-                            Save spent points
-                        </button>
-                    </p>
-                    <p>
-                        <input
                             v-model="badge"
                             class="form-control-sm mx-2"
                             type="text"
@@ -33,6 +22,11 @@
                         >
                         <button class="btn btn-sm btn-outline-info" @click="updateBadge($event)">
                             Save badge
+                        </button>
+                    </p>
+                    <p>
+                        <button class="btn btn-sm btn-outline-info" @click="calculateUserPoints($event)">
+                            Calculate user points
                         </button>
                     </p>
                 </div>
@@ -55,7 +49,6 @@ export default Vue.extend({
     },
     data() {
         return {
-            spentPoints: 0,
             badge: 0,
         };
     },
@@ -64,31 +57,15 @@ export default Vue.extend({
     },
     watch: {
         user(): void {
-            this.spentPoints = this.user.spentPoints || 0;
             this.badge = this.user.badge || 0;
         },
     },
     created() {
         if (this.user) {
-            this.spentPoints = this.user.spentPoints || 0;
             this.badge = this.user.badge || 0;
         }
     },
     methods: {
-        async updateSpentPoints(e): Promise<void> {
-            const spentPoints = await this.executePost(`/admin/users/${this.user.id}/updateSpentPoints`, { spentPoints: this.spentPoints }, e);
-
-            if (!this.isError(spentPoints)) {
-                this.$store.dispatch('updateToastMessages', {
-                    message: `set spent points to ${spentPoints}`,
-                    type: 'info',
-                });
-                this.$store.commit('updateSpentPoints', {
-                    userId: this.user.id,
-                    spentPoints,
-                });
-            }
-        },
         async updateBadge(e): Promise<void> {
             const badge = await this.executePost(`/admin/users/${this.user.id}/updateBadge`, { badge: this.badge }, e);
 
@@ -100,6 +77,16 @@ export default Vue.extend({
                 this.$store.commit('updateBadge', {
                     userId: this.user.id,
                     badge,
+                });
+            }
+        },
+        async calculateUserPoints(e): Promise<void> {
+            const points = await this.executePost(`/admin/users/${this.user.id}/calculateUserPoints`, {}, e);
+
+            if (points) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `calculated points: ${points}`,
+                    type: 'info',
                 });
             }
         },

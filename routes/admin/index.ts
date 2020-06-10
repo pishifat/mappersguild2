@@ -6,7 +6,9 @@ import { UserService, User } from '../../models/user';
 import { BeatmapService, Beatmap } from '../../models/beatmap/beatmap';
 import { BeatmapStatus } from '../../interfaces/beatmap/beatmap';
 import { beatmapsetInfo, isOsuResponseError } from '../../helpers/osuApi';
-import { canFail, findBeatmapsetId } from '../../helpers/helpers';
+import { canFail, findBeatmapsetId, defaultErrorMessage } from '../../helpers/helpers';
+import { SpentPointsCategory } from '../../interfaces/spentPoints';
+import { SpentPointsService } from '../../models/spentPoints';
 
 const adminRouter = express.Router();
 
@@ -26,13 +28,6 @@ adminRouter.get('/', (req, res) => {
 
 /* GET relevant info for page load */
 adminRouter.get('/relevantInfo/', canFail(async (req, res) => {
-    // section below is often used while testing, so it's here for quick access
-    /*const bm = await BeatmapService.queryOneOrFail({
-        query: { status: 'Qualified' },
-        defaultPopulate: true,
-    });
-    const allBeatmaps: Beatmap[] = [bm];*/
-
     const allBeatmaps = await BeatmapService.queryAll({
         defaultPopulate: true,
         sort: { status: 1, mode: 1 },
@@ -143,13 +138,6 @@ adminRouter.get('/relevantInfo/', canFail(async (req, res) => {
 
 /* GET beatmaps in need of action */
 adminRouter.get('/loadActionBeatmaps/', canFail(async (req, res) => {
-    // section below is often used while testing, so it's here for quick access
-    /*const bm = await BeatmapService.queryOneOrFail({
-        query: { status: 'Qualified' },
-        defaultPopulate: true,
-    });
-    const allBeatmaps: Beatmap[] = [bm];*/
-
     const allBeatmaps = await BeatmapService.queryAll({
         defaultPopulate: true,
         sort: { status: 1, mode: 1 },
@@ -265,6 +253,36 @@ adminRouter.get('/loadActionUsers/', canFail(async (req, res) => {
     }
 
     res.json(actionUsers);
+}));
+
+/* POST update user points */
+adminRouter.post('/saveSpentPointsEvent', canFail(async (req, res) => {
+    let category;
+    if (req.body.category == 'acceptQuest') category = SpentPointsCategory.AcceptQuest;
+    else if (req.body.category == 'reopenQuest') category = SpentPointsCategory.ReopenQuest;
+    else if (req.body.category == 'createQuest') category = SpentPointsCategory.CreateQuest;
+    else if (req.body.category == 'extendDeadline') category = SpentPointsCategory.ExtendDeadline;
+    else return res.json(defaultErrorMessage);
+
+    let rexExp;
+
+    if (req.body.username.indexOf('[') >= 0 || req.body.username.indexOf(']') >= 0) {
+        rexExp = new RegExp('^\\' + req.body.username + '$', 'i');
+    } else {
+        rexExp = new RegExp('^' + req.body.username + '$', 'i');
+    }
+
+    const user = await UserService.queryOneOrFail({ query: { username: rexExp } });
+
+    if (!user || UserService.isError(user)) {
+        return res.json({ error: 'user changed name probably' });
+    }
+
+    const quest = await QuestService.queryByIdOrFail(req.body.questId);
+
+    SpentPointsService.create(category, user._id, quest._id);
+
+    res.json('user points updated');
 }));
 
 export default adminRouter;

@@ -102,7 +102,7 @@ export default Vue.extend({
         },
         async updateUserPoints(e): Promise<void> {
             this.calculatingPoints = true;
-            const success = await this.executePost('/admin/users/updatePoints', {}, e);
+            const success = await this.executePost('/admin/users/updateAllUserPoints', {}, e);
 
             if (success) {
                 this.calculatingPoints = false;

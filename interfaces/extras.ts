@@ -16,6 +16,7 @@ export interface Points {
     Mod: number;
     Host: number;
     QuestReward: number;
+    SpentPoints: number;
     Rank: number;
     osu: number;
     taiko: number;

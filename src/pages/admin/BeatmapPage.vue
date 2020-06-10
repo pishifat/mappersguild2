@@ -42,6 +42,8 @@
 
         <news-post />
 
+        <bundled-beatmaps-list />
+
         <toast-messages />
     </div>
 </template>
@@ -50,6 +52,7 @@
 import Vue from 'vue';
 import NewsPost from '../../components/admin/newspost/NewsPost.vue';
 import BeatmapInfo from '../../components/admin/BeatmapInfo.vue';
+import BundledBeatmapsList from '../../components/admin/BundledBeatmapsList.vue';
 import DataTable from '../../components/admin/DataTable.vue';
 import ToastMessages from '../../components/ToastMessages.vue';
 import { Beatmap } from '../../../interfaces/beatmap/beatmap';
@@ -60,6 +63,7 @@ export default Vue.extend({
         NewsPost,
         DataTable,
         BeatmapInfo,
+        BundledBeatmapsList,
         ToastMessages,
     },
     filters: {

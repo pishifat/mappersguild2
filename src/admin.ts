@@ -185,13 +185,6 @@ const store = new Vuex.Store({
         },
 
         // users
-        updateSpentPoints (state, payload): void {
-            const user = state.actionUsers.find(u => u.id == payload.userId);
-
-            if (user) {
-                user.spentPoints = payload.spentPoints;
-            }
-        },
         updateBadge (state, payload): void {
             const user = state.actionUsers.find(u => u.id == payload.userId);
 

@@ -8,6 +8,7 @@ export enum QuestStatus {
     Done = 'done',
     Pending = 'pending',
     Rejected = 'rejected',
+    Hidden = 'hidden',
 }
 
 export interface Quest extends Document {

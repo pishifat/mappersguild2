@@ -1,5 +1,6 @@
 import express from 'express';
 import { isLoggedIn, isUser, isNotSpectator } from '../helpers/middlewares';
+import { updateUserPoints } from '../helpers/points';
 import { PartyService } from '../models/party';
 import { defaultErrorMessage, canFail, BasicResponse } from '../helpers/helpers';
 import { BeatmapService, Beatmap } from '../models/beatmap/beatmap';
@@ -7,9 +8,11 @@ import { BeatmapMode } from '../interfaces/beatmap/beatmap';
 import { Quest, QuestService } from '../models/quest';
 import { TaskService } from '../models/beatmap/task';
 import { TaskName, TaskMode } from '../interfaces/beatmap/task';
-import { User, UserService } from '../models/user';
+import { User } from '../models/user';
 import { Invite, InviteService } from '../models/invite';
 import { NotificationService } from '../models/notification';
+import { SpentPointsService } from '../models/spentPoints';
+import { SpentPointsCategory } from '../interfaces/spentPoints';
 import { LogService } from '../models/log';
 import { LogCategory } from '../interfaces/log';
 import { QuestStatus } from '../interfaces/quest';
@@ -356,8 +359,8 @@ notificationsRouter.post('/acceptJoin/:id', isNotSpectator, canFail(async (req, 
     await updatePartyInfo(p._id);
 
     if (q.status == QuestStatus.WIP) {
-        const spentPoints = res.locals.userRequest.spentPoints + q.price;
-        await UserService.update(req.session.mongoId, { spentPoints });
+        SpentPointsService.create(SpentPointsCategory.AcceptQuest, req.session.mongoId, q._id);
+        updateUserPoints(req.session.mongoId);
     }
 
     LogService.create(req.session.mongoId, `joined a party for quest ${q.name}`, LogCategory.Party);

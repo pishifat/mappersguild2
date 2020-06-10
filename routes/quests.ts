@@ -1,7 +1,8 @@
 import express from 'express';
 import { isLoggedIn, isNotSpectator } from '../helpers/middlewares';
 import { PartyService, Party } from '../models/party';
-import { defaultErrorMessage, BasicError, canFail, BasicResponse, findSubmitQuestPointsSpent } from '../helpers/helpers';
+import { findCreateQuestPointsSpent } from '../helpers/points';
+import { defaultErrorMessage, BasicError, canFail, BasicResponse } from '../helpers/helpers';
 import { BeatmapService } from '../models/beatmap/beatmap';
 import { BeatmapMode } from '../interfaces/beatmap/beatmap';
 import { QuestService, Quest } from '../models/quest';
@@ -13,6 +14,9 @@ import { UserService, User } from '../models/user';
 import { InviteService } from '../models/invite';
 import { ActionType } from '../interfaces/invite';
 import { FeaturedArtistService } from '../models/featuredArtist';
+import { SpentPointsService } from '../models/spentPoints';
+import { SpentPointsCategory } from '../interfaces/spentPoints';
+import { updateUserPoints } from '../helpers/points';
 
 const questsRouter = express.Router();
 
@@ -404,7 +408,8 @@ questsRouter.post('/acceptQuest/:partyId/:questId', isNotSpectator, canFail(asyn
 
     // spend points
     p.members.forEach(member => {
-        UserService.update(member.id, { spentPoints: member.spentPoints + q.price });
+        SpentPointsService.create(SpentPointsCategory.AcceptQuest, member._id, q._id);
+        updateUserPoints(member.id);
     });
 
     // load all quests
@@ -489,7 +494,7 @@ questsRouter.post('/dropQuest/:partyId/:questId', isNotSpectator, canFail(async 
             QuestService.update(openQuest._id, {
                 $push: { modes: q.modes },
             }),
-            QuestService.remove(req.params.questId),
+            QuestService.update(req.params.questId, { status: 'hidden' }),
         ]);
     } else {
         await QuestService.update(req.params.questId, {
@@ -551,6 +556,10 @@ questsRouter.post('/dropQuest/:partyId/:questId', isNotSpectator, canFail(async 
 questsRouter.post('/reopenQuest/:questId', isNotSpectator, canFail(async (req, res) => {
     const quest = await QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
 
+    if (res.locals.userRequest.availablePoints < (quest.price*0.5 + 25)) {
+        return res.json({ error: `You don't have enough points to re-open this quest!` });
+    }
+
     const openQuest = await QuestService.queryOne({
         query: {
             name: quest.name,
@@ -568,7 +577,7 @@ questsRouter.post('/reopenQuest/:questId', isNotSpectator, canFail(async (req, r
                     $push: { modes: quest.modes },
                     expiration: newExpiration,
                 }),
-                QuestService.remove(req.params.questId),
+                QuestService.update(req.params.questId, { status: 'hidden' }),
             ]);
         } else {
             await QuestService.update(req.params.questId, {
@@ -576,53 +585,9 @@ questsRouter.post('/reopenQuest/:questId', isNotSpectator, canFail(async (req, r
             });
         }
     }
-    // for use when reviving completed quests
-    /* else if (req.body.status == QuestStatus.Done) {
-        const wipQuests = await QuestService.queryAll({
-            query: {
-                name: quest.name,
-                status: QuestStatus.WIP,
-            },
-        });
-        const wipQuestModes: any[] = [];
 
-        if (wipQuests && !QuestService.isError(wipQuests)) {
-            wipQuests.forEach(quest => {
-                quest.modes.forEach(mode => {
-                    wipQuestModes.push(mode);
-                });
-            });
-        }
-
-        const modes = [BeatmapMode.Osu, BeatmapMode.Taiko, BeatmapMode.Catch, BeatmapMode.Mania];
-        wipQuestModes.forEach(mode => {
-            const i = modes.indexOf(mode);
-            if (i !== -1) modes.splice(i, 1);
-        });
-
-        if (openQuest && !QuestService.isError(openQuest)) {
-            await QuestService.update(openQuest._id, {
-                name: `${openQuest.name} redux`,
-                modes,
-                expiration: newExpiration,
-            });
-        } else {
-            await QuestService.create({
-                name: `${quest.name} redux`,
-                price: quest.price,
-                descriptionMain: quest.descriptionMain,
-                timeframe: quest.timeframe,
-                minParty: quest.minParty,
-                maxParty: quest.maxParty,
-                minRank: quest.minRank,
-                art: quest.art,
-                modes,
-            });
-        }
-    }*/
-
-    const spentPoints = (res.locals.userRequest.spentPoints += (quest.price*3 + 100));
-    await UserService.update(req.session.mongoId, { spentPoints });
+    SpentPointsService.create(SpentPointsCategory.ReopenQuest, req.session.mongoId, quest._id);
+    updateUserPoints(req.session.mongoId);
 
     const allQuests = await QuestService.queryAll({ useDefaults: true });
 
@@ -659,11 +624,10 @@ questsRouter.post('/extendDeadline/:partyId/:questId', isNotSpectator, canFail(a
         return res.json({ error: 'One or more of your party members do not have enough points to extend the deadline!' });
     }
 
-    for (let i = 0; i < party.members.length; i++) {
-        const member = party.members[i];
-        const spentPoints = member.spentPoints + 10;
-        await UserService.update(member.id, { spentPoints });
-    }
+    party.members.forEach(member => {
+        SpentPointsService.create(SpentPointsCategory.ExtendDeadline, member.id, quest.id);
+        updateUserPoints(member.id);
+    });
 
     const deadline = new Date(quest.deadline);
     deadline.setDate(deadline.getDate() + 30);
@@ -679,7 +643,7 @@ questsRouter.post('/extendDeadline/:partyId/:questId', isNotSpectator, canFail(a
 }));
 
 /* POST add quest */
-questsRouter.post('/submitQuest', async (req, res) => {
+questsRouter.post('/submitQuest', isNotSpectator, canFail(async (req, res) => {
     //quest creation
     req.body.modes = [ BeatmapMode.Osu, BeatmapMode.Taiko, BeatmapMode.Catch, BeatmapMode.Mania ];
     req.body.minRank = 0;
@@ -698,7 +662,7 @@ questsRouter.post('/submitQuest', async (req, res) => {
     }
 
     // points
-    const points = findSubmitQuestPointsSpent(quest.art, quest.requiredMapsets);
+    const points = findCreateQuestPointsSpent(quest.art, quest.requiredMapsets);
 
     const user = await UserService.queryByIdOrFail(req?.session?.mongoId, {}, cannotFindUserMessage);
 
@@ -708,12 +672,12 @@ questsRouter.post('/submitQuest', async (req, res) => {
         return res.json({ error: 'Not enough points to perform this action!' });
     }
 
-    user.spentPoints += points;
-    await UserService.saveOrFail(user);
+    SpentPointsService.create(SpentPointsCategory.CreateQuest, req.session.mongoId, quest._id);
+    updateUserPoints(req.session.mongoId);
 
     res.json(true);
 
     LogService.create(req.session?.mongoId, `submitted quest for approval`, LogCategory.Quest);
-});
+}));
 
 export default questsRouter;

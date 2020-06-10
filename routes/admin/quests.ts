@@ -1,7 +1,7 @@
 import express from 'express';
 import { isLoggedIn, isAdmin, isSuperAdmin } from '../../helpers/middlewares';
+import { updateUserPoints } from '../../helpers/points';
 import { QuestService, Quest } from '../../models/quest';
-import { UserService } from '../../models/user';
 import { QuestStatus } from '../../interfaces/quest';
 import { BeatmapMode } from '../../interfaces/beatmap/beatmap';
 import { LogService } from '../../models/log';
@@ -9,7 +9,8 @@ import { LogCategory } from '../../interfaces/log';
 import { webhookPost, webhookColors } from '../../helpers/discordApi';
 import { BeatmapService } from '../../models/beatmap/beatmap';
 import { PartyService } from '../../models/party';
-import { canFail, findSubmitQuestPointsSpent } from '../../helpers/helpers';
+import { canFail } from '../../helpers/helpers';
+import { SpentPointsService } from '../../models/spentPoints';
 
 const adminQuestsRouter = express.Router();
 
@@ -119,18 +120,13 @@ adminQuestsRouter.post('/:id/publish', async (req, res) => {
 
 /* POST reject quest */
 adminQuestsRouter.post('/:id/reject', canFail(async (req, res) => {
-    const quest = await QuestService.updateOrFail(req.params.id, { status: 'rejected' });
-    await quest.populate({
-        path: 'creator',
-        select: 'id',
-    }).execPopulate();
+    await QuestService.updateOrFail(req.params.id, { status: 'rejected' });
 
-    const points = findSubmitQuestPointsSpent(quest.art, quest.requiredMapsets);
+    const quest = await QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+    updateUserPoints(quest.creator.id);
 
-    const user = await UserService.queryByIdOrFail(quest.creator.id);
-
-    user.spentPoints -= points;
-    await UserService.saveOrFail(user);
+    const spentPoints = await SpentPointsService.queryOneOrFail({ query: { quest: quest._id } });
+    await SpentPointsService.remove(spentPoints.id);
 
     res.json(quest.status);
 }));
@@ -212,7 +208,7 @@ adminQuestsRouter.post('/:id/drop', canFail(async (req, res) => {
             QuestService.update(openQuest._id, {
                 $push: { modes: q.modes },
             }),
-            QuestService.remove(req.params.id),
+            QuestService.update(req.params.id, { status: 'hidden' }),
         ]);
     } else {
         await QuestService.update(req.params.id, {
@@ -257,6 +253,8 @@ adminQuestsRouter.post('/:id/complete', canFail(async (req, res) => {
             if (i+1 < quest.currentParty.members.length) {
                 memberList += ', ';
             }
+
+            updateUserPoints(user.id);
         }
 
         webhookPost([{
