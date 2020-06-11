@@ -23,7 +23,9 @@
                         v-if="beatmap.quest && beatmap.quest.art"
                         class="rounded-circle mr-1"
                         style="height:24px; width: 24px;"
-                        :src="beatmap.quest.art ? 'https://assets.ppy.sh/artists/' + beatmap.quest.art + '/cover.jpg' : '../../images/fa_icon.png'"
+                        :src="beatmap.quest.isMbc ? '../../images/mbc-icon.png' :
+                            beatmap.quest.art ? 'https://assets.ppy.sh/artists/' + beatmap.quest.art + '/cover.jpg' :
+                            '../../images/fa_icon.png'"
                         data-toggle="tooltip"
                         :title="beatmap.quest.name"
                     >

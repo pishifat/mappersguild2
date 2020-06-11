@@ -41,7 +41,14 @@ adminQuestsRouter.get('/load', async (req, res) => {
 
 /* POST add quest */
 adminQuestsRouter.post('/create', async (req, res) => {
-    req.body.modes = [ BeatmapMode.Osu, BeatmapMode.Taiko, BeatmapMode.Catch, BeatmapMode.Mania ];
+    req.body.isMbc = Boolean(req.body.isMbc);
+
+    if (req.body.isMbc) {
+        req.body.modes = [ BeatmapMode.Osu ];
+    } else {
+        req.body.modes = [ BeatmapMode.Osu, BeatmapMode.Taiko, BeatmapMode.Catch, BeatmapMode.Mania ];
+    }
+
     req.body.expiration = new Date();
     req.body.expiration.setDate(req.body.expiration.getDate() + 90);
     req.body.creator = req?.session?.mongoId;
@@ -50,11 +57,17 @@ adminQuestsRouter.post('/create', async (req, res) => {
     if (!QuestService.isError(quest)) {
         LogService.create(req.session?.mongoId, `created quest "${quest.name}"`, LogCategory.Quest);
 
+        let url = `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`;
+
+        if (req.body.isMbc) {
+            url = 'https://mappersguild.com/images/mbc-icon.png';
+        }
+
         webhookPost([{
             color: webhookColors.orange,
             description: `New quest: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id})`,
             thumbnail: {
-                url: `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`,
+                url,
             },
             fields: [{
                 name: 'Objective',
@@ -251,6 +264,12 @@ adminQuestsRouter.post('/:id/drop', canFail(async (req, res) => {
         }
     }
 
+    let url = `https://assets.ppy.sh/artists/${q.art}/cover.jpg`;
+
+    if (q.isMbc) {
+        url = 'https://mappersguild.com/images/mbc-icon.png';
+    }
+
     webhookPost([{
         author: {
             name: `${party.leader.username}'s party`,
@@ -260,7 +279,7 @@ adminQuestsRouter.post('/:id/drop', canFail(async (req, res) => {
         color: webhookColors.red,
         description: `Dropped quest: [**${q.name}**](https://mappersguild.com/quests?id=${openQuest && !QuestService.isError(openQuest) ? openQuest.id : q.id}) [**${party.modes.join(', ')}**]`,
         thumbnail: {
-            url: `https://assets.ppy.sh/artists/${q.art}/cover.jpg`,
+            url,
         },
         fields: [{
             name: 'Party members',
@@ -274,7 +293,7 @@ adminQuestsRouter.post('/:id/drop', canFail(async (req, res) => {
 
 /* POST complete quest */
 adminQuestsRouter.post('/:id/complete', canFail(async (req, res) => {
-    let quest = await QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+    const quest = await QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
 
     if (quest.status == QuestStatus.WIP) {
         //webhook
@@ -289,6 +308,12 @@ adminQuestsRouter.post('/:id/complete', canFail(async (req, res) => {
             }
 
             updateUserPoints(user.id);
+        }
+
+        let url = `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`;
+
+        if (quest.isMbc) {
+            url = 'https://mappersguild.com/images/mbc-icon.png';
         }
 
         webhookPost([{
@@ -316,13 +341,13 @@ adminQuestsRouter.post('/:id/complete', canFail(async (req, res) => {
             completedMembers: quest.currentParty.members,
             completed: new Date(),
         });
-
-        quest = await QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
     }
 
-    res.json(quest);
+    const newQuest = await QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
 
-    LogService.create(req.session.mongoId, `marked quest "${quest.name}" as complete`, LogCategory.Quest);
+    res.json(newQuest);
+
+    LogService.create(req.session.mongoId, `marked quest "${newQuest.name}" as complete`, LogCategory.Quest);
 }));
 
 /* POST duplicate quest */

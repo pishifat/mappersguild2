@@ -24,6 +24,7 @@ export interface Quest extends Document {
     maxParty: number;
     minRank: number;
     art: number;
+    isMbc: boolean;
     status: QuestStatus;
     parties: Party[];
     modes: Omit<BeatmapMode, BeatmapMode.Hybrid>[];

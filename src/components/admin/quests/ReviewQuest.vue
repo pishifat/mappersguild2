@@ -168,6 +168,12 @@
                         <p class="ml-2">
                             {{ quest.minRank }} rank required
                         </p>
+                        <p class="small text-white-50 min-spacing">
+                            MBC
+                        </p>
+                        <p class="ml-2">
+                            {{ quest.isMbc ? 'yes' : 'no' }}
+                        </p>
 
                         <div class="radial-divisor mx-auto my-3" />
 

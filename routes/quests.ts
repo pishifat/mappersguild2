@@ -345,9 +345,11 @@ questsRouter.post('/acceptQuest/:partyId/:questId', isNotSpectator, canFail(asyn
         return res.json({ error: 'Something went wrong!' });
     }
 
-    // check if quest exists for selected modes
+
     for (let i = 0; i < p.modes.length; i++) {
         const mode = p.modes[i];
+
+        // check if quest exists for selected modes
         const invalidQuest = await QuestService.queryOne({
             query: {
                 name: q.name,
@@ -362,6 +364,11 @@ questsRouter.post('/acceptQuest/:partyId/:questId', isNotSpectator, canFail(asyn
 
         if (invalidQuest) {
             return res.json({ error: 'Quest already exists for selected mode(s)!' });
+        }
+
+        // check if MBC quest with non-osu! modes selected
+        if (mode != 'osu') {
+            return res.json({ error: 'MBC quests do not support modes other than osu!' });
         }
     }
 
@@ -397,6 +404,7 @@ questsRouter.post('/acceptQuest/:partyId/:questId', isNotSpectator, canFail(asyn
             maxParty: q.maxParty,
             minRank: q.minRank,
             art: q.art,
+            isMbc: q.isMbc,
             modes: p.modes,
             accepted: new Date(),
             status: QuestStatus.WIP,
@@ -445,6 +453,12 @@ questsRouter.post('/acceptQuest/:partyId/:questId', isNotSpectator, canFail(asyn
         }
     }
 
+    let url = `https://assets.ppy.sh/artists/${q.art}/cover.jpg`;
+
+    if (q.isMbc) {
+        url = 'https://mappersguild.com/images/mbc-icon.png';
+    }
+
     webhookPost([{
         author: {
             name: `${p.leader.username}'s party`,
@@ -454,7 +468,7 @@ questsRouter.post('/acceptQuest/:partyId/:questId', isNotSpectator, canFail(asyn
         description: `Accepted quest: [**${q.name}**](https://mappersguild.com/quests?id=${newQuest ? newQuest.id : q.id}) [**${p.modes.join(', ')}**]`,
         color: webhookColors.green,
         thumbnail: {
-            url: `https://assets.ppy.sh/artists/${q.art}/cover.jpg`,
+            url,
         },
         fields: [
             {
@@ -532,6 +546,12 @@ questsRouter.post('/dropQuest/:partyId/:questId', isNotSpectator, canFail(async 
         }
     }
 
+    let url = `https://assets.ppy.sh/artists/${q.art}/cover.jpg`;
+
+    if (q.isMbc) {
+        url = 'https://mappersguild.com/images/mbc-icon.png';
+    }
+
     webhookPost([{
         author: {
             name: `${p.leader.username}'s party`,
@@ -541,7 +561,7 @@ questsRouter.post('/dropQuest/:partyId/:questId', isNotSpectator, canFail(async 
         color: webhookColors.red,
         description: `Dropped quest: [**${q.name}**](https://mappersguild.com/quests?id=${openQuest && !QuestService.isError(openQuest) ? openQuest.id : q.id}) [**${p.modes.join(', ')}**]`,
         thumbnail: {
-            url: `https://assets.ppy.sh/artists/${q.art}/cover.jpg`,
+            url,
         },
         fields: [{
             name: 'Party members',
@@ -595,6 +615,13 @@ questsRouter.post('/reopenQuest/:questId', isNotSpectator, canFail(async (req, r
 
     LogService.create(req.session.mongoId, `re-opened quest "${quest.name}"`, LogCategory.Quest );
 
+    // webhook
+    let url = `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`;
+
+    if (quest.isMbc) {
+        url = 'https://mappersguild.com/images/mbc-icon.png';
+    }
+
     webhookPost([{
         author: {
             name: req.session.username,
@@ -604,7 +631,7 @@ questsRouter.post('/reopenQuest/:questId', isNotSpectator, canFail(async (req, r
         color: webhookColors.white,
         description: `Quest re-opened: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id})`,
         thumbnail: {
-            url: `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`,
+            url,
         },
         fields: [{
             name: 'Objective',

@@ -24,7 +24,7 @@
                             <div class="col-sm-12 text-center">
                                 <span v-if="selectedQuest.art">
                                     <a :href="'https://osu.ppy.sh/beatmaps/artists/' + selectedQuest.art" target="_blank">
-                                        <img :src="'https://assets.ppy.sh/artists/' + selectedQuest.art + '/cover.jpg'" class="card-avatar-img-modal">
+                                        <img :src="selectedQuest.isMbc ? '../../images/mbc-icon.png' : 'https://assets.ppy.sh/artists/' + selectedQuest.art + '/cover.jpg'" class="card-avatar-img-modal">
                                     </a>
                                 </span>
 
@@ -126,19 +126,6 @@ export default Vue.extend({
 </script>
 
 <style>
-.rank-restricted {
-    background-color: rgba(200, 0, 0, 0.05)!important;
-}
-
-.overdue {
-    background-color: rgba(255, 251, 0, 0.05)!important;
-}
-
-.fake-button-disable {
-    pointer-events: none;
-    opacity: 0.6;
-}
-
 .card-avatar-img-modal {
     max-width: 72px;
     max-height: 72px;
@@ -146,18 +133,5 @@ export default Vue.extend({
     border-radius: 100%;
     box-shadow: 0 1px 0.5rem rgba(10, 10, 25);
     background-color: rgba(10, 10, 25);
-}
-
-.row-highlight {
-    transition: background-color 0.2s ease-in;
-}
-
-.row-highlight:hover {
-    background-color: #3a3a3a;
-    color: #f5f5f5;
-}
-
-.row-highlight:hover #collapse-arrow {
-    color: var(--ranked);
 }
 </style>

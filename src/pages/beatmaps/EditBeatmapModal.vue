@@ -8,7 +8,9 @@
                             v-if="selectedBeatmap.quest"
                             class="rounded-circle mr-1"
                             style="height:24px; width: 24px;"
-                            :src="selectedBeatmap.quest.art ? `https://assets.ppy.sh/artists/${selectedBeatmap.quest.art}/cover.jpg` : '../../images/fa_icon.png'"
+                            :src="selectedBeatmap.quest.isMbc ? '../../images/mbc-icon.png' :
+                                selectedBeatmap.quest.art ? `https://assets.ppy.sh/artists/${selectedBeatmap.quest.art}/cover.jpg` :
+                                '../../images/fa_icon.png'"
                             data-toggle="tooltip"
                             :title="selectedBeatmap.quest.name"
                         >

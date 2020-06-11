@@ -3,7 +3,7 @@
         <div class="col-sm-12">
             <div
                 class="card static-card text-shadow"
-                :class="quest.minRank ? 'rank-restricted' : (quest.status == 'wip' && timeRemaining < 0) ? 'overdue' : 'bg-dark'"
+                :class="cardClass"
             >
                 <a
                     class="card-header row-highlight row no-gutters align-items-center"
@@ -12,15 +12,12 @@
                     @click="selectQuest()"
                 >
                     <div class="col-sm-1 text-center">
-                        <span v-if="quest.art">
-                            <a :href="'https://osu.ppy.sh/beatmaps/artists/' + quest.art" target="_blank">
-                                <img :src="'https://assets.ppy.sh/artists/' + quest.art + '/cover.jpg'" class="card-avatar-img">
-                            </a>
-                        </span>
-
-                        <span v-else>
-                            <img :src="'../../images/no-art-icon.png'" class="card-avatar-img">
-                        </span>
+                        <img
+                            :src="quest.isMbc ? '../../images/mbc-icon.png' :
+                                quest.art ? 'https://assets.ppy.sh/artists/' + quest.art + '/cover.jpg' :
+                                '../../images/no-art-icon.png'"
+                            class="card-avatar-img"
+                        >
                     </div>
                     <div class="col-sm-10">
                         <div class="row no-gutters">
@@ -56,8 +53,8 @@
                         </div>
 
                         <div class="row no-gutters">
-                            <div class="col-sm small text-shadow">
-                                <span class="text-white-50">{{ quest.descriptionMain }}</span>
+                            <div class="col-sm small text-shadow text-white-50">
+                                {{ quest.descriptionMain }}
                             </div>
                         </div>
                     </div>
@@ -117,20 +114,29 @@ export default Vue.extend({
         };
     },
     computed: {
+        ...mapState([
+            'userId',
+            'availablePoints',
+        ]),
         timeRemaining(): number {
             const now = new Date().getTime();
             const remaning = new Date(this.quest.deadline).getTime() - now;
 
             return Math.floor(remaning / (1000 * 60 * 60 * 24));
         },
-        ...mapState([
-            'userId',
-            'availablePoints',
-        ]),
         memberOfAnyParty(): boolean {
             return this.quest.parties.some(p =>
                 p.members.some(m => m.id === this.userId)
             );
+        },
+        cardClass(): string {
+            if (this.quest.status == 'wip' && this.timeRemaining < 0) {
+                return 'overdue';
+            } else if (this.quest.minRank) {
+                return 'rank-restricted';
+            } else {
+                return 'bg-dark';
+            }
         },
     },
     methods: {

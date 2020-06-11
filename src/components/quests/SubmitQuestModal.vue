@@ -173,8 +173,11 @@
                             <div class="col-lg-6 d-flex align-items-center">
                                 <span class="small text-white-50">...members required to accept quest (min/max)</span>
                             </div>
+                        </div>
 
-                            <!-- minimum rank (admin only) -->
+                        <!-- admin only -->
+                        <div v-if="isAdmin" class="row">
+                            <!-- party rank -->
                             <div class="col-lg-2 mb-2">
                                 <p class="mb-2">
                                     Party rank:
@@ -192,29 +195,48 @@
                             <div class="col-lg-8 d-flex align-items-center">
                                 <span class="small text-white-50">...required to accept quest</span>
                             </div>
+
+                            <!-- is MBC -->
+                            <div class="col-lg-2 mb-2">
+                                <p class="mb-2">
+                                    is MBC:
+                                </p>
+                            </div>
+                            <div class="col-lg-2">
+                                <input
+                                    v-model.number="isMbc"
+                                    class="form-control-sm w-100"
+                                    type="number"
+                                    autocomplete="off"
+                                    placeholder="rank..."
+                                >
+                            </div>
+                            <div class="col-lg-8 d-flex align-items-center">
+                                <span class="small text-white-50">0 = no | 1 = yes</span>
+                            </div>
                         </div>
+
+                        <div class="radial-divisor mx-auto my-3" />
+
+                        <div v-if="!isAdmin" class="small text-white-50 text-shadow mx-4">
+                            <p>
+                                Keep in mind that your quest may need revision before it is approved and published on the Mappers' Guild quest listing!
+                            </p>
+                            <p>
+                                If your quest is rejected, your spent points will be returned and pishifat will send you a message explaining why it was rejected. You may re-submit the quest with changes according to that message. Minor wording changes will be modified by pishifat without rejection.
+                            </p>
+                        </div>
+
+                        <button
+                            type="submit"
+                            class="btn btn-outline-success btn-block"
+                            :disabled="!enoughPoints && !isAdmin"
+                            @click="isAdmin ? addQuest($event) : submitQuest($event)"
+                        >
+                            {{ isAdmin ? 'Add quest' : `Submit quest for approval: ${points} pts` }}
+                            <i v-if="!isAdmin" class="fas fa-coins" />
+                        </button>
                     </div>
-
-                    <div class="radial-divisor mx-auto my-3" />
-
-                    <div v-if="!isAdmin" class="small text-white-50 text-shadow mx-4">
-                        <p>
-                            Keep in mind that your quest may need revision before it is approved and published on the Mappers' Guild quest listing!
-                        </p>
-                        <p>
-                            If your quest is rejected, your spent points will be returned and pishifat will send you a message explaining why it was rejected. You may re-submit the quest with changes according to that message. Minor wording changes will be modified by pishifat without rejection.
-                        </p>
-                    </div>
-
-                    <button
-                        type="submit"
-                        class="btn btn-outline-success btn-block"
-                        :disabled="!enoughPoints && !isAdmin"
-                        @click="isAdmin ? addQuest($event) : submitQuest($event)"
-                    >
-                        {{ isAdmin ? 'Add quest' : `Submit quest for approval: ${points} pts` }}
-                        <i v-if="!isAdmin" class="fas fa-coins" />
-                    </button>
                 </div>
             </div>
         </div>
@@ -243,6 +265,7 @@ export default Vue.extend({
             minParty: 0,
             maxParty: 0,
             minRank: 0,
+            isMbc: 0,
         };
     },
     computed: {
@@ -406,6 +429,7 @@ export default Vue.extend({
                 minParty: this.minParty,
                 maxParty: this.maxParty,
                 minRank: this.minRank,
+                isMbc: this.isMbc,
                 art: this.selectedArtistOsuId,
                 requiredMapsets: this.mapsetCount,
             }, e);
