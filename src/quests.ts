@@ -102,6 +102,14 @@ const store = new Vuex.Store({
                 commit('setSelectedQuest', quest);
             }
         },
+        setQuests ({ commit, state }, quests: Quest[]): void {
+            commit('setQuests', quests);
+
+            if (state.selectedQuest) {
+                const i = state.quests.findIndex(q => q.id === state.selectedQuest?.id);
+                commit('setSelectedQuest', state.quests[i]);
+            }
+        },
         async updateFilterMode ({ commit }, mode: string): Promise<void> {
             commit('setIsLoadingQuests', true);
 

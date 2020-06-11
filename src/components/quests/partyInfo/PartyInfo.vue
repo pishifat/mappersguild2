@@ -39,6 +39,12 @@
                         :quest="quest"
                     />
 
+                    <p class="small">
+                        <a v-if="quest.art" :href="'https://osu.ppy.sh/beatmaps/artists/' + quest.art" target="_blank">
+                            View featured artist listing
+                        </a>
+                    </p>
+
                     <expiration-date
                         v-if="quest.status == 'open'"
                         :is-expired="quest.isExpired"

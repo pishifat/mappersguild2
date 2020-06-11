@@ -104,7 +104,7 @@ export default Vue.extend({
             const quests = await this.executePost('/quests/dropQuest/' + this.party.id + '/' + this.questId, {}, e);
 
             if (!this.isError(quests)) {
-                this.$store.commit('setQuests', quests);
+                this.$store.dispatch('setQuests', quests);
                 $('#editQuest').modal('hide');
             }
         },

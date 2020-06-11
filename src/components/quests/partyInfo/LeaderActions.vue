@@ -240,8 +240,8 @@ export default Vue.extend({
             const quests = await this.executePost('/quests/dropQuest/' + this.party.id + '/' + this.quest.id, {}, e);
 
             if (!this.isError(quests)) {
-                this.$store.commit('setQuests', quests);
                 $('#editQuest').modal('hide');
+                this.$store.dispatch('setQuests', quests);
             }
         },
         async acceptQuest(e): Promise<void> {
@@ -260,7 +260,7 @@ export default Vue.extend({
                 const res: any = await this.executePost('/quests/acceptQuest/' + this.party.id + '/' + this.quest.id, { price: this.price }, e);
 
                 if (!this.isError(res)) {
-                    this.$store.commit('setQuests', res.quests);
+                    this.$store.dispatch('setQuests', res.quests);
                     this.$store.commit('setAvailablePoints', res.availablePoints);
                     $('#editQuest').modal('hide');
                 }
