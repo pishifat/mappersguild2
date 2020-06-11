@@ -145,10 +145,7 @@ export async function updateUserPoints(userId: string): Promise<number | BasicEr
         }),
         ContestService.queryAll({
             query: {
-                $and: [
-                    { judges: userId },
-                    { judges: { $nin: '5c6e135359d335001922e610' } }, // no pishifat
-                ],
+                judges: userId,
             },
         }),
         SpentPointsService.queryAll({
@@ -261,7 +258,7 @@ export async function updateUserPoints(userId: string): Promise<number | BasicEr
     pointsObject['ContestParticipant'] = submittedContests.length*5; // 5 points per entry
 
     // contest judging
-    pointsObject['ContestJudge'] = judgedContests.length; // 1 point per judge
+    if (userId != '5c6e135359d335001922e610') pointsObject['ContestJudge'] = judgedContests.length; // 1 point per judge
 
     // spent points
     ownSpentPoints.forEach(spentPoints => {
