@@ -152,10 +152,7 @@ function updateUserPoints(userId) {
             }),
             contest_1.ContestService.queryAll({
                 query: {
-                    $and: [
-                        { judges: userId },
-                        { judges: { $nin: '5c6e135359d335001922e610' } },
-                    ],
+                    judges: userId,
                 },
             }),
             spentPoints_1.SpentPointsService.queryAll({
@@ -242,7 +239,8 @@ function updateUserPoints(userId) {
         pointsObject['Host'] = hostedBeatmaps.length * 5;
         pointsObject['Mod'] = moddedBeatmaps.length;
         pointsObject['ContestParticipant'] = submittedContests.length * 5;
-        pointsObject['ContestJudge'] = judgedContests.length;
+        if (userId != '5c6e135359d335001922e610')
+            pointsObject['ContestJudge'] = judgedContests.length;
         ownSpentPoints.forEach(spentPoints => {
             if (spentPoints.category == 'acceptQuest') {
                 pointsObject['SpentPoints'] += spentPoints.quest.price;

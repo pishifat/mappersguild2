@@ -32,6 +32,7 @@ const questSchema = new mongoose_1.Schema({
     maxParty: { type: Number, required: true },
     minRank: { type: Number, required: true },
     art: { type: Number },
+    isMbc: { type: Boolean },
     status: { type: String, enum: ['open', 'wip', 'done', 'pending', 'rejected', 'hidden'], default: 'open' },
     parties: [{ type: 'ObjectId', ref: 'Party' }],
     modes: [{ type: String, default: ['osu', 'taiko', 'catch', 'mania'], required: true }],

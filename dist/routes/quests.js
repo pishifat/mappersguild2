@@ -282,6 +282,9 @@ questsRouter.post('/acceptQuest/:partyId/:questId', middlewares_1.isNotSpectator
         if (invalidQuest) {
             return res.json({ error: 'Quest already exists for selected mode(s)!' });
         }
+        if (mode != 'osu') {
+            return res.json({ error: 'MBC quests do not support modes other than osu!' });
+        }
     }
     let newQuest;
     if (q.modes.length == p.modes.length) {
@@ -312,6 +315,7 @@ questsRouter.post('/acceptQuest/:partyId/:questId', middlewares_1.isNotSpectator
             maxParty: q.maxParty,
             minRank: q.minRank,
             art: q.art,
+            isMbc: q.isMbc,
             modes: p.modes,
             accepted: new Date(),
             status: quest_2.QuestStatus.WIP,
@@ -345,6 +349,10 @@ questsRouter.post('/acceptQuest/:partyId/:questId', middlewares_1.isNotSpectator
             memberList += ', ';
         }
     }
+    let url = `https://assets.ppy.sh/artists/${q.art}/cover.jpg`;
+    if (q.isMbc) {
+        url = 'https://mappersguild.com/images/mbc-icon.png';
+    }
     discordApi_1.webhookPost([{
             author: {
                 name: `${p.leader.username}'s party`,
@@ -354,7 +362,7 @@ questsRouter.post('/acceptQuest/:partyId/:questId', middlewares_1.isNotSpectator
             description: `Accepted quest: [**${q.name}**](https://mappersguild.com/quests?id=${newQuest ? newQuest.id : q.id}) [**${p.modes.join(', ')}**]`,
             color: discordApi_1.webhookColors.green,
             thumbnail: {
-                url: `https://assets.ppy.sh/artists/${q.art}/cover.jpg`,
+                url,
             },
             fields: [
                 {
@@ -415,6 +423,10 @@ questsRouter.post('/dropQuest/:partyId/:questId', middlewares_1.isNotSpectator, 
             memberList += ', ';
         }
     }
+    let url = `https://assets.ppy.sh/artists/${q.art}/cover.jpg`;
+    if (q.isMbc) {
+        url = 'https://mappersguild.com/images/mbc-icon.png';
+    }
     discordApi_1.webhookPost([{
             author: {
                 name: `${p.leader.username}'s party`,
@@ -424,7 +436,7 @@ questsRouter.post('/dropQuest/:partyId/:questId', middlewares_1.isNotSpectator, 
             color: discordApi_1.webhookColors.red,
             description: `Dropped quest: [**${q.name}**](https://mappersguild.com/quests?id=${openQuest && !quest_1.QuestService.isError(openQuest) ? openQuest.id : q.id}) [**${p.modes.join(', ')}**]`,
             thumbnail: {
-                url: `https://assets.ppy.sh/artists/${q.art}/cover.jpg`,
+                url,
             },
             fields: [{
                     name: 'Party members',
@@ -467,6 +479,10 @@ questsRouter.post('/reopenQuest/:questId', middlewares_1.isNotSpectator, helpers
     const allQuests = yield quest_1.QuestService.queryAll({ useDefaults: true });
     res.json({ quests: allQuests, availablePoints: res.locals.userRequest.availablePoints });
     log_1.LogService.create(req.session.mongoId, `re-opened quest "${quest.name}"`, log_2.LogCategory.Quest);
+    let url = `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`;
+    if (quest.isMbc) {
+        url = 'https://mappersguild.com/images/mbc-icon.png';
+    }
     discordApi_1.webhookPost([{
             author: {
                 name: req.session.username,
@@ -476,7 +492,7 @@ questsRouter.post('/reopenQuest/:questId', middlewares_1.isNotSpectator, helpers
             color: discordApi_1.webhookColors.white,
             description: `Quest re-opened: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id})`,
             thumbnail: {
-                url: `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`,
+                url,
             },
             fields: [{
                     name: 'Objective',

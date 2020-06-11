@@ -57,7 +57,7 @@ class BeatmapService extends baseService_1.default {
             { path: 'host', select: '_id osuId username' },
             { path: 'bns', select: '_id osuId username' },
             { path: 'modders', select: '_id osuId username' },
-            { path: 'quest', select: '_id name art modes deadline' },
+            { path: 'quest', select: '_id name art modes deadline isMbc' },
             { path: 'song', select: 'artist title' },
             {
                 path: 'tasks',

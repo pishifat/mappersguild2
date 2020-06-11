@@ -48,18 +48,28 @@ adminQuestsRouter.get('/load', (req, res) => __awaiter(void 0, void 0, void 0, f
 }));
 adminQuestsRouter.post('/create', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c;
-    req.body.modes = [beatmap_1.BeatmapMode.Osu, beatmap_1.BeatmapMode.Taiko, beatmap_1.BeatmapMode.Catch, beatmap_1.BeatmapMode.Mania];
+    req.body.isMbc = Boolean(req.body.isMbc);
+    if (req.body.isMbc) {
+        req.body.modes = [beatmap_1.BeatmapMode.Osu];
+    }
+    else {
+        req.body.modes = [beatmap_1.BeatmapMode.Osu, beatmap_1.BeatmapMode.Taiko, beatmap_1.BeatmapMode.Catch, beatmap_1.BeatmapMode.Mania];
+    }
     req.body.expiration = new Date();
     req.body.expiration.setDate(req.body.expiration.getDate() + 90);
     req.body.creator = (_b = (_a = req) === null || _a === void 0 ? void 0 : _a.session) === null || _b === void 0 ? void 0 : _b.mongoId;
     const quest = yield quest_1.QuestService.create(req.body);
     if (!quest_1.QuestService.isError(quest)) {
         log_1.LogService.create((_c = req.session) === null || _c === void 0 ? void 0 : _c.mongoId, `created quest "${quest.name}"`, log_2.LogCategory.Quest);
+        let url = `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`;
+        if (req.body.isMbc) {
+            url = 'https://mappersguild.com/images/mbc-icon.png';
+        }
         discordApi_1.webhookPost([{
                 color: discordApi_1.webhookColors.orange,
                 description: `New quest: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id})`,
                 thumbnail: {
-                    url: `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`,
+                    url,
                 },
                 fields: [{
                         name: 'Objective',
@@ -205,6 +215,10 @@ adminQuestsRouter.post('/:id/drop', helpers_1.canFail((req, res) => __awaiter(vo
             memberList += ', ';
         }
     }
+    let url = `https://assets.ppy.sh/artists/${q.art}/cover.jpg`;
+    if (q.isMbc) {
+        url = 'https://mappersguild.com/images/mbc-icon.png';
+    }
     discordApi_1.webhookPost([{
             author: {
                 name: `${party.leader.username}'s party`,
@@ -214,7 +228,7 @@ adminQuestsRouter.post('/:id/drop', helpers_1.canFail((req, res) => __awaiter(vo
             color: discordApi_1.webhookColors.red,
             description: `Dropped quest: [**${q.name}**](https://mappersguild.com/quests?id=${openQuest && !quest_1.QuestService.isError(openQuest) ? openQuest.id : q.id}) [**${party.modes.join(', ')}**]`,
             thumbnail: {
-                url: `https://assets.ppy.sh/artists/${q.art}/cover.jpg`,
+                url,
             },
             fields: [{
                     name: 'Party members',
@@ -224,7 +238,7 @@ adminQuestsRouter.post('/:id/drop', helpers_1.canFail((req, res) => __awaiter(vo
     log_1.LogService.create((_e = req.session) === null || _e === void 0 ? void 0 : _e.mongoId, `forced party to drop quest "${q.name}"`, log_2.LogCategory.Quest);
 })));
 adminQuestsRouter.post('/:id/complete', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let quest = yield quest_1.QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+    const quest = yield quest_1.QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
     if (quest.status == quest_2.QuestStatus.WIP) {
         let memberList = '';
         for (let i = 0; i < quest.currentParty.members.length; i++) {
@@ -234,6 +248,10 @@ adminQuestsRouter.post('/:id/complete', helpers_1.canFail((req, res) => __awaite
                 memberList += ', ';
             }
             points_1.updateUserPoints(user.id);
+        }
+        let url = `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`;
+        if (quest.isMbc) {
+            url = 'https://mappersguild.com/images/mbc-icon.png';
         }
         discordApi_1.webhookPost([{
                 author: {
@@ -258,10 +276,10 @@ adminQuestsRouter.post('/:id/complete', helpers_1.canFail((req, res) => __awaite
             completedMembers: quest.currentParty.members,
             completed: new Date(),
         });
-        quest = yield quest_1.QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
     }
-    res.json(quest);
-    log_1.LogService.create(req.session.mongoId, `marked quest "${quest.name}" as complete`, log_2.LogCategory.Quest);
+    const newQuest = yield quest_1.QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+    res.json(newQuest);
+    log_1.LogService.create(req.session.mongoId, `marked quest "${newQuest.name}" as complete`, log_2.LogCategory.Quest);
 })));
 adminQuestsRouter.post('/:id/duplicate', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const expiration = new Date();
