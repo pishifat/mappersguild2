@@ -39,12 +39,14 @@
                         :quest="quest"
                     />
 
+                    <!-- fa promo will not appear in modal -->
                     <p class="small">
-                        <a v-if="quest.art" :href="'https://osu.ppy.sh/beatmaps/artists/' + quest.art" target="_blank">
+                        <a v-if="quest.art && collapse" :href="'https://osu.ppy.sh/beatmaps/artists/' + quest.art" target="_blank">
                             View featured artist listing
                         </a>
                     </p>
 
+                    <!-- quest expiration date -->
                     <expiration-date
                         v-if="quest.status == 'open'"
                         :is-expired="quest.isExpired"
@@ -84,10 +86,6 @@ export default Vue.extend({
         quest: {
             type: Object as () => Quest,
             required: true,
-        },
-        test: {
-            type: Number,
-            default: 0,
         },
         memberOfAnyParty: Boolean,
         collapse: Boolean,
