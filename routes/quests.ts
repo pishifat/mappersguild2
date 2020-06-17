@@ -367,7 +367,7 @@ questsRouter.post('/acceptQuest/:partyId/:questId', isNotSpectator, canFail(asyn
         }
 
         // check if MBC quest with non-osu! modes selected
-        if (mode != 'osu') {
+        if (q.isMbc && mode != 'osu') {
             return res.json({ error: 'MBC quests do not support modes other than osu!' });
         }
     }

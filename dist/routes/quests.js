@@ -282,7 +282,7 @@ questsRouter.post('/acceptQuest/:partyId/:questId', middlewares_1.isNotSpectator
         if (invalidQuest) {
             return res.json({ error: 'Quest already exists for selected mode(s)!' });
         }
-        if (mode != 'osu') {
+        if (q.isMbc && mode != 'osu') {
             return res.json({ error: 'MBC quests do not support modes other than osu!' });
         }
     }
