@@ -1,29 +1,29 @@
 <template>
     <div>
         <p>
-            Judges:
+            Screeners:
             <input
-                v-model.number="judgeOsuId"
+                v-model.number="screenerOsuId"
                 class="form-control-sm"
                 type="number"
                 autocomplete="off"
-                placeholder="new judge's osuId..."
-                @keyup.enter="addJudge($event)"
+                placeholder="new screener's osuId..."
+                @keyup.enter="addScreener($event)"
             >
         </p>
 
-        <ul v-if="judges.length">
+        <ul v-if="screeners.length">
             <li
-                v-for="judge in judges"
-                :key="judge.id"
+                v-for="screener in screeners"
+                :key="screener.id"
             >
-                {{ judge.username }}
+                {{ screener.username }}
 
                 <a
-                    v-if="confirmDelete != judge.id"
+                    v-if="confirmDelete != screener.id"
                     href="#"
                     class="text-danger"
-                    @click.prevent="confirmDelete = judge.id"
+                    @click.prevent="confirmDelete = screener.id"
                 >
                     delete
                 </a>
@@ -31,7 +31,7 @@
                     v-else
                     class="text-danger"
                     href="#"
-                    @click.prevent="removeJudge(judge.id)"
+                    @click.prevent="removeScreener(screener.id)"
                 >
                     confirm
                 </a>
@@ -48,49 +48,49 @@
 import Vue from 'vue';
 
 export default Vue.extend({
-    name: 'JudgesInfo',
+    name: 'ScreenersInfo',
     props: {
         contestId: {
             type: String,
             required: true,
         },
-        judges: {
+        screeners: {
             type: Array,
             required: true,
         },
     },
     data () {
         return {
-            judgeOsuId: null,
+            screenerOsuId: null,
             confirmDelete: null,
         };
     },
     methods: {
-        async addJudge(e): Promise<void> {
-            const judge = await this.executePost(`/admin/contests/${this.contestId}/judges/add`, { osuId: this.judgeOsuId }, e);
+        async addScreener(e): Promise<void> {
+            const screener = await this.executePost(`/admin/contests/${this.contestId}/screeners/add`, { osuId: this.screenerOsuId }, e);
 
-            if (!this.isError(judge)) {
+            if (!this.isError(screener)) {
                 this.$store.dispatch('updateToastMessages', {
-                    message: `added ${this.judgeOsuId} (${this.judges.length + 1})`,
+                    message: `added ${this.screenerOsuId} (${this.screeners.length + 1})`,
                     type: 'info',
                 });
-                this.$store.commit('addJudge', {
+                this.$store.commit('addScreener', {
                     contestId: this.contestId,
-                    judge,
+                    screener,
                 });
             }
         },
-        async removeJudge(judgeId, e): Promise<void> {
-            const res = await this.executePost(`/admin/contests/${this.contestId}/judges/remove`, { judgeId }, e);
+        async removeScreener(screenerId, e): Promise<void> {
+            const res = await this.executePost(`/admin/contests/${this.contestId}/screeners/remove`, { screenerId }, e);
 
             if (!this.isError(res)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `deleted`,
                     type: 'info',
                 });
-                this.$store.commit('deleteJudge', {
+                this.$store.commit('deleteScreener', {
                     contestId: this.contestId,
-                    judgeId,
+                    screenerId,
                 });
             }
         },

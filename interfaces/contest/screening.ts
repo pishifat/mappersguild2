@@ -1,6 +1,6 @@
 import { User } from '../user';
 
-export enum JudgingPlacement {
+export enum ScreeningPlacement {
     First = 5,
     Second = 4,
     Third = 3,
@@ -9,10 +9,10 @@ export enum JudgingPlacement {
     None = 0,
 }
 
-export interface Judging {
+export interface Screening {
     _id: any;
     id: string;
-    judge: User;
+    screener: User;
     comment: string;
-    vote: JudgingPlacement;
+    vote: ScreeningPlacement;
 }

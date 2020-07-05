@@ -31,7 +31,7 @@ adminContestsRouter.get('/relevantInfo', async (req, res) => {
                     {
                         path: 'evaluations',
                         populate: {
-                            path: 'judge',
+                            path: 'screener',
                         },
                     },
                     {
@@ -41,7 +41,7 @@ adminContestsRouter.get('/relevantInfo', async (req, res) => {
                 ],
             },
             {
-                path: 'judges',
+                path: 'screeners',
             },
             {
                 path: 'voters',
@@ -95,11 +95,11 @@ adminContestsRouter.post('/:id/updateContestStart', async (req, res) => {
     res.json(newContestStart);
 });
 
-/* POST update judging start date */
-adminContestsRouter.post('/:id/updateJudgingStart', async (req, res) => {
-    const newJudgingStart = new Date(req.body.date);
+/* POST update screening start date */
+adminContestsRouter.post('/:id/updateScreeningStart', async (req, res) => {
+    const newScreeningStart = new Date(req.body.date);
 
-    if (!(newJudgingStart instanceof Date && !isNaN(newJudgingStart.getTime()))) {
+    if (!(newScreeningStart instanceof Date && !isNaN(newScreeningStart.getTime()))) {
         return res.json({ error: 'Invalid date' });
     }
 
@@ -107,10 +107,10 @@ adminContestsRouter.post('/:id/updateJudgingStart', async (req, res) => {
         .findById(req.params.id)
         .orFail();
 
-    contest.judgingStart = newJudgingStart;
+    contest.screeningStart = newScreeningStart;
     await contest.save();
 
-    res.json(newJudgingStart);
+    res.json(newScreeningStart);
 });
 
 /* POST update results published date */
@@ -131,8 +131,8 @@ adminContestsRouter.post('/:id/updateResultsPublished', async (req, res) => {
     res.json(newResultsPublished);
 });
 
-/* POST add a judge to the list */
-adminContestsRouter.post('/:id/judges/add', async (req, res) => {
+/* POST add a screener to the list */
+adminContestsRouter.post('/:id/screeners/add', async (req, res) => {
     const osuId = parseInt(req.body.osuId, 10);
     const [contest, user] = await Promise.all([
         ContestModel
@@ -144,34 +144,34 @@ adminContestsRouter.post('/:id/judges/add', async (req, res) => {
             .orFail(),
     ]);
 
-    if (contest.judges.includes(user._id)) {
-        return res.json({ error: 'User is already a judge!' });
+    if (contest.screeners.includes(user._id)) {
+        return res.json({ error: 'User is already a screener!' });
     }
 
-    contest.judges.push(user._id);
+    contest.screeners.push(user._id);
     await contest.save();
 
     res.json(user);
 });
 
-/* POST remove a judge from the list */
-adminContestsRouter.post('/:id/judges/remove', async (req, res) => {
+/* POST remove a screener from the list */
+adminContestsRouter.post('/:id/screeners/remove', async (req, res) => {
     const [contest, user] = await Promise.all([
         ContestModel
             .findById(req.params.id)
             .orFail(),
 
         UserModel
-            .findById(req.body.judgeId)
+            .findById(req.body.screenerId)
             .orFail(),
     ]);
 
-    if (!contest.judges.includes(user._id)) {
-        return res.json({ error: 'User is not a judge!' });
+    if (!contest.screeners.includes(user._id)) {
+        return res.json({ error: 'User is not a screener!' });
     }
 
     await ContestModel
-        .findByIdAndUpdate(contest._id, { $pull: { judges: user._id } })
+        .findByIdAndUpdate(contest._id, { $pull: { screeners: user._id } })
         .orFail();
 
     res.json(user);

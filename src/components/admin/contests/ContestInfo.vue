@@ -6,7 +6,7 @@
             {{ contest.name }}
         </h5>
         <div class="text-center">
-            <span>({{ contest.isActive ? 'Judging in progress' : 'Judging completed' }})</span>
+            <span>({{ contest.isActive ? 'Screening in progress' : 'Screening completed' }})</span>
             <button
                 type="button"
                 class="btn btn-sm btn-outline-info"
@@ -21,15 +21,15 @@
         <date-info
             :contest-id="contest.id"
             :contest-start="contest.contestStart"
-            :judging-start="contest.judgingStart"
+            :screening-start="contest.screeningStart"
             :results-published="contest.resultsPublished"
         />
 
         <hr>
 
-        <judges-info
+        <screeners-info
             :contest-id="contest.id"
-            :judges="contest.judges"
+            :screeners="contest.screeners"
         />
 
         <hr>
@@ -45,14 +45,14 @@
 import Vue from 'vue';
 import { Contest } from '../../../../interfaces/contest/contest';
 import DateInfo from './DateInfo.vue';
-import JudgesInfo from './JudgesInfo.vue';
+import ScreenersInfo from './ScreenersInfo.vue';
 import SubmissionsInfo from './SubmissionsInfo.vue';
 
 export default Vue.extend({
     name: 'ContestInfo',
     components: {
         DateInfo,
-        JudgesInfo,
+        ScreenersInfo,
         SubmissionsInfo,
     },
     props: {

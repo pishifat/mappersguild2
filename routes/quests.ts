@@ -12,7 +12,7 @@ import { updateUserPoints } from '../helpers/points';
 import { Party, PartyModel } from '../models/party';
 import { QuestModel, Quest } from '../models/quest';
 import { LogModel } from '../models/log';
-import { UserModel } from '../models/user';
+import { UserModel, populatePointsVirtuals } from '../models/user';
 import { InviteModel } from '../models/invite';
 import { BeatmapModel } from '../models/beatmap/beatmap';
 import { SpentPointsModel } from '../models/spentPoints';
@@ -28,7 +28,7 @@ const beatmapPopulate = [
 ];
 
 const pointsPopulate = [
-    { path: 'members', select: 'osuId username rank easyPoints normalPoints hardPoints insanePoints expertPoints storyboardPoints questPoints modPoints hostPoints contestParticipantPoints contestJudgePoints contestVotePoints spentPoints' },
+    { path: 'members', select: populatePointsVirtuals + ' spentPoints' },
     { path: 'leader', select: 'osuId username' },
 ];
 

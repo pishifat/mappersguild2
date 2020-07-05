@@ -9,7 +9,7 @@ module.exports = {
         notifications: './src/notifications.ts',
         admin: './src/admin.ts',
         artists: './src/artists.ts',
-        judging: './src/judging.ts',
+        screening: './src/screening.ts',
         adminContests: './src/admin/contests.ts',
         adminBeatmaps: './src/admin/beatmaps.ts',
         adminQuests: './src/admin/quests.ts',

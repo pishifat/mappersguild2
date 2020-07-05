@@ -23,7 +23,7 @@ export interface Points {
     catch: number;
     mania: number;
     ContestParticipant: number;
-    ContestJudge: number;
+    ContestScreener: number;
     ContestVote: number;
     Quests: any[];
 }

@@ -45,7 +45,7 @@
 import Vue from 'vue';
 
 export default Vue.extend({
-    name: 'JudgingNotes',
+    name: 'ScreeningNotes',
     props: {
         submissionId: {
             type: String,
@@ -69,7 +69,7 @@ export default Vue.extend({
         },
         async updateComment(e): Promise<void> {
             if (this.savedComment != this.newComment) {
-                const submission = await this.executePost('/judging/updateSubmission/' + this.submissionId, { comment: this.newComment.trim() }, e);
+                const submission = await this.executePost('/screening/updateSubmission/' + this.submissionId, { comment: this.newComment.trim() }, e);
 
                 if (!this.isError(submission)) {
                     this.showCommentInput = !this.showCommentInput;

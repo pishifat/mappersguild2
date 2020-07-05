@@ -109,10 +109,10 @@ export async function updateUserPoints(userId: any): Promise<number | BasicError
     /* find:
         - tasks user created
         - MBC they submitted entries to
-        - MBC they judged
+        - MBC they screened
         - spent points events from user
     */
-    const [ownTasks, hostedBeatmaps, moddedBeatmaps, submittedContests, judgedContests, ownSpentPoints] = await Promise.all([
+    const [ownTasks, hostedBeatmaps, moddedBeatmaps, submittedContests, screenedContests, ownSpentPoints] = await Promise.all([
         TaskModel.find({ mappers: userId }).select('_id'),
         BeatmapModel
             .find({
@@ -139,7 +139,7 @@ export async function updateUserPoints(userId: any): Promise<number | BasicError
             ],
         }),
         ContestModel.find({
-            judges: userId,
+            screeners: userId,
         }),
         SpentPointsModel
             .find({ user: userId })
@@ -169,7 +169,7 @@ export async function updateUserPoints(userId: any): Promise<number | BasicError
         !hostedBeatmaps ||
         !moddedBeatmaps ||
         !submittedContests ||
-        !judgedContests ||
+        !screenedContests ||
         !ownSpentPoints ||
         !userBeatmaps
     ) {
@@ -194,7 +194,7 @@ export async function updateUserPoints(userId: any): Promise<number | BasicError
         catch: 0,
         mania: 0,
         ContestParticipant: 0,
-        ContestJudge: 0,
+        ContestScreener: 0,
         ContestVote: 0,
         Quests: [],
     };
@@ -249,8 +249,8 @@ export async function updateUserPoints(userId: any): Promise<number | BasicError
     // contest participation
     pointsObject['ContestParticipant'] = submittedContests.length*5; // 5 points per entry
 
-    // contest judging
-    if (userId != '5c6e135359d335001922e610') pointsObject['ContestJudge'] = judgedContests.length; // 1 point per judge
+    // contest screening
+    if (userId != '5c6e135359d335001922e610') pointsObject['ContestScreener'] = screenedContests.length; // 1 point per screen
 
     // spent points
     ownSpentPoints.forEach(spentPoints => {
@@ -276,7 +276,7 @@ export async function updateUserPoints(userId: any): Promise<number | BasicError
         pointsObject['Host'] +
         pointsObject['QuestReward'] +
         pointsObject['ContestParticipant'] +
-        pointsObject['ContestJudge'] +
+        pointsObject['ContestScreener'] +
         pointsObject['ContestVote'];
 
     if (totalPoints < 100) {
@@ -306,7 +306,7 @@ export async function updateUserPoints(userId: any): Promise<number | BasicError
         catchPoints: pointsObject['catch'],
         maniaPoints: pointsObject['mania'],
         contestParticipantPoints: pointsObject['ContestParticipant'],
-        contestJudgePoints: pointsObject['ContestJudge'],
+        contestScreenerPoints: pointsObject['ContestScreener'],
         contestVotePoints: pointsObject['ContestVote'],
         completedQuests: pointsObject['Quests'],
     });

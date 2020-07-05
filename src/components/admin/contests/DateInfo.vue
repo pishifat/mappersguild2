@@ -19,10 +19,10 @@
             </button>
         </p>
         <p>
-            Judging start date:
-            <span class="text-white-50">{{ judgingStart || 'No date set' }}</span>
+            Screening start date:
+            <span class="text-white-50">{{ screeningStart || 'No date set' }}</span>
             <input
-                v-model="newJudgingStart"
+                v-model="newScreeningStart"
                 class="small date-input ml-2 form-control-sm"
                 type="text"
                 placeholder="mm-dd-yyyy"
@@ -31,7 +31,7 @@
             <button
                 type="button"
                 class="btn btn-sm btn-outline-info"
-                @click="updateJudgingStart($event)"
+                @click="updateScreeningStart($event)"
             >
                 Save
             </button>
@@ -71,7 +71,7 @@ export default Vue.extend({
             type: String,
             default: null,
         },
-        judgingStart: {
+        screeningStart: {
             type: String,
             default: null,
         },
@@ -83,7 +83,7 @@ export default Vue.extend({
     data () {
         return {
             newContestStart: null,
-            newJudgingStart: null,
+            newScreeningStart: null,
             newResultsPublished: null,
         };
     },
@@ -102,17 +102,17 @@ export default Vue.extend({
                 });
             }
         },
-        async updateJudgingStart(e): Promise<void> {
-            const judgingStart = await this.executePost(`/admin/contests/${this.contestId}/updateJudgingStart`, { date: this.newJudgingStart }, e);
+        async updateScreeningStart(e): Promise<void> {
+            const screeningStart = await this.executePost(`/admin/contests/${this.contestId}/updateScreeningStart`, { date: this.newScreeningStart }, e);
 
-            if (!this.isError(judgingStart)) {
+            if (!this.isError(screeningStart)) {
                 this.$store.dispatch('updateToastMessages', {
-                    message: `updated judging start date`,
+                    message: `updated screening start date`,
                     type: 'info',
                 });
-                this.$store.commit('updateJudgingStart', {
+                this.$store.commit('updateScreeningStart', {
                     contestId: this.contestId,
-                    judgingStart,
+                    screeningStart,
                 });
             }
         },

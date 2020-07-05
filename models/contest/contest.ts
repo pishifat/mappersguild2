@@ -9,10 +9,10 @@ const contestSchema = new Schema({
     name: { type: String, required: true },
     isActive: { type: Boolean, default: true },
     contestStart: { type: Date },
-    judgingStart: { type: Date },
+    screeningStart: { type: Date },
     resultsPublished: { type: Date },
     submissions: [{ type: 'ObjectId', ref: 'Submission' }],
-    judges: [{ type: 'ObjectId', ref: 'User' }],
+    screeners: [{ type: 'ObjectId', ref: 'User' }],
     voters: [{ type: 'ObjectId', ref: 'User' }],
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 

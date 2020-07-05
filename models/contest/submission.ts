@@ -8,7 +8,7 @@ export interface Submission extends ISubmission, Document {
 const submissionSchema = new Schema({
     name: { type: String, required: true },
     creator: { type: 'ObjectId', ref: 'User', required: true },
-    evaluations: [{ type: 'ObjectId', ref: 'Judging' }],
+    evaluations: [{ type: 'ObjectId', ref: 'Screening' }],
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const SubmissionModel = mongoose.model<Submission>('Submission', submissionSchema);

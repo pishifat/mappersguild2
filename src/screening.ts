@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import JudgingPage from './pages/JudgingPage.vue';
+import ScreeningPage from './pages/ScreeningPage.vue';
 import './bootstrap';
 import mixins from './mixins';
 import toastsModule from './modules/toasts';
@@ -11,12 +11,12 @@ import { Submission } from '../interfaces/contest/submission';
 Vue.mixin(mixins);
 Vue.use(Vuex);
 
-interface JudgingState {
+interface ScreeningState {
     contests: Contest[];
     userId: User['id'];
 }
 
-const store = new Vuex.Store<JudgingState>({
+const store = new Vuex.Store<ScreeningState>({
     modules: {
         toasts: toastsModule,
     },
@@ -50,7 +50,7 @@ const store = new Vuex.Store<JudgingState>({
 
             state.contests.forEach(c => {
                 c.submissions.forEach(s => {
-                    const e = s.evaluations.find(e => e.judge.id === state.userId);
+                    const e = s.evaluations.find(e => e.screener.id === state.userId);
 
                     if (e) {
                         usedVotes.push(e.vote);
@@ -68,6 +68,6 @@ new Vue({
     el: '#app',
     store,
     components: {
-        JudgingPage,
+        ScreeningPage,
     },
 });

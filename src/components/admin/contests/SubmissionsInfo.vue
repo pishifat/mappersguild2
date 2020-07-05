@@ -68,7 +68,7 @@
                             :submission-id="submission.id"
                             :creator="submission.creator"
                         />
-                        <judging-detail
+                        <screening-detail
                             :evaluations="submission.evaluations"
                         />
                         <message-template
@@ -86,7 +86,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import JudgingDetail from './JudgingDetail.vue';
+import ScreeningDetail from './ScreeningDetail.vue';
 import MessageTemplate from './MessageTemplate.vue';
 import EditUser from './EditUser.vue';
 import { Submission } from '../../../../interfaces/contest/submission';
@@ -94,7 +94,7 @@ import { Submission } from '../../../../interfaces/contest/submission';
 export default Vue.extend({
     name: 'SubmissionsInfo',
     components: {
-        JudgingDetail,
+        ScreeningDetail,
         MessageTemplate,
         EditUser,
     },

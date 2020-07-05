@@ -1,7 +1,7 @@
 import express from 'express';
 import { BeatmapModel, Beatmap } from '../../models/beatmap/beatmap';
 import { BeatmapMode, BeatmapStatus } from '../../interfaces/beatmap/beatmap';
-import { TaskModel, Task } from '../../models/beatmap/task';
+import { TaskModel } from '../../models/beatmap/task';
 import { TaskName } from '../../interfaces/beatmap/task';
 import { UserModel } from '../../models/user';
 import { isLoggedIn, isNotSpectator } from '../../helpers/middlewares';

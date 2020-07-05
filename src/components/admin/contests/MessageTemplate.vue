@@ -24,13 +24,13 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { Judging } from '../../../../interfaces/contest/judging';
+import { Screening } from '../../../../interfaces/contest/screening';
 
 export default Vue.extend({
     name: 'MessageTemplate',
     props: {
         evaluations: {
-            type: Array as () => Judging[],
+            type: Array as () => Screening[],
             required: true,
         },
         osuId: {

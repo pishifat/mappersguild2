@@ -7,9 +7,9 @@ export interface Contest {
     name: string;
     isActive: boolean;
     contestStart: Date;
-    judgingStart: Date;
+    screeningStart: Date;
     resultsPublished: Date;
     submissions: Submission[];
-    judges: User[];
+    screeners: User[];
     voters: User[];
 }

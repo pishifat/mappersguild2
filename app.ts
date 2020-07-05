@@ -38,7 +38,7 @@ import adminBeatmapsRouter from './routes/admin/beatmaps';
 import adminFeaturedArtistsRouter from './routes/admin/featuredArtists';
 import adminQuestsRouter from './routes/admin/quests';
 import artistsRouter from './routes/artists';
-import judgingRouter from './routes/judging';
+import screeningRouter from './routes/screening';
 import adminContestsRouter from './routes/admin/contests';
 
 const app = express();
@@ -78,7 +78,7 @@ db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
     require('./models/featuredSong'); // mongoose isn't detecting it for some reason otherwise
     require('./models/contest/submission');
-    require('./models/contest/judging');
+    require('./models/contest/screening');
     console.log('connected');
 });
 
@@ -102,7 +102,7 @@ app.use('/users', usersRouter);
 app.use('/quests', questsRouter);
 app.use('/logs', logsRouter);
 app.use('/notifications', notificationsRouter);
-app.use('/judging', judgingRouter);
+app.use('/screening', screeningRouter);
 
 app.use('/artists', artistsRouter);
 app.use('/admin', adminRouter);

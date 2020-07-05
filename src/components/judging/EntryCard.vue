@@ -54,7 +54,7 @@
                 <div v-if="isAdmin">
                     <ul style="list-style-type: disc">
                         <li v-for="evaluation in entry.evaluations" :key="evaluation.id" class="small text-white-50">
-                            {{ evaluation.judge.username }} ({{ evaluation.vote }})<br>
+                            {{ evaluation.screener.username }} ({{ evaluation.vote }})<br>
                             {{ evaluation.comment }}
                         </li>
                     </ul>
@@ -100,7 +100,7 @@ export default {
         for (let i = 0; i < this.entry.evaluations.length; i++) {
             const evaluation = this.entry.evaluations[i];
 
-            if (evaluation.judge.id == this.userId) {
+            if (evaluation.screener.id == this.userId) {
                 this.userComment = evaluation.comment;
                 this.tempComment = evaluation.comment;
                 this.userVote = evaluation.vote || 0;
@@ -117,7 +117,7 @@ export default {
 
             if (this.userComment != this.tempComment) {
                 this.showCommentInput = !this.showCommentInput;
-                const entry = await this.executePost('/judging/updateComment/' + this.entry.id, { comment: this.tempComment.trim() }, e);
+                const entry = await this.executePost('/screening/updateComment/' + this.entry.id, { comment: this.tempComment.trim() }, e);
 
                 if (entry) {
                     this.userComment = this.tempComment;
@@ -127,7 +127,7 @@ export default {
         },
         async updateVote () {
             if (this.userVote != this.tempVote) {
-                const entry = await this.executePost('/judging/updateVote/' + this.entry.id, { vote: this.tempVote });
+                const entry = await this.executePost('/screening/updateVote/' + this.entry.id, { vote: this.tempVote });
 
                 if (entry) {
                     this.userVote = this.tempVote;

@@ -25,10 +25,10 @@
                                 class="form-control-sm w-100"
                                 type="text"
                                 autocomplete="off"
-                                placeholder="creator/judge's osuId..."
+                                placeholder="creator/screener's osuId..."
                             >
                         </p>
-                        <p v-if="type != 'judge'" class="form-row">
+                        <p v-if="type != 'screener'" class="form-row">
                             <input
                                 v-model="elementName"
                                 class="form-control-sm w-100"
@@ -38,7 +38,7 @@
                             >
                         </p>
                         <p>
-                            <button class="btn btn-sm btn-outline-info" @click="type == 'judge' ? addJudge($event) : createElement($event)">
+                            <button class="btn btn-sm btn-outline-info" @click="type == 'screener' ? addScreener($event) : createElement($event)">
                                 Add {{ type }}
                             </button>
                         </p>
@@ -78,9 +78,9 @@ export default {
             let element;
 
             if (this.type == 'entry') {
-                element = await this.executePost(`/judging/createEntry`, { name: this.elementName, contest: this.selectedContest, osuId: this.osuId }, e);
+                element = await this.executePost(`/screening/createEntry`, { name: this.elementName, contest: this.selectedContest, osuId: this.osuId }, e);
             } else if (this.type == 'contest') {
-                element = await this.executePost(`/judging/createContest`, { name: this.elementName }, e);
+                element = await this.executePost(`/screening/createContest`, { name: this.elementName }, e);
             }
 
             if (element) {
@@ -94,11 +94,11 @@ export default {
                 this.info = '';
             }
         },
-        async addJudge (e) {
-            const contest = await this.executePost(`/judging/addJudge/${this.selectedContest}`, { osuId: this.osuId }, e);
+        async addScreener (e) {
+            const contest = await this.executePost(`/screening/addScreener/${this.selectedContest}`, { osuId: this.osuId }, e);
 
             if (contest) {
-                this.info = `added ${this.osuId} (${contest.judges.length})`;
+                this.info = `added ${this.osuId} (${contest.screeners.length})`;
             }
         },
     },

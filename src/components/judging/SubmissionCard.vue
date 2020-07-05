@@ -2,12 +2,12 @@
     <div class="col-sm-12 my-1">
         <div
             class="card static-card"
-            :class="!relatedJudging || !relatedJudging.vote ? 'bg-dark' :
-                relatedJudging.vote == 1 ? 'fifth-favorite' :
-                relatedJudging.vote == 2 ? 'fourth-favorite' :
-                relatedJudging.vote == 3 ? 'third-favorite' :
-                relatedJudging.vote == 4 ? 'second-favorite' :
-                relatedJudging.vote == 5 ? 'first-favorite' :
+            :class="!relatedScreening || !relatedScreening.vote ? 'bg-dark' :
+                relatedScreening.vote == 1 ? 'fifth-favorite' :
+                relatedScreening.vote == 2 ? 'fourth-favorite' :
+                relatedScreening.vote == 3 ? 'third-favorite' :
+                relatedScreening.vote == 4 ? 'second-favorite' :
+                relatedScreening.vote == 5 ? 'first-favorite' :
                 ''"
         >
             <div class="card-body text-shadow p-2">
@@ -17,18 +17,18 @@
                     </div>
 
                     <div class="col-sm-6 text-right">
-                        <judging-vote
+                        <screening-vote
                             :submission-id="submission.id"
-                            :saved-vote="relatedJudging && relatedJudging.vote"
+                            :saved-vote="relatedScreening && relatedScreening.vote"
                         />
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-sm">
-                        <judging-notes
+                        <screening-notes
                             :submission-id="submission.id"
-                            :saved-comment="relatedJudging && relatedJudging.comment"
+                            :saved-comment="relatedScreening && relatedScreening.comment"
                         />
                     </div>
                 </div>
@@ -39,17 +39,17 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import JudgingVote from '@components/judging/JudgingVote.vue';
-import JudgingNotes from '@components/judging/JudgingNotes.vue';
+import ScreeningVote from '@components/screening/ScreeningVote.vue';
+import ScreeningNotes from '@components/screening/ScreeningNotes.vue';
 import { Submission } from '../../../interfaces/contest/submission';
-import { Judging } from '../../../interfaces/contest/judging';
+import { Screening } from '../../../interfaces/contest/screening';
 import { mapState } from 'vuex';
 
 export default Vue.extend({
     name: 'SubmssionCard',
     components: {
-        JudgingVote,
-        JudgingNotes,
+        ScreeningVote,
+        ScreeningNotes,
     },
     props: {
         submission: {
@@ -61,8 +61,8 @@ export default Vue.extend({
         ...mapState([
             'userId',
         ]),
-        relatedJudging(): Judging | undefined {
-            return this.submission.evaluations.find(e => e.judge._id === this.userId);
+        relatedScreening(): Screening | undefined {
+            return this.submission.evaluations.find(e => e.screener._id === this.userId);
         },
     },
 });

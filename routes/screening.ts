@@ -2,7 +2,7 @@ import express from 'express';
 import { isLoggedIn } from '../helpers/middlewares';
 import { ContestModel } from '../models/contest/contest';
 import { SubmissionModel } from '../models/contest/submission';
-import { JudgingModel, Judging } from '../models/contest/judging';
+import { ScreeningModel, Screening } from '../models/contest/screening';
 import { UserGroup } from '../interfaces/user';
 
 const defaultContestPopulate = {
@@ -11,7 +11,7 @@ const defaultContestPopulate = {
     populate: {
         path: 'evaluations',
         populate: {
-            path: 'judge',
+            path: 'screener',
             select: '_id osuId username',
         },
     },
@@ -20,22 +20,22 @@ const defaultContestPopulate = {
 const defaultSubmissionPopulate = {
     path: 'evaluations',
     populate: {
-        path: 'judge',
+        path: 'screener',
         select: '_id osuId username',
     },
 };
 
-const judgingRouter = express.Router();
+const screeningRouter = express.Router();
 
-async function isJudge(req, res, next): Promise<void> {
+async function isScreener(req, res, next): Promise<void> {
     //if population doesn't work here, there's a problem
     const contests = await ContestModel
         .find({
             isActive: true,
-            judges: res.locals.userRequest._id,
+            screeners: res.locals.userRequest._id,
         })
         .populate(defaultContestPopulate)
-        .select('_id name submissions judges');
+        .select('_id name submissions screeners');
 
     if (contests.length || res.locals.userRequest.group == UserGroup.Admin) {
         res.locals.contests = contests;
@@ -46,21 +46,21 @@ async function isJudge(req, res, next): Promise<void> {
     return res.redirect('/');
 }
 
-judgingRouter.use(isLoggedIn);
-judgingRouter.use(isJudge);
+screeningRouter.use(isLoggedIn);
+screeningRouter.use(isScreener);
 
 /* GET parties page. */
-judgingRouter.get('/', (req, res) => {
-    res.render('judging', {
-        title: 'Judging',
-        script: 'judging.js',
+screeningRouter.get('/', (req, res) => {
+    res.render('screening', {
+        title: 'Screening',
+        script: 'screening.js',
         loggedInAs: req.session?.osuId,
         userMongoId: req.session?.mongoId,
         pointsInfo: res.locals.userRequest.pointsInfo,
     });
 });
 
-judgingRouter.get('/relevantInfo', (req, res) => {
+screeningRouter.get('/relevantInfo', (req, res) => {
     res.json({
         contests: res.locals.contests,
         userId: req.session?.mongoId,
@@ -68,13 +68,13 @@ judgingRouter.get('/relevantInfo', (req, res) => {
 });
 
 /* POST update submission comment */
-judgingRouter.post('/updateSubmission/:submissionId', async (req, res) => {
+screeningRouter.post('/updateSubmission/:submissionId', async (req, res) => {
     let submission = await SubmissionModel
         .findById(req.params.submissionId)
         .populate(defaultSubmissionPopulate)
         .orFail();
 
-    const userEvaluation = submission.evaluations.find(e => e.judge.id === req.session?.mongoId);
+    const userEvaluation = submission.evaluations.find(e => e.screener.id === req.session?.mongoId);
     let vote = 0;
 
     if (req.body.vote !== undefined) {
@@ -86,8 +86,8 @@ judgingRouter.post('/updateSubmission/:submissionId', async (req, res) => {
     }
 
     if (!userEvaluation) {
-        const j = new JudgingModel();
-        j.judge = req.session?.mongoId;
+        const j = new ScreeningModel();
+        j.screener = req.session?.mongoId;
         j.comment = req.body.comment;
         j.vote = vote;
         await j.save();
@@ -95,7 +95,7 @@ judgingRouter.post('/updateSubmission/:submissionId', async (req, res) => {
         submission.evaluations.push(j);
         await submission.save();
     } else {
-        const updatedValues: Partial<Judging> = {};
+        const updatedValues: Partial<Screening> = {};
 
         if (req.body.comment !== undefined) {
             updatedValues.comment = req.body.comment;
@@ -105,7 +105,7 @@ judgingRouter.post('/updateSubmission/:submissionId', async (req, res) => {
             updatedValues.vote = vote;
         }
 
-        await JudgingModel.findByIdAndUpdate(userEvaluation.id, updatedValues);
+        await ScreeningModel.findByIdAndUpdate(userEvaluation.id, updatedValues);
     }
 
     submission = await SubmissionModel
@@ -116,4 +116,4 @@ judgingRouter.post('/updateSubmission/:submissionId', async (req, res) => {
     res.json(submission);
 });
 
-export default judgingRouter;
+export default screeningRouter;

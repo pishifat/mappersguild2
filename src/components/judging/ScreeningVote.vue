@@ -19,10 +19,10 @@
 <script lang="ts">
 import Vue from 'vue';
 import { mapGetters } from 'vuex';
-import { JudgingPlacement } from '../../../interfaces/contest/judging';
+import { ScreeningPlacement } from '../../../interfaces/contest/screening';
 
 export default Vue.extend({
-    name: 'JudgingVote',
+    name: 'ScreeningVote',
     props: {
         submissionId: {
             type: String,
@@ -39,10 +39,10 @@ export default Vue.extend({
     methods: {
         async updateVote(vote): Promise<void> {
             if (this.savedVote == vote) {
-                vote = JudgingPlacement.None;
+                vote = ScreeningPlacement.None;
             }
 
-            const submission = await this.executePost('/judging/updateSubmission/' + this.submissionId, { vote });
+            const submission = await this.executePost('/screening/updateSubmission/' + this.submissionId, { vote });
 
             if (!this.isError(submission)) {
                 this.$store.commit('updateSubmission', submission);

@@ -38,18 +38,18 @@
 <script lang="ts">
 import Vue from 'vue';
 import ToastMessages from '@components/ToastMessages.vue';
-import SubmissionCard from '@components/judging/SubmissionCard.vue';
+import SubmissionCard from '@components/screening/SubmissionCard.vue';
 import { mapState } from 'vuex';
 
 export default Vue.extend({
-    name: 'JudgingPage',
+    name: 'ScreeningPage',
     components: {
         ToastMessages,
         SubmissionCard,
     },
     computed: mapState(['contests']),
     async created () {
-        const res: any = await this.executeGet('/judging/relevantInfo');
+        const res: any = await this.executeGet('/screening/relevantInfo');
 
         if (!this.isError(res)) {
             this.$store.commit('setContests', res.contests);

@@ -36,7 +36,7 @@ export interface User extends Document {
     modPoints: number;
     hostPoints: number;
     contestParticipantPoints: number;
-    contestJudgePoints: number;
+    contestScreenerPoints: number;
     contestVotePoints: number;
     legacyPoints: number;
     osuPoints: number;

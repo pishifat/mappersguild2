@@ -53,18 +53,18 @@ const store = new Vuex.Store<ContestState>({
                 }
             }
         },
-        addJudge (state, payload): void {
+        addScreener (state, payload): void {
             const contest = state.contests.find(c => c.id == payload.contestId);
-            contest?.judges.push(payload.judge);
+            contest?.screeners.push(payload.screener);
         },
-        deleteJudge (state, payload): void {
+        deleteScreener (state, payload): void {
             const contest = state.contests.find(c => c.id == payload.contestId);
 
             if (contest) {
-                const judgeIndex = contest.judges.findIndex(s => s.id == payload.judgeId);
+                const screenerIndex = contest.screeners.findIndex(s => s.id == payload.screenerId);
 
-                if (judgeIndex !== -1) {
-                    contest.judges.splice(judgeIndex, 1);
+                if (screenerIndex !== -1) {
+                    contest.screeners.splice(screenerIndex, 1);
                 }
             }
         },
@@ -82,11 +82,11 @@ const store = new Vuex.Store<ContestState>({
                 contest.contestStart = payload.contestStart;
             }
         },
-        updateJudgingStart (state, payload): void {
+        updateScreeningStart (state, payload): void {
             const contest = state.contests.find(c => c.id == payload.contestId);
 
             if (contest) {
-                contest.judgingStart = payload.judgingStart;
+                contest.screeningStart = payload.screeningStart;
             }
         },
         updateResultsPublished (state, payload): void {

@@ -6,7 +6,7 @@ import { LogModel } from '../models/log';
 import { LogCategory } from '../interfaces/log';
 import { isLoggedIn } from '../helpers/middlewares';
 import { getToken, getUserInfo, isOsuResponseError } from '../helpers/osuApi';
-import { UserGroup, User } from '../interfaces/user';
+import { UserGroup } from '../interfaces/user';
 import { webhookPost, webhookColors } from '../helpers/discordApi';
 
 const indexRouter = express.Router();
