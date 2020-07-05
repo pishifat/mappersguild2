@@ -1,13 +1,3 @@
-export function canFail(fn: Function) {
-    return function(req, res, next): void {
-        fn(req, res, next).catch((error: Error) => {
-            console.log(error.message);
-
-            return next(error);
-        });
-    };
-}
-
 export function findBeatmapsetId(url: string): number {
     const indexStart = url.indexOf('beatmapsets/') + 'beatmapsets/'.length;
     const indexEnd = url.indexOf('#');

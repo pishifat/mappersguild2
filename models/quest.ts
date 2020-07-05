@@ -1,11 +1,14 @@
-import mongoose, { Document, Schema } from 'mongoose';
-import BaseService from './baseService';
-import { BasicError } from '../helpers/helpers';
-import { User } from './user';
+/* eslint-disable @typescript-eslint/no-use-before-define */
+import mongoose, { Document, Schema, Model, DocumentQuery } from 'mongoose';
 import { Quest as IQuest } from '../interfaces/quest';
+import { User } from 'interfaces/user';
 
 export interface Quest extends IQuest, Document {
     id: string;
+}
+
+interface QuestStatics extends Model<Quest> {
+    getUserQuests: (userId: User['_id']) => mongoose.Aggregate<Quest[]>;
 }
 
 const questSchema = new Schema({
@@ -43,70 +46,58 @@ questSchema.virtual('isExpired').get(function (this: Quest) {
     return ((+new Date() > +this.expiration) && this.status == 'open');
 });
 
-const QuestModel = mongoose.model<Quest>('Quest', questSchema);
+const queryHelpers = {
+    sortByLastest<Q extends DocumentQuery<any, Quest>>(this: Q) {
+        return this.sort({ createdAt: -1 });
+    },
+    defaultPopulate<Q extends DocumentQuery<any, Quest>>(this: Q) {
+        return this.populate([
+            { path: 'parties',  populate: { path: 'members leader' } },
+            { path: 'currentParty',  populate: { path: 'members leader' } },
+            { path: 'associatedMaps',  populate: { path: 'song host tasks' } },
+            { path: 'completedMembers',  select: 'username osuId rank' },
+            { path: 'creator',  select: 'username osuId' },
+        ]);
+    },
+};
 
-class QuestService extends BaseService<Quest>
+questSchema.query = queryHelpers;
+
+class QuestService
 {
-    constructor() {
-        super(
-            QuestModel,
-            { createdAt: -1 },
-            [
-                { path: 'parties',  populate: { path: 'members leader' } },
-                { path: 'currentParty',  populate: { path: 'members leader' } },
-                { path: 'associatedMaps',  populate: { path: 'song host tasks' } },
-                { path: 'completedMembers',  select: 'username osuId rank' },
-                { path: 'creator',  select: 'username osuId' },
-            ]
-        );
-    }
-
-    async create(questData: Partial<Quest>): Promise<Quest | BasicError> {
-        try {
-            const quest: Partial<Quest> = new QuestModel(questData);
-
-            return await QuestModel.create(quest);
-        } catch (error) {
-            return { error: error._message };
-        }
-    }
-
-    async getUserQuests(userId: User['_id']): Promise<Quest[] | BasicError> {
-        try {
-            return await QuestModel.aggregate([
-                {
-                    $match: {
-                        status: 'wip',
-                    },
+    static getUserQuests(userId: User['_id']): mongoose.Aggregate<Quest[]> {
+        return QuestModel.aggregate([
+            {
+                $match: {
+                    status: 'wip',
                 },
-                {
-                    $lookup: {
-                        from: 'parties',
-                        localField: 'currentParty',
-                        foreignField: '_id',
-                        as: 'currentParty',
-                    },
+            },
+            {
+                $lookup: {
+                    from: 'parties',
+                    localField: 'currentParty',
+                    foreignField: '_id',
+                    as: 'currentParty',
                 },
-                {
-                    $unwind: '$currentParty',
+            },
+            {
+                $unwind: '$currentParty',
+            },
+            {
+                $match: {
+                    'currentParty.members': mongoose.Types.ObjectId(userId),
                 },
-                {
-                    $match: {
-                        'currentParty.members': mongoose.Types.ObjectId(userId),
-                    },
+            },
+            {
+                $project: {
+                    'name': 1,
                 },
-                {
-                    $project: {
-                        'name': 1,
-                    },
-                },
-            ]);
-        } catch (error) {
-            return { error: 'Something went wrong!' };
-        }
+            },
+        ]);
     }
 }
 
-const service = new QuestService();
+questSchema.loadClass(QuestService);
+const QuestModel = mongoose.model<Quest, Model<Quest, typeof queryHelpers> & QuestStatics>('Quest', questSchema);
 
-export { service as QuestService };
+export { QuestModel };

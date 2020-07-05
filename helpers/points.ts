@@ -1,13 +1,13 @@
 import { Points } from '../interfaces/extras';
 import { Quest, QuestStatus } from '../interfaces/quest';
 import { Beatmap, BeatmapStatus } from '../interfaces/beatmap/beatmap';
-import { BeatmapService } from '../models/beatmap/beatmap';
+import { BeatmapModel } from '../models/beatmap/beatmap';
 import { Task, TaskName } from '../interfaces/beatmap/task';
-import { TaskService } from '../models/beatmap/task';
-import { ContestService } from '../models/contest/contest';
-import { SubmissionService } from '../models/contest/submission';
-import { SpentPointsService } from '../models/spentPoints';
-import { UserService } from '../models/user';
+import { TaskModel } from '../models/beatmap/task';
+import { ContestModel } from '../models/contest/contest';
+import { SubmissionModel } from '../models/contest/submission';
+import { SpentPointsModel } from '../models/spentPoints';
+import { UserModel } from '../models/user';
 import { defaultErrorMessage, BasicError } from './helpers';
 
 export function findLengthNerf(length: number): number {
@@ -105,7 +105,7 @@ export function findCreateQuestPointsSpent(questArtist: number, requiredMapsets:
     return points;
 }
 
-export async function updateUserPoints(userId: string): Promise<number | BasicError> {
+export async function updateUserPoints(userId: any): Promise<number | BasicError> {
     /* find:
         - tasks user created
         - MBC they submitted entries to
@@ -113,74 +113,66 @@ export async function updateUserPoints(userId: string): Promise<number | BasicEr
         - spent points events from user
     */
     const [ownTasks, hostedBeatmaps, moddedBeatmaps, submittedContests, judgedContests, ownSpentPoints] = await Promise.all([
-        TaskService.queryAll({
-            query: { mappers: userId },
-            select: '_id',
-        }),
-        BeatmapService.queryAll({
-            query: {
+        TaskModel.find({ mappers: userId }).select('_id'),
+        BeatmapModel
+            .find({
                 status: BeatmapStatus.Ranked,
                 host: userId,
-            },
-            populate: [
-                { path: 'host',  select: '_id osuId username' },
-            ],
-        }),
-        BeatmapService.queryAll({
-            query: {
+            })
+            .populate({
+                path: 'host',
+                select: '_id osuId username',
+            }),
+        BeatmapModel
+            .find({
                 status: BeatmapStatus.Ranked,
                 modders: userId,
-            },
-            populate: [
-                { path: 'modders',  select: '_id osuId username' },
+            })
+            .populate({
+                path: 'modders',
+                select: '_id osuId username',
+            }),
+        SubmissionModel.find({
+            $and: [
+                { creator: userId },
+                { creator: { $ne: '5c6e135359d335001922e610' } }, // no pishifat
             ],
         }),
-        SubmissionService.queryAll({
-            query: {
-                $and: [
-                    { creator: userId },
-                    { creator: { $ne: '5c6e135359d335001922e610' } }, // no pishifat
-                ],
-            },
+        ContestModel.find({
+            judges: userId,
         }),
-        ContestService.queryAll({
-            query: {
-                judges: userId,
-            },
-        }),
-        SpentPointsService.queryAll({
-            query: { user: userId },
-            populate: [
-                { path: 'quest',  select: 'price art requiredMapsets' },
-            ],
-        }),
+        SpentPointsModel
+            .find({ user: userId })
+            .populate({
+                path: 'quest',
+                select: 'price art requiredMapsets',
+            }),
     ]);
 
     // find any Ranked beatmap the user is involved in
-    const userBeatmaps = await BeatmapService.queryAll({
-        query: {
+    const userBeatmaps = await BeatmapModel
+        .find({
             status: BeatmapStatus.Ranked,
             tasks: {
                 $in: ownTasks,
             },
-        },
-        populate: [
-            { path: 'host',  select: '_id osuId username' },
-            { path: 'modders',  select: '_id osuId username' },
-            { path: 'quest',  select: '_id name status price completed deadline' },
-            { path: 'tasks',  populate: { path: 'mappers' } },
-        ],
-    });
+        }).populate([
+            { path: 'host', select: '_id osuId username' },
+            { path: 'modders', select: '_id osuId username' },
+            { path: 'quest', select: '_id name status price completed deadline' },
+            { path: 'tasks', populate: { path: 'mappers' } },
+        ]);
 
     // check if queries worked
-    if (!ownTasks || TaskService.isError(ownTasks) ||
-        !hostedBeatmaps || BeatmapService.isError(hostedBeatmaps) ||
-        !moddedBeatmaps || BeatmapService.isError(moddedBeatmaps) ||
-        !submittedContests || SubmissionService.isError(submittedContests) ||
-        !judgedContests || ContestService.isError(judgedContests) ||
-        !ownSpentPoints || SpentPointsService.isError(ownSpentPoints) ||
-        !userBeatmaps || BeatmapService.isError(userBeatmaps)) {
-
+    if (
+        !ownTasks ||
+        !hostedBeatmaps ||
+        !moddedBeatmaps ||
+        !submittedContests ||
+        !judgedContests ||
+        !ownSpentPoints ||
+        !userBeatmaps
+    ) {
         return defaultErrorMessage;
     }
 
@@ -297,7 +289,7 @@ export async function updateUserPoints(userId: string): Promise<number | BasicEr
         pointsObject['Rank'] = 3;
     }
 
-    UserService.update(userId, {
+    UserModel.findByIdAndUpdate(userId, {
         easyPoints: pointsObject['Easy'],
         normalPoints: pointsObject['Normal'],
         hardPoints: pointsObject['Hard'],

@@ -64,7 +64,6 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import Axios from 'axios';
 import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
 import { Quest } from '../../../../interfaces/quest';
 

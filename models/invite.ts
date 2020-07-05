@@ -1,10 +1,32 @@
-import mongoose, { Document, Schema } from 'mongoose';
-import BaseService from './baseService';
-import { defaultErrorMessage, BasicError } from '../helpers/helpers';
+/* eslint-disable @typescript-eslint/no-use-before-define */
+import mongoose, { Document, Schema, Model } from 'mongoose';
 import { Invite as IInvite } from '../interfaces/invite';
 
 export interface Invite extends IInvite, Document {
     id: string;
+}
+
+interface InviteStatics extends Model<Invite> {
+    generateMapInvite: (
+        recipient: Invite['recipient'],
+        sender: Invite['sender'],
+        modified: Invite['modified']['_id'],
+        info: Invite['info'],
+        actionType: Invite['actionType'],
+        map: Invite['map'],
+        taskName: Invite['taskName'],
+        taskMode: Invite['taskMode']
+    ) => Promise<Invite>;
+
+    generatePartyInvite: (
+        recipient: Invite['recipient'],
+        sender: Invite['sender'],
+        modified: Invite['modified'],
+        info: Invite['info'],
+        actionType: Invite['actionType'],
+        party: Invite['party'],
+        quest: Invite['quest']
+    ) => Promise<Invite>;
 }
 
 const inviteSchema = new Schema({
@@ -22,36 +44,11 @@ const inviteSchema = new Schema({
     party: { type: 'ObjectId', ref: 'Party' },
     quest: { type: 'ObjectId', ref: 'Quest' },
 
-
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
-const InviteModel = mongoose.model<Invite>('Invite', inviteSchema);
-
-class InviteService extends BaseService<Invite>
+class InviteService
 {
-    constructor() {
-        super(
-            InviteModel,
-            { updatedAt: -1 },
-            [
-                { path: 'sender', select: 'username osuId' },
-                { path: 'map', populate: { path: 'song host' } },
-                {
-                    path: 'map', populate: {
-                        path: 'tasks', populate: { path: 'mappers' },
-                    },
-                },
-                { path: 'party', populate: { path: 'members leader' } },
-                {
-                    path: 'quest', populate: {
-                        path: 'currentParty', populate: { path: 'members' },
-                    },
-                },
-            ]
-        );
-    }
-
-    async createMapInvite(
+    static generateMapInvite(
         recipient: Invite['recipient'],
         sender: Invite['sender'],
         modified: Invite['modified']['_id'],
@@ -60,7 +57,7 @@ class InviteService extends BaseService<Invite>
         map: Invite['map'],
         taskName: Invite['taskName'],
         taskMode: Invite['taskMode']
-    ): Promise<Invite | BasicError> {
+    ): Promise<Invite> {
         let invite: Invite;
 
         if (taskName && taskMode) {
@@ -69,14 +66,10 @@ class InviteService extends BaseService<Invite>
             invite = new InviteModel({ recipient, sender, modified, info, actionType, map });
         }
 
-        try {
-            return await invite.save();
-        } catch (error) {
-            return defaultErrorMessage;
-        }
+        return invite.save();
     }
 
-    async createPartyInvite(
+    static generatePartyInvite(
         recipient: Invite['recipient'],
         sender: Invite['sender'],
         modified: Invite['modified'],
@@ -84,17 +77,14 @@ class InviteService extends BaseService<Invite>
         actionType: Invite['actionType'],
         party: Invite['party'],
         quest: Invite['quest']
-    ): Promise<Invite | BasicError> {
+    ): Promise<Invite> {
         const invite = new InviteModel({ recipient, sender, modified, info, actionType, party, quest });
 
-        try {
-            return await invite.save();
-        } catch (error) {
-            return defaultErrorMessage;
-        }
+        return invite.save();
     }
 }
 
-const service = new InviteService();
+inviteSchema.loadClass(InviteService);
+const InviteModel = mongoose.model<Invite, InviteStatics>('Invite', inviteSchema);
 
-export { service as InviteService };
+export { InviteModel };

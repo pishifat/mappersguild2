@@ -1,6 +1,4 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import BaseService from './baseService';
-import { BasicError } from '../helpers/helpers';
 import { FeaturedArtist as IFeaturedArtist } from '../interfaces/featuredArtist';
 
 export interface FeaturedArtist extends IFeaturedArtist, Document {
@@ -37,36 +35,4 @@ const featuredArtistSchema = new Schema({
 
 const FeaturedArtistModel = mongoose.model<FeaturedArtist>('FeaturedArtist', featuredArtistSchema);
 
-class FeaturedArtistService extends BaseService<FeaturedArtist>
-{
-    constructor() {
-        super(
-            FeaturedArtistModel,
-            { title: -1 },
-            [
-                { path: 'songs', select: 'artist title' },
-            ]
-        );
-    }
-
-    async create(label: FeaturedArtist['label'], osuId?: number | undefined): Promise<FeaturedArtist | BasicError> {
-        try {
-            if (osuId) {
-                return await FeaturedArtistModel.create({
-                    label,
-                    osuId,
-                });
-            } else {
-                return await FeaturedArtistModel.create({
-                    label,
-                });
-            }
-        } catch (error) {
-            return { error: error._message };
-        }
-    }
-}
-
-const service = new FeaturedArtistService();
-
-export { service as FeaturedArtistService };
+export { FeaturedArtistModel };

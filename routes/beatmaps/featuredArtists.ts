@@ -1,7 +1,6 @@
 import express from 'express';
-import { FeaturedArtistService } from '../../models/featuredArtist';
+import { FeaturedArtistModel } from '../../models/featuredArtist';
 import { isLoggedIn } from '../../helpers/middlewares';
-import { canFail } from '../../helpers/helpers';
 
 const featuredArtistsRouter = express.Router();
 
@@ -9,20 +8,20 @@ featuredArtistsRouter.use(isLoggedIn);
 
 /* GET artists for new map entry */
 featuredArtistsRouter.get('/', async (req, res) => {
-    const featuredArtists = await FeaturedArtistService.queryAll({
-        query: { osuId: { $gt: 0 } },
-    });
+    const featuredArtists = await FeaturedArtistModel.find({ osuId: { $gt: 0 } });
 
     res.json(featuredArtists);
 });
 
 /* GET songs for new map entry */
-featuredArtistsRouter.get('/:id/songs', canFail(async (req, res) => {
-    const fa = await FeaturedArtistService.queryByIdOrFail(req.params.id, {
-        useDefaults: true,
-    });
+featuredArtistsRouter.get('/:id/songs', async (req, res) => {
+    const fa = await FeaturedArtistModel
+        .findById(req.params.id)
+        .populate({ path: 'songs', select: 'artist title' })
+        .sort({ label: -1 })
+        .orFail();
 
     res.json(fa.songs);
-}));
+});
 
 export default featuredArtistsRouter;

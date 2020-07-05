@@ -1,14 +1,15 @@
 import express from 'express';
 import { isLoggedIn, isAdmin } from '../../helpers/middlewares';
-import { QuestService, Quest } from '../../models/quest';
+import { Quest, QuestModel } from '../../models/quest';
 import { QuestStatus } from '../../interfaces/quest';
-import { UserService, User } from '../../models/user';
-import { BeatmapService, Beatmap } from '../../models/beatmap/beatmap';
+import { UserModel } from '../../models/user';
+import { BeatmapModel, Beatmap } from '../../models/beatmap/beatmap';
 import { BeatmapStatus } from '../../interfaces/beatmap/beatmap';
 import { beatmapsetInfo, isOsuResponseError } from '../../helpers/osuApi';
-import { canFail, findBeatmapsetId, defaultErrorMessage } from '../../helpers/helpers';
+import { findBeatmapsetId, defaultErrorMessage } from '../../helpers/helpers';
 import { SpentPointsCategory } from '../../interfaces/spentPoints';
-import { SpentPointsService } from '../../models/spentPoints';
+import { SpentPointsModel } from '../../models/spentPoints';
+import { User } from 'interfaces/user';
 
 const adminRouter = express.Router();
 
@@ -27,236 +28,208 @@ adminRouter.get('/', (req, res) => {
 });
 
 /* GET relevant info for page load */
-adminRouter.get('/relevantInfo/', canFail(async (req, res) => {
-    const allBeatmaps = await BeatmapService.queryAll({
-        defaultPopulate: true,
-        sort: { status: 1, mode: 1 },
-    });
+adminRouter.get('/relevantInfo/', async (req, res) => {
+    const allBeatmaps = await BeatmapModel
+        .find({})
+        .defaultPopulate()
+        .sort({ status: 1, mode: 1 });
+
     const actionBeatmaps: Beatmap[] = [];
 
-    if (!BeatmapService.isError(allBeatmaps)) {
-        for (let i = 0; i < allBeatmaps.length; i++) {
-            const bm = allBeatmaps[i];
+    for (let i = 0; i < allBeatmaps.length; i++) {
+        const bm = allBeatmaps[i];
 
-            if ((bm.status == BeatmapStatus.Done || bm.status == BeatmapStatus.Qualified) && bm.url) {
-                if (bm.url.indexOf('osu.ppy.sh/beatmapsets/') == -1) {
-                    (bm.status as string) = `${bm.status} (invalid link)`;
-                    actionBeatmaps.push(bm);
-                } else {
-                    const osuId = findBeatmapsetId(bm.url);
+        if ((bm.status == BeatmapStatus.Done || bm.status == BeatmapStatus.Qualified) && bm.url) {
+            if (bm.url.indexOf('osu.ppy.sh/beatmapsets/') == -1) {
+                (bm.status as string) = `${bm.status} (invalid link)`;
+                actionBeatmaps.push(bm);
+            } else {
+                const osuId = findBeatmapsetId(bm.url);
 
-                    const bmInfo = await beatmapsetInfo(osuId);
-                    let status = '';
+                const bmInfo = await beatmapsetInfo(osuId);
+                let status = '';
 
-                    if (!isOsuResponseError(bmInfo)) {
-                        switch (bmInfo.approved) {
-                            case 4:
-                                status = 'Loved';
-                                break;
-                            case 3:
-                                status = BeatmapStatus.Qualified;
-                                break;
-                            case 2:
-                                status = 'Approved';
-                                break;
-                            case 1:
-                                status = BeatmapStatus.Ranked;
-                                break;
-                            default:
-                                status = BeatmapStatus.Done;
-                                break;
-                        }
+                if (!isOsuResponseError(bmInfo)) {
+                    switch (bmInfo.approved) {
+                        case 4:
+                            status = 'Loved';
+                            break;
+                        case 3:
+                            status = BeatmapStatus.Qualified;
+                            break;
+                        case 2:
+                            status = 'Approved';
+                            break;
+                        case 1:
+                            status = BeatmapStatus.Ranked;
+                            break;
+                        default:
+                            status = BeatmapStatus.Done;
+                            break;
                     }
+                }
 
-                    if (bm.status != status) {
-                        if (status == 'Qualified' && bm.status == 'Done') {
-                            bm.status = BeatmapStatus.Qualified;
-                            await BeatmapService.saveOrFail(bm);
-                        } else if (status == 'Done' && bm.status == 'Qualified') {
-                            bm.status = BeatmapStatus.Done;
-                            await BeatmapService.saveOrFail(bm);
-                        } else {
-                            (bm.status as string) = `${bm.status} (osu: ${status})`;
-                            actionBeatmaps.push(bm);
-                        }
-
+                if (bm.status != status) {
+                    if (status == 'Qualified' && bm.status == 'Done') {
+                        bm.status = BeatmapStatus.Qualified;
+                        await bm.save();
+                    } else if (status == 'Done' && bm.status == 'Qualified') {
+                        bm.status = BeatmapStatus.Done;
+                        await bm.save();
+                    } else {
+                        (bm.status as string) = `${bm.status} (osu: ${status})`;
+                        actionBeatmaps.push(bm);
                     }
                 }
             }
         }
-
     }
 
-    const allQuests = await QuestService.queryAll({
-        query: { status: QuestStatus.WIP },
-        defaultPopulate: true,
-    });
+    const allQuests = await QuestModel.find({ status: QuestStatus.WIP }).defaultPopulate();
     let actionQuests: Quest[] = [];
 
-    if (!QuestService.isError(allQuests)) {
-        for (let i = 0; i < allQuests.length; i++) {
-            const q = allQuests[i];
-            let valid = true;
+    for (let i = 0; i < allQuests.length; i++) {
+        const q = allQuests[i];
+        let valid = true;
 
-            // if no associated maps or not enough associated maps
-            if (!q.associatedMaps.length ||
+        // if no associated maps or not enough associated maps
+        if (!q.associatedMaps.length ||
                 q.associatedMaps.length < q.requiredMapsets ||
                 q.associatedMaps.some(b => b.status != BeatmapStatus.Ranked)) {
-                valid = false;
-            }
+            valid = false;
+        }
 
-            if (valid) {
-                actionQuests.push(q);
-            }
+        if (valid) {
+            actionQuests.push(q);
         }
     }
 
-    const pendingQuests = await QuestService.queryAll({
-        query: { status: QuestStatus.Pending },
-        defaultPopulate: true,
-    });
+    const pendingQuests = await QuestModel.find({ status: QuestStatus.Pending }).defaultPopulate();
 
-    if (!QuestService.isError(pendingQuests)) {
-        actionQuests = actionQuests.concat(pendingQuests);
-    }
+    actionQuests = actionQuests.concat(pendingQuests);
 
-    const allUsers = await UserService.queryAll({});
+    const allUsers = await UserModel.find({});
     const actionUsers: User[] = [];
 
-    if (!UserService.isError(allUsers)) {
-        for (let i = 0; i < allUsers.length; i++) {
-            const u = allUsers[i];
+    for (let i = 0; i < allUsers.length; i++) {
+        const u = allUsers[i];
 
-            if (u.badge != u.rank) {
-                actionUsers.push(u);
-            }
+        if (u.badge != u.rank) {
+            actionUsers.push(u);
         }
     }
 
     res.json({ actionBeatmaps, actionQuests, actionUsers });
-}));
+});
 
 /* GET beatmaps in need of action */
-adminRouter.get('/loadActionBeatmaps/', canFail(async (req, res) => {
-    const allBeatmaps = await BeatmapService.queryAll({
-        defaultPopulate: true,
-        sort: { status: 1, mode: 1 },
-    });
+adminRouter.get('/loadActionBeatmaps/', async (req, res) => {
+    const allBeatmaps = await BeatmapModel
+        .find({})
+        .defaultPopulate()
+        .sort({ status: 1, mode: 1 });
+
     const actionBeatmaps: Beatmap[] = [];
 
-    if (!BeatmapService.isError(allBeatmaps)) {
-        for (let i = 0; i < allBeatmaps.length; i++) {
-            const bm = allBeatmaps[i];
+    for (let i = 0; i < allBeatmaps.length; i++) {
+        const bm = allBeatmaps[i];
 
-            if ((bm.status == BeatmapStatus.Done || bm.status == BeatmapStatus.Qualified) && bm.url) {
-                if (bm.url.indexOf('osu.ppy.sh/beatmapsets/') == -1) {
-                    (bm.status as string) = `${bm.status} (invalid link)`;
-                    actionBeatmaps.push(bm);
-                } else {
-                    const osuId = findBeatmapsetId(bm.url);
+        if ((bm.status == BeatmapStatus.Done || bm.status == BeatmapStatus.Qualified) && bm.url) {
+            if (bm.url.indexOf('osu.ppy.sh/beatmapsets/') == -1) {
+                (bm.status as string) = `${bm.status} (invalid link)`;
+                actionBeatmaps.push(bm);
+            } else {
+                const osuId = findBeatmapsetId(bm.url);
 
-                    const bmInfo = await beatmapsetInfo(osuId);
-                    let status = '';
+                const bmInfo = await beatmapsetInfo(osuId);
+                let status = '';
 
-                    if (!isOsuResponseError(bmInfo)) {
-                        switch (bmInfo.approved) {
-                            case 4:
-                                status = 'Loved';
-                                break;
-                            case 3:
-                                status = BeatmapStatus.Qualified;
-                                break;
-                            case 2:
-                                status = 'Approved';
-                                break;
-                            case 1:
-                                status = BeatmapStatus.Ranked;
-                                break;
-                            default:
-                                status = BeatmapStatus.Done;
-                                break;
-                        }
+                if (!isOsuResponseError(bmInfo)) {
+                    switch (bmInfo.approved) {
+                        case 4:
+                            status = 'Loved';
+                            break;
+                        case 3:
+                            status = BeatmapStatus.Qualified;
+                            break;
+                        case 2:
+                            status = 'Approved';
+                            break;
+                        case 1:
+                            status = BeatmapStatus.Ranked;
+                            break;
+                        default:
+                            status = BeatmapStatus.Done;
+                            break;
+                    }
+                }
+
+                if (bm.status != status) {
+                    if (status == 'Qualified' && bm.status == 'Done') {
+                        bm.status = BeatmapStatus.Qualified;
+                        await bm.save();
+                    } else if (status == 'Done' && bm.status == 'Qualified') {
+                        bm.status = BeatmapStatus.Done;
+                        await bm.save();
+                    } else {
+                        (bm.status as string) = `${bm.status} (osu: ${status})`;
+                        actionBeatmaps.push(bm);
                     }
 
-                    if (bm.status != status) {
-                        if (status == 'Qualified' && bm.status == 'Done') {
-                            bm.status = BeatmapStatus.Qualified;
-                            await BeatmapService.saveOrFail(bm);
-                        } else if (status == 'Done' && bm.status == 'Qualified') {
-                            bm.status = BeatmapStatus.Done;
-                            await BeatmapService.saveOrFail(bm);
-                        } else {
-                            (bm.status as string) = `${bm.status} (osu: ${status})`;
-                            actionBeatmaps.push(bm);
-                        }
-
-                    }
                 }
             }
         }
     }
 
     res.json(actionBeatmaps);
-}));
+});
 
 /* GET quests in need of action */
-adminRouter.get('/loadActionQuests/', canFail(async (req, res) => {
-    const allQuests = await QuestService.queryAll({
-        query: { status: QuestStatus.WIP },
-        defaultPopulate: true,
-    });
+adminRouter.get('/loadActionQuests/', async (req, res) => {
+    const allQuests = await QuestModel.find({ status: QuestStatus.WIP }).defaultPopulate();
     let actionQuests: Quest[] = [];
 
-    if (!QuestService.isError(allQuests)) {
-        for (let i = 0; i < allQuests.length; i++) {
-            const q = allQuests[i];
-            let valid = true;
+    for (let i = 0; i < allQuests.length; i++) {
+        const q = allQuests[i];
+        let valid = true;
 
-            // if no associated maps or not enough associated maps
-            if (!q.associatedMaps.length ||
+        // if no associated maps or not enough associated maps
+        if (!q.associatedMaps.length ||
                 q.associatedMaps.length < q.requiredMapsets ||
                 q.associatedMaps.some(b => b.status != BeatmapStatus.Ranked)) {
-                valid = false;
-            }
+            valid = false;
+        }
 
-            if (valid) {
-                actionQuests.push(q);
-            }
+        if (valid) {
+            actionQuests.push(q);
         }
     }
 
-    const pendingQuests = await QuestService.queryAll({
-        query: { status: QuestStatus.Pending },
-        defaultPopulate: true,
-    });
+    const pendingQuests = await QuestModel.find({ status: QuestStatus.Pending }).defaultPopulate();
 
-    if (!QuestService.isError(pendingQuests)) {
-        actionQuests = actionQuests.concat(pendingQuests);
-    }
+    actionQuests = actionQuests.concat(pendingQuests);
 
     res.json(actionQuests);
-}));
+});
 
 /* GET users in need of action */
-adminRouter.get('/loadActionUsers/', canFail(async (req, res) => {
-    const allUsers = await UserService.queryAll({});
+adminRouter.get('/loadActionUsers/', async (req, res) => {
+    const allUsers = await UserModel.find({});
     const actionUsers: User[] = [];
 
-    if (!UserService.isError(allUsers)) {
-        for (let i = 0; i < allUsers.length; i++) {
-            const u = allUsers[i];
+    for (let i = 0; i < allUsers.length; i++) {
+        const u = allUsers[i];
 
-            if (u.badge != u.rank) {
-                actionUsers.push(u);
-            }
+        if (u.badge != u.rank) {
+            actionUsers.push(u);
         }
     }
 
     res.json(actionUsers);
-}));
+});
 
 /* POST update user points */
-adminRouter.post('/saveSpentPointsEvent', canFail(async (req, res) => {
+adminRouter.post('/saveSpentPointsEvent', async (req, res) => {
     let category;
     if (req.body.category == 'acceptQuest') category = SpentPointsCategory.AcceptQuest;
     else if (req.body.category == 'reopenQuest') category = SpentPointsCategory.ReopenQuest;
@@ -272,17 +245,17 @@ adminRouter.post('/saveSpentPointsEvent', canFail(async (req, res) => {
         rexExp = new RegExp('^' + req.body.username + '$', 'i');
     }
 
-    const user = await UserService.queryOneOrFail({ query: { username: rexExp } });
+    const user = await UserModel.findOne({ username: rexExp }).orFail();
 
-    if (!user || UserService.isError(user)) {
+    if (!user) {
         return res.json({ error: 'user changed name probably' });
     }
 
-    const quest = await QuestService.queryByIdOrFail(req.body.questId);
+    const quest = await QuestModel.findById(req.body.questId).orFail();
 
-    SpentPointsService.create(category, user._id, quest._id);
+    SpentPointsModel.generate(category, user._id, quest._id);
 
     res.json('user points updated');
-}));
+});
 
 export default adminRouter;

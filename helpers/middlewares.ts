@@ -1,10 +1,10 @@
-import { UserService } from '../models/user';
+import { UserModel } from '../models/user';
 import { UserGroup } from '../interfaces/user';
 import { refreshToken, isOsuResponseError, getUserInfo } from './osuApi';
 
 export async function isLoggedIn(req, res, next): Promise<void> {
     if (req.session.mongoId) {
-        const u = await UserService.queryById(req.session.mongoId);
+        const u = await UserModel.findById(req.session.mongoId);
 
         // Refresh if less than 10 hours left
         if (new Date() > new Date(req.session.expireDate - (10 * 3600 * 1000))) {

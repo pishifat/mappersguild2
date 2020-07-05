@@ -1,22 +1,22 @@
 import express from 'express';
 import { isLoggedIn, isNotSpectator } from '../helpers/middlewares';
-import { PartyService, Party } from '../models/party';
 import { findCreateQuestPointsSpent } from '../helpers/points';
-import { defaultErrorMessage, BasicError, canFail, BasicResponse } from '../helpers/helpers';
-import { BeatmapService } from '../models/beatmap/beatmap';
+import { BasicError, BasicResponse } from '../helpers/helpers';
 import { BeatmapMode } from '../interfaces/beatmap/beatmap';
-import { QuestService, Quest } from '../models/quest';
 import { QuestStatus } from '../interfaces/quest';
-import { LogService } from '../models/log';
 import { LogCategory } from '../interfaces/log';
 import { webhookPost, webhookColors } from '../helpers/discordApi';
-import { UserService, User } from '../models/user';
-import { InviteService } from '../models/invite';
 import { ActionType } from '../interfaces/invite';
-import { FeaturedArtistService } from '../models/featuredArtist';
-import { SpentPointsService } from '../models/spentPoints';
 import { SpentPointsCategory } from '../interfaces/spentPoints';
 import { updateUserPoints } from '../helpers/points';
+import { Party, PartyModel } from '../models/party';
+import { QuestModel, Quest } from '../models/quest';
+import { LogModel } from '../models/log';
+import { UserModel } from '../models/user';
+import { InviteModel } from '../models/invite';
+import { BeatmapModel } from '../models/beatmap/beatmap';
+import { SpentPointsModel } from '../models/spentPoints';
+import { FeaturedArtistModel } from '../models/featuredArtist';
 
 const questsRouter = express.Router();
 
@@ -36,17 +36,18 @@ const cannotFindUserMessage = 'Cannot find user!';
 
 //updating party rank and modes when leaving/kicking/joining
 async function updatePartyInfo(id: Party['_id']): Promise<BasicResponse> {
-    const p = await PartyService.queryById(id, {
-        populate: [{ path: 'members', select: 'rank osuPoints taikoPoints catchPoints maniaPoints' }],
-    });
+    const party = await PartyModel
+        .findById(id)
+        .populate({
+            path: 'members',
+            select: 'rank osuPoints taikoPoints catchPoints maniaPoints',
+        })
+        .orFail();
+
     let rank = 0;
     const modes: Omit<BeatmapMode, BeatmapMode.Hybrid>[] = [];
 
-    if (!p || PartyService.isError(p)) {
-        return defaultErrorMessage;
-    }
-
-    p.members.forEach(user => {
+    party.members.forEach(user => {
         rank += user.rank;
 
         if (!modes.includes(user.mainMode)) {
@@ -54,15 +55,9 @@ async function updatePartyInfo(id: Party['_id']): Promise<BasicResponse> {
         }
     });
 
-    p.rank = Math.round(rank / p.members.length);
-    p.modes = modes;
-    await PartyService.saveOrFail(p);
-
-    const updatedParty = await PartyService.queryById(id);
-
-    if (!updatedParty || PartyService.isError(updatedParty)) {
-        return defaultErrorMessage;
-    }
+    party.rank = Math.round(rank / party.members.length);
+    party.modes = modes;
+    await party.save();
 
     return { success: 'ok' };
 }
@@ -81,10 +76,14 @@ questsRouter.get('/', (req, res) => {
 
 /* GET relevant quest info */
 questsRouter.get('/relevantInfo', async (req, res) => {
-    const openQuests = await QuestService.queryAll({
-        query: { modes: res.locals.userRequest.mainMode, status: 'open', expiration: { $gt: new Date() } },
-        useDefaults: true,
-    });
+    const openQuests = await QuestModel
+        .find({
+            modes: res.locals.userRequest.mainMode,
+            status: QuestStatus.Open,
+            expiration: { $gt: new Date() },
+        })
+        .defaultPopulate()
+        .sortByLastest();
 
     res.json({
         openQuests,
@@ -99,154 +98,204 @@ questsRouter.get('/relevantInfo', async (req, res) => {
 
 /* GET map load from URL */
 questsRouter.get('/searchOnLoad/:id', async (req, res) => {
-    const urlQuest = await QuestService.queryById(req.params.id, { defaultPopulate: true });
+    const quest = await QuestModel
+        .findById(req.params.id)
+        .defaultPopulate()
+        .orFail();
 
-    if (!urlQuest) {
-        return res.json({ error: 'Quest ID does not exist!' });
-    }
-
-    res.json(urlQuest);
+    res.json(quest);
 });
 
 /* GET relevant quest info */
 questsRouter.get('/search', async (req, res) => {
     let quests: BasicError | Quest[];
 
-    if (req.query.mode != 'any') {
-        quests = await QuestService.queryAll({
-            query: { modes: req.query.mode, status: { $ne: 'hidden' } },
-            useDefaults: true,
-        });
+    if (req.query.mode && req.query.mode != 'any') {
+        quests = await QuestModel
+            .find({
+                modes: req.query.mode as any,
+                status: { $ne: QuestStatus.Hidden },
+            })
+            .defaultPopulate()
+            .sortByLastest();
     } else {
-        quests = await QuestService.queryAll({
-            query: { status: { $ne: 'hidden' } },
-            useDefaults: true,
-        });
+        quests = await QuestModel
+            .find({
+                status: { $ne: QuestStatus.Hidden },
+            })
+            .defaultPopulate()
+            .sortByLastest();
     }
 
     res.json({ quests });
 });
 
 /* POST create party */
-questsRouter.post('/createParty/:id', isNotSpectator, canFail(async (req, res) => {
-    const p = await PartyService.createOrFail(req.session?.mongoId, res.locals.userRequest.mainMode);
+questsRouter.post('/createParty/:id', isNotSpectator, async (req, res) => {
+    const userId = req.session?.mongoId;
+    const mode = res.locals.userRequest.mainMode;
 
-    await updatePartyInfo(p._id);
-    await QuestService.update(req.params.id, { $push: { parties: p._id } });
+    const party = new PartyModel();
+    party.leader = userId;
+    party.members = userId;
+    party.modes = [mode];
+    await party.save();
 
-    const q = await QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
-    res.json(q);
+    await updatePartyInfo(party._id);
+    await QuestModel
+        .findByIdAndUpdate(req.params.id, { $push: { parties: party._id } })
+        .defaultPopulate();
 
-    LogService.create(req.session.mongoId, `created a party for ${q.name}`, LogCategory.Party);
-}));
+    const quest = await QuestModel.findById(req.params.id).sortByLastest().orFail();
+    res.json(quest);
+
+    LogModel.generate(req.session?.mongoId, `created a party for ${quest.name}`, LogCategory.Party);
+});
 
 /* POST delete party */
-questsRouter.post('/deleteParty/:partyId/:questId', isNotSpectator, canFail(async (req, res) => {
-    const p = await PartyService.removeOrFail(req.params.partyId);
-    await QuestService.updateOrFail(req.params.questId, { $pull: { parties: p._id } });
-    const q = await QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
+questsRouter.post('/deleteParty/:partyId/:questId', isNotSpectator, async (req, res) => {
+    const p = await PartyModel
+        .findByIdAndRemove({ _id: req.params.partyId })
+        .orFail();
+
+    await QuestModel
+        .findByIdAndUpdate(req.params.questId, { $pull: { parties: p._id } })
+        .orFail();
+
+    const q = await QuestModel
+        .findById(req.params.questId)
+        .defaultPopulate()
+        .orFail();
+
     res.json(q);
 
-    LogService.create(req.session.mongoId, `deleted a party for ${q.name}`, LogCategory.Party);
-}));
+    LogModel.generate(req.session?.mongoId, `deleted a party for ${q.name}`, LogCategory.Party);
+});
 
 /* POST toggle party lock */
-questsRouter.post('/togglePartyLock/:partyId/:questId', isNotSpectator, canFail(async (req, res) => {
-    await PartyService.updateOrFail(req.params.partyId, { lock: !req.body.lock });
-    const q = await QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
+questsRouter.post('/togglePartyLock/:partyId/:questId', isNotSpectator, async (req, res) => {
+    await PartyModel
+        .findByIdAndUpdate(req.params.partyId, { lock: !req.body.lock })
+        .orFail();
+
+    const q = await QuestModel
+        .findById(req.params.questId)
+        .defaultPopulate()
+        .orFail();
+
     res.json(q);
 
-    LogService.create(req.session.mongoId, `toggled lock on party for ${q.name}`, LogCategory.Party);
-}));
+    LogModel.generate(req.session?.mongoId, `toggled lock on party for ${q.name}`, LogCategory.Party);
+});
 
 /* POST toggle party mode */
-questsRouter.post('/togglePartyMode/:partyId/:questId', isNotSpectator, canFail(async (req, res) => {
-    const p = await PartyService.queryByIdOrFail(req.params.partyId);
+questsRouter.post('/togglePartyMode/:partyId/:questId', isNotSpectator, async (req, res) => {
+    const p = await PartyModel
+        .findById(req.params.partyId)
+        .orFail();
 
     if (p.modes.includes(req.body.mode)) {
-        await PartyService.update(req.params.partyId, { $pull: { modes: req.body.mode } });
+        await PartyModel.findByIdAndUpdate(req.params.partyId, { $pull: { modes: req.body.mode } });
     } else {
-        await PartyService.update(req.params.partyId, { $push: { modes: req.body.mode } });
+        await PartyModel.findByIdAndUpdate(req.params.partyId, { $push: { modes: req.body.mode } });
     }
 
-    const q = await QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
+    const q = await QuestModel
+        .findById(req.params.questId)
+        .defaultPopulate()
+        .orFail();
+
     res.json(q);
 
-    LogService.create(req.session.mongoId, `toggled "${req.body.mode}" mode on party for ${q.name}`, LogCategory.Party);
-}));
+    LogModel.generate(req.session?.mongoId, `toggled "${req.body.mode}" mode on party for ${q.name}`, LogCategory.Party);
+});
 
 /* POST join party */
-questsRouter.post('/joinParty/:partyId/:questId', isNotSpectator, canFail(async (req, res) => {
-    await PartyService.updateOrFail(req.params.partyId, { $push: { members: req.session?.mongoId } });
+questsRouter.post('/joinParty/:partyId/:questId', isNotSpectator, async (req, res) => {
+    await PartyModel
+        .findByIdAndUpdate(req.params.partyId, { $push: { members: req.session?.mongoId } })
+        .orFail();
 
     await updatePartyInfo(req.params.partyId);
 
-    const q = await QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
+    const q = await QuestModel
+        .findById(req.params.questId)
+        .defaultPopulate()
+        .orFail();
 
     res.json(q);
 
-    LogService.create(req.session.mongoId, `joined party for ${q.name}`, LogCategory.Party);
-}));
+    LogModel.generate(req.session?.mongoId, `joined party for ${q.name}`, LogCategory.Party);
+});
 
 /* POST leave party */
-questsRouter.post('/leaveParty/:partyId/:questId', isNotSpectator, canFail(async (req, res) => {
-    await PartyService.updateOrFail(req.params.partyId, { $pull: { members: req.session?.mongoId } });
+questsRouter.post('/leaveParty/:partyId/:questId', isNotSpectator, async (req, res) => {
+    await PartyModel
+        .findByIdAndUpdate(req.params.partyId, { $pull: { members: req.session?.mongoId } })
+        .orFail();
 
     await updatePartyInfo(req.params.partyId);
 
-    const q = await QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
+    const q = await QuestModel
+        .findById(req.params.questId)
+        .defaultPopulate()
+        .orFail();
 
     res.json(q);
 
-    LogService.create(req.session.mongoId, `left party for ${q.name}`, LogCategory.Party);
+    LogModel.generate(req.session?.mongoId, `left party for ${q.name}`, LogCategory.Party);
 
     if (q.associatedMaps) {
         for (let i = 0; i < q.associatedMaps.length; i++) {
             let valid = true;
-            const b = await BeatmapService.queryByIdOrFail(q.associatedMaps[i]._id, { populate: beatmapPopulate });
+            const b = await BeatmapModel
+                .findById(q.associatedMaps[i]._id)
+                .populate(beatmapPopulate)
+                .orFail();
 
             b.tasks.forEach(task => {
                 task.mappers.forEach(mapper => {
-                    if (mapper.id == req.session.mongoId) {
+                    if (mapper.id == req.session?.mongoId) {
                         valid = false;
                     }
                 });
             });
 
             if (!valid) {
-                await BeatmapService.update(q.associatedMaps[i]._id, { quest: null });
+                await BeatmapModel.findByIdAndUpdate(q.associatedMaps[i]._id, { quest: undefined });
             }
         }
     }
-
-}));
+});
 
 /* POST invite to party */
-questsRouter.post('/inviteToParty/:partyId/:questId', isNotSpectator, canFail(async (req, res) => {
+questsRouter.post('/inviteToParty/:partyId/:questId', isNotSpectator, async (req, res) => {
     const inviteError = 'Invite not sent: ';
-    let u: User;
+    let regexp;
 
     if (req.body.username.indexOf('[') >= 0 || req.body.username.indexOf(']') >= 0) {
-        u = await UserService.queryOneOrFail({
-            query: { username: new RegExp('^\\' + req.body.username + '$', 'i') },
-        }, inviteError + cannotFindUserMessage);
+        regexp = new RegExp('^\\' + req.body.username + '$', 'i');
     } else {
-        u = await UserService.queryOneOrFail({
-            query: { username: new RegExp('^' + req.body.username + '$', 'i') },
-        }, inviteError + cannotFindUserMessage);
+        regexp = new RegExp('^' + req.body.username + '$', 'i');
     }
 
-    const q = await QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
-    const currentParties = await PartyService.queryAll({ query: { members: u._id } });
+    const u = await UserModel
+        .findOne({ username: regexp })
+        .orFail(new Error(inviteError + cannotFindUserMessage));
 
-    if (!PartyService.isError(currentParties)) {
-        const duplicate = q.parties.some(questParty => {
-            return currentParties.some(userParty => questParty.id == userParty.id);
-        });
+    const q = await QuestModel
+        .findById(req.params.questId)
+        .defaultPopulate()
+        .orFail();
 
-        if (duplicate) {
-            return res.json({ error: inviteError + 'User is already in a party for this quest!' });
-        }
+    const currentParties = await PartyModel.find({ members: u._id });
+
+    const duplicate = q.parties.some(questParty => {
+        return currentParties.some(userParty => questParty.id == userParty.id);
+    });
+
+    if (duplicate) {
+        return res.json({ error: inviteError + 'User is already in a party for this quest!' });
     }
 
     if (u.availablePoints < q.price) {
@@ -255,52 +304,72 @@ questsRouter.post('/inviteToParty/:partyId/:questId', isNotSpectator, canFail(as
 
     res.json({ success: 'Invite sent!' });
 
-    InviteService.createPartyInvite(
+    InviteModel.generatePartyInvite(
         u._id,
-        req.session.mongoId,
+        req.session?.mongoId,
         req.params.partyId,
         `wants you to join their party`,
         ActionType.Join,
-        req.params.partyId,
-        req.params.questId
+        req.params.partyId as any,
+        req.params.questId as any
     );
-}));
+});
 
 /* POST transfer party leader */
-questsRouter.post('/transferPartyLeader/:partyId/:questId', isNotSpectator, canFail(async (req, res) => {
+questsRouter.post('/transferPartyLeader/:partyId/:questId', isNotSpectator, async (req, res) => {
     if (!req.body.userId.length) {
         return res.json({ error: cannotFindUserMessage });
     }
 
-    const u = await UserService.queryByIdOrFail(req.body.userId, {}, cannotFindUserMessage);
+    const u = await UserModel
+        .findById(req.body.userId)
+        .orFail(new Error(cannotFindUserMessage));
 
 
-    await PartyService.updateOrFail(req.params.partyId, { leader: u._id });
-    const q = await QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
+    await PartyModel
+        .findByIdAndUpdate(req.params.partyId, { leader: u._id })
+        .orFail();
+
+    const q = await QuestModel
+        .findById(req.params.questId)
+        .defaultPopulate()
+        .orFail();
+
     res.json(q);
 
-    LogService.create(req.session.mongoId, `transferred party leader in party for ${q.name}`, LogCategory.Party);
-}));
+    LogModel.generate(req.session?.mongoId, `transferred party leader in party for ${q.name}`, LogCategory.Party);
+});
 
 /* POST kick party member */
-questsRouter.post('/kickPartyMember/:partyId/:questId', isNotSpectator, canFail(async (req, res) => {
+questsRouter.post('/kickPartyMember/:partyId/:questId', isNotSpectator, async (req, res) => {
     if (!req.body.userId.length) {
         return res.json({ error: cannotFindUserMessage });
     }
 
-    const u = await UserService.queryByIdOrFail(req.body.userId, {}, cannotFindUserMessage);
-    await PartyService.updateOrFail(req.params.partyId, { $pull: { members: u._id } });
-    const q = await QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
+    const u = await UserModel
+        .findById(req.body.userId)
+        .orFail(new Error(cannotFindUserMessage));
+
+    await PartyModel
+        .findByIdAndUpdate(req.params.partyId, { $pull: { members: u._id } })
+        .orFail();
+
+    const q = await QuestModel
+        .findById(req.params.questId)
+        .defaultPopulate()
+        .orFail();
 
     res.json(q);
 
-    LogService.create(req.session.mongoId, `kicked member from party for ${q.name}`, LogCategory.Party);
+    LogModel.generate(req.session?.mongoId, `kicked member from party for ${q.name}`, LogCategory.Party);
 
     if (q.associatedMaps) {
         for (let i = 0; i < q.associatedMaps.length; i++) {
-            const b = await BeatmapService.queryById(q.associatedMaps[i]._id, { populate: beatmapPopulate });
+            const b = await BeatmapModel
+                .findById(q.associatedMaps[i]._id)
+                .populate(beatmapPopulate);
 
-            if (b && !BeatmapService.isError(b)) {
+            if (b) {
                 let valid = true;
 
                 b.tasks.forEach(task => {
@@ -312,22 +381,28 @@ questsRouter.post('/kickPartyMember/:partyId/:questId', isNotSpectator, canFail(
                 });
 
                 if (!valid) {
-                    await BeatmapService.update(q.associatedMaps[i]._id, { quest: null });
+                    await BeatmapModel.findByIdAndUpdate(q.associatedMaps[i]._id, { quest: undefined });
                 }
             }
         }
     }
-}));
+});
 
 /* POST accepts quest. */
-questsRouter.post('/acceptQuest/:partyId/:questId', isNotSpectator, canFail(async (req, res) => {
-    const p = await PartyService.queryByIdOrFail(req.params.partyId, { populate: pointsPopulate }, `Party doesn't exist!`);
+questsRouter.post('/acceptQuest/:partyId/:questId', isNotSpectator, async (req, res) => {
+    const p = await PartyModel
+        .findById(req.params.partyId)
+        .populate(pointsPopulate)
+        .orFail(new Error(`Party doesn't exist!`));
 
     if (!p.modes.length) {
         return res.json({ error: 'Your party has no modes selected!' });
     }
 
-    const q = await QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
+    const q = await QuestModel
+        .findById(req.params.questId)
+        .defaultPopulate()
+        .orFail();
 
     // check if all party members can afford quest
     p.members.forEach(member => {
@@ -350,17 +425,16 @@ questsRouter.post('/acceptQuest/:partyId/:questId', isNotSpectator, canFail(asyn
         const mode = p.modes[i];
 
         // check if quest exists for selected modes
-        const invalidQuest = await QuestService.queryOne({
-            query: {
+        const invalidQuest = await QuestModel
+            .findOne({
                 name: q.name,
                 modes: mode,
                 $or: [
                     { status: QuestStatus.WIP },
                     { status: QuestStatus.Done },
                 ],
-            },
-            defaultPopulate: true,
-        });
+            })
+            .defaultPopulate();
 
         if (invalidQuest) {
             return res.json({ error: 'Quest already exists for selected mode(s)!' });
@@ -381,50 +455,50 @@ questsRouter.post('/acceptQuest/:partyId/:questId', isNotSpectator, canFail(asyn
         q.deadline = new Date(new Date().getTime() + q.timeframe);
         q.parties = [];
         q.currentParty = p._id;
-        await QuestService.saveOrFail(q);
+        await q.save();
     } else {
         for (let i = 0; i < p.modes.length; i++) {
             const mode = p.modes[i];
-            await QuestService.update(q._id, {
+            await QuestModel.findByIdAndUpdate(q._id, {
                 $pull: { modes: mode },
             });
         }
 
-        await QuestService.update(q._id, {
+        await QuestModel.findByIdAndUpdate(q._id, {
             $pull: { parties: p._id },
         });
 
-        newQuest = await QuestService.create({
-            creator: q.creator,
-            name: q.name,
-            price: q.price,
-            descriptionMain: q.descriptionMain,
-            timeframe: q.timeframe,
-            minParty: q.minParty,
-            maxParty: q.maxParty,
-            minRank: q.minRank,
-            art: q.art,
-            isMbc: q.isMbc,
-            modes: p.modes,
-            accepted: new Date(),
-            status: QuestStatus.WIP,
-            deadline: new Date(new Date().getTime() + q.timeframe),
-            currentParty: p._id,
-            requiredMapsets: q.requiredMapsets,
-        });
+        newQuest = new QuestModel();
+        newQuest.creator = q.creator;
+        newQuest.name = q.name;
+        newQuest.price = q.price;
+        newQuest.descriptionMain = q.descriptionMain;
+        newQuest.timeframe = q.timeframe;
+        newQuest.minParty = q.minParty;
+        newQuest.maxParty = q.maxParty;
+        newQuest.minRank = q.minRank;
+        newQuest.art = q.art;
+        newQuest.isMbc = q.isMbc;
+        newQuest.modes = p.modes;
+        newQuest.accepted = new Date();
+        newQuest.status = QuestStatus.WIP;
+        newQuest.deadline = new Date(new Date().getTime() + q.timeframe);
+        newQuest.currentParty = p._id;
+        newQuest.requiredMapsets = q.requiredMapsets;
+        await newQuest.save();
     }
 
     // spend points
     p.members.forEach(member => {
-        SpentPointsService.create(SpentPointsCategory.AcceptQuest, member._id, q._id);
+        SpentPointsModel.generate(SpentPointsCategory.AcceptQuest, member._id, q._id);
         updateUserPoints(member.id);
     });
 
     // load all quests
-    const allQuests = await QuestService.queryAll({
-        query: {},
-        useDefaults: true,
-    });
+    const allQuests = await QuestModel
+        .find({})
+        .defaultPopulate()
+        .sortByLastest();
 
     res.json({ quests: allQuests, availablePoints: res.locals.userRequest.availablePoints - q.price });
 
@@ -439,7 +513,7 @@ questsRouter.post('/acceptQuest/:partyId/:questId', isNotSpectator, canFail(asyn
         }
     }
 
-    LogService.create(req.session.mongoId, `party accepted quest "${q.name}" for mode${p.modes.length > 1 ? 's' : ''} "${modeList}"`, LogCategory.Quest );
+    LogModel.generate(req.session?.mongoId, `party accepted quest "${q.name}" for mode${p.modes.length > 1 ? 's' : ''} "${modeList}"`, LogCategory.Quest );
 
     //webhook
     let memberList = '';
@@ -477,13 +551,20 @@ questsRouter.post('/acceptQuest/:partyId/:questId', isNotSpectator, canFail(asyn
             },
         ],
     }]);
-}));
+});
 
 /* POST drop quest. */
-questsRouter.post('/dropQuest/:partyId/:questId', isNotSpectator, canFail(async (req, res) => {
+questsRouter.post('/dropQuest/:partyId/:questId', isNotSpectator, async (req, res) => {
     const [p, q] = await Promise.all([
-        PartyService.queryByIdOrFail(req.params.partyId, { defaultPopulate: true }, `Party doesn't exist!`),
-        QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true }),
+        PartyModel
+            .findById(req.params.partyId)
+            .defaultPopulate()
+            .orFail(new Error(`Party doesn't exist!`)),
+
+        QuestModel
+            .findById(req.params.questId)
+            .defaultPopulate()
+            .orFail(),
     ]);
 
     if (!q.currentParty || q.currentParty.id != p.id) {
@@ -492,32 +573,33 @@ questsRouter.post('/dropQuest/:partyId/:questId', isNotSpectator, canFail(async 
 
     if (q.associatedMaps) {
         for (let i = 0; i < q.associatedMaps.length; i++) {
-            await BeatmapService.update(q.associatedMaps[i]._id, { quest: null });
+            await BeatmapModel.findByIdAndUpdate(q.associatedMaps[i]._id, { quest: undefined });
         }
     }
 
-    const openQuest = await QuestService.queryOne({
-        query: {
-            name: q.name,
-            status: QuestStatus.Open,
-        },
+    const openQuest = await QuestModel.findOne({
+        name: q.name,
+        status: QuestStatus.Open,
     });
 
-    if (openQuest && !QuestService.isError(openQuest)) {
+    if (openQuest) {
         await Promise.all([
-            QuestService.update(openQuest._id, {
-                $push: { modes: q.modes },
+            QuestModel.findByIdAndUpdate(openQuest._id, {
+                $push: { modes: q.modes as any },
             }),
-            QuestService.update(req.params.questId, { status: 'hidden' }),
+            QuestModel.findByIdAndUpdate(req.params.questId, { status: QuestStatus.Hidden }),
         ]);
     } else {
-        await QuestService.update(req.params.questId, {
+        await QuestModel.findByIdAndUpdate(req.params.questId, {
             status: QuestStatus.Open,
-            currentParty: null,
+            currentParty: undefined,
         });
     }
 
-    const allQuests = await QuestService.queryAll({ useDefaults: true });
+    const allQuests = await QuestModel
+        .find({})
+        .defaultPopulate()
+        .sortByLastest();
 
     res.json(allQuests);
 
@@ -532,7 +614,7 @@ questsRouter.post('/dropQuest/:partyId/:questId', isNotSpectator, canFail(async 
         }
     }
 
-    LogService.create(req.session.mongoId, `party dropped quest "${q.name}" for mode${q.modes.length > 1 ? 's' : ''} "${modeList}"`, LogCategory.Quest );
+    LogModel.generate(req.session?.mongoId, `party dropped quest "${q.name}" for mode${q.modes.length > 1 ? 's' : ''} "${modeList}"`, LogCategory.Quest );
 
     //webhook
     let memberList = '';
@@ -559,7 +641,7 @@ questsRouter.post('/dropQuest/:partyId/:questId', isNotSpectator, canFail(async 
             icon_url: `https://a.ppy.sh/${p.leader.osuId}`,
         },
         color: webhookColors.red,
-        description: `Dropped quest: [**${q.name}**](https://mappersguild.com/quests?id=${openQuest && !QuestService.isError(openQuest) ? openQuest.id : q.id}) [**${p.modes.join(', ')}**]`,
+        description: `Dropped quest: [**${q.name}**](https://mappersguild.com/quests?id=${openQuest ? openQuest.id : q.id}) [**${p.modes.join(', ')}**]`,
         thumbnail: {
             url,
         },
@@ -569,51 +651,55 @@ questsRouter.post('/dropQuest/:partyId/:questId', isNotSpectator, canFail(async 
         }],
     }]);
 
-    PartyService.remove(req.params.partyId);
-}));
+    PartyModel.findByIdAndRemove(req.params.partyId);
+});
 
 /* POST reopen expired quest. */
-questsRouter.post('/reopenQuest/:questId', isNotSpectator, canFail(async (req, res) => {
-    const quest = await QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
+questsRouter.post('/reopenQuest/:questId', isNotSpectator, async (req, res) => {
+    const quest = await QuestModel
+        .findById(req.params.questId)
+        .defaultPopulate()
+        .orFail();
 
     if (res.locals.userRequest.availablePoints < (quest.price*0.5 + 25)) {
         return res.json({ error: `You don't have enough points to re-open this quest!` });
     }
 
-    const openQuest = await QuestService.queryOne({
-        query: {
-            name: quest.name,
-            status: QuestStatus.Open,
-        },
+    const openQuest = await QuestModel.findOne({
+        name: quest.name,
+        status: QuestStatus.Open,
     });
 
     const newExpiration = new Date();
     newExpiration.setDate(newExpiration.getDate() + 90);
 
     if (req.body.status == QuestStatus.Open) {
-        if (openQuest && !QuestService.isError(openQuest) && !openQuest.isExpired) {
+        if (openQuest && !openQuest.isExpired) {
             await Promise.all([
-                QuestService.update(openQuest._id, {
-                    $push: { modes: quest.modes },
+                QuestModel.findByIdAndUpdate(openQuest._id, {
+                    $push: { modes: quest.modes as any },
                     expiration: newExpiration,
                 }),
-                QuestService.update(req.params.questId, { status: 'hidden' }),
+                QuestModel.findByIdAndUpdate(req.params.questId, { status: QuestStatus.Hidden }),
             ]);
         } else {
-            await QuestService.update(req.params.questId, {
+            await QuestModel.findByIdAndUpdate(req.params.questId, {
                 expiration: newExpiration,
             });
         }
     }
 
-    SpentPointsService.create(SpentPointsCategory.ReopenQuest, req.session.mongoId, quest._id);
-    updateUserPoints(req.session.mongoId);
+    SpentPointsModel.generate(SpentPointsCategory.ReopenQuest, req.session?.mongoId, quest._id);
+    updateUserPoints(req.session?.mongoId);
 
-    const allQuests = await QuestService.queryAll({ useDefaults: true });
+    const allQuests = await QuestModel
+        .find({})
+        .defaultPopulate()
+        .sortByLastest();
 
     res.json({ quests: allQuests, availablePoints: res.locals.userRequest.availablePoints });
 
-    LogService.create(req.session.mongoId, `re-opened quest "${quest.name}"`, LogCategory.Quest );
+    LogModel.generate(req.session?.mongoId, `re-opened quest "${quest.name}"`, LogCategory.Quest );
 
     // webhook
     let url = `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`;
@@ -624,9 +710,9 @@ questsRouter.post('/reopenQuest/:questId', isNotSpectator, canFail(async (req, r
 
     webhookPost([{
         author: {
-            name: req.session.username,
-            url: `https://osu.ppy.sh/users/${req.session.osuId}`,
-            icon_url: `https://a.ppy.sh/${req.session.osuId}`,
+            name: req.session?.username,
+            url: `https://osu.ppy.sh/users/${req.session?.osuId}`,
+            icon_url: `https://a.ppy.sh/${req.session?.osuId}`,
         },
         color: webhookColors.white,
         description: `Quest re-opened: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id})`,
@@ -638,12 +724,21 @@ questsRouter.post('/reopenQuest/:questId', isNotSpectator, canFail(async (req, r
             value: `${quest.descriptionMain}`,
         }],
     }]);
-}));
+});
 
 /* POST extend deadline */
-questsRouter.post('/extendDeadline/:partyId/:questId', isNotSpectator, canFail(async (req, res) => {
-    const party = await PartyService.queryByIdOrFail(req.params.partyId, { populate: pointsPopulate }, `Party doesn't exist!`);
-    let quest = await QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
+questsRouter.post('/extendDeadline/:partyId/:questId', isNotSpectator, async (req, res) => {
+    const [party, quest] = await Promise.all([
+        PartyModel
+            .findById(req.params.partyId)
+            .populate(pointsPopulate)
+            .orFail(new Error(`Party doesn't exist!`)),
+
+        QuestModel
+            .findById(req.params.questId)
+            .defaultPopulate()
+            .orFail(),
+    ]);
 
     const notEnoughPoints = party.members.some(m => m.availablePoints < 10);
 
@@ -652,59 +747,66 @@ questsRouter.post('/extendDeadline/:partyId/:questId', isNotSpectator, canFail(a
     }
 
     party.members.forEach(member => {
-        SpentPointsService.create(SpentPointsCategory.ExtendDeadline, member.id, quest.id);
+        SpentPointsModel.generate(SpentPointsCategory.ExtendDeadline, member.id, quest.id);
         updateUserPoints(member.id);
     });
 
     const deadline = new Date(quest.deadline);
     deadline.setDate(deadline.getDate() + 30);
     quest.deadline = deadline;
-    await QuestService.saveOrFail(quest);
+    await quest.save();
 
-    quest = await QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
-    const user = await UserService.queryByIdOrFail(req.session.mongoId);
+    const updatedQuest = await QuestModel
+        .findById(req.params.questId)
+        .defaultPopulate()
+        .orFail();
 
-    res.json({ quest, availablePoints: user.availablePoints });
+    const user = await UserModel.findById(req.session?.mongoId).orFail();
 
-    LogService.create(req.session.mongoId, `extended deadline for ${quest.name}`, LogCategory.Party);
-}));
+    res.json({
+        quest: updatedQuest,
+        availablePoints: user.availablePoints,
+    });
+
+    LogModel.generate(req.session?.mongoId, `extended deadline for ${updatedQuest.name}`, LogCategory.Party);
+});
 
 /* POST add quest */
-questsRouter.post('/submitQuest', isNotSpectator, canFail(async (req, res) => {
+questsRouter.post('/submitQuest', isNotSpectator, async (req, res) => {
     //quest creation
-    req.body.modes = [ BeatmapMode.Osu, BeatmapMode.Taiko, BeatmapMode.Catch, BeatmapMode.Mania ];
-    req.body.minRank = 0;
-    req.body.status = 'pending';
-    req.body.creator = req?.session?.mongoId;
-    const artist = await FeaturedArtistService.queryOne({ query: { osuId: req.body.art } });
-
-    if (!artist || FeaturedArtistService.isError(artist)) {
-        req.body.art = 0;
-    }
-
-    const quest = await QuestService.create(req.body);
-
-    if (QuestService.isError(quest)) {
-        return res.json({ error: 'Quest could not be created!' });
-    }
+    const artist = await FeaturedArtistModel.findOne({ osuId: req.body.art });
+    const quest = new QuestModel();
+    quest.name = req.body.name;
+    quest.price = req.body.price;
+    quest.descriptionMain = req.body.descriptionMain;
+    quest.timeframe = req.body.timeframe;
+    quest.minParty = req.body.minParty;
+    quest.maxParty = req.body.maxParty;
+    quest.requiredMapsets = req.body.requiredMapsets;
+    quest.art = artist?.osuId || 0;
+    quest.modes = [ BeatmapMode.Osu, BeatmapMode.Taiko, BeatmapMode.Catch, BeatmapMode.Mania ];
+    quest.minRank = 0;
+    quest.status = QuestStatus.Pending;
+    quest.creator = req.session?.mongoId;
 
     // points
     const points = findCreateQuestPointsSpent(quest.art, quest.requiredMapsets);
 
-    const user = await UserService.queryByIdOrFail(req?.session?.mongoId, {}, cannotFindUserMessage);
+    const user = await UserModel
+        .findById(req?.session?.mongoId)
+        .orFail(new Error(cannotFindUserMessage));
 
     if (user.availablePoints < points) {
-        QuestService.remove(quest.id);
-
         return res.json({ error: 'Not enough points to perform this action!' });
     }
 
-    SpentPointsService.create(SpentPointsCategory.CreateQuest, req.session.mongoId, quest._id);
-    updateUserPoints(req.session.mongoId);
+    await quest.save();
 
     res.json(true);
 
-    LogService.create(req.session?.mongoId, `submitted quest for approval`, LogCategory.Quest);
-}));
+    SpentPointsModel.generate(SpentPointsCategory.CreateQuest, req.session?.mongoId, quest._id);
+    updateUserPoints(req.session?.mongoId);
+    LogModel.generate(req.session?.mongoId, `submitted quest for approval`, LogCategory.Quest);
+});
 
 export default questsRouter;

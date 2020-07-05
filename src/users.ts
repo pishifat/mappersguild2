@@ -6,7 +6,6 @@ import './bootstrap';
 import UserPage from './pages/users/UserPage.vue';
 import { User, UserGroup } from '../interfaces/user';
 import { FilterMode } from '../interfaces/extras';
-import { Beatmap } from '../interfaces/beatmap/beatmap';
 import toastsModule from './modules/toasts';
 
 $(document).ready(function() {

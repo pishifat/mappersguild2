@@ -1,8 +1,7 @@
 import express from 'express';
 import { isLoggedIn, isAdmin, isSuperAdmin } from '../../helpers/middlewares';
-import { UserService } from '../../models/user';
+import { UserModel } from '../../models/user';
 import { updateUserPoints } from '../../helpers/points';
-import { canFail } from '../../helpers/helpers';
 import { webhookPost, webhookColors } from '../../helpers/discordApi';
 
 const adminUsersRouter = express.Router();
@@ -24,15 +23,15 @@ adminUsersRouter.get('/', (req, res) => {
 
 /* GET users */
 adminUsersRouter.get('/load', async (req, res) => {
-    const users = await UserService.queryAll({ sort: { username: 1 } });
+    const users = await UserModel.find({}).sort({ username: 1 });
 
     res.json(users);
 });
 
 /* POST update user badge */
-adminUsersRouter.post('/:id/updateBadge', canFail(async (req, res) => {
+adminUsersRouter.post('/:id/updateBadge', async (req, res) => {
     const badge = parseInt(req.body.badge, 10);
-    const user = await UserService.updateOrFail(req.params.id, { badge });
+    const user = await UserModel.findByIdAndUpdate(req.params.id, { badge }).orFail();
 
     res.json(badge);
 
@@ -55,7 +54,7 @@ adminUsersRouter.post('/:id/updateBadge', canFail(async (req, res) => {
         color: rankColor,
         description: `**Reached rank ${badge}** with ${user.totalPoints} total points`,
     }]);
-}));
+});
 
 /* POST update user badge */
 adminUsersRouter.post('/:id/calculateUserPoints', async (req, res) => {
@@ -65,14 +64,14 @@ adminUsersRouter.post('/:id/calculateUserPoints', async (req, res) => {
 });
 
 /* POST update user points */
-adminUsersRouter.post('/updateAllUserPoints', canFail(async (req, res) => {
-    const users = await UserService.queryAllOrFail({ select: 'username' });
+adminUsersRouter.post('/updateAllUserPoints', async (req, res) => {
+    const users = await UserModel.find({}).select('username').orFail();
 
     for (const user of users) {
         updateUserPoints(user.id);
     }
 
     res.json('user points updated');
-}));
+});
 
 export default adminUsersRouter;

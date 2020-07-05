@@ -1,16 +1,16 @@
 import express from 'express';
-import { BeatmapService, Beatmap } from '../../models/beatmap/beatmap';
+import { BeatmapModel, Beatmap } from '../../models/beatmap/beatmap';
 import { BeatmapMode, BeatmapStatus } from '../../interfaces/beatmap/beatmap';
-import { TaskService, Task } from '../../models/beatmap/task';
+import { TaskModel, Task } from '../../models/beatmap/task';
 import { TaskName } from '../../interfaces/beatmap/task';
 import { QuestStatus } from '../../interfaces/quest';
-import { QuestService } from '../../models/quest';
-import { NotificationService } from '../../models/notification';
-import { LogService } from '../../models/log';
+import { QuestModel } from '../../models/quest';
+import { NotificationModel } from '../../models/notification';
+import { LogModel } from '../../models/log';
 import { LogCategory } from '../../interfaces/log';
 import { isLoggedIn, isNotSpectator, isBn } from '../../helpers/middlewares';
 import { findDifficultyPoints, findLengthNerf, findQuestBonus } from '../../helpers/points';
-import { defaultErrorMessage, canFail, findBeatmapsetId } from '../../helpers/helpers';
+import { defaultErrorMessage, findBeatmapsetId } from '../../helpers/helpers';
 import { beatmapsetInfo, isOsuResponseError } from '../../helpers/osuApi';
 import { isValidBeatmap } from './middlewares';
 
@@ -32,15 +32,13 @@ beatmapsRouter.get('/', (req, res) => {
 
 /* GET info for page load */
 beatmapsRouter.get('/relevantInfo', async (req, res) => {
-    const query: Partial<Beatmap> = {
-        host: req.session?.mongoId,
-        mode: res.locals.userRequest.mainMode,
-    };
-
-    const hostBeatmaps = await BeatmapService.queryAll({
-        query,
-        useDefaults: true,
-    });
+    const hostBeatmaps = await BeatmapModel
+        .find({
+            host: req.session?.mongoId,
+            mode: res.locals.userRequest.mainMode,
+        })
+        .defaultPopulate()
+        .sortByLastest();
 
     res.json({
         beatmaps: hostBeatmaps,
@@ -54,7 +52,7 @@ beatmapsRouter.get('/relevantInfo', async (req, res) => {
 
 /* GET map load from URL */
 beatmapsRouter.get('/searchOnLoad/:id', async (req, res) => {
-    const urlBeatmap = await BeatmapService.queryById(req.params.id, { defaultPopulate: true });
+    const urlBeatmap = await BeatmapModel.findById(req.params.id).defaultPopulate();
 
     if (!urlBeatmap) {
         return res.json({ error: 'Beatmap ID does not exist!' });
@@ -65,15 +63,13 @@ beatmapsRouter.get('/searchOnLoad/:id', async (req, res) => {
 
 /* GET guest difficulty related beatmaps */
 beatmapsRouter.get('/guestBeatmaps', async (req, res) => {
-    const ownTasks = await TaskService.queryAll({
-        query: { mappers: req.session?.mongoId },
-        select: '_id',
-    });
+    const ownTasks = await TaskModel
+        .find({ mappers: req.session?.mongoId })
+        .select('_id');
 
-    const userBeatmaps = await BeatmapService.queryAll({
-        query: {
-            $or:
-            [
+    const userBeatmaps = await BeatmapModel
+        .find({
+            $or: [
                 {
                     tasks: {
                         $in: ownTasks,
@@ -82,9 +78,10 @@ beatmapsRouter.get('/guestBeatmaps', async (req, res) => {
                 {
                     host: req.session?.mongoId,
                 },
-            ] },
-        useDefaults: true,
-    });
+            ],
+        })
+        .defaultPopulate()
+        .sortByLastest();
 
     res.json({ userBeatmaps });
 });
@@ -96,29 +93,30 @@ beatmapsRouter.get('/search', async (req, res) => {
     }
 
     const mode = req.query.mode as BeatmapMode | 'any';
-    const limit = parseInt(req.query.limit, 10);
+    const limit = req.query.limit && parseInt(req.query.limit.toString(), 10);
     const status = req.query.status as BeatmapStatus | undefined;
     const quest = req.query.quest as 'none' | undefined;
     const search = req.query.search as string | undefined;
 
-    let allBeatmaps = await BeatmapService.queryAll({
-        query: {
-            ...(mode != 'any' ? {
-                $or: [
-                    { mode },
-                    { mode: BeatmapMode.Hybrid },
-                ],
-            } : {}),
-            ...(status ? { status } : {}),
-            ...(quest ? { quest: { $exists: false } } : {}),
-            host: { $ne: req.session?.mongoId },
-        },
-        useDefaults: true,
-        // this actually returns every map, pretty dumb, need to fix somehow
-        limit: search ? undefined : limit,
+    const allBeatmapsQuery = BeatmapModel.find({
+        host: { $ne: req.session?.mongoId },
     });
 
-    if (search && !BeatmapService.isError(allBeatmaps)) {
+    if (mode != 'any') {
+        allBeatmapsQuery.or([
+            { mode },
+            { mode: BeatmapMode.Hybrid },
+        ]);
+    }
+
+    if (status) allBeatmapsQuery.where('status', status);
+    if (quest) allBeatmapsQuery.exists('quest', false);
+
+    // this actually returns every map, pretty dumb, need to fix somehow
+    if (!search && limit) allBeatmapsQuery.limit(limit);
+    let allBeatmaps = await allBeatmapsQuery.defaultPopulate().sortByLastest();
+
+    if (search) {
         const tags = search
             .toLowerCase()
             .trim()
@@ -144,13 +142,13 @@ beatmapsRouter.get('/search', async (req, res) => {
 
 /* GET quests for linking quest to beatmap */
 beatmapsRouter.get('/users/quests', async (req, res) => {
-    const userQuests = await QuestService.getUserQuests(req.session?.mongoId);
+    const userQuests = await QuestModel.getUserQuests(req.session?.mongoId);
 
     res.json({ userQuests });
 });
 
 /* POST create new map */
-beatmapsRouter.post('/create', isNotSpectator, canFail(async (req, res) => {
+beatmapsRouter.post('/create', isNotSpectator, async (req, res) => {
     if (!req.body.song) {
         return res.json({ error: 'Missing song!' });
     }
@@ -163,15 +161,11 @@ beatmapsRouter.post('/create', isNotSpectator, canFail(async (req, res) => {
     const createdTasks: Task['_id'][] = [];
 
     for (let i = 0; i < tasks.length; i++) {
-        const t = await TaskService.create({
-            name: tasks[i],
-            mappers: req.session?.mongoId,
-            mode: req.body.mode,
-        });
-
-        if (TaskService.isError(t)) {
-            return res.json({ error: 'Missing task!' });
-        }
+        const t = new TaskModel();
+        t.name = tasks[i];
+        t.mappers = req.session?.mongoId;
+        t.mode = req.body.mode;
+        await t.save();
 
         createdTasks.push(t._id);
     }
@@ -182,30 +176,37 @@ beatmapsRouter.post('/create', isNotSpectator, canFail(async (req, res) => {
         locks = req.body.tasksLocked;
     }
 
-    const newBeatmap = await BeatmapService.create(req.session?.mongoId, createdTasks, locks, req.body.song, req.body.mode);
+    const newBeatmap = new BeatmapModel();
+    newBeatmap.host = req.session?.mongoId;
+    newBeatmap.tasks = createdTasks;
+    newBeatmap.tasksLocked = locks;
+    newBeatmap.song = req.body.song;
+    newBeatmap.mode = req.body.mode;
+    await newBeatmap.save();
 
-    if (!newBeatmap || BeatmapService.isError(newBeatmap)) {
+    if (!newBeatmap) {
         return res.json(defaultErrorMessage);
     }
 
-    const b = await BeatmapService.queryByIdOrFail(newBeatmap._id, { defaultPopulate: true });
+    const b = await BeatmapModel
+        .findById(newBeatmap._id)
+        .defaultPopulate()
+        .orFail();
 
     res.json(b);
 
-    LogService.create(
+    LogModel.generate(
         req.session?.mongoId,
         `created new map "${b.song.artist} - ${b.song.title}"`,
         LogCategory.Beatmap
     );
-}));
+});
 
 /* POST modder from extended view, returns new modders list. */
-beatmapsRouter.post('/:id/updateModder', isNotSpectator, canFail(async (req, res) => {
-    const isAlreadyModder = await BeatmapService.queryOne({
-        query: {
-            _id: req.params.id,
-            modders: req.session?.mongoId,
-        },
+beatmapsRouter.post('/:id/updateModder', isNotSpectator, async (req, res) => {
+    const isAlreadyModder = await BeatmapModel.findOne({
+        _id: req.params.id,
+        modders: req.session?.mongoId,
     });
     let update;
 
@@ -215,24 +216,29 @@ beatmapsRouter.post('/:id/updateModder', isNotSpectator, canFail(async (req, res
         update = { $push: { modders: req.session?.mongoId } };
     }
 
-    let b = await BeatmapService.queryByIdOrFail(req.params.id);
+    let b = await BeatmapModel
+        .findById(req.params.id)
+        .orFail();
 
     if (b.status == BeatmapStatus.Ranked) {
         return res.json({ error: 'Mapset ranked' });
     }
 
-    await BeatmapService.update(req.params.id, update);
-    b = await BeatmapService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+    await BeatmapModel.findByIdAndUpdate(req.params.id, update);
+    b = await BeatmapModel
+        .findById(req.params.id)
+        .defaultPopulate()
+        .orFail();
 
     res.json(b);
 
     if (isAlreadyModder) {
-        LogService.create(
+        LogModel.generate(
             req.session?.mongoId,
             `removed from modder list on "${b.song.artist} - ${b.song.title}"`,
             LogCategory.Beatmap
         );
-        NotificationService.create(
+        NotificationModel.generate(
             b._id,
             `removed themself from the modder list of your mapset`,
             b.host.id,
@@ -240,12 +246,12 @@ beatmapsRouter.post('/:id/updateModder', isNotSpectator, canFail(async (req, res
             b._id
         );
     } else {
-        LogService.create(
+        LogModel.generate(
             req.session?.mongoId,
             `modded "${b.song.artist} - ${b.song.title}"`,
             LogCategory.Beatmap
         );
-        NotificationService.create(
+        NotificationModel.generate(
             b._id,
             `modded your mapset`,
             b.host.id,
@@ -253,16 +259,14 @@ beatmapsRouter.post('/:id/updateModder', isNotSpectator, canFail(async (req, res
             b._id
         );
     }
-}));
+});
 
 /* POST bn from extended view, returns new bns list. */
 beatmapsRouter.post('/:id/updateBn', isNotSpectator, isValidBeatmap, async (req, res) => {
     const b: Beatmap = res.locals.beatmap;
-    const isAlreadyBn = await BeatmapService.queryOne({
-        query: {
-            _id: req.params.id,
-            bns: req.session?.mongoId,
-        },
+    const isAlreadyBn = await BeatmapModel.findOne({
+        _id: req.params.id,
+        bns: req.session?.mongoId,
     });
     let update;
 
@@ -288,22 +292,21 @@ beatmapsRouter.post('/:id/updateBn', isNotSpectator, isValidBeatmap, async (req,
         return res.json(defaultErrorMessage);
     }
 
-    await BeatmapService.update(req.params.id, update);
-    const updatedBeatmap = await BeatmapService.queryById(req.params.id, { defaultPopulate: true });
-
-    if (!updatedBeatmap || BeatmapService.isError(updatedBeatmap)) {
-        return res.json(defaultErrorMessage);
-    }
+    await BeatmapModel.findByIdAndUpdate(req.params.id, update);
+    const updatedBeatmap = await BeatmapModel
+        .findById(req.params.id)
+        .defaultPopulate()
+        .orFail();
 
     res.json(updatedBeatmap);
 
     if (isAlreadyBn) {
-        LogService.create(
+        LogModel.generate(
             req.session?.mongoId,
             `removed from Beatmap Nominator list on "${updatedBeatmap.song.artist} - ${updatedBeatmap.song.title}"`,
             LogCategory.Beatmap
         );
-        NotificationService.create(
+        NotificationModel.generate(
             updatedBeatmap._id,
             `removed themself from the Beatmap Nominator list on your mapset`,
             updatedBeatmap.host.id,
@@ -311,12 +314,12 @@ beatmapsRouter.post('/:id/updateBn', isNotSpectator, isValidBeatmap, async (req,
             updatedBeatmap._id
         );
     } else {
-        LogService.create(
+        LogModel.generate(
             req.session?.mongoId,
             `added to Beatmap Nominator list on "${updatedBeatmap.song.artist} - ${updatedBeatmap.song.title}"`,
             LogCategory.Beatmap
         );
-        NotificationService.create(
+        NotificationModel.generate(
             updatedBeatmap._id,
             `added themself to the Beatmap Nominator list on your mapset`,
             updatedBeatmap.host.id,
@@ -328,7 +331,10 @@ beatmapsRouter.post('/:id/updateBn', isNotSpectator, isValidBeatmap, async (req,
 
 /* GET guest difficulty related beatmaps */
 beatmapsRouter.get('/:id/findPoints', async (req, res) => {
-    const beatmap = await BeatmapService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+    const beatmap = await BeatmapModel
+        .findById(req.params.id)
+        .defaultPopulate()
+        .orFail();
 
     if (!beatmap.url) {
         return res.json({ error: 'Need a beatmapset link to calculate points!' });

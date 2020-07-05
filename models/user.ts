@@ -1,11 +1,5 @@
-import mongoose, { Document, Schema } from 'mongoose';
-import BaseService from './baseService';
-import { BasicError } from '../helpers/helpers';
-import { User as IUser, PointsInfo } from '../interfaces/user';
-
-export interface User extends IUser, Document {
-    id: string;
-}
+import mongoose, { Schema } from 'mongoose';
+import { User, PointsInfo } from '../interfaces/user';
 
 const UserSchema = new Schema({
     osuId: { type: Number, required: true, unique: true },
@@ -84,40 +78,6 @@ UserSchema.virtual('mainMode').get(function(this: User) {
 
 const UserModel = mongoose.model<User>('User', UserSchema);
 
-class UserService extends BaseService<User>
-{
-    constructor() {
-        super(
-            UserModel,
-            { createdAt: -1 },
-            [
-                { path: 'completedQuests', select: 'name completed' },
-            ]
-        );
-    }
-
-    async create(
-        osuId: User['osuId'],
-        username: User['username'],
-        group: User['group']
-    ): Promise<User | BasicError> {
-        const res = await UserModel.findOne({ osuId });
-
-        if (!res) {
-            try {
-                return await UserModel.create({ osuId, username, group });
-            } catch (error) {
-                // logs.service.create(null, error, null, 'error');
-                return { error: error._message };
-            }
-        } else {
-            return { error: 'User already exists' };
-        }
-    }
-}
-
-const service = new UserService();
-
 const populatePointsVirtuals = 'osuId username rank easyPoints normalPoints hardPoints insanePoints expertPoints storyboardPoints questPoints modPoints hostPoints contestParticipantPoints contestJudgePoints contestVotePoints';
 
-export { service as UserService, populatePointsVirtuals };
+export { UserModel, populatePointsVirtuals };

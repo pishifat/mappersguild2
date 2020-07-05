@@ -1,6 +1,4 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import BaseService from '../baseService';
-import { BasicError } from '../../helpers/helpers';
 import { Task as ITask } from '../../interfaces/beatmap/task';
 
 export interface Task extends ITask, Document {
@@ -17,25 +15,4 @@ const taskSchema = new Schema({
 
 const TaskModel = mongoose.model<Task>('Task', taskSchema);
 
-class TaskService extends BaseService<Task>
-{
-    constructor() {
-        super(
-            TaskModel,
-            { updatedAt: -1 },
-            []
-        );
-    }
-
-    async create(data: Partial<Task>): Promise<Task | BasicError> {
-        try {
-            return await TaskModel.create(data);
-        } catch (error) {
-            return { error: error._message };
-        }
-    }
-}
-
-const service = new TaskService();
-
-export { service as TaskService };
+export { TaskModel };

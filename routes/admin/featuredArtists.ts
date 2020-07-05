@@ -1,14 +1,15 @@
 import express from 'express';
 import { isLoggedIn, isAdmin, isSuperAdmin } from '../../helpers/middlewares';
-import { FeaturedArtistService } from '../../models/featuredArtist';
-import { FeaturedSongService } from '../../models/featuredSong';
-import { canFail } from '../../helpers/helpers';
+import { FeaturedArtistModel } from '../../models/featuredArtist';
+import { FeaturedSongModel } from '../../models/featuredSong';
 
 const adminFeaturedArtistsRouter = express.Router();
 
 adminFeaturedArtistsRouter.use(isLoggedIn);
 adminFeaturedArtistsRouter.use(isAdmin);
 adminFeaturedArtistsRouter.use(isSuperAdmin);
+
+const defaultPopulate = { path: 'songs', select: 'artist title' };
 
 /* GET users - admin page */
 adminFeaturedArtistsRouter.get('/', (req, res) => {
@@ -23,49 +24,57 @@ adminFeaturedArtistsRouter.get('/', (req, res) => {
 
 /* GET featured artists */
 adminFeaturedArtistsRouter.get('/load', async (req, res) => {
-    const featuredArtists = await FeaturedArtistService.queryAll({
-        defaultPopulate: true,
-        sort: { osuId: 1, label: 1 },
-    });
+    const featuredArtists = await FeaturedArtistModel
+        .find({})
+        .populate(defaultPopulate)
+        .sort({ osuId: 1, label: 1 });
 
     res.json(featuredArtists);
 });
 
 /* POST update artist osuId */
-adminFeaturedArtistsRouter.post('/:id/updateOsuId', canFail(async (req, res) => {
-    await FeaturedArtistService.updateOrFail(req.params.id, { osuId: req.body.osuId });
+adminFeaturedArtistsRouter.post('/:id/updateOsuId', async (req, res) => {
+    await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { osuId: req.body.osuId }).orFail();
 
     res.json(parseInt(req.body.osuId, 10));
-}));
+});
 
 /* POST update artist name */
-adminFeaturedArtistsRouter.post('/:id/updateName', canFail(async (req, res) => {
-    await FeaturedArtistService.updateOrFail(req.params.id, { label: req.body.name });
+adminFeaturedArtistsRouter.post('/:id/updateName', async (req, res) => {
+    await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { label: req.body.name }).orFail();
 
     res.json(req.body.name);
-}));
+});
 
 /* POST add song to artist */
-adminFeaturedArtistsRouter.post('/:id/songs/create', canFail(async (req, res) => {
-    const song = await FeaturedSongService.createOrFail(req.body.artist.trim(), req.body.title.trim());
-    await FeaturedArtistService.updateOrFail(req.params.id, { $push: { songs: song } });
+adminFeaturedArtistsRouter.post('/:id/songs/create', async (req, res) => {
+    const song = new FeaturedSongModel();
+    song.artist = req.body.artist.trim();
+    song.title = req.body.title.trim();
+    await song.save();
+    await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { $push: { songs: song } }).orFail();
 
     res.json(song);
-}));
+});
 
 /* POST edit metadata */
-adminFeaturedArtistsRouter.post('/:id/songs/:songId/update', canFail(async (req, res) => {
-    const song = await FeaturedSongService.updateOrFail(req.params.songId, { artist: req.body.artist.trim(), title: req.body.title.trim() });
+adminFeaturedArtistsRouter.post('/:id/songs/:songId/update', async (req, res) => {
+    const song = await FeaturedSongModel
+        .findByIdAndUpdate(req.params.songId, {
+            artist: req.body.artist.trim(),
+            title: req.body.title.trim(),
+        })
+        .orFail();
 
     res.json(song);
-}));
+});
 
 /* POST remove song from artist */
-adminFeaturedArtistsRouter.post('/:id/songs/:songId/delete', canFail(async (req, res) => {
-    await FeaturedArtistService.updateOrFail(req.params.id, { $pull: { songs: req.params.songId } });
-    await FeaturedSongService.removeOrFail(req.params.songId);
+adminFeaturedArtistsRouter.post('/:id/songs/:songId/delete', async (req, res) => {
+    await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { $pull: { songs: req.params.songId as any } }).orFail();
+    await FeaturedSongModel.findByIdAndRemove(req.params.songId).orFail();
 
     res.json({ success: 'ok' });
-}));
+});
 
 export default adminFeaturedArtistsRouter;

@@ -23,6 +23,7 @@ module.exports = {
         publicPath: '/js/',
         stats: 'minimal',
         port: 8080,
+        hot: true,
         proxy: {
             '/': 'http://localhost:3000',
         },

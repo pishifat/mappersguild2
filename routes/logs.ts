@@ -1,6 +1,6 @@
 import express from 'express';
 import { isLoggedIn } from '../helpers/middlewares';
-import { LogService } from '../models/log';
+import { LogModel } from '../models/log';
 import { LogCategory } from '../interfaces/log';
 import { UserGroup } from '../interfaces/user';
 
@@ -14,29 +14,27 @@ logsRouter.get('/', async (req, res) => {
         title: 'Logs',
         script: 'logs.js',
         isLogs: true,
-        logs: await LogService.queryAll({
-            query: { category: { $ne: LogCategory.Error } },
-            useDefaults: true,
-            limit: 100,
-        }),
         loggedInAs: req.session?.osuId,
         isNotSpectator: res.locals.userRequest.group != UserGroup.Spectator,
         userMongoId: req.session?.mongoId,
         pointsInfo: res.locals.userRequest.pointsInfo,
+        logs: await LogModel
+            .find({ category: { $ne: LogCategory.Error } })
+            .sort('-createdAt')
+            .populate({ path: 'user', select: 'username' })
+            .limit(100),
     });
 });
 
 logsRouter.get('/more/:skip', async (req, res) => {
-    res.json(await LogService.queryAll({
-        query: {
-            category: {
-                $ne: LogCategory.Error,
-            },
-        },
-        useDefaults: true,
-        limit: 100,
-        skip: parseInt(req.params.skip, 10),
-    }));
+    res.json(
+        await LogModel
+            .find({ category: { $ne: LogCategory.Error } })
+            .sort('-createdAt')
+            .populate({ path: 'user', select: 'username' })
+            .limit(100)
+            .skip(parseInt(req.params.skip, 10))
+    );
 });
 
 export default logsRouter;

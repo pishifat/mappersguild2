@@ -25,5 +25,5 @@ export interface Points {
     ContestParticipant: number;
     ContestJudge: number;
     ContestVote: number;
-    Quests: string[];
+    Quests: any[];
 }

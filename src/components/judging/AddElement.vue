@@ -13,7 +13,7 @@
                     </div>
                     <div class="modal-body" style="overflow: hidden">
                         <p v-if="contests" class="form-row">
-                            <select v-model="contest" class="form-control form-control-sm w-100 mx-2">
+                            <select v-model="selectedContest" class="form-control form-control-sm w-100 mx-2">
                                 <option v-for="contest in contests" :key="contest.id" :value="contest.id">
                                     {{ contest.name }}
                                 </option>
@@ -56,42 +56,29 @@
 export default {
     name: 'AddElement',
     props: {
-        type: String,
-        contests: Array,
+        type: {
+            type: String,
+            required: true,
+        },
+        contests: {
+            type: Array,
+            required: true,
+        },
     },
     data() {
         return {
             elementName: '',
             osuId: '',
-            contest: null,
+            selectedContest: null,
             info: null,
         };
     },
     methods: {
-        async executePost (path, data, e) {
-            if (e) e.target.disabled = true;
-
-            try {
-                const res = await axios.post(path, data);
-
-                if (res.data.error) {
-                    this.info = res.data.error;
-                } else {
-                    if (e) e.target.disabled = false;
-
-                    return res.data;
-                }
-            } catch (error) {
-                console.log(error);
-            }
-
-            if (e) e.target.disabled = false;
-        },
         async createElement (e) {
             let element;
 
             if (this.type == 'entry') {
-                element = await this.executePost(`/judging/createEntry`, { name: this.elementName, contest: this.contest, osuId: this.osuId }, e);
+                element = await this.executePost(`/judging/createEntry`, { name: this.elementName, contest: this.selectedContest, osuId: this.osuId }, e);
             } else if (this.type == 'contest') {
                 element = await this.executePost(`/judging/createContest`, { name: this.elementName }, e);
             }
@@ -108,7 +95,7 @@ export default {
             }
         },
         async addJudge (e) {
-            const contest = await this.executePost(`/judging/addJudge/${this.contest}`, { osuId: this.osuId }, e);
+            const contest = await this.executePost(`/judging/addJudge/${this.selectedContest}`, { osuId: this.osuId }, e);
 
             if (contest) {
                 this.info = `added ${this.osuId} (${contest.judges.length})`;
@@ -117,7 +104,3 @@ export default {
     },
 };
 </script>
-
-<style>
-
-</style>

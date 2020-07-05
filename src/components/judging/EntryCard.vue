@@ -71,8 +71,14 @@
 export default {
     name: 'EntryCard',
     props: {
-        entry: Object,
-        userId: String,
+        entry: {
+            type: Object,
+            required: true,
+        },
+        userId: {
+            type: String,
+            required: true,
+        },
         firstOccupied: Boolean,
         secondOccupied: Boolean,
         thirdOccupied: Boolean,
@@ -104,25 +110,6 @@ export default {
         }
     },
     methods: {
-        async executePost (path, data, e) {
-            if (e) e.target.disabled = true;
-
-            try {
-                const res = await axios.post(path, data);
-
-                if (res.data.error) {
-                    this.info = res.data.error;
-                } else {
-                    if (e) e.target.disabled = false;
-
-                    return res.data;
-                }
-            } catch (error) {
-                console.log(error);
-            }
-
-            if (e) e.target.disabled = false;
-        },
         async updateComment (e) {
             if (!e) {
                 this.showCommentInput = !this.showCommentInput;

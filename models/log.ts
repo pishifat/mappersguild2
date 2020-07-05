@@ -1,11 +1,17 @@
-import mongoose, { Document, Schema } from 'mongoose';
-import BaseService from './baseService';
-import { defaultErrorMessage, BasicError } from '../helpers/helpers';
-import { User } from './user';
+import mongoose, { Document, Schema, Model } from 'mongoose';
 import { Log as ILog } from '../interfaces/log';
+import { User } from 'interfaces/user';
 
 export interface Log extends ILog, Document {
     id: string;
+}
+
+interface LogStatics extends Model<Log> {
+    generate: (
+        userId: User['_id'],
+        action: Log['action'],
+        category: Log['category']
+    ) => void;
 }
 
 const logSchema = new Schema({
@@ -14,35 +20,20 @@ const logSchema = new Schema({
     category: { type: String, enum: ['beatmap', 'quest', 'party', 'user', 'artist', 'error'], required: true },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
-const LogModel = mongoose.model<Log>('Log', logSchema);
-
-class LogService extends BaseService<Log>
+class LogService
 {
-    constructor() {
-        super(
-            LogModel,
-            { createdAt: -1 },
-            [
-                { path: 'user', select: 'username' },
-            ]
-        );
-    }
-
-    async create(
+    static generate (
         userId: User['_id'],
         action: Log['action'],
         category: Log['category']
-    ): Promise<Log | BasicError> {
+    ): void {
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
         const log = new LogModel({ user: userId, action, category });
-
-        try {
-            return await log.save();
-        } catch (error) {
-            return defaultErrorMessage;
-        }
+        log.save();
     }
 }
 
-const service = new LogService();
+logSchema.loadClass(LogService);
+const LogModel = mongoose.model<Log, LogStatics>('Log', logSchema);
 
-export { service as LogService };
+export { LogModel };

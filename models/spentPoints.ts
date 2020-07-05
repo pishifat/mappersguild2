@@ -1,12 +1,13 @@
-import mongoose, { Document, Schema } from 'mongoose';
-import BaseService from './baseService';
-import { BasicError } from '../helpers/helpers';
-import { User } from './user';
-import { Quest } from './quest';
-import { SpentPoints as ISpentPoints } from '../interfaces/spentPoints';
+/* eslint-disable @typescript-eslint/no-use-before-define */
+import mongoose, { Schema, Model } from 'mongoose';
+import { SpentPoints, SpentPointsCategory } from '../interfaces/spentPoints';
 
-export interface SpentPoints extends ISpentPoints, Document {
-    id: string;
+interface SpentPointsStatics extends Model<SpentPoints> {
+    generate: (
+        category: SpentPointsCategory,
+        userId: any,
+        questId: any
+    ) => Promise<SpentPoints>;
 }
 
 const spentPointsSchema = new Schema({
@@ -15,37 +16,23 @@ const spentPointsSchema = new Schema({
     quest: { type: 'ObjectId', ref: 'Quest', required: true },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
-const SpentPointsModel = mongoose.model<SpentPoints>('SpentPoints', spentPointsSchema);
-
-class SpentPointsService extends BaseService<SpentPoints>
+class SpentPointsService
 {
-    constructor() {
-        super(
-            SpentPointsModel,
-            { createdAt: -1 },
-            []
-        );
-    }
+    static generate (
+        category: SpentPointsCategory,
+        userId: any,
+        questId: any
+    ): Promise<SpentPoints> {
+        const spentPoints = new SpentPointsModel();
+        spentPoints.category = category,
+        spentPoints.user = userId;
+        spentPoints.quest = questId;
 
-    async create(
-        category: SpentPoints['category'],
-        userId: User['_id'],
-        questId: Quest['_id']
-    ): Promise<SpentPoints | BasicError> {
-        try {
-            const spentPoints: SpentPoints = new SpentPointsModel({
-                category,
-                user: userId,
-                quest: questId,
-            });
-
-            return await SpentPointsModel.create(spentPoints);
-        } catch (error) {
-            return { error: error._message };
-        }
+        return spentPoints.save();
     }
 }
 
-const service = new SpentPointsService();
+spentPointsSchema.loadClass(SpentPointsService);
+const SpentPointsModel = mongoose.model<SpentPoints, SpentPointsStatics>('SpentPoints', spentPointsSchema);
 
-export { service as SpentPointsService };
+export { SpentPointsModel };

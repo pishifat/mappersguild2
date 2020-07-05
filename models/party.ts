@@ -1,8 +1,4 @@
-import mongoose, { Document, Schema } from 'mongoose';
-import BaseService from './baseService';
-import { BasicError } from '../helpers/helpers';
-import { User } from './user';
-import { BeatmapMode } from '../interfaces/beatmap/beatmap';
+import mongoose, { Document, Schema, DocumentQuery, Model } from 'mongoose';
 import { Party as IParty } from '../interfaces/party';
 
 export interface Party extends IParty, Document {
@@ -17,46 +13,16 @@ const partySchema = new Schema({
     modes: [{ type: String, required: true }],
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
-const PartyModel = mongoose.model<Party>('Party', partySchema);
+const queryHelpers = {
+    defaultPopulate<Q extends DocumentQuery<any, Party>>(this: Q) {
+        return this.populate([
+            { path: 'members', select: 'username osuId rank' },
+            { path: 'leader', select: 'username osuId' },
+        ]);
+    },
+};
 
-class PartyService extends BaseService<Party>
-{
-    constructor() {
-        super(
-            PartyModel,
-            { updatedAt: -1 },
-            [
-                { path: 'members', select: 'username osuId rank' },
-                { path: 'leader', select: 'username osuId' },
-            ]
-        );
-    }
+partySchema.query = queryHelpers;
+const PartyModel = mongoose.model<Party, Model<Party, typeof queryHelpers>>('Party', partySchema);
 
-    async create(userId: User['_id'], mode: Omit<BeatmapMode, BeatmapMode.Hybrid>): Promise<Party | BasicError> {
-        try {
-            const party: Party = new PartyModel({
-                leader: userId,
-                members: userId,
-                modes: [mode],
-            });
-
-            return await PartyModel.create(party);
-        } catch (error) {
-            return { error: error._message };
-        }
-    }
-
-    async createOrFail(userId: User['_id'], mode: Omit<BeatmapMode, BeatmapMode.Hybrid>): Promise<Party> {
-        const party = await this.create(userId, mode);
-
-        if (this.isError(party)) {
-            throw new Error();
-        }
-
-        return party;
-    }
-}
-
-const service = new PartyService();
-
-export { service as PartyService };
+export { PartyModel };

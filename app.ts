@@ -11,6 +11,16 @@ import config from './config.json';
 import hbs from 'hbs';
 import manifest from './manifest.json';
 import './helpers/hbs';
+import 'express-async-errors';
+
+// Return the 'new' updated object by default when doing findByIdAndUpdate
+mongoose.plugin(schema => {
+    schema.pre('findOneAndUpdate', function(this) {
+        if (!('new' in this.options)) {
+            this.setOptions({ new: true });
+        }
+    });
+});
 
 import indexRouter from './routes/index';
 import beatmapsRouter from './routes/beatmaps/beatmaps';
@@ -113,8 +123,6 @@ app.use((err, req, res, next) => {
     // set locals, only providing error in development
     res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-    // logs.service.create(req.session.mongoId || null, `${req.session.osuId} - ${err}`, null, 'error');
 
     if (req.accepts(['html', 'json']) === 'json') {
         res.json({ error: err.message || 'Something went wrong!' });

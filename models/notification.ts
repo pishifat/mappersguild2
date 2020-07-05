@@ -1,10 +1,28 @@
-import mongoose, { Document, Schema } from 'mongoose';
-import BaseService from './baseService';
-import { defaultErrorMessage, BasicError } from '../helpers/helpers';
+/* eslint-disable @typescript-eslint/no-use-before-define */
+import mongoose, { Document, Schema, Model } from 'mongoose';
 import { Notification as INotification } from '../interfaces/notification';
 
 export interface Notification extends INotification, Document {
     id: string;
+}
+
+interface NotificationStatics extends Model<Notification> {
+    generate: (
+        modified: Notification['modified'],
+        info: Notification['info'],
+        recipient: Notification['recipient'],
+        sender: Notification['sender'],
+        map: Notification['map']
+    ) => Promise<Notification>;
+
+    generatePartyNotification: (
+        modified: Notification['modified'],
+        info: Notification['info'],
+        recipient: Notification['recipient'],
+        sender: Notification['sender'],
+        party: Notification['party'],
+        quest: Notification['quest']
+    ) => Promise<Notification>;
 }
 
 const notificationSchema = new Schema({
@@ -20,62 +38,35 @@ const notificationSchema = new Schema({
 
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
-const NotificationModel = mongoose.model<Notification>('Notification', notificationSchema);
-
-class NotificationService extends BaseService<Notification>
+class NotificationService
 {
-    constructor() {
-        super(
-            NotificationModel,
-            { updatedAt: -1 },
-            [
-                { path: 'sender', select: 'username osuId' },
-                { path: 'map', populate: { path: 'song host' } },
-                {
-                    path: 'map', populate: {
-                        path: 'tasks', populate: { path: 'mappers' },
-                    },
-                },
-                { path: 'party', populate: { path: 'members leader' } },
-                { path: 'quest', select: 'name' },
-            ]
-        );
-    }
-
-    async create(
+    static generate (
         modified: Notification['modified'],
         info: Notification['info'],
         recipient: Notification['recipient'],
         sender: Notification['sender'],
         map: Notification['map']
-    ): Promise<Notification | BasicError> {
+    ): Promise<Notification> {
         const notification = new NotificationModel({ modified, info, recipient, sender, map });
 
-        try {
-            return await notification.save();
-        } catch (error) {
-            return defaultErrorMessage;
-        }
+        return notification.save();
     }
 
-    async createPartyNotification(
+    static generatePartyNotification (
         modified: Notification['modified'],
         info: Notification['info'],
         recipient: Notification['recipient'],
         sender: Notification['sender'],
         party: Notification['party'],
         quest: Notification['quest']
-    ): Promise<Notification | BasicError> {
+    ): Promise<Notification> {
         const notification = new NotificationModel({ modified, info, recipient, sender, party, quest });
 
-        try {
-            return await notification.save();
-        } catch (error) {
-            return defaultErrorMessage;
-        }
+        return notification.save();
     }
 }
 
-const service = new NotificationService();
+notificationSchema.loadClass(NotificationService);
+const NotificationModel = mongoose.model<Notification, NotificationStatics>('Notification', notificationSchema);
 
-export { service as NotificationService };
+export { NotificationModel };

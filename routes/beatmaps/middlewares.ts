@@ -1,16 +1,16 @@
 import express from 'express';
-import { BeatmapService } from '../../models/beatmap/beatmap';
+import { BeatmapModel } from '../../models/beatmap/beatmap';
 import { BeatmapStatus } from '../../interfaces/beatmap/beatmap';
 import { defaultErrorMessage } from '../../helpers/helpers';
-import { UserService } from '../../models/user';
+import { UserModel } from '../../models/user';
 
 const inviteError = 'Invite not sent: ';
 
 export async function isValidBeatmap(req: express.Request, res: express.Response, next: express.NextFunction): Promise<express.Response | void> {
     const id = req.params.id || req.params.mapId;
-    const b = await BeatmapService.queryById(id, { defaultPopulate: true });
+    const b = await BeatmapModel.findById(id).defaultPopulate();
 
-    if (!b || BeatmapService.isError(b)) {
+    if (!b) {
         return res.json(defaultErrorMessage);
     }
 
@@ -40,9 +40,9 @@ export async function isValidUser(req: express.Request, res: express.Response, n
         rexExp = new RegExp('^' + req.body.user + '$', 'i');
     }
 
-    const u = await UserService.queryOne({ query: { username: rexExp } });
+    const u = await UserModel.findOne({ username: rexExp });
 
-    if (!u || UserService.isError(u)) {
+    if (!u) {
         return res.json({ error: inviteError + 'Cannot find user!' });
     }
 

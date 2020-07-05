@@ -1,14 +1,15 @@
 import express from 'express';
 import { isLoggedIn, isAdmin, isSuperAdmin } from '../../helpers/middlewares';
-import { BeatmapService } from '../../models/beatmap/beatmap';
+import { BeatmapModel } from '../../models/beatmap/beatmap';
 import { Beatmap, BeatmapStatus } from '../../interfaces/beatmap/beatmap';
-import { QuestService } from '../../models/quest';
-import { canFail, findBeatmapsetId, sleep, defaultErrorMessage } from '../../helpers/helpers';
+import { QuestModel } from '../../models/quest';
+import { findBeatmapsetId, sleep, defaultErrorMessage } from '../../helpers/helpers';
 import { updateUserPoints } from '../../helpers/points';
-import { TaskService, Task } from '../../models/beatmap/task';
-import { User } from '../../models/user';
+import { TaskModel, Task } from '../../models/beatmap/task';
 import { beatmapsetInfo, getMaps, isOsuResponseError } from '../../helpers/osuApi';
 import { webhookPost, webhookColors } from '../../helpers/discordApi';
+import { TaskName, TaskStatus } from '../../interfaces/beatmap/task';
+import { User } from '../../interfaces/user';
 
 const adminBeatmapsRouter = express.Router();
 
@@ -28,26 +29,28 @@ adminBeatmapsRouter.get('/', (req, res) => {
 
 /* GET beatmaps */
 adminBeatmapsRouter.get('/load', async (req, res) => {
-    const beatmaps = await BeatmapService.queryAll({
-        defaultPopulate: true,
-        sort: {
+    const beatmaps = await BeatmapModel
+        .find({})
+        .defaultPopulate()
+        .sort({
             status: 1,
             mode: 1,
             createdAt: -1,
-        },
-    });
+        });
 
     res.json(beatmaps);
 });
 
 /* POST update map status */
-adminBeatmapsRouter.post('/:id/updateStatus', isSuperAdmin, canFail(async (req, res) => {
-    let b = await BeatmapService.updateOrFail(req.params.id, { status: req.body.status });
+adminBeatmapsRouter.post('/:id/updateStatus', isSuperAdmin, async (req, res) => {
+    let b = await BeatmapModel
+        .findByIdAndUpdate(req.params.id, { status: req.body.status })
+        .orFail();
 
     if (req.body.status == BeatmapStatus.Done) {
         // set all tasks as Done
         for (let i = 0; i < b.tasks.length; i++) {
-            await TaskService.update(b.tasks[i] as Task['_id'], { status: BeatmapStatus.Done });
+            await TaskModel.findByIdAndUpdate(b.tasks[i], { status: TaskStatus.Done });
         }
     }
 
@@ -64,10 +67,13 @@ adminBeatmapsRouter.post('/:id/updateStatus', isSuperAdmin, canFail(async (req, 
         // set length (for task points calculation) and ranked date (for quest points calculation) according to osu! db
         b.length = bmInfo.hit_length;
         b.rankedDate = bmInfo.approved_date;
-        await BeatmapService.saveOrFail(b);
+        await b.save();
 
         // query for populated beatmap
-        b = await BeatmapService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+        b = await BeatmapModel
+            .findById(req.params.id)
+            .defaultPopulate()
+            .orFail();
 
         // calculate points for modders
         for (const modder of b.modders) {
@@ -147,35 +153,43 @@ adminBeatmapsRouter.post('/:id/updateStatus', isSuperAdmin, canFail(async (req, 
     }
 
     res.json(req.body.status);
-}));
+});
 
 /* POST delete task */
-adminBeatmapsRouter.post('/:id/tasks/:taskId/delete', isSuperAdmin, canFail(async (req, res) => {
+adminBeatmapsRouter.post('/:id/tasks/:taskId/delete', isSuperAdmin, async (req, res) => {
     await Promise.all([
-        BeatmapService.updateOrFail(req.params.id, {
-            $pull: {
-                tasks: req.params.taskId,
-            },
-        }),
-        TaskService.removeOrFail(req.params.taskId),
+        BeatmapModel
+            .findByIdAndUpdate(req.params.id, {
+                $pull: {
+                    tasks: req.params.taskId as any,
+                },
+            })
+            .orFail(),
+        TaskModel
+            .findByIdAndRemove(req.params.taskId)
+            .orFail(),
     ]);
 
     res.json({ success: 'ok' });
-}));
+});
 
 /* POST delete modder */
-adminBeatmapsRouter.post('/:id/modders/:modderId/delete', isSuperAdmin, canFail(async (req, res) => {
-    await BeatmapService.updateOrFail(req.params.id, { $pull: { modders: req.params.modderId } });
+adminBeatmapsRouter.post('/:id/modders/:modderId/delete', isSuperAdmin, async (req, res) => {
+    await BeatmapModel
+        .findByIdAndUpdate(req.params.id, { $pull: { modders: req.params.modderId } })
+        .orFail();
 
     res.json({ success: 'ok' });
-}));
+});
 
 /* POST update map url */
-adminBeatmapsRouter.post('/:id/updateUrl', isSuperAdmin, canFail(async (req, res) => {
-    await BeatmapService.updateOrFail(req.params.id, { url: req.body.url });
+adminBeatmapsRouter.post('/:id/updateUrl', isSuperAdmin, async (req, res) => {
+    await BeatmapModel
+        .findByIdAndUpdate(req.params.id, { url: req.body.url })
+        .orFail();
 
     res.json(req.body.url);
-}));
+});
 
 
 
@@ -184,24 +198,29 @@ adminBeatmapsRouter.post('/:id/updateUrl', isSuperAdmin, canFail(async (req, res
 // ---------------------
 
 /* POST update sb quality */
-adminBeatmapsRouter.post('/:id/updateStoryboardQuality', canFail(async (req, res) => {
-    const task = await TaskService.updateOrFail(req.body.taskId, { sbQuality: req.body.storyboardQuality });
+adminBeatmapsRouter.post('/:id/updateStoryboardQuality', async (req, res) => {
+    const task = await TaskModel
+        .findByIdAndUpdate(req.body.taskId, { sbQuality: req.body.storyboardQuality })
+        .orFail();
+
     await task.populate({
         path: 'mappers',
     }).execPopulate();
 
     res.json(task);
-}));
+});
 
 /* POST update osu beatmap pack ID */
-adminBeatmapsRouter.post('/:id/updatePackId', canFail(async (req, res) => {
-    await BeatmapService.updateOrFail(req.params.id, { packId: req.body.packId });
+adminBeatmapsRouter.post('/:id/updatePackId', async (req, res) => {
+    await BeatmapModel
+        .findByIdAndUpdate(req.params.id, { packId: req.body.packId })
+        .orFail();
 
     res.json(parseInt(req.body.packId, 10));
-}));
+});
 
 /* GET news info */
-adminBeatmapsRouter.get('/loadNewsInfo/:date', canFail(async (req, res) => {
+adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
     if (isNaN(Date.parse(req.params.date))) {
         return res.json( { error: 'Invalid date' } );
     }
@@ -209,19 +228,20 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', canFail(async (req, res) => {
     const date = new Date(req.params.date);
 
     const [b, q] = await Promise.all([
-        BeatmapService.queryAllOrFail({
-            query: {
+        BeatmapModel
+            .find({
                 updatedAt: { $gte: date },
                 status: BeatmapStatus.Ranked,
-            },
-            defaultPopulate: true,
-            sort: { mode: 1, createdAt: -1 },
-        }),
-        QuestService.queryAllOrFail({
-            query: { completed: { $gte: date } },
-            defaultPopulate: true,
-            sort: { name: 1 },
-        }),
+            })
+            .defaultPopulate()
+            .sort({ mode: 1, createdAt: -1 })
+            .orFail(),
+
+        QuestModel
+            .find({ completed: { $gte: date } })
+            .defaultPopulate()
+            .sort({ name: 1 })
+            .orFail(),
     ]);
 
     const accuratelyDatedBeatmaps: Beatmap[] = []; // because mg database's "updatedAt" is wrong too often
@@ -278,27 +298,26 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', canFail(async (req, res) => {
     }
 
     res.json({ beatmaps: accuratelyDatedBeatmaps, quests: q, externalBeatmaps });
-}));
+});
 
 /* GET bundled beatmaps */
-adminBeatmapsRouter.get('/findBundledBeatmaps', canFail(async (req, res) => {
-    console.log('in');
-    const easyTasks = await TaskService.queryAllOrFail({
-        query: { name: 'Easy' },
-        select: '_id',
-    });
+adminBeatmapsRouter.get('/findBundledBeatmaps', async (req, res) => {
+    const easyTasks = await TaskModel
+        .find({ name: TaskName.Easy })
+        .select('_id')
+        .orFail();
 
-    const easyBeatmaps = await BeatmapService.queryAllOrFail({
-        query: {
+    const easyBeatmaps = await BeatmapModel
+        .find({
             tasks: {
                 $in: easyTasks,
             },
             status: BeatmapStatus.Ranked,
-        },
-        useDefaults: true,
-    });
+        })
+        .defaultPopulate()
+        .sortByLastest();
 
     res.json(easyBeatmaps);
-}));
+});
 
 export default adminBeatmapsRouter;

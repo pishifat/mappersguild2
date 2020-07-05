@@ -1,21 +1,21 @@
 import express from 'express';
 import { isLoggedIn, isUser, isNotSpectator } from '../helpers/middlewares';
 import { updateUserPoints } from '../helpers/points';
-import { PartyService } from '../models/party';
-import { defaultErrorMessage, canFail, BasicResponse } from '../helpers/helpers';
-import { BeatmapService, Beatmap } from '../models/beatmap/beatmap';
+import { PartyModel } from '../models/party';
+import { defaultErrorMessage, BasicResponse } from '../helpers/helpers';
+import { BeatmapModel, Beatmap } from '../models/beatmap/beatmap';
 import { BeatmapMode } from '../interfaces/beatmap/beatmap';
-import { Quest, QuestService } from '../models/quest';
-import { TaskService } from '../models/beatmap/task';
+import { Quest, QuestModel } from '../models/quest';
+import { TaskModel } from '../models/beatmap/task';
 import { TaskName, TaskMode } from '../interfaces/beatmap/task';
-import { User } from '../models/user';
-import { Invite, InviteService } from '../models/invite';
-import { NotificationService } from '../models/notification';
-import { SpentPointsService } from '../models/spentPoints';
+import { Invite, InviteModel } from '../models/invite';
+import { NotificationModel } from '../models/notification';
+import { SpentPointsModel } from '../models/spentPoints';
 import { SpentPointsCategory } from '../interfaces/spentPoints';
-import { LogService } from '../models/log';
+import { LogModel } from '../models/log';
 import { LogCategory } from '../interfaces/log';
 import { QuestStatus } from '../interfaces/quest';
+import { User } from 'interfaces/user';
 
 const notificationsRouter = express.Router();
 
@@ -24,16 +24,51 @@ notificationsRouter.use(isUser);
 
 //populations
 const beatmapPopulate = [{ path: 'song', select: 'artist title' }];
+const notificationPopulate = [
+    { path: 'sender', select: 'username osuId' },
+    {
+        path: 'map',
+        populate: [
+            { path: 'song' },
+            { path: 'host' },
+            {
+                path: 'tasks', populate: { path: 'mappers' },
+            },
+        ],
+    },
+    { path: 'party', populate: { path: 'members leader' } },
+    { path: 'quest', select: 'name' },
+];
+const invitePopulate = [
+    { path: 'sender', select: 'username osuId' },
+    {
+        path: 'map',
+        populate: [
+            { path: 'song' },
+            { path: 'host' },
+            {
+                path: 'tasks', populate: { path: 'mappers' },
+            },
+        ],
+    },
+    { path: 'party', populate: { path: 'members leader' } },
+    {
+        path: 'quest', populate: {
+            path: 'currentParty', populate: { path: 'members' },
+        },
+    },
+];
 
 //updating party rank and modes when accepting invite
 async function updatePartyInfo(id: string): Promise<object> {
-    const p = await PartyService.queryById(id, {
-        populate: [{ path: 'members', select: 'rank osuPoints taikoPoints catchPoints maniaPoints' }],
-    });
+    const p = await PartyModel
+        .findById(id)
+        .populate({ path: 'members', select: 'rank osuPoints taikoPoints catchPoints maniaPoints' });
+
     let rank = 0;
     const modes: Omit<BeatmapMode, BeatmapMode.Hybrid>[] = [];
 
-    if (!p || PartyService.isError(p)) {
+    if (!p) {
         return defaultErrorMessage;
     }
 
@@ -47,7 +82,7 @@ async function updatePartyInfo(id: string): Promise<object> {
 
     p.rank = Math.round(rank / p.members.length);
     p.modes = modes;
-    await PartyService.saveOrFail(p);
+    await p.save();
 
     return { success: 'ok' };
 }
@@ -76,10 +111,10 @@ async function addTaskChecks(userId: User['_id'], b: Beatmap, invite: Invite, is
     }
 
     if (b.quest && invite.taskName != TaskName.Storyboard) {
-        const q = await QuestService.queryById(b.quest as Quest['_id'], { defaultPopulate: true });
+        const q = await QuestModel.findById(b.quest as Quest['_id']);
         let valid = false;
 
-        if (!q || QuestService.isError(q)) {
+        if (!q) {
             return defaultErrorMessage;
         }
 
@@ -98,8 +133,9 @@ async function addTaskChecks(userId: User['_id'], b: Beatmap, invite: Invite, is
         }
     }
 
-    const isAlreadyBn = await BeatmapService.queryOne({
-        query: { _id: b._id, bns: userId },
+    const isAlreadyBn = await BeatmapModel.findOne({
+        _id: b._id,
+        bns: userId,
     });
 
     if (isAlreadyBn) {
@@ -107,16 +143,19 @@ async function addTaskChecks(userId: User['_id'], b: Beatmap, invite: Invite, is
     }
 
     if (!isNewTask) {
-        let t = await TaskService.queryById(invite.modified);
+        let t = await TaskModel.findById(invite.modified);
 
         if (!t) {
             return { error: `Task doesn't exist anymore!` };
         }
 
-        t = await TaskService.queryOne({ query: { _id: invite.modified, mappers: userId } });
+        t = await TaskModel.findOne({
+            _id: invite.modified,
+            mappers: userId,
+        });
 
-        if (t && !TaskService.isError(t)) {
-            await InviteService.update(invite.map._id, { visible: false });
+        if (t) {
+            await InviteModel.findByIdAndUpdate(invite.map._id, { visible: false });
 
             return { error: `You're already a mapper on this task!` };
         }
@@ -140,14 +179,19 @@ notificationsRouter.get('/', (req, res) => {
 /* GET notifications/invites listing. */
 notificationsRouter.get('/relevantInfo', async (req, res) => {
     const [notif, inv] = await Promise.all([
-        NotificationService.queryAll({
-            query: { visible: true, recipient: req.session?.mongoId },
-            defaultPopulate: true,
-        }),
-        InviteService.queryAll({
-            query: { visible: true, recipient: req.session?.mongoId },
-            defaultPopulate: true,
-        }),
+        NotificationModel
+            .find({
+                visible: true,
+                recipient: req.session?.mongoId,
+            })
+            .populate(notificationPopulate),
+
+        InviteModel
+            .find({
+                visible: true,
+                recipient: req.session?.mongoId,
+            })
+            .populate(invitePopulate),
     ]);
 
     res.json({ notifications: notif, invites: inv });
@@ -155,33 +199,40 @@ notificationsRouter.get('/relevantInfo', async (req, res) => {
 
 /* POST hide notification */
 notificationsRouter.post('/hideNotification/:id', isNotSpectator, async (req, res) => {
-    await NotificationService.update(req.params.id, { visible: false });
-    const n = await NotificationService.queryById(req.params.id, { defaultPopulate: true });
+    await NotificationModel.findByIdAndUpdate(req.params.id, { visible: false });
+    const n = await NotificationModel.findById(req.params.id);
     res.json(n);
 });
 
 /* POST hide notification */
-notificationsRouter.post('/hideAll/', isNotSpectator, canFail(async (req, res) => {
-    const notifs = await NotificationService.queryAllOrFail({
-        query: { recipient: req.session?.mongoId, visible: true },
-    });
+notificationsRouter.post('/hideAll/', isNotSpectator, async (req, res) => {
+    const notifs = await NotificationModel
+        .find({
+            recipient: req.session?.mongoId,
+            visible: true,
+        })
+        .orFail();
 
     notifs.forEach(n => {
         n.visible = false;
-        NotificationService.saveOrFail(n);
+        n.save();
     });
 
     res.json({});
-}));
+});
 
 /* POST hide notification */
-notificationsRouter.post('/hideInvite/:id', isNotSpectator, canFail(async (req, res) => {
-    let inv = await InviteService.update(req.params.id, { visible: false });
-    inv = await InviteService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+notificationsRouter.post('/hideInvite/:id', isNotSpectator, async (req, res) => {
+    let inv = await InviteModel.findByIdAndUpdate(req.params.id, { visible: false });
+    inv = await InviteModel
+        .findById(req.params.id)
+        .populate(invitePopulate)
+        .orFail();
+
     res.json(inv);
 
     if (inv.map) {
-        NotificationService.create(
+        NotificationModel.generate(
             inv._id,
             `rejected your invite to ${inv.actionType} on the mapset`,
             inv.sender,
@@ -189,7 +240,7 @@ notificationsRouter.post('/hideInvite/:id', isNotSpectator, canFail(async (req, 
             inv.map
         );
     } else {
-        NotificationService.createPartyNotification(
+        NotificationModel.generatePartyNotification(
             inv._id,
             `rejected your invite to join the party`,
             inv.sender,
@@ -198,28 +249,34 @@ notificationsRouter.post('/hideInvite/:id', isNotSpectator, canFail(async (req, 
             inv.quest
         );
     }
-}));
-
-/* POST hide notification */
-notificationsRouter.post('/hideAcceptedInvite/:id', isNotSpectator, async (req, res) => {
-    res.json(await InviteService.update(req.params.id, { visible: false }));
 });
 
 /* POST hide notification */
-notificationsRouter.post('/declineAll/', isNotSpectator, canFail(async (req, res) => {
-    const invs = await InviteService.queryAllOrFail({ query: { recipient: req.session.mongoId, visible: true } });
+notificationsRouter.post('/hideAcceptedInvite/:id', isNotSpectator, async (req, res) => {
+    res.json(await InviteModel.findByIdAndUpdate(req.params.id, { visible: false }));
+});
+
+/* POST hide notification */
+notificationsRouter.post('/declineAll/', isNotSpectator, async (req, res) => {
+    const invs = await InviteModel.find({
+        recipient: req.session?.mongoId,
+        visible: true,
+    });
 
     invs.forEach(inv => {
         inv.visible = false;
-        InviteService.saveOrFail(inv);
+        inv.save();
     });
 
     res.json({});
-}));
+});
 
 /* POST accept collab */
-notificationsRouter.post('/acceptCollab/:id', isNotSpectator, canFail(async (req, res) => {
-    let invite = await InviteService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+notificationsRouter.post('/acceptCollab/:id', isNotSpectator, async (req, res) => {
+    let invite = await InviteModel
+        .findById(req.params.id)
+        .populate(invitePopulate)
+        .orFail();
 
     if (!invite.modified) {
         return res.json({ error: `Mapset no longer exists!` });
@@ -227,10 +284,10 @@ notificationsRouter.post('/acceptCollab/:id', isNotSpectator, canFail(async (req
 
     // is invite.modified id or object?
 
-    const b = await BeatmapService.queryOneOrFail({
-        query: { tasks: (invite.modified as Beatmap)._id },
-        populate: beatmapPopulate,
-    });
+    const b = await BeatmapModel
+        .findOne({ tasks: (invite.modified)._id })
+        .populate(beatmapPopulate)
+        .orFail();
 
     const valid = await addTaskChecks(req.session?.mongoId, b, invite, false);
 
@@ -243,37 +300,50 @@ notificationsRouter.post('/acceptCollab/:id', isNotSpectator, canFail(async (req
     }
 
     invite.visible = false;
-    await InviteService.saveOrFail(invite);
+    await invite.save();
 
-    invite = await InviteService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+    invite = await InviteModel
+        .findById(req.params.id)
+        .populate(invitePopulate)
+        .orFail();
+
     res.json(invite);
 
-    const t = await TaskService.updateOrFail(invite.modified._id, { $push: { mappers: req.session.mongoId } });
+    const t = await TaskModel.findByIdAndUpdate(invite.modified._id, { $push: { mappers: req.session?.mongoId } });
 
-    LogService.create(
-        req.session.mongoId,
-        `added as collab mapper to "${t.name}" on "${b.song.artist} - ${b.song.title}"`,
-        LogCategory.Beatmap
-    );
-    NotificationService.create(
-        t._id,
-        `accepted your invite to collaborate on the "${t.name}" difficulty on your mapset`,
-        invite.sender,
-        invite.recipient,
-        b._id
-    );
-}));
+    if (t) {
+        LogModel.generate(
+            req.session?.mongoId,
+            `added as collab mapper to "${t.name}" on "${b.song.artist} - ${b.song.title}"`,
+            LogCategory.Beatmap
+        );
+        NotificationModel.generate(
+            t._id,
+            `accepted your invite to collaborate on the "${t.name}" difficulty on your mapset`,
+            invite.sender,
+            invite.recipient,
+            b._id
+        );
+    }
+});
 
 /* POST accept difficulty */
-notificationsRouter.post('/acceptDiff/:id', isNotSpectator, canFail(async (req, res) => {
-    let invite = await InviteService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+notificationsRouter.post('/acceptDiff/:id', isNotSpectator, async (req, res) => {
+    let invite = await InviteModel
+        .findById(req.params.id)
+        .populate(invitePopulate)
+        .orFail();
 
     if (!invite.map) {
         return res.json({ error: `Mapset no longer exists!` });
     }
 
-    const b = await BeatmapService.queryByIdOrFail(invite.map._id, { populate: beatmapPopulate });
-    const valid = await addTaskChecks(req.session.mongoId, b, invite, true);
+    const b = await BeatmapModel
+        .findById(invite.map._id)
+        .populate(beatmapPopulate)
+        .orFail();
+
+    const valid = await addTaskChecks(req.session?.mongoId, b, invite, true);
 
     if (valid.error) {
         return res.json(valid);
@@ -284,31 +354,37 @@ notificationsRouter.post('/acceptDiff/:id', isNotSpectator, canFail(async (req, 
     }
 
     invite.visible = false;
-    await InviteService.saveOrFail(invite);
+    await invite.save();
 
-    invite = await InviteService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+    invite = await InviteModel
+        .findById(req.params.id)
+        .populate(invitePopulate)
+        .orFail();
+
     res.json(invite);
 
     if (invite.taskName == TaskName.Storyboard) {
         invite.taskMode = TaskMode.SB;
     }
 
-    const t = await TaskService.create({ name: invite.taskName, mappers: req.session.mongoId, mode: invite.taskMode });
+    const t = new TaskModel();
+    t.name = invite.taskName;
+    t.mappers = req.session?.mongoId;
+    t.mode = invite.taskMode;
+    await t.save();
 
-    if (TaskService.isError(t)) {
-        return;
-    }
+    await BeatmapModel.findByIdAndUpdate(invite.map._id, { $push: { tasks: t._id } });
+    const updateBeatmap = await BeatmapModel
+        .findById(invite.map._id)
+        .populate(beatmapPopulate);
 
-    await BeatmapService.update(invite.map._id, { $push: { tasks: t._id } });
-    const updateBeatmap = await BeatmapService.queryById(invite.map._id, { populate: beatmapPopulate });
-
-    if (updateBeatmap && !BeatmapService.isError(updateBeatmap)) {
-        LogService.create(
-            req.session.mongoId,
+    if (updateBeatmap) {
+        LogModel.generate(
+            req.session?.mongoId,
             `added "${invite.taskName}" difficulty to "${b.song.artist} - ${b.song.title}"`,
             LogCategory.Beatmap
         );
-        NotificationService.create(
+        NotificationModel.generate(
             updateBeatmap._id,
             `accepted the invite to create a difficulty on your mapset`,
             invite.sender,
@@ -316,24 +392,30 @@ notificationsRouter.post('/acceptDiff/:id', isNotSpectator, canFail(async (req, 
             updateBeatmap._id
         );
     }
-}));
+});
 
 /* POST accept join party */
-notificationsRouter.post('/acceptJoin/:id', isNotSpectator, canFail(async (req, res) => {
-    let invite = await InviteService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
-    const q = await QuestService.queryByIdOrFail(invite.quest._id, { defaultPopulate: true });
-    const currentParties = await PartyService.queryAll({ query: { members: req.session.mongoId } });
+notificationsRouter.post('/acceptJoin/:id', isNotSpectator, async (req, res) => {
+    let invite = await InviteModel
+        .findById(req.params.id)
+        .populate(invitePopulate)
+        .orFail();
+
+    const q = await QuestModel
+        .findById(invite.quest._id)
+        .defaultPopulate()
+        .orFail();
+
+    const currentParties = await PartyModel.find({ members: req.session?.mongoId });
     let duplicate = false;
 
     if (!invite.party) {
         return res.json({ error: 'That party no longer exists!' });
     }
 
-    if (!PartyService.isError(currentParties)) {
-        duplicate = q.parties.some(questParty => {
-            return currentParties.some(userParty => questParty.id == userParty.id);
-        });
-    }
+    duplicate = q.parties.some(questParty => {
+        return currentParties.some(userParty => questParty.id == userParty.id);
+    });
 
     if (duplicate) {
         return res.json({ error: 'You are already in a party for this quest!' });
@@ -343,29 +425,40 @@ notificationsRouter.post('/acceptJoin/:id', isNotSpectator, canFail(async (req, 
         return res.json({ error: 'You do not have enough points available to accept this quest! ' });
     }
 
-    const p = await PartyService.queryByIdOrFail(invite.party._id);
+    const p = await PartyModel
+        .findById(invite.party._id)
+        .defaultPopulate()
+        .orFail();
 
     if (q.status == 'wip' && q.currentParty.members.length >= q.maxParty) {
         return res.json({ error: 'Party has too many members!' });
     }
 
     invite.visible = false;
-    await InviteService.saveOrFail(invite);
+    await invite.save();
 
-    invite = await InviteService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+    invite = await InviteModel
+        .findById(req.params.id)
+        .populate(invitePopulate)
+        .orFail();
+
     res.json(invite);
 
-    await PartyService.update(invite.party._id, { $push: { members: req.session.mongoId } });
+    await PartyModel.findByIdAndUpdate(invite.party._id, { $push: { members: req.session?.mongoId } });
     await updatePartyInfo(p._id);
 
     if (q.status == QuestStatus.WIP) {
-        SpentPointsService.create(SpentPointsCategory.AcceptQuest, req.session.mongoId, q._id);
-        updateUserPoints(req.session.mongoId);
+        SpentPointsModel.generate(
+            SpentPointsCategory.AcceptQuest,
+            req.session?.mongoId,
+            q._id
+        );
+        updateUserPoints(req.session?.mongoId);
     }
 
-    LogService.create(req.session.mongoId, `joined a party for quest ${q.name}`, LogCategory.Party);
+    LogModel.generate(req.session?.mongoId, `joined a party for quest ${q.name}`, LogCategory.Party);
 
-    NotificationService.createPartyNotification(
+    NotificationModel.generatePartyNotification(
         p._id,
         `accepted the invite to join your party`,
         invite.sender,
@@ -373,6 +466,6 @@ notificationsRouter.post('/acceptJoin/:id', isNotSpectator, canFail(async (req, 
         p._id,
         q._id
     );
-}));
+});
 
 export default notificationsRouter;

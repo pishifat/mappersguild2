@@ -1,14 +1,12 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import express from 'express';
 import config from '../config.json';
 import crypto from 'crypto';
-import { UserService } from '../models/user';
-import { LogService } from '../models/log';
+import { UserModel } from '../models/user';
+import { LogModel } from '../models/log';
 import { LogCategory } from '../interfaces/log';
 import { isLoggedIn } from '../helpers/middlewares';
-import { canFail } from '../helpers/helpers';
 import { getToken, getUserInfo, isOsuResponseError } from '../helpers/osuApi';
-import { UserGroup } from '../interfaces/user';
+import { UserGroup, User } from '../interfaces/user';
 import { webhookPost, webhookColors } from '../helpers/discordApi';
 
 const indexRouter = express.Router();
@@ -16,9 +14,9 @@ const indexRouter = express.Router();
 /* GET landing page. */
 indexRouter.get('/', async (req, res, next) => {
     if (req.session?.osuId) {
-        const u = await UserService.queryById(req.session.mongoId);
+        const u = await UserModel.findById(req.session.mongoId);
 
-        if (u && !UserService.isError(u)) {
+        if (u) {
             return next();
         }
     }
@@ -36,14 +34,18 @@ indexRouter.get('/', async (req, res, next) => {
 });
 
 /* GET user's code to login */
-indexRouter.get('/login', canFail(async (req, res, next) => {
+indexRouter.get('/login', async (req, res, next) => {
     if (req.session?.osuId && req.session?.username) {
-        const u = await UserService.queryOne({ query: { osuId: req.session.osuId } });
+        const u = await UserModel.findOne({ osuId: req.session.osuId });
 
-        if (!u || UserService.isError(u)) {
-            const newUser = await UserService.create(req.session.osuId, req.session.username, req.session.group);
+        if (!u) {
+            const newUser = new UserModel();
+            newUser.osuId = req.session.osuId;
+            newUser.username = req.session.username;
+            newUser.group = req.session.group;
+            await newUser.save();
 
-            if (newUser && !UserService.isError(newUser)) {
+            if (newUser) {
                 req.session.mongoId = newUser._id;
 
                 if (newUser.group == UserGroup.User) {
@@ -56,9 +58,9 @@ indexRouter.get('/login', canFail(async (req, res, next) => {
                         color: webhookColors.lightRed,
                         description: `Joined the Mappers' Guild!`,
                     }]);
-                    LogService.create(req.session.mongoId, `joined the Mappers' Guild`, LogCategory.User);
+                    LogModel.generate(req.session.mongoId, `joined the Mappers' Guild`, LogCategory.User);
                 } else {
-                    LogService.create(req.session.mongoId, `verified their account for the first time`, LogCategory.User);
+                    LogModel.generate(req.session.mongoId, `verified their account for the first time`, LogCategory.User);
                 }
 
                 return next();
@@ -68,12 +70,12 @@ indexRouter.get('/login', canFail(async (req, res, next) => {
         } else {
             if (u.username != req.session.username) {
                 u.username = req.session.username;
-                await UserService.saveOrFail(u);
+                await u.save();
             }
 
             if (u.group != req.session.group && u.group != 'admin') {
                 u.group = req.session.group;
-                await UserService.saveOrFail(u);
+                await u.save();
 
                 if (req.session.group == 'user') {
                     webhookPost([{
@@ -85,7 +87,7 @@ indexRouter.get('/login', canFail(async (req, res, next) => {
                         color: webhookColors.lightRed,
                         description: `Joined the Mappers' Guild!`,
                     }]);
-                    LogService.create(u._id, `joined the Mappers' Guild`, LogCategory.User);
+                    LogModel.generate(u._id, `joined the Mappers' Guild`, LogCategory.User);
                 }
             }
 
@@ -104,7 +106,7 @@ indexRouter.get('/login', canFail(async (req, res, next) => {
         const hashedState = Buffer.from(req.cookies._state).toString('base64');
         res.redirect(`https://osu.ppy.sh/oauth/authorize?response_type=code&client_id=${config.id}&redirect_uri=${encodeURIComponent(config.redirect)}&state=${hashedState}&scope=identify`);
     }
-}), isLoggedIn, (req, res) => {
+}, isLoggedIn, (req, res) => {
     if (req?.session?.lastPage) {
         res.redirect(req.session.lastPage);
     } else if (res.locals.userRequest.group == 'admin') {
@@ -125,11 +127,11 @@ indexRouter.get('/logout', isLoggedIn, (req, res) => {
 
 /* GET user's token and user's info to login */
 indexRouter.get('/callback', async (req, res) => {
-    if (!req.query.code || req.query.error) {
+    if (!req.query.code || req.query.error || !req.query.state) {
         return res.redirect('/');
     }
 
-    const decodedState = Buffer.from(req.query.state, 'base64').toString('ascii');
+    const decodedState = Buffer.from(req.query.state.toString(), 'base64').toString('ascii');
 
     if (decodedState !== req.cookies._state) {
         res.clearCookie('_state');
@@ -137,7 +139,7 @@ indexRouter.get('/callback', async (req, res) => {
         return res.status(403).render('error', { message: 'unauthorized' });
     }
 
-    let response = await getToken(req.query.code);
+    let response = await getToken(req.query.code.toString());
 
     if (isOsuResponseError(response)) {
         res.status(500).render('error', { message: response.error });
@@ -158,11 +160,6 @@ indexRouter.get('/callback', async (req, res) => {
             res.redirect('/login');
         }
     }
-});
-
-/* GET redirect to bnsite */
-indexRouter.get('/bnsite', (req, res) => {
-    return res.redirect('https://bn.mappersguild.com');
 });
 
 export default indexRouter;

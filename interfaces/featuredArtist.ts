@@ -26,7 +26,7 @@ export interface FeaturedArtist {
     isPriority: boolean;
 
     lastContacted: Date;
-    projectedRelease: Date;
+    projectedRelease?: Date;
     notes: string;
-    assignedUser: User;
+    assignedUser?: User;
 }

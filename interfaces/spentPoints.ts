@@ -1,5 +1,6 @@
 import { User } from './user';
 import { Quest } from './quest';
+import { Document } from 'mongoose';
 
 export enum SpentPointsCategory {
     ExtendDeadline = 'extendDeadline',

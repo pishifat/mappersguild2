@@ -1,8 +1,6 @@
-import mongoose, { Document, Schema } from 'mongoose';
-import BaseService from '../baseService';
-import { BasicError } from '../../helpers/helpers';
+import mongoose, { Document, Schema, DocumentQuery, Model } from 'mongoose';
 import { Beatmap as IBeatmap } from '../../interfaces/beatmap/beatmap';
-import { User } from '../user';
+import { User } from 'interfaces/user';
 
 export interface Beatmap extends IBeatmap, Document {
     id: string;
@@ -24,8 +22,29 @@ const BeatmapSchema = new Schema({
     rankedDate: { type: Date },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
-const BeatmapModel = mongoose.model<Beatmap>('Beatmap', BeatmapSchema);
+const queryHelpers = {
+    sortByLastest<Q extends DocumentQuery<any, Beatmap>>(this: Q) {
+        return this.sort({ updatedAt: -1 });
+    },
+    defaultPopulate<Q extends DocumentQuery<any, Beatmap>>(this: Q) {
+        return this.populate([
+            { path: 'host', select: '_id osuId username' },
+            { path: 'bns', select: '_id osuId username' },
+            { path: 'modders', select: '_id osuId username' },
+            { path: 'quest', select: '_id name art modes deadline isMbc' },
+            { path: 'song',select: 'artist title' },
+            {
+                path: 'tasks',
+                populate: {
+                    path: 'mappers',
+                    select: '_id osuId username',
+                },
+            },
+        ]);
+    },
+};
 
+BeatmapSchema.query = queryHelpers;
 BeatmapSchema.virtual('mappers').get(function(this: Beatmap) {
     const mappers: User[] = [];
 
@@ -42,52 +61,6 @@ BeatmapSchema.virtual('mappers').get(function(this: Beatmap) {
     return mappers;
 });
 
-class BeatmapService extends BaseService<Beatmap> {
-    constructor() {
-        super(
-            BeatmapModel,
-            { updatedAt: -1 },
-            [
-                { path: 'host', select: '_id osuId username' },
-                { path: 'bns', select: '_id osuId username' },
-                { path: 'modders', select: '_id osuId username' },
-                { path: 'quest', select: '_id name art modes deadline isMbc' },
-                { path: 'song',select: 'artist title' },
-                {
-                    path: 'tasks',
-                    populate: {
-                        path: 'mappers',
-                        select: '_id osuId username',
-                    },
-                },
-            ]
-        );
-    }
+const BeatmapModel = mongoose.model<Beatmap, Model<Beatmap, typeof queryHelpers>>('Beatmap', BeatmapSchema);
 
-    async create(
-        userId: Beatmap['host'],
-        tasks: Beatmap['tasks'],
-        locks: Beatmap['tasksLocked'],
-        song: Beatmap['song'],
-        mode: Beatmap['mode']
-    ): Promise<Beatmap | BasicError> {
-        try {
-            const beatmap: Partial<Beatmap> = new BeatmapModel({
-                host: userId,
-                tasks,
-                tasksLocked: locks,
-                song,
-                mode,
-            });
-
-            return await BeatmapModel.create(beatmap);
-        } catch (error) {
-            // logs.service.create(null, error, null, 'error');
-            return { error: error._message };
-        }
-    }
-}
-
-const service = new BeatmapService();
-
-export { service as BeatmapService };
+export { BeatmapModel };

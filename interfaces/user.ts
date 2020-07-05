@@ -1,5 +1,6 @@
 import { BeatmapMode } from './beatmap/beatmap';
 import { Quest } from './quest';
+import { Document } from 'mongoose';
 
 export enum UserGroup {
     User = 'user',

@@ -1,16 +1,15 @@
 import express from 'express';
 import { isLoggedIn, isAdmin, isSuperAdmin } from '../../helpers/middlewares';
 import { updateUserPoints } from '../../helpers/points';
-import { QuestService, Quest } from '../../models/quest';
+import { QuestModel, Quest } from '../../models/quest';
 import { QuestStatus } from '../../interfaces/quest';
 import { BeatmapMode } from '../../interfaces/beatmap/beatmap';
-import { LogService } from '../../models/log';
+import { LogModel } from '../../models/log';
 import { LogCategory } from '../../interfaces/log';
 import { webhookPost, webhookColors } from '../../helpers/discordApi';
-import { BeatmapService } from '../../models/beatmap/beatmap';
-import { PartyService } from '../../models/party';
-import { canFail } from '../../helpers/helpers';
-import { SpentPointsService } from '../../models/spentPoints';
+import { BeatmapModel } from '../../models/beatmap/beatmap';
+import { PartyModel } from '../../models/party';
+import { SpentPointsModel } from '../../models/spentPoints';
 
 const adminQuestsRouter = express.Router();
 
@@ -31,10 +30,10 @@ adminQuestsRouter.get('/', (req, res) => {
 
 /* GET quests */
 adminQuestsRouter.get('/load', async (req, res) => {
-    const q = await QuestService.queryAll({
-        defaultPopulate: true,
-        sort: { status: -1, name: 1 },
-    });
+    const q = await QuestModel
+        .find({})
+        .defaultPopulate()
+        .sort({ status: -1, name: 1 });
 
     res.json(q);
 });
@@ -52,10 +51,10 @@ adminQuestsRouter.post('/create', async (req, res) => {
     req.body.expiration = new Date();
     req.body.expiration.setDate(req.body.expiration.getDate() + 90);
     req.body.creator = req?.session?.mongoId;
-    const quest = await QuestService.create(req.body);
+    const quest = await QuestModel.create(req.body);
 
-    if (!QuestService.isError(quest)) {
-        LogService.create(req.session?.mongoId, `created quest "${quest.name}"`, LogCategory.Quest);
+    if (quest) {
+        LogModel.generate(req.session?.mongoId, `created quest "${quest.name}"`, LogCategory.Quest);
 
         let url = `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`;
 
@@ -84,14 +83,20 @@ adminQuestsRouter.post('/create', async (req, res) => {
         }]);
     }
 
-    const allQuests = await QuestService.queryAll({ useDefaults: true });
+    const allQuests = await QuestModel
+        .find({})
+        .defaultPopulate()
+        .sortByLastest();
 
     res.json(allQuests);
 });
 
 /* POST publish quest */
 adminQuestsRouter.post('/:id/publish', async (req, res) => {
-    const quest = await QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+    const quest = await QuestModel
+        .findById(req.params.id)
+        .defaultPopulate()
+        .orFail();
 
     const expiration = new Date();
     expiration.setDate(expiration.getDate() + 90);
@@ -99,9 +104,9 @@ adminQuestsRouter.post('/:id/publish', async (req, res) => {
 
     quest.status = QuestStatus.Open;
 
-    await QuestService.save(quest);
+    await quest.save();
 
-    LogService.create(req.session?.mongoId, `published quest "${quest.name}" by "${quest.creator.username}"`, LogCategory.Quest);
+    LogModel.generate(req.session?.mongoId, `published quest "${quest.name}" by "${quest.creator.username}"`, LogCategory.Quest);
 
     webhookPost([{
         author: {
@@ -132,122 +137,135 @@ adminQuestsRouter.post('/:id/publish', async (req, res) => {
 });
 
 /* POST reject quest */
-adminQuestsRouter.post('/:id/reject', canFail(async (req, res) => {
-    await QuestService.updateOrFail(req.params.id, { status: 'rejected' });
+adminQuestsRouter.post('/:id/reject', async (req, res) => {
+    await QuestModel.findByIdAndUpdate(req.params.id, { status: QuestStatus.Rejected }).orFail();
 
-    const quest = await QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+    const quest = await QuestModel
+        .findById(req.params.id)
+        .defaultPopulate()
+        .orFail();
+
     updateUserPoints(quest.creator.id);
 
-    const spentPoints = await SpentPointsService.queryOneOrFail({ query: { quest: quest._id } });
-    await SpentPointsService.remove(spentPoints.id);
+    const spentPoints = await SpentPointsModel.findOne({ quest: quest._id }).orFail();
+    await SpentPointsModel.findByIdAndRemove(spentPoints.id);
 
     res.json(quest.status);
-}));
+});
 
 /* POST update quest objective */
-adminQuestsRouter.post('/:id/updateArt', canFail(async (req, res) => {
+adminQuestsRouter.post('/:id/updateArt', async (req, res) => {
     const art = parseInt(req.body.art, 10);
-    await QuestService.updateOrFail(req.params.id, { art });
+    await QuestModel.findByIdAndUpdate(req.params.id, { art }).orFail();
 
     res.json(art);
-}));
+});
 
 /* POST rename quest */
-adminQuestsRouter.post('/:id/rename', canFail(async (req, res) => {
-    await QuestService.updateOrFail(req.params.id, { name: req.body.name });
+adminQuestsRouter.post('/:id/rename', async (req, res) => {
+    await QuestModel.findByIdAndUpdate(req.params.id, { name: req.body.name }).orFail();
 
     res.json(req.body.name);
-}));
+});
 
 /* POST update quest objective */
-adminQuestsRouter.post('/:id/updateDescription', canFail(async (req, res) => {
-    await QuestService.updateOrFail(req.params.id, { descriptionMain: req.body.description });
+adminQuestsRouter.post('/:id/updateDescription', async (req, res) => {
+    await QuestModel.findByIdAndUpdate(req.params.id, { descriptionMain: req.body.description }).orFail();
 
     res.json(req.body.description);
-}));
+});
 
 /* POST update price */
-adminQuestsRouter.post('/:id/updatePrice', canFail(async (req, res) => {
+adminQuestsRouter.post('/:id/updatePrice', async (req, res) => {
     const price = parseInt(req.body.price, 10);
-    await QuestService.updateOrFail(req.params.id, { price });
+    await QuestModel.findByIdAndUpdate(req.params.id, { price }).orFail();
 
     res.json(price);
-}));
+});
 
 /* POST update required mapsets */
-adminQuestsRouter.post('/:id/updateRequiredMapsets', canFail(async (req, res) => {
+adminQuestsRouter.post('/:id/updateRequiredMapsets', async (req, res) => {
     const requiredMapsets = parseInt(req.body.requiredMapsets, 10);
-    await QuestService.updateOrFail(req.params.id, { requiredMapsets });
+    await QuestModel.findByIdAndUpdate(req.params.id, { requiredMapsets }).orFail();
 
     res.json(requiredMapsets);
-}));
+});
 
 /* POST update timeframe */
-adminQuestsRouter.post('/:id/updateTimeframe', canFail(async (req, res) => {
+adminQuestsRouter.post('/:id/updateTimeframe', async (req, res) => {
     const timeframe = parseInt(req.body.timeframe, 10);
-    await QuestService.updateOrFail(req.params.id, { timeframe: timeframe * (24*3600*1000) });
+    await QuestModel.findByIdAndUpdate(req.params.id, { timeframe: timeframe * (24*3600*1000) }).orFail();
 
     res.json(timeframe);
-}));
+});
 
 /* POST update minimum party size */
-adminQuestsRouter.post('/:id/updateMinParty', canFail(async (req, res) => {
+adminQuestsRouter.post('/:id/updateMinParty', async (req, res) => {
     const minParty = parseInt(req.body.minParty, 10);
-    await QuestService.updateOrFail(req.params.id, { minParty });
+    await QuestModel.findByIdAndUpdate(req.params.id, { minParty }).orFail();
 
     res.json(minParty);
-}));
+});
 
 /* POST update maximum party size */
-adminQuestsRouter.post('/:id/updateMaxParty', canFail(async (req, res) => {
+adminQuestsRouter.post('/:id/updateMaxParty', async (req, res) => {
     const maxParty = parseInt(req.body.maxParty, 10);
-    await QuestService.updateOrFail(req.params.id, { maxParty });
+    await QuestModel.findByIdAndUpdate(req.params.id, { maxParty }).orFail();
 
     res.json(maxParty);
-}));
+});
 
 /* POST drop quest */
-adminQuestsRouter.post('/:id/drop', canFail(async (req, res) => {
+adminQuestsRouter.post('/:id/drop', async (req, res) => {
     // establish data
-    let q = await QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
-    const party = await PartyService.queryByIdOrFail(q.currentParty._id, { defaultPopulate: true }); // only used in webhook
-    const openQuest = await QuestService.queryOne({
-        query: {
-            name: q.name,
-            status: QuestStatus.Open,
-        },
+    let q = await QuestModel
+        .findById(req.params.id)
+        .defaultPopulate()
+        .orFail();
+
+    const party = await PartyModel
+        .findById(q.currentParty._id)
+        .defaultPopulate()
+        .orFail(); // only used in webhook
+
+    const openQuest = await QuestModel.findOne({
+        name: q.name,
+        status: QuestStatus.Open,
     });
 
-    if (openQuest && !QuestService.isError(openQuest)) { // push mode to open quest if it exists and hide existing quest
+    if (openQuest) { // push mode to open quest if it exists and hide existing quest
         await Promise.all([
-            QuestService.update(openQuest._id, {
-                $push: { modes: q.modes },
+            QuestModel.findByIdAndUpdate(openQuest._id, {
+                $push: { modes: q.modes as any },
             }),
-            QuestService.update(req.params.id, { status: 'hidden' }),
+            QuestModel.findByIdAndUpdate(req.params.id, { status: QuestStatus.Hidden }),
         ]);
     } else {
-        await QuestService.update(req.params.id, { // change quest status to open otherwise
+        await QuestModel.findByIdAndUpdate(req.params.id, { // change quest status to open otherwise
             status: QuestStatus.Open,
-            currentParty: null,
+            currentParty: undefined,
         });
     }
 
     // find all beatmaps and remove quest field from any that have dropped quest
-    const maps = await BeatmapService.queryAllOrFail({});
+    const maps = await BeatmapModel.find({}).orFail();
 
     for (let i = 0; i < maps.length; i++) {
         if (maps[i].quest && maps[i].quest.toString() == q.id) {
-            BeatmapService.updateOrFail(maps[i]._id, { quest: undefined });
+            BeatmapModel.findByIdAndUpdate(maps[i]._id, { quest: undefined }).orFail();
         }
     }
 
     // remove party
-    await PartyService.remove(q.currentParty._id);
+    await PartyModel.findByIdAndRemove(q.currentParty._id);
 
-    if (openQuest && !QuestService.isError(openQuest)) { // return open quest if original is hidden
+    if (openQuest) { // return open quest if original is hidden
         res.json(q);
     } else { // otherwise return new quest
-        q = await QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+        q = await QuestModel
+            .findById(req.params.id)
+            .defaultPopulate()
+            .orFail();
 
         res.json(q);
     }
@@ -277,7 +295,7 @@ adminQuestsRouter.post('/:id/drop', canFail(async (req, res) => {
             icon_url: `https://a.ppy.sh/${party.leader.osuId}`,
         },
         color: webhookColors.red,
-        description: `Dropped quest: [**${q.name}**](https://mappersguild.com/quests?id=${openQuest && !QuestService.isError(openQuest) ? openQuest.id : q.id}) [**${party.modes.join(', ')}**]`,
+        description: `Dropped quest: [**${q.name}**](https://mappersguild.com/quests?id=${openQuest ? openQuest.id : q.id}) [**${party.modes.join(', ')}**]`,
         thumbnail: {
             url,
         },
@@ -288,12 +306,15 @@ adminQuestsRouter.post('/:id/drop', canFail(async (req, res) => {
     }]);
 
     // logs
-    LogService.create(req.session?.mongoId, `forced party to drop quest "${q.name}"`, LogCategory.Quest);
-}));
+    LogModel.generate(req.session?.mongoId, `forced party to drop quest "${q.name}"`, LogCategory.Quest);
+});
 
 /* POST complete quest */
-adminQuestsRouter.post('/:id/complete', canFail(async (req, res) => {
-    const quest = await QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+adminQuestsRouter.post('/:id/complete', async (req, res) => {
+    const quest = await QuestModel
+        .findById(req.params.id)
+        .defaultPopulate()
+        .orFail();
 
     if (quest.status == QuestStatus.WIP) {
         //webhook
@@ -325,7 +346,7 @@ adminQuestsRouter.post('/:id/complete', canFail(async (req, res) => {
             color: webhookColors.purple,
             description: `Completed quest: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id}) [**${quest.currentParty.modes.join(', ')}**]`,
             thumbnail: {
-                url: `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`,
+                url,
             },
             fields: [{
                 name: 'Members',
@@ -334,28 +355,31 @@ adminQuestsRouter.post('/:id/complete', canFail(async (req, res) => {
         }]);
 
         //quest changes
-        await PartyService.remove(quest.currentParty._id);
-        await QuestService.update(quest._id, {
+        await PartyModel.findByIdAndRemove(quest.currentParty._id);
+        await QuestModel.findByIdAndUpdate(quest._id, {
             status: QuestStatus.Done,
-            currentParty: null,
+            currentParty: undefined,
             completedMembers: quest.currentParty.members,
             completed: new Date(),
         });
     }
 
-    const newQuest = await QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+    const newQuest = await QuestModel
+        .findById(req.params.id)
+        .defaultPopulate()
+        .orFail();
 
     res.json(newQuest);
 
-    LogService.create(req.session.mongoId, `marked quest "${newQuest.name}" as complete`, LogCategory.Quest);
-}));
+    LogModel.generate(req.session?.mongoId, `marked quest "${newQuest.name}" as complete`, LogCategory.Quest);
+});
 
 /* POST duplicate quest */
-adminQuestsRouter.post('/:id/duplicate', canFail(async (req, res) => {
+adminQuestsRouter.post('/:id/duplicate', async (req, res) => {
     const expiration = new Date();
     expiration.setDate(expiration.getDate() + 90);
-    const q = await QuestService.queryByIdOrFail(req.params.id);
-    const body: Partial<Quest> = {
+    const q = await QuestModel.findById(req.params.id).orFail();
+    await QuestModel.create<Partial<Quest>>({
         creator: q.creator,
         name: req.body.name,
         price: q.price,
@@ -368,64 +392,66 @@ adminQuestsRouter.post('/:id/duplicate', canFail(async (req, res) => {
         modes: [ BeatmapMode.Osu, BeatmapMode.Taiko, BeatmapMode.Catch, BeatmapMode.Mania ],
         expiration,
         requiredMapsets: q.requiredMapsets,
-    };
-    await QuestService.create(body);
+    });
 
-    const allQuests = await QuestService.queryAll({ useDefaults: true });
+    const allQuests = await QuestModel
+        .find({})
+        .defaultPopulate()
+        .sortByLastest();
 
     res.json(allQuests);
-}));
+});
 
 /* POST reset quest deadline */
-adminQuestsRouter.post('/:id/reset', canFail(async (req, res) => {
+adminQuestsRouter.post('/:id/reset', async (req, res) => {
     const date = new Date();
     date.setDate(date.getDate() + 7);
 
-    await QuestService.updateOrFail(req.params.id, { deadline: date });
+    await QuestModel.findByIdAndUpdate(req.params.id, { deadline: date }).orFail();
 
     res.json(date);
-}));
+});
 
 /* POST delete quest */
-adminQuestsRouter.post('/:id/delete', canFail(async (req, res) => {
-    const q = await QuestService.queryByIdOrFail(req.params.id);
+adminQuestsRouter.post('/:id/delete', async (req, res) => {
+    const q = await QuestModel.findById(req.params.id).orFail();
 
     if (q.status == QuestStatus.Open) {
-        await QuestService.removeOrFail(req.params.id);
+        await QuestModel.findByIdAndRemove(req.params.id).orFail();
         res.json({ success: 'ok' });
 
-        LogService.create(req.session.mongoId, `deleted quest "${q.name}"`, LogCategory.Quest);
+        LogModel.generate(req.session?.mongoId, `deleted quest "${q.name}"`, LogCategory.Quest);
     } else {
         res.json({ success: 'ok' });
     }
-}));
+});
 
 
 /* POST toggle quest mode */
-adminQuestsRouter.post('/:id/toggleMode', canFail(async (req, res) => {
-    let quest = await QuestService.queryByIdOrFail(req.params.id);
+adminQuestsRouter.post('/:id/toggleMode', async (req, res) => {
+    let quest = await QuestModel.findById(req.params.id).orFail();
 
     if (quest.modes.includes(req.body.mode)) {
-        await QuestService.update(req.params.id, { $pull: { modes: req.body.mode } });
+        await QuestModel.findByIdAndUpdate(req.params.id, { $pull: { modes: req.body.mode } });
     } else {
-        await QuestService.update(req.params.id, { $push: { modes: req.body.mode } });
+        await QuestModel.findByIdAndUpdate(req.params.id, { $push: { modes: req.body.mode } });
     }
 
-    quest = await QuestService.queryByIdOrFail(req.params.id);
+    quest = await QuestModel.findById(req.params.id).orFail();
     res.json(quest);
-}));
+});
 
 /* POST update quest expiration */
-adminQuestsRouter.post('/:id/updateExpiration', canFail(async (req, res) => {
+adminQuestsRouter.post('/:id/updateExpiration', async (req, res) => {
     const date = new Date(req.body.expiration);
 
     if (!(date instanceof Date && !isNaN(date.getTime()))) {
         return res.json({ error: 'Invalid date' });
     }
 
-    await QuestService.updateOrFail(req.params.id, { expiration: date });
+    await QuestModel.findByIdAndUpdate(req.params.id, { expiration: date }).orFail();
 
     res.json(date);
-}));
+});
 
 export default adminQuestsRouter;

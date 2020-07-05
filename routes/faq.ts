@@ -1,5 +1,5 @@
 import express from 'express';
-import { UserService } from '../models/user';
+import { UserModel } from '../models/user';
 
 const faqRouter = express.Router();
 
@@ -9,14 +9,14 @@ faqRouter.get('/', async (req, res) => {
         title: 'Frequently Asked Questions',
         isFaq: true,
     };
-    const u = await UserService.queryById(req.session?.mongoId);
+    const user = await UserModel.findById(req.session?.mongoId);
 
-    if (u && !UserService.isError(u)) {
+    if (user) {
         response = {
             ...response,
-            loggedInAs: u.osuId,
+            loggedInAs: user.osuId,
             userMongoId: req.session?.mongoId,
-            pointsInfo: u.pointsInfo,
+            pointsInfo: user.pointsInfo,
         };
     }
 
