@@ -22,6 +22,7 @@
             :contest-id="contest.id"
             :contest-start="contest.contestStart"
             :screening-start="contest.screeningStart"
+            :judging-start="contest.judgingStart"
             :results-published="contest.resultsPublished"
         />
 
@@ -30,6 +31,10 @@
         <screeners-info
             :contest-id="contest.id"
             :screeners="contest.screeners"
+        />
+
+        <judging-info
+            :contest-id="contest.id"
         />
 
         <hr>
@@ -46,6 +51,7 @@ import Vue from 'vue';
 import { Contest } from '../../../../interfaces/contest/contest';
 import DateInfo from './DateInfo.vue';
 import ScreenersInfo from './ScreenersInfo.vue';
+import JudgingInfo from './JudgingInfo.vue';
 import SubmissionsInfo from './SubmissionsInfo.vue';
 
 export default Vue.extend({
@@ -53,6 +59,7 @@ export default Vue.extend({
     components: {
         DateInfo,
         ScreenersInfo,
+        JudgingInfo,
         SubmissionsInfo,
     },
     props: {

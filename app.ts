@@ -40,6 +40,8 @@ import adminQuestsRouter from './routes/admin/quests';
 import artistsRouter from './routes/artists';
 import screeningRouter from './routes/screening';
 import adminContestsRouter from './routes/admin/contests';
+import adminJudgingRouter from './routes/admin/judging';
+import judgingRouter from './routes/judging';
 
 const app = express();
 const MongoStore = MongoStoreSession(session);
@@ -103,6 +105,7 @@ app.use('/quests', questsRouter);
 app.use('/logs', logsRouter);
 app.use('/notifications', notificationsRouter);
 app.use('/screening', screeningRouter);
+app.use('/judging', judgingRouter);
 
 app.use('/artists', artistsRouter);
 app.use('/admin', adminRouter);
@@ -111,6 +114,7 @@ app.use('/admin/beatmaps', adminBeatmapsRouter);
 app.use('/admin/featuredArtists', adminFeaturedArtistsRouter);
 app.use('/admin/quests', adminQuestsRouter);
 app.use('/admin/contests', adminContestsRouter);
+app.use('/admin/judging', adminJudgingRouter);
 
 // catch 404
 app.use((req, res) => {

@@ -8,7 +8,7 @@
     "build-app": "tsc --project tsconfig.prod.json",
     "dev": "run-p -rl watch-app watch-src",
     "watch-app": "ts-node-dev --respawn --transpileOnly --no-notify app.ts",
-    "watch-src": "webpack-dev-server",
+    "watch-src": "webpack-dev-server --watch",
     "lint": "eslint . --ext .ts,.js,.vue",
     "tsc": "tsc --noEmit true"
   },

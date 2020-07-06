@@ -55,7 +55,7 @@ adminContestsRouter.get('/relevantInfo', async (req, res) => {
 /* POST create a contest */
 adminContestsRouter.post('/create', async (req, res) => {
     if (!req.body.name) {
-        res.json({ error: 'Missing contest name' });
+        return res.json({ error: 'Missing contest name' });
     }
 
     const contest = new ContestModel();
@@ -111,6 +111,24 @@ adminContestsRouter.post('/:id/updateScreeningStart', async (req, res) => {
     await contest.save();
 
     res.json(newScreeningStart);
+});
+
+/* POST update screening start date */
+adminContestsRouter.post('/:id/updateJudgingStart', async (req, res) => {
+    const newJudgingStart = new Date(req.body.date);
+
+    if (!(newJudgingStart instanceof Date && !isNaN(newJudgingStart.getTime()))) {
+        return res.json({ error: 'Invalid date' });
+    }
+
+    const contest = await ContestModel
+        .findById(req.params.id)
+        .orFail();
+
+    contest.judgingStart = newJudgingStart;
+    await contest.save();
+
+    res.json(newJudgingStart);
 });
 
 /* POST update results published date */

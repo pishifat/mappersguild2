@@ -8,6 +8,7 @@
   "artists.js": "/js/artists.js",
   "beatmaps.js": "/js/beatmaps.js",
   "notificationsComponent.js": "/js/notificationsComponent.js",
+  "screening.js": "/js/screening.js",
   "judging.js": "/js/judging.js",
   "logs.js": "/js/logs.js",
   "notifications.js": "/js/notifications.js",

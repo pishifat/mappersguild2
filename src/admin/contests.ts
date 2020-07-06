@@ -89,6 +89,13 @@ const store = new Vuex.Store<ContestState>({
                 contest.screeningStart = payload.screeningStart;
             }
         },
+        updateJudgingStart (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                contest.judgingStart = payload.judgingStart;
+            }
+        },
         updateResultsPublished (state, payload): void {
             const contest = state.contests.find(c => c.id == payload.contestId);
 

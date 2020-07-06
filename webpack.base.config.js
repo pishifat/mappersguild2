@@ -10,6 +10,7 @@ module.exports = {
         admin: './src/admin.ts',
         artists: './src/artists.ts',
         screening: './src/screening.ts',
+        judging: './src/judging.ts',
         adminContests: './src/admin/contests.ts',
         adminBeatmaps: './src/admin/beatmaps.ts',
         adminQuests: './src/admin/quests.ts',

@@ -11,6 +11,19 @@ const submissionSchema = new Schema({
     evaluations: [{ type: 'ObjectId', ref: 'Screening' }],
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
+submissionSchema.virtual('contest', {
+    ref: 'Contest',
+    localField: '_id',
+    foreignField: 'submissions',
+    justOne: true,
+});
+
+submissionSchema.virtual('judgings', {
+    ref: 'Judging',
+    localField: '_id',
+    foreignField: 'submission',
+});
+
 const SubmissionModel = mongoose.model<Submission>('Submission', submissionSchema);
 
 export { SubmissionModel };

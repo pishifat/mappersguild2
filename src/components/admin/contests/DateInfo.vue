@@ -37,6 +37,24 @@
             </button>
         </p>
         <p>
+            Judging start date:
+            <span class="text-white-50">{{ judgingStart || 'No date set' }}</span>
+            <input
+                v-model="newJudgingStart"
+                class="small date-input ml-2 form-control-sm"
+                type="text"
+                placeholder="mm-dd-yyyy"
+                maxlength="10"
+            >
+            <button
+                type="button"
+                class="btn btn-sm btn-outline-info"
+                @click="updateJudgingStart($event)"
+            >
+                Save
+            </button>
+        </p>
+        <p>
             Results published:
             <span class="text-white-50">{{ resultsPublished || 'No date set' }}</span>
             <input
@@ -75,6 +93,10 @@ export default Vue.extend({
             type: String,
             default: null,
         },
+        judgingStart: {
+            type: String,
+            default: null,
+        },
         resultsPublished: {
             type: String,
             default: null,
@@ -84,6 +106,7 @@ export default Vue.extend({
         return {
             newContestStart: null,
             newScreeningStart: null,
+            newJudgingStart: null,
             newResultsPublished: null,
         };
     },
@@ -113,6 +136,20 @@ export default Vue.extend({
                 this.$store.commit('updateScreeningStart', {
                     contestId: this.contestId,
                     screeningStart,
+                });
+            }
+        },
+        async updateJudgingStart(e): Promise<void> {
+            const judgingStart = await this.executePost(`/admin/contests/${this.contestId}/updateJudgingStart`, { date: this.newJudgingStart }, e);
+
+            if (!this.isError(judgingStart)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated judging start date`,
+                    type: 'info',
+                });
+                this.$store.commit('updateJudgingStart', {
+                    contestId: this.contestId,
+                    judgingStart,
                 });
             }
         },

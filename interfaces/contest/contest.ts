@@ -8,8 +8,10 @@ export interface Contest {
     isActive: boolean;
     contestStart: Date;
     screeningStart: Date;
+    judgingStart: Date;
     resultsPublished: Date;
     submissions: Submission[];
     screeners: User[];
+    judges: User[];
     voters: User[];
 }
