@@ -2,7 +2,7 @@
     <div>
         <p class="text-white-50">
             <span v-if="!showContestStartDateInput">
-                {{ contestStart ? 'Started: ' + contestStart : 'no start date set' }}
+                {{ contestStart ? 'Started: ' + contestStart : 'No start date set' }}
             </span>
             <input
                 v-else

@@ -18,4 +18,5 @@ export interface Contest {
     screeners: User[];
     judges: User[];
     voters: User[];
+    judgingThreshold: number;
 }

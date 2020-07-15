@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="container">
         <div class="row my-3">
             <div class="col-sm">
                 <a
@@ -29,7 +29,7 @@
         </div>
         <div class="row">
             <div class="col-sm">
-                <table class="table table-hover table-responsive-lg">
+                <table class="table table-sm table-hover table-responsive-lg">
                     <thead>
                         <tr>
                             <th>#</th>

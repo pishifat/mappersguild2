@@ -6,7 +6,7 @@
     >
         <div class="modal-dialog modal-lg">
             <div v-if="submission" class="modal-content bg-dark">
-                <div class="modal-header">
+                <div class="modal-header text-dark bg-orange">
                     <h5 class="modal-title">
                         {{ submission.creator.username }}
                     </h5>
@@ -20,42 +20,45 @@
                 </div>
 
                 <div class="modal-body text-left">
-                    <div
-                        v-for="(judging, i) in submission.judgings"
-                        :key="judging.id"
-                    >
-                        <b>{{ judging.judge.username }}</b>
-
+                    <div class="container">
                         <div
-                            v-for="judgingScore in judging.judgingScores"
-                            :key="judgingScore.id"
-                            class="my-1"
+                            v-for="(judging, i) in submission.judgings"
+                            :key="judging.id"
                         >
-                            <a
-                                data-toggle="collapse"
-                                :href="`#judgingToCriteria${judgingScore.id}`"
-                                @click="showComment(judgingScore.id)"
-                            >
-                                <small>
-                                    <i
-                                        class="fas mr-2"
-                                        :class="getCollapseClass(judgingScore.id)"
-                                    />
-                                </small>
-                                {{ judgingScore.criteria.name }}
-                                <b>({{ judgingScore.score }})</b>:
+                            <a :href="'https://osu.ppy.sh/users/' + judging.judge.osuId" target="_blank">
+                                {{ judging.judge.username }}
                             </a>
 
-
-                            <p
-                                :id="`judgingToCriteria${judgingScore.id}`"
-                                class="text-light ml-3 collapse"
+                            <div
+                                v-for="judgingScore in judging.judgingScores"
+                                :key="judgingScore.id"
+                                class="my-1"
                             >
-                                <span style="white-space: pre-line;">{{ judgingScore.comment }}</span>
-                            </p>
-                        </div>
+                                <a
+                                    class="small font-weight-bold text-capitalize"
+                                    data-toggle="collapse"
+                                    :href="`#judgingToCriteria${judgingScore.id}`"
+                                    @click="showComment(judgingScore.id)"
+                                >
+                                    <i
+                                        class="small fas mr-2"
+                                        :class="getCollapseClass(judgingScore.id)"
+                                    />
+                                    {{ judgingScore.criteria.name }}
+                                    ({{ judgingScore.score }})
+                                </a>
 
-                        <hr v-if="i < submission.judgings.length - 1">
+
+                                <p
+                                    :id="`judgingToCriteria${judgingScore.id}`"
+                                    class="text-light ml-4 collapse"
+                                >
+                                    <span class="small text-white-50" style="white-space: pre-line;">{{ judgingScore.comment }}</span>
+                                </p>
+                            </div>
+
+                            <hr v-if="i < submission.judgings.length - 1">
+                        </div>
                     </div>
                 </div>
             </div>

@@ -1,8 +1,22 @@
 <template>
     <div>
-        <h5 class="py-3">
-            Screening Results
-        </h5>
+        <p>
+            Judging threshold:
+            <input
+                v-model="newJudgingThreshold"
+                class="form-control-sm w-25"
+                type="text"
+                autocomplete="off"
+                placeholder="lowest score judges see..."
+            >
+            <button
+                type="button"
+                class="btn btn-sm btn-outline-info"
+                @click="updateJudgingThreshold($event)"
+            >
+                Save
+            </button>
+        </p>
         <ul>
             <li
                 v-for="submission in sortedSubmissions"
@@ -10,6 +24,7 @@
             >
                 <div class="d-flex justify-content-between">
                     <a
+                        :class="submission.total >= judgingThreshold ? 'text-success' : ''"
                         data-toggle="collapse"
                         :href="`#collapse-${submission.id}`"
                     >
@@ -18,7 +33,6 @@
                         <i class="fas fa-angle-down" />
                     </a>
                 </div>
-
 
                 <div :id="`collapse-${submission.id}`" class="collapse">
                     <div>
@@ -53,6 +67,10 @@ export default Vue.extend({
             type: String,
             required: true,
         },
+        judgingThreshold: {
+            type: Number,
+            default: 0,
+        },
         submissions: {
             type: Array as () => Submission[],
             required: true,
@@ -60,10 +78,7 @@ export default Vue.extend({
     },
     data () {
         return {
-            name: '',
-            creatorOsuId: '',
-            showDetail: false,
-            confirmDelete: null,
+            newJudgingThreshold: this.judgingThreshold,
         };
     },
     computed: {
@@ -93,34 +108,17 @@ export default Vue.extend({
         },
     },
     methods: {
-        async addSubmission(e): Promise<void> {
-            const submission = await this.executePost(`/admin/contests/${this.contestId}/submissions/create`, {
-                name: this.name,
-                osuId: this.creatorOsuId,
-            }, e);
+        async updateJudgingThreshold(e): Promise<void> {
+            const judgingThreshold = await this.executePost(`/admin/contests/${this.contestId}/updateJudgingThreshold`, { judgingThreshold: this.newJudgingThreshold }, e);
 
-            if (!this.isError(submission)) {
+            if (!this.isError(judgingThreshold)) {
                 this.$store.dispatch('updateToastMessages', {
-                    message: `added ${this.creatorOsuId} as ${this.name}`,
+                    message: `updated judging threshold`,
                     type: 'info',
                 });
-                this.$store.commit('addSubmission', {
+                this.$store.commit('updateJudgingThreshold', {
                     contestId: this.contestId,
-                    submission,
-                });
-            }
-        },
-        async deleteSubmission(submissionId, e): Promise<void> {
-            const res = await this.executePost(`/admin/contests/${this.contestId}/submissions/${submissionId}/delete`, {}, e);
-
-            if (!this.isError(res)) {
-                this.$store.dispatch('updateToastMessages', {
-                    message: `deleted`,
-                    type: 'info',
-                });
-                this.$store.commit('deleteSubmission', {
-                    contestId: this.contestId,
-                    submissionId,
+                    judgingThreshold,
                 });
             }
         },

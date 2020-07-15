@@ -2,10 +2,11 @@
     <div
         class="container bg-container py-3 mb-2"
     >
-        <h5 class="text-center">
+        <h4 class="text-center">
             {{ contest.name }}
-        </h5>
-        <div class="text-center">
+        </h4>
+
+        <div class="container">
             <date-info
                 :contest-id="contest.id"
                 :contest-start="contest.contestStart ? contest.contestStart.slice(0,10) : null"
@@ -14,49 +15,82 @@
                 :contest-id="contest.id"
                 :status="contest.status"
             />
-            <button
-                type="button"
-                class="btn btn-sm btn-outline-info"
-                @click="toggleVisibility($event)"
-            >
-                {{ isVisible ? 'Hide' : 'Show' }} contest details
-            </button>
-        </div>
 
-        <div v-if="visibleContestIds.includes(contest.id)">
-            <hr>
+            <div>
+                <h5>
+                    Screeners and Judges
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-outline-info"
+                        @click="screenersAndJudgesVisible = !screenersAndJudgesVisible"
+                    >
+                        {{ screenersAndJudgesVisible ? 'Hide' : 'Show' }}
+                    </button>
+                </h5>
 
-            <div class="row">
-                <screeners-info
-                    class="col-sm-6"
-                    :contest-id="contest.id"
-                    :screeners="contest.screeners"
-                />
+                <div v-if="screenersAndJudgesVisible" class="row">
+                    <screeners-info
+                        class="col-sm-6"
+                        :contest-id="contest.id"
+                        :screeners="contest.screeners"
+                    />
 
-                <judges-info
-                    class="col-sm-6"
-                    :contest-id="contest.id"
-                    :judges="contest.judges"
-                />
-            </div>
+                    <judges-info
+                        class="col-sm-6"
+                        :contest-id="contest.id"
+                        :judges="contest.judges"
+                    />
+                </div>
 
+                <h5>
+                    Submissions
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-outline-info"
+                        @click="submissionsVisible = !submissionsVisible"
+                    >
+                        {{ submissionsVisible ? 'Hide' : 'Show' }}
+                    </button>
+                </h5>
 
-
-            <hr>
-
-            <submissions-info
-                :contest-id="contest.id"
-                :submissions="contest.submissions"
-            />
-
-            <div v-if="contest.submissions.length">
-                <screening-results
+                <submissions-info
+                    v-if="submissionsVisible"
                     :contest-id="contest.id"
                     :submissions="contest.submissions"
                 />
-                <judging-results
-                    :contest-id="contest.id"
-                />
+
+                <div v-if="contest.submissions.length">
+                    <h5>
+                        Screening Results
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-outline-info"
+                            @click="screeningResultsVisible = !screeningResultsVisible"
+                        >
+                            {{ screeningResultsVisible ? 'Hide' : 'Show' }}
+                        </button>
+                    </h5>
+                    <screening-results
+                        v-if="screeningResultsVisible"
+                        :contest-id="contest.id"
+                        :submissions="contest.submissions"
+                        :judging-threshold="contest.judgingThreshold"
+                    />
+                    <h5>
+                        Judging Results
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-outline-info"
+                            @click="judgingResultsVisible = !judgingResultsVisible"
+                        >
+                            {{ judgingResultsVisible ? 'Hide' : 'Show' }}
+                        </button>
+                    </h5>
+                    <judging-results
+                        v-if="judgingResultsVisible"
+                        :contest-id="contest.id"
+                    />
+                </div>
             </div>
         </div>
     </div>
@@ -65,7 +99,6 @@
 <script lang="ts">
 import Vue from 'vue';
 import { Contest } from '../../../../interfaces/contest/contest';
-import { mapState } from 'vuex';
 import DateInfo from './DateInfo.vue';
 import StatusInfo from './StatusInfo.vue';
 import ScreenersInfo from './ScreenersInfo.vue';
@@ -95,26 +128,11 @@ export default Vue.extend({
         return {
             newContestStart: this.contest.contestStart,
             showContestStartDateInput: false,
+            screenersAndJudgesVisible: false,
+            submissionsVisible: false,
+            screeningResultsVisible: false,
+            judgingResultsVisible: false,
         };
-    },
-    computed: {
-        ...mapState([
-            'visibleContestIds',
-        ]),
-        isVisible (): boolean {
-            return this.visibleContestIds.includes(this.contest.id);
-        },
-    },
-    methods: {
-        toggleVisibility(): void {
-            this.$store.dispatch('updateToastMessages', {
-                message: `toggled visibility of "${this.contest.name}"`,
-                type: 'info',
-            });
-            this.$store.commit('toggleVisibility', {
-                contestId: this.contest.id,
-            });
-        },
     },
 });
 </script>

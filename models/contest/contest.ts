@@ -13,6 +13,7 @@ const contestSchema = new Schema({
     screeners: [{ type: 'ObjectId', ref: 'User' }],
     judges: [{ type: 'ObjectId', ref: 'User' }],
     voters: [{ type: 'ObjectId', ref: 'User' }],
+    judgingThreshold: { type: Number },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const ContestModel = mongoose.model<Contest>('Contest', contestSchema);

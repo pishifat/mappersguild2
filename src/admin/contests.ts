@@ -11,7 +11,6 @@ Vue.use(Vuex);
 
 interface ContestState {
     contests: Contest[];
-    visibleContestIds: Contest['id'][];
 }
 
 const store = new Vuex.Store<ContestState>({
@@ -20,7 +19,6 @@ const store = new Vuex.Store<ContestState>({
     },
     state: {
         contests: [],
-        visibleContestIds: [],
     },
     mutations: {
         setContests (state, contests: Contest[]): void {
@@ -59,19 +57,6 @@ const store = new Vuex.Store<ContestState>({
                 }
             }
         },
-        toggleVisibility (state, payload): void {
-            const contest = state.contests.find(c => c.id == payload.contestId);
-
-            if (contest) {
-                const i = state.visibleContestIds.indexOf(contest.id);
-
-                if (i < 0) {
-                    state.visibleContestIds.push(contest.id);
-                } else {
-                    state.visibleContestIds.splice(i, 1);
-                }
-            }
-        },
         updateStatus (state, payload): void {
             const contest = state.contests.find(c => c.id == payload.contestId);
 
@@ -86,10 +71,12 @@ const store = new Vuex.Store<ContestState>({
                 contest.contestStart = payload.contestStart;
             }
         },
-    },
-    getters: {
-        visibleContests: (state): Contest[] => {
-            return state.contests.filter(c => state.visibleContestIds.includes(c.id));
+        updateJudgingThreshold (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                contest.judgingThreshold = payload.judgingThreshold;
+            }
         },
     },
     strict: process.env.NODE_ENV !== 'production',

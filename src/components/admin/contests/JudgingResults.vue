@@ -1,48 +1,55 @@
 <template>
-    <div v-if="contest" class="container">
-        <judging-leaderboard
-            :contest="contest"
-            :users-scores="usersScores"
-            :judges-correl="judgesCorrel"
-            :criterias="criterias"
-        />
+    <div>
+        <div v-if="contest">
+            <judging-leaderboard
+                :contest="contest"
+                :users-scores="usersScores"
+                :judges-correl="judgesCorrel"
+                :criterias="criterias"
+            />
 
-        <table
-            v-if="contest.submissions.length"
-            class="table table-hover table-responsive-lg"
-        >
-            <thead>
-                <tr>
-                    <th>User</th>
-                    <th>Count</th>
-                    <th>Judges</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr
-                    v-for="submission in contest.submissions"
-                    :key="submission.id"
-                    data-toggle="modal"
-                    data-target="#detailModalAdmin"
-                    @click="selected = submission"
+            <div class="container">
+                <table
+                    v-if="contest.submissions.length"
+                    class="table table-sm table-hover table-responsive-lg"
                 >
-                    <td>
-                        {{ `${submission.creator.username} (${submission.name || 'Not anonymized'})` }}
-                    </td>
-                    <td
-                        :class="getJudgesInvolvedCount(submission) >= judgeCount ? 'text-success' : 'text-danger'"
-                    >
-                        {{ getJudgesInvolvedCount(submission) }} done of {{ judgeCount }}
-                    </td>
-                    <td>{{ getJudgesInvolved(submission) }}</td>
-                </tr>
-            </tbody>
-        </table>
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Count</th>
+                            <th>Judges</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr
+                            v-for="submission in contest.submissions"
+                            :key="submission.id"
+                            data-toggle="modal"
+                            data-target="#detailModalAdmin"
+                            @click="selected = submission"
+                        >
+                            <td>
+                                {{ `${submission.creator.username} (${submission.name || 'Not anonymized'})` }}
+                            </td>
+                            <td
+                                :class="getJudgesInvolvedCount(submission) >= judgeCount ? 'text-success' : 'text-danger'"
+                            >
+                                {{ getJudgesInvolvedCount(submission) }} done of {{ judgeCount }}
+                            </td>
+                            <td>{{ getJudgesInvolved(submission) }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-        <judging-detail
-            id="detailModalAdmin"
-            :submission="selected"
-        />
+            <judging-detail
+                id="detailModalAdmin"
+                :submission="selected"
+            />
+        </div>
+        <div v-else class="text-white-50">
+            Loading...
+        </div>
     </div>
 </template>
 
@@ -54,7 +61,7 @@ import { Contest } from '../../../../interfaces/contest/contest';
 import { Submission } from '../../../../interfaces/contest/submission';
 
 export default Vue.extend({
-    name: 'JudgingInfo',
+    name: 'JudgingResults',
     components: {
         JudgingDetail,
         JudgingLeaderboard,

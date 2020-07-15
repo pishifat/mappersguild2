@@ -176,4 +176,22 @@ adminContestsRouter.post('/:id/submissions/:submissionId/delete', async (req, re
     res.json(submission);
 });
 
+/* POST update judging threshold */
+adminContestsRouter.post('/:id/updateJudgingThreshold', async (req, res) => {
+    const newJudgingThreshold = parseInt(req.body.judgingThreshold);
+
+    if (isNaN(newJudgingThreshold)) {
+        return res.json({ error: 'Invalid number' });
+    }
+
+    const contest = await ContestModel
+        .findById(req.params.id)
+        .orFail();
+
+    contest.judgingThreshold = newJudgingThreshold;
+    await contest.save();
+
+    res.json(newJudgingThreshold);
+});
+
 export default adminContestsRouter;
