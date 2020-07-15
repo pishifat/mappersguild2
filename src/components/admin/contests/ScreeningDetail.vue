@@ -1,21 +1,24 @@
 <template>
     <div class="p-3">
         <div v-for="evaluation in evaluations" :key="evaluation.id">
-            <div>{{ evaluation.screener.username }}: {{ getVotePlace(evaluation.vote) }} ({{ evaluation.vote }} points)</div>
-            <div class="ml-4 small" style="word-break: break-word;">
-                {{ evaluation.comment }}
+            <div>
+                <a :href="'https://osu.ppy.sh/users/' + evaluation.screener.osuId" target="_blank">
+                    {{ evaluation.screener.username }}
+                </a>
+                ({{ evaluation.vote }})
+                <div class="ml-4 small text-white-50" style="word-break: break-word;">
+                    {{ evaluation.comment }}
+                </div>
             </div>
         </div>
-
         <div v-if="!evaluations.length">
-            No evaluations...
+            No screenings...
         </div>
     </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
-import { ScreeningPlacement } from '../../../../interfaces/contest/screening';
 
 export default Vue.extend({
     name: 'ScreeningDetail',
@@ -23,11 +26,6 @@ export default Vue.extend({
         evaluations: {
             type: Array,
             required: true,
-        },
-    },
-    methods: {
-        getVotePlace(vote): string {
-            return ScreeningPlacement[vote];
         },
     },
 });

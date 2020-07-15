@@ -1,17 +1,17 @@
 <template>
     <div>
         <p>
-            Submissions:
+            Add submission:
             <input
                 v-model="name"
-                class="form-control-sm"
+                class="form-control-sm w-25"
                 type="text"
                 autocomplete="off"
                 placeholder="new submission's name..."
             >
             <input
                 v-model="creatorOsuId"
-                class="form-control-sm"
+                class="form-control-sm w-25"
                 type="text"
                 autocomplete="off"
                 placeholder="new submission's creator osuId..."
@@ -25,79 +25,49 @@
             </button>
         </p>
 
-        <div v-if="submissions.length">
-            <div
-                v-for="submission in sortedSubmissions"
+        <ul v-if="submissions.length">
+            <li
+                v-for="submission in submissions"
                 :key="submission.id"
             >
-                <div class="card card-body static-card p-3">
-                    <div class="d-flex justify-content-between">
-                        <a
-                            data-toggle="collapse"
-                            :href="`#collapse-${submission.id}`"
-                        >
-                            {{ submission.name }}
-                            by {{ submission.creator.username == 'pishifat' ? 'NONE' : submission.creator.username }}
-                            ({{ submission.total }} points in {{ submission.evaluations.length }} evaluations)
-                        </a>
+                {{ submission.name }}
+                <span class="text-white-50">by</span>
+                <a :href="'https://osu.ppy.sh/users/' + submission.creator.osuId" target="_blank">
+                    {{ submission.creator.username }}
+                </a>
 
-                        <a
-                            v-if="confirmDelete != submission.id"
-                            href="#"
-                            class="text-danger"
-                            @click.prevent="confirmDelete = submission.id"
-                        >
-                            delete
-                        </a>
 
-                        <a
-                            v-else
-                            class="text-danger"
-                            href="#"
-                            @click.prevent="deleteSubmission(submission.id)"
-                        >
-                            confirm
-                        </a>
-                    </div>
-                </div>
+                <a
+                    v-if="confirmDelete != submission.id"
+                    href="#"
+                    class="text-danger"
+                    @click.prevent="confirmDelete = submission.id"
+                >
+                    delete
+                </a>
+                <a
+                    v-else
+                    class="text-danger"
+                    href="#"
+                    @click.prevent="deleteSubmission(submission.id, $event)"
+                >
+                    confirm
+                </a>
+            </li>
+        </ul>
 
-                <div :id="`collapse-${submission.id}`" class="collapse">
-                    <div class="my-2">
-                        <edit-user
-                            :contest-id="contestId"
-                            :submission-id="submission.id"
-                            :creator="submission.creator"
-                        />
-                        <screening-detail
-                            :evaluations="submission.evaluations"
-                        />
-                        <message-template
-                            :evaluations="submission.evaluations"
-                            :osu-id="submission.creator.osuId"
-                        />
-                    </div>
-                </div>
-            </div>
+        <div v-else>
+            None...
         </div>
-
-        <span v-else>None...</span>
     </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
-import ScreeningDetail from './ScreeningDetail.vue';
-import MessageTemplate from './MessageTemplate.vue';
-import EditUser from './EditUser.vue';
 import { Submission } from '../../../../interfaces/contest/submission';
 
 export default Vue.extend({
     name: 'SubmissionsInfo',
-    components: {
-        ScreeningDetail,
-        MessageTemplate,
-        EditUser,
-    },
     props: {
         contestId: {
             type: String,
@@ -112,35 +82,8 @@ export default Vue.extend({
         return {
             name: '',
             creatorOsuId: '',
-            showDetail: false,
             confirmDelete: null,
         };
-    },
-    computed: {
-        sortedSubmissions(): any[] {
-            const sortedSubmissions: any = [...this.submissions];
-
-            for (let i = 0; i < sortedSubmissions.length; i++) {
-                const submission = sortedSubmissions[i];
-                const total = submission.evaluations.reduce((acc, e) => {
-                    if (e.vote) {
-                        return acc + e.vote;
-                    }
-
-                    return acc;
-                }, 0);
-                sortedSubmissions[i].total = total;
-            }
-
-            sortedSubmissions.sort((a, b) => {
-                if (a.total > b.total) return -1;
-                if (b.total > a.total) return 1;
-
-                return 0;
-            });
-
-            return sortedSubmissions;
-        },
     },
     methods: {
         async addSubmission(e): Promise<void> {

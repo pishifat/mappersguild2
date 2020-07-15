@@ -7,7 +7,7 @@
                     :class="displayMode === 'criterias' ? 'border-bottom border-secondary' : ''"
                     @click.prevent="displayMode = 'criterias'"
                 >
-                    Per criteria
+                    Criteria
                 </a>
                 |
                 <a
@@ -15,7 +15,7 @@
                     :class="displayMode === 'judges' ? 'border-bottom border-secondary' : ''"
                     @click.prevent="displayMode = 'judges'"
                 >
-                    Per judge
+                    Judge
                 </a>
                 |
                 <a
@@ -23,7 +23,7 @@
                     :class="displayMode === 'detail' ? 'border-bottom border-secondary' : ''"
                     @click.prevent="displayMode = 'detail'"
                 >
-                    Std detail
+                    Judge (SD)
                 </a>
             </div>
         </div>
@@ -33,7 +33,7 @@
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>Team</th>
+                            <th>Name</th>
                             <template v-if="displayMode === 'criterias'">
                                 <th
                                     v-for="criteria in criterias"

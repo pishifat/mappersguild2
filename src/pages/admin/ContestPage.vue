@@ -27,7 +27,11 @@ export default Vue.extend({
         ContestInfo,
         AddContest,
     },
-    computed: mapState(['contests']),
+    computed: {
+        ...mapState([
+            'contests',
+        ]),
+    },
     async created() {
         const contests = await this.executeGet<Contest[]>('/admin/contests/relevantInfo');
 

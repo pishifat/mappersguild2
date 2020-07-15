@@ -44,6 +44,9 @@ adminContestsRouter.get('/relevantInfo', async (req, res) => {
                 path: 'screeners',
             },
             {
+                path: 'judges',
+            },
+            {
                 path: 'voters',
             },
         ])
@@ -65,16 +68,13 @@ adminContestsRouter.post('/create', async (req, res) => {
     res.json(contest);
 });
 
-/* POST toggle contest activity */
-adminContestsRouter.post('/:id/toggleActivity', async (req, res) => {
+/* POST update contest status */
+adminContestsRouter.post('/:id/updateStatus', async (req, res) => {
     const contest = await ContestModel
-        .findById(req.params.id)
+        .findByIdAndUpdate(req.params.id, { status: req.body.status })
         .orFail();
 
-    contest.isActive = !contest.isActive;
-    await contest.save();
-
-    res.json(contest.isActive);
+    res.json(contest.status);
 });
 
 /* POST update contest start date */
@@ -93,60 +93,6 @@ adminContestsRouter.post('/:id/updateContestStart', async (req, res) => {
     await contest.save();
 
     res.json(newContestStart);
-});
-
-/* POST update screening start date */
-adminContestsRouter.post('/:id/updateScreeningStart', async (req, res) => {
-    const newScreeningStart = new Date(req.body.date);
-
-    if (!(newScreeningStart instanceof Date && !isNaN(newScreeningStart.getTime()))) {
-        return res.json({ error: 'Invalid date' });
-    }
-
-    const contest = await ContestModel
-        .findById(req.params.id)
-        .orFail();
-
-    contest.screeningStart = newScreeningStart;
-    await contest.save();
-
-    res.json(newScreeningStart);
-});
-
-/* POST update screening start date */
-adminContestsRouter.post('/:id/updateJudgingStart', async (req, res) => {
-    const newJudgingStart = new Date(req.body.date);
-
-    if (!(newJudgingStart instanceof Date && !isNaN(newJudgingStart.getTime()))) {
-        return res.json({ error: 'Invalid date' });
-    }
-
-    const contest = await ContestModel
-        .findById(req.params.id)
-        .orFail();
-
-    contest.judgingStart = newJudgingStart;
-    await contest.save();
-
-    res.json(newJudgingStart);
-});
-
-/* POST update results published date */
-adminContestsRouter.post('/:id/updateResultsPublished', async (req, res) => {
-    const newResultsPublished = new Date(req.body.date);
-
-    if (!(newResultsPublished instanceof Date && !isNaN(newResultsPublished.getTime()))) {
-        return res.json({ error: 'Invalid date' });
-    }
-
-    const contest = await ContestModel
-        .findById(req.params.id)
-        .orFail();
-
-    contest.resultsPublished = newResultsPublished;
-    await contest.save();
-
-    res.json(newResultsPublished);
 });
 
 /* POST add a screener to the list */
@@ -228,20 +174,6 @@ adminContestsRouter.post('/:id/submissions/:submissionId/delete', async (req, re
         .orFail();
 
     res.json(submission);
-});
-
-/* POST update creator on a submission */
-adminContestsRouter.post('/submissions/:submissionId/updateCreator', async (req, res) => {
-    const osuId = parseInt(req.body.osuId, 10);
-    const user = await UserModel
-        .findOne({ osuId })
-        .orFail();
-
-    await SubmissionModel
-        .findByIdAndUpdate(req.params.submissionId, { creator: user._id })
-        .orFail();
-
-    res.json(user);
 });
 
 export default adminContestsRouter;

@@ -11,6 +11,7 @@ Vue.use(Vuex);
 
 interface ContestState {
     contests: Contest[];
+    visibleContestIds: Contest['id'][];
 }
 
 const store = new Vuex.Store<ContestState>({
@@ -19,6 +20,7 @@ const store = new Vuex.Store<ContestState>({
     },
     state: {
         contests: [],
+        visibleContestIds: [],
     },
     mutations: {
         setContests (state, contests: Contest[]): void {
@@ -42,17 +44,6 @@ const store = new Vuex.Store<ContestState>({
                 }
             }
         },
-        updateCreator (state, payload): void {
-            const contest = state.contests.find(c => c.id == payload.contestId);
-
-            if (contest) {
-                const submissionIndex = contest.submissions.findIndex(s => s.id == payload.submissionId);
-
-                if (submissionIndex !== -1) {
-                    contest.submissions[submissionIndex].creator = payload.creator;
-                }
-            }
-        },
         addScreener (state, payload): void {
             const contest = state.contests.find(c => c.id == payload.contestId);
             contest?.screeners.push(payload.screener);
@@ -68,11 +59,24 @@ const store = new Vuex.Store<ContestState>({
                 }
             }
         },
-        toggleActivity (state, payload): void {
+        toggleVisibility (state, payload): void {
             const contest = state.contests.find(c => c.id == payload.contestId);
 
             if (contest) {
-                contest.isActive = payload.isActive;
+                const i = state.visibleContestIds.indexOf(contest.id);
+
+                if (i < 0) {
+                    state.visibleContestIds.push(contest.id);
+                } else {
+                    state.visibleContestIds.splice(i, 1);
+                }
+            }
+        },
+        updateStatus (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                contest.status = payload.status;
             }
         },
         updateContestStart (state, payload): void {
@@ -82,26 +86,10 @@ const store = new Vuex.Store<ContestState>({
                 contest.contestStart = payload.contestStart;
             }
         },
-        updateScreeningStart (state, payload): void {
-            const contest = state.contests.find(c => c.id == payload.contestId);
-
-            if (contest) {
-                contest.screeningStart = payload.screeningStart;
-            }
-        },
-        updateJudgingStart (state, payload): void {
-            const contest = state.contests.find(c => c.id == payload.contestId);
-
-            if (contest) {
-                contest.judgingStart = payload.judgingStart;
-            }
-        },
-        updateResultsPublished (state, payload): void {
-            const contest = state.contests.find(c => c.id == payload.contestId);
-
-            if (contest) {
-                contest.resultsPublished = payload.resultsPublished;
-            }
+    },
+    getters: {
+        visibleContests: (state): Contest[] => {
+            return state.contests.filter(c => state.visibleContestIds.includes(c.id));
         },
     },
     strict: process.env.NODE_ENV !== 'production',

@@ -6,60 +6,83 @@
             {{ contest.name }}
         </h5>
         <div class="text-center">
-            <span>({{ contest.isActive ? 'Screening in progress' : 'Screening completed' }})</span>
+            <date-info
+                :contest-id="contest.id"
+                :contest-start="contest.contestStart ? contest.contestStart.slice(0,10) : null"
+            />
+            <status-info
+                :contest-id="contest.id"
+                :status="contest.status"
+            />
             <button
                 type="button"
                 class="btn btn-sm btn-outline-info"
-                @click="toggleActivity($event)"
+                @click="toggleVisibility($event)"
             >
-                Mark {{ contest.isActive ? 'inactive' : 'active' }}
+                {{ isVisible ? 'Hide' : 'Show' }} contest details
             </button>
         </div>
 
-        <hr>
+        <div v-if="visibleContestIds.includes(contest.id)">
+            <hr>
 
-        <date-info
-            :contest-id="contest.id"
-            :contest-start="contest.contestStart"
-            :screening-start="contest.screeningStart"
-            :judging-start="contest.judgingStart"
-            :results-published="contest.resultsPublished"
-        />
+            <div class="row">
+                <screeners-info
+                    class="col-sm-6"
+                    :contest-id="contest.id"
+                    :screeners="contest.screeners"
+                />
 
-        <hr>
+                <judges-info
+                    class="col-sm-6"
+                    :contest-id="contest.id"
+                    :judges="contest.judges"
+                />
+            </div>
 
-        <screeners-info
-            :contest-id="contest.id"
-            :screeners="contest.screeners"
-        />
 
-        <judging-info
-            :contest-id="contest.id"
-        />
 
-        <hr>
+            <hr>
 
-        <submissions-info
-            :contest-id="contest.id"
-            :submissions="contest.submissions"
-        />
+            <submissions-info
+                :contest-id="contest.id"
+                :submissions="contest.submissions"
+            />
+
+            <div v-if="contest.submissions.length">
+                <screening-results
+                    :contest-id="contest.id"
+                    :submissions="contest.submissions"
+                />
+                <judging-results
+                    :contest-id="contest.id"
+                />
+            </div>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
 import { Contest } from '../../../../interfaces/contest/contest';
+import { mapState } from 'vuex';
 import DateInfo from './DateInfo.vue';
+import StatusInfo from './StatusInfo.vue';
 import ScreenersInfo from './ScreenersInfo.vue';
-import JudgingInfo from './JudgingInfo.vue';
+import JudgesInfo from './JudgesInfo.vue';
+import ScreeningResults from './ScreeningResults.vue';
+import JudgingResults from './JudgingResults.vue';
 import SubmissionsInfo from './SubmissionsInfo.vue';
 
 export default Vue.extend({
     name: 'ContestInfo',
     components: {
         DateInfo,
+        StatusInfo,
         ScreenersInfo,
-        JudgingInfo,
+        JudgesInfo,
+        ScreeningResults,
+        JudgingResults,
         SubmissionsInfo,
     },
     props: {
@@ -68,20 +91,29 @@ export default Vue.extend({
             required: true,
         },
     },
+    data () {
+        return {
+            newContestStart: this.contest.contestStart,
+            showContestStartDateInput: false,
+        };
+    },
+    computed: {
+        ...mapState([
+            'visibleContestIds',
+        ]),
+        isVisible (): boolean {
+            return this.visibleContestIds.includes(this.contest.id);
+        },
+    },
     methods: {
-        async toggleActivity(e): Promise<void> {
-            const isActive = await this.executePost(`/admin/contests/${this.contest.id}/toggleActivity`, {}, e);
-
-            if (!this.isError(isActive)) {
-                this.$store.dispatch('updateToastMessages', {
-                    message: `toggled contest activity`,
-                    type: 'info',
-                });
-                this.$store.commit('toggleActivity', {
-                    contestId: this.contest.id,
-                    isActive,
-                });
-            }
+        toggleVisibility(): void {
+            this.$store.dispatch('updateToastMessages', {
+                message: `toggled visibility of "${this.contest.name}"`,
+                type: 'info',
+            });
+            this.$store.commit('toggleVisibility', {
+                contestId: this.contest.id,
+            });
         },
     },
 });

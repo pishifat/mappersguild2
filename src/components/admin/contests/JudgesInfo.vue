@@ -1,31 +1,31 @@
 <template>
     <div>
         <p>
-            Add screener:
+            Add judge:
             <input
-                v-model.number="screenerOsuId"
+                v-model.number="judgeOsuId"
                 class="form-control-sm"
                 type="number"
                 autocomplete="off"
-                placeholder="new screener's osuId..."
-                @keyup.enter="addScreener($event)"
+                placeholder="new judge's osuId..."
+                @keyup.enter="addJudge($event)"
             >
         </p>
 
-        <ul v-if="screeners.length">
+        <ul v-if="judges.length">
             <li
-                v-for="screener in screeners"
-                :key="screener.id"
+                v-for="judge in judges"
+                :key="judge.id"
             >
-                <a :href="'https://osu.ppy.sh/users/' + screener.osuId" target="_blank">
-                    {{ screener.username }}
+                <a :href="'https://osu.ppy.sh/users/' + judge.osuId" target="_blank">
+                    {{ judge.username }}
                 </a>
 
                 <a
-                    v-if="confirmDelete != screener.id"
+                    v-if="confirmDelete != judge.id"
                     href="#"
                     class="text-danger"
-                    @click.prevent="confirmDelete = screener.id"
+                    @click.prevent="confirmDelete = judge.id"
                 >
                     delete
                 </a>
@@ -33,7 +33,7 @@
                     v-else
                     class="text-danger"
                     href="#"
-                    @click.prevent="removeScreener(screener.id)"
+                    @click.prevent="removeJudge(judge.id)"
                 >
                     confirm
                 </a>
@@ -50,49 +50,49 @@
 import Vue from 'vue';
 
 export default Vue.extend({
-    name: 'ScreenersInfo',
+    name: 'JudgesInfo',
     props: {
         contestId: {
             type: String,
             required: true,
         },
-        screeners: {
+        judges: {
             type: Array,
             required: true,
         },
     },
     data () {
         return {
-            screenerOsuId: null,
+            judgeOsuId: null,
             confirmDelete: null,
         };
     },
     methods: {
-        async addScreener(e): Promise<void> {
-            const screener = await this.executePost(`/admin/contests/${this.contestId}/screeners/add`, { osuId: this.screenerOsuId }, e);
+        async addJudge(e): Promise<void> {
+            const judge = await this.executePost(`/admin/contests/${this.contestId}/judges/add`, { osuId: this.judgeOsuId }, e);
 
-            if (!this.isError(screener)) {
+            if (!this.isError(judge)) {
                 this.$store.dispatch('updateToastMessages', {
-                    message: `added ${this.screenerOsuId} (${this.screeners.length + 1})`,
+                    message: `added ${this.judgeOsuId} (${this.judges.length + 1})`,
                     type: 'info',
                 });
-                this.$store.commit('addScreener', {
+                this.$store.commit('addJudge', {
                     contestId: this.contestId,
-                    screener,
+                    judge,
                 });
             }
         },
-        async removeScreener(screenerId, e): Promise<void> {
-            const res = await this.executePost(`/admin/contests/${this.contestId}/screeners/remove`, { screenerId }, e);
+        async removeJudge(judgeId, e): Promise<void> {
+            const res = await this.executePost(`/admin/contests/${this.contestId}/judges/remove`, { judgeId }, e);
 
             if (!this.isError(res)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `deleted`,
                     type: 'info',
                 });
-                this.$store.commit('deleteScreener', {
+                this.$store.commit('deleteJudge', {
                     contestId: this.contestId,
-                    screenerId,
+                    judgeId,
                 });
             }
         },
