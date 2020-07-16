@@ -8,7 +8,7 @@
             data-backdrop="static"
             data-keyboard="false"
         >
-            <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-dialog" role="document">
                 <div class="modal-content bg-dark">
                     <div class="modal-header bg-orange text-dark">
                         <h5
@@ -22,7 +22,7 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div class="form-group">
+                        <div v-if="editingCriteria.name != 'comments'" class="form-group">
                             <label for="score">Score</label>
                             <input
                                 id="score"
@@ -35,6 +35,7 @@
                             >
                         </div>
                         <div
+                            v-else
                             class="form-group"
                         >
                             <label for="comment">

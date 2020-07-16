@@ -36,6 +36,7 @@
                                 class="my-1"
                             >
                                 <a
+                                    v-if="judgingScore.criteria.name == 'comments'"
                                     class="small font-weight-bold text-capitalize"
                                     data-toggle="collapse"
                                     :href="`#judgingToCriteria${judgingScore.id}`"
@@ -46,8 +47,11 @@
                                         :class="getCollapseClass(judgingScore.id)"
                                     />
                                     {{ judgingScore.criteria.name }}
-                                    ({{ judgingScore.score }})
                                 </a>
+                                <span v-else class="small text-capitalize ml-3">
+                                    {{ judgingScore.criteria.name }}
+                                    ({{ judgingScore.score }})
+                                </span>
 
 
                                 <p

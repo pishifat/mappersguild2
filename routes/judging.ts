@@ -92,10 +92,6 @@ judgingRouter.post('/save', async (req, res) => {
 
     const parsedScore = parseInt(score, 10);
 
-    if (!comment || isNaN(parsedScore) || parsedScore < 0) {
-        return res.json({ error: 'Missing data' });
-    }
-
     if (submission.contest.id != res.locals.contest.id) {
         return res.json({ error: 'woah' });
     }

@@ -60,7 +60,9 @@
                                             @click.prevent="selectForEditing(submission.id, criteria.id)"
                                         >
                                             <i class="mr-1 fas fa-edit" />
-                                            {{ getScore(submission.id, criteria.id) + `/${criteria.maxScore}` }}
+                                            <span v-if="criteria.name != 'comments'">
+                                                {{ getScore(submission.id, criteria.id) + `/${criteria.maxScore}` }}
+                                            </span>
                                         </a>
                                     </td>
                                     <td>
