@@ -7,9 +7,9 @@
         >
             <div class="row">
                 <div class="col-sm">
-                    <h5 class="my-2 text-center">
+                    <h4 class="my-2 text-center">
                         {{ contest.name }}
-                    </h5>
+                    </h4>
 
                     <transition-group
                         v-if="contest.submissions.length"
@@ -29,6 +29,10 @@
                     </p>
                 </div>
             </div>
+        </div>
+
+        <div v-if="!contests.length" class="text-center p-3">
+            No contests available for screening...
         </div>
 
         <toast-messages />

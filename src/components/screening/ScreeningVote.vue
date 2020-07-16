@@ -6,6 +6,7 @@
             type="button"
             class="btn btn-link"
             :class="{ 'disabled': usedVotes.includes(i) && savedVote != i }"
+            :disabled="voteLoading"
             @click="updateVote(i)"
         >
             <i
@@ -18,7 +19,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { mapGetters } from 'vuex';
+import { mapState, mapGetters } from 'vuex';
 import { ScreeningPlacement } from '../../../interfaces/contest/screening';
 
 export default Vue.extend({
@@ -34,10 +35,13 @@ export default Vue.extend({
         },
     },
     computed: {
+        ...mapState(['voteLoading']),
         ...mapGetters(['usedVotes']),
     },
     methods: {
         async updateVote(vote): Promise<void> {
+            this.$store.commit('setVoteLoading', true);
+
             if (this.savedVote == vote) {
                 vote = ScreeningPlacement.None;
             }
@@ -47,6 +51,8 @@ export default Vue.extend({
             if (!this.isError(submission)) {
                 this.$store.commit('updateSubmission', submission);
             }
+
+            this.$store.commit('setVoteLoading', false);
         },
     },
 });

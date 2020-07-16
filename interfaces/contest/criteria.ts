@@ -1,8 +1,10 @@
 import { Document } from 'mongoose';
 
 export enum CriteriaName {
+    MusicalRepresentation = 'musical representation',
     Creativity = 'creativity',
-    JudgeImpression = 'judge impression',
+    Gameplay = 'gameplay',
+    Limitation = 'limitation',
 }
 
 export interface Criteria extends Document {

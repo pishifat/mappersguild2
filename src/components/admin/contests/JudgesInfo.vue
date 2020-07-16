@@ -3,9 +3,8 @@
         <p>
             Add judge:
             <input
-                v-model.number="judgeOsuId"
+                v-model.number="judgeInput"
                 class="form-control-sm"
-                type="number"
                 autocomplete="off"
                 placeholder="new judge's osuId..."
                 @keyup.enter="addJudge($event)"
@@ -40,7 +39,7 @@
             </li>
         </ul>
 
-        <div v-else>
+        <div v-else class="text-white-50 m-4">
             None...
         </div>
     </div>
@@ -63,17 +62,17 @@ export default Vue.extend({
     },
     data () {
         return {
-            judgeOsuId: null,
+            judgeInput: null,
             confirmDelete: null,
         };
     },
     methods: {
         async addJudge(e): Promise<void> {
-            const judge = await this.executePost(`/admin/contests/${this.contestId}/judges/add`, { osuId: this.judgeOsuId }, e);
+            const judge = await this.executePost(`/admin/contests/${this.contestId}/judges/add`, { judgeInput: this.judgeInput }, e);
 
             if (!this.isError(judge)) {
                 this.$store.dispatch('updateToastMessages', {
-                    message: `added ${this.judgeOsuId} (${this.judges.length + 1})`,
+                    message: `added ${this.judgeInput} (${this.judges.length + 1})`,
                     type: 'info',
                 });
                 this.$store.commit('addJudge', {

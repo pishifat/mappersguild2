@@ -57,6 +57,21 @@ const store = new Vuex.Store<ContestState>({
                 }
             }
         },
+        addJudge (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+            contest?.judges.push(payload.judge);
+        },
+        deleteJudge (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                const judgeIndex = contest.screeners.findIndex(s => s.id == payload.screenerId);
+
+                if (judgeIndex !== -1) {
+                    contest.screeners.splice(judgeIndex, 1);
+                }
+            }
+        },
         updateStatus (state, payload): void {
             const contest = state.contests.find(c => c.id == payload.contestId);
 

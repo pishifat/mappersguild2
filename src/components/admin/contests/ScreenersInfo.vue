@@ -3,11 +3,10 @@
         <p>
             Add screener:
             <input
-                v-model.number="screenerOsuId"
+                v-model.number="screenerInput"
                 class="form-control-sm"
-                type="number"
                 autocomplete="off"
-                placeholder="new screener's osuId..."
+                placeholder="username/osuId"
                 @keyup.enter="addScreener($event)"
             >
         </p>
@@ -40,7 +39,7 @@
             </li>
         </ul>
 
-        <div v-else>
+        <div v-else class="text-white-50 m-4">
             None...
         </div>
     </div>
@@ -63,17 +62,17 @@ export default Vue.extend({
     },
     data () {
         return {
-            screenerOsuId: null,
+            screenerInput: null,
             confirmDelete: null,
         };
     },
     methods: {
         async addScreener(e): Promise<void> {
-            const screener = await this.executePost(`/admin/contests/${this.contestId}/screeners/add`, { osuId: this.screenerOsuId }, e);
+            const screener = await this.executePost(`/admin/contests/${this.contestId}/screeners/add`, { screenerInput: this.screenerInput }, e);
 
             if (!this.isError(screener)) {
                 this.$store.dispatch('updateToastMessages', {
-                    message: `added ${this.screenerOsuId} (${this.screeners.length + 1})`,
+                    message: `added ${this.screenerInput} (${this.screeners.length + 1})`,
                     type: 'info',
                 });
                 this.$store.commit('addScreener', {

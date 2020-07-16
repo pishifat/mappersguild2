@@ -14,6 +14,7 @@ Vue.use(Vuex);
 interface ScreeningState {
     contests: Contest[];
     userId: User['id'];
+    voteLoading: boolean;
 }
 
 const store = new Vuex.Store<ScreeningState>({
@@ -23,6 +24,7 @@ const store = new Vuex.Store<ScreeningState>({
     state: {
         contests: [],
         userId: '',
+        voteLoading: false,
     },
     mutations: {
         setContests (state, contests: Contest[]): void {
@@ -30,6 +32,9 @@ const store = new Vuex.Store<ScreeningState>({
         },
         setUserId (state, id: User['id']): void {
             state.userId = id;
+        },
+        setVoteLoading (state, value: boolean): void {
+            state.voteLoading = value;
         },
         updateSubmission (state, submission: Submission): void {
             let submissionIndex = -1;

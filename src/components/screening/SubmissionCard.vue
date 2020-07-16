@@ -2,13 +2,7 @@
     <div class="col-sm-12 my-1">
         <div
             class="card static-card"
-            :class="!relatedScreening || !relatedScreening.vote ? 'bg-dark' :
-                relatedScreening.vote == 1 ? 'fifth-favorite' :
-                relatedScreening.vote == 2 ? 'fourth-favorite' :
-                relatedScreening.vote == 3 ? 'third-favorite' :
-                relatedScreening.vote == 4 ? 'second-favorite' :
-                relatedScreening.vote == 5 ? 'first-favorite' :
-                ''"
+            :class="relatedScreening && relatedScreening.vote ? 'bg-vote' : 'bg-dark'"
         >
             <div class="card-body text-shadow p-2">
                 <div class="row">
@@ -92,23 +86,7 @@ input:focus {
     width: 10%;
 }
 
-.fifth-favorite {
-    background-color: rgba(37, 119, 62, 0.1)!important;
-}
-
-.fourth-favorite {
-    background-color: rgba(53, 111, 138, 0.1)!important;
-}
-
-.third-favorite {
-    background-color: rgba(138, 98, 53, 0.1)!important;
-}
-
-.second-favorite {
-    background-color: rgba(217, 224, 224, 0.15) !important;
-}
-
-.first-favorite {
-    background-color: rgba(255, 251, 0, 0.075)!important;
+.bg-vote {
+    background-color: rgba(255, 255, 0, 0.075)!important;
 }
 </style>

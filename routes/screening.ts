@@ -3,7 +3,7 @@ import { isLoggedIn } from '../helpers/middlewares';
 import { ContestModel } from '../models/contest/contest';
 import { SubmissionModel } from '../models/contest/submission';
 import { ScreeningModel, Screening } from '../models/contest/screening';
-import { UserGroup } from '../interfaces/user';
+import { ContestStatus } from '../interfaces/contest/contest';
 
 const defaultContestPopulate = {
     path: 'submissions',
@@ -31,13 +31,13 @@ async function isScreener(req, res, next): Promise<void> {
     //if population doesn't work here, there's a problem
     const contests = await ContestModel
         .find({
-            isActive: true,
+            status: ContestStatus.Screening,
             screeners: res.locals.userRequest._id,
         })
         .populate(defaultContestPopulate)
         .select('_id name submissions screeners');
 
-    if (contests.length || res.locals.userRequest.group == UserGroup.Admin) {
+    if (contests.length) {
         res.locals.contests = contests;
 
         return next();

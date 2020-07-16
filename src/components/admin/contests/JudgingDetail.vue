@@ -9,6 +9,7 @@
                 <div class="modal-header text-dark bg-orange">
                     <h5 class="modal-title">
                         {{ submission.creator.username }}
+                        ({{ submission.name }})
                     </h5>
                     <button
                         type="button"

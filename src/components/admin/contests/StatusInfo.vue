@@ -8,7 +8,7 @@
             <select
                 v-else
                 v-model="newStatus"
-                class="form-control form-control-sm w-25 mx-auto"
+                class="form-control form-control-sm w-25"
                 @change="updateStatus($event)"
             >
                 <option value="beatmapping">
@@ -36,7 +36,7 @@
 import Vue from 'vue';
 
 export default Vue.extend({
-    name: 'DateInfo',
+    name: 'StatusInfo',
     props: {
         contestId: {
             type: String,

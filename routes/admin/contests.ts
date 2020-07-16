@@ -97,16 +97,31 @@ adminContestsRouter.post('/:id/updateContestStart', async (req, res) => {
 
 /* POST add a screener to the list */
 adminContestsRouter.post('/:id/screeners/add', async (req, res) => {
-    const osuId = parseInt(req.body.osuId, 10);
-    const [contest, user] = await Promise.all([
-        ContestModel
-            .findById(req.params.id)
-            .orFail(),
+    const contest = await ContestModel
+        .findById(req.params.id)
+        .orFail();
 
-        UserModel
+    const osuId = parseInt(req.body.screenerInput, 10);
+
+    let user;
+
+    if (isNaN(osuId)) {
+        let regexp;
+
+        if (req.body.screenerInput.indexOf('[') >= 0 || req.body.screenerInput.indexOf(']') >= 0) {
+            regexp = new RegExp('^\\' + req.body.screenerInput + '$', 'i');
+        } else {
+            regexp = new RegExp('^' + req.body.screenerInput + '$', 'i');
+        }
+
+        user = await UserModel
+            .findOne({ username: regexp })
+            .orFail();
+    } else {
+        user = await UserModel
             .findOne({ osuId })
-            .orFail(),
-    ]);
+            .orFail();
+    }
 
     if (contest.screeners.includes(user._id)) {
         return res.json({ error: 'User is already a screener!' });
@@ -136,6 +151,67 @@ adminContestsRouter.post('/:id/screeners/remove', async (req, res) => {
 
     await ContestModel
         .findByIdAndUpdate(contest._id, { $pull: { screeners: user._id } })
+        .orFail();
+
+    res.json(user);
+});
+
+/* POST add a judge to the list */
+adminContestsRouter.post('/:id/judges/add', async (req, res) => {
+    const contest = await ContestModel
+        .findById(req.params.id)
+        .orFail();
+
+    const osuId = parseInt(req.body.judgeInput, 10);
+
+    let user;
+
+    if (isNaN(osuId)) {
+        let regexp;
+
+        if (req.body.judgeInput.indexOf('[') >= 0 || req.body.judgeInput.indexOf(']') >= 0) {
+            regexp = new RegExp('^\\' + req.body.judgeInput + '$', 'i');
+        } else {
+            regexp = new RegExp('^' + req.body.judgeInput + '$', 'i');
+        }
+
+        user = await UserModel
+            .findOne({ username: regexp })
+            .orFail();
+    } else {
+        user = await UserModel
+            .findOne({ osuId })
+            .orFail();
+    }
+
+    if (contest.judges.includes(user._id)) {
+        return res.json({ error: 'User is already a judge!' });
+    }
+
+    contest.judges.push(user._id);
+    await contest.save();
+
+    res.json(user);
+});
+
+/* POST remove a judge from the list */
+adminContestsRouter.post('/:id/judges/remove', async (req, res) => {
+    const [contest, user] = await Promise.all([
+        ContestModel
+            .findById(req.params.id)
+            .orFail(),
+
+        UserModel
+            .findById(req.body.judgeId)
+            .orFail(),
+    ]);
+
+    if (!contest.judges.includes(user._id)) {
+        return res.json({ error: 'User is not a judge!' });
+    }
+
+    await ContestModel
+        .findByIdAndUpdate(contest._id, { $pull: { judges: user._id } })
         .orFail();
 
     res.json(user);

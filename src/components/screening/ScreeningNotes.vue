@@ -16,7 +16,7 @@
                 class="form-control form-control-sm"
                 rows="4"
                 type="text"
-                placeholder="enter to submit..."
+                placeholder="map comments..."
                 style="overflow: hidden; overflow-wrap: break-word;"
                 maxlength="1000"
             />

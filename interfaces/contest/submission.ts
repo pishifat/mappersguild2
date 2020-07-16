@@ -13,4 +13,6 @@ export interface Submission {
     contest: Contest;
     /** Virtually populated */
     judgings: Judging[];
+    /** Calculated client-side */
+    total: number;
 }

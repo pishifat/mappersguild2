@@ -5,7 +5,7 @@ import { SubmissionModel } from '../models/contest/submission';
 import { CriteriaModel } from '../models/contest/criteria';
 import { JudgingScoreModel } from '../models/contest/judgingScore';
 import { JudgingModel } from '../models/contest/judging';
-import { UserGroup } from '../interfaces/user';
+import { ContestStatus } from '../interfaces/contest/contest';
 
 const defaultContestPopulate = {
     path: 'submissions',
@@ -28,18 +28,12 @@ const defaultJudgingPopulate = [
 const judgingRouter = express.Router();
 
 async function isJudge(req, res, next): Promise<void> {
-    // TODO filter top X from screening
     const query = ContestModel
         .findOne({
-            isActive: true,
-            judgingStart: { $lte: new Date() },
-            resultsPublished: { $gt: new Date() },
+            status: ContestStatus.Judging,
+            judges: res.locals.userRequest._id,
         })
         .populate(defaultContestPopulate);
-
-    if (res.locals.userRequest.group != UserGroup.Admin) {
-        query.where('judges', res.locals.userRequest._id);
-    }
 
     const contest = await query.exec();
 

@@ -2,7 +2,7 @@ import mongoose, { Schema } from 'mongoose';
 import { Criteria } from '../../interfaces/contest/criteria';
 
 const criteriaSchema = new Schema({
-    name: { type: String, enum: ['creativity', 'judge impression'], required: true },
+    name: { type: String, enum: ['musical representation', 'creativity', 'gameplay', 'limitation'], required: true },
     maxScore: { type: Number, required: true },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
