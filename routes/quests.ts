@@ -146,7 +146,11 @@ questsRouter.post('/createParty/:id', isNotSpectator, async (req, res) => {
         .findByIdAndUpdate(req.params.id, { $push: { parties: party._id } })
         .defaultPopulate();
 
-    const quest = await QuestModel.findById(req.params.id).sortByLastest().orFail();
+    const quest = await QuestModel
+        .findById(req.params.id)
+        .sortByLastest()
+        .defaultPopulate()
+        .orFail();
     res.json(quest);
 
     LogModel.generate(req.session?.mongoId, `created a party for ${quest.name}`, LogCategory.Party);
