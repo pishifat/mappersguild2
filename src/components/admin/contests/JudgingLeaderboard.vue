@@ -41,6 +41,7 @@
                                 >
                                     <a
                                         href="#"
+                                        class="text-capitalize"
                                         @click.prevent="sortByCriteria(criteria.id)"
                                     >
                                         {{ criteria.name }}
