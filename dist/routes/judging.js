@@ -95,9 +95,6 @@ judgingRouter.post('/save', (req, res) => __awaiter(void 0, void 0, void 0, func
             .orFail(),
     ]);
     const parsedScore = parseInt(score, 10);
-    if (!comment || isNaN(parsedScore) || parsedScore < 0) {
-        return res.json({ error: 'Missing data' });
-    }
     if (submission.contest.id != res.locals.contest.id) {
         return res.json({ error: 'woah' });
     }

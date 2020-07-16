@@ -23,8 +23,8 @@ exports.JudgingScoreModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 const judgingScoreSchema = new mongoose_1.Schema({
     criteria: { type: 'ObjectId', ref: 'Criteria', required: true },
-    score: { type: Number, required: true },
-    comment: { type: String, required: true, trim: true },
+    score: { type: Number },
+    comment: { type: String, trim: true },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 const JudgingScoreModel = mongoose_1.default.model('JudgingScore', judgingScoreSchema);
 exports.JudgingScoreModel = JudgingScoreModel;
