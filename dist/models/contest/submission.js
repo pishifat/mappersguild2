@@ -1,57 +1,41 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.SubmissionModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const baseService_1 = __importDefault(require("../baseService"));
 const submissionSchema = new mongoose_1.Schema({
     name: { type: String, required: true },
     creator: { type: 'ObjectId', ref: 'User', required: true },
-    evaluations: [{ type: 'ObjectId', ref: 'Judging' }],
+    evaluations: [{ type: 'ObjectId', ref: 'Screening' }],
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
+submissionSchema.virtual('contest', {
+    ref: 'Contest',
+    localField: '_id',
+    foreignField: 'submissions',
+    justOne: true,
+});
+submissionSchema.virtual('judgings', {
+    ref: 'Judging',
+    localField: '_id',
+    foreignField: 'submission',
+});
 const SubmissionModel = mongoose_1.default.model('Submission', submissionSchema);
-class SubmissionService extends baseService_1.default {
-    constructor() {
-        super(SubmissionModel, { createdAt: -1 }, [
-            {
-                path: 'evaluations',
-                populate: {
-                    path: 'judge',
-                    select: '_id osuId username',
-                },
-            },
-        ]);
-    }
-    create(name, userId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                return yield SubmissionModel.create({
-                    name,
-                    creator: userId,
-                });
-            }
-            catch (error) {
-                return { error: error._message };
-            }
-        });
-    }
-}
-const service = new SubmissionService();
-exports.SubmissionService = service;
+exports.SubmissionModel = SubmissionModel;

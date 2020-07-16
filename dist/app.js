@@ -16,6 +16,14 @@ const config_json_1 = __importDefault(require("./config.json"));
 const hbs_1 = __importDefault(require("hbs"));
 const manifest_json_1 = __importDefault(require("./manifest.json"));
 require("./helpers/hbs");
+require("express-async-errors");
+mongoose_1.default.plugin(schema => {
+    schema.pre('findOneAndUpdate', function () {
+        if (!('new' in this.options)) {
+            this.setOptions({ new: true });
+        }
+    });
+});
 const index_1 = __importDefault(require("./routes/index"));
 const beatmaps_1 = __importDefault(require("./routes/beatmaps/beatmaps"));
 const beatmapsHost_1 = __importDefault(require("./routes/beatmaps/beatmapsHost"));
@@ -32,8 +40,10 @@ const beatmaps_2 = __importDefault(require("./routes/admin/beatmaps"));
 const featuredArtists_2 = __importDefault(require("./routes/admin/featuredArtists"));
 const quests_2 = __importDefault(require("./routes/admin/quests"));
 const artists_1 = __importDefault(require("./routes/artists"));
-const judging_1 = __importDefault(require("./routes/judging"));
+const screening_1 = __importDefault(require("./routes/screening"));
 const contests_1 = __importDefault(require("./routes/admin/contests"));
+const judging_1 = __importDefault(require("./routes/admin/judging"));
+const judging_2 = __importDefault(require("./routes/judging"));
 const app = express_1.default();
 const MongoStore = connect_mongo_1.default(express_session_1.default);
 app.set('views', path_1.default.join(__dirname, 'views'));
@@ -62,7 +72,7 @@ db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function () {
     require('./models/featuredSong');
     require('./models/contest/submission');
-    require('./models/contest/judging');
+    require('./models/contest/screening');
     console.log('connected');
 });
 app.use(express_session_1.default({
@@ -81,7 +91,8 @@ app.use('/users', users_1.default);
 app.use('/quests', quests_1.default);
 app.use('/logs', logs_1.default);
 app.use('/notifications', notifications_1.default);
-app.use('/judging', judging_1.default);
+app.use('/screening', screening_1.default);
+app.use('/judging', judging_2.default);
 app.use('/artists', artists_1.default);
 app.use('/admin', index_2.default);
 app.use('/admin/users', users_2.default);
@@ -89,6 +100,7 @@ app.use('/admin/beatmaps', beatmaps_2.default);
 app.use('/admin/featuredArtists', featuredArtists_2.default);
 app.use('/admin/quests', quests_2.default);
 app.use('/admin/contests', contests_1.default);
+app.use('/admin/judging', judging_1.default);
 app.use((req, res) => {
     res.redirect('/');
 });

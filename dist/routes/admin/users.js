@@ -16,7 +16,6 @@ const express_1 = __importDefault(require("express"));
 const middlewares_1 = require("../../helpers/middlewares");
 const user_1 = require("../../models/user");
 const points_1 = require("../../helpers/points");
-const helpers_1 = require("../../helpers/helpers");
 const discordApi_1 = require("../../helpers/discordApi");
 const adminUsersRouter = express_1.default.Router();
 adminUsersRouter.use(middlewares_1.isLoggedIn);
@@ -33,12 +32,12 @@ adminUsersRouter.get('/', (req, res) => {
     });
 });
 adminUsersRouter.get('/load', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const users = yield user_1.UserService.queryAll({ sort: { username: 1 } });
+    const users = yield user_1.UserModel.find({}).sort({ username: 1 });
     res.json(users);
 }));
-adminUsersRouter.post('/:id/updateBadge', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+adminUsersRouter.post('/:id/updateBadge', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const badge = parseInt(req.body.badge, 10);
-    const user = yield user_1.UserService.updateOrFail(req.params.id, { badge });
+    const user = yield user_1.UserModel.findByIdAndUpdate(req.params.id, { badge }).orFail();
     res.json(badge);
     let rankColor = discordApi_1.webhookColors.white;
     if (badge == 1) {
@@ -59,16 +58,16 @@ adminUsersRouter.post('/:id/updateBadge', helpers_1.canFail((req, res) => __awai
             color: rankColor,
             description: `**Reached rank ${badge}** with ${user.totalPoints} total points`,
         }]);
-})));
+}));
 adminUsersRouter.post('/:id/calculateUserPoints', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const points = yield points_1.updateUserPoints(req.params.id);
     res.json(points);
 }));
-adminUsersRouter.post('/updateAllUserPoints', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const users = yield user_1.UserService.queryAllOrFail({ select: 'username' });
+adminUsersRouter.post('/updateAllUserPoints', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const users = yield user_1.UserModel.find({}).select('username').orFail();
     for (const user of users) {
         points_1.updateUserPoints(user.id);
     }
     res.json('user points updated');
-})));
+}));
 exports.default = adminUsersRouter;

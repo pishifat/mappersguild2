@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.SBQuality = exports.TaskStatus = exports.TaskMode = exports.TaskName = void 0;
 var TaskName;
 (function (TaskName) {
     TaskName["Easy"] = "Easy";

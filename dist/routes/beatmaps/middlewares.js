@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.isValidUser = exports.isBeatmapHost = exports.isValidBeatmap = void 0;
 const beatmap_1 = require("../../models/beatmap/beatmap");
 const beatmap_2 = require("../../interfaces/beatmap/beatmap");
 const helpers_1 = require("../../helpers/helpers");
@@ -17,8 +18,8 @@ const inviteError = 'Invite not sent: ';
 function isValidBeatmap(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         const id = req.params.id || req.params.mapId;
-        const b = yield beatmap_1.BeatmapService.queryById(id, { defaultPopulate: true });
-        if (!b || beatmap_1.BeatmapService.isError(b)) {
+        const b = yield beatmap_1.BeatmapModel.findById(id).defaultPopulate();
+        if (!b) {
             return res.json(helpers_1.defaultErrorMessage);
         }
         if (b.status == beatmap_2.BeatmapStatus.Ranked) {
@@ -47,8 +48,8 @@ function isValidUser(req, res, next) {
         else {
             rexExp = new RegExp('^' + req.body.user + '$', 'i');
         }
-        const u = yield user_1.UserService.queryOne({ query: { username: rexExp } });
-        if (!u || user_1.UserService.isError(u)) {
+        const u = yield user_1.UserModel.findOne({ username: rexExp });
+        if (!u) {
             return res.json({ error: inviteError + 'Cannot find user!' });
         }
         if (u.osuId == ((_a = req.session) === null || _a === void 0 ? void 0 : _a.osuId) && ((_b = req.session) === null || _b === void 0 ? void 0 : _b.osuId) != 3178418) {

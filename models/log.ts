@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema, Model } from 'mongoose';
 import { Log as ILog } from '../interfaces/log';
-import { User } from 'interfaces/user';
+import { User } from '../interfaces/user';
 
 export interface Log extends ILog, Document {
     id: string;

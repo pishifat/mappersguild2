@@ -25,27 +25,23 @@ logsRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         title: 'Logs',
         script: 'logs.js',
         isLogs: true,
-        logs: yield log_1.LogService.queryAll({
-            query: { category: { $ne: log_2.LogCategory.Error } },
-            useDefaults: true,
-            limit: 100,
-        }),
         loggedInAs: (_a = req.session) === null || _a === void 0 ? void 0 : _a.osuId,
         isNotSpectator: res.locals.userRequest.group != user_1.UserGroup.Spectator,
         userMongoId: (_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId,
         pointsInfo: res.locals.userRequest.pointsInfo,
+        logs: yield log_1.LogModel
+            .find({ category: { $ne: log_2.LogCategory.Error } })
+            .sort('-createdAt')
+            .populate({ path: 'user', select: 'username' })
+            .limit(100),
     });
 }));
 logsRouter.get('/more/:skip', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    res.json(yield log_1.LogService.queryAll({
-        query: {
-            category: {
-                $ne: log_2.LogCategory.Error,
-            },
-        },
-        useDefaults: true,
-        limit: 100,
-        skip: parseInt(req.params.skip, 10),
-    }));
+    res.json(yield log_1.LogModel
+        .find({ category: { $ne: log_2.LogCategory.Error } })
+        .sort('-createdAt')
+        .populate({ path: 'user', select: 'username' })
+        .limit(100)
+        .skip(parseInt(req.params.skip, 10)));
 }));
 exports.default = logsRouter;

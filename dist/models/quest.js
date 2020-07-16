@@ -1,26 +1,26 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.QuestModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const baseService_1 = __importDefault(require("./baseService"));
 const questSchema = new mongoose_1.Schema({
     creator: { type: 'ObjectId', ref: 'User' },
     name: { type: String, required: true },
@@ -51,65 +51,53 @@ questSchema.virtual('associatedMaps', {
 questSchema.virtual('isExpired').get(function () {
     return ((+new Date() > +this.expiration) && this.status == 'open');
 });
-const QuestModel = mongoose_1.default.model('Quest', questSchema);
-class QuestService extends baseService_1.default {
-    constructor() {
-        super(QuestModel, { createdAt: -1 }, [
+const queryHelpers = {
+    sortByLastest() {
+        return this.sort({ createdAt: -1 });
+    },
+    defaultPopulate() {
+        return this.populate([
             { path: 'parties', populate: { path: 'members leader' } },
             { path: 'currentParty', populate: { path: 'members leader' } },
             { path: 'associatedMaps', populate: { path: 'song host tasks' } },
             { path: 'completedMembers', select: 'username osuId rank' },
             { path: 'creator', select: 'username osuId' },
         ]);
-    }
-    create(questData) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const quest = new QuestModel(questData);
-                return yield QuestModel.create(quest);
-            }
-            catch (error) {
-                return { error: error._message };
-            }
-        });
-    }
-    getUserQuests(userId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                return yield QuestModel.aggregate([
-                    {
-                        $match: {
-                            status: 'wip',
-                        },
-                    },
-                    {
-                        $lookup: {
-                            from: 'parties',
-                            localField: 'currentParty',
-                            foreignField: '_id',
-                            as: 'currentParty',
-                        },
-                    },
-                    {
-                        $unwind: '$currentParty',
-                    },
-                    {
-                        $match: {
-                            'currentParty.members': mongoose_1.default.Types.ObjectId(userId),
-                        },
-                    },
-                    {
-                        $project: {
-                            'name': 1,
-                        },
-                    },
-                ]);
-            }
-            catch (error) {
-                return { error: 'Something went wrong!' };
-            }
-        });
+    },
+};
+questSchema.query = queryHelpers;
+class QuestService {
+    static getUserQuests(userId) {
+        return QuestModel.aggregate([
+            {
+                $match: {
+                    status: 'wip',
+                },
+            },
+            {
+                $lookup: {
+                    from: 'parties',
+                    localField: 'currentParty',
+                    foreignField: '_id',
+                    as: 'currentParty',
+                },
+            },
+            {
+                $unwind: '$currentParty',
+            },
+            {
+                $match: {
+                    'currentParty.members': mongoose_1.default.Types.ObjectId(userId),
+                },
+            },
+            {
+                $project: {
+                    'name': 1,
+                },
+            },
+        ]);
     }
 }
-const service = new QuestService();
-exports.QuestService = service;
+questSchema.loadClass(QuestService);
+const QuestModel = mongoose_1.default.model('Quest', questSchema);
+exports.QuestModel = QuestModel;

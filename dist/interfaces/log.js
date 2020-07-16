@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.LogCategory = void 0;
 var LogCategory;
 (function (LogCategory) {
     LogCategory["Beatmap"] = "beatmap";

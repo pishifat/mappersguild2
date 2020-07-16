@@ -15,19 +15,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const featuredArtist_1 = require("../../models/featuredArtist");
 const middlewares_1 = require("../../helpers/middlewares");
-const helpers_1 = require("../../helpers/helpers");
 const featuredArtistsRouter = express_1.default.Router();
 featuredArtistsRouter.use(middlewares_1.isLoggedIn);
 featuredArtistsRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const featuredArtists = yield featuredArtist_1.FeaturedArtistService.queryAll({
-        query: { osuId: { $gt: 0 } },
-    });
+    const featuredArtists = yield featuredArtist_1.FeaturedArtistModel.find({ osuId: { $gt: 0 } });
     res.json(featuredArtists);
 }));
-featuredArtistsRouter.get('/:id/songs', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const fa = yield featuredArtist_1.FeaturedArtistService.queryByIdOrFail(req.params.id, {
-        useDefaults: true,
-    });
+featuredArtistsRouter.get('/:id/songs', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const fa = yield featuredArtist_1.FeaturedArtistModel
+        .findById(req.params.id)
+        .populate({ path: 'songs', select: 'artist title' })
+        .sort({ label: -1 })
+        .orFail();
     res.json(fa.songs);
-})));
+}));
 exports.default = featuredArtistsRouter;

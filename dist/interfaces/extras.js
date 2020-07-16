@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.FilterMode = void 0;
 var FilterMode;
 (function (FilterMode) {
     FilterMode["any"] = "any";

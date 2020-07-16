@@ -13,7 +13,7 @@ import { ActionType } from '../../interfaces/invite';
 import { NotificationModel } from '../../models/notification';
 import { LogModel } from '../../models/log';
 import { LogCategory } from '../../interfaces/log';
-import { User } from 'interfaces/user';
+import { User } from '../../interfaces/user';
 
 const tasksRouter = express.Router();
 

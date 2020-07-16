@@ -14,56 +14,52 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const middlewares_1 = require("../helpers/middlewares");
-const party_1 = require("../models/party");
 const points_1 = require("../helpers/points");
-const helpers_1 = require("../helpers/helpers");
-const beatmap_1 = require("../models/beatmap/beatmap");
-const beatmap_2 = require("../interfaces/beatmap/beatmap");
-const quest_1 = require("../models/quest");
-const quest_2 = require("../interfaces/quest");
-const log_1 = require("../models/log");
-const log_2 = require("../interfaces/log");
+const beatmap_1 = require("../interfaces/beatmap/beatmap");
+const quest_1 = require("../interfaces/quest");
+const log_1 = require("../interfaces/log");
 const discordApi_1 = require("../helpers/discordApi");
-const user_1 = require("../models/user");
-const invite_1 = require("../models/invite");
-const invite_2 = require("../interfaces/invite");
-const featuredArtist_1 = require("../models/featuredArtist");
-const spentPoints_1 = require("../models/spentPoints");
-const spentPoints_2 = require("../interfaces/spentPoints");
+const invite_1 = require("../interfaces/invite");
+const spentPoints_1 = require("../interfaces/spentPoints");
 const points_2 = require("../helpers/points");
+const party_1 = require("../models/party");
+const quest_2 = require("../models/quest");
+const log_2 = require("../models/log");
+const user_1 = require("../models/user");
+const invite_2 = require("../models/invite");
+const beatmap_2 = require("../models/beatmap/beatmap");
+const spentPoints_2 = require("../models/spentPoints");
+const featuredArtist_1 = require("../models/featuredArtist");
 const questsRouter = express_1.default.Router();
 questsRouter.use(middlewares_1.isLoggedIn);
 const beatmapPopulate = [
     { path: 'tasks', populate: { path: 'mappers' } },
 ];
 const pointsPopulate = [
-    { path: 'members', select: 'osuId username rank easyPoints normalPoints hardPoints insanePoints expertPoints storyboardPoints questPoints modPoints hostPoints contestParticipantPoints contestJudgePoints contestVotePoints spentPoints' },
+    { path: 'members', select: user_1.populatePointsVirtuals + ' spentPoints' },
     { path: 'leader', select: 'osuId username' },
 ];
 const cannotFindUserMessage = 'Cannot find user!';
 function updatePartyInfo(id) {
     return __awaiter(this, void 0, void 0, function* () {
-        const p = yield party_1.PartyService.queryById(id, {
-            populate: [{ path: 'members', select: 'rank osuPoints taikoPoints catchPoints maniaPoints' }],
-        });
+        const party = yield party_1.PartyModel
+            .findById(id)
+            .populate({
+            path: 'members',
+            select: 'rank osuPoints taikoPoints catchPoints maniaPoints',
+        })
+            .orFail();
         let rank = 0;
         const modes = [];
-        if (!p || party_1.PartyService.isError(p)) {
-            return helpers_1.defaultErrorMessage;
-        }
-        p.members.forEach(user => {
+        party.members.forEach(user => {
             rank += user.rank;
             if (!modes.includes(user.mainMode)) {
                 modes.push(user.mainMode);
             }
         });
-        p.rank = Math.round(rank / p.members.length);
-        p.modes = modes;
-        yield party_1.PartyService.saveOrFail(p);
-        const updatedParty = yield party_1.PartyService.queryById(id);
-        if (!updatedParty || party_1.PartyService.isError(updatedParty)) {
-            return helpers_1.defaultErrorMessage;
-        }
+        party.rank = Math.round(rank / party.members.length);
+        party.modes = modes;
+        yield party.save();
         return { success: 'ok' };
     });
 }
@@ -80,10 +76,14 @@ questsRouter.get('/', (req, res) => {
 });
 questsRouter.get('/relevantInfo', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
-    const openQuests = yield quest_1.QuestService.queryAll({
-        query: { modes: res.locals.userRequest.mainMode, status: 'open', expiration: { $gt: new Date() } },
-        useDefaults: true,
-    });
+    const openQuests = yield quest_2.QuestModel
+        .find({
+        modes: res.locals.userRequest.mainMode,
+        status: quest_1.QuestStatus.Open,
+        expiration: { $gt: new Date() },
+    })
+        .defaultPopulate()
+        .sortByLastest();
     res.json({
         openQuests,
         userMongoId: (_a = req.session) === null || _a === void 0 ? void 0 : _a.mongoId,
@@ -94,146 +94,216 @@ questsRouter.get('/relevantInfo', (req, res) => __awaiter(void 0, void 0, void 0
     });
 }));
 questsRouter.get('/searchOnLoad/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const urlQuest = yield quest_1.QuestService.queryById(req.params.id, { defaultPopulate: true });
-    if (!urlQuest) {
-        return res.json({ error: 'Quest ID does not exist!' });
-    }
-    res.json(urlQuest);
+    const quest = yield quest_2.QuestModel
+        .findById(req.params.id)
+        .defaultPopulate()
+        .orFail();
+    res.json(quest);
 }));
 questsRouter.get('/search', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let quests;
-    if (req.query.mode != 'any') {
-        quests = yield quest_1.QuestService.queryAll({
-            query: { modes: req.query.mode, status: { $ne: 'hidden' } },
-            useDefaults: true,
-        });
+    if (req.query.mode && req.query.mode != 'any') {
+        quests = yield quest_2.QuestModel
+            .find({
+            modes: req.query.mode,
+            status: { $ne: quest_1.QuestStatus.Hidden },
+        })
+            .defaultPopulate()
+            .sortByLastest();
     }
     else {
-        quests = yield quest_1.QuestService.queryAll({
-            query: { status: { $ne: 'hidden' } },
-            useDefaults: true,
-        });
+        quests = yield quest_2.QuestModel
+            .find({
+            status: { $ne: quest_1.QuestStatus.Hidden },
+        })
+            .defaultPopulate()
+            .sortByLastest();
     }
     res.json({ quests });
 }));
-questsRouter.post('/createParty/:id', middlewares_1.isNotSpectator, helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _b;
-    const p = yield party_1.PartyService.createOrFail((_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId, res.locals.userRequest.mainMode);
-    yield updatePartyInfo(p._id);
-    yield quest_1.QuestService.update(req.params.id, { $push: { parties: p._id } });
-    const q = yield quest_1.QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+questsRouter.post('/createParty/:id', middlewares_1.isNotSpectator, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _b, _c;
+    const userId = (_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId;
+    const mode = res.locals.userRequest.mainMode;
+    const party = new party_1.PartyModel();
+    party.leader = userId;
+    party.members = userId;
+    party.modes = [mode];
+    yield party.save();
+    yield updatePartyInfo(party._id);
+    yield quest_2.QuestModel
+        .findByIdAndUpdate(req.params.id, { $push: { parties: party._id } })
+        .defaultPopulate();
+    const quest = yield quest_2.QuestModel
+        .findById(req.params.id)
+        .sortByLastest()
+        .defaultPopulate()
+        .orFail();
+    res.json(quest);
+    log_2.LogModel.generate((_c = req.session) === null || _c === void 0 ? void 0 : _c.mongoId, `created a party for ${quest.name}`, log_1.LogCategory.Party);
+}));
+questsRouter.post('/deleteParty/:partyId/:questId', middlewares_1.isNotSpectator, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _d;
+    const p = yield party_1.PartyModel
+        .findByIdAndRemove({ _id: req.params.partyId })
+        .orFail();
+    yield quest_2.QuestModel
+        .findByIdAndUpdate(req.params.questId, { $pull: { parties: p._id } })
+        .orFail();
+    const q = yield quest_2.QuestModel
+        .findById(req.params.questId)
+        .defaultPopulate()
+        .orFail();
     res.json(q);
-    log_1.LogService.create(req.session.mongoId, `created a party for ${q.name}`, log_2.LogCategory.Party);
-})));
-questsRouter.post('/deleteParty/:partyId/:questId', middlewares_1.isNotSpectator, helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const p = yield party_1.PartyService.removeOrFail(req.params.partyId);
-    yield quest_1.QuestService.updateOrFail(req.params.questId, { $pull: { parties: p._id } });
-    const q = yield quest_1.QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
+    log_2.LogModel.generate((_d = req.session) === null || _d === void 0 ? void 0 : _d.mongoId, `deleted a party for ${q.name}`, log_1.LogCategory.Party);
+}));
+questsRouter.post('/togglePartyLock/:partyId/:questId', middlewares_1.isNotSpectator, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _e;
+    yield party_1.PartyModel
+        .findByIdAndUpdate(req.params.partyId, { lock: !req.body.lock })
+        .orFail();
+    const q = yield quest_2.QuestModel
+        .findById(req.params.questId)
+        .defaultPopulate()
+        .orFail();
     res.json(q);
-    log_1.LogService.create(req.session.mongoId, `deleted a party for ${q.name}`, log_2.LogCategory.Party);
-})));
-questsRouter.post('/togglePartyLock/:partyId/:questId', middlewares_1.isNotSpectator, helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    yield party_1.PartyService.updateOrFail(req.params.partyId, { lock: !req.body.lock });
-    const q = yield quest_1.QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
-    res.json(q);
-    log_1.LogService.create(req.session.mongoId, `toggled lock on party for ${q.name}`, log_2.LogCategory.Party);
-})));
-questsRouter.post('/togglePartyMode/:partyId/:questId', middlewares_1.isNotSpectator, helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const p = yield party_1.PartyService.queryByIdOrFail(req.params.partyId);
+    log_2.LogModel.generate((_e = req.session) === null || _e === void 0 ? void 0 : _e.mongoId, `toggled lock on party for ${q.name}`, log_1.LogCategory.Party);
+}));
+questsRouter.post('/togglePartyMode/:partyId/:questId', middlewares_1.isNotSpectator, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _f;
+    const p = yield party_1.PartyModel
+        .findById(req.params.partyId)
+        .orFail();
     if (p.modes.includes(req.body.mode)) {
-        yield party_1.PartyService.update(req.params.partyId, { $pull: { modes: req.body.mode } });
+        yield party_1.PartyModel.findByIdAndUpdate(req.params.partyId, { $pull: { modes: req.body.mode } });
     }
     else {
-        yield party_1.PartyService.update(req.params.partyId, { $push: { modes: req.body.mode } });
+        yield party_1.PartyModel.findByIdAndUpdate(req.params.partyId, { $push: { modes: req.body.mode } });
     }
-    const q = yield quest_1.QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
+    const q = yield quest_2.QuestModel
+        .findById(req.params.questId)
+        .defaultPopulate()
+        .orFail();
     res.json(q);
-    log_1.LogService.create(req.session.mongoId, `toggled "${req.body.mode}" mode on party for ${q.name}`, log_2.LogCategory.Party);
-})));
-questsRouter.post('/joinParty/:partyId/:questId', middlewares_1.isNotSpectator, helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _c;
-    yield party_1.PartyService.updateOrFail(req.params.partyId, { $push: { members: (_c = req.session) === null || _c === void 0 ? void 0 : _c.mongoId } });
+    log_2.LogModel.generate((_f = req.session) === null || _f === void 0 ? void 0 : _f.mongoId, `toggled "${req.body.mode}" mode on party for ${q.name}`, log_1.LogCategory.Party);
+}));
+questsRouter.post('/joinParty/:partyId/:questId', middlewares_1.isNotSpectator, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _g, _h;
+    yield party_1.PartyModel
+        .findByIdAndUpdate(req.params.partyId, { $push: { members: (_g = req.session) === null || _g === void 0 ? void 0 : _g.mongoId } })
+        .orFail();
     yield updatePartyInfo(req.params.partyId);
-    const q = yield quest_1.QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
+    const q = yield quest_2.QuestModel
+        .findById(req.params.questId)
+        .defaultPopulate()
+        .orFail();
     res.json(q);
-    log_1.LogService.create(req.session.mongoId, `joined party for ${q.name}`, log_2.LogCategory.Party);
-})));
-questsRouter.post('/leaveParty/:partyId/:questId', middlewares_1.isNotSpectator, helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _d;
-    yield party_1.PartyService.updateOrFail(req.params.partyId, { $pull: { members: (_d = req.session) === null || _d === void 0 ? void 0 : _d.mongoId } });
+    log_2.LogModel.generate((_h = req.session) === null || _h === void 0 ? void 0 : _h.mongoId, `joined party for ${q.name}`, log_1.LogCategory.Party);
+}));
+questsRouter.post('/leaveParty/:partyId/:questId', middlewares_1.isNotSpectator, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _j, _k;
+    yield party_1.PartyModel
+        .findByIdAndUpdate(req.params.partyId, { $pull: { members: (_j = req.session) === null || _j === void 0 ? void 0 : _j.mongoId } })
+        .orFail();
     yield updatePartyInfo(req.params.partyId);
-    const q = yield quest_1.QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
+    const q = yield quest_2.QuestModel
+        .findById(req.params.questId)
+        .defaultPopulate()
+        .orFail();
     res.json(q);
-    log_1.LogService.create(req.session.mongoId, `left party for ${q.name}`, log_2.LogCategory.Party);
+    log_2.LogModel.generate((_k = req.session) === null || _k === void 0 ? void 0 : _k.mongoId, `left party for ${q.name}`, log_1.LogCategory.Party);
     if (q.associatedMaps) {
         for (let i = 0; i < q.associatedMaps.length; i++) {
             let valid = true;
-            const b = yield beatmap_1.BeatmapService.queryByIdOrFail(q.associatedMaps[i]._id, { populate: beatmapPopulate });
+            const b = yield beatmap_2.BeatmapModel
+                .findById(q.associatedMaps[i]._id)
+                .populate(beatmapPopulate)
+                .orFail();
             b.tasks.forEach(task => {
                 task.mappers.forEach(mapper => {
-                    if (mapper.id == req.session.mongoId) {
+                    var _a;
+                    if (mapper.id == ((_a = req.session) === null || _a === void 0 ? void 0 : _a.mongoId)) {
                         valid = false;
                     }
                 });
             });
             if (!valid) {
-                yield beatmap_1.BeatmapService.update(q.associatedMaps[i]._id, { quest: null });
+                yield beatmap_2.BeatmapModel.findByIdAndUpdate(q.associatedMaps[i]._id, { quest: undefined });
             }
         }
     }
-})));
-questsRouter.post('/inviteToParty/:partyId/:questId', middlewares_1.isNotSpectator, helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+}));
+questsRouter.post('/inviteToParty/:partyId/:questId', middlewares_1.isNotSpectator, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _l;
     const inviteError = 'Invite not sent: ';
-    let u;
+    let regexp;
     if (req.body.username.indexOf('[') >= 0 || req.body.username.indexOf(']') >= 0) {
-        u = yield user_1.UserService.queryOneOrFail({
-            query: { username: new RegExp('^\\' + req.body.username + '$', 'i') },
-        }, inviteError + cannotFindUserMessage);
+        regexp = new RegExp('^\\' + req.body.username + '$', 'i');
     }
     else {
-        u = yield user_1.UserService.queryOneOrFail({
-            query: { username: new RegExp('^' + req.body.username + '$', 'i') },
-        }, inviteError + cannotFindUserMessage);
+        regexp = new RegExp('^' + req.body.username + '$', 'i');
     }
-    const q = yield quest_1.QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
-    const currentParties = yield party_1.PartyService.queryAll({ query: { members: u._id } });
-    if (!party_1.PartyService.isError(currentParties)) {
-        const duplicate = q.parties.some(questParty => {
-            return currentParties.some(userParty => questParty.id == userParty.id);
-        });
-        if (duplicate) {
-            return res.json({ error: inviteError + 'User is already in a party for this quest!' });
-        }
+    const u = yield user_1.UserModel
+        .findOne({ username: regexp })
+        .orFail(new Error(inviteError + cannotFindUserMessage));
+    const q = yield quest_2.QuestModel
+        .findById(req.params.questId)
+        .defaultPopulate()
+        .orFail();
+    const currentParties = yield party_1.PartyModel.find({ members: u._id });
+    const duplicate = q.parties.some(questParty => {
+        return currentParties.some(userParty => questParty.id == userParty.id);
+    });
+    if (duplicate) {
+        return res.json({ error: inviteError + 'User is already in a party for this quest!' });
     }
     if (u.availablePoints < q.price) {
         return res.json({ error: inviteError + 'User does not have enough points to accept this quest!' });
     }
     res.json({ success: 'Invite sent!' });
-    invite_1.InviteService.createPartyInvite(u._id, req.session.mongoId, req.params.partyId, `wants you to join their party`, invite_2.ActionType.Join, req.params.partyId, req.params.questId);
-})));
-questsRouter.post('/transferPartyLeader/:partyId/:questId', middlewares_1.isNotSpectator, helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    invite_2.InviteModel.generatePartyInvite(u._id, (_l = req.session) === null || _l === void 0 ? void 0 : _l.mongoId, req.params.partyId, `wants you to join their party`, invite_1.ActionType.Join, req.params.partyId, req.params.questId);
+}));
+questsRouter.post('/transferPartyLeader/:partyId/:questId', middlewares_1.isNotSpectator, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _m;
     if (!req.body.userId.length) {
         return res.json({ error: cannotFindUserMessage });
     }
-    const u = yield user_1.UserService.queryByIdOrFail(req.body.userId, {}, cannotFindUserMessage);
-    yield party_1.PartyService.updateOrFail(req.params.partyId, { leader: u._id });
-    const q = yield quest_1.QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
+    const u = yield user_1.UserModel
+        .findById(req.body.userId)
+        .orFail(new Error(cannotFindUserMessage));
+    yield party_1.PartyModel
+        .findByIdAndUpdate(req.params.partyId, { leader: u._id })
+        .orFail();
+    const q = yield quest_2.QuestModel
+        .findById(req.params.questId)
+        .defaultPopulate()
+        .orFail();
     res.json(q);
-    log_1.LogService.create(req.session.mongoId, `transferred party leader in party for ${q.name}`, log_2.LogCategory.Party);
-})));
-questsRouter.post('/kickPartyMember/:partyId/:questId', middlewares_1.isNotSpectator, helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    log_2.LogModel.generate((_m = req.session) === null || _m === void 0 ? void 0 : _m.mongoId, `transferred party leader in party for ${q.name}`, log_1.LogCategory.Party);
+}));
+questsRouter.post('/kickPartyMember/:partyId/:questId', middlewares_1.isNotSpectator, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _o;
     if (!req.body.userId.length) {
         return res.json({ error: cannotFindUserMessage });
     }
-    const u = yield user_1.UserService.queryByIdOrFail(req.body.userId, {}, cannotFindUserMessage);
-    yield party_1.PartyService.updateOrFail(req.params.partyId, { $pull: { members: u._id } });
-    const q = yield quest_1.QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
+    const u = yield user_1.UserModel
+        .findById(req.body.userId)
+        .orFail(new Error(cannotFindUserMessage));
+    yield party_1.PartyModel
+        .findByIdAndUpdate(req.params.partyId, { $pull: { members: u._id } })
+        .orFail();
+    const q = yield quest_2.QuestModel
+        .findById(req.params.questId)
+        .defaultPopulate()
+        .orFail();
     res.json(q);
-    log_1.LogService.create(req.session.mongoId, `kicked member from party for ${q.name}`, log_2.LogCategory.Party);
+    log_2.LogModel.generate((_o = req.session) === null || _o === void 0 ? void 0 : _o.mongoId, `kicked member from party for ${q.name}`, log_1.LogCategory.Party);
     if (q.associatedMaps) {
         for (let i = 0; i < q.associatedMaps.length; i++) {
-            const b = yield beatmap_1.BeatmapService.queryById(q.associatedMaps[i]._id, { populate: beatmapPopulate });
-            if (b && !beatmap_1.BeatmapService.isError(b)) {
+            const b = yield beatmap_2.BeatmapModel
+                .findById(q.associatedMaps[i]._id)
+                .populate(beatmapPopulate);
+            if (b) {
                 let valid = true;
                 b.tasks.forEach(task => {
                     task.mappers.forEach(mapper => {
@@ -243,18 +313,25 @@ questsRouter.post('/kickPartyMember/:partyId/:questId', middlewares_1.isNotSpect
                     });
                 });
                 if (!valid) {
-                    yield beatmap_1.BeatmapService.update(q.associatedMaps[i]._id, { quest: null });
+                    yield beatmap_2.BeatmapModel.findByIdAndUpdate(q.associatedMaps[i]._id, { quest: undefined });
                 }
             }
         }
     }
-})));
-questsRouter.post('/acceptQuest/:partyId/:questId', middlewares_1.isNotSpectator, helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const p = yield party_1.PartyService.queryByIdOrFail(req.params.partyId, { populate: pointsPopulate }, `Party doesn't exist!`);
+}));
+questsRouter.post('/acceptQuest/:partyId/:questId', middlewares_1.isNotSpectator, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _p;
+    const p = yield party_1.PartyModel
+        .findById(req.params.partyId)
+        .populate(pointsPopulate)
+        .orFail(new Error(`Party doesn't exist!`));
     if (!p.modes.length) {
         return res.json({ error: 'Your party has no modes selected!' });
     }
-    const q = yield quest_1.QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
+    const q = yield quest_2.QuestModel
+        .findById(req.params.questId)
+        .defaultPopulate()
+        .orFail();
     p.members.forEach(member => {
         if (member.availablePoints < q.price) {
             return res.json({ error: 'Someone in your party does not have enough points to accept the quest!' });
@@ -268,17 +345,16 @@ questsRouter.post('/acceptQuest/:partyId/:questId', middlewares_1.isNotSpectator
     }
     for (let i = 0; i < p.modes.length; i++) {
         const mode = p.modes[i];
-        const invalidQuest = yield quest_1.QuestService.queryOne({
-            query: {
-                name: q.name,
-                modes: mode,
-                $or: [
-                    { status: quest_2.QuestStatus.WIP },
-                    { status: quest_2.QuestStatus.Done },
-                ],
-            },
-            defaultPopulate: true,
-        });
+        const invalidQuest = yield quest_2.QuestModel
+            .findOne({
+            name: q.name,
+            modes: mode,
+            $or: [
+                { status: quest_1.QuestStatus.WIP },
+                { status: quest_1.QuestStatus.Done },
+            ],
+        })
+            .defaultPopulate();
         if (invalidQuest) {
             return res.json({ error: 'Quest already exists for selected mode(s)!' });
         }
@@ -289,49 +365,49 @@ questsRouter.post('/acceptQuest/:partyId/:questId', middlewares_1.isNotSpectator
     let newQuest;
     if (q.modes.length == p.modes.length) {
         q.accepted = new Date();
-        q.status = quest_2.QuestStatus.WIP;
+        q.status = quest_1.QuestStatus.WIP;
         q.deadline = new Date(new Date().getTime() + q.timeframe);
         q.parties = [];
         q.currentParty = p._id;
-        yield quest_1.QuestService.saveOrFail(q);
+        yield q.save();
     }
     else {
         for (let i = 0; i < p.modes.length; i++) {
             const mode = p.modes[i];
-            yield quest_1.QuestService.update(q._id, {
+            yield quest_2.QuestModel.findByIdAndUpdate(q._id, {
                 $pull: { modes: mode },
             });
         }
-        yield quest_1.QuestService.update(q._id, {
+        yield quest_2.QuestModel.findByIdAndUpdate(q._id, {
             $pull: { parties: p._id },
         });
-        newQuest = yield quest_1.QuestService.create({
-            creator: q.creator,
-            name: q.name,
-            price: q.price,
-            descriptionMain: q.descriptionMain,
-            timeframe: q.timeframe,
-            minParty: q.minParty,
-            maxParty: q.maxParty,
-            minRank: q.minRank,
-            art: q.art,
-            isMbc: q.isMbc,
-            modes: p.modes,
-            accepted: new Date(),
-            status: quest_2.QuestStatus.WIP,
-            deadline: new Date(new Date().getTime() + q.timeframe),
-            currentParty: p._id,
-            requiredMapsets: q.requiredMapsets,
-        });
+        newQuest = new quest_2.QuestModel();
+        newQuest.creator = q.creator;
+        newQuest.name = q.name;
+        newQuest.price = q.price;
+        newQuest.descriptionMain = q.descriptionMain;
+        newQuest.timeframe = q.timeframe;
+        newQuest.minParty = q.minParty;
+        newQuest.maxParty = q.maxParty;
+        newQuest.minRank = q.minRank;
+        newQuest.art = q.art;
+        newQuest.isMbc = q.isMbc;
+        newQuest.modes = p.modes;
+        newQuest.accepted = new Date();
+        newQuest.status = quest_1.QuestStatus.WIP;
+        newQuest.deadline = new Date(new Date().getTime() + q.timeframe);
+        newQuest.currentParty = p._id;
+        newQuest.requiredMapsets = q.requiredMapsets;
+        yield newQuest.save();
     }
     p.members.forEach(member => {
-        spentPoints_1.SpentPointsService.create(spentPoints_2.SpentPointsCategory.AcceptQuest, member._id, q._id);
+        spentPoints_2.SpentPointsModel.generate(spentPoints_1.SpentPointsCategory.AcceptQuest, member._id, q._id);
         points_2.updateUserPoints(member.id);
     });
-    const allQuests = yield quest_1.QuestService.queryAll({
-        query: {},
-        useDefaults: true,
-    });
+    const allQuests = yield quest_2.QuestModel
+        .find({})
+        .defaultPopulate()
+        .sortByLastest();
     res.json({ quests: allQuests, availablePoints: res.locals.userRequest.availablePoints - q.price });
     let modeList = '';
     for (let i = 0; i < p.modes.length; i++) {
@@ -340,7 +416,7 @@ questsRouter.post('/acceptQuest/:partyId/:questId', middlewares_1.isNotSpectator
             modeList += ', ';
         }
     }
-    log_1.LogService.create(req.session.mongoId, `party accepted quest "${q.name}" for mode${p.modes.length > 1 ? 's' : ''} "${modeList}"`, log_2.LogCategory.Quest);
+    log_2.LogModel.generate((_p = req.session) === null || _p === void 0 ? void 0 : _p.mongoId, `party accepted quest "${q.name}" for mode${p.modes.length > 1 ? 's' : ''} "${modeList}"`, log_1.LogCategory.Quest);
     let memberList = '';
     for (let i = 0; i < p.members.length; i++) {
         const user = p.members[i];
@@ -371,41 +447,49 @@ questsRouter.post('/acceptQuest/:partyId/:questId', middlewares_1.isNotSpectator
                 },
             ],
         }]);
-})));
-questsRouter.post('/dropQuest/:partyId/:questId', middlewares_1.isNotSpectator, helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+}));
+questsRouter.post('/dropQuest/:partyId/:questId', middlewares_1.isNotSpectator, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _q;
     const [p, q] = yield Promise.all([
-        party_1.PartyService.queryByIdOrFail(req.params.partyId, { defaultPopulate: true }, `Party doesn't exist!`),
-        quest_1.QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true }),
+        party_1.PartyModel
+            .findById(req.params.partyId)
+            .defaultPopulate()
+            .orFail(new Error(`Party doesn't exist!`)),
+        quest_2.QuestModel
+            .findById(req.params.questId)
+            .defaultPopulate()
+            .orFail(),
     ]);
     if (!q.currentParty || q.currentParty.id != p.id) {
         return res.json({ error: 'Invalid request!' });
     }
     if (q.associatedMaps) {
         for (let i = 0; i < q.associatedMaps.length; i++) {
-            yield beatmap_1.BeatmapService.update(q.associatedMaps[i]._id, { quest: null });
+            yield beatmap_2.BeatmapModel.findByIdAndUpdate(q.associatedMaps[i]._id, { quest: undefined });
         }
     }
-    const openQuest = yield quest_1.QuestService.queryOne({
-        query: {
-            name: q.name,
-            status: quest_2.QuestStatus.Open,
-        },
+    const openQuest = yield quest_2.QuestModel.findOne({
+        name: q.name,
+        status: quest_1.QuestStatus.Open,
     });
-    if (openQuest && !quest_1.QuestService.isError(openQuest)) {
+    if (openQuest) {
         yield Promise.all([
-            quest_1.QuestService.update(openQuest._id, {
+            quest_2.QuestModel.findByIdAndUpdate(openQuest._id, {
                 $push: { modes: q.modes },
             }),
-            quest_1.QuestService.update(req.params.questId, { status: 'hidden' }),
+            quest_2.QuestModel.findByIdAndUpdate(req.params.questId, { status: quest_1.QuestStatus.Hidden }),
         ]);
     }
     else {
-        yield quest_1.QuestService.update(req.params.questId, {
-            status: quest_2.QuestStatus.Open,
-            currentParty: null,
+        yield quest_2.QuestModel.findByIdAndUpdate(req.params.questId, {
+            status: quest_1.QuestStatus.Open,
+            currentParty: undefined,
         });
     }
-    const allQuests = yield quest_1.QuestService.queryAll({ useDefaults: true });
+    const allQuests = yield quest_2.QuestModel
+        .find({})
+        .defaultPopulate()
+        .sortByLastest();
     res.json(allQuests);
     let modeList = '';
     for (let i = 0; i < q.modes.length; i++) {
@@ -414,7 +498,7 @@ questsRouter.post('/dropQuest/:partyId/:questId', middlewares_1.isNotSpectator, 
             modeList += ', ';
         }
     }
-    log_1.LogService.create(req.session.mongoId, `party dropped quest "${q.name}" for mode${q.modes.length > 1 ? 's' : ''} "${modeList}"`, log_2.LogCategory.Quest);
+    log_2.LogModel.generate((_q = req.session) === null || _q === void 0 ? void 0 : _q.mongoId, `party dropped quest "${q.name}" for mode${q.modes.length > 1 ? 's' : ''} "${modeList}"`, log_1.LogCategory.Quest);
     let memberList = '';
     for (let i = 0; i < p.members.length; i++) {
         const user = p.members[i];
@@ -434,7 +518,7 @@ questsRouter.post('/dropQuest/:partyId/:questId', middlewares_1.isNotSpectator, 
                 icon_url: `https://a.ppy.sh/${p.leader.osuId}`,
             },
             color: discordApi_1.webhookColors.red,
-            description: `Dropped quest: [**${q.name}**](https://mappersguild.com/quests?id=${openQuest && !quest_1.QuestService.isError(openQuest) ? openQuest.id : q.id}) [**${p.modes.join(', ')}**]`,
+            description: `Dropped quest: [**${q.name}**](https://mappersguild.com/quests?id=${openQuest ? openQuest.id : q.id}) [**${p.modes.join(', ')}**]`,
             thumbnail: {
                 url,
             },
@@ -443,51 +527,56 @@ questsRouter.post('/dropQuest/:partyId/:questId', middlewares_1.isNotSpectator, 
                     value: memberList,
                 }],
         }]);
-    party_1.PartyService.remove(req.params.partyId);
-})));
-questsRouter.post('/reopenQuest/:questId', middlewares_1.isNotSpectator, helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const quest = yield quest_1.QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
+    party_1.PartyModel.findByIdAndRemove(req.params.partyId);
+}));
+questsRouter.post('/reopenQuest/:questId', middlewares_1.isNotSpectator, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _r, _s, _t, _u, _v, _w;
+    const quest = yield quest_2.QuestModel
+        .findById(req.params.questId)
+        .defaultPopulate()
+        .orFail();
     if (res.locals.userRequest.availablePoints < (quest.price * 0.5 + 25)) {
         return res.json({ error: `You don't have enough points to re-open this quest!` });
     }
-    const openQuest = yield quest_1.QuestService.queryOne({
-        query: {
-            name: quest.name,
-            status: quest_2.QuestStatus.Open,
-        },
+    const openQuest = yield quest_2.QuestModel.findOne({
+        name: quest.name,
+        status: quest_1.QuestStatus.Open,
     });
     const newExpiration = new Date();
     newExpiration.setDate(newExpiration.getDate() + 90);
-    if (req.body.status == quest_2.QuestStatus.Open) {
-        if (openQuest && !quest_1.QuestService.isError(openQuest) && !openQuest.isExpired) {
+    if (req.body.status == quest_1.QuestStatus.Open) {
+        if (openQuest && !openQuest.isExpired) {
             yield Promise.all([
-                quest_1.QuestService.update(openQuest._id, {
+                quest_2.QuestModel.findByIdAndUpdate(openQuest._id, {
                     $push: { modes: quest.modes },
                     expiration: newExpiration,
                 }),
-                quest_1.QuestService.update(req.params.questId, { status: 'hidden' }),
+                quest_2.QuestModel.findByIdAndUpdate(req.params.questId, { status: quest_1.QuestStatus.Hidden }),
             ]);
         }
         else {
-            yield quest_1.QuestService.update(req.params.questId, {
+            yield quest_2.QuestModel.findByIdAndUpdate(req.params.questId, {
                 expiration: newExpiration,
             });
         }
     }
-    spentPoints_1.SpentPointsService.create(spentPoints_2.SpentPointsCategory.ReopenQuest, req.session.mongoId, quest._id);
-    points_2.updateUserPoints(req.session.mongoId);
-    const allQuests = yield quest_1.QuestService.queryAll({ useDefaults: true });
+    spentPoints_2.SpentPointsModel.generate(spentPoints_1.SpentPointsCategory.ReopenQuest, (_r = req.session) === null || _r === void 0 ? void 0 : _r.mongoId, quest._id);
+    points_2.updateUserPoints((_s = req.session) === null || _s === void 0 ? void 0 : _s.mongoId);
+    const allQuests = yield quest_2.QuestModel
+        .find({})
+        .defaultPopulate()
+        .sortByLastest();
     res.json({ quests: allQuests, availablePoints: res.locals.userRequest.availablePoints });
-    log_1.LogService.create(req.session.mongoId, `re-opened quest "${quest.name}"`, log_2.LogCategory.Quest);
+    log_2.LogModel.generate((_t = req.session) === null || _t === void 0 ? void 0 : _t.mongoId, `re-opened quest "${quest.name}"`, log_1.LogCategory.Quest);
     let url = `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`;
     if (quest.isMbc) {
         url = 'https://mappersguild.com/images/mbc-icon.png';
     }
     discordApi_1.webhookPost([{
             author: {
-                name: req.session.username,
-                url: `https://osu.ppy.sh/users/${req.session.osuId}`,
-                icon_url: `https://a.ppy.sh/${req.session.osuId}`,
+                name: (_u = req.session) === null || _u === void 0 ? void 0 : _u.username,
+                url: `https://osu.ppy.sh/users/${(_v = req.session) === null || _v === void 0 ? void 0 : _v.osuId}`,
+                icon_url: `https://a.ppy.sh/${(_w = req.session) === null || _w === void 0 ? void 0 : _w.osuId}`,
             },
             color: discordApi_1.webhookColors.white,
             description: `Quest re-opened: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id})`,
@@ -499,50 +588,69 @@ questsRouter.post('/reopenQuest/:questId', middlewares_1.isNotSpectator, helpers
                     value: `${quest.descriptionMain}`,
                 }],
         }]);
-})));
-questsRouter.post('/extendDeadline/:partyId/:questId', middlewares_1.isNotSpectator, helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const party = yield party_1.PartyService.queryByIdOrFail(req.params.partyId, { populate: pointsPopulate }, `Party doesn't exist!`);
-    let quest = yield quest_1.QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
+}));
+questsRouter.post('/extendDeadline/:partyId/:questId', middlewares_1.isNotSpectator, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _x, _y;
+    const [party, quest] = yield Promise.all([
+        party_1.PartyModel
+            .findById(req.params.partyId)
+            .populate(pointsPopulate)
+            .orFail(new Error(`Party doesn't exist!`)),
+        quest_2.QuestModel
+            .findById(req.params.questId)
+            .defaultPopulate()
+            .orFail(),
+    ]);
     const notEnoughPoints = party.members.some(m => m.availablePoints < 10);
     if (notEnoughPoints) {
         return res.json({ error: 'One or more of your party members do not have enough points to extend the deadline!' });
     }
     party.members.forEach(member => {
-        spentPoints_1.SpentPointsService.create(spentPoints_2.SpentPointsCategory.ExtendDeadline, member.id, quest.id);
+        spentPoints_2.SpentPointsModel.generate(spentPoints_1.SpentPointsCategory.ExtendDeadline, member.id, quest.id);
         points_2.updateUserPoints(member.id);
     });
     const deadline = new Date(quest.deadline);
     deadline.setDate(deadline.getDate() + 30);
     quest.deadline = deadline;
-    yield quest_1.QuestService.saveOrFail(quest);
-    quest = yield quest_1.QuestService.queryByIdOrFail(req.params.questId, { defaultPopulate: true });
-    const user = yield user_1.UserService.queryByIdOrFail(req.session.mongoId);
-    res.json({ quest, availablePoints: user.availablePoints });
-    log_1.LogService.create(req.session.mongoId, `extended deadline for ${quest.name}`, log_2.LogCategory.Party);
-})));
-questsRouter.post('/submitQuest', middlewares_1.isNotSpectator, helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _e, _f, _g, _h, _j;
-    req.body.modes = [beatmap_2.BeatmapMode.Osu, beatmap_2.BeatmapMode.Taiko, beatmap_2.BeatmapMode.Catch, beatmap_2.BeatmapMode.Mania];
-    req.body.minRank = 0;
-    req.body.status = 'pending';
-    req.body.creator = (_f = (_e = req) === null || _e === void 0 ? void 0 : _e.session) === null || _f === void 0 ? void 0 : _f.mongoId;
-    const artist = yield featuredArtist_1.FeaturedArtistService.queryOne({ query: { osuId: req.body.art } });
-    if (!artist || featuredArtist_1.FeaturedArtistService.isError(artist)) {
-        req.body.art = 0;
-    }
-    const quest = yield quest_1.QuestService.create(req.body);
-    if (quest_1.QuestService.isError(quest)) {
-        return res.json({ error: 'Quest could not be created!' });
-    }
+    yield quest.save();
+    const updatedQuest = yield quest_2.QuestModel
+        .findById(req.params.questId)
+        .defaultPopulate()
+        .orFail();
+    const user = yield user_1.UserModel.findById((_x = req.session) === null || _x === void 0 ? void 0 : _x.mongoId).orFail();
+    res.json({
+        quest: updatedQuest,
+        availablePoints: user.availablePoints,
+    });
+    log_2.LogModel.generate((_y = req.session) === null || _y === void 0 ? void 0 : _y.mongoId, `extended deadline for ${updatedQuest.name}`, log_1.LogCategory.Party);
+}));
+questsRouter.post('/submitQuest', middlewares_1.isNotSpectator, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _z, _0, _1, _2, _3;
+    const artist = yield featuredArtist_1.FeaturedArtistModel.findOne({ osuId: req.body.art });
+    const quest = new quest_2.QuestModel();
+    quest.name = req.body.name;
+    quest.price = req.body.price;
+    quest.descriptionMain = req.body.descriptionMain;
+    quest.timeframe = req.body.timeframe;
+    quest.minParty = req.body.minParty;
+    quest.maxParty = req.body.maxParty;
+    quest.requiredMapsets = req.body.requiredMapsets;
+    quest.art = (artist === null || artist === void 0 ? void 0 : artist.osuId) || 0;
+    quest.modes = [beatmap_1.BeatmapMode.Osu, beatmap_1.BeatmapMode.Taiko, beatmap_1.BeatmapMode.Catch, beatmap_1.BeatmapMode.Mania];
+    quest.minRank = 0;
+    quest.status = quest_1.QuestStatus.Pending;
+    quest.creator = (_z = req.session) === null || _z === void 0 ? void 0 : _z.mongoId;
     const points = points_1.findCreateQuestPointsSpent(quest.art, quest.requiredMapsets);
-    const user = yield user_1.UserService.queryByIdOrFail((_h = (_g = req) === null || _g === void 0 ? void 0 : _g.session) === null || _h === void 0 ? void 0 : _h.mongoId, {}, cannotFindUserMessage);
+    const user = yield user_1.UserModel
+        .findById((_0 = req === null || req === void 0 ? void 0 : req.session) === null || _0 === void 0 ? void 0 : _0.mongoId)
+        .orFail(new Error(cannotFindUserMessage));
     if (user.availablePoints < points) {
-        quest_1.QuestService.remove(quest.id);
         return res.json({ error: 'Not enough points to perform this action!' });
     }
-    spentPoints_1.SpentPointsService.create(spentPoints_2.SpentPointsCategory.CreateQuest, req.session.mongoId, quest._id);
-    points_2.updateUserPoints(req.session.mongoId);
+    yield quest.save();
     res.json(true);
-    log_1.LogService.create((_j = req.session) === null || _j === void 0 ? void 0 : _j.mongoId, `submitted quest for approval`, log_2.LogCategory.Quest);
-})));
+    spentPoints_2.SpentPointsModel.generate(spentPoints_1.SpentPointsCategory.CreateQuest, (_1 = req.session) === null || _1 === void 0 ? void 0 : _1.mongoId, quest._id);
+    points_2.updateUserPoints((_2 = req.session) === null || _2 === void 0 ? void 0 : _2.mongoId);
+    log_2.LogModel.generate((_3 = req.session) === null || _3 === void 0 ? void 0 : _3.mongoId, `submitted quest for approval`, log_1.LogCategory.Quest);
+}));
 exports.default = questsRouter;

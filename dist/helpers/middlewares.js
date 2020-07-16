@@ -9,13 +9,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.isBn = exports.isNotSpectator = exports.isUser = exports.isSuperAdmin = exports.isAdmin = exports.isLoggedIn = void 0;
 const user_1 = require("../models/user");
 const user_2 = require("../interfaces/user");
 const osuApi_1 = require("./osuApi");
 function isLoggedIn(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         if (req.session.mongoId) {
-            const u = yield user_1.UserService.queryById(req.session.mongoId);
+            const u = yield user_1.UserModel.findById(req.session.mongoId);
             if (new Date() > new Date(req.session.expireDate - (10 * 3600 * 1000))) {
                 const response = yield osuApi_1.refreshToken(req.session.refreshToken);
                 if (!response || osuApi_1.isOsuResponseError(response)) {

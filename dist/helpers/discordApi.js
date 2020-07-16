@@ -12,18 +12,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.webhookColors = exports.webhookPost = void 0;
 const helpers_1 = require("./helpers");
 const config_json_1 = __importDefault(require("../config.json"));
 const axios_1 = __importDefault(require("axios"));
 function webhookPost(message) {
-    var _a;
     return __awaiter(this, void 0, void 0, function* () {
         const url = `https://discordapp.com/api/webhooks/${config_json_1.default.webhook.id}/${config_json_1.default.webhook.token}`;
         try {
             const res = yield axios_1.default.post(url, {
                 embeds: message,
             });
-            if ((_a = res) === null || _a === void 0 ? void 0 : _a.data) {
+            if (res === null || res === void 0 ? void 0 : res.data) {
                 return { success: 'ok' };
             }
             return helpers_1.defaultErrorMessage;

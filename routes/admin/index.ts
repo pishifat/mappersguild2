@@ -9,7 +9,7 @@ import { beatmapsetInfo, isOsuResponseError } from '../../helpers/osuApi';
 import { findBeatmapsetId, defaultErrorMessage } from '../../helpers/helpers';
 import { SpentPointsCategory } from '../../interfaces/spentPoints';
 import { SpentPointsModel } from '../../models/spentPoints';
-import { User } from 'interfaces/user';
+import { User } from '../../interfaces/user';
 
 const adminRouter = express.Router();
 

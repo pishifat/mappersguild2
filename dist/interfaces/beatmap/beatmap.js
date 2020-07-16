@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.BeatmapMode = exports.BeatmapStatus = void 0;
 var BeatmapStatus;
 (function (BeatmapStatus) {
     BeatmapStatus["WIP"] = "WIP";

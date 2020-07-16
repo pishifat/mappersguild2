@@ -167,24 +167,15 @@
     <img src="../images/mg-logo.png" style="width:171px; height: 150px; margin-top: 50px;">
 </div>
 
-{{#if isNotSpectator }}
-<form action="/bnsite" method="GET">
-    <button id="bnsite" class="btn btn-sm btn-mg" style="
-        position: fixed; 
-        z-index: 1060; 
-        bottom: 80px; 
-        right: 20px;"
-    >visit BN/NAT site
-    </button>
-</form>
-{{else}}
-<form action="/bnsite" method="GET">
-    <button id="bnsite" class="btn btn-sm btn-mg" style="
-        position: fixed; 
-        z-index: 1060; 
-        bottom: 20px; 
-        right: 20px;"
-    >visit BN/NAT site
-    </button>
-</form>
-{{/if}}
+<a href="http://bn.mappersguild.com/" class="btn btn-sm btn-mg" style="
+    position: fixed; 
+    z-index: 1060; 
+    {{#if isNotSpectator }}
+    bottom: 80px; 
+    {{else}}
+    bottom: 20px; 
+    {{/if}}
+    right: 20px;"
+>
+    visit BN/NAT site
+</a>

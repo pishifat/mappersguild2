@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import mongoose, { Document, Schema, Model, DocumentQuery } from 'mongoose';
 import { Quest as IQuest } from '../interfaces/quest';
-import { User } from 'interfaces/user';
+import { User } from '../interfaces/user';
 
 export interface Quest extends IQuest, Document {
     id: string;

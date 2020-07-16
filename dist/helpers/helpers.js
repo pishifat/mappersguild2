@@ -1,14 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-function canFail(fn) {
-    return function (req, res, next) {
-        fn(req, res, next).catch((error) => {
-            console.log(error.message);
-            return next(error);
-        });
-    };
-}
-exports.canFail = canFail;
+exports.defaultErrorMessage = exports.sleep = exports.findBeatmapsetId = void 0;
 function findBeatmapsetId(url) {
     const indexStart = url.indexOf('beatmapsets/') + 'beatmapsets/'.length;
     const indexEnd = url.indexOf('#');

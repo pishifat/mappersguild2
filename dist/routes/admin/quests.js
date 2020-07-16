@@ -23,7 +23,6 @@ const log_2 = require("../../interfaces/log");
 const discordApi_1 = require("../../helpers/discordApi");
 const beatmap_2 = require("../../models/beatmap/beatmap");
 const party_1 = require("../../models/party");
-const helpers_1 = require("../../helpers/helpers");
 const spentPoints_1 = require("../../models/spentPoints");
 const adminQuestsRouter = express_1.default.Router();
 adminQuestsRouter.use(middlewares_1.isLoggedIn);
@@ -40,14 +39,14 @@ adminQuestsRouter.get('/', (req, res) => {
     });
 });
 adminQuestsRouter.get('/load', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const q = yield quest_1.QuestService.queryAll({
-        defaultPopulate: true,
-        sort: { status: -1, name: 1 },
-    });
+    const q = yield quest_1.QuestModel
+        .find({})
+        .defaultPopulate()
+        .sort({ status: -1, name: 1 });
     res.json(q);
 }));
 adminQuestsRouter.post('/create', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c;
+    var _a, _b;
     req.body.isMbc = Boolean(req.body.isMbc);
     if (req.body.isMbc) {
         req.body.modes = [beatmap_1.BeatmapMode.Osu];
@@ -57,10 +56,10 @@ adminQuestsRouter.post('/create', (req, res) => __awaiter(void 0, void 0, void 0
     }
     req.body.expiration = new Date();
     req.body.expiration.setDate(req.body.expiration.getDate() + 90);
-    req.body.creator = (_b = (_a = req) === null || _a === void 0 ? void 0 : _a.session) === null || _b === void 0 ? void 0 : _b.mongoId;
-    const quest = yield quest_1.QuestService.create(req.body);
-    if (!quest_1.QuestService.isError(quest)) {
-        log_1.LogService.create((_c = req.session) === null || _c === void 0 ? void 0 : _c.mongoId, `created quest "${quest.name}"`, log_2.LogCategory.Quest);
+    req.body.creator = (_a = req === null || req === void 0 ? void 0 : req.session) === null || _a === void 0 ? void 0 : _a.mongoId;
+    const quest = yield quest_1.QuestModel.create(req.body);
+    if (quest) {
+        log_1.LogModel.generate((_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId, `created quest "${quest.name}"`, log_2.LogCategory.Quest);
         let url = `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`;
         if (req.body.isMbc) {
             url = 'https://mappersguild.com/images/mbc-icon.png';
@@ -85,18 +84,24 @@ adminQuestsRouter.post('/create', (req, res) => __awaiter(void 0, void 0, void 0
                     }],
             }]);
     }
-    const allQuests = yield quest_1.QuestService.queryAll({ useDefaults: true });
+    const allQuests = yield quest_1.QuestModel
+        .find({})
+        .defaultPopulate()
+        .sortByLastest();
     res.json(allQuests);
 }));
 adminQuestsRouter.post('/:id/publish', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _d;
-    const quest = yield quest_1.QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+    var _c;
+    const quest = yield quest_1.QuestModel
+        .findById(req.params.id)
+        .defaultPopulate()
+        .orFail();
     const expiration = new Date();
     expiration.setDate(expiration.getDate() + 90);
     quest.expiration = expiration;
     quest.status = quest_2.QuestStatus.Open;
-    yield quest_1.QuestService.save(quest);
-    log_1.LogService.create((_d = req.session) === null || _d === void 0 ? void 0 : _d.mongoId, `published quest "${quest.name}" by "${quest.creator.username}"`, log_2.LogCategory.Quest);
+    yield quest.save();
+    log_1.LogModel.generate((_c = req.session) === null || _c === void 0 ? void 0 : _c.mongoId, `published quest "${quest.name}" by "${quest.creator.username}"`, log_2.LogCategory.Quest);
     discordApi_1.webhookPost([{
             author: {
                 name: quest.creator.username,
@@ -123,88 +128,98 @@ adminQuestsRouter.post('/:id/publish', (req, res) => __awaiter(void 0, void 0, v
         }]);
     res.json(quest.status);
 }));
-adminQuestsRouter.post('/:id/reject', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    yield quest_1.QuestService.updateOrFail(req.params.id, { status: 'rejected' });
-    const quest = yield quest_1.QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+adminQuestsRouter.post('/:id/reject', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    yield quest_1.QuestModel.findByIdAndUpdate(req.params.id, { status: quest_2.QuestStatus.Rejected }).orFail();
+    const quest = yield quest_1.QuestModel
+        .findById(req.params.id)
+        .defaultPopulate()
+        .orFail();
     points_1.updateUserPoints(quest.creator.id);
-    const spentPoints = yield spentPoints_1.SpentPointsService.queryOneOrFail({ query: { quest: quest._id } });
-    yield spentPoints_1.SpentPointsService.remove(spentPoints.id);
+    const spentPoints = yield spentPoints_1.SpentPointsModel.findOne({ quest: quest._id }).orFail();
+    yield spentPoints_1.SpentPointsModel.findByIdAndRemove(spentPoints.id);
     res.json(quest.status);
-})));
-adminQuestsRouter.post('/:id/updateArt', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+}));
+adminQuestsRouter.post('/:id/updateArt', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const art = parseInt(req.body.art, 10);
-    yield quest_1.QuestService.updateOrFail(req.params.id, { art });
+    yield quest_1.QuestModel.findByIdAndUpdate(req.params.id, { art }).orFail();
     res.json(art);
-})));
-adminQuestsRouter.post('/:id/rename', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    yield quest_1.QuestService.updateOrFail(req.params.id, { name: req.body.name });
+}));
+adminQuestsRouter.post('/:id/rename', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    yield quest_1.QuestModel.findByIdAndUpdate(req.params.id, { name: req.body.name }).orFail();
     res.json(req.body.name);
-})));
-adminQuestsRouter.post('/:id/updateDescription', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    yield quest_1.QuestService.updateOrFail(req.params.id, { descriptionMain: req.body.description });
+}));
+adminQuestsRouter.post('/:id/updateDescription', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    yield quest_1.QuestModel.findByIdAndUpdate(req.params.id, { descriptionMain: req.body.description }).orFail();
     res.json(req.body.description);
-})));
-adminQuestsRouter.post('/:id/updatePrice', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+}));
+adminQuestsRouter.post('/:id/updatePrice', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const price = parseInt(req.body.price, 10);
-    yield quest_1.QuestService.updateOrFail(req.params.id, { price });
+    yield quest_1.QuestModel.findByIdAndUpdate(req.params.id, { price }).orFail();
     res.json(price);
-})));
-adminQuestsRouter.post('/:id/updateRequiredMapsets', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+}));
+adminQuestsRouter.post('/:id/updateRequiredMapsets', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const requiredMapsets = parseInt(req.body.requiredMapsets, 10);
-    yield quest_1.QuestService.updateOrFail(req.params.id, { requiredMapsets });
+    yield quest_1.QuestModel.findByIdAndUpdate(req.params.id, { requiredMapsets }).orFail();
     res.json(requiredMapsets);
-})));
-adminQuestsRouter.post('/:id/updateTimeframe', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+}));
+adminQuestsRouter.post('/:id/updateTimeframe', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const timeframe = parseInt(req.body.timeframe, 10);
-    yield quest_1.QuestService.updateOrFail(req.params.id, { timeframe: timeframe * (24 * 3600 * 1000) });
+    yield quest_1.QuestModel.findByIdAndUpdate(req.params.id, { timeframe: timeframe * (24 * 3600 * 1000) }).orFail();
     res.json(timeframe);
-})));
-adminQuestsRouter.post('/:id/updateMinParty', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+}));
+adminQuestsRouter.post('/:id/updateMinParty', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const minParty = parseInt(req.body.minParty, 10);
-    yield quest_1.QuestService.updateOrFail(req.params.id, { minParty });
+    yield quest_1.QuestModel.findByIdAndUpdate(req.params.id, { minParty }).orFail();
     res.json(minParty);
-})));
-adminQuestsRouter.post('/:id/updateMaxParty', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+}));
+adminQuestsRouter.post('/:id/updateMaxParty', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const maxParty = parseInt(req.body.maxParty, 10);
-    yield quest_1.QuestService.updateOrFail(req.params.id, { maxParty });
+    yield quest_1.QuestModel.findByIdAndUpdate(req.params.id, { maxParty }).orFail();
     res.json(maxParty);
-})));
-adminQuestsRouter.post('/:id/drop', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _e;
-    let q = yield quest_1.QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
-    const party = yield party_1.PartyService.queryByIdOrFail(q.currentParty._id, { defaultPopulate: true });
-    const openQuest = yield quest_1.QuestService.queryOne({
-        query: {
-            name: q.name,
-            status: quest_2.QuestStatus.Open,
-        },
+}));
+adminQuestsRouter.post('/:id/drop', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _d;
+    let q = yield quest_1.QuestModel
+        .findById(req.params.id)
+        .defaultPopulate()
+        .orFail();
+    const party = yield party_1.PartyModel
+        .findById(q.currentParty._id)
+        .defaultPopulate()
+        .orFail();
+    const openQuest = yield quest_1.QuestModel.findOne({
+        name: q.name,
+        status: quest_2.QuestStatus.Open,
     });
-    if (openQuest && !quest_1.QuestService.isError(openQuest)) {
+    if (openQuest) {
         yield Promise.all([
-            quest_1.QuestService.update(openQuest._id, {
+            quest_1.QuestModel.findByIdAndUpdate(openQuest._id, {
                 $push: { modes: q.modes },
             }),
-            quest_1.QuestService.update(req.params.id, { status: 'hidden' }),
+            quest_1.QuestModel.findByIdAndUpdate(req.params.id, { status: quest_2.QuestStatus.Hidden }),
         ]);
     }
     else {
-        yield quest_1.QuestService.update(req.params.id, {
+        yield quest_1.QuestModel.findByIdAndUpdate(req.params.id, {
             status: quest_2.QuestStatus.Open,
-            currentParty: null,
+            currentParty: undefined,
         });
     }
-    const maps = yield beatmap_2.BeatmapService.queryAllOrFail({});
+    const maps = yield beatmap_2.BeatmapModel.find({}).orFail();
     for (let i = 0; i < maps.length; i++) {
         if (maps[i].quest && maps[i].quest.toString() == q.id) {
-            beatmap_2.BeatmapService.updateOrFail(maps[i]._id, { quest: undefined });
+            beatmap_2.BeatmapModel.findByIdAndUpdate(maps[i]._id, { quest: undefined }).orFail();
         }
     }
-    yield party_1.PartyService.remove(q.currentParty._id);
-    if (openQuest && !quest_1.QuestService.isError(openQuest)) {
+    yield party_1.PartyModel.findByIdAndRemove(q.currentParty._id);
+    if (openQuest) {
         res.json(q);
     }
     else {
-        q = yield quest_1.QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+        q = yield quest_1.QuestModel
+            .findById(req.params.id)
+            .defaultPopulate()
+            .orFail();
         res.json(q);
     }
     let memberList = '';
@@ -226,7 +241,7 @@ adminQuestsRouter.post('/:id/drop', helpers_1.canFail((req, res) => __awaiter(vo
                 icon_url: `https://a.ppy.sh/${party.leader.osuId}`,
             },
             color: discordApi_1.webhookColors.red,
-            description: `Dropped quest: [**${q.name}**](https://mappersguild.com/quests?id=${openQuest && !quest_1.QuestService.isError(openQuest) ? openQuest.id : q.id}) [**${party.modes.join(', ')}**]`,
+            description: `Dropped quest: [**${q.name}**](https://mappersguild.com/quests?id=${openQuest ? openQuest.id : q.id}) [**${party.modes.join(', ')}**]`,
             thumbnail: {
                 url,
             },
@@ -235,10 +250,14 @@ adminQuestsRouter.post('/:id/drop', helpers_1.canFail((req, res) => __awaiter(vo
                     value: memberList,
                 }],
         }]);
-    log_1.LogService.create((_e = req.session) === null || _e === void 0 ? void 0 : _e.mongoId, `forced party to drop quest "${q.name}"`, log_2.LogCategory.Quest);
-})));
-adminQuestsRouter.post('/:id/complete', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const quest = yield quest_1.QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+    log_1.LogModel.generate((_d = req.session) === null || _d === void 0 ? void 0 : _d.mongoId, `forced party to drop quest "${q.name}"`, log_2.LogCategory.Quest);
+}));
+adminQuestsRouter.post('/:id/complete', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _e;
+    const quest = yield quest_1.QuestModel
+        .findById(req.params.id)
+        .defaultPopulate()
+        .orFail();
     if (quest.status == quest_2.QuestStatus.WIP) {
         let memberList = '';
         for (let i = 0; i < quest.currentParty.members.length; i++) {
@@ -262,30 +281,33 @@ adminQuestsRouter.post('/:id/complete', helpers_1.canFail((req, res) => __awaite
                 color: discordApi_1.webhookColors.purple,
                 description: `Completed quest: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id}) [**${quest.currentParty.modes.join(', ')}**]`,
                 thumbnail: {
-                    url: `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`,
+                    url,
                 },
                 fields: [{
                         name: 'Members',
                         value: memberList,
                     }],
             }]);
-        yield party_1.PartyService.remove(quest.currentParty._id);
-        yield quest_1.QuestService.update(quest._id, {
+        yield party_1.PartyModel.findByIdAndRemove(quest.currentParty._id);
+        yield quest_1.QuestModel.findByIdAndUpdate(quest._id, {
             status: quest_2.QuestStatus.Done,
-            currentParty: null,
+            currentParty: undefined,
             completedMembers: quest.currentParty.members,
             completed: new Date(),
         });
     }
-    const newQuest = yield quest_1.QuestService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+    const newQuest = yield quest_1.QuestModel
+        .findById(req.params.id)
+        .defaultPopulate()
+        .orFail();
     res.json(newQuest);
-    log_1.LogService.create(req.session.mongoId, `marked quest "${newQuest.name}" as complete`, log_2.LogCategory.Quest);
-})));
-adminQuestsRouter.post('/:id/duplicate', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    log_1.LogModel.generate((_e = req.session) === null || _e === void 0 ? void 0 : _e.mongoId, `marked quest "${newQuest.name}" as complete`, log_2.LogCategory.Quest);
+}));
+adminQuestsRouter.post('/:id/duplicate', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const expiration = new Date();
     expiration.setDate(expiration.getDate() + 90);
-    const q = yield quest_1.QuestService.queryByIdOrFail(req.params.id);
-    const body = {
+    const q = yield quest_1.QuestModel.findById(req.params.id).orFail();
+    yield quest_1.QuestModel.create({
         creator: q.creator,
         name: req.body.name,
         price: q.price,
@@ -298,45 +320,48 @@ adminQuestsRouter.post('/:id/duplicate', helpers_1.canFail((req, res) => __await
         modes: [beatmap_1.BeatmapMode.Osu, beatmap_1.BeatmapMode.Taiko, beatmap_1.BeatmapMode.Catch, beatmap_1.BeatmapMode.Mania],
         expiration,
         requiredMapsets: q.requiredMapsets,
-    };
-    yield quest_1.QuestService.create(body);
-    const allQuests = yield quest_1.QuestService.queryAll({ useDefaults: true });
+    });
+    const allQuests = yield quest_1.QuestModel
+        .find({})
+        .defaultPopulate()
+        .sortByLastest();
     res.json(allQuests);
-})));
-adminQuestsRouter.post('/:id/reset', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+}));
+adminQuestsRouter.post('/:id/reset', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const date = new Date();
     date.setDate(date.getDate() + 7);
-    yield quest_1.QuestService.updateOrFail(req.params.id, { deadline: date });
+    yield quest_1.QuestModel.findByIdAndUpdate(req.params.id, { deadline: date }).orFail();
     res.json(date);
-})));
-adminQuestsRouter.post('/:id/delete', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const q = yield quest_1.QuestService.queryByIdOrFail(req.params.id);
+}));
+adminQuestsRouter.post('/:id/delete', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _f;
+    const q = yield quest_1.QuestModel.findById(req.params.id).orFail();
     if (q.status == quest_2.QuestStatus.Open) {
-        yield quest_1.QuestService.removeOrFail(req.params.id);
+        yield quest_1.QuestModel.findByIdAndRemove(req.params.id).orFail();
         res.json({ success: 'ok' });
-        log_1.LogService.create(req.session.mongoId, `deleted quest "${q.name}"`, log_2.LogCategory.Quest);
+        log_1.LogModel.generate((_f = req.session) === null || _f === void 0 ? void 0 : _f.mongoId, `deleted quest "${q.name}"`, log_2.LogCategory.Quest);
     }
     else {
         res.json({ success: 'ok' });
     }
-})));
-adminQuestsRouter.post('/:id/toggleMode', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let quest = yield quest_1.QuestService.queryByIdOrFail(req.params.id);
+}));
+adminQuestsRouter.post('/:id/toggleMode', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let quest = yield quest_1.QuestModel.findById(req.params.id).orFail();
     if (quest.modes.includes(req.body.mode)) {
-        yield quest_1.QuestService.update(req.params.id, { $pull: { modes: req.body.mode } });
+        yield quest_1.QuestModel.findByIdAndUpdate(req.params.id, { $pull: { modes: req.body.mode } });
     }
     else {
-        yield quest_1.QuestService.update(req.params.id, { $push: { modes: req.body.mode } });
+        yield quest_1.QuestModel.findByIdAndUpdate(req.params.id, { $push: { modes: req.body.mode } });
     }
-    quest = yield quest_1.QuestService.queryByIdOrFail(req.params.id);
+    quest = yield quest_1.QuestModel.findById(req.params.id).orFail();
     res.json(quest);
-})));
-adminQuestsRouter.post('/:id/updateExpiration', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+}));
+adminQuestsRouter.post('/:id/updateExpiration', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const date = new Date(req.body.expiration);
     if (!(date instanceof Date && !isNaN(date.getTime()))) {
         return res.json({ error: 'Invalid date' });
     }
-    yield quest_1.QuestService.updateOrFail(req.params.id, { expiration: date });
+    yield quest_1.QuestModel.findByIdAndUpdate(req.params.id, { expiration: date }).orFail();
     res.json(date);
-})));
+}));
 exports.default = adminQuestsRouter;

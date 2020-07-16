@@ -12,6 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getMaps = exports.beatmapsetInfo = exports.getUserInfo = exports.refreshToken = exports.getToken = exports.isOsuResponseError = void 0;
 const helpers_1 = require("./helpers");
 const querystring_1 = __importDefault(require("querystring"));
 const config_json_1 = __importDefault(require("../config.json"));
@@ -21,11 +22,10 @@ function isOsuResponseError(basicError) {
 }
 exports.isOsuResponseError = isOsuResponseError;
 function executeRequest(options) {
-    var _a;
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const res = yield axios_1.default(options);
-            if ((_a = res) === null || _a === void 0 ? void 0 : _a.data) {
+            if (res === null || res === void 0 ? void 0 : res.data) {
                 return res.data;
             }
             return helpers_1.defaultErrorMessage;
@@ -90,12 +90,12 @@ function getUserInfo(token) {
 }
 exports.getUserInfo = getUserInfo;
 function beatmapsetInfo(setId) {
-    var _a, _b;
+    var _a;
     return __awaiter(this, void 0, void 0, function* () {
         const url = `https://osu.ppy.sh/api/get_beatmaps?k=${config_json_1.default.v1token}&s=${setId}`;
         try {
             const res = yield axios_1.default.get(url);
-            if (((_b = (_a = res) === null || _a === void 0 ? void 0 : _a.data) === null || _b === void 0 ? void 0 : _b.length) > 0) {
+            if (((_a = res === null || res === void 0 ? void 0 : res.data) === null || _a === void 0 ? void 0 : _a.length) > 0) {
                 const beatmapResponse = res.data[0];
                 beatmapResponse.approved = parseInt(beatmapResponse.approved, 10);
                 beatmapResponse.beatmap_id = parseInt(beatmapResponse.beatmap_id, 10);

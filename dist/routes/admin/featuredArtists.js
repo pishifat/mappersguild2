@@ -16,11 +16,11 @@ const express_1 = __importDefault(require("express"));
 const middlewares_1 = require("../../helpers/middlewares");
 const featuredArtist_1 = require("../../models/featuredArtist");
 const featuredSong_1 = require("../../models/featuredSong");
-const helpers_1 = require("../../helpers/helpers");
 const adminFeaturedArtistsRouter = express_1.default.Router();
 adminFeaturedArtistsRouter.use(middlewares_1.isLoggedIn);
 adminFeaturedArtistsRouter.use(middlewares_1.isAdmin);
 adminFeaturedArtistsRouter.use(middlewares_1.isSuperAdmin);
+const defaultPopulate = { path: 'songs', select: 'artist title' };
 adminFeaturedArtistsRouter.get('/', (req, res) => {
     var _a, _b;
     res.render('admin/featuredArtists', {
@@ -32,32 +32,40 @@ adminFeaturedArtistsRouter.get('/', (req, res) => {
     });
 });
 adminFeaturedArtistsRouter.get('/load', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const featuredArtists = yield featuredArtist_1.FeaturedArtistService.queryAll({
-        defaultPopulate: true,
-        sort: { osuId: 1, label: 1 },
-    });
+    const featuredArtists = yield featuredArtist_1.FeaturedArtistModel
+        .find({})
+        .populate(defaultPopulate)
+        .sort({ osuId: 1, label: 1 });
     res.json(featuredArtists);
 }));
-adminFeaturedArtistsRouter.post('/:id/updateOsuId', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    yield featuredArtist_1.FeaturedArtistService.updateOrFail(req.params.id, { osuId: req.body.osuId });
+adminFeaturedArtistsRouter.post('/:id/updateOsuId', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    yield featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { osuId: req.body.osuId }).orFail();
     res.json(parseInt(req.body.osuId, 10));
-})));
-adminFeaturedArtistsRouter.post('/:id/updateName', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    yield featuredArtist_1.FeaturedArtistService.updateOrFail(req.params.id, { label: req.body.name });
+}));
+adminFeaturedArtistsRouter.post('/:id/updateName', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    yield featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { label: req.body.name }).orFail();
     res.json(req.body.name);
-})));
-adminFeaturedArtistsRouter.post('/:id/songs/create', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const song = yield featuredSong_1.FeaturedSongService.createOrFail(req.body.artist.trim(), req.body.title.trim());
-    yield featuredArtist_1.FeaturedArtistService.updateOrFail(req.params.id, { $push: { songs: song } });
+}));
+adminFeaturedArtistsRouter.post('/:id/songs/create', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const song = new featuredSong_1.FeaturedSongModel();
+    song.artist = req.body.artist.trim();
+    song.title = req.body.title.trim();
+    yield song.save();
+    yield featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { $push: { songs: song } }).orFail();
     res.json(song);
-})));
-adminFeaturedArtistsRouter.post('/:id/songs/:songId/update', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const song = yield featuredSong_1.FeaturedSongService.updateOrFail(req.params.songId, { artist: req.body.artist.trim(), title: req.body.title.trim() });
+}));
+adminFeaturedArtistsRouter.post('/:id/songs/:songId/update', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const song = yield featuredSong_1.FeaturedSongModel
+        .findByIdAndUpdate(req.params.songId, {
+        artist: req.body.artist.trim(),
+        title: req.body.title.trim(),
+    })
+        .orFail();
     res.json(song);
-})));
-adminFeaturedArtistsRouter.post('/:id/songs/:songId/delete', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    yield featuredArtist_1.FeaturedArtistService.updateOrFail(req.params.id, { $pull: { songs: req.params.songId } });
-    yield featuredSong_1.FeaturedSongService.removeOrFail(req.params.songId);
+}));
+adminFeaturedArtistsRouter.post('/:id/songs/:songId/delete', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    yield featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { $pull: { songs: req.params.songId } }).orFail();
+    yield featuredSong_1.FeaturedSongModel.findByIdAndRemove(req.params.songId).orFail();
     res.json({ success: 'ok' });
-})));
+}));
 exports.default = adminFeaturedArtistsRouter;

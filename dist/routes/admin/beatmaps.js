@@ -22,6 +22,7 @@ const points_1 = require("../../helpers/points");
 const task_1 = require("../../models/beatmap/task");
 const osuApi_1 = require("../../helpers/osuApi");
 const discordApi_1 = require("../../helpers/discordApi");
+const task_2 = require("../../interfaces/beatmap/task");
 const adminBeatmapsRouter = express_1.default.Router();
 adminBeatmapsRouter.use(middlewares_1.isLoggedIn);
 adminBeatmapsRouter.use(middlewares_1.isAdmin);
@@ -36,21 +37,23 @@ adminBeatmapsRouter.get('/', (req, res) => {
     });
 });
 adminBeatmapsRouter.get('/load', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const beatmaps = yield beatmap_1.BeatmapService.queryAll({
-        defaultPopulate: true,
-        sort: {
-            status: 1,
-            mode: 1,
-            createdAt: -1,
-        },
+    const beatmaps = yield beatmap_1.BeatmapModel
+        .find({})
+        .defaultPopulate()
+        .sort({
+        status: 1,
+        mode: 1,
+        createdAt: -1,
     });
     res.json(beatmaps);
 }));
-adminBeatmapsRouter.post('/:id/updateStatus', middlewares_1.isSuperAdmin, helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let b = yield beatmap_1.BeatmapService.updateOrFail(req.params.id, { status: req.body.status });
+adminBeatmapsRouter.post('/:id/updateStatus', middlewares_1.isSuperAdmin, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let b = yield beatmap_1.BeatmapModel
+        .findByIdAndUpdate(req.params.id, { status: req.body.status })
+        .orFail();
     if (req.body.status == beatmap_2.BeatmapStatus.Done) {
         for (let i = 0; i < b.tasks.length; i++) {
-            yield task_1.TaskService.update(b.tasks[i], { status: beatmap_2.BeatmapStatus.Done });
+            yield task_1.TaskModel.findByIdAndUpdate(b.tasks[i], { status: task_2.TaskStatus.Done });
         }
     }
     if (req.body.status == beatmap_2.BeatmapStatus.Ranked) {
@@ -61,8 +64,11 @@ adminBeatmapsRouter.post('/:id/updateStatus', middlewares_1.isSuperAdmin, helper
         }
         b.length = bmInfo.hit_length;
         b.rankedDate = bmInfo.approved_date;
-        yield beatmap_1.BeatmapService.saveOrFail(b);
-        b = yield beatmap_1.BeatmapService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+        yield b.save();
+        b = yield beatmap_1.BeatmapModel
+            .findById(req.params.id)
+            .defaultPopulate()
+            .orFail();
         for (const modder of b.modders) {
             points_1.updateUserPoints(modder.id);
         }
@@ -122,56 +128,68 @@ adminBeatmapsRouter.post('/:id/updateStatus', middlewares_1.isSuperAdmin, helper
             }]);
     }
     res.json(req.body.status);
-})));
-adminBeatmapsRouter.post('/:id/tasks/:taskId/delete', middlewares_1.isSuperAdmin, helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+}));
+adminBeatmapsRouter.post('/:id/tasks/:taskId/delete', middlewares_1.isSuperAdmin, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     yield Promise.all([
-        beatmap_1.BeatmapService.updateOrFail(req.params.id, {
+        beatmap_1.BeatmapModel
+            .findByIdAndUpdate(req.params.id, {
             $pull: {
                 tasks: req.params.taskId,
             },
-        }),
-        task_1.TaskService.removeOrFail(req.params.taskId),
+        })
+            .orFail(),
+        task_1.TaskModel
+            .findByIdAndRemove(req.params.taskId)
+            .orFail(),
     ]);
     res.json({ success: 'ok' });
-})));
-adminBeatmapsRouter.post('/:id/modders/:modderId/delete', middlewares_1.isSuperAdmin, helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    yield beatmap_1.BeatmapService.updateOrFail(req.params.id, { $pull: { modders: req.params.modderId } });
+}));
+adminBeatmapsRouter.post('/:id/modders/:modderId/delete', middlewares_1.isSuperAdmin, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    yield beatmap_1.BeatmapModel
+        .findByIdAndUpdate(req.params.id, { $pull: { modders: req.params.modderId } })
+        .orFail();
     res.json({ success: 'ok' });
-})));
-adminBeatmapsRouter.post('/:id/updateUrl', middlewares_1.isSuperAdmin, helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    yield beatmap_1.BeatmapService.updateOrFail(req.params.id, { url: req.body.url });
+}));
+adminBeatmapsRouter.post('/:id/updateUrl', middlewares_1.isSuperAdmin, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    yield beatmap_1.BeatmapModel
+        .findByIdAndUpdate(req.params.id, { url: req.body.url })
+        .orFail();
     res.json(req.body.url);
-})));
-adminBeatmapsRouter.post('/:id/updateStoryboardQuality', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const task = yield task_1.TaskService.updateOrFail(req.body.taskId, { sbQuality: req.body.storyboardQuality });
+}));
+adminBeatmapsRouter.post('/:id/updateStoryboardQuality', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const task = yield task_1.TaskModel
+        .findByIdAndUpdate(req.body.taskId, { sbQuality: req.body.storyboardQuality })
+        .orFail();
     yield task.populate({
         path: 'mappers',
     }).execPopulate();
     res.json(task);
-})));
-adminBeatmapsRouter.post('/:id/updatePackId', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    yield beatmap_1.BeatmapService.updateOrFail(req.params.id, { packId: req.body.packId });
+}));
+adminBeatmapsRouter.post('/:id/updatePackId', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    yield beatmap_1.BeatmapModel
+        .findByIdAndUpdate(req.params.id, { packId: req.body.packId })
+        .orFail();
     res.json(parseInt(req.body.packId, 10));
-})));
-adminBeatmapsRouter.get('/loadNewsInfo/:date', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+}));
+adminBeatmapsRouter.get('/loadNewsInfo/:date', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (isNaN(Date.parse(req.params.date))) {
         return res.json({ error: 'Invalid date' });
     }
     const date = new Date(req.params.date);
     const [b, q] = yield Promise.all([
-        beatmap_1.BeatmapService.queryAllOrFail({
-            query: {
-                updatedAt: { $gte: date },
-                status: beatmap_2.BeatmapStatus.Ranked,
-            },
-            defaultPopulate: true,
-            sort: { mode: 1, createdAt: -1 },
-        }),
-        quest_1.QuestService.queryAllOrFail({
-            query: { completed: { $gte: date } },
-            defaultPopulate: true,
-            sort: { name: 1 },
-        }),
+        beatmap_1.BeatmapModel
+            .find({
+            updatedAt: { $gte: date },
+            status: beatmap_2.BeatmapStatus.Ranked,
+        })
+            .defaultPopulate()
+            .sort({ mode: 1, createdAt: -1 })
+            .orFail(),
+        quest_1.QuestModel
+            .find({ completed: { $gte: date } })
+            .defaultPopulate()
+            .sort({ name: 1 })
+            .orFail(),
     ]);
     const accuratelyDatedBeatmaps = [];
     for (const beatmap of b) {
@@ -215,22 +233,21 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', helpers_1.canFail((req, res) => _
         });
     }
     res.json({ beatmaps: accuratelyDatedBeatmaps, quests: q, externalBeatmaps });
-})));
-adminBeatmapsRouter.get('/findBundledBeatmaps', helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('in');
-    const easyTasks = yield task_1.TaskService.queryAllOrFail({
-        query: { name: 'Easy' },
-        select: '_id',
-    });
-    const easyBeatmaps = yield beatmap_1.BeatmapService.queryAllOrFail({
-        query: {
-            tasks: {
-                $in: easyTasks,
-            },
-            status: beatmap_2.BeatmapStatus.Ranked,
+}));
+adminBeatmapsRouter.get('/findBundledBeatmaps', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const easyTasks = yield task_1.TaskModel
+        .find({ name: task_2.TaskName.Easy })
+        .select('_id')
+        .orFail();
+    const easyBeatmaps = yield beatmap_1.BeatmapModel
+        .find({
+        tasks: {
+            $in: easyTasks,
         },
-        useDefaults: true,
-    });
+        status: beatmap_2.BeatmapStatus.Ranked,
+    })
+        .defaultPopulate()
+        .sortByLastest();
     res.json(easyBeatmaps);
-})));
+}));
 exports.default = adminBeatmapsRouter;

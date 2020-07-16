@@ -32,14 +32,48 @@ const notificationsRouter = express_1.default.Router();
 notificationsRouter.use(middlewares_1.isLoggedIn);
 notificationsRouter.use(middlewares_1.isUser);
 const beatmapPopulate = [{ path: 'song', select: 'artist title' }];
+const notificationPopulate = [
+    { path: 'sender', select: 'username osuId' },
+    {
+        path: 'map',
+        populate: [
+            { path: 'song' },
+            { path: 'host' },
+            {
+                path: 'tasks', populate: { path: 'mappers' },
+            },
+        ],
+    },
+    { path: 'party', populate: { path: 'members leader' } },
+    { path: 'quest', select: 'name' },
+];
+const invitePopulate = [
+    { path: 'sender', select: 'username osuId' },
+    {
+        path: 'map',
+        populate: [
+            { path: 'song' },
+            { path: 'host' },
+            {
+                path: 'tasks', populate: { path: 'mappers' },
+            },
+        ],
+    },
+    { path: 'party', populate: { path: 'members leader' } },
+    {
+        path: 'quest', populate: {
+            path: 'currentParty', populate: { path: 'members' },
+        },
+    },
+];
 function updatePartyInfo(id) {
     return __awaiter(this, void 0, void 0, function* () {
-        const p = yield party_1.PartyService.queryById(id, {
-            populate: [{ path: 'members', select: 'rank osuPoints taikoPoints catchPoints maniaPoints' }],
-        });
+        const p = yield party_1.PartyModel
+            .findById(id)
+            .populate({ path: 'members', select: 'rank osuPoints taikoPoints catchPoints maniaPoints' });
         let rank = 0;
         const modes = [];
-        if (!p || party_1.PartyService.isError(p)) {
+        if (!p) {
             return helpers_1.defaultErrorMessage;
         }
         p.members.forEach(user => {
@@ -50,7 +84,7 @@ function updatePartyInfo(id) {
         });
         p.rank = Math.round(rank / p.members.length);
         p.modes = modes;
-        yield party_1.PartyService.saveOrFail(p);
+        yield p.save();
         return { success: 'ok' };
     });
 }
@@ -74,9 +108,9 @@ function addTaskChecks(userId, b, invite, isNewTask) {
             }
         }
         if (b.quest && invite.taskName != task_2.TaskName.Storyboard) {
-            const q = yield quest_1.QuestService.queryById(b.quest, { defaultPopulate: true });
+            const q = yield quest_1.QuestModel.findById(b.quest);
             let valid = false;
-            if (!q || quest_1.QuestService.isError(q)) {
+            if (!q) {
                 return helpers_1.defaultErrorMessage;
             }
             q.currentParty.members.forEach(member => {
@@ -91,20 +125,24 @@ function addTaskChecks(userId, b, invite, isNewTask) {
                 return { error: `The selected quest doesn't support beatmaps of this mode!` };
             }
         }
-        const isAlreadyBn = yield beatmap_1.BeatmapService.queryOne({
-            query: { _id: b._id, bns: userId },
+        const isAlreadyBn = yield beatmap_1.BeatmapModel.findOne({
+            _id: b._id,
+            bns: userId,
         });
         if (isAlreadyBn) {
             return { error: 'Cannot create a difficulty while in BN list!' };
         }
         if (!isNewTask) {
-            let t = yield task_1.TaskService.queryById(invite.modified);
+            let t = yield task_1.TaskModel.findById(invite.modified);
             if (!t) {
                 return { error: `Task doesn't exist anymore!` };
             }
-            t = yield task_1.TaskService.queryOne({ query: { _id: invite.modified, mappers: userId } });
-            if (t && !task_1.TaskService.isError(t)) {
-                yield invite_1.InviteService.update(invite.map._id, { visible: false });
+            t = yield task_1.TaskModel.findOne({
+                _id: invite.modified,
+                mappers: userId,
+            });
+            if (t) {
+                yield invite_1.InviteModel.findByIdAndUpdate(invite.map._id, { visible: false });
                 return { error: `You're already a mapper on this task!` };
             }
         }
@@ -125,66 +163,83 @@ notificationsRouter.get('/', (req, res) => {
 notificationsRouter.get('/relevantInfo', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     const [notif, inv] = yield Promise.all([
-        notification_1.NotificationService.queryAll({
-            query: { visible: true, recipient: (_a = req.session) === null || _a === void 0 ? void 0 : _a.mongoId },
-            defaultPopulate: true,
-        }),
-        invite_1.InviteService.queryAll({
-            query: { visible: true, recipient: (_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId },
-            defaultPopulate: true,
-        }),
+        notification_1.NotificationModel
+            .find({
+            visible: true,
+            recipient: (_a = req.session) === null || _a === void 0 ? void 0 : _a.mongoId,
+        })
+            .populate(notificationPopulate),
+        invite_1.InviteModel
+            .find({
+            visible: true,
+            recipient: (_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId,
+        })
+            .populate(invitePopulate),
     ]);
     res.json({ notifications: notif, invites: inv });
 }));
 notificationsRouter.post('/hideNotification/:id', middlewares_1.isNotSpectator, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    yield notification_1.NotificationService.update(req.params.id, { visible: false });
-    const n = yield notification_1.NotificationService.queryById(req.params.id, { defaultPopulate: true });
+    yield notification_1.NotificationModel.findByIdAndUpdate(req.params.id, { visible: false });
+    const n = yield notification_1.NotificationModel.findById(req.params.id);
     res.json(n);
 }));
-notificationsRouter.post('/hideAll/', middlewares_1.isNotSpectator, helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+notificationsRouter.post('/hideAll/', middlewares_1.isNotSpectator, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _c;
-    const notifs = yield notification_1.NotificationService.queryAllOrFail({
-        query: { recipient: (_c = req.session) === null || _c === void 0 ? void 0 : _c.mongoId, visible: true },
-    });
+    const notifs = yield notification_1.NotificationModel
+        .find({
+        recipient: (_c = req.session) === null || _c === void 0 ? void 0 : _c.mongoId,
+        visible: true,
+    })
+        .orFail();
     notifs.forEach(n => {
         n.visible = false;
-        notification_1.NotificationService.saveOrFail(n);
+        n.save();
     });
     res.json({});
-})));
-notificationsRouter.post('/hideInvite/:id', middlewares_1.isNotSpectator, helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let inv = yield invite_1.InviteService.update(req.params.id, { visible: false });
-    inv = yield invite_1.InviteService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+}));
+notificationsRouter.post('/hideInvite/:id', middlewares_1.isNotSpectator, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let inv = yield invite_1.InviteModel.findByIdAndUpdate(req.params.id, { visible: false });
+    inv = yield invite_1.InviteModel
+        .findById(req.params.id)
+        .populate(invitePopulate)
+        .orFail();
     res.json(inv);
     if (inv.map) {
-        notification_1.NotificationService.create(inv._id, `rejected your invite to ${inv.actionType} on the mapset`, inv.sender, inv.recipient, inv.map);
+        notification_1.NotificationModel.generate(inv._id, `rejected your invite to ${inv.actionType} on the mapset`, inv.sender, inv.recipient, inv.map);
     }
     else {
-        notification_1.NotificationService.createPartyNotification(inv._id, `rejected your invite to join the party`, inv.sender, inv.recipient, inv.party, inv.quest);
+        notification_1.NotificationModel.generatePartyNotification(inv._id, `rejected your invite to join the party`, inv.sender, inv.recipient, inv.party, inv.quest);
     }
-})));
-notificationsRouter.post('/hideAcceptedInvite/:id', middlewares_1.isNotSpectator, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    res.json(yield invite_1.InviteService.update(req.params.id, { visible: false }));
 }));
-notificationsRouter.post('/declineAll/', middlewares_1.isNotSpectator, helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const invs = yield invite_1.InviteService.queryAllOrFail({ query: { recipient: req.session.mongoId, visible: true } });
+notificationsRouter.post('/hideAcceptedInvite/:id', middlewares_1.isNotSpectator, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    res.json(yield invite_1.InviteModel.findByIdAndUpdate(req.params.id, { visible: false }));
+}));
+notificationsRouter.post('/declineAll/', middlewares_1.isNotSpectator, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _d;
+    const invs = yield invite_1.InviteModel.find({
+        recipient: (_d = req.session) === null || _d === void 0 ? void 0 : _d.mongoId,
+        visible: true,
+    });
     invs.forEach(inv => {
         inv.visible = false;
-        invite_1.InviteService.saveOrFail(inv);
+        inv.save();
     });
     res.json({});
-})));
-notificationsRouter.post('/acceptCollab/:id', middlewares_1.isNotSpectator, helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _d;
-    let invite = yield invite_1.InviteService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+}));
+notificationsRouter.post('/acceptCollab/:id', middlewares_1.isNotSpectator, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _e, _f, _g;
+    let invite = yield invite_1.InviteModel
+        .findById(req.params.id)
+        .populate(invitePopulate)
+        .orFail();
     if (!invite.modified) {
         return res.json({ error: `Mapset no longer exists!` });
     }
-    const b = yield beatmap_1.BeatmapService.queryOneOrFail({
-        query: { tasks: invite.modified._id },
-        populate: beatmapPopulate,
-    });
-    const valid = yield addTaskChecks((_d = req.session) === null || _d === void 0 ? void 0 : _d.mongoId, b, invite, false);
+    const b = yield beatmap_1.BeatmapModel
+        .findOne({ tasks: (invite.modified)._id })
+        .populate(beatmapPopulate)
+        .orFail();
+    const valid = yield addTaskChecks((_e = req.session) === null || _e === void 0 ? void 0 : _e.mongoId, b, invite, false);
     if (valid.error) {
         return res.json(valid);
     }
@@ -192,20 +247,32 @@ notificationsRouter.post('/acceptCollab/:id', middlewares_1.isNotSpectator, help
         return res.json({ error: 'Mapset ranked' });
     }
     invite.visible = false;
-    yield invite_1.InviteService.saveOrFail(invite);
-    invite = yield invite_1.InviteService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+    yield invite.save();
+    invite = yield invite_1.InviteModel
+        .findById(req.params.id)
+        .populate(invitePopulate)
+        .orFail();
     res.json(invite);
-    const t = yield task_1.TaskService.updateOrFail(invite.modified._id, { $push: { mappers: req.session.mongoId } });
-    log_1.LogService.create(req.session.mongoId, `added as collab mapper to "${t.name}" on "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
-    notification_1.NotificationService.create(t._id, `accepted your invite to collaborate on the "${t.name}" difficulty on your mapset`, invite.sender, invite.recipient, b._id);
-})));
-notificationsRouter.post('/acceptDiff/:id', middlewares_1.isNotSpectator, helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let invite = yield invite_1.InviteService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+    const t = yield task_1.TaskModel.findByIdAndUpdate(invite.modified._id, { $push: { mappers: (_f = req.session) === null || _f === void 0 ? void 0 : _f.mongoId } });
+    if (t) {
+        log_1.LogModel.generate((_g = req.session) === null || _g === void 0 ? void 0 : _g.mongoId, `added as collab mapper to "${t.name}" on "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
+        notification_1.NotificationModel.generate(t._id, `accepted your invite to collaborate on the "${t.name}" difficulty on your mapset`, invite.sender, invite.recipient, b._id);
+    }
+}));
+notificationsRouter.post('/acceptDiff/:id', middlewares_1.isNotSpectator, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _h, _j, _k;
+    let invite = yield invite_1.InviteModel
+        .findById(req.params.id)
+        .populate(invitePopulate)
+        .orFail();
     if (!invite.map) {
         return res.json({ error: `Mapset no longer exists!` });
     }
-    const b = yield beatmap_1.BeatmapService.queryByIdOrFail(invite.map._id, { populate: beatmapPopulate });
-    const valid = yield addTaskChecks(req.session.mongoId, b, invite, true);
+    const b = yield beatmap_1.BeatmapModel
+        .findById(invite.map._id)
+        .populate(beatmapPopulate)
+        .orFail();
+    const valid = yield addTaskChecks((_h = req.session) === null || _h === void 0 ? void 0 : _h.mongoId, b, invite, true);
     if (valid.error) {
         return res.json(valid);
     }
@@ -213,57 +280,74 @@ notificationsRouter.post('/acceptDiff/:id', middlewares_1.isNotSpectator, helper
         return res.json({ error: `Mapset already marked as ${b.status.toLowerCase()}` });
     }
     invite.visible = false;
-    yield invite_1.InviteService.saveOrFail(invite);
-    invite = yield invite_1.InviteService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+    yield invite.save();
+    invite = yield invite_1.InviteModel
+        .findById(req.params.id)
+        .populate(invitePopulate)
+        .orFail();
     res.json(invite);
     if (invite.taskName == task_2.TaskName.Storyboard) {
         invite.taskMode = task_2.TaskMode.SB;
     }
-    const t = yield task_1.TaskService.create({ name: invite.taskName, mappers: req.session.mongoId, mode: invite.taskMode });
-    if (task_1.TaskService.isError(t)) {
-        return;
+    const t = new task_1.TaskModel();
+    t.name = invite.taskName;
+    t.mappers = (_j = req.session) === null || _j === void 0 ? void 0 : _j.mongoId;
+    t.mode = invite.taskMode;
+    yield t.save();
+    yield beatmap_1.BeatmapModel.findByIdAndUpdate(invite.map._id, { $push: { tasks: t._id } });
+    const updateBeatmap = yield beatmap_1.BeatmapModel
+        .findById(invite.map._id)
+        .populate(beatmapPopulate);
+    if (updateBeatmap) {
+        log_1.LogModel.generate((_k = req.session) === null || _k === void 0 ? void 0 : _k.mongoId, `added "${invite.taskName}" difficulty to "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
+        notification_1.NotificationModel.generate(updateBeatmap._id, `accepted the invite to create a difficulty on your mapset`, invite.sender, invite.recipient, updateBeatmap._id);
     }
-    yield beatmap_1.BeatmapService.update(invite.map._id, { $push: { tasks: t._id } });
-    const updateBeatmap = yield beatmap_1.BeatmapService.queryById(invite.map._id, { populate: beatmapPopulate });
-    if (updateBeatmap && !beatmap_1.BeatmapService.isError(updateBeatmap)) {
-        log_1.LogService.create(req.session.mongoId, `added "${invite.taskName}" difficulty to "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
-        notification_1.NotificationService.create(updateBeatmap._id, `accepted the invite to create a difficulty on your mapset`, invite.sender, invite.recipient, updateBeatmap._id);
-    }
-})));
-notificationsRouter.post('/acceptJoin/:id', middlewares_1.isNotSpectator, helpers_1.canFail((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let invite = yield invite_1.InviteService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
-    const q = yield quest_1.QuestService.queryByIdOrFail(invite.quest._id, { defaultPopulate: true });
-    const currentParties = yield party_1.PartyService.queryAll({ query: { members: req.session.mongoId } });
+}));
+notificationsRouter.post('/acceptJoin/:id', middlewares_1.isNotSpectator, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _l, _m, _o, _p, _q;
+    let invite = yield invite_1.InviteModel
+        .findById(req.params.id)
+        .populate(invitePopulate)
+        .orFail();
+    const q = yield quest_1.QuestModel
+        .findById(invite.quest._id)
+        .defaultPopulate()
+        .orFail();
+    const currentParties = yield party_1.PartyModel.find({ members: (_l = req.session) === null || _l === void 0 ? void 0 : _l.mongoId });
     let duplicate = false;
     if (!invite.party) {
         return res.json({ error: 'That party no longer exists!' });
     }
-    if (!party_1.PartyService.isError(currentParties)) {
-        duplicate = q.parties.some(questParty => {
-            return currentParties.some(userParty => questParty.id == userParty.id);
-        });
-    }
+    duplicate = q.parties.some(questParty => {
+        return currentParties.some(userParty => questParty.id == userParty.id);
+    });
     if (duplicate) {
         return res.json({ error: 'You are already in a party for this quest!' });
     }
     if (res.locals.userRequest.availablePoints < q.price) {
         return res.json({ error: 'You do not have enough points available to accept this quest! ' });
     }
-    const p = yield party_1.PartyService.queryByIdOrFail(invite.party._id);
+    const p = yield party_1.PartyModel
+        .findById(invite.party._id)
+        .defaultPopulate()
+        .orFail();
     if (q.status == 'wip' && q.currentParty.members.length >= q.maxParty) {
         return res.json({ error: 'Party has too many members!' });
     }
     invite.visible = false;
-    yield invite_1.InviteService.saveOrFail(invite);
-    invite = yield invite_1.InviteService.queryByIdOrFail(req.params.id, { defaultPopulate: true });
+    yield invite.save();
+    invite = yield invite_1.InviteModel
+        .findById(req.params.id)
+        .populate(invitePopulate)
+        .orFail();
     res.json(invite);
-    yield party_1.PartyService.update(invite.party._id, { $push: { members: req.session.mongoId } });
+    yield party_1.PartyModel.findByIdAndUpdate(invite.party._id, { $push: { members: (_m = req.session) === null || _m === void 0 ? void 0 : _m.mongoId } });
     yield updatePartyInfo(p._id);
     if (q.status == quest_2.QuestStatus.WIP) {
-        spentPoints_1.SpentPointsService.create(spentPoints_2.SpentPointsCategory.AcceptQuest, req.session.mongoId, q._id);
-        points_1.updateUserPoints(req.session.mongoId);
+        spentPoints_1.SpentPointsModel.generate(spentPoints_2.SpentPointsCategory.AcceptQuest, (_o = req.session) === null || _o === void 0 ? void 0 : _o.mongoId, q._id);
+        points_1.updateUserPoints((_p = req.session) === null || _p === void 0 ? void 0 : _p.mongoId);
     }
-    log_1.LogService.create(req.session.mongoId, `joined a party for quest ${q.name}`, log_2.LogCategory.Party);
-    notification_1.NotificationService.createPartyNotification(p._id, `accepted the invite to join your party`, invite.sender, invite.recipient, p._id, q._id);
-})));
+    log_1.LogModel.generate((_q = req.session) === null || _q === void 0 ? void 0 : _q.mongoId, `joined a party for quest ${q.name}`, log_2.LogCategory.Party);
+    notification_1.NotificationModel.generatePartyNotification(p._id, `accepted the invite to join your party`, invite.sender, invite.recipient, p._id, q._id);
+}));
 exports.default = notificationsRouter;

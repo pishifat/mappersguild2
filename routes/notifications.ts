@@ -15,7 +15,7 @@ import { SpentPointsCategory } from '../interfaces/spentPoints';
 import { LogModel } from '../models/log';
 import { LogCategory } from '../interfaces/log';
 import { QuestStatus } from '../interfaces/quest';
-import { User } from 'interfaces/user';
+import { User } from '../interfaces/user';
 
 const notificationsRouter = express.Router();
 

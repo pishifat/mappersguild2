@@ -1,4 +1,4 @@
-import { User } from 'interfaces/user';
+import { User } from '../../interfaces/user';
 import { Submission } from './submission';
 import { JudgingScore } from './judgingScore';
 import { Document } from 'mongoose';

@@ -19,7 +19,6 @@ const user_1 = require("../models/user");
 const log_1 = require("../models/log");
 const log_2 = require("../interfaces/log");
 const middlewares_1 = require("../helpers/middlewares");
-const helpers_1 = require("../helpers/helpers");
 const osuApi_1 = require("../helpers/osuApi");
 const user_2 = require("../interfaces/user");
 const discordApi_1 = require("../helpers/discordApi");
@@ -27,8 +26,8 @@ const indexRouter = express_1.default.Router();
 indexRouter.get('/', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     if ((_a = req.session) === null || _a === void 0 ? void 0 : _a.osuId) {
-        const u = yield user_1.UserService.queryById(req.session.mongoId);
-        if (u && !user_1.UserService.isError(u)) {
+        const u = yield user_1.UserModel.findById(req.session.mongoId);
+        if (u) {
             return next();
         }
     }
@@ -44,13 +43,17 @@ indexRouter.get('/', (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         pointsInfo: res.locals.userRequest.pointsInfo,
     });
 });
-indexRouter.get('/login', helpers_1.canFail((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+indexRouter.get('/login', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _b, _c;
     if (((_b = req.session) === null || _b === void 0 ? void 0 : _b.osuId) && ((_c = req.session) === null || _c === void 0 ? void 0 : _c.username)) {
-        const u = yield user_1.UserService.queryOne({ query: { osuId: req.session.osuId } });
-        if (!u || user_1.UserService.isError(u)) {
-            const newUser = yield user_1.UserService.create(req.session.osuId, req.session.username, req.session.group);
-            if (newUser && !user_1.UserService.isError(newUser)) {
+        const u = yield user_1.UserModel.findOne({ osuId: req.session.osuId });
+        if (!u) {
+            const newUser = new user_1.UserModel();
+            newUser.osuId = req.session.osuId;
+            newUser.username = req.session.username;
+            newUser.group = req.session.group;
+            yield newUser.save();
+            if (newUser) {
                 req.session.mongoId = newUser._id;
                 if (newUser.group == user_2.UserGroup.User) {
                     discordApi_1.webhookPost([{
@@ -62,10 +65,10 @@ indexRouter.get('/login', helpers_1.canFail((req, res, next) => __awaiter(void 0
                             color: discordApi_1.webhookColors.lightRed,
                             description: `Joined the Mappers' Guild!`,
                         }]);
-                    log_1.LogService.create(req.session.mongoId, `joined the Mappers' Guild`, log_2.LogCategory.User);
+                    log_1.LogModel.generate(req.session.mongoId, `joined the Mappers' Guild`, log_2.LogCategory.User);
                 }
                 else {
-                    log_1.LogService.create(req.session.mongoId, `verified their account for the first time`, log_2.LogCategory.User);
+                    log_1.LogModel.generate(req.session.mongoId, `verified their account for the first time`, log_2.LogCategory.User);
                 }
                 return next();
             }
@@ -76,11 +79,11 @@ indexRouter.get('/login', helpers_1.canFail((req, res, next) => __awaiter(void 0
         else {
             if (u.username != req.session.username) {
                 u.username = req.session.username;
-                yield user_1.UserService.saveOrFail(u);
+                yield u.save();
             }
             if (u.group != req.session.group && u.group != 'admin') {
                 u.group = req.session.group;
-                yield user_1.UserService.saveOrFail(u);
+                yield u.save();
                 if (req.session.group == 'user') {
                     discordApi_1.webhookPost([{
                             author: {
@@ -91,7 +94,7 @@ indexRouter.get('/login', helpers_1.canFail((req, res, next) => __awaiter(void 0
                             color: discordApi_1.webhookColors.lightRed,
                             description: `Joined the Mappers' Guild!`,
                         }]);
-                    log_1.LogService.create(u._id, `joined the Mappers' Guild`, log_2.LogCategory.User);
+                    log_1.LogModel.generate(u._id, `joined the Mappers' Guild`, log_2.LogCategory.User);
                 }
             }
             req.session.mongoId = u._id;
@@ -108,9 +111,9 @@ indexRouter.get('/login', helpers_1.canFail((req, res, next) => __awaiter(void 0
         const hashedState = Buffer.from(req.cookies._state).toString('base64');
         res.redirect(`https://osu.ppy.sh/oauth/authorize?response_type=code&client_id=${config_json_1.default.id}&redirect_uri=${encodeURIComponent(config_json_1.default.redirect)}&state=${hashedState}&scope=identify`);
     }
-})), middlewares_1.isLoggedIn, (req, res) => {
-    var _a, _b;
-    if ((_b = (_a = req) === null || _a === void 0 ? void 0 : _a.session) === null || _b === void 0 ? void 0 : _b.lastPage) {
+}), middlewares_1.isLoggedIn, (req, res) => {
+    var _a;
+    if ((_a = req === null || req === void 0 ? void 0 : req.session) === null || _a === void 0 ? void 0 : _a.lastPage) {
         res.redirect(req.session.lastPage);
     }
     else if (res.locals.userRequest.group == 'admin') {
@@ -128,15 +131,15 @@ indexRouter.get('/logout', middlewares_1.isLoggedIn, (req, res) => {
     });
 });
 indexRouter.get('/callback', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    if (!req.query.code || req.query.error) {
+    if (!req.query.code || req.query.error || !req.query.state) {
         return res.redirect('/');
     }
-    const decodedState = Buffer.from(req.query.state, 'base64').toString('ascii');
+    const decodedState = Buffer.from(req.query.state.toString(), 'base64').toString('ascii');
     if (decodedState !== req.cookies._state) {
         res.clearCookie('_state');
         return res.status(403).render('error', { message: 'unauthorized' });
     }
-    let response = yield osuApi_1.getToken(req.query.code);
+    let response = yield osuApi_1.getToken(req.query.code.toString());
     if (osuApi_1.isOsuResponseError(response)) {
         res.status(500).render('error', { message: response.error });
     }
@@ -156,7 +159,4 @@ indexRouter.get('/callback', (req, res) => __awaiter(void 0, void 0, void 0, fun
         }
     }
 }));
-indexRouter.get('/bnsite', (req, res) => {
-    return res.redirect('https://bn.mappersguild.com');
-});
 exports.default = indexRouter;

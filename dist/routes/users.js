@@ -19,6 +19,8 @@ const beatmap_1 = require("../models/beatmap/beatmap");
 const quest_1 = require("../models/quest");
 const spentPoints_1 = require("../models/spentPoints");
 const task_1 = require("../models/beatmap/task");
+const quest_2 = require("../interfaces/quest");
+const user_2 = require("../interfaces/user");
 const usersRouter = express_1.default.Router();
 usersRouter.use(middlewares_1.isLoggedIn);
 const beatmapPopulate = [
@@ -26,9 +28,8 @@ const beatmapPopulate = [
     { path: 'host', select: 'username osuId' },
     { path: 'tasks', populate: { path: 'mappers' } },
 ];
-const questPopulate = [
-    { path: 'currentParty', populate: { path: 'members leader' } },
-];
+const questPopulate = { path: 'currentParty', populate: { path: 'members leader' } };
+const userPopulate = { path: 'completedQuests', select: 'name completed' };
 usersRouter.get('/', (req, res) => {
     var _a, _b;
     res.render('users', {
@@ -42,81 +43,65 @@ usersRouter.get('/', (req, res) => {
 });
 usersRouter.get('/relevantInfo', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
-    const u = yield user_1.UserService.queryAll({
-        query: {
-            group: { $ne: 'spectator' },
-        },
-        useDefaults: true,
-    });
+    const users = yield user_1.UserModel
+        .find({
+        group: { $ne: user_2.UserGroup.Spectator },
+    })
+        .populate(userPopulate);
     res.json({
-        users: u,
+        users,
         userId: (_a = req.session) === null || _a === void 0 ? void 0 : _a.osuId,
         username: (_b = req.session) === null || _b === void 0 ? void 0 : _b.username,
         group: res.locals.userRequest.group,
     });
 }));
 usersRouter.get('/beatmaps', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const b = yield beatmap_1.BeatmapService.queryAll({
-        populate: beatmapPopulate,
-        sort: { status: -1 },
-    });
-    res.json({ beatmaps: b });
+    const beatmaps = yield beatmap_1.BeatmapModel
+        .find({})
+        .populate(beatmapPopulate)
+        .sort({ status: -1 });
+    res.json({ beatmaps });
 }));
 usersRouter.get('/findCurrentQuests/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const wipQuests = yield quest_1.QuestService.queryAll({
-        query: { status: 'wip' },
-        populate: questPopulate,
-        sort: { accepted: -1 },
-    });
-    const currentQuests = [];
-    if (!quest_1.QuestService.isError(wipQuests)) {
-        wipQuests.forEach(quest => {
-            quest.currentParty.members.forEach(member => {
-                if (member.id == req.params.id) {
-                    currentQuests.push(quest);
-                }
-            });
-        });
-    }
+    const wipQuests = yield quest_1.QuestModel
+        .find({ status: quest_2.QuestStatus.WIP })
+        .populate(questPopulate)
+        .sort({ accepted: -1 });
+    const currentQuests = wipQuests.filter(quest => quest.currentParty.members.some(member => member.id == req.params.id));
     res.json(currentQuests);
 }));
 usersRouter.get('/findSpentPoints/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const spentPoints = yield spentPoints_1.SpentPointsService.queryAll({
-        query: { user: req.params.id },
-        populate: [{ path: 'quest', select: 'price art requiredMapsets name' }],
-        sort: { createdAt: -1 },
-    });
+    const spentPoints = yield spentPoints_1.SpentPointsModel
+        .find({ user: req.params.id })
+        .populate({ path: 'quest', select: 'price art requiredMapsets name' })
+        .sort({ createdAt: -1 });
     res.json(spentPoints);
 }));
 usersRouter.get('/findUserBeatmaps/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const ownTasks = yield task_1.TaskService.queryAll({
-        query: { mappers: req.params.id },
-        select: '_id',
-    });
-    const userBeatmaps = yield beatmap_1.BeatmapService.queryAll({
-        query: {
-            $or: [
-                {
-                    tasks: {
-                        $in: ownTasks,
-                    },
+    const ownTasks = yield task_1.TaskModel
+        .find({ mappers: req.params.id })
+        .select('_id');
+    const userBeatmaps = yield beatmap_1.BeatmapModel
+        .find({
+        $or: [
+            {
+                tasks: {
+                    $in: ownTasks,
                 },
-                {
-                    host: req.params.id,
-                },
-            ]
-        },
-        useDefaults: true,
-    });
+            },
+            {
+                host: req.params.id,
+            },
+        ],
+    })
+        .defaultPopulate()
+        .sortByLastest();
     res.json(userBeatmaps);
 }));
 usersRouter.get('/:sort', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    res.json(yield user_1.UserService.queryAll({
-        query: {
-            group: { $ne: 'spectator' },
-        },
-        defaultPopulate: true,
-        sort: req.params.sort,
-    }));
+    res.json(yield user_1.UserModel
+        .find({ group: { $ne: user_2.UserGroup.Spectator } })
+        .populate(userPopulate)
+        .sort(req.params.sort));
 }));
 exports.default = usersRouter;

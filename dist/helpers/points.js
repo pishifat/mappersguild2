@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.updateUserPoints = exports.findCreateQuestPointsSpent = exports.findReopenQuestPoints = exports.findStoryboardPoints = exports.findQuestBonus = exports.findQuestPoints = exports.findDifficultyPoints = exports.findLengthNerf = void 0;
 const quest_1 = require("../interfaces/quest");
 const beatmap_1 = require("../interfaces/beatmap/beatmap");
 const beatmap_2 = require("../models/beatmap/beatmap");
@@ -119,70 +120,61 @@ function findCreateQuestPointsSpent(questArtist, requiredMapsets) {
 exports.findCreateQuestPointsSpent = findCreateQuestPointsSpent;
 function updateUserPoints(userId) {
     return __awaiter(this, void 0, void 0, function* () {
-        const [ownTasks, hostedBeatmaps, moddedBeatmaps, submittedContests, judgedContests, ownSpentPoints] = yield Promise.all([
-            task_2.TaskService.queryAll({
-                query: { mappers: userId },
-                select: '_id',
+        const [ownTasks, hostedBeatmaps, moddedBeatmaps, submittedContests, screenedContests, ownSpentPoints] = yield Promise.all([
+            task_2.TaskModel.find({ mappers: userId }).select('_id'),
+            beatmap_2.BeatmapModel
+                .find({
+                status: beatmap_1.BeatmapStatus.Ranked,
+                host: userId,
+            })
+                .populate({
+                path: 'host',
+                select: '_id osuId username',
             }),
-            beatmap_2.BeatmapService.queryAll({
-                query: {
-                    status: beatmap_1.BeatmapStatus.Ranked,
-                    host: userId,
-                },
-                populate: [
-                    { path: 'host', select: '_id osuId username' },
+            beatmap_2.BeatmapModel
+                .find({
+                status: beatmap_1.BeatmapStatus.Ranked,
+                modders: userId,
+            })
+                .populate({
+                path: 'modders',
+                select: '_id osuId username',
+            }),
+            submission_1.SubmissionModel.find({
+                $and: [
+                    { creator: userId },
+                    { creator: { $ne: '5c6e135359d335001922e610' } },
                 ],
             }),
-            beatmap_2.BeatmapService.queryAll({
-                query: {
-                    status: beatmap_1.BeatmapStatus.Ranked,
-                    modders: userId,
-                },
-                populate: [
-                    { path: 'modders', select: '_id osuId username' },
-                ],
+            contest_1.ContestModel.find({
+                screeners: userId,
             }),
-            submission_1.SubmissionService.queryAll({
-                query: {
-                    $and: [
-                        { creator: userId },
-                        { creator: { $ne: '5c6e135359d335001922e610' } },
-                    ],
-                },
-            }),
-            contest_1.ContestService.queryAll({
-                query: {
-                    judges: userId,
-                },
-            }),
-            spentPoints_1.SpentPointsService.queryAll({
-                query: { user: userId },
-                populate: [
-                    { path: 'quest', select: 'price art requiredMapsets' },
-                ],
+            spentPoints_1.SpentPointsModel
+                .find({ user: userId })
+                .populate({
+                path: 'quest',
+                select: 'price art requiredMapsets',
             }),
         ]);
-        const userBeatmaps = yield beatmap_2.BeatmapService.queryAll({
-            query: {
-                status: beatmap_1.BeatmapStatus.Ranked,
-                tasks: {
-                    $in: ownTasks,
-                },
+        const userBeatmaps = yield beatmap_2.BeatmapModel
+            .find({
+            status: beatmap_1.BeatmapStatus.Ranked,
+            tasks: {
+                $in: ownTasks,
             },
-            populate: [
-                { path: 'host', select: '_id osuId username' },
-                { path: 'modders', select: '_id osuId username' },
-                { path: 'quest', select: '_id name status price completed deadline' },
-                { path: 'tasks', populate: { path: 'mappers' } },
-            ],
-        });
-        if (!ownTasks || task_2.TaskService.isError(ownTasks) ||
-            !hostedBeatmaps || beatmap_2.BeatmapService.isError(hostedBeatmaps) ||
-            !moddedBeatmaps || beatmap_2.BeatmapService.isError(moddedBeatmaps) ||
-            !submittedContests || submission_1.SubmissionService.isError(submittedContests) ||
-            !judgedContests || contest_1.ContestService.isError(judgedContests) ||
-            !ownSpentPoints || spentPoints_1.SpentPointsService.isError(ownSpentPoints) ||
-            !userBeatmaps || beatmap_2.BeatmapService.isError(userBeatmaps)) {
+        }).populate([
+            { path: 'host', select: '_id osuId username' },
+            { path: 'modders', select: '_id osuId username' },
+            { path: 'quest', select: '_id name status price completed deadline' },
+            { path: 'tasks', populate: { path: 'mappers' } },
+        ]);
+        if (!ownTasks ||
+            !hostedBeatmaps ||
+            !moddedBeatmaps ||
+            !submittedContests ||
+            !screenedContests ||
+            !ownSpentPoints ||
+            !userBeatmaps) {
             return helpers_1.defaultErrorMessage;
         }
         const pointsObject = {
@@ -202,7 +194,7 @@ function updateUserPoints(userId) {
             catch: 0,
             mania: 0,
             ContestParticipant: 0,
-            ContestJudge: 0,
+            ContestScreener: 0,
             ContestVote: 0,
             Quests: [],
         };
@@ -240,7 +232,7 @@ function updateUserPoints(userId) {
         pointsObject['Mod'] = moddedBeatmaps.length;
         pointsObject['ContestParticipant'] = submittedContests.length * 5;
         if (userId != '5c6e135359d335001922e610')
-            pointsObject['ContestJudge'] = judgedContests.length;
+            pointsObject['ContestScreener'] = screenedContests.length;
         ownSpentPoints.forEach(spentPoints => {
             if (spentPoints.category == 'acceptQuest') {
                 pointsObject['SpentPoints'] += spentPoints.quest.price;
@@ -265,7 +257,7 @@ function updateUserPoints(userId) {
             pointsObject['Host'] +
             pointsObject['QuestReward'] +
             pointsObject['ContestParticipant'] +
-            pointsObject['ContestJudge'] +
+            pointsObject['ContestScreener'] +
             pointsObject['ContestVote'];
         if (totalPoints < 100) {
             pointsObject['Rank'] = 0;
@@ -279,7 +271,7 @@ function updateUserPoints(userId) {
         else {
             pointsObject['Rank'] = 3;
         }
-        user_1.UserService.update(userId, {
+        user_1.UserModel.findByIdAndUpdate(userId, {
             easyPoints: pointsObject['Easy'],
             normalPoints: pointsObject['Normal'],
             hardPoints: pointsObject['Hard'],
@@ -296,7 +288,7 @@ function updateUserPoints(userId) {
             catchPoints: pointsObject['catch'],
             maniaPoints: pointsObject['mania'],
             contestParticipantPoints: pointsObject['ContestParticipant'],
-            contestJudgePoints: pointsObject['ContestJudge'],
+            contestScreenerPoints: pointsObject['ContestScreener'],
             contestVotePoints: pointsObject['ContestVote'],
             completedQuests: pointsObject['Quests'],
         });

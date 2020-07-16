@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema, DocumentQuery, Model } from 'mongoose';
 import { Beatmap as IBeatmap } from '../../interfaces/beatmap/beatmap';
-import { User } from 'interfaces/user';
+import { User } from '../../interfaces/user';
 
 export interface Beatmap extends IBeatmap, Document {
     id: string;
