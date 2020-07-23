@@ -42,6 +42,7 @@ import screeningRouter from './routes/screening';
 import adminContestsRouter from './routes/admin/contests';
 import adminJudgingRouter from './routes/admin/judging';
 import judgingRouter from './routes/judging';
+import contestResultsRouter from './routes/contestResults';
 
 const app = express();
 const MongoStore = MongoStoreSession(session);
@@ -106,6 +107,7 @@ app.use('/logs', logsRouter);
 app.use('/notifications', notificationsRouter);
 app.use('/screening', screeningRouter);
 app.use('/judging', judgingRouter);
+app.use('/contestresults', contestResultsRouter);
 
 app.use('/artists', artistsRouter);
 app.use('/admin', adminRouter);

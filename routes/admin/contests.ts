@@ -3,6 +3,7 @@ import { isLoggedIn, isSuperAdmin } from '../../helpers/middlewares';
 import { ContestModel } from '../../models/contest/contest';
 import { UserModel } from '../../models/user';
 import { SubmissionModel } from '../../models/contest/submission';
+import { sendPm, isOsuResponseError } from '../../helpers/osuApi';
 
 const adminContestsRouter = express.Router();
 
@@ -268,6 +269,21 @@ adminContestsRouter.post('/:id/updateJudgingThreshold', async (req, res) => {
     await contest.save();
 
     res.json(newJudgingThreshold);
+});
+
+/* POST send results pm */
+adminContestsRouter.post('/sendResultsPm', async (req, res) => {
+    const message = `hello, thank you for recently participating in "${req.body.contestName}"! screening/judging details on your submission can be found here: https://mappersguild.com/contestresults?submission=${req.body.submissionId}`;
+
+    const response = await sendPm(req.session!.accessToken!, parseInt(req.body.osuId), message);
+
+    console.log(response);
+
+    if (isOsuResponseError(response)) {
+        return res.json({ error: 'Could not send PM' });
+    }
+
+    res.json(true);
 });
 
 export default adminContestsRouter;

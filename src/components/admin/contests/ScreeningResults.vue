@@ -42,6 +42,8 @@
                         <message-template
                             :evaluations="submission.evaluations"
                             :osu-id="submission.creator.osuId"
+                            :submission-id="submission.id"
+                            :contest-name="contestName"
                         />
                     </div>
                 </div>
@@ -64,6 +66,10 @@ export default Vue.extend({
     },
     props: {
         contestId: {
+            type: String,
+            required: true,
+        },
+        contestName: {
             type: String,
             required: true,
         },

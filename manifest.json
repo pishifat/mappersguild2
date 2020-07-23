@@ -10,6 +10,7 @@
   "notificationsComponent.js": "/js/notificationsComponent.js",
   "screening.js": "/js/screening.js",
   "judging.js": "/js/judging.js",
+  "contestResults.js": "/js/contestResults.js",
   "logs.js": "/js/logs.js",
   "notifications.js": "/js/notifications.js",
   "quests.js": "/js/quests.js",

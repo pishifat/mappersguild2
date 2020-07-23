@@ -73,6 +73,7 @@
                     <screening-results
                         v-if="screeningResultsVisible"
                         :contest-id="contest.id"
+                        :contest-name="contest.name"
                         :submissions="contest.submissions"
                         :judging-threshold="contest.judgingThreshold"
                     />
