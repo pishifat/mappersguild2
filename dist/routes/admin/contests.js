@@ -17,6 +17,7 @@ const middlewares_1 = require("../../helpers/middlewares");
 const contest_1 = require("../../models/contest/contest");
 const user_1 = require("../../models/user");
 const submission_1 = require("../../models/contest/submission");
+const osuApi_1 = require("../../helpers/osuApi");
 const adminContestsRouter = express_1.default.Router();
 adminContestsRouter.use(middlewares_1.isLoggedIn);
 adminContestsRouter.use(middlewares_1.isSuperAdmin);
@@ -222,5 +223,14 @@ adminContestsRouter.post('/:id/updateJudgingThreshold', (req, res) => __awaiter(
     contest.judgingThreshold = newJudgingThreshold;
     yield contest.save();
     res.json(newJudgingThreshold);
+}));
+adminContestsRouter.post('/sendResultsPm', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const message = `hello, thank you for recently participating in "${req.body.contestName}"! screening/judging details on your submission can be found here: https://mappersguild.com/contestresults?submission=${req.body.submissionId}`;
+    const response = yield osuApi_1.sendPm(req.session.accessToken, parseInt(req.body.osuId), message);
+    console.log(response);
+    if (osuApi_1.isOsuResponseError(response)) {
+        return res.json({ error: 'Could not send PM' });
+    }
+    res.json(true);
 }));
 exports.default = adminContestsRouter;

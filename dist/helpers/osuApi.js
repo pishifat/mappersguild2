@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getMaps = exports.beatmapsetInfo = exports.getUserInfo = exports.refreshToken = exports.getToken = exports.isOsuResponseError = void 0;
+exports.sendPm = exports.getMaps = exports.beatmapsetInfo = exports.getUserInfo = exports.refreshToken = exports.getToken = exports.isOsuResponseError = void 0;
 const helpers_1 = require("./helpers");
 const querystring_1 = __importDefault(require("querystring"));
 const config_json_1 = __importDefault(require("../config.json"));
@@ -140,3 +140,21 @@ function getMaps(date) {
     });
 }
 exports.getMaps = getMaps;
+function sendPm(token, osuId, message) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const options = {
+            url: 'https://osu.ppy.sh/api/v2/chat/new',
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            body: {
+                target_id: osuId,
+                message,
+                is_action: false,
+            },
+        };
+        return yield executeRequest(options);
+    });
+}
+exports.sendPm = sendPm;
