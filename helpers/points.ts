@@ -289,7 +289,7 @@ export async function updateUserPoints(userId: any): Promise<number | BasicError
         pointsObject['Rank'] = 3;
     }
 
-    UserModel.findByIdAndUpdate(userId, {
+    await UserModel.findByIdAndUpdate(userId, {
         easyPoints: pointsObject['Easy'],
         normalPoints: pointsObject['Normal'],
         hardPoints: pointsObject['Hard'],

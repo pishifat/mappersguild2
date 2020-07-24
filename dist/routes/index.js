@@ -81,7 +81,7 @@ indexRouter.get('/login', (req, res, next) => __awaiter(void 0, void 0, void 0, 
                 u.username = req.session.username;
                 yield u.save();
             }
-            if (u.group != req.session.group && u.group != 'admin') {
+            if (u.group != req.session.group && u.group != 'admin' && !u.bypassLogin) {
                 u.group = req.session.group;
                 yield u.save();
                 if (req.session.group == 'user') {

@@ -271,7 +271,7 @@ function updateUserPoints(userId) {
         else {
             pointsObject['Rank'] = 3;
         }
-        user_1.UserModel.findByIdAndUpdate(userId, {
+        yield user_1.UserModel.findByIdAndUpdate(userId, {
             easyPoints: pointsObject['Easy'],
             normalPoints: pointsObject['Normal'],
             hardPoints: pointsObject['Hard'],

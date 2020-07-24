@@ -17,6 +17,7 @@ const middlewares_1 = require("../../helpers/middlewares");
 const user_1 = require("../../models/user");
 const points_1 = require("../../helpers/points");
 const discordApi_1 = require("../../helpers/discordApi");
+const user_2 = require("../../interfaces/user");
 const adminUsersRouter = express_1.default.Router();
 adminUsersRouter.use(middlewares_1.isLoggedIn);
 adminUsersRouter.use(middlewares_1.isAdmin);
@@ -69,5 +70,11 @@ adminUsersRouter.post('/updateAllUserPoints', (req, res) => __awaiter(void 0, vo
         points_1.updateUserPoints(user.id);
     }
     res.json('user points updated');
+}));
+adminUsersRouter.post('/:id/toggleBypassLogin', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const bypassLogin = req.body.bypassLogin;
+    const group = bypassLogin ? user_2.UserGroup.User : user_2.UserGroup.Spectator;
+    yield user_1.UserModel.findByIdAndUpdate(req.params.id, { bypassLogin, group }).orFail();
+    res.json({ bypassLogin, group });
 }));
 exports.default = adminUsersRouter;
