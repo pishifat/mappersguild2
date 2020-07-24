@@ -274,9 +274,9 @@ export default Vue.extend({
         ]),
         packType(): string {
             if (this.mapsetCount == 1) {
-                return 'solo';
+                return 'single';
             } else if (this.mapsetCount == 2) {
-                return 'duo';
+                return 'double';
             } else if (this.mapsetCount <= 4) {
                 return 'mini-pack';
             } else if (this.mapsetCount <= 9) {
