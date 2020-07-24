@@ -85,7 +85,6 @@
                             :key="i"
                             data-toggle="modal"
                             data-target="#detailModal"
-                            :style="i > 5 ? 'opacity: .7' : ''"
                             @click="selectedScore = score"
                         >
                             <td>{{ i + 1 }}</td>

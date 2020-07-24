@@ -154,7 +154,7 @@ adminJudgingRouter.get('/:id', async (req, res) => {
             {
                 path: 'submissions',
                 populate: {
-                    path: 'judgings creator',
+                    path: 'judgings creator evaluations',
                     populate: {
                         path: 'judgingScores judge',
                         populate: {
@@ -166,6 +166,18 @@ adminJudgingRouter.get('/:id', async (req, res) => {
             { path: 'judges' },
         ])
         .orFail();
+
+    const filteredSubmissions = [...contest.submissions].filter(submission => {
+        let total = 0;
+
+        submission.evaluations.forEach(e => {
+            total += e.vote;
+        });
+
+        return total >= contest.judgingThreshold;
+    });
+
+    contest.submissions = filteredSubmissions;
 
     const criterias = await CriteriaModel.find({});
     const { usersScores, judgesCorrel } = calculateContestScores(contest);

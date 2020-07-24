@@ -1,12 +1,13 @@
 import express from 'express';
 import { isLoggedIn } from '../helpers/middlewares';
 import { SubmissionModel } from '../models/contest/submission';
+import { ContestModel } from '../models/contest/contest';
 import { UserModel } from '../models/user';
 
 const contestResultsRouter = express.Router();
 
 // population
-const defaultPopulate = [
+const submissionPopulate = [
     {
         path: 'contest',
         select: 'name screeners',
@@ -55,11 +56,11 @@ contestResultsRouter.get('/', async (req, res, next) => {
     });
 });
 
-contestResultsRouter.get('/searchOnLoad/:id', async (req, res) => {
+contestResultsRouter.get('/searchSubmission/:id', async (req, res) => {
     const submission =
         await SubmissionModel
             .findById(req.params.id)
-            .populate(defaultPopulate);
+            .populate(submissionPopulate);
 
     res.json(submission);
 });

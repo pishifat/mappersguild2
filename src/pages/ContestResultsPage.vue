@@ -1,9 +1,6 @@
 <template>
-    <div v-cloak>
-        <div v-if="!submission" class="text-center p-3">
-            Invalid submission ID
-        </div>
-        <div v-else class="container bg-container p-3">
+    <div>
+        <div v-if="submission" class="container bg-container p-3">
             <div class="text-center">
                 <h4>
                     {{ submission.contest.name }}
@@ -140,13 +137,16 @@ export default Vue.extend({
     },
     async created () {
         const params: any = new URLSearchParams(document.location.search.substring(1));
+        let submission;
 
         if (params.get('submission') && params.get('submission').length) {
-            const submission = await this.executeGet<{ submission: Submission }>('/contestResults/searchOnLoad/' + params.get('submission'));
+            submission = await this.executeGet<{ submission: Submission }>('/contestResults/searchSubmission/' + params.get('submission'));
+        }
 
-            if (!this.isError(submission)) {
-                this.$store.commit('setSubmission', submission);
-            }
+        if (!submission || this.isError(submission)) {
+            window.location.replace('/');
+        } else {
+            this.$store.commit('setSubmission', submission);
         }
 
         $('#loading').fadeOut();
