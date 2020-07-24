@@ -17,7 +17,7 @@ const middlewares_1 = require("../helpers/middlewares");
 const submission_1 = require("../models/contest/submission");
 const user_1 = require("../models/user");
 const contestResultsRouter = express_1.default.Router();
-const defaultPopulate = [
+const submissionPopulate = [
     {
         path: 'contest',
         select: 'name screeners',
@@ -63,10 +63,10 @@ contestResultsRouter.get('/', (req, res, next) => __awaiter(void 0, void 0, void
         pointsInfo: res.locals.userRequest.pointsInfo,
     });
 });
-contestResultsRouter.get('/searchOnLoad/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+contestResultsRouter.get('/searchSubmission/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const submission = yield submission_1.SubmissionModel
         .findById(req.params.id)
-        .populate(defaultPopulate);
+        .populate(submissionPopulate);
     res.json(submission);
 }));
 exports.default = contestResultsRouter;
