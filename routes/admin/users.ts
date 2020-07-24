@@ -3,6 +3,7 @@ import { isLoggedIn, isAdmin, isSuperAdmin } from '../../helpers/middlewares';
 import { UserModel } from '../../models/user';
 import { updateUserPoints } from '../../helpers/points';
 import { webhookPost, webhookColors } from '../../helpers/discordApi';
+import { UserGroup } from '../../interfaces/user';
 
 const adminUsersRouter = express.Router();
 
@@ -56,7 +57,7 @@ adminUsersRouter.post('/:id/updateBadge', async (req, res) => {
     }]);
 });
 
-/* POST update user badge */
+/* POST calculate user points */
 adminUsersRouter.post('/:id/calculateUserPoints', async (req, res) => {
     const points = await updateUserPoints(req.params.id);
 
@@ -72,6 +73,16 @@ adminUsersRouter.post('/updateAllUserPoints', async (req, res) => {
     }
 
     res.json('user points updated');
+});
+
+/* POST toggle bypassLogin */
+adminUsersRouter.post('/:id/toggleBypassLogin', async (req, res) => {
+    const bypassLogin = req.body.bypassLogin;
+    const group = bypassLogin ? UserGroup.User : UserGroup.Spectator;
+
+    await UserModel.findByIdAndUpdate(req.params.id, { bypassLogin, group }).orFail();
+
+    res.json({ bypassLogin, group });
 });
 
 export default adminUsersRouter;

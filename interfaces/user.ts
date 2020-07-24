@@ -24,6 +24,7 @@ export interface User extends Document {
     group: UserGroup;
     badge: number;
     completedQuests: Quest[];
+    bypassLogin: boolean;
 
     rank: number;
     easyPoints: number;

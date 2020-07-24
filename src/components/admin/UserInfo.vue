@@ -29,6 +29,11 @@
                             Calculate user points
                         </button>
                     </p>
+                    <p>
+                        <button class="btn btn-sm btn-outline-info" @click="toggleBypassLogin($event)">
+                            {{ user.bypassLogin ? 'Enable' : 'Disable' }} ranked maps login requirement
+                        </button>
+                    </p>
                 </div>
             </div>
         </div>
@@ -89,6 +94,22 @@ export default Vue.extend({
                     type: 'info',
                 });
             }
+        },
+        async toggleBypassLogin(e): Promise<void> {
+            const res: any = await this.executePost(`/admin/users/${this.user.id}/toggleBypassLogin`, { bypassLogin: !this.user.bypassLogin }, e);
+
+            if (res) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `set bypassLogin to ${res.bypassLogin}`,
+                    type: 'info',
+                });
+                this.$store.commit('updateBypassLogin', {
+                    userId: this.user.id,
+                    group: res.group,
+                    bypassLogin: res.bypassLogin,
+                });
+            }
+
         },
     },
 });

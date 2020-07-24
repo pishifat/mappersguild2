@@ -197,6 +197,13 @@ const store = new Vuex.Store({
                 }
             }
         },
+        updateBypassLogin (state, payload): void {
+            const user = state.actionUsers.find(u => u.id == payload.userId);
+
+            if (user) {
+                user.bypassLogin = payload.bypassLogin;
+            }
+        },
     },
     strict: process.env.NODE_ENV !== 'production',
 });
