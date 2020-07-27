@@ -85,4 +85,13 @@ adminUsersRouter.post('/:id/toggleBypassLogin', async (req, res) => {
     res.json({ bypassLogin, group });
 });
 
+/* GET bundled beatmaps */
+adminUsersRouter.get('/findTieredUsers', async (req, res) => {
+    const tieredUsers = await UserModel
+        .find({ rank: { $gte: 1 } })
+        .orFail();
+
+    res.json(tieredUsers);
+});
+
 export default adminUsersRouter;

@@ -49,6 +49,8 @@
             @update-user="updateUser($event)"
         />
 
+        <tiered-user-list />
+
         <toast-messages />
     </div>
 </template>
@@ -57,6 +59,7 @@
 import Vue from 'vue';
 import UserInfo from '../../components/admin/UserInfo.vue';
 import DataTable from '../../components/admin/DataTable.vue';
+import TieredUserList from '../../components/admin/TieredUserList.vue';
 import ToastMessages from '../../components/ToastMessages.vue';
 import { User } from '../../../interfaces/user';
 import { mapState } from 'vuex';
@@ -65,6 +68,7 @@ export default Vue.extend({
     components: {
         DataTable,
         UserInfo,
+        TieredUserList,
         ToastMessages,
     },
     data () {
