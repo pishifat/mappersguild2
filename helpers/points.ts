@@ -112,7 +112,8 @@ export async function updateUserPoints(userId: any): Promise<number | BasicError
         - MBC they screened
         - spent points events from user
     */
-    const [ownTasks, hostedBeatmaps, moddedBeatmaps, submittedContests, screenedContests, ownSpentPoints] = await Promise.all([
+    const [user, ownTasks, hostedBeatmaps, moddedBeatmaps, submittedContests, screenedContests, ownSpentPoints] = await Promise.all([
+        UserModel.findById(userId).orFail(),
         TaskModel.find({ mappers: userId }).select('_id'),
         BeatmapModel
             .find({
@@ -266,6 +267,8 @@ export async function updateUserPoints(userId: any): Promise<number | BasicError
     });
 
     // set rank
+    const legacyPoints = user.legacyPoints || 0;
+
     const totalPoints = pointsObject['Easy'] +
         pointsObject['Normal'] +
         pointsObject['Hard'] +
@@ -277,7 +280,8 @@ export async function updateUserPoints(userId: any): Promise<number | BasicError
         pointsObject['QuestReward'] +
         pointsObject['ContestParticipant'] +
         pointsObject['ContestScreener'] +
-        pointsObject['ContestVote'];
+        pointsObject['ContestVote'] +
+        legacyPoints;
 
     if (totalPoints < 100) {
         pointsObject['Rank'] = 0;

@@ -12,8 +12,8 @@ export interface PointsInfo {
     total: number;
     available: number;
     mapping: number;
-    quests: number;
     modding: number;
+    other: number;
 }
 
 export interface User extends Document {
