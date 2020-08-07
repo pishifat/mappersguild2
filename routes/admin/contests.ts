@@ -277,8 +277,6 @@ adminContestsRouter.post('/sendResultsPm', async (req, res) => {
 
     const response = await sendPm(req.session!.accessToken!, parseInt(req.body.osuId), message);
 
-    console.log(response);
-
     if (isOsuResponseError(response)) {
         return res.json({ error: 'Could not send PM' });
     }

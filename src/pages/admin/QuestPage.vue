@@ -7,6 +7,10 @@
                         Add quest
                     </button>
 
+                    <button class="btn btn-sm btn-info btn-block" @click="removeDuplicatePartyMembers($event)">
+                        Remove duplicate party members
+                    </button>
+
                     <data-table
                         #default="{ obj: quest }"
                         :data="quests"
@@ -101,6 +105,16 @@ export default Vue.extend({
 
             if (i !== -1) {
                 Vue.set(this.quests, i, q);
+            }
+        },
+        async removeDuplicatePartyMembers(e): Promise<void> {
+            const success = await this.executePost('/admin/quests/removeDuplicatePartyMembers', {}, e);
+
+            if (success) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `removed duplicate party members`,
+                    type: 'success',
+                });
             }
         },
     },

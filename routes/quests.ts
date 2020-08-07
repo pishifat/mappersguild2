@@ -47,6 +47,16 @@ async function updatePartyInfo(id: Party['_id']): Promise<BasicResponse> {
     let rank = 0;
     const modes: Omit<BeatmapMode, BeatmapMode.Hybrid>[] = [];
 
+    // remove duplicate members (the server-side validation for this sucks)
+    const uniqueMembers: string[] = [];
+
+    for (const member of party.members) {
+        if (!uniqueMembers.includes(member)) uniqueMembers.push(member);
+    }
+
+    party.members = uniqueMembers;
+
+    // update party rank and modes
     party.members.forEach(user => {
         rank += user.rank;
 

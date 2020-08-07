@@ -4,7 +4,6 @@ import { updateUserPoints } from '../helpers/points';
 import { PartyModel } from '../models/party';
 import { defaultErrorMessage, BasicResponse } from '../helpers/helpers';
 import { BeatmapModel, Beatmap } from '../models/beatmap/beatmap';
-import { BeatmapMode } from '../interfaces/beatmap/beatmap';
 import { Quest, QuestModel } from '../models/quest';
 import { TaskModel } from '../models/beatmap/task';
 import { TaskName, TaskMode } from '../interfaces/beatmap/task';
@@ -63,26 +62,30 @@ const invitePopulate = [
 async function updatePartyInfo(id: string): Promise<object> {
     const p = await PartyModel
         .findById(id)
-        .populate({ path: 'members', select: 'rank osuPoints taikoPoints catchPoints maniaPoints' });
+        .populate({ path: 'members', select: 'rank' });
 
     let rank = 0;
-    const modes: Omit<BeatmapMode, BeatmapMode.Hybrid>[] = [];
 
     if (!p) {
         return defaultErrorMessage;
     }
 
+    // remove duplicate members (the server-side validation for this sucks)
+    const uniqueMembers: string[] = [];
+
+    for (const member of p.members) {
+        if (!uniqueMembers.includes(member)) uniqueMembers.push(member);
+    }
+
+    p.members = uniqueMembers;
+
+    // find new party rank
     p.members.forEach(user => {
         rank += user.rank;
-
-        if (!modes.includes(user.mainMode)) {
-            modes.push(user.mainMode);
-        }
     });
 
     p.rank = Math.round(rank / p.members.length);
-    p.modes = modes;
-    await p.save();
+    p.save();
 
     return { success: 'ok' };
 }
@@ -406,12 +409,12 @@ notificationsRouter.post('/acceptJoin/:id', isNotSpectator, async (req, res) => 
         .defaultPopulate()
         .orFail();
 
-    const currentParties = await PartyModel.find({ members: req.session?.mongoId });
-    let duplicate = false;
-
     if (!invite.party) {
         return res.json({ error: 'That party no longer exists!' });
     }
+
+    const currentParties = await PartyModel.find({ members: req.session?.mongoId });
+    let duplicate = false;
 
     duplicate = q.parties.some(questParty => {
         return currentParties.some(userParty => questParty.id == userParty.id);

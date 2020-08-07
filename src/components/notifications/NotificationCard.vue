@@ -1,6 +1,6 @@
 <template>
     <div class="col-md-12 my-2">
-        <div class="card bg-dark">
+        <div class="card static-card bg-dark">
             <div class="card-body notification-card-spacing">
                 <p class="card-text text-shadow small">
                     <a
