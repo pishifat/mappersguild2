@@ -77,4 +77,10 @@ adminUsersRouter.post('/:id/toggleBypassLogin', (req, res) => __awaiter(void 0, 
     yield user_1.UserModel.findByIdAndUpdate(req.params.id, { bypassLogin, group }).orFail();
     res.json({ bypassLogin, group });
 }));
+adminUsersRouter.get('/findTieredUsers', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const tieredUsers = yield user_1.UserModel
+        .find({ rank: { $gte: 1 } })
+        .orFail();
+    res.json(tieredUsers);
+}));
 exports.default = adminUsersRouter;

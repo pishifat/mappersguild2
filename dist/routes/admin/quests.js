@@ -364,4 +364,19 @@ adminQuestsRouter.post('/:id/updateExpiration', (req, res) => __awaiter(void 0, 
     yield quest_1.QuestModel.findByIdAndUpdate(req.params.id, { expiration: date }).orFail();
     res.json(date);
 }));
+adminQuestsRouter.post('/removeDuplicatePartyMembers', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const parties = yield party_1.PartyModel
+        .find({})
+        .orFail();
+    for (const party of parties) {
+        const members = party.members.sort();
+        for (let i = 1; i < members.length; i++) {
+            if (members[i].toString() == members[i - 1].toString()) {
+                yield party_1.PartyModel.findByIdAndUpdate(party.id, { $pull: { members: members[i] } });
+                yield party_1.PartyModel.findByIdAndUpdate(party.id, { $push: { members: members[i] } });
+            }
+        }
+    }
+    res.json(true);
+}));
 exports.default = adminQuestsRouter;

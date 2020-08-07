@@ -51,6 +51,12 @@ function updatePartyInfo(id) {
             .orFail();
         let rank = 0;
         const modes = [];
+        const uniqueMembers = [];
+        for (const member of party.members) {
+            if (!uniqueMembers.includes(member))
+                uniqueMembers.push(member);
+        }
+        party.members = uniqueMembers;
         party.members.forEach(user => {
             rank += user.rank;
             if (!modes.includes(user.mainMode)) {

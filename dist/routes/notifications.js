@@ -70,21 +70,22 @@ function updatePartyInfo(id) {
     return __awaiter(this, void 0, void 0, function* () {
         const p = yield party_1.PartyModel
             .findById(id)
-            .populate({ path: 'members', select: 'rank osuPoints taikoPoints catchPoints maniaPoints' });
+            .populate({ path: 'members', select: 'rank' });
         let rank = 0;
-        const modes = [];
         if (!p) {
             return helpers_1.defaultErrorMessage;
         }
+        const uniqueMembers = [];
+        for (const member of p.members) {
+            if (!uniqueMembers.includes(member))
+                uniqueMembers.push(member);
+        }
+        p.members = uniqueMembers;
         p.members.forEach(user => {
             rank += user.rank;
-            if (!modes.includes(user.mainMode)) {
-                modes.push(user.mainMode);
-            }
         });
         p.rank = Math.round(rank / p.members.length);
-        p.modes = modes;
-        yield p.save();
+        p.save();
         return { success: 'ok' };
     });
 }
@@ -313,11 +314,11 @@ notificationsRouter.post('/acceptJoin/:id', middlewares_1.isNotSpectator, (req, 
         .findById(invite.quest._id)
         .defaultPopulate()
         .orFail();
-    const currentParties = yield party_1.PartyModel.find({ members: (_l = req.session) === null || _l === void 0 ? void 0 : _l.mongoId });
-    let duplicate = false;
     if (!invite.party) {
         return res.json({ error: 'That party no longer exists!' });
     }
+    const currentParties = yield party_1.PartyModel.find({ members: (_l = req.session) === null || _l === void 0 ? void 0 : _l.mongoId });
+    let duplicate = false;
     duplicate = q.parties.some(questParty => {
         return currentParties.some(userParty => questParty.id == userParty.id);
     });

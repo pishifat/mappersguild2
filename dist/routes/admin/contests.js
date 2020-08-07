@@ -227,7 +227,6 @@ adminContestsRouter.post('/:id/updateJudgingThreshold', (req, res) => __awaiter(
 adminContestsRouter.post('/sendResultsPm', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const message = `hello, thank you for recently participating in "${req.body.contestName}"! screening/judging details on your submission can be found here: https://mappersguild.com/contestresults?submission=${req.body.submissionId}`;
     const response = yield osuApi_1.sendPm(req.session.accessToken, parseInt(req.body.osuId), message);
-    console.log(response);
     if (osuApi_1.isOsuResponseError(response)) {
         return res.json({ error: 'Could not send PM' });
     }
