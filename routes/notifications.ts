@@ -114,7 +114,9 @@ async function addTaskChecks(userId: User['_id'], b: Beatmap, invite: Invite, is
     }
 
     if (b.quest && invite.taskName != TaskName.Storyboard) {
-        const q = await QuestModel.findById(b.quest as Quest['_id']);
+        const q = await QuestModel
+            .findById(b.quest as Quest['_id'])
+            .populate({ path: 'currentParty', populate: { path: 'members' } });
         let valid = false;
 
         if (!q) {
