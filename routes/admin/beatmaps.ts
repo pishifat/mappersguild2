@@ -38,8 +38,7 @@ adminBeatmapsRouter.get('/load', async (req, res) => {
             status: 1,
             mode: 1,
             createdAt: -1,
-        })
-        .limit(20);
+        });
 
     res.json(beatmaps);
 });
