@@ -45,8 +45,7 @@ adminBeatmapsRouter.get('/load', (req, res) => __awaiter(void 0, void 0, void 0,
         status: 1,
         mode: 1,
         createdAt: -1,
-    })
-        .limit(20);
+    });
     res.json(beatmaps);
 }));
 adminBeatmapsRouter.post('/:id/updateStatus', middlewares_1.isSuperAdmin, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
