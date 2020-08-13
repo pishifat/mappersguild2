@@ -1,6 +1,6 @@
 <template>
     <div class="row">
-        <div class="col-sm text-shadow">
+        <div class="col-sm">
             <u>
                 <a :href="'https://osu.ppy.sh/users/' + party.leader.osuId" target="_blank">
                     {{ party.leader.username }}

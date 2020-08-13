@@ -63,10 +63,10 @@
                             Remove modder
                         </button>
                     </p>
-                    <p v-if="beatmap.url" class="min-spacing small text-white-50">
+                    <div v-if="beatmap.url" class="small text-white-50">
                         Current URL:
                         <a :href="beatmap.url" target="_blank">{{ beatmap.url }}</a>
-                    </p>
+                    </div>
                     <p>
                         <input
                             v-model="beatmapUrl"

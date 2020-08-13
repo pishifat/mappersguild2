@@ -19,7 +19,7 @@
                     </button>
                 </div>
                 <div class="modal-body" style="overflow: hidden">
-                    <div class="container text-shadow">
+                    <div class="container">
                         <div class="row">
                             <div class="col-sm-12 text-center">
                                 <span v-if="selectedQuest.art">

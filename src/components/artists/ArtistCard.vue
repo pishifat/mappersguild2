@@ -1,8 +1,8 @@
 <template>
     <div class="col-sm-12 my-1">
         <div class="card static-card" :class="artist.isPriority ? 'card-bg-priority' : 'bg-dark'">
-            <div class="card-body text-shadow min-spacing">
-                <div class="min-spacing mt-1 row">
+            <div class="card-body p-0 mx-2 my-1">
+                <div class="row">
                     <span class="col-sm-4">
                         <i
                             v-if="artist.assignedUser && artist.assignedUser.id == userId"
@@ -92,7 +92,7 @@
                         </a>
 
                         <!--contacted-->
-                        <span class="min-spacing text-center font-8 text-white-50 float-right mr-2">
+                        <span class="text-center font-8 text-white-50 float-right mr-2">
                             contacted {{ artist.lastContacted ? daysAgo : 'never' }}
                             <a href="#" @click.prevent="showContactedInput = !showContactedInput">
                                 <i class="fas fa-edit" />
@@ -115,105 +115,105 @@
                 <!--collapsed info-->
                 <div :id="'details' + artist.id" class="collapse ml-4 row">
                     <div class="col-sm-2">
-                        <p class="sub-header text-shadow min-spacing">
+                        <div class="sub-header">
                             <u>Discussion</u>
-                        </p>
-                        <p class="small text-shadow min-spacing ml-2">
+                        </div>
+                        <div class="small ml-2">
                             Contacted:
                             <a href="#" @click.stop.prevent="toggleIsContacted()">
                                 <i class="fas" :class="artist.isContacted ? 'icon-valid fa-check' : 'icon-used fa-times'" />
                             </a>
-                        </p>
-                        <p class="small text-shadow min-spacing ml-2">
+                        </div>
+                        <div class="small ml-2">
                             Responded:
                             <a href="#" @click.stop.prevent="toggleIsResponded()">
                                 <i class="fas" :class="artist.isResponded ? 'icon-valid fa-check' : 'icon-used fa-times'" />
                             </a>
-                        </p>
-                        <p class="small text-shadow min-spacing ml-2">
+                        </div>
+                        <div class="small ml-2">
                             Tracks confirmed:
                             <a href="#" @click.stop.prevent="toggleTracksSelected()">
                                 <i class="fas" :class="artist.tracksSelected ? 'icon-valid fa-check' : 'icon-used fa-times'" />
                             </a>
-                        </p>
-                        <p v-if="!artist.tracksSelected" class="small text-shadow min-spacing ml-2">
+                        </div>
+                        <div v-if="!artist.tracksSelected" class="small ml-2">
                             No response/ghosted:
                             <a href="#" @click.stop.prevent="toggleIsRejected()">
                                 <i class="fas" :class="artist.isRejected ? 'icon-valid fa-check' : 'icon-used fa-times'" />
                             </a>
-                        </p>
-                        <p v-if="!artist.tracksSelected" class="small text-shadow min-spacing ml-2">
+                        </div>
+                        <div v-if="!artist.tracksSelected" class="small ml-2">
                             Offer denied:
                             <a href="#" @click.stop.prevent="toggleIsDenied()">
                                 <i class="fas" :class="artist.isDenied ? 'icon-valid fa-check' : 'icon-used fa-times'" />
                             </a>
-                        </p>
+                        </div>
                     </div>
 
                     <div class="col-sm-2">
-                        <p class="sub-header text-shadow min-spacing">
+                        <div class="sub-header">
                             <u>Contract</u>
-                        </p>
-                        <p class="small text-shadow min-spacing ml-2">
+                        </div>
+                        <div class="small ml-2">
                             sent:
                             <a href="#" @click.stop.prevent="toggleContractSent()">
                                 <i class="fas" :class="artist.contractSent ? 'icon-valid fa-check' : 'icon-used fa-times'" />
                             </a>
-                        </p>
-                        <p class="small text-shadow min-spacing ml-2">
+                        </div>
+                        <div class="small ml-2">
                             signed:
                             <a href="#" @click.stop.prevent="toggleContractSigned()">
                                 <i class="fas" :class="artist.contractSigned ? 'icon-valid fa-check' : 'icon-used fa-times'" />
                             </a>
-                        </p>
-                        <p class="small text-shadow min-spacing ml-2">
+                        </div>
+                        <div class="small ml-2">
                             paid:
                             <a href="#" @click.stop.prevent="toggleContractPaid()">
                                 <i class="fas" :class="artist.contractPaid ? 'icon-valid fa-check' : 'icon-used fa-times'" />
                             </a>
-                        </p>
+                        </div>
                     </div>
 
                     <div class="col-sm-3">
-                        <p class="sub-header text-shadow min-spacing">
+                        <div class="sub-header">
                             <u>Publication</u>
-                        </p>
-                        <p class="small text-shadow min-spacing ml-2">
+                        </div>
+                        <div class="small ml-2">
                             Songs received:
                             <a href="#" @click.stop.prevent="toggleSongsReceived()">
                                 <i class="fas" :class="artist.songsReceived ? 'icon-valid fa-check' : 'icon-used fa-times'" />
                             </a>
-                        </p>
-                        <p v-if="artist.songsReceived" class="small text-shadow min-spacing ml-2">
+                        </div>
+                        <div v-if="artist.songsReceived" class="small ml-2">
                             Songs timed:
                             <a href="#" @click.stop.prevent="toggleSongsTimed()">
                                 <i class="fas" :class="artist.songsTimed ? 'icon-valid fa-check' : 'icon-used fa-times'" />
                             </a>
-                        </p>
-                        <p v-if="!artist.osuId" class="small text-shadow min-spacing ml-2">
+                        </div>
+                        <div v-if="!artist.osuId" class="small ml-2">
                             Visual assets received:
                             <a href="#" @click.stop.prevent="toggleAssetsReceived()">
                                 <i class="fas" :class="artist.assetsReceived ? 'icon-valid fa-check' : 'icon-used fa-times'" />
                             </a>
-                        </p>
-                        <p v-if="!artist.osuId" class="small text-shadow min-spacing ml-2">
+                        </div>
+                        <div v-if="!artist.osuId" class="small ml-2">
                             Bio/newspost written:
                             <a href="#" @click.stop.prevent="toggleBioWritten()">
                                 <i class="fas" :class="artist.bioWritten ? 'icon-valid fa-check' : 'icon-used fa-times'" />
                             </a>
-                        </p>
-                        <p class="small text-shadow min-spacing ml-2">
+                        </div>
+                        <div class="small ml-2">
                             Projected release: <span :class="artist.projectedRelease ? 'done' : 'open'">{{ artist.projectedRelease ? new Date(artist.projectedRelease).toString().slice(4,15) : '...' }}</span>
                             <a href="#" @click.prevent="showDateInput = !showDateInput">
                                 <i class="fas fa-edit" />
                             </a>
-                        </p>
-                        <p class="small text-shadow min-spacing ml-2">
+                        </div>
+                        <div class="small ml-2">
                             Invited to Discord:
                             <a href="#" @click.stop.prevent="toggleIsInvited()">
                                 <i class="fas" :class="artist.isInvited ? 'icon-valid fa-check' : 'icon-used fa-times'" />
                             </a>
-                        </p>
+                        </div>
                         <p v-if="showDateInput" class="small ml-3">
                             <input
                                 v-model="dateInput"
@@ -225,20 +225,20 @@
                                 @keyup.enter="updateProjectedRelease()"
                             >
                         </p>
-                        <p class="small text-shadow min-spacing ml-2">
+                        <div class="small ml-2">
                             Released:
                             <a href="#" @click.stop.prevent="toggleIsUpToDate()">
                                 <i class="fas" :class="artist.isUpToDate ? 'icon-valid fa-check' : 'icon-used fa-times'" />
                             </a>
-                        </p>
+                        </div>
                     </div>
                 </div>
                 <!--notes-->
-                <div class="min-spacing mb-1 ml-2">
+                <div class="mb-1 ml-2">
                     <a href="#" @click.prevent="updateNotes(null)">
                         <i class="fas fa-edit" />
                     </a>
-                    <span v-if="!showNotesInput" class="small text-shadow min-spacing text-white-50" v-html="filterLinks(artist.notes)" />
+                    <span v-if="!showNotesInput" class="small text-white-50" v-html="filterLinks(artist.notes)" />
                     <input
                         v-if="showNotesInput"
                         v-model="notes"

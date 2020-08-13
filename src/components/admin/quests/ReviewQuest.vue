@@ -14,13 +14,13 @@
                     </button>
                 </div>
                 <div class="modal-body" style="overflow: hidden">
-                    <div class="container text-shadow">
-                        <p class="small text-white-50 min-spacing">
+                    <div class="container">
+                        <div class="small text-white-50">
                             Artist
                             <a href="#" @click.prevent="showArtistInput = !showArtistInput">
                                 <i class="fas fa-edit" />
                             </a>
-                        </p>
+                        </div>
                         <p v-if="showArtistInput">
                             <input
                                 v-model.number="artistInput"
@@ -39,12 +39,12 @@
                         <p v-else class="ml-2">
                             None
                         </p>
-                        <p class="small text-white-50 min-spacing">
+                        <div class="small text-white-50">
                             Name
                             <a href="#" @click.prevent="showNameInput = !showNameInput">
                                 <i class="fas fa-edit" />
                             </a>
-                        </p>
+                        </div>
                         <p v-if="showNameInput">
                             <input
                                 v-model="nameInput"
@@ -58,12 +58,12 @@
                         <p v-else class="ml-2">
                             {{ quest.name }}
                         </p>
-                        <p class="small text-white-50 min-spacing">
+                        <div class="small text-white-50">
                             Objective
                             <a href="#" @click.prevent="showObjectiveInput = !showObjectiveInput">
                                 <i class="fas fa-edit" />
                             </a>
-                        </p>
+                        </div>
                         <p v-if="showObjectiveInput">
                             <textarea
                                 v-model="objectiveInput"
@@ -78,12 +78,12 @@
                         <p v-else class="ml-2">
                             {{ quest.descriptionMain }}
                         </p>
-                        <p class="small text-white-50 min-spacing">
+                        <div class="small text-white-50">
                             Required mapsets
                             <a href="#" @click.prevent="showRequiredMapsetsInput = !showRequiredMapsetsInput">
                                 <i class="fas fa-edit" />
                             </a>
-                        </p>
+                        </div>
                         <p v-if="showRequiredMapsetsInput">
                             <input
                                 v-model.number="requiredMapsetsInput"
@@ -97,12 +97,12 @@
                         <p v-else class="ml-2">
                             {{ quest.requiredMapsets }}
                         </p>
-                        <p class="small text-white-50 min-spacing">
+                        <div class="small text-white-50">
                             Price
                             <a href="#" @click.prevent="showPriceInput = !showPriceInput">
                                 <i class="fas fa-edit" />
                             </a>
-                        </p>
+                        </div>
                         <p v-if="showPriceInput">
                             <input
                                 v-model.number="priceInput"
@@ -116,12 +116,12 @@
                         <p v-else class="ml-2">
                             {{ quest.price }} points per user
                         </p>
-                        <p class="small text-white-50 min-spacing">
+                        <div class="small text-white-50">
                             Timeframe
                             <a href="#" @click.prevent="showTimeframeInput = !showTimeframeInput">
                                 <i class="fas fa-edit" />
                             </a>
-                        </p>
+                        </div>
                         <p v-if="showTimeframeInput">
                             <input
                                 v-model.number="timeframeInput"
@@ -135,12 +135,12 @@
                         <p v-else class="ml-2">
                             {{ quest.timeframe / (24*3600*1000) }} days
                         </p>
-                        <p class="small text-white-50 min-spacing">
+                        <div class="small text-white-50">
                             Party size
                             <a href="#" @click.prevent="showPartySizeInput = !showPartySizeInput">
                                 <i class="fas fa-edit" />
                             </a>
-                        </p>
+                        </div>
                         <p v-if="showPartySizeInput">
                             <input
                                 v-model.number="minPartyInput"
@@ -162,15 +162,15 @@
                         <p v-else class="ml-2">
                             {{ quest.minParty }}-{{ quest.maxParty }} members
                         </p>
-                        <p class="small text-white-50 min-spacing">
+                        <div class="small text-white-50">
                             Party rank
-                        </p>
+                        </div>
                         <p class="ml-2">
                             {{ quest.minRank }} rank required
                         </p>
-                        <p class="small text-white-50 min-spacing">
+                        <div class="small text-white-50">
                             MBC
-                        </p>
+                        </div>
                         <p class="ml-2">
                             {{ quest.isMbc ? 'yes' : 'no' }}
                         </p>

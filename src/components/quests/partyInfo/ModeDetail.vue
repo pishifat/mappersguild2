@@ -1,5 +1,5 @@
 <template>
-    <p class="small text-shadow min-spacing ml-3 mt-1">
+    <div class="small ml-3 mt-1">
         Modes:
         <span v-if="party.leader.id == $store.state.userId">
             <a href="#" @click.prevent="togglePartyMode(party.id, 'osu')">
@@ -69,7 +69,7 @@
                 title="osu!mania"
             />
         </span>
-    </p>
+    </div>
 </template>
 
 <script lang="ts">

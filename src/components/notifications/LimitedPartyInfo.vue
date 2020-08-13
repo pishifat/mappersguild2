@@ -12,20 +12,20 @@
                 </div>
                 <div class="modal-body modal-body-card" style="overflow: hidden;">
                     <img src="../../images/the_A.png" class="the-a-background">
-                    <p class="text-shadow">
+                    <p>
                         Members: (<span :class="party.id + '-member-count'">{{ party.members.length }}</span>)
                     </p>
-                    <p class="indent text-shadow">
+                    <p style="margin-left: 20px;">
                         <template v-for="(member, i) in party.members">
                             <a :key="i" :href="'https://osu.ppy.sh/users/' + member.osuId" target="_blank">
                                 {{ listUser(member.username, i, party.members.length) }}
                             </a>
                         </template>
                     </p>
-                    <p class="text-shadow">
+                    <p>
                         Leader: <a :href="'https://osu.ppy.sh/users/' + party.leader.osuId" target="_blank">{{ party.leader.username }}</a>
                     </p>
-                    <p class="text-shadow">
+                    <p>
                         Rank: {{ party.rank }}
                     </p>
                 </div>

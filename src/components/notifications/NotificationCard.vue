@@ -2,10 +2,9 @@
     <div class="col-md-12 my-2">
         <div class="card static-card bg-dark">
             <div class="card-body notification-card-spacing">
-                <p class="card-text text-shadow small">
+                <p class="card-text small">
                     <a
                         :href="'https://osu.ppy.sh/users/' + notification.sender.osuId"
-                        class="text-shadow"
                         target="_blank"
                         @click.stop
                     >
@@ -39,7 +38,7 @@
             </div>
 
             <div class="card-footer notification-card-spacing mx-2">
-                <span class="card-text text-shadow small">{{ notification.createdAt.slice(0,10) }}</span>
+                <span class="card-text small">{{ notification.createdAt.slice(0,10) }}</span>
                 <button class="btn btn-outline-info notification-button float-right" @click.prevent="hideNotification($event)">
                     Mark as read
                 </button>

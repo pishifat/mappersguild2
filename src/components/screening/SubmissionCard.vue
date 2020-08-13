@@ -4,7 +4,7 @@
             class="card static-card"
             :class="relatedScreening && relatedScreening.vote ? 'bg-vote' : 'bg-dark'"
         >
-            <div class="card-body text-shadow p-2">
+            <div class="card-body p-2">
                 <div class="row">
                     <div class="col-sm-6">
                         {{ submission.name }}

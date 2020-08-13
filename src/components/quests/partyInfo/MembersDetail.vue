@@ -1,10 +1,10 @@
 <template>
     <div>
-        <p class="small text-shadow min-spacing ml-3">
+        <div class="small ml-3">
             Members:
-        </p>
-        <ul class="min-spacing ml-4">
-            <li v-for="member in members" :key="member.id" class="text-shadow small">
+        </div>
+        <ul class="p-0 ml-4">
+            <li v-for="member in members" :key="member.id" class="small">
                 <a :href="'https://osu.ppy.sh/users/' + member.osuId" target="_blank">
                     {{ member.username }}
                 </a>

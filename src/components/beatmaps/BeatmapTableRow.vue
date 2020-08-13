@@ -1,7 +1,7 @@
 <template>
     <div>
-        <div class="card min-spacing static-card" :class="statusBorder()">
-            <div class="card-header min-spacing row d-flex align-items-center my-2">
+        <div class="card static-card" :class="statusBorder()">
+            <div class="card-header p-0 m-1 row d-flex align-items-center my-2">
                 <div class="col-sm-6">
                     <img
                         v-if="beatmap.quest && beatmap.quest.art"
@@ -103,7 +103,7 @@ export default Vue.extend({
 
             tasks.forEach(task => {
                 if (task.name == 'Storyboard') {
-                    diffsBlock += `<span class="px-1 text-shadow ${task.status.toLowerCase()}">SB</span>`;
+                    diffsBlock += `<span class="px-1 ${task.status.toLowerCase()}">SB</span>`;
                 }
             });
 
@@ -126,7 +126,7 @@ export default Vue.extend({
                             }
                         }
                     });
-                    diffsBlock += `<span class="px-1 text-shadow ${mode.count == 0 ? 'blocked' : modeStatus}" data-toggle="tooltip" data-placement="top" 
+                    diffsBlock += `<span class="px-1 ${mode.count == 0 ? 'blocked' : modeStatus}" data-toggle="tooltip" data-placement="top" 
                         title="${mode.count > 0 ? mode.count : ''}">
                         ${mode.short}</span>`;
 
@@ -153,18 +153,18 @@ export default Vue.extend({
 
                         if (diff.count > 0) {
                             if (diff.count == 1) {
-                                diffsBlock += `<span class="px-1 text-shadow ${singleStatus}">${
+                                diffsBlock += `<span class="px-1 ${singleStatus}">${
                                     diff.short
                                 }</span>`;
                             } else {
-                                diffsBlock += `<span class="px-1 text-shadow" data-toggle="tooltip" data-placement="top" title="${
+                                diffsBlock += `<span class="px-1" data-toggle="tooltip" data-placement="top" title="${
                                     diff.count
                                 }">${diff.short}${diff.count > 1 ? '+' : ''}</span>`;
                             }
                         } else if (tasksLocked.indexOf(diff.name) >= 0) {
-                            diffsBlock += `<span class="px-1 text-shadow blocked">${diff.short}</span>`;
+                            diffsBlock += `<span class="px-1 blocked">${diff.short}</span>`;
                         } else {
-                            diffsBlock += `<span class="px-1 text-shadow open">${diff.short}</span>`;
+                            diffsBlock += `<span class="px-1 open">${diff.short}</span>`;
                         }
                     });
                 } else {
@@ -173,7 +173,7 @@ export default Vue.extend({
                         let isUsed = false;
                         tasks.forEach(task => {
                             if (diff.name == task.name) {
-                                diffsBlock += `<span class="px-1 text-shadow ${task.status.toLowerCase()}">${
+                                diffsBlock += `<span class="px-1 ${task.status.toLowerCase()}">${
                                     diff.short
                                 }</span>`;
 
@@ -184,7 +184,7 @@ export default Vue.extend({
                         tasksLocked.forEach(task => {
                             if (diff.name == task) {
                                 if (!isClaimed) {
-                                    diffsBlock += `<span class="px-1 text-shadow blocked">${
+                                    diffsBlock += `<span class="px-1 blocked">${
                                         diff.short
                                     }</span>`;
                                 }
@@ -194,7 +194,7 @@ export default Vue.extend({
                         });
 
                         if (!isUsed) {
-                            diffsBlock += `<span class="px-1 text-shadow open">${diff.short}</span>`;
+                            diffsBlock += `<span class="px-1 open">${diff.short}</span>`;
                         }
                     });
                 }

@@ -84,11 +84,6 @@ select option {
     box-shadow: 5px 5px 10px 5px black;
 }
 
-.min-spacing{
-    margin: 0px;
-    padding: 0px; 
-}
-
 .copy-paste {
     background-color: darkslategray;
     margin: 0.75rem 0.75rem 0.75rem 0.75rem;
@@ -216,7 +211,7 @@ select option {
     min-width: 400px;
     min-height: 100px;
     position: relative;
-    opacity: 0.5;
+    overflow: hidden;
 }
 
 .card-body p {
@@ -459,14 +454,6 @@ select option {
     margin: 0;
     padding: 0 0.5rem 0 0.5rem;
     font-size: 10pt;
-}
-
-.indent {
-    padding-left: 20px;
-}
-
-.text-shadow {
-    text-shadow: 1px 1px 1px #000000;
 }
 
 a:hover {

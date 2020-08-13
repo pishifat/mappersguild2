@@ -162,10 +162,10 @@
                                     None
                                 </span>
                             </p>
-                            <p v-if="currentQuests.length" class="small min-spacing">
+                            <div v-if="currentQuests.length" class="small">
                                 Current Quests:
-                            </p>
-                            <ul class="min-spacing mb-2 ml-4">
+                            </div>
+                            <ul class="p-0 mb-2 ml-4">
                                 <li
                                     v-for="quest in currentQuests"
                                     :key="quest.id"
@@ -174,10 +174,10 @@
                                     {{ quest.name.length > 40 ? quest.name.slice(0,40) + "..." : quest.name }}
                                 </li>
                             </ul>
-                            <p v-if="selectedUser.completedQuests.length" class="small min-spacing">
+                            <div v-if="selectedUser.completedQuests.length" class="small">
                                 Completed Quests:
-                            </p>
-                            <ul class="min-spacing mb-2 ml-4">
+                            </div>
+                            <ul class="p-0 mb-2 ml-4">
                                 <li
                                     v-for="quest in selectedUser.completedQuests"
                                     :key="quest.id"

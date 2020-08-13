@@ -11,7 +11,7 @@
                     </button>
                 </div>
                 <div class="modal-body" style="overflow: hidden">
-                    <div class="container text-shadow">
+                    <div class="container">
                         <div class="form-group row">
                             <!-- artist -->
                             <div class="col-lg-1">
@@ -218,7 +218,7 @@
 
                         <div class="radial-divisor mx-auto my-3" />
 
-                        <div v-if="!isAdmin" class="small text-white-50 text-shadow mx-4">
+                        <div v-if="!isAdmin" class="small text-white-50 mx-4">
                             <p>
                                 Keep in mind that your quest may need revision before it is approved and published on the Mappers' Guild quest listing!
                             </p>

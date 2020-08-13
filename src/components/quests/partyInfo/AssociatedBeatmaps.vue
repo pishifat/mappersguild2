@@ -1,11 +1,11 @@
 <template>
     <div>
-        <p class="sub-header text-shadow min-spacing">
+        <div class="sub-header">
             <u>Associated maps</u>
-        </p>
+        </div>
 
-        <ul v-if="associatedMaps.length" class="min-spacing ml-3">
-            <li v-for="map in associatedMaps" :key="map.id" class="small text-shadow text-white-50">
+        <ul v-if="associatedMaps.length" class="ml-3 p-0">
+            <li v-for="map in associatedMaps" :key="map.id" class="small text-white-50">
                 <a v-if="map.url" :href="map.url" target="_blank">
                     {{ map.song.artist }} - {{ map.song.title }}
                 </a>
@@ -14,9 +14,9 @@
             </li>
         </ul>
 
-        <p v-else class="small text-shadow min-spacing text-white-50 ml-3">
+        <div v-else class="small text-white-50 ml-3">
             No associated maps...
-        </p>
+        </div>
     </div>
 </template>
 

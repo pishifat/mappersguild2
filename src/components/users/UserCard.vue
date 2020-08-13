@@ -11,7 +11,6 @@
             <div class="card-header">
                 <a
                     :href="'https://osu.ppy.sh/users/' + user.osuId"
-                    class="text-shadow"
                     target="_blank"
                     @click.stop
                 >
@@ -19,22 +18,22 @@
                 </a>
             </div>
             <div class="card-body text-white-50">
-                <p class="card-text text-shadow small min-spacing">
+                <div class="card-text small">
                     <b>Total points: {{ user.totalPoints }}</b>
-                </p>
-                <p class="card-text text-shadow small min-spacing">
+                </div>
+                <div class="card-text small">
                     Available points: {{ user.availablePoints }} <i class="fas fa-coins" />
-                </p>
-                <p v-if="filterMode == 'osu'" class="card-text text-shadow small">
+                </div>
+                <p v-if="filterMode == 'osu'" class="card-text small">
                     osu! points: {{ Math.round(user.osuPoints*10)/10 }}
                 </p>
-                <p v-else-if="filterMode == 'taiko'" class="card-text text-shadow small">
+                <p v-else-if="filterMode == 'taiko'" class="card-text small">
                     osu!taiko points: {{ Math.round(user.taikoPoints*10)/10 }}
                 </p>
-                <p v-else-if="filterMode == 'catch'" class="card-text text-shadow small">
+                <p v-else-if="filterMode == 'catch'" class="card-text small">
                     osu!catch points: {{ Math.round(user.catchPoints*10)/10 }}
                 </p>
-                <p v-else-if="filterMode == 'mania'" class="card-text text-shadow small">
+                <p v-else-if="filterMode == 'mania'" class="card-text small">
                     osu!mania points: {{ Math.round(user.maniaPoints*10)/10 }}
                 </p>
             </div>

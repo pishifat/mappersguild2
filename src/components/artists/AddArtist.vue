@@ -14,7 +14,7 @@
                     <img src="../../images/the_A.png" class="the-a-background">
                     <div class="container">
                         <div class="form-group row">
-                            <label class="col-sm-3 mt-1 text-shadow" for="artistName"> Artist/Label:</label>
+                            <label class="col-sm-3 mt-1" for="artistName"> Artist/Label:</label>
                             <input
                                 v-model="name"
                                 class="col-sm-9 form-control"

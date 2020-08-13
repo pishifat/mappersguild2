@@ -2,10 +2,9 @@
     <div class="col-md-12 my-2">
         <div class="card static-card bg-dark">
             <div class="card-body notification-card-spacing">
-                <p class="card-text text-shadow small">
+                <p class="card-text small">
                     <a
                         :href="'https://osu.ppy.sh/users/' + invite.sender.osuId"
-                        class="text-shadow"
                         target="_blank"
                         @click.stop
                     >
@@ -39,7 +38,7 @@
             </div>
 
             <div class="card-footer notification-card-spacing mx-2">
-                <span class="card-text text-shadow small">{{ invite.createdAt.toString().slice(0,10) }}</span> <span class="errors small text-shadow">{{ info }}</span>
+                <span class="card-text small">{{ invite.createdAt.toString().slice(0,10) }}</span> <span class="errors small">{{ info }}</span>
                 <button class="btn btn-outline-danger notification-button float-right mx-1" @click.prevent="hideInvite($event)">
                     Decline
                 </button>

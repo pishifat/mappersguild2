@@ -149,11 +149,11 @@
                         </a>
                     </p>
                     <div v-if="quest.status == 'done' || quest.status.includes('wip')" class="mb-4">
-                        <p class="text-shadow min-spacing">
+                        <div>
                             Associated maps
-                        </p>
-                        <ul v-if="quest.associatedMaps.length" class="min-spacing ml-3">
-                            <li v-for="map in quest.associatedMaps" :key="map.id" class="small text-shadow text-white-50">
+                        </div>
+                        <ul v-if="quest.associatedMaps.length" class="ml-3">
+                            <li v-for="map in quest.associatedMaps" :key="map.id" class="small text-white-50">
                                 <template v-if="map.url">
                                     <a :href="map.url" target="_blank">{{ map.song.artist }} - {{ map.song.title }}</a> by <a :href="'https://osu.ppy.sh/users/' + map.host.osuId" target="_blank">{{ map.host.username }}</a>
                                 </template>
@@ -162,9 +162,9 @@
                                 </template>
                             </li>
                         </ul>
-                        <p v-else class="small text-shadow min-spacing text-white-50 ml-3">
+                        <div v-else class="small text-white-50 ml-3">
                             No associated maps...
-                        </p>
+                        </div>
                     </div>
                     <p>
                         <button class="btn btn-sm btn-outline-danger" @click="deleteQuest($event)">

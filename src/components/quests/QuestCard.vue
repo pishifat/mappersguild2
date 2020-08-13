@@ -2,7 +2,7 @@
     <div class="row">
         <div class="col-sm-12">
             <div
-                class="card static-card text-shadow"
+                class="card static-card"
                 :class="cardClass"
             >
                 <a
@@ -53,7 +53,7 @@
                         </div>
 
                         <div class="row no-gutters">
-                            <div class="col-sm small text-shadow text-white-50">
+                            <div class="col-sm small text-white-50">
                                 {{ quest.descriptionMain }}
                             </div>
                         </div>
@@ -172,7 +172,7 @@ export default Vue.extend({
 }
 
 .row-highlight {
-    transition: background-color 0.2s ease-in;
+    transition: background-color;
 }
 
 .row-highlight:hover {

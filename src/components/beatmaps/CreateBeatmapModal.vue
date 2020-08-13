@@ -15,7 +15,7 @@
                     <div class="container">
                         <div class="form-group row">
                             <div class="col-lg-1">
-                                <p class="text-shadow" style="margin-top: 3px;">
+                                <p style="margin-top: 3px;">
                                     Artist:
                                 </p>
                             </div>
@@ -48,7 +48,7 @@
                             </div>
 
                             <div class="col-lg-1">
-                                <p class="text-shadow" style="margin-top: 3px;">
+                                <p style="margin-top: 3px;">
                                     Song:
                                 </p>
                             </div>
@@ -73,7 +73,7 @@
                             </div>
                         </div>
 
-                        <p class="text-shadow">
+                        <p>
                             Game-mode:
                         </p>
                         <div class="form-group row">
@@ -90,15 +90,15 @@
                                         type="radio"
                                         :value="mode.value"
                                     >
-                                    <label class="form-check-label text-shadow" :for="mode.value">
+                                    <label class="form-check-label" :for="mode.value">
                                         {{ mode.name }}
                                     </label>
                                 </div>
-                                <br><small class="text-shadow text-white-50">If you want a hybrid mapset, change this later.</small>
+                                <br><small class="text-white-50">If you want a hybrid mapset, change this later.</small>
                             </div>
                         </div>
 
-                        <p class="text-shadow">
+                        <p>
                             Select one or more difficulties <i>you plan on mapping</i>. These can be changed later:
                         </p>
                         <div class="form-group row">
@@ -115,14 +115,14 @@
                                         type="checkbox"
                                         :value="task"
                                     >
-                                    <label class="form-check-label text-shadow" :for="task">
+                                    <label class="form-check-label" :for="task">
                                         {{ task }}
                                     </label>
                                 </div>
                             </div>
                         </div>
 
-                        <p class="text-shadow">
+                        <p>
                             Select one or more difficulties <i>you don't want anyone else to claim</i>. These can be changed later: <br>
                             <small class="text-white-50">For example, if you don't want any guest difficulties, you should mark everything.</small>
                         </p>
@@ -140,7 +140,7 @@
                                         type="checkbox"
                                         :value="task"
                                     >
-                                    <label class="form-check-label text-shadow" :for="`lock-${task}`">
+                                    <label class="form-check-label" :for="`lock-${task}`">
                                         {{ task }}
                                     </label>
                                 </div>
