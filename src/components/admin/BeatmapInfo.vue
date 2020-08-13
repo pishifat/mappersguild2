@@ -20,93 +20,98 @@
                     </button>
                 </div>
                 <div class="modal-body" style="overflow: hidden">
-                    <p class="form-row">
-                        <select v-model="status" class="form-control form-control-sm w-25 mx-2">
-                            <option value="WIP">
-                                WIP
-                            </option>
-                            <option value="Done">
-                                Done
-                            </option>
-                            <option value="Qualified">
-                                Qualified
-                            </option>
-                            <option value="Ranked">
-                                Ranked
-                            </option>
-                        </select>
-                        <button class="btn btn-sm btn-outline-info" @click="updateBeatmapStatus($event)">
-                            Save status
-                        </button>
-                    </p>
-                    <p class="form-row">
-                        <select v-model="taskId" class="form-control form-control-sm w-50 mx-2">
-                            <option v-for="task in sortedTasks" :key="task.id" :value="task.id">
-                                {{ task.name }} ---
-                                <template v-for="(mapper, i) in task.mappers">
-                                    {{ listUser(mapper.username, i, task.mappers.length) }}
-                                </template>
-                                {{ task.name == 'Storyboard' ? ' --- ' + task.sbQuality : '' }}
-                            </option>
-                        </select>
-                        <button class="btn btn-sm btn-outline-danger" @click="deleteTask($event)">
-                            Remove difficulty
-                        </button>
-                    </p>
-                    <p class="form-row">
-                        <select v-model="modderId" class="form-control form-control-sm w-50 mx-2">
-                            <option v-for="modder in beatmap.modders" :key="modder.id" :value="modder.id">
-                                {{ modder.username }}
-                            </option>
-                        </select>
-                        <button class="btn btn-sm btn-outline-danger" @click="deleteModder($event)">
-                            Remove modder
-                        </button>
-                    </p>
-                    <div v-if="beatmap.url" class="small text-white-50">
-                        Current URL:
-                        <a :href="beatmap.url" target="_blank">{{ beatmap.url }}</a>
+                    <div class="container">
+                        <p class="form-row">
+                            <select v-model="status" class="form-control form-control-sm w-25 mx-2">
+                                <option value="WIP">
+                                    WIP
+                                </option>
+                                <option value="Done">
+                                    Done
+                                </option>
+                                <option value="Qualified">
+                                    Qualified
+                                </option>
+                                <option value="Ranked">
+                                    Ranked
+                                </option>
+                            </select>
+                            <button class="btn btn-sm btn-outline-info" @click="updateBeatmapStatus($event)">
+                                Save status
+                            </button>
+                        </p>
+                        <p class="form-row">
+                            <select v-model="taskId" class="form-control form-control-sm w-50 mx-2">
+                                <option v-for="task in sortedTasks" :key="task.id" :value="task.id">
+                                    {{ task.name }} ---
+                                    <template v-for="(mapper, i) in task.mappers">
+                                        {{ listUser(mapper.username, i, task.mappers.length) }}
+                                    </template>
+                                    {{ task.name == 'Storyboard' ? ' --- ' + task.sbQuality : '' }}
+                                </option>
+                            </select>
+                            <button class="btn btn-sm btn-outline-danger" @click="deleteTask($event)">
+                                Remove difficulty
+                            </button>
+                        </p>
+                        <p class="form-row">
+                            <select v-model="modderId" class="form-control form-control-sm w-50 mx-2">
+                                <option v-for="modder in beatmap.modders" :key="modder.id" :value="modder.id">
+                                    {{ modder.username }}
+                                </option>
+                            </select>
+                            <button class="btn btn-sm btn-outline-danger" @click="deleteModder($event)">
+                                Remove modder
+                            </button>
+                        </p>
+                        <p class="form-row">
+                            <input
+                                v-model="beatmapUrl"
+                                class="form-control-sm mx-2 w-75"
+                                type="text"
+                                autocomplete="off"
+                                placeholder="beatmap url..."
+                            >
+                            <button class="btn btn-sm btn-outline-info" @click="updateUrl($event)">
+                                Save URL
+                            </button>
+                        </p>
+                        <p v-if="storyboardTaskId" class="form-row">
+                            <select v-model="storyboardQuality" class="form-control form-control-sm w-25 mx-2">
+                                <option value="1">
+                                    1
+                                </option>
+                                <option value="2">
+                                    2
+                                </option>
+                                <option value="3">
+                                    3
+                                </option>
+                            </select>
+                            <button class="btn btn-sm btn-outline-info" @click="updateStoryboardQuality($event)">
+                                Save Storyboard Quality
+                            </button>
+                        </p>
+                        <p class="form-row">
+                            <input
+                                v-model="packId"
+                                class="form-control-sm mx-2 w-50"
+                                type="text"
+                                autocomplete="off"
+                                placeholder="osu! beatmap pack ID..."
+                            >
+                            <button class="btn btn-sm btn-outline-info" @click="updatePackId($event)">
+                                Save pack ID
+                            </button>
+                        </p>
+                        <p>
+                            Featured Artist showcase:
+                            <span class="errors">{{ beatmap.isShowcase ? 'true' : 'false' }}</span>
+                            <button class="btn btn-sm btn-outline-info" @click="updateIsShowcase($event)">
+                                Toggle
+                            </button>
+                        </p>
                     </div>
-                    <p>
-                        <input
-                            v-model="beatmapUrl"
-                            class="form-control-sm mx-2 w-75"
-                            type="text"
-                            autocomplete="off"
-                            placeholder="beatmap url..."
-                        >
-                        <button class="btn btn-sm btn-outline-info" @click="updateUrl($event)">
-                            Save URL
-                        </button>
-                    </p>
-                    <p v-if="storyboardTaskId" class="form-row">
-                        <select v-model="storyboardQuality" class="form-control form-control-sm w-25 mx-2">
-                            <option value="1">
-                                1
-                            </option>
-                            <option value="2">
-                                2
-                            </option>
-                            <option value="3">
-                                3
-                            </option>
-                        </select>
-                        <button class="btn btn-sm btn-outline-info" @click="updateStoryboardQuality($event)">
-                            Save Storyboard Quality
-                        </button>
-                    </p>
-                    <p>
-                        <input
-                            v-model="packId"
-                            class="form-control-sm mx-2 w-50"
-                            type="text"
-                            autocomplete="off"
-                            placeholder="osu! beatmap pack ID..."
-                        >
-                        <button class="btn btn-sm btn-outline-info" @click="updatePackId($event)">
-                            Save pack ID
-                        </button>
-                    </p>
                 </div>
             </div>
         </div>
@@ -252,6 +257,20 @@ export default Vue.extend({
                 this.$store.commit('updatePackId', {
                     beatmapId: this.beatmap.id,
                     packId,
+                });
+            }
+        },
+        async updateIsShowcase(e): Promise<void> {
+            const isShowcase = await this.executePost(`/admin/beatmaps/${this.beatmap.id}/updateIsShowcase`, { isShowcase: !this.beatmap.isShowcase }, e);
+
+            if (!this.isError(isShowcase)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated isShowcase`,
+                    type: 'info',
+                });
+                this.$store.commit('updateIsShowcase', {
+                    beatmapId: this.beatmap.id,
+                    isShowcase,
                 });
             }
         },

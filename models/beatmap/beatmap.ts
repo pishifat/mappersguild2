@@ -20,6 +20,7 @@ const BeatmapSchema = new Schema({
     length: { type: Number },
     packId: { type: Number },
     rankedDate: { type: Date },
+    isShowcase: { type: Boolean },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const queryHelpers = {

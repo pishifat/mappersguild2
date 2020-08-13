@@ -37,4 +37,5 @@ export interface Beatmap {
     rankedDate: Date;
     updatedAt: Date;
     createdAt: Date;
+    isShowcase: boolean;
 }

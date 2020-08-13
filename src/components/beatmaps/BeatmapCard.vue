@@ -20,12 +20,12 @@
                 </p>
                 <small class="card-text">
                     <img
-                        v-if="beatmap.quest && beatmap.quest.art"
+                        v-if="beatmap.quest"
                         class="rounded-circle mr-1"
                         style="height:24px; width: 24px;"
-                        :src="beatmap.quest.isMbc ? '../../images/mbc-icon.png' :
-                            beatmap.quest.art ? 'https://assets.ppy.sh/artists/' + beatmap.quest.art + '/cover.jpg' :
-                            '../../images/fa_icon.png'"
+                        :src="beatmap.isShowcase || !beatmap.quest.art ? '../../images/no-art-icon.png' :
+                            beatmap.quest.isMbc ? '../../images/mbc-icon.png' :
+                            'https://assets.ppy.sh/artists/' + beatmap.quest.art + '/cover.jpg'"
                         data-toggle="tooltip"
                         :title="beatmap.quest.name"
                     >

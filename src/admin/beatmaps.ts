@@ -76,6 +76,13 @@ const store = new Vuex.Store<BeatmapState>({
                 beatmap.packId = payload.packId;
             }
         },
+        updateIsShowcase (state, payload): void {
+            const beatmap = state.beatmaps.find(b => b.id == payload.beatmapId);
+
+            if (beatmap) {
+                beatmap.isShowcase = payload.isShowcase;
+            }
+        },
     },
     strict: process.env.NODE_ENV !== 'production',
 });

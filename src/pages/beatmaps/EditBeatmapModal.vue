@@ -5,12 +5,12 @@
                 <div class="modal-header text-dark" :class="'bg-' + selectedBeatmap.status.toLowerCase()">
                     <h5 class="modal-title d-flex align-items-center">
                         <img
-                            v-if="selectedBeatmap.quest"
+                            v-if="selectedBeatmap.quest || selectedBeatmap.isShowcase"
                             class="rounded-circle mr-1"
                             style="height:24px; width: 24px;"
-                            :src="selectedBeatmap.quest.isMbc ? '../../images/mbc-icon.png' :
-                                selectedBeatmap.quest.art ? `https://assets.ppy.sh/artists/${selectedBeatmap.quest.art}/cover.jpg` :
-                                '../../images/fa_icon.png'"
+                            :src="selectedBeatmap.isShowcase || !selectedBeatmap.quest.art ? '../../images/no-art-icon.png' :
+                                selectedBeatmap.quest.isMbc ? '../../images/mbc-icon.png' :
+                                `https://assets.ppy.sh/artists/${selectedBeatmap.quest.art}/cover.jpg`"
                             data-toggle="tooltip"
                             :title="selectedBeatmap.quest.name"
                         >

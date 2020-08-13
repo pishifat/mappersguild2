@@ -1,7 +1,9 @@
 import express from 'express';
 import { isLoggedIn, isAdmin, isSuperAdmin } from '../../helpers/middlewares';
 import { BeatmapModel } from '../../models/beatmap/beatmap';
+import { FeaturedArtistModel } from '../../models/featuredArtist';
 import { Beatmap, BeatmapStatus } from '../../interfaces/beatmap/beatmap';
+import { FeaturedSong } from '../../interfaces/featuredSong';
 import { QuestModel } from '../../models/quest';
 import { findBeatmapsetId, sleep, defaultErrorMessage } from '../../helpers/helpers';
 import { updateUserPoints } from '../../helpers/points';
@@ -36,7 +38,8 @@ adminBeatmapsRouter.get('/load', async (req, res) => {
             status: 1,
             mode: 1,
             createdAt: -1,
-        });
+        })
+        .limit(20);
 
     res.json(beatmaps);
 });
@@ -133,7 +136,14 @@ adminBeatmapsRouter.post('/:id/updateStatus', isSuperAdmin, async (req, res) => 
             }
         }
 
-        let description = `💖 [**${b.song.artist} - ${b.song.title}**](${b.url}) [**${modes.join(', ')}**] has been ranked\n\nHosted by [**${b.host.username}**](https://osu.ppy.sh/users/${b.host.osuId})\n${gdText}`;
+        let showcaseText = '';
+
+        if (b.isShowcase) {
+            const artist = await FeaturedArtistModel.findOne({ songs: b.song._id as FeaturedSong });
+            if (artist) showcaseText = `This beatmap was created for [${b.song.artist}](https://osu.ppy.sh/beatmaps/artists/${artist.osuId})'s Featured Artist announcement!`;
+        }
+
+        let description = `💖 [**${b.song.artist} - ${b.song.title}**](${b.url}) [**${modes.join(', ')}**] has been ranked\n\nHosted by [**${b.host.username}**](https://osu.ppy.sh/users/${b.host.osuId})\n${gdText}\n\n${showcaseText}`;
 
         // add storyboarder to webhook and update points for storyboarder
         if (storyboard) {
@@ -217,6 +227,15 @@ adminBeatmapsRouter.post('/:id/updatePackId', async (req, res) => {
         .orFail();
 
     res.json(parseInt(req.body.packId, 10));
+});
+
+/* POST update isShowcase */
+adminBeatmapsRouter.post('/:id/updateIsShowcase', async (req, res) => {
+    await BeatmapModel
+        .findByIdAndUpdate(req.params.id, { isShowcase: req.body.isShowcase })
+        .orFail();
+
+    res.json(req.body.isShowcase);
 });
 
 /* GET news info */
