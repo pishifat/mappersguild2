@@ -120,7 +120,8 @@ function findCreateQuestPointsSpent(questArtist, requiredMapsets) {
 exports.findCreateQuestPointsSpent = findCreateQuestPointsSpent;
 function updateUserPoints(userId) {
     return __awaiter(this, void 0, void 0, function* () {
-        const [ownTasks, hostedBeatmaps, moddedBeatmaps, submittedContests, screenedContests, ownSpentPoints] = yield Promise.all([
+        const [user, ownTasks, hostedBeatmaps, moddedBeatmaps, submittedContests, screenedContests, ownSpentPoints] = yield Promise.all([
+            user_1.UserModel.findById(userId).orFail(),
             task_2.TaskModel.find({ mappers: userId }).select('_id'),
             beatmap_2.BeatmapModel
                 .find({
@@ -208,6 +209,8 @@ function updateUserPoints(userId) {
                             let questBonus = 0;
                             if (beatmap.quest)
                                 questBonus = findQuestBonus(beatmap.quest.status, beatmap.quest.deadline, beatmap.rankedDate, task.mappers.length);
+                            else if (beatmap.isShowcase)
+                                questBonus = 2;
                             questParticipation = Boolean(questBonus);
                             const taskPoints = findDifficultyPoints(task.name, task.mappers.length);
                             const finalPoints = ((taskPoints + questBonus) * lengthNerf);
@@ -247,6 +250,7 @@ function updateUserPoints(userId) {
                 pointsObject['SpentPoints'] += findCreateQuestPointsSpent(spentPoints.quest.art, spentPoints.quest.requiredMapsets);
             }
         });
+        const legacyPoints = user.legacyPoints || 0;
         const totalPoints = pointsObject['Easy'] +
             pointsObject['Normal'] +
             pointsObject['Hard'] +
@@ -258,7 +262,8 @@ function updateUserPoints(userId) {
             pointsObject['QuestReward'] +
             pointsObject['ContestParticipant'] +
             pointsObject['ContestScreener'] +
-            pointsObject['ContestVote'];
+            pointsObject['ContestVote'] +
+            legacyPoints;
         if (totalPoints < 100) {
             pointsObject['Rank'] = 0;
         }

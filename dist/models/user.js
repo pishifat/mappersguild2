@@ -61,8 +61,9 @@ UserSchema.virtual('pointsInfo').get(function () {
         total: this.totalPoints,
         available: this.availablePoints,
         mapping: Math.round((this.osuPoints + this.taikoPoints + this.catchPoints + this.maniaPoints) * 10) / 10,
-        quests: this.questPoints,
         modding: this.modPoints,
+        other: this.storyboardPoints + this.questPoints + this.hostPoints +
+            this.contestParticipantPoints + this.contestScreenerPoints + this.contestVotePoints + this.legacyPoints,
     };
     return pointsInfo;
 });

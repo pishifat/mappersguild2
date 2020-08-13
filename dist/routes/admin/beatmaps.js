@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const middlewares_1 = require("../../helpers/middlewares");
 const beatmap_1 = require("../../models/beatmap/beatmap");
+const featuredArtist_1 = require("../../models/featuredArtist");
 const beatmap_2 = require("../../interfaces/beatmap/beatmap");
 const quest_1 = require("../../models/quest");
 const helpers_1 = require("../../helpers/helpers");
@@ -44,7 +45,8 @@ adminBeatmapsRouter.get('/load', (req, res) => __awaiter(void 0, void 0, void 0,
         status: 1,
         mode: 1,
         createdAt: -1,
-    });
+    })
+        .limit(20);
     res.json(beatmaps);
 }));
 adminBeatmapsRouter.post('/:id/updateStatus', middlewares_1.isSuperAdmin, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -113,7 +115,13 @@ adminBeatmapsRouter.post('/:id/updateStatus', middlewares_1.isSuperAdmin, (req, 
                 points_1.updateUserPoints(user.id);
             }
         }
-        let description = `💖 [**${b.song.artist} - ${b.song.title}**](${b.url}) [**${modes.join(', ')}**] has been ranked\n\nHosted by [**${b.host.username}**](https://osu.ppy.sh/users/${b.host.osuId})\n${gdText}`;
+        let showcaseText = '';
+        if (b.isShowcase) {
+            const artist = yield featuredArtist_1.FeaturedArtistModel.findOne({ songs: b.song._id });
+            if (artist)
+                showcaseText = `This beatmap was created for [${b.song.artist}](https://osu.ppy.sh/beatmaps/artists/${artist.osuId})'s Featured Artist announcement!`;
+        }
+        let description = `💖 [**${b.song.artist} - ${b.song.title}**](${b.url}) [**${modes.join(', ')}**] has been ranked\n\nHosted by [**${b.host.username}**](https://osu.ppy.sh/users/${b.host.osuId})\n${gdText}\n\n${showcaseText}`;
         if (storyboard) {
             const storyboarder = storyboard.mappers[0];
             description += `\nStoryboard by [**${storyboarder.username}**](https://osu.ppy.sh/users/${storyboarder.osuId})`;
@@ -170,6 +178,12 @@ adminBeatmapsRouter.post('/:id/updatePackId', (req, res) => __awaiter(void 0, vo
         .findByIdAndUpdate(req.params.id, { packId: req.body.packId })
         .orFail();
     res.json(parseInt(req.body.packId, 10));
+}));
+adminBeatmapsRouter.post('/:id/updateIsShowcase', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    yield beatmap_1.BeatmapModel
+        .findByIdAndUpdate(req.params.id, { isShowcase: req.body.isShowcase })
+        .orFail();
+    res.json(req.body.isShowcase);
 }));
 adminBeatmapsRouter.get('/loadNewsInfo/:date', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (isNaN(Date.parse(req.params.date))) {

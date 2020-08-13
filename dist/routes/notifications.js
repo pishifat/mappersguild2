@@ -109,7 +109,9 @@ function addTaskChecks(userId, b, invite, isNewTask) {
             }
         }
         if (b.quest && invite.taskName != task_2.TaskName.Storyboard) {
-            const q = yield quest_1.QuestModel.findById(b.quest);
+            const q = yield quest_1.QuestModel
+                .findById(b.quest)
+                .populate({ path: 'currentParty', populate: { path: 'members' } });
             let valid = false;
             if (!q) {
                 return helpers_1.defaultErrorMessage;
