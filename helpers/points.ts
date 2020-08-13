@@ -214,7 +214,7 @@ export async function updateUserPoints(userId: any): Promise<number | BasicError
                         let questBonus = 0;
                         if (beatmap.quest) questBonus = findQuestBonus(beatmap.quest.status, beatmap.quest.deadline, beatmap.rankedDate, task.mappers.length);
                         else if (beatmap.isShowcase) questBonus = 2; // featured artist showcase maps automatically earn full quest bonus
-                        questParticipation = Boolean(questBonus); // if map received quest bonus, mapset is marked as quest participation
+                        questParticipation = Boolean(questBonus && !beatmap.isShowcase); // if map received quest bonus, mapset is marked as quest participation
 
                         // difficulty-specific points
                         const taskPoints = findDifficultyPoints(task.name, task.mappers.length);

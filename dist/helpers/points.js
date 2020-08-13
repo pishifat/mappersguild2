@@ -211,7 +211,7 @@ function updateUserPoints(userId) {
                                 questBonus = findQuestBonus(beatmap.quest.status, beatmap.quest.deadline, beatmap.rankedDate, task.mappers.length);
                             else if (beatmap.isShowcase)
                                 questBonus = 2;
-                            questParticipation = Boolean(questBonus);
+                            questParticipation = Boolean(questBonus && !beatmap.isShowcase);
                             const taskPoints = findDifficultyPoints(task.name, task.mappers.length);
                             const finalPoints = ((taskPoints + questBonus) * lengthNerf);
                             pointsObject[task.name] += finalPoints;
