@@ -364,6 +364,22 @@ adminQuestsRouter.post('/:id/updateExpiration', (req, res) => __awaiter(void 0, 
     yield quest_1.QuestModel.findByIdAndUpdate(req.params.id, { expiration: date }).orFail();
     res.json(date);
 }));
+adminQuestsRouter.post('/:id/updateMinParty', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const minParty = parseInt(req.body.minParty, 10);
+    if (isNaN(minParty)) {
+        return res.json({ error: 'Invalid number' });
+    }
+    yield quest_1.QuestModel.findByIdAndUpdate(req.params.id, { minParty }).orFail();
+    res.json(minParty);
+}));
+adminQuestsRouter.post('/:id/updateMaxParty', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const maxParty = parseInt(req.body.maxParty, 10);
+    if (isNaN(maxParty)) {
+        return res.json({ error: 'Invalid number' });
+    }
+    yield quest_1.QuestModel.findByIdAndUpdate(req.params.id, { maxParty }).orFail();
+    res.json(maxParty);
+}));
 adminQuestsRouter.post('/removeDuplicatePartyMembers', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const parties = yield party_1.PartyModel
         .find({})

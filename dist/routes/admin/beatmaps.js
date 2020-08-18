@@ -96,13 +96,13 @@ adminBeatmapsRouter.post('/:id/updateStatus', middlewares_1.isSuperAdmin, (req, 
         });
         let gdText = '';
         if (!gdUsers.length) {
-            gdText = 'No guest difficulties';
+            gdText = '\nNo guest difficulties';
         }
         else if (gdUsers.length > 1) {
-            gdText = 'Guest difficulties by ';
+            gdText = '\nGuest difficulties by ';
         }
         else if (gdUsers.length == 1) {
-            gdText = 'Guest difficulty by ';
+            gdText = '\nGuest difficulty by ';
         }
         if (gdUsers.length) {
             for (let i = 0; i < gdUsers.length; i++) {
@@ -114,18 +114,19 @@ adminBeatmapsRouter.post('/:id/updateStatus', middlewares_1.isSuperAdmin, (req, 
                 points_1.updateUserPoints(user.id);
             }
         }
+        let storyboardText = '';
+        if (storyboard) {
+            const storyboarder = storyboard.mappers[0];
+            storyboardText = `\nStoryboard by [**${storyboarder.username}**](https://osu.ppy.sh/users/${storyboarder.osuId})`;
+            points_1.updateUserPoints(storyboarder.id);
+        }
         let showcaseText = '';
         if (b.isShowcase) {
             const artist = yield featuredArtist_1.FeaturedArtistModel.findOne({ songs: b.song._id });
             if (artist)
-                showcaseText = `This beatmap was created for [${b.song.artist}](https://osu.ppy.sh/beatmaps/artists/${artist.osuId})'s Featured Artist announcement!`;
+                showcaseText = `\n\nThis beatmap was created for [${b.song.artist}](https://osu.ppy.sh/beatmaps/artists/${artist.osuId})'s Featured Artist announcement!`;
         }
-        let description = `💖 [**${b.song.artist} - ${b.song.title}**](${b.url}) [**${modes.join(', ')}**] has been ranked\n\nHosted by [**${b.host.username}**](https://osu.ppy.sh/users/${b.host.osuId})\n${gdText}\n\n${showcaseText}`;
-        if (storyboard) {
-            const storyboarder = storyboard.mappers[0];
-            description += `\nStoryboard by [**${storyboarder.username}**](https://osu.ppy.sh/users/${storyboarder.osuId})`;
-            points_1.updateUserPoints(storyboarder.id);
-        }
+        const description = `💖 [**${b.song.artist} - ${b.song.title}**](${b.url}) [**${modes.join(', ')}**] has been ranked\n\nHosted by [**${b.host.username}**](https://osu.ppy.sh/users/${b.host.osuId})${gdText}${storyboardText}${showcaseText}`;
         discordApi_1.webhookPost([{
                 color: discordApi_1.webhookColors.blue,
                 description,
