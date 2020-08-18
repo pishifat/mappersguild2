@@ -77,6 +77,20 @@ const store = new Vuex.Store<QuestState>({
                 quest.expiration = payload.expiration;
             }
         },
+        updateMinParty (state, payload): void {
+            const quest = state.quests.find(q => q.id == payload.questId);
+
+            if (quest) {
+                quest.minParty = payload.minParty;
+            }
+        },
+        updateMaxParty (state, payload): void {
+            const quest = state.quests.find(q => q.id == payload.questId);
+
+            if (quest) {
+                quest.maxParty = payload.maxParty;
+            }
+        },
     },
     strict: process.env.NODE_ENV !== 'production',
 });

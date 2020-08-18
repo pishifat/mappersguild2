@@ -454,6 +454,32 @@ adminQuestsRouter.post('/:id/updateExpiration', async (req, res) => {
     res.json(date);
 });
 
+/* POST update quest minParty */
+adminQuestsRouter.post('/:id/updateMinParty', async (req, res) => {
+    const minParty = parseInt(req.body.minParty, 10);
+
+    if (isNaN(minParty)) {
+        return res.json({ error: 'Invalid number' });
+    }
+
+    await QuestModel.findByIdAndUpdate(req.params.id, { minParty }).orFail();
+
+    res.json(minParty);
+});
+
+/* POST update quest maxParty */
+adminQuestsRouter.post('/:id/updateMaxParty', async (req, res) => {
+    const maxParty = parseInt(req.body.maxParty, 10);
+
+    if (isNaN(maxParty)) {
+        return res.json({ error: 'Invalid number' });
+    }
+
+    await QuestModel.findByIdAndUpdate(req.params.id, { maxParty }).orFail();
+
+    res.json(maxParty);
+});
+
 /* POST remove duplicate party members from all parties */
 adminQuestsRouter.post('/removeDuplicatePartyMembers', async (req, res) => {
     const parties = await PartyModel

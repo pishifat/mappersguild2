@@ -56,6 +56,30 @@
                         >
                     </p>
                     <p>
+                        <button class="btn btn-sm btn-outline-info" @click="updateMinParty($event)">
+                            Update minParty
+                        </button>
+                        <input
+                            v-model="minParty"
+                            class="form-control-sm mx-2 w-50"
+                            type="text"
+                            autocomplete="off"
+                            placeholder="minParty..."
+                        >
+                    </p>
+                    <p>
+                        <button class="btn btn-sm btn-outline-info" @click="updateMaxParty($event)">
+                            Update maxParty
+                        </button>
+                        <input
+                            v-model="maxParty"
+                            class="form-control-sm mx-2 w-50"
+                            type="text"
+                            autocomplete="off"
+                            placeholder="maxParty..."
+                        >
+                    </p>
+                    <p>
                         <button class="btn btn-sm btn-outline-info" @click="updateDescription($event)">
                             Update description
                         </button>
@@ -194,6 +218,8 @@ export default Vue.extend({
             renameQuestName: this.quest.name,
             price: this.quest.price,
             requiredMapsets: this.quest.requiredMapsets,
+            minParty: this.quest.minParty,
+            maxParty: this.quest.maxParty,
             description: this.quest.descriptionMain,
             duplicateQuestName: this.quest.name,
             expiration: this.quest.expiration ? this.quest.expiration.toString() : '',
@@ -204,6 +230,8 @@ export default Vue.extend({
             this.renameQuestName = this.quest.name;
             this.price = this.quest.price;
             this.requiredMapsets = this.quest.requiredMapsets;
+            this.minParty = this.quest.minParty;
+            this.maxParty = this.quest.maxParty;
             this.description = this.quest.descriptionMain;
             this.duplicateQuestName = this.quest.name;
             this.expiration = this.quest.expiration ? this.quest.expiration.toString() : '';
@@ -355,6 +383,34 @@ export default Vue.extend({
                 this.$store.commit('updateExpiration', {
                     questId: this.quest.id,
                     expiration,
+                });
+            }
+        },
+        async updateMinParty(e): Promise<void> {
+            const minParty = await this.executePost(`/admin/quests/${this.quest.id}/updateMinParty/`, { minParty: this.minParty }, e);
+
+            if (!this.isError(minParty)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated minParty`,
+                    type: 'info',
+                });
+                this.$store.commit('updateMinParty', {
+                    questId: this.quest.id,
+                    minParty,
+                });
+            }
+        },
+        async updateMaxParty(e): Promise<void> {
+            const maxParty = await this.executePost(`/admin/quests/${this.quest.id}/updateMaxParty/`, { maxParty: this.maxParty }, e);
+
+            if (!this.isError(maxParty)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated maxParty`,
+                    type: 'info',
+                });
+                this.$store.commit('updateMaxParty', {
+                    questId: this.quest.id,
+                    maxParty,
                 });
             }
         },
