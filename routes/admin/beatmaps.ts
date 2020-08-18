@@ -113,11 +113,11 @@ adminBeatmapsRouter.post('/:id/updateStatus', isSuperAdmin, async (req, res) => 
         let gdText = '';
 
         if (!gdUsers.length) {
-            gdText = 'No guest difficulties';
+            gdText = '\nNo guest difficulties';
         } else if (gdUsers.length > 1) {
-            gdText = 'Guest difficulties by ';
+            gdText = '\nGuest difficulties by ';
         } else if (gdUsers.length == 1) {
-            gdText = 'Guest difficulty by ';
+            gdText = '\nGuest difficulty by ';
         }
 
         // add users to webhook description
@@ -135,21 +135,23 @@ adminBeatmapsRouter.post('/:id/updateStatus', isSuperAdmin, async (req, res) => 
             }
         }
 
-        let showcaseText = '';
-
-        if (b.isShowcase) {
-            const artist = await FeaturedArtistModel.findOne({ songs: b.song._id as FeaturedSong });
-            if (artist) showcaseText = `This beatmap was created for [${b.song.artist}](https://osu.ppy.sh/beatmaps/artists/${artist.osuId})'s Featured Artist announcement!`;
-        }
-
-        let description = `💖 [**${b.song.artist} - ${b.song.title}**](${b.url}) [**${modes.join(', ')}**] has been ranked\n\nHosted by [**${b.host.username}**](https://osu.ppy.sh/users/${b.host.osuId})\n${gdText}\n\n${showcaseText}`;
+        let storyboardText = '';
 
         // add storyboarder to webhook and update points for storyboarder
         if (storyboard) {
             const storyboarder = storyboard.mappers[0];
-            description += `\nStoryboard by [**${storyboarder.username}**](https://osu.ppy.sh/users/${storyboarder.osuId})`;
+            storyboardText = `\nStoryboard by [**${storyboarder.username}**](https://osu.ppy.sh/users/${storyboarder.osuId})`;
             updateUserPoints(storyboarder.id);
         }
+
+        let showcaseText = '';
+
+        if (b.isShowcase) {
+            const artist = await FeaturedArtistModel.findOne({ songs: b.song._id as FeaturedSong });
+            if (artist) showcaseText = `\n\nThis beatmap was created for [${b.song.artist}](https://osu.ppy.sh/beatmaps/artists/${artist.osuId})'s Featured Artist announcement!`;
+        }
+
+        const description = `💖 [**${b.song.artist} - ${b.song.title}**](${b.url}) [**${modes.join(', ')}**] has been ranked\n\nHosted by [**${b.host.username}**](https://osu.ppy.sh/users/${b.host.osuId})${gdText}${storyboardText}${showcaseText}`;
 
         // publish webhook
         webhookPost([{
