@@ -95,7 +95,7 @@
                                 </table>
                                 <div class="col-sm-6 small">
                                     Comment:
-                                    <span class="text-white-50">
+                                    <span class="text-white-50" style="white-space: pre-line;">
                                         {{ findJudgeComment (judging.judgingScores) }}
                                     </span>
                                 </div>
