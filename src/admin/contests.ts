@@ -25,11 +25,18 @@ const store = new Vuex.Store<ContestState>({
             state.contests = contests;
         },
         addContest (state, contest: Contest): void {
-            state.contests.push(contest);
+            state.contests.unshift(contest);
         },
         addSubmission (state, payload): void {
             const contest = state.contests.find(c => c.id == payload.contestId);
             contest?.submissions.push(payload.submission);
+        },
+        addSubmissionsFromCsv (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                contest.submissions = payload.submissions;
+            }
         },
         deleteSubmission (state, payload): void {
             const contest = state.contests.find(c => c.id == payload.contestId);

@@ -40,7 +40,6 @@
                             :evaluations="submission.evaluations"
                         />
                         <message-template
-                            :evaluations="submission.evaluations"
                             :osu-id="submission.creator.osuId"
                             :submission-id="submission.id"
                             :contest-name="contestName"

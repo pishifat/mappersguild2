@@ -27,3 +27,4 @@ jspm_packages/
 config.json
 public/js/
 migration.js
+*.csv

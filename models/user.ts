@@ -20,7 +20,7 @@ const UserSchema = new Schema({
     hostPoints: { type: Number, default: 0 },
     contestParticipantPoints: { type: Number, default: 0 },
     contestScreenerPoints: { type: Number, default: 0 },
-    contestVotePoints: { type: Number, default: 0 },
+    contestJudgePoints: { type: Number, default: 0 },
     legacyPoints: { type: Number, default: 0 },
     osuPoints: { type: Number, default: 0 },
     taikoPoints: { type: Number, default: 0 },
@@ -33,7 +33,7 @@ const UserSchema = new Schema({
 UserSchema.virtual('totalPoints').get(function(this: User) {
     return Math.round((this.easyPoints + this.normalPoints + this.hardPoints + this.insanePoints + this.expertPoints +
         this.storyboardPoints + this.questPoints + this.modPoints + this.hostPoints +
-        this.contestParticipantPoints + this.contestScreenerPoints + this.contestVotePoints + this.legacyPoints)*10)/10;
+        this.contestParticipantPoints + this.contestScreenerPoints + this.contestJudgePoints + this.legacyPoints)*10)/10;
 });
 
 UserSchema.virtual('availablePoints').get(function(this: User) {
@@ -47,7 +47,7 @@ UserSchema.virtual('pointsInfo').get(function(this: User) {
         mapping: Math.round((this.osuPoints + this.taikoPoints + this.catchPoints + this.maniaPoints)*10)/10,
         modding: this.modPoints,
         other: this.storyboardPoints + this.questPoints + this.hostPoints +
-        this.contestParticipantPoints + this.contestScreenerPoints + this.contestVotePoints + this.legacyPoints,
+        this.contestParticipantPoints + this.contestScreenerPoints + this.contestJudgePoints + this.legacyPoints,
     };
 
     return pointsInfo;
@@ -80,6 +80,6 @@ UserSchema.virtual('mainMode').get(function(this: User) {
 
 const UserModel = mongoose.model<User>('User', UserSchema);
 
-const populatePointsVirtuals = 'osuId username rank easyPoints normalPoints hardPoints insanePoints expertPoints storyboardPoints questPoints modPoints hostPoints contestParticipantPoints contestScreenerPoints contestVotePoints';
+const populatePointsVirtuals = 'osuId username rank easyPoints normalPoints hardPoints insanePoints expertPoints storyboardPoints questPoints modPoints hostPoints contestParticipantPoints contestScreenerPoints contestJudgePoints';
 
 export { UserModel, populatePointsVirtuals };

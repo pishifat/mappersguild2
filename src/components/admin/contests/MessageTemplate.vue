@@ -1,8 +1,10 @@
 <template>
     <div>
-        <button class="btn btn-sm btn-outline-info" @click="sendResultsPm($event)">
-            Send results PM
-        </button>
+        <a :href="'https://osu.ppy.sh/community/chat?sendto=' + osuId" target="_blank">
+            <button class="btn btn-sm btn-outline-info"> <!--  @click="sendResultsPm($event)" -->
+                Send results PM
+            </button>
+        </a>
         <div class="copy-paste small text-white-50">
             <samp>
                 hello, thank you for recently participating in "{{ contestName }}"!
@@ -33,7 +35,7 @@ export default Vue.extend({
         },
     },
     methods: {
-        async sendResultsPm(e): Promise<void> {
+        async sendResultsPm(e): Promise<void> { // waiting on https://github.com/ppy/osu-web/issues/6359
             const res = await this.executePost(`/admin/contests/sendResultsPm`, { contestName: this.contestName, submissionId: this.submissionId, osuId: this.osuId }, e);
 
             if (!this.isError(res)) {

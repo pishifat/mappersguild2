@@ -8,7 +8,7 @@
                 <h5 data-toggle="tooltip" title="anonymized submission name">
                     {{ submission.name }}
                 </h5>
-                <p v-if="submission.creator.osuId != 3178418">
+                <p>
                     created by
                     <a :href="'https://osu.ppy.sh/users/' + submission.creator.osuId" target="_blank">
                         {{ submission.creator.username }}

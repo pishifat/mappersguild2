@@ -25,6 +25,16 @@
             </button>
         </p>
 
+        <p v-if="!submissions.length">
+            <button
+                type="button"
+                class="btn btn-sm btn-outline-info"
+                @click="addSubmissionsFromCsv($event)"
+            >
+                Add submissions from CSV (local only)
+            </button>
+        </p>
+
         <ul v-if="submissions.length">
             <li
                 v-for="submission in submissions"
@@ -100,6 +110,20 @@ export default Vue.extend({
                 this.$store.commit('addSubmission', {
                     contestId: this.contestId,
                     submission,
+                });
+            }
+        },
+        async addSubmissionsFromCsv(e): Promise<void> {
+            const submissions = await this.executePost(`/admin/contests/${this.contestId}/submissions/createFromCsv`, {}, e);
+
+            if (!this.isError(submissions)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `added csv entries`,
+                    type: 'info',
+                });
+                this.$store.commit('addSubmissionsFromCsv', {
+                    contestId: this.contestId,
+                    submissions,
                 });
             }
         },

@@ -92,10 +92,10 @@
                                     :tooltip-title="'screening entries for Monthly Beatmapping Contests'"
                                 />
                                 <user-points-row
-                                    v-if="selectedUser.contestVotePoints"
-                                    :points="selectedUser.contestVotePoints"
-                                    :display="'MBC voting'"
-                                    :tooltip-title="'voting in Monthly Beatmapping Contests'"
+                                    v-if="selectedUser.contestJudgePoints"
+                                    :points="selectedUser.contestJudgePoints"
+                                    :display="'MBC judging'"
+                                    :tooltip-title="'judging entries for Monthly Beatmapping Contests'"
                                 />
                                 <user-points-row
                                     v-if="selectedUser.legacyPoints"

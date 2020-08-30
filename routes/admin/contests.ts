@@ -1,14 +1,44 @@
 import express from 'express';
+import fs from 'fs';
 import { isLoggedIn, isSuperAdmin } from '../../helpers/middlewares';
 import { ContestModel } from '../../models/contest/contest';
 import { UserModel } from '../../models/user';
+import { UserGroup } from '../../interfaces/user';
 import { SubmissionModel } from '../../models/contest/submission';
 import { sendPm, isOsuResponseError } from '../../helpers/osuApi';
+
 
 const adminContestsRouter = express.Router();
 
 adminContestsRouter.use(isLoggedIn);
 adminContestsRouter.use(isSuperAdmin);
+
+const defaultContestPopulate = [
+    {
+        path: 'submissions',
+        populate: [
+            {
+                path: 'evaluations',
+                populate: {
+                    path: 'screener',
+                },
+            },
+            {
+                path: 'creator',
+                select: '_id osuId username',
+            },
+        ],
+    },
+    {
+        path: 'screeners',
+    },
+    {
+        path: 'judges',
+    },
+    {
+        path: 'voters',
+    },
+];
 
 /* GET contest - admin page */
 adminContestsRouter.get('/', (req, res) => {
@@ -25,33 +55,8 @@ adminContestsRouter.get('/', (req, res) => {
 adminContestsRouter.get('/relevantInfo', async (req, res) => {
     const contests = await ContestModel
         .find({})
-        .populate([
-            {
-                path: 'submissions',
-                populate: [
-                    {
-                        path: 'evaluations',
-                        populate: {
-                            path: 'screener',
-                        },
-                    },
-                    {
-                        path: 'creator',
-                        select: '_id osuId username',
-                    },
-                ],
-            },
-            {
-                path: 'screeners',
-            },
-            {
-                path: 'judges',
-            },
-            {
-                path: 'voters',
-            },
-        ])
-        .sort({ name: 1 });
+        .populate(defaultContestPopulate)
+        .sort({ contestStart: -1 });
 
     res.json(contests);
 });
@@ -244,6 +249,55 @@ adminContestsRouter.post('/:id/submissions/create', async (req, res) => {
     res.json(submission);
 });
 
+/* POST create submissions from CSV file */
+adminContestsRouter.post('/:id/submissions/createFromCsv', async (req, res) => {
+    const contest = await ContestModel.findById(req.params.id).orFail();
+
+    // read masking csv
+    const buffer = fs.readFileSync('contest.csv');
+    const csv = buffer.toString();
+
+    if (!csv) {
+        return res.json(`couldn't read csv`);
+    }
+
+    const data = csv.split('\r\n');
+
+    for (const unsplitSubmission of data) {
+        const splitSubmission = unsplitSubmission.split(',');
+        const username = splitSubmission[0];
+        const osuId = parseInt(splitSubmission[1], 10);
+        const mask = splitSubmission[2];
+        console.log(username);
+
+        const submission = new SubmissionModel();
+
+        submission.name = mask;
+
+        const user = await UserModel.findOne({ osuId });
+
+        if (user) {
+            submission.creator = user._id;
+        } else {
+            const newUser = new UserModel();
+            newUser.osuId = osuId;
+            newUser.username = username;
+            newUser.group = UserGroup.Spectator;
+            await newUser.save();
+
+            submission.creator = newUser._id;
+        }
+
+        await submission.save();
+        contest.submissions.push(submission);
+    }
+
+    await contest.save();
+    await contest.populate(defaultContestPopulate).execPopulate();
+
+    res.json(contest.submissions);
+});
+
 /* POST delete a submission */
 adminContestsRouter.post('/:id/submissions/:submissionId/delete', async (req, res) => {
     const submission = await SubmissionModel
@@ -283,5 +337,56 @@ adminContestsRouter.post('/sendResultsPm', async (req, res) => {
 
     res.json(true);
 });
+
+/* POST TEMPORARILY FIX CREATORS FROM CSV, publishing for posterity
+adminContestsRouter.post('/:id/submissions/fixCreatorsFromCsv', async (req, res) => {
+    const contest = await ContestModel.findById(req.params.id).populate(defaultContestPopulate).orFail();
+
+    // read masking csv
+    const buffer = fs.readFileSync('january-contest.csv');
+    const csv = buffer.toString();
+
+    if (!csv) {
+        return res.json(`couldn't read csv`);
+    }
+
+    const data = csv.split('\r\n');
+
+    for (const unsplitSubmission of data) {
+        const splitSubmission = unsplitSubmission.split(',');
+        const username = splitSubmission[0];
+        const osuId = parseInt(splitSubmission[1], 10);
+        const mask = splitSubmission[2];
+        console.log(username + ' ' + splitSubmission.length);
+
+        const submissionX = contest.submissions.find(s => s.name == mask);
+        const submissionId = submissionX?.id;
+        const submission = await SubmissionModel.findOne({ _id: submissionId });
+
+        if (!submission) {
+            console.log(`couldn't find submission`);
+        } else {
+            if (submission.creator.osuId != osuId) {
+                const user = await UserModel.findOne({ osuId });
+
+                if (user) {
+                    submission.creator = user._id;
+                } else {
+                    const newUser = new UserModel();
+                    newUser.osuId = osuId;
+                    newUser.username = username;
+                    newUser.group = UserGroup.Spectator;
+                    await newUser.save();
+
+                    submission.creator = newUser._id;
+                }
+
+                await submission.save();
+            }
+        }
+    }
+
+    res.json({ success: 'ok' });
+});*/
 
 export default adminContestsRouter;

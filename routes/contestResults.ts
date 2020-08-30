@@ -1,7 +1,6 @@
 import express from 'express';
 import { isLoggedIn } from '../helpers/middlewares';
 import { SubmissionModel } from '../models/contest/submission';
-import { ContestModel } from '../models/contest/contest';
 import { UserModel } from '../models/user';
 
 const contestResultsRouter = express.Router();

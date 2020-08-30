@@ -24,6 +24,6 @@ export interface Points {
     mania: number;
     ContestParticipant: number;
     ContestScreener: number;
-    ContestVote: number;
+    ContestJudge: number;
     Quests: any[];
 }
