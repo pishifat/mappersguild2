@@ -13,14 +13,42 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const fs_1 = __importDefault(require("fs"));
 const middlewares_1 = require("../../helpers/middlewares");
 const contest_1 = require("../../models/contest/contest");
 const user_1 = require("../../models/user");
+const user_2 = require("../../interfaces/user");
 const submission_1 = require("../../models/contest/submission");
 const osuApi_1 = require("../../helpers/osuApi");
 const adminContestsRouter = express_1.default.Router();
 adminContestsRouter.use(middlewares_1.isLoggedIn);
 adminContestsRouter.use(middlewares_1.isSuperAdmin);
+const defaultContestPopulate = [
+    {
+        path: 'submissions',
+        populate: [
+            {
+                path: 'evaluations',
+                populate: {
+                    path: 'screener',
+                },
+            },
+            {
+                path: 'creator',
+                select: '_id osuId username',
+            },
+        ],
+    },
+    {
+        path: 'screeners',
+    },
+    {
+        path: 'judges',
+    },
+    {
+        path: 'voters',
+    },
+];
 adminContestsRouter.get('/', (req, res) => {
     var _a, _b;
     res.render('admin/contests', {
@@ -34,33 +62,8 @@ adminContestsRouter.get('/', (req, res) => {
 adminContestsRouter.get('/relevantInfo', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const contests = yield contest_1.ContestModel
         .find({})
-        .populate([
-        {
-            path: 'submissions',
-            populate: [
-                {
-                    path: 'evaluations',
-                    populate: {
-                        path: 'screener',
-                    },
-                },
-                {
-                    path: 'creator',
-                    select: '_id osuId username',
-                },
-            ],
-        },
-        {
-            path: 'screeners',
-        },
-        {
-            path: 'judges',
-        },
-        {
-            path: 'voters',
-        },
-    ])
-        .sort({ name: 1 });
+        .populate(defaultContestPopulate)
+        .sort({ contestStart: -1 });
     res.json(contests);
 }));
 adminContestsRouter.post('/create', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -205,6 +208,41 @@ adminContestsRouter.post('/:id/submissions/create', (req, res) => __awaiter(void
         select: '_id osuId username',
     }).execPopulate();
     res.json(submission);
+}));
+adminContestsRouter.post('/:id/submissions/createFromCsv', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const contest = yield contest_1.ContestModel.findById(req.params.id).orFail();
+    const buffer = fs_1.default.readFileSync('contest.csv');
+    const csv = buffer.toString();
+    if (!csv) {
+        return res.json(`couldn't read csv`);
+    }
+    const data = csv.split('\r\n');
+    for (const unsplitSubmission of data) {
+        const splitSubmission = unsplitSubmission.split(',');
+        const username = splitSubmission[0];
+        const osuId = parseInt(splitSubmission[1], 10);
+        const mask = splitSubmission[2];
+        console.log(username);
+        const submission = new submission_1.SubmissionModel();
+        submission.name = mask;
+        const user = yield user_1.UserModel.findOne({ osuId });
+        if (user) {
+            submission.creator = user._id;
+        }
+        else {
+            const newUser = new user_1.UserModel();
+            newUser.osuId = osuId;
+            newUser.username = username;
+            newUser.group = user_2.UserGroup.Spectator;
+            yield newUser.save();
+            submission.creator = newUser._id;
+        }
+        yield submission.save();
+        contest.submissions.push(submission);
+    }
+    yield contest.save();
+    yield contest.populate(defaultContestPopulate).execPopulate();
+    res.json(contest.submissions);
 }));
 adminContestsRouter.post('/:id/submissions/:submissionId/delete', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const submission = yield submission_1.SubmissionModel

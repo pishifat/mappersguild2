@@ -120,7 +120,7 @@ function findCreateQuestPointsSpent(questArtist, requiredMapsets) {
 exports.findCreateQuestPointsSpent = findCreateQuestPointsSpent;
 function updateUserPoints(userId) {
     return __awaiter(this, void 0, void 0, function* () {
-        const [user, ownTasks, hostedBeatmaps, moddedBeatmaps, submittedContests, screenedContests, ownSpentPoints] = yield Promise.all([
+        const [user, ownTasks, hostedBeatmaps, moddedBeatmaps, submittedContests, screenedContests, judgedContests, ownSpentPoints] = yield Promise.all([
             user_1.UserModel.findById(userId).orFail(),
             task_2.TaskModel.find({ mappers: userId }).select('_id'),
             beatmap_2.BeatmapModel
@@ -142,13 +142,13 @@ function updateUserPoints(userId) {
                 select: '_id osuId username',
             }),
             submission_1.SubmissionModel.find({
-                $and: [
-                    { creator: userId },
-                    { creator: { $ne: '5c6e135359d335001922e610' } },
-                ],
+                creator: userId,
             }),
             contest_1.ContestModel.find({
                 screeners: userId,
+            }),
+            contest_1.ContestModel.find({
+                judges: userId,
             }),
             spentPoints_1.SpentPointsModel
                 .find({ user: userId })
@@ -196,7 +196,7 @@ function updateUserPoints(userId) {
             mania: 0,
             ContestParticipant: 0,
             ContestScreener: 0,
-            ContestVote: 0,
+            ContestJudge: 0,
             Quests: [],
         };
         userBeatmaps.forEach(beatmap => {
@@ -234,8 +234,8 @@ function updateUserPoints(userId) {
         pointsObject['Host'] = hostedBeatmaps.length * 5;
         pointsObject['Mod'] = moddedBeatmaps.length;
         pointsObject['ContestParticipant'] = submittedContests.length * 5;
-        if (userId != '5c6e135359d335001922e610')
-            pointsObject['ContestScreener'] = screenedContests.length;
+        pointsObject['ContestScreener'] = screenedContests.length;
+        pointsObject['ContestJudge'] = judgedContests.length;
         ownSpentPoints.forEach(spentPoints => {
             if (spentPoints.category == 'acceptQuest') {
                 pointsObject['SpentPoints'] += spentPoints.quest.price;
@@ -262,7 +262,6 @@ function updateUserPoints(userId) {
             pointsObject['QuestReward'] +
             pointsObject['ContestParticipant'] +
             pointsObject['ContestScreener'] +
-            pointsObject['ContestVote'] +
             legacyPoints;
         if (totalPoints < 100) {
             pointsObject['Rank'] = 0;
@@ -294,7 +293,7 @@ function updateUserPoints(userId) {
             maniaPoints: pointsObject['mania'],
             contestParticipantPoints: pointsObject['ContestParticipant'],
             contestScreenerPoints: pointsObject['ContestScreener'],
-            contestVotePoints: pointsObject['ContestVote'],
+            contestJudgePoints: pointsObject['ContestJudge'],
             completedQuests: pointsObject['Quests'],
         });
         return (totalPoints);

@@ -21,10 +21,13 @@ module.exports = {
     plugins: [
         new CleanWebpackPlugin(),
         new VueLoaderPlugin(),
-        new CopyPlugin([
-            { from: 'public', to: path.resolve(__dirname, 'dist/public') },
-            { from: 'views', to: path.resolve(__dirname, 'dist/views') },
-        ]),
+        new CopyPlugin(
+            {
+                patterns: [
+                    { from: 'public', to: path.resolve(__dirname, 'dist/public') },
+                    { from: 'views', to: path.resolve(__dirname, 'dist/views') },
+                ],
+            }),
         new ManifestPlugin({
             fileName: path.resolve(__dirname, 'dist/manifest.json'),
             publicPath: '/js/',
