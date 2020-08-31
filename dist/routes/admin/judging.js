@@ -49,6 +49,7 @@ function calculateContestScores(contest) {
                     userScore.criteriaSum.push({
                         criteriaId: judgingScore.criteria.id,
                         sum: judgingScore.score,
+                        name: judgingScore.criteria.name,
                     });
                 }
             }
