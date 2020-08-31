@@ -2,6 +2,8 @@
     <div v-cloak>
         <add-contest />
 
+        <markdown-new-contest-template />
+
         <contest-info
             v-for="contest in contests"
             :key="contest.id"
@@ -16,6 +18,7 @@
 import Vue from 'vue';
 import ContestInfo from '@components/admin/contests/ContestInfo.vue';
 import AddContest from '@components/admin/contests/AddContest.vue';
+import MarkdownNewContestTemplate from '@components/admin/contests/MarkdownNewContestTemplate.vue';
 import ToastMessages from '@components/ToastMessages.vue';
 import { mapState } from 'vuex';
 import { Contest } from '../../../interfaces/contest/contest';
@@ -26,6 +29,7 @@ export default Vue.extend({
         ToastMessages,
         ContestInfo,
         AddContest,
+        MarkdownNewContestTemplate,
     },
     computed: {
         ...mapState([

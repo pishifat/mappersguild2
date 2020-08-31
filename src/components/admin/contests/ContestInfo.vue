@@ -40,6 +40,11 @@
                         :contest-id="contest.id"
                         :judges="contest.judges"
                     />
+
+                    <markdown-helper-thanks
+                        :screeners="contest.screeners"
+                        :judges="contest.judges"
+                    />
                 </div>
 
                 <h5>
@@ -107,6 +112,7 @@ import JudgesInfo from './JudgesInfo.vue';
 import ScreeningResults from './ScreeningResults.vue';
 import JudgingResults from './JudgingResults.vue';
 import SubmissionsInfo from './SubmissionsInfo.vue';
+import MarkdownHelperThanks from './MarkdownHelperThanks.vue';
 
 export default Vue.extend({
     name: 'ContestInfo',
@@ -118,6 +124,7 @@ export default Vue.extend({
         ScreeningResults,
         JudgingResults,
         SubmissionsInfo,
+        MarkdownHelperThanks,
     },
     props: {
         contest: {

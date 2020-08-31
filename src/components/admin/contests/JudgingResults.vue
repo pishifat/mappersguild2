@@ -42,6 +42,12 @@
                 </table>
             </div>
 
+            <markdown-judging-leaderboard
+                :users-scores="usersScores"
+                :contest="contest"
+                :judge-count="judgeCount"
+            />
+
             <judging-detail
                 id="detailModalAdmin"
                 :submission="selected"
@@ -57,6 +63,7 @@
 import Vue from 'vue';
 import JudgingDetail from './JudgingDetail.vue';
 import JudgingLeaderboard from './JudgingLeaderboard.vue';
+import MarkdownJudgingLeaderboard from './MarkdownJudgingLeaderboard.vue';
 import { Contest } from '../../../../interfaces/contest/contest';
 import { Submission } from '../../../../interfaces/contest/submission';
 
@@ -65,6 +72,7 @@ export default Vue.extend({
     components: {
         JudgingDetail,
         JudgingLeaderboard,
+        MarkdownJudgingLeaderboard,
     },
     props: {
         contestId: {
@@ -107,6 +115,12 @@ export default Vue.extend({
             const judges = submission.judgings.map(j => j.judge.username);
 
             return judges.join(', ');
+        },
+
+        getSubmissionIdByCreatorId (creatorId: string): string {
+            const submission = this.contest?.submissions.find(s => s.creator.id === creatorId);
+
+            return submission!.id;
         },
     },
 });

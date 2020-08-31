@@ -39,6 +39,7 @@ export function calculateContestScores(contest?: Contest): { usersScores: UserSc
                     userScore.criteriaSum.push({
                         criteriaId: judgingScore.criteria.id,
                         sum: judgingScore.score,
+                        name: judgingScore.criteria.name,
                     });
                 }
             }

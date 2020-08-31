@@ -8,6 +8,7 @@ export interface UserScore {
     criteriaSum: {
         criteriaId: string;
         sum: number;
+        name: string;
     }[];
     judgingSum: {
         judgeId: string;
