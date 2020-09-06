@@ -40,7 +40,7 @@ import { Screening } from '../../../interfaces/contest/screening';
 import { mapState } from 'vuex';
 
 export default Vue.extend({
-    name: 'SubmssionCard',
+    name: 'SubmissionCard',
     components: {
         ScreeningVote,
         ScreeningNotes,

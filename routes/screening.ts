@@ -75,7 +75,7 @@ screeningRouter.post('/updateSubmission/:submissionId', async (req, res) => {
         .orFail();
 
     const userEvaluation = submission.evaluations.find(e => e.screener.id === req.session?.mongoId);
-    let vote = 0;
+    let vote = userEvaluation ? userEvaluation.vote : 0;
 
     if (req.body.vote !== undefined) {
         vote = parseInt(req.body.vote, 10);
