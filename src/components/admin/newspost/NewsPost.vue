@@ -128,7 +128,7 @@ export default Vue.extend({
     },
     data() {
         return {
-            date: '2019-11-29',
+            date: '2020-03-23',
             beatmaps: [] as Beatmap[],
             quests: [] as Quest[],
             externalBeatmaps: [] as any,

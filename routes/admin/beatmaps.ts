@@ -2,10 +2,10 @@ import express from 'express';
 import { isLoggedIn, isAdmin, isSuperAdmin } from '../../helpers/middlewares';
 import { BeatmapModel } from '../../models/beatmap/beatmap';
 import { FeaturedArtistModel } from '../../models/featuredArtist';
-import { Beatmap, BeatmapStatus } from '../../interfaces/beatmap/beatmap';
+import { BeatmapStatus } from '../../interfaces/beatmap/beatmap';
 import { FeaturedSong } from '../../interfaces/featuredSong';
 import { QuestModel } from '../../models/quest';
-import { findBeatmapsetId, sleep, defaultErrorMessage } from '../../helpers/helpers';
+import { findBeatmapsetId, defaultErrorMessage } from '../../helpers/helpers';
 import { updateUserPoints } from '../../helpers/points';
 import { TaskModel, Task } from '../../models/beatmap/task';
 import { beatmapsetInfo, getMaps, isOsuResponseError } from '../../helpers/osuApi';
@@ -250,7 +250,7 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
     const [b, q] = await Promise.all([
         BeatmapModel
             .find({
-                updatedAt: { $gte: date },
+                rankedDate: { $gte: date },
                 status: BeatmapStatus.Ranked,
             })
             .defaultPopulate()
@@ -263,24 +263,6 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
             .sort({ name: 1 })
             .orFail(),
     ]);
-
-    const accuratelyDatedBeatmaps: Beatmap[] = []; // because mg database's "updatedAt" is wrong too often
-
-    for (const beatmap of b) {
-        const osuId = findBeatmapsetId(beatmap.url);
-
-        const osuBeatmapResponse = await beatmapsetInfo(osuId);
-
-        if (!isOsuResponseError(osuBeatmapResponse)) {
-            const rankedDate = new Date(osuBeatmapResponse.approved_date);
-
-            if (rankedDate > date) {
-                accuratelyDatedBeatmaps.push(beatmap);
-            }
-        }
-
-        await sleep(100);
-    }
 
     const maps: any = await getMaps(date);
 
@@ -317,7 +299,7 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
         });
     }
 
-    res.json({ beatmaps: accuratelyDatedBeatmaps, quests: q, externalBeatmaps });
+    res.json({ beatmaps: b, quests: q, externalBeatmaps });
 });
 
 /* GET bundled beatmaps */
