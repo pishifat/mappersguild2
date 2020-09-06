@@ -79,7 +79,7 @@ screeningRouter.post('/updateSubmission/:submissionId', (req, res) => __awaiter(
         .populate(defaultSubmissionPopulate)
         .orFail();
     const userEvaluation = submission.evaluations.find(e => { var _a; return e.screener.id === ((_a = req.session) === null || _a === void 0 ? void 0 : _a.mongoId); });
-    let vote = 0;
+    let vote = userEvaluation ? userEvaluation.vote : 0;
     if (req.body.vote !== undefined) {
         vote = parseInt(req.body.vote, 10);
         if (isNaN(vote)) {

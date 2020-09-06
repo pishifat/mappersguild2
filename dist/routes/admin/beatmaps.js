@@ -193,7 +193,7 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', (req, res) => __awaiter(void 0, v
     const [b, q] = yield Promise.all([
         beatmap_1.BeatmapModel
             .find({
-            updatedAt: { $gte: date },
+            rankedDate: { $gte: date },
             status: beatmap_2.BeatmapStatus.Ranked,
         })
             .defaultPopulate()
@@ -205,18 +205,6 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', (req, res) => __awaiter(void 0, v
             .sort({ name: 1 })
             .orFail(),
     ]);
-    const accuratelyDatedBeatmaps = [];
-    for (const beatmap of b) {
-        const osuId = helpers_1.findBeatmapsetId(beatmap.url);
-        const osuBeatmapResponse = yield osuApi_1.beatmapsetInfo(osuId);
-        if (!osuApi_1.isOsuResponseError(osuBeatmapResponse)) {
-            const rankedDate = new Date(osuBeatmapResponse.approved_date);
-            if (rankedDate > date) {
-                accuratelyDatedBeatmaps.push(beatmap);
-            }
-        }
-        yield helpers_1.sleep(100);
-    }
     const maps = yield osuApi_1.getMaps(date);
     const osuIds = [];
     const externalBeatmaps = [];
@@ -246,7 +234,7 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', (req, res) => __awaiter(void 0, v
             }
         });
     }
-    res.json({ beatmaps: accuratelyDatedBeatmaps, quests: q, externalBeatmaps });
+    res.json({ beatmaps: b, quests: q, externalBeatmaps });
 }));
 adminBeatmapsRouter.get('/findBundledBeatmaps', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const easyTasks = yield task_1.TaskModel
