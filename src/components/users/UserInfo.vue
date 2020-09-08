@@ -306,6 +306,7 @@ import { Quest } from '../../../interfaces/quest';
 import { SpentPoints } from '../../../interfaces/spentPoints';
 import { Beatmap } from '../../../interfaces/beatmap/beatmap';
 import UserPointsRow from './UserPointsRow.vue';
+import { Task, TaskName } from '../../../interfaces/beatmap/task';
 
 export default Vue.extend({
     name: 'UserInfo',
@@ -317,6 +318,7 @@ export default Vue.extend({
             currentQuests: [] as Quest[],
             spentPoints: [] as SpentPoints[],
             userBeatmaps: [] as Beatmap[],
+            sortOrder: Object.values(TaskName),
         };
     },
     computed: {
@@ -356,17 +358,23 @@ export default Vue.extend({
     },
     methods: {
         userTasks(beatmap: Beatmap): string {
-            let tasks = '';
+            const tasks = [...beatmap.tasks];
+
+            tasks.sort((a, b) => {
+                return this.sortOrder.indexOf(a.name) - this.sortOrder.indexOf(b.name);
+            });
+
+            let tasksText = '';
 
             beatmap.tasks.forEach(task => {
                 task.mappers.forEach(mapper => {
                     if (mapper.id == this.selectedUser.id) {
-                        tasks += task.name + ', ';
+                        tasksText += task.name + ', ';
                     }
                 });
             });
 
-            return tasks.slice(0, -2);
+            return tasksText.slice(0, -2);
         },
         calculatePoints(quest): number {
             let points = 100;

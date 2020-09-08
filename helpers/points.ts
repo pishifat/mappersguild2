@@ -293,8 +293,10 @@ export async function updateUserPoints(userId: any): Promise<number | BasicError
         pointsObject['Rank'] = 1;
     } else if (totalPoints < 500) {
         pointsObject['Rank'] = 2;
-    } else {
+    } else if (totalPoints < 1000) {
         pointsObject['Rank'] = 3;
+    } else {
+        pointsObject['Rank'] = 4;
     }
 
     await UserModel.findByIdAndUpdate(userId, {
