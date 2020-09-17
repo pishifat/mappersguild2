@@ -50,6 +50,12 @@ adminUsersRouter.post('/:id/updateBadge', (req, res) => __awaiter(void 0, void 0
     else if (badge == 3) {
         rankColor = discordApi_1.webhookColors.lightYellow;
     }
+    else if (badge == 4) {
+        rankColor = discordApi_1.webhookColors.lightBlue;
+    }
+    let description = `**Reached rank ${badge}** with ${user.totalPoints} total points`;
+    if (badge == 4)
+        description += `\n\n...there's no reward for this (yet) but 1000+ points is pretty impressive`;
     discordApi_1.webhookPost([{
             author: {
                 name: user.username,
@@ -57,7 +63,7 @@ adminUsersRouter.post('/:id/updateBadge', (req, res) => __awaiter(void 0, void 0
                 url: `https://osu.ppy.sh/u/${user.osuId}`,
             },
             color: rankColor,
-            description: `**Reached rank ${badge}** with ${user.totalPoints} total points`,
+            description,
         }]);
 }));
 adminUsersRouter.post('/:id/calculateUserPoints', (req, res) => __awaiter(void 0, void 0, void 0, function* () {

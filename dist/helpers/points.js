@@ -272,8 +272,11 @@ function updateUserPoints(userId) {
         else if (totalPoints < 500) {
             pointsObject['Rank'] = 2;
         }
-        else {
+        else if (totalPoints < 1000) {
             pointsObject['Rank'] = 3;
+        }
+        else {
+            pointsObject['Rank'] = 4;
         }
         yield user_1.UserModel.findByIdAndUpdate(userId, {
             easyPoints: pointsObject['Easy'],

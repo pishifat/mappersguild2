@@ -11,10 +11,12 @@
     --rank-1: saddlebrown;
     --rank-2: silver;
     --rank-3: gold;
+    --rank-4: #7b88ff;
     --rank-0-bg: rgb(238, 238, 238);
     --rank-1-bg: rgb(187, 159, 139);
     --rank-2-bg: rgb(200, 222, 236);
     --rank-3-bg: rgb(255, 219, 102);
+    --rank-4-bg: rgb(153, 168, 255);
     --dark: #252525;
     --dark-alpha: #252525a6;
     --clicked: rgb(84, 161, 192);
@@ -384,18 +386,31 @@ select option {
 .bg-rank-3 {
     background-color: var(--rank-3-bg);
 }
+
+.bg-rank-4 {
+    background-color: var(--rank-4-bg);
+}
+
 .text-rank-0 {
     color: var(--rank-0-bg);
 }
+
 .text-rank-1 {
     color: var(--rank-1-bg);
 }
+
 .text-rank-2 {
     color: var(--rank-2-bg);
 }
+
 .text-rank-3 {
     color: var(--rank-3-bg);
 }
+
+.text-rank-4 {
+    color: var(--rank-4-bg);
+}
+
 .bg-qualified {
     background-color: var(--guild);
 }
@@ -428,6 +443,10 @@ select option {
 
 .border-rank-3 {
     border-top: 5px solid var(--rank-3);
+}
+
+.border-rank-4 {
+    border-top: 5px solid var(--rank-4);
 }
 
 .the-a-background {
