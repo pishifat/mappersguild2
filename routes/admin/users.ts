@@ -44,7 +44,13 @@ adminUsersRouter.post('/:id/updateBadge', async (req, res) => {
         rankColor = webhookColors.gray;
     } else if (badge == 3) {
         rankColor = webhookColors.lightYellow;
+    } else if (badge == 4) {
+        rankColor = webhookColors.lightBlue;
     }
+
+    let description = `**Reached rank ${badge}** with ${user.totalPoints} total points`;
+
+    if (badge == 4) description += `\n\n...there's no reward for this (yet) but 1000+ points is pretty impressive`;
 
     webhookPost([{
         author: {
@@ -53,7 +59,7 @@ adminUsersRouter.post('/:id/updateBadge', async (req, res) => {
             url: `https://osu.ppy.sh/u/${user.osuId}`,
         },
         color: rankColor,
-        description: `**Reached rank ${badge}** with ${user.totalPoints} total points`,
+        description,
     }]);
 });
 
