@@ -285,6 +285,7 @@ export async function updateUserPoints(userId: any): Promise<number | BasicError
         pointsObject['QuestReward'] +
         pointsObject['ContestParticipant'] +
         pointsObject['ContestScreener'] +
+        pointsObject['ContestJudge'] +
         legacyPoints;
 
     if (totalPoints < 100) {

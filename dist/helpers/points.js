@@ -262,6 +262,7 @@ function updateUserPoints(userId) {
             pointsObject['QuestReward'] +
             pointsObject['ContestParticipant'] +
             pointsObject['ContestScreener'] +
+            pointsObject['ContestJudge'] +
             legacyPoints;
         if (totalPoints < 100) {
             pointsObject['Rank'] = 0;
