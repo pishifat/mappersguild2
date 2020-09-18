@@ -20,7 +20,6 @@ artistsRouter.use(middlewares_1.isLoggedIn);
 artistsRouter.use(middlewares_1.isAdmin);
 const defaultPopulate = [
     { path: 'songs', select: 'artist title' },
-    { path: 'assignedUser', select: 'username osuId' },
 ];
 artistsRouter.get('/', (req, res) => {
     var _a, _b;
@@ -66,23 +65,13 @@ artistsRouter.post('/toggleisRejected/:id', (req, res) => __awaiter(void 0, void
     a = yield featuredArtist_1.FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
     res.json(a);
 }));
-artistsRouter.post('/toggleIsDenied/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let a = yield featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { isDenied: req.body.value });
-    a = yield featuredArtist_1.FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
-    res.json(a);
-}));
 artistsRouter.post('/toggleContractSent/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let a = yield featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { contractSent: req.body.value });
     a = yield featuredArtist_1.FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
     res.json(a);
 }));
-artistsRouter.post('/toggleContractSigned/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let a = yield featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { contractSigned: req.body.value });
-    a = yield featuredArtist_1.FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
-    res.json(a);
-}));
-artistsRouter.post('/toggleContractPaid/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let a = yield featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { contractPaid: req.body.value });
+artistsRouter.post('/toggleContractFinalized/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let a = yield featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { contractFinalized: req.body.value });
     a = yield featuredArtist_1.FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
     res.json(a);
 }));
@@ -101,13 +90,8 @@ artistsRouter.post('/toggleAssetsReceived/:id', (req, res) => __awaiter(void 0, 
     a = yield featuredArtist_1.FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
     res.json(a);
 }));
-artistsRouter.post('/toggleBioWritten/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let a = yield featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { bioWritten: req.body.value });
-    a = yield featuredArtist_1.FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
-    res.json(a);
-}));
-artistsRouter.post('/toggleIsInvited/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let a = yield featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { isInvited: req.body.value });
+artistsRouter.post('/toggleHasRankedMaps/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let a = yield featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { hasRankedMaps: req.body.value });
     a = yield featuredArtist_1.FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
     res.json(a);
 }));
@@ -117,12 +101,11 @@ artistsRouter.post('/toggleIsUpToDate/:id', (req, res) => __awaiter(void 0, void
         isResponded: false,
         tracksSelected: false,
         contractSent: false,
-        contractSigned: false,
-        contractPaid: false,
+        contractFinalized: false,
         songsReceived: false,
         songsTimed: false,
         assetsReceived: false,
-        bioWritten: false,
+        hasRankedMaps: false,
         projectedRelease: undefined,
     });
     a = yield featuredArtist_1.FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
@@ -148,33 +131,14 @@ artistsRouter.post('/reset/:id', (req, res) => __awaiter(void 0, void 0, void 0,
         isResponded: false,
         tracksSelected: false,
         isRejected: false,
-        isStalled: false,
         contractSent: false,
-        contractSigned: false,
-        contractPaid: false,
+        contractFinalized: false,
         songsTimed: false,
         assetsReceived: false,
-        bioWritten: false,
-        isInvited: false,
+        hasRankedMaps: false,
         isUpToDate: false,
-        isPriority: false,
+        projectedRelease: undefined,
     });
-    a = yield featuredArtist_1.FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
-    res.json(a);
-}));
-artistsRouter.post('/toggleIsPriority/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let a = yield featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { isPriority: req.body.value });
-    a = yield featuredArtist_1.FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
-    res.json(a);
-}));
-artistsRouter.post('/assignUser/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _b;
-    let a = yield featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { assignedUser: (_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId });
-    a = yield featuredArtist_1.FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
-    res.json(a);
-}));
-artistsRouter.post('/unassignUser/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let a = yield featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { assignedUser: undefined });
     a = yield featuredArtist_1.FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
     res.json(a);
 }));
