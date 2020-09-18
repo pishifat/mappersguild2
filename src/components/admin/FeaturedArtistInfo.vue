@@ -144,6 +144,9 @@ export default Vue.extend({
                     osuId,
                 });
             }
+
+            // mark artist as "released" on /artists
+            await this.executePost('/artists/toggleIsUpToDate/' + this.featuredArtist.id, { value: true });
         },
         async updateName(e): Promise<void> {
             const name = await this.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/updateName`, { name: this.name }, e);

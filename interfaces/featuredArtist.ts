@@ -1,4 +1,3 @@
-import { User } from './user';
 import { FeaturedSong } from './featuredSong';
 
 export interface FeaturedArtist {
@@ -7,26 +6,24 @@ export interface FeaturedArtist {
     label: string;
     osuId: number;
     songs: FeaturedSong[];
+    lastContacted: Date;
+    notes: string;
 
+    // discussion
     isContacted: boolean;
     isResponded: boolean;
     tracksSelected: boolean;
-    contractSent: boolean;
-    contractSigned: boolean;
-    contractPaid: boolean;
-    songsTimed: boolean;
-    songsReceived: boolean;
-    assetsReceived: boolean;
-    bioWritten: boolean;
-    isInvited: boolean;
-    isUpToDate: boolean;
-    isStalled: boolean;
-    isRejected: boolean; // no response
-    isDenied: boolean; // literally said no
-    isPriority: boolean;
+    isRejected: boolean;
 
-    lastContacted: Date;
+    // contract
+    contractSent: boolean;
+    contractFinalized: boolean;
+
+    // publication
     projectedRelease?: Date;
-    notes: string;
-    assignedUser?: User;
+    songsReceived: boolean;
+    songsTimed: boolean;
+    assetsReceived: boolean;
+    hasRankedMaps: boolean;
+    isUpToDate: boolean;
 }

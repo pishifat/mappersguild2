@@ -1,62 +1,34 @@
 <template>
-    <div class="col-sm-12 my-1">
-        <div class="card static-card" :class="artist.isPriority ? 'card-bg-priority' : 'bg-dark'">
+    <div class="col-sm-12">
+        <div class="card static-card bg-dark">
             <div class="card-body p-0 mx-2 my-1">
                 <div class="row">
                     <span class="col-sm-4">
-                        <i
-                            v-if="artist.assignedUser && artist.assignedUser.id == userId"
-                            data-toggle="tooltip"
-                            data-placement="top"
-                            title="unassign yourself"
-                            class="fas fa-minus icon-used"
-                            @click.prevent="unassignUser()"
-                        />
-                        <i
-                            v-else
-                            data-toggle="tooltip"
-                            data-placement="top"
-                            title="assign yourself"
-                            class="fas fa-plus icon-valid"
-                            @click.prevent="assignUser()"
-                        />
-                        <img
-                            v-if="artist.assignedUser"
-                            data-toggle="tooltip"
-                            data-placement="top"
-                            :title="artist.assignedUser.username"
-                            :src="'https://a.ppy.sh/' + artist.assignedUser.osuId"
-                            class="card-avatar-img"
-                        >
                         <a :href="'#details' + artist.id" data-toggle="collapse" class="ml-1">
                             {{ artist.label }}
                             <i class="fas fa-angle-down" />
                         </a>
                     </span>
                     <span class="small col-sm-8">
-                        {{ artist.projectedRelease ? 'release:' : 'status:' }}
-                        <!--publication-->
-                        <span v-if="artist.projectedRelease" class="done">{{ new Date(artist.projectedRelease).toString().slice(4,15) }}</span>
-                        <span v-if="artist.isUpToDate" class="text-white-50">released</span>
-                        <span v-else-if="artist.songsReceived && artist.songsTimed && (artist.osuId || (artist.assetsReceived && artist.bioWritten))" class="text-white-50">ready</span>
-                        <span v-else-if="artist.contractPaid"> -- missing:
-                            <span v-if="!artist.songsReceived" class="errors">[song files]</span>
-                            <span v-if="artist.songsReceived && !artist.songsTimed" class="errors">[timed oszs]</span>
-                            <span v-if="!artist.assetsReceived && !artist.osuId" class="errors">[visual assets]</span>
-                            <span v-if="!artist.bioWritten && !artist.osuId" class="errors">[bio/newspost]</span>
+                        <span v-if="artist.isUpToDate" class="text-white-50">up to date</span>
+                        <span v-else>
+                            <span v-if="artist.projectedRelease" class="done">{{ new Date(artist.projectedRelease).toString().slice(4,15) }}</span>
+
+                            <span v-if="artist.contractFinalized" class="errors">
+                                <span v-if="!artist.songsReceived">[song assets]</span>
+                                <span v-if="!artist.songsTimed">[timed oszs]</span>
+                                <span v-if="!artist.assetsReceived">[other assets]</span>
+                                <span v-if="!artist.hasRankedMaps">[ranked osu! maps]</span>
+                            </span>
+
+                            <span v-else class="text-white-50">
+                                <span v-if="artist.isRejected">{{ artist.isResponded ? 'stopped responding' : 'no response' }}</span>
+                                <span v-else-if="artist.contractSent">awaiting contract signature</span>
+                                <span v-else-if="artist.tracksSelected">awaiting contract details</span>
+                                <span v-else-if="artist.isResponded">negotiating</span>
+                                <span v-else-if="artist.isContacted">awaiting response</span>
+                            </span>
                         </span>
-                        <!--contract-->
-                        <span v-else-if="artist.contractPaid" class="text-white-50">paid contract</span>
-                        <span v-else-if="artist.contractSigned" class="text-white-50">signed contract</span>
-                        <span v-else-if="artist.contractSent" class="text-white-50">sent contract</span>
-                        <!--discussion-->
-                        <span v-else-if="artist.tracksSelected" class="text-white-50">tracklist confirmed</span>
-                        <span v-else-if="artist.isRejected && artist.isResponded" class="text-white-50">ghosted mid-discussion</span>
-                        <span v-else-if="artist.isRejected" class="text-white-50">no response</span>
-                        <span v-else-if="artist.isDenied" class="text-white-50">literally said no</span>
-                        <span v-else-if="artist.isResponded" class="text-white-50">discussing</span>
-                        <span v-else-if="artist.isContacted" class="text-white-50">contacted</span>
-                        <span v-else class="text-white-50">not contacted</span>
 
                         <!--right side buttons-->
                         <a
@@ -72,16 +44,6 @@
                         </a>
                         <a
                             href="#"
-                            class="float-right small icon-valid ml-2"
-                            data-toggle="tooltip"
-                            data-placement="top"
-                            :title="artist.isPriority ? 'mark as low priority' : 'mark as high priority'"
-                            @click.prevent="toggleIsPriority()"
-                        >
-                            <i class="fas" :class="artist.isPriority ? 'fa-arrow-down' : 'fa-arrow-up'" />
-                        </a>
-                        <a
-                            href="#"
                             class="float-right small icon-used"
                             data-toggle="tooltip"
                             data-placement="top"
@@ -93,7 +55,7 @@
 
                         <!--contacted-->
                         <span class="text-center font-8 text-white-50 float-right mr-2">
-                            contacted {{ artist.lastContacted ? daysAgo : 'never' }}
+                            {{ artist.lastContacted ? daysAgo : 'never' }}
                             <a href="#" @click.prevent="showContactedInput = !showContactedInput">
                                 <i class="fas fa-edit" />
                             </a>
@@ -137,15 +99,9 @@
                             </a>
                         </div>
                         <div v-if="!artist.tracksSelected" class="small ml-2">
-                            No response/ghosted:
+                            Rejected:
                             <a href="#" @click.stop.prevent="toggleIsRejected()">
                                 <i class="fas" :class="artist.isRejected ? 'icon-valid fa-check' : 'icon-used fa-times'" />
-                            </a>
-                        </div>
-                        <div v-if="!artist.tracksSelected" class="small ml-2">
-                            Offer denied:
-                            <a href="#" @click.stop.prevent="toggleIsDenied()">
-                                <i class="fas" :class="artist.isDenied ? 'icon-valid fa-check' : 'icon-used fa-times'" />
                             </a>
                         </div>
                     </div>
@@ -161,15 +117,9 @@
                             </a>
                         </div>
                         <div class="small ml-2">
-                            signed:
-                            <a href="#" @click.stop.prevent="toggleContractSigned()">
-                                <i class="fas" :class="artist.contractSigned ? 'icon-valid fa-check' : 'icon-used fa-times'" />
-                            </a>
-                        </div>
-                        <div class="small ml-2">
-                            paid:
-                            <a href="#" @click.stop.prevent="toggleContractPaid()">
-                                <i class="fas" :class="artist.contractPaid ? 'icon-valid fa-check' : 'icon-used fa-times'" />
+                            finalized:
+                            <a href="#" @click.stop.prevent="toggleContractFinalized()">
+                                <i class="fas" :class="artist.contractFinalized ? 'icon-valid fa-check' : 'icon-used fa-times'" />
                             </a>
                         </div>
                     </div>
@@ -178,40 +128,11 @@
                         <div class="sub-header">
                             <u>Publication</u>
                         </div>
-                        <div class="small ml-2">
-                            Songs received:
-                            <a href="#" @click.stop.prevent="toggleSongsReceived()">
-                                <i class="fas" :class="artist.songsReceived ? 'icon-valid fa-check' : 'icon-used fa-times'" />
-                            </a>
-                        </div>
-                        <div v-if="artist.songsReceived" class="small ml-2">
-                            Songs timed:
-                            <a href="#" @click.stop.prevent="toggleSongsTimed()">
-                                <i class="fas" :class="artist.songsTimed ? 'icon-valid fa-check' : 'icon-used fa-times'" />
-                            </a>
-                        </div>
-                        <div v-if="!artist.osuId" class="small ml-2">
-                            Visual assets received:
-                            <a href="#" @click.stop.prevent="toggleAssetsReceived()">
-                                <i class="fas" :class="artist.assetsReceived ? 'icon-valid fa-check' : 'icon-used fa-times'" />
-                            </a>
-                        </div>
-                        <div v-if="!artist.osuId" class="small ml-2">
-                            Bio/newspost written:
-                            <a href="#" @click.stop.prevent="toggleBioWritten()">
-                                <i class="fas" :class="artist.bioWritten ? 'icon-valid fa-check' : 'icon-used fa-times'" />
-                            </a>
-                        </div>
+
                         <div class="small ml-2">
                             Projected release: <span :class="artist.projectedRelease ? 'done' : 'open'">{{ artist.projectedRelease ? new Date(artist.projectedRelease).toString().slice(4,15) : '...' }}</span>
                             <a href="#" @click.prevent="showDateInput = !showDateInput">
                                 <i class="fas fa-edit" />
-                            </a>
-                        </div>
-                        <div class="small ml-2">
-                            Invited to Discord:
-                            <a href="#" @click.stop.prevent="toggleIsInvited()">
-                                <i class="fas" :class="artist.isInvited ? 'icon-valid fa-check' : 'icon-used fa-times'" />
                             </a>
                         </div>
                         <p v-if="showDateInput" class="small ml-3">
@@ -225,6 +146,30 @@
                                 @keyup.enter="updateProjectedRelease()"
                             >
                         </p>
+                        <div class="small ml-2">
+                            Songs received:
+                            <a href="#" @click.stop.prevent="toggleSongsReceived()">
+                                <i class="fas" :class="artist.songsReceived ? 'icon-valid fa-check' : 'icon-used fa-times'" />
+                            </a>
+                        </div>
+                        <div class="small ml-2">
+                            Songs timed:
+                            <a href="#" @click.stop.prevent="toggleSongsTimed()">
+                                <i class="fas" :class="artist.songsTimed ? 'icon-valid fa-check' : 'icon-used fa-times'" />
+                            </a>
+                        </div>
+                        <div v-if="!artist.osuId" class="small ml-2">
+                            Visual assets received:
+                            <a href="#" @click.stop.prevent="toggleAssetsReceived()">
+                                <i class="fas" :class="artist.assetsReceived ? 'icon-valid fa-check' : 'icon-used fa-times'" />
+                            </a>
+                        </div>
+                        <div v-if="!artist.osuId" class="small ml-2">
+                            Ranked osu!(standard) maps:
+                            <a href="#" @click.stop.prevent="toggleHasRankedMaps()">
+                                <i class="fas" :class="artist.hasRankedMaps ? 'icon-valid fa-check' : 'icon-used fa-times'" />
+                            </a>
+                        </div>
                         <div class="small ml-2">
                             Released:
                             <a href="#" @click.stop.prevent="toggleIsUpToDate()">
@@ -350,22 +295,15 @@ export default Vue.extend({
                 this.$store.commit('updateArtist', artist);
             }
         },
-        async toggleIsRejected (): Promise<void> {
-            const artist = await this.executePost('/artists/toggleIsRejected/' + this.artist.id, { value: !this.artist.isRejected });
-
-            if (artist) {
-                this.$store.commit('updateArtist', artist);
-            }
-        },
-        async toggleIsDenied (): Promise<void> {
-            const artist = await this.executePost('/artists/toggleIsDenied/' + this.artist.id, { value: !this.artist.isDenied });
-
-            if (artist) {
-                this.$store.commit('updateArtist', artist);
-            }
-        },
         async toggleTracksSelected (): Promise<void> {
             const artist = await this.executePost('/artists/toggleTracksSelected/' + this.artist.id, { value: !this.artist.tracksSelected });
+
+            if (artist) {
+                this.$store.commit('updateArtist', artist);
+            }
+        },
+        async toggleIsRejected (): Promise<void> {
+            const artist = await this.executePost('/artists/toggleIsRejected/' + this.artist.id, { value: !this.artist.isRejected });
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);
@@ -378,15 +316,8 @@ export default Vue.extend({
                 this.$store.commit('updateArtist', artist);
             }
         },
-        async toggleContractSigned (): Promise<void> {
-            const artist = await this.executePost('/artists/toggleContractSigned/' + this.artist.id, { value: !this.artist.contractSigned });
-
-            if (artist) {
-                this.$store.commit('updateArtist', artist);
-            }
-        },
-        async toggleContractPaid (): Promise<void> {
-            const artist = await this.executePost('/artists/toggleContractPaid/' + this.artist.id, { value: !this.artist.contractPaid });
+        async toggleContractFinalized (): Promise<void> {
+            const artist = await this.executePost('/artists/toggleContractFinalized/' + this.artist.id, { value: !this.artist.contractFinalized });
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);
@@ -413,15 +344,8 @@ export default Vue.extend({
                 this.$store.commit('updateArtist', artist);
             }
         },
-        async toggleBioWritten (): Promise<void> {
-            const artist = await this.executePost('/artists/toggleBioWritten/' + this.artist.id, { value: !this.artist.bioWritten });
-
-            if (artist) {
-                this.$store.commit('updateArtist', artist);
-            }
-        },
-        async toggleIsInvited (): Promise<void> {
-            const artist = await this.executePost('/artists/toggleIsInvited/' + this.artist.id, { value: !this.artist.isInvited });
+        async toggleHasRankedMaps (): Promise<void> {
+            const artist = await this.executePost('/artists/toggleHasRankedMaps/' + this.artist.id, { value: !this.artist.hasRankedMaps });
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);
@@ -484,42 +408,11 @@ export default Vue.extend({
                 this.$store.commit('updateArtist', artist);
             }
         },
-        async toggleIsPriority (): Promise<void> {
-            const artist = await this.executePost('/artists/toggleIsPriority/' + this.artist.id, { value: !this.artist.isPriority });
-
-            if (artist) {
-                this.$store.commit('updateArtist', artist);
-            }
-        },
         async deleteArtist (): Promise<void> {
             const artist = await this.executePost('/artists/deleteArtist/' + this.artist.id);
 
             if (artist) {
                 this.$store.commit('deleteArtist', artist);
-            }
-        },
-        async assignUser (): Promise<void> {
-            let result;
-
-            if (this.artist.assignedUser) {
-                result = confirm('Are you sure? This will replace the currently assigned user');
-            } else {
-                result = true;
-            }
-
-            if (result) {
-                const artist = await this.executePost('/artists/assignUser/' + this.artist.id);
-
-                if (artist) {
-                    this.$store.commit('updateArtist', artist);
-                }
-            }
-        },
-        async unassignUser (): Promise<void> {
-            const artist = await this.executePost('/artists/unassignUser/' + this.artist.id);
-
-            if (artist) {
-                this.$store.commit('updateArtist', artist);
             }
         },
     },
@@ -544,14 +437,5 @@ input:focus {
     -webkit-transition: none;
     transition: none;
     display: none;
-}
-
-.card-avatar-img {
-    max-width: 28px;
-    max-height: 28px;
-    object-fit: cover;
-    border-radius: 100%;
-    box-shadow: 0 1px 0.5rem rgba(10, 10, 25);
-    background-color: rgba(10, 10, 25);
 }
 </style>

@@ -7,16 +7,16 @@
                 </h3>
 
                 <h5 class="ml-4">
-                    <a href="#projectedRelease" data-toggle="collapse">
-                        Projected for release ({{ projectedReleaseArtists.length }})
+                    <a href="#ready" data-toggle="collapse">
+                        Ready ({{ readyArtists.length }})
                         <i class="fas fa-angle-down" />
                     </a>
                 </h5>
 
-                <div id="projectedRelease" class="show">
+                <div id="ready" class="show">
                     <transition-group name="list" tag="div" class="row">
                         <artist-card
-                            v-for="artist in projectedReleaseArtists"
+                            v-for="artist in readyArtists"
                             :key="artist.id"
                             :artist="artist"
                         />
@@ -25,7 +25,7 @@
 
                 <h5 class="ml-4 mt-2">
                     <a href="#discussionArtists" data-toggle="collapse">
-                        Active discussion ({{ discussionArtists.length }})
+                        Discussing ({{ discussionArtists.length }})
                         <i class="fas fa-angle-down" />
                     </a>
                 </h5>
@@ -40,9 +40,9 @@
                     </transition-group>
                 </div>
 
-                <h5 class="ml-4 mt-2">
+                <h5 v-if="contactedArtists.length" class="ml-4 mt-2">
                     <a href="#contactedArtists" data-toggle="collapse">
-                        Contacted ({{ contactedArtists.length }})
+                        Awaiting response ({{ contactedArtists.length }})
                         <i class="fas fa-angle-down" />
                     </a>
                 </h5>
@@ -57,7 +57,7 @@
                     </transition-group>
                 </div>
 
-                <h5 class="ml-4 mt-2">
+                <h5 v-if="updateAvailableArtists.length" class="ml-4 mt-2">
                     <a href="#currentArtistUpdates" data-toggle="collapse">
                         Current artist updates ({{ updateAvailableArtists.length }})
                         <i class="fas fa-angle-down" />
@@ -89,7 +89,7 @@ export default Vue.extend({
         ArtistCard,
     },
     computed: mapGetters([
-        'projectedReleaseArtists',
+        'readyArtists',
         'discussionArtists',
         'contactedArtists',
         'updateAvailableArtists',

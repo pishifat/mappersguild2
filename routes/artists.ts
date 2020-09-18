@@ -10,7 +10,6 @@ artistsRouter.use(isAdmin);
 // population
 const defaultPopulate = [
     { path: 'songs', select: 'artist title' },
-    { path: 'assignedUser', select: 'username osuId' },
 ];
 
 /* GET parties page. */
@@ -74,14 +73,6 @@ artistsRouter.post('/toggleisRejected/:id', async (req, res) => {
     res.json(a);
 });
 
-/* POST toggle isDenied */
-artistsRouter.post('/toggleIsDenied/:id', async (req, res) => {
-    let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { isDenied: req.body.value });
-    a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
-
-    res.json(a);
-});
-
 /* POST toggle contractSent */
 artistsRouter.post('/toggleContractSent/:id', async (req, res) => {
     let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { contractSent: req.body.value });
@@ -90,17 +81,9 @@ artistsRouter.post('/toggleContractSent/:id', async (req, res) => {
     res.json(a);
 });
 
-/* POST toggle contractSigned */
-artistsRouter.post('/toggleContractSigned/:id', async (req, res) => {
-    let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { contractSigned: req.body.value });
-    a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
-
-    res.json(a);
-});
-
-/* POST toggle contractPaid */
-artistsRouter.post('/toggleContractPaid/:id', async (req, res) => {
-    let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { contractPaid: req.body.value });
+/* POST toggle contractFinalized */
+artistsRouter.post('/toggleContractFinalized/:id', async (req, res) => {
+    let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { contractFinalized: req.body.value });
     a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
 
     res.json(a);
@@ -130,17 +113,9 @@ artistsRouter.post('/toggleAssetsReceived/:id', async (req, res) => {
     res.json(a);
 });
 
-/* POST toggle bioWritten */
-artistsRouter.post('/toggleBioWritten/:id', async (req, res) => {
-    let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { bioWritten: req.body.value });
-    a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
-
-    res.json(a);
-});
-
-/* POST toggle isInvited */
-artistsRouter.post('/toggleIsInvited/:id', async (req, res) => {
-    let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { isInvited: req.body.value });
+/* POST toggle hasRankedMaps */
+artistsRouter.post('/toggleHasRankedMaps/:id', async (req, res) => {
+    let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { hasRankedMaps: req.body.value });
     a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
 
     res.json(a);
@@ -153,12 +128,11 @@ artistsRouter.post('/toggleIsUpToDate/:id', async (req, res) => {
         isResponded: false,
         tracksSelected: false,
         contractSent: false,
-        contractSigned: false,
-        contractPaid: false,
+        contractFinalized: false,
         songsReceived: false,
         songsTimed: false,
         assetsReceived: false,
-        bioWritten: false,
+        hasRankedMaps: false,
         projectedRelease: undefined,
     });
     a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
@@ -196,41 +170,14 @@ artistsRouter.post('/reset/:id', async (req, res) => {
         isResponded: false,
         tracksSelected: false,
         isRejected: false,
-        isStalled: false,
         contractSent: false,
-        contractSigned: false,
-        contractPaid: false,
+        contractFinalized: false,
         songsTimed: false,
         assetsReceived: false,
-        bioWritten: false,
-        isInvited: false,
+        hasRankedMaps: false,
         isUpToDate: false,
-        isPriority: false,
+        projectedRelease: undefined,
     });
-    a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
-
-    res.json(a);
-});
-
-/* POST toggle isPriority */
-artistsRouter.post('/toggleIsPriority/:id', async (req, res) => {
-    let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { isPriority: req.body.value });
-    a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
-
-    res.json(a);
-});
-
-/* POST assign user */
-artistsRouter.post('/assignUser/:id', async (req, res) => {
-    let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { assignedUser: req.session?.mongoId });
-    a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
-
-    res.json(a);
-});
-
-/* POST un-assign user */
-artistsRouter.post('/unassignUser/:id', async (req, res) => {
-    let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { assignedUser: undefined });
     a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
 
     res.json(a);
