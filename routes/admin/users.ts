@@ -93,11 +93,22 @@ adminUsersRouter.post('/:id/toggleBypassLogin', async (req, res) => {
 
 /* GET bundled beatmaps */
 adminUsersRouter.get('/findTieredUsers', async (req, res) => {
-    const tieredUsers = await UserModel
-        .find({ rank: { $gte: 1 } })
-        .orFail();
+    const [osuUsers, taikoUsers, catchUsers, maniaUsers] = await Promise.all([
+        UserModel
+            .find({ rank: { $gte: 1 }, osuPoints: { $gte: 1 } })
+            .orFail(),
+        UserModel
+            .find({ rank: { $gte: 1 }, taikoPoints: { $gte: 1 } })
+            .orFail(),
+        UserModel
+            .find({ rank: { $gte: 1 }, catchPoints: { $gte: 1 } })
+            .orFail(),
+        UserModel
+            .find({ rank: { $gte: 1 }, maniaPoints: { $gte: 1 } })
+            .orFail(),
+    ]);
 
-    res.json(tieredUsers);
+    res.json({ osuUsers, taikoUsers, catchUsers, maniaUsers });
 });
 
 export default adminUsersRouter;
