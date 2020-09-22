@@ -27,6 +27,7 @@ const UserSchema = new mongoose_1.Schema({
     group: { type: String, enum: ['user', 'admin', 'spectator'], default: 'user' },
     badge: { type: Number, default: 0 },
     bypassLogin: { type: Boolean },
+    discordId: { type: Number },
     rank: { type: Number, default: 0 },
     easyPoints: { type: Number, default: 0 },
     normalPoints: { type: Number, default: 0 },
