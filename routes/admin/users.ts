@@ -3,7 +3,7 @@ import { isLoggedIn, isAdmin, isSuperAdmin } from '../../helpers/middlewares';
 import { UserModel } from '../../models/user';
 import { updateUserPoints } from '../../helpers/points';
 import { webhookPost, webhookColors } from '../../helpers/discordApi';
-import { UserGroup } from '../../interfaces/user';
+import { UserGroup, User } from '../../interfaces/user';
 
 const adminUsersRouter = express.Router();
 
@@ -63,6 +63,14 @@ adminUsersRouter.post('/:id/updateBadge', async (req, res) => {
     }]);
 });
 
+/* POST update user discordId */
+adminUsersRouter.post('/:id/updateDiscordId', async (req, res) => {
+    const discordId = parseInt(req.body.discordId, 10);
+    await UserModel.findByIdAndUpdate(req.params.id, { discordId }).orFail();
+
+    res.json(discordId);
+});
+
 /* POST calculate user points */
 adminUsersRouter.post('/:id/calculateUserPoints', async (req, res) => {
     const points = await updateUserPoints(req.params.id);
@@ -91,7 +99,7 @@ adminUsersRouter.post('/:id/toggleBypassLogin', async (req, res) => {
     res.json({ bypassLogin, group });
 });
 
-/* GET bundled beatmaps */
+/* GET find tiered users */
 adminUsersRouter.get('/findTieredUsers', async (req, res) => {
     const [osuUsers, taikoUsers, catchUsers, maniaUsers] = await Promise.all([
         UserModel
@@ -109,6 +117,20 @@ adminUsersRouter.get('/findTieredUsers', async (req, res) => {
     ]);
 
     res.json({ osuUsers, taikoUsers, catchUsers, maniaUsers });
+});
+
+/* POST find input users for DiscordHighlightGenerator */
+adminUsersRouter.post('/findInputUsers', async (req, res) => {
+    const inputUsers = req.body.inputUsers;
+    const usernames = inputUsers.split('\n');
+    const users: User[] = [];
+
+    for (const username of usernames) {
+        const user = await UserModel.findOne({ username }).orFail();
+        users.push(user);
+    }
+
+    res.json({ users });
 });
 
 export default adminUsersRouter;

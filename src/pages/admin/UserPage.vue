@@ -51,6 +51,8 @@
 
         <tiered-user-list />
 
+        <discord-highlight-generator />
+
         <toast-messages />
     </div>
 </template>
@@ -60,6 +62,7 @@ import Vue from 'vue';
 import UserInfo from '../../components/admin/UserInfo.vue';
 import DataTable from '../../components/admin/DataTable.vue';
 import TieredUserList from '../../components/admin/TieredUserList.vue';
+import DiscordHighlightGenerator from '../../components/admin/DiscordHighlightGenerator.vue';
 import ToastMessages from '../../components/ToastMessages.vue';
 import { User } from '../../../interfaces/user';
 import { mapState } from 'vuex';
@@ -69,6 +72,7 @@ export default Vue.extend({
         DataTable,
         UserInfo,
         TieredUserList,
+        DiscordHighlightGenerator,
         ToastMessages,
     },
     data () {

@@ -25,6 +25,7 @@ export interface User extends Document {
     badge: number;
     completedQuests: Quest[];
     bypassLogin: boolean;
+    discordId: number;
 
     rank: number;
     easyPoints: number;

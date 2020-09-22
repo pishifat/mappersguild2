@@ -197,6 +197,13 @@ const store = new Vuex.Store({
                 }
             }
         },
+        updateDiscordId (state, payload): void {
+            const user = state.actionUsers.find(u => u.id == payload.userId);
+
+            if (user) {
+                user.discordId = payload.discordId;
+            }
+        },
         updateBypassLogin (state, payload): void {
             const user = state.actionUsers.find(u => u.id == payload.userId);
 

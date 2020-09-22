@@ -25,6 +25,17 @@
                         </button>
                     </p>
                     <p>
+                        <input
+                            v-model="discordId"
+                            class="form-control-sm mx-2"
+                            type="text"
+                            autocomplete="off"
+                        >
+                        <button class="btn btn-sm btn-outline-info" @click="updateDiscordId($event)">
+                            Save Discord ID
+                        </button>
+                    </p>
+                    <p>
                         <button class="btn btn-sm btn-outline-info" @click="calculateUserPoints($event)">
                             Calculate user points
                         </button>
@@ -55,6 +66,7 @@ export default Vue.extend({
     data() {
         return {
             badge: 0,
+            discordId: 0,
         };
     },
     computed: {
@@ -63,11 +75,13 @@ export default Vue.extend({
     watch: {
         user(): void {
             this.badge = this.user.badge || 0;
+            this.discordId = this.user.discordId || 0;
         },
     },
     created() {
         if (this.user) {
             this.badge = this.user.badge || 0;
+            this.discordId = this.user.discordId || 0;
         }
     },
     methods: {
@@ -82,6 +96,20 @@ export default Vue.extend({
                 this.$store.commit('updateBadge', {
                     userId: this.user.id,
                     badge,
+                });
+            }
+        },
+        async updateDiscordId(e): Promise<void> {
+            const discordId = await this.executePost(`/admin/users/${this.user.id}/updateDiscordId`, { discordId: this.discordId }, e);
+
+            if (discordId) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `set discord ID to ${discordId}`,
+                    type: 'info',
+                });
+                this.$store.commit('updateDiscordId', {
+                    userId: this.user.id,
+                    discordId,
                 });
             }
         },

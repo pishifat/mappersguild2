@@ -31,6 +31,13 @@ const store = new Vuex.Store<UserState>({
                 user.badge = payload.badge;
             }
         },
+        updateDiscordId (state, payload): void {
+            const user = state.users.find(u => u.id == payload.userId);
+
+            if (user) {
+                user.discordId = payload.discordId;
+            }
+        },
         updateBypassLogin (state, payload): void {
             const user = state.users.find(u => u.id == payload.userId);
 
