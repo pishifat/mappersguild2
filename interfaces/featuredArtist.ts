@@ -24,6 +24,9 @@ export interface FeaturedArtist {
     songsReceived: boolean;
     songsTimed: boolean;
     assetsReceived: boolean;
-    hasRankedMaps: boolean;
     isUpToDate: boolean;
+
+    // other
+    hasRankedMaps: boolean;
+    isMinor: boolean;
 }

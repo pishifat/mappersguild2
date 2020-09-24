@@ -14,11 +14,16 @@
                         <span v-else>
                             <span v-if="artist.projectedRelease" class="done">{{ new Date(artist.projectedRelease).toString().slice(4,15) }}</span>
 
-                            <span v-if="artist.contractFinalized" class="errors">
-                                <span v-if="!artist.songsReceived">[song assets]</span>
-                                <span v-if="!artist.songsTimed">[timed oszs]</span>
-                                <span v-if="!artist.assetsReceived">[other assets]</span>
-                                <span v-if="!artist.hasRankedMaps">[ranked osu! maps]</span>
+                            <span v-if="artist.contractFinalized">
+                                <span class="errors">
+                                    <span v-if="!artist.songsReceived">[song assets]</span>
+                                    <span v-if="!artist.songsTimed">[timed oszs]</span>
+                                    <span v-if="!artist.assetsReceived">[other assets]</span>
+                                </span>
+                                <span class="text-white-50">
+                                    <span v-if="artist.isMinor">[minor]</span>
+                                    <span v-if="!artist.hasRankedMaps">[no ranked maps]</span>
+                                </span>
                             </span>
 
                             <span v-else class="text-white-50">
@@ -164,16 +169,29 @@
                                 <i class="fas" :class="artist.assetsReceived ? 'icon-valid fa-check' : 'icon-used fa-times'" />
                             </a>
                         </div>
-                        <div v-if="!artist.osuId" class="small ml-2">
-                            Ranked osu!(standard) maps:
-                            <a href="#" @click.stop.prevent="toggleHasRankedMaps()">
-                                <i class="fas" :class="artist.hasRankedMaps ? 'icon-valid fa-check' : 'icon-used fa-times'" />
-                            </a>
-                        </div>
                         <div class="small ml-2">
                             Released:
                             <a href="#" @click.stop.prevent="toggleIsUpToDate()">
                                 <i class="fas" :class="artist.isUpToDate ? 'icon-valid fa-check' : 'icon-used fa-times'" />
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-3">
+                        <div class="sub-header">
+                            <u>Other</u>
+                        </div>
+
+                        <div class="small ml-2">
+                            Minor release:
+                            <a href="#" @click.stop.prevent="toggleIsMinor()">
+                                <i class="fas" :class="artist.isMinor ? 'icon-valid fa-check' : 'icon-used fa-times'" />
+                            </a>
+                        </div>
+                        <div v-if="!artist.osuId" class="small ml-2">
+                            Ranked maps:
+                            <a href="#" @click.stop.prevent="toggleHasRankedMaps()">
+                                <i class="fas" :class="artist.hasRankedMaps ? 'icon-valid fa-check' : 'icon-used fa-times'" />
                             </a>
                         </div>
                     </div>
@@ -346,6 +364,13 @@ export default Vue.extend({
         },
         async toggleHasRankedMaps (): Promise<void> {
             const artist = await this.executePost('/artists/toggleHasRankedMaps/' + this.artist.id, { value: !this.artist.hasRankedMaps });
+
+            if (artist) {
+                this.$store.commit('updateArtist', artist);
+            }
+        },
+        async toggleIsMinor (): Promise<void> {
+            const artist = await this.executePost('/artists/toggleIsMinor/' + this.artist.id, { value: !this.artist.isMinor });
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);

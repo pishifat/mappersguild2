@@ -27,8 +27,11 @@ const featuredArtistSchema = new Schema({
     songsTimed: { type: Boolean },
     songsReceived: { type: Boolean },
     assetsReceived: { type: Boolean },
-    hasRankedMaps: { type: Boolean },
     isUpToDate: { type: Boolean },
+
+    // other
+    hasRankedMaps: { type: Boolean },
+    isMinor: { type: Boolean },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const FeaturedArtistModel = mongoose.model<FeaturedArtist>('FeaturedArtist', featuredArtistSchema);

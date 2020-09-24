@@ -121,6 +121,14 @@ artistsRouter.post('/toggleHasRankedMaps/:id', async (req, res) => {
     res.json(a);
 });
 
+/* POST toggle isMinor */
+artistsRouter.post('/toggleIsMinor/:id', async (req, res) => {
+    let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { isMinor: req.body.value });
+    a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
+
+    res.json(a);
+});
+
 /* POST toggle isUpToDate */
 artistsRouter.post('/toggleIsUpToDate/:id', async (req, res) => {
     let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, {
