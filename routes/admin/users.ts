@@ -65,10 +65,9 @@ adminUsersRouter.post('/:id/updateBadge', async (req, res) => {
 
 /* POST update user discordId */
 adminUsersRouter.post('/:id/updateDiscordId', async (req, res) => {
-    const discordId = parseInt(req.body.discordId, 10);
-    await UserModel.findByIdAndUpdate(req.params.id, { discordId }).orFail();
+    await UserModel.findByIdAndUpdate(req.params.id, { discordId: req.body.discordId }).orFail();
 
-    res.json(discordId);
+    res.json(req.body.discordId);
 });
 
 /* POST calculate user points */

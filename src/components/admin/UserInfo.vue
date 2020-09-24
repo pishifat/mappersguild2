@@ -66,7 +66,7 @@ export default Vue.extend({
     data() {
         return {
             badge: 0,
-            discordId: 0,
+            discordId: '',
         };
     },
     computed: {
@@ -75,13 +75,13 @@ export default Vue.extend({
     watch: {
         user(): void {
             this.badge = this.user.badge || 0;
-            this.discordId = this.user.discordId || 0;
+            this.discordId = this.user.discordId || '';
         },
     },
     created() {
         if (this.user) {
             this.badge = this.user.badge || 0;
-            this.discordId = this.user.discordId || 0;
+            this.discordId = this.user.discordId || '';
         }
     },
     methods: {

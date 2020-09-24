@@ -7,7 +7,7 @@ const UserSchema = new Schema({
     group: { type: String, enum: ['user', 'admin', 'spectator'], default: 'user' },
     badge: { type: Number, default: 0 },
     bypassLogin: { type: Boolean },
-    discordId: { type: Number },
+    discordId: { type: String },
 
     rank: { type: Number, default: 0 },
     easyPoints: { type: Number, default: 0 },

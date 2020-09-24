@@ -25,7 +25,7 @@ export interface User extends Document {
     badge: number;
     completedQuests: Quest[];
     bypassLogin: boolean;
-    discordId: number;
+    discordId: string; // js doesnt support 18 digit numbers...
 
     rank: number;
     easyPoints: number;

@@ -67,9 +67,8 @@ adminUsersRouter.post('/:id/updateBadge', (req, res) => __awaiter(void 0, void 0
         }]);
 }));
 adminUsersRouter.post('/:id/updateDiscordId', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const discordId = parseInt(req.body.discordId, 10);
-    yield user_1.UserModel.findByIdAndUpdate(req.params.id, { discordId }).orFail();
-    res.json(discordId);
+    yield user_1.UserModel.findByIdAndUpdate(req.params.id, { discordId: req.body.discordId }).orFail();
+    res.json(req.body.discordId);
 }));
 adminUsersRouter.post('/:id/calculateUserPoints', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const points = yield points_1.updateUserPoints(req.params.id);
