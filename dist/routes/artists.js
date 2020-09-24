@@ -95,6 +95,11 @@ artistsRouter.post('/toggleHasRankedMaps/:id', (req, res) => __awaiter(void 0, v
     a = yield featuredArtist_1.FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
     res.json(a);
 }));
+artistsRouter.post('/toggleIsMinor/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let a = yield featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { isMinor: req.body.value });
+    a = yield featuredArtist_1.FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
+    res.json(a);
+}));
 artistsRouter.post('/toggleIsUpToDate/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let a = yield featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, {
         isUpToDate: req.body.value,
