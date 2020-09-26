@@ -22,7 +22,7 @@
                 <h5>
                     Screening results
                 </h5>
-                <div v-for="(evaluation, i) in submission.evaluations" :key="evaluation.id">
+                <div v-for="(evaluation, i) in randomizedScreening" :key="evaluation.id">
                     <div>
                         <div class="ml-3">
                             User {{ i+1 }}
@@ -57,7 +57,7 @@
                     Judging results
                 </h5>
                 <div v-if="submission.judgings && submission.judgings.length">
-                    <div v-for="(judging, i) in submission.judgings" :key="judging.id">
+                    <div v-for="(judging, i) in randomizedJudging" :key="judging.id">
                         <div>
                             <p class="ml-3">
                                 User {{ i+1 }}
@@ -114,6 +114,8 @@
 <script lang="ts">
 import Vue from 'vue';
 import { Submission } from '../../interfaces/contest/submission';
+import { Judging } from '../../interfaces/contest/judging';
+import { Screening } from '../../interfaces/contest/screening';
 import { mapState } from 'vuex';
 
 export default Vue.extend({
@@ -133,6 +135,18 @@ export default Vue.extend({
         },
         emptyEvaluationCount (): number {
             return this.submission.contest.screeners.length - this.submission.evaluations.length;
+        },
+        randomizedJudging (): Judging[] {
+            let judgings = [...this.submission.judgings];
+            judgings = judgings.sort(() => Math.random() - 0.5); // doesn't need to be pure random
+
+            return judgings;
+        },
+        randomizedScreening (): Screening[] {
+            let screenings = [...this.submission.evaluations];
+            screenings = screenings.sort(() => Math.random() - 0.5); // doesn't need to be pure random
+
+            return screenings;
         },
     },
     async created () {
