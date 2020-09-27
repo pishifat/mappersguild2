@@ -21,6 +21,7 @@ const beatmap_1 = require("../models/beatmap/beatmap");
 const quest_1 = require("../models/quest");
 const task_1 = require("../models/beatmap/task");
 const task_2 = require("../interfaces/beatmap/task");
+const beatmap_2 = require("../interfaces/beatmap/beatmap");
 const invite_1 = require("../models/invite");
 const notification_1 = require("../models/notification");
 const spentPoints_1 = require("../models/spentPoints");
@@ -246,7 +247,7 @@ notificationsRouter.post('/acceptCollab/:id', middlewares_1.isNotSpectator, (req
     if (valid.error) {
         return res.json(valid);
     }
-    if (b.status == 'Ranked') {
+    if (b.status == beatmap_2.BeatmapStatus.Ranked) {
         return res.json({ error: 'Mapset ranked' });
     }
     invite.visible = false;

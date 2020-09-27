@@ -86,13 +86,6 @@ select option {
     box-shadow: 5px 5px 10px 5px black;
 }
 
-.copy-paste {
-    background-color: darkslategray;
-    margin: 0.75rem 0.75rem 0.75rem 0.75rem;
-    padding: 0.75rem 0.75rem 0.75rem 0.75rem;
-    box-shadow: 1px 1px 2px 1px black;
-}
-
 .osu-badge {
     border-radius: 4px 4px 4px 4px;
     filter: drop-shadow(1px 1px 1px #000000);
