@@ -5,7 +5,7 @@
                 Send results PM
             </button>
         </a>
-        <copy-paste>
+        <copy-paste :distinct="submissionId">
             hello, thank you for recently participating in "{{ contestName }}"!
             screening/judging details on your submission can be found here:
             https://mappersguild.com/contestresults?submission={{ submissionId }}
