@@ -7,6 +7,7 @@ import { BeatmapModel, Beatmap } from '../models/beatmap/beatmap';
 import { Quest, QuestModel } from '../models/quest';
 import { TaskModel } from '../models/beatmap/task';
 import { TaskName, TaskMode } from '../interfaces/beatmap/task';
+import { BeatmapStatus } from '../interfaces/beatmap/beatmap';
 import { Invite, InviteModel } from '../models/invite';
 import { NotificationModel } from '../models/notification';
 import { SpentPointsModel } from '../models/spentPoints';
@@ -300,7 +301,7 @@ notificationsRouter.post('/acceptCollab/:id', isNotSpectator, async (req, res) =
         return res.json(valid);
     }
 
-    if (b.status == 'Ranked') {
+    if (b.status == BeatmapStatus.Ranked) {
         return res.json({ error: 'Mapset ranked' });
     }
 

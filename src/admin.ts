@@ -4,7 +4,7 @@ import AdminPage from './pages/AdminPage.vue';
 import './bootstrap';
 import mixins from './mixins';
 import toastsModule from './modules/toasts';
-import { Beatmap } from '../interfaces/beatmap/beatmap';
+import { Beatmap, BeatmapStatus } from '../interfaces/beatmap/beatmap';
 import { Quest } from '../interfaces/quest';
 import { User } from '../interfaces/user';
 
@@ -62,7 +62,7 @@ const store = new Vuex.Store({
             if (beatmap) {
                 beatmap.status = payload.status;
 
-                if (beatmap.status == 'Ranked') {
+                if (beatmap.status == BeatmapStatus.Ranked) {
                     const i = state.actionBeatmaps.findIndex(b => b.id === payload.beatmapId);
                     state.actionBeatmaps.splice(i,1);
                 }

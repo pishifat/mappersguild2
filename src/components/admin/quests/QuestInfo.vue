@@ -172,24 +172,13 @@
                             />
                         </a>
                     </p>
-                    <div v-if="quest.status == 'done' || quest.status.includes('wip')" class="mb-4">
-                        <div>
-                            Associated maps
-                        </div>
-                        <ul v-if="quest.associatedMaps.length" class="ml-3">
-                            <li v-for="map in quest.associatedMaps" :key="map.id" class="small text-white-50">
-                                <template v-if="map.url">
-                                    <a :href="map.url" target="_blank">{{ map.song.artist }} - {{ map.song.title }}</a> by <a :href="'https://osu.ppy.sh/users/' + map.host.osuId" target="_blank">{{ map.host.username }}</a>
-                                </template>
-                                <template v-else>
-                                    {{ map.song.artist }} - {{ map.song.title }} by <a :href="'https://osu.ppy.sh/users/' + map.host.osuId" target="_blank">{{ map.host.username }}</a>
-                                </template>
-                            </li>
-                        </ul>
-                        <div v-else class="small text-white-50 ml-3">
-                            No associated maps...
-                        </div>
-                    </div>
+
+                    <associated-beatmaps
+                        v-if="quest.status == 'done' || quest.status == 'wip'"
+                        class="mb-4"
+                        :associated-maps="quest.associatedMaps"
+                    />
+
                     <p>
                         <button class="btn btn-sm btn-outline-danger" @click="deleteQuest($event)">
                             Delete quest
@@ -204,9 +193,13 @@
 <script lang="ts">
 import Vue from 'vue';
 import { Quest } from '../../../../interfaces/quest';
+import AssociatedBeatmaps from '../../quests/partyInfo/AssociatedBeatmaps.vue';
 
 export default Vue.extend({
     name: 'QuestInfo',
+    components: {
+        AssociatedBeatmaps,
+    },
     props: {
         quest: {
             type: Object as () => Quest,

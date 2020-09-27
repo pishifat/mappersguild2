@@ -56,7 +56,7 @@
 import Vue from 'vue';
 import { mapState } from 'vuex';
 import BeatmapInfo from './beatmapInfo/BeatmapInfo.vue';
-import { Beatmap } from '../../../interfaces/beatmap/beatmap';
+import { Beatmap, BeatmapStatus } from '../../../interfaces/beatmap/beatmap';
 
 export default Vue.extend({
     name: 'BeatmapTableRow',
@@ -88,13 +88,13 @@ export default Vue.extend({
             }
         },
         statusBorder(): string {
-            if (this.beatmap.status == 'WIP') {
+            if (this.beatmap.status == BeatmapStatus.WIP) {
                 return 'card-status-wip';
-            } else if (this.beatmap.status == 'Done') {
+            } else if (this.beatmap.status == BeatmapStatus.Done) {
                 return 'card-status-done';
-            } else if (this.beatmap.status == 'Qualified') {
+            } else if (this.beatmap.status == BeatmapStatus.Qualified) {
                 return 'card-status-qualified';
-            } else if (this.beatmap.status == 'Ranked') {
+            } else if (this.beatmap.status == BeatmapStatus.Ranked) {
                 return 'card-status-ranked';
             }
 

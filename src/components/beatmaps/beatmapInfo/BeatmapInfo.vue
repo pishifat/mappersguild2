@@ -106,7 +106,7 @@ import NominatorsList from './NominatorsList.vue';
 import BeatmapLink from './BeatmapLink.vue';
 import LocksChoice from './LocksChoice.vue';
 import Points from './Points.vue';
-import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
+import { Beatmap, BeatmapStatus } from '../../../../interfaces/beatmap/beatmap';
 
 export default Vue.extend({
     name: 'BeatmapInfo',
@@ -144,10 +144,10 @@ export default Vue.extend({
             return false;
         },
         isRanked(): boolean {
-            return this.beatmap.status === 'Ranked';
+            return this.beatmap.status === BeatmapStatus.Ranked;
         },
         isQualified(): boolean {
-            return this.beatmap.status === 'Qualified';
+            return this.beatmap.status === BeatmapStatus.Qualified;
         },
     },
     methods: {
