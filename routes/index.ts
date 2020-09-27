@@ -73,11 +73,11 @@ indexRouter.get('/login', async (req, res, next) => {
                 await u.save();
             }
 
-            if (u.group != req.session.group && u.group != 'admin' && !u.bypassLogin) {
+            if (u.group != req.session.group && u.group != UserGroup.Admin && u.group != UserGroup.Secret && !u.bypassLogin) {
                 u.group = req.session.group;
                 await u.save();
 
-                if (req.session.group == 'user') {
+                if (req.session.group == UserGroup.User) {
                     webhookPost([{
                         author: {
                             name: u.username,
@@ -109,7 +109,7 @@ indexRouter.get('/login', async (req, res, next) => {
 }, isLoggedIn, (req, res) => {
     if (req?.session?.lastPage) {
         res.redirect(req.session.lastPage);
-    } else if (res.locals.userRequest.group == 'admin') {
+    } else if (res.locals.userRequest.group == UserGroup.Admin) {
         res.redirect('/artists');
     } else {
         res.redirect('/faq');

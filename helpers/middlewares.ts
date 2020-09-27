@@ -39,6 +39,14 @@ export function isAdmin(req, res, next): void {
     }
 }
 
+export function isSecret(req, res, next): void {
+    if (res.locals.userRequest.group == UserGroup.Secret || res.locals.userRequest.group == UserGroup.Admin) {
+        next();
+    } else {
+        res.redirect('/');
+    }
+}
+
 export function isSuperAdmin(req, res, next): void {
     if (res.locals.userRequest.osuId == 3178418 || res.locals.userRequest.osuId == 1052994) {
         next();
@@ -48,7 +56,7 @@ export function isSuperAdmin(req, res, next): void {
 }
 
 export function isUser(req, res, next): void {
-    if (res.locals.userRequest.group == UserGroup.Admin || res.locals.userRequest.group == UserGroup.User) {
+    if (res.locals.userRequest.group == UserGroup.User || res.locals.userRequest.group == UserGroup.Admin || res.locals.userRequest.group == UserGroup.Secret) {
         next();
     } else {
         res.redirect('/');
