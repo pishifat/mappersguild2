@@ -1,5 +1,5 @@
 <template>
-    <div class="copy-paste small text-white-50 text-monospace">
+    <copy-paste>
         <div>
             | Rank | Beatmap | Judging | Musical representation ({{ judgeCount*10 }}) | Creativity ({{ judgeCount*10 }}) | Gameplay ({{ judgeCount*10 }}) | Limitation ({{ judgeCount*5 }}) | Raw total | Standardized total |
         </div>
@@ -17,16 +17,20 @@
             | **{{ usersScore.rawFinalScore }}**
             | **{{ Math.round(usersScore.standardizedFinalScore *100) / 100 }}**
         </div>
-    </div>
+    </copy-paste>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
 import { Contest } from '../../../../interfaces/contest/contest';
 import { CriteriaName } from '../../../../interfaces/contest/criteria';
+import CopyPaste from '../../CopyPaste.vue';
 
 export default Vue.extend({
     name: 'MarkdownJudgingLeaderboard',
+    components: {
+        CopyPaste,
+    },
     props: {
         usersScores: {
             type: Array,

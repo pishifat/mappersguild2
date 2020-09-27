@@ -5,38 +5,31 @@
         </button>
         <div v-if="bundledBeatmaps.length">
             <p>osu</p>
-            <div class="copy-paste">
-                <span v-for="beatmap in osuBeatmaps" :key="beatmap.id">
-                    <samp class="small text-white-50">
-                        {{ findOsuId(beatmap.url) }}
-                    </samp><br>
-                </span>
-            </div>
+            <copy-paste :distinct="'osu'">
+                <div v-for="beatmap in osuBeatmaps" :key="beatmap.id">
+                    {{ findOsuId(beatmap.url) }}
+                </div>
+            </copy-paste>
 
             <p>taiko</p>
-            <div class="copy-paste">
-                <span v-for="beatmap in taikoBeatmaps" :key="beatmap.id">
-                    <samp class="small text-white-50">
-                        {{ findOsuId(beatmap.url) }}
-                    </samp><br>
-                </span>
-            </div>
+            <copy-paste :distinct="'taiko'">
+                <div v-for="beatmap in taikoBeatmaps" :key="beatmap.id">
+                    {{ findOsuId(beatmap.url) }}
+                </div>
+            </copy-paste>
+
             <p>catch</p>
-            <div class="copy-paste">
-                <span v-for="beatmap in catchBeatmaps" :key="beatmap.id">
-                    <samp class="small text-white-50">
-                        {{ findOsuId(beatmap.url) }}
-                    </samp><br>
-                </span>
-            </div>
+            <copy-paste :distinct="'catch'">
+                <div v-for="beatmap in catchBeatmaps" :key="beatmap.id">
+                    {{ findOsuId(beatmap.url) }}
+                </div>
+            </copy-paste>
             <p>mania</p>
-            <div class="copy-paste">
-                <span v-for="beatmap in maniaBeatmaps" :key="beatmap.id">
-                    <samp class="small text-white-50">
-                        {{ findOsuId(beatmap.url) }}
-                    </samp><br>
-                </span>
-            </div>
+            <copy-paste :distinct="'mania'">
+                <div v-for="beatmap in maniaBeatmaps" :key="beatmap.id">
+                    {{ findOsuId(beatmap.url) }}
+                </div>
+            </copy-paste>
         </div>
     </div>
 </template>
@@ -44,9 +37,13 @@
 <script lang="ts">
 import Vue from 'vue';
 import { Beatmap } from '../../../interfaces/beatmap/beatmap';
+import CopyPaste from '../CopyPaste.vue';
 
 export default Vue.extend({
     name: 'BundledBeatmapsList',
+    components: {
+        CopyPaste,
+    },
     data() {
         return {
             bundledBeatmaps: [] as Beatmap[],

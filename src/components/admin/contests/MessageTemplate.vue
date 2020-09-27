@@ -5,21 +5,23 @@
                 Send results PM
             </button>
         </a>
-        <div class="copy-paste small text-white-50">
-            <samp>
-                hello, thank you for recently participating in "{{ contestName }}"!
-                screening/judging details on your submission can be found here:
-                https://mappersguild.com/contestresults?submission={{ submissionId }}
-            </samp>
-        </div>
+        <copy-paste>
+            hello, thank you for recently participating in "{{ contestName }}"!
+            screening/judging details on your submission can be found here:
+            https://mappersguild.com/contestresults?submission={{ submissionId }}
+        </copy-paste>
     </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
+import CopyPaste from '../../CopyPaste.vue';
 
 export default Vue.extend({
     name: 'MessageTemplate',
+    components: {
+        CopyPaste,
+    },
     props: {
         osuId: {
             type: Number,

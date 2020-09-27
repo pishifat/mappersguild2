@@ -187,22 +187,22 @@
                             See rejection message <i class="fas fa-angle-down" />
                         </button>
                         <div id="forumPm" class="collapse">
-                            <div class="copy-paste small text-white-50">
-                                <samp>hello, you're receiving this message because you submitted a Mappers' Guild quest for review</samp><br><br>
-                                <samp>[box=your quest info]</samp>
-                                <samp>Artist: {{ 'https://osu.ppy.sh/beatmaps/artists/' + quest.art }}</samp><br><br>
-                                <samp>Name: {{ quest.name }}</samp><br><br>
-                                <samp>Objective: {{ quest.descriptionMain }}</samp><br><br>
-                                <samp>Required mapsets: {{ quest.requiredMapsets }}</samp><br><br>
-                                <samp>Price: {{ quest.price }} points per user</samp><br><br>
-                                <samp>Timeframe: {{ quest.timeframe / (24*3600*1000) }} days</samp><br><br>
-                                <samp>Party size: {{ quest.minParty }}-{{ quest.maxParty }} members</samp>
-                                <samp>[/box]</samp><br><br>
-                                <samp>your quest has been rejected for the following reason(s):</samp><br><br>
-                                <samp>[notice] REASONS [/notice]</samp><br><br>
-                                <samp>points spent for submitting the quest have been returned to your "available points" pool. if you'd like to modify the quest according to above feedback, you can resubmit it and i'll review it again! or if you'd like to submit any other quest, that's fine too!</samp><br><br>
-                                <samp>thanks for being cool</samp><br><br>
-                            </div>
+                            <copy-paste>
+                                <div>hello, you're receiving this message because you submitted a Mappers' Guild quest for review</div>
+                                <div>[box=your quest info]</div>
+                                <div>Artist: {{ 'https://osu.ppy.sh/beatmaps/artists/' + quest.art }}</div>
+                                <div>Name: {{ quest.name }}</div>
+                                <div>Objective: {{ quest.descriptionMain }}</div>
+                                <div>Required mapsets: {{ quest.requiredMapsets }}</div>
+                                <div>Price: {{ quest.price }} points per user</div>
+                                <div>Timeframe: {{ quest.timeframe / (24*3600*1000) }} days</div>
+                                <div>Party size: {{ quest.minParty }}-{{ quest.maxParty }} members</div>
+                                <div>[/box]</div>
+                                <div>your quest has been rejected for the following reason(s):</div>
+                                <div>[notice] REASONS [/notice]</div>
+                                <div>points spent for submitting the quest have been returned to your "available points" pool. if you'd like to modify the quest according to above feedback, you can resubmit it and i'll review it again! or if you'd like to submit any other quest, that's fine too!</div>
+                                <div>thanks for being cool</div>
+                            </copy-paste>
                         </div>
                     </div>
                 </div>
@@ -214,9 +214,13 @@
 <script lang="ts">
 import Vue from 'vue';
 import { Quest } from '../../../../interfaces/quest';
+import CopyPaste from '../../CopyPaste.vue';
 
 export default Vue.extend({
     name: 'ReviewQuest',
+    components: {
+        CopyPaste,
+    },
     props: {
         quest: {
             type: Object as () => Quest,

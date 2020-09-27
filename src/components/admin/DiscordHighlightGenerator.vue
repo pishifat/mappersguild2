@@ -11,9 +11,9 @@
             Generate Discord highlights
         </button>
         <div v-if="users.length">
-            <div class="copy-paste">
-                <samp class="small text-white-50">{{ discordHighlights }}</samp>
-            </div>
+            <copy-paste>
+                {{ discordHighlights }}
+            </copy-paste>
         </div>
     </div>
 </template>
@@ -21,9 +21,13 @@
 <script lang="ts">
 import Vue from 'vue';
 import { User } from '../../../interfaces/user';
+import CopyPaste from '../CopyPaste.vue';
 
 export default Vue.extend({
     name: 'DiscordHighlightGenerator',
+    components: {
+        CopyPaste,
+    },
     data() {
         return {
             inputUsers: '',

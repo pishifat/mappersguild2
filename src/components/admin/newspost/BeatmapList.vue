@@ -1,15 +1,13 @@
 <template>
     <div>
-        <samp class="small text-white-50">
+        <p>
             ## {{ navigation + displayMode }}
-        </samp><br>
-        <span v-for="beatmap in beatmaps" :key="beatmap.id">
-            <samp class="small text-white-50">
-                - [{{ beatmap.song.artist }} - {{ beatmap.song.title }}]({{ beatmap.url }})
-                {{ beatmap.mappers.length > 1 ? 'hosted by' : 'by' }}
-                [{{ beatmap.host.username }}]({{ 'https://osu.ppy.sh/users/' + beatmap.host.osuId }})
-            </samp><br>
-        </span>
+        </p>
+        <div v-for="beatmap in beatmaps" :key="beatmap.id">
+            - [{{ beatmap.song.artist }} - {{ beatmap.song.title }}]({{ beatmap.url }})
+            {{ beatmap.mappers.length > 1 ? 'hosted by' : 'by' }}
+            [{{ beatmap.host.username }}]({{ 'https://osu.ppy.sh/users/' + beatmap.host.osuId }})
+        </div>
         <br>
     </div>
 </template>

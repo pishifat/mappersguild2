@@ -23,92 +23,88 @@
                             placeholder="YYYY-MM-DD"
                         >
                     </p>
+
                     <p v-if="quests">
                         Quest data:
                     </p>
-                    <div v-if="quests" class="copy-paste">
-                        <span v-for="quest in quests" :key="quest.id">
-                            <br><samp class="small text-white-50">
+
+                    <copy-paste v-if="quests" :distinct="'quests'">
+                        <div v-for="quest in quests" :key="quest.id">
+                            <p>
                                 {{ quest.art && quest.associatedMaps.length ?
                                     '![' + quest.associatedMaps[0].song.artist + ' header](https://assets.ppy.sh/artists/' + quest.art + '/header.jpg)' :
                                     '![Mystery header](/wiki/shared/news/banners/mappersguild-mystery.jpg)' }}
-                            </samp><br><br>
-                            <samp class="small text-white-50">
+                            </p>
+                            <p>
                                 For the **{{ quest.name + ' (' + questModes(quest.modes) + ')' }}** quest, the mapper{{ quest.completedMembers.length == 1 ? '' : 's' }} had to {{ quest.descriptionMain.substring(0,1).toLowerCase() + quest.descriptionMain.substring(1) }}
-                            </samp><br><br>
-                            <samp class="small text-white-50">
+                            </p>
+                            <p>
                                 This quest was completed by
                                 <span v-for="(member, i) in quest.completedMembers" :key="member.id">
                                     **[{{ member.username }}]({{ 'https://osu.ppy.sh/users/' + member.osuId }})**{{ separateUsername(i, quest.completedMembers.length) }}
                                 </span>
-                            </samp><br><br>
-                            <span v-for="beatmap in quest.associatedMaps" :key="beatmap.id">
-                                <samp class="small text-white-50">
-                                    - [{{ beatmap.song.artist }} - {{ beatmap.song.title }}]({{ beatmap.url }})
-                                    {{ hasMultipleMappers(beatmap.tasks) ? 'hosted by' : 'by' }}
-                                    [{{ beatmap.host.username }}]({{ 'https://osu.ppy.sh/users/' + beatmap.host.osuId }})
-                                    <span v-if="quest.modes.length > 1">
-                                        ({{ beatmap.mode == 'osu' ? 'osu!' : beatmap.mode == 'hybrid' ? 'hybrid' : 'osu!' + beatmap.mode }})
-                                    </span>
-                                </samp><br>
-                            </span>
-                        </span>
-                    </div>
+                            </p>
+                            <div v-for="beatmap in quest.associatedMaps" :key="beatmap.id">
+                                - [{{ beatmap.song.artist }} - {{ beatmap.song.title }}]({{ beatmap.url }})
+                                {{ hasMultipleMappers(beatmap.tasks) ? 'hosted by' : 'by' }}
+                                [{{ beatmap.host.username }}]({{ 'https://osu.ppy.sh/users/' + beatmap.host.osuId }})
+                                <span v-if="quest.modes.length > 1">
+                                    ({{ beatmap.mode == 'osu' ? 'osu!' : beatmap.mode == 'hybrid' ? 'hybrid' : 'osu!' + beatmap.mode }})
+                                </span>
+                            </div>
+                            <br>
+                        </div>
+                    </copy-paste>
+
                     <p v-if="beatmaps">
                         Other beatmap data:
                     </p>
-                    <div v-if="beatmaps" class="copy-paste">
-                        <samp class="small text-white-50">
-                            [**osu!**](#osu)
-                        </samp><br>
+
+                    <copy-paste v-if="beatmaps" :distinct="'beatmaps'">
+                        <div>[**osu!**](#osu)</div>
+                        <div>[**osu!taiko**](#taiko)</div>
+                        <div>[**osu!catch**](#catch)</div>
+                        <div>[**osu!mania**](#mania)</div>
+                        <div>[*Multiple mode mapsets**](#hybrid)</div>
+                        <br>
                         <beatmap-list
                             :beatmaps="osuBeatmaps"
                             :display-mode="'osu!'"
                             :raw-mode="'osu'"
                         />
-                        <samp class="small text-white-50">
-                            [**osu!taiko**](#taiko)
-                        </samp><br>
                         <beatmap-list
                             :beatmaps="taikoBeatmaps"
                             :display-mode="'osu!taiko'"
                             :raw-mode="'taiko'"
                         />
-                        <samp class="small text-white-50">
-                            [**osu!catch**](#catch)
-                        </samp><br>
                         <beatmap-list
                             :beatmaps="catchBeatmaps"
                             :display-mode="'osu!catch'"
                             :raw-mode="'catch'"
                         />
-                        <samp class="small text-white-50">
-                            [**osu!mania**](#mania)
-                        </samp><br>
                         <beatmap-list
                             :beatmaps="maniaBeatmaps"
                             :display-mode="'osu!mania'"
                             :raw-mode="'mania'"
                         />
-                        <samp class="small text-white-50">
-                            [**multiple modes**](#hybrid)
-                        </samp><br><br>
                         <beatmap-list
                             :beatmaps="hybridBeatmaps"
                             :display-mode="'multiple modes'"
                             :raw-mode="'hybrid'"
                         />
-                        <samp class="small text-white-50">
-                            EXTERNAL BEATMAPS (sort these on your own)
-                        </samp><br>
-                        <span v-for="beatmap in externalBeatmaps" :key="beatmap.osuId">
-                            <samp class="small text-white-50">
-                                - [{{ beatmap.artist }} - {{ beatmap.title }}]({{ 'https://osu.ppy.sh/beatmapsets/' + beatmap.osuId }})
-                                hosted by
-                                [{{ beatmap.creator }}]({{ 'https://osu.ppy.sh/users/' + beatmap.creatorOsuId }})
-                            </samp><br>
-                        </span>
-                    </div>
+                    </copy-paste>
+
+                    <p v-if="externalBeatmaps">
+                        External beatmaps (sort these manually):
+                    </p>
+
+                    <copy-paste v-if="externalBeatmaps" :distinct="'external'">
+                        <div v-for="beatmap in externalBeatmaps" :key="beatmap.osuId">
+                            - [{{ beatmap.artist }} - {{ beatmap.title }}]({{ 'https://osu.ppy.sh/beatmapsets/' + beatmap.osuId }})
+                            hosted by
+                            [{{ beatmap.creator }}]({{ 'https://osu.ppy.sh/users/' + beatmap.creatorOsuId }})
+                        </div>
+                    </copy-paste>
                 </div>
             </div>
         </div>
@@ -120,11 +116,13 @@ import Vue from 'vue';
 import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
 import { Quest } from '../../../../interfaces/quest';
 import BeatmapList from './BeatmapList.vue';
+import CopyPaste from '../../CopyPaste.vue';
 
 export default Vue.extend({
     name: 'NewsPost',
     components: {
         BeatmapList,
+        CopyPaste,
     },
     data() {
         return {

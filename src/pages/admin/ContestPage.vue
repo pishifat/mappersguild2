@@ -51,3 +51,11 @@ export default Vue.extend({
     },
 });
 </script>
+
+<style>
+.collapsing {
+    -webkit-transition: none;
+    transition: none;
+    display: none;
+}
+</style>

@@ -7,7 +7,7 @@
         >
             {{ show ? 'Hide new contest news post template' : 'Show new contest news post template' }}
         </button>
-        <div v-if="show" class="copy-paste small text-white-50 text-monospace" style="white-space: pre-line">
+        <copy-paste v-if="show" style="white-space: pre-line">
             ---
             layout: post
             title: "Monthly Beatmapping Contest: `MONTH`"
@@ -76,15 +76,19 @@
             `SIGNOFF`
 
             —pishifat
-        </div>
+        </copy-paste>
     </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
+import CopyPaste from '../../CopyPaste.vue';
 
 export default Vue.extend({
     name: 'MarkdownNewContestTemplate',
+    components: {
+        CopyPaste,
+    },
     data () {
         return {
             show: false,

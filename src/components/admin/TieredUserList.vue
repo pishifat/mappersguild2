@@ -3,45 +3,41 @@
         <button class="btn btn-sm btn-block btn-outline-info" @click="findTieredUsers($event)">
             Load tiered users
         </button>
+
         <div v-if="osuUsers.length">
             osu
-            <div class="copy-paste">
-                <span v-for="user in osuUsers" :key="user.id">
-                    <samp class="small text-white-50">
-                        {{ user.username }}
-                    </samp><br>
-                </span>
-            </div>
+            <copy-paste :distinct="'osu'">
+                <div v-for="user in osuUsers" :key="user.id">
+                    {{ user.username }}
+                </div>
+            </copy-paste>
         </div>
+
         <div v-if="taikoUsers.length">
             taiko
-            <div class="copy-paste">
-                <span v-for="user in taikoUsers" :key="user.id">
-                    <samp class="small text-white-50">
-                        {{ user.username }}
-                    </samp><br>
-                </span>
-            </div>
+            <copy-paste :distinct="'taiko'">
+                <div v-for="user in taikoUsers" :key="user.id">
+                    {{ user.username }}
+                </div>
+            </copy-paste>
         </div>
+
         <div v-if="catchUsers.length">
             catch
-            <div class="copy-paste">
-                <span v-for="user in catchUsers" :key="user.id">
-                    <samp class="small text-white-50">
-                        {{ user.username }}
-                    </samp><br>
-                </span>
-            </div>
+            <copy-paste :distinct="'catch'">
+                <div v-for="user in catchUsers" :key="user.id">
+                    {{ user.username }}
+                </div>
+            </copy-paste>
         </div>
+
         <div v-if="maniaUsers.length">
             mania
-            <div class="copy-paste">
-                <span v-for="user in maniaUsers" :key="user.id">
-                    <samp class="small text-white-50">
-                        {{ user.username }}
-                    </samp><br>
-                </span>
-            </div>
+            <copy-paste :distinct="'mania'">
+                <div v-for="user in maniaUsers" :key="user.id">
+                    {{ user.username }}
+                </div>
+            </copy-paste>
         </div>
     </div>
 </template>
@@ -49,9 +45,13 @@
 <script lang="ts">
 import Vue from 'vue';
 import { User } from '../../../interfaces/user';
+import CopyPaste from '../CopyPaste.vue';
 
 export default Vue.extend({
     name: 'TieredUserList',
+    components: {
+        CopyPaste,
+    },
     data() {
         return {
             osuUsers: [] as User[],

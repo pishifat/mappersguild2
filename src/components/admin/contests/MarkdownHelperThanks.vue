@@ -1,5 +1,5 @@
 <template>
-    <div class="copy-paste small text-white-50 text-monospace">
+    <copy-paste>
         Thanks to
         <span v-for="(screener, i) in screeners" :key="screener.id">
             [{{ screener.username }}](https://osu.ppy.sh/users/{{ screener.osuId }}){{ i === screeners.length - 2 ? ', and ' : i === screeners.length - 1 ? '' : ', ' }}
@@ -9,14 +9,18 @@
             [{{ judge.username }}](https://osu.ppy.sh/users/{{ judge.osuId }}){{ i === judges.length - 2 ? ', and ' : i === judges.length - 1 ? '' : ', ' }}
         </span>
         for judging this month's finalists!
-    </div>
+    </copy-paste>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
+import CopyPaste from '../../CopyPaste.vue';
 
 export default Vue.extend({
     name: 'MarkdownHelperThanks',
+    components: {
+        CopyPaste,
+    },
     props: {
         screeners: {
             type: Array,
