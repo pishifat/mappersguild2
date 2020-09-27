@@ -22,6 +22,9 @@
                 <h5>
                     Screening results
                 </h5>
+                <p class="ml-3">
+                    Comments are usually each screener's initial thoughts. They're not intended to be constructive feedback and many screeners use comments as notes for determining their top 5.
+                </p>
                 <div v-for="(evaluation, i) in randomizedScreening" :key="evaluation.id">
                     <div>
                         <div class="ml-3">
