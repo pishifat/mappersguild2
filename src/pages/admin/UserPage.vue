@@ -23,20 +23,20 @@
                             <i
                                 v-if="user.rank > 0"
                                 class="fas fa-crown"
-                                :class="user.rank == 1 ? 'text-rank-1' : user.rank == 2 ? 'text-rank-2' : 'text-rank-3'"
+                                :class="'text-rank-' + user.rank"
                                 data-toggle="tooltip"
                                 data-placement="top"
-                                :title="user.rank == 1 ? 'rank 1 user' : user.rank == 2 ? 'rank 2 user' : 'rank 3 user'"
+                                :title="`rank ${user.rank} user`"
                             />
                         </td>
                         <td :class="{ 'bg-open': user.rank != user.badge }">
                             <i
                                 v-if="user.badge > 0"
                                 class="fas fa-crown"
-                                :class="user.badge == 1 ? 'text-rank-1' : user.badge == 2 ? 'text-rank-2' : 'text-rank-3'"
+                                :class="'text-rank-' + user.rank"
                                 data-toggle="tooltip"
                                 data-placement="top"
-                                :title="user.badge == 1 ? 'rank 1 user' : user.badge == 2 ? 'rank 2 user' : 'rank 3 user'"
+                                :title="`rank ${user.rank} user`"
                             />
                         </td>
                     </data-table>

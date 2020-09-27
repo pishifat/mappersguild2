@@ -2,7 +2,7 @@ import express from 'express';
 import { isLoggedIn, isNotSpectator } from '../helpers/middlewares';
 import { findCreateQuestPointsSpent } from '../helpers/points';
 import { BasicError, BasicResponse } from '../helpers/helpers';
-import { BeatmapMode } from '../interfaces/beatmap/beatmap';
+import { BeatmapMode, BeatmapStatus } from '../interfaces/beatmap/beatmap';
 import { QuestStatus } from '../interfaces/quest';
 import { LogCategory } from '../interfaces/log';
 import { webhookPost, webhookColors } from '../helpers/discordApi';
@@ -244,6 +244,28 @@ questsRouter.post('/joinParty/:partyId/:questId', isNotSpectator, async (req, re
 
 /* POST leave party */
 questsRouter.post('/leaveParty/:partyId/:questId', isNotSpectator, async (req, res) => {
+    const beatmaps = await BeatmapModel // find ranked associatedMaps
+        .find({ quest: req.params.questId as Quest['_id'], status: BeatmapStatus.Ranked })
+        .defaultPopulate();
+
+    if (beatmaps.length) { // disallow kick for users with ranked associatedMaps
+        let isMapper;
+
+        for (const beatmap of beatmaps) {
+            for (const task of beatmap.tasks) {
+                for (const mapper of task.mappers) {
+                    if (mapper.id == req.session?.mongoId) {
+                        isMapper = true;
+                    }
+                }
+            }
+        }
+
+        if (isMapper) {
+            return res.json({ error: 'Cannot leave party when you have ranked maps for it!' });
+        }
+    }
+
     await PartyModel
         .findByIdAndUpdate(req.params.partyId, { $pull: { members: req.session?.mongoId } })
         .orFail();
@@ -360,9 +382,31 @@ questsRouter.post('/kickPartyMember/:partyId/:questId', isNotSpectator, async (r
         return res.json({ error: cannotFindUserMessage });
     }
 
-    const u = await UserModel
+    const u = await UserModel // find user to be kicked
         .findById(req.body.userId)
         .orFail(new Error(cannotFindUserMessage));
+
+    const beatmaps = await BeatmapModel // find ranked associatedMaps
+        .find({ quest: req.params.questId as Quest['_id'], status: BeatmapStatus.Ranked })
+        .defaultPopulate();
+
+    if (beatmaps.length) { // disallow kick for users with ranked associatedMaps
+        let isMapper;
+
+        for (const beatmap of beatmaps) {
+            for (const task of beatmap.tasks) {
+                for (const mapper of task.mappers) {
+                    if (mapper.id == u.id) {
+                        isMapper = true;
+                    }
+                }
+            }
+        }
+
+        if (isMapper) {
+            return res.json({ error: 'Cannot kick user when they have ranked maps for it!' });
+        }
+    }
 
     await PartyModel
         .findByIdAndUpdate(req.params.partyId, { $pull: { members: u._id } })

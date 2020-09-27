@@ -153,10 +153,10 @@
                                 <i
                                     v-if="selectedUser.rank > 0"
                                     class="fas fa-crown"
-                                    :class="selectedUser.rank == 1 ? 'text-rank-1' : selectedUser.rank == 2 ? 'text-rank-2' : 'text-rank-3'"
+                                    :class="'text-rank-' + selectedUser.rank"
                                     data-toggle="tooltip"
                                     data-placement="top"
-                                    :title="selectedUser.rank == 1 ? 'rank 1 user' : selectedUser.rank == 2 ? 'rank 2 user' : 'rank 3 user'"
+                                    :title="`rank ${selectedUser.rank} user`"
                                 />
                                 <span v-else class="text-white-50">
                                     None

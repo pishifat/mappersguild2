@@ -17,10 +17,10 @@
             <i
                 v-if="party.rank > 0"
                 class="fas fa-crown"
-                :class="party.rank == 1 ? 'text-rank-1' : party.rank == 2 ? 'text-rank-2' : 'text-rank-3'"
+                :class="'text-rank-' + party.rank"
                 data-toggle="tooltip"
                 data-placement="top"
-                :title="party.rank == 1 ? 'rank 1 party' : party.rank == 2 ? 'rank 2 party' : 'rank 3 party'"
+                :title="`rank ${party.rank} party`"
             />
 
             <!-- ACTIONS -->

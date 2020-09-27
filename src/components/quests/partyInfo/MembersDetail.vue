@@ -11,10 +11,10 @@
                 <i
                     v-if="member.rank > 0"
                     class="fas fa-crown"
-                    :class="member.rank == 1 ? 'text-rank-1' : member.rank == 2 ? 'text-rank-2' : 'text-rank-3'"
+                    :class="'text-rank-' + member.rank"
                     data-toggle="tooltip"
                     data-placement="top"
-                    :title="member.rank == 1 ? 'rank 1 user' : member.rank == 2 ? 'rank 2 user' : 'rank 3 user'"
+                    :title="`rank ${member.rank} user`"
                 />
                 <span v-if="status == 'open' && member.availablePoints < price" class="errors">
                     {{ `(${member.availablePoints} points available)` }}
