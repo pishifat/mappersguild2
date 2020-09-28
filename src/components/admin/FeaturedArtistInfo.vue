@@ -44,6 +44,22 @@
                             placeholder="artist name..."
                         >
                     </p>
+                    <p class="form-row">
+                        <select v-model="status" class="form-control form-control-sm w-25 mx-2">
+                            <option value="public">
+                                Public
+                            </option>
+                            <option value="private">
+                                Private
+                            </option>
+                            <option value="showcase">
+                                Showcase
+                            </option>
+                        </select>
+                        <button class="btn btn-sm btn-outline-info" @click="updateStatus($event)">
+                            Save status
+                        </button>
+                    </p>
                     <p>
                         <select id="editSongSelection" v-model="selectedSong" class="form-control form-control-sm">
                             <option v-for="song in alphabeticalSongs" :key="song.id" :value="song">
@@ -103,6 +119,7 @@ export default Vue.extend({
         return {
             osuId: 0,
             name: '',
+            status: '',
             selectedSong: null as null | FeaturedSong,
             artist: '',
             title: '',
@@ -121,6 +138,7 @@ export default Vue.extend({
         featuredArtist(): void {
             this.osuId = this.featuredArtist.osuId;
             this.name = this.featuredArtist.label;
+            this.status = this.featuredArtist.status;
             this.title = '';
         },
         selectedSong(): void {
@@ -159,6 +177,20 @@ export default Vue.extend({
                 this.$store.commit('updateName', {
                     featuredArtistId: this.featuredArtist.id,
                     name,
+                });
+            }
+        },
+        async updateStatus(e): Promise<void> {
+            const status = await this.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/updateStatus`, { status: this.status }, e);
+
+            if (!this.isError(status)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated status`,
+                    type: 'info',
+                });
+                this.$store.commit('updateStatus', {
+                    featuredArtistId: this.featuredArtist.id,
+                    status,
                 });
             }
         },

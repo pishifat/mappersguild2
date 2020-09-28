@@ -167,6 +167,9 @@ import { Beatmap } from '../../../interfaces/beatmap/beatmap';
 
 export default Vue.extend({
     name: 'CreateBeatmapModal',
+    props: {
+        isSecret: Boolean,
+    },
     data () {
         return {
             featuredArtists: [] as FeaturedArtist[],
@@ -186,7 +189,7 @@ export default Vue.extend({
         };
     },
     async created () {
-        const res: any = await this.executeGet<FeaturedArtist[]>('/featuredArtists');
+        const res: any = await this.executeGet<FeaturedArtist[]>(`/featuredArtists/${this.isSecret ? 'showcase' : ''}`);
 
         if (res) {
             this.featuredArtists = res.sort((a, b) => {
@@ -209,7 +212,7 @@ export default Vue.extend({
             }
 
             e.target.disabled = true;
-            const res: any = await this.executeGet<FeaturedSong[]>(`/featuredArtists/${this.selectedArtist}/songs`);
+            const res: any = await this.executeGet<FeaturedSong[]>(`/featuredArtists/${this.selectedArtist}/${this.isSecret ? 'showcaseSongs' : 'songs'}`);
 
             if (res) {
                 this.featuredSongs = res.sort((a,b) => {
@@ -237,6 +240,7 @@ export default Vue.extend({
                 tasks: this.checkedTasks,
                 tasksLocked: this.checkedLocks,
                 mode: this.selectedMode,
+                status: this.isSecret ? 'Secret' : 'WIP',
             }, e);
 
             if (!this.isError(beatmap)) {

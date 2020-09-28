@@ -14,5 +14,6 @@
   "logs.js": "/js/logs.js",
   "notifications.js": "/js/notifications.js",
   "quests.js": "/js/quests.js",
-  "users.js": "/js/users.js"
+  "users.js": "/js/users.js",
+  "showcase.js": "/js/showcase.js"
 }

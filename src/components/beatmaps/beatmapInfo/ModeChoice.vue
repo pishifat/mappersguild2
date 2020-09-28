@@ -1,5 +1,5 @@
 <template>
-    <div v-if="beatmap.status == 'WIP'" id="mode" class="form-group">
+    <div id="mode" class="form-group">
         <div class="d-inline-block mr-2">
             Mode
         </div>

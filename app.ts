@@ -43,6 +43,7 @@ import adminContestsRouter from './routes/admin/contests';
 import adminJudgingRouter from './routes/admin/judging';
 import judgingRouter from './routes/judging';
 import contestResultsRouter from './routes/contestResults';
+import showcaseRouter from './routes/showcase';
 
 const app = express();
 const MongoStore = MongoStoreSession(session);
@@ -108,6 +109,7 @@ app.use('/notifications', notificationsRouter);
 app.use('/screening', screeningRouter);
 app.use('/judging', judgingRouter);
 app.use('/contestresults', contestResultsRouter);
+app.use('/showcase', showcaseRouter);
 
 app.use('/artists', artistsRouter);
 app.use('/admin', adminRouter);

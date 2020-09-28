@@ -12,6 +12,7 @@ module.exports = {
         screening: './src/screening.ts',
         judging: './src/judging.ts',
         contestResults: './src/contestResults.ts',
+        showcase: './src/showcase.ts',
         adminContests: './src/admin/contests.ts',
         adminBeatmaps: './src/admin/beatmaps.ts',
         adminQuests: './src/admin/quests.ts',

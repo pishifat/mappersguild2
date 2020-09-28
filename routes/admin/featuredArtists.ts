@@ -46,6 +46,13 @@ adminFeaturedArtistsRouter.post('/:id/updateName', async (req, res) => {
     res.json(req.body.name);
 });
 
+/* POST update artist status */
+adminFeaturedArtistsRouter.post('/:id/updateStatus', async (req, res) => {
+    await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { status: req.body.status }).orFail();
+
+    res.json(req.body.status);
+});
+
 /* POST add song to artist */
 adminFeaturedArtistsRouter.post('/:id/songs/create', async (req, res) => {
     const song = new FeaturedSongModel();

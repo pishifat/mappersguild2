@@ -317,7 +317,7 @@ notificationsRouter.post('/acceptCollab/:id', isNotSpectator, async (req, res) =
 
     const t = await TaskModel.findByIdAndUpdate(invite.modified._id, { $push: { mappers: req.session?.mongoId } });
 
-    if (t) {
+    if (t && b.status !== BeatmapStatus.Secret) {
         LogModel.generate(
             req.session?.mongoId,
             `added as collab mapper to "${t.name}" on "${b.song.artist} - ${b.song.title}"`,
@@ -384,7 +384,7 @@ notificationsRouter.post('/acceptDiff/:id', isNotSpectator, async (req, res) => 
         .findById(invite.map._id)
         .populate(beatmapPopulate);
 
-    if (updateBeatmap) {
+    if (updateBeatmap && updateBeatmap.status !== BeatmapStatus.Secret) {
         LogModel.generate(
             req.session?.mongoId,
             `added "${invite.taskName}" difficulty to "${b.song.artist} - ${b.song.title}"`,

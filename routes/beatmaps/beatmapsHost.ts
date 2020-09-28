@@ -41,11 +41,13 @@ beatmapsHostRouter.post('/:id/setMode', isValidBeatmap, isBeatmapHost, async (re
 
     res.json(b);
 
-    LogModel.generate(
-        req.session?.mongoId,
-        `changed mode of "${b.song.artist} - ${b.song.title}" to "${req.body.mode}"`,
-        LogCategory.Beatmap
-    );
+    if (b.status !== BeatmapStatus.Secret) {
+        LogModel.generate(
+            req.session?.mongoId,
+            `changed mode of "${b.song.artist} - ${b.song.title}" to "${req.body.mode}"`,
+            LogCategory.Beatmap
+        );
+    }
 });
 
 /* POST set status of the beatmapset from extended view. */
@@ -184,11 +186,13 @@ beatmapsHostRouter.post('/:id/setLink', isValidBeatmap, isBeatmapHost, async (re
 
     res.json(b);
 
-    LogModel.generate(
-        req.session?.mongoId,
-        `edited link on "${b.song.artist} - ${b.song.title}"`,
-        LogCategory.Beatmap
-    );
+    if (b.status !== BeatmapStatus.Secret) {
+        LogModel.generate(
+            req.session?.mongoId,
+            `edited link on "${b.song.artist} - ${b.song.title}"`,
+            LogCategory.Beatmap
+        );
+    }
 });
 
 /* POST locks task from extended view. */
@@ -209,11 +213,13 @@ beatmapsHostRouter.post('/:id/lockTask', isValidBeatmap, isBeatmapHost, async (r
 
     res.json(b);
 
-    LogModel.generate(
-        req.session?.mongoId,
-        `locked claims for "${req.body.task}" on "${b.song.artist} - ${b.song.title}"`,
-        LogCategory.Beatmap
-    );
+    if (b.status !== BeatmapStatus.Secret) {
+        LogModel.generate(
+            req.session?.mongoId,
+            `locked claims for "${req.body.task}" on "${b.song.artist} - ${b.song.title}"`,
+            LogCategory.Beatmap
+        );
+    }
 });
 
 /* POST unlocks task from extended view. */
@@ -229,11 +235,13 @@ beatmapsHostRouter.post('/:id/unlockTask', isValidBeatmap, isBeatmapHost, async 
 
     res.json(b);
 
-    LogModel.generate(
-        req.session?.mongoId,
-        `unlocked claims for "${req.body.task}" on "${b.song.artist} - ${b.song.title}"`,
-        LogCategory.Beatmap
-    );
+    if (b.status !== BeatmapStatus.Secret) {
+        LogModel.generate(
+            req.session?.mongoId,
+            `unlocked claims for "${req.body.task}" on "${b.song.artist} - ${b.song.title}"`,
+            LogCategory.Beatmap
+        );
+    }
 });
 
 /* POST delete map */
@@ -247,11 +255,13 @@ beatmapsHostRouter.post('/:id/delete', isValidBeatmap, isBeatmapHost, async (req
     await BeatmapModel.findByIdAndRemove(req.params.id);
     res.json(b);
 
-    LogModel.generate(
-        req.session?.mongoId,
-        `deleted "${b.song.artist} - ${b.song.title}"`,
-        LogCategory.Beatmap
-    );
+    if (b.status !== BeatmapStatus.Secret) {
+        LogModel.generate(
+            req.session?.mongoId,
+            `deleted "${b.song.artist} - ${b.song.title}"`,
+            LogCategory.Beatmap
+        );
+    }
 });
 
 export default beatmapsHostRouter;

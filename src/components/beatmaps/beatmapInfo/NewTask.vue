@@ -1,6 +1,6 @@
 <template>
     <div
-        v-if="beatmap.status == 'WIP' && remainingTasks.length"
+        v-if="(beatmap.status == 'WIP' || beatmap.status == 'Secret') && remainingTasks.length"
         class="row mt-2 mb-3"
     >
         <div class="col-sm-12 form-inline">

@@ -82,10 +82,11 @@ export default Vue.extend({
     },
     computed: mapState([
         'selectedBeatmap',
+        'isShowcase',
     ]),
     watch: {
         selectedBeatmap(): void {
-            history.pushState(null, 'Beatmaps', `/beatmaps?id=${this.selectedBeatmap.id}`);
+            history.pushState(null, 'Beatmaps', `/${this.isShowcase ? 'showcase' : 'beatmaps'}?id=${this.selectedBeatmap.id}`);
         },
     },
 });

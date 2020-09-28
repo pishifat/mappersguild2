@@ -13,7 +13,7 @@ import { ActionType } from '../../interfaces/invite';
 import { NotificationModel } from '../../models/notification';
 import { LogModel } from '../../models/log';
 import { LogCategory } from '../../interfaces/log';
-import { User } from '../../interfaces/user';
+import { User, UserGroup } from '../../interfaces/user';
 
 const tasksRouter = express.Router();
 
@@ -136,21 +136,24 @@ tasksRouter.post('/addTask/:mapId', isNotSpectator, isValidBeatmap, async (req, 
 
     res.json(b);
 
-    LogModel.generate(
-        req.session?.mongoId,
-        `added "${req.body.taskName}" difficulty to "${b.song.artist} - ${b.song.title}"`,
-        LogCategory.Beatmap
-    );
-
-    if (!isHost) {
-        NotificationModel.generate(
-            b.id,
-            `added "${req.body.taskName}" difficulty to your mapset`,
-            b.host.id,
+    if (b.status !== BeatmapStatus.Secret) {
+        LogModel.generate(
             req.session?.mongoId,
-            b.id
+            `added "${req.body.taskName}" difficulty to "${b.song.artist} - ${b.song.title}"`,
+            LogCategory.Beatmap
         );
+
+        if (!isHost) {
+            NotificationModel.generate(
+                b.id,
+                `added "${req.body.taskName}" difficulty to your mapset`,
+                b.host.id,
+                req.session?.mongoId,
+                b.id
+            );
+        }
     }
+
 });
 
 /* POST delete task from extended view. */
@@ -181,20 +184,22 @@ tasksRouter.post('/removeTask/:id', isNotSpectator, async (req, res) => {
 
     res.json(updatedBeatmap);
 
-    LogModel.generate(
-        req.session?.mongoId,
-        `removed "${t.name}" from "${updatedBeatmap.song.artist} - ${updatedBeatmap.song.title}"`,
-        LogCategory.Beatmap
-    );
-
-    if (updatedBeatmap.host.id != req.session?.mongoId) {
-        NotificationModel.generate(
-            updatedBeatmap._id,
-            `removed task "${t.name}" from your mapset`,
-            updatedBeatmap.host.id,
+    if (updatedBeatmap.status !== BeatmapStatus.Secret) {
+        LogModel.generate(
             req.session?.mongoId,
-            updatedBeatmap._id
+            `removed "${t.name}" from "${updatedBeatmap.song.artist} - ${updatedBeatmap.song.title}"`,
+            LogCategory.Beatmap
         );
+
+        if (updatedBeatmap.host.id != req.session?.mongoId) {
+            NotificationModel.generate(
+                updatedBeatmap._id,
+                `removed task "${t.name}" from your mapset`,
+                updatedBeatmap.host.id,
+                req.session?.mongoId,
+                updatedBeatmap._id
+            );
+        }
     }
 });
 
@@ -217,6 +222,10 @@ tasksRouter.post('/task/:taskId/addCollab', isNotSpectator, isValidUser, async (
 
     if (t || !b) {
         return res.json({ error: inviteError + 'User is already a collaborator' });
+    }
+
+    if (b.status == BeatmapStatus.Secret && (u.group == UserGroup.User || u.group == UserGroup.Spectator)) {
+        return res.json({ error: 'Cannot invite to non-showcase users!' });
     }
 
     if (!req.body.mode) {
@@ -286,13 +295,15 @@ tasksRouter.post('/task/:taskId/removeCollab', isNotSpectator, async (req, res) 
 
     res.json(updatedB);
 
-    LogModel.generate(
-        req.session?.mongoId,
-        `removed "${u.username}" from collab mapper of "${updatedTask.name}" on "${updatedB.song.artist} - ${
-            updatedB.song.title
-        }"`,
-        LogCategory.Beatmap
-    );
+    if (updatedB.status !== BeatmapStatus.Secret) {
+        LogModel.generate(
+            req.session?.mongoId,
+            `removed "${u.username}" from collab mapper of "${updatedTask.name}" on "${updatedB.song.artist} - ${
+                updatedB.song.title
+            }"`,
+            LogCategory.Beatmap
+        );
+    }
 });
 
 /* POST set status of the task selected from extended view. */
@@ -323,20 +334,22 @@ tasksRouter.post('/setTaskStatus/:taskId', isNotSpectator, async (req, res) => {
 
     res.json(b);
 
-    LogModel.generate(
-        req.session?.mongoId,
-        `changed status of "${t.name}" on "${b.song.artist} - ${b.song.title}"`,
-        LogCategory.Beatmap
-    );
-
-    if (b.host.id != req.session?.mongoId) {
-        NotificationModel.generate(
-            b._id,
-            `changed status of "${t.name}" on your mapset`,
-            b.host.id,
+    if (b.status !== BeatmapStatus.Secret) {
+        LogModel.generate(
             req.session?.mongoId,
-            b._id
+            `changed status of "${t.name}" on "${b.song.artist} - ${b.song.title}"`,
+            LogCategory.Beatmap
         );
+
+        if (b.host.id != req.session?.mongoId) {
+            NotificationModel.generate(
+                b._id,
+                `changed status of "${t.name}" on your mapset`,
+                b.host.id,
+                req.session?.mongoId,
+                b._id
+            );
+        }
     }
 });
 
@@ -344,6 +357,10 @@ tasksRouter.post('/setTaskStatus/:taskId', isNotSpectator, async (req, res) => {
 tasksRouter.post('/requestTask/:mapId', isNotSpectator, isValidUser, isValidBeatmap, isBeatmapHost, async (req, res) => {
     const u: User = res.locals.user;
     const b: Beatmap = res.locals.beatmap;
+
+    if (b.status == BeatmapStatus.Secret && (u.group == UserGroup.User || u.group == UserGroup.Spectator)) {
+        return res.json({ error: 'Cannot invite to non-showcase users!' });
+    }
 
     const valid = await addTaskChecks(u.id, b, req.body.taskName, req.body.mode, true);
 
