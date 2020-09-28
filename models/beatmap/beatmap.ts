@@ -9,7 +9,7 @@ export interface Beatmap extends IBeatmap, Document {
 const BeatmapSchema = new Schema({
     song: { type: 'ObjectId', ref: 'FeaturedSong' },
     host: { type: 'ObjectId', ref: 'User', required: true },
-    status: { type: String, enum: ['WIP', 'Done', 'Qualified', 'Ranked'], default: 'WIP' },
+    status: { type: String, enum: ['WIP', 'Done', 'Qualified', 'Ranked', 'Secret'], default: 'WIP' },
     tasks: [{ type: 'ObjectId', ref: 'Task' }],
     tasksLocked: [{ type: String, enum: ['Easy', 'Normal', 'Hard', 'Insane', 'Expert', 'Storyboard'] }],
     modders: [{ type: 'ObjectId', ref: 'User' }],

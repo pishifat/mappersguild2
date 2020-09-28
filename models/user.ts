@@ -4,7 +4,7 @@ import { User, PointsInfo } from '../interfaces/user';
 const UserSchema = new Schema({
     osuId: { type: Number, required: true, unique: true },
     username: { type: String, required: true },
-    group: { type: String, enum: ['user', 'admin', 'spectator'], default: 'user' },
+    group: { type: String, enum: ['user', 'admin', 'spectator', 'secret'], default: 'user' },
     badge: { type: Number, default: 0 },
     bypassLogin: { type: Boolean },
     discordId: { type: String },

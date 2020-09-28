@@ -7,16 +7,12 @@ import { SpentPointsModel } from '../models/spentPoints';
 import { TaskModel } from '../models/beatmap/task';
 import { QuestStatus } from '../interfaces/quest';
 import { UserGroup } from '../interfaces/user';
+import { BeatmapStatus } from '../interfaces/beatmap/beatmap';
 
 const usersRouter = express.Router();
 
 usersRouter.use(isLoggedIn);
 
-const beatmapPopulate = [
-    { path: 'song', select: 'artist title' },
-    { path: 'host', select: 'username osuId' },
-    { path: 'tasks', populate: { path: 'mappers' } },
-];
 const questPopulate = { path: 'currentParty', populate: { path: 'members leader' } };
 const userPopulate = { path: 'completedQuests', select: 'name completed' };
 
@@ -46,16 +42,6 @@ usersRouter.get('/relevantInfo', async (req, res) => {
         username: req.session?.username,
         group: res.locals.userRequest.group,
     });
-});
-
-/* GET beatmaps listing. */
-usersRouter.get('/beatmaps', async (req, res) => {
-    const beatmaps = await BeatmapModel
-        .find({})
-        .populate(beatmapPopulate)
-        .sort({ status: -1 });
-
-    res.json({ beatmaps });
 });
 
 /* GET user's quests */
@@ -92,6 +78,7 @@ usersRouter.get('/findUserBeatmaps/:id', async (req, res) => {
 
     const userBeatmaps = await BeatmapModel
         .find({
+            status: { $ne: BeatmapStatus.Secret },
             $or: [
                 {
                     tasks: {

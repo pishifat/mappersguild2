@@ -52,6 +52,10 @@ beatmapsHostRouter.post('/:id/setMode', isValidBeatmap, isBeatmapHost, async (re
 beatmapsHostRouter.post('/:id/setStatus', isValidBeatmap, isBeatmapHost, async (req, res) => {
     const validBeatmap: Beatmap = res.locals.beatmap;
 
+    if (validBeatmap.status == BeatmapStatus.Secret) {
+        return res.json({ error: 'Cannot change status of secret map!' });
+    }
+
     if (req.body.status == BeatmapStatus.Done) {
         if (validBeatmap.tasks.length == 0) {
             return res.json({ error: `You can't mark an empty mapset as complete!` });
@@ -91,6 +95,10 @@ beatmapsHostRouter.post('/:id/setStatus', isValidBeatmap, isBeatmapHost, async (
 /* POST quest to map */
 beatmapsHostRouter.post('/:id/saveQuest', isValidBeatmap, isBeatmapHost, async (req, res) => {
     let b: Beatmap = res.locals.beatmap;
+
+    if (b.status == BeatmapStatus.Secret) {
+        return res.json({ error: 'Cannot add quest to secret beatmap!' });
+    }
 
     if (req.body.questId.length) {
         const q = await QuestModel
