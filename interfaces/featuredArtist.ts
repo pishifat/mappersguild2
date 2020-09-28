@@ -1,10 +1,17 @@
 import { FeaturedSong } from './featuredSong';
 
+export enum FeaturedArtistStatus {
+    Public = 'public',
+    Private = 'private',
+    Showcase = 'showcase',
+}
+
 export interface FeaturedArtist {
     _id: any;
     id: string;
     label: string;
     osuId: number;
+    status: FeaturedArtistStatus;
     songs: FeaturedSong[];
     lastContacted: Date;
     notes: string;

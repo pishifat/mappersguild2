@@ -53,7 +53,7 @@ beatmapsRouter.get('/relevantInfo', async (req, res) => {
 
 /* GET map load from URL */
 beatmapsRouter.get('/searchOnLoad/:id', async (req, res) => {
-    const urlBeatmap = await BeatmapModel.find( { _id: req.params.id, status: { $ne: BeatmapStatus.Secret } }).defaultPopulate();
+    const urlBeatmap = await BeatmapModel.findOne( { _id: req.params.id, status: { $ne: BeatmapStatus.Secret } }).defaultPopulate();
 
     if (!urlBeatmap) {
         return res.json({ error: 'Beatmap ID does not exist!' });
@@ -102,7 +102,7 @@ beatmapsRouter.get('/search', async (req, res) => {
 
     const allBeatmapsQuery = BeatmapModel.find({
         host: { $ne: req.session?.mongoId },
-        status: {$ ne: BeatmapStatus.Secret },
+        status: { $ne: BeatmapStatus.Secret },
     });
 
     if (mode != 'any') {
