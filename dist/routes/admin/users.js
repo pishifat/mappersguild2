@@ -66,6 +66,10 @@ adminUsersRouter.post('/:id/updateBadge', (req, res) => __awaiter(void 0, void 0
             description,
         }]);
 }));
+adminUsersRouter.post('/:id/updateGroup', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    yield user_1.UserModel.findByIdAndUpdate(req.params.id, { group: req.body.group }).orFail();
+    res.json(req.body.group);
+}));
 adminUsersRouter.post('/:id/updateDiscordId', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     yield user_1.UserModel.findByIdAndUpdate(req.params.id, { discordId: req.body.discordId }).orFail();
     res.json(req.body.discordId);

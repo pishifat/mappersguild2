@@ -13,6 +13,25 @@
                     </button>
                 </div>
                 <div class="modal-body" style="overflow: hidden">
+                    <p class="form-row">
+                        <select v-model="group" class="form-control form-control-sm w-25 mx-2">
+                            <option value="user">
+                                User
+                            </option>
+                            <option value="admin">
+                                Admin
+                            </option>
+                            <option value="secret">
+                                Secret
+                            </option>
+                            <option value="spectator">
+                                Spectator
+                            </option>
+                        </select>
+                        <button class="btn btn-sm btn-outline-info" @click="updateGroup($event)">
+                            Save group
+                        </button>
+                    </p>
                     <p>
                         <input
                             v-model="badge"
@@ -67,6 +86,7 @@ export default Vue.extend({
         return {
             badge: 0,
             discordId: '',
+            group: '',
         };
     },
     computed: {
@@ -76,15 +96,31 @@ export default Vue.extend({
         user(): void {
             this.badge = this.user.badge || 0;
             this.discordId = this.user.discordId || '';
+            this.group = this.user.group || '';
         },
     },
     created() {
         if (this.user) {
             this.badge = this.user.badge || 0;
             this.discordId = this.user.discordId || '';
+            this.group = this.user.group || '';
         }
     },
     methods: {
+        async updateGroup(e): Promise<void> {
+            const group = await this.executePost(`/admin/users/${this.user.id}/updateGroup`, { group: this.group }, e);
+
+            if (group) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `set group to ${group}`,
+                    type: 'info',
+                });
+                this.$store.commit('updateGroup', {
+                    userId: this.user.id,
+                    group,
+                });
+            }
+        },
         async updateBadge(e): Promise<void> {
             const badge = await this.executePost(`/admin/users/${this.user.id}/updateBadge`, { badge: this.badge }, e);
 

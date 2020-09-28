@@ -63,6 +63,13 @@ adminUsersRouter.post('/:id/updateBadge', async (req, res) => {
     }]);
 });
 
+/* POST update user group */
+adminUsersRouter.post('/:id/updateGroup', async (req, res) => {
+    await UserModel.findByIdAndUpdate(req.params.id, { group: req.body.group }).orFail();
+
+    res.json(req.body.group);
+});
+
 /* POST update user discordId */
 adminUsersRouter.post('/:id/updateDiscordId', async (req, res) => {
     await UserModel.findByIdAndUpdate(req.params.id, { discordId: req.body.discordId }).orFail();

@@ -185,6 +185,13 @@ const store = new Vuex.Store({
         },
 
         // users
+        updateGroup (state, payload): void {
+            const user = state.actionUsers.find(u => u.id == payload.userId);
+
+            if (user) {
+                user.group = payload.group;
+            }
+        },
         updateBadge (state, payload): void {
             const user = state.actionUsers.find(u => u.id == payload.userId);
 
