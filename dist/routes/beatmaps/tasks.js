@@ -27,6 +27,7 @@ const invite_2 = require("../../interfaces/invite");
 const notification_1 = require("../../models/notification");
 const log_1 = require("../../models/log");
 const log_2 = require("../../interfaces/log");
+const user_2 = require("../../interfaces/user");
 const tasksRouter = express_1.default.Router();
 tasksRouter.use(middlewares_1.isLoggedIn);
 function addTaskChecks(userId, b, taskName, taskMode, isHost) {
@@ -114,9 +115,11 @@ tasksRouter.post('/addTask/:mapId', middlewares_1.isNotSpectator, middlewares_2.
     yield b.save();
     b = yield beatmap_1.BeatmapModel.findById(req.params.mapId).defaultPopulate();
     res.json(b);
-    log_1.LogModel.generate((_d = req.session) === null || _d === void 0 ? void 0 : _d.mongoId, `added "${req.body.taskName}" difficulty to "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
-    if (!isHost) {
-        notification_1.NotificationModel.generate(b.id, `added "${req.body.taskName}" difficulty to your mapset`, b.host.id, (_e = req.session) === null || _e === void 0 ? void 0 : _e.mongoId, b.id);
+    if (b.status !== beatmap_2.BeatmapStatus.Secret) {
+        log_1.LogModel.generate((_d = req.session) === null || _d === void 0 ? void 0 : _d.mongoId, `added "${req.body.taskName}" difficulty to "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
+        if (!isHost) {
+            notification_1.NotificationModel.generate(b.id, `added "${req.body.taskName}" difficulty to your mapset`, b.host.id, (_e = req.session) === null || _e === void 0 ? void 0 : _e.mongoId, b.id);
+        }
     }
 }));
 tasksRouter.post('/removeTask/:id', middlewares_1.isNotSpectator, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -142,9 +145,11 @@ tasksRouter.post('/removeTask/:id', middlewares_1.isNotSpectator, (req, res) => 
         .defaultPopulate()
         .orFail();
     res.json(updatedBeatmap);
-    log_1.LogModel.generate((_h = req.session) === null || _h === void 0 ? void 0 : _h.mongoId, `removed "${t.name}" from "${updatedBeatmap.song.artist} - ${updatedBeatmap.song.title}"`, log_2.LogCategory.Beatmap);
-    if (updatedBeatmap.host.id != ((_j = req.session) === null || _j === void 0 ? void 0 : _j.mongoId)) {
-        notification_1.NotificationModel.generate(updatedBeatmap._id, `removed task "${t.name}" from your mapset`, updatedBeatmap.host.id, (_k = req.session) === null || _k === void 0 ? void 0 : _k.mongoId, updatedBeatmap._id);
+    if (updatedBeatmap.status !== beatmap_2.BeatmapStatus.Secret) {
+        log_1.LogModel.generate((_h = req.session) === null || _h === void 0 ? void 0 : _h.mongoId, `removed "${t.name}" from "${updatedBeatmap.song.artist} - ${updatedBeatmap.song.title}"`, log_2.LogCategory.Beatmap);
+        if (updatedBeatmap.host.id != ((_j = req.session) === null || _j === void 0 ? void 0 : _j.mongoId)) {
+            notification_1.NotificationModel.generate(updatedBeatmap._id, `removed task "${t.name}" from your mapset`, updatedBeatmap.host.id, (_k = req.session) === null || _k === void 0 ? void 0 : _k.mongoId, updatedBeatmap._id);
+        }
     }
 }));
 tasksRouter.post('/task/:taskId/addCollab', middlewares_1.isNotSpectator, middlewares_2.isValidUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -164,6 +169,9 @@ tasksRouter.post('/task/:taskId/addCollab', middlewares_1.isNotSpectator, middle
     ]);
     if (t || !b) {
         return res.json({ error: inviteError + 'User is already a collaborator' });
+    }
+    if (b.status == beatmap_2.BeatmapStatus.Secret && (u.group == user_2.UserGroup.User || u.group == user_2.UserGroup.Spectator)) {
+        return res.json({ error: 'Cannot invite to non-showcase users!' });
     }
     if (!req.body.mode) {
         req.body.mode = b.mode;
@@ -209,7 +217,9 @@ tasksRouter.post('/task/:taskId/removeCollab', middlewares_1.isNotSpectator, (re
         .defaultPopulate()
         .orFail();
     res.json(updatedB);
-    log_1.LogModel.generate((_p = req.session) === null || _p === void 0 ? void 0 : _p.mongoId, `removed "${u.username}" from collab mapper of "${updatedTask.name}" on "${updatedB.song.artist} - ${updatedB.song.title}"`, log_2.LogCategory.Beatmap);
+    if (updatedB.status !== beatmap_2.BeatmapStatus.Secret) {
+        log_1.LogModel.generate((_p = req.session) === null || _p === void 0 ? void 0 : _p.mongoId, `removed "${u.username}" from collab mapper of "${updatedTask.name}" on "${updatedB.song.artist} - ${updatedB.song.title}"`, log_2.LogCategory.Beatmap);
+    }
 }));
 tasksRouter.post('/setTaskStatus/:taskId', middlewares_1.isNotSpectator, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _q, _r, _s, _t, _u;
@@ -233,15 +243,20 @@ tasksRouter.post('/setTaskStatus/:taskId', middlewares_1.isNotSpectator, (req, r
         .defaultPopulate()
         .orFail();
     res.json(b);
-    log_1.LogModel.generate((_s = req.session) === null || _s === void 0 ? void 0 : _s.mongoId, `changed status of "${t.name}" on "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
-    if (b.host.id != ((_t = req.session) === null || _t === void 0 ? void 0 : _t.mongoId)) {
-        notification_1.NotificationModel.generate(b._id, `changed status of "${t.name}" on your mapset`, b.host.id, (_u = req.session) === null || _u === void 0 ? void 0 : _u.mongoId, b._id);
+    if (b.status !== beatmap_2.BeatmapStatus.Secret) {
+        log_1.LogModel.generate((_s = req.session) === null || _s === void 0 ? void 0 : _s.mongoId, `changed status of "${t.name}" on "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
+        if (b.host.id != ((_t = req.session) === null || _t === void 0 ? void 0 : _t.mongoId)) {
+            notification_1.NotificationModel.generate(b._id, `changed status of "${t.name}" on your mapset`, b.host.id, (_u = req.session) === null || _u === void 0 ? void 0 : _u.mongoId, b._id);
+        }
     }
 }));
 tasksRouter.post('/requestTask/:mapId', middlewares_1.isNotSpectator, middlewares_2.isValidUser, middlewares_2.isValidBeatmap, middlewares_2.isBeatmapHost, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _v;
     const u = res.locals.user;
     const b = res.locals.beatmap;
+    if (b.status == beatmap_2.BeatmapStatus.Secret && (u.group == user_2.UserGroup.User || u.group == user_2.UserGroup.Spectator)) {
+        return res.json({ error: 'Cannot invite to non-showcase users!' });
+    }
     const valid = yield addTaskChecks(u.id, b, req.body.taskName, req.body.mode, true);
     if (valid.error) {
         return res.json(valid);

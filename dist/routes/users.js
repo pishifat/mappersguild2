@@ -21,13 +21,9 @@ const spentPoints_1 = require("../models/spentPoints");
 const task_1 = require("../models/beatmap/task");
 const quest_2 = require("../interfaces/quest");
 const user_2 = require("../interfaces/user");
+const beatmap_2 = require("../interfaces/beatmap/beatmap");
 const usersRouter = express_1.default.Router();
 usersRouter.use(middlewares_1.isLoggedIn);
-const beatmapPopulate = [
-    { path: 'song', select: 'artist title' },
-    { path: 'host', select: 'username osuId' },
-    { path: 'tasks', populate: { path: 'mappers' } },
-];
 const questPopulate = { path: 'currentParty', populate: { path: 'members leader' } };
 const userPopulate = { path: 'completedQuests', select: 'name completed' };
 usersRouter.get('/', (req, res) => {
@@ -55,13 +51,6 @@ usersRouter.get('/relevantInfo', (req, res) => __awaiter(void 0, void 0, void 0,
         group: res.locals.userRequest.group,
     });
 }));
-usersRouter.get('/beatmaps', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const beatmaps = yield beatmap_1.BeatmapModel
-        .find({})
-        .populate(beatmapPopulate)
-        .sort({ status: -1 });
-    res.json({ beatmaps });
-}));
 usersRouter.get('/findCurrentQuests/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const wipQuests = yield quest_1.QuestModel
         .find({ status: quest_2.QuestStatus.WIP })
@@ -83,6 +72,7 @@ usersRouter.get('/findUserBeatmaps/:id', (req, res) => __awaiter(void 0, void 0,
         .select('_id');
     const userBeatmaps = yield beatmap_1.BeatmapModel
         .find({
+        status: { $ne: beatmap_2.BeatmapStatus.Secret },
         $or: [
             {
                 tasks: {

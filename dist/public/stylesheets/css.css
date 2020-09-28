@@ -408,6 +408,10 @@ select option {
     background-color: var(--guild);
 }
 
+.bg-secret {
+    background-color: lightgray;
+}
+
 .bg-container {
     background-color: #1e1c1a;
     box-shadow: 1px 1px 5px 1px #131313;

@@ -258,7 +258,7 @@ notificationsRouter.post('/acceptCollab/:id', middlewares_1.isNotSpectator, (req
         .orFail();
     res.json(invite);
     const t = yield task_1.TaskModel.findByIdAndUpdate(invite.modified._id, { $push: { mappers: (_f = req.session) === null || _f === void 0 ? void 0 : _f.mongoId } });
-    if (t) {
+    if (t && b.status !== beatmap_2.BeatmapStatus.Secret) {
         log_1.LogModel.generate((_g = req.session) === null || _g === void 0 ? void 0 : _g.mongoId, `added as collab mapper to "${t.name}" on "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
         notification_1.NotificationModel.generate(t._id, `accepted your invite to collaborate on the "${t.name}" difficulty on your mapset`, invite.sender, invite.recipient, b._id);
     }
@@ -302,7 +302,7 @@ notificationsRouter.post('/acceptDiff/:id', middlewares_1.isNotSpectator, (req, 
     const updateBeatmap = yield beatmap_1.BeatmapModel
         .findById(invite.map._id)
         .populate(beatmapPopulate);
-    if (updateBeatmap) {
+    if (updateBeatmap && updateBeatmap.status !== beatmap_2.BeatmapStatus.Secret) {
         log_1.LogModel.generate((_k = req.session) === null || _k === void 0 ? void 0 : _k.mongoId, `added "${invite.taskName}" difficulty to "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
         notification_1.NotificationModel.generate(updateBeatmap._id, `accepted the invite to create a difficulty on your mapset`, invite.sender, invite.recipient, updateBeatmap._id);
     }

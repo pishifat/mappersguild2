@@ -14,16 +14,29 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const featuredArtist_1 = require("../../models/featuredArtist");
+const featuredArtist_2 = require("../../interfaces/featuredArtist");
 const middlewares_1 = require("../../helpers/middlewares");
 const featuredArtistsRouter = express_1.default.Router();
 featuredArtistsRouter.use(middlewares_1.isLoggedIn);
 featuredArtistsRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const featuredArtists = yield featuredArtist_1.FeaturedArtistModel.find({ osuId: { $gt: 0 } });
+    const featuredArtists = yield featuredArtist_1.FeaturedArtistModel.find({ status: featuredArtist_2.FeaturedArtistStatus.Public });
+    res.json(featuredArtists);
+}));
+featuredArtistsRouter.get('/showcase', middlewares_1.isSecret, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const featuredArtists = yield featuredArtist_1.FeaturedArtistModel.find({ status: featuredArtist_2.FeaturedArtistStatus.Showcase });
     res.json(featuredArtists);
 }));
 featuredArtistsRouter.get('/:id/songs', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const fa = yield featuredArtist_1.FeaturedArtistModel
-        .findById(req.params.id)
+        .findOne({ _id: req.params.id, status: featuredArtist_2.FeaturedArtistStatus.Public })
+        .populate({ path: 'songs', select: 'artist title' })
+        .sort({ label: -1 })
+        .orFail();
+    res.json(fa.songs);
+}));
+featuredArtistsRouter.get('/:id/showcaseSongs', middlewares_1.isSecret, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const fa = yield featuredArtist_1.FeaturedArtistModel
+        .findOne({ _id: req.params.id, status: featuredArtist_2.FeaturedArtistStatus.Showcase })
         .populate({ path: 'songs', select: 'artist title' })
         .sort({ label: -1 })
         .orFail();

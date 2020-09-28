@@ -7,6 +7,7 @@ var BeatmapStatus;
     BeatmapStatus["Done"] = "Done";
     BeatmapStatus["Qualified"] = "Qualified";
     BeatmapStatus["Ranked"] = "Ranked";
+    BeatmapStatus["Secret"] = "Secret";
 })(BeatmapStatus = exports.BeatmapStatus || (exports.BeatmapStatus = {}));
 var BeatmapMode;
 (function (BeatmapMode) {

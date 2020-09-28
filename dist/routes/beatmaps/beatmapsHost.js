@@ -46,11 +46,16 @@ beatmapsHostRouter.post('/:id/setMode', middlewares_2.isValidBeatmap, middleware
         .defaultPopulate()
         .orFail();
     res.json(b);
-    log_1.LogModel.generate((_a = req.session) === null || _a === void 0 ? void 0 : _a.mongoId, `changed mode of "${b.song.artist} - ${b.song.title}" to "${req.body.mode}"`, log_2.LogCategory.Beatmap);
+    if (b.status !== beatmap_2.BeatmapStatus.Secret) {
+        log_1.LogModel.generate((_a = req.session) === null || _a === void 0 ? void 0 : _a.mongoId, `changed mode of "${b.song.artist} - ${b.song.title}" to "${req.body.mode}"`, log_2.LogCategory.Beatmap);
+    }
 }));
 beatmapsHostRouter.post('/:id/setStatus', middlewares_2.isValidBeatmap, middlewares_2.isBeatmapHost, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _b;
     const validBeatmap = res.locals.beatmap;
+    if (validBeatmap.status == beatmap_2.BeatmapStatus.Secret) {
+        return res.json({ error: 'Cannot change status of secret map!' });
+    }
     if (req.body.status == beatmap_2.BeatmapStatus.Done) {
         if (validBeatmap.tasks.length == 0) {
             return res.json({ error: `You can't mark an empty mapset as complete!` });
@@ -78,6 +83,9 @@ beatmapsHostRouter.post('/:id/setStatus', middlewares_2.isValidBeatmap, middlewa
 beatmapsHostRouter.post('/:id/saveQuest', middlewares_2.isValidBeatmap, middlewares_2.isBeatmapHost, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _c;
     let b = res.locals.beatmap;
+    if (b.status == beatmap_2.BeatmapStatus.Secret) {
+        return res.json({ error: 'Cannot add quest to secret beatmap!' });
+    }
     if (req.body.questId.length) {
         const q = yield quest_1.QuestModel
             .findById(req.body.questId)
@@ -138,7 +146,9 @@ beatmapsHostRouter.post('/:id/setLink', middlewares_2.isValidBeatmap, middleware
         .defaultPopulate()
         .orFail();
     res.json(b);
-    log_1.LogModel.generate((_d = req.session) === null || _d === void 0 ? void 0 : _d.mongoId, `edited link on "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
+    if (b.status !== beatmap_2.BeatmapStatus.Secret) {
+        log_1.LogModel.generate((_d = req.session) === null || _d === void 0 ? void 0 : _d.mongoId, `edited link on "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
+    }
 }));
 beatmapsHostRouter.post('/:id/lockTask', middlewares_2.isValidBeatmap, middlewares_2.isBeatmapHost, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _e;
@@ -153,7 +163,9 @@ beatmapsHostRouter.post('/:id/lockTask', middlewares_2.isValidBeatmap, middlewar
         .defaultPopulate()
         .orFail();
     res.json(b);
-    log_1.LogModel.generate((_e = req.session) === null || _e === void 0 ? void 0 : _e.mongoId, `locked claims for "${req.body.task}" on "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
+    if (b.status !== beatmap_2.BeatmapStatus.Secret) {
+        log_1.LogModel.generate((_e = req.session) === null || _e === void 0 ? void 0 : _e.mongoId, `locked claims for "${req.body.task}" on "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
+    }
 }));
 beatmapsHostRouter.post('/:id/unlockTask', middlewares_2.isValidBeatmap, middlewares_2.isBeatmapHost, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _f;
@@ -165,7 +177,9 @@ beatmapsHostRouter.post('/:id/unlockTask', middlewares_2.isValidBeatmap, middlew
         .defaultPopulate()
         .orFail();
     res.json(b);
-    log_1.LogModel.generate((_f = req.session) === null || _f === void 0 ? void 0 : _f.mongoId, `unlocked claims for "${req.body.task}" on "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
+    if (b.status !== beatmap_2.BeatmapStatus.Secret) {
+        log_1.LogModel.generate((_f = req.session) === null || _f === void 0 ? void 0 : _f.mongoId, `unlocked claims for "${req.body.task}" on "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
+    }
 }));
 beatmapsHostRouter.post('/:id/delete', middlewares_2.isValidBeatmap, middlewares_2.isBeatmapHost, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _g;
@@ -175,6 +189,8 @@ beatmapsHostRouter.post('/:id/delete', middlewares_2.isValidBeatmap, middlewares
     }
     yield beatmap_1.BeatmapModel.findByIdAndRemove(req.params.id);
     res.json(b);
-    log_1.LogModel.generate((_g = req.session) === null || _g === void 0 ? void 0 : _g.mongoId, `deleted "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
+    if (b.status !== beatmap_2.BeatmapStatus.Secret) {
+        log_1.LogModel.generate((_g = req.session) === null || _g === void 0 ? void 0 : _g.mongoId, `deleted "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
+    }
 }));
 exports.default = beatmapsHostRouter;

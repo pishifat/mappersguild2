@@ -81,10 +81,10 @@ indexRouter.get('/login', (req, res, next) => __awaiter(void 0, void 0, void 0, 
                 u.username = req.session.username;
                 yield u.save();
             }
-            if (u.group != req.session.group && u.group != 'admin' && !u.bypassLogin) {
+            if (u.group != req.session.group && u.group != user_2.UserGroup.Admin && u.group != user_2.UserGroup.Secret && !u.bypassLogin) {
                 u.group = req.session.group;
                 yield u.save();
-                if (req.session.group == 'user') {
+                if (req.session.group == user_2.UserGroup.User) {
                     discordApi_1.webhookPost([{
                             author: {
                                 name: u.username,
@@ -116,7 +116,7 @@ indexRouter.get('/login', (req, res, next) => __awaiter(void 0, void 0, void 0, 
     if ((_a = req === null || req === void 0 ? void 0 : req.session) === null || _a === void 0 ? void 0 : _a.lastPage) {
         res.redirect(req.session.lastPage);
     }
-    else if (res.locals.userRequest.group == 'admin') {
+    else if (res.locals.userRequest.group == user_2.UserGroup.Admin) {
         res.redirect('/artists');
     }
     else {

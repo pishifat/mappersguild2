@@ -46,6 +46,10 @@ adminFeaturedArtistsRouter.post('/:id/updateName', (req, res) => __awaiter(void 
     yield featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { label: req.body.name }).orFail();
     res.json(req.body.name);
 }));
+adminFeaturedArtistsRouter.post('/:id/updateStatus', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    yield featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { status: req.body.status }).orFail();
+    res.json(req.body.status);
+}));
 adminFeaturedArtistsRouter.post('/:id/songs/create', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const song = new featuredSong_1.FeaturedSongModel();
     song.artist = req.body.artist.trim();
