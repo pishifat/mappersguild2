@@ -280,7 +280,7 @@ notificationsRouter.post('/acceptDiff/:id', middlewares_1.isNotSpectator, (req, 
     if (valid.error) {
         return res.json(valid);
     }
-    if (b.status != 'WIP') {
+    if (b.status == beatmap_2.BeatmapStatus.Ranked || b.status == beatmap_2.BeatmapStatus.Qualified || b.status == beatmap_2.BeatmapStatus.Done) {
         return res.json({ error: `Mapset already marked as ${b.status.toLowerCase()}` });
     }
     invite.visible = false;

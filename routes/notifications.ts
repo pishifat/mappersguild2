@@ -355,7 +355,7 @@ notificationsRouter.post('/acceptDiff/:id', isNotSpectator, async (req, res) => 
         return res.json(valid);
     }
 
-    if (b.status != 'WIP') {
+    if (b.status == BeatmapStatus.Ranked || b.status == BeatmapStatus.Qualified || b.status == BeatmapStatus.Done) {
         return res.json({ error: `Mapset already marked as ${b.status.toLowerCase()}` });
     }
 
