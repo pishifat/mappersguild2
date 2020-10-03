@@ -198,4 +198,32 @@ artistsRouter.post('/deleteArtist/:id', async (req, res) => {
     res.json(a);
 });
 
+/* POST set all contacted but unreplied artists as rejected */
+artistsRouter.post('/setAllAsRejected/', async (req, res) => {
+    const contactedArtists = await FeaturedArtistModel
+        .find({
+            isContacted: true,
+            projectedRelease: { $exists: false },
+            isUpToDate: { $ne: true },
+            isRejected: { $ne: true },
+            isResponded: { $ne: true },
+            $or: [
+                { osuId: 0 },
+                { osuId: { $exists: false } },
+            ],
+        });
+
+    for (const artist of contactedArtists) {
+        artist.isRejected = true;
+        await artist.save();
+    }
+
+    const a = await FeaturedArtistModel
+        .find({})
+        .populate(defaultPopulate)
+        .sort({ updatedAt: -1 });
+
+    res.json(a);
+});
+
 export default artistsRouter;

@@ -3,20 +3,23 @@
         <div class="row">
             <div class="col">
                 <h3 class="ml-2">
-                    Inactive
+                    Planned
                 </h3>
 
                 <h5 class="ml-4 mt-2">
-                    <a href="#upToDate" data-toggle="collapse">
-                        Up to date ({{ upToDate.length }})
+                    <a href="#notContacted" data-toggle="collapse">
+                        Not contacted ({{ notContacted.length }})
                         <i class="fas fa-angle-down" />
                     </a>
+                    <button class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#addArtist">
+                        Add artist
+                    </button>
                 </h5>
 
-                <div id="upToDate" class="collapse">
+                <div id="notContacted" class="collapse">
                     <transition-group name="list" tag="div" class="row">
                         <artist-card
-                            v-for="artist in upToDate"
+                            v-for="artist in notContacted"
                             :key="artist.id"
                             :artist="artist"
                         />
@@ -24,22 +27,24 @@
                     <div class="radial-divisor mx-auto my-4" />
                 </div>
 
-                <h5 class="ml-4 mt-2">
-                    <a href="#rejected" data-toggle="collapse">
-                        Rejected ({{ rejected.length }})
+                <h5 v-if="contactedArtists.length" class="ml-4 mt-2">
+                    <a href="#contactedArtists" data-toggle="collapse">
+                        Awaiting response ({{ contactedArtists.length }})
                         <i class="fas fa-angle-down" />
                     </a>
+                    <button class="btn btn-sm btn-outline-info" @click="setAllAsRejected($event)">
+                        Mark all as rejected
+                    </button>
                 </h5>
 
-                <div id="rejected" class="collapse">
+                <div id="contactedArtists" class="collapse">
                     <transition-group name="list" tag="div" class="row">
                         <artist-card
-                            v-for="artist in rejected"
+                            v-for="artist in contactedArtists"
                             :key="artist.id"
                             :artist="artist"
                         />
                     </transition-group>
-                    <div class="radial-divisor mx-auto my-4" />
                 </div>
             </div>
         </div>
@@ -52,15 +57,22 @@ import ArtistCard from '@components/artists/ArtistCard.vue';
 import { mapGetters } from 'vuex';
 
 export default Vue.extend({
-    name: 'ArtistsInactive',
+    name: 'ArtistsPlanned',
     components: {
         ArtistCard,
     },
     computed: mapGetters([
         'notContacted',
         'contactedArtists',
-        'upToDate',
-        'rejected',
     ]),
+    methods: {
+        async setAllAsRejected (e): Promise<void> {
+            const artists = await this.executePost('/artists/setAllAsRejected/', {}, e);
+
+            if (artists) {
+                this.$store.commit('setArtists', artists);
+            }
+        },
+    },
 });
 </script>

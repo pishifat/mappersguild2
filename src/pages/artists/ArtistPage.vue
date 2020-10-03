@@ -6,6 +6,10 @@
 
         <div class="radial-divisor mx-auto my-4" />
 
+        <artists-planned />
+
+        <div class="radial-divisor mx-auto my-4" />
+
         <artists-inactive />
 
         <toast-messages />
@@ -20,6 +24,7 @@ import AddArtist from '@components/artists/AddArtist.vue';
 import ToastMessages from '@components/ToastMessages.vue';
 import ArtistPageFilters from './ArtistPageFilters.vue';
 import ArtistsInProgress from './ArtistsInProgress.vue';
+import ArtistsPlanned from './ArtistsPlanned.vue';
 import ArtistsInactive from './ArtistsInactive.vue';
 
 export default Vue.extend({
@@ -27,6 +32,7 @@ export default Vue.extend({
     components: {
         ArtistPageFilters,
         ArtistsInProgress,
+        ArtistsPlanned,
         ArtistsInactive,
         AddArtist,
         ToastMessages,

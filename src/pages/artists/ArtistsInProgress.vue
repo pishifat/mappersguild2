@@ -40,23 +40,6 @@
                     </transition-group>
                 </div>
 
-                <h5 v-if="contactedArtists.length" class="ml-4 mt-2">
-                    <a href="#contactedArtists" data-toggle="collapse">
-                        Awaiting response ({{ contactedArtists.length }})
-                        <i class="fas fa-angle-down" />
-                    </a>
-                </h5>
-
-                <div id="contactedArtists" class="collapse">
-                    <transition-group name="list" tag="div" class="row">
-                        <artist-card
-                            v-for="artist in contactedArtists"
-                            :key="artist.id"
-                            :artist="artist"
-                        />
-                    </transition-group>
-                </div>
-
                 <h5 v-if="updateAvailableArtists.length" class="ml-4 mt-2">
                     <a href="#currentArtistUpdates" data-toggle="collapse">
                         Current artist updates ({{ updateAvailableArtists.length }})
@@ -91,7 +74,6 @@ export default Vue.extend({
     computed: mapGetters([
         'readyArtists',
         'discussionArtists',
-        'contactedArtists',
         'updateAvailableArtists',
     ]),
 });
