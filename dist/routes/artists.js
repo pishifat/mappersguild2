@@ -151,4 +151,27 @@ artistsRouter.post('/deleteArtist/:id', (req, res) => __awaiter(void 0, void 0, 
     const a = yield featuredArtist_1.FeaturedArtistModel.findByIdAndRemove(req.params.id);
     res.json(a);
 }));
+artistsRouter.post('/setAllAsRejected/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const contactedArtists = yield featuredArtist_1.FeaturedArtistModel
+        .find({
+        isContacted: true,
+        projectedRelease: { $exists: false },
+        isUpToDate: { $ne: true },
+        isRejected: { $ne: true },
+        isResponded: { $ne: true },
+        $or: [
+            { osuId: 0 },
+            { osuId: { $exists: false } },
+        ],
+    });
+    for (const artist of contactedArtists) {
+        artist.isRejected = true;
+        yield artist.save();
+    }
+    const a = yield featuredArtist_1.FeaturedArtistModel
+        .find({})
+        .populate(defaultPopulate)
+        .sort({ updatedAt: -1 });
+    res.json(a);
+}));
 exports.default = artistsRouter;
