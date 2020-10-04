@@ -1,6 +1,6 @@
 <template>
     <div class="col-sm-12">
-        <div class="card static-card bg-dark">
+        <div class="card static-card" :class="isDiscussion && daysAgo > 21 ? 'overdue' : 'bg-dark'">
             <div class="card-body p-0 mx-2 my-1">
                 <div class="row">
                     <span class="col-sm-4">
@@ -60,7 +60,12 @@
 
                         <!--contacted-->
                         <span class="text-center font-8 text-white-50 float-right mr-2">
-                            {{ artist.lastContacted ? daysAgo : 'never' }}
+                            <span v-if="artist.lastContacted">
+                                {{ `${daysAgo} ${daysAgo == 1 ? 'day ago' : 'days ago'}` }}
+                            </span>
+                            <span v-else>
+                                never
+                            </span>
                             <a href="#" @click.prevent="showContactedInput = !showContactedInput">
                                 <i class="fas fa-edit" />
                             </a>
@@ -246,12 +251,15 @@ export default Vue.extend({
         ...mapState([
             'userId',
         ]),
-        daysAgo(): string {
+        daysAgo(): number {
             const today = new Date();
             const contacted = new Date(this.artist.lastContacted);
             const days = Math.round((today.getTime() - contacted.getTime())/(1000*60*60*24));
 
-            return days + (days == 1 ? ' day ago' : ' days ago');
+            return days;
+        },
+        isDiscussion(): boolean {
+            return !this.artist.osuId && !this.artist.isUpToDate && this.artist.isResponded && !this.artist.contractFinalized && !this.artist.isRejected;
         },
     },
     watch: {
@@ -462,5 +470,9 @@ input:focus {
     -webkit-transition: none;
     transition: none;
     display: none;
+}
+
+.overdue {
+    background-color: rgba(255, 251, 0, 0.05)!important;
 }
 </style>

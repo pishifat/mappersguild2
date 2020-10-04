@@ -6,6 +6,26 @@
                     Planned
                 </h3>
 
+                <h5 v-if="contactedArtists.length" class="ml-4 mt-2">
+                    <a href="#contactedArtists" data-toggle="collapse">
+                        Awaiting response ({{ contactedArtists.length }})
+                        <i class="fas fa-angle-down" />
+                    </a>
+                    <button class="btn btn-sm btn-outline-info" @click="setAllAsRejected($event)">
+                        Mark all as rejected
+                    </button>
+                </h5>
+
+                <div id="contactedArtists" class="collapse">
+                    <transition-group name="list" tag="div" class="row">
+                        <artist-card
+                            v-for="artist in contactedArtists"
+                            :key="artist.id"
+                            :artist="artist"
+                        />
+                    </transition-group>
+                </div>
+
                 <h5 class="ml-4 mt-2">
                     <a href="#notContacted" data-toggle="collapse">
                         Not contacted ({{ notContacted.length }})
@@ -25,26 +45,6 @@
                         />
                     </transition-group>
                     <div class="radial-divisor mx-auto my-4" />
-                </div>
-
-                <h5 v-if="contactedArtists.length" class="ml-4 mt-2">
-                    <a href="#contactedArtists" data-toggle="collapse">
-                        Awaiting response ({{ contactedArtists.length }})
-                        <i class="fas fa-angle-down" />
-                    </a>
-                    <button class="btn btn-sm btn-outline-info" @click="setAllAsRejected($event)">
-                        Mark all as rejected
-                    </button>
-                </h5>
-
-                <div id="contactedArtists" class="collapse">
-                    <transition-group name="list" tag="div" class="row">
-                        <artist-card
-                            v-for="artist in contactedArtists"
-                            :key="artist.id"
-                            :artist="artist"
-                        />
-                    </transition-group>
                 </div>
             </div>
         </div>

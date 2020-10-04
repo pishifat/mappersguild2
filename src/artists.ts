@@ -54,7 +54,16 @@ const store = new Vuex.Store({
             return artists;
         },
         notContacted: (state, getters): FeaturedArtist[] => {
-            return getters.filteredArtists.filter(a => !a.isContacted);
+            let artists = getters.filteredArtists.filter(a => !a.isContacted);
+
+            artists = artists.sort((a,b) => {
+                if (a.createdAt < b.createdAt) return 1;
+                if (a.createdAt > b.createdAt) return -1;
+
+                return 0;
+            });
+
+            return artists;
         },
         upToDate: (state, getters): FeaturedArtist[] => {
             return getters.filteredArtists.filter(a => a.isUpToDate && a.isContacted);
@@ -82,11 +91,18 @@ const store = new Vuex.Store({
         readyArtists: (state, getters): FeaturedArtist[] => {
             const artists = getters.filteredArtists.filter(a => !a.osuId && !a.isUpToDate && a.contractFinalized);
             let projectedReleaseArtists = artists.filter(a => a.projectedRelease);
-            const unknownReleaseArtists = artists.filter(a => !a.projectedRelease);
+            let unknownReleaseArtists = artists.filter(a => !a.projectedRelease);
 
             projectedReleaseArtists = projectedReleaseArtists.sort((a,b) => {
                 if (a.projectedRelease < b.projectedRelease) return -1;
                 if (a.projectedRelease > b.projectedRelease) return 1;
+
+                return 0;
+            });
+
+            unknownReleaseArtists = unknownReleaseArtists.sort((a,b) => {
+                if (a.lastContacted < b.lastContacted) return 1;
+                if (a.lastContacted > b.lastContacted) return -1;
 
                 return 0;
             });
