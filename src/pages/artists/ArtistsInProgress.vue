@@ -24,8 +24,25 @@
                 </div>
 
                 <h5 class="ml-4 mt-2">
+                    <a href="#contractArtists" data-toggle="collapse">
+                        Contract ({{ contractArtists.length }})
+                        <i class="fas fa-angle-down" />
+                    </a>
+                </h5>
+
+                <div id="contractArtists" class="collapse">
+                    <transition-group name="list" tag="div" class="row">
+                        <artist-card
+                            v-for="artist in contractArtists"
+                            :key="artist.id"
+                            :artist="artist"
+                        />
+                    </transition-group>
+                </div>
+
+                <h5 class="ml-4 mt-2">
                     <a href="#discussionArtists" data-toggle="collapse">
-                        Discussing ({{ discussionArtists.length }})
+                        Discussion ({{ discussionArtists.length }})
                         <i class="fas fa-angle-down" />
                     </a>
                 </h5>
@@ -74,6 +91,7 @@ export default Vue.extend({
     computed: mapGetters([
         'readyArtists',
         'discussionArtists',
+        'contractArtists',
         'updateAvailableArtists',
     ]),
 });

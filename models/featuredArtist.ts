@@ -21,7 +21,9 @@ const featuredArtistSchema = new Schema({
 
     // contract
     contractSent: { type: Boolean },
-    contractFinalized: { type: Boolean },
+    artistSigned: { type: Boolean },
+    ppyPaid: { type: Boolean },
+    ppySigned: { type: Boolean },
 
     // publication
     projectedRelease: { type: Date },

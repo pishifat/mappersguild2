@@ -24,7 +24,9 @@ export interface FeaturedArtist {
 
     // contract
     contractSent: boolean;
-    contractFinalized: boolean;
+    artistSigned: boolean;
+    ppyPaid: boolean;
+    ppySigned: boolean;
 
     // publication
     projectedRelease?: Date;

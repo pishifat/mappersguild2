@@ -81,9 +81,25 @@ artistsRouter.post('/toggleContractSent/:id', async (req, res) => {
     res.json(a);
 });
 
-/* POST toggle contractFinalized */
-artistsRouter.post('/toggleContractFinalized/:id', async (req, res) => {
-    let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { contractFinalized: req.body.value });
+/* POST toggle artistSigned */
+artistsRouter.post('/toggleArtistSigned/:id', async (req, res) => {
+    let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { artistSigned: req.body.value });
+    a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
+
+    res.json(a);
+});
+
+/* POST toggle ppyPaid */
+artistsRouter.post('/togglePpyPaid/:id', async (req, res) => {
+    let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { ppyPaid: req.body.value });
+    a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
+
+    res.json(a);
+});
+
+/* POST toggle ppySigned */
+artistsRouter.post('/togglePpySigned/:id', async (req, res) => {
+    let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { ppySigned: req.body.value });
     a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
 
     res.json(a);
@@ -136,7 +152,9 @@ artistsRouter.post('/toggleIsUpToDate/:id', async (req, res) => {
         isResponded: false,
         tracksSelected: false,
         contractSent: false,
-        contractFinalized: false,
+        artistSigned: false,
+        ppyPaid: false,
+        ppySigned: false,
         songsReceived: false,
         songsTimed: false,
         assetsReceived: false,
@@ -179,7 +197,9 @@ artistsRouter.post('/reset/:id', async (req, res) => {
         tracksSelected: false,
         isRejected: false,
         contractSent: false,
-        contractFinalized: false,
+        artistSigned: false,
+        ppyPaid: false,
+        ppySigned: false,
         songsTimed: false,
         assetsReceived: false,
         hasRankedMaps: false,

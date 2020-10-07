@@ -1,6 +1,6 @@
 <template>
     <div class="col-sm-12">
-        <div class="card static-card" :class="isDiscussion && daysAgo > 21 ? 'overdue' : 'bg-dark'">
+        <div class="card static-card" :class="isInProgress && daysAgo > 21 ? 'overdue' : 'bg-dark'">
             <div class="card-body p-0 mx-2 my-1">
                 <div class="row">
                     <span class="col-sm-4">
@@ -14,7 +14,7 @@
                         <span v-else>
                             <span v-if="artist.projectedRelease" class="done">{{ new Date(artist.projectedRelease).toString().slice(4,15) }}</span>
 
-                            <span v-if="artist.contractFinalized">
+                            <span v-if="artist.ppySigned">
                                 <span class="errors">
                                     <span v-if="!artist.songsReceived">[song assets]</span>
                                     <span v-if="!artist.songsTimed">[timed oszs]</span>
@@ -28,7 +28,9 @@
 
                             <span v-else class="text-white-50">
                                 <span v-if="artist.isRejected">{{ artist.isResponded ? 'stopped responding' : 'no response' }}</span>
-                                <span v-else-if="artist.contractSent">awaiting contract signature</span>
+                                <span v-else-if="artist.ppyPaid">awaiting ppy signature</span>
+                                <span v-else-if="artist.artistSigned">awaiting ppy payment/signature</span>
+                                <span v-else-if="artist.contractSent">awaiting artist signature</span>
                                 <span v-else-if="artist.tracksSelected">awaiting contract details</span>
                                 <span v-else-if="artist.isResponded">negotiating</span>
                                 <span v-else-if="artist.isContacted">awaiting response</span>
@@ -121,15 +123,27 @@
                             <u>Contract</u>
                         </div>
                         <div class="small ml-2">
-                            sent:
+                            Sent:
                             <a href="#" @click.stop.prevent="toggleContractSent()">
                                 <i class="fas" :class="artist.contractSent ? 'icon-valid fa-check' : 'icon-used fa-times'" />
                             </a>
                         </div>
                         <div class="small ml-2">
-                            finalized:
-                            <a href="#" @click.stop.prevent="toggleContractFinalized()">
-                                <i class="fas" :class="artist.contractFinalized ? 'icon-valid fa-check' : 'icon-used fa-times'" />
+                            Artist signed:
+                            <a href="#" @click.stop.prevent="toggleArtistSigned()">
+                                <i class="fas" :class="artist.artistSigned ? 'icon-valid fa-check' : 'icon-used fa-times'" />
+                            </a>
+                        </div>
+                        <div class="small ml-2">
+                            ppy paid:
+                            <a href="#" @click.stop.prevent="togglePpyPaid()">
+                                <i class="fas" :class="artist.ppyPaid ? 'icon-valid fa-check' : 'icon-used fa-times'" />
+                            </a>
+                        </div>
+                        <div class="small ml-2">
+                            ppy signed:
+                            <a href="#" @click.stop.prevent="togglePpySigned()">
+                                <i class="fas" :class="artist.ppySigned ? 'icon-valid fa-check' : 'icon-used fa-times'" />
                             </a>
                         </div>
                     </div>
@@ -258,8 +272,8 @@ export default Vue.extend({
 
             return days;
         },
-        isDiscussion(): boolean {
-            return !this.artist.osuId && !this.artist.isUpToDate && this.artist.isResponded && !this.artist.contractFinalized && !this.artist.isRejected;
+        isInProgress(): boolean {
+            return this.artist.isContacted && !this.artist.ppySigned;
         },
     },
     watch: {
@@ -342,8 +356,22 @@ export default Vue.extend({
                 this.$store.commit('updateArtist', artist);
             }
         },
-        async toggleContractFinalized (): Promise<void> {
-            const artist = await this.executePost('/artists/toggleContractFinalized/' + this.artist.id, { value: !this.artist.contractFinalized });
+        async toggleArtistSigned (): Promise<void> {
+            const artist = await this.executePost('/artists/toggleArtistSigned/' + this.artist.id, { value: !this.artist.artistSigned });
+
+            if (artist) {
+                this.$store.commit('updateArtist', artist);
+            }
+        },
+        async togglePpyPaid (): Promise<void> {
+            const artist = await this.executePost('/artists/togglePpyPaid/' + this.artist.id, { value: !this.artist.ppyPaid });
+
+            if (artist) {
+                this.$store.commit('updateArtist', artist);
+            }
+        },
+        async togglePpySigned (): Promise<void> {
+            const artist = await this.executePost('/artists/togglePpySigned/' + this.artist.id, { value: !this.artist.ppySigned });
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);
