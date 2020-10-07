@@ -70,8 +70,18 @@ artistsRouter.post('/toggleContractSent/:id', (req, res) => __awaiter(void 0, vo
     a = yield featuredArtist_1.FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
     res.json(a);
 }));
-artistsRouter.post('/toggleContractFinalized/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let a = yield featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { contractFinalized: req.body.value });
+artistsRouter.post('/toggleArtistSigned/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let a = yield featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { artistSigned: req.body.value });
+    a = yield featuredArtist_1.FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
+    res.json(a);
+}));
+artistsRouter.post('/togglePpyPaid/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let a = yield featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { ppyPaid: req.body.value });
+    a = yield featuredArtist_1.FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
+    res.json(a);
+}));
+artistsRouter.post('/togglePpySigned/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let a = yield featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { ppySigned: req.body.value });
     a = yield featuredArtist_1.FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
     res.json(a);
 }));
@@ -106,7 +116,9 @@ artistsRouter.post('/toggleIsUpToDate/:id', (req, res) => __awaiter(void 0, void
         isResponded: false,
         tracksSelected: false,
         contractSent: false,
-        contractFinalized: false,
+        artistSigned: false,
+        ppyPaid: false,
+        ppySigned: false,
         songsReceived: false,
         songsTimed: false,
         assetsReceived: false,
@@ -137,7 +149,9 @@ artistsRouter.post('/reset/:id', (req, res) => __awaiter(void 0, void 0, void 0,
         tracksSelected: false,
         isRejected: false,
         contractSent: false,
-        contractFinalized: false,
+        artistSigned: false,
+        ppyPaid: false,
+        ppySigned: false,
         songsTimed: false,
         assetsReceived: false,
         hasRankedMaps: false,
