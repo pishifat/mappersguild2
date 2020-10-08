@@ -2,8 +2,11 @@
     <div v-cloak>
         <div class="container bg-container py-1 mb-4">
             <div class="row mx-3 mt-2">
-                <button class="btn btn-sm btn-info btn-block" @click="loadActionBeatmaps($event)">
+                <button class="btn btn-sm btn-info btn-block" @click="loadActionBeatmaps($event, false)">
                     Load beatmaps
+                </button>
+                <button class="btn btn-sm btn-info btn-block" @click="loadActionBeatmaps($event, true)">
+                    Load WIP beatmaps
                 </button>
             </div>
             <div class="row">
@@ -318,21 +321,27 @@ export default Vue.extend({
 
             return metadata;
         },
-        async loadActionBeatmaps(): Promise<void> {
-            this.$store.commit('setActionBeatmaps', []);
-            this.$store.commit('setActionBeatmapsLoading', true);
-            const actionBeatmaps = await this.executeGet<Beatmap[]>('/admin/loadActionBeatmaps');
+        async loadActionBeatmaps(e, queryWip): Promise<void> {
+            let result = true;
 
-            if (!this.isError(actionBeatmaps)) {
-                this.$store.commit('setActionBeatmaps', actionBeatmaps);
+            if (queryWip) result = confirm('Are you sure you want to load WIP beatmaps? This will take a while...');
+
+            if (result) {
+                this.$store.commit('setActionBeatmaps', []);
+                this.$store.commit('setActionBeatmapsLoading', true);
+                const actionBeatmaps = await this.executeGet<Beatmap[]>(`/admin/loadActionBeatmaps/${queryWip}`, e);
+
+                if (!this.isError(actionBeatmaps)) {
+                    this.$store.commit('setActionBeatmaps', actionBeatmaps);
+                }
+
+                this.$store.commit('setActionBeatmapsLoading', false);
             }
-
-            this.$store.commit('setActionBeatmapsLoading', false);
         },
-        async loadActionQuests(): Promise<void> {
+        async loadActionQuests(e): Promise<void> {
             this.$store.commit('setActionQuests', []);
             this.$store.commit('setActionQuestsLoading', true);
-            const actionQuests = await this.executeGet<Quest[]>('/admin/loadActionQuests');
+            const actionQuests = await this.executeGet<Quest[]>('/admin/loadActionQuests', e);
 
             if (!this.isError(actionQuests)) {
                 this.$store.commit('setActionQuests', actionQuests);
@@ -340,10 +349,10 @@ export default Vue.extend({
 
             this.$store.commit('setActionQuestsLoading', false);
         },
-        async loadActionUsers(): Promise<void> {
+        async loadActionUsers(e): Promise<void> {
             this.$store.commit('setActionUsers', []);
             this.$store.commit('setActionUsersLoading', true);
-            const actionUsers = await this.executeGet<User[]>('/admin/loadActionUsers');
+            const actionUsers = await this.executeGet<User[]>('/admin/loadActionUsers', e);
 
             if (!this.isError(actionUsers)) {
                 this.$store.commit('setActionUsers', actionUsers);

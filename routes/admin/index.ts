@@ -28,60 +28,77 @@ adminRouter.get('/', (req, res) => {
 });
 
 /* GET beatmaps in need of action */
-adminRouter.get('/loadActionBeatmaps/', async (req, res) => {
+adminRouter.get('/loadActionBeatmaps/:queryWip', async (req, res) => {
+    const queryWip = req.params.queryWip == 'true'; // poor man's boolean
+
+    const statusQuery = [
+        { status: { $ne: BeatmapStatus.Ranked } },
+        { status: { $ne: BeatmapStatus.Secret } },
+    ];
+
+    if (!queryWip) {
+        statusQuery.push({ status: { $ne: BeatmapStatus.WIP } });
+    }
+
     const allBeatmaps = await BeatmapModel
-        .find({})
+        .find({
+            url: { $exists: true },
+            $and: statusQuery,
+        })
         .defaultPopulate()
         .sort({ status: 1, mode: 1 });
 
+    console.log(allBeatmaps.length);
+
     const actionBeatmaps: Beatmap[] = [];
 
-    for (let i = 0; i < allBeatmaps.length; i++) {
-        const bm = allBeatmaps[i];
+    for (const bm of allBeatmaps) {
+        if (bm.url.indexOf('osu.ppy.sh/beatmapsets/') == -1) {
+            (bm.status as string) = `${bm.status} (invalid link)`;
+            actionBeatmaps.push(bm);
+        } else {
+            const osuId = findBeatmapsetId(bm.url);
 
-        if ((bm.status == BeatmapStatus.Done || bm.status == BeatmapStatus.Qualified) && bm.url) {
-            if (bm.url.indexOf('osu.ppy.sh/beatmapsets/') == -1) {
-                (bm.status as string) = `${bm.status} (invalid link)`;
-                actionBeatmaps.push(bm);
-            } else {
-                const osuId = findBeatmapsetId(bm.url);
+            const bmInfo = await beatmapsetInfo(osuId);
+            let status = '';
 
-                const bmInfo = await beatmapsetInfo(osuId);
-                let status = '';
+            if (!isOsuResponseError(bmInfo)) {
+                switch (bmInfo.approved) {
+                    case 4:
+                        status = 'Loved';
+                        break;
+                    case 3:
+                        status = BeatmapStatus.Qualified;
+                        break;
+                    case 2:
+                        status = 'Approved';
+                        break;
+                    case 1:
+                        status = BeatmapStatus.Ranked;
+                        break;
+                    default:
+                        status = BeatmapStatus.Done;
+                        break;
+                }
+            }
 
-                if (!isOsuResponseError(bmInfo)) {
-                    switch (bmInfo.approved) {
-                        case 4:
-                            status = 'Loved';
-                            break;
-                        case 3:
-                            status = BeatmapStatus.Qualified;
-                            break;
-                        case 2:
-                            status = 'Approved';
-                            break;
-                        case 1:
-                            status = BeatmapStatus.Ranked;
-                            break;
-                        default:
-                            status = BeatmapStatus.Done;
-                            break;
-                    }
+            if (queryWip) {
+                if (bm.status == BeatmapStatus.WIP && status == BeatmapStatus.Ranked) {
+                    (bm.status as string) = `${bm.status} (osu: ${status})`;
+                    actionBeatmaps.push(bm);
+                }
+            } else if (bm.status != status) {
+                if (status == BeatmapStatus.Qualified && bm.status == BeatmapStatus.Done) {
+                    bm.status = BeatmapStatus.Qualified;
+                    await bm.save();
+                } else if (status == BeatmapStatus.Done && bm.status == BeatmapStatus.Qualified) {
+                    bm.status = BeatmapStatus.Done;
+                    await bm.save();
+                } else {
+                    (bm.status as string) = `${bm.status} (osu: ${status})`;
+                    actionBeatmaps.push(bm);
                 }
 
-                if (bm.status != status) {
-                    if (status == 'Qualified' && bm.status == 'Done') {
-                        bm.status = BeatmapStatus.Qualified;
-                        await bm.save();
-                    } else if (status == 'Done' && bm.status == 'Qualified') {
-                        bm.status = BeatmapStatus.Done;
-                        await bm.save();
-                    } else {
-                        (bm.status as string) = `${bm.status} (osu: ${status})`;
-                        actionBeatmaps.push(bm);
-                    }
-
-                }
             }
         }
     }
