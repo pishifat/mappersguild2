@@ -1,13 +1,13 @@
 {
   "runtime.js": "/js/runtime.59dc4ca66a93b22b5b21.js",
   "vendors.js": "/js/vendors.bd3548aaecdea9002897.js",
-  "admin.js": "/js/admin.eec7148847b8723771ab.js",
+  "admin.js": "/js/admin.f15d63ff270489fc7937.js",
   "adminBeatmaps.js": "/js/adminBeatmaps.975e22edfa860e99c66e.js",
   "adminContests.js": "/js/adminContests.baee1f8b070dd95a2c02.js",
   "adminFeaturedArtists.js": "/js/adminFeaturedArtists.5ca6510d599566b474c8.js",
   "adminQuests.js": "/js/adminQuests.b311c0847809ad71480a.js",
   "adminUsers.js": "/js/adminUsers.00e7e32edc9a27499e46.js",
-  "artists.js": "/js/artists.3aaf407229f50f94d9dc.js",
+  "artists.js": "/js/artists.3eee9f5ac07395465b26.js",
   "beatmaps.js": "/js/beatmaps.214fd50ffc3482467fa6.js",
   "contestResults.js": "/js/contestResults.d8de0aae950987cf8eba.js",
   "judging.js": "/js/judging.dfb592a80ddcd2a4e8fa.js",
@@ -17,5 +17,5 @@
   "quests.js": "/js/quests.e72916c16bf6a66210b6.js",
   "screening.js": "/js/screening.9dd35deea1eb2e572ec8.js",
   "showcase.js": "/js/showcase.07258c377f6c0157e788.js",
-  "users.js": "/js/users.f7a3806ab2388d897819.js"
+  "users.js": "/js/users.d5a810d01a301db8f307.js"
 }

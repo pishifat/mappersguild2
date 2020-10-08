@@ -36,55 +36,70 @@ adminRouter.get('/', (req, res) => {
         pointsInfo: res.locals.userRequest.pointsInfo,
     });
 });
-adminRouter.get('/loadActionBeatmaps/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+adminRouter.get('/loadActionBeatmaps/:queryWip', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const queryWip = req.params.queryWip == 'true';
+    const statusQuery = [
+        { status: { $ne: beatmap_2.BeatmapStatus.Ranked } },
+        { status: { $ne: beatmap_2.BeatmapStatus.Secret } },
+    ];
+    if (!queryWip) {
+        statusQuery.push({ status: { $ne: beatmap_2.BeatmapStatus.WIP } });
+    }
     const allBeatmaps = yield beatmap_1.BeatmapModel
-        .find({})
+        .find({
+        url: { $exists: true },
+        $and: statusQuery,
+    })
         .defaultPopulate()
         .sort({ status: 1, mode: 1 });
+    console.log(allBeatmaps.length);
     const actionBeatmaps = [];
-    for (let i = 0; i < allBeatmaps.length; i++) {
-        const bm = allBeatmaps[i];
-        if ((bm.status == beatmap_2.BeatmapStatus.Done || bm.status == beatmap_2.BeatmapStatus.Qualified) && bm.url) {
-            if (bm.url.indexOf('osu.ppy.sh/beatmapsets/') == -1) {
-                bm.status = `${bm.status} (invalid link)`;
-                actionBeatmaps.push(bm);
-            }
-            else {
-                const osuId = helpers_1.findBeatmapsetId(bm.url);
-                const bmInfo = yield osuApi_1.beatmapsetInfo(osuId);
-                let status = '';
-                if (!osuApi_1.isOsuResponseError(bmInfo)) {
-                    switch (bmInfo.approved) {
-                        case 4:
-                            status = 'Loved';
-                            break;
-                        case 3:
-                            status = beatmap_2.BeatmapStatus.Qualified;
-                            break;
-                        case 2:
-                            status = 'Approved';
-                            break;
-                        case 1:
-                            status = beatmap_2.BeatmapStatus.Ranked;
-                            break;
-                        default:
-                            status = beatmap_2.BeatmapStatus.Done;
-                            break;
-                    }
+    for (const bm of allBeatmaps) {
+        if (bm.url.indexOf('osu.ppy.sh/beatmapsets/') == -1) {
+            bm.status = `${bm.status} (invalid link)`;
+            actionBeatmaps.push(bm);
+        }
+        else {
+            const osuId = helpers_1.findBeatmapsetId(bm.url);
+            const bmInfo = yield osuApi_1.beatmapsetInfo(osuId);
+            let status = '';
+            if (!osuApi_1.isOsuResponseError(bmInfo)) {
+                switch (bmInfo.approved) {
+                    case 4:
+                        status = 'Loved';
+                        break;
+                    case 3:
+                        status = beatmap_2.BeatmapStatus.Qualified;
+                        break;
+                    case 2:
+                        status = 'Approved';
+                        break;
+                    case 1:
+                        status = beatmap_2.BeatmapStatus.Ranked;
+                        break;
+                    default:
+                        status = beatmap_2.BeatmapStatus.Done;
+                        break;
                 }
-                if (bm.status != status) {
-                    if (status == 'Qualified' && bm.status == 'Done') {
-                        bm.status = beatmap_2.BeatmapStatus.Qualified;
-                        yield bm.save();
-                    }
-                    else if (status == 'Done' && bm.status == 'Qualified') {
-                        bm.status = beatmap_2.BeatmapStatus.Done;
-                        yield bm.save();
-                    }
-                    else {
-                        bm.status = `${bm.status} (osu: ${status})`;
-                        actionBeatmaps.push(bm);
-                    }
+            }
+            if (queryWip) {
+                if (bm.status == beatmap_2.BeatmapStatus.WIP && status == beatmap_2.BeatmapStatus.Ranked) {
+                    bm.status = `${bm.status} (osu: ${status})`;
+                    actionBeatmaps.push(bm);
+                }
+            }
+            else if (bm.status != status) {
+                if (status == beatmap_2.BeatmapStatus.Qualified && bm.status == beatmap_2.BeatmapStatus.Done) {
+                    bm.status = beatmap_2.BeatmapStatus.Qualified;
+                    yield bm.save();
+                }
+                else if (status == beatmap_2.BeatmapStatus.Done && bm.status == beatmap_2.BeatmapStatus.Qualified) {
+                    bm.status = beatmap_2.BeatmapStatus.Done;
+                    yield bm.save();
+                }
+                else {
+                    bm.status = `${bm.status} (osu: ${status})`;
+                    actionBeatmaps.push(bm);
                 }
             }
         }
