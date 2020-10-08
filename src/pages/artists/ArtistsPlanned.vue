@@ -67,10 +67,14 @@ export default Vue.extend({
     ]),
     methods: {
         async setAllAsRejected (e): Promise<void> {
-            const artists = await this.executePost('/artists/setAllAsRejected/', {}, e);
+            const result = confirm('Are you sure?');
 
-            if (artists) {
-                this.$store.commit('setArtists', artists);
+            if (result) {
+                const artists = await this.executePost('/artists/setAllAsRejected/', {}, e);
+
+                if (artists) {
+                    this.$store.commit('setArtists', artists);
+                }
             }
         },
     },
