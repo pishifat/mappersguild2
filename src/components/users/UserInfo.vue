@@ -352,7 +352,11 @@ export default Vue.extend({
             }
 
             if (beatmaps && !beatmaps.error) {
-                this.userBeatmaps = beatmaps;
+                const statusSort = ['WIP', 'Done', 'Qualified', 'Ranked'];
+
+                this.userBeatmaps = beatmaps.sort(function(a, b) {
+                    return statusSort.indexOf(a.status) - statusSort.indexOf(b.status);
+                });
             }
         },
     },
