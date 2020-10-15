@@ -22,7 +22,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CriteriaModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 const criteriaSchema = new mongoose_1.Schema({
-    name: { type: String, enum: ['musical representation', 'creativity', 'gameplay', 'limitation'], required: true },
+    name: { type: String, enum: ['musical representation', 'creativity', 'gameplay', 'limitation', 'theme', 'comments'], required: true },
     maxScore: { type: Number, required: true },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 const CriteriaModel = mongoose_1.default.model('Criteria', criteriaSchema);

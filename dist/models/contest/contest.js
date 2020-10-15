@@ -30,6 +30,7 @@ const contestSchema = new mongoose_1.Schema({
     judges: [{ type: 'ObjectId', ref: 'User' }],
     voters: [{ type: 'ObjectId', ref: 'User' }],
     judgingThreshold: { type: Number },
+    isTheme: { type: Boolean },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 const ContestModel = mongoose_1.default.model('Contest', contestSchema);
 exports.ContestModel = ContestModel;

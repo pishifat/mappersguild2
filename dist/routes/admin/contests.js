@@ -75,6 +75,12 @@ adminContestsRouter.post('/create', (req, res) => __awaiter(void 0, void 0, void
     yield contest.save();
     res.json(contest);
 }));
+adminContestsRouter.post('/:id/updateIsTheme', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const contest = yield contest_1.ContestModel
+        .findByIdAndUpdate(req.params.id, { isTheme: req.body.isTheme })
+        .orFail();
+    res.json(contest.isTheme);
+}));
 adminContestsRouter.post('/:id/updateStatus', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const contest = yield contest_1.ContestModel
         .findByIdAndUpdate(req.params.id, { status: req.body.status })
