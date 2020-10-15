@@ -100,6 +100,13 @@ const store = new Vuex.Store<ContestState>({
                 contest.judgingThreshold = payload.judgingThreshold;
             }
         },
+        updateIsTheme (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                contest.isTheme = payload.isTheme;
+            }
+        },
     },
     strict: process.env.NODE_ENV !== 'production',
 });

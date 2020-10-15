@@ -19,4 +19,5 @@ export interface Contest {
     judges: User[];
     voters: User[];
     judgingThreshold: number;
+    isTheme: boolean;
 }

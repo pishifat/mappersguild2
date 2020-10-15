@@ -62,8 +62,16 @@ judgingRouter.get('/', (req, res) => {
 
 judgingRouter.get('/relevantInfo', async (req, res) => {
     const contest = res.locals.contest;
+    let criteriaQuery;
+
+    if (contest.isTheme) {
+        criteriaQuery = { name: { $ne: 'limitation' } };
+    } else {
+        criteriaQuery = { name: { $ne: 'theme' } };
+    }
+
     const [criterias, judgingDone] = await Promise.all([
-        CriteriaModel.find({}),
+        CriteriaModel.find(criteriaQuery),
         JudgingModel
             .find({
                 judge: req.session?.mongoId,

@@ -11,6 +11,10 @@
                 :contest-id="contest.id"
                 :contest-start="contest.contestStart ? contest.contestStart.slice(0,10) : null"
             />
+            <gimmick-toggle
+                :contest-id="contest.id"
+                :is-theme="contest.isTheme"
+            />
             <status-info
                 :contest-id="contest.id"
                 :status="contest.status"
@@ -111,6 +115,7 @@ import ScreenersInfo from './ScreenersInfo.vue';
 import JudgesInfo from './JudgesInfo.vue';
 import ScreeningResults from './ScreeningResults.vue';
 import JudgingResults from './JudgingResults.vue';
+import GimmickToggle from './GimmickToggle.vue';
 import SubmissionsInfo from './SubmissionsInfo.vue';
 import MarkdownHelperThanks from './MarkdownHelperThanks.vue';
 
@@ -123,6 +128,7 @@ export default Vue.extend({
         JudgesInfo,
         ScreeningResults,
         JudgingResults,
+        GimmickToggle,
         SubmissionsInfo,
         MarkdownHelperThanks,
     },

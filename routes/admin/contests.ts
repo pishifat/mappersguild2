@@ -74,6 +74,15 @@ adminContestsRouter.post('/create', async (req, res) => {
     res.json(contest);
 });
 
+/* POST update isTheme */
+adminContestsRouter.post('/:id/updateIsTheme', async (req, res) => {
+    const contest = await ContestModel
+        .findByIdAndUpdate(req.params.id, { isTheme: req.body.isTheme })
+        .orFail();
+
+    res.json(contest.isTheme);
+});
+
 /* POST update contest status */
 adminContestsRouter.post('/:id/updateStatus', async (req, res) => {
     const contest = await ContestModel
