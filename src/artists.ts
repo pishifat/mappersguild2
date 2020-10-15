@@ -89,7 +89,7 @@ const store = new Vuex.Store({
             });
         },
         readyArtists: (state, getters): FeaturedArtist[] => {
-            const artists = getters.filteredArtists.filter(a => !a.osuId && !a.isUpToDate && a.ppySigned);
+            const artists = getters.filteredArtists.filter(a => !a.osuId && !a.isUpToDate && (a.ppySigned || a.projectedRelease));
             let projectedReleaseArtists = artists.filter(a => a.projectedRelease);
             let unknownReleaseArtists = artists.filter(a => !a.projectedRelease);
 
