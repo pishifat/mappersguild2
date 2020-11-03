@@ -7,4 +7,5 @@ var CriteriaName;
     CriteriaName["Creativity"] = "creativity";
     CriteriaName["Gameplay"] = "gameplay";
     CriteriaName["Limitation"] = "limitation";
+    CriteriaName["Theme"] = "theme";
 })(CriteriaName = exports.CriteriaName || (exports.CriteriaName = {}));
