@@ -14,6 +14,7 @@
             | {{ getCriteriaSumbyName('creativity', usersScore.criteriaSum) }}
             | {{ getCriteriaSumbyName('gameplay', usersScore.criteriaSum) }}
             | {{ getCriteriaSumbyName('limitation', usersScore.criteriaSum) }}
+            <!--| {{ getCriteriaSumbyName('theme', usersScore.criteriaSum) }} -->
             | **{{ usersScore.rawFinalScore }}**
             | **{{ Math.round(usersScore.standardizedFinalScore *100) / 100 }}**
         </div>

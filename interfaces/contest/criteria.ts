@@ -5,6 +5,7 @@ export enum CriteriaName {
     Creativity = 'creativity',
     Gameplay = 'gameplay',
     Limitation = 'limitation',
+    Theme = 'theme',
 }
 
 export interface Criteria extends Document {
