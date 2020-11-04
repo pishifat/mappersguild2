@@ -4,20 +4,14 @@
             <div class="card-header p-0 m-1 row d-flex align-items-center my-2">
                 <div class="col-sm-6">
                     <img
-                        v-if="beatmap.quest"
+                        v-if="beatmap.quest || beatmap.isShowcase"
                         class="rounded-circle mr-1 quest-icon"
-                        :src="!beatmap.quest.art ? '../../images/no-art-icon.png' :
+                        :src="beatmap.isShowcase ? '../../images/no-art-icon.png' :
+                            !beatmap.quest.art ? '../../images/no-art-icon.png' :
                             beatmap.quest.isMbc ? '../../images/mbc-icon.png' :
                             'https://assets.ppy.sh/artists/' + beatmap.quest.art + '/cover.jpg'"
                         data-toggle="tooltip"
                         :title="beatmap.quest.name"
-                    >
-                    <img
-                        v-else-if="beatmap.isShowcase"
-                        class="rounded-circle mr-1 quest-icon"
-                        src="'../../images/no-art-icon.png'"
-                        data-toggle="tooltip"
-                        title="FA announcement showcase"
                     >
                     <a
                         href="#"
