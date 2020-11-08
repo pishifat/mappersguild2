@@ -334,7 +334,7 @@ export default Vue.extend({
                 this.price = this.findPrice();
                 this.timeframe = this.findTimeframe();
                 this.minParty = this.mapsetCount;
-                this.maxParty = this.mapsetCount*2;
+                this.maxParty = this.mapsetCount*3;
             }
         },
         mapsetCount(): void {
@@ -344,7 +344,7 @@ export default Vue.extend({
                 this.price = this.findPrice();
                 this.timeframe = this.findTimeframe();
                 this.minParty = this.mapsetCount;
-                this.maxParty = this.mapsetCount*2;
+                this.maxParty = this.mapsetCount*3;
             }
         },
     },
