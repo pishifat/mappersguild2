@@ -260,7 +260,7 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
         QuestModel
             .find({ completed: { $gte: date } })
             .defaultPopulate()
-            .sort({ name: 1 })
+            .sort({ requiredMapsets: 1 })
             .orFail(),
     ]);
 
