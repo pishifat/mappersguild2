@@ -202,7 +202,7 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', (req, res) => __awaiter(void 0, v
         quest_1.QuestModel
             .find({ completed: { $gte: date } })
             .defaultPopulate()
-            .sort({ name: 1 })
+            .sort({ requiredMapsets: 1 })
             .orFail(),
     ]);
     const maps = yield osuApi_1.getMaps(date);

@@ -59,6 +59,19 @@ usersRouter.get('/findCurrentQuests/:id', (req, res) => __awaiter(void 0, void 0
     const currentQuests = wipQuests.filter(quest => quest.currentParty.members.some(member => member.id == req.params.id));
     res.json(currentQuests);
 }));
+usersRouter.get('/findCreatedQuests/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const createdQuests = yield quest_1.QuestModel
+        .find({
+        $or: [
+            { status: { $ne: quest_2.QuestStatus.Hidden } },
+            { status: { $ne: quest_2.QuestStatus.Rejected } },
+        ],
+        creator: req.params.id,
+    })
+        .distinct('name')
+        .populate(questPopulate);
+    res.json(createdQuests);
+}));
 usersRouter.get('/findSpentPoints/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const spentPoints = yield spentPoints_1.SpentPointsModel
         .find({ user: req.params.id })
