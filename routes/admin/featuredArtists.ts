@@ -2,6 +2,9 @@ import express from 'express';
 import { isLoggedIn, isAdmin, isSuperAdmin } from '../../helpers/middlewares';
 import { FeaturedArtistModel } from '../../models/featuredArtist';
 import { FeaturedSongModel } from '../../models/featuredSong';
+import { FeaturedArtistStatus } from '../../interfaces/featuredArtist';
+import { BeatmapModel } from '../../models/beatmap/beatmap';
+import { BeatmapStatus } from '../../interfaces/beatmap/beatmap';
 
 const adminFeaturedArtistsRouter = express.Router();
 
@@ -28,6 +31,22 @@ adminFeaturedArtistsRouter.get('/load', async (req, res) => {
         .find({})
         .populate(defaultPopulate)
         .sort({ osuId: 1, label: 1 });
+
+    /* log artists who haven't had a ranked map in x timeframe. convert to more user friendly system
+    for (let i = 0; i < featuredArtists.length; i++) {
+        const fa = featuredArtists[i];
+        // console.log(fa.songs);
+
+        const songs = fa.songs.map(s => s.id);
+
+        const date = new Date('12-31-2019');
+
+        if (fa.status == FeaturedArtistStatus.Public) {
+            const bm = await BeatmapModel.find({ song: songs, status: BeatmapStatus.Ranked, rankedDate: { $gt: date } });
+
+            if (!bm.length) console.log(fa.label);
+        }
+    } */
 
     res.json(featuredArtists);
 });
