@@ -6,6 +6,7 @@ import { QuestModel } from '../models/quest';
 import { SpentPointsModel } from '../models/spentPoints';
 import { TaskModel } from '../models/beatmap/task';
 import { QuestStatus } from '../interfaces/quest';
+import { User } from '../interfaces/user';
 import { UserGroup } from '../interfaces/user';
 import { BeatmapStatus } from '../interfaces/beatmap/beatmap';
 
@@ -44,7 +45,7 @@ usersRouter.get('/relevantInfo', async (req, res) => {
     });
 });
 
-/* GET user's quests */
+/* GET user's current quests */
 usersRouter.get('/findCurrentQuests/:id', async (req, res) => {
     const wipQuests = await QuestModel
         .find({ status: QuestStatus.WIP })
@@ -58,6 +59,22 @@ usersRouter.get('/findCurrentQuests/:id', async (req, res) => {
     );
 
     res.json(currentQuests);
+});
+
+/* GET user's created quests */
+usersRouter.get('/findCreatedQuests/:id', async (req, res) => {
+    const createdQuests = await QuestModel
+        .find({
+            $or: [
+                { status: { $ne: QuestStatus.Hidden } },
+                { status: { $ne: QuestStatus.Rejected } },
+            ],
+            creator: req.params.id as User['_id'],
+        })
+        .distinct('name')
+        .populate(questPopulate);
+
+    res.json(createdQuests);
 });
 
 /* GET user's spent points */

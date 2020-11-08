@@ -163,7 +163,7 @@
                                 </span>
                             </p>
                             <div v-if="currentQuests.length" class="small">
-                                Current Quests:
+                                Current quests:
                             </div>
                             <ul class="p-0 mb-2 ml-4">
                                 <li
@@ -171,11 +171,25 @@
                                     :key="quest.id"
                                     class="small text-white-50"
                                 >
-                                    {{ quest.name.length > 40 ? quest.name.slice(0,40) + "..." : quest.name }}
+                                    <a :href="'/quests?id=' + quest.id" target="_blank">
+                                        {{ quest.name.length > 40 ? quest.name.slice(0,40) + "..." : quest.name }}
+                                    </a>
+                                </li>
+                            </ul>
+                            <div v-if="currentQuests.length" class="small">
+                                Created quests:
+                            </div>
+                            <ul class="p-0 mb-2 ml-4">
+                                <li
+                                    v-for="name in createdQuestNames"
+                                    :key="name"
+                                    class="small text-white-50"
+                                >
+                                    {{ name.length > 40 ? name.slice(0,40) + "..." : name }}
                                 </li>
                             </ul>
                             <div v-if="selectedUser.completedQuests.length" class="small">
-                                Completed Quests:
+                                Completed quests:
                             </div>
                             <ul class="p-0 mb-2 ml-4">
                                 <li
@@ -183,7 +197,9 @@
                                     :key="quest.id"
                                     class="small text-white-50"
                                 >
-                                    {{ quest.name.length > 40 ? quest.name.slice(0,40) + "..." : quest.name }}
+                                    <a :href="'/quests?id=' + quest.id" target="_blank">
+                                        {{ quest.name.length > 40 ? quest.name.slice(0,40) + "..." : quest.name }}
+                                    </a>
                                 </li>
                             </ul>
                         </div>
@@ -200,11 +216,9 @@
                                 Host
                             </td>
                             <td scope="col">
-                                Status
-                            </td>
-                            <td scope="col">
                                 Tasks
                             </td>
+                            <td scope="col" />
                         </thead>
                         <tbody>
                             <tr v-if="!userBeatmaps.length">
@@ -217,20 +231,19 @@
                                 <td scope="row">
                                     ...
                                 </td>
-                                <td scope="row">
-                                    ...
-                                </td>
+                                <td scope="row" />
                             </tr>
                             <tr v-for="map in userBeatmaps" :key="map.id">
                                 <td scope="row">
-                                    <template v-if="map.url">
-                                        <a :href="map.url" target="_blank">
-                                            {{ map.song.artist }} - {{ map.song.title }}
-                                        </a>
-                                    </template>
-                                    <template v-else>
-                                        <span class="text-white-50">{{ map.song.artist }} - {{ map.song.title }}</span>
-                                    </template>
+                                    <i
+                                        class="fas"
+                                        :class="[map.status.toLowerCase(), findIcon(map.status)]"
+                                        data-toggle="tooltip"
+                                        :title="map.status"
+                                    />
+                                    <a :href="'/beatmaps?id=' + map.id" target="_blank">
+                                        {{ map.song.artist }} - {{ map.song.title }}
+                                    </a>
                                     <i v-if="map.mode == 'taiko'" class="fas fa-drum" />
                                     <i v-else-if="map.mode == 'catch'" class="fas fa-apple-alt" />
                                     <i v-else-if="map.mode == 'mania'" class="fas fa-stream" />
@@ -243,11 +256,13 @@
                                         {{ map.host.username }}
                                     </a>
                                 </td>
-                                <td scope="row" :class="map.status.toLowerCase()">
-                                    {{ map.status }}
-                                </td>
                                 <td scope="row" class="text-white-50">
                                     {{ userTasks(map) }}
+                                </td>
+                                <td scope="row" class="text-white-50">
+                                    <a v-if="map.url" :href="map.url" target="_blank">
+                                        <i class="fas fa-link" />
+                                    </a>
                                 </td>
                             </tr>
                         </tbody>
@@ -306,7 +321,8 @@ import { Quest } from '../../../interfaces/quest';
 import { SpentPoints } from '../../../interfaces/spentPoints';
 import { Beatmap } from '../../../interfaces/beatmap/beatmap';
 import UserPointsRow from './UserPointsRow.vue';
-import { Task, TaskName } from '../../../interfaces/beatmap/task';
+import { TaskName } from '../../../interfaces/beatmap/task';
+import { BeatmapStatus } from '../../../interfaces/beatmap/beatmap';
 
 export default Vue.extend({
     name: 'UserInfo',
@@ -316,6 +332,7 @@ export default Vue.extend({
     data() {
         return {
             currentQuests: [] as Quest[],
+            createdQuestNames: [],
             spentPoints: [] as SpentPoints[],
             userBeatmaps: [] as Beatmap[],
             sortOrder: Object.values(TaskName),
@@ -334,17 +351,23 @@ export default Vue.extend({
             history.pushState(null, 'Users', `/users?id=${this.selectedUser.id}`);
 
             this.currentQuests = [];
+            this.createdQuestNames = [];
             this.spentPoints = [];
             this.userBeatmaps = [];
 
-            const [quests, points, beatmaps] = await Promise.all([
+            const [currentQuests, createdQuestNames, points, beatmaps] = await Promise.all([
                 this.executeGet<any>(`/users/findCurrentQuests/${this.selectedUser.id}`),
+                this.executeGet<any>(`/users/findCreatedQuests/${this.selectedUser.id}`),
                 this.executeGet<any>(`/users/findSpentPoints/${this.selectedUser.id}`),
                 this.executeGet<any>(`/users/findUserBeatmaps/${this.selectedUser.id}`),
             ]);
 
-            if (quests && !quests.error) {
-                this.currentQuests = quests;
+            if (currentQuests && !currentQuests.error) {
+                this.currentQuests = currentQuests;
+            }
+
+            if (createdQuestNames && !createdQuestNames.error) {
+                this.createdQuestNames = createdQuestNames;
             }
 
             if (points && !points.error) {
@@ -361,6 +384,19 @@ export default Vue.extend({
         },
     },
     methods: {
+        findIcon(status): string {
+            if (status == BeatmapStatus.WIP) {
+                return 'fa-ellipsis-h';
+            } else if (status == BeatmapStatus.Done) {
+                return 'fa-check';
+            } else if (status == BeatmapStatus.Qualified) {
+                return 'fa-check-circle';
+            } else if (status == BeatmapStatus.Ranked) {
+                return 'fa-check-circle';
+            }
+
+            return '';
+        },
         userTasks(beatmap: Beatmap): string {
             const tasks = [...beatmap.tasks];
 
@@ -381,20 +417,18 @@ export default Vue.extend({
             return tasksText.slice(0, -2);
         },
         calculatePoints(quest): number {
-            let points = 100;
+            let points = 25;
 
             if (!quest.art) {
-                points += 50;
+                points += 10;
             }
 
             if (quest.requiredMapsets < 1) {
                 points = 727;
             } else if (quest.requiredMapsets == 1) {
-                points += 300;
-            } else if (quest.requiredMapsets == 2) {
-                points += 200;
+                points += 100;
             } else if (quest.requiredMapsets < 10) {
-                points += (10-quest.requiredMapsets)*15 - 5;
+                points += (10-quest.requiredMapsets)*7.5;
             }
 
             return points;

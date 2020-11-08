@@ -51,7 +51,6 @@ export default Vue.extend({
             let text = '';
 
             const urls = this.inputUrls.split('\n');
-            console.log(urls);
 
             for (const url of urls) {
                 const id = this.findOsuId(url);

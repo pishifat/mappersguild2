@@ -14,7 +14,7 @@ export enum QuestStatus {
 export interface Quest extends Document {
     _id: any;
     id: string;
-    creator: User;
+    creator: User | User['_id'];
     name: string;
     price: number;
     descriptionMain: string;

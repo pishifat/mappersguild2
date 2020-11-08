@@ -306,20 +306,18 @@ export default Vue.extend({
             }
         },
         points(): number {
-            let points = 100;
+            let points = 25;
 
             if (!this.selectedArtist) {
-                points += 50;
+                points += 10;
             }
 
             if (this.mapsetCount < 1) {
                 points = 727;
             } else if (this.mapsetCount == 1) {
-                points += 300;
-            } else if (this.mapsetCount == 2) {
-                points += 200;
+                points += 100;
             } else if (this.mapsetCount < 10) {
-                points += (10-this.mapsetCount)*15 - 5;
+                points += (10-this.mapsetCount)*7.5;
             }
 
             return points;
@@ -376,21 +374,17 @@ export default Vue.extend({
         findPrice(): number {
             switch (this.mapsetCount) {
                 case 1:
-                    return 50;
-                case 2:
-                    return 40;
-                case 3:
-                    return 30;
-                case 4:
                     return 20;
-                case 5:
+                case 2:
                     return 10;
+                case 3:
+                    return 5;
                 default:
                     return 0;
             }
         },
         findTimeframe(): number {
-            return this.mapsetCount*10 + 30;
+            return this.mapsetCount*10 + 70;
         },
         async submitQuest(e): Promise<void> {
             const quests = await this.executePost('/quests/submitQuest', {

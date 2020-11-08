@@ -86,20 +86,18 @@ export function findReopenQuestPoints(price: number): number {
 }
 
 export function findCreateQuestPointsSpent(questArtist: number, requiredMapsets: number): number {
-    let points = 100;
+    let points = 25;
 
     if (!questArtist) {
-        points += 50;
+        points += 10;
     }
 
     if (requiredMapsets < 1) {
         points = 727;
     } else if (requiredMapsets == 1) {
-        points += 300;
-    } else if (requiredMapsets == 2) {
-        points += 200;
+        points += 100;
     } else if (requiredMapsets < 10) {
-        points += (10-requiredMapsets)*15 - 5;
+        points += (10-requiredMapsets)*7.5;
     }
 
     return points;
