@@ -11,7 +11,8 @@ import { TaskModel, Task } from '../../models/beatmap/task';
 import { beatmapsetInfo, getMaps, isOsuResponseError } from '../../helpers/osuApi';
 import { webhookPost, webhookColors } from '../../helpers/discordApi';
 import { TaskName, TaskStatus } from '../../interfaces/beatmap/task';
-import { User } from '../../interfaces/user';
+import { User, UserGroup } from '../../interfaces/user';
+import { UserModel } from '../../models/user';
 
 const adminBeatmapsRouter = express.Router();
 
@@ -247,7 +248,7 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
 
     const date = new Date(req.params.date);
 
-    const [b, q] = await Promise.all([
+    const [b, q, u] = await Promise.all([
         BeatmapModel
             .find({
                 rankedDate: { $gte: date },
@@ -262,12 +263,16 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
             .defaultPopulate()
             .sort({ requiredMapsets: 1 })
             .orFail(),
+
+        UserModel
+            .find({ group: { $ne: UserGroup.Spectator } })
+            .orFail(),
     ]);
 
     const maps: any = await getMaps(date);
+    const externalBeatmaps: any = [];
 
     const osuIds: any = [];
-    const externalBeatmaps: any = [];
 
     b.forEach(map => {
         if (map.url) {
@@ -299,7 +304,37 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
         });
     }
 
-    res.json({ beatmaps: b, quests: q, externalBeatmaps });
+    const users: any = [];
+
+    for (const user of u as any) {
+        user.hostCount = 0;
+        user.taskCount = 0;
+
+        for (const beatmap of b) {
+            for (const task of beatmap.tasks) {
+                for (const mapper of task.mappers) {
+                    if (mapper.id == user.id) {
+                        user.taskCount++;
+                    }
+                }
+            }
+
+            if (beatmap.host.id == user.id) user.hostCount++;
+        }
+
+        if (user.taskCount >= 10 || user.hostCount >= 3) {
+            users.push({ username: user.username, osuId: user.osuId, taskCount: user.taskCount, hostCount: user.hostCount });
+        }
+    }
+
+    users.sort(function(a,b) {
+        if (a.hostCount < b.hostCount) return 1;
+        if (a.hostCount > b.hostCount) return -1;
+
+        return 0;
+    });
+
+    res.json({ beatmaps: b, quests: q, externalBeatmaps, users });
 });
 
 /* GET bundled beatmaps */

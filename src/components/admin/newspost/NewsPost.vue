@@ -24,6 +24,13 @@
                         >
                     </p>
 
+                    <p>
+                        notes to self from last news post:
+                        - for the repeat packs (double, mini-pack, etc) they don't need to state the exact objective each time. too repetitive
+                        - separate quests by type (special, big pack, mini pack, solo)
+                        - not sure what to do about ranked maps list (probably too big each time? users is cool at least)
+                    </p>
+
                     <p v-if="quests">
                         Quest data:
                     </p>
@@ -105,6 +112,22 @@
                             [{{ beatmap.creator }}]({{ 'https://osu.ppy.sh/users/' + beatmap.creatorOsuId }})
                         </div>
                     </copy-paste>
+
+                    <p v-if="users">
+                        Users with ranked maps/tasks:
+                    </p>
+
+                    <copy-paste v-if="users" :distinct="'users'">
+                        <div>
+                            | User | Beatmaps Ranked | Difficulties Ranked |
+                        </div>
+                        <div>
+                            | :-- | :-- | :-- |
+                        </div>
+                        <div v-for="user in users" :key="user.id">
+                            | [{{ user.username }}]({{ 'https://osu.ppy.sh/users/' + user.osuId }}) | {{ user.hostCount }} | {{ user.taskCount }} |
+                        </div>
+                    </copy-paste>
                 </div>
             </div>
         </div>
@@ -130,6 +153,7 @@ export default Vue.extend({
             beatmaps: [] as Beatmap[],
             quests: [] as Quest[],
             externalBeatmaps: [] as any,
+            users: [] as any,
         };
     },
     computed: {
@@ -157,6 +181,7 @@ export default Vue.extend({
                 this.beatmaps = res.beatmaps;
                 this.quests = res.quests;
                 this.externalBeatmaps = res.externalBeatmaps;
+                this.users = res.users;
             }
         },
         questModes(modes): string {
