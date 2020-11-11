@@ -182,7 +182,7 @@
                                 <i class="fas" :class="artist.songsTimed ? 'icon-valid fa-check' : 'icon-used fa-times'" />
                             </a>
                         </div>
-                        <div v-if="!artist.osuId" class="small ml-2">
+                        <div class="small ml-2">
                             Visual assets received:
                             <a href="#" @click.stop.prevent="toggleAssetsReceived()">
                                 <i class="fas" :class="artist.assetsReceived ? 'icon-valid fa-check' : 'icon-used fa-times'" />
