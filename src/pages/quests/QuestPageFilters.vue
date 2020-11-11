@@ -8,7 +8,7 @@
                 :disabled="!validRank"
                 href="#"
                 :data-toggle="validRank ? 'modal' : 'tooltip'"
-                :title="!validRank ? 'designing custom quests is available to tier 2+ users only' : ''"
+                :title="!validRank ? 'designing custom quests is available to tier 1+ users only' : ''"
                 :data-target="validRank ? '#submitQuest' : ''"
             >
                 Submit quest for approval <i class="fas fa-plus small" />
@@ -31,7 +31,7 @@ export default Vue.extend({
             'userRank',
         ]),
         validRank(): boolean {
-            return this.userRank >= 2;
+            return this.userRank >= 1;
         },
     },
 });
