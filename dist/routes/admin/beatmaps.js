@@ -24,6 +24,8 @@ const task_1 = require("../../models/beatmap/task");
 const osuApi_1 = require("../../helpers/osuApi");
 const discordApi_1 = require("../../helpers/discordApi");
 const task_2 = require("../../interfaces/beatmap/task");
+const user_1 = require("../../interfaces/user");
+const user_2 = require("../../models/user");
 const adminBeatmapsRouter = express_1.default.Router();
 adminBeatmapsRouter.use(middlewares_1.isLoggedIn);
 adminBeatmapsRouter.use(middlewares_1.isAdmin);
@@ -190,7 +192,7 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', (req, res) => __awaiter(void 0, v
         return res.json({ error: 'Invalid date' });
     }
     const date = new Date(req.params.date);
-    const [b, q] = yield Promise.all([
+    const [b, q, u] = yield Promise.all([
         beatmap_1.BeatmapModel
             .find({
             rankedDate: { $gte: date },
@@ -204,10 +206,13 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', (req, res) => __awaiter(void 0, v
             .defaultPopulate()
             .sort({ requiredMapsets: 1 })
             .orFail(),
+        user_2.UserModel
+            .find({ group: { $ne: user_1.UserGroup.Spectator } })
+            .orFail(),
     ]);
     const maps = yield osuApi_1.getMaps(date);
-    const osuIds = [];
     const externalBeatmaps = [];
+    const osuIds = [];
     b.forEach(map => {
         if (map.url) {
             const osuId = helpers_1.findBeatmapsetId(map.url);
@@ -234,7 +239,33 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', (req, res) => __awaiter(void 0, v
             }
         });
     }
-    res.json({ beatmaps: b, quests: q, externalBeatmaps });
+    const users = [];
+    for (const user of u) {
+        user.hostCount = 0;
+        user.taskCount = 0;
+        for (const beatmap of b) {
+            for (const task of beatmap.tasks) {
+                for (const mapper of task.mappers) {
+                    if (mapper.id == user.id) {
+                        user.taskCount++;
+                    }
+                }
+            }
+            if (beatmap.host.id == user.id)
+                user.hostCount++;
+        }
+        if (user.taskCount >= 10 || user.hostCount >= 3) {
+            users.push({ username: user.username, osuId: user.osuId, taskCount: user.taskCount, hostCount: user.hostCount });
+        }
+    }
+    users.sort(function (a, b) {
+        if (a.hostCount < b.hostCount)
+            return 1;
+        if (a.hostCount > b.hostCount)
+            return -1;
+        return 0;
+    });
+    res.json({ beatmaps: b, quests: q, externalBeatmaps, users });
 }));
 adminBeatmapsRouter.get('/findBundledBeatmaps', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const easyTasks = yield task_1.TaskModel

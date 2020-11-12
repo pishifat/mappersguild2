@@ -121,7 +121,6 @@ artistsRouter.post('/toggleIsUpToDate/:id', (req, res) => __awaiter(void 0, void
         ppySigned: false,
         songsReceived: false,
         songsTimed: false,
-        assetsReceived: false,
         hasRankedMaps: false,
         projectedRelease: undefined,
     });
