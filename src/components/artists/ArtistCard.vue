@@ -201,13 +201,13 @@
                             <u>Other</u>
                         </div>
 
-                        <div class="small ml-2">
+                        <div v-if="!artist.osuId" class="small ml-2">
                             Minor release:
                             <a href="#" @click.stop.prevent="toggleIsMinor()">
                                 <i class="fas" :class="artist.isMinor ? 'icon-valid fa-check' : 'icon-used fa-times'" />
                             </a>
                         </div>
-                        <div v-if="!artist.osuId" class="small ml-2">
+                        <div class="small ml-2">
                             Ranked maps:
                             <a href="#" @click.stop.prevent="toggleHasRankedMaps()">
                                 <i class="fas" :class="artist.hasRankedMaps ? 'icon-valid fa-check' : 'icon-used fa-times'" />
