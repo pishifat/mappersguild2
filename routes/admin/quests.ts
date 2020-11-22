@@ -10,6 +10,8 @@ import { webhookPost, webhookColors } from '../../helpers/discordApi';
 import { BeatmapModel } from '../../models/beatmap/beatmap';
 import { PartyModel } from '../../models/party';
 import { SpentPointsModel } from '../../models/spentPoints';
+import { sleep } from '../../helpers/helpers';
+import { FeaturedArtistModel } from '../../models/featuredArtist';
 
 const adminQuestsRouter = express.Router();
 
@@ -40,47 +42,72 @@ adminQuestsRouter.get('/load', async (req, res) => {
 
 /* POST add quest */
 adminQuestsRouter.post('/create', async (req, res) => {
-    req.body.isMbc = Boolean(req.body.isMbc);
+    const newQuests: Quest[] = [];
 
-    if (req.body.isMbc) {
-        req.body.modes = [ BeatmapMode.Osu ];
-    } else {
-        req.body.modes = [ BeatmapMode.Osu, BeatmapMode.Taiko, BeatmapMode.Catch, BeatmapMode.Mania ];
+    for (const quest of req.body.quests) {
+        if (quest.isMbc) {
+            quest.modes = [ BeatmapMode.Osu ];
+        } else {
+            quest.modes = [ BeatmapMode.Osu, BeatmapMode.Taiko, BeatmapMode.Catch, BeatmapMode.Mania ];
+        }
+
+        quest.expiration = new Date();
+        quest.expiration.setDate(quest.expiration.getDate() + 90);
+        quest.creator = req?.session?.mongoId;
+
+        const newQuest = await QuestModel.create(quest);
+        newQuests.push(newQuest);
+
+        LogModel.generate(req.session?.mongoId, `created quest "${newQuest.name}"`, LogCategory.Quest);
     }
 
-    req.body.expiration = new Date();
-    req.body.expiration.setDate(req.body.expiration.getDate() + 90);
-    req.body.creator = req?.session?.mongoId;
-    const quest = await QuestModel.create(req.body);
+    const webhooks: any = [];
 
-    if (quest) {
-        LogModel.generate(req.session?.mongoId, `created quest "${quest.name}"`, LogCategory.Quest);
+    for (const quest of newQuests) {
+        const i = webhooks.findIndex(w => w.artist && w.artist == quest.art);
 
-        let url = `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`;
+        if (i !== -1) {
+            webhooks[i].quests.push(quest);
+        } else {
+            webhooks.push({
+                artist: quest.art,
+                isMbc: quest.isMbc,
+                url: quest.isMbc ? 'https://mappersguild.com/images/mbc-icon.png' : quest.art ? `https://assets.ppy.sh/artists/${quest.art}/cover.jpg` : 'https://mappersguild.com/images/no-art-icon.png',
+                quests: [quest],
+            });
+        }
+    }
 
-        if (req.body.isMbc) {
-            url = 'https://mappersguild.com/images/mbc-icon.png';
+    for (const webhook of webhooks) {
+        let title = 'New ';
+
+        if (webhook.artist && !webhook.isMbc) {
+            const artist = await FeaturedArtistModel.findOne({ osuId: webhook.artist }).orFail();
+            title += `${artist.label} `;
+        }
+
+        title += webhook.quests.length > 1 ? `quests:\n` : `quest:\n`;
+
+        let description = '';
+
+        for (const quest of webhook.quests) {
+            description += `\n[**${quest.name}**](https://mappersguild.com/quests?id=${quest.id})`;
+            description += `\n- **Objective:** ${quest.descriptionMain}`;
+            description += `\n- **Members:** ${quest.minParty == quest.maxParty ? quest.maxParty : quest.minParty + '-' + quest.maxParty} member${quest.maxParty == 1 ? '' : 's'}`;
+            description += `\n- **Price:** ${quest.price} points from each member`;
+            description += `\n`;
         }
 
         webhookPost([{
             color: webhookColors.orange,
-            description: `New quest: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id})`,
+            title,
+            description,
             thumbnail: {
-                url,
+                url: webhook.url,
             },
-            fields: [{
-                name: 'Objective',
-                value: `${quest.descriptionMain}`,
-            },
-            {
-                name: 'Party size',
-                value: `${quest.minParty == quest.maxParty ? quest.maxParty : quest.minParty + '-' + quest.maxParty} member${quest.maxParty == 1 ? '' : 's'}`,
-            },
-            {
-                name: 'Price',
-                value: `${quest.price} points from each member`,
-            }],
         }]);
+
+        await sleep(1000);
     }
 
     const allQuests = await QuestModel

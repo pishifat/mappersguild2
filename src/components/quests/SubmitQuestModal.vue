@@ -202,17 +202,16 @@
                                     is MBC:
                                 </p>
                             </div>
-                            <div class="col-lg-2">
-                                <input
-                                    v-model.number="isMbc"
-                                    class="form-control-sm w-100"
-                                    type="number"
-                                    autocomplete="off"
-                                    placeholder="rank..."
-                                >
-                            </div>
-                            <div class="col-lg-8 d-flex align-items-center">
-                                <span class="small text-white-50">0 = no | 1 = yes</span>
+                            <div class="col-lg-10">
+                                <span :class="isMbc ? 'text-success' : 'text-danger'">
+                                    {{ isMbc ? 'true' : 'false' }}
+                                    <button
+                                        class="btn btn-sm btn-outline-secondary"
+                                        @click="isMbc = !isMbc"
+                                    >
+                                        Toggle isMbc
+                                    </button>
+                                </span>
                             </div>
                         </div>
 
@@ -227,14 +226,48 @@
                             </p>
                         </div>
 
+                        <div v-if="isAdmin">
+                            <button
+                                class="btn btn-outline-secondary btn-block"
+                                @click="addToQueue()"
+                            >
+                                Add quest to queue
+                                <i v-if="!isAdmin" class="fas fa-coins" />
+                            </button>
+
+                            <div v-if="queuedQuests.length" class="mt-2">
+                                Pending quests
+                                <ul class="small text-secondary">
+                                    <li v-for="quest in queuedQuests" :key="quest.name">
+                                        {{ quest.name }}
+                                        <a
+                                            href="#"
+                                            class="text-danger"
+                                            @click.prevent="removeFromQueue(quest.name)"
+                                        >
+                                            <i class="fas fa-minus" />
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <button
+                                v-if="queuedQuests.length"
+                                class="btn btn-outline-success btn-block"
+                                @click="publishQuests($event)"
+                            >
+                                Publish quests
+                            </button>
+                        </div>
+
                         <button
-                            type="submit"
+                            v-else
                             class="btn btn-outline-success btn-block"
-                            :disabled="!enoughPoints && !isAdmin"
-                            @click="isAdmin ? addQuest($event) : submitQuest($event)"
+                            :disabled="!enoughPoints"
+                            @click="submitQuest($event)"
                         >
-                            {{ isAdmin ? 'Add quest' : `Submit quest for approval: ${points} pts` }}
-                            <i v-if="!isAdmin" class="fas fa-coins" />
+                            {{ `Submit quest for approval: ${points} pts` }}
+                            <i class="fas fa-coins" />
                         </button>
                     </div>
                 </div>
@@ -247,6 +280,7 @@
 import Vue from 'vue';
 import { mapState } from 'vuex';
 import { FeaturedArtist } from '../../../interfaces/featuredArtist';
+import { Quest } from '../../../interfaces/quest';
 
 export default Vue.extend({
     name: 'SubmitQuestModal',
@@ -265,7 +299,8 @@ export default Vue.extend({
             minParty: 0,
             maxParty: 0,
             minRank: 0,
-            isMbc: 0,
+            isMbc: false,
+            queuedQuests: [] as Partial<Quest>[],
         };
     },
     computed: {
@@ -386,7 +421,38 @@ export default Vue.extend({
         findTimeframe(): number {
             return this.mapsetCount*10 + 70;
         },
-        async submitQuest(e): Promise<void> {
+        resetQuestDetails(): void {
+            this.selectedArtist = '';
+            this.mapsetCount = 6;
+            this.name = '';
+            this.price = 0;
+            this.objective = '';
+            this.timeframe = 0;
+            this.minParty = 0;
+            this.maxParty = 0;
+            this.minRank = 0;
+            this.isMbc = false;
+        },
+        addToQueue(): void {
+            this.queuedQuests.push({
+                name: this.name,
+                price: this.price,
+                descriptionMain: this.objective,
+                timeframe: this.timeframe * (24*3600*1000),
+                minParty: this.minParty,
+                maxParty: this.maxParty,
+                minRank: this.minRank,
+                isMbc: this.isMbc,
+                art: parseInt(this.selectedArtistOsuId),
+                requiredMapsets: this.mapsetCount,
+            });
+
+            this.resetQuestDetails();
+        },
+        removeFromQueue(name): void {
+            this.queuedQuests = this.queuedQuests.filter(q => q.name != name);
+        },
+        async submitQuest(e): Promise<void> { // for normal users
             const quests = await this.executePost('/quests/submitQuest', {
                 name: this.name,
                 price: this.price,
@@ -404,33 +470,18 @@ export default Vue.extend({
                     type: 'info',
                 });
                 ($('#submitQuest')).modal('hide');
-                this.selectedArtist = '';
-                this.mapsetCount = 6;
-                this.name = '';
-                this.price = 0;
-                this.objective = '';
-                this.timeframe = 0;
-                this.minParty = 0;
-                this.maxParty = 0;
+                this.resetQuestDetails();
             }
         },
-        async addQuest(e): Promise<void> {
+        async publishQuests(e): Promise<void> { // for pishifat
             const quests = await this.executePost('/admin/quests/create', {
-                name: this.name,
-                price: this.price,
-                descriptionMain: this.objective,
-                timeframe: this.timeframe * (24*3600*1000),
-                minParty: this.minParty,
-                maxParty: this.maxParty,
-                minRank: this.minRank,
-                isMbc: this.isMbc,
-                art: this.selectedArtistOsuId,
-                requiredMapsets: this.mapsetCount,
+                quests: this.queuedQuests,
             }, e);
 
             if (!this.isError(quests)) {
                 this.$store.commit('setQuests', quests);
                 $('#submitQuest').modal('hide');
+                this.queuedQuests = [];
             }
         },
     },
