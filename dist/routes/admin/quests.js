@@ -24,6 +24,8 @@ const discordApi_1 = require("../../helpers/discordApi");
 const beatmap_2 = require("../../models/beatmap/beatmap");
 const party_1 = require("../../models/party");
 const spentPoints_1 = require("../../models/spentPoints");
+const helpers_1 = require("../../helpers/helpers");
+const featuredArtist_1 = require("../../models/featuredArtist");
 const adminQuestsRouter = express_1.default.Router();
 adminQuestsRouter.use(middlewares_1.isLoggedIn);
 adminQuestsRouter.use(middlewares_1.isAdmin);
@@ -47,42 +49,60 @@ adminQuestsRouter.get('/load', (req, res) => __awaiter(void 0, void 0, void 0, f
 }));
 adminQuestsRouter.post('/create', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
-    req.body.isMbc = Boolean(req.body.isMbc);
-    if (req.body.isMbc) {
-        req.body.modes = [beatmap_1.BeatmapMode.Osu];
+    const newQuests = [];
+    for (const quest of req.body.quests) {
+        if (quest.isMbc) {
+            quest.modes = [beatmap_1.BeatmapMode.Osu];
+        }
+        else {
+            quest.modes = [beatmap_1.BeatmapMode.Osu, beatmap_1.BeatmapMode.Taiko, beatmap_1.BeatmapMode.Catch, beatmap_1.BeatmapMode.Mania];
+        }
+        quest.expiration = new Date();
+        quest.expiration.setDate(quest.expiration.getDate() + 90);
+        quest.creator = (_a = req === null || req === void 0 ? void 0 : req.session) === null || _a === void 0 ? void 0 : _a.mongoId;
+        const newQuest = yield quest_1.QuestModel.create(quest);
+        newQuests.push(newQuest);
+        log_1.LogModel.generate((_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId, `created quest "${newQuest.name}"`, log_2.LogCategory.Quest);
     }
-    else {
-        req.body.modes = [beatmap_1.BeatmapMode.Osu, beatmap_1.BeatmapMode.Taiko, beatmap_1.BeatmapMode.Catch, beatmap_1.BeatmapMode.Mania];
+    const webhooks = [];
+    for (const quest of newQuests) {
+        const i = webhooks.findIndex(w => w.artist && w.artist == quest.art);
+        if (i !== -1) {
+            webhooks[i].quests.push(quest);
+        }
+        else {
+            webhooks.push({
+                artist: quest.art,
+                isMbc: quest.isMbc,
+                url: quest.isMbc ? 'https://mappersguild.com/images/mbc-icon.png' : quest.art ? `https://assets.ppy.sh/artists/${quest.art}/cover.jpg` : 'https://mappersguild.com/images/no-art-icon.png',
+                quests: [quest],
+            });
+        }
     }
-    req.body.expiration = new Date();
-    req.body.expiration.setDate(req.body.expiration.getDate() + 90);
-    req.body.creator = (_a = req === null || req === void 0 ? void 0 : req.session) === null || _a === void 0 ? void 0 : _a.mongoId;
-    const quest = yield quest_1.QuestModel.create(req.body);
-    if (quest) {
-        log_1.LogModel.generate((_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId, `created quest "${quest.name}"`, log_2.LogCategory.Quest);
-        let url = `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`;
-        if (req.body.isMbc) {
-            url = 'https://mappersguild.com/images/mbc-icon.png';
+    for (const webhook of webhooks) {
+        let title = 'New ';
+        if (webhook.artist && !webhook.isMbc) {
+            const artist = yield featuredArtist_1.FeaturedArtistModel.findOne({ osuId: webhook.artist }).orFail();
+            title += `${artist.label} `;
+        }
+        title += webhook.quests.length > 1 ? `quests:\n` : `quest:\n`;
+        let description = '';
+        for (const quest of webhook.quests) {
+            description += `\n[**${quest.name}**](https://mappersguild.com/quests?id=${quest.id})`;
+            description += `\n- **Objective:** ${quest.descriptionMain}`;
+            description += `\n- **Members:** ${quest.minParty == quest.maxParty ? quest.maxParty : quest.minParty + '-' + quest.maxParty} member${quest.maxParty == 1 ? '' : 's'}`;
+            description += `\n- **Price:** ${quest.price} points from each member`;
+            description += `\n`;
         }
         discordApi_1.webhookPost([{
                 color: discordApi_1.webhookColors.orange,
-                description: `New quest: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id})`,
+                title,
+                description,
                 thumbnail: {
-                    url,
+                    url: webhook.url,
                 },
-                fields: [{
-                        name: 'Objective',
-                        value: `${quest.descriptionMain}`,
-                    },
-                    {
-                        name: 'Party size',
-                        value: `${quest.minParty == quest.maxParty ? quest.maxParty : quest.minParty + '-' + quest.maxParty} member${quest.maxParty == 1 ? '' : 's'}`,
-                    },
-                    {
-                        name: 'Price',
-                        value: `${quest.price} points from each member`,
-                    }],
             }]);
+        yield helpers_1.sleep(1000);
     }
     const allQuests = yield quest_1.QuestModel
         .find({})
