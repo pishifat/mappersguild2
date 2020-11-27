@@ -1,6 +1,6 @@
 <template>
     <div>
-        <table v-if="data.length" class="table table-sm table-dark table-hover">
+        <table v-if="data.length" class="table table-sm">
             <thead>
                 <th v-for="header in headers" :key="header">
                     {{ header }}

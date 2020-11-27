@@ -15,7 +15,7 @@
                 <div class="modal-body" style="overflow: hidden">
                     <img src="../../images/the_A.png" class="the-a-background">
                     <div class="row col-lg-12">
-                        <table class="table table-sm table-dark table-hover col-md-6">
+                        <table class="table table-sm col-md-6">
                             <thead>
                                 <td scope="col">
                                     Task
@@ -207,7 +207,7 @@
 
                     <div class="radial-divisor mx-auto my-3" />
                     <p>Mappers' Guild beatmaps:</p>
-                    <table class="table table-sm table-dark table-hover">
+                    <table class="table table-sm">
                         <thead>
                             <td scope="col">
                                 Mapset
@@ -271,7 +271,7 @@
                     <div class="radial-divisor mx-auto my-3" />
 
                     <p>Spent points logs:</p>
-                    <table class="table table-sm table-dark table-hover col-md-12">
+                    <table class="table table-sm col-md-12">
                         <thead>
                             <td scope="col">
                                 Action

@@ -11,7 +11,7 @@
             <div class="container">
                 <table
                     v-if="contest.submissions.length"
-                    class="table table-sm table-hover table-responsive-lg"
+                    class="table table-sm table-responsive-lg"
                 >
                     <thead>
                         <tr>

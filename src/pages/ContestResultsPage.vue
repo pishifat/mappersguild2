@@ -66,7 +66,7 @@
                                 User {{ i+1 }}
                             </p>
                             <div class="row">
-                                <table class="col-sm-5 ml-4 table table-sm table-hover table-responsive-sm">
+                                <table class="col-sm-5 ml-4 table table-sm table-responsive-sm">
                                     <thead>
                                         <tr>
                                             <th class="text-left">

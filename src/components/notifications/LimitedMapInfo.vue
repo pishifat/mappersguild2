@@ -18,7 +18,7 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-sm-12">
-                                <table class="table table-sm table-dark table-hover">
+                                <table class="table table-sm">
                                     <thead>
                                         <td scope="col">
                                             Difficulty

@@ -9,7 +9,7 @@
                         </h4>
                     </div>
                     <div class="card-body p-0">
-                        <table class="table table-hover table-responsive-sm">
+                        <table class="table table-responsive-sm">
                             <thead>
                                 <tr>
                                     <th class="text-left">

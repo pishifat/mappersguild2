@@ -29,7 +29,7 @@
         </div>
         <div class="row">
             <div class="col-sm">
-                <table class="table table-sm table-hover table-responsive-lg">
+                <table class="table table-sm table-responsive-lg">
                     <thead>
                         <tr>
                             <th>#</th>

@@ -19,7 +19,7 @@
                         <span v-if="actionBeatmapsLoading" class="ml-2 small text-white-50">loading...</span>
                     </h5>
                     <div id="actionBeatmaps" class="show">
-                        <table v-if="actionBeatmaps.length" class="table table-sm table-dark table-hover">
+                        <table v-if="actionBeatmaps.length" class="table table-sm">
                             <thead>
                                 <th scope="col">
                                     METADATA
@@ -88,7 +88,7 @@
                         <span v-if="actionQuestsLoading" class="ml-2 small text-white-50">loading...</span>
                     </h5>
                     <div id="actionQuests" class="show">
-                        <table v-if="actionQuests.length" class="table table-sm table-dark table-hover">
+                        <table v-if="actionQuests.length" class="table table-sm">
                             <thead>
                                 <th scope="col">
                                     NAME
@@ -169,7 +169,7 @@
                         <span v-if="actionUsersLoading" class="ml-2 small text-white-50">loading...</span>
                     </h5>
                     <div v-if="actionUsers" id="actionUsers" class="show">
-                        <table v-if="actionUsers.length" class="table table-sm table-dark table-hover">
+                        <table v-if="actionUsers.length" class="table table-sm">
                             <thead>
                                 <th scope="col">
                                     USERNAME
