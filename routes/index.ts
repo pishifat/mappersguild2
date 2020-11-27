@@ -18,8 +18,8 @@ indexRouter.get('/', async (req, res) => {
     const artists = await FeaturedArtistModel
         .aggregate()
         .match({ status: FeaturedArtistStatus.Public })
-        .sort({ projectedRelease: -1 })
-        .limit(6)
+        .match({ isUpToDate: true })
+        .sort({ updatedAt: -1 })
         .lookup({
             from: 'featuredsongs',
             let: { songs: '$songs' },
@@ -48,10 +48,14 @@ indexRouter.get('/', async (req, res) => {
                         as: 'beatmaps',
                     },
                 },
-                { $project: { beatmaps: 1, title: 1 } },
+                { $project: { beatmaps: 1, title: 1, beatmaps_count: { $size: '$beatmaps' } } },
             ],
             as: 'songs',
-        });
+        })
+        .match({
+            'songs.beatmaps_count': { $gt: 0 },
+        })
+        .limit(6);
 
     let response: {} = {
         title: `Mappers' Guild`,
