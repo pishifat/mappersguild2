@@ -2,7 +2,7 @@
     <div class="row">
         <div class="col-sm-12">
             <div
-                class="card static-card"
+                class="card card-level-2 static-card"
                 :class="cardClass"
             >
                 <a

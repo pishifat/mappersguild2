@@ -8,29 +8,72 @@ import { isLoggedIn } from '../helpers/middlewares';
 import { getToken, getUserInfo, isOsuResponseError } from '../helpers/osuApi';
 import { UserGroup } from '../interfaces/user';
 import { webhookPost, webhookColors } from '../helpers/discordApi';
+import { FeaturedArtistModel } from '../models/featuredArtist';
+import { FeaturedArtistStatus } from '../interfaces/featuredArtist';
 
 const indexRouter = express.Router();
 
 /* GET landing page. */
-indexRouter.get('/', async (req, res, next) => {
+indexRouter.get('/', async (req, res) => {
+    const artists = await FeaturedArtistModel
+        .aggregate()
+        .match({ status: FeaturedArtistStatus.Public })
+        .sort({ projectedRelease: -1 })
+        .limit(6)
+        .lookup({
+            from: 'featuredsongs',
+            let: { songs: '$songs' },
+            pipeline: [
+                { $match: { $expr: { $in: ['$_id', '$$songs'] } } },
+                {
+                    $lookup: {
+                        from: 'beatmaps',
+                        let: { id: '$_id' },
+                        pipeline: [
+                            { $match: { $expr: { $eq: ['$song', '$$id'] } } },
+                            {
+                                $lookup: {
+                                    from: 'users',
+                                    let: { host: '$host' },
+                                    pipeline: [
+                                        { $match: { $expr: { $eq: ['$_id', '$$host'] } } },
+                                        { $project: { username: 1 } },
+                                    ],
+                                    as: 'host',
+                                },
+                            },
+                            { $project: { url: 1, host: 1 } },
+                            { $unwind: '$host' },
+                        ],
+                        as: 'beatmaps',
+                    },
+                },
+                { $project: { beatmaps: 1, title: 1 } },
+            ],
+            as: 'songs',
+        });
+
+    let response: {} = {
+        title: `Mappers' Guild`,
+        isIndex: true,
+        artists,
+    };
+
     if (req.session?.osuId) {
         const u = await UserModel.findById(req.session.mongoId);
 
         if (u) {
-            return next();
+            response = {
+                ...response,
+                loggedInAs: req.session?.osuId,
+                isNotSpectator: u.group != UserGroup.Spectator,
+                userMongoId: req.session?.mongoId,
+                pointsInfo: u.pointsInfo,
+            };
         }
     }
 
-    res.render('index', { title: `Mappers' Guild`, isIndex: true });
-}, isLoggedIn, (req, res) => {
-    res.render('index', {
-        title: `Mappers' Guild`,
-        isIndex: true,
-        loggedInAs: req.session?.osuId,
-        isNotSpectator: res.locals.userRequest.group != UserGroup.Spectator,
-        userMongoId: req.session?.mongoId,
-        pointsInfo: res.locals.userRequest.pointsInfo,
-    });
+    res.render('index', response);
 });
 
 /* GET user's code to login */
