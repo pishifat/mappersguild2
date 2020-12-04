@@ -11,7 +11,7 @@
                     </button>
                 </div>
                 <div class="modal-body" style="overflow: hidden">
-                    <img src="../../images/the_A.png" class="the-a-background">
+                    <img src="/images/the_A.png" class="the-a-background">
                     <div class="container">
                         <div class="form-group row">
                             <label class="col-sm-3 mt-1" for="artistName"> Artist/Label:</label>
@@ -24,7 +24,7 @@
                             >
                         </div>
 
-                        <div class="radial-divisor mx-auto my-3" />
+                        <div class="radial-divisor" />
 
                         <button type="button" class="btn btn-outline-info float-right" @click="createArtist($event)">
                             Save

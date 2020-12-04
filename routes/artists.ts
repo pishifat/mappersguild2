@@ -12,17 +12,6 @@ const defaultPopulate = [
     { path: 'songs', select: 'artist title' },
 ];
 
-/* GET parties page. */
-artistsRouter.get('/', (req, res) => {
-    res.render('artists', {
-        title: 'Artists',
-        script: 'artists.js',
-        loggedInAs: req.session?.osuId,
-        userMongoId: req.session?.mongoId,
-        pointsInfo: res.locals.userRequest.pointsInfo,
-    });
-});
-
 artistsRouter.get('/relevantInfo', async (req, res) => {
     const a = await FeaturedArtistModel
         .find({})

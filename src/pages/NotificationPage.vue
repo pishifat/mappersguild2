@@ -1,6 +1,6 @@
 <template>
-    <div v-cloak>
-        <div class="container bg-container py-3 mb-2">
+    <div>
+        <div class="container card card-body py-3 mb-2">
             <div class="row">
                 <div class="col-md-6">
                     <h2>
@@ -52,8 +52,6 @@
 
         <limited-map-info v-if="selectedMap" :beatmap="selectedMap" />
         <limited-party-info v-if="selectedParty" :party="selectedParty" />
-
-        <toast-messages />
     </div>
 </template>
 
@@ -63,7 +61,6 @@ import NotificationCard from '@components/notifications/NotificationCard.vue';
 import InviteCard from '@components/notifications/InviteCard.vue';
 import LimitedMapInfo from '@components/notifications/LimitedMapInfo.vue';
 import LimitedPartyInfo from '@components/notifications/LimitedPartyInfo.vue';
-import ToastMessages from '@components/ToastMessages.vue';
 import { Notification } from '../../interfaces/notification';
 import { Invite } from '../../interfaces/invite';
 
@@ -74,7 +71,6 @@ export default Vue.extend({
         InviteCard,
         LimitedMapInfo,
         LimitedPartyInfo,
-        ToastMessages,
     },
     data() {
         return {
@@ -92,12 +88,6 @@ export default Vue.extend({
             this.notifications = res.notifications;
             this.invites = res.invites;
         }
-
-        $('#loading').fadeOut();
-        $('#app')
-            .attr('style', 'visibility: visible')
-            .hide()
-            .fadeIn();
     },
     methods: {
         async hideNotification(args): Promise<void> {

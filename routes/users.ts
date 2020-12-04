@@ -17,20 +17,8 @@ usersRouter.use(isLoggedIn);
 const questPopulate = { path: 'currentParty', populate: { path: 'members leader' } };
 const userPopulate = { path: 'completedQuests', select: 'name completed' };
 
-/* GET page render. */
-usersRouter.get('/', (req, res) => {
-    res.render('users', {
-        title: 'Users',
-        script: 'users.js',
-        isUsers: true,
-        loggedInAs: req.session?.osuId,
-        userMongoId: req.session?.mongoId,
-        pointsInfo: res.locals.userRequest.pointsInfo,
-    });
-});
-
 /* GET users listing. */
-usersRouter.get('/relevantInfo', async (req, res) => {
+usersRouter.get('/query', async (req, res) => {
     const users = await UserModel
         .find({
             group: { $ne: UserGroup.Spectator },
@@ -39,9 +27,6 @@ usersRouter.get('/relevantInfo', async (req, res) => {
 
     res.json({
         users,
-        userId: req.session?.osuId,
-        username: req.session?.username,
-        group: res.locals.userRequest.group,
     });
 });
 

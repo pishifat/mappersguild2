@@ -1,6 +1,6 @@
 <template>
     <div class="col-md-12 my-2">
-        <div class="card static-card bg-dark">
+        <div class="card bg-dark">
             <div class="card-body notification-card-spacing">
                 <p class="card-text small">
                     <a
@@ -18,7 +18,7 @@
                         <span v-else>{{ invite.map.song.artist }} - {{ invite.map.song.title }}</span>
                         <a
                             href="#"
-                            class="icon-valid"
+                            class="text-done"
                             :data-user="invite.map.id"
                             data-toggle="modal"
                             data-target="#limitedEditBeatmap"
@@ -28,7 +28,7 @@
 
                     <span v-if="invite.party">for quest "{{ invite.quest.name }}" <a
                         href="#"
-                        class="icon-valid"
+                        class="text-done"
                         :data-user="invite.party.id"
                         data-toggle="modal"
                         data-target="#limitedEditParty"
@@ -38,7 +38,7 @@
             </div>
 
             <div class="card-footer notification-card-spacing mx-2">
-                <span class="card-text small">{{ invite.createdAt.toString().slice(0,10) }}</span> <span class="errors small">{{ info }}</span>
+                <span class="card-text small">{{ invite.createdAt.toString().slice(0,10) }}</span> <span class="text-danger small">{{ info }}</span>
                 <button class="btn btn-outline-danger notification-button float-right mx-1" @click.prevent="hideInvite($event)">
                     Decline
                 </button>

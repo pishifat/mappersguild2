@@ -1,16 +1,11 @@
-import http from 'http';
 import express from 'express';
 import path from 'path';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
-import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import session from 'express-session';
 import MongoStoreSession from 'connect-mongo';
 import config from './config.json';
-import hbs from 'hbs';
-import manifest from './manifest.json';
-import './helpers/hbs';
 import 'express-async-errors';
 
 // Return the 'new' updated object by default when doing findByIdAndUpdate
@@ -30,7 +25,6 @@ import featuredArtistsRouter from './routes/beatmaps/featuredArtists';
 import questsRouter from './routes/quests';
 import notificationsRouter from './routes/notifications';
 import usersRouter from './routes/users';
-import faqRouter from './routes/faq';
 import logsRouter from './routes/logs';
 import adminRouter from './routes/admin/index';
 import adminUsersRouter from './routes/admin/users';
@@ -51,23 +45,13 @@ const MongoStore = MongoStoreSession(session);
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
-hbs.localsAsTemplateData(app);
-app.locals.manifest = manifest;
 
 // settings/middlewares
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public'), {
-    maxAge: '10d', // 10d cuz css doesn't have a hash, yet
-}));
-app.use(
-    bodyParser.urlencoded({
-        extended: true,
-    })
-);
-app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
 // db
 mongoose.connect(config.connection, {
@@ -97,7 +81,6 @@ app.use(
 
 // routes
 app.use('/', indexRouter);
-app.use('/faq', faqRouter);
 app.use('/beatmaps', beatmapsRouter);
 app.use('/beatmaps', beatmapsHostRouter);
 app.use('/beatmaps', tasksRouter);
@@ -122,7 +105,10 @@ app.use('/admin/judging', adminJudgingRouter);
 
 // catch 404
 app.use((req, res) => {
-    res.redirect('/');
+    res.render('index',{
+        layout: false,
+        loggedIn: req.session?.mongoId,
+    });
 });
 
 // error handler
@@ -138,15 +124,15 @@ app.use((err, req, res, next) => {
         res.status(err.status || 500);
         res.render('error');
     }
+
+    console.log(err);
 });
 
 // server setup
 const port = process.env.PORT || '3000';
 app.set('port', port);
-const server = http.createServer(app);
-server.listen(port);
-server.on('error', (error) => {
-    console.log(error);
+app.listen(port, () => {
+    console.log('Listening on ' + port);
 });
 
 export default app;

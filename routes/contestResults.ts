@@ -1,7 +1,5 @@
 import express from 'express';
-import { isLoggedIn } from '../helpers/middlewares';
 import { SubmissionModel } from '../models/contest/submission';
-import { UserModel } from '../models/user';
 
 const contestResultsRouter = express.Router();
 
@@ -30,30 +28,6 @@ const submissionPopulate = [
         },
     },
 ];
-
-/* GET contest results page. */
-contestResultsRouter.get('/', async (req, res, next) => {
-    if (req.session?.osuId) {
-        const u = await UserModel.findById(req.session.mongoId);
-
-        if (u) {
-            return next();
-        }
-    }
-
-    res.render('contestResults', {
-        title: `Contest Results`,
-        script: 'contestResults.js',
-    });
-}, isLoggedIn, (req, res) => {
-    res.render('contestResults', {
-        title: 'Contest Results',
-        script: 'contestResults.js',
-        loggedInAs: req.session?.osuId,
-        userMongoId: req.session?.mongoId,
-        pointsInfo: res.locals.userRequest.pointsInfo,
-    });
-});
 
 contestResultsRouter.get('/searchSubmission/:id', async (req, res) => {
     const submission =

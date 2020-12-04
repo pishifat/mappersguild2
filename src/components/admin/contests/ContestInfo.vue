@@ -1,6 +1,6 @@
 <template>
     <div
-        class="container bg-container py-3 mb-2"
+        class="container card card-body py-3 mb-2"
     >
         <h4 class="text-center">
             {{ contest.name }}

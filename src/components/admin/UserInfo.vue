@@ -35,7 +35,7 @@
                     <p>
                         <input
                             v-model="badge"
-                            class="form-control-sm mx-2"
+                            class="form-control form-control-sm mx-2"
                             type="text"
                             autocomplete="off"
                         >
@@ -46,7 +46,7 @@
                     <p>
                         <input
                             v-model="discordId"
-                            class="form-control-sm mx-2"
+                            class="form-control form-control-sm mx-2"
                             type="text"
                             autocomplete="off"
                         >
@@ -88,9 +88,6 @@ export default Vue.extend({
             discordId: '',
             group: '',
         };
-    },
-    computed: {
-
     },
     watch: {
         user(): void {

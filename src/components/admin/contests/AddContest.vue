@@ -1,5 +1,5 @@
 <template>
-    <div class="container bg-container py-3 mb-2">
+    <div class="container card card-body py-3 mb-2">
         <input
             v-model.trim="contestName"
             class="form-control mb-2"

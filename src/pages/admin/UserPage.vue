@@ -1,6 +1,6 @@
 <template>
-    <div v-cloak>
-        <div class="container bg-container py-1">
+    <div>
+        <div class="container card card-body py-1">
             <div class="row">
                 <div class="col-sm">
                     <button class="btn btn-sm btn-info btn-block" @click="updateUserPoints($event)">
@@ -10,7 +10,7 @@
                     <span v-if="calculatingPoints" class="ml-2 small text-white-50">calculating points...</span>
 
                     <data-table
-                        #default="{ obj: user }"
+                        v-slot="{ obj: user }"
                         :data="users"
                         :headers="['USERNAME', 'RANK', 'BADGE']"
                         :custom-data-target="'#editUser'"
@@ -52,8 +52,6 @@
         <tiered-user-list />
 
         <discord-highlight-generator />
-
-        <toast-messages />
     </div>
 </template>
 
@@ -63,9 +61,9 @@ import UserInfo from '../../components/admin/UserInfo.vue';
 import DataTable from '../../components/admin/DataTable.vue';
 import TieredUserList from '../../components/admin/TieredUserList.vue';
 import DiscordHighlightGenerator from '../../components/admin/DiscordHighlightGenerator.vue';
-import ToastMessages from '../../components/ToastMessages.vue';
 import { User } from '../../../interfaces/user';
 import { mapState } from 'vuex';
+import usersAdminModule from '@store/admin/users';
 
 export default Vue.extend({
     components: {
@@ -73,7 +71,6 @@ export default Vue.extend({
         UserInfo,
         TieredUserList,
         DiscordHighlightGenerator,
-        ToastMessages,
     },
     data () {
         return {
@@ -82,10 +79,22 @@ export default Vue.extend({
         };
     },
     computed: {
-        ...mapState(['users']),
+        ...mapState({
+            users: (state: any) => state.usersAdmin.users,
+        }),
         selectedUser(): undefined | User {
             return this.users.find(u => u.id === this.selectedUserId);
         },
+    },
+    beforeCreate () {
+        if (!this.$store.hasModule('usersAdmin')) {
+            this.$store.registerModule('usersAdmin', usersAdminModule);
+        }
+    },
+    destroyed() {
+        if (this.$store.hasModule('usersAdmin')) {
+            this.$store.unregisterModule('usersAdmin');
+        }
     },
     async created() {
         const users = await this.executeGet<User[]>('/admin/users/load');
@@ -93,12 +102,6 @@ export default Vue.extend({
         if (!this.isError(users)) {
             this.$store.commit('setUsers', users);
         }
-
-        $('#loading').fadeOut();
-        $('#app')
-            .attr('style', 'visibility: visible')
-            .hide()
-            .fadeIn();
     },
     methods: {
         updateUser(u): void {

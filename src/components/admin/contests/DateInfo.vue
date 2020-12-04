@@ -7,7 +7,7 @@
             <input
                 v-else
                 v-model="newContestStart"
-                class="form-control-sm date-input"
+                class="form-control form-control-sm date-input"
                 type="text"
                 autocomplete="off"
                 placeholder="yyyy-mm-dd"
@@ -61,7 +61,7 @@ export default Vue.extend({
 });
 </script>
 
-<style>
+<style scoped>
 
 .date-input {
     width: 10%;

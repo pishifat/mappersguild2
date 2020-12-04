@@ -11,7 +11,7 @@
                     </button>
                 </div>
                 <div class="modal-body modal-body-card" style="overflow: hidden;">
-                    <img src="../../images/the_A.png" class="the-a-background">
+                    <img src="/images/the_A.png" class="the-a-background">
                     <p>
                         Members: (<span :class="party.id + '-member-count'">{{ party.members.length }}</span>)
                     </p>
@@ -47,7 +47,3 @@ export default Vue.extend({
     },
 });
 </script>
-
-<style>
-
-</style>

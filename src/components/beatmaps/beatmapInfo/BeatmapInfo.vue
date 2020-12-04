@@ -137,11 +137,11 @@ export default Vue.extend({
     },
     computed: {
         ...mapState([
-            'userOsuId',
+            'loggedInUser',
         ]),
         isHost(): boolean {
-            if (this.userOsuId && this.beatmap) {
-                return this.userOsuId === this.beatmap.host.osuId;
+            if (this.loggedInUser.id && this.beatmap) {
+                return this.loggedInUser.id === this.beatmap.host.osuId;
             }
 
             return false;
@@ -173,7 +173,7 @@ export default Vue.extend({
 });
 </script>
 
-<style>
+<style scoped>
 @media (min-width: 992px) {
     .bm-col-separator-left {
         border-left: 3px solid rgba(100, 88, 88, 0.42);

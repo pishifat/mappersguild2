@@ -2,7 +2,7 @@
     <div id="editQuest" class="modal fade" tabindex="-1">
         <div class="modal-dialog">
             <div v-if="quest" class="modal-content bg-dark">
-                <div class="modal-header text-dark bg-rest">
+                <div class="modal-header text-dark bg-primary">
                     <h5 class="modal-title">
                         {{ quest.name }} by
                         <a
@@ -25,7 +25,7 @@
                         </button>
                         <input
                             v-model="renameQuestName"
-                            class="form-control-sm mx-2 w-50"
+                            class="form-control form-control-sm mx-2 w-50"
                             type="text"
                             autocomplete="off"
                             placeholder="quest name..."
@@ -37,7 +37,7 @@
                         </button>
                         <input
                             v-model="price"
-                            class="form-control-sm mx-2 w-50"
+                            class="form-control form-control-sm mx-2 w-50"
                             type="text"
                             autocomplete="off"
                             placeholder="price..."
@@ -49,7 +49,7 @@
                         </button>
                         <input
                             v-model="requiredMapsets"
-                            class="form-control-sm mx-2 w-50"
+                            class="form-control form-control-sm mx-2 w-50"
                             type="text"
                             autocomplete="off"
                             placeholder="required mapsets..."
@@ -61,7 +61,7 @@
                         </button>
                         <input
                             v-model="minParty"
-                            class="form-control-sm mx-2 w-50"
+                            class="form-control form-control-sm mx-2 w-50"
                             type="text"
                             autocomplete="off"
                             placeholder="minParty..."
@@ -73,7 +73,7 @@
                         </button>
                         <input
                             v-model="maxParty"
-                            class="form-control-sm mx-2 w-50"
+                            class="form-control form-control-sm mx-2 w-50"
                             type="text"
                             autocomplete="off"
                             placeholder="maxParty..."
@@ -87,7 +87,7 @@
                     <p>
                         <textarea
                             v-model="description"
-                            class="form-control-sm mx-2 mt-2 w-100"
+                            class="form-control form-control-sm mx-2 mt-2 w-100"
                             type="text"
                             autocomplete="off"
                             placeholder="quest description..."
@@ -116,7 +116,7 @@
                         </button>
                         <input
                             v-model="duplicateQuestName"
-                            class="form-control-sm mx-2 w-50"
+                            class="form-control form-control-sm mx-2 w-50"
                             type="text"
                             autocomplete="off"
                             placeholder="new quest name..."
@@ -128,7 +128,7 @@
                         </button>
                         <input
                             v-model="expiration"
-                            class="form-control-sm mx-2 w-50"
+                            class="form-control form-control-sm mx-2 w-50"
                             type="text"
                             autocomplete="off"
                             :placeholder="quest.expiration"

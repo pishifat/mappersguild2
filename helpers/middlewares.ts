@@ -2,40 +2,53 @@ import { UserModel } from '../models/user';
 import { UserGroup } from '../interfaces/user';
 import { refreshToken, isOsuResponseError, getUserInfo } from './osuApi';
 
-export async function isLoggedIn(req, res, next): Promise<void> {
-    if (req.session.mongoId) {
-        const u = await UserModel.findById(req.session.mongoId);
-
-        // Refresh if less than 10 hours left
-        if (new Date() > new Date(req.session.expireDate - (10 * 3600 * 1000))) {
-            const response = await refreshToken(req.session.refreshToken);
-
-            if (!response || isOsuResponseError(response)) {
-                req.session.destroy();
-
-                return res.redirect('/');
-            }
-
-            // *1000 because maxAge is miliseconds, oauth is seconds
-            req.session.cookie.maxAge = response.expires_in * 2 * 1000;
-            req.session.expireDate = Date.now() + (response.expires_in * 1000);
-            req.session.accessToken = response.access_token;
-            req.session.refreshToken = response.refresh_token;
-        }
-
-        res.locals.userRequest = u;
-        next();
+export function unauthorize(req, res) {
+    if (req.accepts(['html', 'json']) === 'json') {
+        res.json({ error: 'Unauthorized - May need to login first' });
     } else {
-        req.session.lastPage = req.originalUrl;
         res.redirect('/');
     }
+}
+
+export async function isLoggedIn(req, res, next): Promise<void> {
+    if (!req.session.mongoId) {
+        if (req.accepts(['html', 'json']) !== 'json') {
+            req.session.lastPage = req.originalUrl;
+        }
+
+        return unauthorize(req, res);
+    }
+
+    const u = await UserModel.findById(req.session.mongoId);
+
+    if (!u) return unauthorize(req, res);
+
+    // Refresh if less than 10 hours left
+    if (new Date() > new Date(req.session.expireDate - (10 * 3600 * 1000))) {
+        const response = await refreshToken(req.session.refreshToken);
+
+        if (!response || isOsuResponseError(response)) {
+            req.session.destroy();
+
+            return res.redirect('/');
+        }
+
+        // *1000 because maxAge is miliseconds, oauth is seconds
+        req.session.cookie.maxAge = response.expires_in * 2 * 1000;
+        req.session.expireDate = Date.now() + (response.expires_in * 1000);
+        req.session.accessToken = response.access_token;
+        req.session.refreshToken = response.refresh_token;
+    }
+
+    res.locals.userRequest = u;
+    next();
 }
 
 export function isAdmin(req, res, next): void {
     if (res.locals.userRequest.group == UserGroup.Admin) {
         next();
     } else {
-        res.redirect('/');
+        unauthorize(req, res);
     }
 }
 
@@ -43,7 +56,7 @@ export function isSecret(req, res, next): void {
     if (res.locals.userRequest.group == UserGroup.Secret || res.locals.userRequest.group == UserGroup.Admin) {
         next();
     } else {
-        res.redirect('/');
+        unauthorize(req, res);
     }
 }
 
@@ -51,7 +64,7 @@ export function isSuperAdmin(req, res, next): void {
     if (res.locals.userRequest.osuId == 3178418 || res.locals.userRequest.osuId == 1052994) {
         next();
     } else {
-        res.redirect('/');
+        unauthorize(req, res);
     }
 }
 
@@ -59,7 +72,7 @@ export function isUser(req, res, next): void {
     if (res.locals.userRequest.group == UserGroup.User || res.locals.userRequest.group == UserGroup.Admin || res.locals.userRequest.group == UserGroup.Secret) {
         next();
     } else {
-        res.redirect('/');
+        unauthorize(req, res);
     }
 }
 

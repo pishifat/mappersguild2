@@ -1,5 +1,5 @@
 <template>
-    <div class="container bg-container py-1 mb-4">
+    <div class="container card card-body py-1 mb-4">
         <button class="btn btn-sm btn-block btn-outline-info" @click="findTieredUsers($event)">
             Load tiered users
         </button>
@@ -74,6 +74,3 @@ export default Vue.extend({
     },
 });
 </script>
-
-<style>
-</style>

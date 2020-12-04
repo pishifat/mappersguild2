@@ -1,8 +1,8 @@
 <template>
-    <div class="container bg-container py-1 mb-4">
+    <div class="container card card-body py-1 mb-4">
         <textarea
             v-model="inputUsers"
-            class="form-control-sm mx-2 mt-2 w-100"
+            class="form-control form-control-sm mx-2 mt-2 w-100"
             type="text"
             autocomplete="off"
             placeholder="usernames separated by newlines..."
@@ -56,6 +56,3 @@ export default Vue.extend({
     },
 });
 </script>
-
-<style>
-</style>

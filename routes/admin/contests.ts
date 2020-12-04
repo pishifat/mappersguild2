@@ -40,17 +40,6 @@ const defaultContestPopulate = [
     },
 ];
 
-/* GET contest - admin page */
-adminContestsRouter.get('/', (req, res) => {
-    res.render('admin/contests', {
-        title: 'Contests Admin',
-        script: 'adminContests.js',
-        loggedInAs: req.session?.osuId,
-        userMongoId: req.session?.mongoId,
-        pointsInfo: res.locals.userRequest.pointsInfo,
-    });
-});
-
 /* GET retrieve all the contests info */
 adminContestsRouter.get('/relevantInfo', async (req, res) => {
     const contests = await ContestModel

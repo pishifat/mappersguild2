@@ -5,9 +5,9 @@
                 <div class="input-group">
                     <div class="input-group-prepend">
                         <button
-                            class="btn btn-outline-info"
+                            class="btn btn-primary"
                             href="#"
-                            @click.prevent="updateFilterValue(newFilterValue)"
+                            @click.prevent="$emit('update-filter-value', newFilterValue)"
                         >
                             <i class="fas fa-search" />
                         </button>
@@ -20,7 +20,7 @@
                         autocomplete="off"
                         :value="filterValue"
                         @input="newFilterValue = $event.target.value"
-                        @keyup.enter="updateFilterValue($event.target.value)"
+                        @keyup.enter="$emit('update-filter-value', $event.target.value)"
                     >
                     <div class="input-group-append">
                         <slot />
@@ -30,130 +30,7 @@
         </div>
         <div class="row small">
             <div class="col">
-                <div v-if="filterMode !== undefined" class="row mt-3">
-                    <div class="col-auto filter-title">
-                        Mode
-                    </div>
-                    <div class="col">
-                        <a
-                            href="#"
-                            class="mode"
-                            :class="getModeSortClass('any')"
-                            @click.prevent="updateFilterMode('any')"
-                        >
-                            Any
-                        </a>
-                        <a
-                            id="osu"
-                            href="#"
-                            class="mode"
-                            :class="getModeSortClass('osu')"
-                            @click.prevent="updateFilterMode('osu')"
-                        >
-                            osu!
-                        </a>
-                        <a
-                            id="taiko"
-                            href="#"
-                            class="mode"
-                            :class="getModeSortClass('taiko')"
-                            @click.prevent="updateFilterMode('taiko')"
-                        >
-                            osu!taiko
-                        </a>
-                        <a
-                            id="catch"
-                            href="#"
-                            class="mode"
-                            :class="getModeSortClass('catch')"
-                            @click.prevent="updateFilterMode('catch')"
-                        >
-                            osu!catch
-                        </a>
-                        <a
-                            id="mania"
-                            href="#"
-                            class="mode"
-                            :class="getModeSortClass('mania')"
-                            @click.prevent="updateFilterMode('mania');"
-                        >
-                            osu!mania
-                        </a>
-                        <span v-if="isLoading" class="small text-white-50">loading...</span>
-                    </div>
-                </div>
-
-                <div v-if="filterStatus !== undefined" class="row mt-3">
-                    <div class="col-auto filter-title">
-                        Status
-                    </div>
-                    <div class="col">
-                        <a
-                            href="#"
-                            class="status"
-                            :class="getStatusSortClass('any')"
-                            @click.prevent="updateFilterStatus('any')"
-                        >
-                            Any
-                        </a>
-                        <a
-                            href="#"
-                            class="status"
-                            :class="getStatusSortClass('WIP')"
-                            @click.prevent="updateFilterStatus('WIP')"
-                        >
-                            WIP
-                        </a>
-                        <a
-                            href="#"
-                            class="status"
-                            :class="getStatusSortClass('Done')"
-                            @click.prevent="updateFilterStatus('Done')"
-                        >
-                            Done
-                        </a>
-                        <a
-                            href="#"
-                            class="status"
-                            :class="getStatusSortClass('Qualified')"
-                            @click.prevent="updateFilterStatus('Qualified')"
-                        >
-                            Qualified
-                        </a>
-                        <a
-                            href="#"
-                            class="status"
-                            :class="getStatusSortClass('Ranked')"
-                            @click.prevent="updateFilterStatus('Ranked')"
-                        >
-                            Ranked
-                        </a>
-                    </div>
-                </div>
-
-                <div v-if="filterQuest !== undefined" class="row mt-3">
-                    <div class="col-auto filter-title">
-                        Quest
-                    </div>
-                    <div class="col">
-                        <a
-                            href="#"
-                            class="quest"
-                            :class="getQuestSortClass('any')"
-                            @click.prevent="updateFilterQuest('any')"
-                        >
-                            Any
-                        </a>
-                        <a
-                            href="#"
-                            class="quest"
-                            :class="getQuestSortClass('none')"
-                            @click.prevent="updateFilterQuest('none')"
-                        >
-                            None
-                        </a>
-                    </div>
-                </div>
+                <slot name="filters" />
             </div>
         </div>
     </div>
@@ -161,7 +38,6 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { mapState, mapMutations, mapActions } from 'vuex';
 
 export default Vue.extend({
     props: {
@@ -169,59 +45,15 @@ export default Vue.extend({
             type: String,
             required: true,
         },
-        isLoading: Boolean,
+        filterValue: {
+            type: String,
+            default: '',
+        },
     },
     data () {
         return {
             newFilterValue: '',
         };
     },
-    computed: mapState([
-        'filterValue',
-        'filterMode',
-        'filterStatus',
-        'filterQuest',
-    ]),
-    methods: {
-        ...mapMutations([
-            'setFilterValue',
-            'setFilterMode',
-            'setFilterStatus',
-            'setFilterQuest',
-        ]),
-        ...mapActions([
-            'updateFilterValue',
-            'updateFilterMode',
-            'updateFilterStatus',
-            'updateFilterQuest',
-        ]),
-        getModeSortClass(mode: string): 'sorted' | 'unsorted' {
-            if (this.filterMode === mode) {
-                return 'sorted';
-            }
-
-            return 'unsorted';
-        },
-        getStatusSortClass(status: string): 'sorted' | 'unsorted' {
-            if (this.filterStatus === status) {
-                return 'sorted';
-            }
-
-            return 'unsorted';
-        },
-        getQuestSortClass(quest: 'any' | 'none'): 'sorted' | 'unsorted' {
-            if (this.filterQuest === quest) {
-                return 'sorted';
-            }
-
-            return 'unsorted';
-        },
-    },
 });
 </script>
-
-<style>
-.filter-title {
-    width: 60px;
-}
-</style>

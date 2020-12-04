@@ -1,5 +1,5 @@
 import express from 'express';
-import { isLoggedIn } from '../helpers/middlewares';
+import { isLoggedIn, unauthorize } from '../helpers/middlewares';
 import { ContestModel } from '../models/contest/contest';
 import { SubmissionModel } from '../models/contest/submission';
 import { ScreeningModel, Screening } from '../models/contest/screening';
@@ -43,27 +43,15 @@ async function isScreener(req, res, next): Promise<void> {
         return next();
     }
 
-    return res.redirect('/');
+    return unauthorize(req, res);
 }
 
 screeningRouter.use(isLoggedIn);
 screeningRouter.use(isScreener);
 
-/* GET parties page. */
-screeningRouter.get('/', (req, res) => {
-    res.render('screening', {
-        title: 'Screening',
-        script: 'screening.js',
-        loggedInAs: req.session?.osuId,
-        userMongoId: req.session?.mongoId,
-        pointsInfo: res.locals.userRequest.pointsInfo,
-    });
-});
-
 screeningRouter.get('/relevantInfo', (req, res) => {
     res.json({
         contests: res.locals.contests,
-        userId: req.session?.mongoId,
     });
 });
 

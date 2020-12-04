@@ -4,7 +4,7 @@
             Judging threshold:
             <input
                 v-model="newJudgingThreshold"
-                class="form-control-sm w-25"
+                class="form-control form-control-sm w-25"
                 type="text"
                 autocomplete="off"
                 placeholder="lowest score judges see..."

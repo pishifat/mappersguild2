@@ -1,5 +1,5 @@
 <template>
-    <div v-cloak>
+    <div>
         <add-contest />
 
         <markdown-new-contest-template />
@@ -9,32 +9,37 @@
             :key="contest.id"
             :contest="contest"
         />
-
-        <ToastMessages />
     </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
+import { mapState } from 'vuex';
 import ContestInfo from '@components/admin/contests/ContestInfo.vue';
 import AddContest from '@components/admin/contests/AddContest.vue';
 import MarkdownNewContestTemplate from '@components/admin/contests/MarkdownNewContestTemplate.vue';
-import ToastMessages from '@components/ToastMessages.vue';
-import { mapState } from 'vuex';
-import { Contest } from '../../../interfaces/contest/contest';
+import { Contest } from '@interfaces/contest/contest';
+import contestsModule from '@store/admin/contests';
 
 export default Vue.extend({
     name: 'ContestPage',
     components: {
-        ToastMessages,
         ContestInfo,
         AddContest,
         MarkdownNewContestTemplate,
     },
-    computed: {
-        ...mapState([
-            'contests',
-        ]),
+    computed: mapState({
+        contests: (state: any) => state.contests.contests,
+    }),
+    beforeCreate () {
+        if (!this.$store.hasModule('contests')) {
+            this.$store.registerModule('contests', contestsModule);
+        }
+    },
+    destroyed() {
+        if (this.$store.hasModule('contests')) {
+            this.$store.unregisterModule('contests');
+        }
     },
     async created() {
         const contests = await this.executeGet<Contest[]>('/admin/contests/relevantInfo');
@@ -42,20 +47,6 @@ export default Vue.extend({
         if (!this.isError(contests)) {
             this.$store.commit('setContests', contests);
         }
-
-        $('#loading').fadeOut();
-        $('#app')
-            .attr('style', 'visibility: visible')
-            .hide()
-            .fadeIn();
     },
 });
 </script>
-
-<style>
-.collapsing {
-    -webkit-transition: none;
-    transition: none;
-    display: none;
-}
-</style>

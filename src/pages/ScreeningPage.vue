@@ -1,9 +1,9 @@
 <template>
-    <div v-cloak>
+    <div>
         <div
             v-for="contest in contests"
             :key="contest.id"
-            class="container bg-container py-1"
+            class="container card card-body py-1"
         >
             <div class="row">
                 <div class="col-sm">
@@ -34,37 +34,39 @@
         <div v-if="!contests.length" class="text-center p-3">
             No contests available for screening...
         </div>
-
-        <toast-messages />
     </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
-import ToastMessages from '@components/ToastMessages.vue';
-import SubmissionCard from '@components/screening/SubmissionCard.vue';
 import { mapState } from 'vuex';
+import SubmissionCard from '@components/screening/SubmissionCard.vue';
+import screeningModule from '@store/screening';
 
 export default Vue.extend({
     name: 'ScreeningPage',
     components: {
-        ToastMessages,
         SubmissionCard,
     },
-    computed: mapState(['contests']),
+    computed: mapState({
+        contests: (state: any) => state.screening.contests,
+    }),
+    beforeCreate () {
+        if (!this.$store.hasModule('screening')) {
+            this.$store.registerModule('screening', screeningModule);
+        }
+    },
+    destroyed() {
+        if (this.$store.hasModule('screening')) {
+            this.$store.unregisterModule('screening');
+        }
+    },
     async created () {
         const res: any = await this.executeGet('/screening/relevantInfo');
 
         if (!this.isError(res)) {
-            this.$store.commit('setContests', res.contests);
-            this.$store.commit('setUserId', res.userId);
+            this.$store.commit('setContests', res.contests || []);
         }
-
-        $('#loading').fadeOut();
-        $('#app')
-            .attr('style', 'visibility: visible')
-            .hide()
-            .fadeIn();
     },
 });
 </script>

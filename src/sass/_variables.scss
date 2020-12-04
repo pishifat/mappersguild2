@@ -1,0 +1,128 @@
+$enable-transitions: false; // pishi doesnt like them
+
+//
+// Color system
+//
+
+$white:    #fff;
+$gray-100: #f8f9fa;
+$gray-200: #ebebeb;
+$gray-300: #dee2e6;
+$gray-400: #ced4da;
+$gray-500: #adb5bd;
+$gray-600: #999;
+$gray-700: #444;
+$gray-800: #303030;
+$gray-900: #222;
+$black:    #000;
+
+$blue:    #3b74b1;
+$indigo:  #6f27e2;
+$purple:  #795fa6;
+$pink:    #e83e8c;
+$red:     #E74C3C;
+$orange:  #fd7e14;
+$yellow:  #ebcb1b;
+$green:   #36d8a2;
+$teal:    #37ac89;
+$cyan:    #428ae7;
+
+$primary:       $teal;
+$secondary:     rgb(218, 201, 201);
+$success:       $green;
+$info:          $cyan;
+$warning:       $yellow;
+$danger:        $red;
+$light:         $gray-600;
+$dark:          $gray-900;
+
+$theme-colors: (
+  // beatmaps status
+  "wip":        lighten($yellow, 5%),
+  "done":       $green,
+  "ranked":     $cyan,
+  "qualified":  $red,
+  "secret":     $gray-400,
+
+  // tasks status
+  "blocked":    $gray-600,
+  "open":       $red,
+
+  // tasks kind
+  "easy":     rgb(234, 255, 212),
+  "normal":   rgb(212, 231, 255),
+  "hard":     rgb(255, 245, 212),
+  "insane":   rgb(255, 212, 212),
+  "expert":   rgb(231, 205, 255),
+);
+
+$component-active-bg:       $green;
+$yiq-contrasted-threshold:  175;
+
+// Typography
+
+@import url('https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap');
+$font-family-base:                  'Karla', sans-serif;
+
+// Body
+
+$body-bg:                         rgb(28, 27, 23);
+$body-color:                      $white;
+
+// Links
+
+$link-color:                      $gray-300;
+$link-hover-color:                lighten($primary, 30%);
+$link-hover-decoration:           none;
+
+// Forms
+
+$input-bg:                          $gray-700;
+$input-color:                       $white;
+$input-border-color:                $gray-700;
+$input-disabled-bg:                 $gray-600;
+
+$input-group-addon-color:           $gray-500;
+$input-group-addon-bg:              $gray-700;
+
+// Dropdowns
+
+$dropdown-bg:                       $gray-800;
+$dropdown-border-color:             $gray-700;
+$dropdown-divider-bg:               $gray-700;
+
+$dropdown-link-color:               $white;
+$dropdown-link-hover-color:         $white;
+$dropdown-link-hover-bg:            $cyan;
+$dropdown-link-active-bg:           $cyan;
+
+// Cards
+
+$card-cap-bg:                       $gray-700;
+$card-bg:                           $gray-800;
+$card-height:                       100%;
+
+// Modals
+
+$modal-content-bg:                  lighten($gray-800, 5%);
+$modal-content-border-color:        lighten($gray-800, 5%);
+
+$modal-header-border-color:         lighten($gray-800, 5%);
+
+
+// Shadows
+
+$box-shadow-sm:               0 1px 1px rgba(0, 0, 0, .075);
+$box-shadow:                  0 1px 3px rgba(0, 0, 0, .25);
+$box-shadow-lg:               0 1px 3px rgba(0, 0, 0, .5);
+
+// Tooltips
+
+$tooltip-bg:                  $gray-900;
+$tooltip-color:               $gray-200;
+
+// Tables
+
+$table-cell-padding:          7px 10px;
+$table-cell-padding-sm:       5px 8px;
+$table-border-width:          0px;

@@ -1,6 +1,6 @@
 <template>
-    <div v-cloak>
-        <div class="container bg-container py-1">
+    <div>
+        <div class="container card card-body py-1">
             <div class="row">
                 <div class="col">
                     <button class="btn btn-sm btn-info btn-block" data-toggle="modal" data-target="#submitQuest">
@@ -12,7 +12,7 @@
                     </button>
 
                     <data-table
-                        #default="{ obj: quest }"
+                        v-slot="{ obj: quest }"
                         :data="quests"
                         :headers="['name', 'creator', 'modes', 'status', 'mapsets']"
                         :custom-data-target="'#editQuest'"
@@ -50,26 +50,23 @@
             @update-quest="updateQuest($event)"
             @delete-quest="deleteQuest($event)"
         />
-
-        <toast-messages />
     </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
+import { mapState } from 'vuex';
 import SubmitQuestModal from '../../components/quests/SubmitQuestModal.vue';
 import QuestInfo from '../../components/admin/quests/QuestInfo.vue';
 import DataTable from '../../components/admin/DataTable.vue';
-import ToastMessages from '../../components/ToastMessages.vue';
 import { Quest } from '../../../interfaces/quest';
-import { mapState } from 'vuex';
+import questsAdminModule from '@store/admin/quests';
 
 export default Vue.extend({
     components: {
         DataTable,
         SubmitQuestModal,
         QuestInfo,
-        ToastMessages,
     },
     data () {
         return {
@@ -77,10 +74,22 @@ export default Vue.extend({
         };
     },
     computed: {
-        ...mapState(['quests']),
+        ...mapState({
+            quests: (state: any) => state.questsAdmin.quests,
+        }),
         selectedQuest(): undefined | Quest {
             return this.quests.find(q => q.id === this.selectedQuestId);
         },
+    },
+    beforeCreate () {
+        if (!this.$store.hasModule('questsAdmin')) {
+            this.$store.registerModule('questsAdmin', questsAdminModule);
+        }
+    },
+    destroyed() {
+        if (this.$store.hasModule('questsAdmin')) {
+            this.$store.unregisterModule('questsAdmin');
+        }
     },
     async created() {
         const quests = await this.executeGet<Quest[]>('/admin/quests/load');
@@ -88,12 +97,6 @@ export default Vue.extend({
         if (!this.isError(quests)) {
             this.$store.commit('setQuests', quests);
         }
-
-        $('#loading').fadeOut();
-        $('#app')
-            .attr('style', 'visibility: visible')
-            .hide()
-            .fadeIn();
     },
     methods: {
         deleteQuest(q): void {

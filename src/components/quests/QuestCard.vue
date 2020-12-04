@@ -2,7 +2,7 @@
     <div class="row">
         <div class="col-sm-12">
             <div
-                class="card card-level-2 static-card"
+                class="card card-level-2"
                 :class="cardClass"
             >
                 <a
@@ -148,7 +148,7 @@ export default Vue.extend({
 });
 </script>
 
-<style>
+<style scoped>
 .rank-restricted {
     background-color: rgba(200, 0, 0, 0.05)!important;
 }
@@ -167,8 +167,8 @@ export default Vue.extend({
     max-height: 36px;
     object-fit: cover;
     border-radius: 100%;
-    box-shadow: 0 1px 0.5rem rgba(10, 10, 25);
-    background-color: rgba(10, 10, 25);
+    box-shadow: 0 1px 0.5rem rgb(10, 10, 25);
+    background-color: rgb(10, 10, 25);
 }
 
 .row-highlight {

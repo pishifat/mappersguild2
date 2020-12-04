@@ -3,7 +3,7 @@
         <div :id="type + 'Add'" class="modal fade" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content bg-dark">
-                    <div class="modal-header text-dark bg-rest">
+                    <div class="modal-header text-dark bg-primary">
                         <h5 class="modal-title">
                             Add {{ type }}
                         </h5>
@@ -22,7 +22,7 @@
                         <p v-if="contests" class="form-row">
                             <input
                                 v-model="osuId"
-                                class="form-control-sm w-100"
+                                class="form-control form-control-sm w-100"
                                 type="text"
                                 autocomplete="off"
                                 placeholder="creator/screener's osuId..."
@@ -31,7 +31,7 @@
                         <p v-if="type != 'screener'" class="form-row">
                             <input
                                 v-model="elementName"
-                                class="form-control-sm w-100"
+                                class="form-control form-control-sm w-100"
                                 type="text"
                                 autocomplete="off"
                                 placeholder="name..."
@@ -42,7 +42,7 @@
                                 Add {{ type }}
                             </button>
                         </p>
-                        <p v-if="info" class="errors">
+                        <p v-if="info" class="text-danger">
                             {{ info }}
                         </p>
                     </div>

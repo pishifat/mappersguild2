@@ -10,11 +10,18 @@ import { UserGroup } from '../interfaces/user';
 import { webhookPost, webhookColors } from '../helpers/discordApi';
 import { FeaturedArtistModel } from '../models/featuredArtist';
 import { FeaturedArtistStatus } from '../interfaces/featuredArtist';
+import { setSession } from '../helpers/helpers';
 
 const indexRouter = express.Router();
 
+indexRouter.get('/me', isLoggedIn, (req, res) => {
+    res.json({
+        me: res.locals.userRequest,
+    });
+});
+
 /* GET landing page. */
-indexRouter.get('/', async (req, res) => {
+indexRouter.get('/home', async (req, res) => {
     const artists = await FeaturedArtistModel
         .aggregate()
         .match({ status: FeaturedArtistStatus.Public })
@@ -57,115 +64,29 @@ indexRouter.get('/', async (req, res) => {
         })
         .limit(6);
 
-    let response: {} = {
-        title: `Mappers' Guild`,
-        isIndex: true,
+    res.json({
         artists,
-    };
-
-    if (req.session?.osuId) {
-        const u = await UserModel.findById(req.session.mongoId);
-
-        if (u) {
-            response = {
-                ...response,
-                loggedInAs: req.session?.osuId,
-                isNotSpectator: u.group != UserGroup.Spectator,
-                userMongoId: req.session?.mongoId,
-                pointsInfo: u.pointsInfo,
-            };
-        }
-    }
-
-    res.render('index', response);
+    });
 });
 
 /* GET user's code to login */
-indexRouter.get('/login', async (req, res, next) => {
-    if (req.session?.osuId && req.session?.username) {
-        const u = await UserModel.findOne({ osuId: req.session.osuId });
+indexRouter.get('/login', (req, res) => {
+    const state = crypto.randomBytes(48).toString('hex');
+    res.cookie('_state', state, { httpOnly: true });
+    const hashedState = Buffer.from(state).toString('base64');
 
-        if (!u) {
-            const newUser = new UserModel();
-            newUser.osuId = req.session.osuId;
-            newUser.username = req.session.username;
-            newUser.group = req.session.group;
-            await newUser.save();
-
-            if (newUser) {
-                req.session.mongoId = newUser._id;
-
-                if (newUser.group == UserGroup.User) {
-                    webhookPost([{
-                        author: {
-                            name: newUser.username,
-                            icon_url: `https://a.ppy.sh/${newUser.osuId}`,
-                            url: `https://osu.ppy.sh/u/${newUser.osuId}`,
-                        },
-                        color: webhookColors.lightRed,
-                        description: `Joined the Mappers' Guild!`,
-                    }]);
-                    LogModel.generate(req.session.mongoId, `joined the Mappers' Guild`, LogCategory.User);
-                } else {
-                    LogModel.generate(req.session.mongoId, `verified their account for the first time`, LogCategory.User);
-                }
-
-                return next();
-            } else {
-                return res.status(500).render('error', { message: 'Something went wrong!' });
-            }
-        } else {
-            if (u.username != req.session.username) {
-                u.username = req.session.username;
-                await u.save();
-            }
-
-            if (u.group != req.session.group && u.group != UserGroup.Admin && u.group != UserGroup.Secret && !u.bypassLogin) {
-                u.group = req.session.group;
-                await u.save();
-
-                if (req.session.group == UserGroup.User) {
-                    webhookPost([{
-                        author: {
-                            name: u.username,
-                            icon_url: `https://a.ppy.sh/${u.osuId}`,
-                            url: `https://osu.ppy.sh/u/${u.osuId}`,
-                        },
-                        color: webhookColors.lightRed,
-                        description: `Joined the Mappers' Guild!`,
-                    }]);
-                    LogModel.generate(u._id, `joined the Mappers' Guild`, LogCategory.User);
-                }
-            }
-
-            req.session.mongoId = u._id;
-
-            return next();
-        }
+    if (!req.session.lastPage) {
+        req.session.lastPage = req.get('referer');
     }
 
-    if (!req.cookies._state) {
-        crypto.randomBytes(48, function (err, buffer) {
-            res.cookie('_state', buffer.toString('hex')); // , { httpOnly: true }
-            res.redirect('/login');
-        });
-    } else {
-        const hashedState = Buffer.from(req.cookies._state).toString('base64');
-        res.redirect(`https://osu.ppy.sh/oauth/authorize?response_type=code&client_id=${config.id}&redirect_uri=${encodeURIComponent(config.redirect)}&state=${hashedState}&scope=identify`);
-    }
-}, isLoggedIn, (req, res) => {
-    if (req?.session?.lastPage) {
-        res.redirect(req.session.lastPage);
-    } else if (res.locals.userRequest.group == UserGroup.Admin) {
-        res.redirect('/artists');
-    } else {
-        res.redirect('/faq');
-    }
+    res.redirect(
+        `https://osu.ppy.sh/oauth/authorize?response_type=code&client_id=${config.id}&redirect_uri=${encodeURIComponent(config.redirect)}&state=${hashedState}&scope=identify`
+    );
 });
 
 /* GET logout, by deleting session */
 indexRouter.get('/logout', isLoggedIn, (req, res) => {
-    req.session?.destroy((error) => {
+    req.session.destroy((error) => {
         console.log(error);
 
         return res.redirect('/');
@@ -175,14 +96,14 @@ indexRouter.get('/logout', isLoggedIn, (req, res) => {
 /* GET user's token and user's info to login */
 indexRouter.get('/callback', async (req, res) => {
     if (!req.query.code || req.query.error || !req.query.state) {
-        return res.redirect('/');
+        return res.status(500).render('error', { message: req.query.error || 'Something went wrong' });
     }
 
     const decodedState = Buffer.from(req.query.state.toString(), 'base64').toString('ascii');
+    const savedState = req.cookies._state;
+    res.clearCookie('_state');
 
-    if (decodedState !== req.cookies._state) {
-        res.clearCookie('_state');
-
+    if (decodedState !== savedState) {
         return res.status(403).render('error', { message: 'unauthorized' });
     }
 
@@ -191,20 +112,82 @@ indexRouter.get('/callback', async (req, res) => {
     if (isOsuResponseError(response)) {
         res.status(500).render('error', { message: response.error });
     } else {
-        // *1000 because maxAge is miliseconds, oauth is seconds
-        req.session!.cookie.maxAge = response.expires_in * 1000;
-        req.session!.accessToken = response.access_token;
-        req.session!.refreshToken = response.refresh_token;
-
-        response = await getUserInfo(req.session!.accessToken!);
+        setSession(req.session, response);
+        response = await getUserInfo(req.session.accessToken!);
 
         if (isOsuResponseError(response)) {
-            res.status(500).render('error');
+            req.session.destroy(() => {
+                res.status(500).render('error');
+            });
         } else {
-            req.session!.group = response.ranked_and_approved_beatmapset_count >= 3 ? 'user' : 'spectator';
-            req.session!.username = response.username;
-            req.session!.osuId = response.id;
-            res.redirect('/login');
+            const osuId = response.id;
+            const username = response.username;
+            const group = response.ranked_and_approved_beatmapset_count >= 3 ? UserGroup.User : UserGroup.Spectator;
+            let user = await UserModel.findOne({ osuId });
+
+            if (!user) {
+                user = new UserModel();
+                user.osuId = osuId;
+                user.username = username;
+                user.group = group;
+                await user.save();
+
+                req.session.mongoId = user._id;
+
+                if (user.group == UserGroup.User) {
+                    webhookPost([{
+                        author: {
+                            name: user.username,
+                            icon_url: `https://a.ppy.sh/${user.osuId}`,
+                            url: `https://osu.ppy.sh/u/${user.osuId}`,
+                        },
+                        color: webhookColors.lightRed,
+                        description: `Joined the Mappers' Guild!`,
+                    }]);
+                    LogModel.generate(req.session.mongoId, `joined the Mappers' Guild`, LogCategory.User);
+                } else {
+                    LogModel.generate(req.session.mongoId, `verified their account for the first time`, LogCategory.User);
+                }
+            } else {
+                if (user.username != username) {
+                    user.username = username;
+                    await user.save();
+                }
+
+                // User got 3 ranked maps from his last login
+                if (user.group === UserGroup.Spectator && group === UserGroup.User && !user.bypassLogin) {
+                    user.group = group;
+                    await user.save();
+
+                    webhookPost([{
+                        author: {
+                            name: user.username,
+                            icon_url: `https://a.ppy.sh/${user.osuId}`,
+                            url: `https://osu.ppy.sh/u/${user.osuId}`,
+                        },
+                        color: webhookColors.lightRed,
+                        description: `Joined the Mappers' Guild!`,
+                    }]);
+                    LogModel.generate(user._id, `joined the Mappers' Guild`, LogCategory.User);
+                }
+
+                req.session.mongoId = user._id;
+            }
+
+            req.session.osuId = osuId;
+
+            let lastPage = req.session.lastPage;
+            req.session.lastPage = undefined;
+
+            if (!lastPage) {
+                if (user.group === UserGroup.Admin) {
+                    lastPage = '/artists';
+                } else {
+                    lastPage = '/faq';
+                }
+            }
+
+            res.redirect(lastPage);
         }
     }
 });

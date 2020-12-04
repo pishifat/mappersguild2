@@ -73,7 +73,7 @@ export default Vue.extend({
 });
 </script>
 
-<style>
+<style scoped>
 
 .date-input {
     width: 10%;

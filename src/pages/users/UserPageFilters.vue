@@ -1,36 +1,35 @@
 <template>
-    <div class="container bg-container py-3 mb-2">
-        <filter-box
-            placeholder="enter to search for username..."
-        />
+    <div class="card card-body mb-2">
+        <div class="container">
+            <filter-box
+                placeholder="enter to search for username..."
+                :filter-value="filterValue"
+                @update-filter-value="updateFilterValue($event)"
+            >
+                <template #filters>
+                    <mode-filters
+                        :filter-mode="filterMode"
+                        @update-filter-mode="updateFilterMode($event)"
+                    />
+                </template>
+            </filter-box>
 
-        <div class="row small mt-3">
-            <div class="col-auto filter-title">
-                Sort
-            </div>
+            <div class="row small mt-3">
+                <div class="col-auto filter-title">
+                    Sort
+                </div>
 
-            <div class="col">
-                <a
-                    :class="sortBy === 'username' ? 'sorted' : 'unsorted'"
-                    href="#"
-                    @click.prevent="updateSorting('username')"
-                >
-                    Name
-                </a>
-                <a
-                    :class="sortBy === 'rank' ? 'sorted' : 'unsorted'"
-                    href="#"
-                    @click.prevent="updateSorting('rank')"
-                >
-                    Rank
-                </a>
-                <a
-                    :class="sortBy === 'createdAt' ? 'sorted' : 'unsorted'"
-                    href="#"
-                    @click.prevent="updateSorting('createdAt')"
-                >
-                    Joined
-                </a>
+                <div class="col">
+                    <a
+                        v-for="(sortText, sort) in sortOptions"
+                        :key="sort"
+                        :class="sortBy === sort ? 'sorted' : 'unsorted'"
+                        href="#"
+                        @click.prevent="updateSorting(sort)"
+                    >
+                        {{ sortText }}
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -38,25 +37,36 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import FilterBox from '../../components/FilterBox.vue';
 import { mapState, mapActions } from 'vuex';
+import FilterBox from '@components/FilterBox.vue';
+import ModeFilters from '@components/ModeFilters.vue';
 
 export default Vue.extend({
     name: 'UserPageFilters',
     components: {
         FilterBox,
+        ModeFilters,
     },
     data () {
         return {
             sorted: false,
+            sortOptions: {
+                username: 'Name',
+                rank: 'Rank',
+                createdAt: 'Joined',
+            },
         };
     },
-    computed: mapState([
+    computed: mapState('users', [
         'sortBy',
+        'filterMode',
+        'filterValue',
     ]),
     methods: {
-        ...mapActions([
+        ...mapActions('users', [
             'updateSorting',
+            'updateFilterValue',
+            'updateFilterMode',
         ]),
     },
 });

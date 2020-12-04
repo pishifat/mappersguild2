@@ -1,10 +1,10 @@
 <template>
-    <div v-cloak>
-        <div class="container bg-container py-1">
+    <div>
+        <div class="container card card-body py-1">
             <div class="row">
                 <div class="col-sm">
                     <data-table
-                        #default="{ obj: featuredArtist }"
+                        v-slot="{ obj: featuredArtist }"
                         :data="featuredArtists"
                         :headers="['ARTIST']"
                         @update:selected-id="selectedFeaturedArtistId = $event"
@@ -28,24 +28,21 @@
         <featured-artist-info
             :featured-artist="selectedFeaturedArtist"
         />
-
-        <toast-messages />
     </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
+import { mapState } from 'vuex';
 import FeaturedArtistInfo from '../../components/admin/FeaturedArtistInfo.vue';
 import DataTable from '../../components/admin/DataTable.vue';
-import ToastMessages from '../../components/ToastMessages.vue';
 import { FeaturedArtist } from '../../../interfaces/featuredArtist';
-import { mapState } from 'vuex';
+import artistsAdminModule from '@store/admin/featuredArtists';
 
 export default Vue.extend({
     components: {
         DataTable,
         FeaturedArtistInfo,
-        ToastMessages,
     },
     data () {
         return {
@@ -53,10 +50,22 @@ export default Vue.extend({
         };
     },
     computed: {
-        ...mapState(['featuredArtists']),
+        ...mapState({
+            featuredArtists: (state: any) => state.artistsAdmin.featuredArtists,
+        }),
         selectedFeaturedArtist(): undefined | FeaturedArtist {
             return this.featuredArtists.find(fa => fa.id === this.selectedFeaturedArtistId);
         },
+    },
+    beforeCreate () {
+        if (!this.$store.hasModule('artistsAdmin')) {
+            this.$store.registerModule('artistsAdmin', artistsAdminModule);
+        }
+    },
+    destroyed() {
+        if (this.$store.hasModule('artistsAdmin')) {
+            this.$store.unregisterModule('artistsAdmin');
+        }
     },
     async created() {
         const featuredArtists = await this.executeGet<FeaturedArtist[]>('/admin/featuredArtists/load');
@@ -64,12 +73,6 @@ export default Vue.extend({
         if (!this.isError(featuredArtists)) {
             this.$store.commit('setFeaturedArtists', featuredArtists);
         }
-
-        $('#loading').fadeOut();
-        $('#app')
-            .attr('style', 'visibility: visible')
-            .hide()
-            .fadeIn();
     },
 });
 </script>

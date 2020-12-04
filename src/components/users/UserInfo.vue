@@ -13,16 +13,16 @@
                     </button>
                 </div>
                 <div class="modal-body" style="overflow: hidden">
-                    <img src="../../images/the_A.png" class="the-a-background">
+                    <img src="/images/the_A.png" class="the-a-background">
                     <div class="row col-lg-12">
                         <table class="table table-sm col-md-6">
                             <thead>
-                                <td scope="col">
+                                <th scope="col">
                                     Task
-                                </td>
-                                <td scope="col">
+                                </th>
+                                <th scope="col">
                                     Points
-                                </td>
+                                </th>
                             </thead>
                             <tbody>
                                 <user-points-row
@@ -205,20 +205,20 @@
                         </div>
                     </div>
 
-                    <div class="radial-divisor mx-auto my-3" />
+                    <div class="radial-divisor" />
                     <p>Mappers' Guild beatmaps:</p>
                     <table class="table table-sm">
                         <thead>
-                            <td scope="col">
+                            <th scope="col">
                                 Mapset
-                            </td>
-                            <td scope="col">
+                            </th>
+                            <th scope="col">
                                 Host
-                            </td>
-                            <td scope="col">
+                            </th>
+                            <th scope="col">
                                 Tasks
-                            </td>
-                            <td scope="col" />
+                            </th>
+                            <th scope="col" />
                         </thead>
                         <tbody>
                             <tr v-if="!userBeatmaps.length">
@@ -268,17 +268,17 @@
                         </tbody>
                     </table>
 
-                    <div class="radial-divisor mx-auto my-3" />
+                    <div class="radial-divisor" />
 
                     <p>Spent points logs:</p>
                     <table class="table table-sm col-md-12">
                         <thead>
-                            <td scope="col">
+                            <th scope="col">
                                 Action
-                            </td>
-                            <td scope="col">
+                            </th>
+                            <th scope="col">
                                 Spent points
-                            </td>
+                            </th>
                         </thead>
                         <tbody>
                             <tr v-if="!spentPoints.length">
@@ -303,7 +303,7 @@
                         </tbody>
                     </table>
 
-                    <div class="radial-divisor mx-auto my-3" />
+                    <div class="radial-divisor" />
 
                     <p class="float-right">
                         Joined: {{ selectedUser.createdAt.slice(0, 10) }}
@@ -339,10 +339,10 @@ export default Vue.extend({
         };
     },
     computed: {
-        ...mapState({
-            userId: (state: any) => state.userId as string,
-        }),
-        ...mapGetters([
+        ...mapState([
+            'loggedInUser',
+        ]),
+        ...mapGetters('users', [
             'selectedUser',
         ]),
     },

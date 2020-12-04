@@ -12,7 +12,7 @@
                                 selectedBeatmap.quest.isMbc ? '../../images/mbc-icon.png' :
                                 `https://assets.ppy.sh/artists/${selectedBeatmap.quest.art}/cover.jpg`"
                             data-toggle="tooltip"
-                            :title="selectedBeatmap.quest.name"
+                            :title="selectedBeatmap.quest && selectedBeatmap.quest.name"
                         >
 
                         <span v-if="selectedBeatmap.url">
@@ -61,7 +61,7 @@
                     </button>
                 </div>
                 <div class="modal-body" style="overflow: hidden;">
-                    <img src="../../images/the_A.png" class="the-a-background">
+                    <img src="/images/the_A.png" class="the-a-background">
                     <beatmap-info
                         :beatmap="selectedBeatmap"
                     />
@@ -73,20 +73,21 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { mapState } from 'vuex';
 import BeatmapInfo from '@components/beatmaps/beatmapInfo/BeatmapInfo.vue';
 
 export default Vue.extend({
     components: {
         BeatmapInfo,
     },
-    computed: mapState([
-        'selectedBeatmap',
-        'isShowcase',
-    ]),
+    props: {
+        selectedBeatmap: {
+            type: Object,
+            default: () => undefined,
+        },
+    },
     watch: {
         selectedBeatmap(): void {
-            history.pushState(null, 'Beatmaps', `/${this.isShowcase ? 'showcase' : 'beatmaps'}?id=${this.selectedBeatmap.id}`);
+            history.pushState(null, 'Beatmaps', `/${this.selectedBeatmap.isShowcase ? 'showcase' : 'beatmaps'}?id=${this.selectedBeatmap.id}`);
         },
     },
 });

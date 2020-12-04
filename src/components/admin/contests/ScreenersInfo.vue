@@ -4,7 +4,7 @@
             Add screener:
             <input
                 v-model.number="screenerInput"
-                class="form-control-sm"
+                class="form-control form-control-sm"
                 autocomplete="off"
                 placeholder="username/osuId"
                 @keyup.enter="addScreener($event)"

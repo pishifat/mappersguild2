@@ -2,7 +2,7 @@
     <div id="editBeatmap" class="modal fade" tabindex="-1">
         <div class="modal-dialog">
             <div v-if="beatmap" class="modal-content bg-dark">
-                <div class="modal-header text-dark bg-rest">
+                <div class="modal-header text-dark bg-primary">
                     <h5 class="modal-title">
                         <a
                             v-if="beatmap.url"
@@ -67,7 +67,7 @@
                         <p class="form-row">
                             <input
                                 v-model="beatmapUrl"
-                                class="form-control-sm mx-2 w-75"
+                                class="form-control form-control-sm mx-2 w-75"
                                 type="text"
                                 autocomplete="off"
                                 placeholder="beatmap url..."
@@ -95,7 +95,7 @@
                         <p class="form-row">
                             <input
                                 v-model="packId"
-                                class="form-control-sm mx-2 w-50"
+                                class="form-control form-control-sm mx-2 w-50"
                                 type="text"
                                 autocomplete="off"
                                 placeholder="osu! beatmap pack ID..."
@@ -106,7 +106,7 @@
                         </p>
                         <p>
                             Featured Artist showcase:
-                            <span class="errors">{{ beatmap.isShowcase ? 'true' : 'false' }}</span>
+                            <span class="text-danger">{{ beatmap.isShowcase ? 'true' : 'false' }}</span>
                             <button class="btn btn-sm btn-outline-info" @click="updateIsShowcase($event)">
                                 Toggle
                             </button>

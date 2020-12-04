@@ -1,0 +1,40 @@
+import { StoreOptions } from 'vuex';
+import { User } from '../../../interfaces/user';
+
+interface UserState {
+    users: User[];
+}
+
+const store: StoreOptions<UserState> = {
+    state: {
+        users: [],
+    },
+    mutations: {
+        setUsers (state, users: User[]): void {
+            state.users = users;
+        },
+        updateBadge (state, payload): void {
+            const user = state.users.find(u => u.id == payload.userId);
+
+            if (user) {
+                user.badge = payload.badge;
+            }
+        },
+        updateDiscordId (state, payload): void {
+            const user = state.users.find(u => u.id == payload.userId);
+
+            if (user) {
+                user.discordId = payload.discordId;
+            }
+        },
+        updateBypassLogin (state, payload): void {
+            const user = state.users.find(u => u.id == payload.userId);
+
+            if (user) {
+                user.bypassLogin = payload.bypassLogin;
+            }
+        },
+    },
+};
+
+export default store;

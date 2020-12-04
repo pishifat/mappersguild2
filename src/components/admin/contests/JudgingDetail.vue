@@ -6,7 +6,7 @@
     >
         <div class="modal-dialog modal-lg">
             <div v-if="submission" class="modal-content bg-dark">
-                <div class="modal-header text-dark bg-orange">
+                <div class="modal-header text-dark bg-warning">
                     <h5 class="modal-title">
                         {{ submission.creator.username }}
                         ({{ submission.name }})

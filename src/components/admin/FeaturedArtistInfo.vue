@@ -2,7 +2,7 @@
     <div id="edit" class="modal fade" tabindex="-1">
         <div class="modal-dialog">
             <div v-if="featuredArtist" class="modal-content bg-dark">
-                <div class="modal-header text-dark bg-rest">
+                <div class="modal-header text-dark bg-primary">
                     <h5 class="modal-title">
                         <a
                             v-if="featuredArtist.osuId"
@@ -26,7 +26,7 @@
                         </button>
                         <input
                             v-model="osuId"
-                            class="form-control-sm mx-2 w-50"
+                            class="form-control form-control-sm mx-2 w-50"
                             type="text"
                             autocomplete="off"
                             placeholder="osu id..."
@@ -38,7 +38,7 @@
                         </button>
                         <input
                             v-model="name"
-                            class="form-control-sm mx-2 w-50"
+                            class="form-control form-control-sm mx-2 w-50"
                             type="text"
                             autocomplete="off"
                             placeholder="artist name..."
@@ -70,7 +70,7 @@
                     <p>
                         <input
                             v-model="artist"
-                            class="form-control-sm mx-2 w-75"
+                            class="form-control form-control-sm mx-2 w-75"
                             type="text"
                             autocomplete="off"
                             placeholder="artist..."
@@ -79,7 +79,7 @@
                     <p>
                         <input
                             v-model="title"
-                            class="form-control-sm mx-2 w-75"
+                            class="form-control form-control-sm mx-2 w-75"
                             type="text"
                             autocomplete="off"
                             placeholder="title..."

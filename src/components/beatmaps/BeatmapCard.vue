@@ -1,7 +1,7 @@
 <template>
-    <div class="my-2 col-sm-12 col-md-6 col-lg-4" @click="setSelectedBeatmap(beatmap)">
+    <div class="my-2 col-sm-12 col-md-6 col-lg-4" @click="$emit('set-selected-beatmap', beatmap)">
         <div
-            class="card map-card bg-dark"
+            class="card card-hover map-card bg-dark"
             :class="statusBorder"
             data-toggle="modal"
             data-target="#editBeatmap"
@@ -50,7 +50,6 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { mapMutations } from 'vuex';
 import { Beatmap } from '../../../interfaces/beatmap/beatmap';
 
 export default Vue.extend({
@@ -76,9 +75,6 @@ export default Vue.extend({
         },
     },
     methods: {
-        ...mapMutations([
-            'setSelectedBeatmap',
-        ]),
         fallbackImage(e): void {
             e.target.src = this.defaultUrl;
         },
@@ -136,7 +132,7 @@ export default Vue.extend({
                             }
                         }
                     });
-                    diffsBlock += `<span class="px-1 ${mode.count == 0 ? 'blocked' : modeStatus}" data-toggle="tooltip" data-placement="top" 
+                    diffsBlock += `<span class="px-1 text-${mode.count == 0 ? 'blocked' : modeStatus}" data-toggle="tooltip" data-placement="top" 
                         title="${mode.count > 0 ? mode.count : ''}">
                         ${mode.short}</span>`;
 
@@ -172,9 +168,9 @@ export default Vue.extend({
                                 }">${diff.short}${diff.count > 1 ? '+' : ''}</span>`;
                             }
                         } else if (tasksLocked.indexOf(diff.name) >= 0) {
-                            diffsBlock += `<span class="px-1 blocked">${diff.short}</span>`;
+                            diffsBlock += `<span class="px-1 text-blocked">${diff.short}</span>`;
                         } else {
-                            diffsBlock += `<span class="px-1 open">${diff.short}</span>`;
+                            diffsBlock += `<span class="px-1 text-open">${diff.short}</span>`;
                         }
                     });
                 } else {
@@ -194,7 +190,7 @@ export default Vue.extend({
                         tasksLocked.forEach(task => {
                             if (diff.name == task) {
                                 if (!isClaimed) {
-                                    diffsBlock += `<span class="px-1 blocked">${
+                                    diffsBlock += `<span class="px-1 text-blocked">${
                                         diff.short
                                     }</span>`;
                                 }
@@ -204,7 +200,7 @@ export default Vue.extend({
                         });
 
                         if (!isUsed) {
-                            diffsBlock += `<span class="px-1 open">${diff.short}</span>`;
+                            diffsBlock += `<span class="px-1 text-open">${diff.short}</span>`;
                         }
                     });
                 }
@@ -216,7 +212,7 @@ export default Vue.extend({
 });
 </script>
 
-<style>
+<style scoped>
     .map-card{
         overflow:hidden;
         height:75px;

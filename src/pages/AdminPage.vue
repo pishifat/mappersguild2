@@ -1,6 +1,6 @@
 <template>
-    <div v-cloak>
-        <div class="container bg-container py-1 mb-4">
+    <div>
+        <div class="container card card-body py-1 mb-4">
             <div class="row mx-3 mt-2">
                 <button class="btn btn-sm btn-info btn-block" @click="loadActionBeatmaps($event, false)">
                     Load beatmaps
@@ -72,7 +72,7 @@
             </div>
         </div>
 
-        <div class="container bg-container py-1 mb-4">
+        <div class="container card card-body py-1 mb-4">
             <div class="row mx-3 mt-2">
                 <button class="btn btn-sm btn-info btn-block" @click="loadActionQuests($event)">
                     Load quests
@@ -149,7 +149,7 @@
             </div>
         </div>
 
-        <div class="container bg-container py-1">
+        <div class="container card card-body py-1">
             <div class="row mx-3 mt-2">
                 <button class="btn btn-sm btn-info btn-block" @click="updateUserPoints($event)">
                     Update user points
@@ -229,7 +229,7 @@
             </div>
         </div>
 
-        <div class="radial-divisor mx-auto my-4" />
+        <div class="radial-divisor" />
 
         <beatmap-info
             v-if="selectedBeatmap"
@@ -254,8 +254,6 @@
             :user="selectedUser"
             @update-user="updateUser($event)"
         />
-
-        <toast-messages />
     </div>
 </template>
 
@@ -266,10 +264,10 @@ import BeatmapInfo from '../components/admin/BeatmapInfo.vue';
 import QuestInfo from '../components/admin/quests/QuestInfo.vue';
 import ReviewQuest from '../components/admin/quests/ReviewQuest.vue';
 import UserInfo from '../components/admin/UserInfo.vue';
-import { Beatmap } from '../../interfaces/beatmap/beatmap';
-import { Quest } from '../../interfaces/quest';
-import { User } from '../../interfaces/user';
-import ToastMessages from '../components/ToastMessages.vue';
+import { Beatmap } from '@interfaces/beatmap/beatmap';
+import { Quest } from '@interfaces/quest';
+import { User } from '@interfaces/user';
+import adminModule from '@store/admin';
 
 export default Vue.extend({
     name: 'AdminPage',
@@ -278,36 +276,32 @@ export default Vue.extend({
         QuestInfo,
         ReviewQuest,
         UserInfo,
-        ToastMessages,
     },
     data() {
         return {
             calculatingPoints: false,
         };
     },
-    computed: mapState([
-        'actionBeatmaps',
-        'actionBeatmapsLoading',
-        'actionQuests',
-        'actionQuestsLoading',
-        'actionUsers',
-        'actionUsersLoading',
-        'selectedBeatmap',
-        'selectedQuest',
-        'selectedUser',
-    ]),
-    async created() {
-        await this.$store.commit('setActionBeatmaps', []); // this await is unnecessary but the page doesnt load without an await. i'll fix this eventually
-        this.$store.commit('setActionQuests', []);
-        this.$store.commit('setActionUsers', []);
-        this.$store.commit('setActionBeatmapsLoading', false);
-        this.$store.commit('setActionQuestsLoading', false);
-        this.$store.commit('setActionUsersLoading', false);
-        $('#loading').fadeOut();
-        $('#app')
-            .attr('style', 'visibility: visible')
-            .hide()
-            .fadeIn();
+    computed: mapState({
+        actionBeatmaps: (state: any) => state.admin.actionBeatmaps,
+        actionBeatmapsLoading: (state: any) => state.admin.actionBeatmapsLoading,
+        actionQuests: (state: any) => state.admin.actionQuests,
+        actionQuestsLoading: (state: any) => state.admin.actionQuestsLoading,
+        actionUsers: (state: any) => state.admin.actionUsers,
+        actionUsersLoading: (state: any) => state.admin.actionUsersLoading,
+        selectedBeatmap: (state: any) => state.admin.selectedBeatmap,
+        selectedQuest: (state: any) => state.admin.selectedQuest,
+        selectedUser: (state: any) => state.admin.selectedUser,
+    }),
+    beforeCreate () {
+        if (!this.$store.hasModule('admin')) {
+            this.$store.registerModule('admin', adminModule);
+        }
+    },
+    destroyed() {
+        if (this.$store.hasModule('admin')) {
+            this.$store.unregisterModule('admin');
+        }
     },
     methods: {
         generateMetadata(song): string {
@@ -371,11 +365,3 @@ export default Vue.extend({
     },
 });
 </script>
-
-<style>
-.collapsing {
-    -webkit-transition: none;
-    transition: none;
-    display: none;
-}
-</style>

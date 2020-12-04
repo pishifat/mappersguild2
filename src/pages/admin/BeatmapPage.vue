@@ -1,13 +1,13 @@
 <template>
-    <div v-cloak>
-        <div class="container bg-container py-1">
+    <div>
+        <div class="container card card-body py-1">
             <div class="row">
                 <div class="col-sm">
                     <button class="btn btn-sm btn-info btn-block" data-toggle="modal" data-target="#newsPost">
                         Create news post
                     </button>
                     <data-table
-                        #default="{ obj: beatmap }"
+                        v-slot="{ obj: beatmap }"
                         :data="beatmaps"
                         :headers="['METADATA', 'PACK ID', 'STATUS']"
                         :custom-data-target="'#editBeatmap'"
@@ -19,9 +19,9 @@
                             <i v-else-if="beatmap.mode == 'catch'" class="fas fa-apple-alt" />
                             <i v-else-if="beatmap.mode == 'mania'" class="fas fa-stream" />
                             <a v-if="beatmap.url" :href="beatmap.url">
-                                {{ beatmap.song | formatMetadata }}
+                                {{ formatMetadata(beatmap.song) }}
                             </a>
-                            <span v-else>{{ beatmap.song | formatMetadata }}</span>
+                            <span v-else>{{ formatMetadata(beatmap.song) }}</span>
                         </td>
                         <td>
                             {{ beatmap.packId }}
@@ -45,21 +45,19 @@
         <bundled-beatmaps-list />
 
         <beatmap-pack-id-list-generator />
-
-        <toast-messages />
     </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
+import { mapState } from 'vuex';
 import NewsPost from '../../components/admin/newspost/NewsPost.vue';
 import BeatmapInfo from '../../components/admin/BeatmapInfo.vue';
 import BundledBeatmapsList from '../../components/admin/BundledBeatmapsList.vue';
 import BeatmapPackIdListGenerator from '../../components/admin/BeatmapPackIdListGenerator.vue';
 import DataTable from '../../components/admin/DataTable.vue';
-import ToastMessages from '../../components/ToastMessages.vue';
 import { Beatmap } from '../../../interfaces/beatmap/beatmap';
-import { mapState } from 'vuex';
+import beatmapsAdminModule from '@store/admin/beatmaps';
 
 export default Vue.extend({
     components: {
@@ -68,9 +66,45 @@ export default Vue.extend({
         BeatmapInfo,
         BundledBeatmapsList,
         BeatmapPackIdListGenerator,
-        ToastMessages,
     },
-    filters: {
+    data () {
+        return {
+            selectedBeatmapId: '',
+        };
+    },
+    computed: {
+        ...mapState({
+            beatmaps: (state: any) => state.beatmapsAdmin.beatmaps,
+        }),
+        selectedBeatmap(): undefined | Beatmap {
+            return this.beatmaps.find(b => b.id === this.selectedBeatmapId);
+        },
+    },
+    beforeCreate () {
+        if (!this.$store.hasModule('beatmapsAdmin')) {
+            this.$store.registerModule('beatmapsAdmin', beatmapsAdminModule);
+        }
+    },
+    destroyed() {
+        if (this.$store.hasModule('beatmapsAdmin')) {
+            this.$store.unregisterModule('beatmapsAdmin');
+        }
+    },
+    async created() {
+        const beatmaps = await this.executeGet<Beatmap[]>('/admin/beatmaps/load');
+
+        if (!this.isError(beatmaps)) {
+            this.$store.commit('setBeatmaps', beatmaps);
+        }
+    },
+    methods: {
+        updateBeatmap(b): void {
+            const i = this.beatmaps.findIndex(beatmap => beatmap.id == b.id);
+
+            if (i !== -1) {
+                Vue.set(this.beatmaps, i, b);
+            }
+        },
         formatMetadata(song): string {
             if (!song) {
                 return '';
@@ -85,39 +119,6 @@ export default Vue.extend({
             }
 
             return metadata;
-        },
-    },
-    data () {
-        return {
-            selectedBeatmapId: '',
-        };
-    },
-    computed: {
-        ...mapState(['beatmaps']),
-        selectedBeatmap(): undefined | Beatmap {
-            return this.beatmaps.find(b => b.id === this.selectedBeatmapId);
-        },
-    },
-    async created() {
-        const beatmaps = await this.executeGet<Beatmap[]>('/admin/beatmaps/load');
-
-        if (!this.isError(beatmaps)) {
-            this.$store.commit('setBeatmaps', beatmaps);
-        }
-
-        $('#loading').fadeOut();
-        $('#app')
-            .attr('style', 'visibility: visible')
-            .hide()
-            .fadeIn();
-    },
-    methods: {
-        updateBeatmap(b): void {
-            const i = this.beatmaps.findIndex(beatmap => beatmap.id == b.id);
-
-            if (i !== -1) {
-                Vue.set(this.beatmaps, i, b);
-            }
         },
     },
 });

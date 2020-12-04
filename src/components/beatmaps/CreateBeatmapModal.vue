@@ -11,7 +11,7 @@
                     </button>
                 </div>
                 <div class="modal-body" style="overflow: hidden">
-                    <img src="../../images/the_A.png" class="the-a-background">
+                    <img src="/images/the_A.png" class="the-a-background">
                     <div class="container">
                         <div class="form-group row">
                             <div class="col-lg-1">
@@ -148,7 +148,7 @@
                         </div>
                     </div>
 
-                    <div class="radial-divisor mx-auto my-3" />
+                    <div class="radial-divisor" />
 
                     <button type="submit" class="btn btn-outline-success btn-block" @click="saveNewMap($event)">
                         Save
@@ -161,9 +161,9 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { FeaturedSong } from '../../../interfaces/featuredSong';
-import { FeaturedArtist } from '../../../interfaces/featuredArtist';
-import { Beatmap } from '../../../interfaces/beatmap/beatmap';
+import { FeaturedSong } from '@interfaces/featuredSong';
+import { FeaturedArtist } from '@interfaces/featuredArtist';
+import { Beatmap } from '@interfaces/beatmap/beatmap';
 
 export default Vue.extend({
     name: 'CreateBeatmapModal',

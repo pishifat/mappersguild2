@@ -2,7 +2,7 @@
     <div id="addQuest" class="modal fade" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content bg-dark">
-                <div class="modal-header text-dark bg-rest">
+                <div class="modal-header text-dark bg-primary">
                     <h5 class="modal-title">
                         Add quest
                     </h5>
@@ -14,7 +14,7 @@
                     <p>
                         <input
                             v-model="name"
-                            class="form-control-sm w-100"
+                            class="form-control form-control-sm w-100"
                             type="text"
                             autocomplete="off"
                             placeholder="name..."
@@ -23,7 +23,7 @@
                     <p>
                         <input
                             v-model="price"
-                            class="form-control-sm w-100"
+                            class="form-control form-control-sm w-100"
                             type="text"
                             autocomplete="off"
                             placeholder="price..."
@@ -32,7 +32,7 @@
                     <p>
                         <textarea
                             v-model="description"
-                            class="form-control-sm w-100"
+                            class="form-control form-control-sm w-100"
                             type="text"
                             autocomplete="off"
                             placeholder="description..."
@@ -41,7 +41,7 @@
                     <p>
                         <input
                             v-model="timeframe"
-                            class="form-control-sm w-100"
+                            class="form-control form-control-sm w-100"
                             type="text"
                             autocomplete="off"
                             placeholder="timeframe (days)..."
@@ -50,7 +50,7 @@
                     <p>
                         <input
                             v-model="minParty"
-                            class="form-control-sm w-100"
+                            class="form-control form-control-sm w-100"
                             type="text"
                             autocomplete="off"
                             placeholder="minimum party..."
@@ -59,7 +59,7 @@
                     <p>
                         <input
                             v-model="maxParty"
-                            class="form-control-sm w-100"
+                            class="form-control form-control-sm w-100"
                             type="text"
                             autocomplete="off"
                             placeholder="maximum party..."
@@ -68,7 +68,7 @@
                     <p>
                         <input
                             v-model="minRank"
-                            class="form-control-sm w-100"
+                            class="form-control form-control-sm w-100"
                             type="text"
                             autocomplete="off"
                             placeholder="minimum rank..."
@@ -77,7 +77,7 @@
                     <p>
                         <input
                             v-model="osuId"
-                            class="form-control-sm w-100"
+                            class="form-control form-control-sm w-100"
                             type="text"
                             autocomplete="off"
                             placeholder="artist osu ID..."

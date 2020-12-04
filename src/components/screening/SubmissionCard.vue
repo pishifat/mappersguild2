@@ -1,7 +1,7 @@
 <template>
     <div class="col-sm-12 my-1">
         <div
-            class="card static-card"
+            class="card"
             :class="relatedScreening && relatedScreening.vote ? 'bg-vote' : 'bg-dark'"
         >
             <div class="card-body p-2">
@@ -53,16 +53,16 @@ export default Vue.extend({
     },
     computed: {
         ...mapState([
-            'userId',
+            'loggedInUser',
         ]),
         relatedScreening(): Screening | undefined {
-            return this.submission.evaluations.find(e => e.screener._id === this.userId);
+            return this.submission.evaluations.find(e => e.screener._id === this.loggedInUser.id);
         },
     },
 });
 </script>
 
-<style>
+<style scoped>
 .font-8{
     font-size: 8pt;
 }
@@ -74,12 +74,6 @@ input:focus {
     border-color: transparent;
     filter: drop-shadow(1px 1px 1px #000000);
     border-radius: 0 100px 100px 0;
-}
-
-.collapsing {
-    -webkit-transition: none;
-    transition: none;
-    display: none;
 }
 
 .w-10 {

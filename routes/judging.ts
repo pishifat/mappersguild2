@@ -1,5 +1,5 @@
 import express from 'express';
-import { isLoggedIn } from '../helpers/middlewares';
+import { isLoggedIn, unauthorize } from '../helpers/middlewares';
 import { ContestModel } from '../models/contest/contest';
 import { SubmissionModel } from '../models/contest/submission';
 import { CriteriaModel } from '../models/contest/criteria';
@@ -43,22 +43,11 @@ async function isJudge(req, res, next): Promise<void> {
         return next();
     }
 
-    return res.redirect('/');
+    return unauthorize(req, res);
 }
 
 judgingRouter.use(isLoggedIn);
 judgingRouter.use(isJudge);
-
-/* GET parties page. */
-judgingRouter.get('/', (req, res) => {
-    res.render('judging', {
-        title: 'Judging',
-        script: 'judging.js',
-        loggedInAs: req.session?.osuId,
-        userMongoId: req.session?.mongoId,
-        pointsInfo: res.locals.userRequest.pointsInfo,
-    });
-});
 
 judgingRouter.get('/relevantInfo', async (req, res) => {
     const contest = res.locals.contest;

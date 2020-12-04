@@ -20,14 +20,14 @@
                 </span>
             </div>
             <div v-if="tasksPointsArray" class="col-sm-6">
-                <ul class="small text-white-50" style="list-style-type: disc">
+                <ul class="small text-white-50">
                     <li v-for="(value, i) in tasksPointsArray" :key="i">
                         {{ value }}
                     </li>
                 </ul>
             </div>
             <div class="col-sm-6">
-                <ul v-if="usersPointsArrays" class="small text-white-50" style="list-style-type: disc">
+                <ul v-if="usersPointsArrays" class="small text-white-50">
                     <li v-for="(value, i) in usersPointsArrays" :key="i">
                         {{ usersPointsArrays[i][0] }}: {{ usersPointsArrays[i][1] }}
                     </li>

@@ -1,5 +1,5 @@
 <template>
-    <div class="container bg-container py-1 mb-4">
+    <div class="container card card-body py-1 mb-4">
         <button class="btn btn-sm btn-block btn-outline-info" @click="findBundledBeatmaps($event)">
             Load bundled beatmaps
         </button>
@@ -87,6 +87,3 @@ export default Vue.extend({
     },
 });
 </script>
-
-<style>
-</style>

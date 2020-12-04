@@ -1,0 +1,116 @@
+@import "variables";
+@import "~bootstrap/scss/bootstrap";
+@import "custom";
+
+[v-cloak] * {
+    display: none;
+}
+
+.radial-divisor {
+    height:3px; 
+    width: 50%; 
+    background-image: radial-gradient(var(--guild), transparent);
+    margin: 1.5rem auto;
+}
+
+.linear-divisor {
+    height: 3px;
+    width: 50%;
+    background-image: linear-gradient(to right, var(--guild), transparent);
+}
+
+.page-content-header {
+    background-image: linear-gradient(to right, transparent, rgb(76, 69, 63, 0.5) 50%, transparent);
+}
+
+.osu-badge {
+    border-radius: 4px 4px 4px 4px;
+    filter: drop-shadow(1px 1px 1px #000000);
+}
+
+.landing {
+    font-family: Aquatico;
+    color: var(--guild);
+}
+
+.footer-bar {
+    background-color: var(--guild);
+    height: 10px;
+}
+
+.the-a-background {
+    width: 557px;
+    height: 600px;
+    margin-left: 110px;
+    position: absolute;
+    opacity: 0.6;
+    filter: blur(5px);
+    pointer-events: none;
+}
+
+.notification-card-spacing {
+    margin: 0;
+    padding: 0.5rem 0.5rem 0.5rem 0.5rem;
+}
+
+.notification-button {
+    margin: 0;
+    padding: 0 0.5rem 0 0.5rem;
+    font-size: 10pt;
+}
+
+.sorted {
+    background-color: #ffffff2e;
+    padding: 5px;
+    border-radius: 9px;
+    color: var(--primary);
+}
+
+.unsorted {
+    padding: 5px;
+}
+
+.nav-avatar {
+    height:50px; 
+    width:50px; 
+    filter: drop-shadow(1px 1px 1px rgba(31, 31, 31, 0.25)); 
+    padding: 0;
+}
+
+@media (max-width: 768px) {
+    .nav-avatar-menu {
+        display: none;
+    }
+}
+
+@media (min-width: 768px) {
+    .nav-logout {
+        display: none;
+    }
+}
+
+.loading-data {
+    opacity: 0.3;
+}
+
+.filter-title {
+    width: 75px;
+}
+
+// Transitions
+
+.list-enter-active,
+.list-leave-active,
+.list-move {
+    transition: all 1s;
+}
+
+.list-leave-active {
+    position: absolute;
+}
+
+.list-enter,
+.list-leave-to {
+    opacity: 0;
+    transform: translateY(30px);
+}

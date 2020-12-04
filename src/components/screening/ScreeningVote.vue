@@ -20,7 +20,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import { mapState, mapGetters } from 'vuex';
-import { ScreeningPlacement } from '../../../interfaces/contest/screening';
+import { ScreeningPlacement } from '@interfaces/contest/screening';
 
 export default Vue.extend({
     name: 'ScreeningVote',
@@ -35,7 +35,9 @@ export default Vue.extend({
         },
     },
     computed: {
-        ...mapState(['voteLoading']),
+        ...mapState({
+            voteLoading: (state: any) => state.voteLoading,
+        }),
         ...mapGetters(['usedVotes']),
     },
     methods: {

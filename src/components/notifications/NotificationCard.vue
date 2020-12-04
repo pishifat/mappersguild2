@@ -1,6 +1,6 @@
 <template>
     <div class="col-md-12 my-2">
-        <div class="card static-card bg-dark">
+        <div class="card bg-dark">
             <div class="card-body notification-card-spacing">
                 <p class="card-text small">
                     <a
@@ -18,7 +18,7 @@
                         <span v-else>"{{ notification.map.song.artist }} - {{ notification.map.song.title }}"</span>
                         <a
                             href="#"
-                            class="icon-valid"
+                            class="text-done"
                             :data-user="notification.map.id"
                             data-toggle="modal"
                             data-target="#limitedEditBeatmap"
@@ -28,7 +28,7 @@
 
                     <span v-if="notification.party">for quest "{{ notification.quest.name }}" <a
                         href="#"
-                        class="icon-valid"
+                        class="text-done"
                         :data-user="notification.party.id"
                         data-toggle="modal"
                         data-target="#limitedEditParty"

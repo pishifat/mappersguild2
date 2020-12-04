@@ -11,17 +11,6 @@ adminUsersRouter.use(isLoggedIn);
 adminUsersRouter.use(isAdmin);
 adminUsersRouter.use(isSuperAdmin);
 
-/* GET users - admin page */
-adminUsersRouter.get('/', (req, res) => {
-    res.render('admin/users', {
-        title: 'Users - Admin',
-        script: 'adminUsers.js',
-        loggedInAs: req.session?.osuId,
-        userMongoId: req.session?.mongoId,
-        pointsInfo: res.locals.userRequest.pointsInfo,
-    });
-});
-
 /* GET users */
 adminUsersRouter.get('/load', async (req, res) => {
     const users = await UserModel.find({}).sort({ username: 1 });

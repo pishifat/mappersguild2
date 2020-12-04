@@ -72,18 +72,6 @@ async function updatePartyInfo(id: Party['_id']): Promise<BasicResponse> {
     return { success: 'ok' };
 }
 
-/* GET quests page */
-questsRouter.get('/', (req, res) => {
-    res.render('quests', {
-        title: 'Quests',
-        script: 'quests.js',
-        isQuests: true,
-        loggedInAs: req.session?.osuId,
-        userMongoId: req.session?.mongoId,
-        pointsInfo: res.locals.userRequest.pointsInfo,
-    });
-});
-
 /* GET relevant quest info */
 questsRouter.get('/relevantInfo', async (req, res) => {
     const openQuests = await QuestModel
@@ -97,11 +85,7 @@ questsRouter.get('/relevantInfo', async (req, res) => {
 
     res.json({
         openQuests,
-        userMongoId: req.session?.mongoId,
-        group: res.locals.userRequest.group,
-        rank: res.locals.userRequest.rank,
         mainMode: res.locals.userRequest.mainMode,
-        availablePoints: res.locals.userRequest.availablePoints,
     });
 });
 
@@ -768,7 +752,7 @@ questsRouter.post('/reopenQuest/:questId', isNotSpectator, async (req, res) => {
 
     webhookPost([{
         author: {
-            name: req.session?.username,
+            name: res.locals.userRequest.username,
             url: `https://osu.ppy.sh/users/${req.session?.osuId}`,
             icon_url: `https://a.ppy.sh/${req.session?.osuId}`,
         },

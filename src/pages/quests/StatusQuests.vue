@@ -1,5 +1,5 @@
 <template>
-    <div class="container bg-container py-1">
+    <div class="container card card-body py-1">
         <div class="row">
             <div class="col-sm">
                 <h5 class="ml-4 mt-2">

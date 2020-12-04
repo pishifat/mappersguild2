@@ -10,7 +10,7 @@
         >
             <div class="modal-dialog" role="document">
                 <div class="modal-content bg-dark">
-                    <div class="modal-header bg-orange text-dark">
+                    <div class="modal-header bg-warning text-dark">
                         <h5
                             id="exampleModalLongTitle"
                             class="modal-title"
@@ -88,9 +88,9 @@ export default Vue.extend({
         };
     },
     computed: {
-        ...mapState([
-            'judgingDone',
-        ]),
+        ...mapState({
+            judgingDone: (state: any) => state.judging.judgingDone,
+        }),
         ...mapGetters([
             'editingSubmission',
             'editingCriteria',

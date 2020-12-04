@@ -1,25 +1,9 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const path = require('path');
+/* eslint-disable @typescript-eslint/no-var-requires */
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
     entry: {
-        beatmaps: './src/beatmaps.ts',
-        quests: './src/quests.ts',
-        users: './src/users.ts',
-        notifications: './src/notifications.ts',
-        admin: './src/admin.ts',
-        artists: './src/artists.ts',
-        screening: './src/screening.ts',
-        judging: './src/judging.ts',
-        contestResults: './src/contestResults.ts',
-        showcase: './src/showcase.ts',
-        adminContests: './src/admin/contests.ts',
-        adminBeatmaps: './src/admin/beatmaps.ts',
-        adminQuests: './src/admin/quests.ts',
-        adminUsers: './src/admin/users.ts',
-        adminFeaturedArtists: './src/admin/featuredArtists.ts',
-        logs: './src/logs.ts',
-        notificationsComponent: './src/notificationsComponent.ts',
+        app: './src/app.ts',
     },
     rules: [
         {
@@ -36,29 +20,30 @@ module.exports = {
             },
         },
         {
-            test: /\.(png|svg|jpg|gif)$/,
-            use: [{
-                loader: 'file-loader',
-                // name: '[name].[ext]',
-                options: {
-                    outputPath: '../images',
-                },
-            }],
+            test: /\.(png|svg|jpg|jpeg|gif)$/i,
+            type: 'asset/resource',
         },
         {
-            test: /\.css$/,
-            use: ['vue-style-loader', 'css-loader'],
+            test: /\.woff$/i,
+            type: 'asset/resource',
+        },
+        {
+            test: /(\.s[ac]ss|\.css)$/i,
+            use: [
+                process.env.NODE_ENV !== 'production'
+                    ? 'vue-style-loader'
+                    : MiniCssExtractPlugin.loader,
+                {
+                    loader: 'css-loader',
+                    options: {
+                        esModule: false,
+                        url: false,
+                    },
+                },
+                'sass-loader',
+            ],
         },
     ],
-    resolve: {
-        extensions: ['.ts', '.js', '.json'],
-        alias: {
-            vue$: 'vue/dist/vue.esm.js',
-            '@src': path.resolve(__dirname, 'src/'),
-            '@components': path.resolve(__dirname, 'src/components/'),
-            '@pages': path.resolve(__dirname, 'src/pages/'),
-        },
-    },
     externals: {
         jquery: '$',
     },

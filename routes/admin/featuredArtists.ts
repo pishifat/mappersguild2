@@ -2,9 +2,6 @@ import express from 'express';
 import { isLoggedIn, isAdmin, isSuperAdmin } from '../../helpers/middlewares';
 import { FeaturedArtistModel } from '../../models/featuredArtist';
 import { FeaturedSongModel } from '../../models/featuredSong';
-import { FeaturedArtistStatus } from '../../interfaces/featuredArtist';
-import { BeatmapModel } from '../../models/beatmap/beatmap';
-import { BeatmapStatus } from '../../interfaces/beatmap/beatmap';
 
 const adminFeaturedArtistsRouter = express.Router();
 
@@ -13,17 +10,6 @@ adminFeaturedArtistsRouter.use(isAdmin);
 adminFeaturedArtistsRouter.use(isSuperAdmin);
 
 const defaultPopulate = { path: 'songs', select: 'artist title' };
-
-/* GET users - admin page */
-adminFeaturedArtistsRouter.get('/', (req, res) => {
-    res.render('admin/featuredArtists', {
-        title: 'FA - Admin',
-        script: 'adminFeaturedArtists.js',
-        loggedInAs: req.session?.osuId,
-        userMongoId: req.session?.mongoId,
-        pointsInfo: res.locals.userRequest.pointsInfo,
-    });
-});
 
 /* GET featured artists */
 adminFeaturedArtistsRouter.get('/load', async (req, res) => {

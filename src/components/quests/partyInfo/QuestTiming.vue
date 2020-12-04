@@ -15,7 +15,7 @@
                 </div>
                 <div class="small ml-3">
                     Time remaining:
-                    <span :class="timeRemaining > 0 ? 'text-white-50' : 'errors'">{{ timeRemaining }} days</span>
+                    <span :class="timeRemaining > 0 ? 'text-white-50' : 'text-danger'">{{ timeRemaining }} days</span>
                 </div>
             </div>
         </div>

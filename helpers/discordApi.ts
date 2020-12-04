@@ -24,7 +24,7 @@ interface DiscordWebhookMessage {
     };
 }
 
-export async function webhookPost(message: DiscordWebhookMessage[]): Promise<object> {
+export async function webhookPost(message: DiscordWebhookMessage[]): Promise<{ success: 'ok' } | typeof defaultErrorMessage > {
     const url = `https://discordapp.com/api/webhooks/${config.webhook.id}/${config.webhook.token}`;
 
     try {

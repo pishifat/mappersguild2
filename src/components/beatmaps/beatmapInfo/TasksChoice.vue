@@ -3,9 +3,9 @@
         <div class="col-sm-12">
             <table class="table table-sm">
                 <thead>
-                    <td>Difficulty</td>
-                    <td>Mapper(s)</td>
-                    <td v-if="!isRanked && !isQualified" />
+                    <th>Difficulty</th>
+                    <th>Mapper(s)</th>
+                    <th v-if="!isRanked && !isQualified" />
                 </thead>
                 <transition-group tag="tbody" name="list">
                     <tr
@@ -116,7 +116,7 @@
                                 <a
                                     v-if="task.status == 'Done' && beatmap.status != 'Done'"
                                     href="#"
-                                    class="icon-wip"
+                                    class="text-wip"
                                     data-toggle="tooltip"
                                     data-placement="top"
                                     title="mark as WIP"

@@ -2,7 +2,7 @@
     <div id="editQuest" class="modal fade" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div v-if="selectedQuest" class="modal-content bg-dark">
-                <div class="modal-header text-dark" :class="selectedQuest.creator.username == 'pishifat' ? 'bg-orange' : 'bg-yellow'">
+                <div class="modal-header text-dark" :class="selectedQuest.creator.username == 'pishifat' ? 'bg-warning' : 'bg-primary'">
                     <h5 class="modal-title">
                         <a :href="`/quests?id=${selectedQuest.id}`" target="_blank" class="text-dark">
                             {{ selectedQuest.name }}
@@ -67,7 +67,7 @@
                             </div>
                         </div>
 
-                        <div class="radial-divisor mx-auto my-3" />
+                        <div class="radial-divisor" />
 
                         <expiration-info
                             v-if="selectedQuest.isExpired"
@@ -87,7 +87,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { mapState } from 'vuex';
+import { mapGetters, mapState } from 'vuex';
 import QuestSize from './QuestSize.vue';
 import QuestPrice from './QuestPrice.vue';
 import QuestTime from './QuestTime.vue';
@@ -113,25 +113,27 @@ export default Vue.extend({
             return Math.floor(remaning / (1000 * 60 * 60 * 24));
         },
         ...mapState([
-            'userId',
+            'loggedInUser',
+        ]),
+        ...mapGetters([
             'selectedQuest',
         ]),
         memberOfAnyParty(): boolean {
             return this.selectedQuest.parties.some(p =>
-                p.members.some(m => m.id === this.userId)
+                p.members.some(m => m.id === this.loggedInUser.id)
             );
         },
     },
 });
 </script>
 
-<style>
+<style scoped>
 .card-avatar-img-modal {
     max-width: 72px;
     max-height: 72px;
     object-fit: cover;
     border-radius: 100%;
-    box-shadow: 0 1px 0.5rem rgba(10, 10, 25);
-    background-color: rgba(10, 10, 25);
+    box-shadow: 0 1px 0.5rem rgb(10, 10, 25);
+    background-color: rgb(10, 10, 25);
 }
 </style>

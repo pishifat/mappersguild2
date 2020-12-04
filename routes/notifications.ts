@@ -60,7 +60,7 @@ const invitePopulate = [
 ];
 
 //updating party rank and modes when accepting invite
-async function updatePartyInfo(id: string): Promise<object> {
+async function updatePartyInfo(id: string): Promise<Record<string, string>> {
     const p = await PartyModel
         .findById(id)
         .populate({ path: 'members', select: 'rank' });
@@ -169,18 +169,6 @@ async function addTaskChecks(userId: User['_id'], b: Beatmap, invite: Invite, is
 
     return { success: 'ok' };
 }
-
-/* GET notifications/invites */
-notificationsRouter.get('/', (req, res) => {
-    res.render('notifications', {
-        title: 'Notifications/Invites',
-        script: 'notifications.js',
-        isNotifications: true,
-        loggedInAs: req.session?.osuId,
-        userMongoId: req.session?.mongoId,
-        pointsInfo: res.locals.userRequest.pointsInfo,
-    });
-});
 
 /* GET notifications/invites listing. */
 notificationsRouter.get('/relevantInfo', async (req, res) => {
@@ -456,7 +444,7 @@ notificationsRouter.post('/acceptJoin/:id', isNotSpectator, async (req, res) => 
     if (q.status == QuestStatus.WIP) {
         SpentPointsModel.generate(
             SpentPointsCategory.AcceptQuest,
-            req.session?.mongoId,
+            req.session.mongoId,
             q._id
         );
         updateUserPoints(req.session?.mongoId);

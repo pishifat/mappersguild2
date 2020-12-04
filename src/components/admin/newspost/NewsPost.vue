@@ -2,7 +2,7 @@
     <div id="newsPost" class="modal fade" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content bg-dark">
-                <div class="modal-header text-dark bg-rest">
+                <div class="modal-header text-dark bg-primary">
                     <h5 class="modal-title">
                         Generate news post
                     </h5>
@@ -17,7 +17,7 @@
                         </button>
                         <input
                             v-model="date"
-                            class="form-control-sm mx-2 w-25"
+                            class="form-control form-control-sm mx-2 w-25"
                             type="text"
                             autocomplete="off"
                             placeholder="YYYY-MM-DD"

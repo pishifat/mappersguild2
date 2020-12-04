@@ -84,3 +84,11 @@ export default Vue.extend({
     },
 });
 </script>
+
+<style scoped>
+
+.rounded-100 {
+    border-radius: 100%!important;
+}
+
+</style>

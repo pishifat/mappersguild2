@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
 import { defaultErrorMessage, sleep, BasicError } from './helpers';
 import querystring from 'querystring';
 import config from '../config.json';
@@ -23,7 +22,7 @@ export interface OsuBeatmapResponse {
     tags: string[];
 }
 
-interface OsuAuthResponse {
+export interface OsuAuthResponse {
     id: number;
     username: string;
     is_nat: boolean;
@@ -100,7 +99,7 @@ export async function refreshToken(refreshToken: string): Promise<OsuAuthRespons
 }
 
 export async function getUserInfo(token: string): Promise<OsuAuthResponse | BasicError> {
-    const options = {
+    const options: AxiosRequestConfig = {
         url: 'https://osu.ppy.sh/api/v2/me',
         method: 'GET',
         headers: {
@@ -164,13 +163,13 @@ export async function getMaps(date: Date): Promise<OsuBeatmapResponse[] | BasicE
 }
 
 export async function sendPm(token: string, osuId: number, message: string): Promise<OsuAuthResponse | BasicError> {
-    const options = {
+    const options: AxiosRequestConfig = {
         url: 'https://osu.ppy.sh/api/v2/chat/new',
         method: 'POST',
         headers: {
             Authorization: `Bearer ${token}`,
         },
-        body: {
+        data: {
             target_id: osuId,
             message,
             is_action: false,

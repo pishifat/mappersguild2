@@ -16,7 +16,7 @@
                     data-placement="top"
                     :title="`rank ${member.rank} user`"
                 />
-                <span v-if="status == 'open' && member.availablePoints < price" class="errors">
+                <span v-if="status == 'open' && member.availablePoints < price" class="text-danger">
                     {{ `(${member.availablePoints} points available)` }}
                 </span>
             </li>

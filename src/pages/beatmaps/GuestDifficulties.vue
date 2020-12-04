@@ -1,5 +1,5 @@
 <template>
-    <div class="container bg-container py-3">
+    <div class="container card card-body py-3">
         <h5 class="ml-2">
             <a href="#guestDifficultyBeatmaps" data-toggle="collapse">
                 My guest difficulties ({{ guestDifficultyBeatmaps && !isLoadingGuestBeatmaps ? guestDifficultyBeatmaps.length : '...' }})
@@ -22,6 +22,7 @@
                     v-for="beatmap in guestDifficultyBeatmaps"
                     :key="beatmap.id"
                     :beatmap="beatmap"
+                    @set-selected-beatmap="setSelectedBeatmap($event)"
                 />
             </transition-group>
         </div>
@@ -30,7 +31,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { mapGetters, mapState } from 'vuex';
+import { mapGetters, mapMutations } from 'vuex';
 import BeatmapCard from '../../components/beatmaps/BeatmapCard.vue';
 
 export default Vue.extend({
@@ -40,13 +41,11 @@ export default Vue.extend({
     props: {
         isLoadingGuestBeatmaps: Boolean,
     },
-    computed: {
-        ...mapGetters([
-            'guestDifficultyBeatmaps',
-        ]),
-        ...mapState([
-            'userOsuId',
-        ]),
-    },
+    computed: mapGetters('beatmaps', [
+        'guestDifficultyBeatmaps',
+    ]),
+    methods: mapMutations('beatmaps', [
+        'setSelectedBeatmap',
+    ]),
 });
 </script>

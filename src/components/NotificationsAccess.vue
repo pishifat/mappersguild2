@@ -2,30 +2,28 @@
     <div
         class="bg-dark pl-3"
         style="
-        position: fixed;
-        z-index: 1060;
-        bottom: 20px;
-        right: 20px;
-        border-radius: 100px;"
+            position: fixed;
+            z-index: 1060;
+            bottom: 20px;
+            right: 20px;
+            border-radius: 100px;
+        "
     >
-        <a href="/notifications">
+        <router-link to="/notifications">
             <i class="fas fa-bell">
                 <small class="notification-label">{{ notifications }}</small>
             </i>
             <i class="fas fa-at">
                 <small class="notification-label">{{ invites }}</small>
             </i>
-        </a>
+        </router-link>
 
         <a
             href="#top"
-            class="btn btn-secondary fas fa-angle-up fa-2x"
-            style="
-            background-color: var(--done);
-            border-color: var(--done);
-            filter: drop-shadow(1px 1px 1px #000000);
-            border-radius: 10000px;"
-        />
+            class="btn btn-primary rounded-circle"
+        >
+            <i class="fas fa-angle-up fa-2x" />
+        </a>
     </div>
 </template>
 
@@ -53,7 +51,7 @@ export default Vue.extend({
 
 <style>
     .notification-label {
-        font-family: 'Roboto', sans-serif;
+        font-family: 'Karla', sans-serif;
         position: relative;
         top: -8px;
         right: 5px;

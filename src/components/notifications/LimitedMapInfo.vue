@@ -14,21 +14,21 @@
                     </button>
                 </div>
                 <div class="modal-body" style="overflow: hidden;">
-                    <img src="../../images/the_A.png" class="the-a-background">
+                    <img src="/images/the_A.png" class="the-a-background">
                     <div class="container">
                         <div class="row">
                             <div class="col-sm-12">
                                 <table class="table table-sm">
                                     <thead>
-                                        <td scope="col">
+                                        <th scope="col">
                                             Difficulty
-                                        </td>
-                                        <td scope="col">
+                                        </th>
+                                        <th scope="col">
                                             Mapper(s)
-                                        </td>
-                                        <td v-if="beatmap.status != 'Ranked'" scope="col">
+                                        </th>
+                                        <th v-if="beatmap.status != 'Ranked'" scope="col">
                                             Status
-                                        </td>
+                                        </th>
                                     </thead>
                                     <transition-group id="difficulties" tag="tbody" name="list">
                                         <tr v-for="task in beatmap.tasks" :id="task.id + 'Row'" :key="task.id">
@@ -60,7 +60,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import { Beatmap } from '../../../interfaces/beatmap/beatmap';
-import { TaskName } from '../../../interfaces/beatmap/task';
+import { Task, TaskName } from '../../../interfaces/beatmap/task';
 
 export default Vue.extend({
     name: 'LimitedMapInfo',
@@ -70,23 +70,15 @@ export default Vue.extend({
             required: true,
         },
     },
-    watch: {
-        beatmap (): void {
-            this.sortTasks();
-        },
-    },
-    methods: {
-        sortTasks(): void {
+    computed: {
+        sortTasks (): Task[] {
             const sortOrder = Object.values(TaskName);
+            const beatmap = { ...this.beatmap };
 
-            this.beatmap.tasks.sort(function(a, b) {
+            return beatmap.tasks.sort(function(a, b) {
                 return sortOrder.indexOf(a.name) - sortOrder.indexOf(b.name);
             });
         },
     },
 });
 </script>
-
-<style>
-
-</style>

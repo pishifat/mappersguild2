@@ -1,7 +1,7 @@
 <template>
     <div class="col-sm-6 col-md-4 col-lg-4 col-xl-3 my-2" @click="selectUser()">
         <div
-            class="card bg-dark"
+            class="card card-hover bg-dark"
             :class="'border-rank-' + user.rank"
             data-toggle="modal"
             data-target="#extendedInfo"
@@ -57,13 +57,13 @@ export default Vue.extend({
     computed: mapState(['filterMode']),
     methods: {
         selectUser(): void {
-            this.$store.commit('setSelectedUserId', this.user.id);
+            this.$store.commit('users/setSelectedUserId', this.user.id);
         },
     },
 });
 </script>
 
-<style>
+<style scoped>
 .card-avatar-img {
     position: absolute;
     top: calc(50% - 30px);
@@ -72,8 +72,8 @@ export default Vue.extend({
     max-height: 60px;
     object-fit: cover;
     border-radius: 100%;
-    box-shadow: 0 1px 1rem rgba(10, 10, 25);
-    background-color: rgba(10, 10, 25);
+    box-shadow: 0 1px 1rem rgb(10, 10, 25);
+    background-color: rgb(10, 10, 25);
 }
 
 .card-body {

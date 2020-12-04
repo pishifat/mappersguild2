@@ -1,17 +1,16 @@
 <template>
     <div>
-        <div class="card static-card" :class="statusBorder()">
+        <div class="card" :class="statusBorder()">
             <div class="card-header p-0 m-1 row d-flex align-items-center my-2">
                 <div class="col-sm-6">
                     <img
                         v-if="beatmap.quest || beatmap.isShowcase"
                         class="rounded-circle mr-1 quest-icon"
-                        :src="beatmap.isShowcase ? '../../images/no-art-icon.png' :
-                            !beatmap.quest.art ? '../../images/no-art-icon.png' :
-                            beatmap.quest.isMbc ? '../../images/mbc-icon.png' :
+                        :src="beatmap.isShowcase || !beatmap.quest.art ? '/images/no-art-icon.png' :
+                            beatmap.quest.isMbc ? '/images/mbc-icon.png' :
                             'https://assets.ppy.sh/artists/' + beatmap.quest.art + '/cover.jpg'"
                         data-toggle="tooltip"
-                        :title="beatmap.quest.name"
+                        :title="beatmap.quest && beatmap.quest.name"
                     >
                     <a
                         href="#"
@@ -54,9 +53,8 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { mapState } from 'vuex';
 import BeatmapInfo from './beatmapInfo/BeatmapInfo.vue';
-import { Beatmap, BeatmapStatus } from '../../../interfaces/beatmap/beatmap';
+import { Beatmap, BeatmapStatus } from '@interfaces/beatmap/beatmap';
 
 export default Vue.extend({
     name: 'BeatmapTableRow',
@@ -68,11 +66,6 @@ export default Vue.extend({
             type: Object as () => Beatmap,
             required: true,
         },
-    },
-    computed: {
-        ...mapState([
-            'userOsuId',
-        ]),
     },
     methods: {
         selectBeatmap(): void {
@@ -128,7 +121,7 @@ export default Vue.extend({
                             }
                         }
                     });
-                    diffsBlock += `<span class="px-1 ${mode.count == 0 ? 'blocked' : modeStatus}" data-toggle="tooltip" data-placement="top" 
+                    diffsBlock += `<span class="px-1 text-${mode.count == 0 ? 'blocked' : modeStatus}" data-toggle="tooltip" data-placement="top" 
                         title="${mode.count > 0 ? mode.count : ''}">
                         ${mode.short}</span>`;
 
@@ -164,9 +157,9 @@ export default Vue.extend({
                                 }">${diff.short}${diff.count > 1 ? '+' : ''}</span>`;
                             }
                         } else if (tasksLocked.indexOf(diff.name) >= 0) {
-                            diffsBlock += `<span class="px-1 blocked">${diff.short}</span>`;
+                            diffsBlock += `<span class="px-1 text-blocked">${diff.short}</span>`;
                         } else {
-                            diffsBlock += `<span class="px-1 open">${diff.short}</span>`;
+                            diffsBlock += `<span class="px-1 text-open">${diff.short}</span>`;
                         }
                     });
                 } else {
@@ -186,7 +179,7 @@ export default Vue.extend({
                         tasksLocked.forEach(task => {
                             if (diff.name == task) {
                                 if (!isClaimed) {
-                                    diffsBlock += `<span class="px-1 blocked">${
+                                    diffsBlock += `<span class="px-1 text-blocked">${
                                         diff.short
                                     }</span>`;
                                 }
@@ -196,7 +189,7 @@ export default Vue.extend({
                         });
 
                         if (!isUsed) {
-                            diffsBlock += `<span class="px-1 open">${diff.short}</span>`;
+                            diffsBlock += `<span class="px-1 text-open">${diff.short}</span>`;
                         }
                     });
                 }
@@ -208,7 +201,7 @@ export default Vue.extend({
 });
 </script>
 
-<style>
+<style scoped>
     .card-status-wip {
         border-left: 4px solid var(--wip);
     }
@@ -233,6 +226,10 @@ export default Vue.extend({
     .quest-icon {
         width: 24px;
         height: 24px;
+    }
+
+    .bg-darker {
+        background-color: #252525a6!important;
     }
 </style>
 

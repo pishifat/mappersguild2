@@ -4,7 +4,7 @@
             Add judge:
             <input
                 v-model.number="judgeInput"
-                class="form-control-sm"
+                class="form-control form-control-sm"
                 autocomplete="off"
                 placeholder="new judge's osuId..."
                 @keyup.enter="addJudge($event)"

@@ -1,12 +1,11 @@
 <template>
-    <div v-cloak>
+    <div>
         <user-page-filters />
 
-        <div class="container bg-container py-3">
+        <div class="container card card-body py-3">
             <button
                 :disabled="pagination.page == 1"
-                class="btn btn-sm btn-mg mx-auto my-2"
-                style="display:block"
+                class="btn btn-sm btn-primary mx-auto my-2 d-block"
                 type="button"
                 @click="showNewer"
             >
@@ -28,8 +27,7 @@
 
                 <button
                     :disabled="pagination.page >= pagination.maxPages"
-                    class="btn btn-sm btn-mg mx-auto my-2"
-                    style="display:block"
+                    class="btn btn-sm btn-primary mx-auto my-2 d-block"
                     type="button"
                     @click="showOlder"
                 >
@@ -40,10 +38,6 @@
         </div>
 
         <user-info />
-
-        <toast-messages />
-
-        <notifications-access v-if="userGroup != 'spectator'" />
     </div>
 </template>
 
@@ -52,9 +46,9 @@ import Vue from 'vue';
 import { mapGetters, mapState } from 'vuex';
 import UserCard from '@components/users/UserCard.vue';
 import UserInfo from '@components/users/UserInfo.vue';
-import ToastMessages from '@components/ToastMessages.vue';
 import UserPageFilters from '@pages/users/UserPageFilters.vue';
-import NotificationsAccess from '@components/NotificationsAccess.vue';
+import usersModule from '@store/users';
+import { User } from '@interfaces/user';
 
 export default Vue.extend({
     name: 'UserPage',
@@ -62,56 +56,49 @@ export default Vue.extend({
         UserCard,
         UserInfo,
         UserPageFilters,
-        ToastMessages,
-        NotificationsAccess,
     },
     computed: {
-        ...mapState([
+        ...mapState('users', [
             'pagination',
-            'userGroup',
         ]),
-        ...mapGetters([
+        ...mapGetters('users', [
             'paginatedUsers',
             'allUsers',
         ]),
     },
     watch: {
         paginatedUsers (): void {
-            this.$store.dispatch('updatePaginationMaxPages');
+            this.$store.dispatch('users/updatePaginationMaxPages');
         },
     },
+    beforeCreate () {
+        if (!this.$store.hasModule('users')) {
+            this.$store.registerModule('users', usersModule);
+        }
+    },
     async created () {
-        const res: any = await this.executeGet('/users/relevantInfo');
+        const res = await this.initialRequest<{ users: User[] }>('/users/query');
 
-        if (res) {
-            this.$store.commit('setUsers', res.users);
-            this.$store.commit('setUserId', res.userId);
-            this.$store.commit('setUsername', res.username);
-            this.$store.commit('setUserGroup', res.group);
+        if (!this.isError(res)) {
+            this.$store.commit('users/setUsers', res.users);
             const params: any = new URLSearchParams(document.location.search.substring(1));
 
             if (params.get('id') && params.get('id').length) {
                 const i = this.allUsers.findIndex(u => u.id == params.get('id'));
 
                 if (i >= 0) {
-                    this.$store.commit('setSelectedUserId', params.get('id'));
+                    this.$store.commit('users/setSelectedUserId', params.get('id'));
                     $('#extendedInfo').modal('show');
                 }
             }
         }
-
-        $('#loading').fadeOut();
-        $('#app')
-            .attr('style', 'visibility: visible')
-            .hide()
-            .fadeIn();
     },
     methods: {
         showOlder(): void {
-            this.$store.commit('increasePaginationPage');
+            this.$store.commit('users/increasePaginationPage');
         },
         showNewer(): void {
-            this.$store.commit('decreasePaginationPage');
+            this.$store.commit('users/decreasePaginationPage');
         },
     },
 });

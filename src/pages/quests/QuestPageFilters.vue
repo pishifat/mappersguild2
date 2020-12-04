@@ -1,10 +1,11 @@
 <template>
-    <div class="container bg-container py-3 mb-2">
+    <div class="container card card-body py-3 mb-2">
         <filter-box
             placeholder="enter to search for quest..."
+            @update-filter-value="updateFilterValue($event)"
         >
             <button
-                class="btn btn-outline-info"
+                class="btn btn-primary"
                 :disabled="!validRank"
                 href="#"
                 :data-toggle="validRank ? 'modal' : 'tooltip'"
@@ -20,7 +21,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import FilterBox from '../../components/FilterBox.vue';
-import { mapState } from 'vuex';
+import { mapActions, mapState } from 'vuex';
 
 export default Vue.extend({
     components: {
@@ -28,11 +29,14 @@ export default Vue.extend({
     },
     computed: {
         ...mapState([
-            'userRank',
+            'loggedInUser',
         ]),
         validRank(): boolean {
-            return this.userRank >= 1;
+            return this.loggedInUser.rank >= 1;
         },
     },
+    methods: mapActions([
+        'updateFilterValue',
+    ]),
 });
 </script>

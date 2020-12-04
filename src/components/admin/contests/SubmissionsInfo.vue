@@ -4,14 +4,14 @@
             Add submission:
             <input
                 v-model="name"
-                class="form-control-sm w-25"
+                class="form-control form-control-sm w-25"
                 type="text"
                 autocomplete="off"
                 placeholder="new submission's name..."
             >
             <input
                 v-model="creatorOsuId"
-                class="form-control-sm w-25"
+                class="form-control form-control-sm w-25"
                 type="text"
                 autocomplete="off"
                 placeholder="new submission's creator osuId..."

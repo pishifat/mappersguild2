@@ -1,6 +1,6 @@
 <template>
     <div class="col-sm-12">
-        <div class="card static-card" :class="isInProgress && daysAgo > 21 ? 'overdue' : 'bg-dark'">
+        <div class="card" :class="isInProgress && daysAgo > 21 ? 'overdue' : 'bg-dark'">
             <div class="card-body p-0 mx-2 my-1">
                 <div class="row">
                     <span class="col-sm-4">
@@ -12,10 +12,10 @@
                     <span class="small col-sm-8">
                         <span v-if="artist.isUpToDate" class="text-white-50">up to date</span>
                         <span v-else>
-                            <span v-if="artist.projectedRelease" class="done">{{ new Date(artist.projectedRelease).toString().slice(4,15) }}</span>
+                            <span v-if="artist.projectedRelease" class="text-done">{{ new Date(artist.projectedRelease).toString().slice(4,15) }}</span>
 
                             <span v-if="artist.ppySigned">
-                                <span class="errors">
+                                <span class="text-danger">
                                     <span v-if="!artist.songsReceived">[song assets]</span>
                                     <span v-if="!artist.songsTimed">[timed oszs]</span>
                                     <span v-if="!artist.assetsReceived">[other assets]</span>
@@ -41,7 +41,7 @@
                         <a
                             v-if="!artist.isContacted"
                             href="#"
-                            class="float-right small icon-used ml-2"
+                            class="float-right small text-used ml-2"
                             data-toggle="tooltip"
                             data-placement="top"
                             title="delete"
@@ -51,7 +51,7 @@
                         </a>
                         <a
                             href="#"
-                            class="float-right small icon-used"
+                            class="float-right small text-used"
                             data-toggle="tooltip"
                             data-placement="top"
                             title="reset progress (except notes)"
@@ -95,25 +95,25 @@
                         <div class="small ml-2">
                             Contacted:
                             <a href="#" @click.stop.prevent="toggleIsContacted()">
-                                <i class="fas" :class="artist.isContacted ? 'icon-valid fa-check' : 'icon-used fa-times'" />
+                                <i class="fas" :class="artist.isContacted ? 'text-done fa-check' : 'text-used fa-times'" />
                             </a>
                         </div>
                         <div class="small ml-2">
                             Responded:
                             <a href="#" @click.stop.prevent="toggleIsResponded()">
-                                <i class="fas" :class="artist.isResponded ? 'icon-valid fa-check' : 'icon-used fa-times'" />
+                                <i class="fas" :class="artist.isResponded ? 'text-done fa-check' : 'text-used fa-times'" />
                             </a>
                         </div>
                         <div class="small ml-2">
                             Tracks confirmed:
                             <a href="#" @click.stop.prevent="toggleTracksSelected()">
-                                <i class="fas" :class="artist.tracksSelected ? 'icon-valid fa-check' : 'icon-used fa-times'" />
+                                <i class="fas" :class="artist.tracksSelected ? 'text-done fa-check' : 'text-used fa-times'" />
                             </a>
                         </div>
                         <div v-if="!artist.tracksSelected" class="small ml-2">
                             Rejected:
                             <a href="#" @click.stop.prevent="toggleIsRejected()">
-                                <i class="fas" :class="artist.isRejected ? 'icon-valid fa-check' : 'icon-used fa-times'" />
+                                <i class="fas" :class="artist.isRejected ? 'text-done fa-check' : 'text-used fa-times'" />
                             </a>
                         </div>
                     </div>
@@ -125,25 +125,25 @@
                         <div class="small ml-2">
                             Sent:
                             <a href="#" @click.stop.prevent="toggleContractSent()">
-                                <i class="fas" :class="artist.contractSent ? 'icon-valid fa-check' : 'icon-used fa-times'" />
+                                <i class="fas" :class="artist.contractSent ? 'text-done fa-check' : 'text-used fa-times'" />
                             </a>
                         </div>
                         <div class="small ml-2">
                             Artist signed:
                             <a href="#" @click.stop.prevent="toggleArtistSigned()">
-                                <i class="fas" :class="artist.artistSigned ? 'icon-valid fa-check' : 'icon-used fa-times'" />
+                                <i class="fas" :class="artist.artistSigned ? 'text-done fa-check' : 'text-used fa-times'" />
                             </a>
                         </div>
                         <div class="small ml-2">
                             ppy paid:
                             <a href="#" @click.stop.prevent="togglePpyPaid()">
-                                <i class="fas" :class="artist.ppyPaid ? 'icon-valid fa-check' : 'icon-used fa-times'" />
+                                <i class="fas" :class="artist.ppyPaid ? 'text-done fa-check' : 'text-used fa-times'" />
                             </a>
                         </div>
                         <div class="small ml-2">
                             ppy signed:
                             <a href="#" @click.stop.prevent="togglePpySigned()">
-                                <i class="fas" :class="artist.ppySigned ? 'icon-valid fa-check' : 'icon-used fa-times'" />
+                                <i class="fas" :class="artist.ppySigned ? 'text-done fa-check' : 'text-used fa-times'" />
                             </a>
                         </div>
                     </div>
@@ -154,7 +154,7 @@
                         </div>
 
                         <div class="small ml-2">
-                            Projected release: <span :class="artist.projectedRelease ? 'done' : 'open'">{{ artist.projectedRelease ? new Date(artist.projectedRelease).toString().slice(4,15) : '...' }}</span>
+                            Projected release: <span :class="'text-' + artist.projectedRelease ? 'done' : 'open'">{{ artist.projectedRelease ? new Date(artist.projectedRelease).toString().slice(4,15) : '...' }}</span>
                             <a href="#" @click.prevent="showDateInput = !showDateInput">
                                 <i class="fas fa-edit" />
                             </a>
@@ -173,25 +173,25 @@
                         <div class="small ml-2">
                             Songs received:
                             <a href="#" @click.stop.prevent="toggleSongsReceived()">
-                                <i class="fas" :class="artist.songsReceived ? 'icon-valid fa-check' : 'icon-used fa-times'" />
+                                <i class="fas" :class="artist.songsReceived ? 'text-done fa-check' : 'text-used fa-times'" />
                             </a>
                         </div>
                         <div class="small ml-2">
                             Songs timed:
                             <a href="#" @click.stop.prevent="toggleSongsTimed()">
-                                <i class="fas" :class="artist.songsTimed ? 'icon-valid fa-check' : 'icon-used fa-times'" />
+                                <i class="fas" :class="artist.songsTimed ? 'text-done fa-check' : 'text-used fa-times'" />
                             </a>
                         </div>
                         <div class="small ml-2">
                             Visual assets received:
                             <a href="#" @click.stop.prevent="toggleAssetsReceived()">
-                                <i class="fas" :class="artist.assetsReceived ? 'icon-valid fa-check' : 'icon-used fa-times'" />
+                                <i class="fas" :class="artist.assetsReceived ? 'text-done fa-check' : 'text-used fa-times'" />
                             </a>
                         </div>
                         <div class="small ml-2">
                             Released:
                             <a href="#" @click.stop.prevent="toggleIsUpToDate()">
-                                <i class="fas" :class="artist.isUpToDate ? 'icon-valid fa-check' : 'icon-used fa-times'" />
+                                <i class="fas" :class="artist.isUpToDate ? 'text-done fa-check' : 'text-used fa-times'" />
                             </a>
                         </div>
                     </div>
@@ -204,13 +204,13 @@
                         <div v-if="!artist.osuId" class="small ml-2">
                             Minor release:
                             <a href="#" @click.stop.prevent="toggleIsMinor()">
-                                <i class="fas" :class="artist.isMinor ? 'icon-valid fa-check' : 'icon-used fa-times'" />
+                                <i class="fas" :class="artist.isMinor ? 'text-done fa-check' : 'text-used fa-times'" />
                             </a>
                         </div>
                         <div class="small ml-2">
                             Ranked maps:
                             <a href="#" @click.stop.prevent="toggleHasRankedMaps()">
-                                <i class="fas" :class="artist.hasRankedMaps ? 'icon-valid fa-check' : 'icon-used fa-times'" />
+                                <i class="fas" :class="artist.hasRankedMaps ? 'text-done fa-check' : 'text-used fa-times'" />
                             </a>
                         </div>
                     </div>
@@ -240,7 +240,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { mapMutations, mapState } from 'vuex';
+import { mapMutations } from 'vuex';
 
 export default Vue.extend({
     name: 'ArtistCard',
@@ -262,9 +262,6 @@ export default Vue.extend({
         };
     },
     computed: {
-        ...mapState([
-            'userId',
-        ]),
         daysAgo(): number {
             const today = new Date();
             const contacted = new Date(this.artist.lastContacted);
@@ -480,7 +477,7 @@ export default Vue.extend({
 });
 </script>
 
-<style>
+<style scoped>
 .font-8 {
     font-size: 8pt;
 }
@@ -492,12 +489,6 @@ input:focus {
     border-color: transparent;
     filter: drop-shadow(1px 1px 1px #000000);
     border-radius: 0 100px 100px 0;
-}
-
-.collapsing {
-    -webkit-transition: none;
-    transition: none;
-    display: none;
 }
 
 .overdue {

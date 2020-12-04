@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div v-if="submission" class="container bg-container p-3">
+        <div v-if="submission" class="container p-3">
             <div class="text-center">
                 <h4>
                     {{ submission.contest.name }}
@@ -33,7 +33,7 @@
                                 v-if="evaluation.vote"
                                 data-toggle="tooltip"
                                 title="user placed in top 5"
-                                class="fas fa-check icon-valid"
+                                class="fas fa-check text-done"
                             />
                         </div>
                         <div class="ml-4 mb-2 small text-white-50" style="word-break: break-word;">
@@ -120,13 +120,14 @@ import { Submission } from '../../interfaces/contest/submission';
 import { Judging } from '../../interfaces/contest/judging';
 import { Screening } from '../../interfaces/contest/screening';
 import { mapState } from 'vuex';
+import contestResultsAdminModule from '@store/admin/users';
 
 export default Vue.extend({
     name: 'ContestResultsPage',
     computed: {
-        ...mapState([
-            'submission',
-        ]),
+        ...mapState({
+            submission: (state: any) => state.contestResultsAdmin.submission,
+        }),
         voteCount (): number {
             let count = 0;
 
@@ -152,6 +153,16 @@ export default Vue.extend({
             return screenings;
         },
     },
+    beforeCreate () {
+        if (!this.$store.hasModule('contestResultsAdmin')) {
+            this.$store.registerModule('contestResultsAdmin', contestResultsAdminModule);
+        }
+    },
+    destroyed() {
+        if (this.$store.hasModule('contestResultsAdmin')) {
+            this.$store.unregisterModule('contestResultsAdmin');
+        }
+    },
     async created () {
         const params: any = new URLSearchParams(document.location.search.substring(1));
         let submission;
@@ -165,12 +176,6 @@ export default Vue.extend({
         } else {
             this.$store.commit('setSubmission', submission);
         }
-
-        $('#loading').fadeOut();
-        $('#app')
-            .attr('style', 'visibility: visible')
-            .hide()
-            .fadeIn();
     },
     methods: {
         findTotalJudgingPoints (judgingScores) {
@@ -216,6 +221,3 @@ export default Vue.extend({
     },
 });
 </script>
-
-<style>
-</style>

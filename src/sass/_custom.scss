@@ -1,0 +1,183 @@
+:root {
+    --guild: #ff5e37;
+    --rank-0: #3a3636;
+    --rank-1: saddlebrown;
+    --rank-2: silver;
+    --rank-3: gold;
+    --rank-4: #7b88ff;
+    --rank-0-bg: rgb(238, 238, 238);
+    --rank-1-bg: rgb(187, 159, 139);
+    --rank-2-bg: rgb(200, 222, 236);
+    --rank-3-bg: rgb(255, 219, 102);
+    --rank-4-bg: rgb(153, 168, 255);
+}
+
+body {
+    background: url('/images/triangles.png') repeat fixed;
+}
+
+body::before {
+    background-color: rgba(36, 34, 34, 82%);
+    height: 100%;
+    width: 100%;
+    content: '';
+    position: fixed;
+    z-index: -1;
+}
+
+@font-face {
+    font-family: 'Aquatico';
+    src: url('/fonts/aquatico-regular-webfont.woff');
+}
+
+footer {
+    font-family: Aquatico;
+    color: var(--guild);
+    font-size: 15pt;
+}
+
+/* Text selection color  */
+::selection {
+    color: white;
+    background: var(--guild);
+}
+
+::-moz-selection {
+    color: white;
+    background: var(--guild);
+}
+
+.card-home-showcase {
+    position: relative;
+    top: -30px;
+    padding-top: 40px;
+}
+
+.card {
+    box-shadow: 1px 1px 3px 0px rgba(30, 30, 30, 0.25);
+}
+
+//.card .card, 
+.card-level-2 {
+    background-color: #454545!important;
+}
+
+.card-hover {
+    transition: all 0.12s ease-in-out;
+    cursor: default;
+}
+
+.card-hover:hover {
+    transform: scale(1.03);
+    opacity: 1;
+}
+
+.card-img {
+    min-width: 400px;
+    min-height: 100px;
+    position: relative;
+    overflow: hidden;
+}
+
+.card h4 {
+    border-left: solid #cd5c5c 5px;
+    padding-left: .5rem;
+}
+
+.card h5 {
+    border-left: solid #6f5e5e 5px;
+    padding-left: .5rem;
+}
+
+.table {
+    border-spacing: 0 3px;
+    border-collapse: separate;
+
+    thead th {
+        font-weight: 600;
+        color: rgb(206, 206, 206);
+        text-transform: uppercase;
+        background-color: rgb(75, 70, 63);
+    }
+
+    tbody {
+        tr {
+            background-color: rgba(66, 64, 61, 0.7);
+
+            &:hover {
+                background-color: rgba(66, 64, 61);
+            }
+        }
+    }
+
+    tr {
+        td:first-child, th:first-child {
+            border-radius: 5px 0 0 5px;
+        }
+
+        td:last-child, th:last-child {
+            border-radius: 0 5px 5px 0;
+        }
+    }
+}
+
+// Probably can add all these below as a theme but BG color is different from text so Mmmm
+.bg-rank-0 {
+    background-color: var(--rank-0-bg);
+}
+
+.bg-rank-1 {
+    background-color: var(--rank-1-bg);
+}
+
+.bg-rank-2 {
+    background-color: var(--rank-2-bg);
+}
+
+.bg-rank-3 {
+    background-color: var(--rank-3-bg);
+}
+
+.bg-rank-4 {
+    background-color: var(--rank-4-bg);
+}
+
+.text-rank-0 {
+    color: var(--rank-0-bg);
+}
+
+.text-rank-1 {
+    color: var(--rank-1-bg);
+}
+
+.text-rank-2 {
+    color: var(--rank-2-bg);
+}
+
+.text-rank-3 {
+    color: var(--rank-3-bg);
+}
+
+.text-rank-4 {
+    color: var(--rank-4-bg);
+}
+
+.border-rank-0 {
+    border-top: 5px solid var(--rank-0);
+}
+
+.border-rank-1 {
+    border-top: 5px solid var(--rank-1);
+}
+
+.border-rank-2 {
+    border-top: 5px solid var(--rank-2);
+}
+
+.border-rank-3 {
+    border-top: 5px solid var(--rank-3);
+}
+
+.border-rank-4 {
+    border-top: 5px solid var(--rank-4);
+}

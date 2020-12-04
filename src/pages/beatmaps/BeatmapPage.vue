@@ -1,43 +1,38 @@
 <template>
-    <div v-cloak>
+    <div>
         <beatmap-page-filters />
 
         <hosted-beatmaps />
 
-        <div class="radial-divisor mx-auto my-4" />
+        <div class="radial-divisor" />
 
         <guest-difficulties
             :is-loading-guest-beatmaps="isLoadingGuestBeatmaps"
         />
 
-        <div class="radial-divisor mx-auto my-4" />
+        <div class="radial-divisor" />
 
         <other-beatmaps />
 
         <!-- beatmap info modal -->
-        <edit-beatmap-modal />
+        <edit-beatmap-modal :selected-beatmap="selectedBeatmap" />
 
         <!-- create beatmap modal -->
         <create-beatmap-modal />
-
-        <toast-messages />
-
-        <notifications-access v-if="userGroup != 'spectator'" />
     </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
-import { mapState } from 'vuex';
 import $ from 'jquery';
 import CreateBeatmapModal from '@components/beatmaps/CreateBeatmapModal.vue';
-import NotificationsAccess from '@components/NotificationsAccess.vue';
-import ToastMessages from '@components/ToastMessages.vue';
 import BeatmapPageFilters from './BeatmapPageFilters.vue';
 import HostedBeatmaps from './HostedBeatmaps.vue';
 import GuestDifficulties from './GuestDifficulties.vue';
 import OtherBeatmaps from './OtherBeatmaps.vue';
 import EditBeatmapModal from './EditBeatmapModal.vue';
+import beatmapsModule from '@store/beatmaps';
+import { mapState } from 'vuex';
 
 export default Vue.extend({
     name: 'BeatmapPage',
@@ -48,61 +43,50 @@ export default Vue.extend({
         OtherBeatmaps,
         EditBeatmapModal,
         CreateBeatmapModal,
-        NotificationsAccess,
-        ToastMessages,
     },
     data() {
         return {
             isLoadingGuestBeatmaps: true,
         };
     },
-    computed: mapState([
-        'userGroup',
+    computed: mapState('beatmaps', [
+        'selectedBeatmap',
     ]),
+    beforeCreate () {
+        if (!this.$store.hasModule('beatmaps')) {
+            this.$store.registerModule('beatmaps', beatmapsModule);
+        }
+    },
     async created() {
         const params: any = new URLSearchParams(document.location.search.substring(1));
 
         if (params.get('id') && params.get('id').length) {
             const [res, urlBeatmap] = await Promise.all<any, any>([
-                this.executeGet('/beatmaps/relevantInfo'),
+                this.initialRequest('/beatmaps/relevantInfo'),
                 this.executeGet('/beatmaps/searchOnLoad/' + params.get('id')),
             ]);
 
             if (res) {
-                this.$store.commit('setUserBeatmaps', res.beatmaps);
-                this.$store.commit('setUserOsuId', res.userOsuId);
-                this.$store.commit('setUserId', res.userMongoId);
-                this.$store.commit('setUsername', res.username);
-                this.$store.commit('setUserGroup', res.group);
-                this.$store.commit('setFilterMode', res.mainMode);
+                this.$store.commit('beatmaps/setUserBeatmaps', res.beatmaps);
+                this.$store.commit('beatmaps/setFilterMode', res.mainMode);
             }
 
             if (urlBeatmap && !urlBeatmap.error) {
-                this.$store.commit('setSelectedBeatmap', urlBeatmap);
+                this.$store.commit('beatmaps/setSelectedBeatmap', urlBeatmap);
                 $('#editBeatmap').modal('show');
             }
         } else {
-            const res: any = await this.executeGet('/beatmaps/relevantInfo');
+            const res: any = await this.initialRequest('/beatmaps/relevantInfo');
 
             if (res) {
-                this.$store.commit('setUserBeatmaps', res.beatmaps);
-                this.$store.commit('setUserOsuId', res.userOsuId);
-                this.$store.commit('setUserId', res.userMongoId);
-                this.$store.commit('setUsername', res.username);
-                this.$store.commit('setUserGroup', res.group);
-                this.$store.commit('setFilterMode', res.mainMode);
+                this.$store.commit('beatmaps/setUserBeatmaps', res.beatmaps);
+                this.$store.commit('beatmaps/setFilterMode', res.mainMode);
             }
         }
 
-        $('#loading').fadeOut();
-        $('#app')
-            .attr('style', 'visibility: visible')
-            .hide()
-            .fadeIn();
-
         await Promise.all([
             this.loadGuestBeatmaps(),
-            this.$store.dispatch('loadOtherBeatmaps'),
+            this.$store.dispatch('beatmaps/loadOtherBeatmaps'),
         ]);
 
         this.isLoadingGuestBeatmaps = false;
@@ -112,17 +96,9 @@ export default Vue.extend({
             const res: any = await this.executeGet('/beatmaps/guestBeatmaps');
 
             if (res) {
-                this.$store.commit('setUserBeatmaps', res.userBeatmaps);
+                this.$store.commit('beatmaps/setUserBeatmaps', res.userBeatmaps);
             }
         },
     },
 });
 </script>
-
-<style>
-.collapsing {
-    -webkit-transition: none;
-    transition: none;
-    display: none;
-}
-</style>

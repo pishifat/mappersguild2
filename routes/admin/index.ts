@@ -16,17 +16,6 @@ const adminRouter = express.Router();
 adminRouter.use(isLoggedIn);
 adminRouter.use(isAdmin);
 
-/* GET admin page */
-adminRouter.get('/', (req, res) => {
-    res.render('admin', {
-        title: 'Admin',
-        script: 'admin.js',
-        loggedInAs: req.session?.osuId,
-        userMongoId: req.session?.mongoId,
-        pointsInfo: res.locals.userRequest.pointsInfo,
-    });
-});
-
 /* GET beatmaps in need of action */
 adminRouter.get('/loadActionBeatmaps/:queryWip', async (req, res) => {
     const queryWip = req.params.queryWip == 'true'; // poor man's boolean

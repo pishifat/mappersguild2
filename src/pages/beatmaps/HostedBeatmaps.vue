@@ -1,5 +1,5 @@
 <template>
-    <div class="container bg-container py-3">
+    <div class="container card card-body py-3">
         <h5 class="ml-2">
             <a href="#hostedBeatmaps" data-toggle="collapse">
                 My mapsets ({{ hostedBeatmaps ? hostedBeatmaps.length : '...' }})
@@ -13,6 +13,7 @@
                     v-for="beatmap in hostedBeatmaps"
                     :key="beatmap.id"
                     :beatmap="beatmap"
+                    @set-selected-beatmap="setSelectedBeatmap($event)"
                 />
             </transition-group>
             <p v-if="!hostedBeatmaps.length" class="ml-5 text-white-50">
@@ -24,15 +25,18 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { mapGetters } from 'vuex';
-import BeatmapCard from '../../components/beatmaps/BeatmapCard.vue';
+import { mapGetters, mapMutations } from 'vuex';
+import BeatmapCard from '@components/beatmaps/BeatmapCard.vue';
 
 export default Vue.extend({
     components: {
         BeatmapCard,
     },
-    computed: mapGetters([
+    computed: mapGetters('beatmaps', [
         'hostedBeatmaps',
+    ]),
+    methods: mapMutations('beatmaps', [
+        'setSelectedBeatmap',
     ]),
 });
 </script>

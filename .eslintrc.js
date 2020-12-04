@@ -8,11 +8,10 @@ module.exports = {
     parser: 'vue-eslint-parser',
     parserOptions: {
         parser: '@typescript-eslint/parser',
-        sourceType: 'module'
+        sourceType: 'module',
     },
     plugins: [
         '@typescript-eslint',
-        // 'vue',
     ],
     extends: [
         'eslint:recommended',
@@ -23,24 +22,24 @@ module.exports = {
         indent: [
             'error',
             4,
-            { SwitchCase: 1 }
+            { SwitchCase: 1 },
         ],
         'linebreak-style': [
             'error',
-            'windows'
+            'windows',
         ],
         quotes: [
             'error',
             'single',
-            { allowTemplateLiterals: true }
+            { allowTemplateLiterals: true },
         ],
         semi: [
             'error',
-            'always'
+            'always',
         ],
         'semi-spacing': [
             'error',
-            { before: false, after: true }
+            { before: false, after: true },
         ],
         'no-var': 'error',
         'comma-dangle': [
@@ -49,14 +48,13 @@ module.exports = {
                 objects: 'always-multiline',
                 imports: 'always-multiline',
                 exports: 'always-multiline',
-                functions: 'always-multiline',
                 functions: 'never',
             },
         ],
         'require-atomic-updates': 'off',
         'object-curly-spacing': [
             'error',
-            'always'
+            'always',
         ],
         'object-shorthand': 'error',
         'require-await': 'error',
@@ -74,20 +72,17 @@ module.exports = {
             { blankLine: 'always', prev: '*', next: 'block-like' },
             { blankLine: 'always', prev: 'block-like', next: '*' },
         ],
-        '@typescript-eslint/camelcase': [
-            'error', 
-            { properties: 'never' }
-        ],
         'vue/html-indent': [
-            'error', 
-            4
+            'error',
+            4,
         ],
         'vue/max-attributes-per-line': ['error', {
             singleline: 3,
-            multiline: 1
+            multiline: 1,
         }],
         '@typescript-eslint/no-explicit-any': 'off',
         '@typescript-eslint/explicit-function-return-type': 'off',
-        '@typescript-eslint/no-non-null-assertion': 'off'
-    }
+        '@typescript-eslint/no-non-null-assertion': 'off',
+        '@typescript-eslint/explicit-module-boundary-types': 'off',
+    },
 };

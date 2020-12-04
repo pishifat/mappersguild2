@@ -2,7 +2,7 @@
     <div id="submitQuest" class="modal fade" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content bg-dark">
-                <div class="modal-header text-dark bg-rest">
+                <div class="modal-header text-dark bg-primary">
                     <h5 class="modal-title">
                         {{ isAdmin ? 'Add quest' : 'Submit quest' }}
                     </h5>
@@ -58,7 +58,7 @@
                                     Required mapsets:
                                     <input
                                         v-model.number="mapsetCount"
-                                        class="form-control-sm ml-4"
+                                        class="form-control form-control-sm ml-4"
                                         type="number"
                                         autocomplete="off"
                                         placeholder="required mapsets..."
@@ -84,7 +84,7 @@
                             <div class="col-lg-10 mb-2">
                                 <input
                                     v-model="name"
-                                    class="form-control-sm w-100"
+                                    class="form-control form-control-sm w-100"
                                     type="text"
                                     autocomplete="off"
                                     placeholder="name..."
@@ -100,7 +100,7 @@
                             <div class="col-lg-10 mb-2">
                                 <textarea
                                     v-model="objective"
-                                    class="form-control-sm w-100"
+                                    class="form-control form-control-sm w-100"
                                     rows="2"
                                     type="text"
                                     autocomplete="off"
@@ -117,7 +117,7 @@
                             <div class="col-lg-2">
                                 <input
                                     v-model.number="price"
-                                    class="form-control-sm w-100"
+                                    class="form-control form-control-sm w-100"
                                     type="number"
                                     autocomplete="off"
                                     placeholder="price per party member..."
@@ -136,7 +136,7 @@
                             <div class="col-lg-2">
                                 <input
                                     v-model.number="timeframe"
-                                    class="form-control-sm w-100"
+                                    class="form-control form-control-sm w-100"
                                     type="number"
                                     autocomplete="off"
                                     placeholder="days..."
@@ -155,7 +155,7 @@
                             <div class="col-lg-2">
                                 <input
                                     v-model.number="minParty"
-                                    class="form-control-sm w-100"
+                                    class="form-control form-control-sm w-100"
                                     type="number"
                                     autocomplete="off"
                                     placeholder="minimum"
@@ -164,7 +164,7 @@
                             <div class="col-lg-2">
                                 <input
                                     v-model.number="maxParty"
-                                    class="form-control-sm w-100"
+                                    class="form-control form-control-sm w-100"
                                     type="number"
                                     autocomplete="off"
                                     placeholder="maximum"
@@ -186,7 +186,7 @@
                             <div class="col-lg-2">
                                 <input
                                     v-model.number="minRank"
-                                    class="form-control-sm w-100"
+                                    class="form-control form-control-sm w-100"
                                     type="number"
                                     autocomplete="off"
                                     placeholder="rank..."
@@ -215,7 +215,7 @@
                             </div>
                         </div>
 
-                        <div class="radial-divisor mx-auto my-3" />
+                        <div class="radial-divisor" />
 
                         <div v-if="!isAdmin" class="small text-white-50 mx-4">
                             <p>
@@ -305,7 +305,7 @@ export default Vue.extend({
     },
     computed: {
         ...mapState([
-            'availablePoints',
+            'loggedInUser',
         ]),
         packType(): string {
             if (this.mapsetCount == 1) {
@@ -358,7 +358,7 @@ export default Vue.extend({
             return points;
         },
         enoughPoints(): boolean {
-            return (this.availablePoints - this.points) > 0;
+            return (this.loggedInUser.availablePoints - this.points) > 0;
         },
     },
     watch: {
@@ -488,11 +488,7 @@ export default Vue.extend({
 });
 </script>
 
-<style>
-
-ul {
-    list-style-type: disc;
-}
+<style scoped>
 
 textarea {
     min-height: 52px;

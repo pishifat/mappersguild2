@@ -2,7 +2,7 @@
     <div id="reviewQuest" class="modal fade" tabindex="-1">
         <div class="modal-dialog">
             <div v-if="quest" class="modal-content bg-dark">
-                <div class="modal-header text-dark bg-rest">
+                <div class="modal-header text-dark bg-primary">
                     <h5 class="modal-title">
                         {{ quest.name }} by
                         <a :href="'https://osu.ppy.sh/users/' + quest.creator.osuId" class="text-dark" target="_blank">
@@ -24,7 +24,7 @@
                         <p v-if="showArtistInput">
                             <input
                                 v-model.number="artistInput"
-                                class="form-control-sm w-100"
+                                class="form-control form-control-sm w-100"
                                 type="number"
                                 autocomplete="off"
                                 placeholder="artist ID..."
@@ -48,7 +48,7 @@
                         <p v-if="showNameInput">
                             <input
                                 v-model="nameInput"
-                                class="form-control-sm w-100"
+                                class="form-control form-control-sm w-100"
                                 type="text"
                                 autocomplete="off"
                                 placeholder="name..."
@@ -67,7 +67,7 @@
                         <p v-if="showObjectiveInput">
                             <textarea
                                 v-model="objectiveInput"
-                                class="form-control-sm w-100"
+                                class="form-control form-control-sm w-100"
                                 rows="2"
                                 type="text"
                                 autocomplete="off"
@@ -87,7 +87,7 @@
                         <p v-if="showRequiredMapsetsInput">
                             <input
                                 v-model.number="requiredMapsetsInput"
-                                class="form-control-sm w-100"
+                                class="form-control form-control-sm w-100"
                                 type="number"
                                 autocomplete="off"
                                 placeholder="required mapsets..."
@@ -106,7 +106,7 @@
                         <p v-if="showPriceInput">
                             <input
                                 v-model.number="priceInput"
-                                class="form-control-sm w-100"
+                                class="form-control form-control-sm w-100"
                                 type="number"
                                 autocomplete="off"
                                 placeholder="price per party member..."
@@ -125,7 +125,7 @@
                         <p v-if="showTimeframeInput">
                             <input
                                 v-model.number="timeframeInput"
-                                class="form-control-sm w-100"
+                                class="form-control form-control-sm w-100"
                                 type="number"
                                 autocomplete="off"
                                 placeholder="days..."
@@ -144,7 +144,7 @@
                         <p v-if="showPartySizeInput">
                             <input
                                 v-model.number="minPartyInput"
-                                class="form-control-sm w-100"
+                                class="form-control form-control-sm w-100"
                                 type="number"
                                 autocomplete="off"
                                 placeholder="minimum"
@@ -152,7 +152,7 @@
                             >
                             <input
                                 v-model.number="maxPartyInput"
-                                class="form-control-sm w-100"
+                                class="form-control form-control-sm w-100"
                                 type="number"
                                 autocomplete="off"
                                 placeholder="maximum"
@@ -175,7 +175,7 @@
                             {{ quest.isMbc ? 'yes' : 'no' }}
                         </p>
 
-                        <div class="radial-divisor mx-auto my-3" />
+                        <div class="radial-divisor" />
 
                         <button type="submit" class="btn btn-outline-success btn-block" @click="acceptPendingQuest($event)">
                             Publish quest
@@ -417,15 +417,15 @@ export default Vue.extend({
 });
 </script>
 
-<style>
+<style scoped>
 
 .card-avatar-img {
     max-width: 36px;
     max-height: 36px;
     object-fit: cover;
     border-radius: 100%;
-    box-shadow: 0 1px 0.5rem rgba(10, 10, 25);
-    background-color: rgba(10, 10, 25);
+    box-shadow: 0 1px 0.5rem rgb(10, 10, 25);
+    background-color: rgb(10, 10, 25);
 }
 
 </style>

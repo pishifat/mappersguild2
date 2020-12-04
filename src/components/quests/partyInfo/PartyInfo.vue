@@ -3,7 +3,7 @@
         :id="collapse ? 'details-' + quest.id : 'details-modal-' + quest.id"
         :class="collapse ? 'collapse' : 'show'"
     >
-        <div class="card-body static-card">
+        <div class="card-body">
             <div class="row">
                 <div :class="quest.status == 'open' ? 'col-sm-12' : 'col-sm-6'">
                     <button

@@ -18,18 +18,6 @@ const beatmapsRouter = express.Router();
 
 beatmapsRouter.use(isLoggedIn);
 
-/* GET maps page. */
-beatmapsRouter.get('/', (req, res) => {
-    res.render('beatmaps', {
-        title: 'Beatmaps',
-        script: 'beatmaps.js',
-        isMaps: true,
-        loggedInAs: req.session?.osuId,
-        userMongoId: req.session?.mongoId,
-        pointsInfo: res.locals.userRequest.pointsInfo,
-    });
-});
-
 /* GET info for page load */
 beatmapsRouter.get('/relevantInfo', async (req, res) => {
     const hostBeatmaps = await BeatmapModel
@@ -43,10 +31,6 @@ beatmapsRouter.get('/relevantInfo', async (req, res) => {
 
     res.json({
         beatmaps: hostBeatmaps,
-        userOsuId: req.session?.osuId,
-        userMongoId: req.session?.mongoId,
-        username: req.session?.username,
-        group: res.locals.userRequest.group,
         mainMode: res.locals.userRequest.mainMode,
     });
 });

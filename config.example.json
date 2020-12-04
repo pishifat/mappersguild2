@@ -1,0 +1,12 @@
+{
+    "id": 0,
+    "secret": "",
+    "redirect": "",
+    "connection": "",
+    "session": "",
+    "webhook": {
+        "id": "",
+        "token": ""
+    },
+    "v1token": ""
+}

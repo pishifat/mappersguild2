@@ -19,17 +19,6 @@ adminQuestsRouter.use(isLoggedIn);
 adminQuestsRouter.use(isAdmin);
 adminQuestsRouter.use(isSuperAdmin);
 
-/* GET quests - admin page */
-adminQuestsRouter.get('/', (req, res) => {
-    res.render('admin/quests', {
-        title: 'Quests - Admin',
-        script: 'adminQuests.js',
-        loggedInAs: req.session?.osuId,
-        userMongoId: req.session?.mongoId,
-        pointsInfo: res.locals.userRequest.pointsInfo,
-    });
-});
-
 /* GET quests */
 adminQuestsRouter.get('/load', async (req, res) => {
     const q = await QuestModel

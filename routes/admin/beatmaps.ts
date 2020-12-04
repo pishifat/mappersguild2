@@ -19,17 +19,6 @@ const adminBeatmapsRouter = express.Router();
 adminBeatmapsRouter.use(isLoggedIn);
 adminBeatmapsRouter.use(isAdmin);
 
-/* GET beatmaps - admin page */
-adminBeatmapsRouter.get('/', (req, res) => {
-    res.render('admin/beatmaps', {
-        title: 'Beatmaps - Admin',
-        script: 'adminBeatmaps.js',
-        loggedInAs: req.session?.osuId,
-        userMongoId: req.session?.mongoId,
-        pointsInfo: res.locals.userRequest.pointsInfo,
-    });
-});
-
 /* GET beatmaps */
 adminBeatmapsRouter.get('/load', async (req, res) => {
     const beatmaps = await BeatmapModel

@@ -1,5 +1,5 @@
 <template>
-    <div class="container bg-container py-3">
+    <div class="container card card-body py-3">
         <h5 class="ml-2">
             <a href="#otherBeatmaps" data-toggle="collapse">
                 Other beatmaps ({{ otherBeatmaps && !isLoadingOtherBeatmaps ? otherBeatmaps.length : '...' }})
@@ -39,15 +39,14 @@
 <script lang="ts">
 import Vue from 'vue';
 import { mapState } from 'vuex';
-import BeatmapTableRow from '../../components/beatmaps/BeatmapTableRow.vue';
+import BeatmapTableRow from '@components/beatmaps/BeatmapTableRow.vue';
 
 export default Vue.extend({
     components: {
         BeatmapTableRow,
     },
-    computed: mapState({
+    computed: mapState('beatmaps', {
         otherBeatmaps: 'allBeatmaps',
-        userOsuId: 'userOsuId',
         isLoadingOtherBeatmaps: 'isLoadingOtherBeatmaps',
         filterValue: 'filterValue',
     }),

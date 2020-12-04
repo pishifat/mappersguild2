@@ -1,5 +1,5 @@
 <template>
-    <div v-cloak>
+    <div>
         <div v-if="contest" class="row mb-2">
             <div class="col-sm">
                 <div class="card">
@@ -83,26 +83,23 @@
         </div>
 
         <editing-criteria-modal />
-
-        <toast-messages />
     </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
-import ToastMessages from '@components/ToastMessages.vue';
+import { mapState } from 'vuex';
 import EditingCriteriaModal from '@components/judging/EditingCriteriaModal.vue';
 import { Contest } from '../../interfaces/contest/contest';
 import { Criteria } from '../../interfaces/contest/criteria';
 import { Submission } from '../../interfaces/contest/submission';
 import { Judging } from '../../interfaces/contest/judging';
 import { JudgingScore } from '../../interfaces/contest/judgingScore';
-import { mapState } from 'vuex';
+import judgingModule from '@store/judging';
 
 export default Vue.extend({
     name: 'JudgingPage',
     components: {
-        ToastMessages,
         EditingCriteriaModal,
     },
     data () {
@@ -114,11 +111,11 @@ export default Vue.extend({
         };
     },
     computed: {
-        ...mapState([
-            'contest',
-            'criterias',
-            'judgingDone',
-        ]),
+        ...mapState({
+            contest: (state: any) => state.judging.contest,
+            criterias: (state: any) => state.judging.criterias,
+            judgingDone: (state: any) => state.judging.judgingDone,
+        }),
         filteredSubmissions (): Submission[] {
             const filteredSubmissions: any = [...this.contest.submissions];
 
@@ -194,6 +191,16 @@ export default Vue.extend({
             return this.criterias.reduce((acc, c) => c.maxScore + acc, 0);
         },
     },
+    beforeCreate () {
+        if (!this.$store.hasModule('judging')) {
+            this.$store.registerModule('judging', judgingModule);
+        }
+    },
+    destroyed() {
+        if (this.$store.hasModule('judging')) {
+            this.$store.unregisterModule('judging');
+        }
+    },
     async created () {
         const res = await this.executeGet<{ contest: Contest; criterias: Criteria[]; judgingDone: Judging[] }>('/judging/relevantInfo');
 
@@ -202,12 +209,6 @@ export default Vue.extend({
             this.$store.commit('setCriterias', res.criterias);
             this.$store.commit('setJudgingDone', res.judgingDone);
         }
-
-        $('#loading').fadeOut();
-        $('#app')
-            .attr('style', 'visibility: visible')
-            .hide()
-            .fadeIn();
     },
     methods: {
         selectForEditing (submissionId: Submission['id'], criteriaId: Criteria['id']): void {
@@ -258,11 +259,3 @@ export default Vue.extend({
     },
 });
 </script>
-
-<style scoped>
-
-.card {
-    transform: none;
-}
-
-</style>
