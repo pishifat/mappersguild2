@@ -53,8 +53,8 @@ export default Vue.extend({
     methods: {
         async showMore(e): Promise<void> {
             e.target.disabled = true;
-            this.$store.commit('increaseFetchLimit');
-            await this.$store.dispatch('loadOtherBeatmaps');
+            this.$store.commit('beatmaps/increaseFetchLimit');
+            await this.$store.dispatch('beatmaps/loadOtherBeatmaps');
             e.target.disabled = false;
         },
     },

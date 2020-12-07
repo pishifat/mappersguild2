@@ -14,29 +14,42 @@
             >
                 Submit quest for approval <i class="fas fa-plus fa-xs" />
             </button>
+
+            <template #filters>
+                <mode-filters
+                    :filter-mode="filterMode"
+                    @update-filter-mode="updateFilterMode($event)"
+                />
+            </template>
         </filter-box>
     </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
-import FilterBox from '../../components/FilterBox.vue';
 import { mapActions, mapState } from 'vuex';
+import FilterBox from '@components/FilterBox.vue';
+import ModeFilters from '@components/ModeFilters.vue';
 
 export default Vue.extend({
     components: {
         FilterBox,
+        ModeFilters,
     },
     computed: {
         ...mapState([
             'loggedInUser',
         ]),
+        ...mapState({
+            filterMode: (state: any) => state.quests.filterMode,
+        }),
         validRank(): boolean {
             return this.loggedInUser.rank >= 1;
         },
     },
     methods: mapActions([
         'updateFilterValue',
+        'updateFilterMode',
     ]),
 });
 </script>

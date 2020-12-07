@@ -58,8 +58,8 @@ export default Vue.extend({
         },
         isFirstLoadDone: Boolean,
     },
-    computed: mapState([
-        'isLoadingQuests',
-    ]),
+    computed: mapState({
+        isLoadingQuests: (state: any) => state.quests.isLoadingQuests,
+    }),
 });
 </script>

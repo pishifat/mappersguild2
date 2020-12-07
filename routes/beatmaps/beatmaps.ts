@@ -96,7 +96,7 @@ beatmapsRouter.get('/search', async (req, res) => {
         ]);
     }
 
-    if (status) allBeatmapsQuery.where('status', status);
+    if (status && status !== BeatmapStatus.Secret) allBeatmapsQuery.where('status', status);
     if (quest) allBeatmapsQuery.exists('quest', false);
 
     // this actually returns every map, pretty dumb, need to fix somehow

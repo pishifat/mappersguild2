@@ -15,6 +15,11 @@
             </button>
 
             <template #filters>
+                <mode-filters
+                    :filter-mode="filterMode"
+                    @update-filter-mode="updateFilterMode($event)"
+                />
+
                 <div class="row mt-3">
                     <div class="col-auto filter-title">
                         Status
@@ -57,22 +62,24 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import FilterBox from '@components/FilterBox.vue';
 import { mapActions, mapState } from 'vuex';
+import FilterBox from '@components/FilterBox.vue';
+import ModeFilters from '@components/ModeFilters.vue';
 
 export default Vue.extend({
     name: 'BeatmapPageFilters',
     components: {
         FilterBox,
+        ModeFilters,
     },
     data () {
         return {
             statuses: {
                 any: 'Any',
-                wip: 'WIP',
-                done: 'Done',
-                qualified: 'Qualified',
-                ranked: 'Ranked',
+                WIP: 'WIP',
+                Done: 'Done',
+                Qualified: 'Qualified',
+                Ranked: 'Ranked',
             },
             quests: {
                 any: 'Any',
@@ -80,7 +87,7 @@ export default Vue.extend({
             },
         };
     },
-    computed: mapState([
+    computed: mapState('beatmaps', [
         'filterMode',
         'filterValue',
         'filterStatus',
@@ -90,6 +97,8 @@ export default Vue.extend({
         ...mapActions('beatmaps', [
             'updateFilterValue',
             'updateFilterMode',
+            'updateFilterStatus',
+            'updateFilterQuest',
         ]),
         getStatusSortClass(status: string): 'sorted' | 'unsorted' {
             if (this.filterStatus === status) {
