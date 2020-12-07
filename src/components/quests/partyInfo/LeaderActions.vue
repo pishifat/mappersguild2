@@ -71,7 +71,7 @@
 
                 <!-- DELETE -->
                 <button class="btn btn-sm btn-outline-danger" @click.prevent="deleteParty($event)">
-                    Delete <i class="fas fa-minus small" />
+                    Delete <i class="fas fa-minus fa-xs" />
                 </button>
             </template>
 
@@ -85,7 +85,7 @@
                 @click.prevent="extendDeadline($event)"
             >
                 Extend deadline for 10 points
-                <i class="fas fa-coins small" />
+                <i class="fas fa-coins fa-xs" />
             </button>
 
             <!-- DROP QUEST -->
@@ -95,7 +95,7 @@
                 @click.prevent="dropQuest($event)"
             >
                 Drop quest
-                <i class="fas fa-times small" />
+                <i class="fas fa-times fa-xs" />
             </button>
 
             <!-- ACCEPT QUEST -->

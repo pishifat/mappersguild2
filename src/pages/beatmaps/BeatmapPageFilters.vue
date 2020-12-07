@@ -11,7 +11,7 @@
                 data-toggle="modal"
                 data-target="#addBeatmap"
             >
-                Add beatmap <i class="fas fa-plus small" />
+                Add beatmap <i class="fas fa-plus fa-xs" />
             </button>
 
             <template #filters>

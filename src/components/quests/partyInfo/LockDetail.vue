@@ -2,14 +2,14 @@
     <span>
         <i
             v-if="locked"
-            class="fas fa-lock small"
+            class="fas fa-lock fa-xs"
             data-toggle="tooltip"
             data-placement="top"
             title="party is invite-only"
         />
         <i
             v-else
-            class="fas fa-unlock small"
+            class="fas fa-unlock fa-xs"
             data-toggle="tooltip"
             data-placement="top"
             title="party is open"

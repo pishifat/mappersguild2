@@ -11,7 +11,7 @@
                         class="btn btn-sm btn-block btn-outline-info mb-2"
                         @click.prevent="createParty($event)"
                     >
-                        Add party <i class="fas fa-plus small" />
+                        Add party <i class="fas fa-plus fa-xs" />
                     </button>
 
                     <!-- open -->

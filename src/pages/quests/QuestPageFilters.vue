@@ -12,7 +12,7 @@
                 :title="!validRank ? 'designing custom quests is available to tier 1+ users only' : ''"
                 :data-target="validRank ? '#submitQuest' : ''"
             >
-                Submit quest for approval <i class="fas fa-plus small" />
+                Submit quest for approval <i class="fas fa-plus fa-xs" />
             </button>
         </filter-box>
     </div>

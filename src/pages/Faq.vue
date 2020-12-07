@@ -54,7 +54,7 @@
                         <h5>How do I create a new map?</h5>
                         <p class="text-secondary">
                             The <button class="btn btn-outline-info btn-sm">
-                                Add beatmap <i class="fas fa-plus small" />
+                                Add beatmap <i class="fas fa-plus fa-xs" />
                             </button> button near the top
                             of the <a href="/beatmaps">beatmaps page</a> will open a new map creation form. Select an artist, one of their
                             songs, and any difficulties you want to map/lock.

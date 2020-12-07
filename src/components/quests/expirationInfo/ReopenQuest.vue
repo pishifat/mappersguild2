@@ -6,7 +6,7 @@
                 :disabled="!enoughPoints"
                 @click.prevent="reopenQuest($event)"
             >
-                Re-open quest for {{ price }} points <i class="fas fa-coins small" />
+                Re-open quest for {{ price }} points <i class="fas fa-coins fa-xs" />
             </button>
         </div>
     </div>

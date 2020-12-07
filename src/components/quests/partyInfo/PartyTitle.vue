@@ -26,11 +26,11 @@
             <!-- ACTIONS -->
             <!-- only open quest -->
             <button v-if="!memberOfAnyParty && !party.lock && status === 'open'" class="btn btn-sm btn-outline-info" @click.prevent="joinParty($event)">
-                Join <i class="fas fa-plus small" />
+                Join <i class="fas fa-plus fa-xs" />
             </button>
             <!-- open & wip -->
             <button v-if="inCurrentParty && userId != party.leader.id && (status === 'open' || status === 'wip')" class="btn btn-sm btn-outline-danger" @click.prevent="leaveParty($event)">
-                Leave <i class="fas fa-minus small" />
+                Leave <i class="fas fa-minus fa-xs" />
             </button>
         </div>
     </div>
