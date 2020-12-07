@@ -141,7 +141,7 @@ export default Vue.extend({
         ]),
         isHost(): boolean {
             if (this.loggedInUser.id && this.beatmap) {
-                return this.loggedInUser.id === this.beatmap.host.osuId;
+                return this.loggedInUser.id === this.beatmap.host.id;
             }
 
             return false;
