@@ -1,21 +1,16 @@
 <template>
-    <div
-        :id="collapse ? 'details-' + quest.id : 'details-modal-' + quest.id"
-        :class="collapse ? 'collapse' : 'show'"
-    >
-        <div class="card-body">
-            <div class="row">
-                <div class="col-sm-12">
-                    <expiration-date
-                        :is-expired="quest.isExpired"
-                        :expiration="new Date(quest.expiration)"
-                    />
-                    <reopen-quest
-                        :quest-id="quest.id"
-                        :status="quest.status"
-                        :price="quest.price*0.5 + 25"
-                    />
-                </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <expiration-date
+                    :is-expired="quest.isExpired"
+                    :expiration="new Date(quest.expiration)"
+                />
+                <reopen-quest
+                    :quest-id="quest.id"
+                    :status="quest.status"
+                    :price="quest.price*0.5 + 25"
+                />
             </div>
         </div>
     </div>

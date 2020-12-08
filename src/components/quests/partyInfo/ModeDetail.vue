@@ -1,7 +1,7 @@
 <template>
     <div class="small ml-3 mt-1">
         Modes:
-        <span v-if="party.leader.id == $store.state.userId">
+        <span v-if="party.leader.id == $store.state.loggedInUser.id">
             <a href="#" @click.prevent="togglePartyMode(party.id, 'osu')">
                 <i
                     class="fas fa-circle"

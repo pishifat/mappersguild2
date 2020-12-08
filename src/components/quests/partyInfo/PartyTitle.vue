@@ -29,7 +29,7 @@
                 Join <i class="fas fa-plus fa-xs" />
             </button>
             <!-- open & wip -->
-            <button v-if="inCurrentParty && userId != party.leader.id && (status === 'open' || status === 'wip')" class="btn btn-sm btn-outline-danger" @click.prevent="leaveParty($event)">
+            <button v-if="inCurrentParty && loggedInUser.id != party.leader.id && (status === 'open' || status === 'wip')" class="btn btn-sm btn-outline-danger" @click.prevent="leaveParty($event)">
                 Leave <i class="fas fa-minus fa-xs" />
             </button>
         </div>
@@ -69,10 +69,10 @@ export default Vue.extend({
     },
     computed: {
         ...mapState([
-            'userId',
+            'loggedInUser',
         ]),
         inCurrentParty(): boolean {
-            return this.party.members.some(m => m.id === this.userId);
+            return this.party.members.some(m => m.id === this.loggedInUser.id);
         },
     },
     methods: {

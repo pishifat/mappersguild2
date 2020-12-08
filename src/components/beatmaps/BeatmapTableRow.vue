@@ -1,50 +1,52 @@
 <template>
     <div>
-        <div class="card" :class="statusBorder()">
-            <div class="card-header p-0 m-1 row d-flex align-items-center my-2">
-                <div class="col-sm-6">
-                    <img
-                        v-if="beatmap.quest || beatmap.isShowcase"
-                        class="rounded-circle mr-1 quest-icon"
-                        :src="beatmap.isShowcase || !beatmap.quest.art ? '/images/no-art-icon.png' :
-                            beatmap.quest.isMbc ? '/images/mbc-icon.png' :
-                            'https://assets.ppy.sh/artists/' + beatmap.quest.art + '/cover.jpg'"
-                        data-toggle="tooltip"
-                        :title="beatmap.quest && beatmap.quest.name"
-                    >
-                    <a
-                        href="#"
-                        data-toggle="collapse"
-                        :data-target="'#details' + beatmap.id"
-                        @click="selectBeatmap()"
-                    >
-                        {{ formatMetadata() }}
-                        <i class="fas fa-angle-down" />
-                    </a>
-                </div>
-                <div class="col-sm-2 small d-flex justify-content-end">
-                    <process-tasks
-                        :tasks="beatmap.tasks"
-                        :tasks-locked="beatmap.tasksLocked"
-                        :mode="beatmap.mode"
-                    />
-                </div>
-                <div class="col-sm-3 small">
-                    <span class="text-white-50">Hosted by</span>
-                    <a :href="'https://osu.ppy.sh/users/' + beatmap.host.osuId" target="_blank" @click.stop>{{ beatmap.host.username }}</a>
-                    <i v-if="beatmap.mode == 'taiko'" class="fas fa-drum text-white-50" />
-                    <i v-else-if="beatmap.mode == 'catch'" class="fas fa-apple-alt text-white-50" />
-                    <i v-else-if="beatmap.mode == 'mania'" class="fas fa-stream text-white-50" />
-                </div>
-                <div v-if="beatmap.url" class="col-sm-1 d-flex justify-content-end">
-                    <a :href="beatmap.url" target="_blank">
-                        <i class="fas fa-link" />
-                    </a>
+        <div class="card card-body card-level-2 my-1 p-1" :class="statusBorder()">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <img
+                            v-if="beatmap.quest || beatmap.isShowcase"
+                            class="rounded-circle mr-1 quest-icon"
+                            :src="beatmap.isShowcase || !beatmap.quest.art ? '/images/no-art-icon.png' :
+                                beatmap.quest.isMbc ? '/images/mbc-icon.png' :
+                                'https://assets.ppy.sh/artists/' + beatmap.quest.art + '/cover.jpg'"
+                            data-toggle="tooltip"
+                            :title="beatmap.quest && beatmap.quest.name"
+                        >
+                        <a
+                            href="#"
+                            data-toggle="collapse"
+                            :data-target="'#details' + beatmap.id"
+                            @click="selectBeatmap()"
+                        >
+                            {{ formatMetadata() }}
+                            <i class="fas fa-angle-down" />
+                        </a>
+                    </div>
+                    <div class="col-sm-2 small d-flex justify-content-end align-items-center">
+                        <process-tasks
+                            :tasks="beatmap.tasks"
+                            :tasks-locked="beatmap.tasksLocked"
+                            :mode="beatmap.mode"
+                        />
+                    </div>
+                    <div class="col-sm-3 small">
+                        <span class="text-white-50">Hosted by</span>
+                        <a :href="'https://osu.ppy.sh/users/' + beatmap.host.osuId" target="_blank" @click.stop>{{ beatmap.host.username }}</a>
+                        <i v-if="beatmap.mode == 'taiko'" class="fas fa-drum text-white-50" />
+                        <i v-else-if="beatmap.mode == 'catch'" class="fas fa-apple-alt text-white-50" />
+                        <i v-else-if="beatmap.mode == 'mania'" class="fas fa-stream text-white-50" />
+                    </div>
+                    <div v-if="beatmap.url" class="col-sm-1 d-flex justify-content-end align-items-center">
+                        <a :href="beatmap.url" target="_blank">
+                            <i class="fas fa-link" />
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div :id="'details' + beatmap.id" class="collapse my-2 mx-5 row border-right border-left border-secondary bg-darker py-3">
+        <div :id="'details' + beatmap.id" class="collapse my-2 mx-4 row border-right border-left py-3" :class="'border-' + beatmap.status.toLowerCase()">
             <beatmap-info
                 :beatmap="beatmap"
             />
@@ -125,10 +127,6 @@ export default Vue.extend({
     .quest-icon {
         width: 24px;
         height: 24px;
-    }
-
-    .bg-darker {
-        background-color: #252525a6!important;
     }
 </style>
 

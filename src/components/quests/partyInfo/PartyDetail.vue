@@ -2,7 +2,7 @@
     <div>
         <template v-if="quest.status === 'open' || quest.status === 'wip'">
             <leader-actions
-                v-if="party.leader.id == userId"
+                v-if="party.leader.id == loggedInUser.id"
                 :party="party"
                 :status="quest.status"
                 :quest="quest"
@@ -70,7 +70,7 @@ export default Vue.extend({
     },
     computed: {
         ...mapState([
-            'userId',
+            'loggedInUser',
         ]),
     },
 });

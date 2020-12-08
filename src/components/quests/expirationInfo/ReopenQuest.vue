@@ -34,15 +34,15 @@ export default Vue.extend({
     },
     computed: {
         ...mapState([
-            'availablePoints',
+            'loggedInUser',
         ]),
         enoughPoints(): boolean {
-            return (this.availablePoints - this.price) > 0;
+            return (this.loggedInUser.availablePoints - this.price) > 0;
         },
     },
     methods: {
         async reopenQuest(e): Promise<void> {
-            if (confirm(`Are you sure?\n\nYou are about to spend ${ this.price } Mappers' Guild points to re-open this quest.\n\nYou have ${ this.availablePoints } points available.`)) {
+            if (confirm(`Are you sure?\n\nYou are about to spend ${ this.price } Mappers' Guild points to re-open this quest.\n\nYou have ${ this.loggedInUser.availablePoints } points available.`)) {
                 const res: any = await this.executePost('/quests/reopenQuest/' + this.questId, { status: this.status }, e);
 
                 if (!this.isError(res)) {

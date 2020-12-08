@@ -1,83 +1,85 @@
 <template>
-    <div class="row">
-        <div class="col-sm-12">
-            <div
-                class="card card-level-2"
-                :class="cardClass"
+    <div>
+        <div
+            class="container card card-body card-level-2 my-1 p-1"
+            :class="cardClass"
+        >
+            <a
+                class="row no-gutters align-items-center"
+                :href="'#details-' + quest.id"
+                data-toggle="collapse"
+                @click="selectQuest()"
             >
-                <a
-                    class="card-header row-highlight row no-gutters align-items-center"
-                    :href="'#details-' + quest.id"
-                    data-toggle="collapse"
-                    @click="selectQuest()"
-                >
-                    <div class="col-sm-1 text-center">
-                        <img
-                            :src="quest.isMbc ? '../../images/mbc-icon.png' :
-                                quest.art ? 'https://assets.ppy.sh/artists/' + quest.art + '/cover.jpg' :
-                                '../../images/no-art-icon.png'"
-                            class="card-avatar-img"
-                        >
-                    </div>
-                    <div class="col-sm-10">
-                        <div class="row no-gutters">
-                            <div class="col-sm-5">
-                                {{ quest.name.length > 40 ? quest.name.slice(0,40) + "..." : quest.name }}
-                            </div>
+                <div class="col-sm-1 text-center">
+                    <img
+                        :src="quest.isMbc ? '../../images/mbc-icon.png' :
+                            quest.art ? 'https://assets.ppy.sh/artists/' + quest.art + '/cover.jpg' :
+                            '../../images/no-art-icon.png'"
+                        class="card-avatar-img"
+                    >
+                </div>
+                <div class="col-sm-10">
+                    <div class="row no-gutters">
+                        <div class="col-sm-5">
+                            {{ quest.name.length > 40 ? quest.name.slice(0,40) + "..." : quest.name }}
+                        </div>
 
-                            <div class="col-sm-7">
-                                <div class="row no-gutters">
-                                    <div class="col-sm-4">
-                                        <quest-size
-                                            :quest="quest"
-                                        />
-                                    </div>
-                                    <div class="col-sm-2">
-                                        <quest-price
-                                            :price="quest.price"
-                                        />
-                                    </div>
-                                    <div class="col-sm-2">
-                                        <quest-time
-                                            :timeframe="quest.timeframe"
-                                        />
-                                    </div>
-                                    <div class="col-sm-4">
-                                        <quest-modes
-                                            :status="quest.status"
-                                            :modes="quest.modes"
-                                        />
-                                    </div>
+                        <div class="col-sm-7">
+                            <div class="row no-gutters">
+                                <div class="col-sm-4">
+                                    <quest-size
+                                        :quest="quest"
+                                    />
+                                </div>
+                                <div class="col-sm-2">
+                                    <quest-price
+                                        :price="quest.price"
+                                    />
+                                </div>
+                                <div class="col-sm-2">
+                                    <quest-time
+                                        :timeframe="quest.timeframe"
+                                    />
+                                </div>
+                                <div class="col-sm-4">
+                                    <quest-modes
+                                        :status="quest.status"
+                                        :modes="quest.modes"
+                                    />
                                 </div>
                             </div>
                         </div>
-
-                        <div class="row no-gutters">
-                            <div class="col-sm small text-white-50">
-                                {{ quest.descriptionMain }}
-                            </div>
-                        </div>
                     </div>
 
-                    <div class="col-sm-1 text-center">
-                        <div id="collapse-arrow">
-                            <i class="fas fa-2x" :class="wasClicked ? 'fa-caret-up' : 'fa-caret-down'" />
+                    <div class="row no-gutters">
+                        <div class="col-sm small text-white-50">
+                            {{ quest.descriptionMain }}
                         </div>
                     </div>
+                </div>
 
-                </a>
-                <expiration-info
-                    v-if="quest.isExpired"
-                    :quest="quest"
-                    :collapse="true"
-                />
-                <party-info
-                    v-else
-                    :quest="quest"
-                    :member-of-any-party="memberOfAnyParty"
-                    :collapse="true"
-                />
-            </div>
+                <div class="col-sm-1 text-center">
+                    <div id="collapse-arrow">
+                        <i class="fas fa-2x" :class="wasClicked ? 'fa-caret-up' : 'fa-caret-down'" />
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div
+            :id="'details-' + quest.id"
+            class="collapse my-2 mx-4 py-3 row border-right border-left border-primary"
+        >
+            <expiration-info
+                v-if="quest.isExpired"
+                :quest="quest"
+            />
+
+            <party-info
+                v-else
+                :quest="quest"
+                :member-of-any-party="memberOfAnyParty"
+            />
         </div>
     </div>
 </template>
@@ -115,8 +117,7 @@ export default Vue.extend({
     },
     computed: {
         ...mapState([
-            'userId',
-            'availablePoints',
+            'loggedInUser',
         ]),
         timeRemaining(): number {
             const now = new Date().getTime();
@@ -126,7 +127,7 @@ export default Vue.extend({
         },
         memberOfAnyParty(): boolean {
             return this.quest.parties.some(p =>
-                p.members.some(m => m.id === this.userId)
+                p.members.some(m => m.id === this.loggedInUser.id)
             );
         },
         cardClass(): string {
@@ -135,7 +136,7 @@ export default Vue.extend({
             } else if (this.quest.minRank) {
                 return 'rank-restricted';
             } else {
-                return 'bg-dark';
+                return '';
             }
         },
     },
@@ -169,18 +170,5 @@ export default Vue.extend({
     border-radius: 100%;
     box-shadow: 0 1px 0.5rem rgb(10, 10, 25);
     background-color: rgb(10, 10, 25);
-}
-
-.row-highlight {
-    transition: background-color;
-}
-
-.row-highlight:hover {
-    background-color: #3a3a3a;
-    color: #f5f5f5;
-}
-
-.row-highlight:hover #collapse-arrow {
-    color: var(--ranked);
 }
 </style>

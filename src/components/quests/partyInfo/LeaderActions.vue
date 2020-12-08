@@ -32,7 +32,7 @@
                     </option>
                     <template v-for="member in party.members">
                         <option
-                            v-if="member.id !== userId"
+                            v-if="member.id !== loggedInUser.id"
                             :key="member.id"
                             :value="member.id"
                         >
@@ -146,8 +146,7 @@ export default Vue.extend({
     },
     computed: {
         ...mapState([
-            'userId',
-            'availablePoints',
+            'loggedInUser',
         ]),
         enoughPoints(): boolean {
             let valid = true;
@@ -227,7 +226,7 @@ export default Vue.extend({
             }
         },
         async extendDeadline(e): Promise<void> {
-            if (confirm(`Are you sure?\n\nAll members of your party will spend 10 points.\n\nYou have ${this.availablePoints} points available.`)) {
+            if (confirm(`Are you sure?\n\nAll members of your party will spend 10 points.\n\nYou have ${this.loggedInUser.availablePoints} points available.`)) {
                 const res: any = await this.executePost('/quests/extendDeadline/' + this.party.id + '/' + this.quest.id, {}, e);
 
                 if (!this.isError(res)) {
@@ -256,7 +255,7 @@ export default Vue.extend({
                 }
             }
 
-            if (confirm(`Are you sure?\n\nThis quest will only allow beatmaps of these modes: ${modesText}\n\nAll members of your party will spend ${this.price} points.\n\nYou have ${this.availablePoints} points available.`)) {
+            if (confirm(`Are you sure?\n\nThis quest will only allow beatmaps of these modes: ${modesText}\n\nAll members of your party will spend ${this.price} points.\n\nYou have ${this.loggedInUser.availablePoints} points available.`)) {
                 const res: any = await this.executePost('/quests/acceptQuest/' + this.party.id + '/' + this.quest.id, { price: this.price }, e);
 
                 if (!this.isError(res)) {

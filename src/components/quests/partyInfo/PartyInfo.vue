@@ -1,69 +1,64 @@
 <template>
-    <div
-        :id="collapse ? 'details-' + quest.id : 'details-modal-' + quest.id"
-        :class="collapse ? 'collapse' : 'show'"
-    >
-        <div class="card-body">
-            <div class="row">
-                <div :class="quest.status == 'open' ? 'col-sm-12' : 'col-sm-6'">
-                    <button
-                        v-if="quest.status == 'open' && !memberOfAnyParty"
-                        class="btn btn-sm btn-block btn-outline-info mb-2"
-                        @click.prevent="createParty($event)"
-                    >
-                        Add party <i class="fas fa-plus fa-xs" />
-                    </button>
+    <div class="container">
+        <div class="row">
+            <div :class="quest.status == 'open' ? 'col-sm-12' : 'col-sm-6'">
+                <button
+                    v-if="quest.status == 'open' && !memberOfAnyParty"
+                    class="btn btn-sm btn-block btn-outline-info mb-2"
+                    @click.prevent="createParty($event)"
+                >
+                    Add party <i class="fas fa-plus fa-xs" />
+                </button>
 
-                    <!-- open -->
-                    <template v-if="quest.status == 'open'">
-                        <party-detail
-                            v-for="party in quest.parties"
-                            :key="party.id"
-                            :party="party"
-                            :quest="quest"
-                            :member-of-any-party="memberOfAnyParty"
-                        />
-                    </template>
-
-                    <!-- wip -->
+                <!-- open -->
+                <template v-if="quest.status == 'open'">
                     <party-detail
-                        v-else-if="quest.status == 'wip'"
-                        :party="quest.currentParty"
+                        v-for="party in quest.parties"
+                        :key="party.id"
+                        :party="party"
                         :quest="quest"
                         :member-of-any-party="memberOfAnyParty"
                     />
+                </template>
 
-                    <!-- done -->
-                    <party-detail
-                        v-else
-                        :quest="quest"
-                    />
+                <!-- wip -->
+                <party-detail
+                    v-else-if="quest.status == 'wip'"
+                    :party="quest.currentParty"
+                    :quest="quest"
+                    :member-of-any-party="memberOfAnyParty"
+                />
 
-                    <!-- fa promo will not appear in modal -->
-                    <p class="small">
-                        <a v-if="quest.art && collapse" :href="'https://osu.ppy.sh/beatmaps/artists/' + quest.art" target="_blank">
-                            View featured artist listing
-                        </a>
-                    </p>
+                <!-- done -->
+                <party-detail
+                    v-else
+                    :quest="quest"
+                />
 
-                    <!-- quest expiration date -->
-                    <expiration-date
-                        v-if="quest.status == 'open'"
-                        :is-expired="quest.isExpired"
-                        :expiration="new Date(quest.expiration)"
-                    />
-                </div>
+                <!-- fa promo will not appear in modal -->
+                <p class="small">
+                    <a v-if="quest.art && collapse" :href="'https://osu.ppy.sh/beatmaps/artists/' + quest.art" target="_blank">
+                        View featured artist listing
+                    </a>
+                </p>
+
+                <!-- quest expiration date -->
+                <expiration-date
+                    v-if="quest.status == 'open'"
+                    :is-expired="quest.isExpired"
+                    :expiration="new Date(quest.expiration)"
+                />
+            </div>
 
 
 
-                <div
-                    v-if="quest.status == 'done' || quest.status == 'wip'"
-                    class="col-sm-6"
-                >
-                    <associated-beatmaps
-                        :associated-maps="quest.associatedMaps"
-                    />
-                </div>
+            <div
+                v-if="quest.status == 'done' || quest.status == 'wip'"
+                class="col-sm-6"
+            >
+                <associated-beatmaps
+                    :associated-maps="quest.associatedMaps"
+                />
             </div>
         </div>
     </div>

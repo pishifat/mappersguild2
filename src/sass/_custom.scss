@@ -12,6 +12,9 @@
     --rank-4-bg: rgb(153, 168, 255);
 }
 
+$second-bg: rgba(66, 64, 61, 0.7);
+$second-bg-hover: rgb(66, 64, 61);
+
 body {
     background: url('/images/triangles.png') repeat fixed;
 }
@@ -57,9 +60,12 @@ footer {
     box-shadow: 1px 1px 3px 0px rgba(30, 30, 30, 0.25);
 }
 
-//.card .card, 
 .card-level-2 {
-    background-color: #454545!important;
+    background-color: $second-bg;
+
+    &:hover {
+        background-color: $second-bg-hover;
+    }
 }
 
 .card-hover {
@@ -102,10 +108,10 @@ footer {
 
     tbody {
         tr {
-            background-color: rgba(66, 64, 61, 0.7);
+            background-color: $second-bg;
 
             &:hover {
-                background-color: rgba(66, 64, 61);
+                background-color: $second-bg-hover;
             }
         }
     }
