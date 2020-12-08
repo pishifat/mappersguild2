@@ -122,7 +122,7 @@
                         </p>
                         <p>
                             Collaborators can be removed with the
-                            <a href="#" class="text-used" onclick="event.preventDefault()">
+                            <a href="#" class="text-danger" onclick="event.preventDefault()">
                                 <i class="fas fa-minus" />
                             </a>
                             button.
@@ -157,7 +157,7 @@
                         <h5>How do I set a map's status?</h5>
                         <ul>
                             <li class="text-secondary">
-                                <a href="#" class="text-used" onclick="event.preventDefault()"><i class="fas fa-minus" /></a>
+                                <a href="#" class="text-danger" onclick="event.preventDefault()"><i class="fas fa-minus" /></a>
                                 deletes a difficulty
                             </li>
                             <li class="text-secondary">

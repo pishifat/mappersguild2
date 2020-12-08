@@ -45,7 +45,7 @@ export default Vue.extend({
         }
     },
     async created () {
-        const res: any = await this.executeGet('/artists/relevantInfo');
+        const res: any = await this.initialRequest('/artists/relevantInfo');
 
         if (res) {
             this.$store.commit('setArtists', res.artists);

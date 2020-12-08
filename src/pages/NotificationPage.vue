@@ -82,7 +82,7 @@ export default Vue.extend({
         };
     },
     async created() {
-        const res: any = await this.executeGet('/notifications/relevantInfo');
+        const res: any = await this.initialRequest('/notifications/relevantInfo');
 
         if (res) {
             this.notifications = res.notifications;

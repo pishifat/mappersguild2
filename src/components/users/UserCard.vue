@@ -1,23 +1,24 @@
 <template>
     <div class="col-sm-6 col-md-4 col-lg-4 col-xl-3 my-2" @click="selectUser()">
         <div
-            class="card card-hover bg-dark"
+            class="card card-hover card-level-2 card-body"
             :class="'border-rank-' + user.rank"
             data-toggle="modal"
             data-target="#extendedInfo"
             :data-user="user.osuId"
         >
             <img :src="'https://a.ppy.sh/' + user.osuId" class="card-avatar-img">
-            <div class="card-header">
-                <a
-                    :href="'https://osu.ppy.sh/users/' + user.osuId"
-                    target="_blank"
-                    @click.stop
-                >
-                    {{ user.username }}
-                </a>
-            </div>
-            <div class="card-body text-white-50">
+
+            <a
+                :href="'https://osu.ppy.sh/users/' + user.osuId"
+                target="_blank"
+                class="mb-2"
+                @click.stop
+            >
+                {{ user.username }}
+            </a>
+
+            <div class="text-secondary">
                 <div class="card-text small">
                     <b>Total points: {{ user.totalPoints }}</b>
                 </div>

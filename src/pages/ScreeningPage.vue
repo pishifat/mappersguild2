@@ -62,7 +62,7 @@ export default Vue.extend({
         }
     },
     async created () {
-        const res: any = await this.executeGet('/screening/relevantInfo');
+        const res: any = await this.initialRequest('/screening/relevantInfo');
 
         if (!this.isError(res)) {
             this.$store.commit('setContests', res.contests || []);

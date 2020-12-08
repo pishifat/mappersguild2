@@ -9,7 +9,7 @@
                         </h4>
                     </div>
                     <div class="card-body p-0">
-                        <table class="table table-responsive-sm">
+                        <table class="table table-responsive-sm mb-0">
                             <thead>
                                 <tr>
                                     <th class="text-left">
@@ -107,7 +107,6 @@ export default Vue.extend({
             sortBy: 'name',
             sortByCriteria: '',
             sortDesc: false,
-
         };
     },
     computed: {
@@ -202,7 +201,7 @@ export default Vue.extend({
         }
     },
     async created () {
-        const res = await this.executeGet<{ contest: Contest; criterias: Criteria[]; judgingDone: Judging[] }>('/judging/relevantInfo');
+        const res = await this.initialRequest<{ contest: Contest; criterias: Criteria[]; judgingDone: Judging[] }>('/judging/relevantInfo');
 
         if (!this.isError(res)) {
             this.$store.commit('setContest', res.contest);

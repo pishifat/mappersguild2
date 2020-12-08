@@ -91,7 +91,7 @@ export default Vue.extend({
         }
     },
     async created() {
-        const beatmaps = await this.executeGet<Beatmap[]>('/admin/beatmaps/load');
+        const beatmaps = await this.initialRequest<Beatmap[]>('/admin/beatmaps/load');
 
         if (!this.isError(beatmaps)) {
             this.$store.commit('setBeatmaps', beatmaps);

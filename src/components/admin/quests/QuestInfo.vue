@@ -1,7 +1,7 @@
 <template>
     <div id="editQuest" class="modal fade" tabindex="-1">
         <div class="modal-dialog">
-            <div v-if="quest" class="modal-content bg-dark">
+            <div v-if="quest && quest.id" class="modal-content bg-dark">
                 <div class="modal-header text-dark bg-primary">
                     <h5 class="modal-title">
                         {{ quest.name }} by
@@ -203,7 +203,7 @@ export default Vue.extend({
     props: {
         quest: {
             type: Object as () => Quest,
-            required: true,
+            default: () => ({} as Quest),
         },
     },
     data() {

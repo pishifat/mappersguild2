@@ -168,7 +168,7 @@ export default Vue.extend({
         let submission;
 
         if (params.get('submission') && params.get('submission').length) {
-            submission = await this.executeGet<{ submission: Submission }>('/contestResults/searchSubmission/' + params.get('submission'));
+            submission = await this.initialRequest<{ submission: Submission }>('/contestResults/searchSubmission/' + params.get('submission'));
         }
 
         if (!submission || this.isError(submission)) {

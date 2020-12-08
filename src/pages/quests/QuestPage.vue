@@ -35,7 +35,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { mapState, mapGetters } from 'vuex';
+import { mapGetters } from 'vuex';
 import QuestPageFilters from '@pages/quests/QuestPageFilters.vue';
 import StatusQuests from '@pages/quests/StatusQuests.vue';
 import SubmitQuestModal from '@components/quests/SubmitQuestModal.vue';
@@ -56,9 +56,6 @@ export default Vue.extend({
         };
     },
     computed: {
-        ...mapState([
-            'openQuests',
-        ]),
         ...mapGetters([
             'openQuests',
             'wipQuests',

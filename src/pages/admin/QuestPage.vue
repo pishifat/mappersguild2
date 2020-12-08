@@ -92,7 +92,7 @@ export default Vue.extend({
         }
     },
     async created() {
-        const quests = await this.executeGet<Quest[]>('/admin/quests/load');
+        const quests = await this.initialRequest<Quest[]>('/admin/quests/load');
 
         if (!this.isError(quests)) {
             this.$store.commit('setQuests', quests);

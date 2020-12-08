@@ -41,7 +41,7 @@
                         <a
                             v-if="!artist.isContacted"
                             href="#"
-                            class="float-right small text-used ml-2"
+                            class="float-right small text-danger ml-2"
                             data-toggle="tooltip"
                             data-placement="top"
                             title="delete"
@@ -51,7 +51,7 @@
                         </a>
                         <a
                             href="#"
-                            class="float-right small text-used"
+                            class="float-right small text-danger"
                             data-toggle="tooltip"
                             data-placement="top"
                             title="reset progress (except notes)"
@@ -95,25 +95,25 @@
                         <div class="small ml-2">
                             Contacted:
                             <a href="#" @click.stop.prevent="toggleIsContacted()">
-                                <i class="fas" :class="artist.isContacted ? 'text-done fa-check' : 'text-used fa-times'" />
+                                <i class="fas" :class="artist.isContacted ? 'text-done fa-check' : 'text-danger fa-times'" />
                             </a>
                         </div>
                         <div class="small ml-2">
                             Responded:
                             <a href="#" @click.stop.prevent="toggleIsResponded()">
-                                <i class="fas" :class="artist.isResponded ? 'text-done fa-check' : 'text-used fa-times'" />
+                                <i class="fas" :class="artist.isResponded ? 'text-done fa-check' : 'text-danger fa-times'" />
                             </a>
                         </div>
                         <div class="small ml-2">
                             Tracks confirmed:
                             <a href="#" @click.stop.prevent="toggleTracksSelected()">
-                                <i class="fas" :class="artist.tracksSelected ? 'text-done fa-check' : 'text-used fa-times'" />
+                                <i class="fas" :class="artist.tracksSelected ? 'text-done fa-check' : 'text-danger fa-times'" />
                             </a>
                         </div>
                         <div v-if="!artist.tracksSelected" class="small ml-2">
                             Rejected:
                             <a href="#" @click.stop.prevent="toggleIsRejected()">
-                                <i class="fas" :class="artist.isRejected ? 'text-done fa-check' : 'text-used fa-times'" />
+                                <i class="fas" :class="artist.isRejected ? 'text-done fa-check' : 'text-danger fa-times'" />
                             </a>
                         </div>
                     </div>
@@ -125,25 +125,25 @@
                         <div class="small ml-2">
                             Sent:
                             <a href="#" @click.stop.prevent="toggleContractSent()">
-                                <i class="fas" :class="artist.contractSent ? 'text-done fa-check' : 'text-used fa-times'" />
+                                <i class="fas" :class="artist.contractSent ? 'text-done fa-check' : 'text-danger fa-times'" />
                             </a>
                         </div>
                         <div class="small ml-2">
                             Artist signed:
                             <a href="#" @click.stop.prevent="toggleArtistSigned()">
-                                <i class="fas" :class="artist.artistSigned ? 'text-done fa-check' : 'text-used fa-times'" />
+                                <i class="fas" :class="artist.artistSigned ? 'text-done fa-check' : 'text-danger fa-times'" />
                             </a>
                         </div>
                         <div class="small ml-2">
                             ppy paid:
                             <a href="#" @click.stop.prevent="togglePpyPaid()">
-                                <i class="fas" :class="artist.ppyPaid ? 'text-done fa-check' : 'text-used fa-times'" />
+                                <i class="fas" :class="artist.ppyPaid ? 'text-done fa-check' : 'text-danger fa-times'" />
                             </a>
                         </div>
                         <div class="small ml-2">
                             ppy signed:
                             <a href="#" @click.stop.prevent="togglePpySigned()">
-                                <i class="fas" :class="artist.ppySigned ? 'text-done fa-check' : 'text-used fa-times'" />
+                                <i class="fas" :class="artist.ppySigned ? 'text-done fa-check' : 'text-danger fa-times'" />
                             </a>
                         </div>
                     </div>
@@ -173,25 +173,25 @@
                         <div class="small ml-2">
                             Songs received:
                             <a href="#" @click.stop.prevent="toggleSongsReceived()">
-                                <i class="fas" :class="artist.songsReceived ? 'text-done fa-check' : 'text-used fa-times'" />
+                                <i class="fas" :class="artist.songsReceived ? 'text-done fa-check' : 'text-danger fa-times'" />
                             </a>
                         </div>
                         <div class="small ml-2">
                             Songs timed:
                             <a href="#" @click.stop.prevent="toggleSongsTimed()">
-                                <i class="fas" :class="artist.songsTimed ? 'text-done fa-check' : 'text-used fa-times'" />
+                                <i class="fas" :class="artist.songsTimed ? 'text-done fa-check' : 'text-danger fa-times'" />
                             </a>
                         </div>
                         <div class="small ml-2">
                             Visual assets received:
                             <a href="#" @click.stop.prevent="toggleAssetsReceived()">
-                                <i class="fas" :class="artist.assetsReceived ? 'text-done fa-check' : 'text-used fa-times'" />
+                                <i class="fas" :class="artist.assetsReceived ? 'text-done fa-check' : 'text-danger fa-times'" />
                             </a>
                         </div>
                         <div class="small ml-2">
                             Released:
                             <a href="#" @click.stop.prevent="toggleIsUpToDate()">
-                                <i class="fas" :class="artist.isUpToDate ? 'text-done fa-check' : 'text-used fa-times'" />
+                                <i class="fas" :class="artist.isUpToDate ? 'text-done fa-check' : 'text-danger fa-times'" />
                             </a>
                         </div>
                     </div>
@@ -204,13 +204,13 @@
                         <div v-if="!artist.osuId" class="small ml-2">
                             Minor release:
                             <a href="#" @click.stop.prevent="toggleIsMinor()">
-                                <i class="fas" :class="artist.isMinor ? 'text-done fa-check' : 'text-used fa-times'" />
+                                <i class="fas" :class="artist.isMinor ? 'text-done fa-check' : 'text-danger fa-times'" />
                             </a>
                         </div>
                         <div class="small ml-2">
                             Ranked maps:
                             <a href="#" @click.stop.prevent="toggleHasRankedMaps()">
-                                <i class="fas" :class="artist.hasRankedMaps ? 'text-done fa-check' : 'text-used fa-times'" />
+                                <i class="fas" :class="artist.hasRankedMaps ? 'text-done fa-check' : 'text-danger fa-times'" />
                             </a>
                         </div>
                     </div>

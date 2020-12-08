@@ -5,7 +5,7 @@
             [{{ screener.username }}](https://osu.ppy.sh/users/{{ screener.osuId }}){{ i === screeners.length - 2 ? ', and ' : i === screeners.length - 1 ? '' : ', ' }}
         </span>
         for screening this month's entries, as well as
-        <span v-for="(judge, i) in judges" :key="judge.id">
+        <span v-for="(judge, i) in judges" :key="'j-' + judge.id">
             [{{ judge.username }}](https://osu.ppy.sh/users/{{ judge.osuId }}){{ i === judges.length - 2 ? ', and ' : i === judges.length - 1 ? '' : ', ' }}
         </span>
         for judging this month's finalists!

@@ -97,7 +97,7 @@ export default Vue.extend({
         }
     },
     async created() {
-        const users = await this.executeGet<User[]>('/admin/users/load');
+        const users = await this.initialRequest<User[]>('/admin/users/load');
 
         if (!this.isError(users)) {
             this.$store.commit('setUsers', users);

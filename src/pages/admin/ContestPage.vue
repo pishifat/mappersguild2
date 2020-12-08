@@ -42,7 +42,7 @@ export default Vue.extend({
         }
     },
     async created() {
-        const contests = await this.executeGet<Contest[]>('/admin/contests/relevantInfo');
+        const contests = await this.initialRequest<Contest[]>('/admin/contests/relevantInfo');
 
         if (!this.isError(contests)) {
             this.$store.commit('setContests', contests);

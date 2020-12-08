@@ -68,7 +68,7 @@ export default Vue.extend({
         }
     },
     async created() {
-        const featuredArtists = await this.executeGet<FeaturedArtist[]>('/admin/featuredArtists/load');
+        const featuredArtists = await this.initialRequest<FeaturedArtist[]>('/admin/featuredArtists/load');
 
         if (!this.isError(featuredArtists)) {
             this.$store.commit('setFeaturedArtists', featuredArtists);

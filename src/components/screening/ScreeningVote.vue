@@ -1,19 +1,19 @@
 <template>
     <div>
-        <button
+        <a
             v-for="i in 5"
             :key="i"
-            type="button"
-            class="btn btn-link"
+            class="mx-1"
             :class="{ 'disabled': usedVotes.includes(i) && savedVote != i }"
             :disabled="voteLoading"
-            @click="updateVote(i)"
+            href="#"
+            @click.prevent="updateVote(i)"
         >
             <i
                 class="fa-star"
                 :class="{'fas': usedVotes.includes(i) || savedVote == i, 'far': !usedVotes.includes(i) }"
             />
-        </button>
+        </a>
     </div>
 </template>
 
