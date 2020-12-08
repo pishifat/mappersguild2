@@ -51,7 +51,7 @@ export default Vue.extend({
             );
 
             if (!this.isError(beatmap)) {
-                this.$store.dispatch('updateBeatmap', beatmap);
+                this.$store.dispatch('beatmaps/updateBeatmap', beatmap);
             }
         },
     },

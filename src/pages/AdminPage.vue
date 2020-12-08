@@ -231,7 +231,7 @@
 
         <div class="radial-divisor" />
 
-        <beatmap-info
+        <beatmap-info-admin
             v-if="selectedBeatmap"
             :beatmap="selectedBeatmap"
             @update-beatmap="updateBeatmap($event)"
@@ -260,7 +260,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import { mapState } from 'vuex';
-import BeatmapInfo from '../components/admin/BeatmapInfo.vue';
+import BeatmapInfoAdmin from '../components/admin/BeatmapInfoAdmin.vue';
 import QuestInfo from '../components/admin/quests/QuestInfo.vue';
 import ReviewQuest from '../components/admin/quests/ReviewQuest.vue';
 import UserInfo from '../components/admin/UserInfo.vue';
@@ -272,7 +272,7 @@ import adminModule from '@store/admin';
 export default Vue.extend({
     name: 'AdminPage',
     components: {
-        BeatmapInfo,
+        BeatmapInfoAdmin,
         QuestInfo,
         ReviewQuest,
         UserInfo,

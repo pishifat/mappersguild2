@@ -247,7 +247,7 @@ export default Vue.extend({
                 ($('#addBeatmap')).modal('hide');
                 ($('.quest-collapse-wip')).collapse();
                 ($('#othersWip')).collapse('show');
-                this.$store.commit('addBeatmap', beatmap);
+                this.$store.commit('beatmaps/addBeatmap', beatmap);
             }
         },
     },

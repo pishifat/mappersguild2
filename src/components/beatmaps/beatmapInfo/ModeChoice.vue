@@ -78,7 +78,7 @@ export default Vue.extend({
             const beatmap = await this.executePost<Beatmap>(`/beatmaps/${id}/setMode`, { mode }, e);
 
             if (!this.isError(beatmap)) {
-                this.$store.dispatch('updateBeatmap', beatmap);
+                this.$store.dispatch('beatmaps/updateBeatmap', beatmap);
             }
         },
     },

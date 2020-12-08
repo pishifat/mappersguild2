@@ -62,10 +62,10 @@ export default Vue.extend({
     },
     computed: {
         ...mapState([
-            'userOsuId',
+            'loggedInUser',
         ]),
         isBn(): boolean {
-            return this.beatmap.bns.some(bn => bn.osuId == this.userOsuId);
+            return this.beatmap.bns.some(bn => bn.osuId == this.loggedInUser.osuId);
         },
     },
     methods: {
@@ -74,7 +74,7 @@ export default Vue.extend({
             const bm = await this.executePost<Beatmap>(`/beatmaps/${this.beatmap.id}/updateBn`);
 
             if (!this.isError(bm)) {
-                this.$store.dispatch('updateBeatmap', bm);
+                this.$store.dispatch('beatmaps/updateBeatmap', bm);
             }
 
             e.target.classList.remove('fake-button-disable');

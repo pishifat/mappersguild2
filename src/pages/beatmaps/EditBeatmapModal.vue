@@ -74,6 +74,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import BeatmapInfo from '@components/beatmaps/beatmapInfo/BeatmapInfo.vue';
+import { BeatmapStatus } from '@interfaces/beatmap/beatmap';
 
 export default Vue.extend({
     components: {
@@ -87,7 +88,9 @@ export default Vue.extend({
     },
     watch: {
         selectedBeatmap(): void {
-            history.pushState(null, 'Beatmaps', `/${this.selectedBeatmap.isShowcase ? 'showcase' : 'beatmaps'}?id=${this.selectedBeatmap.id}`);
+            if (this.$route.query.id !== this.selectedBeatmap.id) {
+                this.$router.replace(`/${this.selectedBeatmap.status === BeatmapStatus.Secret ? 'showcase' : 'beatmaps'}?id=${this.selectedBeatmap.id}`);
+            }
         },
     },
 });

@@ -163,7 +163,7 @@ export default Vue.extend({
 
                 if (!this.isError(bm)) {
                     ($('#editBeatmap')).modal('hide');
-                    this.$store.commit('deleteBeatmap', bm);
+                    this.$store.commit('beatmaps/deleteBeatmap', bm);
                 }
 
                 e.target.disabled = false;

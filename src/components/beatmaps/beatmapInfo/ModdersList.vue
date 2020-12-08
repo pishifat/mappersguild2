@@ -55,10 +55,10 @@ export default Vue.extend({
     },
     computed: {
         ...mapState([
-            'userOsuId',
+            'loggedInUser',
         ]),
         isModder(): boolean {
-            return this.beatmap.modders.some(m => m.osuId == this.userOsuId);
+            return this.beatmap.modders.some(m => m.osuId == this.loggedInUser.osuId);
         },
     },
     methods: {
@@ -67,7 +67,7 @@ export default Vue.extend({
             const bm = await this.executePost(`/beatmaps/${this.beatmap.id}/updateModder`);
 
             if (!this.isError(bm)) {
-                this.$store.dispatch('updateBeatmap', bm);
+                this.$store.dispatch('beatmaps/updateBeatmap', bm);
             }
 
             e.target.classList.remove('fake-button-disable');

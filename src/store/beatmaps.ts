@@ -1,20 +1,36 @@
 import Vue from 'vue';
+import { Module } from 'vuex';
 import Axios from 'axios';
 import { Beatmap, BeatmapMode, BeatmapStatus } from '../../interfaces/beatmap/beatmap';
 import { FilterMode } from '../../interfaces/extras';
 import { TaskName } from '../../interfaces/beatmap/task';
 
-export default {
+interface BeatmapsState {
+    allBeatmaps: Beatmap[];
+    userBeatmaps: Beatmap[];
+    showcaseBeatmaps: Beatmap[];
+    filterValue: string;
+    filterMode: FilterMode;
+    filterStatus: BeatmapStatus | 'any';
+    filterQuest: 'none' | 'any';
+    selectedBeatmap: null | Beatmap;
+    selectedBeatmapId: null | string;
+    fetchLimit: number;
+    isLoadingOtherBeatmaps: boolean;
+}
+
+const store: Module<BeatmapsState, any> = {
     namespaced: true,
     state: {
-        allBeatmaps: [] as Beatmap[],
-        userBeatmaps: [] as Beatmap[],
+        allBeatmaps: [],
+        userBeatmaps: [],
+        showcaseBeatmaps: [],
         filterValue: '',
-        filterMode: 'any' as FilterMode,
-        filterStatus: 'any' as BeatmapStatus | 'any',
-        filterQuest: 'any' as 'none' | 'any',
-        selectedBeatmap: null as null | Beatmap,
-        selectedBeatmapId: null as null | string,
+        filterMode: FilterMode.any,
+        filterStatus: 'any',
+        filterQuest: 'any',
+        selectedBeatmap: null,
+        selectedBeatmapId: null,
         fetchLimit: 30,
         isLoadingOtherBeatmaps: true,
     },
@@ -24,6 +40,9 @@ export default {
         },
         setUserBeatmaps (state, beatmaps: Beatmap[]): void {
             state.userBeatmaps = beatmaps;
+        },
+        setShowcaseBeatmaps (state, beatmaps: Beatmap[]): void {
+            state.showcaseBeatmaps = beatmaps;
         },
         setFilterValue (state, value: string): void {
             state.filterValue = value;
@@ -57,7 +76,8 @@ export default {
             state.selectedBeatmap = beatmap;
         },
         addBeatmap (state, beatmap: Beatmap): void {
-            state.userBeatmaps.unshift(beatmap);
+            if (beatmap.status === BeatmapStatus.Secret) state.showcaseBeatmaps.unshift(beatmap);
+            else state.userBeatmaps.unshift(beatmap);
         },
         updateBeatmap (state, beatmap: Beatmap): void {
             let i = state.allBeatmaps.findIndex(b => b.id === beatmap.id);
@@ -65,6 +85,9 @@ export default {
 
             i = state.userBeatmaps.findIndex(b => b.id === beatmap.id);
             if (i !== -1) Vue.set(state.userBeatmaps, i, beatmap);
+
+            i = state.showcaseBeatmaps.findIndex(b => b.id === beatmap.id);
+            if (i !== -1) Vue.set(state.showcaseBeatmaps, i, beatmap);
         },
         deleteBeatmap (state, beatmap: Beatmap): void {
             let i = state.allBeatmaps.findIndex(b => b.id === beatmap.id);
@@ -72,6 +95,9 @@ export default {
 
             i = state.userBeatmaps.findIndex(b => b.id === beatmap.id);
             if (i !== -1) state.userBeatmaps.splice(i, 1);
+
+            i = state.showcaseBeatmaps.findIndex(b => b.id === beatmap.id);
+            if (i !== -1) state.showcaseBeatmaps.splice(i, 1);
         },
     },
     getters: {
@@ -162,3 +188,5 @@ export default {
         },
     },
 };
+
+export default store;

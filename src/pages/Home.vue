@@ -336,7 +336,7 @@
                 position: fixed;
                 z-index: 1060;
                 right: 20px;"
-            :style="loggedInUser && loggedInUser.isNotSpectator ? 'bottom: 80px;' : 'bottom: 20px;'"
+            :style="loggedInUser && loggedInUser.group !== 'spectator' ? 'bottom: 80px;' : 'bottom: 20px;'"
         >
             visit BN/NAT site
         </a>

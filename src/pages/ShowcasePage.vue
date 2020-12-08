@@ -27,7 +27,7 @@ import $ from 'jquery';
 import CreateBeatmapModal from '@components/beatmaps/CreateBeatmapModal.vue';
 import ShowcaseBeatmaps from '@pages/beatmaps/ShowcaseBeatmaps.vue';
 import EditBeatmapModal from '@pages/beatmaps/EditBeatmapModal.vue';
-import showcaseModule from '@store/showcase';
+import beatmapsModule from '@store/beatmaps';
 import { mapState } from 'vuex';
 
 export default Vue.extend({
@@ -37,17 +37,12 @@ export default Vue.extend({
         EditBeatmapModal,
         CreateBeatmapModal,
     },
-    computed: mapState({
-        selectedBeatmap: (state: any) => state.showcase.selectedBeatmap,
-    }),
+    computed: mapState('beatmaps', [
+        'selectedBeatmap',
+    ]),
     beforeCreate () {
-        if (!this.$store.hasModule('showcase')) {
-            this.$store.registerModule('showcase', showcaseModule);
-        }
-    },
-    destroyed() {
-        if (this.$store.hasModule('showcase')) {
-            this.$store.unregisterModule('showcase');
+        if (!this.$store.hasModule('beatmaps')) {
+            this.$store.registerModule('beatmaps', beatmapsModule);
         }
     },
     async created() {
@@ -55,23 +50,23 @@ export default Vue.extend({
 
         if (params.get('id') && params.get('id').length) {
             const [res, urlBeatmap] = await Promise.all<any, any>([
-                this.executeGet('/showcase/relevantInfo'),
+                this.initialRequest('/showcase/relevantInfo'),
                 this.executeGet('/showcase/searchOnLoad/' + params.get('id')),
             ]);
 
             if (res) {
-                this.$store.commit('showcase/setShowcaseBeatmaps', res.beatmaps);
+                this.$store.commit('beatmaps/setShowcaseBeatmaps', res.beatmaps);
             }
 
             if (urlBeatmap && !urlBeatmap.error) {
-                this.$store.commit('showcase/setSelectedBeatmap', urlBeatmap);
+                this.$store.commit('beatmaps/setSelectedBeatmap', urlBeatmap);
                 $('#editBeatmap').modal('show');
             }
         } else {
-            const res: any = await this.executeGet('/showcase/relevantInfo');
+            const res: any = await this.initialRequest('/showcase/relevantInfo');
 
             if (res) {
-                this.$store.commit('showcase/setShowcaseBeatmaps', res.beatmaps);
+                this.$store.commit('beatmaps/setShowcaseBeatmaps', res.beatmaps);
             }
         }
     },

@@ -32,10 +32,10 @@ export default Vue.extend({
     components: {
         BeatmapCard,
     },
-    computed: mapState('showcase', [
+    computed: mapState('beatmaps', [
         'showcaseBeatmaps',
     ]),
-    methods: mapMutations('showcase', [
+    methods: mapMutations('beatmaps', [
         'setSelectedBeatmap',
     ]),
 });

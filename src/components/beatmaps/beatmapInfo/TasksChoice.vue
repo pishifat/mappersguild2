@@ -73,7 +73,7 @@
                                         v-if="
                                             task.mappers.length > 1 &&
                                                 canEditTaskCollaborators(task) &&
-                                                mapper.osuId != userOsuId
+                                                mapper.osuId != loggedInUser.osuId
                                         "
                                         href="#"
                                         class="text-danger"
@@ -172,12 +172,12 @@ export default Vue.extend({
     },
     computed: {
         ...mapState([
-            'userOsuId',
+            'loggedInUser',
         ]),
     },
     methods: {
         isOwner(mappers: User[]): boolean {
-            return mappers.some(m => m.osuId == this.userOsuId);
+            return mappers.some(m => m.osuId == this.loggedInUser.osuId);
         },
         canEditTask(task: Task): boolean {
             return this.isOwner(task.mappers) || this.isHost;
@@ -188,7 +188,7 @@ export default Vue.extend({
             const bm = await this.executePost('/beatmaps/setTaskStatus/' + id, { status });
 
             if (!this.isError(bm)) {
-                this.$store.dispatch('updateBeatmap', bm);
+                this.$store.dispatch('beatmaps/updateBeatmap', bm);
             }
 
             e.target.classList.remove('fake-button-disable');
@@ -201,7 +201,7 @@ export default Vue.extend({
             });
 
             if (!this.isError(bm)) {
-                this.$store.dispatch('updateBeatmap', bm);
+                this.$store.dispatch('beatmaps/updateBeatmap', bm);
             }
 
             e.target.classList.remove('fake-button-disable');
@@ -220,7 +220,7 @@ export default Vue.extend({
             const bm = await this.executePost('/beatmaps/task/' + id + '/removeCollab', { user });
 
             if (!this.isError(bm)) {
-                this.$store.dispatch('updateBeatmap', bm);
+                this.$store.dispatch('beatmaps/updateBeatmap', bm);
             }
 
             e.target.classList.remove('fake-button-disable');

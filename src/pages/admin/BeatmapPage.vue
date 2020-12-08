@@ -34,7 +34,7 @@
             </div>
         </div>
 
-        <beatmap-info
+        <beatmap-info-admin
             v-if="selectedBeatmap"
             :beatmap="selectedBeatmap"
             @update-beatmap="updateBeatmap($event)"
@@ -52,7 +52,7 @@
 import Vue from 'vue';
 import { mapState } from 'vuex';
 import NewsPost from '../../components/admin/newspost/NewsPost.vue';
-import BeatmapInfo from '../../components/admin/BeatmapInfo.vue';
+import BeatmapInfoAdmin from '../../components/admin/BeatmapInfoAdmin.vue';
 import BundledBeatmapsList from '../../components/admin/BundledBeatmapsList.vue';
 import BeatmapPackIdListGenerator from '../../components/admin/BeatmapPackIdListGenerator.vue';
 import DataTable from '../../components/admin/DataTable.vue';
@@ -63,7 +63,7 @@ export default Vue.extend({
     components: {
         NewsPost,
         DataTable,
-        BeatmapInfo,
+        BeatmapInfoAdmin,
         BundledBeatmapsList,
         BeatmapPackIdListGenerator,
     },

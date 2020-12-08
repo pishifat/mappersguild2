@@ -124,7 +124,7 @@ import { Beatmap } from '../../../interfaces/beatmap/beatmap';
 import { Task } from '../../../interfaces/beatmap/task';
 
 export default Vue.extend({
-    name: 'BeatmapInfo',
+    name: 'BeatmapInfoAdmin',
     props: {
         beatmap: {
             type: Object as () => Beatmap,

@@ -92,7 +92,7 @@ export default Vue.extend({
 
             if (!this.isError(bm)) {
                 this.showLinkInput = false;
-                this.$store.dispatch('updateBeatmap', bm);
+                this.$store.dispatch('beatmaps/updateBeatmap', bm);
             }
         },
     },

@@ -135,7 +135,7 @@ export default Vue.extend({
             }, e);
 
             if (!this.isError(bm)) {
-                this.$store.dispatch('updateBeatmap', bm);
+                this.$store.dispatch('beatmaps/updateBeatmap', bm);
             }
         },
         async requestTask(id, e): Promise<void> {
@@ -154,7 +154,7 @@ export default Vue.extend({
             }, e);
 
             if (!this.isError(bm)) {
-                this.$store.dispatch('updateBeatmap', bm);
+                this.$store.dispatch('beatmaps/updateBeatmap', bm);
                 this.$store.dispatch('updateToastMessages', {
                     message: 'Difficulty request sent!',
                     type: 'success',
@@ -177,7 +177,7 @@ export default Vue.extend({
             }, e);
 
             if (!this.isError(bm)) {
-                this.$store.dispatch('updateBeatmap', bm);
+                this.$store.dispatch('beatmaps/updateBeatmap', bm);
                 this.$store.dispatch('updateToastMessages', {
                     message: 'Collab invite sent!',
                     type: 'success',
