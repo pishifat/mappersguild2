@@ -1,114 +1,107 @@
 <template>
-    <div id="edit" class="modal fade" tabindex="-1">
-        <div class="modal-dialog">
-            <div v-if="featuredArtist" class="modal-content bg-dark">
-                <div class="modal-header text-dark bg-primary">
-                    <h5 class="modal-title">
-                        <a
-                            v-if="featuredArtist.osuId"
-                            :href="'https://osu.ppy.sh/beatmaps/artists/' + featuredArtist.osuId"
-                            class="text-dark"
-                            target="_blank"
-                        >
-                            {{ featuredArtist.label }}
-                        </a>
-                        <span v-else>{{ featuredArtist.label }}</span>
-                        ({{ featuredArtist.songs.length }})
-                    </h5>
-                    <button type="button" class="close" data-dismiss="modal">
-                        <span>&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body" style="overflow: hidden">
-                    <p>
-                        <button class="btn btn-sm btn-outline-info" @click="updateOsuId($event)">
-                            Save osu! ID
-                        </button>
-                        <input
-                            v-model="osuId"
-                            class="form-control form-control-sm mx-2 w-50"
-                            type="text"
-                            autocomplete="off"
-                            placeholder="osu id..."
-                        >
-                    </p>
-                    <p>
-                        <button class="btn btn-sm btn-outline-info" @click="updateName($event)">
-                            Save name
-                        </button>
-                        <input
-                            v-model="name"
-                            class="form-control form-control-sm mx-2 w-50"
-                            type="text"
-                            autocomplete="off"
-                            placeholder="artist name..."
-                        >
-                    </p>
-                    <p class="form-row">
-                        <select v-model="status" class="form-control form-control-sm w-25 mx-2">
-                            <option value="public">
-                                Public
-                            </option>
-                            <option value="private">
-                                Private
-                            </option>
-                            <option value="showcase">
-                                Showcase
-                            </option>
-                        </select>
-                        <button class="btn btn-sm btn-outline-info" @click="updateStatus($event)">
-                            Save status
-                        </button>
-                    </p>
-                    <p>
-                        <select id="editSongSelection" v-model="selectedSong" class="form-control form-control-sm">
-                            <option v-for="song in alphabeticalSongs" :key="song.id" :value="song">
-                                {{ song.title }} --- ({{ song.artist }})
-                            </option>
-                        </select>
-                    </p>
-                    <p>
-                        <input
-                            v-model="artist"
-                            class="form-control form-control-sm mx-2 w-75"
-                            type="text"
-                            autocomplete="off"
-                            placeholder="artist..."
-                        >
-                    </p>
-                    <p>
-                        <input
-                            v-model="title"
-                            class="form-control form-control-sm mx-2 w-75"
-                            type="text"
-                            autocomplete="off"
-                            placeholder="title..."
-                        >
-                    </p>
-                    <p>
-                        <button class="btn btn-sm btn-outline-info" @click="addSong($event)">
-                            Add song
-                        </button>
-                        <button class="btn btn-sm btn-outline-info" @click="editSong($event)">
-                            Edit song
-                        </button>
-                        <button class="btn btn-sm btn-outline-danger" @click="deleteSong($event)">
-                            Delete song
-                        </button>
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
+    <modal-dialog id="edit" :loaded="Boolean(featuredArtist)">
+        <template #header>
+            <a
+                v-if="featuredArtist.osuId"
+                :href="'https://osu.ppy.sh/beatmaps/artists/' + featuredArtist.osuId"
+                target="_blank"
+            >
+                {{ featuredArtist.label }}
+            </a>
+            <span v-else>{{ featuredArtist.label }}</span>
+            ({{ featuredArtist.songs.length }})
+        </template>
+
+        <template #default>
+            <p>
+                <button class="btn btn-sm btn-outline-info" @click="updateOsuId($event)">
+                    Save osu! ID
+                </button>
+                <input
+                    v-model="osuId"
+                    class="form-control form-control-sm mx-2 w-50"
+                    type="text"
+                    autocomplete="off"
+                    placeholder="osu id..."
+                >
+            </p>
+            <p>
+                <button class="btn btn-sm btn-outline-info" @click="updateName($event)">
+                    Save name
+                </button>
+                <input
+                    v-model="name"
+                    class="form-control form-control-sm mx-2 w-50"
+                    type="text"
+                    autocomplete="off"
+                    placeholder="artist name..."
+                >
+            </p>
+            <p class="form-row">
+                <select v-model="status" class="form-control form-control-sm w-25 mx-2">
+                    <option value="public">
+                        Public
+                    </option>
+                    <option value="private">
+                        Private
+                    </option>
+                    <option value="showcase">
+                        Showcase
+                    </option>
+                </select>
+                <button class="btn btn-sm btn-outline-info" @click="updateStatus($event)">
+                    Save status
+                </button>
+            </p>
+            <p>
+                <select id="editSongSelection" v-model="selectedSong" class="form-control form-control-sm">
+                    <option v-for="song in alphabeticalSongs" :key="song.id" :value="song">
+                        {{ song.title }} --- ({{ song.artist }})
+                    </option>
+                </select>
+            </p>
+            <p>
+                <input
+                    v-model="artist"
+                    class="form-control form-control-sm mx-2 w-75"
+                    type="text"
+                    autocomplete="off"
+                    placeholder="artist..."
+                >
+            </p>
+            <p>
+                <input
+                    v-model="title"
+                    class="form-control form-control-sm mx-2 w-75"
+                    type="text"
+                    autocomplete="off"
+                    placeholder="title..."
+                >
+            </p>
+            <p>
+                <button class="btn btn-sm btn-outline-info" @click="addSong($event)">
+                    Add song
+                </button>
+                <button class="btn btn-sm btn-outline-info" @click="editSong($event)">
+                    Edit song
+                </button>
+                <button class="btn btn-sm btn-outline-danger" @click="deleteSong($event)">
+                    Delete song
+                </button>
+            </p>
+        </template>
+    </modal-dialog>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
+import ModalDialog from '@components/ModalDialog.vue';
 import { FeaturedArtist } from '../../../interfaces/featuredArtist';
 import { FeaturedSong } from '../../../interfaces/featuredSong';
 
 export default Vue.extend({
     name: 'FeaturedArtistInfo',
+    components: { ModalDialog },
     props: {
         featuredArtist: {
             type: Object as () => FeaturedArtist,

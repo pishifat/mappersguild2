@@ -46,6 +46,7 @@
         />
 
         <quest-info
+            v-if="selectedQuest"
             :quest="selectedQuest"
             @update-quest="updateQuest($event)"
             @delete-quest="deleteQuest($event)"

@@ -56,7 +56,7 @@ export default Vue.extend({
         getCriteriaSumbyName (name: CriteriaName, criteriaSum): number {
             const cSum = criteriaSum.find(c => c.name === name);
 
-            return cSum.sum;
+            return cSum.sum || NaN;
         },
     },
 });

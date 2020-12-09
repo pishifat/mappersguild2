@@ -1,289 +1,283 @@
 <template>
-    <div id="submitQuest" class="modal fade" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content bg-dark">
-                <div class="modal-header text-dark bg-primary">
-                    <h5 class="modal-title">
-                        {{ isAdmin ? 'Add quest' : 'Submit quest' }}
-                    </h5>
-                    <button type="button" class="close" data-dismiss="modal">
-                        <span>&times;</span>
-                    </button>
+    <modal-dialog id="submitQuest" class="modal fade" tabindex="-1">
+        <template #header>
+            {{ isAdmin ? 'Add quest' : 'Submit quest' }}
+        </template>
+
+        <div class="container">
+            <div class="form-group row">
+                <!-- artist -->
+                <div class="col-lg-1">
+                    <p class="mb-2">
+                        Artist:
+                    </p>
                 </div>
-                <div class="modal-body" style="overflow: hidden">
-                    <div class="container">
-                        <div class="form-group row">
-                            <!-- artist -->
-                            <div class="col-lg-1">
-                                <p class="mb-2">
-                                    Artist:
-                                </p>
-                            </div>
-                            <div class="col-lg-11">
-                                <div id="artistForm" class="input-group input-group-sm">
-                                    <select
-                                        v-model="selectedArtist"
-                                        class="form-control"
-                                    >
-                                        <option value="">
-                                            No specific artist
-                                        </option>
-                                        <option value="-" disabled>
-                                            ---
-                                        </option>
-                                        <option
-                                            v-for="featuredArtist in featuredArtists"
-                                            :key="featuredArtist.id"
-                                            :value="featuredArtist.osuId + '|' + featuredArtist.label"
-                                        >
-                                            {{ featuredArtist.label }}
-                                        </option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div v-if="!isAdmin" class="col-lg-12">
-                                <ul class="small text-white-50 mb-2">
-                                    <li>This artist's logo will be used as the quest's icon.</li>
-                                    <li>If your quest allows songs from a few artists, choose whichever best expresses its theme.</li>
-                                    <li>If your quest allows songs from many artists, choose "No specific artist".</li>
-                                    <li>Selecting an artist pre-fills the "Name" and "Objective" fields, though these can still be customized.</li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <!-- required mapsets -->
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <p :class="isAdmin ? 'mb-3' : 'mb-1'">
-                                    Required mapsets:
-                                    <input
-                                        v-model.number="mapsetCount"
-                                        class="form-control form-control-sm ml-4"
-                                        type="number"
-                                        autocomplete="off"
-                                        placeholder="required mapsets..."
-                                    >
-                                </p>
-                            </div>
-                            <div v-if="!isAdmin" class="col-lg-12">
-                                <ul class="small text-white-50 mb-4">
-                                    <li>Submitting quest for approval requires you to spend points correlating to how many mapsets are required. The fewer required mapsets, the more points you'll have to spend (and vice versa).</li>
-                                    <li>Choosing a number pre-fills various fields, though these can still be customized.</li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <!-- pre-filled fields -->
-                        <div class="row">
-                            <!-- name -->
-                            <div class="col-lg-2 mb-2">
-                                <p>
-                                    Name:
-                                </p>
-                            </div>
-                            <div class="col-lg-10 mb-2">
-                                <input
-                                    v-model="name"
-                                    class="form-control form-control-sm w-100"
-                                    type="text"
-                                    autocomplete="off"
-                                    placeholder="name..."
-                                >
-                            </div>
-
-                            <!-- objective -->
-                            <div class="col-lg-2 mb-2">
-                                <p>
-                                    Objective:
-                                </p>
-                            </div>
-                            <div class="col-lg-10 mb-2">
-                                <textarea
-                                    v-model="objective"
-                                    class="form-control form-control-sm w-100"
-                                    rows="2"
-                                    type="text"
-                                    autocomplete="off"
-                                    placeholder="objective..."
-                                />
-                            </div>
-
-                            <!-- price -->
-                            <div class="col-lg-2 mb-2">
-                                <p class="mb-2">
-                                    Price:
-                                </p>
-                            </div>
-                            <div class="col-lg-2">
-                                <input
-                                    v-model.number="price"
-                                    class="form-control form-control-sm w-100"
-                                    type="number"
-                                    autocomplete="off"
-                                    placeholder="price per party member..."
-                                >
-                            </div>
-                            <div class="col-lg-8 d-flex align-items-center">
-                                <span class="small text-white-50">...points required per party member</span>
-                            </div>
-
-                            <!-- timeframe -->
-                            <div class="col-lg-2 mb-2">
-                                <p class="mb-2">
-                                    Timeframe:
-                                </p>
-                            </div>
-                            <div class="col-lg-2">
-                                <input
-                                    v-model.number="timeframe"
-                                    class="form-control form-control-sm w-100"
-                                    type="number"
-                                    autocomplete="off"
-                                    placeholder="days..."
-                                >
-                            </div>
-                            <div class="col-lg-8 d-flex align-items-center">
-                                <span class="small text-white-50">...days to complete quest</span>
-                            </div>
-
-                            <!-- party size -->
-                            <div class="col-lg-2 mb-2">
-                                <p class="mb-2">
-                                    Party size:
-                                </p>
-                            </div>
-                            <div class="col-lg-2">
-                                <input
-                                    v-model.number="minParty"
-                                    class="form-control form-control-sm w-100"
-                                    type="number"
-                                    autocomplete="off"
-                                    placeholder="minimum"
-                                >
-                            </div>
-                            <div class="col-lg-2">
-                                <input
-                                    v-model.number="maxParty"
-                                    class="form-control form-control-sm w-100"
-                                    type="number"
-                                    autocomplete="off"
-                                    placeholder="maximum"
-                                >
-                            </div>
-                            <div class="col-lg-6 d-flex align-items-center">
-                                <span class="small text-white-50">...members required to accept quest (min/max)</span>
-                            </div>
-                        </div>
-
-                        <!-- admin only -->
-                        <div v-if="isAdmin" class="row">
-                            <!-- party rank -->
-                            <div class="col-lg-2 mb-2">
-                                <p class="mb-2">
-                                    Party rank:
-                                </p>
-                            </div>
-                            <div class="col-lg-2">
-                                <input
-                                    v-model.number="minRank"
-                                    class="form-control form-control-sm w-100"
-                                    type="number"
-                                    autocomplete="off"
-                                    placeholder="rank..."
-                                >
-                            </div>
-                            <div class="col-lg-8 d-flex align-items-center">
-                                <span class="small text-white-50">...required to accept quest</span>
-                            </div>
-
-                            <!-- is MBC -->
-                            <div class="col-lg-2 mb-2">
-                                <p class="mb-2">
-                                    is MBC:
-                                </p>
-                            </div>
-                            <div class="col-lg-10">
-                                <span :class="isMbc ? 'text-success' : 'text-danger'">
-                                    {{ isMbc ? 'true' : 'false' }}
-                                    <button
-                                        class="btn btn-sm btn-outline-secondary"
-                                        @click="isMbc = !isMbc"
-                                    >
-                                        Toggle isMbc
-                                    </button>
-                                </span>
-                            </div>
-                        </div>
-
-                        <div class="radial-divisor" />
-
-                        <div v-if="!isAdmin" class="small text-white-50 mx-4">
-                            <p>
-                                Keep in mind that your quest may need revision before it is approved and published on the Mappers' Guild quest listing!
-                            </p>
-                            <p>
-                                If your quest is rejected, your spent points will be returned and pishifat will send you a message explaining why it was rejected. You may re-submit the quest with changes according to that message. Minor wording changes will be modified by pishifat without rejection.
-                            </p>
-                        </div>
-
-                        <div v-if="isAdmin">
-                            <button
-                                class="btn btn-outline-secondary btn-block"
-                                @click="addToQueue()"
-                            >
-                                Add quest to queue
-                                <i v-if="!isAdmin" class="fas fa-coins" />
-                            </button>
-
-                            <div v-if="queuedQuests.length" class="mt-2">
-                                Pending quests
-                                <ul class="small text-secondary">
-                                    <li v-for="quest in queuedQuests" :key="quest.name">
-                                        {{ quest.name }}
-                                        <a
-                                            href="#"
-                                            class="text-danger"
-                                            @click.prevent="removeFromQueue(quest.name)"
-                                        >
-                                            <i class="fas fa-minus" />
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <button
-                                v-if="queuedQuests.length"
-                                class="btn btn-outline-success btn-block"
-                                @click="publishQuests($event)"
-                            >
-                                Publish quests
-                            </button>
-                        </div>
-
-                        <button
-                            v-else
-                            class="btn btn-outline-success btn-block"
-                            :disabled="!enoughPoints"
-                            @click="submitQuest($event)"
+                <div class="col-lg-11">
+                    <div id="artistForm" class="input-group input-group-sm">
+                        <select
+                            v-model="selectedArtist"
+                            class="form-control"
                         >
-                            {{ `Submit quest for approval: ${points} pts` }}
-                            <i class="fas fa-coins" />
-                        </button>
+                            <option value="">
+                                No specific artist
+                            </option>
+                            <option value="-" disabled>
+                                ---
+                            </option>
+                            <option
+                                v-for="featuredArtist in featuredArtists"
+                                :key="featuredArtist.id"
+                                :value="featuredArtist.osuId + '|' + featuredArtist.label"
+                            >
+                                {{ featuredArtist.label }}
+                            </option>
+                        </select>
                     </div>
                 </div>
+                <div v-if="!isAdmin" class="col-lg-12">
+                    <ul class="small text-white-50 mb-2">
+                        <li>This artist's logo will be used as the quest's icon.</li>
+                        <li>If your quest allows songs from a few artists, choose whichever best expresses its theme.</li>
+                        <li>If your quest allows songs from many artists, choose "No specific artist".</li>
+                        <li>Selecting an artist pre-fills the "Name" and "Objective" fields, though these can still be customized.</li>
+                    </ul>
+                </div>
             </div>
+
+            <!-- required mapsets -->
+            <div class="row">
+                <div class="col-lg-12">
+                    <p :class="isAdmin ? 'mb-3' : 'mb-1'">
+                        Required mapsets:
+                        <input
+                            v-model.number="mapsetCount"
+                            class="form-control form-control-sm ml-4"
+                            type="number"
+                            autocomplete="off"
+                            placeholder="required mapsets..."
+                        >
+                    </p>
+                </div>
+                <div v-if="!isAdmin" class="col-lg-12">
+                    <ul class="small text-white-50 mb-4">
+                        <li>Submitting quest for approval requires you to spend points correlating to how many mapsets are required. The fewer required mapsets, the more points you'll have to spend (and vice versa).</li>
+                        <li>Choosing a number pre-fills various fields, though these can still be customized.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- pre-filled fields -->
+            <div class="row">
+                <!-- name -->
+                <div class="col-lg-2 mb-2">
+                    <p>
+                        Name:
+                    </p>
+                </div>
+                <div class="col-lg-10 mb-2">
+                    <input
+                        v-model="name"
+                        class="form-control form-control-sm w-100"
+                        type="text"
+                        autocomplete="off"
+                        placeholder="name..."
+                    >
+                </div>
+
+                <!-- objective -->
+                <div class="col-lg-2 mb-2">
+                    <p>
+                        Objective:
+                    </p>
+                </div>
+                <div class="col-lg-10 mb-2">
+                    <textarea
+                        v-model="objective"
+                        class="form-control form-control-sm w-100"
+                        rows="2"
+                        type="text"
+                        autocomplete="off"
+                        placeholder="objective..."
+                    />
+                </div>
+
+                <!-- price -->
+                <div class="col-lg-2 mb-2">
+                    <p class="mb-2">
+                        Price:
+                    </p>
+                </div>
+                <div class="col-lg-2">
+                    <input
+                        v-model.number="price"
+                        class="form-control form-control-sm w-100"
+                        type="number"
+                        autocomplete="off"
+                        placeholder="price per party member..."
+                    >
+                </div>
+                <div class="col-lg-8 d-flex align-items-center">
+                    <span class="small text-white-50">...points required per party member</span>
+                </div>
+
+                <!-- timeframe -->
+                <div class="col-lg-2 mb-2">
+                    <p class="mb-2">
+                        Timeframe:
+                    </p>
+                </div>
+                <div class="col-lg-2">
+                    <input
+                        v-model.number="timeframe"
+                        class="form-control form-control-sm w-100"
+                        type="number"
+                        autocomplete="off"
+                        placeholder="days..."
+                    >
+                </div>
+                <div class="col-lg-8 d-flex align-items-center">
+                    <span class="small text-white-50">...days to complete quest</span>
+                </div>
+
+                <!-- party size -->
+                <div class="col-lg-2 mb-2">
+                    <p class="mb-2">
+                        Party size:
+                    </p>
+                </div>
+                <div class="col-lg-2">
+                    <input
+                        v-model.number="minParty"
+                        class="form-control form-control-sm w-100"
+                        type="number"
+                        autocomplete="off"
+                        placeholder="minimum"
+                    >
+                </div>
+                <div class="col-lg-2">
+                    <input
+                        v-model.number="maxParty"
+                        class="form-control form-control-sm w-100"
+                        type="number"
+                        autocomplete="off"
+                        placeholder="maximum"
+                    >
+                </div>
+                <div class="col-lg-6 d-flex align-items-center">
+                    <span class="small text-white-50">...members required to accept quest (min/max)</span>
+                </div>
+            </div>
+
+            <!-- admin only -->
+            <div v-if="isAdmin" class="row">
+                <!-- party rank -->
+                <div class="col-lg-2 mb-2">
+                    <p class="mb-2">
+                        Party rank:
+                    </p>
+                </div>
+                <div class="col-lg-2">
+                    <input
+                        v-model.number="minRank"
+                        class="form-control form-control-sm w-100"
+                        type="number"
+                        autocomplete="off"
+                        placeholder="rank..."
+                    >
+                </div>
+                <div class="col-lg-8 d-flex align-items-center">
+                    <span class="small text-white-50">...required to accept quest</span>
+                </div>
+
+                <!-- is MBC -->
+                <div class="col-lg-2 mb-2">
+                    <p class="mb-2">
+                        is MBC:
+                    </p>
+                </div>
+                <div class="col-lg-10">
+                    <span :class="isMbc ? 'text-success' : 'text-danger'">
+                        {{ isMbc ? 'true' : 'false' }}
+                        <button
+                            class="btn btn-sm btn-outline-secondary"
+                            @click="isMbc = !isMbc"
+                        >
+                            Toggle isMbc
+                        </button>
+                    </span>
+                </div>
+            </div>
+
+            <div class="radial-divisor" />
+
+            <div v-if="!isAdmin" class="small text-white-50 mx-4">
+                <p>
+                    Keep in mind that your quest may need revision before it is approved and published on the Mappers' Guild quest listing!
+                </p>
+                <p>
+                    If your quest is rejected, your spent points will be returned and pishifat will send you a message explaining why it was rejected. You may re-submit the quest with changes according to that message. Minor wording changes will be modified by pishifat without rejection.
+                </p>
+            </div>
+
+            <div v-if="isAdmin">
+                <button
+                    class="btn btn-outline-secondary btn-block"
+                    @click="addToQueue()"
+                >
+                    Add quest to queue
+                    <i v-if="!isAdmin" class="fas fa-coins" />
+                </button>
+
+                <div v-if="queuedQuests.length" class="mt-2">
+                    Pending quests
+                    <ul class="small text-secondary">
+                        <li v-for="quest in queuedQuests" :key="quest.name">
+                            {{ quest.name }}
+                            <a
+                                href="#"
+                                class="text-danger"
+                                @click.prevent="removeFromQueue(quest.name)"
+                            >
+                                <i class="fas fa-minus" />
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <button
+                    v-if="queuedQuests.length"
+                    class="btn btn-outline-success btn-block"
+                    @click="publishQuests($event)"
+                >
+                    Publish quests
+                </button>
+            </div>
+
+            <button
+                v-else
+                class="btn btn-outline-success btn-block"
+                :disabled="!enoughPoints"
+                @click="submitQuest($event)"
+            >
+                {{ `Submit quest for approval: ${points} pts` }}
+                <i class="fas fa-coins" />
+            </button>
         </div>
-    </div>
+    </modal-dialog>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
 import { mapState } from 'vuex';
+import ModalDialog from '@components/ModalDialog.vue';
 import { FeaturedArtist } from '../../../interfaces/featuredArtist';
 import { Quest } from '../../../interfaces/quest';
 
 export default Vue.extend({
     name: 'SubmitQuestModal',
+    components: {
+        ModalDialog,
+    },
     props: {
         isAdmin: Boolean,
     },

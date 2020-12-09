@@ -1,81 +1,83 @@
 <template>
-    <div id="editUser" class="modal fade" tabindex="-1">
-        <div class="modal-dialog">
-            <div v-if="user" class="modal-content bg-dark">
-                <div class="modal-header text-dark" :class="'bg-rank-' + user.rank">
-                    <h5 class="modal-title">
-                        <a :href="'https://osu.ppy.sh/users/' + user.osuId" class="text-dark" target="_blank">
-                            {{ user.username }}
-                        </a>
-                    </h5>
-                    <button type="button" class="close" data-dismiss="modal">
-                        <span>&times;</span>
+    <modal-dialog
+        id="editUser"
+        :header-class="user ? 'bg-rank-' + user.rank : ''"
+        :loaded="Boolean(user)"
+    >
+        <template #header>
+            <a :href="'https://osu.ppy.sh/users/' + user.osuId" target="_blank">
+                {{ user.username }}
+            </a>
+        </template>
+
+        <template #default>
+            <div class="container">
+                <p class="form-row">
+                    <select v-model="group" class="form-control form-control-sm w-25 mx-2">
+                        <option value="user">
+                            User
+                        </option>
+                        <option value="admin">
+                            Admin
+                        </option>
+                        <option value="secret">
+                            Secret
+                        </option>
+                        <option value="spectator">
+                            Spectator
+                        </option>
+                    </select>
+                    <button class="btn btn-sm btn-outline-info" @click="updateGroup($event)">
+                        Save group
                     </button>
-                </div>
-                <div class="modal-body" style="overflow: hidden">
-                    <p class="form-row">
-                        <select v-model="group" class="form-control form-control-sm w-25 mx-2">
-                            <option value="user">
-                                User
-                            </option>
-                            <option value="admin">
-                                Admin
-                            </option>
-                            <option value="secret">
-                                Secret
-                            </option>
-                            <option value="spectator">
-                                Spectator
-                            </option>
-                        </select>
-                        <button class="btn btn-sm btn-outline-info" @click="updateGroup($event)">
-                            Save group
-                        </button>
-                    </p>
-                    <p>
-                        <input
-                            v-model="badge"
-                            class="form-control form-control-sm mx-2"
-                            type="text"
-                            autocomplete="off"
-                        >
-                        <button class="btn btn-sm btn-outline-info" @click="updateBadge($event)">
-                            Save badge
-                        </button>
-                    </p>
-                    <p>
-                        <input
-                            v-model="discordId"
-                            class="form-control form-control-sm mx-2"
-                            type="text"
-                            autocomplete="off"
-                        >
-                        <button class="btn btn-sm btn-outline-info" @click="updateDiscordId($event)">
-                            Save Discord ID
-                        </button>
-                    </p>
-                    <p>
-                        <button class="btn btn-sm btn-outline-info" @click="calculateUserPoints($event)">
-                            Calculate user points
-                        </button>
-                    </p>
-                    <p>
-                        <button class="btn btn-sm btn-outline-info" @click="toggleBypassLogin($event)">
-                            {{ user.bypassLogin ? 'Enable' : 'Disable' }} ranked maps login requirement
-                        </button>
-                    </p>
-                </div>
+                </p>
+                <p>
+                    <input
+                        v-model="badge"
+                        class="form-control form-control-sm mx-2"
+                        type="text"
+                        autocomplete="off"
+                    >
+                    <button class="btn btn-sm btn-outline-info" @click="updateBadge($event)">
+                        Save badge
+                    </button>
+                </p>
+                <p>
+                    <input
+                        v-model="discordId"
+                        class="form-control form-control-sm mx-2"
+                        type="text"
+                        autocomplete="off"
+                    >
+                    <button class="btn btn-sm btn-outline-info" @click="updateDiscordId($event)">
+                        Save Discord ID
+                    </button>
+                </p>
+                <p>
+                    <button class="btn btn-sm btn-outline-info" @click="calculateUserPoints($event)">
+                        Calculate user points
+                    </button>
+                </p>
+                <p>
+                    <button class="btn btn-sm btn-outline-info" @click="toggleBypassLogin($event)">
+                        {{ user.bypassLogin ? 'Enable' : 'Disable' }} ranked maps login requirement
+                    </button>
+                </p>
             </div>
-        </div>
-    </div>
+        </template>
+    </modal-dialog>
 </template>
 
 <script lang="ts">
+import ModalDialog from '@components/ModalDialog.vue';
 import Vue from 'vue';
 import { User } from '../../../interfaces/user';
 
 export default Vue.extend({
     name: 'UserInfo',
+    components: {
+        ModalDialog,
+    },
     props: {
         user: {
             type: Object as () => User,

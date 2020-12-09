@@ -1,90 +1,79 @@
 <template>
-    <div>
-        <div
-            v-if="editingSubmission && editingCriteria"
-            id="editing-judging-modal"
-            tabindex="-1"
-            class="modal fade"
-            data-backdrop="static"
-            data-keyboard="false"
-        >
-            <div class="modal-dialog" role="document">
-                <div class="modal-content bg-dark">
-                    <div class="modal-header bg-warning text-dark">
-                        <h5
-                            id="exampleModalLongTitle"
-                            class="modal-title"
-                        >
-                            {{ editingSubmission.name }}: <span class="text-capitalize">{{ editingCriteria.name }}</span>
-                        </h5>
-                        <button type="button" class="close" data-dismiss="modal">
-                            <span>&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div v-if="editingCriteria.name != 'comments'" class="form-group">
-                            <label for="score">Score</label>
-                            <input
-                                id="score"
-                                v-model="editingScore"
-                                type="number"
-                                step="1"
-                                min="0"
-                                :max="editingCriteria.maxScore"
-                                class="form-control"
-                            >
-                        </div>
-                        <div
-                            v-else
-                            class="form-group"
-                        >
-                            <label for="comment">
-                                Comment
-                            </label>
-                            <textarea
-                                id="comment"
-                                v-model="editingComment"
-                                maxlength="3000"
-                                rows="4"
-                                class="form-control"
-                            />
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button
-                            type="button"
-                            class="btn btn-sm btn-outline-secondary"
-                            @click.prevent="closeModal()"
-                        >
-                            Close
-                        </button>
-                        <button
-                            type="button"
-                            class="btn btn-sm btn-outline-primary"
-                            @click.prevent="save($event)"
-                        >
-                            Save changes
-                        </button>
-                        <div id="close-button" data-dismiss="modal" />
-                    </div>
-                </div>
+    <modal-dialog
+        id="editing-judging-modal"
+        data-backdrop="static"
+        data-keyboard="false"
+        :loaded="Boolean(editingSubmission)"
+    >
+        <template #header>
+            {{ editingSubmission.name }}: <span class="text-capitalize">{{ editingCriteria.name }}</span>
+        </template>
+
+        <template #default>
+            <div v-if="editingCriteria.name != 'comments'" class="form-group">
+                <label for="score">Score</label>
+                <input
+                    id="score"
+                    v-model="editingScore"
+                    type="number"
+                    step="1"
+                    min="0"
+                    :max="editingCriteria.maxScore"
+                    class="form-control"
+                >
             </div>
-        </div>
-    </div>
+            <div
+                v-else
+                class="form-group"
+            >
+                <label for="comment">
+                    Comment
+                </label>
+                <textarea
+                    id="comment"
+                    v-model="editingComment"
+                    maxlength="3000"
+                    rows="4"
+                    class="form-control"
+                />
+            </div>
+        </template>
+
+        <template #footer>
+            <button
+                type="button"
+                class="btn btn-sm btn-outline-secondary"
+                @click.prevent="closeModal()"
+            >
+                Close
+            </button>
+            <button
+                type="button"
+                class="btn btn-sm btn-outline-primary"
+                @click.prevent="save($event)"
+            >
+                Save changes
+            </button>
+            <div id="close-button" data-dismiss="modal" />
+        </template>
+    </modal-dialog>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
 import { JudgingScore } from '../../../interfaces/contest/judgingScore';
 import { mapState, mapGetters } from 'vuex';
+import ModalDialog from '@components/ModalDialog.vue';
 
 export default Vue.extend({
     name: 'EditingCriteriaModal',
+    components: {
+        ModalDialog,
+    },
     data () {
         return {
             editingScore: 0,
             editingComment: '',
-
         };
     },
     computed: {

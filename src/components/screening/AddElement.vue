@@ -1,60 +1,55 @@
 <template>
-    <div>
-        <div :id="type + 'Add'" class="modal fade" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content bg-dark">
-                    <div class="modal-header text-dark bg-primary">
-                        <h5 class="modal-title">
-                            Add {{ type }}
-                        </h5>
-                        <button type="button" class="close" data-dismiss="modal">
-                            <span>&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body" style="overflow: hidden">
-                        <p v-if="contests" class="form-row">
-                            <select v-model="selectedContest" class="form-control form-control-sm w-100 mx-2">
-                                <option v-for="contest in contests" :key="contest.id" :value="contest.id">
-                                    {{ contest.name }}
-                                </option>
-                            </select>
-                        </p>
-                        <p v-if="contests" class="form-row">
-                            <input
-                                v-model="osuId"
-                                class="form-control form-control-sm w-100"
-                                type="text"
-                                autocomplete="off"
-                                placeholder="creator/screener's osuId..."
-                            >
-                        </p>
-                        <p v-if="type != 'screener'" class="form-row">
-                            <input
-                                v-model="elementName"
-                                class="form-control form-control-sm w-100"
-                                type="text"
-                                autocomplete="off"
-                                placeholder="name..."
-                            >
-                        </p>
-                        <p>
-                            <button class="btn btn-sm btn-outline-info" @click="type == 'screener' ? addScreener($event) : createElement($event)">
-                                Add {{ type }}
-                            </button>
-                        </p>
-                        <p v-if="info" class="text-danger">
-                            {{ info }}
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <modal-dialog :id="type + 'Add'">
+        <template #header>
+            Add {{ type }}
+        </template>
+
+        <template v-if="contests">
+            <p class="form-row">
+                <select v-model="selectedContest" class="form-control form-control-sm w-100 mx-2">
+                    <option v-for="contest in contests" :key="contest.id" :value="contest.id">
+                        {{ contest.name }}
+                    </option>
+                </select>
+            </p>
+            <p class="form-row">
+                <input
+                    v-model="osuId"
+                    class="form-control form-control-sm w-100"
+                    type="text"
+                    autocomplete="off"
+                    placeholder="creator/screener's osuId..."
+                >
+            </p>
+        </template>
+        <p v-if="type != 'screener'" class="form-row">
+            <input
+                v-model="elementName"
+                class="form-control form-control-sm w-100"
+                type="text"
+                autocomplete="off"
+                placeholder="name..."
+            >
+        </p>
+        <p>
+            <button class="btn btn-sm btn-outline-info" @click="type == 'screener' ? addScreener($event) : createElement($event)">
+                Add {{ type }}
+            </button>
+        </p>
+        <p v-if="info" class="text-danger">
+            {{ info }}
+        </p>
+    </modal-dialog>
 </template>
 
 <script>
+import ModalDialog from '@components/ModalDialog.vue';
+
 export default {
     name: 'AddElement',
+    components: {
+        ModalDialog,
+    },
     props: {
         type: {
             type: String,

@@ -1,322 +1,318 @@
 <template>
-    <div id="extendedInfo" class="modal fade" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div v-if="selectedUser" class="modal-content bg-dark">
-                <div class="modal-header text-dark" :class="'bg-rank-' + selectedUser.rank">
-                    <h5 class="modal-title">
-                        <a :href="'https://osu.ppy.sh/users/' + selectedUser.osuId" class="text-dark" target="_blank">
-                            {{ selectedUser.username }}
-                        </a>
-                    </h5>
-                    <button type="button" class="close" data-dismiss="modal">
-                        <span>&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body" style="overflow: hidden">
-                    <img src="/images/the_A.png" class="the-a-background">
-                    <div class="row col-lg-12">
-                        <table class="table table-sm col-md-6">
-                            <thead>
-                                <th scope="col">
-                                    Task
-                                </th>
-                                <th scope="col">
-                                    Points
-                                </th>
-                            </thead>
-                            <tbody>
-                                <user-points-row
-                                    v-if="selectedUser.easyPoints"
-                                    :points="selectedUser.easyPoints"
-                                    :display="'mapping Easy difficulties'"
-                                    :tooltip-title="'~5 points per difficulty. +2 if quest mapset'"
-                                />
-                                <user-points-row
-                                    v-if="selectedUser.normalPoints"
-                                    :points="selectedUser.normalPoints"
-                                    :display="'mapping Normal difficulties'"
-                                    :tooltip-title="'~6 points per difficulty. +2 if quest mapset'"
-                                />
-                                <user-points-row
-                                    v-if="selectedUser.hardPoints"
-                                    :points="selectedUser.hardPoints"
-                                    :display="'mapping Hard difficulties'"
-                                    :tooltip-title="'~7 points per difficulty. +2 if quest mapset'"
-                                />
-                                <user-points-row
-                                    v-if="selectedUser.insanePoints"
-                                    :points="selectedUser.insanePoints"
-                                    :display="'mapping Insane difficulties'"
-                                    :tooltip-title="'~8 points per difficulty. +2 if quest mapset'"
-                                />
-                                <user-points-row
-                                    v-if="selectedUser.expertPoints"
-                                    :points="selectedUser.expertPoints"
-                                    :display="'mapping Expert difficulties'"
-                                    :tooltip-title="'~8 points per difficulty. +2 if quest mapset'"
-                                />
-                                <user-points-row
-                                    v-if="selectedUser.storyboardPoints"
-                                    :points="selectedUser.storyboardPoints"
-                                    :display="'creating storyboards'"
-                                    :tooltip-title="'2, 7.5, or 10 points per storyboard'"
-                                />
-                                <user-points-row
-                                    v-if="selectedUser.questPoints"
-                                    :points="selectedUser.questPoints"
-                                    :display="'completing quests'"
-                                    :tooltip-title="'5 bonus points for completing quests on time'"
-                                />
-                                <user-points-row
-                                    v-if="selectedUser.modPoints"
-                                    :points="selectedUser.modPoints"
-                                    :display="'modding mapsets'"
-                                    :tooltip-title="'1 point per mod'"
-                                />
-                                <user-points-row
-                                    v-if="selectedUser.hostPoints"
-                                    :points="selectedUser.hostPoints"
-                                    :display="'hosting mapsets'"
-                                    :tooltip-title="'5 points per mapset hosted'"
-                                />
-                                <user-points-row
-                                    v-if="selectedUser.contestParticipantPoints"
-                                    :points="selectedUser.contestParticipantPoints"
-                                    :display="'MBC participation'"
-                                    :tooltip-title="'participation in Monthly Beatmapping Contests'"
-                                />
-                                <user-points-row
-                                    v-if="selectedUser.contestScreenerPoints"
-                                    :points="selectedUser.contestScreenerPoints"
-                                    :display="'MBC screening'"
-                                    :tooltip-title="'screening entries for Monthly Beatmapping Contests'"
-                                />
-                                <user-points-row
-                                    v-if="selectedUser.contestJudgePoints"
-                                    :points="selectedUser.contestJudgePoints"
-                                    :display="'MBC judging'"
-                                    :tooltip-title="'judging entries for Monthly Beatmapping Contests'"
-                                />
-                                <user-points-row
-                                    v-if="selectedUser.legacyPoints"
-                                    :points="selectedUser.legacyPoints"
-                                    :display="'legacy'"
-                                    :tooltip-title="'points for things that are no longer applicable to Mappers\' Guild'"
-                                />
-                                <user-points-row
-                                    v-if="selectedUser.osuPoints"
-                                    :points="selectedUser.osuPoints"
-                                    :display="'Total osu! points'"
-                                    :tooltip-title="'mapping osu! game mode'"
-                                />
-                                <user-points-row
-                                    v-if="selectedUser.taikoPoints"
-                                    :points="selectedUser.taikoPoints"
-                                    :display="'Total osu!taiko points'"
-                                    :tooltip-title="'mapping osu!taiko game mode'"
-                                />
-                                <user-points-row
-                                    v-if="selectedUser.catchPoints"
-                                    :points="selectedUser.catchPoints"
-                                    :display="'Total osu!catch points'"
-                                    :tooltip-title="'mapping osu!catch game mode'"
-                                />
-                                <user-points-row
-                                    v-if="selectedUser.maniaPoints"
-                                    :points="selectedUser.maniaPoints"
-                                    :display="'Total osu!mania points'"
-                                    :tooltip-title="'mapping osu!mania game mode'"
-                                />
-                                <tr>
-                                    <td scope="row">
-                                        Total points earned
-                                    </td>
-                                    <td scope="row">
-                                        {{ selectedUser.totalPoints }}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td scope="row">
-                                        Available points
-                                    </td>
-                                    <td scope="row">
-                                        {{ selectedUser.availablePoints }} <i class="fas fa-coins" />
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <div class="col-md-6">
-                            <p
-                                class="small"
-                            >
-                                Rank:
-                                <i
-                                    v-if="selectedUser.rank > 0"
-                                    class="fas fa-crown"
-                                    :class="'text-rank-' + selectedUser.rank"
-                                    data-toggle="tooltip"
-                                    data-placement="top"
-                                    :title="`rank ${selectedUser.rank} user`"
-                                />
-                                <span v-else class="text-white-50">
-                                    None
-                                </span>
-                            </p>
-                            <div v-if="currentQuests.length" class="small">
-                                Current quests:
-                            </div>
-                            <ul class="p-0 mb-2 ml-4">
-                                <li
-                                    v-for="quest in currentQuests"
-                                    :key="quest.id"
-                                    class="small text-white-50"
-                                >
-                                    <a :href="'/quests?id=' + quest.id" target="_blank">
-                                        {{ quest.name.length > 40 ? quest.name.slice(0,40) + "..." : quest.name }}
-                                    </a>
-                                </li>
-                            </ul>
-                            <div v-if="currentQuests.length" class="small">
-                                Created quests:
-                            </div>
-                            <ul class="p-0 mb-2 ml-4">
-                                <li
-                                    v-for="name in createdQuestNames"
-                                    :key="name"
-                                    class="small text-white-50"
-                                >
-                                    {{ name.length > 40 ? name.slice(0,40) + "..." : name }}
-                                </li>
-                            </ul>
-                            <div v-if="selectedUser.completedQuests.length" class="small">
-                                Completed quests:
-                            </div>
-                            <ul class="p-0 mb-2 ml-4">
-                                <li
-                                    v-for="quest in selectedUser.completedQuests"
-                                    :key="quest.id"
-                                    class="small text-white-50"
-                                >
-                                    <a :href="'/quests?id=' + quest.id" target="_blank">
-                                        {{ quest.name.length > 40 ? quest.name.slice(0,40) + "..." : quest.name }}
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
+    <modal-dialog
+        id="extendedInfo"
+        :loaded="Boolean(selectedUser)"
+        :header-class="selectedUser ? ('bg-rank-' + selectedUser.rank) : ''"
+    >
+        <template #header>
+            <a :href="'https://osu.ppy.sh/users/' + selectedUser.osuId" class="text-dark" target="_blank">
+                {{ selectedUser.username }}
+            </a>
+        </template>
 
-                    <div class="radial-divisor" />
-                    <p>Mappers' Guild beatmaps:</p>
-                    <table class="table table-sm">
-                        <thead>
-                            <th scope="col">
-                                Mapset
-                            </th>
-                            <th scope="col">
-                                Host
-                            </th>
-                            <th scope="col">
-                                Tasks
-                            </th>
-                            <th scope="col" />
-                        </thead>
-                        <tbody>
-                            <tr v-if="!userBeatmaps.length">
-                                <td scope="row">
-                                    ...
-                                </td>
-                                <td scope="row">
-                                    ...
-                                </td>
-                                <td scope="row">
-                                    ...
-                                </td>
-                                <td scope="row" />
-                            </tr>
-                            <tr v-for="map in userBeatmaps" :key="map.id">
-                                <td scope="row">
-                                    <i
-                                        class="fas"
-                                        :class="[map.status.toLowerCase(), findIcon(map.status)]"
-                                        data-toggle="tooltip"
-                                        :title="map.status"
-                                    />
-                                    <a :href="'/beatmaps?id=' + map.id" target="_blank">
-                                        {{ map.song.artist }} - {{ map.song.title }}
-                                    </a>
-                                    <i v-if="map.mode == 'taiko'" class="fas fa-drum" />
-                                    <i v-else-if="map.mode == 'catch'" class="fas fa-apple-alt" />
-                                    <i v-else-if="map.mode == 'mania'" class="fas fa-stream" />
-                                </td>
-                                <td scope="row">
-                                    <a
-                                        :href="'https://osu.ppy.sh/users/' + map.host.osuId"
-                                        target="_blank"
-                                    >
-                                        {{ map.host.username }}
-                                    </a>
-                                </td>
-                                <td scope="row" class="text-white-50">
-                                    {{ userTasks(map) }}
-                                </td>
-                                <td scope="row" class="text-white-50">
-                                    <a v-if="map.url" :href="map.url" target="_blank">
-                                        <i class="fas fa-link" />
-                                    </a>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <div class="radial-divisor" />
-
-                    <p>Spent points logs:</p>
-                    <table class="table table-sm col-md-12">
-                        <thead>
-                            <th scope="col">
-                                Action
-                            </th>
-                            <th scope="col">
-                                Spent points
-                            </th>
-                        </thead>
-                        <tbody>
-                            <tr v-if="!spentPoints.length">
-                                <td scope="row">
-                                    ...
-                                </td>
-                                <td scope="row">
-                                    ...
-                                </td>
-                            </tr>
-                            <tr v-for="spentPointsEvent in spentPoints" :key="spentPointsEvent.id">
-                                <td scope="row" class="text-white-50">
-                                    {{ findSpentPointsAction (spentPointsEvent.category) }}
-                                    <a :href="'/quests/?id=' + spentPointsEvent.quest.id" target="_blank">
-                                        {{ spentPointsEvent.quest.name }}
-                                    </a>
-                                </td>
-                                <td scope="row" class="text-white-50">
-                                    {{ findSpentPointsValue(spentPointsEvent.category, spentPointsEvent.quest) }} <i class="fas fa-coins" />
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <div class="radial-divisor" />
-
-                    <p class="float-right">
-                        Joined: {{ selectedUser.createdAt.slice(0, 10) }}
+        <template #default>
+            <div class="row col-lg-12">
+                <table class="table table-sm col-md-6">
+                    <thead>
+                        <th scope="col">
+                            Task
+                        </th>
+                        <th scope="col">
+                            Points
+                        </th>
+                    </thead>
+                    <tbody>
+                        <user-points-row
+                            v-if="selectedUser.easyPoints"
+                            :points="selectedUser.easyPoints"
+                            :display="'mapping Easy difficulties'"
+                            :tooltip-title="'~5 points per difficulty. +2 if quest mapset'"
+                        />
+                        <user-points-row
+                            v-if="selectedUser.normalPoints"
+                            :points="selectedUser.normalPoints"
+                            :display="'mapping Normal difficulties'"
+                            :tooltip-title="'~6 points per difficulty. +2 if quest mapset'"
+                        />
+                        <user-points-row
+                            v-if="selectedUser.hardPoints"
+                            :points="selectedUser.hardPoints"
+                            :display="'mapping Hard difficulties'"
+                            :tooltip-title="'~7 points per difficulty. +2 if quest mapset'"
+                        />
+                        <user-points-row
+                            v-if="selectedUser.insanePoints"
+                            :points="selectedUser.insanePoints"
+                            :display="'mapping Insane difficulties'"
+                            :tooltip-title="'~8 points per difficulty. +2 if quest mapset'"
+                        />
+                        <user-points-row
+                            v-if="selectedUser.expertPoints"
+                            :points="selectedUser.expertPoints"
+                            :display="'mapping Expert difficulties'"
+                            :tooltip-title="'~8 points per difficulty. +2 if quest mapset'"
+                        />
+                        <user-points-row
+                            v-if="selectedUser.storyboardPoints"
+                            :points="selectedUser.storyboardPoints"
+                            :display="'creating storyboards'"
+                            :tooltip-title="'2, 7.5, or 10 points per storyboard'"
+                        />
+                        <user-points-row
+                            v-if="selectedUser.questPoints"
+                            :points="selectedUser.questPoints"
+                            :display="'completing quests'"
+                            :tooltip-title="'5 bonus points for completing quests on time'"
+                        />
+                        <user-points-row
+                            v-if="selectedUser.modPoints"
+                            :points="selectedUser.modPoints"
+                            :display="'modding mapsets'"
+                            :tooltip-title="'1 point per mod'"
+                        />
+                        <user-points-row
+                            v-if="selectedUser.hostPoints"
+                            :points="selectedUser.hostPoints"
+                            :display="'hosting mapsets'"
+                            :tooltip-title="'5 points per mapset hosted'"
+                        />
+                        <user-points-row
+                            v-if="selectedUser.contestParticipantPoints"
+                            :points="selectedUser.contestParticipantPoints"
+                            :display="'MBC participation'"
+                            :tooltip-title="'participation in Monthly Beatmapping Contests'"
+                        />
+                        <user-points-row
+                            v-if="selectedUser.contestScreenerPoints"
+                            :points="selectedUser.contestScreenerPoints"
+                            :display="'MBC screening'"
+                            :tooltip-title="'screening entries for Monthly Beatmapping Contests'"
+                        />
+                        <user-points-row
+                            v-if="selectedUser.contestJudgePoints"
+                            :points="selectedUser.contestJudgePoints"
+                            :display="'MBC judging'"
+                            :tooltip-title="'judging entries for Monthly Beatmapping Contests'"
+                        />
+                        <user-points-row
+                            v-if="selectedUser.legacyPoints"
+                            :points="selectedUser.legacyPoints"
+                            :display="'legacy'"
+                            :tooltip-title="'points for things that are no longer applicable to Mappers\' Guild'"
+                        />
+                        <user-points-row
+                            v-if="selectedUser.osuPoints"
+                            :points="selectedUser.osuPoints"
+                            :display="'Total osu! points'"
+                            :tooltip-title="'mapping osu! game mode'"
+                        />
+                        <user-points-row
+                            v-if="selectedUser.taikoPoints"
+                            :points="selectedUser.taikoPoints"
+                            :display="'Total osu!taiko points'"
+                            :tooltip-title="'mapping osu!taiko game mode'"
+                        />
+                        <user-points-row
+                            v-if="selectedUser.catchPoints"
+                            :points="selectedUser.catchPoints"
+                            :display="'Total osu!catch points'"
+                            :tooltip-title="'mapping osu!catch game mode'"
+                        />
+                        <user-points-row
+                            v-if="selectedUser.maniaPoints"
+                            :points="selectedUser.maniaPoints"
+                            :display="'Total osu!mania points'"
+                            :tooltip-title="'mapping osu!mania game mode'"
+                        />
+                        <tr>
+                            <td scope="row">
+                                Total points earned
+                            </td>
+                            <td scope="row">
+                                {{ selectedUser.totalPoints }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td scope="row">
+                                Available points
+                            </td>
+                            <td scope="row">
+                                {{ selectedUser.availablePoints }} <i class="fas fa-coins" />
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="col-md-6">
+                    <p
+                        class="small"
+                    >
+                        Rank:
+                        <i
+                            v-if="selectedUser.rank > 0"
+                            class="fas fa-crown"
+                            :class="'text-rank-' + selectedUser.rank"
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            :title="`rank ${selectedUser.rank} user`"
+                        />
+                        <span v-else class="text-white-50">
+                            None
+                        </span>
                     </p>
+                    <div v-if="currentQuests.length" class="small">
+                        Current quests:
+                    </div>
+                    <ul class="p-0 mb-2 ml-4">
+                        <li
+                            v-for="quest in currentQuests"
+                            :key="quest.id"
+                            class="small text-white-50"
+                        >
+                            <a :href="'/quests?id=' + quest.id" target="_blank">
+                                {{ quest.name.length > 40 ? quest.name.slice(0,40) + "..." : quest.name }}
+                            </a>
+                        </li>
+                    </ul>
+                    <div v-if="currentQuests.length" class="small">
+                        Created quests:
+                    </div>
+                    <ul class="p-0 mb-2 ml-4">
+                        <li
+                            v-for="name in createdQuestNames"
+                            :key="name"
+                            class="small text-white-50"
+                        >
+                            {{ name.length > 40 ? name.slice(0,40) + "..." : name }}
+                        </li>
+                    </ul>
+                    <div v-if="selectedUser.completedQuests.length" class="small">
+                        Completed quests:
+                    </div>
+                    <ul class="p-0 mb-2 ml-4">
+                        <li
+                            v-for="quest in selectedUser.completedQuests"
+                            :key="quest.id"
+                            class="small text-white-50"
+                        >
+                            <a :href="'/quests?id=' + quest.id" target="_blank">
+                                {{ quest.name.length > 40 ? quest.name.slice(0,40) + "..." : quest.name }}
+                            </a>
+                        </li>
+                    </ul>
                 </div>
             </div>
-        </div>
-    </div>
+
+            <div class="radial-divisor" />
+            <p>Mappers' Guild beatmaps:</p>
+            <table class="table table-sm">
+                <thead>
+                    <th scope="col">
+                        Mapset
+                    </th>
+                    <th scope="col">
+                        Host
+                    </th>
+                    <th scope="col">
+                        Tasks
+                    </th>
+                    <th scope="col" />
+                </thead>
+                <tbody>
+                    <tr v-if="!userBeatmaps.length">
+                        <td scope="row">
+                            ...
+                        </td>
+                        <td scope="row">
+                            ...
+                        </td>
+                        <td scope="row">
+                            ...
+                        </td>
+                        <td scope="row" />
+                    </tr>
+                    <tr v-for="map in userBeatmaps" :key="map.id">
+                        <td scope="row">
+                            <i
+                                class="fas"
+                                :class="['text-' + map.status.toLowerCase(), findIcon(map.status)]"
+                                data-toggle="tooltip"
+                                :title="map.status"
+                            />
+                            <a :href="'/beatmaps?id=' + map.id" target="_blank">
+                                {{ map.song.artist }} - {{ map.song.title }}
+                            </a>
+                            <i v-if="map.mode == 'taiko'" class="fas fa-drum" />
+                            <i v-else-if="map.mode == 'catch'" class="fas fa-apple-alt" />
+                            <i v-else-if="map.mode == 'mania'" class="fas fa-stream" />
+                        </td>
+                        <td scope="row">
+                            <a
+                                :href="'https://osu.ppy.sh/users/' + map.host.osuId"
+                                target="_blank"
+                            >
+                                {{ map.host.username }}
+                            </a>
+                        </td>
+                        <td scope="row" class="text-white-50">
+                            {{ userTasks(map) }}
+                        </td>
+                        <td scope="row" class="text-white-50">
+                            <a v-if="map.url" :href="map.url" target="_blank">
+                                <i class="fas fa-link" />
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="radial-divisor" />
+
+            <p>Spent points logs:</p>
+            <table class="table table-sm col-md-12">
+                <thead>
+                    <th scope="col">
+                        Action
+                    </th>
+                    <th scope="col">
+                        Spent points
+                    </th>
+                </thead>
+                <tbody>
+                    <tr v-if="!spentPoints.length">
+                        <td scope="row">
+                            ...
+                        </td>
+                        <td scope="row">
+                            ...
+                        </td>
+                    </tr>
+                    <tr v-for="spentPointsEvent in spentPoints" :key="spentPointsEvent.id">
+                        <td scope="row" class="text-white-50">
+                            {{ findSpentPointsAction (spentPointsEvent.category) }}
+                            <a :href="'/quests/?id=' + spentPointsEvent.quest.id" target="_blank">
+                                {{ spentPointsEvent.quest.name }}
+                            </a>
+                        </td>
+                        <td scope="row" class="text-white-50">
+                            {{ findSpentPointsValue(spentPointsEvent.category, spentPointsEvent.quest) }} <i class="fas fa-coins" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="radial-divisor" />
+
+            <p class="float-right">
+                Joined: {{ selectedUser.createdAt.slice(0, 10) }}
+            </p>
+        </template>
+    </modal-dialog>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
 import { mapState, mapGetters } from 'vuex';
+import ModalDialog from '@components/ModalDialog.vue';
 import { Quest } from '../../../interfaces/quest';
 import { SpentPoints } from '../../../interfaces/spentPoints';
 import { Beatmap } from '../../../interfaces/beatmap/beatmap';
@@ -328,8 +324,9 @@ export default Vue.extend({
     name: 'UserInfo',
     components: {
         UserPointsRow,
+        ModalDialog,
     },
-    data() {
+    data () {
         return {
             currentQuests: [] as Quest[],
             createdQuestNames: [],

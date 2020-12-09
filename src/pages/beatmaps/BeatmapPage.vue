@@ -58,30 +58,27 @@ export default Vue.extend({
         }
     },
     async created() {
-        const params: any = new URLSearchParams(document.location.search.substring(1));
+        const id = this.$route.query.id;
+        let data;
+        let urlBeatmap;
 
-        if (params.get('id') && params.get('id').length) {
-            const [res, urlBeatmap] = await Promise.all<any, any>([
+        if (id) {
+            [data, urlBeatmap] = await Promise.all<any, any>([
                 this.initialRequest('/beatmaps/relevantInfo'),
-                this.executeGet('/beatmaps/searchOnLoad/' + params.get('id')),
+                this.executeGet('/beatmaps/searchOnLoad/' + id),
             ]);
 
-            if (res) {
-                this.$store.commit('beatmaps/setUserBeatmaps', res.beatmaps);
-                this.$store.commit('beatmaps/setFilterMode', res.mainMode);
-            }
-
-            if (urlBeatmap && !urlBeatmap.error) {
+            if (!this.isError(urlBeatmap)) {
                 this.$store.commit('beatmaps/setSelectedBeatmap', urlBeatmap);
                 $('#editBeatmap').modal('show');
             }
         } else {
-            const res: any = await this.initialRequest('/beatmaps/relevantInfo');
+            data = await this.initialRequest('/beatmaps/relevantInfo');
+        }
 
-            if (res) {
-                this.$store.commit('beatmaps/setUserBeatmaps', res.beatmaps);
-                this.$store.commit('beatmaps/setFilterMode', res.mainMode);
-            }
+        if (!this.isError(data)) {
+            this.$store.commit('beatmaps/setUserBeatmaps', data.beatmaps);
+            this.$store.commit('beatmaps/setFilterMode', data.mainMode);
         }
 
         await Promise.all([

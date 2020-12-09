@@ -1,88 +1,80 @@
 <template>
-    <div id="editQuest" class="modal fade" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div v-if="selectedQuest" class="modal-content bg-dark">
-                <div class="modal-header text-dark" :class="selectedQuest.creator.username == 'pishifat' ? 'bg-warning' : 'bg-primary'">
-                    <h5 class="modal-title">
-                        <a :href="`/quests?id=${selectedQuest.id}`" target="_blank" class="text-dark">
-                            {{ selectedQuest.name }}
-                        </a>
-                        <span v-if="selectedQuest.creator.username != 'pishifat'">
-                            created by
-                            <a :href="'https://osu.ppy.sh/users/' + selectedQuest.creator.osuId" target="_blank" class="text-dark">
-                                {{ selectedQuest.creator.username }}
+    <modal-dialog id="editQuest" :header-class="headerClass" :loaded="Boolean(selectedQuest)">
+        <template #header>
+            <a :href="`/quests?id=${selectedQuest.id}`" target="_blank" class="text-dark">
+                {{ selectedQuest.name }}
+            </a>
+            <span v-if="selectedQuest.creator.username != 'pishifat'">
+                created by
+                <a :href="'https://osu.ppy.sh/users/' + selectedQuest.creator.osuId" target="_blank" class="text-dark">
+                    {{ selectedQuest.creator.username }}
+                </a>
+            </span>
+        </template>
+
+        <template #default>
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-12 text-center">
+                        <span v-if="selectedQuest.art">
+                            <a :href="'https://osu.ppy.sh/beatmaps/artists/' + selectedQuest.art" target="_blank">
+                                <img :src="'https://assets.ppy.sh/artists/' + selectedQuest.art + '/cover.jpg'" class="card-avatar-img-modal">
                             </a>
                         </span>
-                    </h5>
-                    <button type="button" class="close" data-dismiss="modal">
-                        <span>&times;</span>
-                    </button>
+
+                        <span v-else>
+                            <img :src="selectedQuest.isMbc ? '../../images/mbc-icon.png' : '../../images/no-art-icon.png'" class="card-avatar-img-modal">
+                        </span>
+                    </div>
                 </div>
-                <div class="modal-body" style="overflow: hidden">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-sm-12 text-center">
-                                <span v-if="selectedQuest.art">
-                                    <a :href="'https://osu.ppy.sh/beatmaps/artists/' + selectedQuest.art" target="_blank">
-                                        <img :src="'https://assets.ppy.sh/artists/' + selectedQuest.art + '/cover.jpg'" class="card-avatar-img-modal">
-                                    </a>
-                                </span>
 
-                                <span v-else>
-                                    <img :src="selectedQuest.isMbc ? '../../images/mbc-icon.png' : '../../images/no-art-icon.png'" class="card-avatar-img-modal">
-                                </span>
-                            </div>
-                        </div>
+                <div class="row mb-3 text-center">
+                    <div class="col-sm-12">
+                        {{ selectedQuest.name }}
+                    </div>
+                    <div class="col-sm-12 small text-white-50">
+                        {{ selectedQuest.descriptionMain }}
+                    </div>
+                </div>
 
-                        <div class="row mb-3 text-center">
-                            <div class="col-sm-12">
-                                {{ selectedQuest.name }}
-                            </div>
-                            <div class="col-sm-12 small text-white-50">
-                                {{ selectedQuest.descriptionMain }}
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-sm-4 text-center">
-                                <quest-size
-                                    :quest="selectedQuest"
-                                />
-                            </div>
-                            <div class="col-sm-2 text-center">
-                                <quest-price
-                                    :price="selectedQuest.price"
-                                />
-                            </div>
-                            <div class="col-sm-2 text-center">
-                                <quest-time
-                                    :timeframe="selectedQuest.timeframe"
-                                />
-                            </div>
-                            <div class="col-sm-4 text-center">
-                                <quest-modes
-                                    :status="selectedQuest.status"
-                                    :modes="selectedQuest.modes"
-                                />
-                            </div>
-                        </div>
-
-                        <div class="radial-divisor" />
-
-                        <expiration-info
-                            v-if="selectedQuest.isExpired"
+                <div class="row">
+                    <div class="col-sm-4 text-center">
+                        <quest-size
                             :quest="selectedQuest"
                         />
-                        <party-info
-                            v-else
-                            :quest="selectedQuest"
-                            :member-of-any-party="memberOfAnyParty"
+                    </div>
+                    <div class="col-sm-2 text-center">
+                        <quest-price
+                            :price="selectedQuest.price"
+                        />
+                    </div>
+                    <div class="col-sm-2 text-center">
+                        <quest-time
+                            :timeframe="selectedQuest.timeframe"
+                        />
+                    </div>
+                    <div class="col-sm-4 text-center">
+                        <quest-modes
+                            :status="selectedQuest.status"
+                            :modes="selectedQuest.modes"
                         />
                     </div>
                 </div>
+
+                <div class="radial-divisor" />
+
+                <expiration-info
+                    v-if="selectedQuest.isExpired"
+                    :quest="selectedQuest"
+                />
+                <party-info
+                    v-else
+                    :quest="selectedQuest"
+                    :member-of-any-party="memberOfAnyParty"
+                />
             </div>
-        </div>
-    </div>
+        </template>
+    </modal-dialog>
 </template>
 
 <script lang="ts">
@@ -94,6 +86,7 @@ import QuestTime from './QuestTime.vue';
 import QuestModes from './QuestModes.vue';
 import PartyInfo from './partyInfo/PartyInfo.vue';
 import ExpirationInfo from './expirationInfo/ExpirationInfo.vue';
+import ModalDialog from '@components/ModalDialog.vue';
 
 export default Vue.extend({
     name: 'QuestInfoModal',
@@ -104,6 +97,7 @@ export default Vue.extend({
         QuestModes,
         PartyInfo,
         ExpirationInfo,
+        ModalDialog,
     },
     computed: {
         timeRemaining(): number {
@@ -122,6 +116,11 @@ export default Vue.extend({
             return this.selectedQuest.parties.some(p =>
                 p.members.some(m => m.id === this.loggedInUser.id)
             );
+        },
+        headerClass (): string {
+            if (!this.selectedQuest?.creator) return '';
+
+            return this.selectedQuest.creator.username == 'pishifat' ? 'bg-warning' : 'bg-primary';
         },
     },
 });

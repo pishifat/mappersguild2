@@ -38,7 +38,7 @@ $dark:          $gray-900;
 
 $theme-colors: (
   // beatmaps status
-  "wip":        lighten($yellow, 5%),
+  "wip":        darken($yellow, 5%),
   "done":       $green,
   "ranked":     $cyan,
   "qualified":  $red,
@@ -104,10 +104,10 @@ $card-height:                       100%;
 
 // Modals
 
-$modal-content-bg:                  lighten($gray-800, 5%);
-$modal-content-border-color:        lighten($gray-800, 5%);
+$modal-content-bg:                  $gray-900;
+$modal-content-border-color:        $gray-900;
 
-$modal-header-border-color:         lighten($gray-800, 5%);
+$modal-header-border-color:         $gray-800;
 
 
 // Shadows

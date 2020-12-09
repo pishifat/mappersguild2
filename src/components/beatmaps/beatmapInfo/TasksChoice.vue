@@ -12,10 +12,12 @@
                         v-for="task in beatmap.tasks"
                         :id="task.id + 'Row'"
                         :key="task.id"
-                        :style="'border-left: 3px solid var(--' + task.status.toLowerCase() + ')'"
                     >
                         <!-- Difficulty -->
-                        <td class="text-white-50">
+                        <td
+                            class="text-white-50"
+                            :style="'border-left: 3px solid var(--' + task.status.toLowerCase() + ')'"
+                        >
                             {{ task.name }}
                             <template v-if="beatmap.mode == 'hybrid'">
                                 <i

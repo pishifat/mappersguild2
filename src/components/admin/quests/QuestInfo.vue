@@ -1,197 +1,188 @@
 <template>
-    <div id="editQuest" class="modal fade" tabindex="-1">
-        <div class="modal-dialog">
-            <div v-if="quest && quest.id" class="modal-content bg-dark">
-                <div class="modal-header text-dark bg-primary">
-                    <h5 class="modal-title">
-                        {{ quest.name }} by
-                        <a
-                            v-if="quest.creator"
-                            :href="'https://osu.ppy.sh/users/' + quest.creator.osuId"
-                            class="text-dark"
-                            target="_blank"
-                        >
-                            {{ quest.creator.username }}
-                        </a>
-                    </h5>
-                    <button type="button" class="close" data-dismiss="modal">
-                        <span>&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body" style="overflow: hidden">
-                    <p>
-                        <button class="btn btn-sm btn-outline-info" @click="renameQuest($event)">
-                            Rename quest
-                        </button>
-                        <input
-                            v-model="renameQuestName"
-                            class="form-control form-control-sm mx-2 w-50"
-                            type="text"
-                            autocomplete="off"
-                            placeholder="quest name..."
-                        >
-                    </p>
-                    <p>
-                        <button class="btn btn-sm btn-outline-info" @click="updatePrice($event)">
-                            Update price
-                        </button>
-                        <input
-                            v-model="price"
-                            class="form-control form-control-sm mx-2 w-50"
-                            type="text"
-                            autocomplete="off"
-                            placeholder="price..."
-                        >
-                    </p>
-                    <p>
-                        <button class="btn btn-sm btn-outline-info" @click="updateRequiredMapsets($event)">
-                            Update required mapsets
-                        </button>
-                        <input
-                            v-model="requiredMapsets"
-                            class="form-control form-control-sm mx-2 w-50"
-                            type="text"
-                            autocomplete="off"
-                            placeholder="required mapsets..."
-                        >
-                    </p>
-                    <p>
-                        <button class="btn btn-sm btn-outline-info" @click="updateMinParty($event)">
-                            Update minParty
-                        </button>
-                        <input
-                            v-model="minParty"
-                            class="form-control form-control-sm mx-2 w-50"
-                            type="text"
-                            autocomplete="off"
-                            placeholder="minParty..."
-                        >
-                    </p>
-                    <p>
-                        <button class="btn btn-sm btn-outline-info" @click="updateMaxParty($event)">
-                            Update maxParty
-                        </button>
-                        <input
-                            v-model="maxParty"
-                            class="form-control form-control-sm mx-2 w-50"
-                            type="text"
-                            autocomplete="off"
-                            placeholder="maxParty..."
-                        >
-                    </p>
-                    <p>
-                        <button class="btn btn-sm btn-outline-info" @click="updateDescription($event)">
-                            Update description
-                        </button>
-                    </p>
-                    <p>
-                        <textarea
-                            v-model="description"
-                            class="form-control form-control-sm mx-2 mt-2 w-100"
-                            type="text"
-                            autocomplete="off"
-                            placeholder="quest description..."
-                        />
-                    </p>
-                    <template v-if="quest.status == 'wip'">
-                        <p>
-                            <button class="btn btn-sm btn-outline-danger" @click="dropQuest($event)">
-                                Drop quest
-                            </button>
-                        </p>
-                        <p>
-                            <button class="btn btn-sm btn-outline-success" @click="completeQuest($event)">
-                                Complete quest
-                            </button>
-                        </p>
-                        <p>
-                            <button class="btn btn-sm btn-outline-info" @click="resetQuestDeadline($event)">
-                                Reset quest deadline
-                            </button>
-                        </p>
-                    </template>
-                    <p>
-                        <button class="btn btn-sm btn-outline-info" @click="duplicateQuest($event)">
-                            Duplicate quest
-                        </button>
-                        <input
-                            v-model="duplicateQuestName"
-                            class="form-control form-control-sm mx-2 w-50"
-                            type="text"
-                            autocomplete="off"
-                            placeholder="new quest name..."
-                        >
-                    </p>
-                    <p>
-                        <button class="btn btn-sm btn-outline-info" @click="updateExpiration($event)">
-                            Set expiration date
-                        </button>
-                        <input
-                            v-model="expiration"
-                            class="form-control form-control-sm mx-2 w-50"
-                            type="text"
-                            autocomplete="off"
-                            :placeholder="quest.expiration"
-                        > {{ quest.isExpired }}
-                    </p>
-                    <p>
-                        <a href="#" @click.prevent="toggleQuestMode('osu')">
-                            <i
-                                class="fas fa-circle"
-                                :class="quest.modes.includes('osu') ? '' : 'text-white-50'"
-                                data-toggle="tooltip"
-                                data-placement="top"
-                                title="toggle osu!"
-                            />
-                        </a>
-                        <a href="#" @click.prevent="toggleQuestMode('taiko')">
-                            <i
-                                class="fas fa-drum"
-                                :class="quest.modes.includes('taiko') ? '' : 'text-white-50'"
-                                data-toggle="tooltip"
-                                data-placement="top"
-                                title="toggle osu!taiko"
-                            />
-                        </a>
-                        <a href="#" @click.prevent="toggleQuestMode('catch')">
-                            <i
-                                class="fas fa-apple-alt"
-                                :class="quest.modes.includes('catch') ? '' : 'text-white-50'"
-                                data-toggle="tooltip"
-                                data-placement="top"
-                                title="toggle osu!catch"
-                            />
-                        </a>
-                        <a href="#" @click.prevent="toggleQuestMode('mania')">
-                            <i
-                                class="fas fa-stream"
-                                :class="quest.modes.includes('mania') ? '' : 'text-white-50'"
-                                data-toggle="tooltip"
-                                data-placement="top"
-                                title="toggle osu!mania"
-                            />
-                        </a>
-                    </p>
+    <modal-dialog id="editQuest">
+        <template #header>
+            {{ quest.name }} by
+            <a
+                v-if="quest.creator"
+                :href="'https://osu.ppy.sh/users/' + quest.creator.osuId"
+                class="text-dark"
+                target="_blank"
+            >
+                {{ quest.creator.username }}
+            </a>
+        </template>
 
-                    <associated-beatmaps
-                        v-if="quest.status == 'done' || quest.status == 'wip'"
-                        class="mb-4"
-                        :associated-maps="quest.associatedMaps"
-                    />
+        <p>
+            <button class="btn btn-sm btn-outline-info" @click="renameQuest($event)">
+                Rename quest
+            </button>
+            <input
+                v-model="renameQuestName"
+                class="form-control form-control-sm mx-2 w-50"
+                type="text"
+                autocomplete="off"
+                placeholder="quest name..."
+            >
+        </p>
+        <p>
+            <button class="btn btn-sm btn-outline-info" @click="updatePrice($event)">
+                Update price
+            </button>
+            <input
+                v-model="price"
+                class="form-control form-control-sm mx-2 w-50"
+                type="text"
+                autocomplete="off"
+                placeholder="price..."
+            >
+        </p>
+        <p>
+            <button class="btn btn-sm btn-outline-info" @click="updateRequiredMapsets($event)">
+                Update required mapsets
+            </button>
+            <input
+                v-model="requiredMapsets"
+                class="form-control form-control-sm mx-2 w-50"
+                type="text"
+                autocomplete="off"
+                placeholder="required mapsets..."
+            >
+        </p>
+        <p>
+            <button class="btn btn-sm btn-outline-info" @click="updateMinParty($event)">
+                Update minParty
+            </button>
+            <input
+                v-model="minParty"
+                class="form-control form-control-sm mx-2 w-50"
+                type="text"
+                autocomplete="off"
+                placeholder="minParty..."
+            >
+        </p>
+        <p>
+            <button class="btn btn-sm btn-outline-info" @click="updateMaxParty($event)">
+                Update maxParty
+            </button>
+            <input
+                v-model="maxParty"
+                class="form-control form-control-sm mx-2 w-50"
+                type="text"
+                autocomplete="off"
+                placeholder="maxParty..."
+            >
+        </p>
+        <p>
+            <button class="btn btn-sm btn-outline-info" @click="updateDescription($event)">
+                Update description
+            </button>
+        </p>
+        <p>
+            <textarea
+                v-model="description"
+                class="form-control form-control-sm mx-2 mt-2 w-100"
+                type="text"
+                autocomplete="off"
+                placeholder="quest description..."
+            />
+        </p>
+        <template v-if="quest.status == 'wip'">
+            <p>
+                <button class="btn btn-sm btn-outline-danger" @click="dropQuest($event)">
+                    Drop quest
+                </button>
+            </p>
+            <p>
+                <button class="btn btn-sm btn-outline-success" @click="completeQuest($event)">
+                    Complete quest
+                </button>
+            </p>
+            <p>
+                <button class="btn btn-sm btn-outline-info" @click="resetQuestDeadline($event)">
+                    Reset quest deadline
+                </button>
+            </p>
+        </template>
+        <p>
+            <button class="btn btn-sm btn-outline-info" @click="duplicateQuest($event)">
+                Duplicate quest
+            </button>
+            <input
+                v-model="duplicateQuestName"
+                class="form-control form-control-sm mx-2 w-50"
+                type="text"
+                autocomplete="off"
+                placeholder="new quest name..."
+            >
+        </p>
+        <p>
+            <button class="btn btn-sm btn-outline-info" @click="updateExpiration($event)">
+                Set expiration date
+            </button>
+            <input
+                v-model="expiration"
+                class="form-control form-control-sm mx-2 w-50"
+                type="text"
+                autocomplete="off"
+                :placeholder="quest.expiration"
+            > {{ quest.isExpired }}
+        </p>
+        <p>
+            <a href="#" @click.prevent="toggleQuestMode('osu')">
+                <i
+                    class="fas fa-circle"
+                    :class="quest.modes.includes('osu') ? '' : 'text-white-50'"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    title="toggle osu!"
+                />
+            </a>
+            <a href="#" @click.prevent="toggleQuestMode('taiko')">
+                <i
+                    class="fas fa-drum"
+                    :class="quest.modes.includes('taiko') ? '' : 'text-white-50'"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    title="toggle osu!taiko"
+                />
+            </a>
+            <a href="#" @click.prevent="toggleQuestMode('catch')">
+                <i
+                    class="fas fa-apple-alt"
+                    :class="quest.modes.includes('catch') ? '' : 'text-white-50'"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    title="toggle osu!catch"
+                />
+            </a>
+            <a href="#" @click.prevent="toggleQuestMode('mania')">
+                <i
+                    class="fas fa-stream"
+                    :class="quest.modes.includes('mania') ? '' : 'text-white-50'"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    title="toggle osu!mania"
+                />
+            </a>
+        </p>
 
-                    <p>
-                        <button class="btn btn-sm btn-outline-danger" @click="deleteQuest($event)">
-                            Delete quest
-                        </button>
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
+        <associated-beatmaps
+            v-if="quest.status == 'done' || quest.status == 'wip'"
+            class="mb-4"
+            :associated-maps="quest.associatedMaps"
+        />
+
+        <p>
+            <button class="btn btn-sm btn-outline-danger" @click="deleteQuest($event)">
+                Delete quest
+            </button>
+        </p>
+    </modal-dialog>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
+import ModalDialog from '@components/ModalDialog.vue';
 import { Quest } from '../../../../interfaces/quest';
 import AssociatedBeatmaps from '../../quests/partyInfo/AssociatedBeatmaps.vue';
 
@@ -199,11 +190,12 @@ export default Vue.extend({
     name: 'QuestInfo',
     components: {
         AssociatedBeatmaps,
+        ModalDialog,
     },
     props: {
         quest: {
             type: Object as () => Quest,
-            default: () => ({} as Quest),
+            required: true,
         },
     },
     data() {

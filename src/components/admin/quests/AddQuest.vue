@@ -1,104 +1,94 @@
 <template>
-    <div id="addQuest" class="modal fade" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content bg-dark">
-                <div class="modal-header text-dark bg-primary">
-                    <h5 class="modal-title">
-                        Add quest
-                    </h5>
-                    <button type="button" class="close" data-dismiss="modal">
-                        <span>&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body" style="overflow: hidden">
-                    <p>
-                        <input
-                            v-model="name"
-                            class="form-control form-control-sm w-100"
-                            type="text"
-                            autocomplete="off"
-                            placeholder="name..."
-                        >
-                    </p>
-                    <p>
-                        <input
-                            v-model="price"
-                            class="form-control form-control-sm w-100"
-                            type="text"
-                            autocomplete="off"
-                            placeholder="price..."
-                        >
-                    </p>
-                    <p>
-                        <textarea
-                            v-model="description"
-                            class="form-control form-control-sm w-100"
-                            type="text"
-                            autocomplete="off"
-                            placeholder="description..."
-                        />
-                    </p>
-                    <p>
-                        <input
-                            v-model="timeframe"
-                            class="form-control form-control-sm w-100"
-                            type="text"
-                            autocomplete="off"
-                            placeholder="timeframe (days)..."
-                        >
-                    </p>
-                    <p>
-                        <input
-                            v-model="minParty"
-                            class="form-control form-control-sm w-100"
-                            type="text"
-                            autocomplete="off"
-                            placeholder="minimum party..."
-                        >
-                    </p>
-                    <p>
-                        <input
-                            v-model="maxParty"
-                            class="form-control form-control-sm w-100"
-                            type="text"
-                            autocomplete="off"
-                            placeholder="maximum party..."
-                        >
-                    </p>
-                    <p>
-                        <input
-                            v-model="minRank"
-                            class="form-control form-control-sm w-100"
-                            type="text"
-                            autocomplete="off"
-                            placeholder="minimum rank..."
-                        >
-                    </p>
-                    <p>
-                        <input
-                            v-model="osuId"
-                            class="form-control form-control-sm w-100"
-                            type="text"
-                            autocomplete="off"
-                            placeholder="artist osu ID..."
-                        >
-                    </p>
-                    <p>
-                        <button class="btn btn-sm btn-outline-info" @click="addQuest($event)">
-                            Add quest
-                        </button>
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
+    <modal-dialog id="addQuest" title="Add quest">
+        <p>
+            <input
+                v-model="name"
+                class="form-control form-control-sm w-100"
+                type="text"
+                autocomplete="off"
+                placeholder="name..."
+            >
+        </p>
+        <p>
+            <input
+                v-model="price"
+                class="form-control form-control-sm w-100"
+                type="text"
+                autocomplete="off"
+                placeholder="price..."
+            >
+        </p>
+        <p>
+            <textarea
+                v-model="description"
+                class="form-control form-control-sm w-100"
+                type="text"
+                autocomplete="off"
+                placeholder="description..."
+            />
+        </p>
+        <p>
+            <input
+                v-model="timeframe"
+                class="form-control form-control-sm w-100"
+                type="text"
+                autocomplete="off"
+                placeholder="timeframe (days)..."
+            >
+        </p>
+        <p>
+            <input
+                v-model="minParty"
+                class="form-control form-control-sm w-100"
+                type="text"
+                autocomplete="off"
+                placeholder="minimum party..."
+            >
+        </p>
+        <p>
+            <input
+                v-model="maxParty"
+                class="form-control form-control-sm w-100"
+                type="text"
+                autocomplete="off"
+                placeholder="maximum party..."
+            >
+        </p>
+        <p>
+            <input
+                v-model="minRank"
+                class="form-control form-control-sm w-100"
+                type="text"
+                autocomplete="off"
+                placeholder="minimum rank..."
+            >
+        </p>
+        <p>
+            <input
+                v-model="osuId"
+                class="form-control form-control-sm w-100"
+                type="text"
+                autocomplete="off"
+                placeholder="artist osu ID..."
+            >
+        </p>
+        <p>
+            <button class="btn btn-sm btn-outline-info" @click="addQuest($event)">
+                Add quest
+            </button>
+        </p>
+    </modal-dialog>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
+import ModalDialog from '@components/ModalDialog.vue';
 
 export default Vue.extend({
     name: 'AddQuest',
+    components: {
+        ModalDialog,
+    },
     data() {
         return {
             name: null,

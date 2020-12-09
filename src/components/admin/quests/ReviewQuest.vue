@@ -1,218 +1,211 @@
 <template>
-    <div id="reviewQuest" class="modal fade" tabindex="-1">
-        <div class="modal-dialog">
-            <div v-if="quest" class="modal-content bg-dark">
-                <div class="modal-header text-dark bg-primary">
-                    <h5 class="modal-title">
-                        {{ quest.name }} by
-                        <a :href="'https://osu.ppy.sh/users/' + quest.creator.osuId" class="text-dark" target="_blank">
-                            {{ quest.creator.username }}
-                        </a>
-                    </h5>
-                    <button type="button" class="close" data-dismiss="modal">
-                        <span>&times;</span>
-                    </button>
+    <modal-dialog id="reviewQuest" :loaded="Boolean(quest)">
+        <template #header>
+            {{ quest.name }} by
+            <a :href="'https://osu.ppy.sh/users/' + quest.creator.osuId" class="text-dark" target="_blank">
+                {{ quest.creator.username }}
+            </a>
+        </template>
+
+        <template #default>
+            <div class="container">
+                <div class="small text-white-50">
+                    Artist
+                    <a href="#" @click.prevent="showArtistInput = !showArtistInput">
+                        <i class="fas fa-edit" />
+                    </a>
                 </div>
-                <div class="modal-body" style="overflow: hidden">
-                    <div class="container">
-                        <div class="small text-white-50">
-                            Artist
-                            <a href="#" @click.prevent="showArtistInput = !showArtistInput">
-                                <i class="fas fa-edit" />
-                            </a>
-                        </div>
-                        <p v-if="showArtistInput">
-                            <input
-                                v-model.number="artistInput"
-                                class="form-control form-control-sm w-100"
-                                type="number"
-                                autocomplete="off"
-                                placeholder="artist ID..."
-                                @change="updateArt($event)"
-                            >
-                        </p>
-                        <p v-else-if="quest.art" class="ml-2">
-                            <a :href="'https://osu.ppy.sh/beatmaps/artists/' + quest.art" target="_blank">
-                                <img :src="'https://assets.ppy.sh/artists/' + quest.art + '/cover.jpg'" class="card-avatar-img">
-                            </a>
-                        </p>
-                        <p v-else class="ml-2">
-                            None
-                        </p>
-                        <div class="small text-white-50">
-                            Name
-                            <a href="#" @click.prevent="showNameInput = !showNameInput">
-                                <i class="fas fa-edit" />
-                            </a>
-                        </div>
-                        <p v-if="showNameInput">
-                            <input
-                                v-model="nameInput"
-                                class="form-control form-control-sm w-100"
-                                type="text"
-                                autocomplete="off"
-                                placeholder="name..."
-                                @change="renameQuest($event)"
-                            >
-                        </p>
-                        <p v-else class="ml-2">
-                            {{ quest.name }}
-                        </p>
-                        <div class="small text-white-50">
-                            Objective
-                            <a href="#" @click.prevent="showObjectiveInput = !showObjectiveInput">
-                                <i class="fas fa-edit" />
-                            </a>
-                        </div>
-                        <p v-if="showObjectiveInput">
-                            <textarea
-                                v-model="objectiveInput"
-                                class="form-control form-control-sm w-100"
-                                rows="2"
-                                type="text"
-                                autocomplete="off"
-                                placeholder="objective..."
-                                @change="updateDescription($event)"
-                            />
-                        </p>
-                        <p v-else class="ml-2">
-                            {{ quest.descriptionMain }}
-                        </p>
-                        <div class="small text-white-50">
-                            Required mapsets
-                            <a href="#" @click.prevent="showRequiredMapsetsInput = !showRequiredMapsetsInput">
-                                <i class="fas fa-edit" />
-                            </a>
-                        </div>
-                        <p v-if="showRequiredMapsetsInput">
-                            <input
-                                v-model.number="requiredMapsetsInput"
-                                class="form-control form-control-sm w-100"
-                                type="number"
-                                autocomplete="off"
-                                placeholder="required mapsets..."
-                                @change="updateRequiredMapsets($event)"
-                            >
-                        </p>
-                        <p v-else class="ml-2">
-                            {{ quest.requiredMapsets }}
-                        </p>
-                        <div class="small text-white-50">
-                            Price
-                            <a href="#" @click.prevent="showPriceInput = !showPriceInput">
-                                <i class="fas fa-edit" />
-                            </a>
-                        </div>
-                        <p v-if="showPriceInput">
-                            <input
-                                v-model.number="priceInput"
-                                class="form-control form-control-sm w-100"
-                                type="number"
-                                autocomplete="off"
-                                placeholder="price per party member..."
-                                @change="updatePrice($event)"
-                            >
-                        </p>
-                        <p v-else class="ml-2">
-                            {{ quest.price }} points per user
-                        </p>
-                        <div class="small text-white-50">
-                            Timeframe
-                            <a href="#" @click.prevent="showTimeframeInput = !showTimeframeInput">
-                                <i class="fas fa-edit" />
-                            </a>
-                        </div>
-                        <p v-if="showTimeframeInput">
-                            <input
-                                v-model.number="timeframeInput"
-                                class="form-control form-control-sm w-100"
-                                type="number"
-                                autocomplete="off"
-                                placeholder="days..."
-                                @change="updateTimeframe($event)"
-                            >
-                        </p>
-                        <p v-else class="ml-2">
-                            {{ quest.timeframe / (24*3600*1000) }} days
-                        </p>
-                        <div class="small text-white-50">
-                            Party size
-                            <a href="#" @click.prevent="showPartySizeInput = !showPartySizeInput">
-                                <i class="fas fa-edit" />
-                            </a>
-                        </div>
-                        <p v-if="showPartySizeInput">
-                            <input
-                                v-model.number="minPartyInput"
-                                class="form-control form-control-sm w-100"
-                                type="number"
-                                autocomplete="off"
-                                placeholder="minimum"
-                                @change="updateMinParty($event)"
-                            >
-                            <input
-                                v-model.number="maxPartyInput"
-                                class="form-control form-control-sm w-100"
-                                type="number"
-                                autocomplete="off"
-                                placeholder="maximum"
-                                @change="updateMaxParty($event)"
-                            >
-                        </p>
-                        <p v-else class="ml-2">
-                            {{ quest.minParty }}-{{ quest.maxParty }} members
-                        </p>
-                        <div class="small text-white-50">
-                            Party rank
-                        </div>
-                        <p class="ml-2">
-                            {{ quest.minRank }} rank required
-                        </p>
-                        <div class="small text-white-50">
-                            MBC
-                        </div>
-                        <p class="ml-2">
-                            {{ quest.isMbc ? 'yes' : 'no' }}
-                        </p>
+                <p v-if="showArtistInput">
+                    <input
+                        v-model.number="artistInput"
+                        class="form-control form-control-sm w-100"
+                        type="number"
+                        autocomplete="off"
+                        placeholder="artist ID..."
+                        @change="updateArt($event)"
+                    >
+                </p>
+                <p v-else-if="quest.art" class="ml-2">
+                    <a :href="'https://osu.ppy.sh/beatmaps/artists/' + quest.art" target="_blank">
+                        <img :src="'https://assets.ppy.sh/artists/' + quest.art + '/cover.jpg'" class="card-avatar-img">
+                    </a>
+                </p>
+                <p v-else class="ml-2">
+                    None
+                </p>
+                <div class="small text-white-50">
+                    Name
+                    <a href="#" @click.prevent="showNameInput = !showNameInput">
+                        <i class="fas fa-edit" />
+                    </a>
+                </div>
+                <p v-if="showNameInput">
+                    <input
+                        v-model="nameInput"
+                        class="form-control form-control-sm w-100"
+                        type="text"
+                        autocomplete="off"
+                        placeholder="name..."
+                        @change="renameQuest($event)"
+                    >
+                </p>
+                <p v-else class="ml-2">
+                    {{ quest.name }}
+                </p>
+                <div class="small text-white-50">
+                    Objective
+                    <a href="#" @click.prevent="showObjectiveInput = !showObjectiveInput">
+                        <i class="fas fa-edit" />
+                    </a>
+                </div>
+                <p v-if="showObjectiveInput">
+                    <textarea
+                        v-model="objectiveInput"
+                        class="form-control form-control-sm w-100"
+                        rows="2"
+                        type="text"
+                        autocomplete="off"
+                        placeholder="objective..."
+                        @change="updateDescription($event)"
+                    />
+                </p>
+                <p v-else class="ml-2">
+                    {{ quest.descriptionMain }}
+                </p>
+                <div class="small text-white-50">
+                    Required mapsets
+                    <a href="#" @click.prevent="showRequiredMapsetsInput = !showRequiredMapsetsInput">
+                        <i class="fas fa-edit" />
+                    </a>
+                </div>
+                <p v-if="showRequiredMapsetsInput">
+                    <input
+                        v-model.number="requiredMapsetsInput"
+                        class="form-control form-control-sm w-100"
+                        type="number"
+                        autocomplete="off"
+                        placeholder="required mapsets..."
+                        @change="updateRequiredMapsets($event)"
+                    >
+                </p>
+                <p v-else class="ml-2">
+                    {{ quest.requiredMapsets }}
+                </p>
+                <div class="small text-white-50">
+                    Price
+                    <a href="#" @click.prevent="showPriceInput = !showPriceInput">
+                        <i class="fas fa-edit" />
+                    </a>
+                </div>
+                <p v-if="showPriceInput">
+                    <input
+                        v-model.number="priceInput"
+                        class="form-control form-control-sm w-100"
+                        type="number"
+                        autocomplete="off"
+                        placeholder="price per party member..."
+                        @change="updatePrice($event)"
+                    >
+                </p>
+                <p v-else class="ml-2">
+                    {{ quest.price }} points per user
+                </p>
+                <div class="small text-white-50">
+                    Timeframe
+                    <a href="#" @click.prevent="showTimeframeInput = !showTimeframeInput">
+                        <i class="fas fa-edit" />
+                    </a>
+                </div>
+                <p v-if="showTimeframeInput">
+                    <input
+                        v-model.number="timeframeInput"
+                        class="form-control form-control-sm w-100"
+                        type="number"
+                        autocomplete="off"
+                        placeholder="days..."
+                        @change="updateTimeframe($event)"
+                    >
+                </p>
+                <p v-else class="ml-2">
+                    {{ quest.timeframe / (24*3600*1000) }} days
+                </p>
+                <div class="small text-white-50">
+                    Party size
+                    <a href="#" @click.prevent="showPartySizeInput = !showPartySizeInput">
+                        <i class="fas fa-edit" />
+                    </a>
+                </div>
+                <p v-if="showPartySizeInput">
+                    <input
+                        v-model.number="minPartyInput"
+                        class="form-control form-control-sm w-100"
+                        type="number"
+                        autocomplete="off"
+                        placeholder="minimum"
+                        @change="updateMinParty($event)"
+                    >
+                    <input
+                        v-model.number="maxPartyInput"
+                        class="form-control form-control-sm w-100"
+                        type="number"
+                        autocomplete="off"
+                        placeholder="maximum"
+                        @change="updateMaxParty($event)"
+                    >
+                </p>
+                <p v-else class="ml-2">
+                    {{ quest.minParty }}-{{ quest.maxParty }} members
+                </p>
+                <div class="small text-white-50">
+                    Party rank
+                </div>
+                <p class="ml-2">
+                    {{ quest.minRank }} rank required
+                </p>
+                <div class="small text-white-50">
+                    MBC
+                </div>
+                <p class="ml-2">
+                    {{ quest.isMbc ? 'yes' : 'no' }}
+                </p>
 
-                        <div class="radial-divisor" />
+                <div class="radial-divisor" />
 
-                        <button type="submit" class="btn btn-outline-success btn-block" @click="acceptPendingQuest($event)">
-                            Publish quest
-                        </button>
-                        <button type="submit" class="btn btn-outline-danger btn-block" @click="rejectPendingQuest($event)">
-                            Reject quest
-                        </button>
-                        <button class="btn btn-outline-secondary btn-block" data-toggle="collapse" data-target="#forumPm">
-                            See rejection message <i class="fas fa-angle-down" />
-                        </button>
-                        <div id="forumPm" class="collapse">
-                            <copy-paste>
-                                <div>hello, you're receiving this message because you submitted a Mappers' Guild quest for review</div>
-                                <div>[box=your quest info]</div>
-                                <div>Artist: {{ 'https://osu.ppy.sh/beatmaps/artists/' + quest.art }}</div>
-                                <div>Name: {{ quest.name }}</div>
-                                <div>Objective: {{ quest.descriptionMain }}</div>
-                                <div>Required mapsets: {{ quest.requiredMapsets }}</div>
-                                <div>Price: {{ quest.price }} points per user</div>
-                                <div>Timeframe: {{ quest.timeframe / (24*3600*1000) }} days</div>
-                                <div>Party size: {{ quest.minParty }}-{{ quest.maxParty }} members</div>
-                                <div>[/box]</div>
-                                <div>your quest has been rejected for the following reason(s):</div>
-                                <div>[notice] REASONS [/notice]</div>
-                                <div>points spent for submitting the quest have been returned to your "available points" pool. if you'd like to modify the quest according to above feedback, you can resubmit it and i'll review it again! or if you'd like to submit any other quest, that's fine too!</div>
-                                <div>thanks for being cool</div>
-                            </copy-paste>
-                        </div>
-                    </div>
+                <button type="submit" class="btn btn-outline-success btn-block" @click="acceptPendingQuest($event)">
+                    Publish quest
+                </button>
+                <button type="submit" class="btn btn-outline-danger btn-block" @click="rejectPendingQuest($event)">
+                    Reject quest
+                </button>
+                <button class="btn btn-outline-secondary btn-block" data-toggle="collapse" data-target="#forumPm">
+                    See rejection message <i class="fas fa-angle-down" />
+                </button>
+                <div id="forumPm" class="collapse">
+                    <copy-paste>
+                        <div>hello, you're receiving this message because you submitted a Mappers' Guild quest for review</div>
+                        <div>[box=your quest info]</div>
+                        <div>Artist: {{ 'https://osu.ppy.sh/beatmaps/artists/' + quest.art }}</div>
+                        <div>Name: {{ quest.name }}</div>
+                        <div>Objective: {{ quest.descriptionMain }}</div>
+                        <div>Required mapsets: {{ quest.requiredMapsets }}</div>
+                        <div>Price: {{ quest.price }} points per user</div>
+                        <div>Timeframe: {{ quest.timeframe / (24*3600*1000) }} days</div>
+                        <div>Party size: {{ quest.minParty }}-{{ quest.maxParty }} members</div>
+                        <div>[/box]</div>
+                        <div>your quest has been rejected for the following reason(s):</div>
+                        <div>[notice] REASONS [/notice]</div>
+                        <div>points spent for submitting the quest have been returned to your "available points" pool. if you'd like to modify the quest according to above feedback, you can resubmit it and i'll review it again! or if you'd like to submit any other quest, that's fine too!</div>
+                        <div>thanks for being cool</div>
+                    </copy-paste>
                 </div>
             </div>
-        </div>
-    </div>
+        </template>
+    </modal-dialog>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
+import ModalDialog from '@components/ModalDialog.vue';
 import { Quest } from '../../../../interfaces/quest';
 import CopyPaste from '../../CopyPaste.vue';
 
@@ -220,6 +213,7 @@ export default Vue.extend({
     name: 'ReviewQuest',
     components: {
         CopyPaste,
+        ModalDialog,
     },
     props: {
         quest: {
