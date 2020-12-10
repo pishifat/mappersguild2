@@ -130,7 +130,7 @@
                 </form>
             </template>
             <form
-                v-else
+                v-else-if="initialized"
                 class="ml-auto mr-3"
                 action="/login"
                 method="GET"
@@ -201,6 +201,7 @@ export default Vue.extend({
     computed: {
         ...mapState([
             'loggedInUser',
+            'initialized',
         ]),
         title () {
             return this.$route.meta.title;
