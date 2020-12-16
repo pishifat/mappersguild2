@@ -11,6 +11,11 @@
                     {{ user.username }}
                 </div>
             </copy-paste>
+            <p v-for="user in osuUsers" :key="user.osuId">
+                <button v-if="user.group !== 'secret'" class="btn btn-sm btn-outline-info">
+                    <a :href="'https://osu.ppy.sh/community/chat?sendto=' + user.osuId" target="_blank">{{ user.username }}</a>
+                </button>
+            </p>
         </div>
 
         <div v-if="taikoUsers.length">
@@ -20,6 +25,11 @@
                     {{ user.username }}
                 </div>
             </copy-paste>
+            <p v-for="user in taikoUsers" :key="user.osuId">
+                <button class="btn btn-sm btn-outline-info">
+                    <a :href="'https://osu.ppy.sh/community/chat?sendto=' + user.osuId" target="_blank">{{ user.username }}</a>
+                </button>
+            </p>
         </div>
 
         <div v-if="catchUsers.length">
@@ -29,6 +39,11 @@
                     {{ user.username }}
                 </div>
             </copy-paste>
+            <p v-for="user in catchUsers" :key="user.osuId">
+                <button v-if="user.group !== 'secret'" class="btn btn-sm btn-outline-info">
+                    <a :href="'https://osu.ppy.sh/community/chat?sendto=' + user.osuId" target="_blank">{{ user.username }}</a>
+                </button>
+            </p>
         </div>
 
         <div v-if="maniaUsers.length">
@@ -38,6 +53,11 @@
                     {{ user.username }}
                 </div>
             </copy-paste>
+            <p v-for="user in maniaUsers" :key="user.osuId">
+                <button class="btn btn-sm btn-outline-info">
+                    <a :href="'https://osu.ppy.sh/community/chat?sendto=' + user.osuId" target="_blank">{{ user.username }}</a>
+                </button>
+            </p>
         </div>
     </div>
 </template>
