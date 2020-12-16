@@ -9,7 +9,6 @@
       "noImplicitAny": false,
       "baseUrl": "./",
       "paths": {
-        "@": ["src/*"],
         "@components/*": ["src/components/*"],
         "@pages/*": ["src/pages/*"],
         "@store/*": ["src/store/*"],

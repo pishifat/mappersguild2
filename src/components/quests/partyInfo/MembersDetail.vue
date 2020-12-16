@@ -1,10 +1,11 @@
 <template>
-    <div>
-        <div class="small ml-3">
+    <div class="ml-3 mt-1">
+        <b>
             Members:
-        </div>
-        <ul class="p-0 ml-4">
-            <li v-for="member in members" :key="member.id" class="small">
+            ({{ members.length }})
+        </b>
+        <ul class="mb-0">
+            <li v-for="member in members" :key="member.id">
                 <a :href="'https://osu.ppy.sh/users/' + member.osuId" target="_blank">
                     {{ member.username }}
                 </a>
@@ -45,11 +46,3 @@ export default Vue.extend({
     },
 });
 </script>
-
-<style scoped>
-
-ul {
-    list-style-type: none;
-}
-
-</style>

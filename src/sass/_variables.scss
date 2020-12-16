@@ -1,4 +1,4 @@
-$enable-transitions: false; // pishi doesnt like them
+$transition-collapse: none; // pishi doesnt like them
 
 //
 // Color system
@@ -27,7 +27,7 @@ $green:   #36d8a2;
 $teal:    #37ac89;
 $cyan:    #428ae7;
 
-$primary:       $teal;
+$primary:       #607D8B;
 $secondary:     rgb(218, 201, 201);
 $success:       $green;
 $info:          $cyan;
@@ -71,8 +71,8 @@ $body-color:                      $white;
 
 // Links
 
-$link-color:                      $gray-300;
-$link-hover-color:                lighten($primary, 30%);
+$link-color:                      #d3cfca;
+$link-hover-color:                $white;
 $link-hover-decoration:           none;
 
 // Forms
@@ -100,7 +100,6 @@ $dropdown-link-active-bg:           $cyan;
 
 $card-cap-bg:                       $gray-700;
 $card-bg:                           $gray-800;
-$card-height:                       100%;
 
 // Modals
 

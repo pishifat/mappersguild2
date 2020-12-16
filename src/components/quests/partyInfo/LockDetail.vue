@@ -1,15 +1,15 @@
 <template>
     <span>
         <i
-            v-if="locked"
-            class="fas fa-lock fa-xs"
+            v-if="party.lock"
+            class="fas fa-lock fa-sm"
             data-toggle="tooltip"
             data-placement="top"
             title="party is invite-only"
         />
         <i
             v-else
-            class="fas fa-unlock fa-xs"
+            class="fas fa-unlock fa-sm"
             data-toggle="tooltip"
             data-placement="top"
             title="party is open"
@@ -19,10 +19,16 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import { Party } from '@interfaces/party';
+import partyInfoMixin from './partyInfoMixin';
 
 export default Vue.extend({
+    mixins: [ partyInfoMixin ],
     props: {
-        locked: Boolean,
+        party: {
+            type: Object as () => Party,
+            required: true,
+        },
     },
 });
 </script>

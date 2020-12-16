@@ -17,6 +17,7 @@ import { InviteModel } from '../models/invite';
 import { BeatmapModel } from '../models/beatmap/beatmap';
 import { SpentPointsModel } from '../models/spentPoints';
 import { FeaturedArtistModel } from '../models/featuredArtist';
+import { QuestPageOnLoad, QuestsSearch } from '@interfaces/api/quests';
 
 const questsRouter = express.Router();
 
@@ -74,30 +75,32 @@ async function updatePartyInfo(id: Party['_id']): Promise<BasicResponse> {
 
 /* GET relevant quest info */
 questsRouter.get('/relevantInfo', async (req, res) => {
-    const openQuests = await QuestModel
-        .find({
-            modes: res.locals.userRequest.mainMode,
-            status: QuestStatus.Open,
-            expiration: { $gt: new Date() },
-        })
+    let query: Record<string, any> = {
+        modes: res.locals.userRequest.mainMode,
+        status: QuestStatus.Open,
+        expiration: { $gt: new Date() },
+    };
+
+    const id = req.query.id?.toString();
+
+    if (id) {
+        query = {
+            $or: [
+                query,
+                { _id: id },
+            ],
+        };
+    }
+
+    const quests = await QuestModel
+        .find(query)
         .defaultPopulate()
         .sortByLastest();
 
     res.json({
-        openQuests,
+        quests,
         mainMode: res.locals.userRequest.mainMode,
-    });
-});
-
-
-/* GET map load from URL */
-questsRouter.get('/searchOnLoad/:id', async (req, res) => {
-    const quest = await QuestModel
-        .findById(req.params.id)
-        .defaultPopulate()
-        .orFail();
-
-    res.json(quest);
+    } as QuestPageOnLoad);
 });
 
 /* GET relevant quest info */
@@ -121,7 +124,9 @@ questsRouter.get('/search', async (req, res) => {
             .sortByLastest();
     }
 
-    res.json({ quests });
+    res.json({
+        quests,
+    } as QuestsSearch);
 });
 
 /* POST create party */
@@ -228,12 +233,17 @@ questsRouter.post('/joinParty/:partyId/:questId', isNotSpectator, async (req, re
 
 /* POST leave party */
 questsRouter.post('/leaveParty/:partyId/:questId', isNotSpectator, async (req, res) => {
+    const questId: Quest['_id'] = req.params.questId;
+    const partyId: Party['_id'] = req.params.partyId;
+
+    const party = await PartyModel.findById(partyId).orFail();
+
     const beatmaps = await BeatmapModel // find ranked associatedMaps
-        .find({ quest: req.params.questId as Quest['_id'], status: BeatmapStatus.Ranked })
+        .find({ quest: questId, status: BeatmapStatus.Ranked })
         .defaultPopulate();
 
     if (beatmaps.length) { // disallow kick for users with ranked associatedMaps
-        let isMapper;
+        let isMapper = false;
 
         for (const beatmap of beatmaps) {
             for (const task of beatmap.tasks) {
@@ -250,14 +260,13 @@ questsRouter.post('/leaveParty/:partyId/:questId', isNotSpectator, async (req, r
         }
     }
 
-    await PartyModel
-        .findByIdAndUpdate(req.params.partyId, { $pull: { members: req.session?.mongoId } })
-        .orFail();
-
+    const i = party.members.findIndex(m => m.id == req.session?.mongoId);
+    if (i !== -1) party.members.splice(i, 1);
+    await party.save();
     await updatePartyInfo(req.params.partyId);
 
     const q = await QuestModel
-        .findById(req.params.questId)
+        .findById(questId)
         .defaultPopulate()
         .orFail();
 
@@ -844,7 +853,7 @@ questsRouter.post('/submitQuest', isNotSpectator, async (req, res) => {
 
     await quest.save();
 
-    res.json(true);
+    res.json({ success: 'Quest submitted for approval' });
 
     SpentPointsModel.generate(SpentPointsCategory.CreateQuest, req.session?.mongoId, quest._id);
     updateUserPoints(req.session?.mongoId);

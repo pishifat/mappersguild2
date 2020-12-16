@@ -39,10 +39,11 @@
 }
 
 .sorted {
-    background-color: #ffffff2e;
+    background-color: rgba(66, 64, 61, 0.7);
     padding: 5px;
     border-radius: 9px;
-    color: var(--primary);
+    font-weight: bold;
+    color: var(--info);
 }
 
 .unsorted {

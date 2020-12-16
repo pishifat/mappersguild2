@@ -23,50 +23,59 @@
                         </span>
 
                         <span v-else>
-                            <img :src="selectedQuest.isMbc ? '../../images/mbc-icon.png' : '../../images/no-art-icon.png'" class="card-avatar-img-modal">
+                            <img :src="selectedQuest.isMbc ? '/images/mbc-icon.png' : '/images/no-art-icon.png'" class="card-avatar-img-modal">
                         </span>
                     </div>
                 </div>
 
                 <div class="row mb-3 text-center">
                     <div class="col-sm-12">
-                        {{ selectedQuest.name }}
+                        <h5>{{ selectedQuest.name }}</h5>
                     </div>
-                    <div class="col-sm-12 small text-white-50">
+                    <div class="col-sm-12 text-white-50">
                         {{ selectedQuest.descriptionMain }}
                     </div>
                 </div>
 
-                <div class="row">
-                    <div class="col-sm-4 text-center">
+                <div class="row justify-content-center text-center">
+                    <div class="col-sm-12">
                         <quest-size
                             :quest="selectedQuest"
                         />
                     </div>
-                    <div class="col-sm-2 text-center">
+                    <div class="col-sm-6 col-lg-2">
                         <quest-price
                             :price="selectedQuest.price"
                         />
                     </div>
-                    <div class="col-sm-2 text-center">
+                    <div class="col-sm-6 col-lg-2">
                         <quest-time
                             :timeframe="selectedQuest.timeframe"
                         />
                     </div>
-                    <div class="col-sm-4 text-center">
+                    <div class="col-sm-6 col-lg-3">
                         <quest-modes
                             :status="selectedQuest.status"
                             :modes="selectedQuest.modes"
+                        />
+                    </div>
+                    <div class="col-sm-6 col-lg-3">
+                        <expiration-date
+                            :is-expired="selectedQuest.isExpired"
+                            :expiration="new Date(selectedQuest.expiration)"
                         />
                     </div>
                 </div>
 
                 <div class="radial-divisor" />
 
-                <expiration-info
+                <reopen-quest
                     v-if="selectedQuest.isExpired"
-                    :quest="selectedQuest"
+                    :quest-id="selectedQuest.id"
+                    :status="selectedQuest.status"
+                    :price="selectedQuest.price * 0.5 + 25"
                 />
+
                 <party-info
                     v-else
                     :quest="selectedQuest"
@@ -85,8 +94,9 @@ import QuestPrice from './QuestPrice.vue';
 import QuestTime from './QuestTime.vue';
 import QuestModes from './QuestModes.vue';
 import PartyInfo from './partyInfo/PartyInfo.vue';
-import ExpirationInfo from './expirationInfo/ExpirationInfo.vue';
 import ModalDialog from '@components/ModalDialog.vue';
+import ExpirationDate from './expirationInfo/ExpirationDate.vue';
+import ReopenQuest from './expirationInfo/ReopenQuest.vue';
 
 export default Vue.extend({
     name: 'QuestInfoModal',
@@ -96,8 +106,9 @@ export default Vue.extend({
         QuestTime,
         QuestModes,
         PartyInfo,
-        ExpirationInfo,
         ModalDialog,
+        ExpirationDate,
+        ReopenQuest,
     },
     computed: {
         timeRemaining(): number {
@@ -109,7 +120,7 @@ export default Vue.extend({
         ...mapState([
             'loggedInUser',
         ]),
-        ...mapGetters([
+        ...mapGetters('quests', [
             'selectedQuest',
         ]),
         memberOfAnyParty(): boolean {

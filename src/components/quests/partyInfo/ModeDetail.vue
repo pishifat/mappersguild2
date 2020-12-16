@@ -1,6 +1,6 @@
 <template>
-    <div class="small ml-3 mt-1">
-        Modes:
+    <div class="ml-3 mt-1">
+        <b>Modes:</b>
         <span v-if="party.leader.id == $store.state.loggedInUser.id">
             <a href="#" @click.prevent="togglePartyMode(party.id, 'osu')">
                 <i

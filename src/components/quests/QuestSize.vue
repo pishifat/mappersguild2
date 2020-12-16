@@ -14,15 +14,16 @@
             "
         >
             <span v-if="quest.status == 'open'">
-                <i v-for="i in quest.minParty" :key="i" class="fas fa-user" /><i v-for="i in quest.maxParty - quest.minParty" :key="i+100" class="fas text-white-50 fa-user" />
+                <i v-for="i in quest.minParty" :key="i" class="fas fa-user user-icon" />
+                <i
+                    v-for="i in quest.maxParty - quest.minParty"
+                    :key="i+100"
+                    class="fas text-white-50 fa-user user-icon"
+                />
             </span>
 
-            <span v-else-if="quest.status == 'wip'">
-                <i v-for="member in quest.currentParty.members" :key="member.id" class="fas fa-user" />
-            </span>
-
-            <span v-else-if="quest.status == 'done'">
-                <i v-for="member in quest.completedMembers" :key="member.id" class="fas fa-user" />
+            <span v-else-if="quest.status == 'wip' || quest.status == 'done'">
+                <i v-for="member in members" :key="member.id" class="fas fa-user user-icon" />
             </span>
         </span>
     </small>
@@ -30,7 +31,8 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { Quest } from '../../../interfaces/quest';
+import { User } from '@interfaces/user';
+import { Quest } from '@interfaces/quest';
 
 export default Vue.extend({
     name: 'QuestSize',
@@ -40,5 +42,21 @@ export default Vue.extend({
             required: true,
         },
     },
+    computed: {
+        members (): User[] {
+            if (this.quest.status == 'wip') return this.quest.currentParty.members;
+            if (this.quest.status == 'done') return this.quest.completedMembers;
+
+            return [];
+        },
+    },
 });
 </script>
+
+<style lang="sass" scoped>
+
+.user-icon {
+    margin: 0 1px;
+}
+
+</style>

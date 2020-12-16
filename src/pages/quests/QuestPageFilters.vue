@@ -7,7 +7,6 @@
             <button
                 class="btn btn-primary"
                 :disabled="!validRank"
-                href="#"
                 :data-toggle="validRank ? 'modal' : 'tooltip'"
                 :title="!validRank ? 'designing custom quests is available to tier 1+ users only' : ''"
                 :data-target="validRank ? '#submitQuest' : ''"
@@ -18,7 +17,7 @@
             <template #filters>
                 <mode-filters
                     :filter-mode="filterMode"
-                    @update-filter-mode="updateFilterMode($event)"
+                    @update-filter-mode="searchQuests($event)"
                 />
             </template>
         </filter-box>
@@ -40,16 +39,16 @@ export default Vue.extend({
         ...mapState([
             'loggedInUser',
         ]),
-        ...mapState({
-            filterMode: (state: any) => state.quests.filterMode,
-        }),
+        ...mapState('quests', [
+            'filterMode',
+        ]),
         validRank(): boolean {
             return this.loggedInUser.rank >= 1;
         },
     },
-    methods: mapActions([
+    methods: mapActions('quests', [
         'updateFilterValue',
-        'updateFilterMode',
+        'searchQuests',
     ]),
 });
 </script>

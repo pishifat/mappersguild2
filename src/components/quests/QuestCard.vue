@@ -3,24 +3,24 @@
         <div
             class="container card card-body card-level-2 my-1 p-1"
             :class="cardClass"
+            style="cursor: pointer"
         >
-            <a
+            <div
                 class="row no-gutters align-items-center"
-                :href="'#details-' + quest.id"
-                data-toggle="collapse"
-                @click="selectQuest()"
+                data-toggle="modal"
+                data-target="#editQuest"
+                @click="selectQuest"
             >
                 <div class="col-sm-1 text-center">
                     <img
-                        :src="quest.isMbc ? '../../images/mbc-icon.png' :
-                            quest.art ? 'https://assets.ppy.sh/artists/' + quest.art + '/cover.jpg' :
-                            '../../images/no-art-icon.png'"
+                        :src="questIcon"
                         class="card-avatar-img"
                     >
                 </div>
-                <div class="col-sm-10">
+                <div class="col-sm-11">
                     <div class="row no-gutters">
                         <div class="col-sm-5">
+                            <i v-if="quest.status == 'open' && quest.parties.length" class="fas fa-star-of-life fa-xs text-primary" />
                             {{ quest.name.length > 40 ? quest.name.slice(0,40) + "..." : quest.name }}
                         </div>
 
@@ -57,29 +57,7 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="col-sm-1 text-center">
-                    <div id="collapse-arrow">
-                        <i class="fas fa-2x" :class="wasClicked ? 'fa-caret-up' : 'fa-caret-down'" />
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        <div
-            :id="'details-' + quest.id"
-            class="collapse my-2 mx-4 py-3 row border-right border-left border-primary"
-        >
-            <expiration-info
-                v-if="quest.isExpired"
-                :quest="quest"
-            />
-
-            <party-info
-                v-else
-                :quest="quest"
-                :member-of-any-party="memberOfAnyParty"
-            />
+            </div>
         </div>
     </div>
 </template>
@@ -91,8 +69,6 @@ import QuestSize from './QuestSize.vue';
 import QuestPrice from './QuestPrice.vue';
 import QuestTime from './QuestTime.vue';
 import QuestModes from './QuestModes.vue';
-import PartyInfo from './partyInfo/PartyInfo.vue';
-import ExpirationInfo from './expirationInfo/ExpirationInfo.vue';
 
 export default Vue.extend({
     name: 'QuestCard',
@@ -101,19 +77,12 @@ export default Vue.extend({
         QuestPrice,
         QuestTime,
         QuestModes,
-        PartyInfo,
-        ExpirationInfo,
     },
     props: {
         quest: {
             type: Object,
             required: true,
         },
-    },
-    data () {
-        return {
-            wasClicked: false,
-        };
     },
     computed: {
         ...mapState([
@@ -139,11 +108,20 @@ export default Vue.extend({
                 return '';
             }
         },
+        questIcon (): string {
+            if (this.quest.isMbc) return '/images/mbc-icon.png';
+            if (this.quest.art) return 'https://assets.ppy.sh/artists/' + this.quest.art + '/cover.jpg';
+
+            return '/images/no-art-icon.png';
+        },
     },
     methods: {
         selectQuest(): void {
-            this.wasClicked = !this.wasClicked;
-            history.pushState(null, 'Quests', `/quests?id=${this.quest.id}`);
+            this.$store.commit('quests/setSelectedQuestId', this.quest.id);
+
+            if (this.$route.query.id !== this.quest.id) {
+                this.$router.replace(`/quests?id=${this.quest.id}`);
+            }
         },
     },
 });

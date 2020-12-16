@@ -1,6 +1,6 @@
 <template>
-    <div>
-        <template v-if="quest.status === 'open' || quest.status === 'wip'">
+    <div class="container card card-body mt-1">
+        <template v-if="isOpen || isWip">
             <leader-actions
                 v-if="party.leader.id == loggedInUser.id"
                 :party="party"
@@ -11,30 +11,32 @@
 
             <party-title
                 :party="party"
+                :quest="quest"
                 :status="quest.status"
                 :quest-id="quest.id"
-                :quest-minimum-party="quest.minParty"
                 :member-of-any-party="memberOfAnyParty"
             />
         </template>
 
         <quest-timing
+            v-if="isDone || isWip"
             :quest="quest"
         />
 
         <mode-detail
-            v-if="quest.status === 'open'"
+            v-if="isOpen"
             :party="party"
             :quest-id="quest.id"
         />
 
         <members-detail
-            :members="quest.status === 'done' ? quest.completedMembers : party.members"
+            :party="party"
+            :quest="quest"
+            :members="isDone ? quest.completedMembers : party.members"
             :price="quest.price"
             :status="quest.status"
+            :member-of-any-party="memberOfAnyParty"
         />
-
-        <hr>
     </div>
 </template>
 
@@ -47,6 +49,7 @@ import MembersDetail from './MembersDetail.vue';
 import ModeDetail from './ModeDetail.vue';
 import { mapState } from 'vuex';
 import { Party } from '../../../../interfaces/party';
+import partyInfoMixin from './partyInfoMixin';
 
 export default Vue.extend({
     name: 'PartyDetail',
@@ -57,6 +60,7 @@ export default Vue.extend({
         MembersDetail,
         ModeDetail,
     },
+    mixins: [ partyInfoMixin ],
     props: {
         party: {
             type: Object as () => Party,

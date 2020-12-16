@@ -1,10 +1,10 @@
 <template>
-    <p class="small">
+    <div class="small">
         Quest {{ isExpired ? 'expired' : 'expires' }}:
         <span class="text-white-50">
             {{ expiration.toLocaleDateString() }}
         </span>
-    </p>
+    </div>
 </template>
 
 <script lang="ts">

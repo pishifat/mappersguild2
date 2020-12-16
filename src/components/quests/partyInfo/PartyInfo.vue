@@ -1,9 +1,9 @@
 <template>
     <div class="container">
         <div class="row">
-            <div :class="quest.status == 'open' ? 'col-sm-12' : 'col-sm-6'">
+            <div :class="isOpen ? 'col-sm-12' : 'col-sm-6'">
                 <button
-                    v-if="quest.status == 'open' && !memberOfAnyParty"
+                    v-if="isOpen && !memberOfAnyParty"
                     class="btn btn-sm btn-block btn-outline-info mb-2"
                     @click.prevent="createParty($event)"
                 >
@@ -11,7 +11,7 @@
                 </button>
 
                 <!-- open -->
-                <template v-if="quest.status == 'open'">
+                <template v-if="isOpen">
                     <party-detail
                         v-for="party in quest.parties"
                         :key="party.id"
@@ -23,7 +23,7 @@
 
                 <!-- wip -->
                 <party-detail
-                    v-else-if="quest.status == 'wip'"
+                    v-else-if="isWip"
                     :party="quest.currentParty"
                     :quest="quest"
                     :member-of-any-party="memberOfAnyParty"
@@ -41,19 +41,10 @@
                         View featured artist listing
                     </a>
                 </p>
-
-                <!-- quest expiration date -->
-                <expiration-date
-                    v-if="quest.status == 'open'"
-                    :is-expired="quest.isExpired"
-                    :expiration="new Date(quest.expiration)"
-                />
             </div>
 
-
-
             <div
-                v-if="quest.status == 'done' || quest.status == 'wip'"
+                v-if="isDone || isWip"
                 class="col-sm-6"
             >
                 <associated-beatmaps
@@ -69,14 +60,14 @@ import Vue from 'vue';
 import { Quest } from '../../../../interfaces/quest';
 import PartyDetail from './PartyDetail.vue';
 import AssociatedBeatmaps from './AssociatedBeatmaps.vue';
-import ExpirationDate from '../expirationInfo/ExpirationDate.vue';
+import partyInfoMixin from './partyInfoMixin';
 
 export default Vue.extend({
     components: {
         PartyDetail,
         AssociatedBeatmaps,
-        ExpirationDate,
     },
+    mixins: [ partyInfoMixin ],
     props: {
         quest: {
             type: Object as () => Quest,

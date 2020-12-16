@@ -146,17 +146,6 @@ const store: Module<UsersState, any> = {
             commit('resetPaginationPage');
             commit('setFilterValue', value);
         },
-        async loadQuests ({ commit, state }): Promise<void> {
-            commit('setIsLoadingQuests', true);
-
-            const response = await Axios.get(`/quests/search?mode=${state.filterMode}`);
-
-            if (response.data?.quests && !response.data?.quests.error) {
-                commit('setQuests', response.data.quests);
-            }
-
-            commit('setIsLoadingQuests', false);
-        },
         updatePaginationMaxPages ({ commit, getters, state }): void {
             const maxPages = Math.ceil(getters.filteredUsers.length / state.pagination.limit);
 

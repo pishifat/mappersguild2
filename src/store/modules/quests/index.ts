@@ -1,26 +1,32 @@
 import Vue from 'vue';
-import Axios from 'axios';
-import { Quest, QuestStatus } from '../../interfaces/quest';
-import { FilterMode } from '../../interfaces/extras';
 import { Module } from 'vuex';
+import { Quest, QuestStatus } from '@interfaces/quest';
+import { FilterMode } from '@interfaces/extras';
+import actions from './actions';
 
-interface QuestsState {
+export interface QuestsState {
     quests: Quest[];
     filterValue: string;
     filterMode: FilterMode;
     isLoadingQuests: boolean;
-    selectedQuestId: null | string,
+    selectedQuestId: null | string;
+    isFirstLoadDone: boolean;
 }
 
 const store: Module<QuestsState, any> = {
+    namespaced: true,
     state: {
         quests: [],
         filterValue: '',
         filterMode: FilterMode.any,
         isLoadingQuests: true,
         selectedQuestId: null,
+        isFirstLoadDone: false,
     },
     mutations: {
+        setFirstLoadDone (state): void {
+            state.isFirstLoadDone = true;
+        },
         setQuests (state, quests: Quest[]): void {
             state.quests = quests;
         },
@@ -33,7 +39,7 @@ const store: Module<QuestsState, any> = {
         setIsLoadingQuests (state, value: boolean): void {
             state.isLoadingQuests = value;
         },
-        setSelectedQuest (state, questId: string): void {
+        setSelectedQuestId (state, questId: string): void {
             state.selectedQuestId = questId;
         },
         updateQuest (state, quest: Quest): void {
@@ -74,40 +80,7 @@ const store: Module<QuestsState, any> = {
             return getters.filteredQuests.filter(q => q.isExpired);
         },
     },
-    actions: {
-        updateQuest ({ commit }, quest: Quest): void {
-            commit('updateQuest', quest);
-        },
-        setQuests ({ commit }, quests: Quest[]): void {
-            commit('setQuests', quests);
-        },
-        async updateFilterMode ({ commit }, mode: string): Promise<void> {
-            commit('setIsLoadingQuests', true);
-
-            const response = await Axios.get(`/quests/search?mode=${mode}`);
-
-            if (response.data?.quests && !response.data?.quests.error) {
-                commit('setQuests', response.data.quests);
-                commit('setFilterMode', mode);
-            }
-
-            commit('setIsLoadingQuests', false);
-        },
-        updateFilterValue ({ commit }, value: string): void {
-            commit('setFilterValue', value);
-        },
-        async loadQuests ({ commit, state }): Promise<void> {
-            commit('setIsLoadingQuests', true);
-
-            const response = await Axios.get(`/quests/search?mode=${state.filterMode}`);
-
-            if (response.data?.quests && !response.data?.quests.error) {
-                commit('setQuests', response.data.quests);
-            }
-
-            commit('setIsLoadingQuests', false);
-        },
-    },
+    actions,
 };
 
 export default store;

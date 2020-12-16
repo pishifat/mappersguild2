@@ -5,7 +5,6 @@
         <status-quests
             status="Open"
             :quests="openQuests"
-            :is-first-load-done="isFirstLoadDone"
         />
 
         <div class="radial-divisor" />
@@ -35,12 +34,12 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapState } from 'vuex';
 import QuestPageFilters from '@pages/quests/QuestPageFilters.vue';
 import StatusQuests from '@pages/quests/StatusQuests.vue';
 import SubmitQuestModal from '@components/quests/SubmitQuestModal.vue';
 import QuestInfoModal from '@components/quests/QuestInfoModal.vue';
-import questsModule from '@store/quests';
+import questsModule from '@store/modules/quests/index';
 
 export default Vue.extend({
     name: 'QuestPage',
@@ -50,13 +49,11 @@ export default Vue.extend({
         SubmitQuestModal,
         QuestInfoModal,
     },
-    data () {
-        return {
-            isFirstLoadDone: false,
-        };
-    },
     computed: {
-        ...mapGetters([
+        ...mapState('quests', [
+            'isFirstLoadDone',
+        ]),
+        ...mapGetters('quests', [
             'openQuests',
             'wipQuests',
             'completeQuests',
@@ -68,40 +65,16 @@ export default Vue.extend({
             this.$store.registerModule('quests', questsModule);
         }
     },
-    destroyed() {
-        if (this.$store.hasModule('quests')) {
-            this.$store.unregisterModule('quests');
-        }
-    },
     async created () {
-        const params: any = new URLSearchParams(document.location.search.substring(1));
+        const id = this.$route.query.id;
+        await this.$store.dispatch('quests/loadQuests', id);
 
-        if (params.get('id') && params.get('id').length) {
-            const [res, urlQuest] = await Promise.all<any, any>([
-                this.initialRequest('/quests/relevantInfo'),
-                this.executeGet('/quests/searchOnLoad/' + params.get('id')),
-            ]);
-
-            if (res) {
-                this.$store.commit('setQuests', res.openQuests);
-                this.$store.commit('setFilterMode', res.mainMode);
-            }
-
-            if (urlQuest && !urlQuest.error) {
-                this.$store.commit('setSelectedQuest', urlQuest.id);
-                $('#editQuest').modal('show');
-            }
-        } else {
-            const res: any = await this.initialRequest('/quests/relevantInfo');
-
-            if (res) {
-                this.$store.commit('setQuests', res.openQuests);
-                this.$store.commit('setFilterMode', res.mainMode);
-            }
+        if (id) {
+            $('#editQuest').modal('show');
         }
 
-        await this.$store.dispatch('loadQuests');
-        this.isFirstLoadDone = true;
+        await this.$store.dispatch('quests/searchQuests');
+        this.$store.commit('quests/setFirstLoadDone');
     },
 });
 </script>

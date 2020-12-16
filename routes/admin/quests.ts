@@ -99,12 +99,14 @@ adminQuestsRouter.post('/create', async (req, res) => {
         await sleep(1000);
     }
 
-    const allQuests = await QuestModel
+    const quests = await QuestModel
         .find({})
         .defaultPopulate()
         .sortByLastest();
 
-    res.json(allQuests);
+    res.json({
+        quests,
+    });
 });
 
 /* POST publish quest */

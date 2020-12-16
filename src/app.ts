@@ -14,7 +14,7 @@ Vue.use(Vuex);
 Vue.use(VueRouter);
 Vue.mixin(mixins);
 
-const store = new Vuex.Store(main);
+export const store = new Vuex.Store(main);
 
 const router = new VueRouter({
     mode: 'history',
