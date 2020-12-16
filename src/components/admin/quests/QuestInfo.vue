@@ -287,7 +287,7 @@ export default Vue.extend({
                     message: `quest force dropped`,
                     type: 'info',
                 });
-                this.$store.commit('updateQuest', quest);
+                this.$store.commit('quests/updateQuest', quest);
             }
         },
         async completeQuest(e): Promise<void> {
@@ -298,7 +298,7 @@ export default Vue.extend({
                     message: `quest marked as complete`,
                     type: 'info',
                 });
-                this.$store.commit('updateQuest', quest);
+                this.$store.commit('quests/updateQuest', quest);
             }
         },
         async duplicateQuest(e): Promise<void> {
@@ -354,7 +354,7 @@ export default Vue.extend({
                     message: `changed quest modes`,
                     type: 'info',
                 });
-                this.$store.commit('updateQuest', quest);
+                this.$store.commit('quests/updateQuest', quest);
             }
         },
         async updateExpiration(e): Promise<void> {

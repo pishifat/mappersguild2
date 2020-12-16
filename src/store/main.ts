@@ -31,6 +31,9 @@ const main: StoreOptions<MainState> = {
         updateLoadingState (state) {
             state.isLoading = !state.isLoading;
         },
+        setAvailablePoints (state, points) {
+            if (state.loggedInUser) state.loggedInUser.availablePoints = points;
+        },
     },
     strict: process.env.NODE_ENV !== 'production',
 };

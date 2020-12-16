@@ -166,7 +166,7 @@ export default Vue.extend({
             );
 
             if (!this.isError(quest)) {
-                this.$store.dispatch('updateQuest', quest);
+                this.$store.dispatch('quests/updateQuest', quest);
             }
         },
         async inviteToParty(e): Promise<void> {
@@ -196,7 +196,7 @@ export default Vue.extend({
             );
 
             if (!this.isError(quest)) {
-                this.$store.dispatch('updateQuest', quest);
+                this.$store.dispatch('quests/updateQuest', quest);
             }
         },
         async kickPartyMember(e): Promise<void> {
@@ -213,7 +213,7 @@ export default Vue.extend({
                 const quest = await this.executePost<Quest>('/quests/kickPartyMember/' + this.party.id + '/' + this.quest.id, { userId: this.dropdownUserId }, e);
 
                 if (!this.isError(quest)) {
-                    this.$store.dispatch('updateQuest', quest);
+                    this.$store.dispatch('quests/updateQuest', quest);
 
                     // TODO in routes
                     // if kicking someone leads to few members or low rank
@@ -230,7 +230,7 @@ export default Vue.extend({
                 const res: any = await this.executePost('/quests/extendDeadline/' + this.party.id + '/' + this.quest.id, {}, e);
 
                 if (!this.isError(res)) {
-                    this.$store.dispatch('updateQuest', res.quest);
+                    this.$store.dispatch('quests/updateQuest', res.quest);
                     this.$store.commit('setAvailablePoints', res.availablePoints);
                 }
             }
@@ -240,7 +240,7 @@ export default Vue.extend({
 
             if (!this.isError(quests)) {
                 $('#editQuest').modal('hide');
-                this.$store.dispatch('setQuests', quests);
+                this.$store.dispatch('quests/setQuests', quests);
             }
         },
         async acceptQuest(e): Promise<void> {
@@ -259,7 +259,7 @@ export default Vue.extend({
                 const res: any = await this.executePost('/quests/acceptQuest/' + this.party.id + '/' + this.quest.id, { price: this.price }, e);
 
                 if (!this.isError(res)) {
-                    this.$store.dispatch('setQuests', res.quests);
+                    this.$store.dispatch('quests/setQuests', res.quests);
                     this.$store.commit('setAvailablePoints', res.availablePoints);
                     $('#editQuest').modal('hide');
                 }
@@ -270,7 +270,7 @@ export default Vue.extend({
                 const quest = await this.executePost('/quests/deleteParty/' + this.party.id + '/' + this.quest.id, {}, e);
 
                 if (!this.isError(quest)) {
-                    this.$store.dispatch('updateQuest', quest);
+                    this.$store.dispatch('quests/updateQuest', quest);
                     $('#editQuest').modal('hide');
                 }
             }

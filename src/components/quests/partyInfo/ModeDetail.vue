@@ -92,7 +92,7 @@ export default Vue.extend({
             const quest = await this.executePost('/quests/togglePartyMode/' + partyId + '/' + this.questId, { mode });
 
             if (quest) {
-                this.$store.dispatch('updateQuest', quest);
+                this.$store.dispatch('quests/updateQuest', quest);
             }
         },
     },

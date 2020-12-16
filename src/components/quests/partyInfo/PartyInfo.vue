@@ -81,7 +81,7 @@ export default Vue.extend({
             const quest = await this.executePost('/quests/createParty/' + this.quest.id, {}, e);
 
             if (!this.isError(quest)) {
-                this.$store.dispatch('updateQuest', quest);
+                this.$store.dispatch('quests/updateQuest', quest);
             }
         },
     },

@@ -46,7 +46,7 @@ export default Vue.extend({
                 const res: any = await this.executePost('/quests/reopenQuest/' + this.questId, { status: this.status }, e);
 
                 if (!this.isError(res)) {
-                    this.$store.dispatch('setQuests', res.quests);
+                    this.$store.dispatch('quests/setQuests', res.quests);
                     this.$store.commit('setAvailablePoints', res.availablePoints);
                     $('#editQuest').modal('hide');
                 }
