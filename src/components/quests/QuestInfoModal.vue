@@ -10,6 +10,11 @@
                     {{ selectedQuest.creator.username }}
                 </a>
             </span>
+            <div v-if="selectedQuest.art" class="small">
+                <a :href="'https://osu.ppy.sh/beatmaps/artists/' + selectedQuest.art" target="_blank">
+                    View featured artist listing
+                </a>
+            </div>
         </template>
 
         <template #default>
@@ -59,7 +64,10 @@
                             :modes="selectedQuest.modes"
                         />
                     </div>
-                    <div class="col-sm-6 col-lg-3">
+                    <div
+                        v-if="selectedQuest.expiration"
+                        class="col-sm-6 col-lg-3"
+                    >
                         <expiration-date
                             :is-expired="selectedQuest.isExpired"
                             :expiration="new Date(selectedQuest.expiration)"
@@ -73,7 +81,7 @@
                     v-if="selectedQuest.isExpired"
                     :quest-id="selectedQuest.id"
                     :status="selectedQuest.status"
-                    :price="selectedQuest.price * 0.5 + 25"
+                    :price="selectedQuest.reopenPrice"
                 />
 
                 <party-info
@@ -111,12 +119,6 @@ export default Vue.extend({
         ReopenQuest,
     },
     computed: {
-        timeRemaining(): number {
-            const now = new Date().getTime();
-            const remaning = new Date(this.selectedQuest.deadline).getTime() - now;
-
-            return Math.floor(remaning / (1000 * 60 * 60 * 24));
-        },
         ...mapState([
             'loggedInUser',
         ]),

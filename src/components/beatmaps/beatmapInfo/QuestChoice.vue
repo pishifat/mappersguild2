@@ -39,8 +39,8 @@
                         </option>
                         <option
                             v-for="quest in userQuests"
-                            :key="quest._id"
-                            :value="quest._id"
+                            :key="quest.id"
+                            :value="quest.id"
                         >
                             {{ quest.name }}
                         </option>
@@ -51,7 +51,7 @@
                             data-toggle="tooltip"
                             data-placement="top"
                             title="link beatmap to quest"
-                            @click="saveQuest($event)"
+                            @click="linkQuest($event)"
                         >
                             Save
                         </button>
@@ -64,8 +64,9 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
-import { Quest } from '../../../../interfaces/quest';
+import { Beatmap } from '@interfaces/beatmap/beatmap';
+import { Quest } from '@interfaces/quest';
+import { mapState } from 'vuex';
 
 export default Vue.extend({
     name: 'QuestChoice',
@@ -82,20 +83,26 @@ export default Vue.extend({
             dropdownQuestId: '',
         };
     },
+    computed: mapState([
+        'loggedInUser',
+    ]),
     watch: {
         beatmap (): void {
             this.showQuestInput = false;
-            this.dropdownQuestId = this.beatmap.quest?.id;
+            this.dropdownQuestId = this.beatmap.quest?.id || '';
         },
     },
     async created() {
-        const res: any = await this.executeGet('/beatmaps/users/quests');
-        this.userQuests = res.userQuests;
+        const res = await this.executeGet<Quest[]>(`/users/${this.loggedInUser.id}/quests`);
+
+        if (!this.isError(res)) {
+            this.userQuests = res;
+        }
     },
     methods: {
-        async saveQuest(e): Promise<void> {
+        async linkQuest(e): Promise<void> {
             const bm = await this.executePost<Beatmap>(
-                `/beatmaps/${this.beatmap.id}/saveQuest`,
+                `/beatmaps/${this.beatmap.id}/linkQuest`,
                 { questId: this.dropdownQuestId },
                 e
             );

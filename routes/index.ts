@@ -14,10 +14,10 @@ import { setSession } from '../helpers/helpers';
 
 const indexRouter = express.Router();
 
-indexRouter.get('/me', isLoggedIn, (req, res) => {
-    res.json({
-        me: res.locals.userRequest,
-    });
+indexRouter.get('/me', async (req, res) => {
+    const user = await UserModel.findById(req.session?.mongoId);
+
+    res.json(user);
 });
 
 /* GET landing page. */

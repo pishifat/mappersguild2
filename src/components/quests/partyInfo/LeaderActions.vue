@@ -100,7 +100,11 @@
 
             <!-- ACCEPT QUEST -->
             <button
-                v-else-if="quest.status === 'open' && party.rank >= quest.minRank && party.members.length >= quest.minParty && party.members.length <= quest.maxParty"
+                v-else-if="quest.status === 'open' &&
+                    party.rank >= quest.minRank &&
+                    party.members.length >= quest.minParty &&
+                    party.members.length <= quest.maxParty
+                "
                 class="btn btn-sm btn-outline-success mx-2 my-2"
                 :disabled="!enoughPoints"
                 @click.prevent="acceptQuest($event)"
@@ -114,9 +118,10 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { Quest } from '../../../../interfaces/quest';
-import { Party } from '../../../../interfaces/party';
 import { mapState } from 'vuex';
+import { Quest } from '@interfaces/quest';
+import { Party } from '@interfaces/party';
+import { ExtendDeadlineResponse, PointsRefreshResponse } from '@interfaces/api/quests';
 
 export default Vue.extend({
     name: 'LeaderActions',
@@ -159,18 +164,14 @@ export default Vue.extend({
     },
     methods: {
         async togglePartyLock(e): Promise<void> {
-            const quest = await this.executePost(
-                '/quests/togglePartyLock/' + this.party.id + '/' + this.quest.id,
-                { lock: this.party.lock },
-                e
-            );
+            const party = await this.executePost(`/parties/${this.party.id}/toggleLock`, {}, e);
 
-            if (!this.isError(quest)) {
-                this.$store.dispatch('quests/updateQuest', quest);
+            if (!this.isError(party)) {
+                this.$store.dispatch('quests/updateParty', party);
             }
         },
         async inviteToParty(e): Promise<void> {
-            const res = await this.executePost<{ success: string }>('/quests/inviteToParty/' + this.party.id + '/' + this.quest.id, { username: this.inviteUsername }, e);
+            const res = await this.executePost<{ success: string }>(`/parties/${this.party.id}/invite`, { username: this.inviteUsername }, e);
 
             if (!this.isError(res)) {
                 this.$store.dispatch('updateToastMessages', {
@@ -189,14 +190,14 @@ export default Vue.extend({
                 return;
             }
 
-            const quest = await this.executePost(
-                '/quests/transferPartyLeader/' + this.party.id + '/' + this.quest.id,
+            const party = await this.executePost(
+                `/parties/${this.party.id}/transferLeadership`,
                 { userId: this.dropdownUserId },
                 e
             );
 
-            if (!this.isError(quest)) {
-                this.$store.dispatch('quests/updateQuest', quest);
+            if (!this.isError(party)) {
+                this.$store.dispatch('quests/updateParty', party);
             }
         },
         async kickPartyMember(e): Promise<void> {
@@ -209,16 +210,17 @@ export default Vue.extend({
                 return;
             }
 
-            if (confirm(`Are you sure? ${this.party.members.length == (this.quest.minParty) && this.quest.status == 'wip' ? 'This party has the minimum required members to run the quest, so kicking will cause the quest to be dropped.' : ''}`)) {
-                const quest = await this.executePost<Quest>('/quests/kickPartyMember/' + this.party.id + '/' + this.quest.id, { userId: this.dropdownUserId }, e);
+            if (confirm(`Are you sure? ${this.party.members.length == this.quest.minParty && this.quest.status == 'wip' ? 'This party has the minimum required members to run the quest, so kicking will cause the quest to be dropped.' : ''}`)) {
+                const party = await this.executePost<Party>(`/parties/${this.party.id}/kick`, { userId: this.dropdownUserId }, e);
 
-                if (!this.isError(quest)) {
-                    this.$store.dispatch('quests/updateQuest', quest);
+                if (!this.isError(party)) {
+                    this.$store.dispatch('quests/updateParty', party);
 
                     // TODO in routes
                     // if kicking someone leads to few members or low rank
-                    if (quest.status == 'wip' &&
-                        (quest.currentParty.members.length < quest.minParty || quest.currentParty.rank < quest.minRank)
+                    if (
+                        this.quest.status == 'wip' &&
+                        (party.members.length < this.quest.minParty || party.rank < this.quest.minRank)
                     ) {
                         this.dropQuest(e);
                     }
@@ -227,7 +229,7 @@ export default Vue.extend({
         },
         async extendDeadline(e): Promise<void> {
             if (confirm(`Are you sure?\n\nAll members of your party will spend 10 points.\n\nYou have ${this.loggedInUser.availablePoints} points available.`)) {
-                const res: any = await this.executePost('/quests/extendDeadline/' + this.party.id + '/' + this.quest.id, {}, e);
+                const res = await this.executePost<ExtendDeadlineResponse>(`/quests/${this.quest.id}/extendDeadline`, {}, e);
 
                 if (!this.isError(res)) {
                     this.$store.dispatch('quests/updateQuest', res.quest);
@@ -236,7 +238,7 @@ export default Vue.extend({
             }
         },
         async dropQuest(e): Promise<void> {
-            const quests = await this.executePost('/quests/dropQuest/' + this.party.id + '/' + this.quest.id, {}, e);
+            const quests = await this.executePost<Quest[]>(`/quests/${this.quest.id}/drop`, {}, e);
 
             if (!this.isError(quests)) {
                 $('#editQuest').modal('hide');
@@ -256,7 +258,7 @@ export default Vue.extend({
             }
 
             if (confirm(`Are you sure?\n\nThis quest will only allow beatmaps of these modes: ${modesText}\n\nAll members of your party will spend ${this.price} points.\n\nYou have ${this.loggedInUser.availablePoints} points available.`)) {
-                const res: any = await this.executePost('/quests/acceptQuest/' + this.party.id + '/' + this.quest.id, { price: this.price }, e);
+                const res = await this.executePost<PointsRefreshResponse>(`/quests/${this.quest.id}/accept`, {}, e);
 
                 if (!this.isError(res)) {
                     this.$store.dispatch('quests/setQuests', res.quests);
@@ -267,7 +269,7 @@ export default Vue.extend({
         },
         async deleteParty(e): Promise<void> {
             if (confirm(`Are you sure?`)) {
-                const quest = await this.executePost('/quests/deleteParty/' + this.party.id + '/' + this.quest.id, {}, e);
+                const quest = await this.executePost(`/parties/${this.party.id}/delete`, {}, e);
 
                 if (!this.isError(quest)) {
                     this.$store.dispatch('quests/updateQuest', quest);

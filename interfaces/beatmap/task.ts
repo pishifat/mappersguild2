@@ -1,3 +1,4 @@
+import { Document } from 'mongoose';
 import { User } from '../user';
 
 export enum TaskName {
@@ -28,12 +29,12 @@ export enum SBQuality {
     Nice = 3,
 }
 
-export interface Task {
+export interface Task extends Document {
     _id: any;
     id: string;
     name: TaskName;
     mode: TaskMode;
-    mappers: User[] | User['_id'][];
+    mappers: User[];
     status: TaskStatus;
     sbQuality: SBQuality;
 }

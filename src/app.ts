@@ -9,6 +9,8 @@ import routes from './routes';
 import Axios from 'axios';
 import mixins from './mixins';
 import { User } from '@interfaces/user';
+import { ErrorResponse } from '@interfaces/api/shared';
+import { isError } from '@store/http';
 
 Vue.use(Vuex);
 Vue.use(VueRouter);
@@ -26,9 +28,9 @@ router.beforeEach(async (to, from, next) => {
     document.title = to.meta.title || `Mappers' Guild`;
 
     if (!store.state.initialized) {
-        const { data } = await Axios.get<{ me: User } | { error: string }>('/me');
+        const { data } = await Axios.get<User | null | ErrorResponse>('/me');
 
-        if (!('error' in data)) store.commit('setInitialData', data);
+        if (!isError(data)) store.commit('setInitialData', data);
     }
 
     next();

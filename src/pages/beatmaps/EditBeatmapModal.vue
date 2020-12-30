@@ -5,16 +5,7 @@
         :header-class="selectedBeatmap ? 'bg-' + selectedBeatmap.status.toLowerCase() : ''"
     >
         <template #header class="d-flex align-items-center">
-            <img
-                v-if="selectedBeatmap.quest || selectedBeatmap.isShowcase"
-                class="rounded-circle mr-1"
-                style="height:24px; width: 24px;"
-                :src="selectedBeatmap.isShowcase || !selectedBeatmap.quest.art ? '../../images/no-art-icon.png' :
-                    selectedBeatmap.quest.isMbc ? '../../images/mbc-icon.png' :
-                    `https://assets.ppy.sh/artists/${selectedBeatmap.quest.art}/cover.jpg`"
-                data-toggle="tooltip"
-                :title="selectedBeatmap.quest && selectedBeatmap.quest.name"
-            >
+            <quest-img :beatmap="selectedBeatmap" />
 
             <a
                 v-if="selectedBeatmap.url"
@@ -69,25 +60,27 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import Vue, { PropType } from 'vue';
 import BeatmapInfo from '@components/beatmaps/beatmapInfo/BeatmapInfo.vue';
 import ModalDialog from '@components/ModalDialog.vue';
-import { BeatmapStatus } from '@interfaces/beatmap/beatmap';
+import { Beatmap, BeatmapStatus } from '@interfaces/beatmap/beatmap';
+import QuestImg from '@components/beatmaps/QuestImg.vue';
 
 export default Vue.extend({
     components: {
         BeatmapInfo,
         ModalDialog,
+        QuestImg,
     },
     props: {
         selectedBeatmap: {
-            type: Object,
-            default: () => undefined,
+            type: Object as PropType<Beatmap>,
+            default: () => ({} as Beatmap),
         },
     },
     watch: {
         selectedBeatmap(): void {
-            if (this.$route.query.id !== this.selectedBeatmap.id) {
+            if (this.selectedBeatmap && this.$route.query.id !== this.selectedBeatmap.id) {
                 this.$router.replace(`/${this.selectedBeatmap.status === BeatmapStatus.Secret ? 'showcase' : 'beatmaps'}?id=${this.selectedBeatmap.id}`);
             }
         },

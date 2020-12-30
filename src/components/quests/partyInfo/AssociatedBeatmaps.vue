@@ -1,18 +1,18 @@
 <template>
-    <div>
-        <div class="sub-header">
-            <u>Associated maps</u>
-        </div>
+    <div class="card card-body container">
+        <h5>
+            Associated maps
+        </h5>
 
-        <ul v-if="associatedMaps.length" class="ml-3 p-0">
+        <ul v-if="associatedMaps.length" class="pl-3 mb-0">
             <li
                 v-for="map in associatedMaps"
                 :key="map.id"
-                class="small text-white-50"
+                class="text-secondary"
             >
                 <i
                     class="fas"
-                    :class="[map.status.toLowerCase(), findIcon(map.status)]"
+                    :class="[`text-${map.status.toLowerCase()}`, findIcon(map.status)]"
                     data-toggle="tooltip"
                     :title="map.status"
                 />

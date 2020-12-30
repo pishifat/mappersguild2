@@ -21,8 +21,8 @@ const main: StoreOptions<MainState> = {
         homeArtists: [],
     },
     mutations: {
-        setInitialData (state, payload) {
-            state.loggedInUser = payload.me;
+        setInitialData (state, user: User | null) {
+            state.loggedInUser = user;
             state.initialized = true;
         },
         setHomeData (state, homeArtists) {

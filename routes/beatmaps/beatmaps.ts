@@ -3,13 +3,11 @@ import { BeatmapModel, Beatmap } from '../../models/beatmap/beatmap';
 import { BeatmapMode, BeatmapStatus } from '../../interfaces/beatmap/beatmap';
 import { TaskModel, Task } from '../../models/beatmap/task';
 import { TaskName } from '../../interfaces/beatmap/task';
-import { QuestStatus } from '../../interfaces/quest';
-import { QuestModel } from '../../models/quest';
 import { NotificationModel } from '../../models/notification';
 import { LogModel } from '../../models/log';
 import { LogCategory } from '../../interfaces/log';
 import { isLoggedIn, isNotSpectator, isBn } from '../../helpers/middlewares';
-import { findDifficultyPoints, findLengthNerf, findQuestBonus } from '../../helpers/points';
+import { findDifficultyPoints, getLengthNerf, getQuestBonus } from '../../helpers/points';
 import { defaultErrorMessage, findBeatmapsetId } from '../../helpers/helpers';
 import { beatmapsetInfo, isOsuResponseError } from '../../helpers/osuApi';
 import { isValidBeatmap } from './middlewares';
@@ -127,13 +125,6 @@ beatmapsRouter.get('/search', async (req, res) => {
     res.json({ allBeatmaps });
 });
 
-/* GET quests for linking quest to beatmap */
-beatmapsRouter.get('/users/quests', async (req, res) => {
-    const userQuests = await QuestModel.getUserQuests(req.session?.mongoId);
-
-    res.json({ userQuests });
-});
-
 /* POST create new map */
 beatmapsRouter.post('/create', isNotSpectator, async (req, res) => {
     if (!req.body.song) {
@@ -232,7 +223,7 @@ beatmapsRouter.post('/:id/updateModder', isNotSpectator, async (req, res) => {
             NotificationModel.generate(
                 b._id,
                 `removed themself from the modder list of your mapset`,
-                b.host.id,
+                b.host._id,
                 req.session?.mongoId,
                 b._id
             );
@@ -245,7 +236,7 @@ beatmapsRouter.post('/:id/updateModder', isNotSpectator, async (req, res) => {
             NotificationModel.generate(
                 b._id,
                 `modded your mapset`,
-                b.host.id,
+                b.host._id,
                 req.session?.mongoId,
                 b._id
             );
@@ -302,7 +293,7 @@ beatmapsRouter.post('/:id/updateBn', isNotSpectator, isValidBeatmap, async (req,
             NotificationModel.generate(
                 updatedBeatmap._id,
                 `removed themself from the Beatmap Nominator list on your mapset`,
-                updatedBeatmap.host.id,
+                updatedBeatmap.host._id,
                 req.session?.mongoId,
                 updatedBeatmap._id
             );
@@ -315,7 +306,7 @@ beatmapsRouter.post('/:id/updateBn', isNotSpectator, isValidBeatmap, async (req,
             NotificationModel.generate(
                 updatedBeatmap._id,
                 `added themself to the Beatmap Nominator list on your mapset`,
-                updatedBeatmap.host.id,
+                updatedBeatmap.host._id,
                 req.session?.mongoId,
                 updatedBeatmap._id
             );
@@ -323,7 +314,7 @@ beatmapsRouter.post('/:id/updateBn', isNotSpectator, isValidBeatmap, async (req,
     }
 });
 
-/* GET guest difficulty related beatmaps */
+/* GET calculate points for a given beatmap */
 beatmapsRouter.get('/:id/findPoints', async (req, res) => {
     const beatmap = await BeatmapModel
         .findById(req.params.id)
@@ -356,7 +347,7 @@ beatmapsRouter.get('/:id/findPoints', async (req, res) => {
     // set up task points info
     const tasksPointsArray: string[] = [];
 
-    const lengthNerf = findLengthNerf(bmInfo.hit_length);
+    const lengthNerf = getLengthNerf(bmInfo.hit_length);
     const seconds = bmInfo.hit_length % 60;
     const minutes = (bmInfo.hit_length - seconds) / 60;
     const lengthDisplay = `${minutes}m${seconds}s`;
@@ -390,7 +381,7 @@ beatmapsRouter.get('/:id/findPoints', async (req, res) => {
             const taskPoints = findDifficultyPoints(task.name, 1);
 
             if (beatmap.quest) {
-                questBonus = findQuestBonus(QuestStatus.Done, beatmap.quest.deadline, rankedDate, 1);
+                questBonus = getQuestBonus(beatmap.quest.deadline, rankedDate, 1);
                 validQuest = true;
             }
 

@@ -2,20 +2,20 @@
     <div class="row">
         <div class="col-sm">
             <!-- when done -->
-            <div v-if="quest.status === 'done'" class="small ml-3">
+            <div v-if="quest.status === 'done'" class="ml-3">
                 Completed:
-                <span class="text-white-50">{{ quest.completed.toString().slice(0,10) }}</span>
+                <span class="text-secondary">{{ quest.completed.toString().slice(0,10) }}</span>
             </div>
 
             <!-- quest info when wip -->
             <div v-if="quest.status === 'wip'">
-                <div class="small ml-3">
+                <div class="ml-3">
                     Deadline:
-                    <span class="text-white-50">{{ quest.deadline.toString().slice(0,10) }}</span>
+                    <span class="text-secondary">{{ quest.deadline.toString().slice(0,10) }}</span>
                 </div>
-                <div class="small ml-3">
+                <div class="ml-3">
                     Time remaining:
-                    <span :class="timeRemaining > 0 ? 'text-white-50' : 'text-danger'">{{ timeRemaining }} days</span>
+                    <span :class="timeRemaining > 0 ? 'text-secondary' : 'text-danger'">{{ timeRemaining }} days</span>
                 </div>
             </div>
         </div>
@@ -24,7 +24,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { Quest } from '../../../../interfaces/quest';
+import { Quest } from '@interfaces/quest';
 
 export default Vue.extend({
     props: {
@@ -35,6 +35,8 @@ export default Vue.extend({
     },
     computed: {
         timeRemaining(): number {
+            if (!this.quest.deadline) return 0;
+
             const now = new Date().getTime();
             const remaning = new Date(this.quest.deadline).getTime() - now;
 

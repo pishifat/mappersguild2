@@ -19,22 +19,17 @@
                     {{ formatMetadata(beatmap.song.artist, beatmap.song.title) }}
                 </p>
                 <small class="card-text">
-                    <img
-                        v-if="beatmap.quest"
-                        class="rounded-circle mr-1"
-                        style="height:24px; width: 24px;"
-                        :src="beatmap.isShowcase || !beatmap.quest.art ? '../../images/no-art-icon.png' :
-                            beatmap.quest.isMbc ? '../../images/mbc-icon.png' :
-                            'https://assets.ppy.sh/artists/' + beatmap.quest.art + '/cover.jpg'"
-                        data-toggle="tooltip"
-                        :title="beatmap.quest.name"
-                    >
+                    <quest-img :beatmap="beatmap" />
+
                     Hosted by
                     <a
                         :href="'https://osu.ppy.sh/users/' + beatmap.host.osuId"
                         target="_blank"
                         @click.stop
-                    >{{ beatmap.host.username }}</a>
+                    >
+                        {{ beatmap.host.username }}
+                    </a>
+
                     <i v-if="beatmap.mode == 'taiko'" class="fas fa-drum" />
                     <i v-else-if="beatmap.mode == 'catch'" class="fas fa-apple-alt" />
                     <i v-else-if="beatmap.mode == 'mania'" class="fas fa-stream" />
@@ -54,11 +49,13 @@
 import Vue from 'vue';
 import { Beatmap } from '@interfaces/beatmap/beatmap';
 import ProcessTasks from './ProcessTasks.vue';
+import QuestImg from './QuestImg.vue';
 
 export default Vue.extend({
     name: 'BeatmapCard',
     components: {
         ProcessTasks,
+        QuestImg,
     },
     props: {
         beatmap: {
@@ -146,4 +143,3 @@ export default Vue.extend({
         border-left: 4px solid var(--ranked);
     }
 </style>
-

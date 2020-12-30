@@ -1,155 +1,68 @@
 import express from 'express';
 import { BeatmapModel, Beatmap } from '../../models/beatmap/beatmap';
-import { BeatmapMode, BeatmapStatus } from '../../interfaces/beatmap/beatmap';
+import { BeatmapStatus } from '../../interfaces/beatmap/beatmap';
 import { TaskModel } from '../../models/beatmap/task';
-import { TaskName } from '../../interfaces/beatmap/task';
+import { TaskMode, TaskName } from '../../interfaces/beatmap/task';
 import { UserModel } from '../../models/user';
 import { isLoggedIn, isNotSpectator } from '../../helpers/middlewares';
-import { defaultErrorMessage, BasicResponse } from '../../helpers/helpers';
 import { isValidBeatmap, isValidUser, isBeatmapHost } from './middlewares';
-import { QuestModel } from '../../models/quest';
 import { InviteModel } from '../../models/invite';
 import { ActionType } from '../../interfaces/invite';
 import { NotificationModel } from '../../models/notification';
 import { LogModel } from '../../models/log';
 import { LogCategory } from '../../interfaces/log';
-import { User, UserGroup } from '../../interfaces/user';
+import { User } from '../../interfaces/user';
 
 const tasksRouter = express.Router();
 
 tasksRouter.use(isLoggedIn);
 
-//used in addtask, requesttask, addcollab
-async function addTaskChecks(userId: Beatmap['_id'], b: Beatmap, taskName: TaskName, taskMode: BeatmapMode, isHost: boolean): Promise<BasicResponse> {
-    if (b.tasks.length > 20 && taskName) {
-        return { error: 'This mapset has too many difficulties!' };
-    }
-
-    if (taskName == TaskName.Storyboard) {
-        let sb = false;
-
-        b.tasks.forEach(task => {
-            if (task.name == TaskName.Storyboard) {
-                sb = true;
-            }
-        });
-
-        if (sb) {
-            return { error: 'There can only be one storyboard on a mapset!' };
-        }
-    }
-
-    if (b.quest && taskName != TaskName.Storyboard) {
-        const q = await QuestModel
-            .findOne({ _id: b.quest })
-            .defaultPopulate();
-
-        let validMapper = false;
-
-        if (!q) {
-            return defaultErrorMessage;
-        }
-
-        q.currentParty.members.forEach(member => {
-            if (member.id == userId) {
-                validMapper = true;
-            }
-        });
-
-        if (!validMapper) {
-            return { error: `This mapset is part of a quest, so only members of the quest's current party can add difficulties!` };
-        }
-
-        if (taskMode && !b.quest.modes.includes(taskMode)) {
-            return { error: `The selected quest doesn't support beatmaps of this mode!` };
-        }
-    }
-
-    const isAlreadyBn = await BeatmapModel.findOne({
-        _id: b._id,
-        bns: userId,
-    });
-
-    if (isAlreadyBn) {
-        return { error: 'Cannot create a difficulty while in BN list!' };
-    }
-
-    if (b.tasksLocked && !isHost && taskName) {
-        let locked = false;
-
-        b.tasksLocked.forEach(task => {
-            if (taskName == task) {
-                locked = true;
-            }
-        });
-
-        if (locked) {
-            return { error: 'This task is locked by the mapset host!' };
-        }
-    }
-
-    return { success: 'ok' };
-}
-
 const inviteError = 'Invite not sent: ';
 
 /* POST create task from extended view. */
 tasksRouter.post('/addTask/:mapId', isNotSpectator, isValidBeatmap, async (req, res) => {
-    let b = res.locals.beatmap;
-    const isHost = b.host.id == req.session?.mongoId;
-    const valid = await addTaskChecks(
-        req.session?.mongoId,
-        b,
-        req.body.taskName,
-        req.body.mode,
-        isHost
-    );
+    let beatmap: Beatmap = res.locals.beatmap;
+    const user: User = res.locals.userRequest;
+    const isHost = beatmap.host.id == user.id;
+    const taskName: TaskName = req.body.taskName;
+    let taskMode: TaskMode = req.body.mode || beatmap.mode;
 
-    if (valid.error) {
-        return res.json(valid);
+    if (taskName == TaskName.Storyboard) {
+        taskMode = TaskMode.SB;
     }
 
-    let mode = req.body.mode;
-
-    if (!mode) {
-        mode = b.mode;
-    }
-
-    if (req.body.taskName == TaskName.Storyboard) {
-        mode = 'sb';
-    }
+    await beatmap.checkTaskAvailability(user, taskName, taskMode);
 
     const t = new TaskModel();
-    t.name = req.body.taskName;
-    t.mappers = req.session?.mongoId;
-    t.mode = mode;
+    t.name = taskName;
+    t.mappers = [user];
+    t.mode = taskMode;
     await t.save();
 
-    if (!t) {
-        return res.json(defaultErrorMessage);
-    }
+    beatmap.tasks.push(t._id);
+    await beatmap.save();
 
-    b.tasks.push(t._id);
-    await b.save();
+    beatmap = await BeatmapModel
+        .findById(req.params.mapId)
+        .defaultPopulate()
+        .orFail();
 
-    b = await BeatmapModel.findById(req.params.mapId).defaultPopulate();
+    res.json(beatmap);
 
-    res.json(b);
-
-    if (b.status !== BeatmapStatus.Secret) {
+    if (beatmap.status !== BeatmapStatus.Secret) {
         LogModel.generate(
             req.session?.mongoId,
-            `added "${req.body.taskName}" difficulty to "${b.song.artist} - ${b.song.title}"`,
+            `added "${taskName}" difficulty to "${beatmap.song.artist} - ${beatmap.song.title}"`,
             LogCategory.Beatmap
         );
 
         if (!isHost) {
             NotificationModel.generate(
-                b.id,
-                `added "${req.body.taskName}" difficulty to your mapset`,
-                b.host.id,
+                beatmap._id,
+                `added "${taskName}" difficulty to your mapset`,
+                beatmap.host._id,
                 req.session?.mongoId,
-                b.id
+                beatmap._id
             );
         }
     }
@@ -195,7 +108,7 @@ tasksRouter.post('/removeTask/:id', isNotSpectator, async (req, res) => {
             NotificationModel.generate(
                 updatedBeatmap._id,
                 `removed task "${t.name}" from your mapset`,
-                updatedBeatmap.host.id,
+                updatedBeatmap.host._id,
                 req.session?.mongoId,
                 updatedBeatmap._id
             );
@@ -205,65 +118,56 @@ tasksRouter.post('/removeTask/:id', isNotSpectator, async (req, res) => {
 
 /* POST invite collab user to task. */
 tasksRouter.post('/task/:taskId/addCollab', isNotSpectator, isValidUser, async (req, res) => {
-    const u = res.locals.user;
+    const user: User = res.locals.userRequest;
+    const userToRequest: User = res.locals.user;
+    const taskId: any = req.params.taskId;
 
-    const [t, b] = await Promise.all([
-        TaskModel.findOne({
-            _id: req.params.taskId,
-            mappers: u._id,
-        }),
+    const [task, beatmap] = await Promise.all([
+        TaskModel
+            .findOne({
+                _id: taskId,
+                mappers: user._id,
+            })
+            .orFail(),
         BeatmapModel
             .findOne({
-                tasks: req.params.taskId,
+                tasks: taskId,
                 status: { $ne: BeatmapStatus.Ranked },
             })
-            .defaultPopulate(),
+            .defaultPopulate()
+            .orFail(),
     ]);
 
-    if (t || !b) {
-        return res.json({ error: inviteError + 'User is already a collaborator' });
+    const taskMode: TaskMode = req.body.mode || beatmap.mode;
+
+    if (task.mappers.some(m => m.id == userToRequest.id)) {
+        throw new Error(inviteError + 'User is already a collaborator');
     }
 
-    if (b.status == BeatmapStatus.Secret && (u.group == UserGroup.User || u.group == UserGroup.Spectator)) {
-        return res.json({ error: 'Cannot invite to non-showcase users!' });
-    }
-
-    if (!req.body.mode) {
-        req.body.mode = b.mode;
-    }
-
-    const validity = await addTaskChecks(u.id, b, req.body.taskName, req.body.mode, b.host.id == req.session?.mongoId);
-
-    if (validity.error) {
-        return res.json(validity);
-    }
-
-    const updatedTask = await TaskModel.findById(req.params.taskId);
-
-    if (!updatedTask) {
-        return res.json({ error: inviteError + 'Task does not exist!' });
-    }
+    await beatmap.checkTaskAvailability(userToRequest, task.name, taskMode, ActionType.Collab);
 
     const newInvite = await InviteModel.generateMapInvite(
-        u.id,
-        req.session?.mongoId,
+        userToRequest._id,
+        user._id,
         req.params.taskId,
-        `wants to collaborate with you on the "${updatedTask.name}" difficulty of`,
+        `wants to collaborate with you on the "${task.name}" difficulty of`,
         ActionType.Collab,
-        b._id,
-        req.body.taskName,
-        req.body.mode
+        beatmap._id,
+        task.name,
+        taskMode
     );
 
     if (!newInvite) {
         return res.json({ error: inviteError + 'Invite generation failed!' });
     }
 
-    res.json(b);
+    res.json(beatmap);
 });
 
 /* POST remove collab user from task. */
 tasksRouter.post('/task/:taskId/removeCollab', isNotSpectator, async (req, res) => {
+    const taskId: any = req.params.taskId;
+
     const [u, b, t] = await Promise.all([
         UserModel
             .findById(req.body.user)
@@ -271,7 +175,7 @@ tasksRouter.post('/task/:taskId/removeCollab', isNotSpectator, async (req, res) 
 
         BeatmapModel
             .findOne({
-                tasks: req.params.taskId,
+                tasks: taskId,
                 status: { $ne: BeatmapStatus.Ranked },
             })
             .orFail(),
@@ -345,7 +249,7 @@ tasksRouter.post('/setTaskStatus/:taskId', isNotSpectator, async (req, res) => {
             NotificationModel.generate(
                 b._id,
                 `changed status of "${t.name}" on your mapset`,
-                b.host.id,
+                b.host._id,
                 req.session?.mongoId,
                 b._id
             );
@@ -355,28 +259,20 @@ tasksRouter.post('/setTaskStatus/:taskId', isNotSpectator, async (req, res) => {
 
 /* POST request added task*/
 tasksRouter.post('/requestTask/:mapId', isNotSpectator, isValidUser, isValidBeatmap, isBeatmapHost, async (req, res) => {
-    const u: User = res.locals.user;
-    const b: Beatmap = res.locals.beatmap;
+    const user: User = res.locals.user;
+    const beatmap: Beatmap = res.locals.beatmap;
 
-    if (b.status == BeatmapStatus.Secret && (u.group == UserGroup.User || u.group == UserGroup.Spectator)) {
-        return res.json({ error: 'Cannot invite to non-showcase users!' });
-    }
+    await beatmap.checkTaskAvailability(user, req.body.taskName, req.body.mode, ActionType.Create);
 
-    const valid = await addTaskChecks(u.id, b, req.body.taskName, req.body.mode, true);
-
-    if (valid.error) {
-        return res.json(valid);
-    }
-
-    res.json(b);
+    res.json(beatmap);
 
     InviteModel.generateMapInvite(
-        u._id,
+        user._id,
         req.session?.mongoId,
-        b._id,
+        beatmap._id,
         `wants you to create the ${req.body.taskName != TaskName.Storyboard ? req.body.mode + ' difficulty' : 'task'} ${req.body.taskName} for their mapset of`,
         ActionType.Create,
-        b._id,
+        beatmap._id,
         req.body.taskName,
         req.body.mode
     );

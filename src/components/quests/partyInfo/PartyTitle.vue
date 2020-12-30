@@ -25,11 +25,11 @@
             <!-- ACTIONS -->
             <template v-if="loggedInUser.id != party.leader.id">
                 <!-- only open quest -->
-                <button v-if="!memberOfAnyParty && !party.lock && status === 'open'" class="btn btn-sm btn-outline-info ml-1" @click.prevent="joinParty($event)">
+                <button v-if="!memberOfAnyParty && !party.lock && isOpen" class="btn btn-sm btn-outline-info ml-1" @click.prevent="joinParty($event)">
                     Join <i class="fas fa-user-plus fa-xs" />
                 </button>
                 <!-- open & wip -->
-                <button v-if="inCurrentParty && (status === 'open' || status === 'wip')" class="btn btn-sm btn-outline-danger ml-1" @click.prevent="leaveParty($event)">
+                <button v-if="inCurrentParty && (isOpen || isWip)" class="btn btn-sm btn-outline-danger ml-1" @click.prevent="leaveParty($event)">
                     Leave <i class="fas fa-user-minus fa-xs" />
                 </button>
             </template>
@@ -60,10 +60,7 @@ export default Vue.extend({
             type: Object as () => Quest,
             required: true,
         },
-        status: {
-            type: String,
-            required: true,
-        },
+        memberOfAnyParty: Boolean,
     },
     computed: {
         ...mapState([
@@ -75,23 +72,24 @@ export default Vue.extend({
     },
     methods: {
         async joinParty(e): Promise<void> {
-            const quest = await this.executePost('/quests/joinParty/' + this.party.id + '/' + this.quest.id, {}, e);
+            const party = await this.executePost<Party>(`/parties/${this.party.id}/join`, {}, e);
 
-            if (!this.isError(quest)) {
-                this.$store.dispatch('quests/updateQuest', quest);
+            if (!this.isError(party)) {
+                this.$store.dispatch('quests/updateParty', party);
             }
         },
         async leaveParty(e): Promise<void> {
-            if (confirm(`Are you sure? ${this.party.members.length == this.quest.minParty && this.status == 'wip' ? 'This party has the minimum required members to run the quest, so leaving will cause the quest to be dropped.' : ''}`)) {
-                const quest = await this.executePost<Quest>('/quests/leaveParty/' + this.party.id + '/' + this.quest.id, {}, e);
+            if (confirm(`Are you sure? ${this.party.members.length == this.quest.minParty && this.isWip ? 'This party has the minimum required members to run the quest, so leaving will cause the quest to be dropped.' : ''}`)) {
+                const party = await this.executePost<Party>(`/parties/${this.party.id}/leave`, {}, e);
 
-                if (!this.isError(quest)) {
-                    this.$store.dispatch('quests/updateQuest', quest);
+                if (!this.isError(party)) {
+                    this.$store.dispatch('quests/updateParty', party);
 
                     // TODO in routes
                     // if leaving a party leads to few members or low rank
-                    if (quest.status == 'wip' &&
-                        (quest.currentParty.members.length < quest.minParty || quest.currentParty.rank < quest.minRank)
+                    if (
+                        this.isWip &&
+                        (party.members.length < this.quest.minParty || party.rank < this.quest.minRank)
                     ) {
                         this.dropQuest(e);
                     }
@@ -99,7 +97,7 @@ export default Vue.extend({
             }
         },
         async dropQuest(e): Promise<void> {
-            const quests = await this.executePost('/quests/dropQuest/' + this.party.id + '/' + this.quest.id, {}, e);
+            const quests = await this.executePost<Quest[]>(`/quests/${this.quest.id}/drop`, {}, e);
 
             if (!this.isError(quests)) {
                 this.$store.dispatch('quests/setQuests', quests);

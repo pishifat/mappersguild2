@@ -32,12 +32,12 @@
                         '![Mystery header](/wiki/shared/news/banners/mappersguild-mystery.jpg)' }}
                 </p>
                 <p>
-                    For the **{{ quest.name + ' (' + questModes(quest.modes) + ')' }}** quest, the mapper{{ quest.completedMembers.length == 1 ? '' : 's' }} had to {{ quest.descriptionMain.substring(0,1).toLowerCase() + quest.descriptionMain.substring(1) }}
+                    For the **{{ quest.name + ' (' + questModes(quest.modes) + ')' }}** quest, the mapper{{ quest.currentParty.members.length == 1 ? '' : 's' }} had to {{ quest.descriptionMain.substring(0,1).toLowerCase() + quest.descriptionMain.substring(1) }}
                 </p>
                 <p>
                     This quest was completed by
-                    <span v-for="(member, i) in quest.completedMembers" :key="member.id">
-                        **[{{ member.username }}]({{ 'https://osu.ppy.sh/users/' + member.osuId }})**{{ separateUsername(i, quest.completedMembers.length) }}
+                    <span v-for="(member, i) in quest.currentParty.members" :key="member.id">
+                        **[{{ member.username }}]({{ 'https://osu.ppy.sh/users/' + member.osuId }})**{{ separateUsername(i, quest.currentParty.members.length) }}
                     </span>
                 </p>
                 <div v-for="beatmap in quest.associatedMaps" :key="beatmap.id">

@@ -113,7 +113,7 @@
 import Vue from 'vue';
 import ModalDialog from '@components/ModalDialog.vue';
 import { Beatmap } from '../../../interfaces/beatmap/beatmap';
-import { Task } from '../../../interfaces/beatmap/task';
+import { SBQuality, Task } from '../../../interfaces/beatmap/task';
 
 export default Vue.extend({
     name: 'BeatmapInfoAdmin',
@@ -132,8 +132,8 @@ export default Vue.extend({
             taskId: null,
             modderId: null,
             beatmapUrl: this.beatmap.url,
-            storyboardQuality: null,
-            storyboardTaskId: null,
+            storyboardQuality: null as null | SBQuality,
+            storyboardTaskId: null as null | string,
             packId: this.beatmap.packId,
         };
     },

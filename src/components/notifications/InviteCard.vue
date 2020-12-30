@@ -80,17 +80,7 @@ export default Vue.extend({
             this.$emit('hide-invite', { id: this.invite.id, e });
         },
         async acceptInvite(e): Promise<void> {
-            let invite;
-
-            if (this.invite.actionType == 'collaborate in a difficulty') {
-                invite = await this.executePost('/notifications/acceptCollab/' + this.invite.id, {}, e);
-            } else if (this.invite.actionType == 'create a difficulty') {
-                invite = await this.executePost('/notifications/acceptDiff/' + this.invite.id, {}, e);
-            } else if (this.invite.actionType == 'host') {
-                invite = await this.executePost('/notifications/acceptHost/' + this.invite.id, {}, e);
-            } else if (this.invite.actionType == 'join') {
-                invite = await this.executePost('/notifications/acceptJoin/' + this.invite.id, {}, e);
-            }
+            const invite = await this.executePost(`/invites/${this.invite.id}/accept`, {}, e);
 
             if (invite) {
                 this.$emit('hide-accepted-invite', { id: this.invite.id, e });

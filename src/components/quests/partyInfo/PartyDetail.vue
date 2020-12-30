@@ -12,8 +12,6 @@
             <party-title
                 :party="party"
                 :quest="quest"
-                :status="quest.status"
-                :quest-id="quest.id"
                 :member-of-any-party="memberOfAnyParty"
             />
         </template>
@@ -30,12 +28,9 @@
         />
 
         <members-detail
-            :party="party"
-            :quest="quest"
-            :members="isDone ? quest.completedMembers : party.members"
+            :members="party.members"
             :price="quest.price"
             :status="quest.status"
-            :member-of-any-party="memberOfAnyParty"
         />
     </div>
 </template>

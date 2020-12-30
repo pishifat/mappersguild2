@@ -40,7 +40,6 @@
                             @update:selectedMap="selectedMap = $event"
                             @update:selectedParty="selectedParty = $event"
                             @hide-invite="hideInvite($event)"
-                            @hide-accepted-invite="hideAcceptedInvite($event)"
                         />
                     </transition-group>
                     <p v-if="!invites.length" class="ml-4">
@@ -95,31 +94,12 @@ export default Vue.extend({
             const e = args.e;
             const i = this.notifications.findIndex(notif => notif.id === id);
             this.notifications.splice(i, 1);
-            await this.executePost('/notifications/hideNotification/' + id, {}, e);
+            await this.executePost(`/notifications/${id}/hide`, {}, e);
         },
         //mark all as read
         async hideAll(e): Promise<void> {
             this.notifications = [];
             await this.executePost('/notifications/hideAll/', {}, e);
-        },
-        //accept various invites
-        async acceptInvite(id, actionType, e): Promise<void> {
-            let invite;
-
-            if (actionType == 'collaborate in a difficulty') {
-                invite = await this.executePost('/notifications/acceptCollab/' + id, {}, e);
-            } else if (actionType == 'create a difficulty') {
-                invite = await this.executePost('/notifications/acceptDiff/' + id, {}, e);
-            } else if (actionType == 'host') {
-                invite = await this.executePost('/notifications/acceptHost/' + id, {}, e);
-            } else if (actionType == 'join') {
-                invite = await this.executePost('/notifications/acceptJoin/' + id, {}, e);
-            }
-
-            if (invite) {
-                const i = this.invites.findIndex(inv => inv.id === invite.id);
-                this.invites.splice(i, 1);
-            }
         },
         //decline invite
         async hideInvite(args): Promise<void> {
@@ -127,20 +107,12 @@ export default Vue.extend({
             const e = args.e;
             const i = this.invites.findIndex(inv => inv.id === id);
             this.invites.splice(i, 1);
-            await this.executePost('/notifications/hideInvite/' + id, {}, e);
-        },
-        //decline invite
-        async hideAcceptedInvite(args): Promise<void> {
-            const id = args.id;
-            const e = args.e;
-            const i = this.invites.findIndex(inv => inv.id === id);
-            this.invites.splice(i, 1);
-            await this.executePost('/notifications/hideAcceptedInvite/' + id, {}, e);
+            await this.executePost(`/invites/${id}/hide`, {}, e);
         },
         //decline all invites
         async declineAll(e): Promise<void> {
             this.invites = [];
-            await this.executePost('/notifications/declineAll/', {}, e);
+            await this.executePost('/invites/declineAll/', {}, e);
         },
     },
 });

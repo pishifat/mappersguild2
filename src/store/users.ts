@@ -1,5 +1,4 @@
 import Vue from 'vue';
-import Axios from 'axios';
 import { Module } from 'vuex';
 import { User } from '@interfaces/user';
 import { FilterMode } from '@interfaces/extras';

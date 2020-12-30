@@ -8,7 +8,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import Vue, { PropType } from 'vue';
 
 export default Vue.extend({
     name: 'ExpirationDate',
@@ -18,7 +18,7 @@ export default Vue.extend({
             required: true,
         },
         expiration: {
-            type: Date,
+            type: Date as PropType<Date>,
             required: true,
         },
     },

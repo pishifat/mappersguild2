@@ -1,8 +1,8 @@
 import Axios from 'axios';
-import { BasicError } from 'helpers/helpers';
 import { store } from '../app';
+import { ErrorResponse } from '@interfaces/api/shared';
 
-async function executeRequest<T>(requestType, url, data, e, updateLoadingState): Promise<T | BasicError> {
+async function executeRequest<T>(requestType, url, data, e, updateLoadingState): Promise<T | ErrorResponse> {
     if (updateLoadingState) store.commit('updateLoadingState');
     if (e) e.target.disabled = true;
 
@@ -32,20 +32,22 @@ async function executeRequest<T>(requestType, url, data, e, updateLoadingState):
     }
 }
 
-export function isError<T>(error: T | BasicError): error is BasicError {
-    return (error as BasicError).error !== undefined;
+export function isError<T>(error: T | ErrorResponse): error is ErrorResponse {
+    if (!error) return false;
+
+    return (error as ErrorResponse).error !== undefined;
 }
 
 export const http = {
-    async executePost<T>(url, data, e?): Promise<T | BasicError> {
+    async executePost<T>(url, data, e?): Promise<T | ErrorResponse> {
         return await executeRequest('post', url, data, e, false);
     },
 
-    async executeGet<T>(url, e?, updateLoadingState?): Promise<T | BasicError> {
+    async executeGet<T>(url, e?, updateLoadingState?): Promise<T | ErrorResponse> {
         return await executeRequest('get', url, null, e, updateLoadingState);
     },
 
-    async initialRequest<T>(url): Promise<T | BasicError> {
+    async initialRequest<T>(url): Promise<T | ErrorResponse> {
         return await executeRequest('get', url, null, null, true);
     },
 };

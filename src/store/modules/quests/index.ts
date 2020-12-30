@@ -1,8 +1,9 @@
 import Vue from 'vue';
 import { Module } from 'vuex';
+import actions from './actions';
 import { Quest, QuestStatus } from '@interfaces/quest';
 import { FilterMode } from '@interfaces/extras';
-import actions from './actions';
+import { Party } from '@interfaces/party';
 
 export interface QuestsState {
     quests: Quest[];
@@ -46,9 +47,20 @@ const store: Module<QuestsState, any> = {
             const i = state.quests.findIndex(q => q.id === quest.id);
             if (i !== -1) Vue.set(state.quests, i, quest);
         },
+        updateParty (state, party: Party): void {
+            const questIndex = state.quests.findIndex(q => q.id === state.selectedQuestId);
+
+            if (questIndex !== -1) {
+                const partyIndex = state.quests[questIndex].parties.findIndex(p => p.id === party.id);
+
+                if (partyIndex !== -1) Vue.set(state.quests[questIndex].parties, partyIndex, party);
+            }
+        },
     },
     getters: {
         selectedQuest: (state): Quest | undefined => {
+            if (!state.selectedQuestId) return undefined;
+
             return state.quests.find(q => q.id === state.selectedQuestId);
         },
         filteredQuests: (state): Quest[] => {

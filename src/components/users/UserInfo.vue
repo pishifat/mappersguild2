@@ -142,6 +142,7 @@
                         </tr>
                     </tbody>
                 </table>
+
                 <div class="col-md-6">
                     <p
                         class="small"
@@ -159,6 +160,7 @@
                             None
                         </span>
                     </p>
+
                     <div v-if="currentQuests.length" class="small">
                         Current quests:
                     </div>
@@ -173,6 +175,7 @@
                             </a>
                         </li>
                     </ul>
+
                     <div v-if="currentQuests.length" class="small">
                         Created quests:
                     </div>
@@ -185,6 +188,7 @@
                             {{ name.length > 40 ? name.slice(0,40) + "..." : name }}
                         </li>
                     </ul>
+
                     <div v-if="selectedUser.completedQuests.length" class="small">
                         Completed quests:
                     </div>
@@ -203,6 +207,7 @@
             </div>
 
             <div class="radial-divisor" />
+
             <p>Mappers' Guild beatmaps:</p>
             <table class="table table-sm">
                 <thead>
@@ -329,7 +334,7 @@ export default Vue.extend({
     data () {
         return {
             currentQuests: [] as Quest[],
-            createdQuestNames: [],
+            createdQuestNames: [] as Quest['name'][],
             spentPoints: [] as SpentPoints[],
             userBeatmaps: [] as Beatmap[],
             sortOrder: Object.values(TaskName),
@@ -345,7 +350,9 @@ export default Vue.extend({
     },
     watch: {
         async selectedUser(): Promise<void> {
-            history.pushState(null, 'Users', `/users?id=${this.selectedUser.id}`);
+            if (!this.selectedUser || this.selectedUser.id === this.$route.query.id) return;
+
+            this.$router.push(`/users?id=${this.selectedUser.id}`);
 
             this.currentQuests = [];
             this.createdQuestNames = [];
@@ -353,25 +360,25 @@ export default Vue.extend({
             this.userBeatmaps = [];
 
             const [currentQuests, createdQuestNames, points, beatmaps] = await Promise.all([
-                this.executeGet<any>(`/users/findCurrentQuests/${this.selectedUser.id}`),
-                this.executeGet<any>(`/users/findCreatedQuests/${this.selectedUser.id}`),
-                this.executeGet<any>(`/users/findSpentPoints/${this.selectedUser.id}`),
-                this.executeGet<any>(`/users/findUserBeatmaps/${this.selectedUser.id}`),
+                this.executeGet<Quest[]>(`/users/${this.selectedUser.id}/quests`),
+                this.executeGet<Quest['name'][]>(`/users/findCreatedQuests/${this.selectedUser.id}`),
+                this.executeGet<SpentPoints[]>(`/users/findSpentPoints/${this.selectedUser.id}`),
+                this.executeGet<Beatmap[]>(`/users/findUserBeatmaps/${this.selectedUser.id}`),
             ]);
 
-            if (currentQuests && !currentQuests.error) {
+            if (!this.isError(currentQuests)) {
                 this.currentQuests = currentQuests;
             }
 
-            if (createdQuestNames && !createdQuestNames.error) {
+            if (!this.isError(createdQuestNames)) {
                 this.createdQuestNames = createdQuestNames;
             }
 
-            if (points && !points.error) {
+            if (!this.isError(points)) {
                 this.spentPoints = points;
             }
 
-            if (beatmaps && !beatmaps.error) {
+            if (!this.isError(beatmaps)) {
                 const statusSort = ['WIP', 'Done', 'Qualified', 'Ranked'];
 
                 this.userBeatmaps = beatmaps.sort(function(a, b) {
@@ -449,7 +456,7 @@ export default Vue.extend({
                 case 'acceptQuest':
                     return quest.price;
                 case 'reopenQuest':
-                    return quest.price*0.5 + 25;
+                    return quest.reopenPrice;
                 case 'extendDeadline':
                     return 10;
                 case 'createQuest':

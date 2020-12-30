@@ -1,9 +1,6 @@
 import Vue from 'vue';
 import Axios from 'axios';
-
-export interface ResponseError {
-    error: string;
-}
+import { isError } from '@store/http';
 
 async function executeRequest (requestType, url, data, e, updateLoadingState, store) {
     if (updateLoadingState) store.commit('updateLoadingState');
@@ -49,9 +46,7 @@ export default Vue.extend({
             return await executeRequest('get', url, null, null, true, this.$store);
         },
 
-        isError<T>(error: T | ResponseError): error is ResponseError {
-            return (error as ResponseError).error !== undefined;
-        },
+        isError,
 
         listUser(username: string, i: number, length: number): string {
             return username + (i < length - 1 ? ', ' : '');

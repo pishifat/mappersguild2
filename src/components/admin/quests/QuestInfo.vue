@@ -86,6 +86,7 @@
                 placeholder="quest description..."
             />
         </p>
+
         <template v-if="quest.status == 'wip'">
             <p>
                 <button class="btn btn-sm btn-outline-danger" @click="dropQuest($event)">
@@ -103,6 +104,7 @@
                 </button>
             </p>
         </template>
+
         <p>
             <button class="btn btn-sm btn-outline-info" @click="duplicateQuest($event)">
                 Duplicate quest
@@ -183,8 +185,8 @@
 <script lang="ts">
 import Vue from 'vue';
 import ModalDialog from '@components/ModalDialog.vue';
-import { Quest } from '../../../../interfaces/quest';
 import AssociatedBeatmaps from '../../quests/partyInfo/AssociatedBeatmaps.vue';
+import { Quest } from '@interfaces/quest';
 
 export default Vue.extend({
     name: 'QuestInfo',

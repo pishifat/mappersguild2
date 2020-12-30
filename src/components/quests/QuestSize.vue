@@ -8,8 +8,7 @@
                     (
                         quest.minParty == quest.maxParty ? `${quest.minParty} user${quest.maxParty == 1 ? '' : 's'}` :
                         quest.status == 'open' ? `${quest.minParty}-${quest.maxParty} users` :
-                        quest.status == 'wip' ? `${quest.currentParty.members.length} user${quest.currentParty.members.length == 1 ? '' : 's'}` :
-                        quest.status == 'done' ? `${quest.completedMembers.length} users` : ''
+                        (quest.status == 'wip' || quest.status == 'done') ? `${quest.currentParty.members.length} user${quest.currentParty.members.length == 1 ? '' : 's'}` : ''
                     )
             "
         >
@@ -23,7 +22,7 @@
             </span>
 
             <span v-else-if="quest.status == 'wip' || quest.status == 'done'">
-                <i v-for="member in members" :key="member.id" class="fas fa-user user-icon" />
+                <i v-for="member in quest.currentParty.members" :key="member.id" class="fas fa-user user-icon" />
             </span>
         </span>
     </small>
@@ -31,7 +30,6 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { User } from '@interfaces/user';
 import { Quest } from '@interfaces/quest';
 
 export default Vue.extend({
@@ -40,14 +38,6 @@ export default Vue.extend({
         quest: {
             type: Object as () => Quest,
             required: true,
-        },
-    },
-    computed: {
-        members (): User[] {
-            if (this.quest.status == 'wip') return this.quest.currentParty.members;
-            if (this.quest.status == 'done') return this.quest.completedMembers;
-
-            return [];
         },
     },
 });

@@ -1,13 +1,17 @@
 import { ActionTree } from 'vuex';
-import { Quest } from '@interfaces/quest';
-import { QuestPageOnLoad, QuestsSearch } from '@interfaces/api/quests';
+import { Quest, QuestStatus } from '@interfaces/quest';
 import { QuestsState } from './index';
 import { http, isError } from '@store/http';
 import { FilterMode } from '@interfaces/extras';
+import { Party } from '@interfaces/party';
 
 const actions: ActionTree<QuestsState, any> | undefined = {
     updateQuest ({ commit }, quest: Quest): void {
         commit('updateQuest', quest);
+    },
+
+    updateParty ({ commit }, party: Party): void {
+        commit('updateParty', party);
     },
 
     setQuests ({ commit }, quests: Quest[]): void {
@@ -18,14 +22,15 @@ const actions: ActionTree<QuestsState, any> | undefined = {
         commit('setFilterValue', value);
     },
 
-    async loadQuests ({ commit }, id?: string): Promise<void> {
-        let url = `/quests/relevantInfo`;
-        if (id) url += `?id=${id}`;
-        const res = await http.initialRequest<QuestPageOnLoad>(url);
+    async loadQuests ({ commit, rootState }, id?: string): Promise<void> {
+        const mainMode = rootState.loggedInUser.mainMode;
+        let url = `/quests/search?mode=${mainMode}&status=${QuestStatus.Open}`;
+        if (id) url += `&id=${id}`;
+        const quests = await http.initialRequest<Quest[]>(url);
 
-        if (!isError(res)) {
-            commit('setQuests', res.quests);
-            commit('setFilterMode', res.mainMode);
+        if (!isError(quests)) {
+            commit('setQuests', quests);
+            commit('setFilterMode', mainMode);
 
             if (id) {
                 commit('setSelectedQuestId', id);
@@ -37,10 +42,10 @@ const actions: ActionTree<QuestsState, any> | undefined = {
         if (mode) commit('setFilterMode', mode);
         commit('setIsLoadingQuests', true);
 
-        const res = await http.executeGet<QuestsSearch>(`/quests/search?mode=${state.filterMode}`);
+        const quests = await http.executeGet<Quest[]>(`/quests/search?mode=${state.filterMode}`);
 
-        if (!isError(res)) {
-            commit('setQuests', res.quests);
+        if (!isError(quests)) {
+            commit('setQuests', quests);
         }
 
         commit('setIsLoadingQuests', false);

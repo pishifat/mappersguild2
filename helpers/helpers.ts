@@ -1,3 +1,6 @@
+import { Party } from '../interfaces/party';
+import { Quest } from '../interfaces/quest';
+import { User } from '../interfaces/user';
 import { OsuAuthResponse } from './osuApi';
 
 export function findBeatmapsetId(url: string): number {
@@ -14,8 +17,49 @@ export function findBeatmapsetId(url: string): number {
     return parseInt(bmId, 10);
 }
 
-export function sleep(ms): Promise<void> {
+export function sleep(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/** Just replaces () and [] */
+export function escapeUsername(username: string) {
+    username = username.trim();
+
+    return username.replace(/[()[\]]/g, '\\$&');
+}
+
+/** Used for logs and webhooks */
+export function generateLists (modes: Party['modes'], members: User[]): { modeList: string, memberList: string } {
+    const modeList = modes.join(', ');
+    const memberList = members.map(m => `[**${m.username}**](https://osu.ppy.sh/users/${m.osuId})`).join(', ');
+
+    return {
+        modeList,
+        memberList,
+    };
+}
+
+/** Get ideal webhook thumbnail */
+export function generateThumbnailUrl (quest: Quest) {
+    let url = `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`;
+    if (quest.isMbc) url = 'https://mappersguild.com/images/mbc-icon.png';
+
+    return {
+        thumbnail: {
+            url,
+        },
+    };
+}
+
+/** Get user's osu url and avatar */
+export function generateAuthorWebhook(user: User) {
+    return {
+        author: {
+            name: `${user.username}'s party`,
+            url: `https://osu.ppy.sh/users/${user.osuId}`,
+            icon_url: `https://a.ppy.sh/${user.osuId}`,
+        },
+    };
 }
 
 /**
@@ -32,12 +76,3 @@ export function setSession(session, response: OsuAuthResponse) {
 }
 
 export const defaultErrorMessage = { error: 'Something went wrong!' };
-
-export interface BasicResponse {
-    error?: string;
-    success?: string;
-}
-
-export interface BasicError {
-    error: string;
-}

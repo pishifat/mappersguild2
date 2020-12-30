@@ -4,15 +4,7 @@
             <div class="container">
                 <div class="row">
                     <div class="col-sm-6">
-                        <img
-                            v-if="beatmap.quest || beatmap.isShowcase"
-                            class="rounded-circle mr-1 quest-icon"
-                            :src="beatmap.isShowcase || !beatmap.quest.art ? '/images/no-art-icon.png' :
-                                beatmap.quest.isMbc ? '/images/mbc-icon.png' :
-                                'https://assets.ppy.sh/artists/' + beatmap.quest.art + '/cover.jpg'"
-                            data-toggle="tooltip"
-                            :title="beatmap.quest && beatmap.quest.name"
-                        >
+                        <quest-img :beatmap="beatmap" />
                         <a
                             href="#"
                             data-toggle="collapse"
@@ -59,12 +51,14 @@ import Vue from 'vue';
 import BeatmapInfo from './beatmapInfo/BeatmapInfo.vue';
 import { Beatmap, BeatmapStatus } from '@interfaces/beatmap/beatmap';
 import ProcessTasks from './ProcessTasks.vue';
+import QuestImg from './QuestImg.vue';
 
 export default Vue.extend({
     name: 'BeatmapTableRow',
     components: {
         BeatmapInfo,
         ProcessTasks,
+        QuestImg,
     },
     props: {
         beatmap: {
@@ -117,16 +111,6 @@ export default Vue.extend({
 
     .card-status-ranked {
         border-left: 4px solid var(--ranked);
-    }
-
-    tr td{ /*FROM HERE*/
-        padding: 5px 5px 5px 5px !important;
-        margin: 0 !important;
-    }
-
-    .quest-icon {
-        width: 24px;
-        height: 24px;
     }
 </style>
 

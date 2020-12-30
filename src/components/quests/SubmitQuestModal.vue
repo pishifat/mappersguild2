@@ -160,11 +160,12 @@ import { mapState } from 'vuex';
 import ModalDialog from '@components/ModalDialog.vue';
 import { FeaturedArtist } from '../../../interfaces/featuredArtist';
 import { Quest } from '../../../interfaces/quest';
-import { PublishQuestsData, PublishQuestsResponse, StatusResponse, SubmitQuestData } from '@interfaces/api/quests';
+import { PublishQuestsData, PublishQuestsResponse, SubmitQuestData } from '@interfaces/api/quests';
 import FormInput from '@components/admin/FormInput.vue';
 import FormTextarea from '@components/admin/FormTextarea.vue';
 import FormSelect from '@components/admin/FormSelect.vue';
 import FormCheckbox from '@components/admin/FormCheckbox.vue';
+import { BasicResponse } from '@interfaces/api/shared';
 
 export default Vue.extend({
     name: 'SubmitQuestModal',
@@ -355,7 +356,7 @@ export default Vue.extend({
                 requiredMapsets: this.mapsetCount,
             };
 
-            const res = await this.executePost<StatusResponse>('/quests/submitQuest', data, e);
+            const res = await this.executePost<BasicResponse>('/quests/submit', data, e);
 
             if (!this.isError(res)) {
                 $('#submitQuest').modal('hide');
