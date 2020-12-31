@@ -29,16 +29,6 @@ const user_2 = require("../../models/user");
 const adminBeatmapsRouter = express_1.default.Router();
 adminBeatmapsRouter.use(middlewares_1.isLoggedIn);
 adminBeatmapsRouter.use(middlewares_1.isAdmin);
-adminBeatmapsRouter.get('/', (req, res) => {
-    var _a, _b;
-    res.render('admin/beatmaps', {
-        title: 'Beatmaps - Admin',
-        script: 'adminBeatmaps.js',
-        loggedInAs: (_a = req.session) === null || _a === void 0 ? void 0 : _a.osuId,
-        userMongoId: (_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId,
-        pointsInfo: res.locals.userRequest.pointsInfo,
-    });
-});
 adminBeatmapsRouter.get('/load', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const beatmaps = yield beatmap_1.BeatmapModel
         .find({})
@@ -80,7 +70,7 @@ adminBeatmapsRouter.post('/:id/updateStatus', middlewares_1.isSuperAdmin, (req, 
         const gdUsers = [];
         const modes = [];
         let storyboard;
-        b.tasks.forEach((task) => {
+        for (const task of b.tasks) {
             if (task.mode == 'sb' && task.mappers[0].id != b.host.id) {
                 storyboard = task;
             }
@@ -95,7 +85,7 @@ adminBeatmapsRouter.post('/:id/updateStatus', middlewares_1.isSuperAdmin, (req, 
                     modes.push(task.mode);
                 }
             }
-        });
+        }
         let gdText = '';
         if (!gdUsers.length) {
             gdText = '\nNo guest difficulties';

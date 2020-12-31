@@ -14,7 +14,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -26,7 +26,7 @@ const inviteSchema = new mongoose_1.Schema({
     sender: { type: 'ObjectId', ref: 'User', required: true },
     modified: { type: 'ObjectId', required: true },
     info: { type: String, required: true },
-    actionType: { type: String, required: true, enum: ['collaborate in a difficulty', 'create a difficulty', 'host', 'join'] },
+    actionType: { type: String, required: true, enum: ['collaborate in a difficulty', 'create a difficulty', 'join'] },
     accepted: { type: Boolean },
     visible: { type: Boolean, default: true },
     map: { type: 'ObjectId', ref: 'Beatmap' },

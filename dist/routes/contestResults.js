@@ -13,9 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const middlewares_1 = require("../helpers/middlewares");
 const submission_1 = require("../models/contest/submission");
-const user_1 = require("../models/user");
 const contestResultsRouter = express_1.default.Router();
 const submissionPopulate = [
     {
@@ -41,28 +39,6 @@ const submissionPopulate = [
         },
     },
 ];
-contestResultsRouter.get('/', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
-    if ((_a = req.session) === null || _a === void 0 ? void 0 : _a.osuId) {
-        const u = yield user_1.UserModel.findById(req.session.mongoId);
-        if (u) {
-            return next();
-        }
-    }
-    res.render('contestResults', {
-        title: `Contest Results`,
-        script: 'contestResults.js',
-    });
-}), middlewares_1.isLoggedIn, (req, res) => {
-    var _a, _b;
-    res.render('contestResults', {
-        title: 'Contest Results',
-        script: 'contestResults.js',
-        loggedInAs: (_a = req.session) === null || _a === void 0 ? void 0 : _a.osuId,
-        userMongoId: (_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId,
-        pointsInfo: res.locals.userRequest.pointsInfo,
-    });
-});
 contestResultsRouter.get('/searchSubmission/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const submission = yield submission_1.SubmissionModel
         .findById(req.params.id)

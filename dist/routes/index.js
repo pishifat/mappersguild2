@@ -22,45 +22,116 @@ const middlewares_1 = require("../helpers/middlewares");
 const osuApi_1 = require("../helpers/osuApi");
 const user_2 = require("../interfaces/user");
 const discordApi_1 = require("../helpers/discordApi");
+const featuredArtist_1 = require("../models/featuredArtist");
+const featuredArtist_2 = require("../interfaces/featuredArtist");
+const helpers_1 = require("../helpers/helpers");
 const indexRouter = express_1.default.Router();
-indexRouter.get('/', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+indexRouter.get('/me', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
-    if ((_a = req.session) === null || _a === void 0 ? void 0 : _a.osuId) {
-        const u = yield user_1.UserModel.findById(req.session.mongoId);
-        if (u) {
-            return next();
-        }
+    const user = yield user_1.UserModel.findById((_a = req.session) === null || _a === void 0 ? void 0 : _a.mongoId);
+    res.json(user);
+}));
+indexRouter.get('/home', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const artists = yield featuredArtist_1.FeaturedArtistModel
+        .aggregate()
+        .match({ status: featuredArtist_2.FeaturedArtistStatus.Public })
+        .match({ isUpToDate: true })
+        .sort({ updatedAt: -1 })
+        .lookup({
+        from: 'featuredsongs',
+        let: { songs: '$songs' },
+        pipeline: [
+            { $match: { $expr: { $in: ['$_id', '$$songs'] } } },
+            {
+                $lookup: {
+                    from: 'beatmaps',
+                    let: { id: '$_id' },
+                    pipeline: [
+                        { $match: { $expr: { $eq: ['$song', '$$id'] } } },
+                        {
+                            $lookup: {
+                                from: 'users',
+                                let: { host: '$host' },
+                                pipeline: [
+                                    { $match: { $expr: { $eq: ['$_id', '$$host'] } } },
+                                    { $project: { username: 1 } },
+                                ],
+                                as: 'host',
+                            },
+                        },
+                        { $project: { url: 1, host: 1 } },
+                        { $unwind: '$host' },
+                    ],
+                    as: 'beatmaps',
+                },
+            },
+            { $project: { beatmaps: 1, title: 1, beatmaps_count: { $size: '$beatmaps' } } },
+        ],
+        as: 'songs',
+    })
+        .match({
+        'songs.beatmaps_count': { $gt: 0 },
+    })
+        .limit(6);
+    res.json({
+        artists,
+    });
+}));
+indexRouter.get('/login', (req, res) => {
+    const state = crypto_1.default.randomBytes(48).toString('hex');
+    res.cookie('_state', state, { httpOnly: true });
+    const hashedState = Buffer.from(state).toString('base64');
+    if (!req.session.lastPage) {
+        req.session.lastPage = req.get('referer');
     }
-    res.render('index', { title: `Mappers' Guild`, isIndex: true });
-}), middlewares_1.isLoggedIn, (req, res) => {
-    var _a, _b;
-    res.render('index', {
-        title: `Mappers' Guild`,
-        isIndex: true,
-        loggedInAs: (_a = req.session) === null || _a === void 0 ? void 0 : _a.osuId,
-        isNotSpectator: res.locals.userRequest.group != user_2.UserGroup.Spectator,
-        userMongoId: (_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId,
-        pointsInfo: res.locals.userRequest.pointsInfo,
+    res.redirect(`https://osu.ppy.sh/oauth/authorize?response_type=code&client_id=${config_json_1.default.id}&redirect_uri=${encodeURIComponent(config_json_1.default.redirect)}&state=${hashedState}&scope=identify`);
+});
+indexRouter.get('/logout', middlewares_1.isLoggedIn, (req, res) => {
+    req.session.destroy((error) => {
+        console.log(error);
+        return res.redirect('/');
     });
 });
-indexRouter.get('/login', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _b, _c;
-    if (((_b = req.session) === null || _b === void 0 ? void 0 : _b.osuId) && ((_c = req.session) === null || _c === void 0 ? void 0 : _c.username)) {
-        const u = yield user_1.UserModel.findOne({ osuId: req.session.osuId });
-        if (!u) {
-            const newUser = new user_1.UserModel();
-            newUser.osuId = req.session.osuId;
-            newUser.username = req.session.username;
-            newUser.group = req.session.group;
-            yield newUser.save();
-            if (newUser) {
-                req.session.mongoId = newUser._id;
-                if (newUser.group == user_2.UserGroup.User) {
+indexRouter.get('/callback', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!req.query.code || req.query.error || !req.query.state) {
+        return res.status(500).render('error', { message: req.query.error || 'Something went wrong' });
+    }
+    const decodedState = Buffer.from(req.query.state.toString(), 'base64').toString('ascii');
+    const savedState = req.cookies._state;
+    res.clearCookie('_state');
+    if (decodedState !== savedState) {
+        return res.status(403).render('error', { message: 'unauthorized' });
+    }
+    let response = yield osuApi_1.getToken(req.query.code.toString());
+    if (osuApi_1.isOsuResponseError(response)) {
+        res.status(500).render('error', { message: response.error });
+    }
+    else {
+        helpers_1.setSession(req.session, response);
+        response = yield osuApi_1.getUserInfo(req.session.accessToken);
+        if (osuApi_1.isOsuResponseError(response)) {
+            req.session.destroy(() => {
+                res.status(500).render('error');
+            });
+        }
+        else {
+            const osuId = response.id;
+            const username = response.username;
+            const group = response.ranked_and_approved_beatmapset_count >= 3 ? user_2.UserGroup.User : user_2.UserGroup.Spectator;
+            let user = yield user_1.UserModel.findOne({ osuId });
+            if (!user) {
+                user = new user_1.UserModel();
+                user.osuId = osuId;
+                user.username = username;
+                user.group = group;
+                yield user.save();
+                req.session.mongoId = user._id;
+                if (user.group == user_2.UserGroup.User) {
                     discordApi_1.webhookPost([{
                             author: {
-                                name: newUser.username,
-                                icon_url: `https://a.ppy.sh/${newUser.osuId}`,
-                                url: `https://osu.ppy.sh/u/${newUser.osuId}`,
+                                name: user.username,
+                                icon_url: `https://a.ppy.sh/${user.osuId}`,
+                                url: `https://osu.ppy.sh/u/${user.osuId}`,
                             },
                             color: discordApi_1.webhookColors.lightRed,
                             description: `Joined the Mappers' Guild!`,
@@ -70,92 +141,40 @@ indexRouter.get('/login', (req, res, next) => __awaiter(void 0, void 0, void 0, 
                 else {
                     log_1.LogModel.generate(req.session.mongoId, `verified their account for the first time`, log_2.LogCategory.User);
                 }
-                return next();
             }
             else {
-                return res.status(500).render('error', { message: 'Something went wrong!' });
-            }
-        }
-        else {
-            if (u.username != req.session.username) {
-                u.username = req.session.username;
-                yield u.save();
-            }
-            if (u.group != req.session.group && u.group != user_2.UserGroup.Admin && u.group != user_2.UserGroup.Secret && !u.bypassLogin) {
-                u.group = req.session.group;
-                yield u.save();
-                if (req.session.group == user_2.UserGroup.User) {
+                if (user.username != username) {
+                    user.username = username;
+                    yield user.save();
+                }
+                if (user.group === user_2.UserGroup.Spectator && group === user_2.UserGroup.User && !user.bypassLogin) {
+                    user.group = group;
+                    yield user.save();
                     discordApi_1.webhookPost([{
                             author: {
-                                name: u.username,
-                                icon_url: `https://a.ppy.sh/${u.osuId}`,
-                                url: `https://osu.ppy.sh/u/${u.osuId}`,
+                                name: user.username,
+                                icon_url: `https://a.ppy.sh/${user.osuId}`,
+                                url: `https://osu.ppy.sh/u/${user.osuId}`,
                             },
                             color: discordApi_1.webhookColors.lightRed,
                             description: `Joined the Mappers' Guild!`,
                         }]);
-                    log_1.LogModel.generate(u._id, `joined the Mappers' Guild`, log_2.LogCategory.User);
+                    log_1.LogModel.generate(user._id, `joined the Mappers' Guild`, log_2.LogCategory.User);
+                }
+                req.session.mongoId = user._id;
+            }
+            req.session.osuId = osuId;
+            let lastPage = req.session.lastPage;
+            req.session.lastPage = undefined;
+            if (!lastPage) {
+                if (user.group === user_2.UserGroup.Admin) {
+                    lastPage = '/artists';
+                }
+                else {
+                    lastPage = '/faq';
                 }
             }
-            req.session.mongoId = u._id;
-            return next();
-        }
-    }
-    if (!req.cookies._state) {
-        crypto_1.default.randomBytes(48, function (err, buffer) {
-            res.cookie('_state', buffer.toString('hex'));
-            res.redirect('/login');
-        });
-    }
-    else {
-        const hashedState = Buffer.from(req.cookies._state).toString('base64');
-        res.redirect(`https://osu.ppy.sh/oauth/authorize?response_type=code&client_id=${config_json_1.default.id}&redirect_uri=${encodeURIComponent(config_json_1.default.redirect)}&state=${hashedState}&scope=identify`);
-    }
-}), middlewares_1.isLoggedIn, (req, res) => {
-    var _a;
-    if ((_a = req === null || req === void 0 ? void 0 : req.session) === null || _a === void 0 ? void 0 : _a.lastPage) {
-        res.redirect(req.session.lastPage);
-    }
-    else if (res.locals.userRequest.group == user_2.UserGroup.Admin) {
-        res.redirect('/artists');
-    }
-    else {
-        res.redirect('/faq');
-    }
-});
-indexRouter.get('/logout', middlewares_1.isLoggedIn, (req, res) => {
-    var _a;
-    (_a = req.session) === null || _a === void 0 ? void 0 : _a.destroy((error) => {
-        console.log(error);
-        return res.redirect('/');
-    });
-});
-indexRouter.get('/callback', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    if (!req.query.code || req.query.error || !req.query.state) {
-        return res.redirect('/');
-    }
-    const decodedState = Buffer.from(req.query.state.toString(), 'base64').toString('ascii');
-    if (decodedState !== req.cookies._state) {
-        res.clearCookie('_state');
-        return res.status(403).render('error', { message: 'unauthorized' });
-    }
-    let response = yield osuApi_1.getToken(req.query.code.toString());
-    if (osuApi_1.isOsuResponseError(response)) {
-        res.status(500).render('error', { message: response.error });
-    }
-    else {
-        req.session.cookie.maxAge = response.expires_in * 1000;
-        req.session.accessToken = response.access_token;
-        req.session.refreshToken = response.refresh_token;
-        response = yield osuApi_1.getUserInfo(req.session.accessToken);
-        if (osuApi_1.isOsuResponseError(response)) {
-            res.status(500).render('error');
-        }
-        else {
-            req.session.group = response.ranked_and_approved_beatmapset_count >= 3 ? 'user' : 'spectator';
-            req.session.username = response.username;
-            req.session.osuId = response.id;
-            res.redirect('/login');
+            res.redirect(lastPage);
         }
     }
 }));

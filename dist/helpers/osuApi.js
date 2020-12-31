@@ -13,12 +13,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendPm = exports.getMaps = exports.beatmapsetInfo = exports.getUserInfo = exports.refreshToken = exports.getToken = exports.isOsuResponseError = void 0;
-const helpers_1 = require("./helpers");
-const querystring_1 = __importDefault(require("querystring"));
-const config_json_1 = __importDefault(require("../config.json"));
 const axios_1 = __importDefault(require("axios"));
-function isOsuResponseError(basicError) {
-    return basicError.error !== undefined;
+const querystring_1 = __importDefault(require("querystring"));
+const helpers_1 = require("./helpers");
+const config_json_1 = __importDefault(require("../config.json"));
+function isOsuResponseError(errorResponse) {
+    return errorResponse.error !== undefined;
 }
 exports.isOsuResponseError = isOsuResponseError;
 function executeRequest(options) {
@@ -148,7 +148,7 @@ function sendPm(token, osuId, message) {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
-            body: {
+            data: {
                 target_id: osuId,
                 message,
                 is_action: false,

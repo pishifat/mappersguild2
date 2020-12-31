@@ -9,32 +9,43 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isBn = exports.isNotSpectator = exports.isUser = exports.isSuperAdmin = exports.isSecret = exports.isAdmin = exports.isLoggedIn = void 0;
+exports.isBn = exports.isNotSpectator = exports.isUser = exports.isSuperAdmin = exports.isSecret = exports.isAdmin = exports.isLoggedIn = exports.unauthorize = void 0;
 const user_1 = require("../models/user");
 const user_2 = require("../interfaces/user");
 const osuApi_1 = require("./osuApi");
+function unauthorize(req, res) {
+    if (req.accepts(['html', 'json']) === 'json') {
+        res.json({ error: 'Unauthorized - May need to login first' });
+    }
+    else {
+        res.redirect('/');
+    }
+}
+exports.unauthorize = unauthorize;
 function isLoggedIn(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (req.session.mongoId) {
-            const u = yield user_1.UserModel.findById(req.session.mongoId);
-            if (new Date() > new Date(req.session.expireDate - (10 * 3600 * 1000))) {
-                const response = yield osuApi_1.refreshToken(req.session.refreshToken);
-                if (!response || osuApi_1.isOsuResponseError(response)) {
-                    req.session.destroy();
-                    return res.redirect('/');
-                }
-                req.session.cookie.maxAge = response.expires_in * 2 * 1000;
-                req.session.expireDate = Date.now() + (response.expires_in * 1000);
-                req.session.accessToken = response.access_token;
-                req.session.refreshToken = response.refresh_token;
+        if (!req.session.mongoId) {
+            if (req.accepts(['html', 'json']) !== 'json') {
+                req.session.lastPage = req.originalUrl;
             }
-            res.locals.userRequest = u;
-            next();
+            return unauthorize(req, res);
         }
-        else {
-            req.session.lastPage = req.originalUrl;
-            res.redirect('/');
+        const u = yield user_1.UserModel.findById(req.session.mongoId);
+        if (!u)
+            return unauthorize(req, res);
+        if (new Date() > new Date(req.session.expireDate - (10 * 3600 * 1000))) {
+            const response = yield osuApi_1.refreshToken(req.session.refreshToken);
+            if (!response || osuApi_1.isOsuResponseError(response)) {
+                req.session.destroy();
+                return res.redirect('/');
+            }
+            req.session.cookie.maxAge = response.expires_in * 2 * 1000;
+            req.session.expireDate = Date.now() + (response.expires_in * 1000);
+            req.session.accessToken = response.access_token;
+            req.session.refreshToken = response.refresh_token;
         }
+        res.locals.userRequest = u;
+        next();
     });
 }
 exports.isLoggedIn = isLoggedIn;
@@ -43,7 +54,7 @@ function isAdmin(req, res, next) {
         next();
     }
     else {
-        res.redirect('/');
+        unauthorize(req, res);
     }
 }
 exports.isAdmin = isAdmin;
@@ -52,7 +63,7 @@ function isSecret(req, res, next) {
         next();
     }
     else {
-        res.redirect('/');
+        unauthorize(req, res);
     }
 }
 exports.isSecret = isSecret;
@@ -61,7 +72,7 @@ function isSuperAdmin(req, res, next) {
         next();
     }
     else {
-        res.redirect('/');
+        unauthorize(req, res);
     }
 }
 exports.isSuperAdmin = isSuperAdmin;
@@ -70,7 +81,7 @@ function isUser(req, res, next) {
         next();
     }
     else {
-        res.redirect('/');
+        unauthorize(req, res);
     }
 }
 exports.isUser = isUser;

@@ -22,16 +22,6 @@ const adminUsersRouter = express_1.default.Router();
 adminUsersRouter.use(middlewares_1.isLoggedIn);
 adminUsersRouter.use(middlewares_1.isAdmin);
 adminUsersRouter.use(middlewares_1.isSuperAdmin);
-adminUsersRouter.get('/', (req, res) => {
-    var _a, _b;
-    res.render('admin/users', {
-        title: 'Users - Admin',
-        script: 'adminUsers.js',
-        loggedInAs: (_a = req.session) === null || _a === void 0 ? void 0 : _a.osuId,
-        userMongoId: (_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId,
-        pointsInfo: res.locals.userRequest.pointsInfo,
-    });
-});
 adminUsersRouter.get('/load', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const users = yield user_1.UserModel.find({}).sort({ username: 1 });
     res.json(users);

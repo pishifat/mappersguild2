@@ -1,8 +1,8 @@
-import { defaultErrorMessage, sleep } from './helpers';
-import querystring from 'querystring';
-import config from '../config.json';
 import axios, { AxiosRequestConfig } from 'axios';
-import { ErrorResponse } from '@interfaces/api/shared';
+import querystring from 'querystring';
+import { defaultErrorMessage, sleep } from './helpers';
+import { ErrorResponse } from '../interfaces/api/shared';
+import config from '../config.json';
 
 export interface OsuBeatmapResponse {
     /** 4 = loved, 3 = qualified, 2 = approved, 1 = ranked, 0 = pending, -1 = WIP, -2 = graveyard */

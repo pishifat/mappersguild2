@@ -22,23 +22,12 @@ const task_1 = require("../models/beatmap/task");
 const quest_2 = require("../interfaces/quest");
 const user_2 = require("../interfaces/user");
 const beatmap_2 = require("../interfaces/beatmap/beatmap");
+const party_1 = require("../models/party");
 const usersRouter = express_1.default.Router();
 usersRouter.use(middlewares_1.isLoggedIn);
-const questPopulate = { path: 'currentParty', populate: { path: 'members leader' } };
+const questPopulate = { path: 'parties', populate: { path: 'members leader' } };
 const userPopulate = { path: 'completedQuests', select: 'name completed' };
-usersRouter.get('/', (req, res) => {
-    var _a, _b;
-    res.render('users', {
-        title: 'Users',
-        script: 'users.js',
-        isUsers: true,
-        loggedInAs: (_a = req.session) === null || _a === void 0 ? void 0 : _a.osuId,
-        userMongoId: (_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId,
-        pointsInfo: res.locals.userRequest.pointsInfo,
-    });
-});
-usersRouter.get('/relevantInfo', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
+usersRouter.get('/query', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const users = yield user_1.UserModel
         .find({
         group: { $ne: user_2.UserGroup.Spectator },
@@ -46,18 +35,19 @@ usersRouter.get('/relevantInfo', (req, res) => __awaiter(void 0, void 0, void 0,
         .populate(userPopulate);
     res.json({
         users,
-        userId: (_a = req.session) === null || _a === void 0 ? void 0 : _a.osuId,
-        username: (_b = req.session) === null || _b === void 0 ? void 0 : _b.username,
-        group: res.locals.userRequest.group,
     });
 }));
-usersRouter.get('/findCurrentQuests/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const wipQuests = yield quest_1.QuestModel
-        .find({ status: quest_2.QuestStatus.WIP })
-        .populate(questPopulate)
+usersRouter.get('/:id/quests', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const parties = yield party_1.PartyModel
+        .find()
+        .where('members', req.params.id)
+        .populate({
+        path: 'quest',
+        match: { status: quest_2.QuestStatus.WIP },
+    })
         .sort({ accepted: -1 });
-    const currentQuests = wipQuests.filter(quest => quest.currentParty.members.some(member => member.id == req.params.id));
-    res.json(currentQuests);
+    const quests = parties.filter(p => p.quest).map(p => p.quest);
+    res.json(quests);
 }));
 usersRouter.get('/findCreatedQuests/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const createdQuests = yield quest_1.QuestModel
@@ -80,8 +70,9 @@ usersRouter.get('/findSpentPoints/:id', (req, res) => __awaiter(void 0, void 0, 
     res.json(spentPoints);
 }));
 usersRouter.get('/findUserBeatmaps/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.params.id;
     const ownTasks = yield task_1.TaskModel
-        .find({ mappers: req.params.id })
+        .find({ mappers: userId })
         .select('_id');
     const userBeatmaps = yield beatmap_1.BeatmapModel
         .find({
@@ -93,7 +84,7 @@ usersRouter.get('/findUserBeatmaps/:id', (req, res) => __awaiter(void 0, void 0,
                 },
             },
             {
-                host: req.params.id,
+                host: userId,
             },
         ],
     })

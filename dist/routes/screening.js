@@ -50,26 +50,14 @@ function isScreener(req, res, next) {
             res.locals.contests = contests;
             return next();
         }
-        return res.redirect('/');
+        return middlewares_1.unauthorize(req, res);
     });
 }
 screeningRouter.use(middlewares_1.isLoggedIn);
 screeningRouter.use(isScreener);
-screeningRouter.get('/', (req, res) => {
-    var _a, _b;
-    res.render('screening', {
-        title: 'Screening',
-        script: 'screening.js',
-        loggedInAs: (_a = req.session) === null || _a === void 0 ? void 0 : _a.osuId,
-        userMongoId: (_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId,
-        pointsInfo: res.locals.userRequest.pointsInfo,
-    });
-});
 screeningRouter.get('/relevantInfo', (req, res) => {
-    var _a;
     res.json({
         contests: res.locals.contests,
-        userId: (_a = req.session) === null || _a === void 0 ? void 0 : _a.mongoId,
     });
 });
 screeningRouter.post('/updateSubmission/:submissionId', (req, res) => __awaiter(void 0, void 0, void 0, function* () {

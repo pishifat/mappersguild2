@@ -26,16 +26,6 @@ const spentPoints_2 = require("../../models/spentPoints");
 const adminRouter = express_1.default.Router();
 adminRouter.use(middlewares_1.isLoggedIn);
 adminRouter.use(middlewares_1.isAdmin);
-adminRouter.get('/', (req, res) => {
-    var _a, _b;
-    res.render('admin', {
-        title: 'Admin',
-        script: 'admin.js',
-        loggedInAs: (_a = req.session) === null || _a === void 0 ? void 0 : _a.osuId,
-        userMongoId: (_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId,
-        pointsInfo: res.locals.userRequest.pointsInfo,
-    });
-});
 adminRouter.get('/loadActionBeatmaps/:queryWip', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const queryWip = req.params.queryWip == 'true';
     const statusQuery = [
@@ -52,7 +42,6 @@ adminRouter.get('/loadActionBeatmaps/:queryWip', (req, res) => __awaiter(void 0,
     })
         .defaultPopulate()
         .sort({ status: 1, mode: 1 });
-    console.log(allBeatmaps.length);
     const actionBeatmaps = [];
     for (const bm of allBeatmaps) {
         if (bm.url.indexOf('osu.ppy.sh/beatmapsets/') == -1) {
@@ -107,33 +96,22 @@ adminRouter.get('/loadActionBeatmaps/:queryWip', (req, res) => __awaiter(void 0,
     res.json(actionBeatmaps);
 }));
 adminRouter.get('/loadActionQuests/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const allQuests = yield quest_1.QuestModel.find({ status: quest_2.QuestStatus.WIP }).defaultPopulate();
-    let actionQuests = [];
-    for (let i = 0; i < allQuests.length; i++) {
-        const q = allQuests[i];
-        let valid = true;
-        if (!q.associatedMaps.length ||
-            q.associatedMaps.length < q.requiredMapsets ||
-            q.associatedMaps.some(b => b.status != beatmap_2.BeatmapStatus.Ranked)) {
-            valid = false;
-        }
-        if (valid) {
-            actionQuests.push(q);
-        }
-    }
-    const pendingQuests = yield quest_1.QuestModel.find({ status: quest_2.QuestStatus.Pending }).defaultPopulate();
-    actionQuests = actionQuests.concat(pendingQuests);
-    res.json(actionQuests);
+    let quests = yield quest_1.QuestModel
+        .find({ status: quest_2.QuestStatus.WIP })
+        .defaultPopulate();
+    quests = quests.filter(q => q.associatedMaps.length >= q.requiredMapsets &&
+        q.associatedMaps.some(b => b.status === beatmap_2.BeatmapStatus.Ranked));
+    const pendingQuests = yield quest_1.QuestModel
+        .find({ status: quest_2.QuestStatus.Pending })
+        .defaultPopulate();
+    res.json({
+        quests,
+        pendingQuests,
+    });
 }));
 adminRouter.get('/loadActionUsers/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const allUsers = yield user_1.UserModel.find({});
-    const actionUsers = [];
-    for (let i = 0; i < allUsers.length; i++) {
-        const u = allUsers[i];
-        if (u.badge != u.rank) {
-            actionUsers.push(u);
-        }
-    }
+    const actionUsers = allUsers.filter(u => u.badge !== u.rank);
     res.json(actionUsers);
 }));
 adminRouter.post('/saveSpentPointsEvent', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -148,17 +126,10 @@ adminRouter.post('/saveSpentPointsEvent', (req, res) => __awaiter(void 0, void 0
         category = spentPoints_1.SpentPointsCategory.ExtendDeadline;
     else
         return res.json(helpers_1.defaultErrorMessage);
-    let rexExp;
-    if (req.body.username.indexOf('[') >= 0 || req.body.username.indexOf(']') >= 0) {
-        rexExp = new RegExp('^\\' + req.body.username + '$', 'i');
-    }
-    else {
-        rexExp = new RegExp('^' + req.body.username + '$', 'i');
-    }
-    const user = yield user_1.UserModel.findOne({ username: rexExp }).orFail();
-    if (!user) {
-        return res.json({ error: 'user changed name probably' });
-    }
+    const user = yield user_1.UserModel
+        .findOne()
+        .byUsernameOrOsuId(req.body.username)
+        .orFail(new Error('user changed name probably'));
     const quest = yield quest_1.QuestModel.findById(req.body.questId).orFail();
     spentPoints_2.SpentPointsModel.generate(category, user._id, quest._id);
     res.json('user points updated');

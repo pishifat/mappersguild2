@@ -12,20 +12,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.isValidUser = exports.isBeatmapHost = exports.isValidBeatmap = void 0;
 const beatmap_1 = require("../../models/beatmap/beatmap");
 const beatmap_2 = require("../../interfaces/beatmap/beatmap");
-const helpers_1 = require("../../helpers/helpers");
 const user_1 = require("../../models/user");
 const inviteError = 'Invite not sent: ';
 function isValidBeatmap(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         const id = req.params.id || req.params.mapId;
-        const b = yield beatmap_1.BeatmapModel.findById(id).defaultPopulate();
-        if (!b) {
-            return res.json(helpers_1.defaultErrorMessage);
-        }
-        if (b.status == beatmap_2.BeatmapStatus.Ranked) {
-            return res.json({ error: 'Mapset ranked' });
-        }
-        res.locals.beatmap = b;
+        const beatmap = yield beatmap_1.BeatmapModel
+            .findById(id)
+            .where('status')
+            .ne(beatmap_2.BeatmapStatus.Ranked)
+            .defaultPopulate()
+            .orFail();
+        res.locals.beatmap = beatmap;
         next();
     });
 }
@@ -41,14 +39,9 @@ exports.isBeatmapHost = isBeatmapHost;
 function isValidUser(req, res, next) {
     var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
-        let rexExp;
-        if (req.body.user.indexOf('[') >= 0 || req.body.user.indexOf(']') >= 0) {
-            rexExp = new RegExp('^\\' + req.body.user + '$', 'i');
-        }
-        else {
-            rexExp = new RegExp('^' + req.body.user + '$', 'i');
-        }
-        const u = yield user_1.UserModel.findOne({ username: rexExp });
+        const u = yield user_1.UserModel
+            .findOne()
+            .byUsernameOrOsuId(req.body.user);
         if (!u) {
             return res.json({ error: inviteError + 'Cannot find user!' });
         }

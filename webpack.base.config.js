@@ -1,48 +1,40 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const path = require('path');
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
 module.exports = {
     entry: {
         app: './src/app.ts',
     },
-    rules: [
-        {
-            test: /\.vue$/,
-            exclude: /node_modules/,
-            loader: 'vue-loader',
-        },
-        {
-            test: /\.tsx?$/,
-            loader: 'ts-loader',
-            exclude: /node_modules/,
-            options: {
-                appendTsSuffixTo: [/\.vue$/],
+    module: {
+        rules: [
+            {
+                test: /\.vue$/,
+                exclude: /node_modules/,
+                loader: 'vue-loader',
             },
-        },
-        {
-            test: /\.(png|svg|jpg|jpeg|gif)$/i,
-            type: 'asset/resource',
-        },
-        {
-            test: /\.woff$/i,
-            type: 'asset/resource',
-        },
-        {
-            test: /(\.s[ac]ss|\.css)$/i,
-            use: [
-                process.env.NODE_ENV !== 'production'
-                    ? 'vue-style-loader'
-                    : MiniCssExtractPlugin.loader,
-                {
-                    loader: 'css-loader',
-                    options: {
-                        esModule: false,
-                        url: false,
-                    },
+            {
+                test: /\.tsx?$/,
+                loader: 'ts-loader',
+                exclude: /node_modules/,
+                options: {
+                    appendTsSuffixTo: [/\.vue$/],
+                    configFile: path.join(__dirname, './tsconfig.src.json'),
                 },
-                'sass-loader',
-            ],
+            },
+        ],
+    },
+    resolve: {
+        extensions: ['.ts', '.js', '.json'],
+        alias: {
+            '@components': path.resolve(__dirname, 'src/components/'),
+            '@pages': path.resolve(__dirname, 'src/pages/'),
+            '@store': path.resolve(__dirname, 'src/store/'),
+            '@interfaces': path.resolve(__dirname, 'interfaces'),
         },
+    },
+    plugins: [
+        new VueLoaderPlugin(),
     ],
     externals: {
         jquery: '$',

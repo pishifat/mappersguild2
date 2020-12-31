@@ -21,16 +21,6 @@ adminFeaturedArtistsRouter.use(middlewares_1.isLoggedIn);
 adminFeaturedArtistsRouter.use(middlewares_1.isAdmin);
 adminFeaturedArtistsRouter.use(middlewares_1.isSuperAdmin);
 const defaultPopulate = { path: 'songs', select: 'artist title' };
-adminFeaturedArtistsRouter.get('/', (req, res) => {
-    var _a, _b;
-    res.render('admin/featuredArtists', {
-        title: 'FA - Admin',
-        script: 'adminFeaturedArtists.js',
-        loggedInAs: (_a = req.session) === null || _a === void 0 ? void 0 : _a.osuId,
-        userMongoId: (_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId,
-        pointsInfo: res.locals.userRequest.pointsInfo,
-    });
-});
 adminFeaturedArtistsRouter.get('/load', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const featuredArtists = yield featuredArtist_1.FeaturedArtistModel
         .find({})

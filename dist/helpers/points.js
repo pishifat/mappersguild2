@@ -9,8 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateUserPoints = exports.findCreateQuestPointsSpent = exports.findReopenQuestPoints = exports.findStoryboardPoints = exports.findQuestBonus = exports.findQuestPoints = exports.findDifficultyPoints = exports.findLengthNerf = void 0;
-const quest_1 = require("../interfaces/quest");
+exports.updateUserPoints = exports.calculateMbcPoints = exports.calculateSpentPoints = exports.calculateModPoints = exports.calculateHostPoints = exports.calculateTasksPoints = exports.getUserRank = exports.findCreateQuestPointsSpent = exports.getReopenQuestPoints = exports.findStoryboardPoints = exports.getQuestBonus = exports.findQuestPoints = exports.findDifficultyPoints = exports.getLengthNerf = exports.extendQuestPrice = void 0;
 const beatmap_1 = require("../interfaces/beatmap/beatmap");
 const beatmap_2 = require("../models/beatmap/beatmap");
 const task_1 = require("../interfaces/beatmap/task");
@@ -19,8 +18,10 @@ const contest_1 = require("../models/contest/contest");
 const submission_1 = require("../models/contest/submission");
 const spentPoints_1 = require("../models/spentPoints");
 const user_1 = require("../models/user");
-const helpers_1 = require("./helpers");
-function findLengthNerf(length) {
+const spentPoints_2 = require("../interfaces/spentPoints");
+const quest_1 = require("../interfaces/quest");
+exports.extendQuestPrice = 10;
+function getLengthNerf(length) {
     const lengthNerf = 125;
     let newLength;
     if (length <= 90) {
@@ -40,7 +41,7 @@ function findLengthNerf(length) {
     }
     return newLength / lengthNerf;
 }
-exports.findLengthNerf = findLengthNerf;
+exports.getLengthNerf = getLengthNerf;
 function findDifficultyPoints(taskName, totalMappers) {
     const difficultyPointsObject = {
         Easy: 5,
@@ -62,26 +63,24 @@ function findQuestPoints(deadline, questCompletedDate, rankedDate) {
     }
 }
 exports.findQuestPoints = findQuestPoints;
-function findQuestBonus(status, deadline, rankedDate, totalMappers) {
+function getQuestBonus(deadline, rankedDate, totalMappers) {
     let questBonus = 0;
-    if (status == quest_1.QuestStatus.Done) {
-        const lateness = (+deadline - +rankedDate) / (24 * 3600 * 1000);
-        if (lateness > 0) {
-            questBonus = 2;
-        }
-        else if (lateness > -20) {
-            questBonus = 1.5;
-        }
-        else if (lateness > -40) {
-            questBonus = 1;
-        }
-        else {
-            questBonus = 0.5;
-        }
+    const lateness = (+deadline - +rankedDate) / (24 * 3600 * 1000);
+    if (lateness > 0) {
+        questBonus = 2;
+    }
+    else if (lateness > -20) {
+        questBonus = 1.5;
+    }
+    else if (lateness > -40) {
+        questBonus = 1;
+    }
+    else {
+        questBonus = 0.5;
     }
     return questBonus / totalMappers;
 }
-exports.findQuestBonus = findQuestBonus;
+exports.getQuestBonus = getQuestBonus;
 function findStoryboardPoints(storyboardQuality) {
     if (!storyboardQuality) {
         return 0;
@@ -94,10 +93,10 @@ function findStoryboardPoints(storyboardQuality) {
     }
 }
 exports.findStoryboardPoints = findStoryboardPoints;
-function findReopenQuestPoints(price) {
+function getReopenQuestPoints(price) {
     return price * 0.5 + 25;
 }
-exports.findReopenQuestPoints = findReopenQuestPoints;
+exports.getReopenQuestPoints = getReopenQuestPoints;
 function findCreateQuestPointsSpent(questArtist, requiredMapsets) {
     let points = 25;
     if (!questArtist) {
@@ -115,45 +114,49 @@ function findCreateQuestPointsSpent(questArtist, requiredMapsets) {
     return points;
 }
 exports.findCreateQuestPointsSpent = findCreateQuestPointsSpent;
-function updateUserPoints(userId) {
+function getUserRank(userId, tasksPoints, modPoints, hostPoints, mbcPoints) {
     return __awaiter(this, void 0, void 0, function* () {
-        const [user, ownTasks, hostedBeatmaps, moddedBeatmaps, submittedContests, screenedContests, judgedContests, ownSpentPoints] = yield Promise.all([
-            user_1.UserModel.findById(userId).orFail(),
-            task_2.TaskModel.find({ mappers: userId }).select('_id'),
-            beatmap_2.BeatmapModel
-                .find({
-                status: beatmap_1.BeatmapStatus.Ranked,
-                host: userId,
-            })
-                .populate({
-                path: 'host',
-                select: '_id osuId username',
-            }),
-            beatmap_2.BeatmapModel
-                .find({
-                status: beatmap_1.BeatmapStatus.Ranked,
-                modders: userId,
-            })
-                .populate({
-                path: 'modders',
-                select: '_id osuId username',
-            }),
-            submission_1.SubmissionModel.find({
-                creator: userId,
-            }),
-            contest_1.ContestModel.find({
-                screeners: userId,
-            }),
-            contest_1.ContestModel.find({
-                judges: userId,
-            }),
-            spentPoints_1.SpentPointsModel
-                .find({ user: userId })
-                .populate({
-                path: 'quest',
-                select: 'price art requiredMapsets',
-            }),
-        ]);
+        const user = yield user_1.UserModel.findById(userId).orFail();
+        const totalPoints = tasksPoints.Easy +
+            tasksPoints.Normal +
+            tasksPoints.Hard +
+            tasksPoints.Insane +
+            tasksPoints.Expert +
+            tasksPoints.Storyboard +
+            tasksPoints.QuestReward +
+            modPoints +
+            hostPoints +
+            mbcPoints.ContestParticipant +
+            mbcPoints.ContestScreener +
+            mbcPoints.ContestJudge +
+            (user.legacyPoints || 0);
+        let rank = 0;
+        if (totalPoints < 100) {
+            rank = 0;
+        }
+        else if (totalPoints < 250) {
+            rank = 1;
+        }
+        else if (totalPoints < 500) {
+            rank = 2;
+        }
+        else if (totalPoints < 1000) {
+            rank = 3;
+        }
+        else {
+            rank = 4;
+        }
+        return {
+            rank,
+            totalPoints,
+        };
+    });
+}
+exports.getUserRank = getUserRank;
+function calculateTasksPoints(userId) {
+    var _a;
+    return __awaiter(this, void 0, void 0, function* () {
+        const ownTasks = yield task_2.TaskModel.find({ mappers: userId }).select('_id');
         const userBeatmaps = yield beatmap_2.BeatmapModel
             .find({
             status: beatmap_1.BeatmapStatus.Ranked,
@@ -166,15 +169,6 @@ function updateUserPoints(userId) {
             { path: 'quest', select: '_id name status price completed deadline' },
             { path: 'tasks', populate: { path: 'mappers' } },
         ]);
-        if (!ownTasks ||
-            !hostedBeatmaps ||
-            !moddedBeatmaps ||
-            !submittedContests ||
-            !screenedContests ||
-            !ownSpentPoints ||
-            !userBeatmaps) {
-            return helpers_1.defaultErrorMessage;
-        }
         const pointsObject = {
             Easy: 0,
             Normal: 0,
@@ -182,122 +176,152 @@ function updateUserPoints(userId) {
             Insane: 0,
             Expert: 0,
             Storyboard: 0,
-            Mod: 0,
-            Host: 0,
-            QuestReward: 0,
-            SpentPoints: 0,
-            Rank: 0,
             osu: 0,
             taiko: 0,
             catch: 0,
             mania: 0,
-            ContestParticipant: 0,
-            ContestScreener: 0,
-            ContestJudge: 0,
             Quests: [],
+            QuestReward: 0,
         };
-        userBeatmaps.forEach(beatmap => {
+        for (const beatmap of userBeatmaps) {
             let questParticipation = false;
-            const lengthNerf = findLengthNerf(beatmap.length);
-            beatmap.tasks.forEach(task => {
-                task.mappers.forEach(mapper => {
-                    if (mapper.id == userId) {
-                        if (task.name != task_1.TaskName.Storyboard) {
-                            let questBonus = 0;
-                            if (beatmap.quest)
-                                questBonus = findQuestBonus(beatmap.quest.status, beatmap.quest.deadline, beatmap.rankedDate, task.mappers.length);
-                            else if (beatmap.isShowcase)
-                                questBonus = 2;
-                            questParticipation = Boolean(questBonus && !beatmap.isShowcase);
-                            const taskPoints = findDifficultyPoints(task.name, task.mappers.length);
-                            const finalPoints = ((taskPoints + questBonus) * lengthNerf);
-                            pointsObject[task.name] += finalPoints;
-                            pointsObject[task.mode] += finalPoints;
+            const lengthNerf = getLengthNerf(beatmap.length);
+            for (const task of beatmap.tasks) {
+                if (task.mappers.some(m => m.id == userId)) {
+                    if (task.name != task_1.TaskName.Storyboard) {
+                        let questBonus = 0;
+                        if (((_a = beatmap.quest) === null || _a === void 0 ? void 0 : _a.status) === quest_1.QuestStatus.Done) {
+                            questParticipation = true;
+                            questBonus = getQuestBonus(beatmap.quest.deadline, beatmap.rankedDate, task.mappers.length);
                         }
-                        else {
-                            const taskPoints = findStoryboardPoints(task.sbQuality);
-                            pointsObject[task.name] += taskPoints;
+                        else if (beatmap.isShowcase) {
+                            questBonus = 2;
                         }
+                        const taskPoints = findDifficultyPoints(task.name, task.mappers.length);
+                        const finalPoints = ((taskPoints + questBonus) * lengthNerf);
+                        pointsObject[task.name] += finalPoints;
+                        pointsObject[task.mode] += finalPoints;
                     }
-                });
-            });
-            if (questParticipation) {
-                if (pointsObject['Quests'].indexOf(beatmap.quest._id) < 0 && beatmap.quest.status == quest_1.QuestStatus.Done) {
-                    pointsObject['Quests'].push(beatmap.quest._id);
-                    pointsObject['QuestReward'] += findQuestPoints(beatmap.quest.deadline, beatmap.quest.completed, beatmap.rankedDate);
+                    else {
+                        const taskPoints = findStoryboardPoints(task.sbQuality);
+                        pointsObject[task.name] += taskPoints;
+                    }
                 }
             }
+            if (questParticipation &&
+                beatmap.quest &&
+                !pointsObject.Quests.includes(beatmap.quest._id)) {
+                pointsObject.Quests.push(beatmap.quest._id);
+                pointsObject.QuestReward += findQuestPoints(beatmap.quest.deadline, beatmap.quest.completed, beatmap.rankedDate);
+            }
+        }
+        return pointsObject;
+    });
+}
+exports.calculateTasksPoints = calculateTasksPoints;
+function calculateHostPoints(userId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const hostedBeatmaps = yield beatmap_2.BeatmapModel.countDocuments({
+            status: beatmap_1.BeatmapStatus.Ranked,
+            host: userId,
         });
-        pointsObject['Host'] = hostedBeatmaps.length * 5;
-        pointsObject['Mod'] = moddedBeatmaps.length;
-        pointsObject['ContestParticipant'] = submittedContests.length * 5;
-        pointsObject['ContestScreener'] = screenedContests.length;
-        pointsObject['ContestJudge'] = judgedContests.length;
-        ownSpentPoints.forEach(spentPoints => {
-            if (spentPoints.category == 'acceptQuest') {
-                pointsObject['SpentPoints'] += spentPoints.quest.price;
-            }
-            else if (spentPoints.category == 'extendDeadline') {
-                pointsObject['SpentPoints'] += 10;
-            }
-            else if (spentPoints.category == 'reopenQuest') {
-                pointsObject['SpentPoints'] += findReopenQuestPoints(spentPoints.quest.price);
-            }
-            else if (spentPoints.category == 'createQuest') {
-                pointsObject['SpentPoints'] += findCreateQuestPointsSpent(spentPoints.quest.art, spentPoints.quest.requiredMapsets);
-            }
+        return hostedBeatmaps * 5;
+    });
+}
+exports.calculateHostPoints = calculateHostPoints;
+function calculateModPoints(userId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const moddedBeatmaps = yield beatmap_2.BeatmapModel.countDocuments({
+            status: beatmap_1.BeatmapStatus.Ranked,
+            modders: userId,
         });
-        const legacyPoints = user.legacyPoints || 0;
-        const totalPoints = pointsObject['Easy'] +
-            pointsObject['Normal'] +
-            pointsObject['Hard'] +
-            pointsObject['Insane'] +
-            pointsObject['Expert'] +
-            pointsObject['Storyboard'] +
-            pointsObject['Mod'] +
-            pointsObject['Host'] +
-            pointsObject['QuestReward'] +
-            pointsObject['ContestParticipant'] +
-            pointsObject['ContestScreener'] +
-            pointsObject['ContestJudge'] +
-            legacyPoints;
-        if (totalPoints < 100) {
-            pointsObject['Rank'] = 0;
+        return moddedBeatmaps;
+    });
+}
+exports.calculateModPoints = calculateModPoints;
+function calculateSpentPoints(userId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const ownSpentPoints = yield spentPoints_1.SpentPointsModel
+            .find({ user: userId })
+            .populate({
+            path: 'quest',
+            select: 'price art requiredMapsets',
+        });
+        let total = 0;
+        for (const spentPoints of ownSpentPoints) {
+            if (spentPoints.category == spentPoints_2.SpentPointsCategory.AcceptQuest) {
+                total += spentPoints.quest.price;
+            }
+            else if (spentPoints.category == spentPoints_2.SpentPointsCategory.ExtendDeadline) {
+                total += exports.extendQuestPrice;
+            }
+            else if (spentPoints.category == spentPoints_2.SpentPointsCategory.ReopenQuest) {
+                total += getReopenQuestPoints(spentPoints.quest.price);
+            }
+            else if (spentPoints.category == spentPoints_2.SpentPointsCategory.CreateQuest) {
+                total += findCreateQuestPointsSpent(spentPoints.quest.art, spentPoints.quest.requiredMapsets);
+            }
         }
-        else if (totalPoints < 250) {
-            pointsObject['Rank'] = 1;
-        }
-        else if (totalPoints < 500) {
-            pointsObject['Rank'] = 2;
-        }
-        else if (totalPoints < 1000) {
-            pointsObject['Rank'] = 3;
-        }
-        else {
-            pointsObject['Rank'] = 4;
-        }
+        return total;
+    });
+}
+exports.calculateSpentPoints = calculateSpentPoints;
+function calculateMbcPoints(userId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const [submittedContests, screenedContests, judgedContests] = yield Promise.all([
+            submission_1.SubmissionModel.countDocuments({
+                creator: userId,
+            }),
+            contest_1.ContestModel.countDocuments({
+                screeners: userId,
+            }),
+            contest_1.ContestModel.countDocuments({
+                judges: userId,
+            }),
+        ]);
+        return {
+            ContestParticipant: submittedContests * 5,
+            ContestScreener: screenedContests,
+            ContestJudge: judgedContests,
+        };
+    });
+}
+exports.calculateMbcPoints = calculateMbcPoints;
+function demicalRound(value) {
+    return Math.round(value * 1000) / 1000;
+}
+function updateUserPoints(userId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const [taskPoints, modPoints, hostPoints, spentPoints, mbcPoints] = yield Promise.all([
+            calculateTasksPoints(userId),
+            calculateModPoints(userId),
+            calculateHostPoints(userId),
+            calculateSpentPoints(userId),
+            calculateMbcPoints(userId),
+        ]);
+        const { rank, totalPoints } = yield getUserRank(userId, taskPoints, modPoints, hostPoints, mbcPoints);
         yield user_1.UserModel.findByIdAndUpdate(userId, {
-            easyPoints: pointsObject['Easy'],
-            normalPoints: pointsObject['Normal'],
-            hardPoints: pointsObject['Hard'],
-            insanePoints: pointsObject['Insane'],
-            expertPoints: pointsObject['Expert'],
-            storyboardPoints: pointsObject['Storyboard'],
-            modPoints: pointsObject['Mod'],
-            hostPoints: pointsObject['Host'],
-            questPoints: pointsObject['QuestReward'],
-            spentPoints: pointsObject['SpentPoints'],
-            rank: pointsObject['Rank'],
-            osuPoints: pointsObject['osu'],
-            taikoPoints: pointsObject['taiko'],
-            catchPoints: pointsObject['catch'],
-            maniaPoints: pointsObject['mania'],
-            contestParticipantPoints: pointsObject['ContestParticipant'],
-            contestScreenerPoints: pointsObject['ContestScreener'],
-            contestJudgePoints: pointsObject['ContestJudge'],
-            completedQuests: pointsObject['Quests'],
+            easyPoints: demicalRound(taskPoints['Easy']),
+            normalPoints: demicalRound(taskPoints['Normal']),
+            hardPoints: demicalRound(taskPoints['Hard']),
+            insanePoints: demicalRound(taskPoints['Insane']),
+            expertPoints: demicalRound(taskPoints['Expert']),
+            storyboardPoints: demicalRound(taskPoints['Storyboard']),
+            osuPoints: demicalRound(taskPoints['osu']),
+            taikoPoints: demicalRound(taskPoints['taiko']),
+            catchPoints: demicalRound(taskPoints['catch']),
+            maniaPoints: demicalRound(taskPoints['mania']),
+            questPoints: taskPoints['QuestReward'],
+            completedQuests: taskPoints['Quests'],
+            contestParticipantPoints: mbcPoints.ContestParticipant,
+            contestScreenerPoints: mbcPoints.ContestScreener,
+            contestJudgePoints: mbcPoints.ContestJudge,
+            modPoints,
+            hostPoints,
+            spentPoints,
+            rank,
         });
-        return (totalPoints);
+        return totalPoints;
     });
 }
 exports.updateUserPoints = updateUserPoints;
