@@ -116,7 +116,7 @@ export default Vue.extend({
 
             if (!this.isError(quests)) {
                 this.$store.commit('setQuests', quests);
-                $('#addQuest').modal('hide');
+                this.hideModal('addQuest');
             }
         },
     },

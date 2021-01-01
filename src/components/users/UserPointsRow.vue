@@ -2,8 +2,8 @@
     <tr class="text-white-50">
         <td
             scope="row"
-            data-toggle="tooltip"
-            data-placement="left"
+            data-bs-toggle="tooltip"
+            data-bs-placement="left"
             :title="tooltipTitle"
         >
             {{ display }}

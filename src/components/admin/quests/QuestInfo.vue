@@ -134,8 +134,8 @@
                 <i
                     class="fas fa-circle"
                     :class="quest.modes.includes('osu') ? '' : 'text-white-50'"
-                    data-toggle="tooltip"
-                    data-placement="top"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
                     title="toggle osu!"
                 />
             </a>
@@ -143,8 +143,8 @@
                 <i
                     class="fas fa-drum"
                     :class="quest.modes.includes('taiko') ? '' : 'text-white-50'"
-                    data-toggle="tooltip"
-                    data-placement="top"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
                     title="toggle osu!taiko"
                 />
             </a>
@@ -152,8 +152,8 @@
                 <i
                     class="fas fa-apple-alt"
                     :class="quest.modes.includes('catch') ? '' : 'text-white-50'"
-                    data-toggle="tooltip"
-                    data-placement="top"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
                     title="toggle osu!catch"
                 />
             </a>
@@ -161,8 +161,8 @@
                 <i
                     class="fas fa-stream"
                     :class="quest.modes.includes('mania') ? '' : 'text-white-50'"
-                    data-toggle="tooltip"
-                    data-placement="top"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
                     title="toggle osu!mania"
                 />
             </a>
@@ -337,7 +337,8 @@ export default Vue.extend({
                 const res = await this.executePost(`/admin/quests/${this.quest.id}/delete`, {}, e);
 
                 if (!this.isError(res)) {
-                    ($('#editQuest')).modal('hide');
+                    this.hideModal('editQuest');
+
                     this.$store.dispatch('updateToastMessages', {
                         message: `quest deleted`,
                         type: 'info',

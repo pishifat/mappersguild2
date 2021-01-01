@@ -25,12 +25,12 @@
                         @change="updateArt($event)"
                     >
                 </p>
-                <p v-else-if="quest.art" class="ml-2">
+                <p v-else-if="quest.art" class="ms-2">
                     <a :href="'https://osu.ppy.sh/beatmaps/artists/' + quest.art" target="_blank">
                         <img :src="'https://assets.ppy.sh/artists/' + quest.art + '/cover.jpg'" class="card-avatar-img">
                     </a>
                 </p>
-                <p v-else class="ml-2">
+                <p v-else class="ms-2">
                     None
                 </p>
                 <div class="small text-white-50">
@@ -49,7 +49,7 @@
                         @change="renameQuest($event)"
                     >
                 </p>
-                <p v-else class="ml-2">
+                <p v-else class="ms-2">
                     {{ quest.name }}
                 </p>
                 <div class="small text-white-50">
@@ -69,7 +69,7 @@
                         @change="updateDescription($event)"
                     />
                 </p>
-                <p v-else class="ml-2">
+                <p v-else class="ms-2">
                     {{ quest.descriptionMain }}
                 </p>
                 <div class="small text-white-50">
@@ -88,7 +88,7 @@
                         @change="updateRequiredMapsets($event)"
                     >
                 </p>
-                <p v-else class="ml-2">
+                <p v-else class="ms-2">
                     {{ quest.requiredMapsets }}
                 </p>
                 <div class="small text-white-50">
@@ -107,7 +107,7 @@
                         @change="updatePrice($event)"
                     >
                 </p>
-                <p v-else class="ml-2">
+                <p v-else class="ms-2">
                     {{ quest.price }} points per user
                 </p>
                 <div class="small text-white-50">
@@ -126,7 +126,7 @@
                         @change="updateTimeframe($event)"
                     >
                 </p>
-                <p v-else class="ml-2">
+                <p v-else class="ms-2">
                     {{ quest.timeframe / (24*3600*1000) }} days
                 </p>
                 <div class="small text-white-50">
@@ -153,31 +153,31 @@
                         @change="updateMaxParty($event)"
                     >
                 </p>
-                <p v-else class="ml-2">
+                <p v-else class="ms-2">
                     {{ quest.minParty }}-{{ quest.maxParty }} members
                 </p>
                 <div class="small text-white-50">
                     Party rank
                 </div>
-                <p class="ml-2">
+                <p class="ms-2">
                     {{ quest.minRank }} rank required
                 </p>
                 <div class="small text-white-50">
                     MBC
                 </div>
-                <p class="ml-2">
+                <p class="ms-2">
                     {{ quest.isMbc ? 'yes' : 'no' }}
                 </p>
 
                 <div class="radial-divisor" />
 
-                <button type="submit" class="btn btn-outline-success btn-block" @click="acceptPendingQuest($event)">
+                <button type="submit" class="btn btn-outline-success w-100" @click="acceptPendingQuest($event)">
                     Publish quest
                 </button>
-                <button type="submit" class="btn btn-outline-danger btn-block" @click="rejectPendingQuest($event)">
+                <button type="submit" class="btn btn-outline-danger w-100" @click="rejectPendingQuest($event)">
                     Reject quest
                 </button>
-                <button class="btn btn-outline-secondary btn-block" data-toggle="collapse" data-target="#forumPm">
+                <button class="btn btn-outline-secondary w-100" data-bs-toggle="collapse" data-bs-target="#forumPm">
                     See rejection message <i class="fas fa-angle-down" />
                 </button>
                 <div id="forumPm" class="collapse">
@@ -269,7 +269,7 @@ export default Vue.extend({
                     questId: this.quest.id,
                     status,
                 });
-                $('#reviewQuest').modal('hide');
+                this.hideModal('reviewQuest');
             }
         },
         async rejectPendingQuest(e): Promise<void> {
@@ -284,7 +284,7 @@ export default Vue.extend({
                     questId: this.quest.id,
                     status,
                 });
-                $('#reviewQuest').modal('hide');
+                this.hideModal('reviewQuest');
             }
         },
         async updateArt(e): Promise<void> {

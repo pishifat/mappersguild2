@@ -83,8 +83,8 @@
                         <tr
                             v-for="(score, i) in usersScores"
                             :key="i"
-                            data-toggle="modal"
-                            data-target="#detailModal"
+                            data-bs-toggle="modal"
+                            data-bs-target="#detailModal"
                             @click="selectedScore = score"
                         >
                             <td>{{ i + 1 }}</td>

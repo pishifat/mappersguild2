@@ -7,7 +7,7 @@
             autocomplete="off"
             placeholder="usernames separated by newlines..."
         />
-        <button class="btn btn-sm btn-block btn-outline-info" @click="generateDiscordHighlights($event)">
+        <button class="btn btn-sm w-100 btn-outline-info" @click="generateDiscordHighlights($event)">
             Generate Discord highlights
         </button>
         <div v-if="users.length">

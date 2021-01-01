@@ -5,7 +5,7 @@
                 <h4>
                     {{ submission.contest.name }}
                 </h4>
-                <h5 data-toggle="tooltip" title="anonymized submission name">
+                <h5 data-bs-toggle="tooltip" title="anonymized submission name">
                     {{ submission.name }}
                 </h5>
                 <p>
@@ -22,31 +22,31 @@
                 <h5>
                     Screening results
                 </h5>
-                <p class="ml-3">
+                <p class="ms-3">
                     Comments are usually each screener's initial thoughts. They're not intended to be constructive feedback and many screeners use comments as notes for determining their top 5.
                 </p>
                 <div v-for="(evaluation, i) in randomizedScreening" :key="evaluation.id">
                     <div>
-                        <div class="ml-3">
+                        <div class="ms-3">
                             User {{ i+1 }}
                             <i
                                 v-if="evaluation.vote"
-                                data-toggle="tooltip"
+                                data-bs-toggle="tooltip"
                                 title="user placed in top 5"
                                 class="fas fa-check text-done"
                             />
                         </div>
-                        <div class="ml-4 mb-2 small text-white-50" style="word-break: break-word;">
+                        <div class="ms-4 mb-2 small text-white-50" style="word-break: break-word;">
                             {{ evaluation.comment ? evaluation.comment : '[no comment]' }}
                         </div>
                     </div>
                 </div>
                 <div v-for="i in emptyEvaluationCount" :key="i">
                     <div>
-                        <div class="ml-3">
+                        <div class="ms-3">
                             User {{ submission.evaluations.length + i }}
                         </div>
-                        <div class="ml-4 mb-2 small text-white-50" style="word-break: break-word;">
+                        <div class="ms-4 mb-2 small text-white-50" style="word-break: break-word;">
                             [no comment]
                         </div>
                     </div>
@@ -62,35 +62,35 @@
                 <div v-if="submission.judgings && submission.judgings.length">
                     <div v-for="(judging, i) in randomizedJudging" :key="judging.id">
                         <div>
-                            <p class="ml-3">
+                            <p class="ms-3">
                                 User {{ i+1 }}
                             </p>
                             <div class="row">
-                                <table class="col-sm-5 ml-4 table table-sm table-responsive-sm">
+                                <table class="col-sm-5 ms-4 table table-sm table-responsive-sm">
                                     <thead>
                                         <tr>
-                                            <th class="text-left">
+                                            <th class="text-start">
                                                 Category
                                             </th>
-                                            <th class="text-left">
+                                            <th class="text-start">
                                                 Score
                                             </th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr v-for="judgingScore in filteredAndSortedJudgingScores(judging.judgingScores)" :key="judgingScore.id">
-                                            <td class="text-left text-capitalize">
+                                            <td class="text-start text-capitalize">
                                                 {{ judgingScore.criteria.name }}
                                             </td>
-                                            <td class="text-left">
+                                            <td class="text-start">
                                                 {{ judgingScore.score }}/{{ judgingScore.criteria.maxScore }}
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td class="text-left">
+                                            <td class="text-start">
                                                 TOTAL
                                             </td>
-                                            <td class="text-left">
+                                            <td class="text-start">
                                                 {{ findTotalJudgingPoints(judging.judgingScores) }}/{{ findTotalCriteriaPoints(judging.judgingScores) }}
                                             </td>
                                         </tr>
@@ -106,7 +106,7 @@
                         </div>
                     </div>
                 </div>
-                <div v-else class="ml-3">
+                <div v-else class="ms-3">
                     This entry did not receive enough screening votes to reach the judging stage. :(
                 </div>
             </div>

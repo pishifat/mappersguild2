@@ -2,12 +2,12 @@
     <div class="container card card-body py-1">
         <div class="row">
             <div class="col">
-                <h3 class="ml-2">
+                <h3 class="ms-2">
                     Planned
                 </h3>
 
-                <h5 v-if="contactedArtists.length" class="ml-4 mt-2">
-                    <a href="#contactedArtists" data-toggle="collapse">
+                <h5 v-if="contactedArtists.length" class="ms-4 mt-2">
+                    <a href="#contactedArtists" data-bs-toggle="collapse">
                         Awaiting response ({{ contactedArtists.length }})
                         <i class="fas fa-angle-down" />
                     </a>
@@ -26,12 +26,12 @@
                     </transition-group>
                 </div>
 
-                <h5 class="ml-4 mt-2">
-                    <a href="#notContacted" data-toggle="collapse">
+                <h5 class="ms-4 mt-2">
+                    <a href="#notContacted" data-bs-toggle="collapse">
                         Not contacted ({{ notContacted.length }})
                         <i class="fas fa-angle-down" />
                     </a>
-                    <button class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#addArtist">
+                    <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#addArtist">
                         Add artist
                     </button>
                 </h5>

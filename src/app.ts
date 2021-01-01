@@ -1,5 +1,9 @@
+import 'bootstrap/js/dist/modal';
+import 'bootstrap/js/dist/tooltip';
+import 'bootstrap/js/dist/toast';
+import 'bootstrap/js/dist/dropdown';
+import 'bootstrap/js/dist/collapse';
 import './sass/app.scss';
-import './bootstrap';
 import Vue from 'vue';
 import Vuex from 'vuex';
 import VueRouter from 'vue-router';

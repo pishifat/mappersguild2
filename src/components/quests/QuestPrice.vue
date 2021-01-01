@@ -1,10 +1,10 @@
 <template>
     <small>
-        <i class="fas fa-coins mr-1" />
+        <i class="fas fa-coins me-1" />
         <span
             class="text-white-50"
-            data-toggle="tooltip"
-            data-placement="top"
+            data-bs-toggle="tooltip"
+            data-bs-placement="top"
             title="points required from each party member to start quest"
         >
             {{ price }}pt{{ price == 1 ? '' : 's' }}

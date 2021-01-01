@@ -1,10 +1,10 @@
 <template>
     <small>
-        <i class="far fa-clock mr-1" />
+        <i class="far fa-clock me-1" />
         <span
             class="text-white-50"
-            data-toggle="tooltip"
-            data-placement="top"
+            data-bs-toggle="tooltip"
+            data-bs-placement="top"
             title="days to complete the quest"
         >{{ Math.round(timeframe / (1000*60*60*24)) }} days</span>
     </small>

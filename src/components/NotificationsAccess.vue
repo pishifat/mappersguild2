@@ -1,6 +1,6 @@
 <template>
     <div
-        class="bg-dark pl-3"
+        class="bg-dark ps-3"
         style="
             position: fixed;
             z-index: 1060;

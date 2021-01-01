@@ -7,6 +7,8 @@ declare module 'vue/types/vue' {
         executePost<T>(path: string, data?: Record<string, any>, event?): Promise<T | { error: string }>;
         isError<T>(error: T | ErrorResponse): error is ErrorResponse;
         listUser(username: string, i: number, length: number): string;
+        hideModal(id: string): void;
+        showModal(id: string): void;
 
         // Used on quest page
         isOpen: boolean;

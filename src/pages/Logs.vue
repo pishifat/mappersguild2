@@ -4,15 +4,17 @@
             <div class="col-md-12">
                 <table class="table table-sm mt-3">
                     <thead>
-                        <th scope="col">
-                            date
-                        </th>
-                        <th scope="col">
-                            user
-                        </th>
-                        <th scope="col">
-                            action
-                        </th>
+                        <tr>
+                            <th scope="col">
+                                date
+                            </th>
+                            <th scope="col">
+                                user
+                            </th>
+                            <th scope="col">
+                                action
+                            </th>
+                        </tr>
                     </thead>
                     <tbody>
                         <tr
@@ -37,7 +39,7 @@
                         type="button"
                         @click="showMore($event)"
                     >
-                        <i class="fas fa-angle-down mr-1" /> show more <i class="fas fa-angle-down ml-1" />
+                        <i class="fas fa-angle-down me-1" /> show more <i class="fas fa-angle-down ms-1" />
                     </button>
                 </div>
             </div>

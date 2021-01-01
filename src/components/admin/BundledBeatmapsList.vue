@@ -1,6 +1,6 @@
 <template>
     <div class="container card card-body py-1 mb-4">
-        <button class="btn btn-sm btn-block btn-outline-info" @click="findBundledBeatmaps($event)">
+        <button class="btn btn-sm w-100 btn-outline-info" @click="findBundledBeatmaps($event)">
             Load bundled beatmaps
         </button>
         <div v-if="bundledBeatmaps.length">

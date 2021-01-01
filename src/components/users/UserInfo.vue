@@ -14,12 +14,14 @@
             <div class="row col-lg-12">
                 <table class="table table-sm col-md-6">
                     <thead>
-                        <th scope="col">
-                            Task
-                        </th>
-                        <th scope="col">
-                            Points
-                        </th>
+                        <tr>
+                            <th scope="col">
+                                Task
+                            </th>
+                            <th scope="col">
+                                Points
+                            </th>
+                        </tr>
                     </thead>
                     <tbody>
                         <user-points-row
@@ -152,8 +154,8 @@
                             v-if="selectedUser.rank > 0"
                             class="fas fa-crown"
                             :class="'text-rank-' + selectedUser.rank"
-                            data-toggle="tooltip"
-                            data-placement="top"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="top"
                             :title="`rank ${selectedUser.rank} user`"
                         />
                         <span v-else class="text-white-50">
@@ -164,7 +166,7 @@
                     <div v-if="currentQuests.length" class="small">
                         Current quests:
                     </div>
-                    <ul class="p-0 mb-2 ml-4">
+                    <ul class="p-0 mb-2 ms-4">
                         <li
                             v-for="quest in currentQuests"
                             :key="quest.id"
@@ -179,7 +181,7 @@
                     <div v-if="currentQuests.length" class="small">
                         Created quests:
                     </div>
-                    <ul class="p-0 mb-2 ml-4">
+                    <ul class="p-0 mb-2 ms-4">
                         <li
                             v-for="name in createdQuestNames"
                             :key="name"
@@ -192,7 +194,7 @@
                     <div v-if="selectedUser.completedQuests.length" class="small">
                         Completed quests:
                     </div>
-                    <ul class="p-0 mb-2 ml-4">
+                    <ul class="p-0 mb-2 ms-4">
                         <li
                             v-for="quest in selectedUser.completedQuests"
                             :key="quest.id"
@@ -211,16 +213,18 @@
             <p>Mappers' Guild beatmaps:</p>
             <table class="table table-sm">
                 <thead>
-                    <th scope="col">
-                        Mapset
-                    </th>
-                    <th scope="col">
-                        Host
-                    </th>
-                    <th scope="col">
-                        Tasks
-                    </th>
-                    <th scope="col" />
+                    <tr>
+                        <th scope="col">
+                            Mapset
+                        </th>
+                        <th scope="col">
+                            Host
+                        </th>
+                        <th scope="col">
+                            Tasks
+                        </th>
+                        <th scope="col" />
+                    </tr>
                 </thead>
                 <tbody>
                     <tr v-if="!userBeatmaps.length">
@@ -240,7 +244,7 @@
                             <i
                                 class="fas"
                                 :class="['text-' + map.status.toLowerCase(), findIcon(map.status)]"
-                                data-toggle="tooltip"
+                                data-bs-toggle="tooltip"
                                 :title="map.status"
                             />
                             <a :href="'/beatmaps?id=' + map.id" target="_blank">
@@ -275,12 +279,14 @@
             <p>Spent points logs:</p>
             <table class="table table-sm col-md-12">
                 <thead>
-                    <th scope="col">
-                        Action
-                    </th>
-                    <th scope="col">
-                        Spent points
-                    </th>
+                    <tr>
+                        <th scope="col">
+                            Action
+                        </th>
+                        <th scope="col">
+                            Spent points
+                        </th>
+                    </tr>
                 </thead>
                 <tbody>
                     <tr v-if="!spentPoints.length">
@@ -307,7 +313,7 @@
 
             <div class="radial-divisor" />
 
-            <p class="float-right">
+            <p class="float-end">
                 Joined: {{ selectedUser.createdAt.slice(0, 10) }}
             </p>
         </template>

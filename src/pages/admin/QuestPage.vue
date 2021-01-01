@@ -3,11 +3,11 @@
         <div class="container card card-body py-1">
             <div class="row">
                 <div class="col">
-                    <button class="btn btn-sm btn-info btn-block" data-toggle="modal" data-target="#submitQuest">
+                    <button class="btn btn-sm btn-info w-100" data-bs-toggle="modal" data-bs-target="#submitQuest">
                         Add quest
                     </button>
 
-                    <button class="btn btn-sm btn-info btn-block" @click="removeDuplicatePartyMembers($event)">
+                    <button class="btn btn-sm btn-info w-100" @click="removeDuplicatePartyMembers($event)">
                         Remove duplicate party members
                     </button>
 

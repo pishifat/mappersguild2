@@ -8,8 +8,8 @@
             <button
                 class="btn btn-primary"
                 href="#"
-                data-toggle="modal"
-                data-target="#addBeatmap"
+                data-bs-toggle="modal"
+                data-bs-target="#addBeatmap"
             >
                 Add beatmap <i class="fas fa-plus fa-xs" />
             </button>

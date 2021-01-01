@@ -3,11 +3,11 @@
         <div class="container card card-body py-1">
             <div class="row">
                 <div class="col-sm">
-                    <button class="btn btn-sm btn-info btn-block" @click="updateUserPoints($event)">
+                    <button class="btn btn-sm btn-info w-100" @click="updateUserPoints($event)">
                         Update user points
                     </button>
 
-                    <span v-if="calculatingPoints" class="ml-2 small text-white-50">calculating points...</span>
+                    <span v-if="calculatingPoints" class="ms-2 small text-white-50">calculating points...</span>
 
                     <data-table
                         v-slot="{ obj: user }"
@@ -24,8 +24,8 @@
                                 v-if="user.rank > 0"
                                 class="fas fa-crown"
                                 :class="'text-rank-' + user.rank"
-                                data-toggle="tooltip"
-                                data-placement="top"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
                                 :title="`rank ${user.rank} user`"
                             />
                         </td>
@@ -34,8 +34,8 @@
                                 v-if="user.badge > 0"
                                 class="fas fa-crown"
                                 :class="'text-rank-' + user.rank"
-                                data-toggle="tooltip"
-                                data-placement="top"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
                                 :title="`rank ${user.rank} user`"
                             />
                         </td>

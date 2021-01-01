@@ -3,7 +3,7 @@
         v-if="(beatmap.status == 'WIP' || beatmap.status == 'Secret') && remainingTasks.length"
         class="row mt-2 mb-3"
     >
-        <div class="col-sm-12 form-inline">
+        <div class="col-sm-12">
             <div class="input-group input-group-sm mx-auto">
                 <select
                     v-if="!taskToAddCollaborator"
@@ -41,7 +41,7 @@
                 <input
                     v-if="isHost || taskToAddCollaborator"
                     v-model="requestTaskUsername"
-                    class="form-control w-25"
+                    class="form-control"
                     type="text"
                     placeholder="request to... (if needed)"
                     maxlength="18"
@@ -49,9 +49,9 @@
                 >
 
                 <button
-                    class="btn btn-sm btn-outline-info ml-1"
-                    data-toggle="tooltip"
-                    data-placement="top"
+                    class="btn btn-outline-info"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
                     title="add difficulty"
                     @click="taskToAddCollaborator ? addCollab($event) : addTask(beatmap.id, $event)"
                 >

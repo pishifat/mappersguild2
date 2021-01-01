@@ -1,8 +1,8 @@
 <template>
-    <div class="row mb-2">
-        <div class="col-sm form-inline">
-            <!-- INVITE -->
-            <div class="input-group input-group-sm mr-2">
+    <div class="row row-cols-md-auto g-2 align-items-center mb-3">
+        <!-- INVITE -->
+        <div class="col-12">
+            <div class=" input-group input-group-sm">
                 <input
                     v-model="inviteUsername"
                     class="form-control"
@@ -11,21 +11,21 @@
                     maxlength="18"
                     @keyup.enter="inviteToParty($event)"
                 >
-                <div class="input-group-append">
-                    <button
-                        class="btn btn-outline-info"
-                        data-toggle="tooltip"
-                        data-placement="top"
-                        title="invite user to party"
-                        @click="inviteToParty($event)"
-                    >
-                        Invite
-                    </button>
-                </div>
+                <button
+                    class="btn btn-outline-info"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="invite user to party"
+                    @click="inviteToParty($event)"
+                >
+                    Invite
+                </button>
             </div>
+        </div>
 
-            <!-- TRANSFER/KICK -->
-            <div class="input-group input-group-sm mr-2">
+        <!-- TRANSFER/KICK -->
+        <div class="col-12">
+            <div class="input-group input-group-sm">
                 <select v-model="dropdownUserId" class="form-control">
                     <option value="" disabled>
                         Select a member
@@ -40,72 +40,82 @@
                         </option>
                     </template>
                 </select>
-                <div class="input-group-append">
-                    <button
-                        class="btn btn-outline-info"
-                        data-toggle="tooltip"
-                        data-placement="top"
-                        title="change party leader"
-                        @click="transferPartyLeader($event)"
-                    >
-                        Lead
-                    </button>
-                    <button
-                        class="btn btn-outline-info"
-                        data-toggle="tooltip"
-                        data-placement="top"
-                        title="kick party member"
-                        @click="kickPartyMember($event)"
-                    >
-                        Kick
-                    </button>
-                </div>
+                <button
+                    class="btn btn-outline-info"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="change party leader"
+                    @click="transferPartyLeader($event)"
+                >
+                    Lead
+                </button>
+                <button
+                    class="btn btn-outline-info"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="kick party member"
+                    @click="kickPartyMember($event)"
+                >
+                    Kick
+                </button>
             </div>
+        </div>
 
-            <!-- only when open -->
-            <template v-if="status === 'open'">
-                <!-- LOCK -->
-                <button class="btn btn-sm btn-outline-info mr-2" @click.prevent="togglePartyLock($event)">
+        <!-- only when open -->
+        <template v-if="status === 'open'">
+            <!-- LOCK -->
+            <div class="col-12">
+                <button class="btn btn-sm btn-outline-info w-100" @click.prevent="togglePartyLock($event)">
                     {{ party.lock ? 'Unlock' : 'Lock' }} <i class="fas" :class="party.lock ? 'fa-unlock' : 'fa-lock'" />
                 </button>
+            </div>
 
-                <!-- DELETE -->
-                <button class="btn btn-sm btn-outline-danger" @click.prevent="deleteParty($event)">
+            <!-- DELETE -->
+            <div class="col-12">
+                <button class="btn btn-sm btn-outline-danger w-100" @click.prevent="deleteParty($event)">
                     Delete <i class="fas fa-minus fa-xs" />
                 </button>
-            </template>
+            </div>
+        </template>
 
-            <!-- EXTEND DEADLINE -->
-            <button
-                v-if="quest.status === 'wip'"
-                class="btn btn-sm btn-outline-danger mx-2 my-2"
-                data-toggle="tooltip"
-                data-placement="top"
-                title="each party member spends 10 points to extend quest deadline"
-                @click.prevent="extendDeadline($event)"
-            >
-                Extend deadline for 10 points
-                <i class="fas fa-coins fa-xs" />
-            </button>
+        <!-- EXTEND DEADLINE -->
+        <template v-if="status === 'wip'">
+            <div class="col-12">
+                <button
+                    class="btn btn-sm btn-outline-danger w-100"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="each party member spends 10 points to extend quest deadline"
+                    @click.prevent="extendDeadline($event)"
+                >
+                    Extend deadline for 10 points
+                    <i class="fas fa-coins fa-xs" />
+                </button>
+            </div>
 
             <!-- DROP QUEST -->
-            <button
-                v-if="quest.status === 'wip'"
-                class="btn btn-sm btn-outline-danger mx-2 my-2"
-                @click.prevent="dropQuest($event)"
-            >
-                Drop quest
-                <i class="fas fa-times fa-xs" />
-            </button>
+            <div class="col-12">
+                <button
+                    class="btn btn-sm btn-outline-danger w-100"
+                    @click.prevent="dropQuest($event)"
+                >
+                    Drop quest
+                    <i class="fas fa-times fa-xs" />
+                </button>
+            </div>
+        </template>
 
-            <!-- ACCEPT QUEST -->
+        <!-- ACCEPT QUEST -->
+        <div
+            v-else-if="quest.status === 'open' &&
+                party.rank >= quest.minRank &&
+                party.members.length >= quest.minParty &&
+                party.members.length <= quest.maxParty
+            "
+            class="col-12"
+        >
             <button
-                v-else-if="quest.status === 'open' &&
-                    party.rank >= quest.minRank &&
-                    party.members.length >= quest.minParty &&
-                    party.members.length <= quest.maxParty
-                "
-                class="btn btn-sm btn-outline-success mx-2 my-2"
+                class="btn btn-sm btn-outline-success w-100"
                 :disabled="!enoughPoints"
                 @click.prevent="acceptQuest($event)"
             >
@@ -241,7 +251,7 @@ export default Vue.extend({
             const quests = await this.executePost<Quest[]>(`/quests/${this.quest.id}/drop`, {}, e);
 
             if (!this.isError(quests)) {
-                $('#editQuest').modal('hide');
+                this.hideModal('editQuest');
                 this.$store.dispatch('quests/setQuests', quests);
             }
         },
@@ -263,7 +273,7 @@ export default Vue.extend({
                 if (!this.isError(res)) {
                     this.$store.dispatch('quests/setQuests', res.quests);
                     this.$store.commit('setAvailablePoints', res.availablePoints);
-                    $('#editQuest').modal('hide');
+                    this.hideModal('editQuest');
                 }
             }
         },
@@ -273,7 +283,7 @@ export default Vue.extend({
 
                 if (!this.isError(quest)) {
                     this.$store.dispatch('quests/updateQuest', quest);
-                    $('#editQuest').modal('hide');
+                    this.hideModal('editQuest');
                 }
             }
         },

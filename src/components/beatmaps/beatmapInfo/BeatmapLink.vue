@@ -7,17 +7,17 @@
                     <a
                         id="editLink"
                         href="#"
-                        class="text-success small ml-1"
+                        class="text-success small ms-1"
                         :class="{ 'text-danger': showLinkInput }"
-                        data-toggle="tooltip"
-                        data-placement="right"
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="right"
                         title="edit link"
                         @click.prevent="showLinkInput = !showLinkInput"
                     >
                         <i class="fas fa-edit" />
                     </a>
                 </div>
-                <div class="small ml-3">
+                <div class="small ms-3">
                     <a v-if="beatmap.url" :href="beatmap.url" target="_blank">
                         {{ beatmap.url }}
                     </a>
@@ -38,19 +38,17 @@
                         placeholder="URL"
                         @keyup.enter="saveLink($event)"
                     >
-                    <div class="input-group-append">
-                        <button
-                            id="addLinkButton"
-                            class="btn btn-outline-info"
-                            type="submit"
-                            data-toggle="tooltip"
-                            data-placement="right"
-                            title="use new osu!web link for card image"
-                            @click="saveLink($event)"
-                        >
-                            Save
-                        </button>
-                    </div>
+                    <button
+                        id="addLinkButton"
+                        class="btn btn-outline-info"
+                        type="submit"
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="right"
+                        title="use new osu!web link for card image"
+                        @click="saveLink($event)"
+                    >
+                        Save
+                    </button>
                 </div>
             </div>
         </div>

@@ -3,7 +3,7 @@
         <div class="container card card-body py-1">
             <div class="row">
                 <div class="col-sm">
-                    <button class="btn btn-sm btn-info btn-block" data-toggle="modal" data-target="#newsPost">
+                    <button class="btn btn-sm btn-info w-100" data-bs-toggle="modal" data-bs-target="#newsPost">
                         Create news post
                     </button>
                     <data-table

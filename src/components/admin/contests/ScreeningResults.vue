@@ -25,7 +25,7 @@
                 <div class="d-flex justify-content-between">
                     <a
                         :class="submission.total >= judgingThreshold ? 'text-success' : ''"
-                        data-toggle="collapse"
+                        data-bs-toggle="collapse"
                         :href="`#collapse-${submission.id}`"
                     >
                         {{ submission.name }}

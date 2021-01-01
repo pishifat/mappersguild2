@@ -80,7 +80,7 @@
 
                 <div class="col-md-6" style="object-fit: cover;">
                     <img src="/images/mappers-guild-sets.jpg" style="width:100%; border-radius:4px 4px 4px 4px">
-                    <a href="https://osu.ppy.sh/home/news/2018-05-25-new-featured-artist-cranky" class="small float-right my-2 mr-3"><b>example Mappers' Guild content</b></a>
+                    <a href="https://osu.ppy.sh/home/news/2018-05-25-new-featured-artist-cranky" class="small float-end my-2 me-3"><b>example Mappers' Guild content</b></a>
                 </div>
             </div>
         </div>

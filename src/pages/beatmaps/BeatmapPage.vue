@@ -24,7 +24,6 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import $ from 'jquery';
 import CreateBeatmapModal from '@components/beatmaps/CreateBeatmapModal.vue';
 import BeatmapPageFilters from './BeatmapPageFilters.vue';
 import HostedBeatmaps from './HostedBeatmaps.vue';
@@ -70,7 +69,7 @@ export default Vue.extend({
 
             if (!this.isError(urlBeatmap)) {
                 this.$store.commit('beatmaps/setSelectedBeatmap', urlBeatmap);
-                $('#editBeatmap').modal('show');
+                this.showModal('editBeatmap');
             }
         } else {
             data = await this.initialRequest('/beatmaps/relevantInfo');

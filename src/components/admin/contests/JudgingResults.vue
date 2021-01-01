@@ -24,8 +24,8 @@
                         <tr
                             v-for="submission in contest.submissions"
                             :key="submission.id"
-                            data-toggle="modal"
-                            data-target="#detailModalAdmin"
+                            data-bs-toggle="modal"
+                            data-bs-target="#detailModalAdmin"
                             @click="selected = submission"
                         >
                             <td>

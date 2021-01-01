@@ -8,23 +8,6 @@ module.exports = merge(base, {
         path: path.resolve(__dirname, './public/'),
         filename: 'js/[name].js',
     },
-    module: {
-        rules: [
-            {
-                test: /(\.s[ac]ss|\.css)$/i,
-                use: [
-                    'vue-style-loader',
-                    {
-                        loader: 'css-loader',
-                        options: {
-                            url: false,
-                        },
-                    },
-                    'sass-loader',
-                ],
-            },
-        ],
-    },
     mode: 'development',
     devtool: 'eval-cheap-source-map',
     resolve: {

@@ -3,15 +3,13 @@
         <div class="row mb-2">
             <div class="col">
                 <div class="input-group">
-                    <div class="input-group-prepend">
-                        <button
-                            class="btn btn-primary"
-                            href="#"
-                            @click.prevent="$emit('update-filter-value', newFilterValue)"
-                        >
-                            <i class="fas fa-search" />
-                        </button>
-                    </div>
+                    <button
+                        class="btn btn-primary"
+                        href="#"
+                        @click.prevent="$emit('update-filter-value', newFilterValue)"
+                    >
+                        <i class="fas fa-search" />
+                    </button>
                     <input
                         class="form-control"
                         type="text"
@@ -22,9 +20,7 @@
                         @input="newFilterValue = $event.target.value"
                         @keyup.enter="$emit('update-filter-value', $event.target.value)"
                     >
-                    <div class="input-group-append">
-                        <slot />
-                    </div>
+                    <slot />
                 </div>
             </div>
         </div>

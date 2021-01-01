@@ -70,7 +70,7 @@ export default Vue.extend({
         await this.$store.dispatch('quests/loadQuests', id);
 
         if (id) {
-            $('#editQuest').modal('show');
+            this.showModal('editQuest');
         }
 
         await this.$store.dispatch('quests/searchQuests');

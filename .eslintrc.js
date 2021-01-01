@@ -2,7 +2,6 @@ module.exports = {
     env: {
         node: true,
         browser: true,
-        jquery: true,
     },
     root: true,
     parser: 'vue-eslint-parser',

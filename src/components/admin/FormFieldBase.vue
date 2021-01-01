@@ -1,5 +1,5 @@
 <template>
-    <div class="form-group row">
+    <div class="mb-3 row">
         <div class="col-sm-3 col-form-label">
             <b>{{ label }}</b>
         </div>

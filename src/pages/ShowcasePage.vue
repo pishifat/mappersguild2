@@ -2,10 +2,10 @@
     <div>
         <div class="container card card-body py-3 mb-3">
             <button
-                class="btn btn-block btn-outline-info"
+                class="btn w-100 btn-outline-info"
                 href="#"
-                data-toggle="modal"
-                data-target="#addBeatmap"
+                data-bs-toggle="modal"
+                data-bs-target="#addBeatmap"
             >
                 Add beatmap <i class="fas fa-plus fa-xs" />
             </button>
@@ -23,7 +23,6 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import $ from 'jquery';
 import CreateBeatmapModal from '@components/beatmaps/CreateBeatmapModal.vue';
 import ShowcaseBeatmaps from '@pages/beatmaps/ShowcaseBeatmaps.vue';
 import EditBeatmapModal from '@pages/beatmaps/EditBeatmapModal.vue';
@@ -60,7 +59,7 @@ export default Vue.extend({
 
             if (urlBeatmap && !urlBeatmap.error) {
                 this.$store.commit('beatmaps/setSelectedBeatmap', urlBeatmap);
-                $('#editBeatmap').modal('show');
+                this.showModal('editBeatmap');
             }
         } else {
             const res: any = await this.initialRequest('/showcase/relevantInfo');

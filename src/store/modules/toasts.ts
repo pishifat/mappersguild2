@@ -22,7 +22,7 @@ const toastsModule = {
 
             setTimeout(() => {
                 commit('removeFirstToastMessage');
-            }, 3500);
+            }, 4000);
         },
     },
 };

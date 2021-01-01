@@ -18,9 +18,8 @@
                     <a
                         href="#"
                         class="text-done"
-                        :data-user="notification.map.id"
-                        data-toggle="modal"
-                        data-target="#limitedEditBeatmap"
+                        data-bs-toggle="modal"
+                        data-bs-target="#limitedEditBeatmap"
                         @click.prevent="selectBeatmap()"
                     ><i class="far fa-window-maximize" /></a>
                 </span>
@@ -30,9 +29,8 @@
                     <a
                         href="#"
                         class="text-done"
-                        :data-user="notification.party.id"
-                        data-toggle="modal"
-                        data-target="#limitedEditParty"
+                        data-bs-toggle="modal"
+                        data-bs-target="#limitedEditParty"
                         @click.prevent="selectParty()"
                     >
                         <i class="far fa-window-maximize" />

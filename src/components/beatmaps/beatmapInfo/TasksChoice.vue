@@ -3,9 +3,11 @@
         <div class="col-sm-12">
             <table class="table table-sm">
                 <thead>
-                    <th>Difficulty</th>
-                    <th>Mapper(s)</th>
-                    <th v-if="!isRanked && !isQualified" />
+                    <tr>
+                        <th>Difficulty</th>
+                        <th>Mapper(s)</th>
+                        <th v-if="!isRanked && !isQualified" />
+                    </tr>
                 </thead>
                 <transition-group tag="tbody" name="list">
                     <tr
@@ -16,7 +18,7 @@
                         <!-- Difficulty -->
                         <td
                             class="text-white-50"
-                            :style="'border-left: 3px solid var(--' + task.status.toLowerCase() + ')'"
+                            :class="`card-status-${task.status.toLowerCase()}`"
                         >
                             {{ task.name }}
                             <template v-if="beatmap.mode == 'hybrid'">
@@ -46,8 +48,8 @@
                                         v-if="isAddingCollaborator(task)"
                                         href="#"
                                         class="text-danger"
-                                        data-toggle="tooltip"
-                                        data-placement="top"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="top"
                                         :title="'cancel'"
                                         @click.prevent="taskToAddCollaborator = null"
                                     >
@@ -57,8 +59,8 @@
                                         v-else
                                         href="#"
                                         class="text-success"
-                                        data-toggle="tooltip"
-                                        data-placement="top"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="top"
                                         title="invite new collaborator"
                                         @click.prevent="taskToAddCollaborator = task"
                                     >
@@ -79,8 +81,8 @@
                                         "
                                         href="#"
                                         class="text-danger"
-                                        data-toggle="tooltip"
-                                        data-placement="top"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="top"
                                         title="remove collaborator"
                                         @click.prevent="removeCollab(task.id, mapper.id, $event)"
                                     >
@@ -96,8 +98,8 @@
                                 v-if="canEditTask(task)"
                                 href="#"
                                 class="text-danger"
-                                data-toggle="tooltip"
-                                data-placement="top"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
                                 title="delete"
                                 @click.prevent="removeTask(task.id, $event)"
                             >
@@ -108,8 +110,8 @@
                                     v-if="task.status == 'WIP'"
                                     href="#"
                                     class="text-success"
-                                    data-toggle="tooltip"
-                                    data-placement="top"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
                                     title="mark as done"
                                     @click.prevent="setTaskStatus(task.id, 'Done', $event)"
                                 >
@@ -119,8 +121,8 @@
                                     v-if="task.status == 'Done' && beatmap.status != 'Done'"
                                     href="#"
                                     class="text-wip"
-                                    data-toggle="tooltip"
-                                    data-placement="top"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
                                     title="mark as WIP"
                                     @click.prevent="setTaskStatus(task.id, 'WIP', $event)"
                                 >

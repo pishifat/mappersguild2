@@ -3,15 +3,15 @@
         <i
             v-if="party.lock"
             class="fas fa-lock fa-sm"
-            data-toggle="tooltip"
-            data-placement="top"
+            data-bs-toggle="tooltip"
+            data-bs-placement="top"
             title="party is invite-only"
         />
         <i
             v-else
             class="fas fa-unlock fa-sm"
-            data-toggle="tooltip"
-            data-placement="top"
+            data-bs-toggle="tooltip"
+            data-bs-placement="top"
             title="party is open"
         />
     </span>

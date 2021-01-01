@@ -3,8 +3,8 @@
         <div
             class="card card-hover map-card bg-dark"
             :class="statusBorder"
-            data-toggle="modal"
-            data-target="#editBeatmap"
+            data-bs-toggle="modal"
+            data-bs-target="#editBeatmap"
         >
             <img
                 class="card-img"
@@ -34,7 +34,7 @@
                     <i v-else-if="beatmap.mode == 'catch'" class="fas fa-apple-alt" />
                     <i v-else-if="beatmap.mode == 'mania'" class="fas fa-stream" />
                     <process-tasks
-                        class="float-right pt-1"
+                        class="float-end pt-1"
                         :tasks="beatmap.tasks"
                         :tasks-locked="beatmap.tasksLocked"
                         :mode="beatmap.mode"
@@ -112,34 +112,8 @@ export default Vue.extend({
 </script>
 
 <style scoped>
-    .map-card{
-        overflow:hidden;
-        height:75px;
-    }
-
-    .card-status {
-        position: absolute;
-        top: 0px;
-        right: 0px;
-        width: 0px;
-        height: 0px;
-        border-bottom: 15px solid transparent;
-        z-index: 10000;
-    }
-
-    .card-status-wip {
-        border-left: 4px solid var(--wip);
-    }
-
-    .card-status-done {
-        border-left: 4px solid var(--done);
-    }
-
-    .card-status-qualified {
-        border-left: 4px solid var(--guild);
-    }
-
-    .card-status-ranked {
-        border-left: 4px solid var(--ranked);
+    .map-card {
+        overflow: hidden;
+        height: 75px;
     }
 </style>

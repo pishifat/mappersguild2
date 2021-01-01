@@ -24,29 +24,29 @@
             <i
                 v-if="selectedBeatmap.mode == 'taiko'"
                 class="fas fa-drum"
-                data-toggle="tooltip"
-                data-placement="top"
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
                 title="osu!taiko"
             />
             <i
                 v-else-if="selectedBeatmap.mode == 'catch'"
                 class="fas fa-apple-alt"
-                data-toggle="tooltip"
-                data-placement="top"
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
                 title="osu!catch"
             />
             <i
                 v-else-if="selectedBeatmap.mode == 'mania'"
                 class="fas fa-stream"
-                data-toggle="tooltip"
-                data-placement="top"
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
                 title="osu!mania"
             />
             <i
                 v-else-if="selectedBeatmap.mode == 'hybrid'"
                 class="fas fa-check-double"
-                data-toggle="tooltip"
-                data-placement="top"
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
                 title="multiple game modes"
             />
         </template>

@@ -12,8 +12,8 @@
                 v-if="party.rank > 0"
                 class="fas fa-crown fa-sm"
                 :class="'text-rank-' + party.rank"
-                data-toggle="tooltip"
-                data-placement="top"
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
                 :title="`rank ${party.rank} party`"
             />
 
@@ -25,11 +25,11 @@
             <!-- ACTIONS -->
             <template v-if="loggedInUser.id != party.leader.id">
                 <!-- only open quest -->
-                <button v-if="!memberOfAnyParty && !party.lock && isOpen" class="btn btn-sm btn-outline-info ml-1" @click.prevent="joinParty($event)">
+                <button v-if="!memberOfAnyParty && !party.lock && isOpen" class="btn btn-sm btn-outline-info ms-1" @click.prevent="joinParty($event)">
                     Join <i class="fas fa-user-plus fa-xs" />
                 </button>
                 <!-- open & wip -->
-                <button v-if="inCurrentParty && (isOpen || isWip)" class="btn btn-sm btn-outline-danger ml-1" @click.prevent="leaveParty($event)">
+                <button v-if="inCurrentParty && (isOpen || isWip)" class="btn btn-sm btn-outline-danger ms-1" @click.prevent="leaveParty($event)">
                     Leave <i class="fas fa-user-minus fa-xs" />
                 </button>
             </template>
@@ -101,7 +101,7 @@ export default Vue.extend({
 
             if (!this.isError(quests)) {
                 this.$store.dispatch('quests/setQuests', quests);
-                $('#editQuest').modal('hide');
+                this.hideModal('editQuest');
             }
         },
     },

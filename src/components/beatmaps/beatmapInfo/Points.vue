@@ -4,18 +4,18 @@
             <div class="col-sm-12">
                 <button
                     v-if="!tasksPointsArray"
-                    class="btn btn-sm btn-outline-info ml-1"
-                    data-toggle="tooltip"
-                    data-placement="top"
+                    class="btn btn-sm btn-outline-info ms-1"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
                     title="calculate points for all difficulties"
                     @click="findPoints($event)"
                 >
                     Calculate points
                 </button>
-                <span v-if="isLoading" class="small text-white-50 ml-2">
+                <span v-if="isLoading" class="small text-white-50 ms-2">
                     calculating...
                 </span>
-                <span v-else-if="pointsInfo" class="small text-white-50 ml-2">
+                <span v-else-if="pointsInfo" class="small text-white-50 ms-2">
                     {{ pointsInfo }}
                 </span>
             </div>
@@ -34,7 +34,7 @@
                 </ul>
             </div>
             <div v-if="totalPoints" class="col-sm-12">
-                <span class="small text-white-50 ml-2">
+                <span class="small text-white-50 ms-2">
                     total: {{ Math.round(totalPoints*10)/10 }}
                 </span>
             </div>

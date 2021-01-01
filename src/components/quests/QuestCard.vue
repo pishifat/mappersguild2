@@ -7,8 +7,8 @@
         >
             <div
                 class="row no-gutters align-items-center"
-                data-toggle="modal"
-                data-target="#editQuest"
+                data-bs-toggle="modal"
+                data-bs-target="#editQuest"
                 @click="selectQuest"
             >
                 <div class="col-sm-1 text-center">

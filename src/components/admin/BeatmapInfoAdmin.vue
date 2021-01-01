@@ -14,7 +14,7 @@
 
         <template #default>
             <div class="container">
-                <p class="form-row">
+                <p class="row">
                     <select v-model="status" class="form-control form-control-sm w-25 mx-2">
                         <option value="WIP">
                             WIP
@@ -33,7 +33,7 @@
                         Save status
                     </button>
                 </p>
-                <p class="form-row">
+                <p class="row">
                     <select v-model="taskId" class="form-control form-control-sm w-50 mx-2">
                         <option v-for="task in sortedTasks" :key="task.id" :value="task.id">
                             {{ task.name }} ---
@@ -47,7 +47,7 @@
                         Remove difficulty
                     </button>
                 </p>
-                <p class="form-row">
+                <p class="row">
                     <select v-model="modderId" class="form-control form-control-sm w-50 mx-2">
                         <option v-for="modder in beatmap.modders" :key="modder.id" :value="modder.id">
                             {{ modder.username }}
@@ -57,7 +57,7 @@
                         Remove modder
                     </button>
                 </p>
-                <p class="form-row">
+                <p class="row">
                     <input
                         v-model="beatmapUrl"
                         class="form-control form-control-sm mx-2 w-75"
@@ -69,7 +69,7 @@
                         Save URL
                     </button>
                 </p>
-                <p v-if="storyboardTaskId" class="form-row">
+                <p v-if="storyboardTaskId" class="row">
                     <select v-model="storyboardQuality" class="form-control form-control-sm w-25 mx-2">
                         <option value="1">
                             1
@@ -85,7 +85,7 @@
                         Save Storyboard Quality
                     </button>
                 </p>
-                <p class="form-row">
+                <p class="row">
                     <input
                         v-model="packId"
                         class="form-control form-control-sm mx-2 w-50"

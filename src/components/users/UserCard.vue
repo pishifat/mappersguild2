@@ -3,20 +3,20 @@
         <div
             class="card card-hover card-level-2 card-body"
             :class="'border-rank-' + user.rank"
-            data-toggle="modal"
-            data-target="#extendedInfo"
-            :data-user="user.osuId"
+            data-bs-toggle="modal"
+            data-bs-target="#extendedInfo"
         >
             <img :src="'https://a.ppy.sh/' + user.osuId" class="card-avatar-img">
 
-            <a
-                :href="'https://osu.ppy.sh/users/' + user.osuId"
-                target="_blank"
-                class="mb-2"
-                @click.stop
-            >
-                {{ user.username }}
-            </a>
+            <div class="mb-2">
+                <a
+                    :href="'https://osu.ppy.sh/users/' + user.osuId"
+                    target="_blank"
+                    @click.stop
+                >
+                    {{ user.username }}
+                </a>
+            </div>
 
             <div class="text-secondary">
                 <div class="card-text small">

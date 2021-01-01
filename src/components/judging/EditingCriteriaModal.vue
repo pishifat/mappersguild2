@@ -1,8 +1,8 @@
 <template>
     <modal-dialog
         id="editing-judging-modal"
-        data-backdrop="static"
-        data-keyboard="false"
+        data-bs-backdrop="static"
+        data-bs-keyboard="false"
         :loaded="Boolean(editingSubmission)"
     >
         <template #header>
@@ -10,8 +10,8 @@
         </template>
 
         <template #default>
-            <div v-if="editingCriteria.name != 'comments'" class="form-group">
-                <label for="score">Score</label>
+            <div v-if="editingCriteria.name != 'comments'" class="mb-3">
+                <label class="form-label" for="score">Score</label>
                 <input
                     id="score"
                     v-model="editingScore"
@@ -24,9 +24,9 @@
             </div>
             <div
                 v-else
-                class="form-group"
+                class="mb-3"
             >
-                <label for="comment">
+                <label class="form-label" for="comment">
                     Comment
                 </label>
                 <textarea
@@ -54,7 +54,7 @@
             >
                 Save changes
             </button>
-            <div id="close-button" data-dismiss="modal" />
+            <div id="close-button" data-bs-dismiss="modal" />
         </template>
     </modal-dialog>
 </template>

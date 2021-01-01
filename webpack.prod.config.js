@@ -14,25 +14,6 @@ module.exports = merge(base, {
         chunkFilename: 'js/[name].[contenthash].js',
         publicPath: '/',
     },
-    module: {
-        rules: [
-            {
-                test: /(\.s[ac]ss|\.css)$/i,
-                use: [
-                    {
-                        loader: MiniCssExtractPlugin.loader,
-                    },
-                    {
-                        loader: 'css-loader',
-                        options: {
-                            url: false,
-                        },
-                    },
-                    'sass-loader',
-                ],
-            },
-        ],
-    },
     mode: 'production',
     plugins: [
         new CleanWebpackPlugin(),

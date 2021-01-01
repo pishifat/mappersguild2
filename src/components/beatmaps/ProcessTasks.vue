@@ -28,8 +28,8 @@ function taskNode(h: CreateElement, text: VNodeChildren, status: TaskStatus | 'b
 
     if (tooltip) {
         data.attrs = {
-            'data-toggle': 'tooltip',
-            'data-placement': 'top',
+            'data-bs-toggle': 'tooltip',
+            'data-bs-placement': 'top',
             title: tooltip,
         };
     }
@@ -127,7 +127,7 @@ export default Vue.extend({
         }
 
         return h('span', {
-            class: 'font-weight-bold',
+            class: 'fw-bold',
         }, nodes);
     },
 });

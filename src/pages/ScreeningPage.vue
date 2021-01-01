@@ -24,7 +24,7 @@
                         />
                     </transition-group>
 
-                    <p v-else class="ml-4">
+                    <p v-else class="ms-4">
                         No submissions...
                     </p>
                 </div>

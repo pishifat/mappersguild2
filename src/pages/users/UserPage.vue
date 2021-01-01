@@ -9,8 +9,8 @@
                 type="button"
                 @click="showNewer"
             >
-                <i class="fas fa-angle-up mr-1" /> show newer
-                <i class="fas fa-angle-up ml-1" />
+                <i class="fas fa-angle-up me-1" /> show newer
+                <i class="fas fa-angle-up ms-1" />
             </button>
             <div>
                 <transition-group name="list" tag="div" class="row px-3">
@@ -31,8 +31,8 @@
                     type="button"
                     @click="showOlder"
                 >
-                    <i class="fas fa-angle-down mr-1" /> show older
-                    <i class="fas fa-angle-down ml-1" />
+                    <i class="fas fa-angle-down me-1" /> show older
+                    <i class="fas fa-angle-down ms-1" />
                 </button>
             </div>
         </div>
@@ -88,7 +88,7 @@ export default Vue.extend({
 
                 if (i >= 0) {
                     this.$store.commit('users/setSelectedUserId', params.get('id'));
-                    $('#extendedInfo').modal('show');
+                    this.showModal('extendedInfo');
                 }
             }
         }

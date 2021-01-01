@@ -6,14 +6,14 @@
                     Locks
                     <a
                         v-if="beatmap.tasksLocked.length != 6"
-                        class="text-success small ml-1"
+                        class="text-success small ms-1"
                         href="#"
                         @click.prevent="showLocksInput = !showLocksInput"
                     >
                         <i class="fas fa-edit" />
                     </a>
                 </div>
-                <div class="small ml-3">
+                <div class="small ms-3">
                     <i v-if="beatmap.tasksLocked.length == 0">none</i>
                     <div v-if="beatmap.tasksLocked.length > 0">
                         <div
@@ -23,8 +23,8 @@
                             <a
                                 href="#"
                                 class="text-danger"
-                                data-toggle="tooltip"
-                                data-placement="left"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="left"
                                 title="unlock"
                                 @click.prevent="unlockTask(task, $event)"
                             >
@@ -57,18 +57,16 @@
                             {{ task }}
                         </option>
                     </select>
-                    <div class="input-group-append">
-                        <button
-                            id="lockTask"
-                            class="btn btn-outline-info"
-                            data-toggle="tooltip"
-                            data-placement="right"
-                            title="prevent other mappers from claiming a difficulty"
-                            @click="lockTask($event)"
-                        >
-                            <i class="fas fa-lock" />
-                        </button>
-                    </div>
+                    <button
+                        id="lockTask"
+                        class="btn btn-outline-info"
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="right"
+                        title="prevent other mappers from claiming a difficulty"
+                        @click="lockTask($event)"
+                    >
+                        <i class="fas fa-lock" />
+                    </button>
                 </div>
             </div>
         </div>

@@ -1,13 +1,13 @@
 <template>
-    <div class="ml-3 mt-1">
+    <div class="ms-3 mt-1">
         <b>Modes:</b>
         <span v-if="party.leader.id == $store.state.loggedInUser.id">
             <a href="#" @click.prevent="togglePartyMode('osu')">
                 <i
                     class="fas fa-circle"
                     :class="party.modes.includes('osu') ? '' : 'text-white-50'"
-                    data-toggle="tooltip"
-                    data-placement="top"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
                     title="toggle osu!"
                 />
             </a>
@@ -15,8 +15,8 @@
                 <i
                     class="fas fa-drum"
                     :class="party.modes.includes('taiko') ? '' : 'text-white-50'"
-                    data-toggle="tooltip"
-                    data-placement="top"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
                     title="toggle osu!taiko"
                 />
             </a>
@@ -24,8 +24,8 @@
                 <i
                     class="fas fa-apple-alt"
                     :class="party.modes.includes('catch') ? '' : 'text-white-50'"
-                    data-toggle="tooltip"
-                    data-placement="top"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
                     title="toggle osu!catch"
                 />
             </a>
@@ -33,8 +33,8 @@
                 <i
                     class="fas fa-stream"
                     :class="party.modes.includes('mania') ? '' : 'text-white-50'"
-                    data-toggle="tooltip"
-                    data-placement="top"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
                     title="toggle osu!mania"
                 />
             </a>
@@ -43,29 +43,29 @@
             <i
                 v-if="party.modes.includes('osu')"
                 class="fas fa-circle"
-                data-toggle="tooltip"
-                data-placement="top"
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
                 title="osu!"
             />
             <i
                 v-if="party.modes.includes('taiko')"
                 class="fas fa-drum"
-                data-toggle="tooltip"
-                data-placement="top"
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
                 title="osu!taiko"
             />
             <i
                 v-if="party.modes.includes('catch')"
                 class="fas fa-apple-alt"
-                data-toggle="tooltip"
-                data-placement="top"
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
                 title="osu!catch"
             />
             <i
                 v-if="party.modes.includes('mania')"
                 class="fas fa-stream"
-                data-toggle="tooltip"
-                data-placement="top"
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
                 title="osu!mania"
             />
         </span>

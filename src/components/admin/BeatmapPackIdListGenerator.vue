@@ -7,7 +7,7 @@
             autocomplete="off"
             placeholder="map URLs separated by newlines..."
         />
-        <button class="btn btn-sm btn-block btn-outline-info" @click="generateBeatmapPackIdList()">
+        <button class="btn btn-sm w-100 btn-outline-info" @click="generateBeatmapPackIdList()">
             Generate beatmap pack ID list
         </button>
         <div v-if="output.length">

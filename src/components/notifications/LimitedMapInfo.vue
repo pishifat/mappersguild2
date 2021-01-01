@@ -18,15 +18,17 @@
                     <div class="col-sm-12">
                         <table class="table table-sm">
                             <thead>
-                                <th scope="col">
-                                    Difficulty
-                                </th>
-                                <th scope="col">
-                                    Mapper(s)
-                                </th>
-                                <th v-if="beatmap.status != 'Ranked'" scope="col">
-                                    Status
-                                </th>
+                                <tr>
+                                    <th scope="col">
+                                        Difficulty
+                                    </th>
+                                    <th scope="col">
+                                        Mapper(s)
+                                    </th>
+                                    <th v-if="beatmap.status != 'Ranked'" scope="col">
+                                        Status
+                                    </th>
+                                </tr>
                             </thead>
                             <transition-group id="difficulties" tag="tbody" name="list">
                                 <tr v-for="task in beatmap.tasks" :id="task.id + 'Row'" :key="task.id">

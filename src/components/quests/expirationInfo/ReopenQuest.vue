@@ -2,7 +2,7 @@
     <div class="row">
         <div class="col-sm-12">
             <button
-                class="btn btn-sm btn-block btn-outline-success mb-2"
+                class="btn btn-sm w-100 btn-outline-success mb-2"
                 :disabled="!enoughPoints"
                 @click.prevent="reopenQuest($event)"
             >
@@ -49,7 +49,7 @@ export default Vue.extend({
                 if (!this.isError(res)) {
                     this.$store.dispatch('quests/setQuests', res.quests);
                     this.$store.commit('setAvailablePoints', res.availablePoints);
-                    $('#editQuest').modal('hide');
+                    this.hideModal('editQuest');
                 }
             }
         },

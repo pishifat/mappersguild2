@@ -12,7 +12,7 @@
                         <table class="table table-responsive-sm mb-0">
                             <thead>
                                 <tr>
-                                    <th class="text-left">
+                                    <th class="text-start">
                                         <a
                                             href="#"
                                             @click.prevent="sortSubmissionsBy('name')"
@@ -49,17 +49,17 @@
                             </thead>
                             <tbody>
                                 <tr v-for="submission in sortedSubmissions" :key="submission.id">
-                                    <td class="text-left">
+                                    <td class="text-start">
                                         {{ submission.name }}
                                     </td>
-                                    <td v-for="criteria in criterias" :key="criteria.id" class="text-left">
+                                    <td v-for="criteria in criterias" :key="criteria.id" class="text-start">
                                         <a
                                             href="#"
-                                            data-toggle="modal"
-                                            data-target="#editing-judging-modal"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#editing-judging-modal"
                                             @click.prevent="selectForEditing(submission.id, criteria.id)"
                                         >
-                                            <i class="mr-1 fas fa-edit" />
+                                            <i class="me-1 fas fa-edit" />
                                             <span v-if="criteria.name != 'comments'">
                                                 {{ getScore(submission.id, criteria.id) + `/${criteria.maxScore}` }}
                                             </span>

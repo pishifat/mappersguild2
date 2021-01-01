@@ -10,7 +10,7 @@
                         {{ submission.name }}
                     </div>
 
-                    <div class="col-sm-6 text-right">
+                    <div class="col-sm-6 text-end">
                         <screening-vote
                             :submission-id="submission.id"
                             :saved-vote="relatedScreening && relatedScreening.vote"

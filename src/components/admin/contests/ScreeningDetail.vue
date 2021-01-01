@@ -6,7 +6,7 @@
                     {{ evaluation.screener.username }}
                 </a>
                 ({{ evaluation.vote }})
-                <div class="ml-4 small text-white-50" style="word-break: break-word;">
+                <div class="ms-4 small text-white-50" style="word-break: break-word;">
                     {{ evaluation.comment }}
                 </div>
             </div>

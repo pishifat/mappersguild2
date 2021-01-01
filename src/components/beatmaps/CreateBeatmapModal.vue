@@ -1,7 +1,7 @@
 <template>
     <modal-dialog id="addBeatmap" title="Add beatmap">
         <div class="container">
-            <div class="form-group row">
+            <div class="mb-3 row">
                 <div class="col-lg-1">
                     <p style="margin-top: 3px;">
                         Artist:
@@ -27,11 +27,9 @@
                                 {{ featuredArtist.label }}
                             </option>
                         </select>
-                        <div class="input-group-append">
-                            <button id="artistButton" class="btn btn-outline-info" @click="setArtist($event)">
-                                Load songs
-                            </button>
-                        </div>
+                        <button id="artistButton" class="btn btn-outline-info" @click="setArtist($event)">
+                            Load songs
+                        </button>
                     </div>
                 </div>
 
@@ -64,7 +62,7 @@
             <p>
                 Game-mode:
             </p>
-            <div class="form-group row">
+            <div class="mb-3 row">
                 <div class="col-sm-10">
                     <div
                         v-for="mode in modes"
@@ -89,7 +87,7 @@
             <p>
                 Select one or more difficulties <i>you plan on mapping</i>. These can be changed later:
             </p>
-            <div class="form-group row">
+            <div class="mb-3 row">
                 <div class="col-sm-10">
                     <div
                         v-for="task in tasks"
@@ -114,7 +112,7 @@
                 Select one or more difficulties <i>you don't want anyone else to claim</i>. These can be changed later: <br>
                 <small class="text-white-50">For example, if you don't want any guest difficulties, you should mark everything.</small>
             </p>
-            <div class="form-group row">
+            <div class="mb-3 row">
                 <div class="col-sm-10">
                     <div
                         v-for="task in tasks"
@@ -138,7 +136,7 @@
 
         <div class="radial-divisor" />
 
-        <button type="submit" class="btn btn-outline-success btn-block" @click="saveNewMap($event)">
+        <button type="submit" class="btn btn-outline-success w-100" @click="saveNewMap($event)">
             Save
         </button>
     </modal-dialog>
@@ -233,9 +231,7 @@ export default Vue.extend({
             }, e);
 
             if (!this.isError(beatmap)) {
-                ($('#addBeatmap')).modal('hide');
-                ($('.quest-collapse-wip')).collapse();
-                ($('#othersWip')).collapse('show');
+                this.hideModal('addBeatmap');
                 this.$store.commit('beatmaps/addBeatmap', beatmap);
             }
         },

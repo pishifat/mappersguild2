@@ -108,7 +108,7 @@
                 </p>
 
                 <button
-                    class="btn btn-outline-success btn-block"
+                    class="btn btn-outline-success w-100"
                     :disabled="!enoughPoints"
                     @click="submitQuest($event)"
                 >
@@ -119,7 +119,7 @@
 
             <div v-else class="row col-sm">
                 <button
-                    class="btn btn-outline-secondary btn-block"
+                    class="btn btn-outline-secondary w-100"
                     @click="addToQueue()"
                 >
                     Add quest to queue
@@ -144,7 +144,7 @@
 
                 <button
                     v-if="queuedQuests.length"
-                    class="btn btn-outline-success btn-block"
+                    class="btn btn-outline-success w-100"
                     @click="publishQuests($event)"
                 >
                     Publish quests
@@ -359,7 +359,7 @@ export default Vue.extend({
             const res = await this.executePost<BasicResponse>('/quests/submit', data, e);
 
             if (!this.isError(res)) {
-                $('#submitQuest').modal('hide');
+                this.hideModal('submitQuest');
                 this.resetQuestDetails();
             }
         },
@@ -371,7 +371,7 @@ export default Vue.extend({
             const res = await this.executePost<PublishQuestsResponse>('/admin/quests/create', data, e);
 
             if (!this.isError(res)) {
-                $('#submitQuest').modal('hide');
+                this.hideModal('submitQuest');
                 this.queuedQuests = [];
             }
         },

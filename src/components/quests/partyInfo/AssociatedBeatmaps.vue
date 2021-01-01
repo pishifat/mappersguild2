@@ -4,7 +4,7 @@
             Associated maps
         </h5>
 
-        <ul v-if="associatedMaps.length" class="pl-3 mb-0">
+        <ul v-if="associatedMaps.length" class="ps-3 mb-0 list-unstyled">
             <li
                 v-for="map in associatedMaps"
                 :key="map.id"
@@ -13,7 +13,7 @@
                 <i
                     class="fas"
                     :class="[`text-${map.status.toLowerCase()}`, findIcon(map.status)]"
-                    data-toggle="tooltip"
+                    data-bs-toggle="tooltip"
                     :title="map.status"
                 />
                 <a v-if="map.url" :href="map.url" target="_blank">
@@ -24,7 +24,7 @@
             </li>
         </ul>
 
-        <div v-else class="small text-white-50 ml-3">
+        <div v-else class="small text-white-50 ms-3">
             No associated maps...
         </div>
     </div>
@@ -59,27 +59,3 @@ export default Vue.extend({
     },
 });
 </script>
-
-<style scoped>
-
-ul {
-    list-style-type: none;
-}
-
-.card-status-wip {
-    border-left: 4px solid var(--wip);
-}
-
-.card-status-done {
-    border-left: 4px solid var(--done);
-}
-
-.card-status-qualified {
-    border-left: 4px solid var(--guild);
-}
-
-.card-status-ranked {
-    border-left: 4px solid var(--ranked);
-}
-
-</style>

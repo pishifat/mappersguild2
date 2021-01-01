@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
     entry: {
@@ -22,6 +23,33 @@ module.exports = {
                     configFile: path.join(__dirname, './tsconfig.src.json'),
                 },
             },
+            {
+                test: /(\.scss|\.css)$/i,
+                use: [
+                    {
+                        loader: process.env.NODE_ENV !== 'production'
+                            ? 'style-loader'
+                            : MiniCssExtractPlugin.loader,
+                    },
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            url: false,
+                        },
+                    },
+                    {
+                        loader: 'postcss-loader',
+                        options: {
+                            postcssOptions: {
+                                plugins: [
+                                    require('autoprefixer'),
+                                ],
+                            },
+                        },
+                    },
+                    'sass-loader',
+                ],
+            },
         ],
     },
     resolve: {
@@ -36,7 +64,4 @@ module.exports = {
     plugins: [
         new VueLoaderPlugin(),
     ],
-    externals: {
-        jquery: '$',
-    },
 };

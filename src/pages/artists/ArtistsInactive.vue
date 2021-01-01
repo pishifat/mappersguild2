@@ -2,12 +2,12 @@
     <div class="container card card-body py-1">
         <div class="row">
             <div class="col">
-                <h3 class="ml-2">
+                <h3 class="ms-2">
                     Inactive
                 </h3>
 
-                <h5 class="ml-4 mt-2">
-                    <a href="#upToDate" data-toggle="collapse">
+                <h5 class="ms-4 mt-2">
+                    <a href="#upToDate" data-bs-toggle="collapse">
                         Up to date ({{ upToDate.length }})
                         <i class="fas fa-angle-down" />
                     </a>
@@ -24,8 +24,8 @@
                     <div class="radial-divisor" />
                 </div>
 
-                <h5 class="ml-4 mt-2">
-                    <a href="#rejected" data-toggle="collapse">
+                <h5 class="ms-4 mt-2">
+                    <a href="#rejected" data-bs-toggle="collapse">
                         Rejected ({{ rejected.length }})
                         <i class="fas fa-angle-down" />
                     </a>

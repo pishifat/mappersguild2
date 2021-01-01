@@ -4,6 +4,7 @@ const Beatmaps = () => import(/* webpackChunkName: "public", webpackPrefetch: tr
 const Quests = () => import(/* webpackChunkName: "public", webpackPrefetch: true */ './pages/quests/QuestPage.vue');
 const Users = () => import(/* webpackChunkName: "public", webpackPrefetch: true */ './pages/users/UserPage.vue');
 const ContestResults = () => import(/* webpackChunkName: "public", webpackPrefetch: true */ './pages/ContestResultsPage.vue');
+const NotFound = () => import(/* webpackChunkName: "public", webpackPrefetch: true */ './pages/NotFound.vue');
 
 const Logs = () => import(/* webpackChunkName: "logged", webpackPrefetch: true */ './pages/Logs.vue');
 const Notifications = () => import(/* webpackChunkName: "logged", webpackPrefetch: true */ './pages/NotificationPage.vue');
@@ -48,7 +49,7 @@ const routes = [
     { path: '/artists', component: Artists, meta: { title: 'Artists' } },
 
     // Fallback
-    { path: '*', redirect: '/' },
+    { path: '*', component: NotFound, meta: { title: 'Oops' } },
 ];
 
 export default routes;

@@ -8,7 +8,7 @@
         >
 
         <button
-            class="btn btn-block btn-info"
+            class="btn w-100 btn-info"
             type="button"
             @click="addContest($event)"
         >

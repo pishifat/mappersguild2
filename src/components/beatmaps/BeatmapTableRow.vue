@@ -7,8 +7,8 @@
                         <quest-img :beatmap="beatmap" />
                         <a
                             href="#"
-                            data-toggle="collapse"
-                            :data-target="'#details' + beatmap.id"
+                            data-bs-toggle="collapse"
+                            :data-bs-target="'#details' + beatmap.id"
                             @click="selectBeatmap()"
                         >
                             {{ formatMetadata() }}
@@ -38,7 +38,7 @@
             </div>
         </div>
 
-        <div :id="'details' + beatmap.id" class="collapse my-2 mx-4 row border-right border-left py-3" :class="'border-' + beatmap.status.toLowerCase()">
+        <div :id="'details' + beatmap.id" class="collapse my-2 mx-4 row border-end border-start py-3" :class="'border-' + beatmap.status.toLowerCase()">
             <beatmap-info
                 :beatmap="beatmap"
             />
@@ -49,7 +49,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import BeatmapInfo from './beatmapInfo/BeatmapInfo.vue';
-import { Beatmap, BeatmapStatus } from '@interfaces/beatmap/beatmap';
+import { Beatmap } from '@interfaces/beatmap/beatmap';
 import ProcessTasks from './ProcessTasks.vue';
 import QuestImg from './QuestImg.vue';
 
@@ -80,14 +80,8 @@ export default Vue.extend({
             }
         },
         statusBorder(): string {
-            if (this.beatmap.status == BeatmapStatus.WIP) {
-                return 'card-status-wip';
-            } else if (this.beatmap.status == BeatmapStatus.Done) {
-                return 'card-status-done';
-            } else if (this.beatmap.status == BeatmapStatus.Qualified) {
-                return 'card-status-qualified';
-            } else if (this.beatmap.status == BeatmapStatus.Ranked) {
-                return 'card-status-ranked';
+            if (this.beatmap.status) {
+                return 'card-status-' + this.beatmap.status.toLowerCase();
             }
 
             return '';
@@ -95,22 +89,3 @@ export default Vue.extend({
     },
 });
 </script>
-
-<style scoped>
-    .card-status-wip {
-        border-left: 4px solid var(--wip);
-    }
-
-    .card-status-done {
-        border-left: 4px solid var(--done);
-    }
-
-    .card-status-qualified {
-        border-left: 4px solid var(--guild);
-    }
-
-    .card-status-ranked {
-        border-left: 4px solid var(--ranked);
-    }
-</style>
-

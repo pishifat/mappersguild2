@@ -5,7 +5,7 @@
                 <div class="col-md-6">
                     <h2>
                         Notifications
-                        <button class="btn btn-outline-info btn-sm ml-1" @click.prevent="hideAll($event)">
+                        <button class="btn btn-outline-info btn-sm ms-1" @click.prevent="hideAll($event)">
                             Mark all as read
                         </button>
                     </h2>
@@ -19,7 +19,7 @@
                             @hide-notification="hideNotification($event)"
                         />
                     </transition-group>
-                    <p v-if="!notifications.length" class="ml-4">
+                    <p v-if="!notifications.length" class="ms-4">
                         No notifications...
                     </p>
                 </div>
@@ -27,7 +27,7 @@
                 <div class="col-md-6">
                     <h2>
                         Invites
-                        <button class="btn btn-outline-danger btn-sm ml-1" @click.prevent="declineAll($event)">
+                        <button class="btn btn-outline-danger btn-sm ms-1" @click.prevent="declineAll($event)">
                             Decline all
                         </button>
                     </h2>
@@ -42,7 +42,7 @@
                             @hide-invite="hideInvite($event)"
                         />
                     </transition-group>
-                    <p v-if="!invites.length" class="ml-4">
+                    <p v-if="!invites.length" class="ms-4">
                         No invites...
                     </p>
                 </div>

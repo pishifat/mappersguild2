@@ -1,8 +1,8 @@
 <template>
     <modal-dialog id="addArtist" title="Add artist">
         <div class="container">
-            <div class="form-group row">
-                <label class="col-sm-3 mt-1" for="artistName"> Artist/Label:</label>
+            <div class="mb-3 row">
+                <label class="form-label col-sm-3 mt-1" for="artistName"> Artist/Label:</label>
                 <input
                     v-model="name"
                     class="col-sm-9 form-control"
@@ -14,7 +14,7 @@
 
             <div class="radial-divisor" />
 
-            <button type="button" class="btn btn-outline-info float-right" @click="createArtist($event)">
+            <button type="button" class="btn btn-outline-info float-end" @click="createArtist($event)">
                 Save
             </button>
         </div>
@@ -41,7 +41,7 @@ export default Vue.extend({
 
             if (!this.isError(artist)) {
                 this.$store.commit('addArtist', artist);
-                ($('#addArtist')).modal('hide');
+                this.hideModal('addArtist');
             }
         },
     },

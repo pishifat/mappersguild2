@@ -1,7 +1,7 @@
 <template>
     <div class="container card card-body py-3">
-        <h5 class="ml-2">
-            <a href="#showcaseBeatmaps" data-toggle="collapse">
+        <h5 class="ms-2">
+            <a href="#showcaseBeatmaps" data-bs-toggle="collapse">
                 Showcase mapsets ({{ showcaseBeatmaps ? showcaseBeatmaps.length : '...' }})
                 <i class="fas fa-angle-down" />
             </a>
@@ -16,7 +16,7 @@
                     @set-selected-beatmap="setSelectedBeatmap($event)"
                 />
             </transition-group>
-            <p v-if="!showcaseBeatmaps.length" class="ml-5 text-white-50">
+            <p v-if="!showcaseBeatmaps.length" class="ms-5 text-white-50">
                 None...
             </p>
         </div>

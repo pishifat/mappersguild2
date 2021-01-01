@@ -2,18 +2,18 @@
     <div class="row">
         <div class="col-sm">
             <!-- when done -->
-            <div v-if="quest.status === 'done'" class="ml-3">
+            <div v-if="quest.status === 'done'" class="ms-3">
                 Completed:
                 <span class="text-secondary">{{ quest.completed.toString().slice(0,10) }}</span>
             </div>
 
             <!-- quest info when wip -->
             <div v-if="quest.status === 'wip'">
-                <div class="ml-3">
+                <div class="ms-3">
                     Deadline:
                     <span class="text-secondary">{{ quest.deadline.toString().slice(0,10) }}</span>
                 </div>
-                <div class="ml-3">
+                <div class="ms-3">
                     Time remaining:
                     <span :class="timeRemaining > 0 ? 'text-secondary' : 'text-danger'">{{ timeRemaining }} days</span>
                 </div>

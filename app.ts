@@ -113,9 +113,7 @@ app.use('/admin/judging', adminJudgingRouter);
 
 // catch 404
 app.use((req, res) => {
-    res.render('index', {
-        isDev: req.app.get('env') === 'development',
-    });
+    res.render('index');
 });
 
 // error handler

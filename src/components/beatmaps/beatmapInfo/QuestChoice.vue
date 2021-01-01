@@ -8,16 +8,16 @@
                         id="editLink"
                         href="#"
                         :class="showQuestInput ? 'text-danger' : ''"
-                        class="text-success small ml-1"
-                        data-toggle="tooltip"
-                        data-placement="right"
+                        class="text-success small ms-1"
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="right"
                         title="connect mapset with a quest"
                         @click.prevent="showQuestInput = !showQuestInput"
                     >
                         <i class="fas fa-edit" />
                     </a>
                 </div>
-                <div class="small ml-3 text-white-50">
+                <div class="small ms-3 text-white-50">
                     <span v-if="beatmap.quest">{{ beatmap.quest.name }}</span>
                     <i v-else>none</i>
                 </div>
@@ -45,17 +45,15 @@
                             {{ quest.name }}
                         </option>
                     </select>
-                    <div class="input-group-append">
-                        <button
-                            class="btn btn-outline-info"
-                            data-toggle="tooltip"
-                            data-placement="top"
-                            title="link beatmap to quest"
-                            @click="linkQuest($event)"
-                        >
-                            Save
-                        </button>
-                    </div>
+                    <button
+                        class="btn btn-outline-info"
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title="link beatmap to quest"
+                        @click="linkQuest($event)"
+                    >
+                        Save
+                    </button>
                 </div>
             </div>
         </div>

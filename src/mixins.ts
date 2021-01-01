@@ -1,12 +1,15 @@
 import Vue from 'vue';
 import Axios from 'axios';
 import { isError } from '@store/http';
+import { enableTooltips, hideModal, hideTooltip, showModal } from './helpers';
 
-async function executeRequest (requestType, url, data, e, updateLoadingState, store) {
+export async function executeRequest (requestType, url, data, e, updateLoadingState, store) {
     if (updateLoadingState) store.commit('updateLoadingState');
-    if (e) e.target.disabled = true;
 
-    $(`[data-toggle='tooltip']`).tooltip('hide');
+    if (e) {
+        if (e.dataset.bsToggle === 'tooltip') hideTooltip(e);
+        e.target.disabled = true;
+    }
 
     try {
         let res;
@@ -20,6 +23,8 @@ async function executeRequest (requestType, url, data, e, updateLoadingState, st
         if (res.data.error) {
             store.dispatch('updateToastMessages', { message: res.data.error });
         }
+
+        enableTooltips();
 
         return res.data;
     } catch (error) {
@@ -51,5 +56,8 @@ export default Vue.extend({
         listUser(username: string, i: number, length: number): string {
             return username + (i < length - 1 ? ', ' : '');
         },
+
+        hideModal,
+        showModal,
     },
 });

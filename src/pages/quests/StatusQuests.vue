@@ -3,7 +3,7 @@
         <h5 :class="collapsed ? 'mb-2' : 'mb-0'">
             <a
                 :href="'#' + status"
-                data-toggle="collapse"
+                data-bs-toggle="collapse"
                 @click.prevent="collapsed = !collapsed"
             >
                 {{ status }} quests ({{ questCount }})

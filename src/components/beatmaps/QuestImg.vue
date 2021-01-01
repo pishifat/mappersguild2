@@ -1,9 +1,9 @@
 <template>
     <img
         v-if="beatmap.quest || beatmap.isShowcase"
-        class="rounded-circle mr-1 quest-icon"
+        class="rounded-circle me-1 quest-icon"
         :src="url"
-        data-toggle="tooltip"
+        data-bs-toggle="tooltip"
         :title="beatmap.quest && beatmap.quest.name"
     >
 </template>

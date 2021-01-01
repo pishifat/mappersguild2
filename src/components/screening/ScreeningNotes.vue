@@ -21,7 +21,7 @@
                 maxlength="1000"
             />
 
-            <div class="text-right">
+            <div class="text-end">
                 <button
                     type="button"
                     class="btn btn-sm btn-outline-info  mt-1"

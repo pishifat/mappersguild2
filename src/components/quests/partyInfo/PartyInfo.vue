@@ -4,7 +4,7 @@
             <div class="col">
                 <button
 
-                    class="btn btn-sm btn-block btn-outline-info mb-2"
+                    class="btn btn-sm w-100 btn-outline-info mb-2"
                     @click.prevent="createParty($event)"
                 >
                     Add party <i class="fas fa-plus fa-xs" />

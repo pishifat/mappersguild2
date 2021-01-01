@@ -4,7 +4,7 @@
             <div class="card-body p-0 mx-2 my-1">
                 <div class="row">
                     <span class="col-sm-4">
-                        <a :href="'#details' + artist.id" data-toggle="collapse" class="ml-1">
+                        <a :href="'#details' + artist.id" data-bs-toggle="collapse" class="ms-1">
                             {{ artist.label }}
                             <i class="fas fa-angle-down" />
                         </a>
@@ -41,9 +41,9 @@
                         <a
                             v-if="!artist.isContacted"
                             href="#"
-                            class="float-right small text-danger ml-2"
-                            data-toggle="tooltip"
-                            data-placement="top"
+                            class="float-end small text-danger ms-2"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="top"
                             title="delete"
                             @click.prevent="deleteArtist()"
                         >
@@ -51,9 +51,9 @@
                         </a>
                         <a
                             href="#"
-                            class="float-right small text-danger"
-                            data-toggle="tooltip"
-                            data-placement="top"
+                            class="float-end small text-danger"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="top"
                             title="reset progress (except notes)"
                             @click.prevent="reset()"
                         >
@@ -61,7 +61,7 @@
                         </a>
 
                         <!--contacted-->
-                        <span class="text-center font-8 text-white-50 float-right mr-2">
+                        <span class="text-center font-8 text-white-50 float-end me-2">
                             <span v-if="artist.lastContacted">
                                 {{ `${daysAgo} ${daysAgo == 1 ? 'day ago' : 'days ago'}` }}
                             </span>
@@ -72,7 +72,7 @@
                                 <i class="fas fa-edit" />
                             </a>
                         </span>
-                        <span v-if="showContactedInput" class="small float-right">
+                        <span v-if="showContactedInput" class="small float-end">
                             <input
                                 v-model="contactedInput"
                                 class="small w-50"
@@ -87,30 +87,30 @@
                     </span>
                 </div>
                 <!--collapsed info-->
-                <div :id="'details' + artist.id" class="collapse ml-4 row">
+                <div :id="'details' + artist.id" class="collapse ms-4 row">
                     <div class="col-sm-2">
                         <div class="sub-header">
                             <u>Discussion</u>
                         </div>
-                        <div class="small ml-2">
+                        <div class="small ms-2">
                             Contacted:
                             <a href="#" @click.stop.prevent="toggleIsContacted()">
                                 <i class="fas" :class="artist.isContacted ? 'text-done fa-check' : 'text-danger fa-times'" />
                             </a>
                         </div>
-                        <div class="small ml-2">
+                        <div class="small ms-2">
                             Responded:
                             <a href="#" @click.stop.prevent="toggleIsResponded()">
                                 <i class="fas" :class="artist.isResponded ? 'text-done fa-check' : 'text-danger fa-times'" />
                             </a>
                         </div>
-                        <div class="small ml-2">
+                        <div class="small ms-2">
                             Tracks confirmed:
                             <a href="#" @click.stop.prevent="toggleTracksSelected()">
                                 <i class="fas" :class="artist.tracksSelected ? 'text-done fa-check' : 'text-danger fa-times'" />
                             </a>
                         </div>
-                        <div v-if="!artist.tracksSelected" class="small ml-2">
+                        <div v-if="!artist.tracksSelected" class="small ms-2">
                             Rejected:
                             <a href="#" @click.stop.prevent="toggleIsRejected()">
                                 <i class="fas" :class="artist.isRejected ? 'text-done fa-check' : 'text-danger fa-times'" />
@@ -122,25 +122,25 @@
                         <div class="sub-header">
                             <u>Contract</u>
                         </div>
-                        <div class="small ml-2">
+                        <div class="small ms-2">
                             Sent:
                             <a href="#" @click.stop.prevent="toggleContractSent()">
                                 <i class="fas" :class="artist.contractSent ? 'text-done fa-check' : 'text-danger fa-times'" />
                             </a>
                         </div>
-                        <div class="small ml-2">
+                        <div class="small ms-2">
                             Artist signed:
                             <a href="#" @click.stop.prevent="toggleArtistSigned()">
                                 <i class="fas" :class="artist.artistSigned ? 'text-done fa-check' : 'text-danger fa-times'" />
                             </a>
                         </div>
-                        <div class="small ml-2">
+                        <div class="small ms-2">
                             ppy paid:
                             <a href="#" @click.stop.prevent="togglePpyPaid()">
                                 <i class="fas" :class="artist.ppyPaid ? 'text-done fa-check' : 'text-danger fa-times'" />
                             </a>
                         </div>
-                        <div class="small ml-2">
+                        <div class="small ms-2">
                             ppy signed:
                             <a href="#" @click.stop.prevent="togglePpySigned()">
                                 <i class="fas" :class="artist.ppySigned ? 'text-done fa-check' : 'text-danger fa-times'" />
@@ -153,13 +153,13 @@
                             <u>Publication</u>
                         </div>
 
-                        <div class="small ml-2">
+                        <div class="small ms-2">
                             Projected release: <span :class="'text-' + artist.projectedRelease ? 'done' : 'open'">{{ artist.projectedRelease ? new Date(artist.projectedRelease).toString().slice(4,15) : '...' }}</span>
                             <a href="#" @click.prevent="showDateInput = !showDateInput">
                                 <i class="fas fa-edit" />
                             </a>
                         </div>
-                        <p v-if="showDateInput" class="small ml-3">
+                        <p v-if="showDateInput" class="small ms-3">
                             <input
                                 v-model="dateInput"
                                 class="small w-50"
@@ -170,25 +170,25 @@
                                 @keyup.enter="updateProjectedRelease()"
                             >
                         </p>
-                        <div class="small ml-2">
+                        <div class="small ms-2">
                             Songs received:
                             <a href="#" @click.stop.prevent="toggleSongsReceived()">
                                 <i class="fas" :class="artist.songsReceived ? 'text-done fa-check' : 'text-danger fa-times'" />
                             </a>
                         </div>
-                        <div class="small ml-2">
+                        <div class="small ms-2">
                             Songs timed:
                             <a href="#" @click.stop.prevent="toggleSongsTimed()">
                                 <i class="fas" :class="artist.songsTimed ? 'text-done fa-check' : 'text-danger fa-times'" />
                             </a>
                         </div>
-                        <div class="small ml-2">
+                        <div class="small ms-2">
                             Visual assets received:
                             <a href="#" @click.stop.prevent="toggleAssetsReceived()">
                                 <i class="fas" :class="artist.assetsReceived ? 'text-done fa-check' : 'text-danger fa-times'" />
                             </a>
                         </div>
-                        <div class="small ml-2">
+                        <div class="small ms-2">
                             Released:
                             <a href="#" @click.stop.prevent="toggleIsUpToDate()">
                                 <i class="fas" :class="artist.isUpToDate ? 'text-done fa-check' : 'text-danger fa-times'" />
@@ -201,13 +201,13 @@
                             <u>Other</u>
                         </div>
 
-                        <div v-if="!artist.osuId" class="small ml-2">
+                        <div v-if="!artist.osuId" class="small ms-2">
                             Minor release:
                             <a href="#" @click.stop.prevent="toggleIsMinor()">
                                 <i class="fas" :class="artist.isMinor ? 'text-done fa-check' : 'text-danger fa-times'" />
                             </a>
                         </div>
-                        <div class="small ml-2">
+                        <div class="small ms-2">
                             Ranked maps:
                             <a href="#" @click.stop.prevent="toggleHasRankedMaps()">
                                 <i class="fas" :class="artist.hasRankedMaps ? 'text-done fa-check' : 'text-danger fa-times'" />
@@ -216,7 +216,7 @@
                     </div>
                 </div>
                 <!--notes-->
-                <div class="mb-1 ml-2">
+                <div class="mb-1 ms-2">
                     <a href="#" @click.prevent="updateNotes(null)">
                         <i class="fas fa-edit" />
                     </a>

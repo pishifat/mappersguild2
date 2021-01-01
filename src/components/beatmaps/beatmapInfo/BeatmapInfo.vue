@@ -80,14 +80,14 @@
                 :beatmap="beatmap"
             />
 
-            <div class="col-sm-4 text-right">
+            <div class="col-sm-4 text-end">
                 <span class="small text-white-50">
                     Created: {{ beatmap.createdAt.toString().slice(0, 10) }}
                 </span>
                 <button
                     v-if="isHost && !isRanked"
                     id="deleteButton"
-                    class="btn btn-sm btn-outline-danger ml-2"
+                    class="btn btn-sm btn-outline-danger ms-2"
                     @click="deleteMap($event)"
                 >
                     Delete
@@ -162,7 +162,7 @@ export default Vue.extend({
                 const bm = await this.executePost(`/beatmaps/${this.beatmap.id}/delete`, {}, e);
 
                 if (!this.isError(bm)) {
-                    ($('#editBeatmap')).modal('hide');
+                    this.hideModal('editBeatmap');
                     this.$store.commit('beatmaps/deleteBeatmap', bm);
                 }
 
