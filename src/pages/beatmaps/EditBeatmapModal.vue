@@ -19,7 +19,7 @@
                 {{ selectedBeatmap.song.artist }} - {{ selectedBeatmap.song.title }}
             </span>
 
-            <user-link class="mx-1" :user="selectedBeatmap.host" />
+            |<user-link class="mx-1" :user="selectedBeatmap.host" />
 
             <modes-icons :modes="[selectedBeatmap.mode]" />
         </template>
