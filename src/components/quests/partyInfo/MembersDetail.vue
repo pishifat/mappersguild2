@@ -6,7 +6,7 @@
         </b>
         <ul class="mb-0">
             <li v-for="member in members" :key="member.id">
-                <user-link :user="member" />
+                <user-link class="me-1" :user="member" />
                 <i
                     v-if="member.rank > 0"
                     v-bs-tooltip="`rank ${member.rank} user`"

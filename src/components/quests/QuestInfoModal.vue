@@ -56,7 +56,7 @@
                             :timeframe="selectedQuest.timeframe"
                         />
                     </div>
-                    <div class="col-sm-6 col-lg-3">
+                    <div class="col-sm-6 col-lg-4">
                         <quest-modes
                             :status="selectedQuest.status"
                             :modes="selectedQuest.modes"

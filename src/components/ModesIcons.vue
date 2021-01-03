@@ -33,27 +33,27 @@
         <i
             v-if="modes.includes('osu')"
             v-bs-tooltip="'osu!'"
-            class="fas fa-circle"
+            class="fas fa-circle mode-margin"
         />
         <i
             v-if="modes.includes('taiko')"
             v-bs-tooltip="'osu!taiko'"
-            class="fas fa-drum"
+            class="fas fa-drum mode-margin"
         />
         <i
             v-if="modes.includes('catch')"
             v-bs-tooltip="'osu!catch'"
-            class="fas fa-apple-alt"
+            class="fas fa-apple-alt mode-margin"
         />
         <i
             v-if="modes.includes('mania')"
             v-bs-tooltip="'osu!mania'"
-            class="fas fa-stream"
+            class="fas fa-stream mode-margin"
         />
         <i
             v-if="modes.includes('hybrid')"
             v-bs-tooltip="'multiple game modes'"
-            class="fas fa-check-double"
+            class="fas fa-check-double mode-margin"
         />
     </template>
 </template>
@@ -79,8 +79,8 @@ export default defineComponent({
 <style>
 
 .mode-margin {
-    margin-left: 2px;
-    margin-right: 2px;
+    margin-left: 1px;
+    margin-right: 1px;
 }
 
 </style>

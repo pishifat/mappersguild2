@@ -1,6 +1,6 @@
 <template>
     <div class="ms-3 mt-1">
-        <b>Modes:</b>
+        <b class="me-1">Modes:</b>
         <modes-icons
             :modes="party.modes"
             :toggler="party.leader.id == $store.state.loggedInUser?.id"
