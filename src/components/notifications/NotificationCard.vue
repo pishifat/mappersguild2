@@ -51,9 +51,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'NotificationCard',
     props: {
         notification: {
@@ -61,9 +61,14 @@ export default Vue.extend({
             required: true,
         },
     },
+    emits: [
+        'update:selectedMap',
+        'update:selectedParty',
+        'hideNotification',
+    ],
     methods: {
         hideNotification (e): void {
-            this.$emit('hide-notification', { id: this.notification.id, e });
+            this.$emit('hideNotification', { id: this.notification.id, e });
         },
         selectBeatmap (): void {
             this.$emit('update:selectedMap', this.notification.map);

@@ -37,13 +37,13 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { Quest } from '../../../../interfaces/quest';
 import PartyDetail from './PartyDetail.vue';
 import AssociatedBeatmaps from './AssociatedBeatmaps.vue';
 import partyInfoMixin from './partyInfoMixin';
 
-export default Vue.extend({
+export default defineComponent({
     components: {
         PartyDetail,
         AssociatedBeatmaps,
@@ -59,11 +59,11 @@ export default Vue.extend({
     },
     methods: {
         async createParty(e): Promise<void> {
-            const quest = await this.executePost('/parties/create', {
+            const quest = await this.$http.executePost('/parties/create', {
                 questId: this.quest.id,
             }, e);
 
-            if (!this.isError(quest)) {
+            if (!this.$http.isError(quest)) {
                 this.$store.dispatch('quests/updateQuest', quest);
             }
         },

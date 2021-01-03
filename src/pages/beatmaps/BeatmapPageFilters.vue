@@ -3,7 +3,7 @@
         <filter-box
             placeholder="enter to search for song/username..."
             :filter-value="filterValue"
-            @update-filter-value="updateFilterValue($event)"
+            @update:filterValue="updateFilterValue($event)"
         >
             <button
                 class="btn btn-primary"
@@ -17,7 +17,7 @@
             <template #filters>
                 <mode-filters
                     :filter-mode="filterMode"
-                    @update-filter-mode="updateFilterMode($event)"
+                    @update:filterMode="updateFilterMode($event)"
                 />
 
                 <div class="row mt-3">
@@ -61,12 +61,12 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapActions, mapState } from 'vuex';
 import FilterBox from '@components/FilterBox.vue';
 import ModeFilters from '@components/ModeFilters.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'BeatmapPageFilters',
     components: {
         FilterBox,

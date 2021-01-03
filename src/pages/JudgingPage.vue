@@ -87,7 +87,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import EditingCriteriaModal from '@components/judging/EditingCriteriaModal.vue';
 import { Contest } from '../../interfaces/contest/contest';
@@ -97,7 +97,7 @@ import { Judging } from '../../interfaces/contest/judging';
 import { JudgingScore } from '../../interfaces/contest/judgingScore';
 import judgingModule from '@store/judging';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'JudgingPage',
     components: {
         EditingCriteriaModal,
@@ -195,15 +195,15 @@ export default Vue.extend({
             this.$store.registerModule('judging', judgingModule);
         }
     },
-    destroyed() {
+    unmounted () {
         if (this.$store.hasModule('judging')) {
             this.$store.unregisterModule('judging');
         }
     },
     async created () {
-        const res = await this.initialRequest<{ contest: Contest; criterias: Criteria[]; judgingDone: Judging[] }>('/judging/relevantInfo');
+        const res = await this.$http.initialRequest<{ contest: Contest; criterias: Criteria[]; judgingDone: Judging[] }>('/judging/relevantInfo');
 
-        if (!this.isError(res)) {
+        if (!this.$http.isError(res)) {
             this.$store.commit('setContest', res.contest);
             this.$store.commit('setCriterias', res.criterias);
             this.$store.commit('setJudgingDone', res.judgingDone);

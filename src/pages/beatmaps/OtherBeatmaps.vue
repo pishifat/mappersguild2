@@ -37,11 +37,11 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import BeatmapTableRow from '@components/beatmaps/BeatmapTableRow.vue';
 
-export default Vue.extend({
+export default defineComponent({
     components: {
         BeatmapTableRow,
     },

@@ -13,11 +13,11 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import { PointsRefreshResponse } from '@interfaces/api/quests';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'ReopenQuest',
     props: {
         questId: {
@@ -44,12 +44,12 @@ export default Vue.extend({
     methods: {
         async reopenQuest(e): Promise<void> {
             if (confirm(`Are you sure?\n\nYou are about to spend ${ this.price } Mappers' Guild points to re-open this quest.\n\nYou have ${ this.loggedInUser.availablePoints } points available.`)) {
-                const res = await this.executePost<PointsRefreshResponse>(`/quests/${this.questId}/reopen`, { status: this.status }, e);
+                const res = await this.$http.executePost<PointsRefreshResponse>(`/quests/${this.questId}/reopen`, { status: this.status }, e);
 
-                if (!this.isError(res)) {
+                if (!this.$http.isError(res)) {
                     this.$store.dispatch('quests/setQuests', res.quests);
                     this.$store.commit('setAvailablePoints', res.availablePoints);
-                    this.hideModal('editQuest');
+                    this.$bs.hideModal('editQuest');
                 }
             }
         },

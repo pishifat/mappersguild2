@@ -10,11 +10,6 @@ module.exports = merge(base, {
     },
     mode: 'development',
     devtool: 'eval-cheap-source-map',
-    resolve: {
-        alias: {
-            vue$: 'vue/dist/vue.esm.js',
-        },
-    },
     devServer: {
         contentBase: './public',
         stats: 'minimal',

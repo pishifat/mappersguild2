@@ -115,14 +115,14 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { Submission } from '../../interfaces/contest/submission';
 import { Judging } from '../../interfaces/contest/judging';
 import { Screening } from '../../interfaces/contest/screening';
 import { mapState } from 'vuex';
 import contestResultsAdminModule from '@store/admin/users';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'ContestResultsPage',
     computed: {
         ...mapState({
@@ -158,7 +158,7 @@ export default Vue.extend({
             this.$store.registerModule('contestResultsAdmin', contestResultsAdminModule);
         }
     },
-    destroyed() {
+    unmounted () {
         if (this.$store.hasModule('contestResultsAdmin')) {
             this.$store.unregisterModule('contestResultsAdmin');
         }
@@ -168,11 +168,11 @@ export default Vue.extend({
         let submission;
 
         if (params.get('submission') && params.get('submission').length) {
-            submission = await this.initialRequest<{ submission: Submission }>('/contestResults/searchSubmission/' + params.get('submission'));
+            submission = await this.$http.initialRequest<{ submission: Submission }>('/contestResults/searchSubmission/' + params.get('submission'));
         }
 
-        if (!submission || this.isError(submission)) {
-            window.location.replace('/');
+        if (!submission || this.$http.isError(submission)) {
+            this.$router.push('/');
         } else {
             this.$store.commit('setSubmission', submission);
         }

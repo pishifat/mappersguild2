@@ -4,8 +4,9 @@ import { QuestsState } from './index';
 import { http, isError } from '@store/http';
 import { FilterMode } from '@interfaces/extras';
 import { Party } from '@interfaces/party';
+import { MainState } from '@store/main';
 
-const actions: ActionTree<QuestsState, any> | undefined = {
+const actions: ActionTree<QuestsState, MainState> | undefined = {
     updateQuest ({ commit }, quest: Quest): void {
         commit('updateQuest', quest);
     },
@@ -23,7 +24,7 @@ const actions: ActionTree<QuestsState, any> | undefined = {
     },
 
     async loadQuests ({ commit, rootState }, id?: string): Promise<void> {
-        const mainMode = rootState.loggedInUser.mainMode;
+        const mainMode = rootState.loggedInUser?.mainMode;
         let url = `/quests/search?mode=${mainMode}&status=${QuestStatus.Open}`;
         if (id) url += `&id=${id}`;
         const quests = await http.initialRequest<Quest[]>(url);

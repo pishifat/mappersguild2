@@ -32,26 +32,25 @@
             <i v-if="beatmap.bns.length == 0" class="text-white-50">none</i>
 
             <span v-else>
-                <template v-for="(bn, i) in beatmap.bns">
-                    <a
-                        :key="bn.id"
-                        :href="'https://osu.ppy.sh/users/' + bn.osuId"
-                        target="_blank"
-                    >
-                        {{ listUser(bn.username, i, beatmap.bns.length) }}
-                    </a>
-                </template>
+                <a
+                    v-for="(bn, i) in beatmap.bns"
+                    :key="bn.id"
+                    :href="'https://osu.ppy.sh/users/' + bn.osuId"
+                    target="_blank"
+                >
+                    {{ listUser(bn.username, i, beatmap.bns.length) }}
+                </a>
             </span>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'NominatorsList',
     props: {
         canEdit: Boolean,
@@ -71,9 +70,9 @@ export default Vue.extend({
     methods: {
         async updateBn(e): Promise<void> {
             e.target.classList.add('fake-button-disable');
-            const bm = await this.executePost<Beatmap>(`/beatmaps/${this.beatmap.id}/updateBn`);
+            const bm = await this.$http.executePost<Beatmap>(`/beatmaps/${this.beatmap.id}/updateBn`);
 
-            if (!this.isError(bm)) {
+            if (!this.$http.isError(bm)) {
                 this.$store.dispatch('beatmaps/updateBeatmap', bm);
             }
 

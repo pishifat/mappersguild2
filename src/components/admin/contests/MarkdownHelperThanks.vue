@@ -13,10 +13,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import CopyPaste from '../../CopyPaste.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'MarkdownHelperThanks',
     components: {
         CopyPaste,
@@ -24,15 +24,11 @@ export default Vue.extend({
     props: {
         screeners: {
             type: Array,
-            default() {
-                return [];
-            },
+            default: () => [],
         },
         judges: {
             type: Array,
-            default() {
-                return [];
-            },
+            default: () => [],
         },
     },
 });

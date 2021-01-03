@@ -43,11 +43,11 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { User } from '../../../interfaces/user';
 import CopyPaste from '../CopyPaste.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'TieredUserList',
     components: {
         CopyPaste,
@@ -62,7 +62,7 @@ export default Vue.extend({
     },
     methods: {
         async findTieredUsers(e): Promise<void> {
-            const res: any = await this.executeGet('/admin/users/findTieredUsers', e);
+            const res: any = await this.$http.executeGet('/admin/users/findTieredUsers', e);
 
             if (res && !res.error) {
                 this.osuUsers = res.osuUsers;

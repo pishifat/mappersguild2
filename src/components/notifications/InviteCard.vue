@@ -51,10 +51,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { Invite } from '../../../interfaces/invite';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'InviteCard',
     props: {
         invite: {
@@ -62,6 +62,12 @@ export default Vue.extend({
             required: true,
         },
     },
+    emits: [
+        'update:selectedMap',
+        'update:selectedParty',
+        'hideInvite',
+        'acceptInvite',
+    ],
     data() {
         return {
             info: '',
@@ -75,14 +81,10 @@ export default Vue.extend({
             this.$emit('update:selectedParty', this.invite.party);
         },
         hideInvite (e): void {
-            this.$emit('hide-invite', { id: this.invite.id, e });
+            this.$emit('hideInvite', { id: this.invite.id, e });
         },
-        async acceptInvite(e): Promise<void> {
-            const invite = await this.executePost(`/invites/${this.invite.id}/accept`, {}, e);
-
-            if (invite) {
-                this.$emit('hide-accepted-invite', { id: this.invite.id, e });
-            }
+        acceptInvite(e): void {
+            this.$emit('acceptInvite', { id: this.invite.id, e });
         },
     },
 });

@@ -95,7 +95,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapGetters, mapState } from 'vuex';
 import QuestSize from './QuestSize.vue';
 import QuestPrice from './QuestPrice.vue';
@@ -106,7 +106,7 @@ import ModalDialog from '@components/ModalDialog.vue';
 import ExpirationDate from './expirationInfo/ExpirationDate.vue';
 import ReopenQuest from './expirationInfo/ReopenQuest.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'QuestInfoModal',
     components: {
         QuestSize,

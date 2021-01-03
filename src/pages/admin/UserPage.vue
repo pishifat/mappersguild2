@@ -56,7 +56,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import UserInfo from '../../components/admin/UserInfo.vue';
 import DataTable from '../../components/admin/DataTable.vue';
 import TieredUserList from '../../components/admin/TieredUserList.vue';
@@ -65,7 +65,7 @@ import { User } from '../../../interfaces/user';
 import { mapState } from 'vuex';
 import usersAdminModule from '@store/admin/users';
 
-export default Vue.extend({
+export default defineComponent({
     components: {
         DataTable,
         UserInfo,
@@ -91,15 +91,15 @@ export default Vue.extend({
             this.$store.registerModule('usersAdmin', usersAdminModule);
         }
     },
-    destroyed() {
+    unmounted () {
         if (this.$store.hasModule('usersAdmin')) {
             this.$store.unregisterModule('usersAdmin');
         }
     },
     async created() {
-        const users = await this.initialRequest<User[]>('/admin/users/load');
+        const users = await this.$http.initialRequest<User[]>('/admin/users/load');
 
-        if (!this.isError(users)) {
+        if (!this.$http.isError(users)) {
             this.$store.commit('setUsers', users);
         }
     },
@@ -108,12 +108,12 @@ export default Vue.extend({
             const i = this.users.findIndex(user => user.id == u.id);
 
             if (i !== -1) {
-                Vue.set(this.users, i, u);
+                this.users[i] = u;
             }
         },
         async updateUserPoints(e): Promise<void> {
             this.calculatingPoints = true;
-            const success = await this.executePost('/admin/users/updateAllUserPoints', {}, e);
+            const success = await this.$http.executePost('/admin/users/updateAllUserPoints', {}, e);
 
             if (success) {
                 this.calculatingPoints = false;

@@ -1,11 +1,12 @@
-import { StoreOptions } from 'vuex';
+import { MainState } from '@store/main';
+import { Module } from 'vuex';
 import { User } from '../../../interfaces/user';
 
 interface UserState {
     users: User[];
 }
 
-const store: StoreOptions<UserState> = {
+const store: Module<UserState, MainState> = {
     state: {
         users: [],
     },

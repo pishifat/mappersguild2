@@ -47,13 +47,13 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import BeatmapInfo from './beatmapInfo/BeatmapInfo.vue';
 import { Beatmap } from '@interfaces/beatmap/beatmap';
 import ProcessTasks from './ProcessTasks.vue';
 import QuestImg from './QuestImg.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'BeatmapTableRow',
     components: {
         BeatmapInfo,
@@ -68,7 +68,9 @@ export default Vue.extend({
     },
     methods: {
         selectBeatmap(): void {
-            history.pushState(null, 'Beatmaps', `/beatmaps?id=${this.beatmap.id}`);
+            if (this.$route.query.id !== this.beatmap.id) {
+                this.$router.push(`/beatmaps?id=${this.beatmap.id}`);
+            }
         },
         formatMetadata(): string {
             const str = this.beatmap.song.artist + ' - ' + this.beatmap.song.title;

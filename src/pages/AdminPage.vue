@@ -257,7 +257,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import BeatmapInfoAdmin from '../components/admin/BeatmapInfoAdmin.vue';
 import QuestInfo from '../components/admin/quests/QuestInfo.vue';
@@ -268,7 +268,7 @@ import { Quest } from '@interfaces/quest';
 import { User } from '@interfaces/user';
 import adminModule from '@store/admin';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'AdminPage',
     components: {
         BeatmapInfoAdmin,
@@ -297,7 +297,7 @@ export default Vue.extend({
             this.$store.registerModule('admin', adminModule);
         }
     },
-    destroyed() {
+    unmounted () {
         if (this.$store.hasModule('admin')) {
             this.$store.unregisterModule('admin');
         }
@@ -322,9 +322,9 @@ export default Vue.extend({
             if (result) {
                 this.$store.commit('setActionBeatmaps', []);
                 this.$store.commit('setActionBeatmapsLoading', true);
-                const actionBeatmaps = await this.executeGet<Beatmap[]>(`/admin/loadActionBeatmaps/${queryWip}`, e);
+                const actionBeatmaps = await this.$http.executeGet<Beatmap[]>(`/admin/loadActionBeatmaps/${queryWip}`, e);
 
-                if (!this.isError(actionBeatmaps)) {
+                if (!this.$http.isError(actionBeatmaps)) {
                     this.$store.commit('setActionBeatmaps', actionBeatmaps);
                 }
 
@@ -334,9 +334,9 @@ export default Vue.extend({
         async loadActionQuests(e): Promise<void> {
             this.$store.commit('setActionQuests', []);
             this.$store.commit('setActionQuestsLoading', true);
-            const actionQuests = await this.executeGet<Quest[]>('/admin/loadActionQuests', e);
+            const actionQuests = await this.$http.executeGet<Quest[]>('/admin/loadActionQuests', e);
 
-            if (!this.isError(actionQuests)) {
+            if (!this.$http.isError(actionQuests)) {
                 this.$store.commit('setActionQuests', actionQuests);
             }
 
@@ -345,9 +345,9 @@ export default Vue.extend({
         async loadActionUsers(e): Promise<void> {
             this.$store.commit('setActionUsers', []);
             this.$store.commit('setActionUsersLoading', true);
-            const actionUsers = await this.executeGet<User[]>('/admin/loadActionUsers', e);
+            const actionUsers = await this.$http.executeGet<User[]>('/admin/loadActionUsers', e);
 
-            if (!this.isError(actionUsers)) {
+            if (!this.$http.isError(actionUsers)) {
                 this.$store.commit('setActionUsers', actionUsers);
             }
 
@@ -355,7 +355,7 @@ export default Vue.extend({
         },
         async updateUserPoints(e): Promise<void> {
             this.calculatingPoints = true;
-            const success = await this.executePost('/admin/users/updateAllUserPoints', {}, e);
+            const success = await this.$http.executePost('/admin/users/updateAllUserPoints', {}, e);
 
             if (success) {
                 this.calculatingPoints = false;

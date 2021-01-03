@@ -13,11 +13,14 @@
                 Members: (<span :class="party.id + '-member-count'">{{ party.members.length }}</span>)
             </p>
             <p style="margin-left: 20px;">
-                <template v-for="(member, i) in party.members">
-                    <a :key="i" :href="'https://osu.ppy.sh/users/' + member.osuId" target="_blank">
-                        {{ listUser(member.username, i, party.members.length) }}
-                    </a>
-                </template>
+                <a
+                    v-for="(member, i) in party.members"
+                    :key="i"
+                    :href="'https://osu.ppy.sh/users/' + member.osuId"
+                    target="_blank"
+                >
+                    {{ listUser(member.username, i, party.members.length) }}
+                </a>
             </p>
             <p>
                 Leader: <a :href="'https://osu.ppy.sh/users/' + party.leader.osuId" target="_blank">{{ party.leader.username }}</a>
@@ -30,10 +33,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import ModalDialog from '@components/ModalDialog.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'LimitedPartyInfo',
     components: {
         ModalDialog,

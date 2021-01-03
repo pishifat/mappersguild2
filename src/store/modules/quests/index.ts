@@ -1,9 +1,9 @@
-import Vue from 'vue';
 import { Module } from 'vuex';
 import actions from './actions';
 import { Quest, QuestStatus } from '@interfaces/quest';
 import { FilterMode } from '@interfaces/extras';
 import { Party } from '@interfaces/party';
+import { MainState } from '@store/main';
 
 export interface QuestsState {
     quests: Quest[];
@@ -14,7 +14,7 @@ export interface QuestsState {
     isFirstLoadDone: boolean;
 }
 
-const store: Module<QuestsState, any> = {
+const store: Module<QuestsState, MainState> = {
     namespaced: true,
     state: {
         quests: [],
@@ -45,7 +45,7 @@ const store: Module<QuestsState, any> = {
         },
         updateQuest (state, quest: Quest): void {
             const i = state.quests.findIndex(q => q.id === quest.id);
-            if (i !== -1) Vue.set(state.quests, i, quest);
+            if (i !== -1) state.quests[i] = quest;
         },
         updateParty (state, party: Party): void {
             const questIndex = state.quests.findIndex(q => q.id === state.selectedQuestId);
@@ -53,7 +53,7 @@ const store: Module<QuestsState, any> = {
             if (questIndex !== -1) {
                 const partyIndex = state.quests[questIndex].parties.findIndex(p => p.id === party.id);
 
-                if (partyIndex !== -1) Vue.set(state.quests[questIndex].parties, partyIndex, party);
+                if (partyIndex !== -1) state.quests[questIndex].parties[partyIndex] = party;
             }
         },
     },

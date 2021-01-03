@@ -143,13 +143,13 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { FeaturedSong } from '@interfaces/featuredSong';
 import { FeaturedArtist } from '@interfaces/featuredArtist';
 import { Beatmap } from '@interfaces/beatmap/beatmap';
 import ModalDialog from '@components/ModalDialog.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'CreateBeatmapModal',
     components: {
         ModalDialog,
@@ -176,7 +176,7 @@ export default Vue.extend({
         };
     },
     async created () {
-        const res: any = await this.executeGet<FeaturedArtist[]>(`/featuredArtists/${this.isSecret ? 'showcase' : ''}`);
+        const res: any = await this.$http.executeGet<FeaturedArtist[]>(`/featuredArtists/${this.isSecret ? 'showcase' : ''}`);
 
         if (res) {
             this.featuredArtists = res.sort((a, b) => {
@@ -199,7 +199,7 @@ export default Vue.extend({
             }
 
             e.target.disabled = true;
-            const res: any = await this.executeGet<FeaturedSong[]>(`/featuredArtists/${this.selectedArtist}/${this.isSecret ? 'showcaseSongs' : 'songs'}`);
+            const res: any = await this.$http.executeGet<FeaturedSong[]>(`/featuredArtists/${this.selectedArtist}/${this.isSecret ? 'showcaseSongs' : 'songs'}`);
 
             if (res) {
                 this.featuredSongs = res.sort((a,b) => {
@@ -222,7 +222,7 @@ export default Vue.extend({
                 return;
             }
 
-            const beatmap = await this.executePost<Beatmap>('/beatmaps/create/', {
+            const beatmap = await this.$http.executePost<Beatmap>('/beatmaps/create/', {
                 song: this.selectedSong,
                 tasks: this.checkedTasks,
                 tasksLocked: this.checkedLocks,
@@ -230,8 +230,8 @@ export default Vue.extend({
                 status: this.isSecret ? 'Secret' : 'WIP',
             }, e);
 
-            if (!this.isError(beatmap)) {
-                this.hideModal('addBeatmap');
+            if (!this.$http.isError(beatmap)) {
+                this.$bs.hideModal('addBeatmap');
                 this.$store.commit('beatmaps/addBeatmap', beatmap);
             }
         },

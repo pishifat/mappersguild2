@@ -36,11 +36,14 @@
                                         {{ task.name }}
                                     </td>
                                     <td scope="row">
-                                        <template v-for="(mapper, i) in task.mappers">
-                                            <a :key="mapper.id" :href="'https://osu.ppy.sh/users/' + mapper.osuId" target="_blank">
-                                                {{ listUser(mapper.username, i, task.mappers.length) }}
-                                            </a>
-                                        </template>
+                                        <a
+                                            v-for="(mapper, i) in task.mappers"
+                                            :key="mapper.id"
+                                            :href="'https://osu.ppy.sh/users/' + mapper.osuId"
+                                            target="_blank"
+                                        >
+                                            {{ listUser(mapper.username, i, task.mappers.length) }}
+                                        </a>
                                     </td>
                                     <td v-if="beatmap.status != 'Ranked'" scope="row" :class="task.status.toLowerCase()">
                                         {{ task.status }}
@@ -56,12 +59,12 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import ModalDialog from '@components/ModalDialog.vue';
 import { Beatmap } from '../../../interfaces/beatmap/beatmap';
 import { Task, TaskName } from '../../../interfaces/beatmap/task';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'LimitedMapInfo',
     components: {
         ModalDialog,

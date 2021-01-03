@@ -183,12 +183,12 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import ModalDialog from '@components/ModalDialog.vue';
 import AssociatedBeatmaps from '../../quests/partyInfo/AssociatedBeatmaps.vue';
 import { Quest } from '@interfaces/quest';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'QuestInfo',
     components: {
         AssociatedBeatmaps,
@@ -226,9 +226,9 @@ export default Vue.extend({
     },
     methods: {
         async renameQuest(e): Promise<void> {
-            const name = await this.executePost(`/admin/quests/${this.quest.id}/rename`, { name: this.renameQuestName }, e);
+            const name = await this.$http.executePost(`/admin/quests/${this.quest.id}/rename`, { name: this.renameQuestName }, e);
 
-            if (!this.isError(name)) {
+            if (!this.$http.isError(name)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `renamed quest`,
                     type: 'info',
@@ -240,9 +240,9 @@ export default Vue.extend({
             }
         },
         async updatePrice(e): Promise<void> {
-            const price = await this.executePost(`/admin/quests/${this.quest.id}/updatePrice`, { price: this.price }, e);
+            const price = await this.$http.executePost(`/admin/quests/${this.quest.id}/updatePrice`, { price: this.price }, e);
 
-            if (!this.isError(price)) {
+            if (!this.$http.isError(price)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `updated price`,
                     type: 'info',
@@ -254,9 +254,9 @@ export default Vue.extend({
             }
         },
         async updateRequiredMapsets(e): Promise<void> {
-            const requiredMapsets = await this.executePost(`/admin/quests/${this.quest.id}/updateRequiredMapsets`, { requiredMapsets: this.requiredMapsets }, e);
+            const requiredMapsets = await this.$http.executePost(`/admin/quests/${this.quest.id}/updateRequiredMapsets`, { requiredMapsets: this.requiredMapsets }, e);
 
-            if (!this.isError(requiredMapsets)) {
+            if (!this.$http.isError(requiredMapsets)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `updated required mapsets`,
                     type: 'info',
@@ -268,9 +268,9 @@ export default Vue.extend({
             }
         },
         async updateDescription(e): Promise<void> {
-            const description = await this.executePost(`/admin/quests/${this.quest.id}/updateDescription/`, { description: this.description }, e);
+            const description = await this.$http.executePost(`/admin/quests/${this.quest.id}/updateDescription/`, { description: this.description }, e);
 
-            if (!this.isError(description)) {
+            if (!this.$http.isError(description)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `updated quest description`,
                     type: 'info',
@@ -282,9 +282,9 @@ export default Vue.extend({
             }
         },
         async dropQuest(e): Promise<void> {
-            const quest = await this.executePost(`/admin/quests/${this.quest.id}/drop`, {}, e);
+            const quest = await this.$http.executePost(`/admin/quests/${this.quest.id}/drop`, {}, e);
 
-            if (!this.isError(quest)) {
+            if (!this.$http.isError(quest)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `quest force dropped`,
                     type: 'info',
@@ -293,9 +293,9 @@ export default Vue.extend({
             }
         },
         async completeQuest(e): Promise<void> {
-            const quest = await this.executePost(`/admin/quests/${this.quest.id}/complete`, {}, e);
+            const quest = await this.$http.executePost(`/admin/quests/${this.quest.id}/complete`, {}, e);
 
-            if (!this.isError(quest)) {
+            if (!this.$http.isError(quest)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `quest marked as complete`,
                     type: 'info',
@@ -304,9 +304,9 @@ export default Vue.extend({
             }
         },
         async duplicateQuest(e): Promise<void> {
-            const quest = await this.executePost(`/admin/quests/${this.quest.id}/duplicate`, { name: this.duplicateQuestName }, e);
+            const quest = await this.$http.executePost(`/admin/quests/${this.quest.id}/duplicate`, { name: this.duplicateQuestName }, e);
 
-            if (!this.isError(quest)) {
+            if (!this.$http.isError(quest)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `quest duplicated`,
                     type: 'info',
@@ -317,9 +317,9 @@ export default Vue.extend({
             }
         },
         async resetQuestDeadline(e): Promise<void> {
-            const deadline = await this.executePost(`/admin/quests/${this.quest.id}/reset`, {}, e);
+            const deadline = await this.$http.executePost(`/admin/quests/${this.quest.id}/reset`, {}, e);
 
-            if (!this.isError(deadline)) {
+            if (!this.$http.isError(deadline)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `reset quest deadline to ${deadline}`,
                     type: 'info',
@@ -334,10 +334,10 @@ export default Vue.extend({
             const result = confirm('Are you sure?');
 
             if (result) {
-                const res = await this.executePost(`/admin/quests/${this.quest.id}/delete`, {}, e);
+                const res = await this.$http.executePost(`/admin/quests/${this.quest.id}/delete`, {}, e);
 
-                if (!this.isError(res)) {
-                    this.hideModal('editQuest');
+                if (!this.$http.isError(res)) {
+                    this.$bs.hideModal('editQuest');
 
                     this.$store.dispatch('updateToastMessages', {
                         message: `quest deleted`,
@@ -350,9 +350,9 @@ export default Vue.extend({
             }
         },
         async toggleQuestMode(mode): Promise<void> {
-            const quest = await this.executePost(`/admin/quests/${this.quest.id}/toggleMode`, { mode });
+            const quest = await this.$http.executePost(`/admin/quests/${this.quest.id}/toggleMode`, { mode });
 
-            if (!this.isError(quest)) {
+            if (!this.$http.isError(quest)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `changed quest modes`,
                     type: 'info',
@@ -361,9 +361,9 @@ export default Vue.extend({
             }
         },
         async updateExpiration(e): Promise<void> {
-            const expiration = await this.executePost(`/admin/quests/${this.quest.id}/updateExpiration/`, { expiration: this.expiration }, e);
+            const expiration = await this.$http.executePost(`/admin/quests/${this.quest.id}/updateExpiration/`, { expiration: this.expiration }, e);
 
-            if (!this.isError(expiration)) {
+            if (!this.$http.isError(expiration)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `updated quest expiration`,
                     type: 'info',
@@ -375,9 +375,9 @@ export default Vue.extend({
             }
         },
         async updateMinParty(e): Promise<void> {
-            const minParty = await this.executePost(`/admin/quests/${this.quest.id}/updateMinParty/`, { minParty: this.minParty }, e);
+            const minParty = await this.$http.executePost(`/admin/quests/${this.quest.id}/updateMinParty/`, { minParty: this.minParty }, e);
 
-            if (!this.isError(minParty)) {
+            if (!this.$http.isError(minParty)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `updated minParty`,
                     type: 'info',
@@ -389,9 +389,9 @@ export default Vue.extend({
             }
         },
         async updateMaxParty(e): Promise<void> {
-            const maxParty = await this.executePost(`/admin/quests/${this.quest.id}/updateMaxParty/`, { maxParty: this.maxParty }, e);
+            const maxParty = await this.$http.executePost(`/admin/quests/${this.quest.id}/updateMaxParty/`, { maxParty: this.maxParty }, e);
 
-            if (!this.isError(maxParty)) {
+            if (!this.$http.isError(maxParty)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `updated maxParty`,
                     type: 'info',

@@ -74,11 +74,11 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
 import { TaskName } from '../../../../interfaces/beatmap/task';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'LocksChoice',
     props: {
         beatmap: {
@@ -115,25 +115,25 @@ export default Vue.extend({
         async unlockTask(task, e): Promise<void> {
             e.target.classList.add('fake-button-disable');
 
-            const bm = await this.executePost<Beatmap>(
+            const bm = await this.$http.executePost<Beatmap>(
                 `/beatmaps/${this.beatmap.id}/unlockTask`,
                 { task }
             );
 
-            if (!this.isError(bm)) {
+            if (!this.$http.isError(bm)) {
                 this.$store.dispatch('beatmaps/updateBeatmap', bm);
             }
 
             e.target.classList.remove('fake-button-disable');
         },
         async lockTask(e): Promise<void> {
-            const bm = await this.executePost<Beatmap>(
+            const bm = await this.$http.executePost<Beatmap>(
                 `/beatmaps/${this.beatmap.id}/lockTask`,
                 { task: this.lockTaskSelection },
                 e
             );
 
-            if (!this.isError(bm)) {
+            if (!this.$http.isError(bm)) {
                 this.$store.dispatch('beatmaps/updateBeatmap', bm);
             }
         },

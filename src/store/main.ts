@@ -1,16 +1,16 @@
 import { FeaturedArtist } from '@interfaces/featuredArtist';
 import { User } from '@interfaces/user';
-import { StoreOptions } from 'vuex';
+import { createStore } from 'vuex';
 import toastsModule from './modules/toasts';
 
-interface MainState {
+export interface MainState {
     initialized: boolean;
     isLoading: boolean;
     loggedInUser: User | null;
     homeArtists: FeaturedArtist[],
 }
 
-const main: StoreOptions<MainState> = {
+export const store = createStore<MainState>({
     modules: {
         toasts: toastsModule,
     },
@@ -36,6 +36,4 @@ const main: StoreOptions<MainState> = {
         },
     },
     strict: process.env.NODE_ENV !== 'production',
-};
-
-export default main;
+});

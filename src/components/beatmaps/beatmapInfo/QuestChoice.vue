@@ -61,12 +61,12 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { Beatmap } from '@interfaces/beatmap/beatmap';
 import { Quest } from '@interfaces/quest';
 import { mapState } from 'vuex';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'QuestChoice',
     props: {
         beatmap: {
@@ -91,21 +91,21 @@ export default Vue.extend({
         },
     },
     async created() {
-        const res = await this.executeGet<Quest[]>(`/users/${this.loggedInUser.id}/quests`);
+        const res = await this.$http.executeGet<Quest[]>(`/users/${this.loggedInUser.id}/quests`);
 
-        if (!this.isError(res)) {
+        if (!this.$http.isError(res)) {
             this.userQuests = res;
         }
     },
     methods: {
         async linkQuest(e): Promise<void> {
-            const bm = await this.executePost<Beatmap>(
+            const bm = await this.$http.executePost<Beatmap>(
                 `/beatmaps/${this.beatmap.id}/linkQuest`,
                 { questId: this.dropdownQuestId },
                 e
             );
 
-            if (!this.isError(bm)) {
+            if (!this.$http.isError(bm)) {
                 this.$store.dispatch('beatmaps/updateBeatmap', bm);
             }
         },

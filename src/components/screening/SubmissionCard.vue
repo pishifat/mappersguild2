@@ -32,14 +32,14 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import ScreeningVote from '@components/screening/ScreeningVote.vue';
 import ScreeningNotes from '@components/screening/ScreeningNotes.vue';
 import { Submission } from '../../../interfaces/contest/submission';
 import { Screening } from '../../../interfaces/contest/screening';
 import { mapState } from 'vuex';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'SubmissionCard',
     components: {
         ScreeningVote,

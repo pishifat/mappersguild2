@@ -30,10 +30,12 @@
                     <option value="" disabled>
                         Select a member
                     </option>
-                    <template v-for="member in party.members">
+                    <template
+                        v-for="member in party.members"
+                        :key="member.id"
+                    >
                         <option
                             v-if="member.id !== loggedInUser.id"
-                            :key="member.id"
                             :value="member.id"
                         >
                             {{ member.username }}
@@ -127,13 +129,13 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import { Quest } from '@interfaces/quest';
 import { Party } from '@interfaces/party';
 import { ExtendDeadlineResponse, PointsRefreshResponse } from '@interfaces/api/quests';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'LeaderActions',
     props: {
         party: {
@@ -174,16 +176,16 @@ export default Vue.extend({
     },
     methods: {
         async togglePartyLock(e): Promise<void> {
-            const party = await this.executePost(`/parties/${this.party.id}/toggleLock`, {}, e);
+            const party = await this.$http.executePost(`/parties/${this.party.id}/toggleLock`, {}, e);
 
-            if (!this.isError(party)) {
+            if (!this.$http.isError(party)) {
                 this.$store.dispatch('quests/updateParty', party);
             }
         },
         async inviteToParty(e): Promise<void> {
-            const res = await this.executePost<{ success: string }>(`/parties/${this.party.id}/invite`, { username: this.inviteUsername }, e);
+            const res = await this.$http.executePost<{ success: string }>(`/parties/${this.party.id}/invite`, { username: this.inviteUsername }, e);
 
-            if (!this.isError(res)) {
+            if (!this.$http.isError(res)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: res.success,
                     type: 'success',
@@ -200,13 +202,13 @@ export default Vue.extend({
                 return;
             }
 
-            const party = await this.executePost(
+            const party = await this.$http.executePost(
                 `/parties/${this.party.id}/transferLeadership`,
                 { userId: this.dropdownUserId },
                 e
             );
 
-            if (!this.isError(party)) {
+            if (!this.$http.isError(party)) {
                 this.$store.dispatch('quests/updateParty', party);
             }
         },
@@ -221,9 +223,9 @@ export default Vue.extend({
             }
 
             if (confirm(`Are you sure? ${this.party.members.length == this.quest.minParty && this.quest.status == 'wip' ? 'This party has the minimum required members to run the quest, so kicking will cause the quest to be dropped.' : ''}`)) {
-                const party = await this.executePost<Party>(`/parties/${this.party.id}/kick`, { userId: this.dropdownUserId }, e);
+                const party = await this.$http.executePost<Party>(`/parties/${this.party.id}/kick`, { userId: this.dropdownUserId }, e);
 
-                if (!this.isError(party)) {
+                if (!this.$http.isError(party)) {
                     this.$store.dispatch('quests/updateParty', party);
 
                     // TODO in routes
@@ -239,19 +241,19 @@ export default Vue.extend({
         },
         async extendDeadline(e): Promise<void> {
             if (confirm(`Are you sure?\n\nAll members of your party will spend 10 points.\n\nYou have ${this.loggedInUser.availablePoints} points available.`)) {
-                const res = await this.executePost<ExtendDeadlineResponse>(`/quests/${this.quest.id}/extendDeadline`, {}, e);
+                const res = await this.$http.executePost<ExtendDeadlineResponse>(`/quests/${this.quest.id}/extendDeadline`, {}, e);
 
-                if (!this.isError(res)) {
+                if (!this.$http.isError(res)) {
                     this.$store.dispatch('quests/updateQuest', res.quest);
                     this.$store.commit('setAvailablePoints', res.availablePoints);
                 }
             }
         },
         async dropQuest(e): Promise<void> {
-            const quests = await this.executePost<Quest[]>(`/quests/${this.quest.id}/drop`, {}, e);
+            const quests = await this.$http.executePost<Quest[]>(`/quests/${this.quest.id}/drop`, {}, e);
 
-            if (!this.isError(quests)) {
-                this.hideModal('editQuest');
+            if (!this.$http.isError(quests)) {
+                this.$bs.hideModal('editQuest');
                 this.$store.dispatch('quests/setQuests', quests);
             }
         },
@@ -268,22 +270,22 @@ export default Vue.extend({
             }
 
             if (confirm(`Are you sure?\n\nThis quest will only allow beatmaps of these modes: ${modesText}\n\nAll members of your party will spend ${this.price} points.\n\nYou have ${this.loggedInUser.availablePoints} points available.`)) {
-                const res = await this.executePost<PointsRefreshResponse>(`/quests/${this.quest.id}/accept`, {}, e);
+                const res = await this.$http.executePost<PointsRefreshResponse>(`/quests/${this.quest.id}/accept`, {}, e);
 
-                if (!this.isError(res)) {
+                if (!this.$http.isError(res)) {
                     this.$store.dispatch('quests/setQuests', res.quests);
                     this.$store.commit('setAvailablePoints', res.availablePoints);
-                    this.hideModal('editQuest');
+                    this.$bs.hideModal('editQuest');
                 }
             }
         },
         async deleteParty(e): Promise<void> {
             if (confirm(`Are you sure?`)) {
-                const quest = await this.executePost(`/parties/${this.party.id}/delete`, {}, e);
+                const quest = await this.$http.executePost(`/parties/${this.party.id}/delete`, {}, e);
 
-                if (!this.isError(quest)) {
+                if (!this.$http.isError(quest)) {
                     this.$store.dispatch('quests/updateQuest', quest);
-                    this.hideModal('editQuest');
+                    this.$bs.hideModal('editQuest');
                 }
             }
         },

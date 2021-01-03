@@ -5,8 +5,8 @@
                 :id="id"
                 class="form-check-input"
                 type="checkbox"
-                :checked="checked"
-                @change="$emit('change', $event.target.checked)"
+                :checked="modelValue"
+                @change="$emit('update:modelValue', $event.target.checked)"
             >
             <label class="form-check-label" :for="id">
                 {{ info }}
@@ -16,16 +16,12 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import FormFieldBase from './FormFieldBase.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'FormCheckbox',
     components: { FormFieldBase },
-    model: {
-        prop: 'checked',
-        event: 'change',
-    },
     props: {
         id: {
             type: String,
@@ -39,7 +35,10 @@ export default Vue.extend({
             type: String,
             default: '',
         },
-        checked: Boolean,
+        modelValue: Boolean,
     },
+    emits: [
+        'update:modelValue',
+    ],
 });
 </script>

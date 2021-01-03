@@ -18,9 +18,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'AddContest',
     data () {
         return {
@@ -29,9 +29,9 @@ export default Vue.extend({
     },
     methods: {
         async addContest(e): Promise<void> {
-            const contest = await this.executePost(`/admin/contests/create`, { name: this.contestName }, e);
+            const contest = await this.$http.executePost(`/admin/contests/create`, { name: this.contestName }, e);
 
-            if (!this.isError(contest)) {
+            if (!this.$http.isError(contest)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `Contest created`,
                     type: 'info',

@@ -1,4 +1,5 @@
 import { Module } from 'vuex';
+import { MainState } from '@store/main';
 
 interface PaginationState {
     page: number,
@@ -6,7 +7,7 @@ interface PaginationState {
     maxPages: number,
 }
 
-const store: Module<PaginationState, any> = {
+const store: Module<PaginationState, MainState> = {
     namespaced: true,
     state: () => ({
         page: 1,

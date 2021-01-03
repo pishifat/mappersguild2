@@ -121,14 +121,14 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
 import { Quest } from '../../../../interfaces/quest';
 import BeatmapList from './BeatmapList.vue';
 import CopyPaste from '../../CopyPaste.vue';
 import ModalDialog from '@components/ModalDialog.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'NewsPost',
     components: {
         BeatmapList,
@@ -163,7 +163,7 @@ export default Vue.extend({
     },
     methods: {
         async loadNewsInfo(e): Promise<void> {
-            const res: any = await this.executeGet('/admin/beatmaps/loadNewsInfo/' + this.date, e);
+            const res: any = await this.$http.executeGet('/admin/beatmaps/loadNewsInfo/' + this.date, e);
 
             if (res) {
                 this.beatmaps = res.beatmaps;

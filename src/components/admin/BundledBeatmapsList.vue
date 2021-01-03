@@ -35,11 +35,11 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { Beatmap } from '../../../interfaces/beatmap/beatmap';
 import CopyPaste from '../CopyPaste.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'BundledBeatmapsList',
     components: {
         CopyPaste,
@@ -65,7 +65,7 @@ export default Vue.extend({
     },
     methods: {
         async findBundledBeatmaps(e): Promise<void> {
-            const res: any = await this.executeGet('/admin/beatmaps/findBundledBeatmaps', e);
+            const res: any = await this.$http.executeGet('/admin/beatmaps/findBundledBeatmaps', e);
 
             if (res && !res.error) {
                 this.bundledBeatmaps = res;

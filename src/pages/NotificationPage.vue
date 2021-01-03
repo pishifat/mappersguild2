@@ -39,7 +39,8 @@
                             @update:info="info = $event"
                             @update:selectedMap="selectedMap = $event"
                             @update:selectedParty="selectedParty = $event"
-                            @hide-invite="hideInvite($event)"
+                            @hideInvite="hideInvite($event)"
+                            @acceptInvite="acceptInvite($event)"
                         />
                     </transition-group>
                     <p v-if="!invites.length" class="ms-4">
@@ -55,7 +56,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import NotificationCard from '@components/notifications/NotificationCard.vue';
 import InviteCard from '@components/notifications/InviteCard.vue';
 import LimitedMapInfo from '@components/notifications/LimitedMapInfo.vue';
@@ -63,7 +64,7 @@ import LimitedPartyInfo from '@components/notifications/LimitedPartyInfo.vue';
 import { Notification } from '../../interfaces/notification';
 import { Invite } from '../../interfaces/invite';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'NotificationPage',
     components: {
         NotificationCard,
@@ -81,7 +82,7 @@ export default Vue.extend({
         };
     },
     async created() {
-        const res: any = await this.initialRequest('/notifications/relevantInfo');
+        const res: any = await this.$http.initialRequest('/notifications/relevantInfo');
 
         if (res) {
             this.notifications = res.notifications;
@@ -94,25 +95,33 @@ export default Vue.extend({
             const e = args.e;
             const i = this.notifications.findIndex(notif => notif.id === id);
             this.notifications.splice(i, 1);
-            await this.executePost(`/notifications/${id}/hide`, {}, e);
+            await this.$http.executePost(`/notifications/${id}/hide`, {}, e);
         },
-        //mark all as read
         async hideAll(e): Promise<void> {
             this.notifications = [];
-            await this.executePost('/notifications/hideAll/', {}, e);
+            await this.$http.executePost('/notifications/hideAll/', {}, e);
         },
-        //decline invite
+
         async hideInvite(args): Promise<void> {
             const id = args.id;
             const e = args.e;
             const i = this.invites.findIndex(inv => inv.id === id);
             this.invites.splice(i, 1);
-            await this.executePost(`/invites/${id}/hide`, {}, e);
+            await this.$http.executePost(`/invites/${id}/hide`, {}, e);
         },
-        //decline all invites
         async declineAll(e): Promise<void> {
             this.invites = [];
-            await this.executePost('/invites/declineAll/', {}, e);
+            await this.$http.executePost('/invites/declineAll/', {}, e);
+        },
+        async acceptInvite(args): Promise<void> {
+            const id = args.id;
+            const e = args.e;
+            const invite = await this.$http.executePost(`/invites/${id}/accept`, {}, e);
+
+            if (!this.$http.isError(invite)) {
+                const i = this.invites.findIndex(inv => inv.id === id);
+                this.invites.splice(i, 1);
+            }
         },
     },
 });

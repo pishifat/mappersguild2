@@ -28,10 +28,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { Quest } from '@interfaces/quest';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'QuestSize',
     props: {
         quest: {

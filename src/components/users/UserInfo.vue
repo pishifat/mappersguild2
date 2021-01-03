@@ -321,7 +321,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapState, mapGetters } from 'vuex';
 import ModalDialog from '@components/ModalDialog.vue';
 import { Quest } from '../../../interfaces/quest';
@@ -331,7 +331,7 @@ import UserPointsRow from './UserPointsRow.vue';
 import { TaskName } from '../../../interfaces/beatmap/task';
 import { BeatmapStatus } from '../../../interfaces/beatmap/beatmap';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'UserInfo',
     components: {
         UserPointsRow,
@@ -366,25 +366,25 @@ export default Vue.extend({
             this.userBeatmaps = [];
 
             const [currentQuests, createdQuestNames, points, beatmaps] = await Promise.all([
-                this.executeGet<Quest[]>(`/users/${this.selectedUser.id}/quests`),
-                this.executeGet<Quest['name'][]>(`/users/findCreatedQuests/${this.selectedUser.id}`),
-                this.executeGet<SpentPoints[]>(`/users/findSpentPoints/${this.selectedUser.id}`),
-                this.executeGet<Beatmap[]>(`/users/findUserBeatmaps/${this.selectedUser.id}`),
+                this.$http.executeGet<Quest[]>(`/users/${this.selectedUser.id}/quests`),
+                this.$http.executeGet<Quest['name'][]>(`/users/findCreatedQuests/${this.selectedUser.id}`),
+                this.$http.executeGet<SpentPoints[]>(`/users/findSpentPoints/${this.selectedUser.id}`),
+                this.$http.executeGet<Beatmap[]>(`/users/findUserBeatmaps/${this.selectedUser.id}`),
             ]);
 
-            if (!this.isError(currentQuests)) {
+            if (!this.$http.isError(currentQuests)) {
                 this.currentQuests = currentQuests;
             }
 
-            if (!this.isError(createdQuestNames)) {
+            if (!this.$http.isError(createdQuestNames)) {
                 this.createdQuestNames = createdQuestNames;
             }
 
-            if (!this.isError(points)) {
+            if (!this.$http.isError(points)) {
                 this.spentPoints = points;
             }
 
-            if (!this.isError(beatmaps)) {
+            if (!this.$http.isError(beatmaps)) {
                 const statusSort = ['WIP', 'Done', 'Qualified', 'Ranked'];
 
                 this.userBeatmaps = beatmaps.sort(function(a, b) {

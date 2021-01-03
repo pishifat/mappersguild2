@@ -19,11 +19,11 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { User } from '../../../interfaces/user';
 import CopyPaste from '../CopyPaste.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'DiscordHighlightGenerator',
     components: {
         CopyPaste,
@@ -47,7 +47,7 @@ export default Vue.extend({
     },
     methods: {
         async generateDiscordHighlights(e): Promise<void> {
-            const res: any = await this.executePost('/admin/users/findInputUsers', { inputUsers: this.inputUsers }, e);
+            const res: any = await this.$http.executePost('/admin/users/findInputUsers', { inputUsers: this.inputUsers }, e);
 
             if (res && !res.error) {
                 this.users = res.users;

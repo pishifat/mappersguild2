@@ -38,14 +38,14 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import { Party } from '@interfaces/party';
 import LockDetail from './LockDetail.vue';
 import partyInfoMixin from './partyInfoMixin';
 import { Quest } from '@interfaces/quest';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'PartyTitle',
     components: {
         LockDetail,
@@ -72,17 +72,17 @@ export default Vue.extend({
     },
     methods: {
         async joinParty(e): Promise<void> {
-            const party = await this.executePost<Party>(`/parties/${this.party.id}/join`, {}, e);
+            const party = await this.$http.executePost<Party>(`/parties/${this.party.id}/join`, {}, e);
 
-            if (!this.isError(party)) {
+            if (!this.$http.isError(party)) {
                 this.$store.dispatch('quests/updateParty', party);
             }
         },
         async leaveParty(e): Promise<void> {
             if (confirm(`Are you sure? ${this.party.members.length == this.quest.minParty && this.isWip ? 'This party has the minimum required members to run the quest, so leaving will cause the quest to be dropped.' : ''}`)) {
-                const party = await this.executePost<Party>(`/parties/${this.party.id}/leave`, {}, e);
+                const party = await this.$http.executePost<Party>(`/parties/${this.party.id}/leave`, {}, e);
 
-                if (!this.isError(party)) {
+                if (!this.$http.isError(party)) {
                     this.$store.dispatch('quests/updateParty', party);
 
                     // TODO in routes
@@ -97,11 +97,11 @@ export default Vue.extend({
             }
         },
         async dropQuest(e): Promise<void> {
-            const quests = await this.executePost<Quest[]>(`/quests/${this.quest.id}/drop`, {}, e);
+            const quests = await this.$http.executePost<Quest[]>(`/quests/${this.quest.id}/drop`, {}, e);
 
-            if (!this.isError(quests)) {
+            if (!this.$http.isError(quests)) {
                 this.$store.dispatch('quests/setQuests', quests);
-                this.hideModal('editQuest');
+                this.$bs.hideModal('editQuest');
             }
         },
     },

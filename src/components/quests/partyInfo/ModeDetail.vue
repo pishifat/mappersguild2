@@ -73,10 +73,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { Party } from '../../../../interfaces/party';
 
-export default Vue.extend({
+export default defineComponent({
     props: {
         party: {
             type: Object as () => Party,
@@ -89,9 +89,9 @@ export default Vue.extend({
     },
     methods: {
         async togglePartyMode(mode: string): Promise<void> {
-            const party = await this.executePost(`/parties/${this.party.id}/toggleMode`, { mode });
+            const party = await this.$http.executePost(`/parties/${this.party.id}/toggleMode`, { mode });
 
-            if (!this.isError(party)) {
+            if (!this.$http.isError(party)) {
                 this.$store.dispatch('quests/updateParty', party);
             }
         },

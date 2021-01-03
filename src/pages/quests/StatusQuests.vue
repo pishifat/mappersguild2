@@ -36,12 +36,12 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import { Quest } from '@interfaces/quest';
 import QuestCard from '@components/quests/QuestCard.vue';
 
-export default Vue.extend({
+export default defineComponent({
     components: {
         QuestCard,
     },

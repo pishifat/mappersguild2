@@ -4,12 +4,12 @@
             <filter-box
                 placeholder="enter to search for username..."
                 :filter-value="filterValue"
-                @update-filter-value="updateFilterValue($event)"
+                @update:filterValue="updateFilterValue($event)"
             >
                 <template #filters>
                     <mode-filters
                         :filter-mode="filterMode"
-                        @update-filter-mode="updateFilterMode($event)"
+                        @update:filterMode="updateFilterMode($event)"
                     />
                 </template>
             </filter-box>
@@ -36,12 +36,12 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapState, mapActions } from 'vuex';
 import FilterBox from '@components/FilterBox.vue';
 import ModeFilters from '@components/ModeFilters.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'UserPageFilters',
     components: {
         FilterBox,

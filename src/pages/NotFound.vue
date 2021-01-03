@@ -1,13 +1,13 @@
 <template>
-    <div>
+    <h3 class="text-center">
         Not found :(
-    </div>
+    </h3>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'NotFound',
 });
 </script>

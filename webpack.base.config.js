@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path');
-const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const { VueLoaderPlugin } = require('vue-loader');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const { DefinePlugin } = require('webpack');
 
 module.exports = {
     entry: {
@@ -55,6 +56,8 @@ module.exports = {
     resolve: {
         extensions: ['.ts', '.js', '.json'],
         alias: {
+            // "When using vue-loader, templates inside *.vue files are pre-compiled into JavaScript at build time. You don’t really need the compiler in the final bundle, and can therefore use the runtime-only build"
+            vue$: 'vue/dist/vue.runtime.esm-bundler.js',
             '@components': path.resolve(__dirname, 'src/components/'),
             '@pages': path.resolve(__dirname, 'src/pages/'),
             '@store': path.resolve(__dirname, 'src/store/'),
@@ -63,5 +66,9 @@ module.exports = {
     },
     plugins: [
         new VueLoaderPlugin(),
+        new DefinePlugin({
+            __VUE_OPTIONS_API__: true,
+            __VUE_PROD_DEVTOOLS__: false,
+        }),
     ],
 };

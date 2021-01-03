@@ -22,14 +22,14 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import CreateBeatmapModal from '@components/beatmaps/CreateBeatmapModal.vue';
 import ShowcaseBeatmaps from '@pages/beatmaps/ShowcaseBeatmaps.vue';
 import EditBeatmapModal from '@pages/beatmaps/EditBeatmapModal.vue';
 import beatmapsModule from '@store/beatmaps';
 import { mapState } from 'vuex';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'ShowcasePage',
     components: {
         ShowcaseBeatmaps,
@@ -49,8 +49,8 @@ export default Vue.extend({
 
         if (params.get('id') && params.get('id').length) {
             const [res, urlBeatmap] = await Promise.all<any, any>([
-                this.initialRequest('/showcase/relevantInfo'),
-                this.executeGet('/showcase/searchOnLoad/' + params.get('id')),
+                this.$http.initialRequest('/showcase/relevantInfo'),
+                this.$http.executeGet('/showcase/searchOnLoad/' + params.get('id')),
             ]);
 
             if (res) {
@@ -59,10 +59,10 @@ export default Vue.extend({
 
             if (urlBeatmap && !urlBeatmap.error) {
                 this.$store.commit('beatmaps/setSelectedBeatmap', urlBeatmap);
-                this.showModal('editBeatmap');
+                this.$bs.showModal('editBeatmap');
             }
         } else {
-            const res: any = await this.initialRequest('/showcase/relevantInfo');
+            const res: any = await this.$http.initialRequest('/showcase/relevantInfo');
 
             if (res) {
                 this.$store.commit('beatmaps/setShowcaseBeatmaps', res.beatmaps);

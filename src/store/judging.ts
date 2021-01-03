@@ -1,8 +1,9 @@
-import { StoreOptions } from 'vuex';
+import { Module } from 'vuex';
 import { Submission } from '../../interfaces/contest/submission';
 import { Contest } from '../../interfaces/contest/contest';
 import { Criteria } from '../../interfaces/contest/criteria';
 import { Judging } from '../../interfaces/contest/judging';
+import { MainState } from './main';
 
 interface JudgingState {
     contest: Contest | null;
@@ -12,7 +13,7 @@ interface JudgingState {
     editingCriteriaId: Criteria['id'] | null;
 }
 
-const store: StoreOptions<JudgingState> = {
+const store: Module<JudgingState, MainState> = {
     state: {
         contest: null,
         criterias: [],

@@ -6,7 +6,7 @@
                     <button
                         class="btn btn-primary"
                         href="#"
-                        @click.prevent="$emit('update-filter-value', newFilterValue)"
+                        @click.prevent="$emit('update:filterValue', newFilterValue)"
                     >
                         <i class="fas fa-search" />
                     </button>
@@ -18,7 +18,7 @@
                         autocomplete="off"
                         :value="filterValue"
                         @input="newFilterValue = $event.target.value"
-                        @keyup.enter="$emit('update-filter-value', $event.target.value)"
+                        @keyup.enter="$emit('update:filterValue', $event.target.value)"
                     >
                     <slot />
                 </div>
@@ -33,9 +33,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 
-export default Vue.extend({
+export default defineComponent({
     props: {
         placeholder: {
             type: String,
@@ -46,6 +46,9 @@ export default Vue.extend({
             default: '',
         },
     },
+    emits: [
+        'update:filterValue',
+    ],
     data () {
         return {
             newFilterValue: '',

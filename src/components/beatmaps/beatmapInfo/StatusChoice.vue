@@ -31,10 +31,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'StatusChoice',
     props: {
         beatmap: {
@@ -44,13 +44,13 @@ export default Vue.extend({
     },
     methods: {
         async setStatus(status, e): Promise<void> {
-            const beatmap = await this.executePost<Beatmap>(
+            const beatmap = await this.$http.executePost<Beatmap>(
                 `/beatmaps/${this.beatmap.id}/setStatus`,
                 { status },
                 e
             );
 
-            if (!this.isError(beatmap)) {
+            if (!this.$http.isError(beatmap)) {
                 this.$store.dispatch('beatmaps/updateBeatmap', beatmap);
             }
         },

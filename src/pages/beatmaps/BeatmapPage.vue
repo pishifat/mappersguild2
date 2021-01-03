@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import CreateBeatmapModal from '@components/beatmaps/CreateBeatmapModal.vue';
 import BeatmapPageFilters from './BeatmapPageFilters.vue';
 import HostedBeatmaps from './HostedBeatmaps.vue';
@@ -33,7 +33,7 @@ import EditBeatmapModal from './EditBeatmapModal.vue';
 import beatmapsModule from '@store/beatmaps';
 import { mapState } from 'vuex';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'BeatmapPage',
     components: {
         BeatmapPageFilters,
@@ -63,19 +63,19 @@ export default Vue.extend({
 
         if (id) {
             [data, urlBeatmap] = await Promise.all<any, any>([
-                this.initialRequest('/beatmaps/relevantInfo'),
-                this.executeGet('/beatmaps/searchOnLoad/' + id),
+                this.$http.initialRequest('/beatmaps/relevantInfo'),
+                this.$http.executeGet('/beatmaps/searchOnLoad/' + id),
             ]);
 
-            if (!this.isError(urlBeatmap)) {
+            if (!this.$http.isError(urlBeatmap)) {
                 this.$store.commit('beatmaps/setSelectedBeatmap', urlBeatmap);
-                this.showModal('editBeatmap');
+                this.$bs.showModal('editBeatmap');
             }
         } else {
-            data = await this.initialRequest('/beatmaps/relevantInfo');
+            data = await this.$http.initialRequest('/beatmaps/relevantInfo');
         }
 
-        if (!this.isError(data)) {
+        if (!this.$http.isError(data)) {
             this.$store.commit('beatmaps/setUserBeatmaps', data.beatmaps);
             this.$store.commit('beatmaps/setFilterMode', data.mainMode);
         }
@@ -89,7 +89,7 @@ export default Vue.extend({
     },
     methods: {
         async loadGuestBeatmaps(): Promise<void> {
-            const res: any = await this.executeGet('/beatmaps/guestBeatmaps');
+            const res: any = await this.$http.executeGet('/beatmaps/guestBeatmaps');
 
             if (res) {
                 this.$store.commit('beatmaps/setUserBeatmaps', res.userBeatmaps);

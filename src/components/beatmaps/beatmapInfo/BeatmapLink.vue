@@ -56,10 +56,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'BeatmapLink',
     props: {
         beatmap: {
@@ -86,9 +86,9 @@ export default Vue.extend({
     },
     methods: {
         async saveLink(e): Promise<void> {
-            const bm = await this.executePost<Beatmap>(`/beatmaps/${this.beatmap.id}/setLink`, { url: this.url }, e);
+            const bm = await this.$http.executePost<Beatmap>(`/beatmaps/${this.beatmap.id}/setLink`, { url: this.url }, e);
 
-            if (!this.isError(bm)) {
+            if (!this.$http.isError(bm)) {
                 this.showLinkInput = false;
                 this.$store.dispatch('beatmaps/updateBeatmap', bm);
             }

@@ -49,13 +49,13 @@
 
 <script lang="ts">
 import { Log } from '@interfaces/log';
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 
 interface LogsResponse {
     logs: Log[]
 }
 
-export default Vue.extend({
+export default defineComponent({
     data () {
         return {
             skip: 100,
@@ -63,9 +63,9 @@ export default Vue.extend({
         };
     },
     async created () {
-        const data = await this.initialRequest<LogsResponse>(`/logs/query`);
+        const data = await this.$http.initialRequest<LogsResponse>(`/logs/query`);
 
-        if (!this.isError(data)) {
+        if (!this.$http.isError(data)) {
             this.logs = data.logs;
         }
     },
@@ -91,9 +91,9 @@ export default Vue.extend({
             return action;
         },
         async showMore (e) {
-            const data = await this.executeGet<LogsResponse>(`/logs/query?skip=${this.skip}`, e);
+            const data = await this.$http.executeGet<LogsResponse>(`/logs/query?skip=${this.skip}`, e);
 
-            if (!this.isError(data)) {
+            if (!this.$http.isError(data)) {
                 this.skip += 100;
                 this.logs = [...this.logs, ...data.logs];
             }

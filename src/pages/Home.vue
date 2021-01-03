@@ -345,10 +345,10 @@
 
 <script lang="ts">
 import { FeaturedArtist } from '@interfaces/featuredArtist';
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 
-export default Vue.extend({
+export default defineComponent({
     computed: {
         ...mapState([
             'loggedInUser',
@@ -356,9 +356,9 @@ export default Vue.extend({
         ]),
     },
     async created () {
-        const data = await this.executeGet<{ artists: FeaturedArtist[] }>('/home');
+        const data = await this.$http.executeGet<{ artists: FeaturedArtist[] }>('/home');
 
-        if (!this.isError(data)) {
+        if (!this.$http.isError(data)) {
             this.$store.commit('setHomeData', data.artists);
         }
     },

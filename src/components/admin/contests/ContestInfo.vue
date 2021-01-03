@@ -107,7 +107,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { Contest } from '../../../../interfaces/contest/contest';
 import DateInfo from './DateInfo.vue';
 import StatusInfo from './StatusInfo.vue';
@@ -119,7 +119,7 @@ import GimmickToggle from './GimmickToggle.vue';
 import SubmissionsInfo from './SubmissionsInfo.vue';
 import MarkdownHelperThanks from './MarkdownHelperThanks.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'ContestInfo',
     components: {
         DateInfo,

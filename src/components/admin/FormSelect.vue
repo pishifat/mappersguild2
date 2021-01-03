@@ -2,7 +2,7 @@
     <form-field-base :label="label">
         <select
             class="form-control form-control-sm"
-            @input="$emit('input', $event.target.value)"
+            @input="$emit('update:modelValue', $event.target.value)"
         >
             <option value="" selected>
                 {{ placeholder }}
@@ -12,7 +12,7 @@
                     v-for="(option, i) in options"
                     :key="i"
                     :value="option"
-                    :selected="option === value"
+                    :selected="option === modelValue"
                 >
                     {{ option }}
                 </option>
@@ -22,10 +22,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import FormFieldBase from './FormFieldBase.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'FormField',
     components: { FormFieldBase },
     props: {
@@ -37,7 +37,7 @@ export default Vue.extend({
             type: String,
             default: '...',
         },
-        value: {
+        modelValue: {
             type: String,
             required: true,
         },
@@ -50,5 +50,8 @@ export default Vue.extend({
             default: () => [],
         },
     },
+    emits: [
+        'update:modelValue',
+    ],
 });
 </script>

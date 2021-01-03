@@ -14,9 +14,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'GimmickToggle',
     props: {
         contestId: {
@@ -27,9 +27,9 @@ export default Vue.extend({
     },
     methods: {
         async updateIsTheme(e): Promise<void> {
-            const isTheme = await this.executePost(`/admin/contests/${this.contestId}/updateIsTheme`, { isTheme: !this.isTheme }, e);
+            const isTheme = await this.$http.executePost(`/admin/contests/${this.contestId}/updateIsTheme`, { isTheme: !this.isTheme }, e);
 
-            if (!this.isError(isTheme)) {
+            if (!this.$http.isError(isTheme)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `updated contest gimmick`,
                     type: 'info',

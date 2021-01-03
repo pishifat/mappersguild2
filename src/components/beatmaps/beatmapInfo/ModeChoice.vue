@@ -62,10 +62,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'ModeChoice',
     props: {
         beatmap: {
@@ -75,9 +75,9 @@ export default Vue.extend({
     },
     methods: {
         async setMode(id: Beatmap['id'], mode, e): Promise<void> {
-            const beatmap = await this.executePost<Beatmap>(`/beatmaps/${id}/setMode`, { mode }, e);
+            const beatmap = await this.$http.executePost<Beatmap>(`/beatmaps/${id}/setMode`, { mode }, e);
 
-            if (!this.isError(beatmap)) {
+            if (!this.$http.isError(beatmap)) {
                 this.$store.dispatch('beatmaps/updateBeatmap', beatmap);
             }
         },

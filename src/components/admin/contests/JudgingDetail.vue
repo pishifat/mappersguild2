@@ -55,10 +55,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import ModalDialog from '@components/ModalDialog.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'JudgingDetail',
     components: {
         ModalDialog,

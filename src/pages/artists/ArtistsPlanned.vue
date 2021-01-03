@@ -52,11 +52,11 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import ArtistCard from '@components/artists/ArtistCard.vue';
 import { mapGetters } from 'vuex';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'ArtistsPlanned',
     components: {
         ArtistCard,
@@ -70,7 +70,7 @@ export default Vue.extend({
             const result = confirm('Are you sure?');
 
             if (result) {
-                const artists = await this.executePost('/artists/setAllAsRejected/', {}, e);
+                const artists = await this.$http.executePost('/artists/setAllAsRejected/', {}, e);
 
                 if (artists) {
                     this.$store.commit('setArtists', artists);

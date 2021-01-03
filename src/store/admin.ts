@@ -1,8 +1,8 @@
-import Vue from 'vue';
+import { Module } from 'vuex';
+import { MainState } from './main';
 import { Beatmap, BeatmapStatus } from '@interfaces/beatmap/beatmap';
 import { Quest } from '@interfaces/quest';
 import { User } from '@interfaces/user';
-import { Module } from 'vuex';
 
 interface AdminState {
     actionBeatmaps: Beatmap[];
@@ -16,7 +16,7 @@ interface AdminState {
     selectedUser: null | User;
 }
 
-const store: Module<AdminState, any> = {
+const store: Module<AdminState, MainState> = {
     state: {
         actionBeatmaps: [],
         actionBeatmapsLoading: false,
@@ -105,7 +105,7 @@ const store: Module<AdminState, any> = {
             if (beatmap) {
                 const i = beatmap.tasks.findIndex(t => t.id == payload.taskId);
 
-                if (i !== -1)  Vue.set(beatmap.tasks, i, payload.task);
+                if (i !== -1) beatmap.tasks[i] = payload.task;
             }
         },
         updatePackId (state, payload): void {

@@ -32,11 +32,6 @@ module.exports = merge(base, {
             ],
         }),
     ],
-    resolve: {
-        alias: {
-            vue$: 'vue/dist/vue.min.js',
-        },
-    },
     optimization: {
         moduleIds: 'deterministic',
         runtimeChunk: 'single',

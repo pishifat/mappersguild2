@@ -63,7 +63,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import QuestSize from './QuestSize.vue';
 import QuestPrice from './QuestPrice.vue';
@@ -71,7 +71,7 @@ import QuestTime from './QuestTime.vue';
 import QuestModes from './QuestModes.vue';
 import { Quest } from '@interfaces/quest';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'QuestCard',
     components: {
         QuestSize,

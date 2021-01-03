@@ -1,11 +1,12 @@
-import { StoreOptions } from 'vuex';
+import { Module } from 'vuex';
+import { MainState } from '@store/main';
 import { Contest } from '../../../interfaces/contest/contest';
 
 interface ContestState {
     contests: Contest[];
 }
 
-const store: StoreOptions<ContestState> = {
+const store: Module<ContestState, MainState> = {
     state: {
         contests: [],
     },

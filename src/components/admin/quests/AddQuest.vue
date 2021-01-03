@@ -81,10 +81,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import ModalDialog from '@components/ModalDialog.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'AddQuest',
     components: {
         ModalDialog,
@@ -103,7 +103,7 @@ export default Vue.extend({
     },
     methods: {
         async addQuest(e): Promise<void> {
-            const quests = await this.executePost('/admin/quests/create', {
+            const quests = await this.$http.executePost('/admin/quests/create', {
                 name: this.name,
                 price: this.price,
                 descriptionMain: this.description,
@@ -114,9 +114,9 @@ export default Vue.extend({
                 art: this.osuId,
             }, e);
 
-            if (!this.isError(quests)) {
+            if (!this.$http.isError(quests)) {
                 this.$store.commit('setQuests', quests);
-                this.hideModal('addQuest');
+                this.$bs.hideModal('addQuest');
             }
         },
     },

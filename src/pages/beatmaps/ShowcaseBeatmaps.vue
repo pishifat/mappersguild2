@@ -13,7 +13,7 @@
                     v-for="beatmap in showcaseBeatmaps"
                     :key="beatmap.id"
                     :beatmap="beatmap"
-                    @set-selected-beatmap="setSelectedBeatmap($event)"
+                    @update:selectedBeatmap="setSelectedBeatmap($event)"
                 />
             </transition-group>
             <p v-if="!showcaseBeatmaps.length" class="ms-5 text-white-50">
@@ -24,11 +24,11 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapMutations, mapState } from 'vuex';
 import BeatmapCard from '../../components/beatmaps/BeatmapCard.vue';
 
-export default Vue.extend({
+export default defineComponent({
     components: {
         BeatmapCard,
     },

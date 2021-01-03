@@ -1,11 +1,12 @@
 import { Module } from 'vuex';
+import { MainState } from '@store/main';
 
 interface FiltersState {
     mode: string,
     value: string,
 }
 
-const store: Module<FiltersState, any> = {
+const store: Module<FiltersState, MainState> = {
     namespaced: true,
     state: () => ({
         mode: '',

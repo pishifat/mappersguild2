@@ -13,11 +13,11 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropType } from 'vue';
+import { PropType, defineComponent } from 'vue';
 import { Beatmap } from '@interfaces/beatmap/beatmap';
 import { Task } from '@interfaces/beatmap/task';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'BeatmapList',
     props: {
         beatmaps: {

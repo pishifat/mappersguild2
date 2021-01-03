@@ -36,7 +36,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import LeaderActions from './LeaderActions.vue';
 import PartyTitle from './PartyTitle.vue';
 import QuestTiming from './QuestTiming.vue';
@@ -46,7 +46,7 @@ import { mapState } from 'vuex';
 import { Party } from '../../../../interfaces/party';
 import partyInfoMixin from './partyInfoMixin';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'PartyDetail',
     components: {
         LeaderActions,

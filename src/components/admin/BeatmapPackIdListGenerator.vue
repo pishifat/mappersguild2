@@ -19,10 +19,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import CopyPaste from '../CopyPaste.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'BeatmapPackIdListGenerator',
     components: {
         CopyPaste,

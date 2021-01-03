@@ -17,7 +17,7 @@
                             href="#"
                             data-bs-toggle="modal"
                             :data-bs-target="customDataTarget || '#edit'"
-                            @click.prevent="$emit('update:selected-id', obj.id)"
+                            @click.prevent="$emit('update:selectedId', obj.id)"
                         >
                             edit
                         </a>
@@ -31,9 +31,9 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropType } from 'vue';
+import { defineComponent, PropType } from 'vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'DataTable',
     props: {
         data: {
@@ -50,5 +50,8 @@ export default Vue.extend({
             default: null,
         },
     },
+    emits: [
+        'update:selectedId',
+    ],
 });
 </script>

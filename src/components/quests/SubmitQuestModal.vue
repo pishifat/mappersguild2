@@ -155,7 +155,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import ModalDialog from '@components/ModalDialog.vue';
 import { FeaturedArtist } from '../../../interfaces/featuredArtist';
@@ -167,7 +167,7 @@ import FormSelect from '@components/admin/FormSelect.vue';
 import FormCheckbox from '@components/admin/FormCheckbox.vue';
 import { BasicResponse } from '@interfaces/api/shared';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'SubmitQuestModal',
     components: {
         ModalDialog,
@@ -276,7 +276,7 @@ export default Vue.extend({
         },
     },
     async created () {
-        const res: any = await this.executeGet<FeaturedArtist[]>('/featuredArtists');
+        const res: any = await this.$http.executeGet<FeaturedArtist[]>('/featuredArtists');
 
         if (res) {
             this.featuredArtists = res.sort((a, b) => {
@@ -356,10 +356,10 @@ export default Vue.extend({
                 requiredMapsets: this.mapsetCount,
             };
 
-            const res = await this.executePost<BasicResponse>('/quests/submit', data, e);
+            const res = await this.$http.executePost<BasicResponse>('/quests/submit', data, e);
 
-            if (!this.isError(res)) {
-                this.hideModal('submitQuest');
+            if (!this.$http.isError(res)) {
+                this.$bs.hideModal('submitQuest');
                 this.resetQuestDetails();
             }
         },
@@ -368,10 +368,10 @@ export default Vue.extend({
                 quests: this.queuedQuests,
             };
 
-            const res = await this.executePost<PublishQuestsResponse>('/admin/quests/create', data, e);
+            const res = await this.$http.executePost<PublishQuestsResponse>('/admin/quests/create', data, e);
 
-            if (!this.isError(res)) {
-                this.hideModal('submitQuest');
+            if (!this.$http.isError(res)) {
+                this.$bs.hideModal('submitQuest');
                 this.queuedQuests = [];
             }
         },

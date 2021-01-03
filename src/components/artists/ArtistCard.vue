@@ -239,10 +239,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapMutations } from 'vuex';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'ArtistCard',
     props: {
         artist: {
@@ -319,98 +319,98 @@ export default Vue.extend({
             this.updateLastContacted();
         },
         async toggleIsContacted (): Promise<void> {
-            const artist = await this.executePost('/artists/toggleIsContacted/' + this.artist.id, { value: !this.artist.isContacted });
+            const artist = await this.$http.executePost('/artists/toggleIsContacted/' + this.artist.id, { value: !this.artist.isContacted });
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);
             }
         },
         async toggleIsResponded (): Promise<void> {
-            const artist = await this.executePost('/artists/toggleIsResponded/' + this.artist.id, { value: !this.artist.isResponded });
+            const artist = await this.$http.executePost('/artists/toggleIsResponded/' + this.artist.id, { value: !this.artist.isResponded });
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);
             }
         },
         async toggleTracksSelected (): Promise<void> {
-            const artist = await this.executePost('/artists/toggleTracksSelected/' + this.artist.id, { value: !this.artist.tracksSelected });
+            const artist = await this.$http.executePost('/artists/toggleTracksSelected/' + this.artist.id, { value: !this.artist.tracksSelected });
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);
             }
         },
         async toggleIsRejected (): Promise<void> {
-            const artist = await this.executePost('/artists/toggleIsRejected/' + this.artist.id, { value: !this.artist.isRejected });
+            const artist = await this.$http.executePost('/artists/toggleIsRejected/' + this.artist.id, { value: !this.artist.isRejected });
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);
             }
         },
         async toggleContractSent (): Promise<void> {
-            const artist = await this.executePost('/artists/toggleContractSent/' + this.artist.id, { value: !this.artist.contractSent });
+            const artist = await this.$http.executePost('/artists/toggleContractSent/' + this.artist.id, { value: !this.artist.contractSent });
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);
             }
         },
         async toggleArtistSigned (): Promise<void> {
-            const artist = await this.executePost('/artists/toggleArtistSigned/' + this.artist.id, { value: !this.artist.artistSigned });
+            const artist = await this.$http.executePost('/artists/toggleArtistSigned/' + this.artist.id, { value: !this.artist.artistSigned });
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);
             }
         },
         async togglePpyPaid (): Promise<void> {
-            const artist = await this.executePost('/artists/togglePpyPaid/' + this.artist.id, { value: !this.artist.ppyPaid });
+            const artist = await this.$http.executePost('/artists/togglePpyPaid/' + this.artist.id, { value: !this.artist.ppyPaid });
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);
             }
         },
         async togglePpySigned (): Promise<void> {
-            const artist = await this.executePost('/artists/togglePpySigned/' + this.artist.id, { value: !this.artist.ppySigned });
+            const artist = await this.$http.executePost('/artists/togglePpySigned/' + this.artist.id, { value: !this.artist.ppySigned });
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);
             }
         },
         async toggleSongsTimed (): Promise<void> {
-            const artist = await this.executePost('/artists/toggleSongsTimed/' + this.artist.id, { value: !this.artist.songsTimed });
+            const artist = await this.$http.executePost('/artists/toggleSongsTimed/' + this.artist.id, { value: !this.artist.songsTimed });
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);
             }
         },
         async toggleSongsReceived (): Promise<void> {
-            const artist = await this.executePost('/artists/toggleSongsReceived/' + this.artist.id, { value: !this.artist.songsReceived });
+            const artist = await this.$http.executePost('/artists/toggleSongsReceived/' + this.artist.id, { value: !this.artist.songsReceived });
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);
             }
         },
         async toggleAssetsReceived (): Promise<void> {
-            const artist = await this.executePost('/artists/toggleAssetsReceived/' + this.artist.id, { value: !this.artist.assetsReceived });
+            const artist = await this.$http.executePost('/artists/toggleAssetsReceived/' + this.artist.id, { value: !this.artist.assetsReceived });
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);
             }
         },
         async toggleHasRankedMaps (): Promise<void> {
-            const artist = await this.executePost('/artists/toggleHasRankedMaps/' + this.artist.id, { value: !this.artist.hasRankedMaps });
+            const artist = await this.$http.executePost('/artists/toggleHasRankedMaps/' + this.artist.id, { value: !this.artist.hasRankedMaps });
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);
             }
         },
         async toggleIsMinor (): Promise<void> {
-            const artist = await this.executePost('/artists/toggleIsMinor/' + this.artist.id, { value: !this.artist.isMinor });
+            const artist = await this.$http.executePost('/artists/toggleIsMinor/' + this.artist.id, { value: !this.artist.isMinor });
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);
             }
         },
         async toggleIsUpToDate (): Promise<void> {
-            const artist = await this.executePost('/artists/toggleIsUpToDate/' + this.artist.id, { value: !this.artist.isUpToDate });
+            const artist = await this.$http.executePost('/artists/toggleIsUpToDate/' + this.artist.id, { value: !this.artist.isUpToDate });
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);
@@ -423,7 +423,7 @@ export default Vue.extend({
                 parseInt(dateSplit[0], 10) - 1,
                 parseInt(dateSplit[1], 10)
             );
-            const artist = await this.executePost('/artists/updateProjectedRelease/' + this.artist.id, { date });
+            const artist = await this.$http.executePost('/artists/updateProjectedRelease/' + this.artist.id, { date });
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);
@@ -437,7 +437,7 @@ export default Vue.extend({
                 parseInt(dateSplit[0], 10) - 1,
                 parseInt(dateSplit[1], 10)
             );
-            const artist = await this.executePost('/artists/updateLastContacted/' + this.artist.id, { date });
+            const artist = await this.$http.executePost('/artists/updateLastContacted/' + this.artist.id, { date });
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);
@@ -452,7 +452,7 @@ export default Vue.extend({
             if (this.notes != this.tempNotes) {
                 this.notes = this.notes.trim();
                 this.showNotesInput = !this.showNotesInput;
-                const artist = await this.executePost('/artists/updateNotes/' + this.artist.id, { notes: this.notes }, e);
+                const artist = await this.$http.executePost('/artists/updateNotes/' + this.artist.id, { notes: this.notes }, e);
 
                 if (artist) {
                     this.$store.commit('updateArtist', artist);
@@ -460,14 +460,14 @@ export default Vue.extend({
             }
         },
         async reset (): Promise<void> {
-            const artist = await this.executePost('/artists/reset/' + this.artist.id);
+            const artist = await this.$http.executePost('/artists/reset/' + this.artist.id);
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);
             }
         },
         async deleteArtist (): Promise<void> {
-            const artist = await this.executePost('/artists/deleteArtist/' + this.artist.id);
+            const artist = await this.$http.executePost('/artists/deleteArtist/' + this.artist.id);
 
             if (artist) {
                 this.$store.commit('deleteArtist', artist);

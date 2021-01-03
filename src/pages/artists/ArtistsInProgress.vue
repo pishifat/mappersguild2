@@ -79,11 +79,11 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import ArtistCard from '@components/artists/ArtistCard.vue';
 import { mapGetters } from 'vuex';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'ArtistsInProgress',
     components: {
         ArtistCard,

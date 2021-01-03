@@ -1,5 +1,5 @@
 <template>
-    <div class="my-2 col-sm-12 col-md-6 col-lg-4" @click="$emit('set-selected-beatmap', beatmap)">
+    <div class="my-2 col-sm-12 col-md-6 col-lg-4" @click="$emit('update:selectedBeatmap', beatmap)">
         <div
             class="card card-hover map-card bg-dark"
             :class="statusBorder"
@@ -46,12 +46,12 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { Beatmap } from '@interfaces/beatmap/beatmap';
 import ProcessTasks from './ProcessTasks.vue';
 import QuestImg from './QuestImg.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'BeatmapCard',
     components: {
         ProcessTasks,
@@ -63,6 +63,9 @@ export default Vue.extend({
             required: true,
         },
     },
+    emits: [
+        'update:selectedBeatmap',
+    ],
     data () {
         return {
             defaultUrl: 'https://osu.ppy.sh/images/layout/beatmaps/default-bg.png',

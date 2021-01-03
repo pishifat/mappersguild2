@@ -110,12 +110,12 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import ModalDialog from '@components/ModalDialog.vue';
 import { Beatmap } from '../../../interfaces/beatmap/beatmap';
 import { SBQuality, Task } from '../../../interfaces/beatmap/task';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'BeatmapInfoAdmin',
     components: {
         ModalDialog,
@@ -171,9 +171,9 @@ export default Vue.extend({
             });
         },
         async updateBeatmapStatus(e): Promise<void> {
-            const status = await this.executePost(`/admin/beatmaps/${this.beatmap.id}/updateStatus`, { status: this.status }, e);
+            const status = await this.$http.executePost(`/admin/beatmaps/${this.beatmap.id}/updateStatus`, { status: this.status }, e);
 
-            if (!this.isError(status)) {
+            if (!this.$http.isError(status)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `updated beatmap status`,
                     type: 'info',
@@ -185,9 +185,9 @@ export default Vue.extend({
             }
         },
         async deleteTask(e): Promise<void> {
-            const res = await this.executePost(`/admin/beatmaps/${this.beatmap.id}/tasks/${this.taskId}/delete`, {}, e);
+            const res = await this.$http.executePost(`/admin/beatmaps/${this.beatmap.id}/tasks/${this.taskId}/delete`, {}, e);
 
-            if (!this.isError(res)) {
+            if (!this.$http.isError(res)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `deleted task`,
                     type: 'info',
@@ -199,9 +199,9 @@ export default Vue.extend({
             }
         },
         async deleteModder(e): Promise<void> {
-            const res = await this.executePost(`/admin/beatmaps/${this.beatmap.id}/modders/${this.modderId}/delete`, {}, e);
+            const res = await this.$http.executePost(`/admin/beatmaps/${this.beatmap.id}/modders/${this.modderId}/delete`, {}, e);
 
-            if (!this.isError(res)) {
+            if (!this.$http.isError(res)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `deleted modder`,
                     type: 'info',
@@ -213,9 +213,9 @@ export default Vue.extend({
             }
         },
         async updateUrl(e): Promise<void> {
-            const url = await this.executePost(`/admin/beatmaps/${this.beatmap.id}/updateUrl`, { url: this.beatmapUrl }, e);
+            const url = await this.$http.executePost(`/admin/beatmaps/${this.beatmap.id}/updateUrl`, { url: this.beatmapUrl }, e);
 
-            if (!this.isError(url)) {
+            if (!this.$http.isError(url)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `updated URL`,
                     type: 'info',
@@ -227,9 +227,9 @@ export default Vue.extend({
             }
         },
         async updateStoryboardQuality(e): Promise<void> {
-            const task = await this.executePost(`/admin/beatmaps/${this.beatmap.id}/updateStoryboardQuality`, { storyboardQuality: this.storyboardQuality, taskId: this.storyboardTaskId }, e);
+            const task = await this.$http.executePost(`/admin/beatmaps/${this.beatmap.id}/updateStoryboardQuality`, { storyboardQuality: this.storyboardQuality, taskId: this.storyboardTaskId }, e);
 
-            if (!this.isError(task)) {
+            if (!this.$http.isError(task)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `updated storyboard quality`,
                     type: 'info',
@@ -242,9 +242,9 @@ export default Vue.extend({
             }
         },
         async updatePackId(e): Promise<void> {
-            const packId = await this.executePost(`/admin/beatmaps/${this.beatmap.id}/updatePackId`, { packId: this.packId }, e);
+            const packId = await this.$http.executePost(`/admin/beatmaps/${this.beatmap.id}/updatePackId`, { packId: this.packId }, e);
 
-            if (!this.isError(packId)) {
+            if (!this.$http.isError(packId)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `updated pack id`,
                     type: 'info',
@@ -256,9 +256,9 @@ export default Vue.extend({
             }
         },
         async updateIsShowcase(e): Promise<void> {
-            const isShowcase = await this.executePost(`/admin/beatmaps/${this.beatmap.id}/updateIsShowcase`, { isShowcase: !this.beatmap.isShowcase }, e);
+            const isShowcase = await this.$http.executePost(`/admin/beatmaps/${this.beatmap.id}/updateIsShowcase`, { isShowcase: !this.beatmap.isShowcase }, e);
 
-            if (!this.isError(isShowcase)) {
+            if (!this.$http.isError(isShowcase)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `updated isShowcase`,
                     type: 'info',

@@ -24,15 +24,14 @@
                     none
                 </i>
                 <span v-else>
-                    <template v-for="(modder, i) in beatmap.modders">
-                        <a
-                            :key="modder.id"
-                            :href="'https://osu.ppy.sh/users/' + modder.osuId"
-                            target="_blank"
-                        >
-                            {{ listUser(modder.username, i, beatmap.modders.length) }}
-                        </a>
-                    </template>
+                    <a
+                        v-for="(modder, i) in beatmap.modders"
+                        :key="modder.id"
+                        :href="'https://osu.ppy.sh/users/' + modder.osuId"
+                        target="_blank"
+                    >
+                        {{ listUser(modder.username, i, beatmap.modders.length) }}
+                    </a>
                 </span>
             </div>
         </div>
@@ -40,11 +39,11 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'ModdersList',
     props: {
         canEdit: Boolean,
@@ -64,9 +63,9 @@ export default Vue.extend({
     methods: {
         async updateModder(e): Promise<void> {
             e.target.classList.add('fake-button-disable');
-            const bm = await this.executePost(`/beatmaps/${this.beatmap.id}/updateModder`);
+            const bm = await this.$http.executePost(`/beatmaps/${this.beatmap.id}/updateModder`);
 
-            if (!this.isError(bm)) {
+            if (!this.$http.isError(bm)) {
                 this.$store.dispatch('beatmaps/updateBeatmap', bm);
             }
 

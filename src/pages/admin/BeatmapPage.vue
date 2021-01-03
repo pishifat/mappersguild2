@@ -49,7 +49,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import NewsPost from '../../components/admin/newspost/NewsPost.vue';
 import BeatmapInfoAdmin from '../../components/admin/BeatmapInfoAdmin.vue';
@@ -59,7 +59,7 @@ import DataTable from '../../components/admin/DataTable.vue';
 import { Beatmap } from '../../../interfaces/beatmap/beatmap';
 import beatmapsAdminModule from '@store/admin/beatmaps';
 
-export default Vue.extend({
+export default defineComponent({
     components: {
         NewsPost,
         DataTable,
@@ -85,15 +85,15 @@ export default Vue.extend({
             this.$store.registerModule('beatmapsAdmin', beatmapsAdminModule);
         }
     },
-    destroyed() {
+    unmounted () {
         if (this.$store.hasModule('beatmapsAdmin')) {
             this.$store.unregisterModule('beatmapsAdmin');
         }
     },
     async created() {
-        const beatmaps = await this.initialRequest<Beatmap[]>('/admin/beatmaps/load');
+        const beatmaps = await this.$http.initialRequest<Beatmap[]>('/admin/beatmaps/load');
 
-        if (!this.isError(beatmaps)) {
+        if (!this.$http.isError(beatmaps)) {
             this.$store.commit('setBeatmaps', beatmaps);
         }
     },
@@ -102,7 +102,7 @@ export default Vue.extend({
             const i = this.beatmaps.findIndex(beatmap => beatmap.id == b.id);
 
             if (i !== -1) {
-                Vue.set(this.beatmaps, i, b);
+                this.beatmaps[i] = b;
             }
         },
         formatMetadata(song): string {

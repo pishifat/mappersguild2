@@ -73,10 +73,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { Submission } from '../../../../interfaces/contest/submission';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'SubmissionsInfo',
     props: {
         contestId: {
@@ -97,12 +97,12 @@ export default Vue.extend({
     },
     methods: {
         async addSubmission(e): Promise<void> {
-            const submission = await this.executePost(`/admin/contests/${this.contestId}/submissions/create`, {
+            const submission = await this.$http.executePost(`/admin/contests/${this.contestId}/submissions/create`, {
                 name: this.name,
                 osuId: this.creatorOsuId,
             }, e);
 
-            if (!this.isError(submission)) {
+            if (!this.$http.isError(submission)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `added ${this.creatorOsuId} as ${this.name}`,
                     type: 'info',
@@ -114,9 +114,9 @@ export default Vue.extend({
             }
         },
         async addSubmissionsFromCsv(e): Promise<void> {
-            const submissions = await this.executePost(`/admin/contests/${this.contestId}/submissions/createFromCsv`, {}, e);
+            const submissions = await this.$http.executePost(`/admin/contests/${this.contestId}/submissions/createFromCsv`, {}, e);
 
-            if (!this.isError(submissions)) {
+            if (!this.$http.isError(submissions)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `added csv entries`,
                     type: 'info',
@@ -128,9 +128,9 @@ export default Vue.extend({
             }
         },
         async deleteSubmission(submissionId, e): Promise<void> {
-            const res = await this.executePost(`/admin/contests/${this.contestId}/submissions/${submissionId}/delete`, {}, e);
+            const res = await this.$http.executePost(`/admin/contests/${this.contestId}/submissions/${submissionId}/delete`, {}, e);
 
-            if (!this.isError(res)) {
+            if (!this.$http.isError(res)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `deleted`,
                     type: 'info',

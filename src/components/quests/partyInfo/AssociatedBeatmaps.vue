@@ -32,10 +32,10 @@
 
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { Beatmap, BeatmapStatus } from '../../../../interfaces/beatmap/beatmap';
 
-export default Vue.extend({
+export default defineComponent({
     props: {
         associatedMaps: {
             type: Array as () => Beatmap[],

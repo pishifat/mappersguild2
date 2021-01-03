@@ -22,10 +22,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import ModalDialog from '@components/ModalDialog.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'AddArtist',
     components: {
         ModalDialog,
@@ -37,11 +37,11 @@ export default Vue.extend({
     },
     methods: {
         async createArtist (e): Promise<void> {
-            const artist = await this.executePost('/artists/create', { name: this.name }, e);
+            const artist = await this.$http.executePost('/artists/create', { name: this.name }, e);
 
-            if (!this.isError(artist)) {
+            if (!this.$http.isError(artist)) {
                 this.$store.commit('addArtist', artist);
-                this.hideModal('addArtist');
+                this.$bs.hideModal('addArtist');
             }
         },
     },

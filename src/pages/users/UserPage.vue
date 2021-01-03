@@ -42,7 +42,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapGetters, mapState } from 'vuex';
 import UserCard from '@components/users/UserCard.vue';
 import UserInfo from '@components/users/UserInfo.vue';
@@ -50,7 +50,7 @@ import UserPageFilters from '@pages/users/UserPageFilters.vue';
 import usersModule from '@store/users';
 import { User } from '@interfaces/user';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'UserPage',
     components: {
         UserCard,
@@ -77,9 +77,9 @@ export default Vue.extend({
         }
     },
     async created () {
-        const res = await this.initialRequest<{ users: User[] }>('/users/query');
+        const res = await this.$http.initialRequest<{ users: User[] }>('/users/query');
 
-        if (!this.isError(res)) {
+        if (!this.$http.isError(res)) {
             this.$store.commit('users/setUsers', res.users);
             const params: any = new URLSearchParams(document.location.search.substring(1));
 
@@ -88,7 +88,7 @@ export default Vue.extend({
 
                 if (i >= 0) {
                     this.$store.commit('users/setSelectedUserId', params.get('id'));
-                    this.showModal('extendedInfo');
+                    this.$bs.showModal('extendedInfo');
                 }
             }
         }

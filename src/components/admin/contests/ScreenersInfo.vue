@@ -46,9 +46,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'ScreenersInfo',
     props: {
         contestId: {
@@ -68,9 +68,9 @@ export default Vue.extend({
     },
     methods: {
         async addScreener(e): Promise<void> {
-            const screener = await this.executePost(`/admin/contests/${this.contestId}/screeners/add`, { screenerInput: this.screenerInput }, e);
+            const screener = await this.$http.executePost(`/admin/contests/${this.contestId}/screeners/add`, { screenerInput: this.screenerInput }, e);
 
-            if (!this.isError(screener)) {
+            if (!this.$http.isError(screener)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `added ${this.screenerInput} (${this.screeners.length + 1})`,
                     type: 'info',
@@ -82,9 +82,9 @@ export default Vue.extend({
             }
         },
         async removeScreener(screenerId, e): Promise<void> {
-            const res = await this.executePost(`/admin/contests/${this.contestId}/screeners/remove`, { screenerId }, e);
+            const res = await this.$http.executePost(`/admin/contests/${this.contestId}/screeners/remove`, { screenerId }, e);
 
-            if (!this.isError(res)) {
+            if (!this.$http.isError(res)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `deleted`,
                     type: 'info',

@@ -43,11 +43,11 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import { User } from '../../../interfaces/user';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'UserCard',
     props: {
         user: {

@@ -181,9 +181,11 @@
             </div>
 
             <loading-page>
-                <transition name="route-transition" mode="out-in">
-                    <router-view />
-                </transition>
+                <router-view v-slot="{ Component }">
+                    <transition name="route-transition" mode="out-in">
+                        <component :is="Component" />
+                    </transition>
+                </router-view>
             </loading-page>
         </div>
 
@@ -200,13 +202,13 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import LoadingPage from '@components/LoadingPage.vue';
 import ToastMessages from '@components/ToastMessages.vue';
 import NotificationsAccess from '@components/NotificationsAccess.vue';
 
-export default Vue.extend({
+export default defineComponent({
     components: {
         LoadingPage,
         ToastMessages,

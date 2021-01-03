@@ -138,9 +138,9 @@
         <template v-if="!isRanked && !isQualified">
             <div class="col-sm-12 mt-2">
                 <new-task
+                    v-model:task-to-add-collaborator="taskToAddCollaborator"
                     :beatmap="beatmap"
                     :is-host="isHost"
-                    :task-to-add-collaborator.sync="taskToAddCollaborator"
                 />
             </div>
         </template>
@@ -148,14 +148,14 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import NewTask from './NewTask.vue';
 import { User } from '../../../../interfaces/user';
 import { Task } from '../../../../interfaces/beatmap/task';
 import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'TasksChoice',
     components: {
         NewTask,
@@ -189,9 +189,9 @@ export default Vue.extend({
         async setTaskStatus(id, status, e): Promise<void> {
             e.target.classList.add('fake-button-disable');
 
-            const bm = await this.executePost('/beatmaps/setTaskStatus/' + id, { status });
+            const bm = await this.$http.executePost('/beatmaps/setTaskStatus/' + id, { status });
 
-            if (!this.isError(bm)) {
+            if (!this.$http.isError(bm)) {
                 this.$store.dispatch('beatmaps/updateBeatmap', bm);
             }
 
@@ -200,11 +200,11 @@ export default Vue.extend({
         async removeTask(id, e): Promise<void> {
             e.target.classList.add('fake-button-disable');
 
-            const bm = await this.executePost('/beatmaps/removeTask/' + id, {
+            const bm = await this.$http.executePost('/beatmaps/removeTask/' + id, {
                 beatmapId: this.beatmap.id,
             });
 
-            if (!this.isError(bm)) {
+            if (!this.$http.isError(bm)) {
                 this.$store.dispatch('beatmaps/updateBeatmap', bm);
             }
 
@@ -221,9 +221,9 @@ export default Vue.extend({
         async removeCollab(id, user, e): Promise<void> {
             e.target.classList.add('fake-button-disable');
 
-            const bm = await this.executePost('/beatmaps/task/' + id + '/removeCollab', { user });
+            const bm = await this.$http.executePost('/beatmaps/task/' + id + '/removeCollab', { user });
 
-            if (!this.isError(bm)) {
+            if (!this.$http.isError(bm)) {
                 this.$store.dispatch('beatmaps/updateBeatmap', bm);
             }
 

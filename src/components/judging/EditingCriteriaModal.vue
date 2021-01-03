@@ -60,12 +60,12 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { JudgingScore } from '../../../interfaces/contest/judgingScore';
 import { mapState, mapGetters } from 'vuex';
 import ModalDialog from '@components/ModalDialog.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'EditingCriteriaModal',
     components: {
         ModalDialog,
@@ -117,14 +117,14 @@ export default Vue.extend({
             return judgingScore;
         },
         async save (e: any): Promise<void> {
-            const res = await this.executePost<{ success?: string; error?: string; judgingDone: [] }>('/judging/save', {
+            const res = await this.$http.executePost<{ success?: string; error?: string; judgingDone: [] }>('/judging/save', {
                 submissionId: this.editingSubmission?.id,
                 criteriaId: this.editingCriteria?.id,
                 score: this.editingScore,
                 comment: this.editingComment,
             }, e);
 
-            if (this.isError(res)) return;
+            if (this.$http.isError(res)) return;
 
             this.$store.commit('setJudgingDone', res.judgingDone);
 

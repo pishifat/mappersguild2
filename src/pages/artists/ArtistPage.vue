@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import AddArtist from '@components/artists/AddArtist.vue';
 import ArtistPageFilters from './ArtistPageFilters.vue';
 import ArtistsInProgress from './ArtistsInProgress.vue';
@@ -25,7 +25,7 @@ import ArtistsPlanned from './ArtistsPlanned.vue';
 import ArtistsInactive from './ArtistsInactive.vue';
 import artistsModule from '@store/artists';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'ArtistPage',
     components: {
         ArtistPageFilters,
@@ -39,13 +39,13 @@ export default Vue.extend({
             this.$store.registerModule('artists', artistsModule);
         }
     },
-    destroyed() {
+    unmounted () {
         if (this.$store.hasModule('artists')) {
             this.$store.unregisterModule('artists');
         }
     },
     async created () {
-        const res: any = await this.initialRequest('/artists/relevantInfo');
+        const res: any = await this.$http.initialRequest('/artists/relevantInfo');
 
         if (res) {
             this.$store.commit('setArtists', res.artists);

@@ -18,11 +18,11 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { Party } from '@interfaces/party';
 import partyInfoMixin from './partyInfoMixin';
 
-export default Vue.extend({
+export default defineComponent({
     mixins: [ partyInfoMixin ],
     props: {
         party: {

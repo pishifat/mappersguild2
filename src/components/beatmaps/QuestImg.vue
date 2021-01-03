@@ -10,9 +10,9 @@
 
 <script lang="ts">
 import { Beatmap } from '@interfaces/beatmap/beatmap';
-import Vue, { PropType } from 'vue';
+import { defineComponent, PropType } from 'vue';
 
-export default Vue.extend({
+export default defineComponent({
     props: {
         beatmap: {
             type: Object as PropType<Beatmap>,

@@ -1,7 +1,7 @@
 <script lang="ts">
 import { BeatmapMode } from '@interfaces/beatmap/beatmap';
 import { Task, TaskName, TaskStatus } from '@interfaces/beatmap/task';
-import Vue, { CreateElement, PropType, VNode, VNodeChildren } from 'vue';
+import { defineComponent, h, PropType, VNode, VNodeArrayChildren } from 'vue';
 
 interface PossibleTask {
     name: string;
@@ -17,27 +17,24 @@ interface Mode {
     status: TaskStatus;
 }
 
-function taskNode(h: CreateElement, text: VNodeChildren, status: TaskStatus | 'blocked' | 'open' | 'secondary', tooltip?: string): VNode {
+function taskNode(text: string | VNodeArrayChildren, status: TaskStatus | 'blocked' | 'open' | 'secondary', tooltip?: string): VNode {
     const data = {
         class: [
             'px-1',
             'text-' + status.toLowerCase(),
         ],
-        attrs: {},
     };
 
     if (tooltip) {
-        data.attrs = {
-            'data-bs-toggle': 'tooltip',
-            'data-bs-placement': 'top',
-            title: tooltip,
-        };
+        data['data-bs-toggle'] = 'tooltip';
+        data['data-bs-placement'] = 'top';
+        data['title'] = tooltip;
     }
 
     return h('span', data, text);
 }
 
-export default Vue.extend({
+export default defineComponent({
     props: {
         tasks: {
             type: Array as PropType<Task[]>,
@@ -52,7 +49,7 @@ export default Vue.extend({
             required: true,
         },
     },
-    render (h) {
+    render () {
         const possibleTasks: PossibleTask[] = [
             { name: 'Storyboard', short: 'SB', locked: false, status: [] },
             { name: 'Easy', short: 'E', locked: false, status: [] },
@@ -94,15 +91,15 @@ export default Vue.extend({
             if (isHybrid) continue;
 
             if (overflowTasks && possibleTask.status.length > 1) {
-                nodes.push(taskNode(h, possibleTask.short + '+', 'secondary', possibleTask.status.length.toString()));
+                nodes.push(taskNode(possibleTask.short + '+', 'secondary', possibleTask.status.length.toString()));
             } else {
                 for (const status of possibleTask.status) {
-                    nodes.push(taskNode(h, possibleTask.short, status));
+                    nodes.push(taskNode(possibleTask.short, status));
                 }
             }
 
             if (!isClaimed) {
-                nodes.push(taskNode(h, possibleTask.short, isLocked ? 'blocked' : 'open'));
+                nodes.push(taskNode(possibleTask.short, isLocked ? 'blocked' : 'open'));
             }
         }
 
@@ -110,7 +107,6 @@ export default Vue.extend({
             for (const mode of modes) {
                 nodes.push(
                     taskNode(
-                        h,
                         [
                             h('i', {
                                 class: [

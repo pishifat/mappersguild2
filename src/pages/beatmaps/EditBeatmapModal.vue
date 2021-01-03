@@ -60,13 +60,13 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropType } from 'vue';
+import { defineComponent, PropType } from 'vue';
 import BeatmapInfo from '@components/beatmaps/beatmapInfo/BeatmapInfo.vue';
 import ModalDialog from '@components/ModalDialog.vue';
 import { Beatmap, BeatmapStatus } from '@interfaces/beatmap/beatmap';
 import QuestImg from '@components/beatmaps/QuestImg.vue';
 
-export default Vue.extend({
+export default defineComponent({
     components: {
         BeatmapInfo,
         ModalDialog,
@@ -75,7 +75,7 @@ export default Vue.extend({
     props: {
         selectedBeatmap: {
             type: Object as PropType<Beatmap>,
-            default: () => ({} as Beatmap),
+            default: () => ({}),
         },
     },
     watch: {

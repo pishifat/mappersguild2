@@ -43,10 +43,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'Points',
     props: {
         beatmap: {
@@ -75,9 +75,9 @@ export default Vue.extend({
     methods: {
         async findPoints(e): Promise<void> {
             this.isLoading = true;
-            const res: any = await this.executeGet(`/beatmaps/${this.beatmap.id}/findPoints`, e);
+            const res: any = await this.$http.executeGet(`/beatmaps/${this.beatmap.id}/findPoints`, e);
 
-            if (!this.isError(res)) {
+            if (!this.$http.isError(res)) {
                 this.tasksPointsArray = res.tasksPointsArray;
                 this.usersPointsArrays = res.usersPointsArrays;
                 this.pointsInfo = res.pointsInfo;
