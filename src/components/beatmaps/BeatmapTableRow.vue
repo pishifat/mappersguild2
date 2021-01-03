@@ -25,9 +25,9 @@
                     <div class="col-sm-3 small">
                         <span class="text-white-50">Hosted by</span>
                         <user-link :user="beatmap.host" />
-                        <i v-if="beatmap.mode == 'taiko'" class="fas fa-drum text-white-50" />
-                        <i v-else-if="beatmap.mode == 'catch'" class="fas fa-apple-alt text-white-50" />
-                        <i v-else-if="beatmap.mode == 'mania'" class="fas fa-stream text-white-50" />
+                        <span v-if="beatmap.mode !== 'osu'" class="text-white-50">
+                            <modes-icons :modes="[beatmap.mode]" />
+                        </span>
                     </div>
                     <div v-if="beatmap.url" class="col-sm-1 d-flex justify-content-end align-items-center">
                         <a :href="beatmap.url" target="_blank">
@@ -52,6 +52,7 @@ import BeatmapInfo from './beatmapInfo/BeatmapInfo.vue';
 import { Beatmap } from '@interfaces/beatmap/beatmap';
 import ProcessTasks from './ProcessTasks.vue';
 import QuestImg from './QuestImg.vue';
+import ModesIcons from '@components/ModesIcons.vue';
 
 export default defineComponent({
     name: 'BeatmapTableRow',
@@ -59,6 +60,7 @@ export default defineComponent({
         BeatmapInfo,
         ProcessTasks,
         QuestImg,
+        ModesIcons,
     },
     props: {
         beatmap: {

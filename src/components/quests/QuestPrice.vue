@@ -2,10 +2,8 @@
     <small>
         <i class="fas fa-coins me-1" />
         <span
+            v-bs-tooltip="'points required from each party member to start quest'"
             class="text-white-50"
-            data-bs-toggle="tooltip"
-            data-bs-placement="top"
-            title="points required from each party member to start quest"
         >
             {{ price }}pt{{ price == 1 ? '' : 's' }}
         </span>

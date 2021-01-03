@@ -7,9 +7,7 @@
     >
         <template #header>
             {{ beatmap.song.artist }} - {{ beatmap.song.title }} ({{ beatmap.host.username }})
-            <i v-if="beatmap.mode == 'taiko'" class="fas fa-drum" />
-            <i v-else-if="beatmap.mode == 'catch'" class="fas fa-apple-alt" />
-            <i v-else-if="beatmap.mode == 'mania'" class="fas fa-stream" />
+            <modes-icons v-if="beatmap.mode !== 'osu'" :modes="[beatmap.mode]" />
         </template>
 
         <template #default>
@@ -57,12 +55,14 @@ import ModalDialog from '@components/ModalDialog.vue';
 import UserLinkList from '@components/UserLinkList.vue';
 import { Beatmap } from '../../../interfaces/beatmap/beatmap';
 import { Task, TaskName } from '../../../interfaces/beatmap/task';
+import ModesIcons from '@components/ModesIcons.vue';
 
 export default defineComponent({
     name: 'LimitedMapInfo',
     components: {
         ModalDialog,
         UserLinkList,
+        ModesIcons,
     },
     props: {
         beatmap: {

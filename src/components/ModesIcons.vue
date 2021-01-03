@@ -1,0 +1,86 @@
+<template>
+    <template v-if="toggler">
+        <a class="mode-margin" href="#" @click.prevent="$emit('toggle', 'osu')">
+            <i
+                v-bs-tooltip="'toggle osu!'"
+                class="fas fa-circle"
+                :class="modes.includes('osu') ? '' : 'text-white-50'"
+            />
+        </a>
+        <a class="mode-margin" href="#" @click.prevent="$emit('toggle', 'taiko')">
+            <i
+                v-bs-tooltip="'toggle osu!taiko'"
+                class="fas fa-drum"
+                :class="modes.includes('taiko') ? '' : 'text-white-50'"
+            />
+        </a>
+        <a class="mode-margin" href="#" @click.prevent="$emit('toggle', 'catch')">
+            <i
+                v-bs-tooltip="'toggle osu!catch'"
+                class="fas fa-apple-alt"
+                :class="modes.includes('catch') ? '' : 'text-white-50'"
+            />
+        </a>
+        <a class="mode-margin" href="#" @click.prevent="$emit('toggle', 'mania')">
+            <i
+                v-bs-tooltip="'toggle osu!'"
+                class="fas fa-stream"
+                :class="modes.includes('mania') ? '' : 'text-white-50'"
+            />
+        </a>
+    </template>
+    <template v-else>
+        <i
+            v-if="modes.includes('osu')"
+            v-bs-tooltip="'osu!'"
+            class="fas fa-circle"
+        />
+        <i
+            v-if="modes.includes('taiko')"
+            v-bs-tooltip="'osu!taiko'"
+            class="fas fa-drum"
+        />
+        <i
+            v-if="modes.includes('catch')"
+            v-bs-tooltip="'osu!catch'"
+            class="fas fa-apple-alt"
+        />
+        <i
+            v-if="modes.includes('mania')"
+            v-bs-tooltip="'osu!mania'"
+            class="fas fa-stream"
+        />
+        <i
+            v-if="modes.includes('hybrid')"
+            v-bs-tooltip="'multiple game modes'"
+            class="fas fa-check-double"
+        />
+    </template>
+</template>
+
+<script lang="ts">
+import { defineComponent } from 'vue';
+
+export default defineComponent({
+    name: 'ModesIcons',
+    props: {
+        modes: {
+            type: Array,
+            required: true,
+        },
+        toggler: Boolean,
+    },
+    emits: [
+        'toggle',
+    ],
+});
+</script>
+
+<style>
+
+.mode-margin {
+    margin-left: 2px;
+    margin-right: 2px;
+}
+
+</style>

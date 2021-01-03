@@ -4,10 +4,8 @@
             Potential Nominators ({{ beatmap.bns.length }})
             <small
                 v-if="canEdit"
+                v-bs-tooltip:right="'add/remove yourself from potential BN list'"
                 class="ms-1"
-                data-bs-toggle="tooltip"
-                data-bs-placement="right"
-                title="add/remove yourself from potential BN list"
             >
                 <a
                     v-if="isBn"

@@ -7,7 +7,7 @@ async function executeRequest (requestType, url, data, e, updateLoadingState, st
     if (updateLoadingState) store.commit('updateLoadingState');
 
     if (e) {
-        if (e.dataset?.bsToggle === 'tooltip') hideTooltip(e);
+        hideTooltip(e.target);
         e.target.disabled = true;
     }
 

@@ -150,11 +150,9 @@
                         Rank:
                         <i
                             v-if="selectedUser.rank > 0"
+                            v-bs-tooltip="`rank ${selectedUser.rank} user`"
                             class="fas fa-crown"
                             :class="'text-rank-' + selectedUser.rank"
-                            data-bs-toggle="tooltip"
-                            data-bs-placement="top"
-                            :title="`rank ${selectedUser.rank} user`"
                         />
                         <span v-else class="text-white-50">
                             None
@@ -240,17 +238,14 @@
                     <tr v-for="map in userBeatmaps" :key="map.id">
                         <td scope="row">
                             <i
+                                v-bs-tooltip="`map.status`"
                                 class="fas"
                                 :class="['text-' + map.status.toLowerCase(), findIcon(map.status)]"
-                                data-bs-toggle="tooltip"
-                                :title="map.status"
                             />
                             <a :href="'/beatmaps?id=' + map.id" target="_blank">
                                 {{ map.song.artist }} - {{ map.song.title }}
                             </a>
-                            <i v-if="map.mode == 'taiko'" class="fas fa-drum" />
-                            <i v-else-if="map.mode == 'catch'" class="fas fa-apple-alt" />
-                            <i v-else-if="map.mode == 'mania'" class="fas fa-stream" />
+                            <modes-icons v-if="map.mode !== 'osu'" :modes="[map.mode]" />
                         </td>
                         <td scope="row">
                             <user-link :user="map.host" />
@@ -323,12 +318,14 @@ import { Beatmap } from '../../../interfaces/beatmap/beatmap';
 import UserPointsRow from './UserPointsRow.vue';
 import { TaskName } from '../../../interfaces/beatmap/task';
 import { BeatmapStatus } from '../../../interfaces/beatmap/beatmap';
+import ModesIcons from '@components/ModesIcons.vue';
 
 export default defineComponent({
     name: 'UserInfo',
     components: {
         UserPointsRow,
         ModalDialog,
+        ModesIcons,
     },
     data () {
         return {

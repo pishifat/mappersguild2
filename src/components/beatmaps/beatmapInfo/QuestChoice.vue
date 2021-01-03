@@ -6,12 +6,10 @@
                     Quest
                     <a
                         id="editLink"
+                        v-bs-tooltip:right="'connect mapset with a quest'"
                         href="#"
                         :class="showQuestInput ? 'text-danger' : ''"
                         class="text-success small ms-1"
-                        data-bs-toggle="tooltip"
-                        data-bs-placement="right"
-                        title="connect mapset with a quest"
                         @click.prevent="showQuestInput = !showQuestInput"
                     >
                         <i class="fas fa-edit" />
@@ -46,10 +44,8 @@
                         </option>
                     </select>
                     <button
+                        v-bs-tooltip="'link beatmap to quest'"
                         class="btn btn-outline-info"
-                        data-bs-toggle="tooltip"
-                        data-bs-placement="top"
-                        title="link beatmap to quest"
                         @click="linkQuest($event)"
                     >
                         Save

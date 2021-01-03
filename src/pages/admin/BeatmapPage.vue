@@ -14,10 +14,7 @@
                         @update:selected-id="selectedBeatmapId = $event"
                     >
                         <td class="text-truncate">
-                            <i v-if="beatmap.mode == 'osu'" class="fas fa-circle" />
-                            <i v-else-if="beatmap.mode == 'taiko'" class="fas fa-drum" />
-                            <i v-else-if="beatmap.mode == 'catch'" class="fas fa-apple-alt" />
-                            <i v-else-if="beatmap.mode == 'mania'" class="fas fa-stream" />
+                            <modes-icons :modes="[beatmap.mode]" />
                             <a v-if="beatmap.url" :href="beatmap.url">
                                 {{ formatMetadata(beatmap.song) }}
                             </a>
@@ -58,6 +55,7 @@ import BeatmapPackIdListGenerator from '../../components/admin/BeatmapPackIdList
 import DataTable from '../../components/admin/DataTable.vue';
 import { Beatmap } from '../../../interfaces/beatmap/beatmap';
 import beatmapsAdminModule from '@store/admin/beatmaps';
+import ModesIcons from '@components/ModesIcons.vue';
 
 export default defineComponent({
     components: {
@@ -66,6 +64,7 @@ export default defineComponent({
         BeatmapInfoAdmin,
         BundledBeatmapsList,
         BeatmapPackIdListGenerator,
+        ModesIcons,
     },
     data () {
         return {

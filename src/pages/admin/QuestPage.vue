@@ -25,10 +25,7 @@
                             {{ quest.creator.username }}
                         </td>
                         <td>
-                            <i v-if="quest.modes.includes('osu')" class="fas fa-circle" />
-                            <i v-if="quest.modes.includes('taiko')" class="fas fa-drum" />
-                            <i v-if="quest.modes.includes('catch')" class="fas fa-apple-alt" />
-                            <i v-if="quest.modes.includes('mania')" class="fas fa-stream" />
+                            <modes-icons :modes="quest.modes" />
                         </td>
                         <td>
                             {{ quest.status }}
@@ -62,12 +59,14 @@ import QuestInfo from '../../components/admin/quests/QuestInfo.vue';
 import DataTable from '../../components/admin/DataTable.vue';
 import { Quest } from '../../../interfaces/quest';
 import questsAdminModule from '@store/admin/quests';
+import ModesIcons from '@components/ModesIcons.vue';
 
 export default defineComponent({
     components: {
         DataTable,
         SubmitQuestModal,
         QuestInfo,
+        ModesIcons,
     },
     data () {
         return {

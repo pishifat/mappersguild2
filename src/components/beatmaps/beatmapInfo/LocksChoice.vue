@@ -21,11 +21,9 @@
                             :key="task"
                         >
                             <a
+                                v-bs-tooltip:left="'unlock'"
                                 href="#"
                                 class="text-danger"
-                                data-bs-toggle="tooltip"
-                                data-bs-placement="left"
-                                title="unlock"
                                 @click.prevent="unlockTask(task, $event)"
                             >
                                 <i class="fas fa-minus" />
@@ -59,10 +57,8 @@
                     </select>
                     <button
                         id="lockTask"
+                        v-bs-tooltip:right="'prevent other mappers from claiming a difficulty'"
                         class="btn btn-outline-info"
-                        data-bs-toggle="tooltip"
-                        data-bs-placement="right"
-                        title="prevent other mappers from claiming a difficulty"
                         @click="lockTask($event)"
                     >
                         <i class="fas fa-lock" />

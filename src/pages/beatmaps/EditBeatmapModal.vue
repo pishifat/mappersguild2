@@ -21,34 +21,7 @@
 
             <user-link class="mx-1" :user="selectedBeatmap.host" />
 
-            <i
-                v-if="selectedBeatmap.mode == 'taiko'"
-                class="fas fa-drum"
-                data-bs-toggle="tooltip"
-                data-bs-placement="top"
-                title="osu!taiko"
-            />
-            <i
-                v-else-if="selectedBeatmap.mode == 'catch'"
-                class="fas fa-apple-alt"
-                data-bs-toggle="tooltip"
-                data-bs-placement="top"
-                title="osu!catch"
-            />
-            <i
-                v-else-if="selectedBeatmap.mode == 'mania'"
-                class="fas fa-stream"
-                data-bs-toggle="tooltip"
-                data-bs-placement="top"
-                title="osu!mania"
-            />
-            <i
-                v-else-if="selectedBeatmap.mode == 'hybrid'"
-                class="fas fa-check-double"
-                data-bs-toggle="tooltip"
-                data-bs-placement="top"
-                title="multiple game modes"
-            />
+            <modes-icons :modes="[selectedBeatmap.mode]" />
         </template>
 
         <template #default>
@@ -65,12 +38,14 @@ import BeatmapInfo from '@components/beatmaps/beatmapInfo/BeatmapInfo.vue';
 import ModalDialog from '@components/ModalDialog.vue';
 import { Beatmap, BeatmapStatus } from '@interfaces/beatmap/beatmap';
 import QuestImg from '@components/beatmaps/QuestImg.vue';
+import ModesIcons from '@components/ModesIcons.vue';
 
 export default defineComponent({
     components: {
         BeatmapInfo,
         ModalDialog,
         QuestImg,
+        ModesIcons,
     },
     props: {
         selectedBeatmap: {

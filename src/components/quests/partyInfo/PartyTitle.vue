@@ -8,11 +8,9 @@
             <!-- party rank icon -->
             <i
                 v-if="party.rank > 0"
-                class="fas fa-crown fa-sm"
+                v-bs-tooltip="`rank ${party.rank} party`"
+                class="fas fa-crown fa-sm mx-1"
                 :class="'text-rank-' + party.rank"
-                data-bs-toggle="tooltip"
-                data-bs-placement="top"
-                :title="`rank ${party.rank} party`"
             />
 
             <lock-detail

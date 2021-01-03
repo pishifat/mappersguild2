@@ -11,6 +11,7 @@ import UserLink from './components/UserLink.vue';
 import router from './router/main';
 import { http } from '@store/http';
 import { showModal, hideModal } from './helpers';
+import { tooltip } from './directives';
 
 const app = createApp(Root);
 
@@ -23,5 +24,7 @@ app.config.globalProperties.$bs = {
     showModal,
     hideModal,
 };
+
+app.directive('bs-tooltip', tooltip);
 
 app.mount('#app');

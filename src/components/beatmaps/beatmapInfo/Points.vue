@@ -4,10 +4,8 @@
             <div class="col-sm-12">
                 <button
                     v-if="!tasksPointsArray"
+                    v-bs-tooltip="'calculate points for all difficulties'"
                     class="btn btn-sm btn-outline-info ms-1"
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="top"
-                    title="calculate points for all difficulties"
                     @click="findPoints($event)"
                 >
                     Calculate points

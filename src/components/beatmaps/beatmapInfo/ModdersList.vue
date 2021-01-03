@@ -5,10 +5,8 @@
                 Modders ({{ beatmap.modders.length }})
                 <small
                     v-if="canEdit"
+                    v-bs-tooltip:right="'add/remove yourself from modder list'"
                     class="ms-1"
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="right"
-                    title="add/remove yourself from modder list"
                 >
                     <a
                         href="#"

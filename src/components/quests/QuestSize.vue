@@ -1,16 +1,12 @@
 <template>
     <span
+        v-bs-tooltip="'Party size: ' +
+            (
+                quest.minParty == quest.maxParty ? `${quest.minParty} user${quest.maxParty == 1 ? '' : 's'}` :
+                quest.status == 'open' ? `${quest.minParty}-${quest.maxParty} users` :
+                (quest.status == 'wip' || quest.status == 'done') ? `${quest.currentParty.members.length} user${quest.currentParty.members.length == 1 ? '' : 's'}` : ''
+            )"
         class="small pe-2"
-        data-bs-toggle="tooltip"
-        data-bs-placement="top"
-        :title="
-            'Party size: ' +
-                (
-                    quest.minParty == quest.maxParty ? `${quest.minParty} user${quest.maxParty == 1 ? '' : 's'}` :
-                    quest.status == 'open' ? `${quest.minParty}-${quest.maxParty} users` :
-                    (quest.status == 'wip' || quest.status == 'done') ? `${quest.currentParty.members.length} user${quest.currentParty.members.length == 1 ? '' : 's'}` : ''
-                )
-        "
     >
         <span v-if="quest.status == 'open'">
             <i v-for="i in quest.minParty" :key="i" class="fas fa-user user-icon" />

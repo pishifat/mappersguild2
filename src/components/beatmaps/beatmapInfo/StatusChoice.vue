@@ -5,24 +5,20 @@
         </div>
 
         <button
+            v-bs-tooltip:bottom="'mark mapset and all diffs as done'"
             class="btn btn-sm"
             :class="beatmap.status == 'Done' ? 'btn-success' : 'btn-outline-success'"
             :disabled="beatmap.status == 'Done'"
-            data-bs-toggle="tooltip"
-            data-bs-placement="bottom"
-            title="mark mapset and all diffs as done"
             @click="setStatus('Done', $event)"
         >
             Done
         </button>
 
         <button
+            v-bs-tooltip:bottom="'mark mapset as work-in-progress'"
             class="btn btn-sm"
             :class="beatmap.status == 'WIP' ? 'btn-warning' : 'btn-outline-warning'"
             :disabled="beatmap.status == 'WIP'"
-            data-bs-toggle="tooltip"
-            data-bs-placement="bottom"
-            title="mark mapset as work-in-progress"
             @click="setStatus('WIP', $event)"
         >
             WIP

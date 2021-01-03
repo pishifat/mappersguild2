@@ -6,12 +6,10 @@
                     Link
                     <a
                         id="editLink"
+                        v-bs-tooltip:right="'edit link'"
                         href="#"
                         class="text-success small ms-1"
                         :class="{ 'text-danger': showLinkInput }"
-                        data-bs-toggle="tooltip"
-                        data-bs-placement="right"
-                        title="edit link"
                         @click.prevent="showLinkInput = !showLinkInput"
                     >
                         <i class="fas fa-edit" />
@@ -40,11 +38,9 @@
                     >
                     <button
                         id="addLinkButton"
+                        v-bs-tooltip:right="'use new osu!web link for card image'"
                         class="btn btn-outline-info"
                         type="submit"
-                        data-bs-toggle="tooltip"
-                        data-bs-placement="right"
-                        title="use new osu!web link for card image"
                         @click="saveLink($event)"
                     >
                         Save

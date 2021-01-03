@@ -5,7 +5,7 @@
                 <h4>
                     {{ submission.contest.name }}
                 </h4>
-                <h5 data-bs-toggle="tooltip" title="anonymized submission name">
+                <h5 v-bs-tooltip="'anonymized submission name'">
                     {{ submission.name }}
                 </h5>
                 <p>
@@ -29,8 +29,7 @@
                             User {{ i+1 }}
                             <i
                                 v-if="evaluation.vote"
-                                data-bs-toggle="tooltip"
-                                title="user placed in top 5"
+                                v-bs-tooltip="'user placed in top 5'"
                                 class="fas fa-check text-done"
                             />
                         </div>

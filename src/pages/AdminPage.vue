@@ -39,10 +39,7 @@
                             <tbody>
                                 <tr v-for="beatmap in actionBeatmaps" :key="beatmap.id" class="text-white-50">
                                     <td scope="row">
-                                        <i v-if="beatmap.mode == 'osu'" class="fas fa-circle" />
-                                        <i v-else-if="beatmap.mode == 'taiko'" class="fas fa-drum" />
-                                        <i v-else-if="beatmap.mode == 'catch'" class="fas fa-apple-alt" />
-                                        <i v-else-if="beatmap.mode == 'mania'" class="fas fa-stream" />
+                                        <modes-icons :modes="[beatmap.mode]" />
                                         <a v-if="beatmap.url" :href="beatmap.url">
                                             {{ generateMetadata(beatmap.song) }}
                                         </a>
@@ -121,10 +118,7 @@
                                         {{ quest.creator.username }}
                                     </td>
                                     <td scope="row">
-                                        <i v-if="quest.modes.includes('osu')" class="fas fa-circle" />
-                                        <i v-if="quest.modes.includes('taiko')" class="fas fa-drum" />
-                                        <i v-if="quest.modes.includes('catch')" class="fas fa-apple-alt" />
-                                        <i v-if="quest.modes.includes('mania')" class="fas fa-stream" />
+                                        <modes-icons :modes="quest.modes" />
                                     </td>
                                     <td scope="row">
                                         {{ quest.status }}
@@ -196,21 +190,17 @@
                                     <td scope="row">
                                         <i
                                             v-if="user.rank > 0"
+                                            v-bs-tooltip="`rank ${user.rank} user`"
                                             class="fas fa-crown"
                                             :class="'text-rank-' + user.rank"
-                                            data-bs-toggle="tooltip"
-                                            data-bs-placement="top"
-                                            :title="`rank ${user.rank} user`"
                                         />
                                     </td>
                                     <td scope="row" :class="{ 'bg-open': user.rank != user.badge }">
                                         <i
                                             v-if="user.badge > 0"
+                                            v-bs-tooltip="`rank ${user.rank} user`"
                                             class="fas fa-crown"
                                             :class="'text-rank-' + user.rank"
-                                            data-bs-toggle="tooltip"
-                                            data-bs-placement="top"
-                                            :title="`rank ${user.rank} user`"
                                         />
                                     </td>
                                     <td scope="row">
@@ -267,6 +257,7 @@ import { Beatmap } from '@interfaces/beatmap/beatmap';
 import { Quest } from '@interfaces/quest';
 import { User } from '@interfaces/user';
 import adminModule from '@store/admin';
+import ModesIcons from '@components/ModesIcons.vue';
 
 export default defineComponent({
     name: 'AdminPage',
@@ -275,6 +266,7 @@ export default defineComponent({
         QuestInfo,
         ReviewQuest,
         UserInfo,
+        ModesIcons,
     },
     data() {
         return {

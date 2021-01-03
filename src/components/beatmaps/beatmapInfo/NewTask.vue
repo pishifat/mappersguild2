@@ -49,10 +49,8 @@
                 >
 
                 <button
+                    v-bs-tooltip="'add difficulty'"
                     class="btn btn-outline-info"
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="top"
-                    title="add difficulty"
                     @click="taskToAddCollaborator ? addCollab($event) : addTask(beatmap.id, $event)"
                 >
                     <i class="fas fa-plus" />

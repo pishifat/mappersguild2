@@ -127,42 +127,11 @@
             > {{ quest.isExpired }}
         </p>
         <p>
-            <a href="#" @click.prevent="toggleQuestMode('osu')">
-                <i
-                    class="fas fa-circle"
-                    :class="quest.modes.includes('osu') ? '' : 'text-white-50'"
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="top"
-                    title="toggle osu!"
-                />
-            </a>
-            <a href="#" @click.prevent="toggleQuestMode('taiko')">
-                <i
-                    class="fas fa-drum"
-                    :class="quest.modes.includes('taiko') ? '' : 'text-white-50'"
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="top"
-                    title="toggle osu!taiko"
-                />
-            </a>
-            <a href="#" @click.prevent="toggleQuestMode('catch')">
-                <i
-                    class="fas fa-apple-alt"
-                    :class="quest.modes.includes('catch') ? '' : 'text-white-50'"
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="top"
-                    title="toggle osu!catch"
-                />
-            </a>
-            <a href="#" @click.prevent="toggleQuestMode('mania')">
-                <i
-                    class="fas fa-stream"
-                    :class="quest.modes.includes('mania') ? '' : 'text-white-50'"
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="top"
-                    title="toggle osu!mania"
-                />
-            </a>
+            <modes-icons
+                :modes="quest.modes"
+                :toggler="true"
+                @toggle="toggleQuestMode($event)"
+            />
         </p>
 
         <associated-beatmaps
@@ -182,7 +151,8 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import ModalDialog from '@components/ModalDialog.vue';
-import AssociatedBeatmaps from '../../quests/partyInfo/AssociatedBeatmaps.vue';
+import AssociatedBeatmaps from '@components/quests/partyInfo/AssociatedBeatmaps.vue';
+import ModesIcons from '@components/ModesIcons.vue';
 import { Quest } from '@interfaces/quest';
 
 export default defineComponent({
@@ -190,6 +160,7 @@ export default defineComponent({
     components: {
         AssociatedBeatmaps,
         ModalDialog,
+        ModesIcons,
     },
     props: {
         quest: {

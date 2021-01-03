@@ -18,7 +18,7 @@ interface Mode {
 }
 
 function taskNode(text: string | VNodeArrayChildren, status: TaskStatus | 'blocked' | 'open' | 'secondary', tooltip?: string): VNode {
-    const data = {
+    const data: Record<string, any> = {
         class: [
             'px-1',
             'text-' + status.toLowerCase(),
@@ -28,7 +28,7 @@ function taskNode(text: string | VNodeArrayChildren, status: TaskStatus | 'block
     if (tooltip) {
         data['data-bs-toggle'] = 'tooltip';
         data['data-bs-placement'] = 'top';
-        data['title'] = tooltip;
+        data.title = tooltip;
     }
 
     return h('span', data, text);

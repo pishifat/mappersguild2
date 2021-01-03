@@ -24,9 +24,7 @@
                     Hosted by
                     <user-link :user="beatmap.host" />
 
-                    <i v-if="beatmap.mode == 'taiko'" class="fas fa-drum" />
-                    <i v-else-if="beatmap.mode == 'catch'" class="fas fa-apple-alt" />
-                    <i v-else-if="beatmap.mode == 'mania'" class="fas fa-stream" />
+                    <modes-icons v-if="beatmap.mode !== 'osu'" :modes="[beatmap.mode]" />
                     <process-tasks
                         class="float-end pt-1"
                         :tasks="beatmap.tasks"
@@ -44,12 +42,14 @@ import { defineComponent } from 'vue';
 import { Beatmap } from '@interfaces/beatmap/beatmap';
 import ProcessTasks from './ProcessTasks.vue';
 import QuestImg from './QuestImg.vue';
+import ModesIcons from '@components/ModesIcons.vue';
 
 export default defineComponent({
     name: 'BeatmapCard',
     components: {
         ProcessTasks,
         QuestImg,
+        ModesIcons,
     },
     props: {
         beatmap: {

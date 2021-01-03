@@ -22,21 +22,17 @@
                         <td>
                             <i
                                 v-if="user.rank > 0"
+                                v-bs-tooltip="`rank ${user.rank} user`"
                                 class="fas fa-crown"
                                 :class="'text-rank-' + user.rank"
-                                data-bs-toggle="tooltip"
-                                data-bs-placement="top"
-                                :title="`rank ${user.rank} user`"
                             />
                         </td>
                         <td :class="{ 'bg-open': user.rank != user.badge }">
                             <i
                                 v-if="user.badge > 0"
+                                v-bs-tooltip="`rank ${user.rank} user`"
                                 class="fas fa-crown"
                                 :class="'text-rank-' + user.rank"
-                                data-bs-toggle="tooltip"
-                                data-bs-placement="top"
-                                :title="`rank ${user.rank} user`"
                             />
                         </td>
                     </data-table>

@@ -11,10 +11,9 @@
                 class="text-secondary"
             >
                 <i
+                    v-bs-tooltip="map.status"
                     class="fas"
                     :class="[`text-${map.status.toLowerCase()}`, findIcon(map.status)]"
-                    data-bs-toggle="tooltip"
-                    :title="map.status"
                 />
                 <a v-if="map.url" :href="map.url" target="_blank">
                     {{ map.song.artist }} - {{ map.song.title }}

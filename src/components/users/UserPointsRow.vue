@@ -1,10 +1,8 @@
 <template>
     <tr class="text-white-50">
         <td
+            v-bs-tooltip:left="tooltipTitle"
             scope="row"
-            data-bs-toggle="tooltip"
-            data-bs-placement="left"
-            :title="tooltipTitle"
         >
             {{ display }}
         </td>

@@ -12,10 +12,8 @@
                     @keyup.enter="inviteToParty($event)"
                 >
                 <button
+                    v-bs-tooltip="'invite user to party'"
                     class="btn btn-outline-info"
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="top"
-                    title="invite user to party"
                     @click="inviteToParty($event)"
                 >
                     Invite
@@ -43,19 +41,15 @@
                     </template>
                 </select>
                 <button
+                    v-bs-tooltip="'change party leader'"
                     class="btn btn-outline-info"
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="top"
-                    title="change party leader"
                     @click="transferPartyLeader($event)"
                 >
                     Lead
                 </button>
                 <button
+                    v-bs-tooltip="'kick party member'"
                     class="btn btn-outline-info"
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="top"
-                    title="kick party member"
                     @click="kickPartyMember($event)"
                 >
                     Kick
@@ -84,10 +78,8 @@
         <template v-if="status === 'wip'">
             <div class="col-12">
                 <button
+                    v-bs-tooltip="'each party member spends 10 points to extend quest deadline'"
                     class="btn btn-sm btn-outline-danger w-100"
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="top"
-                    title="each party member spends 10 points to extend quest deadline"
                     @click.prevent="extendDeadline($event)"
                 >
                     Extend deadline for 10 points

@@ -40,21 +40,17 @@
                         <!--right side buttons-->
                         <a
                             v-if="!artist.isContacted"
+                            v-bs-tooltip="'delete'"
                             href="#"
                             class="float-end small text-danger ms-2"
-                            data-bs-toggle="tooltip"
-                            data-bs-placement="top"
-                            title="delete"
                             @click.prevent="deleteArtist()"
                         >
                             <i class="fas fa-trash" />
                         </a>
                         <a
+                            v-bs-tooltip="'reset progress (except notes)'"
                             href="#"
                             class="float-end small text-danger"
-                            data-bs-toggle="tooltip"
-                            data-bs-placement="top"
-                            title="reset progress (except notes)"
                             @click.prevent="reset()"
                         >
                             <i class="fas fa-undo-alt" />
