@@ -3,7 +3,7 @@
         <div class="container card card-body py-1">
             <div class="row">
                 <div class="col-sm">
-                    <button class="btn btn-sm btn-info btn-block" data-toggle="modal" data-target="#newsPost">
+                    <button class="btn btn-sm btn-info w-100" data-bs-toggle="modal" data-bs-target="#newsPost">
                         Create news post
                     </button>
                     <data-table
@@ -14,10 +14,7 @@
                         @update:selected-id="selectedBeatmapId = $event"
                     >
                         <td class="text-truncate">
-                            <i v-if="beatmap.mode == 'osu'" class="fas fa-circle" />
-                            <i v-else-if="beatmap.mode == 'taiko'" class="fas fa-drum" />
-                            <i v-else-if="beatmap.mode == 'catch'" class="fas fa-apple-alt" />
-                            <i v-else-if="beatmap.mode == 'mania'" class="fas fa-stream" />
+                            <modes-icons :modes="[beatmap.mode]" />
                             <a v-if="beatmap.url" :href="beatmap.url">
                                 {{ formatMetadata(beatmap.song) }}
                             </a>
@@ -49,7 +46,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import NewsPost from '../../components/admin/newspost/NewsPost.vue';
 import BeatmapInfoAdmin from '../../components/admin/BeatmapInfoAdmin.vue';
@@ -58,14 +55,16 @@ import BeatmapPackIdListGenerator from '../../components/admin/BeatmapPackIdList
 import DataTable from '../../components/admin/DataTable.vue';
 import { Beatmap } from '../../../interfaces/beatmap/beatmap';
 import beatmapsAdminModule from '@store/admin/beatmaps';
+import ModesIcons from '@components/ModesIcons.vue';
 
-export default Vue.extend({
+export default defineComponent({
     components: {
         NewsPost,
         DataTable,
         BeatmapInfoAdmin,
         BundledBeatmapsList,
         BeatmapPackIdListGenerator,
+        ModesIcons,
     },
     data () {
         return {
@@ -85,15 +84,15 @@ export default Vue.extend({
             this.$store.registerModule('beatmapsAdmin', beatmapsAdminModule);
         }
     },
-    destroyed() {
+    unmounted () {
         if (this.$store.hasModule('beatmapsAdmin')) {
             this.$store.unregisterModule('beatmapsAdmin');
         }
     },
     async created() {
-        const beatmaps = await this.initialRequest<Beatmap[]>('/admin/beatmaps/load');
+        const beatmaps = await this.$http.initialRequest<Beatmap[]>('/admin/beatmaps/load');
 
-        if (!this.isError(beatmaps)) {
+        if (!this.$http.isError(beatmaps)) {
             this.$store.commit('setBeatmaps', beatmaps);
         }
     },
@@ -102,7 +101,7 @@ export default Vue.extend({
             const i = this.beatmaps.findIndex(beatmap => beatmap.id == b.id);
 
             if (i !== -1) {
-                Vue.set(this.beatmaps, i, b);
+                this.beatmaps[i] = b;
             }
         },
         formatMetadata(song): string {

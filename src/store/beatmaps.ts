@@ -1,9 +1,9 @@
-import Vue from 'vue';
 import { Module } from 'vuex';
 import Axios from 'axios';
 import { Beatmap, BeatmapMode, BeatmapStatus } from '../../interfaces/beatmap/beatmap';
 import { FilterMode } from '../../interfaces/extras';
 import { TaskName } from '../../interfaces/beatmap/task';
+import { MainState } from './main';
 
 interface BeatmapsState {
     allBeatmaps: Beatmap[];
@@ -19,7 +19,7 @@ interface BeatmapsState {
     isLoadingOtherBeatmaps: boolean;
 }
 
-const store: Module<BeatmapsState, any> = {
+const store: Module<BeatmapsState, MainState> = {
     namespaced: true,
     state: {
         allBeatmaps: [],
@@ -81,13 +81,13 @@ const store: Module<BeatmapsState, any> = {
         },
         updateBeatmap (state, beatmap: Beatmap): void {
             let i = state.allBeatmaps.findIndex(b => b.id === beatmap.id);
-            if (i !== -1) Vue.set(state.allBeatmaps, i, beatmap);
+            if (i !== -1) state.allBeatmaps[i] = beatmap;
 
             i = state.userBeatmaps.findIndex(b => b.id === beatmap.id);
-            if (i !== -1) Vue.set(state.userBeatmaps, i, beatmap);
+            if (i !== -1) state.userBeatmaps[i] = beatmap;
 
             i = state.showcaseBeatmaps.findIndex(b => b.id === beatmap.id);
-            if (i !== -1) Vue.set(state.showcaseBeatmaps, i, beatmap);
+            if (i !== -1) state.showcaseBeatmaps[i] = beatmap;
         },
         deleteBeatmap (state, beatmap: Beatmap): void {
             let i = state.allBeatmaps.findIndex(b => b.id === beatmap.id);
@@ -141,10 +141,10 @@ const store: Module<BeatmapsState, any> = {
             return beatmaps;
         },
         guestDifficultyBeatmaps: (state, getters, rootState): Beatmap[] => {
-            return getters.filteredUserBeatmaps.filter(b => b.host.id !== rootState.loggedInUser.id);
+            return getters.filteredUserBeatmaps.filter(b => b.host.id !== rootState.loggedInUser?.id);
         },
         hostedBeatmaps: (state, getters, rootState): Beatmap[] => {
-            return getters.filteredUserBeatmaps.filter(b => b.host.id === rootState.loggedInUser.id);
+            return getters.filteredUserBeatmaps.filter(b => b.host.id === rootState.loggedInUser?.id);
         },
     },
     actions: {

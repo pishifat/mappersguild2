@@ -4,19 +4,11 @@
             <div class="container">
                 <div class="row">
                     <div class="col-sm-6">
-                        <img
-                            v-if="beatmap.quest || beatmap.isShowcase"
-                            class="rounded-circle mr-1 quest-icon"
-                            :src="beatmap.isShowcase || !beatmap.quest.art ? '/images/no-art-icon.png' :
-                                beatmap.quest.isMbc ? '/images/mbc-icon.png' :
-                                'https://assets.ppy.sh/artists/' + beatmap.quest.art + '/cover.jpg'"
-                            data-toggle="tooltip"
-                            :title="beatmap.quest && beatmap.quest.name"
-                        >
+                        <quest-img :beatmap="beatmap" />
                         <a
                             href="#"
-                            data-toggle="collapse"
-                            :data-target="'#details' + beatmap.id"
+                            data-bs-toggle="collapse"
+                            :data-bs-target="'#details' + beatmap.id"
                             @click="selectBeatmap()"
                         >
                             {{ formatMetadata() }}
@@ -32,10 +24,10 @@
                     </div>
                     <div class="col-sm-3 small">
                         <span class="text-white-50">Hosted by</span>
-                        <a :href="'https://osu.ppy.sh/users/' + beatmap.host.osuId" target="_blank" @click.stop>{{ beatmap.host.username }}</a>
-                        <i v-if="beatmap.mode == 'taiko'" class="fas fa-drum text-white-50" />
-                        <i v-else-if="beatmap.mode == 'catch'" class="fas fa-apple-alt text-white-50" />
-                        <i v-else-if="beatmap.mode == 'mania'" class="fas fa-stream text-white-50" />
+                        <user-link :user="beatmap.host" />
+                        <span v-if="beatmap.mode !== 'osu'" class="text-white-50">
+                            <modes-icons :modes="[beatmap.mode]" />
+                        </span>
                     </div>
                     <div v-if="beatmap.url" class="col-sm-1 d-flex justify-content-end align-items-center">
                         <a :href="beatmap.url" target="_blank">
@@ -46,7 +38,7 @@
             </div>
         </div>
 
-        <div :id="'details' + beatmap.id" class="collapse my-2 mx-4 row border-right border-left py-3" :class="'border-' + beatmap.status.toLowerCase()">
+        <div :id="'details' + beatmap.id" class="collapse my-2 mx-4 row border-end border-start py-3" :class="'border-' + beatmap.status.toLowerCase()">
             <beatmap-info
                 :beatmap="beatmap"
             />
@@ -55,16 +47,20 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import BeatmapInfo from './beatmapInfo/BeatmapInfo.vue';
-import { Beatmap, BeatmapStatus } from '@interfaces/beatmap/beatmap';
+import { Beatmap } from '@interfaces/beatmap/beatmap';
 import ProcessTasks from './ProcessTasks.vue';
+import QuestImg from './QuestImg.vue';
+import ModesIcons from '@components/ModesIcons.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'BeatmapTableRow',
     components: {
         BeatmapInfo,
         ProcessTasks,
+        QuestImg,
+        ModesIcons,
     },
     props: {
         beatmap: {
@@ -74,7 +70,9 @@ export default Vue.extend({
     },
     methods: {
         selectBeatmap(): void {
-            history.pushState(null, 'Beatmaps', `/beatmaps?id=${this.beatmap.id}`);
+            if (this.$route.query.id !== this.beatmap.id) {
+                this.$router.push(`/beatmaps?id=${this.beatmap.id}`);
+            }
         },
         formatMetadata(): string {
             const str = this.beatmap.song.artist + ' - ' + this.beatmap.song.title;
@@ -86,14 +84,8 @@ export default Vue.extend({
             }
         },
         statusBorder(): string {
-            if (this.beatmap.status == BeatmapStatus.WIP) {
-                return 'card-status-wip';
-            } else if (this.beatmap.status == BeatmapStatus.Done) {
-                return 'card-status-done';
-            } else if (this.beatmap.status == BeatmapStatus.Qualified) {
-                return 'card-status-qualified';
-            } else if (this.beatmap.status == BeatmapStatus.Ranked) {
-                return 'card-status-ranked';
+            if (this.beatmap.status) {
+                return 'card-status-' + this.beatmap.status.toLowerCase();
             }
 
             return '';
@@ -101,32 +93,3 @@ export default Vue.extend({
     },
 });
 </script>
-
-<style scoped>
-    .card-status-wip {
-        border-left: 4px solid var(--wip);
-    }
-
-    .card-status-done {
-        border-left: 4px solid var(--done);
-    }
-
-    .card-status-qualified {
-        border-left: 4px solid var(--guild);
-    }
-
-    .card-status-ranked {
-        border-left: 4px solid var(--ranked);
-    }
-
-    tr td{ /*FROM HERE*/
-        padding: 5px 5px 5px 5px !important;
-        margin: 0 !important;
-    }
-
-    .quest-icon {
-        width: 24px;
-        height: 24px;
-    }
-</style>
-

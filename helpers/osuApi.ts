@@ -1,7 +1,8 @@
-import { defaultErrorMessage, sleep, BasicError } from './helpers';
-import querystring from 'querystring';
-import config from '../config.json';
 import axios, { AxiosRequestConfig } from 'axios';
+import querystring from 'querystring';
+import { defaultErrorMessage, sleep } from './helpers';
+import { ErrorResponse } from '../interfaces/api/shared';
+import config from '../config.json';
 
 export interface OsuBeatmapResponse {
     /** 4 = loved, 3 = qualified, 2 = approved, 1 = ranked, 0 = pending, -1 = WIP, -2 = graveyard */
@@ -39,11 +40,11 @@ export interface OsuChatMessageResponse {
     // fill in the rest when function is allowed
 }
 
-export function isOsuResponseError(basicError: OsuBeatmapResponse | OsuBeatmapResponse[] | OsuAuthResponse | OsuChatMessageResponse | BasicError): basicError is BasicError {
-    return (basicError as BasicError).error !== undefined;
+export function isOsuResponseError(errorResponse: OsuBeatmapResponse | OsuBeatmapResponse[] | OsuAuthResponse | OsuChatMessageResponse | ErrorResponse): errorResponse is ErrorResponse {
+    return (errorResponse as ErrorResponse).error !== undefined;
 }
 
-async function executeRequest(options: AxiosRequestConfig): Promise<OsuAuthResponse | BasicError> {
+async function executeRequest(options: AxiosRequestConfig): Promise<OsuAuthResponse | ErrorResponse> {
     try {
         const res = await axios(options);
 
@@ -57,7 +58,7 @@ async function executeRequest(options: AxiosRequestConfig): Promise<OsuAuthRespo
     }
 }
 
-export async function getToken(code: string): Promise<OsuAuthResponse | BasicError> {
+export async function getToken(code: string): Promise<OsuAuthResponse | ErrorResponse> {
     const postData = querystring.stringify({
         grant_type: 'authorization_code',
         code,
@@ -78,7 +79,7 @@ export async function getToken(code: string): Promise<OsuAuthResponse | BasicErr
     return await executeRequest(options);
 }
 
-export async function refreshToken(refreshToken: string): Promise<OsuAuthResponse | BasicError> {
+export async function refreshToken(refreshToken: string): Promise<OsuAuthResponse | ErrorResponse> {
     const postData = querystring.stringify({
         grant_type: 'refresh_token',
         client_id: config.id,
@@ -98,7 +99,7 @@ export async function refreshToken(refreshToken: string): Promise<OsuAuthRespons
     return await executeRequest(options);
 }
 
-export async function getUserInfo(token: string): Promise<OsuAuthResponse | BasicError> {
+export async function getUserInfo(token: string): Promise<OsuAuthResponse | ErrorResponse> {
     const options: AxiosRequestConfig = {
         url: 'https://osu.ppy.sh/api/v2/me',
         method: 'GET',
@@ -110,7 +111,7 @@ export async function getUserInfo(token: string): Promise<OsuAuthResponse | Basi
     return await executeRequest(options);
 }
 
-export async function beatmapsetInfo(setId: number): Promise<OsuBeatmapResponse | BasicError> {
+export async function beatmapsetInfo(setId: number): Promise<OsuBeatmapResponse | ErrorResponse> {
     const url = `https://osu.ppy.sh/api/get_beatmaps?k=${config.v1token}&s=${setId}`;
 
     try {
@@ -136,7 +137,7 @@ export async function beatmapsetInfo(setId: number): Promise<OsuBeatmapResponse 
     }
 }
 
-export async function getMaps(date: Date): Promise<OsuBeatmapResponse[] | BasicError> {
+export async function getMaps(date: Date): Promise<OsuBeatmapResponse[] | ErrorResponse> {
     let beatmaps: OsuBeatmapResponse[] = [];
     const today = new Date();
 
@@ -162,7 +163,7 @@ export async function getMaps(date: Date): Promise<OsuBeatmapResponse[] | BasicE
     }
 }
 
-export async function sendPm(token: string, osuId: number, message: string): Promise<OsuAuthResponse | BasicError> {
+export async function sendPm(token: string, osuId: number, message: string): Promise<OsuAuthResponse | ErrorResponse> {
     const options: AxiosRequestConfig = {
         url: 'https://osu.ppy.sh/api/v2/chat/new',
         method: 'POST',

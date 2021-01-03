@@ -1,14 +1,14 @@
-import Vue from 'vue';
 import { Module } from 'vuex';
 import { Contest } from '../../interfaces/contest/contest';
 import { Submission } from '../../interfaces/contest/submission';
+import { MainState } from './main';
 
 interface ScreeningState {
     contests: Contest[];
     voteLoading: boolean;
 }
 
-const store: Module<ScreeningState, any> = {
+const store: Module<ScreeningState, MainState> = {
     state: {
         contests: [],
         voteLoading: false,
@@ -29,7 +29,7 @@ const store: Module<ScreeningState, any> = {
             });
 
             if (contestIndex !== -1 && submissionIndex !== -1) {
-                Vue.set(state.contests[contestIndex].submissions, submissionIndex, submission);
+                state.contests[contestIndex].submissions[submissionIndex] = submission;
             }
         },
     },
@@ -39,7 +39,7 @@ const store: Module<ScreeningState, any> = {
 
             state.contests.forEach(c => {
                 c.submissions.forEach(s => {
-                    const e = s.evaluations.find(e => e.screener.id === rootState.loggedInUser.id);
+                    const e = s.evaluations.find(e => e.screener.id === rootState.loggedInUser?.id);
 
                     if (e) {
                         usedVotes.push(e.vote);

@@ -3,12 +3,12 @@ import { BeatmapModel, Beatmap } from '../../models/beatmap/beatmap';
 import { BeatmapMode, BeatmapStatus } from '../../interfaces/beatmap/beatmap';
 import { TaskModel } from '../../models/beatmap/task';
 import { TaskName, TaskStatus } from '../../interfaces/beatmap/task';
-import { QuestModel } from '../../models/quest';
 import { LogModel } from '../../models/log';
 import { LogCategory } from '../../interfaces/log';
 import { isLoggedIn, isNotSpectator } from '../../helpers/middlewares';
-import { isValidBeatmap, isBeatmapHost } from './middlewares';
+import { isBeatmapHost, isValidBeatmap } from './middlewares';
 import { UserModel } from '../../models/user';
+import { QuestModel } from '../../models/quest';
 
 const beatmapsHostRouter = express.Router();
 
@@ -94,68 +94,57 @@ beatmapsHostRouter.post('/:id/setStatus', isValidBeatmap, isBeatmapHost, async (
     );
 });
 
-/* POST quest to map */
-beatmapsHostRouter.post('/:id/saveQuest', isValidBeatmap, isBeatmapHost, async (req, res) => {
-    let b: Beatmap = res.locals.beatmap;
+/* POST save a party/quest to a map */
+beatmapsHostRouter.post('/:id/linkQuest', isValidBeatmap, isBeatmapHost, async (req, res) => {
+    let beatmap: Beatmap = res.locals.beatmap;
+    const questId = req.body.questId;
 
-    if (b.status == BeatmapStatus.Secret) {
+    if (beatmap.status === BeatmapStatus.Secret) {
         return res.json({ error: 'Cannot add quest to secret beatmap!' });
     }
 
-    if (req.body.questId.length) {
-        const q = await QuestModel
-            .findById(req.body.questId)
-            .populate({ path: 'currentParty',  select: 'members' })
+    if (questId) {
+        const quest = await QuestModel
+            .findById(questId)
+            .populate({
+                path: 'parties',
+                populate: { path: 'members' },
+            })
             .orFail();
 
-        let invalidMapper = false;
-        let invalidMode = false;
-
-        for (let i = 0; i < b.tasks.length; i++) {
-            const task = b.tasks[i];
-
-            if (q.modes.indexOf(task.mode) < 0) {
-                invalidMode = true;
+        for (const task of beatmap.tasks) {
+            if (!quest.modes.includes(task.mode)) {
+                return res.json({ error: `Some of this mapset's difficulties are not the correct mode for this quest!` });
             }
 
-            for (let j = 0; j < task.mappers.length; j++) {
-                const u = await UserModel.findById(task.mappers[j]._id);
+            for (const mapper of task.mappers) {
+                const user = await UserModel
+                    .findById(mapper._id)
+                    .orFail();
 
-                if (!u) {
-                    invalidMapper = true;
-                    continue;
-                }
-
-                if (q.currentParty.members.indexOf(u._id) < 0) {
-                    invalidMapper = true;
+                if (!quest.currentParty?.members.some(m => m.id == user.id)) {
+                    return res.json({ error: `Some of this mapset's mappers are not assigned to your quest!` });
                 }
             }
         }
 
-        if (invalidMapper) {
-            return res.json({ error: `Some of this mapset's mappers are not assigned to your quest!` });
-        }
-
-        if (invalidMode) {
-            return res.json({ error: `Some of this mapset's difficulties are not the correct mode for this quest!` });
-        }
-
-        b.quest = req.body.questId;
-        await b.save();
+        beatmap.quest = quest;
     } else {
-        await BeatmapModel.findByIdAndUpdate(req.params.id, { quest: undefined });
+        beatmap.quest = undefined;
     }
 
-    b = await BeatmapModel
+    await beatmap.save();
+
+    beatmap = await BeatmapModel
         .findById(req.params.id)
         .defaultPopulate()
         .orFail();
 
-    res.json(b);
+    res.json(beatmap);
 
     LogModel.generate(
         req.session?.mongoId,
-        `${req.body.questId.length ? 'linked quest to' : 'unlinked quest from'} "${b.song.artist} - ${b.song.title}"`,
+        `${req.body.questId.length ? 'linked quest to' : 'unlinked quest from'} "${beatmap.song.artist} - ${beatmap.song.title}"`,
         LogCategory.Beatmap
     );
 });

@@ -1,28 +1,24 @@
 <template>
-    <div id="mapsetStatus" class="form-group">
-        <div class="d-inline-block mr-2">
+    <div id="mapsetStatus" class="mb-3">
+        <div class="d-inline-block me-2">
             Status
         </div>
 
         <button
+            v-bs-tooltip:bottom="'mark mapset and all diffs as done'"
             class="btn btn-sm"
             :class="beatmap.status == 'Done' ? 'btn-success' : 'btn-outline-success'"
             :disabled="beatmap.status == 'Done'"
-            data-toggle="tooltip"
-            data-placement="bottom"
-            title="mark mapset and all diffs as done"
             @click="setStatus('Done', $event)"
         >
             Done
         </button>
 
         <button
+            v-bs-tooltip:bottom="'mark mapset as work-in-progress'"
             class="btn btn-sm"
             :class="beatmap.status == 'WIP' ? 'btn-warning' : 'btn-outline-warning'"
             :disabled="beatmap.status == 'WIP'"
-            data-toggle="tooltip"
-            data-placement="bottom"
-            title="mark mapset as work-in-progress"
             @click="setStatus('WIP', $event)"
         >
             WIP
@@ -31,10 +27,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'StatusChoice',
     props: {
         beatmap: {
@@ -44,13 +40,13 @@ export default Vue.extend({
     },
     methods: {
         async setStatus(status, e): Promise<void> {
-            const beatmap = await this.executePost<Beatmap>(
+            const beatmap = await this.$http.executePost<Beatmap>(
                 `/beatmaps/${this.beatmap.id}/setStatus`,
                 { status },
                 e
             );
 
-            if (!this.isError(beatmap)) {
+            if (!this.$http.isError(beatmap)) {
                 this.$store.dispatch('beatmaps/updateBeatmap', beatmap);
             }
         },

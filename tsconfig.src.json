@@ -1,0 +1,27 @@
+{
+    "compilerOptions": {
+      "target": "es6",
+      "module": "esnext",
+      "moduleResolution": "node",
+      "sourceMap": true,
+      "outDir": "dist",
+      "removeComments": true,
+      "strict": true,
+      "noImplicitAny": false,
+      "baseUrl": "./",
+      "paths": {
+        "@components/*": ["src/components/*"],
+        "@pages/*": ["src/pages/*"],
+        "@store/*": ["src/store/*"],
+        "@interfaces/*": ["interfaces/*"],
+      },
+      "esModuleInterop": true,
+      "resolveJsonModule": true,
+      "skipLibCheck": true,
+      "forceConsistentCasingInFileNames": true
+    },
+    "include": [
+      "interfaces/**/*",
+      "src/**/*"
+    ]
+}

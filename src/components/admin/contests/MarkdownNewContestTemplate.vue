@@ -2,7 +2,7 @@
     <div class="container card card-body py-3 mb-2">
         <button
             type="button"
-            class="btn btn-block btn-info"
+            class="btn w-100 btn-info"
             @click="show = !show"
         >
             {{ show ? 'Hide new contest news post template' : 'Show new contest news post template' }}
@@ -81,10 +81,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import CopyPaste from '../../CopyPaste.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'MarkdownNewContestTemplate',
     components: {
         CopyPaste,

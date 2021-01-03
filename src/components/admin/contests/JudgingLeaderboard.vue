@@ -83,8 +83,8 @@
                         <tr
                             v-for="(score, i) in usersScores"
                             :key="i"
-                            data-toggle="modal"
-                            data-target="#detailModal"
+                            data-bs-toggle="modal"
+                            data-bs-target="#detailModal"
                             @click="selectedScore = score"
                         >
                             <td>{{ i + 1 }}</td>
@@ -141,13 +141,13 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropType } from 'vue';
+import { defineComponent, PropType } from 'vue';
 import { Submission } from '../../../../interfaces/contest/submission';
 import { UserScore, JudgeCorrel } from '../../../../interfaces/contest/judging';
 import { Contest } from '../../../../interfaces/contest/contest';
 import { Criteria } from '../../../../interfaces/contest/criteria';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'JudgingLeaderboard',
     props: {
         contest: {

@@ -22,12 +22,12 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { Contest } from '../../../../interfaces/contest/contest';
 import { CriteriaName } from '../../../../interfaces/contest/criteria';
 import CopyPaste from '../../CopyPaste.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'MarkdownJudgingLeaderboard',
     components: {
         CopyPaste,

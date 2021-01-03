@@ -1,6 +1,6 @@
 import express from 'express';
 import { isLoggedIn, isAdmin } from '../../helpers/middlewares';
-import { Quest, QuestModel } from '../../models/quest';
+import { QuestModel } from '../../models/quest';
 import { QuestStatus } from '../../interfaces/quest';
 import { UserModel } from '../../models/user';
 import { BeatmapModel, Beatmap } from '../../models/beatmap/beatmap';
@@ -9,7 +9,6 @@ import { beatmapsetInfo, isOsuResponseError } from '../../helpers/osuApi';
 import { findBeatmapsetId, defaultErrorMessage } from '../../helpers/helpers';
 import { SpentPointsCategory } from '../../interfaces/spentPoints';
 import { SpentPointsModel } from '../../models/spentPoints';
-import { User } from '../../interfaces/user';
 
 const adminRouter = express.Router();
 
@@ -36,8 +35,6 @@ adminRouter.get('/loadActionBeatmaps/:queryWip', async (req, res) => {
         })
         .defaultPopulate()
         .sort({ status: 1, mode: 1 });
-
-    console.log(allBeatmaps.length);
 
     const actionBeatmaps: Beatmap[] = [];
 
@@ -97,44 +94,29 @@ adminRouter.get('/loadActionBeatmaps/:queryWip', async (req, res) => {
 
 /* GET quests in need of action */
 adminRouter.get('/loadActionQuests/', async (req, res) => {
-    const allQuests = await QuestModel.find({ status: QuestStatus.WIP }).defaultPopulate();
-    let actionQuests: Quest[] = [];
+    let quests = await QuestModel
+        .find({ status: QuestStatus.WIP })
+        .defaultPopulate();
 
-    for (let i = 0; i < allQuests.length; i++) {
-        const q = allQuests[i];
-        let valid = true;
+    quests = quests.filter(q =>
+        q.associatedMaps.length >= q.requiredMapsets &&
+        q.associatedMaps.some(b => b.status === BeatmapStatus.Ranked)
+    );
 
-        // if no associated maps or not enough associated maps
-        if (!q.associatedMaps.length ||
-                q.associatedMaps.length < q.requiredMapsets ||
-                q.associatedMaps.some(b => b.status != BeatmapStatus.Ranked)) {
-            valid = false;
-        }
+    const pendingQuests = await QuestModel
+        .find({ status: QuestStatus.Pending })
+        .defaultPopulate();
 
-        if (valid) {
-            actionQuests.push(q);
-        }
-    }
-
-    const pendingQuests = await QuestModel.find({ status: QuestStatus.Pending }).defaultPopulate();
-
-    actionQuests = actionQuests.concat(pendingQuests);
-
-    res.json(actionQuests);
+    res.json({
+        quests,
+        pendingQuests,
+    });
 });
 
 /* GET users in need of action */
 adminRouter.get('/loadActionUsers/', async (req, res) => {
     const allUsers = await UserModel.find({});
-    const actionUsers: User[] = [];
-
-    for (let i = 0; i < allUsers.length; i++) {
-        const u = allUsers[i];
-
-        if (u.badge != u.rank) {
-            actionUsers.push(u);
-        }
-    }
+    const actionUsers = allUsers.filter(u => u.badge !== u.rank);
 
     res.json(actionUsers);
 });
@@ -148,19 +130,10 @@ adminRouter.post('/saveSpentPointsEvent', async (req, res) => {
     else if (req.body.category == 'extendDeadline') category = SpentPointsCategory.ExtendDeadline;
     else return res.json(defaultErrorMessage);
 
-    let rexExp;
-
-    if (req.body.username.indexOf('[') >= 0 || req.body.username.indexOf(']') >= 0) {
-        rexExp = new RegExp('^\\' + req.body.username + '$', 'i');
-    } else {
-        rexExp = new RegExp('^' + req.body.username + '$', 'i');
-    }
-
-    const user = await UserModel.findOne({ username: rexExp }).orFail();
-
-    if (!user) {
-        return res.json({ error: 'user changed name probably' });
-    }
+    const user = await UserModel
+        .findOne()
+        .byUsernameOrOsuId(req.body.username)
+        .orFail(new Error('user changed name probably'));
 
     const quest = await QuestModel.findById(req.body.questId).orFail();
 

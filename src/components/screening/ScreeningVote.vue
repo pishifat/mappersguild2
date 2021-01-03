@@ -18,11 +18,11 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapState, mapGetters } from 'vuex';
 import { ScreeningPlacement } from '@interfaces/contest/screening';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'ScreeningVote',
     props: {
         submissionId: {
@@ -48,9 +48,9 @@ export default Vue.extend({
                 vote = ScreeningPlacement.None;
             }
 
-            const submission = await this.executePost('/screening/updateSubmission/' + this.submissionId, { vote });
+            const submission = await this.$http.executePost('/screening/updateSubmission/' + this.submissionId, { vote });
 
-            if (!this.isError(submission)) {
+            if (!this.$http.isError(submission)) {
                 this.$store.commit('updateSubmission', submission);
             }
 

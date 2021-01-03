@@ -2,13 +2,7 @@
     <div class="col-md-12 my-1">
         <div class="card card-body card-level-2 p-2">
             <div class="card-text small">
-                <a
-                    :href="'https://osu.ppy.sh/users/' + invite.sender.osuId"
-                    target="_blank"
-                    @click.stop
-                >
-                    {{ invite.sender.username }}
-                </a>
+                <user-link :user="invite.sender" />
 
                 {{ invite.info }}
 
@@ -18,9 +12,8 @@
                     <a
                         href="#"
                         class="text-done"
-                        :data-user="invite.map.id"
-                        data-toggle="modal"
-                        data-target="#limitedEditBeatmap"
+                        data-bs-toggle="modal"
+                        data-bs-target="#limitedEditBeatmap"
                         @click.prevent="selectBeatmap()"
                     ><i class="far fa-window-maximize" /></a>
                 </span>
@@ -28,9 +21,8 @@
                 <span v-if="invite.party">for quest "{{ invite.quest.name }}" <a
                     href="#"
                     class="text-done"
-                    :data-user="invite.party.id"
-                    data-toggle="modal"
-                    data-target="#limitedEditParty"
+                    data-bs-toggle="modal"
+                    data-bs-target="#limitedEditParty"
                     @click.prevent="selectParty()"
                 ><i class="far fa-window-maximize" /></a></span>
             </div>
@@ -53,10 +45,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { Invite } from '../../../interfaces/invite';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'InviteCard',
     props: {
         invite: {
@@ -64,6 +56,12 @@ export default Vue.extend({
             required: true,
         },
     },
+    emits: [
+        'update:selectedMap',
+        'update:selectedParty',
+        'hideInvite',
+        'acceptInvite',
+    ],
     data() {
         return {
             info: '',
@@ -77,24 +75,10 @@ export default Vue.extend({
             this.$emit('update:selectedParty', this.invite.party);
         },
         hideInvite (e): void {
-            this.$emit('hide-invite', { id: this.invite.id, e });
+            this.$emit('hideInvite', { id: this.invite.id, e });
         },
-        async acceptInvite(e): Promise<void> {
-            let invite;
-
-            if (this.invite.actionType == 'collaborate in a difficulty') {
-                invite = await this.executePost('/notifications/acceptCollab/' + this.invite.id, {}, e);
-            } else if (this.invite.actionType == 'create a difficulty') {
-                invite = await this.executePost('/notifications/acceptDiff/' + this.invite.id, {}, e);
-            } else if (this.invite.actionType == 'host') {
-                invite = await this.executePost('/notifications/acceptHost/' + this.invite.id, {}, e);
-            } else if (this.invite.actionType == 'join') {
-                invite = await this.executePost('/notifications/acceptJoin/' + this.invite.id, {}, e);
-            }
-
-            if (invite) {
-                this.$emit('hide-accepted-invite', { id: this.invite.id, e });
-            }
+        acceptInvite(e): void {
+            this.$emit('acceptInvite', { id: this.invite.id, e });
         },
     },
 });

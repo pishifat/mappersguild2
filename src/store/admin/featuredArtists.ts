@@ -1,12 +1,12 @@
-import Vue from 'vue';
-import { StoreOptions } from 'vuex';
+import { Module } from 'vuex';
+import { MainState } from '@store/main';
 import { FeaturedArtist } from '../../../interfaces/featuredArtist';
 
 interface FeaturedArtistState {
     featuredArtists: FeaturedArtist[];
 }
 
-const store: StoreOptions<FeaturedArtistState> = {
+const store: Module<FeaturedArtistState, MainState> = {
     state: {
         featuredArtists: [],
     },
@@ -41,7 +41,7 @@ const store: StoreOptions<FeaturedArtistState> = {
             if (featuredArtist) {
                 const i = featuredArtist.songs.findIndex(s => s.id == payload.song.id);
 
-                if (i !== -1)  Vue.set(featuredArtist.songs, i, payload.song);
+                if (i !== -1) featuredArtist.songs[i] = payload.song;
             }
         },
         deleteSong (state, payload): void {

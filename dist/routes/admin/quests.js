@@ -21,25 +21,15 @@ const beatmap_1 = require("../../interfaces/beatmap/beatmap");
 const log_1 = require("../../models/log");
 const log_2 = require("../../interfaces/log");
 const discordApi_1 = require("../../helpers/discordApi");
-const beatmap_2 = require("../../models/beatmap/beatmap");
 const party_1 = require("../../models/party");
 const spentPoints_1 = require("../../models/spentPoints");
 const helpers_1 = require("../../helpers/helpers");
 const featuredArtist_1 = require("../../models/featuredArtist");
+const helpers_2 = require("../../helpers/helpers");
 const adminQuestsRouter = express_1.default.Router();
 adminQuestsRouter.use(middlewares_1.isLoggedIn);
 adminQuestsRouter.use(middlewares_1.isAdmin);
 adminQuestsRouter.use(middlewares_1.isSuperAdmin);
-adminQuestsRouter.get('/', (req, res) => {
-    var _a, _b;
-    res.render('admin/quests', {
-        title: 'Quests - Admin',
-        script: 'adminQuests.js',
-        loggedInAs: (_a = req.session) === null || _a === void 0 ? void 0 : _a.osuId,
-        userMongoId: (_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId,
-        pointsInfo: res.locals.userRequest.pointsInfo,
-    });
-});
 adminQuestsRouter.get('/load', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const q = yield quest_1.QuestModel
         .find({})
@@ -104,11 +94,10 @@ adminQuestsRouter.post('/create', (req, res) => __awaiter(void 0, void 0, void 0
             }]);
         yield helpers_1.sleep(1000);
     }
-    const allQuests = yield quest_1.QuestModel
-        .find({})
-        .defaultPopulate()
-        .sortByLastest();
-    res.json(allQuests);
+    const quests = yield quest_1.QuestModel.findAll();
+    res.json({
+        quests,
+    });
 }));
 adminQuestsRouter.post('/:id/publish', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _c;
@@ -199,181 +188,47 @@ adminQuestsRouter.post('/:id/updateMaxParty', (req, res) => __awaiter(void 0, vo
 }));
 adminQuestsRouter.post('/:id/drop', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _d;
-    let q = yield quest_1.QuestModel
-        .findById(req.params.id)
-        .defaultPopulate()
-        .orFail();
-    const party = yield party_1.PartyModel
-        .findById(q.currentParty._id)
-        .defaultPopulate()
-        .orFail();
-    const openQuest = yield quest_1.QuestModel.findOne({
-        name: q.name,
-        status: quest_2.QuestStatus.Open,
-    });
-    if (openQuest) {
-        yield Promise.all([
-            quest_1.QuestModel.findByIdAndUpdate(openQuest._id, {
-                $push: { modes: q.modes },
-            }),
-            quest_1.QuestModel.findByIdAndUpdate(req.params.id, { status: quest_2.QuestStatus.Hidden }),
-        ]);
-    }
-    else {
-        yield quest_1.QuestModel.findByIdAndUpdate(req.params.id, {
-            status: quest_2.QuestStatus.Open,
-            currentParty: undefined,
-        });
-    }
-    const maps = yield beatmap_2.BeatmapModel.find({}).orFail();
-    for (let i = 0; i < maps.length; i++) {
-        if (maps[i].quest && maps[i].quest.toString() == q.id) {
-            beatmap_2.BeatmapModel.findByIdAndUpdate(maps[i]._id, { quest: undefined }).orFail();
-        }
-    }
-    yield party_1.PartyModel.findByIdAndRemove(q.currentParty._id);
-    if (openQuest) {
-        res.json(q);
-    }
-    else {
-        q = yield quest_1.QuestModel
-            .findById(req.params.id)
-            .defaultPopulate()
-            .orFail();
-        res.json(q);
-    }
-    let memberList = '';
-    for (let i = 0; i < party.members.length; i++) {
-        const user = party.members[i];
-        memberList += `[**${user.username}**](https://osu.ppy.sh/users/${user.osuId})`;
-        if (i + 1 < party.members.length) {
-            memberList += ', ';
-        }
-    }
-    let url = `https://assets.ppy.sh/artists/${q.art}/cover.jpg`;
-    if (q.isMbc) {
-        url = 'https://mappersguild.com/images/mbc-icon.png';
-    }
-    discordApi_1.webhookPost([{
-            author: {
-                name: `${party.leader.username}'s party`,
-                url: `https://osu.ppy.sh/users/${party.leader.osuId}`,
-                icon_url: `https://a.ppy.sh/${party.leader.osuId}`,
-            },
-            color: discordApi_1.webhookColors.red,
-            description: `Dropped quest: [**${q.name}**](https://mappersguild.com/quests?id=${openQuest ? openQuest.id : q.id}) [**${party.modes.join(', ')}**]`,
-            thumbnail: {
-                url,
-            },
-            fields: [{
+    let quest = yield quest_1.QuestModel.defaultFindByIdOrFail(req.params.id);
+    quest = yield quest.drop();
+    res.json(quest);
+    const { memberList, modeList } = helpers_2.generateLists(quest.modes, quest.currentParty.members);
+    discordApi_1.webhookPost([Object.assign(Object.assign(Object.assign(Object.assign({}, helpers_2.generateAuthorWebhook(quest.currentParty.leader)), { color: discordApi_1.webhookColors.red, description: `Dropped quest: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id}) [**${modeList}**]` }), helpers_2.generateThumbnailUrl(quest)), { fields: [{
                     name: 'Party members',
                     value: memberList,
-                }],
-        }]);
-    log_1.LogModel.generate((_d = req.session) === null || _d === void 0 ? void 0 : _d.mongoId, `forced party to drop quest "${q.name}"`, log_2.LogCategory.Quest);
+                }] })]);
+    log_1.LogModel.generate((_d = req.session) === null || _d === void 0 ? void 0 : _d.mongoId, `forced party to drop quest "${quest.name}"`, log_2.LogCategory.Quest);
 }));
 adminQuestsRouter.post('/:id/complete', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _e;
-    const quest = yield quest_1.QuestModel
-        .findById(req.params.id)
-        .defaultPopulate()
-        .orFail();
-    if (quest.status == quest_2.QuestStatus.WIP) {
-        let memberList = '';
-        for (let i = 0; i < quest.currentParty.members.length; i++) {
-            const user = quest.currentParty.members[i];
-            memberList += `[**${user.username}**](https://osu.ppy.sh/users/${user.osuId})`;
-            if (i + 1 < quest.currentParty.members.length) {
-                memberList += ', ';
-            }
-            points_1.updateUserPoints(user.id);
-        }
-        let url = `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`;
-        if (quest.isMbc) {
-            url = 'https://mappersguild.com/images/mbc-icon.png';
-        }
-        discordApi_1.webhookPost([{
-                author: {
-                    name: `${quest.currentParty.leader.username}'s party`,
-                    url: `https://osu.ppy.sh/users/${quest.currentParty.leader.osuId}`,
-                    icon_url: `https://a.ppy.sh/${quest.currentParty.leader.osuId}`,
-                },
-                color: discordApi_1.webhookColors.purple,
-                description: `Completed quest: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id}) [**${quest.currentParty.modes.join(', ')}**]`,
-                thumbnail: {
-                    url,
-                },
-                fields: [{
-                        name: 'Members',
-                        value: memberList,
-                    }],
-            }]);
-        yield party_1.PartyModel.findByIdAndRemove(quest.currentParty._id);
-        yield quest_1.QuestModel.findByIdAndUpdate(quest._id, {
-            status: quest_2.QuestStatus.Done,
-            currentParty: undefined,
-            completedMembers: quest.currentParty.members,
-            completed: new Date(),
-        });
+    const quest = yield quest_1.QuestModel.defaultFindByIdOrFail(req.params.id);
+    if (quest.status !== quest_2.QuestStatus.WIP) {
+        throw new Error(`Quest is ${quest.status}`);
     }
-    const newQuest = yield quest_1.QuestModel
-        .findById(req.params.id)
-        .defaultPopulate()
-        .orFail();
-    res.json(newQuest);
-    log_1.LogModel.generate((_e = req.session) === null || _e === void 0 ? void 0 : _e.mongoId, `marked quest "${newQuest.name}" as complete`, log_2.LogCategory.Quest);
-}));
-adminQuestsRouter.post('/:id/duplicate', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const expiration = new Date();
-    expiration.setDate(expiration.getDate() + 90);
-    const q = yield quest_1.QuestModel.findById(req.params.id).orFail();
-    yield quest_1.QuestModel.create({
-        creator: q.creator,
-        name: req.body.name,
-        price: q.price,
-        descriptionMain: q.descriptionMain,
-        timeframe: q.timeframe,
-        minParty: q.minParty,
-        maxParty: q.maxParty,
-        minRank: q.minRank,
-        art: q.art,
-        modes: [beatmap_1.BeatmapMode.Osu, beatmap_1.BeatmapMode.Taiko, beatmap_1.BeatmapMode.Catch, beatmap_1.BeatmapMode.Mania],
-        expiration,
-        requiredMapsets: q.requiredMapsets,
-    });
-    const allQuests = yield quest_1.QuestModel
-        .find({})
-        .defaultPopulate()
-        .sortByLastest();
-    res.json(allQuests);
-}));
-adminQuestsRouter.post('/:id/reset', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const date = new Date();
-    date.setDate(date.getDate() + 7);
-    yield quest_1.QuestModel.findByIdAndUpdate(req.params.id, { deadline: date }).orFail();
-    res.json(date);
-}));
-adminQuestsRouter.post('/:id/delete', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _f;
-    const q = yield quest_1.QuestModel.findById(req.params.id).orFail();
-    if (q.status == quest_2.QuestStatus.Open) {
-        yield quest_1.QuestModel.findByIdAndRemove(req.params.id).orFail();
-        res.json({ success: 'ok' });
-        log_1.LogModel.generate((_f = req.session) === null || _f === void 0 ? void 0 : _f.mongoId, `deleted quest "${q.name}"`, log_2.LogCategory.Quest);
+    quest.completed = new Date();
+    quest.status = quest_2.QuestStatus.Done;
+    yield quest.save();
+    for (const member of quest.currentParty.members) {
+        points_1.updateUserPoints(member.id);
     }
-    else {
-        res.json({ success: 'ok' });
-    }
+    const { modeList, memberList } = helpers_2.generateLists(quest.modes, quest.currentParty.members);
+    discordApi_1.webhookPost([Object.assign(Object.assign(Object.assign(Object.assign({}, helpers_2.generateAuthorWebhook(quest.currentParty.leader)), { color: discordApi_1.webhookColors.purple, description: `Completed quest: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id}) [**${modeList}**]` }), helpers_2.generateThumbnailUrl(quest)), { fields: [{
+                    name: 'Members',
+                    value: memberList,
+                }] })]);
+    res.json(quest);
+    log_1.LogModel.generate((_e = req.session) === null || _e === void 0 ? void 0 : _e.mongoId, `marked quest "${quest.name}" as complete`, log_2.LogCategory.Quest);
 }));
 adminQuestsRouter.post('/:id/toggleMode', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let quest = yield quest_1.QuestModel.findById(req.params.id).orFail();
-    if (quest.modes.includes(req.body.mode)) {
-        yield quest_1.QuestModel.findByIdAndUpdate(req.params.id, { $pull: { modes: req.body.mode } });
+    const quest = yield quest_1.QuestModel.findById(req.params.id).orFail();
+    const mode = req.body.mode;
+    const i = quest.modes.findIndex(m => m === mode);
+    if (i !== -1) {
+        quest.modes.splice(i, 1);
     }
     else {
-        yield quest_1.QuestModel.findByIdAndUpdate(req.params.id, { $push: { modes: req.body.mode } });
+        quest.modes.push(mode);
     }
-    quest = yield quest_1.QuestModel.findById(req.params.id).orFail();
+    yield quest.save();
     res.json(quest);
 }));
 adminQuestsRouter.post('/:id/updateExpiration', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -399,6 +254,24 @@ adminQuestsRouter.post('/:id/updateMaxParty', (req, res) => __awaiter(void 0, vo
     }
     yield quest_1.QuestModel.findByIdAndUpdate(req.params.id, { maxParty }).orFail();
     res.json(maxParty);
+}));
+adminQuestsRouter.post('/:id/reset', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const date = new Date();
+    date.setDate(date.getDate() + 7);
+    const quest = yield quest_1.QuestModel.findById(req.params.id).orFail();
+    quest.deadline = date;
+    yield quest.save();
+    res.json(date);
+}));
+adminQuestsRouter.post('/:id/delete', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _f;
+    const quest = yield quest_1.QuestModel.findById(req.params.id).orFail();
+    if (quest.status !== quest_2.QuestStatus.Open) {
+        throw new Error(`Quest is ${quest.status}`);
+    }
+    yield quest.remove();
+    res.json({ success: 'ok' });
+    log_1.LogModel.generate((_f = req.session) === null || _f === void 0 ? void 0 : _f.mongoId, `deleted quest "${quest.name}"`, log_2.LogCategory.Quest);
 }));
 adminQuestsRouter.post('/removeDuplicatePartyMembers', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const parties = yield party_1.PartyModel

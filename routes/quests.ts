@@ -1,87 +1,55 @@
 import express from 'express';
 import { isLoggedIn, isNotSpectator } from '../helpers/middlewares';
-import { findCreateQuestPointsSpent } from '../helpers/points';
-import { BasicError, BasicResponse } from '../helpers/helpers';
-import { BeatmapMode, BeatmapStatus } from '../interfaces/beatmap/beatmap';
-import { QuestStatus } from '../interfaces/quest';
+import { extendQuestPrice, findCreateQuestPointsSpent } from '../helpers/points';
+import { generateLists, generateThumbnailUrl, generateAuthorWebhook } from '../helpers/helpers';
+import { BeatmapMode } from '../interfaces/beatmap/beatmap';
+import { Quest, QuestStatus } from '../interfaces/quest';
 import { LogCategory } from '../interfaces/log';
 import { webhookPost, webhookColors } from '../helpers/discordApi';
-import { ActionType } from '../interfaces/invite';
 import { SpentPointsCategory } from '../interfaces/spentPoints';
 import { updateUserPoints } from '../helpers/points';
-import { Party, PartyModel } from '../models/party';
-import { QuestModel, Quest } from '../models/quest';
+import { QuestModel } from '../models/quest';
 import { LogModel } from '../models/log';
-import { UserModel, populatePointsVirtuals } from '../models/user';
-import { InviteModel } from '../models/invite';
-import { BeatmapModel } from '../models/beatmap/beatmap';
 import { SpentPointsModel } from '../models/spentPoints';
 import { FeaturedArtistModel } from '../models/featuredArtist';
-import { QuestPageOnLoad, QuestsSearch } from '@interfaces/api/quests';
+import { User } from '../interfaces/user';
+import { FilterMode } from '../interfaces/extras';
+import { ExtendDeadlineResponse, PointsRefreshResponse } from '../interfaces/api/quests';
+import { UserModel } from '../models/user';
+
+async function isPartyLeader (req, res, next): Promise<void> {
+    if (!req.params.id) return res.json({ error: 'Invalid' });
+
+    const quest = await QuestModel.defaultFindByIdOrFail(req.params.id);
+
+    if (quest.currentParty?.leader.id != res.locals.userRequest.id) {
+        return res.json({ error: 'Unauthorized' });
+    }
+
+    res.locals.quest = quest;
+    next();
+}
 
 const questsRouter = express.Router();
 
 questsRouter.use(isLoggedIn);
 
-// default populations
-const beatmapPopulate = [
-    { path: 'tasks', populate: { path: 'mappers' } },
-];
+/* GET on load quests info */
+questsRouter.get('/search', async (req, res) => {
+    let query: Record<string, any> = {};
 
-const pointsPopulate = [
-    { path: 'members', select: populatePointsVirtuals + ' spentPoints' },
-    { path: 'leader', select: 'osuId username' },
-];
-
-const cannotFindUserMessage = 'Cannot find user!';
-
-//updating party rank and modes when leaving/kicking/joining
-async function updatePartyInfo(id: Party['_id']): Promise<BasicResponse> {
-    const party = await PartyModel
-        .findById(id)
-        .populate({
-            path: 'members',
-            select: 'rank osuPoints taikoPoints catchPoints maniaPoints',
-        })
-        .orFail();
-
-    let rank = 0;
-    const modes: Omit<BeatmapMode, BeatmapMode.Hybrid>[] = [];
-
-    // remove duplicate members (the server-side validation for this sucks)
-    const uniqueMembers: string[] = [];
-
-    for (const member of party.members) {
-        if (!uniqueMembers.includes(member)) uniqueMembers.push(member);
-    }
-
-    party.members = uniqueMembers;
-
-    // update party rank and modes
-    party.members.forEach(user => {
-        rank += user.rank;
-
-        if (!modes.includes(user.mainMode)) {
-            modes.push(user.mainMode);
-        }
-    });
-
-    party.rank = Math.round(rank / party.members.length);
-    party.modes = modes;
-    await party.save();
-
-    return { success: 'ok' };
-}
-
-/* GET relevant quest info */
-questsRouter.get('/relevantInfo', async (req, res) => {
-    let query: Record<string, any> = {
-        modes: res.locals.userRequest.mainMode,
-        status: QuestStatus.Open,
-        expiration: { $gt: new Date() },
-    };
-
+    const mode = req.query.mode?.toString();
+    const status = req.query.status?.toString();
     const id = req.query.id?.toString();
+
+    if (mode !== FilterMode.any) query.modes = mode;
+
+    if (status === QuestStatus.Open) {
+        query.status = QuestStatus.Open;
+        query.expiration = { $gt: new Date() };
+    } else {
+        query.status = { $ne: QuestStatus.Hidden };
+    }
 
     if (id) {
         query = {
@@ -97,504 +65,125 @@ questsRouter.get('/relevantInfo', async (req, res) => {
         .defaultPopulate()
         .sortByLastest();
 
-    res.json({
-        quests,
-        mainMode: res.locals.userRequest.mainMode,
-    } as QuestPageOnLoad);
-});
-
-/* GET relevant quest info */
-questsRouter.get('/search', async (req, res) => {
-    let quests: BasicError | Quest[];
-
-    if (req.query.mode && req.query.mode != 'any') {
-        quests = await QuestModel
-            .find({
-                modes: req.query.mode as any,
-                status: { $ne: QuestStatus.Hidden },
-            })
-            .defaultPopulate()
-            .sortByLastest();
-    } else {
-        quests = await QuestModel
-            .find({
-                status: { $ne: QuestStatus.Hidden },
-            })
-            .defaultPopulate()
-            .sortByLastest();
-    }
-
-    res.json({
-        quests,
-    } as QuestsSearch);
-});
-
-/* POST create party */
-questsRouter.post('/createParty/:id', isNotSpectator, async (req, res) => {
-    const userId = req.session?.mongoId;
-    const mode = res.locals.userRequest.mainMode;
-
-    const party = new PartyModel();
-    party.leader = userId;
-    party.members = userId;
-    party.modes = [mode];
-    await party.save();
-
-    await updatePartyInfo(party._id);
-    await QuestModel
-        .findByIdAndUpdate(req.params.id, { $push: { parties: party._id } })
-        .defaultPopulate();
-
-    const quest = await QuestModel
-        .findById(req.params.id)
-        .sortByLastest()
-        .defaultPopulate()
-        .orFail();
-    res.json(quest);
-
-    LogModel.generate(req.session?.mongoId, `created a party for ${quest.name}`, LogCategory.Party);
-});
-
-/* POST delete party */
-questsRouter.post('/deleteParty/:partyId/:questId', isNotSpectator, async (req, res) => {
-    const p = await PartyModel
-        .findByIdAndRemove({ _id: req.params.partyId })
-        .orFail();
-
-    await QuestModel
-        .findByIdAndUpdate(req.params.questId, { $pull: { parties: p._id } })
-        .orFail();
-
-    const q = await QuestModel
-        .findById(req.params.questId)
-        .defaultPopulate()
-        .orFail();
-
-    res.json(q);
-
-    LogModel.generate(req.session?.mongoId, `deleted a party for ${q.name}`, LogCategory.Party);
-});
-
-/* POST toggle party lock */
-questsRouter.post('/togglePartyLock/:partyId/:questId', isNotSpectator, async (req, res) => {
-    await PartyModel
-        .findByIdAndUpdate(req.params.partyId, { lock: !req.body.lock })
-        .orFail();
-
-    const q = await QuestModel
-        .findById(req.params.questId)
-        .defaultPopulate()
-        .orFail();
-
-    res.json(q);
-
-    LogModel.generate(req.session?.mongoId, `toggled lock on party for ${q.name}`, LogCategory.Party);
-});
-
-/* POST toggle party mode */
-questsRouter.post('/togglePartyMode/:partyId/:questId', isNotSpectator, async (req, res) => {
-    const p = await PartyModel
-        .findById(req.params.partyId)
-        .orFail();
-
-    if (p.modes.includes(req.body.mode)) {
-        await PartyModel.findByIdAndUpdate(req.params.partyId, { $pull: { modes: req.body.mode } });
-    } else {
-        await PartyModel.findByIdAndUpdate(req.params.partyId, { $push: { modes: req.body.mode } });
-    }
-
-    const q = await QuestModel
-        .findById(req.params.questId)
-        .defaultPopulate()
-        .orFail();
-
-    res.json(q);
-
-    LogModel.generate(req.session?.mongoId, `toggled "${req.body.mode}" mode on party for ${q.name}`, LogCategory.Party);
-});
-
-/* POST join party */
-questsRouter.post('/joinParty/:partyId/:questId', isNotSpectator, async (req, res) => {
-    await PartyModel
-        .findByIdAndUpdate(req.params.partyId, { $push: { members: req.session?.mongoId } })
-        .orFail();
-
-    await updatePartyInfo(req.params.partyId);
-
-    const q = await QuestModel
-        .findById(req.params.questId)
-        .defaultPopulate()
-        .orFail();
-
-    res.json(q);
-
-    LogModel.generate(req.session?.mongoId, `joined party for ${q.name}`, LogCategory.Party);
-});
-
-/* POST leave party */
-questsRouter.post('/leaveParty/:partyId/:questId', isNotSpectator, async (req, res) => {
-    const questId: Quest['_id'] = req.params.questId;
-    const partyId: Party['_id'] = req.params.partyId;
-
-    const party = await PartyModel.findById(partyId).orFail();
-
-    const beatmaps = await BeatmapModel // find ranked associatedMaps
-        .find({ quest: questId, status: BeatmapStatus.Ranked })
-        .defaultPopulate();
-
-    if (beatmaps.length) { // disallow kick for users with ranked associatedMaps
-        let isMapper = false;
-
-        for (const beatmap of beatmaps) {
-            for (const task of beatmap.tasks) {
-                for (const mapper of task.mappers) {
-                    if (mapper.id == req.session?.mongoId) {
-                        isMapper = true;
-                    }
-                }
-            }
-        }
-
-        if (isMapper) {
-            return res.json({ error: 'Cannot leave party when you have ranked maps for it!' });
-        }
-    }
-
-    const i = party.members.findIndex(m => m.id == req.session?.mongoId);
-    if (i !== -1) party.members.splice(i, 1);
-    await party.save();
-    await updatePartyInfo(req.params.partyId);
-
-    const q = await QuestModel
-        .findById(questId)
-        .defaultPopulate()
-        .orFail();
-
-    res.json(q);
-
-    LogModel.generate(req.session?.mongoId, `left party for ${q.name}`, LogCategory.Party);
-
-    if (q.associatedMaps) {
-        for (let i = 0; i < q.associatedMaps.length; i++) {
-            let valid = true;
-            const b = await BeatmapModel
-                .findById(q.associatedMaps[i]._id)
-                .populate(beatmapPopulate)
-                .orFail();
-
-            b.tasks.forEach(task => {
-                task.mappers.forEach(mapper => {
-                    if (mapper.id == req.session?.mongoId) {
-                        valid = false;
-                    }
-                });
-            });
-
-            if (!valid) {
-                await BeatmapModel.findByIdAndUpdate(q.associatedMaps[i]._id, { quest: undefined });
-            }
-        }
-    }
-});
-
-/* POST invite to party */
-questsRouter.post('/inviteToParty/:partyId/:questId', isNotSpectator, async (req, res) => {
-    const inviteError = 'Invite not sent: ';
-    let regexp;
-
-    if (req.body.username.indexOf('[') >= 0 || req.body.username.indexOf(']') >= 0) {
-        regexp = new RegExp('^\\' + req.body.username + '$', 'i');
-    } else {
-        regexp = new RegExp('^' + req.body.username + '$', 'i');
-    }
-
-    const u = await UserModel
-        .findOne({ username: regexp })
-        .orFail(new Error(inviteError + cannotFindUserMessage));
-
-    const q = await QuestModel
-        .findById(req.params.questId)
-        .defaultPopulate()
-        .orFail();
-
-    const currentParties = await PartyModel.find({ members: u._id });
-
-    const duplicate = q.parties.some(questParty => {
-        return currentParties.some(userParty => questParty.id == userParty.id);
-    });
-
-    if (duplicate) {
-        return res.json({ error: inviteError + 'User is already in a party for this quest!' });
-    }
-
-    if (u.availablePoints < q.price) {
-        return res.json( { error: inviteError + 'User does not have enough points to accept this quest!' });
-    }
-
-    res.json({ success: 'Invite sent!' });
-
-    InviteModel.generatePartyInvite(
-        u._id,
-        req.session?.mongoId,
-        req.params.partyId,
-        `wants you to join their party`,
-        ActionType.Join,
-        req.params.partyId as any,
-        req.params.questId as any
-    );
-});
-
-/* POST transfer party leader */
-questsRouter.post('/transferPartyLeader/:partyId/:questId', isNotSpectator, async (req, res) => {
-    if (!req.body.userId.length) {
-        return res.json({ error: cannotFindUserMessage });
-    }
-
-    const u = await UserModel
-        .findById(req.body.userId)
-        .orFail(new Error(cannotFindUserMessage));
-
-
-    await PartyModel
-        .findByIdAndUpdate(req.params.partyId, { leader: u._id })
-        .orFail();
-
-    const q = await QuestModel
-        .findById(req.params.questId)
-        .defaultPopulate()
-        .orFail();
-
-    res.json(q);
-
-    LogModel.generate(req.session?.mongoId, `transferred party leader in party for ${q.name}`, LogCategory.Party);
-});
-
-/* POST kick party member */
-questsRouter.post('/kickPartyMember/:partyId/:questId', isNotSpectator, async (req, res) => {
-    if (!req.body.userId.length) {
-        return res.json({ error: cannotFindUserMessage });
-    }
-
-    const u = await UserModel // find user to be kicked
-        .findById(req.body.userId)
-        .orFail(new Error(cannotFindUserMessage));
-
-    const beatmaps = await BeatmapModel // find ranked associatedMaps
-        .find({ quest: req.params.questId as Quest['_id'], status: BeatmapStatus.Ranked })
-        .defaultPopulate();
-
-    if (beatmaps.length) { // disallow kick for users with ranked associatedMaps
-        let isMapper;
-
-        for (const beatmap of beatmaps) {
-            for (const task of beatmap.tasks) {
-                for (const mapper of task.mappers) {
-                    if (mapper.id == u.id) {
-                        isMapper = true;
-                    }
-                }
-            }
-        }
-
-        if (isMapper) {
-            return res.json({ error: 'Cannot kick user when they have ranked maps for it!' });
-        }
-    }
-
-    await PartyModel
-        .findByIdAndUpdate(req.params.partyId, { $pull: { members: u._id } })
-        .orFail();
-
-    const q = await QuestModel
-        .findById(req.params.questId)
-        .defaultPopulate()
-        .orFail();
-
-    res.json(q);
-
-    LogModel.generate(req.session?.mongoId, `kicked member from party for ${q.name}`, LogCategory.Party);
-
-    if (q.associatedMaps) {
-        for (let i = 0; i < q.associatedMaps.length; i++) {
-            const b = await BeatmapModel
-                .findById(q.associatedMaps[i]._id)
-                .populate(beatmapPopulate);
-
-            if (b) {
-                let valid = true;
-
-                b.tasks.forEach(task => {
-                    task.mappers.forEach(mapper => {
-                        if (mapper.id == u.id) {
-                            valid = false;
-                        }
-                    });
-                });
-
-                if (!valid) {
-                    await BeatmapModel.findByIdAndUpdate(q.associatedMaps[i]._id, { quest: undefined });
-                }
-            }
-        }
-    }
+    res.json(quests);
 });
 
 /* POST accepts quest. */
-questsRouter.post('/acceptQuest/:partyId/:questId', isNotSpectator, async (req, res) => {
-    const p = await PartyModel
-        .findById(req.params.partyId)
-        .populate(pointsPopulate)
-        .orFail(new Error(`Party doesn't exist!`));
-
-    if (!p.modes.length) {
-        return res.json({ error: 'Your party has no modes selected!' });
-    }
-
-    const q = await QuestModel
-        .findById(req.params.questId)
+questsRouter.post('/:id/accept', isNotSpectator, async (req, res) => {
+    let quest = await QuestModel
+        .findById(req.params.id)
+        .where('status', QuestStatus.Open)
         .defaultPopulate()
         .orFail();
 
+    const party = quest.parties.find(p => p.leader.id == req.session.mongoId);
+    if (!party) throw new Error('Party not found');
+
+    if (!party.modes.length) {
+        return res.json({ error: 'Your party has no modes selected!' });
+    }
+
     // check if all party members can afford quest
-    p.members.forEach(member => {
-        if (member.availablePoints < q.price) {
-            return res.json({ error: 'Someone in your party does not have enough points to accept the quest!' });
-        }
-    });
+    if (party.members.some(m => m.availablePoints < quest.price)) {
+        return res.json({ error: 'Someone in your party does not have enough points to accept the quest!' });
+    }
 
     // check if quest is valid to accept
-    if (p.members.length < q.minParty
-        || p.members.length > q.maxParty
-        || p.rank < q.minRank
-        || q.isExpired
+    if (party.members.length < quest.minParty
+        || party.members.length > quest.maxParty
+        || party.rank < quest.minRank
+        || quest.isExpired
     ) {
-        return res.json({ error: 'Something went wrong!' });
+        return res.json({ error: `Requirements weren't met` });
     }
 
+    const remainingModes = quest.modes;
 
-    for (let i = 0; i < p.modes.length; i++) {
-        const mode = p.modes[i];
+    // check if quest has the modes available for the party's modes
+    for (const mode of party.modes) {
+        const i = remainingModes.findIndex(m => m === mode);
 
-        // check if quest exists for selected modes
-        const invalidQuest = await QuestModel
-            .findOne({
-                name: q.name,
-                modes: mode,
-                $or: [
-                    { status: QuestStatus.WIP },
-                    { status: QuestStatus.Done },
-                ],
-            })
-            .defaultPopulate();
-
-        if (invalidQuest) {
-            return res.json({ error: 'Quest already exists for selected mode(s)!' });
+        if (i === -1) {
+            return res.json({ error: `Quest already exists for selected mode(s)! (${mode})` });
         }
 
-        // check if MBC quest with non-osu! modes selected
-        if (q.isMbc && mode != 'osu') {
-            return res.json({ error: 'MBC quests do not support modes other than osu!' });
+        remainingModes.splice(i, 1);
+    }
+
+    // check if MBC quest with non-osu! modes selected
+    if (quest.isMbc && party.modes.some(m => m != BeatmapMode.Osu)) {
+        return res.json({ error: 'MBC quests do not support modes other than osu!' });
+    }
+
+    for (const p of quest.parties) {
+        // parties that selected a same mode as the current party taking the quest aren't welcome anymore
+        if (p.id != party.id && party.modes.some(m => p.modes.includes(m))) {
+            await p.remove();
         }
     }
 
-    let newQuest;
+    const status = QuestStatus.WIP;
+    const accepted = new Date();
+    const deadline = new Date(new Date().getTime() + quest.timeframe);
 
-    // process quest changes
-    if (q.modes.length == p.modes.length) {
-        q.accepted = new Date();
-        q.status = QuestStatus.WIP;
-        q.deadline = new Date(new Date().getTime() + q.timeframe);
-        q.parties = [];
-        q.currentParty = p._id;
-        await q.save();
+    if (party.modes.length === quest.modes.length) {
+        // No need to create a new quest when there are no modes left for use
+        quest.status = status;
+        quest.accepted = accepted;
+        quest.deadline = deadline;
     } else {
-        for (let i = 0; i < p.modes.length; i++) {
-            const mode = p.modes[i];
-            await QuestModel.findByIdAndUpdate(q._id, {
-                $pull: { modes: mode },
-            });
-        }
-
-        await QuestModel.findByIdAndUpdate(q._id, {
-            $pull: { parties: p._id },
-        });
-
-        newQuest = new QuestModel();
-        newQuest.creator = q.creator;
-        newQuest.name = q.name;
-        newQuest.price = q.price;
-        newQuest.descriptionMain = q.descriptionMain;
-        newQuest.timeframe = q.timeframe;
-        newQuest.minParty = q.minParty;
-        newQuest.maxParty = q.maxParty;
-        newQuest.minRank = q.minRank;
-        newQuest.art = q.art;
-        newQuest.isMbc = q.isMbc;
-        newQuest.modes = p.modes;
-        newQuest.accepted = new Date();
-        newQuest.status = QuestStatus.WIP;
-        newQuest.deadline = new Date(new Date().getTime() + q.timeframe);
-        newQuest.currentParty = p._id;
-        newQuest.requiredMapsets = q.requiredMapsets;
+        // Create a new WIP quest and leave the old one open with the remaning modes
+        const newQuest = new QuestModel();
+        newQuest.creator = quest.creator;
+        newQuest.name = quest.name;
+        newQuest.price = quest.price;
+        newQuest.descriptionMain = quest.descriptionMain;
+        newQuest.timeframe = quest.timeframe;
+        newQuest.requiredMapsets = quest.requiredMapsets;
+        newQuest.minParty = quest.minParty;
+        newQuest.maxParty = quest.maxParty;
+        newQuest.minRank = quest.minRank;
+        newQuest.art = quest.art;
+        newQuest.isMbc = quest.isMbc;
+        newQuest.expiration = quest.expiration;
+        newQuest.status = status;
+        newQuest.modes = party.modes;
+        newQuest.accepted = accepted;
+        newQuest.deadline = deadline;
         await newQuest.save();
+
+        quest.modes = remainingModes;
+        await quest.save();
+
+        party.quest = newQuest;
+        await party.save();
+
+        quest = newQuest;
     }
 
     // spend points
-    p.members.forEach(member => {
-        SpentPointsModel.generate(SpentPointsCategory.AcceptQuest, member._id, q._id);
-        updateUserPoints(member.id);
-    });
+    for (const member of party.members) {
+        await SpentPointsModel.generate(SpentPointsCategory.AcceptQuest, member._id, quest._id);
+        await updateUserPoints(member.id);
+    }
 
-    // load all quests
-    const allQuests = await QuestModel
-        .find({})
-        .defaultPopulate()
-        .sortByLastest();
+    const allQuests = await QuestModel.findAll();
 
-    res.json({ quests: allQuests, availablePoints: res.locals.userRequest.availablePoints - q.price });
+    res.json({
+        quests: allQuests,
+        availablePoints: res.locals.userRequest.availablePoints - quest.price,
+    } as PointsRefreshResponse);
 
     //logs
-    let modeList = '';
-
-    for (let i = 0; i < p.modes.length; i++) {
-        modeList += p.modes[i];
-
-        if (i != p.modes.length - 1) {
-            modeList += ', ';
-        }
-    }
-
-    LogModel.generate(req.session?.mongoId, `party accepted quest "${q.name}" for mode${p.modes.length > 1 ? 's' : ''} "${modeList}"`, LogCategory.Quest );
+    const { modeList, memberList } = generateLists(party.modes, party.members);
+    LogModel.generate(req.session?.mongoId, `party accepted quest "${quest.name}" for mode${party.modes.length > 1 ? 's' : ''} "${modeList}"`, LogCategory.Quest );
 
     //webhook
-    let memberList = '';
-
-    for (let i = 0; i < p.members.length; i++) {
-        const user = p.members[i];
-        memberList += `[**${user.username}**](https://osu.ppy.sh/users/${user.osuId})`;
-
-        if (i+1 < p.members.length) {
-            memberList += ', ';
-        }
-    }
-
-    let url = `https://assets.ppy.sh/artists/${q.art}/cover.jpg`;
-
-    if (q.isMbc) {
-        url = 'https://mappersguild.com/images/mbc-icon.png';
-    }
-
     webhookPost([{
-        author: {
-            name: `${p.leader.username}'s party`,
-            url: `https://osu.ppy.sh/users/${p.leader.osuId}`,
-            icon_url: `https://a.ppy.sh/${p.leader.osuId}`,
-        },
-        description: `Accepted quest: [**${q.name}**](https://mappersguild.com/quests?id=${newQuest ? newQuest.id : q.id}) [**${p.modes.join(', ')}**]`,
+        ...generateAuthorWebhook(party.leader),
+        description: `Accepted quest: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id}) [**${party.modes.join(', ')}**]`,
         color: webhookColors.green,
-        thumbnail: {
-            url,
-        },
+        ...generateThumbnailUrl(quest),
         fields: [
             {
                 name: 'Party members',
@@ -604,172 +193,105 @@ questsRouter.post('/acceptQuest/:partyId/:questId', isNotSpectator, async (req, 
     }]);
 });
 
-/* POST drop quest. */
-questsRouter.post('/dropQuest/:partyId/:questId', isNotSpectator, async (req, res) => {
-    const [p, q] = await Promise.all([
-        PartyModel
-            .findById(req.params.partyId)
-            .defaultPopulate()
-            .orFail(new Error(`Party doesn't exist!`)),
+/* POST drop a WIP quest. */
+questsRouter.post('/:id/drop', isPartyLeader, async (req, res) => {
+    const quest: Quest = res.locals.quest;
 
-        QuestModel
-            .findById(req.params.questId)
-            .defaultPopulate()
-            .orFail(),
-    ]);
-
-    if (!q.currentParty || q.currentParty.id != p.id) {
+    if (quest.status !== QuestStatus.WIP) {
         return res.json({ error: 'Invalid request!' });
     }
 
-    if (q.associatedMaps) {
-        for (let i = 0; i < q.associatedMaps.length; i++) {
-            await BeatmapModel.findByIdAndUpdate(q.associatedMaps[i]._id, { quest: undefined });
-        }
-    }
+    // Party is removed in the next step so members wouldn't extist
+    const members = quest.currentParty.members;
+    const leader = quest.currentParty.leader;
+    await quest.drop();
 
-    const openQuest = await QuestModel.findOne({
-        name: q.name,
-        status: QuestStatus.Open,
-    });
-
-    if (openQuest) {
-        await Promise.all([
-            QuestModel.findByIdAndUpdate(openQuest._id, {
-                $push: { modes: q.modes as any },
-            }),
-            QuestModel.findByIdAndUpdate(req.params.questId, { status: QuestStatus.Hidden }),
-        ]);
-    } else {
-        await QuestModel.findByIdAndUpdate(req.params.questId, {
-            status: QuestStatus.Open,
-            currentParty: undefined,
-        });
-    }
-
-    const allQuests = await QuestModel
-        .find({})
-        .defaultPopulate()
-        .sortByLastest();
+    const allQuests = await QuestModel.findAll();
 
     res.json(allQuests);
 
     //logs
-    let modeList = '';
-
-    for (let i = 0; i < q.modes.length; i++) {
-        modeList += q.modes[i];
-
-        if (i != q.modes.length - 1) {
-            modeList += ', ';
-        }
-    }
-
-    LogModel.generate(req.session?.mongoId, `party dropped quest "${q.name}" for mode${q.modes.length > 1 ? 's' : ''} "${modeList}"`, LogCategory.Quest );
+    const { modeList, memberList } = generateLists(quest.modes, members);
+    LogModel.generate(req.session?.mongoId, `party dropped quest "${quest.name}" for mode${quest.modes.length > 1 ? 's' : ''} "${modeList}"`, LogCategory.Quest );
 
     //webhook
-    let memberList = '';
-
-    for (let i = 0; i < p.members.length; i++) {
-        const user = p.members[i];
-        memberList += `[**${user.username}**](https://osu.ppy.sh/users/${user.osuId})`;
-
-        if (i+1 < p.members.length) {
-            memberList += ', ';
-        }
-    }
-
-    let url = `https://assets.ppy.sh/artists/${q.art}/cover.jpg`;
-
-    if (q.isMbc) {
-        url = 'https://mappersguild.com/images/mbc-icon.png';
-    }
-
     webhookPost([{
-        author: {
-            name: `${p.leader.username}'s party`,
-            url: `https://osu.ppy.sh/users/${p.leader.osuId}`,
-            icon_url: `https://a.ppy.sh/${p.leader.osuId}`,
-        },
+        ...generateAuthorWebhook(leader),
         color: webhookColors.red,
-        description: `Dropped quest: [**${q.name}**](https://mappersguild.com/quests?id=${openQuest ? openQuest.id : q.id}) [**${p.modes.join(', ')}**]`,
-        thumbnail: {
-            url,
-        },
+        description: `Dropped quest: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id}) [**${modeList}**]`,
+        ...generateThumbnailUrl(quest),
         fields: [{
             name: 'Party members',
             value: memberList,
         }],
     }]);
+});
 
-    PartyModel.findByIdAndRemove(req.params.partyId);
+/* POST extend deadline */
+questsRouter.post('/:id/extendDeadline', isPartyLeader, async (req, res) => {
+    const quest: Quest = res.locals.quest;
+
+    if (quest.currentParty.members.some(m => m.availablePoints < extendQuestPrice)) {
+        return res.json({ error: 'One or more of your party members do not have enough points to extend the deadline!' });
+    }
+
+    for (const member of quest.currentParty.members) {
+        SpentPointsModel.generate(SpentPointsCategory.ExtendDeadline, member.id, quest.id);
+        updateUserPoints(member.id);
+    }
+
+    if (!quest.deadline) throw new Error();
+
+    const deadline = new Date(quest.deadline);
+    deadline.setDate(deadline.getDate() + 30);
+    quest.deadline = deadline;
+    await quest.save();
+
+    const user = await UserModel.findById(req.session?.mongoId).orFail();
+
+    res.json({
+        quest,
+        availablePoints: user.availablePoints,
+    } as ExtendDeadlineResponse);
+
+    LogModel.generate(req.session?.mongoId, `extended deadline for ${quest.name}`, LogCategory.Party);
 });
 
 /* POST reopen expired quest. */
-questsRouter.post('/reopenQuest/:questId', isNotSpectator, async (req, res) => {
+questsRouter.post('/:id/reopen', isNotSpectator, async (req, res) => {
+    const questId = req.params.id;
+    const user: User = res.locals.userRequest;
     const quest = await QuestModel
-        .findById(req.params.questId)
+        .findById(questId)
         .defaultPopulate()
         .orFail();
 
-    if (res.locals.userRequest.availablePoints < (quest.price*0.5 + 25)) {
+    if (user.availablePoints < quest.reopenPrice) {
         return res.json({ error: `You don't have enough points to re-open this quest!` });
     }
-
-    const openQuest = await QuestModel.findOne({
-        name: quest.name,
-        status: QuestStatus.Open,
-    });
 
     const newExpiration = new Date();
     newExpiration.setDate(newExpiration.getDate() + 90);
 
-    if (req.body.status == QuestStatus.Open) {
-        if (openQuest && !openQuest.isExpired) {
-            await Promise.all([
-                QuestModel.findByIdAndUpdate(openQuest._id, {
-                    $push: { modes: quest.modes as any },
-                    expiration: newExpiration,
-                }),
-                QuestModel.findByIdAndUpdate(req.params.questId, { status: QuestStatus.Hidden }),
-            ]);
-        } else {
-            await QuestModel.findByIdAndUpdate(req.params.questId, {
-                expiration: newExpiration,
-            });
-        }
-    }
+    await QuestModel.findByIdAndUpdate(questId, {
+        expiration: newExpiration,
+    });
 
     SpentPointsModel.generate(SpentPointsCategory.ReopenQuest, req.session?.mongoId, quest._id);
     updateUserPoints(req.session?.mongoId);
 
-    const allQuests = await QuestModel
-        .find({})
-        .defaultPopulate()
-        .sortByLastest();
+    const allQuests = await QuestModel.findAll();
 
-    res.json({ quests: allQuests, availablePoints: res.locals.userRequest.availablePoints });
+    res.json({ quests: allQuests, availablePoints: user.availablePoints } as PointsRefreshResponse);
 
     LogModel.generate(req.session?.mongoId, `re-opened quest "${quest.name}"`, LogCategory.Quest );
 
     // webhook
-    let url = `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`;
-
-    if (quest.isMbc) {
-        url = 'https://mappersguild.com/images/mbc-icon.png';
-    }
-
     webhookPost([{
-        author: {
-            name: res.locals.userRequest.username,
-            url: `https://osu.ppy.sh/users/${req.session?.osuId}`,
-            icon_url: `https://a.ppy.sh/${req.session?.osuId}`,
-        },
+        ...generateAuthorWebhook(user),
         color: webhookColors.white,
         description: `Quest re-opened: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id})`,
-        thumbnail: {
-            url,
-        },
+        ...generateThumbnailUrl(quest),
         fields: [{
             name: 'Objective',
             value: `${quest.descriptionMain}`,
@@ -777,54 +299,10 @@ questsRouter.post('/reopenQuest/:questId', isNotSpectator, async (req, res) => {
     }]);
 });
 
-/* POST extend deadline */
-questsRouter.post('/extendDeadline/:partyId/:questId', isNotSpectator, async (req, res) => {
-    const [party, quest] = await Promise.all([
-        PartyModel
-            .findById(req.params.partyId)
-            .populate(pointsPopulate)
-            .orFail(new Error(`Party doesn't exist!`)),
-
-        QuestModel
-            .findById(req.params.questId)
-            .defaultPopulate()
-            .orFail(),
-    ]);
-
-    const notEnoughPoints = party.members.some(m => m.availablePoints < 10);
-
-    if (notEnoughPoints) {
-        return res.json({ error: 'One or more of your party members do not have enough points to extend the deadline!' });
-    }
-
-    party.members.forEach(member => {
-        SpentPointsModel.generate(SpentPointsCategory.ExtendDeadline, member.id, quest.id);
-        updateUserPoints(member.id);
-    });
-
-    const deadline = new Date(quest.deadline);
-    deadline.setDate(deadline.getDate() + 30);
-    quest.deadline = deadline;
-    await quest.save();
-
-    const updatedQuest = await QuestModel
-        .findById(req.params.questId)
-        .defaultPopulate()
-        .orFail();
-
-    const user = await UserModel.findById(req.session?.mongoId).orFail();
-
-    res.json({
-        quest: updatedQuest,
-        availablePoints: user.availablePoints,
-    });
-
-    LogModel.generate(req.session?.mongoId, `extended deadline for ${updatedQuest.name}`, LogCategory.Party);
-});
-
 /* POST add quest */
-questsRouter.post('/submitQuest', isNotSpectator, async (req, res) => {
+questsRouter.post('/submit', isNotSpectator, async (req, res) => {
     //quest creation
+    const user: User = res.locals.userRequest;
     const artist = await FeaturedArtistModel.findOne({ osuId: req.body.art });
     const quest = new QuestModel();
     quest.name = req.body.name;
@@ -838,14 +316,10 @@ questsRouter.post('/submitQuest', isNotSpectator, async (req, res) => {
     quest.modes = [ BeatmapMode.Osu, BeatmapMode.Taiko, BeatmapMode.Catch, BeatmapMode.Mania ];
     quest.minRank = 0;
     quest.status = QuestStatus.Pending;
-    quest.creator = req.session?.mongoId;
+    quest.creator = user._id;
 
     // points
     const points = findCreateQuestPointsSpent(quest.art, quest.requiredMapsets);
-
-    const user = await UserModel
-        .findById(req?.session?.mongoId)
-        .orFail(new Error(cannotFindUserMessage));
 
     if (user.availablePoints < points) {
         return res.json({ error: 'Not enough points to perform this action!' });
@@ -855,9 +329,9 @@ questsRouter.post('/submitQuest', isNotSpectator, async (req, res) => {
 
     res.json({ success: 'Quest submitted for approval' });
 
-    SpentPointsModel.generate(SpentPointsCategory.CreateQuest, req.session?.mongoId, quest._id);
-    updateUserPoints(req.session?.mongoId);
-    LogModel.generate(req.session?.mongoId, `submitted quest for approval`, LogCategory.Quest);
+    SpentPointsModel.generate(SpentPointsCategory.CreateQuest, user._id, quest._id);
+    updateUserPoints(user._id);
+    LogModel.generate(user._id, `submitted quest for approval`, LogCategory.Quest);
 });
 
 export default questsRouter;

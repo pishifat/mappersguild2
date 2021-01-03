@@ -1,6 +1,6 @@
 <template>
     <div
-        class="bg-dark pl-3"
+        class="bg-dark ps-3"
         style="
             position: fixed;
             z-index: 1060;
@@ -28,10 +28,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import Axios from 'axios';
 
-export default Vue.extend({
+export default defineComponent({
     data () {
         return {
             notifications: '..',

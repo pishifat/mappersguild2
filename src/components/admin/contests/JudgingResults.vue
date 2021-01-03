@@ -24,8 +24,8 @@
                         <tr
                             v-for="submission in contest.submissions"
                             :key="submission.id"
-                            data-toggle="modal"
-                            data-target="#detailModalAdmin"
+                            data-bs-toggle="modal"
+                            data-bs-target="#detailModalAdmin"
                             @click="selected = submission"
                         >
                             <td>
@@ -60,14 +60,14 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import JudgingDetail from './JudgingDetail.vue';
 import JudgingLeaderboard from './JudgingLeaderboard.vue';
 import MarkdownJudgingLeaderboard from './MarkdownJudgingLeaderboard.vue';
 import { Contest } from '../../../../interfaces/contest/contest';
 import { Submission } from '../../../../interfaces/contest/submission';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'JudgingResults',
     components: {
         JudgingDetail,
@@ -95,9 +95,9 @@ export default Vue.extend({
         },
     },
     async created (): Promise<void> {
-        const data = await this.executeGet<{ contest: Contest; usersScores: []; judgesCorrel: []; criterias: [] }>(`/admin/judging/${this.contestId}`);
+        const data = await this.$http.executeGet<{ contest: Contest; usersScores: []; judgesCorrel: []; criterias: [] }>(`/admin/judging/${this.contestId}`);
 
-        if (!this.isError(data)) {
+        if (!this.$http.isError(data)) {
             this.contest = data.contest;
             this.usersScores = data.usersScores;
             this.judgesCorrel = data.judgesCorrel;

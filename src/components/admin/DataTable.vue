@@ -2,10 +2,12 @@
     <div>
         <table v-if="data.length" class="table table-sm">
             <thead>
-                <th v-for="header in headers" :key="header">
-                    {{ header }}
-                </th>
-                <th>EDIT</th>
+                <tr>
+                    <th v-for="header in headers" :key="header">
+                        {{ header }}
+                    </th>
+                    <th>EDIT</th>
+                </tr>
             </thead>
             <tbody>
                 <tr v-for="obj in data" :key="obj.id" class="text-white-50">
@@ -13,9 +15,9 @@
                     <td>
                         <a
                             href="#"
-                            data-toggle="modal"
-                            :data-target="customDataTarget || '#edit'"
-                            @click.prevent="$emit('update:selected-id', obj.id)"
+                            data-bs-toggle="modal"
+                            :data-bs-target="customDataTarget || '#edit'"
+                            @click.prevent="$emit('update:selectedId', obj.id)"
                         >
                             edit
                         </a>
@@ -29,13 +31,13 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent, PropType } from 'vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'DataTable',
     props: {
         data: {
-            type: Array,
+            type: Array as PropType<{ id: any }[]>,
             required: true,
         },
         headers: {
@@ -48,5 +50,8 @@ export default Vue.extend({
             default: null,
         },
     },
+    emits: [
+        'update:selectedId',
+    ],
 });
 </script>

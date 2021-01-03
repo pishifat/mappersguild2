@@ -10,7 +10,7 @@
                 href="#"
                 class="mode"
                 :class="getModeSortClass(mode)"
-                @click.prevent="$emit('update-filter-mode', mode)"
+                @click.prevent="$emit('update:filterMode', mode)"
             >
                 {{ modeText }}
             </a>
@@ -20,9 +20,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'ModeFilters',
     props: {
         isLoading: Boolean,
@@ -31,6 +31,9 @@ export default Vue.extend({
             default: '',
         },
     },
+    emits: [
+        'update:filterMode',
+    ],
     data () {
         return {
             modes: {

@@ -32,14 +32,14 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import FeaturedArtistInfo from '../../components/admin/FeaturedArtistInfo.vue';
 import DataTable from '../../components/admin/DataTable.vue';
 import { FeaturedArtist } from '../../../interfaces/featuredArtist';
 import artistsAdminModule from '@store/admin/featuredArtists';
 
-export default Vue.extend({
+export default defineComponent({
     components: {
         DataTable,
         FeaturedArtistInfo,
@@ -62,15 +62,15 @@ export default Vue.extend({
             this.$store.registerModule('artistsAdmin', artistsAdminModule);
         }
     },
-    destroyed() {
+    unmounted () {
         if (this.$store.hasModule('artistsAdmin')) {
             this.$store.unregisterModule('artistsAdmin');
         }
     },
     async created() {
-        const featuredArtists = await this.initialRequest<FeaturedArtist[]>('/admin/featuredArtists/load');
+        const featuredArtists = await this.$http.initialRequest<FeaturedArtist[]>('/admin/featuredArtists/load');
 
-        if (!this.isError(featuredArtists)) {
+        if (!this.$http.isError(featuredArtists)) {
             this.$store.commit('setFeaturedArtists', featuredArtists);
         }
     },

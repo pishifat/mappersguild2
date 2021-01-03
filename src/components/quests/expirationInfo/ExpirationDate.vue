@@ -8,9 +8,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent, PropType } from 'vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'ExpirationDate',
     props: {
         isExpired: {
@@ -18,7 +18,7 @@ export default Vue.extend({
             required: true,
         },
         expiration: {
-            type: Date,
+            type: Date as PropType<Date>,
             required: true,
         },
     },

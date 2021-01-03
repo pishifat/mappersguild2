@@ -9,8 +9,8 @@
                 type="button"
                 @click="showNewer"
             >
-                <i class="fas fa-angle-up mr-1" /> show newer
-                <i class="fas fa-angle-up ml-1" />
+                <i class="fas fa-angle-up me-1" /> show newer
+                <i class="fas fa-angle-up ms-1" />
             </button>
             <div>
                 <transition-group name="list" tag="div" class="row px-3">
@@ -31,8 +31,8 @@
                     type="button"
                     @click="showOlder"
                 >
-                    <i class="fas fa-angle-down mr-1" /> show older
-                    <i class="fas fa-angle-down ml-1" />
+                    <i class="fas fa-angle-down me-1" /> show older
+                    <i class="fas fa-angle-down ms-1" />
                 </button>
             </div>
         </div>
@@ -42,7 +42,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapGetters, mapState } from 'vuex';
 import UserCard from '@components/users/UserCard.vue';
 import UserInfo from '@components/users/UserInfo.vue';
@@ -50,7 +50,7 @@ import UserPageFilters from '@pages/users/UserPageFilters.vue';
 import usersModule from '@store/users';
 import { User } from '@interfaces/user';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'UserPage',
     components: {
         UserCard,
@@ -77,9 +77,9 @@ export default Vue.extend({
         }
     },
     async created () {
-        const res = await this.initialRequest<{ users: User[] }>('/users/query');
+        const res = await this.$http.initialRequest<{ users: User[] }>('/users/query');
 
-        if (!this.isError(res)) {
+        if (!this.$http.isError(res)) {
             this.$store.commit('users/setUsers', res.users);
             const params: any = new URLSearchParams(document.location.search.substring(1));
 
@@ -88,7 +88,7 @@ export default Vue.extend({
 
                 if (i >= 0) {
                     this.$store.commit('users/setSelectedUserId', params.get('id'));
-                    $('#extendedInfo').modal('show');
+                    this.$bs.showModal('extendedInfo');
                 }
             }
         }

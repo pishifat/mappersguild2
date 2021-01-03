@@ -1,10 +1,8 @@
 <template>
     <tr class="text-white-50">
         <td
+            v-bs-tooltip:left="tooltipTitle"
             scope="row"
-            data-toggle="tooltip"
-            data-placement="left"
-            :title="tooltipTitle"
         >
             {{ display }}
         </td>
@@ -15,9 +13,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'UserPointsRow',
     props: {
         points: {

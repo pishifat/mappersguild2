@@ -1,8 +1,7 @@
-import Vue from 'vue';
-import Axios from 'axios';
 import { Module } from 'vuex';
 import { User } from '@interfaces/user';
 import { FilterMode } from '@interfaces/extras';
+import { MainState } from './main';
 
 interface UsersState {
     users: User[];
@@ -18,7 +17,7 @@ interface UsersState {
     };
 }
 
-const store: Module<UsersState, any> = {
+const store: Module<UsersState, MainState> = {
     namespaced: true,
     state: {
         users: [],
@@ -48,7 +47,7 @@ const store: Module<UsersState, any> = {
         },
         updateUser (state, user: User): void {
             const i = state.users.findIndex(u => u.id === user.id);
-            if (i !== -1) Vue.set(state.users, i, user);
+            if (i !== -1) state.users[i] = user;
         },
         setSortBy (state, sortBy: 'username' | 'rank' | 'createdAt'): void {
             state.sortBy = sortBy;

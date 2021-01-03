@@ -1,12 +1,12 @@
-import Vue from 'vue';
-import { StoreOptions } from 'vuex';
+import { Module } from 'vuex';
+import { MainState } from '@store/main';
 import { Beatmap } from '../../../interfaces/beatmap/beatmap';
 
 interface BeatmapState {
     beatmaps: Beatmap[];
 }
 
-const store: StoreOptions<BeatmapState> = {
+const store: Module<BeatmapState, MainState> = {
     state: {
         beatmaps: [],
     },
@@ -56,7 +56,7 @@ const store: StoreOptions<BeatmapState> = {
             if (beatmap) {
                 const i = beatmap.tasks.findIndex(t => t.id == payload.taskId);
 
-                if (i !== -1)  Vue.set(beatmap.tasks, i, payload.task);
+                if (i !== -1) beatmap.tasks[i] = payload.task;
             }
         },
         updatePackId (state, payload): void {

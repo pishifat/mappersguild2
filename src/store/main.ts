@@ -1,16 +1,16 @@
 import { FeaturedArtist } from '@interfaces/featuredArtist';
 import { User } from '@interfaces/user';
-import { StoreOptions } from 'vuex';
+import { createStore } from 'vuex';
 import toastsModule from './modules/toasts';
 
-interface MainState {
+export interface MainState {
     initialized: boolean;
     isLoading: boolean;
     loggedInUser: User | null;
     homeArtists: FeaturedArtist[],
 }
 
-const main: StoreOptions<MainState> = {
+export const store = createStore<MainState>({
     modules: {
         toasts: toastsModule,
     },
@@ -21,8 +21,8 @@ const main: StoreOptions<MainState> = {
         homeArtists: [],
     },
     mutations: {
-        setInitialData (state, payload) {
-            state.loggedInUser = payload.me;
+        setInitialData (state, user: User | null) {
+            state.loggedInUser = user;
             state.initialized = true;
         },
         setHomeData (state, homeArtists) {
@@ -31,8 +31,9 @@ const main: StoreOptions<MainState> = {
         updateLoadingState (state) {
             state.isLoading = !state.isLoading;
         },
+        setAvailablePoints (state, points) {
+            if (state.loggedInUser) state.loggedInUser.availablePoints = points;
+        },
     },
     strict: process.env.NODE_ENV !== 'production',
-};
-
-export default main;
+});

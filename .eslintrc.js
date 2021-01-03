@@ -2,7 +2,6 @@ module.exports = {
     env: {
         node: true,
         browser: true,
-        jquery: true,
     },
     root: true,
     parser: 'vue-eslint-parser',
@@ -16,7 +15,7 @@ module.exports = {
     extends: [
         'eslint:recommended',
         'plugin:@typescript-eslint/recommended',
-        'plugin:vue/recommended',
+        'plugin:vue/vue3-recommended',
     ],
     rules: {
         indent: [

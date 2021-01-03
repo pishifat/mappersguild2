@@ -1,11 +1,9 @@
 <template>
     <small>
-        <i class="fas fa-coins mr-1" />
+        <i class="fas fa-coins me-1" />
         <span
+            v-bs-tooltip="'points required from each party member to start quest'"
             class="text-white-50"
-            data-toggle="tooltip"
-            data-placement="top"
-            title="points required from each party member to start quest"
         >
             {{ price }}pt{{ price == 1 ? '' : 's' }}
         </span>
@@ -13,9 +11,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'QuestPrice',
     props: {
         price: {

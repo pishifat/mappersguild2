@@ -16,32 +16,21 @@ const express_1 = __importDefault(require("express"));
 const middlewares_1 = require("../helpers/middlewares");
 const log_1 = require("../models/log");
 const log_2 = require("../interfaces/log");
-const user_1 = require("../interfaces/user");
 const logsRouter = express_1.default.Router();
 logsRouter.use(middlewares_1.isLoggedIn);
-logsRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
-    res.render('logs', {
-        title: 'Logs',
-        script: 'logs.js',
-        isLogs: true,
-        loggedInAs: (_a = req.session) === null || _a === void 0 ? void 0 : _a.osuId,
-        isNotSpectator: res.locals.userRequest.group != user_1.UserGroup.Spectator,
-        userMongoId: (_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId,
-        pointsInfo: res.locals.userRequest.pointsInfo,
-        logs: yield log_1.LogModel
-            .find({ category: { $ne: log_2.LogCategory.Error } })
-            .sort('-createdAt')
-            .populate({ path: 'user', select: 'username' })
-            .limit(100),
-    });
-}));
-logsRouter.get('/more/:skip', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    res.json(yield log_1.LogModel
+logsRouter.get('/query', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const query = log_1.LogModel
         .find({ category: { $ne: log_2.LogCategory.Error } })
-        .sort('-createdAt')
-        .populate({ path: 'user', select: 'username' })
+        .sort('-createdAt');
+    const skip = (_a = req.query.skip) === null || _a === void 0 ? void 0 : _a.toString();
+    if (skip)
+        query.skip(parseInt(skip, 10));
+    const logs = yield query
         .limit(100)
-        .skip(parseInt(req.params.skip, 10)));
+        .populate({ path: 'user', select: 'username' });
+    res.json({
+        logs,
+    });
 }));
 exports.default = logsRouter;

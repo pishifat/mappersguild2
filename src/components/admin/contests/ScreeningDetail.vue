@@ -2,11 +2,9 @@
     <div class="p-3">
         <div v-for="evaluation in evaluations" :key="evaluation.id">
             <div>
-                <a :href="'https://osu.ppy.sh/users/' + evaluation.screener.osuId" target="_blank">
-                    {{ evaluation.screener.username }}
-                </a>
+                <user-link :user="evaluation.screener" />
                 ({{ evaluation.vote }})
-                <div class="ml-4 small text-white-50" style="word-break: break-word;">
+                <div class="ms-4 small text-white-50" style="word-break: break-word;">
                     {{ evaluation.comment }}
                 </div>
             </div>
@@ -18,13 +16,14 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent, PropType } from 'vue';
+import { Screening } from '@interfaces/contest/screening';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'ScreeningDetail',
     props: {
         evaluations: {
-            type: Array,
+            type: Array as PropType<Screening[]>,
             required: true,
         },
     },

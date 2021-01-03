@@ -5,7 +5,7 @@
                 <div class="col-md-6">
                     <h2>
                         Notifications
-                        <button class="btn btn-outline-info btn-sm ml-1" @click.prevent="hideAll($event)">
+                        <button class="btn btn-outline-info btn-sm ms-1" @click.prevent="hideAll($event)">
                             Mark all as read
                         </button>
                     </h2>
@@ -19,7 +19,7 @@
                             @hide-notification="hideNotification($event)"
                         />
                     </transition-group>
-                    <p v-if="!notifications.length" class="ml-4">
+                    <p v-if="!notifications.length" class="ms-4">
                         No notifications...
                     </p>
                 </div>
@@ -27,7 +27,7 @@
                 <div class="col-md-6">
                     <h2>
                         Invites
-                        <button class="btn btn-outline-danger btn-sm ml-1" @click.prevent="declineAll($event)">
+                        <button class="btn btn-outline-danger btn-sm ms-1" @click.prevent="declineAll($event)">
                             Decline all
                         </button>
                     </h2>
@@ -39,11 +39,11 @@
                             @update:info="info = $event"
                             @update:selectedMap="selectedMap = $event"
                             @update:selectedParty="selectedParty = $event"
-                            @hide-invite="hideInvite($event)"
-                            @hide-accepted-invite="hideAcceptedInvite($event)"
+                            @hideInvite="hideInvite($event)"
+                            @acceptInvite="acceptInvite($event)"
                         />
                     </transition-group>
-                    <p v-if="!invites.length" class="ml-4">
+                    <p v-if="!invites.length" class="ms-4">
                         No invites...
                     </p>
                 </div>
@@ -56,7 +56,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import NotificationCard from '@components/notifications/NotificationCard.vue';
 import InviteCard from '@components/notifications/InviteCard.vue';
 import LimitedMapInfo from '@components/notifications/LimitedMapInfo.vue';
@@ -64,7 +64,7 @@ import LimitedPartyInfo from '@components/notifications/LimitedPartyInfo.vue';
 import { Notification } from '../../interfaces/notification';
 import { Invite } from '../../interfaces/invite';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'NotificationPage',
     components: {
         NotificationCard,
@@ -82,7 +82,7 @@ export default Vue.extend({
         };
     },
     async created() {
-        const res: any = await this.initialRequest('/notifications/relevantInfo');
+        const res: any = await this.$http.initialRequest('/notifications/relevantInfo');
 
         if (res) {
             this.notifications = res.notifications;
@@ -95,52 +95,33 @@ export default Vue.extend({
             const e = args.e;
             const i = this.notifications.findIndex(notif => notif.id === id);
             this.notifications.splice(i, 1);
-            await this.executePost('/notifications/hideNotification/' + id, {}, e);
+            await this.$http.executePost(`/notifications/${id}/hide`, {}, e);
         },
-        //mark all as read
         async hideAll(e): Promise<void> {
             this.notifications = [];
-            await this.executePost('/notifications/hideAll/', {}, e);
+            await this.$http.executePost('/notifications/hideAll/', {}, e);
         },
-        //accept various invites
-        async acceptInvite(id, actionType, e): Promise<void> {
-            let invite;
 
-            if (actionType == 'collaborate in a difficulty') {
-                invite = await this.executePost('/notifications/acceptCollab/' + id, {}, e);
-            } else if (actionType == 'create a difficulty') {
-                invite = await this.executePost('/notifications/acceptDiff/' + id, {}, e);
-            } else if (actionType == 'host') {
-                invite = await this.executePost('/notifications/acceptHost/' + id, {}, e);
-            } else if (actionType == 'join') {
-                invite = await this.executePost('/notifications/acceptJoin/' + id, {}, e);
-            }
-
-            if (invite) {
-                const i = this.invites.findIndex(inv => inv.id === invite.id);
-                this.invites.splice(i, 1);
-            }
-        },
-        //decline invite
         async hideInvite(args): Promise<void> {
             const id = args.id;
             const e = args.e;
             const i = this.invites.findIndex(inv => inv.id === id);
             this.invites.splice(i, 1);
-            await this.executePost('/notifications/hideInvite/' + id, {}, e);
+            await this.$http.executePost(`/invites/${id}/hide`, {}, e);
         },
-        //decline invite
-        async hideAcceptedInvite(args): Promise<void> {
-            const id = args.id;
-            const e = args.e;
-            const i = this.invites.findIndex(inv => inv.id === id);
-            this.invites.splice(i, 1);
-            await this.executePost('/notifications/hideAcceptedInvite/' + id, {}, e);
-        },
-        //decline all invites
         async declineAll(e): Promise<void> {
             this.invites = [];
-            await this.executePost('/notifications/declineAll/', {}, e);
+            await this.$http.executePost('/invites/declineAll/', {}, e);
+        },
+        async acceptInvite(args): Promise<void> {
+            const id = args.id;
+            const e = args.e;
+            const invite = await this.$http.executePost(`/invites/${id}/accept`, {}, e);
+
+            if (!this.$http.isError(invite)) {
+                const i = this.invites.findIndex(inv => inv.id === id);
+                this.invites.splice(i, 1);
+            }
         },
     },
 });

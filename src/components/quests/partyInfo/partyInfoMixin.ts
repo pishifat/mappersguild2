@@ -1,9 +1,9 @@
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { Quest, QuestStatus } from '@interfaces/quest';
 import { Party } from '@interfaces/party';
 import { mapState } from 'vuex';
 
-export default Vue.extend({
+export default defineComponent({
     props: {
         party: {
             type: Object as () => Party,

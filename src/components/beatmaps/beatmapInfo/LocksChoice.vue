@@ -6,14 +6,14 @@
                     Locks
                     <a
                         v-if="beatmap.tasksLocked.length != 6"
-                        class="text-success small ml-1"
+                        class="text-success small ms-1"
                         href="#"
                         @click.prevent="showLocksInput = !showLocksInput"
                     >
                         <i class="fas fa-edit" />
                     </a>
                 </div>
-                <div class="small ml-3">
+                <div class="small ms-3">
                     <i v-if="beatmap.tasksLocked.length == 0">none</i>
                     <div v-if="beatmap.tasksLocked.length > 0">
                         <div
@@ -21,11 +21,9 @@
                             :key="task"
                         >
                             <a
+                                v-bs-tooltip:left="'unlock'"
                                 href="#"
                                 class="text-danger"
-                                data-toggle="tooltip"
-                                data-placement="left"
-                                title="unlock"
                                 @click.prevent="unlockTask(task, $event)"
                             >
                                 <i class="fas fa-minus" />
@@ -57,18 +55,14 @@
                             {{ task }}
                         </option>
                     </select>
-                    <div class="input-group-append">
-                        <button
-                            id="lockTask"
-                            class="btn btn-outline-info"
-                            data-toggle="tooltip"
-                            data-placement="right"
-                            title="prevent other mappers from claiming a difficulty"
-                            @click="lockTask($event)"
-                        >
-                            <i class="fas fa-lock" />
-                        </button>
-                    </div>
+                    <button
+                        id="lockTask"
+                        v-bs-tooltip:right="'prevent other mappers from claiming a difficulty'"
+                        class="btn btn-outline-info"
+                        @click="lockTask($event)"
+                    >
+                        <i class="fas fa-lock" />
+                    </button>
                 </div>
             </div>
         </div>
@@ -76,11 +70,11 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
 import { TaskName } from '../../../../interfaces/beatmap/task';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'LocksChoice',
     props: {
         beatmap: {
@@ -117,25 +111,25 @@ export default Vue.extend({
         async unlockTask(task, e): Promise<void> {
             e.target.classList.add('fake-button-disable');
 
-            const bm = await this.executePost<Beatmap>(
+            const bm = await this.$http.executePost<Beatmap>(
                 `/beatmaps/${this.beatmap.id}/unlockTask`,
                 { task }
             );
 
-            if (!this.isError(bm)) {
+            if (!this.$http.isError(bm)) {
                 this.$store.dispatch('beatmaps/updateBeatmap', bm);
             }
 
             e.target.classList.remove('fake-button-disable');
         },
         async lockTask(e): Promise<void> {
-            const bm = await this.executePost<Beatmap>(
+            const bm = await this.$http.executePost<Beatmap>(
                 `/beatmaps/${this.beatmap.id}/lockTask`,
                 { task: this.lockTaskSelection },
                 e
             );
 
-            if (!this.isError(bm)) {
+            if (!this.$http.isError(bm)) {
                 this.$store.dispatch('beatmaps/updateBeatmap', bm);
             }
         },

@@ -3,11 +3,11 @@
         <div class="container card card-body py-1">
             <div class="row">
                 <div class="col">
-                    <button class="btn btn-sm btn-info btn-block" data-toggle="modal" data-target="#submitQuest">
+                    <button class="btn btn-sm btn-info w-100" data-bs-toggle="modal" data-bs-target="#submitQuest">
                         Add quest
                     </button>
 
-                    <button class="btn btn-sm btn-info btn-block" @click="removeDuplicatePartyMembers($event)">
+                    <button class="btn btn-sm btn-info w-100" @click="removeDuplicatePartyMembers($event)">
                         Remove duplicate party members
                     </button>
 
@@ -25,10 +25,7 @@
                             {{ quest.creator.username }}
                         </td>
                         <td>
-                            <i v-if="quest.modes.includes('osu')" class="fas fa-circle" />
-                            <i v-if="quest.modes.includes('taiko')" class="fas fa-drum" />
-                            <i v-if="quest.modes.includes('catch')" class="fas fa-apple-alt" />
-                            <i v-if="quest.modes.includes('mania')" class="fas fa-stream" />
+                            <modes-icons :modes="quest.modes" />
                         </td>
                         <td>
                             {{ quest.status }}
@@ -55,19 +52,21 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import SubmitQuestModal from '../../components/quests/SubmitQuestModal.vue';
 import QuestInfo from '../../components/admin/quests/QuestInfo.vue';
 import DataTable from '../../components/admin/DataTable.vue';
 import { Quest } from '../../../interfaces/quest';
 import questsAdminModule from '@store/admin/quests';
+import ModesIcons from '@components/ModesIcons.vue';
 
-export default Vue.extend({
+export default defineComponent({
     components: {
         DataTable,
         SubmitQuestModal,
         QuestInfo,
+        ModesIcons,
     },
     data () {
         return {
@@ -87,15 +86,15 @@ export default Vue.extend({
             this.$store.registerModule('questsAdmin', questsAdminModule);
         }
     },
-    destroyed() {
+    unmounted () {
         if (this.$store.hasModule('questsAdmin')) {
             this.$store.unregisterModule('questsAdmin');
         }
     },
     async created() {
-        const quests = await this.initialRequest<Quest[]>('/admin/quests/load');
+        const quests = await this.$http.initialRequest<Quest[]>('/admin/quests/load');
 
-        if (!this.isError(quests)) {
+        if (!this.$http.isError(quests)) {
             this.$store.commit('setQuests', quests);
         }
     },
@@ -108,11 +107,11 @@ export default Vue.extend({
             const i = this.quests.findIndex(quest => quest.id == q.id);
 
             if (i !== -1) {
-                Vue.set(this.quests, i, q);
+                this.quests[i] = q;
             }
         },
         async removeDuplicatePartyMembers(e): Promise<void> {
-            const success = await this.executePost('/admin/quests/removeDuplicatePartyMembers', {}, e);
+            const success = await this.$http.executePost('/admin/quests/removeDuplicatePartyMembers', {}, e);
 
             if (success) {
                 this.$store.dispatch('updateToastMessages', {

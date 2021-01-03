@@ -1,12 +1,12 @@
-import Vue from 'vue';
-import { StoreOptions } from 'vuex';
+import { Module } from 'vuex';
+import { MainState } from '@store/main';
 import { Quest } from '../../../interfaces/quest';
 
 interface QuestState {
     quests: Quest[];
 }
 
-const store: StoreOptions<QuestState> = {
+const store: Module<QuestState, MainState> = {
     state: {
         quests: [],
     },
@@ -16,7 +16,7 @@ const store: StoreOptions<QuestState> = {
         },
         updateQuest (state, quest: Quest): void {
             const i = state.quests.findIndex(q => q.id === quest.id);
-            if (i !== -1) Vue.set(state.quests, i, quest);
+            if (i !== -1) state.quests[i] = quest;
         },
         addQuest (state, quest: Quest): void {
             state.quests.push(quest);

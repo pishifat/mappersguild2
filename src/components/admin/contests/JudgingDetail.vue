@@ -11,9 +11,7 @@
                     v-for="(judging, i) in submission.judgings"
                     :key="judging.id"
                 >
-                    <a :href="'https://osu.ppy.sh/users/' + judging.judge.osuId" target="_blank">
-                        {{ judging.judge.username }}
-                    </a>
+                    <user-link :user="judging.judge" />
 
                     <div
                         v-for="judgingScore in judging.judgingScores"
@@ -22,18 +20,18 @@
                     >
                         <a
                             v-if="judgingScore.criteria.name == 'comments'"
-                            class="small font-weight-bold text-capitalize"
-                            data-toggle="collapse"
+                            class="small fw-bold text-capitalize"
+                            data-bs-toggle="collapse"
                             :href="`#judgingToCriteria${judgingScore.id}`"
                             @click="showComment(judgingScore.id)"
                         >
                             <i
-                                class="small fas mr-2"
+                                class="small fas me-2"
                                 :class="getCollapseClass(judgingScore.id)"
                             />
                             {{ judgingScore.criteria.name }}
                         </a>
-                        <span v-else class="small text-capitalize ml-3">
+                        <span v-else class="small text-capitalize ms-3">
                             {{ judgingScore.criteria.name }}
                             ({{ judgingScore.score }})
                         </span>
@@ -41,7 +39,7 @@
 
                         <p
                             :id="`judgingToCriteria${judgingScore.id}`"
-                            class="text-light ml-4 collapse"
+                            class="text-light ms-4 collapse"
                         >
                             <span class="small text-white-50" style="white-space: pre-line;">{{ judgingScore.comment }}</span>
                         </p>
@@ -55,10 +53,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import ModalDialog from '@components/ModalDialog.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'JudgingDetail',
     components: {
         ModalDialog,

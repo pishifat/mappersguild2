@@ -49,16 +49,6 @@ const defaultContestPopulate = [
         path: 'voters',
     },
 ];
-adminContestsRouter.get('/', (req, res) => {
-    var _a, _b;
-    res.render('admin/contests', {
-        title: 'Contests Admin',
-        script: 'adminContests.js',
-        loggedInAs: (_a = req.session) === null || _a === void 0 ? void 0 : _a.osuId,
-        userMongoId: (_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId,
-        pointsInfo: res.locals.userRequest.pointsInfo,
-    });
-});
 adminContestsRouter.get('/relevantInfo', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const contests = yield contest_1.ContestModel
         .find({})

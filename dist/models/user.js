@@ -14,13 +14,14 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.populatePointsVirtuals = exports.UserModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
+const helpers_1 = require("../helpers/helpers");
 const UserSchema = new mongoose_1.Schema({
     osuId: { type: Number, required: true, unique: true },
     username: { type: String, required: true },
@@ -90,6 +91,19 @@ UserSchema.virtual('mainMode').get(function () {
     modes.sort((a, b) => b.points - a.points);
     return modes[0].name;
 });
+UserSchema.query.byUsername = function (username) {
+    return this.where({ username: new RegExp('^' + helpers_1.escapeUsername(username) + '$', 'i') });
+};
+UserSchema.query.byUsernameOrOsuId = function (user) {
+    const osuId = parseInt(user, 10);
+    if (isNaN(osuId)) {
+        this.byUsername(user);
+        return this.where({ username: new RegExp('^' + helpers_1.escapeUsername(user) + '$', 'i') });
+    }
+    else {
+        return this.where({ osuId });
+    }
+};
 const UserModel = mongoose_1.default.model('User', UserSchema);
 exports.UserModel = UserModel;
 const populatePointsVirtuals = 'osuId username rank easyPoints normalPoints hardPoints insanePoints expertPoints storyboardPoints questPoints modPoints hostPoints contestParticipantPoints contestScreenerPoints contestJudgePoints';

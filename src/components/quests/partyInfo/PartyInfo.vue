@@ -1,51 +1,32 @@
 <template>
     <div class="container">
-        <div class="row">
-            <div :class="isOpen ? 'col-sm-12' : 'col-sm-6'">
+        <div v-if="isOpen && !memberOfAnyParty" class="row">
+            <div class="col">
                 <button
-                    v-if="isOpen && !memberOfAnyParty"
-                    class="btn btn-sm btn-block btn-outline-info mb-2"
+
+                    class="btn btn-sm w-100 btn-outline-info mb-2"
                     @click.prevent="createParty($event)"
                 >
                     Add party <i class="fas fa-plus fa-xs" />
                 </button>
-
-                <!-- open -->
-                <template v-if="isOpen">
-                    <party-detail
-                        v-for="party in quest.parties"
-                        :key="party.id"
-                        :party="party"
-                        :quest="quest"
-                        :member-of-any-party="memberOfAnyParty"
-                    />
-                </template>
-
-                <!-- wip -->
+            </div>
+        </div>
+        <div
+            v-for="party in quest.parties"
+            :key="party.id"
+            class="row"
+        >
+            <div class="col-sm-12">
                 <party-detail
-                    v-else-if="isWip"
-                    :party="quest.currentParty"
+                    :party="party"
                     :quest="quest"
                     :member-of-any-party="memberOfAnyParty"
                 />
-
-                <!-- done -->
-                <party-detail
-                    v-else
-                    :quest="quest"
-                />
-
-                <!-- fa promo will not appear in modal -->
-                <p class="small">
-                    <a v-if="quest.art && collapse" :href="'https://osu.ppy.sh/beatmaps/artists/' + quest.art" target="_blank">
-                        View featured artist listing
-                    </a>
-                </p>
             </div>
 
             <div
                 v-if="isDone || isWip"
-                class="col-sm-6"
+                class="col-sm-12 mt-2"
             >
                 <associated-beatmaps
                     :associated-maps="quest.associatedMaps"
@@ -56,13 +37,13 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { Quest } from '../../../../interfaces/quest';
 import PartyDetail from './PartyDetail.vue';
 import AssociatedBeatmaps from './AssociatedBeatmaps.vue';
 import partyInfoMixin from './partyInfoMixin';
 
-export default Vue.extend({
+export default defineComponent({
     components: {
         PartyDetail,
         AssociatedBeatmaps,
@@ -78,10 +59,12 @@ export default Vue.extend({
     },
     methods: {
         async createParty(e): Promise<void> {
-            const quest = await this.executePost('/quests/createParty/' + this.quest.id, {}, e);
+            const quest = await this.$http.executePost('/parties/create', {
+                questId: this.quest.id,
+            }, e);
 
-            if (!this.isError(quest)) {
-                this.$store.dispatch('updateQuest', quest);
+            if (!this.$http.isError(quest)) {
+                this.$store.dispatch('quests/updateQuest', quest);
             }
         },
     },

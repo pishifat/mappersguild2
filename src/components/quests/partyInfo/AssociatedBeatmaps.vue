@@ -1,30 +1,30 @@
 <template>
-    <div>
-        <div class="sub-header">
-            <u>Associated maps</u>
-        </div>
+    <div class="card card-body container">
+        <h5>
+            Associated maps
+        </h5>
 
-        <ul v-if="associatedMaps.length" class="ml-3 p-0">
+        <ul v-if="associatedMaps.length" class="ps-3 mb-0 list-unstyled">
             <li
                 v-for="map in associatedMaps"
                 :key="map.id"
-                class="small text-white-50"
+                class="text-secondary"
             >
                 <i
+                    v-bs-tooltip="map.status"
                     class="fas"
-                    :class="[map.status.toLowerCase(), findIcon(map.status)]"
-                    data-toggle="tooltip"
-                    :title="map.status"
+                    :class="[`text-${map.status.toLowerCase()}`, findIcon(map.status)]"
                 />
                 <a v-if="map.url" :href="map.url" target="_blank">
                     {{ map.song.artist }} - {{ map.song.title }}
                 </a>
                 <span v-else>{{ map.song.artist }} - {{ map.song.title }}</span>
-                by <a :href="'https://osu.ppy.sh/users/' + map.host.osuId" target="_blank">{{ map.host.username }}</a>
+                by
+                <user-link :user="map.host" />
             </li>
         </ul>
 
-        <div v-else class="small text-white-50 ml-3">
+        <div v-else class="small text-white-50 ms-3">
             No associated maps...
         </div>
     </div>
@@ -32,10 +32,10 @@
 
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { Beatmap, BeatmapStatus } from '../../../../interfaces/beatmap/beatmap';
 
-export default Vue.extend({
+export default defineComponent({
     props: {
         associatedMaps: {
             type: Array as () => Beatmap[],
@@ -59,27 +59,3 @@ export default Vue.extend({
     },
 });
 </script>
-
-<style scoped>
-
-ul {
-    list-style-type: none;
-}
-
-.card-status-wip {
-    border-left: 4px solid var(--wip);
-}
-
-.card-status-done {
-    border-left: 4px solid var(--done);
-}
-
-.card-status-qualified {
-    border-left: 4px solid var(--guild);
-}
-
-.card-status-ranked {
-    border-left: 4px solid var(--ranked);
-}
-
-</style>

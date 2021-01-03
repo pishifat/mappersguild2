@@ -50,21 +50,11 @@ function isJudge(req, res, next) {
             res.locals.contest = contest;
             return next();
         }
-        return res.redirect('/');
+        return middlewares_1.unauthorize(req, res);
     });
 }
 judgingRouter.use(middlewares_1.isLoggedIn);
 judgingRouter.use(isJudge);
-judgingRouter.get('/', (req, res) => {
-    var _a, _b;
-    res.render('judging', {
-        title: 'Judging',
-        script: 'judging.js',
-        loggedInAs: (_a = req.session) === null || _a === void 0 ? void 0 : _a.osuId,
-        userMongoId: (_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId,
-        pointsInfo: res.locals.userRequest.pointsInfo,
-    });
-});
 judgingRouter.get('/relevantInfo', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const contest = res.locals.contest;

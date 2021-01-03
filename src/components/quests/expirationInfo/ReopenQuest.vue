@@ -2,7 +2,7 @@
     <div class="row">
         <div class="col-sm-12">
             <button
-                class="btn btn-sm btn-block btn-outline-success mb-2"
+                class="btn btn-sm w-100 btn-outline-success mb-2"
                 :disabled="!enoughPoints"
                 @click.prevent="reopenQuest($event)"
             >
@@ -13,10 +13,11 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
+import { PointsRefreshResponse } from '@interfaces/api/quests';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'ReopenQuest',
     props: {
         questId: {
@@ -43,12 +44,12 @@ export default Vue.extend({
     methods: {
         async reopenQuest(e): Promise<void> {
             if (confirm(`Are you sure?\n\nYou are about to spend ${ this.price } Mappers' Guild points to re-open this quest.\n\nYou have ${ this.loggedInUser.availablePoints } points available.`)) {
-                const res: any = await this.executePost('/quests/reopenQuest/' + this.questId, { status: this.status }, e);
+                const res = await this.$http.executePost<PointsRefreshResponse>(`/quests/${this.questId}/reopen`, { status: this.status }, e);
 
-                if (!this.isError(res)) {
-                    this.$store.dispatch('setQuests', res.quests);
+                if (!this.$http.isError(res)) {
+                    this.$store.dispatch('quests/setQuests', res.quests);
                     this.$store.commit('setAvailablePoints', res.availablePoints);
-                    $('#editQuest').modal('hide');
+                    this.$bs.hideModal('editQuest');
                 }
             }
         },

@@ -1,15 +1,5 @@
-import { User } from '@interfaces/user';
-import { Quest } from '@interfaces/quest';
-import { BasicError } from 'helpers/helpers';
-
-export interface QuestPageOnLoad {
-    quests: Quest[];
-    mainMode: User['mainMode'];
-}
-
-export interface QuestsSearch {
-    quests: Quest[];
-}
+import { Quest } from '../quest';
+import { ErrorResponse } from './shared';
 
 export interface SubmitQuestData {
     name: string;
@@ -30,11 +20,16 @@ export interface PublishQuests {
     quests: Quest[];
 }
 
-export type PublishQuestsResponse = PublishQuests | BasicError
+export type PublishQuestsResponse = PublishQuests | ErrorResponse;
 
-export interface BasicResponse {
-    success: string;
+export type QuestResponse = Quest | ErrorResponse;
+
+export interface ExtendDeadlineResponse {
+    quest: Quest;
+    availablePoints: number;
 }
 
-export type StatusResponse = BasicResponse | BasicError;
-export type QuestResponse = Quest | BasicError;
+export interface PointsRefreshResponse {
+    quests: Quest[];
+    availablePoints: number;
+}

@@ -5,21 +5,21 @@
         :header-class="selectedUser ? ('bg-rank-' + selectedUser.rank) : ''"
     >
         <template #header>
-            <a :href="'https://osu.ppy.sh/users/' + selectedUser.osuId" class="text-dark" target="_blank">
-                {{ selectedUser.username }}
-            </a>
+            <user-link class="text-dark" :user="selectedUser" />
         </template>
 
         <template #default>
             <div class="row col-lg-12">
                 <table class="table table-sm col-md-6">
                     <thead>
-                        <th scope="col">
-                            Task
-                        </th>
-                        <th scope="col">
-                            Points
-                        </th>
+                        <tr>
+                            <th scope="col">
+                                Task
+                            </th>
+                            <th scope="col">
+                                Points
+                            </th>
+                        </tr>
                     </thead>
                     <tbody>
                         <user-points-row
@@ -142,6 +142,7 @@
                         </tr>
                     </tbody>
                 </table>
+
                 <div class="col-md-6">
                     <p
                         class="small"
@@ -149,20 +150,19 @@
                         Rank:
                         <i
                             v-if="selectedUser.rank > 0"
+                            v-bs-tooltip="`rank ${selectedUser.rank} user`"
                             class="fas fa-crown"
                             :class="'text-rank-' + selectedUser.rank"
-                            data-toggle="tooltip"
-                            data-placement="top"
-                            :title="`rank ${selectedUser.rank} user`"
                         />
                         <span v-else class="text-white-50">
                             None
                         </span>
                     </p>
+
                     <div v-if="currentQuests.length" class="small">
                         Current quests:
                     </div>
-                    <ul class="p-0 mb-2 ml-4">
+                    <ul class="p-0 mb-2 ms-4">
                         <li
                             v-for="quest in currentQuests"
                             :key="quest.id"
@@ -173,10 +173,11 @@
                             </a>
                         </li>
                     </ul>
+
                     <div v-if="currentQuests.length" class="small">
                         Created quests:
                     </div>
-                    <ul class="p-0 mb-2 ml-4">
+                    <ul class="p-0 mb-2 ms-4">
                         <li
                             v-for="name in createdQuestNames"
                             :key="name"
@@ -185,10 +186,11 @@
                             {{ name.length > 40 ? name.slice(0,40) + "..." : name }}
                         </li>
                     </ul>
+
                     <div v-if="selectedUser.completedQuests.length" class="small">
                         Completed quests:
                     </div>
-                    <ul class="p-0 mb-2 ml-4">
+                    <ul class="p-0 mb-2 ms-4">
                         <li
                             v-for="quest in selectedUser.completedQuests"
                             :key="quest.id"
@@ -203,19 +205,22 @@
             </div>
 
             <div class="radial-divisor" />
+
             <p>Mappers' Guild beatmaps:</p>
             <table class="table table-sm">
                 <thead>
-                    <th scope="col">
-                        Mapset
-                    </th>
-                    <th scope="col">
-                        Host
-                    </th>
-                    <th scope="col">
-                        Tasks
-                    </th>
-                    <th scope="col" />
+                    <tr>
+                        <th scope="col">
+                            Mapset
+                        </th>
+                        <th scope="col">
+                            Host
+                        </th>
+                        <th scope="col">
+                            Tasks
+                        </th>
+                        <th scope="col" />
+                    </tr>
                 </thead>
                 <tbody>
                     <tr v-if="!userBeatmaps.length">
@@ -233,25 +238,17 @@
                     <tr v-for="map in userBeatmaps" :key="map.id">
                         <td scope="row">
                             <i
+                                v-bs-tooltip="`map.status`"
                                 class="fas"
                                 :class="['text-' + map.status.toLowerCase(), findIcon(map.status)]"
-                                data-toggle="tooltip"
-                                :title="map.status"
                             />
                             <a :href="'/beatmaps?id=' + map.id" target="_blank">
                                 {{ map.song.artist }} - {{ map.song.title }}
                             </a>
-                            <i v-if="map.mode == 'taiko'" class="fas fa-drum" />
-                            <i v-else-if="map.mode == 'catch'" class="fas fa-apple-alt" />
-                            <i v-else-if="map.mode == 'mania'" class="fas fa-stream" />
+                            <modes-icons v-if="map.mode !== 'osu'" :modes="[map.mode]" />
                         </td>
                         <td scope="row">
-                            <a
-                                :href="'https://osu.ppy.sh/users/' + map.host.osuId"
-                                target="_blank"
-                            >
-                                {{ map.host.username }}
-                            </a>
+                            <user-link :user="map.host" />
                         </td>
                         <td scope="row" class="text-white-50">
                             {{ userTasks(map) }}
@@ -270,12 +267,14 @@
             <p>Spent points logs:</p>
             <table class="table table-sm col-md-12">
                 <thead>
-                    <th scope="col">
-                        Action
-                    </th>
-                    <th scope="col">
-                        Spent points
-                    </th>
+                    <tr>
+                        <th scope="col">
+                            Action
+                        </th>
+                        <th scope="col">
+                            Spent points
+                        </th>
+                    </tr>
                 </thead>
                 <tbody>
                     <tr v-if="!spentPoints.length">
@@ -302,7 +301,7 @@
 
             <div class="radial-divisor" />
 
-            <p class="float-right">
+            <p class="float-end">
                 Joined: {{ selectedUser.createdAt.slice(0, 10) }}
             </p>
         </template>
@@ -310,7 +309,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapState, mapGetters } from 'vuex';
 import ModalDialog from '@components/ModalDialog.vue';
 import { Quest } from '../../../interfaces/quest';
@@ -319,17 +318,19 @@ import { Beatmap } from '../../../interfaces/beatmap/beatmap';
 import UserPointsRow from './UserPointsRow.vue';
 import { TaskName } from '../../../interfaces/beatmap/task';
 import { BeatmapStatus } from '../../../interfaces/beatmap/beatmap';
+import ModesIcons from '@components/ModesIcons.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'UserInfo',
     components: {
         UserPointsRow,
         ModalDialog,
+        ModesIcons,
     },
     data () {
         return {
             currentQuests: [] as Quest[],
-            createdQuestNames: [],
+            createdQuestNames: [] as Quest['name'][],
             spentPoints: [] as SpentPoints[],
             userBeatmaps: [] as Beatmap[],
             sortOrder: Object.values(TaskName),
@@ -345,7 +346,9 @@ export default Vue.extend({
     },
     watch: {
         async selectedUser(): Promise<void> {
-            history.pushState(null, 'Users', `/users?id=${this.selectedUser.id}`);
+            if (!this.selectedUser || this.selectedUser.id === this.$route.query.id) return;
+
+            this.$router.push(`/users?id=${this.selectedUser.id}`);
 
             this.currentQuests = [];
             this.createdQuestNames = [];
@@ -353,25 +356,25 @@ export default Vue.extend({
             this.userBeatmaps = [];
 
             const [currentQuests, createdQuestNames, points, beatmaps] = await Promise.all([
-                this.executeGet<any>(`/users/findCurrentQuests/${this.selectedUser.id}`),
-                this.executeGet<any>(`/users/findCreatedQuests/${this.selectedUser.id}`),
-                this.executeGet<any>(`/users/findSpentPoints/${this.selectedUser.id}`),
-                this.executeGet<any>(`/users/findUserBeatmaps/${this.selectedUser.id}`),
+                this.$http.executeGet<Quest[]>(`/users/${this.selectedUser.id}/quests`),
+                this.$http.executeGet<Quest['name'][]>(`/users/findCreatedQuests/${this.selectedUser.id}`),
+                this.$http.executeGet<SpentPoints[]>(`/users/findSpentPoints/${this.selectedUser.id}`),
+                this.$http.executeGet<Beatmap[]>(`/users/findUserBeatmaps/${this.selectedUser.id}`),
             ]);
 
-            if (currentQuests && !currentQuests.error) {
+            if (!this.$http.isError(currentQuests)) {
                 this.currentQuests = currentQuests;
             }
 
-            if (createdQuestNames && !createdQuestNames.error) {
+            if (!this.$http.isError(createdQuestNames)) {
                 this.createdQuestNames = createdQuestNames;
             }
 
-            if (points && !points.error) {
+            if (!this.$http.isError(points)) {
                 this.spentPoints = points;
             }
 
-            if (beatmaps && !beatmaps.error) {
+            if (!this.$http.isError(beatmaps)) {
                 const statusSort = ['WIP', 'Done', 'Qualified', 'Ranked'];
 
                 this.userBeatmaps = beatmaps.sort(function(a, b) {
@@ -449,7 +452,7 @@ export default Vue.extend({
                 case 'acceptQuest':
                     return quest.price;
                 case 'reopenQuest':
-                    return quest.price*0.5 + 25;
+                    return quest.reopenPrice;
                 case 'extendDeadline':
                     return 10;
                 case 'createQuest':

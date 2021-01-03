@@ -7,7 +7,7 @@ import { FeaturedSong } from '../../interfaces/featuredSong';
 import { QuestModel } from '../../models/quest';
 import { findBeatmapsetId, defaultErrorMessage } from '../../helpers/helpers';
 import { updateUserPoints } from '../../helpers/points';
-import { TaskModel, Task } from '../../models/beatmap/task';
+import { TaskModel } from '../../models/beatmap/task';
 import { beatmapsetInfo, getMaps, isOsuResponseError } from '../../helpers/osuApi';
 import { webhookPost, webhookColors } from '../../helpers/discordApi';
 import { TaskName, TaskStatus } from '../../interfaces/beatmap/task';
@@ -82,7 +82,7 @@ adminBeatmapsRouter.post('/:id/updateStatus', isSuperAdmin, async (req, res) => 
         let storyboard;
 
         // fill empty variables with data
-        b.tasks.forEach((task: Task) => {
+        for (const task of b.tasks) {
             if (task.mode == 'sb' && task.mappers[0].id != b.host.id) {
                 storyboard = task;
             } else if (task.mode != 'sb') {
@@ -97,7 +97,7 @@ adminBeatmapsRouter.post('/:id/updateStatus', isSuperAdmin, async (req, res) => 
                     modes.push(task.mode);
                 }
             }
-        });
+        }
 
         // create template for webhook descriptiuon
         let gdText = '';
@@ -162,7 +162,7 @@ adminBeatmapsRouter.post('/:id/tasks/:taskId/delete', isSuperAdmin, async (req, 
         BeatmapModel
             .findByIdAndUpdate(req.params.id, {
                 $pull: {
-                    tasks: req.params.taskId as any,
+                    tasks: req.params.taskId,
                 },
             })
             .orFail(),
@@ -197,6 +197,18 @@ adminBeatmapsRouter.post('/:id/updateUrl', isSuperAdmin, async (req, res) => {
 // ---------------------
 // NOT SUPERADMIN ROUTES
 // ---------------------
+
+interface UserCounts extends User {
+    hostCount: number;
+    taskCount: number;
+}
+
+interface UserSummary {
+    username: string;
+    osuId: number;
+    hostCount: number;
+    taskCount: number;
+}
 
 /* POST update sb quality */
 adminBeatmapsRouter.post('/:id/updateStoryboardQuality', async (req, res) => {
@@ -293,9 +305,9 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
         });
     }
 
-    const users: any = [];
+    const users: UserSummary[] = [];
 
-    for (const user of u as any) {
+    for (const user of u as UserCounts[]) {
         user.hostCount = 0;
         user.taskCount = 0;
 

@@ -3,11 +3,11 @@
         <div class="container card card-body py-1">
             <div class="row">
                 <div class="col-sm">
-                    <button class="btn btn-sm btn-info btn-block" @click="updateUserPoints($event)">
+                    <button class="btn btn-sm btn-info w-100" @click="updateUserPoints($event)">
                         Update user points
                     </button>
 
-                    <span v-if="calculatingPoints" class="ml-2 small text-white-50">calculating points...</span>
+                    <span v-if="calculatingPoints" class="ms-2 small text-white-50">calculating points...</span>
 
                     <data-table
                         v-slot="{ obj: user }"
@@ -17,26 +17,22 @@
                         @update:selected-id="selectedUserId = $event"
                     >
                         <td>
-                            <a :href="'https://osu.ppy.sh/users/' + user.osuId" target="_blank">{{ user.username }}</a>
+                            <user-link :user="user" />
                         </td>
                         <td>
                             <i
                                 v-if="user.rank > 0"
+                                v-bs-tooltip="`rank ${user.rank} user`"
                                 class="fas fa-crown"
                                 :class="'text-rank-' + user.rank"
-                                data-toggle="tooltip"
-                                data-placement="top"
-                                :title="`rank ${user.rank} user`"
                             />
                         </td>
                         <td :class="{ 'bg-open': user.rank != user.badge }">
                             <i
                                 v-if="user.badge > 0"
+                                v-bs-tooltip="`rank ${user.rank} user`"
                                 class="fas fa-crown"
                                 :class="'text-rank-' + user.rank"
-                                data-toggle="tooltip"
-                                data-placement="top"
-                                :title="`rank ${user.rank} user`"
                             />
                         </td>
                     </data-table>
@@ -56,7 +52,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import UserInfo from '../../components/admin/UserInfo.vue';
 import DataTable from '../../components/admin/DataTable.vue';
 import TieredUserList from '../../components/admin/TieredUserList.vue';
@@ -65,7 +61,7 @@ import { User } from '../../../interfaces/user';
 import { mapState } from 'vuex';
 import usersAdminModule from '@store/admin/users';
 
-export default Vue.extend({
+export default defineComponent({
     components: {
         DataTable,
         UserInfo,
@@ -91,15 +87,15 @@ export default Vue.extend({
             this.$store.registerModule('usersAdmin', usersAdminModule);
         }
     },
-    destroyed() {
+    unmounted () {
         if (this.$store.hasModule('usersAdmin')) {
             this.$store.unregisterModule('usersAdmin');
         }
     },
     async created() {
-        const users = await this.initialRequest<User[]>('/admin/users/load');
+        const users = await this.$http.initialRequest<User[]>('/admin/users/load');
 
-        if (!this.isError(users)) {
+        if (!this.$http.isError(users)) {
             this.$store.commit('setUsers', users);
         }
     },
@@ -108,12 +104,12 @@ export default Vue.extend({
             const i = this.users.findIndex(user => user.id == u.id);
 
             if (i !== -1) {
-                Vue.set(this.users, i, u);
+                this.users[i] = u;
             }
         },
         async updateUserPoints(e): Promise<void> {
             this.calculatingPoints = true;
-            const success = await this.executePost('/admin/users/updateAllUserPoints', {}, e);
+            const success = await this.$http.executePost('/admin/users/updateAllUserPoints', {}, e);
 
             if (success) {
                 this.calculatingPoints = false;

@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import ContestInfo from '@components/admin/contests/ContestInfo.vue';
 import AddContest from '@components/admin/contests/AddContest.vue';
@@ -21,7 +21,7 @@ import MarkdownNewContestTemplate from '@components/admin/contests/MarkdownNewCo
 import { Contest } from '@interfaces/contest/contest';
 import contestsModule from '@store/admin/contests';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'ContestPage',
     components: {
         ContestInfo,
@@ -36,15 +36,15 @@ export default Vue.extend({
             this.$store.registerModule('contests', contestsModule);
         }
     },
-    destroyed() {
+    unmounted () {
         if (this.$store.hasModule('contests')) {
             this.$store.unregisterModule('contests');
         }
     },
     async created() {
-        const contests = await this.initialRequest<Contest[]>('/admin/contests/relevantInfo');
+        const contests = await this.$http.initialRequest<Contest[]>('/admin/contests/relevantInfo');
 
-        if (!this.isError(contests)) {
+        if (!this.$http.isError(contests)) {
             this.$store.commit('setContests', contests);
         }
     },

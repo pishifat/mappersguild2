@@ -3,15 +3,13 @@
         <div class="row mb-2">
             <div class="col">
                 <div class="input-group">
-                    <div class="input-group-prepend">
-                        <button
-                            class="btn btn-primary"
-                            href="#"
-                            @click.prevent="$emit('update-filter-value', newFilterValue)"
-                        >
-                            <i class="fas fa-search" />
-                        </button>
-                    </div>
+                    <button
+                        class="btn btn-primary"
+                        href="#"
+                        @click.prevent="$emit('update:filterValue', newFilterValue)"
+                    >
+                        <i class="fas fa-search" />
+                    </button>
                     <input
                         class="form-control"
                         type="text"
@@ -20,11 +18,9 @@
                         autocomplete="off"
                         :value="filterValue"
                         @input="newFilterValue = $event.target.value"
-                        @keyup.enter="$emit('update-filter-value', $event.target.value)"
+                        @keyup.enter="$emit('update:filterValue', $event.target.value)"
                     >
-                    <div class="input-group-append">
-                        <slot />
-                    </div>
+                    <slot />
                 </div>
             </div>
         </div>
@@ -37,9 +33,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 
-export default Vue.extend({
+export default defineComponent({
     props: {
         placeholder: {
             type: String,
@@ -50,6 +46,9 @@ export default Vue.extend({
             default: '',
         },
     },
+    emits: [
+        'update:filterValue',
+    ],
     data () {
         return {
             newFilterValue: '',

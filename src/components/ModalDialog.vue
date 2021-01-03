@@ -1,6 +1,6 @@
 <template>
     <div class="modal fade" tabindex="-1">
-        <div class="modal-dialog" :class="`modal-${modalSize}`">
+        <div class="modal-dialog modal-fullscreen-lg-down" :class="`modal-${modalSize}`">
             <div v-if="loaded" class="modal-content the-a-background">
                 <div class="modal-header" :class="headerClass || 'bg-primary'">
                     <h5 class="modal-title">
@@ -9,14 +9,11 @@
                         </slot>
                     </h5>
 
-                    <a
-                        href="#"
-                        class="close"
-                        data-dismiss="modal"
-                        @click.prevent
-                    >
-                        &times;
-                    </a>
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                    />
                 </div>
 
                 <div class="modal-body">
@@ -32,9 +29,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'ModalDialog',
     props: {
         title: {
@@ -66,13 +63,13 @@ export default Vue.extend({
 }
 
 .modal-header {
-    color: var(--dark);
+    color: var(--bs-dark);
 
     a {
-        color: var(--dark);
+        color: var(--bs-dark);
 
         &:hover {
-            color: var(--gray-dark);
+            color: var(--bs-gray-dark);
             font-weight: bold;
         }
     }

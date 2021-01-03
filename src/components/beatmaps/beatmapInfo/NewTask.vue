@@ -3,7 +3,7 @@
         v-if="(beatmap.status == 'WIP' || beatmap.status == 'Secret') && remainingTasks.length"
         class="row mt-2 mb-3"
     >
-        <div class="col-sm-12 form-inline">
+        <div class="col-sm-12">
             <div class="input-group input-group-sm mx-auto">
                 <select
                     v-if="!taskToAddCollaborator"
@@ -41,7 +41,7 @@
                 <input
                     v-if="isHost || taskToAddCollaborator"
                     v-model="requestTaskUsername"
-                    class="form-control w-25"
+                    class="form-control"
                     type="text"
                     placeholder="request to... (if needed)"
                     maxlength="18"
@@ -49,10 +49,8 @@
                 >
 
                 <button
-                    class="btn btn-sm btn-outline-info ml-1"
-                    data-toggle="tooltip"
-                    data-placement="top"
-                    title="add difficulty"
+                    v-bs-tooltip="'add difficulty'"
+                    class="btn btn-outline-info"
                     @click="taskToAddCollaborator ? addCollab($event) : addTask(beatmap.id, $event)"
                 >
                     <i class="fas fa-plus" />
@@ -66,7 +64,7 @@
         >
             <small>
                 Adding collaborator for the selected difficulty
-                <a class="text-danger" href="#" @click.prevent="$emit('update:task-to-add-collaborator', null)">
+                <a class="text-danger" href="#" @click.prevent="$emit('update:taskToAddCollaborator', null)">
                     <i class="fas fa-times-circle" />
                 </a>
             </small>
@@ -75,11 +73,11 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { Beatmap, BeatmapMode } from '../../../../interfaces/beatmap/beatmap';
 import { Task, TaskName } from '../../../../interfaces/beatmap/task';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'NewTask',
     props: {
         isHost: Boolean,
@@ -92,6 +90,9 @@ export default Vue.extend({
             required: true,
         },
     },
+    emits: [
+        'update:taskToAddCollaborator',
+    ],
     data () {
         return {
             selectedTask: TaskName.Easy,
@@ -129,12 +130,12 @@ export default Vue.extend({
                 mode = this.beatmap.mode;
             }
 
-            const bm = await this.executePost<Beatmap>('/beatmaps/addTask/' + id, {
+            const bm = await this.$http.executePost<Beatmap>('/beatmaps/addTask/' + id, {
                 taskName: this.selectedTask,
                 mode,
             }, e);
 
-            if (!this.isError(bm)) {
+            if (!this.$http.isError(bm)) {
                 this.$store.dispatch('beatmaps/updateBeatmap', bm);
             }
         },
@@ -147,13 +148,13 @@ export default Vue.extend({
                 mode = this.beatmap.mode;
             }
 
-            const bm = await this.executePost<Beatmap>('/beatmaps/requestTask/' + id, {
+            const bm = await this.$http.executePost<Beatmap>('/beatmaps/requestTask/' + id, {
                 taskName: this.selectedTask,
                 user: this.requestTaskUsername,
                 mode,
             }, e);
 
-            if (!this.isError(bm)) {
+            if (!this.$http.isError(bm)) {
                 this.$store.dispatch('beatmaps/updateBeatmap', bm);
                 this.$store.dispatch('updateToastMessages', {
                     message: 'Difficulty request sent!',
@@ -170,13 +171,13 @@ export default Vue.extend({
                 mode = this.beatmap.mode;
             }
 
-            const bm = await this.executePost<Beatmap>('/beatmaps/task/' + this.taskToAddCollaborator.id + '/addCollab', {
+            const bm = await this.$http.executePost<Beatmap>('/beatmaps/task/' + this.taskToAddCollaborator.id + '/addCollab', {
                 user: this.requestTaskUsername,
                 taskName: this.taskToAddCollaborator.name,
                 mode,
             }, e);
 
-            if (!this.isError(bm)) {
+            if (!this.$http.isError(bm)) {
                 this.$store.dispatch('beatmaps/updateBeatmap', bm);
                 this.$store.dispatch('updateToastMessages', {
                     message: 'Collab invite sent!',

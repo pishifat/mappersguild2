@@ -25,7 +25,7 @@
                 <div class="d-flex justify-content-between">
                     <a
                         :class="submission.total >= judgingThreshold ? 'text-success' : ''"
-                        data-toggle="collapse"
+                        data-bs-toggle="collapse"
                         :href="`#collapse-${submission.id}`"
                     >
                         {{ submission.name }}
@@ -52,12 +52,12 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import ScreeningDetail from './ScreeningDetail.vue';
 import MessageTemplate from './MessageTemplate.vue';
 import { Submission } from '../../../../interfaces/contest/submission';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'ScreeningResults',
     components: {
         ScreeningDetail,
@@ -114,9 +114,9 @@ export default Vue.extend({
     },
     methods: {
         async updateJudgingThreshold(e): Promise<void> {
-            const judgingThreshold = await this.executePost(`/admin/contests/${this.contestId}/updateJudgingThreshold`, { judgingThreshold: this.newJudgingThreshold }, e);
+            const judgingThreshold = await this.$http.executePost(`/admin/contests/${this.contestId}/updateJudgingThreshold`, { judgingThreshold: this.newJudgingThreshold }, e);
 
-            if (!this.isError(judgingThreshold)) {
+            if (!this.$http.isError(judgingThreshold)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `updated judging threshold`,
                     type: 'info',

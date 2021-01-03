@@ -21,9 +21,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'DateInfo',
     props: {
         contestId: {
@@ -43,9 +43,9 @@ export default Vue.extend({
     },
     methods: {
         async updateContestStart(e): Promise<void> {
-            const contestStart = await this.executePost(`/admin/contests/${this.contestId}/updateContestStart`, { date: this.newContestStart }, e);
+            const contestStart = await this.$http.executePost(`/admin/contests/${this.contestId}/updateContestStart`, { date: this.newContestStart }, e);
 
-            if (!this.isError(contestStart)) {
+            if (!this.$http.isError(contestStart)) {
                 this.showContestStartDateInput = false;
                 this.$store.dispatch('updateToastMessages', {
                     message: `updated contest start date`,

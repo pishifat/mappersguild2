@@ -1,8 +1,8 @@
 <template>
-    <div class="row mb-2">
-        <div class="col-sm form-inline">
-            <!-- INVITE -->
-            <div class="input-group input-group-sm mr-2">
+    <div class="row row-cols-md-auto g-2 align-items-center mb-3">
+        <!-- INVITE -->
+        <div class="col-12">
+            <div class=" input-group input-group-sm">
                 <input
                     v-model="inviteUsername"
                     class="form-control"
@@ -11,97 +11,105 @@
                     maxlength="18"
                     @keyup.enter="inviteToParty($event)"
                 >
-                <div class="input-group-append">
-                    <button
-                        class="btn btn-outline-info"
-                        data-toggle="tooltip"
-                        data-placement="top"
-                        title="invite user to party"
-                        @click="inviteToParty($event)"
-                    >
-                        Invite
-                    </button>
-                </div>
+                <button
+                    v-bs-tooltip="'invite user to party'"
+                    class="btn btn-outline-info"
+                    @click="inviteToParty($event)"
+                >
+                    Invite
+                </button>
             </div>
+        </div>
 
-            <!-- TRANSFER/KICK -->
-            <div class="input-group input-group-sm mr-2">
+        <!-- TRANSFER/KICK -->
+        <div class="col-12">
+            <div class="input-group input-group-sm">
                 <select v-model="dropdownUserId" class="form-control">
                     <option value="" disabled>
                         Select a member
                     </option>
-                    <template v-for="member in party.members">
+                    <template
+                        v-for="member in party.members"
+                        :key="member.id"
+                    >
                         <option
                             v-if="member.id !== loggedInUser.id"
-                            :key="member.id"
                             :value="member.id"
                         >
                             {{ member.username }}
                         </option>
                     </template>
                 </select>
-                <div class="input-group-append">
-                    <button
-                        class="btn btn-outline-info"
-                        data-toggle="tooltip"
-                        data-placement="top"
-                        title="change party leader"
-                        @click="transferPartyLeader($event)"
-                    >
-                        Lead
-                    </button>
-                    <button
-                        class="btn btn-outline-info"
-                        data-toggle="tooltip"
-                        data-placement="top"
-                        title="kick party member"
-                        @click="kickPartyMember($event)"
-                    >
-                        Kick
-                    </button>
-                </div>
+                <button
+                    v-bs-tooltip="'change party leader'"
+                    class="btn btn-outline-info"
+                    @click="transferPartyLeader($event)"
+                >
+                    Lead
+                </button>
+                <button
+                    v-bs-tooltip="'kick party member'"
+                    class="btn btn-outline-info"
+                    @click="kickPartyMember($event)"
+                >
+                    Kick
+                </button>
             </div>
+        </div>
 
-            <!-- only when open -->
-            <template v-if="status === 'open'">
-                <!-- LOCK -->
-                <button class="btn btn-sm btn-outline-info mr-2" @click.prevent="togglePartyLock($event)">
+        <!-- only when open -->
+        <template v-if="status === 'open'">
+            <!-- LOCK -->
+            <div class="col-12">
+                <button class="btn btn-sm btn-outline-info w-100" @click.prevent="togglePartyLock($event)">
                     {{ party.lock ? 'Unlock' : 'Lock' }} <i class="fas" :class="party.lock ? 'fa-unlock' : 'fa-lock'" />
                 </button>
+            </div>
 
-                <!-- DELETE -->
-                <button class="btn btn-sm btn-outline-danger" @click.prevent="deleteParty($event)">
+            <!-- DELETE -->
+            <div class="col-12">
+                <button class="btn btn-sm btn-outline-danger w-100" @click.prevent="deleteParty($event)">
                     Delete <i class="fas fa-minus fa-xs" />
                 </button>
-            </template>
+            </div>
+        </template>
 
-            <!-- EXTEND DEADLINE -->
-            <button
-                v-if="quest.status === 'wip'"
-                class="btn btn-sm btn-outline-danger mx-2 my-2"
-                data-toggle="tooltip"
-                data-placement="top"
-                title="each party member spends 10 points to extend quest deadline"
-                @click.prevent="extendDeadline($event)"
-            >
-                Extend deadline for 10 points
-                <i class="fas fa-coins fa-xs" />
-            </button>
+        <!-- EXTEND DEADLINE -->
+        <template v-if="status === 'wip'">
+            <div class="col-12">
+                <button
+                    v-bs-tooltip="'each party member spends 10 points to extend quest deadline'"
+                    class="btn btn-sm btn-outline-danger w-100"
+                    @click.prevent="extendDeadline($event)"
+                >
+                    Extend deadline for 10 points
+                    <i class="fas fa-coins fa-xs" />
+                </button>
+            </div>
 
             <!-- DROP QUEST -->
-            <button
-                v-if="quest.status === 'wip'"
-                class="btn btn-sm btn-outline-danger mx-2 my-2"
-                @click.prevent="dropQuest($event)"
-            >
-                Drop quest
-                <i class="fas fa-times fa-xs" />
-            </button>
+            <div class="col-12">
+                <button
+                    class="btn btn-sm btn-outline-danger w-100"
+                    @click.prevent="dropQuest($event)"
+                >
+                    Drop quest
+                    <i class="fas fa-times fa-xs" />
+                </button>
+            </div>
+        </template>
 
-            <!-- ACCEPT QUEST -->
+        <!-- ACCEPT QUEST -->
+        <div
+            v-else-if="quest.status === 'open' &&
+                party.rank >= quest.minRank &&
+                party.members.length >= quest.minParty &&
+                party.members.length <= quest.maxParty
+            "
+            class="col-12"
+        >
             <button
-                v-else-if="quest.status === 'open' && party.rank >= quest.minRank && party.members.length >= quest.minParty && party.members.length <= quest.maxParty"
-                class="btn btn-sm btn-outline-success mx-2 my-2"
+                class="btn btn-sm btn-outline-success w-100"
                 :disabled="!enoughPoints"
                 @click.prevent="acceptQuest($event)"
             >
@@ -113,12 +121,13 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import { Quest } from '../../../../interfaces/quest';
-import { Party } from '../../../../interfaces/party';
+import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
+import { Quest } from '@interfaces/quest';
+import { Party } from '@interfaces/party';
+import { ExtendDeadlineResponse, PointsRefreshResponse } from '@interfaces/api/quests';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'LeaderActions',
     props: {
         party: {
@@ -159,20 +168,16 @@ export default Vue.extend({
     },
     methods: {
         async togglePartyLock(e): Promise<void> {
-            const quest = await this.executePost(
-                '/quests/togglePartyLock/' + this.party.id + '/' + this.quest.id,
-                { lock: this.party.lock },
-                e
-            );
+            const party = await this.$http.executePost(`/parties/${this.party.id}/toggleLock`, {}, e);
 
-            if (!this.isError(quest)) {
-                this.$store.dispatch('updateQuest', quest);
+            if (!this.$http.isError(party)) {
+                this.$store.dispatch('quests/updateParty', party);
             }
         },
         async inviteToParty(e): Promise<void> {
-            const res = await this.executePost<{ success: string }>('/quests/inviteToParty/' + this.party.id + '/' + this.quest.id, { username: this.inviteUsername }, e);
+            const res = await this.$http.executePost<{ success: string }>(`/parties/${this.party.id}/invite`, { username: this.inviteUsername }, e);
 
-            if (!this.isError(res)) {
+            if (!this.$http.isError(res)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: res.success,
                     type: 'success',
@@ -189,14 +194,14 @@ export default Vue.extend({
                 return;
             }
 
-            const quest = await this.executePost(
-                '/quests/transferPartyLeader/' + this.party.id + '/' + this.quest.id,
+            const party = await this.$http.executePost(
+                `/parties/${this.party.id}/transferLeadership`,
                 { userId: this.dropdownUserId },
                 e
             );
 
-            if (!this.isError(quest)) {
-                this.$store.dispatch('updateQuest', quest);
+            if (!this.$http.isError(party)) {
+                this.$store.dispatch('quests/updateParty', party);
             }
         },
         async kickPartyMember(e): Promise<void> {
@@ -209,16 +214,17 @@ export default Vue.extend({
                 return;
             }
 
-            if (confirm(`Are you sure? ${this.party.members.length == (this.quest.minParty) && this.quest.status == 'wip' ? 'This party has the minimum required members to run the quest, so kicking will cause the quest to be dropped.' : ''}`)) {
-                const quest = await this.executePost<Quest>('/quests/kickPartyMember/' + this.party.id + '/' + this.quest.id, { userId: this.dropdownUserId }, e);
+            if (confirm(`Are you sure? ${this.party.members.length == this.quest.minParty && this.quest.status == 'wip' ? 'This party has the minimum required members to run the quest, so kicking will cause the quest to be dropped.' : ''}`)) {
+                const party = await this.$http.executePost<Party>(`/parties/${this.party.id}/kick`, { userId: this.dropdownUserId }, e);
 
-                if (!this.isError(quest)) {
-                    this.$store.dispatch('updateQuest', quest);
+                if (!this.$http.isError(party)) {
+                    this.$store.dispatch('quests/updateParty', party);
 
                     // TODO in routes
                     // if kicking someone leads to few members or low rank
-                    if (quest.status == 'wip' &&
-                        (quest.currentParty.members.length < quest.minParty || quest.currentParty.rank < quest.minRank)
+                    if (
+                        this.quest.status == 'wip' &&
+                        (party.members.length < this.quest.minParty || party.rank < this.quest.minRank)
                     ) {
                         this.dropQuest(e);
                     }
@@ -227,20 +233,20 @@ export default Vue.extend({
         },
         async extendDeadline(e): Promise<void> {
             if (confirm(`Are you sure?\n\nAll members of your party will spend 10 points.\n\nYou have ${this.loggedInUser.availablePoints} points available.`)) {
-                const res: any = await this.executePost('/quests/extendDeadline/' + this.party.id + '/' + this.quest.id, {}, e);
+                const res = await this.$http.executePost<ExtendDeadlineResponse>(`/quests/${this.quest.id}/extendDeadline`, {}, e);
 
-                if (!this.isError(res)) {
-                    this.$store.dispatch('updateQuest', res.quest);
+                if (!this.$http.isError(res)) {
+                    this.$store.dispatch('quests/updateQuest', res.quest);
                     this.$store.commit('setAvailablePoints', res.availablePoints);
                 }
             }
         },
         async dropQuest(e): Promise<void> {
-            const quests = await this.executePost('/quests/dropQuest/' + this.party.id + '/' + this.quest.id, {}, e);
+            const quests = await this.$http.executePost<Quest[]>(`/quests/${this.quest.id}/drop`, {}, e);
 
-            if (!this.isError(quests)) {
-                $('#editQuest').modal('hide');
-                this.$store.dispatch('setQuests', quests);
+            if (!this.$http.isError(quests)) {
+                this.$bs.hideModal('editQuest');
+                this.$store.dispatch('quests/setQuests', quests);
             }
         },
         async acceptQuest(e): Promise<void> {
@@ -256,22 +262,22 @@ export default Vue.extend({
             }
 
             if (confirm(`Are you sure?\n\nThis quest will only allow beatmaps of these modes: ${modesText}\n\nAll members of your party will spend ${this.price} points.\n\nYou have ${this.loggedInUser.availablePoints} points available.`)) {
-                const res: any = await this.executePost('/quests/acceptQuest/' + this.party.id + '/' + this.quest.id, { price: this.price }, e);
+                const res = await this.$http.executePost<PointsRefreshResponse>(`/quests/${this.quest.id}/accept`, {}, e);
 
-                if (!this.isError(res)) {
-                    this.$store.dispatch('setQuests', res.quests);
+                if (!this.$http.isError(res)) {
+                    this.$store.dispatch('quests/setQuests', res.quests);
                     this.$store.commit('setAvailablePoints', res.availablePoints);
-                    $('#editQuest').modal('hide');
+                    this.$bs.hideModal('editQuest');
                 }
             }
         },
         async deleteParty(e): Promise<void> {
             if (confirm(`Are you sure?`)) {
-                const quest = await this.executePost('/quests/deleteParty/' + this.party.id + '/' + this.quest.id, {}, e);
+                const quest = await this.$http.executePost(`/parties/${this.party.id}/delete`, {}, e);
 
-                if (!this.isError(quest)) {
-                    this.$store.dispatch('updateQuest', quest);
-                    $('#editQuest').modal('hide');
+                if (!this.$http.isError(quest)) {
+                    this.$store.dispatch('quests/updateQuest', quest);
+                    this.$bs.hideModal('editQuest');
                 }
             }
         },

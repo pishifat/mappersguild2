@@ -2,9 +2,10 @@
     <modal-dialog id="reviewQuest" :loaded="Boolean(quest)">
         <template #header>
             {{ quest.name }} by
-            <a :href="'https://osu.ppy.sh/users/' + quest.creator.osuId" class="text-dark" target="_blank">
-                {{ quest.creator.username }}
-            </a>
+            <user-link
+                class="text-dark"
+                :user="quest.creator"
+            />
         </template>
 
         <template #default>
@@ -25,12 +26,12 @@
                         @change="updateArt($event)"
                     >
                 </p>
-                <p v-else-if="quest.art" class="ml-2">
+                <p v-else-if="quest.art" class="ms-2">
                     <a :href="'https://osu.ppy.sh/beatmaps/artists/' + quest.art" target="_blank">
                         <img :src="'https://assets.ppy.sh/artists/' + quest.art + '/cover.jpg'" class="card-avatar-img">
                     </a>
                 </p>
-                <p v-else class="ml-2">
+                <p v-else class="ms-2">
                     None
                 </p>
                 <div class="small text-white-50">
@@ -49,7 +50,7 @@
                         @change="renameQuest($event)"
                     >
                 </p>
-                <p v-else class="ml-2">
+                <p v-else class="ms-2">
                     {{ quest.name }}
                 </p>
                 <div class="small text-white-50">
@@ -69,7 +70,7 @@
                         @change="updateDescription($event)"
                     />
                 </p>
-                <p v-else class="ml-2">
+                <p v-else class="ms-2">
                     {{ quest.descriptionMain }}
                 </p>
                 <div class="small text-white-50">
@@ -88,7 +89,7 @@
                         @change="updateRequiredMapsets($event)"
                     >
                 </p>
-                <p v-else class="ml-2">
+                <p v-else class="ms-2">
                     {{ quest.requiredMapsets }}
                 </p>
                 <div class="small text-white-50">
@@ -107,7 +108,7 @@
                         @change="updatePrice($event)"
                     >
                 </p>
-                <p v-else class="ml-2">
+                <p v-else class="ms-2">
                     {{ quest.price }} points per user
                 </p>
                 <div class="small text-white-50">
@@ -126,7 +127,7 @@
                         @change="updateTimeframe($event)"
                     >
                 </p>
-                <p v-else class="ml-2">
+                <p v-else class="ms-2">
                     {{ quest.timeframe / (24*3600*1000) }} days
                 </p>
                 <div class="small text-white-50">
@@ -153,31 +154,31 @@
                         @change="updateMaxParty($event)"
                     >
                 </p>
-                <p v-else class="ml-2">
+                <p v-else class="ms-2">
                     {{ quest.minParty }}-{{ quest.maxParty }} members
                 </p>
                 <div class="small text-white-50">
                     Party rank
                 </div>
-                <p class="ml-2">
+                <p class="ms-2">
                     {{ quest.minRank }} rank required
                 </p>
                 <div class="small text-white-50">
                     MBC
                 </div>
-                <p class="ml-2">
+                <p class="ms-2">
                     {{ quest.isMbc ? 'yes' : 'no' }}
                 </p>
 
                 <div class="radial-divisor" />
 
-                <button type="submit" class="btn btn-outline-success btn-block" @click="acceptPendingQuest($event)">
+                <button type="submit" class="btn btn-outline-success w-100" @click="acceptPendingQuest($event)">
                     Publish quest
                 </button>
-                <button type="submit" class="btn btn-outline-danger btn-block" @click="rejectPendingQuest($event)">
+                <button type="submit" class="btn btn-outline-danger w-100" @click="rejectPendingQuest($event)">
                     Reject quest
                 </button>
-                <button class="btn btn-outline-secondary btn-block" data-toggle="collapse" data-target="#forumPm">
+                <button class="btn btn-outline-secondary w-100" data-bs-toggle="collapse" data-bs-target="#forumPm">
                     See rejection message <i class="fas fa-angle-down" />
                 </button>
                 <div id="forumPm" class="collapse">
@@ -204,12 +205,12 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import ModalDialog from '@components/ModalDialog.vue';
 import { Quest } from '../../../../interfaces/quest';
 import CopyPaste from '../../CopyPaste.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'ReviewQuest',
     components: {
         CopyPaste,
@@ -258,9 +259,9 @@ export default Vue.extend({
     },
     methods: {
         async acceptPendingQuest(e): Promise<void> {
-            const status = await this.executePost(`/admin/quests/${this.quest.id}/publish`, {}, e);
+            const status = await this.$http.executePost(`/admin/quests/${this.quest.id}/publish`, {}, e);
 
-            if (!this.isError(status)) {
+            if (!this.$http.isError(status)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `published quest`,
                     type: 'info',
@@ -269,13 +270,13 @@ export default Vue.extend({
                     questId: this.quest.id,
                     status,
                 });
-                $('#reviewQuest').modal('hide');
+                this.$bs.hideModal('reviewQuest');
             }
         },
         async rejectPendingQuest(e): Promise<void> {
-            const status = await this.executePost(`/admin/quests/${this.quest.id}/reject`, {}, e);
+            const status = await this.$http.executePost(`/admin/quests/${this.quest.id}/reject`, {}, e);
 
-            if (!this.isError(status)) {
+            if (!this.$http.isError(status)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `rejected quest`,
                     type: 'info',
@@ -284,13 +285,13 @@ export default Vue.extend({
                     questId: this.quest.id,
                     status,
                 });
-                $('#reviewQuest').modal('hide');
+                this.$bs.hideModal('reviewQuest');
             }
         },
         async updateArt(e): Promise<void> {
-            const art = await this.executePost(`/admin/quests/${this.quest.id}/updateArt`, { art: this.artistInput }, e);
+            const art = await this.$http.executePost(`/admin/quests/${this.quest.id}/updateArt`, { art: this.artistInput }, e);
 
-            if (!this.isError(art)) {
+            if (!this.$http.isError(art)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `updated artist`,
                     type: 'info',
@@ -303,9 +304,9 @@ export default Vue.extend({
             }
         },
         async renameQuest(e): Promise<void> {
-            const name = await this.executePost(`/admin/quests/${this.quest.id}/rename`, { name: this.nameInput }, e);
+            const name = await this.$http.executePost(`/admin/quests/${this.quest.id}/rename`, { name: this.nameInput }, e);
 
-            if (!this.isError(name)) {
+            if (!this.$http.isError(name)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `renamed quest`,
                     type: 'info',
@@ -318,9 +319,9 @@ export default Vue.extend({
             }
         },
         async updateDescription(e): Promise<void> {
-            const description = await this.executePost(`/admin/quests/${this.quest.id}/updateDescription/`, { description: this.objectiveInput }, e);
+            const description = await this.$http.executePost(`/admin/quests/${this.quest.id}/updateDescription/`, { description: this.objectiveInput }, e);
 
-            if (!this.isError(description)) {
+            if (!this.$http.isError(description)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `updated quest description`,
                     type: 'info',
@@ -333,9 +334,9 @@ export default Vue.extend({
             }
         },
         async updateRequiredMapsets(e): Promise<void> {
-            const requiredMapsets = await this.executePost(`/admin/quests/${this.quest.id}/updateRequiredMapsets`, { requiredMapsets: this.requiredMapsetsInput }, e);
+            const requiredMapsets = await this.$http.executePost(`/admin/quests/${this.quest.id}/updateRequiredMapsets`, { requiredMapsets: this.requiredMapsetsInput }, e);
 
-            if (!this.isError(requiredMapsets)) {
+            if (!this.$http.isError(requiredMapsets)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `updated required mapsets`,
                     type: 'info',
@@ -348,9 +349,9 @@ export default Vue.extend({
             }
         },
         async updatePrice(e): Promise<void> {
-            const price = await this.executePost(`/admin/quests/${this.quest.id}/updatePrice`, { price: this.priceInput }, e);
+            const price = await this.$http.executePost(`/admin/quests/${this.quest.id}/updatePrice`, { price: this.priceInput }, e);
 
-            if (!this.isError(price)) {
+            if (!this.$http.isError(price)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `updated price`,
                     type: 'info',
@@ -363,9 +364,9 @@ export default Vue.extend({
             }
         },
         async updateTimeframe(e): Promise<void> {
-            const timeframe = await this.executePost(`/admin/quests/${this.quest.id}/updateTimeframe`, { timeframe: this.timeframeInput }, e);
+            const timeframe = await this.$http.executePost(`/admin/quests/${this.quest.id}/updateTimeframe`, { timeframe: this.timeframeInput }, e);
 
-            if (!this.isError(timeframe)) {
+            if (!this.$http.isError(timeframe)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `updated timeframe`,
                     type: 'info',
@@ -378,9 +379,9 @@ export default Vue.extend({
             }
         },
         async updateMinParty(e): Promise<void> {
-            const minParty = await this.executePost(`/admin/quests/${this.quest.id}/updateMinParty`, { minParty: this.minPartyInput }, e);
+            const minParty = await this.$http.executePost(`/admin/quests/${this.quest.id}/updateMinParty`, { minParty: this.minPartyInput }, e);
 
-            if (!this.isError(minParty)) {
+            if (!this.$http.isError(minParty)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `updated minParty`,
                     type: 'info',
@@ -393,9 +394,9 @@ export default Vue.extend({
             }
         },
         async updateMaxParty(e): Promise<void> {
-            const maxParty = await this.executePost(`/admin/quests/${this.quest.id}/updateMaxParty`, { maxParty: this.maxPartyInput }, e);
+            const maxParty = await this.$http.executePost(`/admin/quests/${this.quest.id}/updateMaxParty`, { maxParty: this.maxPartyInput }, e);
 
-            if (!this.isError(maxParty)) {
+            if (!this.$http.isError(maxParty)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `updated maxParty`,
                     type: 'info',

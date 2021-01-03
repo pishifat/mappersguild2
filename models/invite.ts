@@ -34,7 +34,7 @@ const inviteSchema = new Schema({
     sender: { type: 'ObjectId', ref: 'User', required: true },
     modified: { type: 'ObjectId', required: true },
     info: { type: String, required: true },
-    actionType: { type: String, required: true, enum: ['collaborate in a difficulty', 'create a difficulty', 'host', 'join'] },
+    actionType: { type: String, required: true, enum: ['collaborate in a difficulty', 'create a difficulty', 'join'] },
     accepted: { type: Boolean },
     visible: { type: Boolean, default: true },
 

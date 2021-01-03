@@ -2,13 +2,7 @@
     <div class="col-md-12 my-1">
         <div class="card card-body card-level-2 p-2">
             <div class="card-text small">
-                <a
-                    :href="'https://osu.ppy.sh/users/' + notification.sender.osuId"
-                    target="_blank"
-                    @click.stop
-                >
-                    {{ notification.sender.username }}
-                </a>
+                <user-link :user="notification.sender" />
 
                 {{ notification.info }}
 
@@ -18,9 +12,8 @@
                     <a
                         href="#"
                         class="text-done"
-                        :data-user="notification.map.id"
-                        data-toggle="modal"
-                        data-target="#limitedEditBeatmap"
+                        data-bs-toggle="modal"
+                        data-bs-target="#limitedEditBeatmap"
                         @click.prevent="selectBeatmap()"
                     ><i class="far fa-window-maximize" /></a>
                 </span>
@@ -30,9 +23,8 @@
                     <a
                         href="#"
                         class="text-done"
-                        :data-user="notification.party.id"
-                        data-toggle="modal"
-                        data-target="#limitedEditParty"
+                        data-bs-toggle="modal"
+                        data-bs-target="#limitedEditParty"
                         @click.prevent="selectParty()"
                     >
                         <i class="far fa-window-maximize" />
@@ -53,9 +45,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'NotificationCard',
     props: {
         notification: {
@@ -63,9 +55,14 @@ export default Vue.extend({
             required: true,
         },
     },
+    emits: [
+        'update:selectedMap',
+        'update:selectedParty',
+        'hideNotification',
+    ],
     methods: {
         hideNotification (e): void {
-            this.$emit('hide-notification', { id: this.notification.id, e });
+            this.$emit('hideNotification', { id: this.notification.id, e });
         },
         selectBeatmap (): void {
             this.$emit('update:selectedMap', this.notification.map);

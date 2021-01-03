@@ -12,8 +12,6 @@
             <party-title
                 :party="party"
                 :quest="quest"
-                :status="quest.status"
-                :quest-id="quest.id"
                 :member-of-any-party="memberOfAnyParty"
             />
         </template>
@@ -30,18 +28,15 @@
         />
 
         <members-detail
-            :party="party"
-            :quest="quest"
-            :members="isDone ? quest.completedMembers : party.members"
+            :members="party.members"
             :price="quest.price"
             :status="quest.status"
-            :member-of-any-party="memberOfAnyParty"
         />
     </div>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import LeaderActions from './LeaderActions.vue';
 import PartyTitle from './PartyTitle.vue';
 import QuestTiming from './QuestTiming.vue';
@@ -51,7 +46,7 @@ import { mapState } from 'vuex';
 import { Party } from '../../../../interfaces/party';
 import partyInfoMixin from './partyInfoMixin';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'PartyDetail',
     components: {
         LeaderActions,

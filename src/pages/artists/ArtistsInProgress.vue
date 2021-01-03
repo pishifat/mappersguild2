@@ -2,12 +2,12 @@
     <div class="container card card-body py-1">
         <div class="row">
             <div class="col">
-                <h3 class="ml-2">
+                <h3 class="ms-2">
                     In-progress
                 </h3>
 
-                <h5 class="ml-4">
-                    <a href="#ready" data-toggle="collapse">
+                <h5 class="ms-4">
+                    <a href="#ready" data-bs-toggle="collapse">
                         Ready ({{ readyArtists.length }})
                         <i class="fas fa-angle-down" />
                     </a>
@@ -23,8 +23,8 @@
                     </transition-group>
                 </div>
 
-                <h5 class="ml-4 mt-2">
-                    <a href="#contractArtists" data-toggle="collapse">
+                <h5 class="ms-4 mt-2">
+                    <a href="#contractArtists" data-bs-toggle="collapse">
                         Contract ({{ contractArtists.length }})
                         <i class="fas fa-angle-down" />
                     </a>
@@ -40,8 +40,8 @@
                     </transition-group>
                 </div>
 
-                <h5 class="ml-4 mt-2">
-                    <a href="#discussionArtists" data-toggle="collapse">
+                <h5 class="ms-4 mt-2">
+                    <a href="#discussionArtists" data-bs-toggle="collapse">
                         Discussion ({{ discussionArtists.length }})
                         <i class="fas fa-angle-down" />
                     </a>
@@ -57,8 +57,8 @@
                     </transition-group>
                 </div>
 
-                <h5 v-if="updateAvailableArtists.length" class="ml-4 mt-2">
-                    <a href="#currentArtistUpdates" data-toggle="collapse">
+                <h5 v-if="updateAvailableArtists.length" class="ms-4 mt-2">
+                    <a href="#currentArtistUpdates" data-bs-toggle="collapse">
                         Current artist updates ({{ updateAvailableArtists.length }})
                         <i class="fas fa-angle-down" />
                     </a>
@@ -79,11 +79,11 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import ArtistCard from '@components/artists/ArtistCard.vue';
 import { mapGetters } from 'vuex';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'ArtistsInProgress',
     components: {
         ArtistCard,

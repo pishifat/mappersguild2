@@ -5,16 +5,17 @@ import { BeatmapModel } from '../models/beatmap/beatmap';
 import { QuestModel } from '../models/quest';
 import { SpentPointsModel } from '../models/spentPoints';
 import { TaskModel } from '../models/beatmap/task';
-import { QuestStatus } from '../interfaces/quest';
+import { Quest, QuestStatus } from '../interfaces/quest';
 import { User } from '../interfaces/user';
 import { UserGroup } from '../interfaces/user';
 import { BeatmapStatus } from '../interfaces/beatmap/beatmap';
+import { PartyModel } from '../models/party';
 
 const usersRouter = express.Router();
 
 usersRouter.use(isLoggedIn);
 
-const questPopulate = { path: 'currentParty', populate: { path: 'members leader' } };
+const questPopulate = { path: 'parties', populate: { path: 'members leader' } };
 const userPopulate = { path: 'completedQuests', select: 'name completed' };
 
 /* GET users listing. */
@@ -31,24 +32,24 @@ usersRouter.get('/query', async (req, res) => {
 });
 
 /* GET user's current quests */
-usersRouter.get('/findCurrentQuests/:id', async (req, res) => {
-    const wipQuests = await QuestModel
-        .find({ status: QuestStatus.WIP })
-        .populate(questPopulate)
+usersRouter.get('/:id/quests', async (req, res) => {
+    const parties = await PartyModel
+        .find()
+        .where('members', req.params.id)
+        .populate({
+            path: 'quest',
+            match: { status: QuestStatus.WIP },
+        })
         .sort({ accepted: -1 });
 
-    const currentQuests = wipQuests.filter(quest =>
-        quest.currentParty.members.some(member =>
-            member.id == req.params.id
-        )
-    );
+    const quests = parties.filter(p => p.quest).map(p => p.quest);
 
-    res.json(currentQuests);
+    res.json(quests);
 });
 
 /* GET user's created quests */
 usersRouter.get('/findCreatedQuests/:id', async (req, res) => {
-    const createdQuests = await QuestModel
+    const createdQuests: Quest['name'][] = await QuestModel
         .find({
             $or: [
                 { status: { $ne: QuestStatus.Hidden } },
@@ -74,8 +75,9 @@ usersRouter.get('/findSpentPoints/:id', async (req, res) => {
 
 /* GET user's beatmaps */
 usersRouter.get('/findUserBeatmaps/:id', async (req, res) => {
+    const userId = req.params.id as User['_id'];
     const ownTasks = await TaskModel
-        .find({ mappers: req.params.id })
+        .find({ mappers: userId })
         .select('_id');
 
     const userBeatmaps = await BeatmapModel
@@ -88,7 +90,7 @@ usersRouter.get('/findUserBeatmaps/:id', async (req, res) => {
                     },
                 },
                 {
-                    host: req.params.id,
+                    host: userId,
                 },
             ],
         })

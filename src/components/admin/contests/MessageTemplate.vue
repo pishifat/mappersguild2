@@ -14,10 +14,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import CopyPaste from '../../CopyPaste.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'MessageTemplate',
     components: {
         CopyPaste,
@@ -38,9 +38,9 @@ export default Vue.extend({
     },
     methods: {
         async sendResultsPm(e): Promise<void> { // waiting on https://github.com/ppy/osu-web/issues/6359
-            const res = await this.executePost(`/admin/contests/sendResultsPm`, { contestName: this.contestName, submissionId: this.submissionId, osuId: this.osuId }, e);
+            const res = await this.$http.executePost(`/admin/contests/sendResultsPm`, { contestName: this.contestName, submissionId: this.submissionId, osuId: this.osuId }, e);
 
-            if (!this.isError(res)) {
+            if (!this.$http.isError(res)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `sent results pm`,
                     type: 'info',

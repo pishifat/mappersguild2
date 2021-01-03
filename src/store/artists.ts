@@ -1,4 +1,3 @@
-import Vue from 'vue';
 import { FeaturedArtist } from '../../interfaces/featuredArtist';
 
 export default {
@@ -15,7 +14,7 @@ export default {
         },
         updateArtist (state, artist: FeaturedArtist): void {
             const i = state.artists.findIndex(a => a.id === artist.id);
-            if (i !== -1) Vue.set(state.artists, i, artist);
+            if (i !== -1) state.artists[i] = artist;
         },
         deleteArtist (state, artist: FeaturedArtist): void {
             const i = state.artists.findIndex(a => a.id === artist.id);

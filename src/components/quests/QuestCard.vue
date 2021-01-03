@@ -7,8 +7,8 @@
         >
             <div
                 class="row no-gutters align-items-center"
-                data-toggle="modal"
-                data-target="#editQuest"
+                data-bs-toggle="modal"
+                data-bs-target="#editQuest"
                 @click="selectQuest"
             >
                 <div class="col-sm-1 text-center">
@@ -20,13 +20,13 @@
                 <div class="col-sm-11">
                     <div class="row no-gutters">
                         <div class="col-sm-5">
-                            <i v-if="quest.status == 'open' && quest.parties.length" class="fas fa-star-of-life fa-xs text-primary" />
                             {{ quest.name.length > 40 ? quest.name.slice(0,40) + "..." : quest.name }}
                         </div>
 
                         <div class="col-sm-7">
                             <div class="row no-gutters">
                                 <div class="col-sm-4">
+                                    <i v-if="quest.status == 'open' && quest.parties.some(p => !p.lock)" class="fas fa-star-of-life fa-xs text-primary" />
                                     <quest-size
                                         :quest="quest"
                                     />
@@ -63,14 +63,15 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import QuestSize from './QuestSize.vue';
 import QuestPrice from './QuestPrice.vue';
 import QuestTime from './QuestTime.vue';
 import QuestModes from './QuestModes.vue';
+import { Quest } from '@interfaces/quest';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'QuestCard',
     components: {
         QuestSize,
@@ -80,7 +81,7 @@ export default Vue.extend({
     },
     props: {
         quest: {
-            type: Object,
+            type: Object as () => Quest,
             required: true,
         },
     },

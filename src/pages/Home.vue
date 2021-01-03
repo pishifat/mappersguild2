@@ -80,7 +80,7 @@
 
                 <div class="col-md-6" style="object-fit: cover;">
                     <img src="/images/mappers-guild-sets.jpg" style="width:100%; border-radius:4px 4px 4px 4px">
-                    <a href="https://osu.ppy.sh/home/news/2018-05-25-new-featured-artist-cranky" class="small float-right my-2 mr-3"><b>example Mappers' Guild content</b></a>
+                    <a href="https://osu.ppy.sh/home/news/2018-05-25-new-featured-artist-cranky" class="small float-end my-2 me-3"><b>example Mappers' Guild content</b></a>
                 </div>
             </div>
         </div>
@@ -345,10 +345,10 @@
 
 <script lang="ts">
 import { FeaturedArtist } from '@interfaces/featuredArtist';
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 
-export default Vue.extend({
+export default defineComponent({
     computed: {
         ...mapState([
             'loggedInUser',
@@ -356,9 +356,9 @@ export default Vue.extend({
         ]),
     },
     async created () {
-        const data = await this.executeGet<{ artists: FeaturedArtist[] }>('/home');
+        const data = await this.$http.executeGet<{ artists: FeaturedArtist[] }>('/home');
 
-        if (!this.isError(data)) {
+        if (!this.$http.isError(data)) {
             this.$store.commit('setHomeData', data.artists);
         }
     },

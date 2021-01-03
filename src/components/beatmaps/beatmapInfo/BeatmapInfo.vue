@@ -80,14 +80,14 @@
                 :beatmap="beatmap"
             />
 
-            <div class="col-sm-4 text-right">
+            <div class="col-sm-4 text-end">
                 <span class="small text-white-50">
                     Created: {{ beatmap.createdAt.toString().slice(0, 10) }}
                 </span>
                 <button
                     v-if="isHost && !isRanked"
                     id="deleteButton"
-                    class="btn btn-sm btn-outline-danger ml-2"
+                    class="btn btn-sm btn-outline-danger ms-2"
                     @click="deleteMap($event)"
                 >
                     Delete
@@ -98,7 +98,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import ModeChoice from './ModeChoice.vue';
 import StatusChoice from './StatusChoice.vue';
@@ -111,7 +111,7 @@ import LocksChoice from './LocksChoice.vue';
 import Points from './Points.vue';
 import { Beatmap, BeatmapStatus } from '../../../../interfaces/beatmap/beatmap';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'BeatmapInfo',
     components: {
         ModeChoice,
@@ -159,10 +159,10 @@ export default Vue.extend({
 
             if (result) {
                 e.target.disabled = true;
-                const bm = await this.executePost(`/beatmaps/${this.beatmap.id}/delete`, {}, e);
+                const bm = await this.$http.executePost(`/beatmaps/${this.beatmap.id}/delete`, {}, e);
 
-                if (!this.isError(bm)) {
-                    ($('#editBeatmap')).modal('hide');
+                if (!this.$http.isError(bm)) {
+                    this.$bs.hideModal('editBeatmap');
                     this.$store.commit('beatmaps/deleteBeatmap', bm);
                 }
 

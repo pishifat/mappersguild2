@@ -6,10 +6,13 @@
             </a>
             <span v-if="selectedQuest.creator.username != 'pishifat'">
                 created by
-                <a :href="'https://osu.ppy.sh/users/' + selectedQuest.creator.osuId" target="_blank" class="text-dark">
-                    {{ selectedQuest.creator.username }}
-                </a>
+                <user-link class="text-dark" :user="selectedQuest.creator" />
             </span>
+            <div v-if="selectedQuest.art" class="small">
+                <a :href="'https://osu.ppy.sh/beatmaps/artists/' + selectedQuest.art" target="_blank">
+                    View featured artist listing
+                </a>
+            </div>
         </template>
 
         <template #default>
@@ -59,7 +62,10 @@
                             :modes="selectedQuest.modes"
                         />
                     </div>
-                    <div class="col-sm-6 col-lg-3">
+                    <div
+                        v-if="selectedQuest.expiration"
+                        class="col-sm-6 col-lg-3"
+                    >
                         <expiration-date
                             :is-expired="selectedQuest.isExpired"
                             :expiration="new Date(selectedQuest.expiration)"
@@ -73,7 +79,7 @@
                     v-if="selectedQuest.isExpired"
                     :quest-id="selectedQuest.id"
                     :status="selectedQuest.status"
-                    :price="selectedQuest.price * 0.5 + 25"
+                    :price="selectedQuest.reopenPrice"
                 />
 
                 <party-info
@@ -87,7 +93,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapGetters, mapState } from 'vuex';
 import QuestSize from './QuestSize.vue';
 import QuestPrice from './QuestPrice.vue';
@@ -98,7 +104,7 @@ import ModalDialog from '@components/ModalDialog.vue';
 import ExpirationDate from './expirationInfo/ExpirationDate.vue';
 import ReopenQuest from './expirationInfo/ReopenQuest.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'QuestInfoModal',
     components: {
         QuestSize,
@@ -111,12 +117,6 @@ export default Vue.extend({
         ReopenQuest,
     },
     computed: {
-        timeRemaining(): number {
-            const now = new Date().getTime();
-            const remaning = new Date(this.selectedQuest.deadline).getTime() - now;
-
-            return Math.floor(remaning / (1000 * 60 * 60 * 24));
-        },
         ...mapState([
             'loggedInUser',
         ]),

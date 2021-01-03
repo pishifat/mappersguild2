@@ -5,14 +5,12 @@
         :loaded="Boolean(user)"
     >
         <template #header>
-            <a :href="'https://osu.ppy.sh/users/' + user.osuId" target="_blank">
-                {{ user.username }}
-            </a>
+            <user-link :user="user" />
         </template>
 
         <template #default>
             <div class="container">
-                <p class="form-row">
+                <p class="row">
                     <select v-model="group" class="form-control form-control-sm w-25 mx-2">
                         <option value="user">
                             User
@@ -70,10 +68,10 @@
 
 <script lang="ts">
 import ModalDialog from '@components/ModalDialog.vue';
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { User } from '../../../interfaces/user';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'UserInfo',
     components: {
         ModalDialog,
@@ -107,7 +105,7 @@ export default Vue.extend({
     },
     methods: {
         async updateGroup(e): Promise<void> {
-            const group = await this.executePost(`/admin/users/${this.user.id}/updateGroup`, { group: this.group }, e);
+            const group = await this.$http.executePost(`/admin/users/${this.user.id}/updateGroup`, { group: this.group }, e);
 
             if (group) {
                 this.$store.dispatch('updateToastMessages', {
@@ -121,7 +119,7 @@ export default Vue.extend({
             }
         },
         async updateBadge(e): Promise<void> {
-            const badge = await this.executePost(`/admin/users/${this.user.id}/updateBadge`, { badge: this.badge }, e);
+            const badge = await this.$http.executePost(`/admin/users/${this.user.id}/updateBadge`, { badge: this.badge }, e);
 
             if (badge) {
                 this.$store.dispatch('updateToastMessages', {
@@ -135,7 +133,7 @@ export default Vue.extend({
             }
         },
         async updateDiscordId(e): Promise<void> {
-            const discordId = await this.executePost(`/admin/users/${this.user.id}/updateDiscordId`, { discordId: this.discordId }, e);
+            const discordId = await this.$http.executePost(`/admin/users/${this.user.id}/updateDiscordId`, { discordId: this.discordId }, e);
 
             if (discordId) {
                 this.$store.dispatch('updateToastMessages', {
@@ -149,7 +147,7 @@ export default Vue.extend({
             }
         },
         async calculateUserPoints(e): Promise<void> {
-            const points = await this.executePost(`/admin/users/${this.user.id}/calculateUserPoints`, {}, e);
+            const points = await this.$http.executePost(`/admin/users/${this.user.id}/calculateUserPoints`, {}, e);
 
             if (points) {
                 this.$store.dispatch('updateToastMessages', {
@@ -159,7 +157,7 @@ export default Vue.extend({
             }
         },
         async toggleBypassLogin(e): Promise<void> {
-            const res: any = await this.executePost(`/admin/users/${this.user.id}/toggleBypassLogin`, { bypassLogin: !this.user.bypassLogin }, e);
+            const res: any = await this.$http.executePost(`/admin/users/${this.user.id}/toggleBypassLogin`, { bypassLogin: !this.user.bypassLogin }, e);
 
             if (res) {
                 this.$store.dispatch('updateToastMessages', {

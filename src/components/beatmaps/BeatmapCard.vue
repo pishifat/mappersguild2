@@ -1,10 +1,10 @@
 <template>
-    <div class="my-2 col-sm-12 col-md-6 col-lg-4" @click="$emit('set-selected-beatmap', beatmap)">
+    <div class="my-2 col-sm-12 col-md-6 col-lg-4" @click="$emit('update:selectedBeatmap', beatmap)">
         <div
             class="card card-hover map-card bg-dark"
             :class="statusBorder"
-            data-toggle="modal"
-            data-target="#editBeatmap"
+            data-bs-toggle="modal"
+            data-bs-target="#editBeatmap"
         >
             <img
                 class="card-img"
@@ -19,27 +19,14 @@
                     {{ formatMetadata(beatmap.song.artist, beatmap.song.title) }}
                 </p>
                 <small class="card-text">
-                    <img
-                        v-if="beatmap.quest"
-                        class="rounded-circle mr-1"
-                        style="height:24px; width: 24px;"
-                        :src="beatmap.isShowcase || !beatmap.quest.art ? '../../images/no-art-icon.png' :
-                            beatmap.quest.isMbc ? '../../images/mbc-icon.png' :
-                            'https://assets.ppy.sh/artists/' + beatmap.quest.art + '/cover.jpg'"
-                        data-toggle="tooltip"
-                        :title="beatmap.quest.name"
-                    >
+                    <quest-img :beatmap="beatmap" />
+
                     Hosted by
-                    <a
-                        :href="'https://osu.ppy.sh/users/' + beatmap.host.osuId"
-                        target="_blank"
-                        @click.stop
-                    >{{ beatmap.host.username }}</a>
-                    <i v-if="beatmap.mode == 'taiko'" class="fas fa-drum" />
-                    <i v-else-if="beatmap.mode == 'catch'" class="fas fa-apple-alt" />
-                    <i v-else-if="beatmap.mode == 'mania'" class="fas fa-stream" />
+                    <user-link :user="beatmap.host" />
+
+                    <modes-icons v-if="beatmap.mode !== 'osu'" :modes="[beatmap.mode]" />
                     <process-tasks
-                        class="float-right pt-1"
+                        class="float-end pt-1"
                         :tasks="beatmap.tasks"
                         :tasks-locked="beatmap.tasksLocked"
                         :mode="beatmap.mode"
@@ -51,14 +38,18 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { Beatmap } from '@interfaces/beatmap/beatmap';
 import ProcessTasks from './ProcessTasks.vue';
+import QuestImg from './QuestImg.vue';
+import ModesIcons from '@components/ModesIcons.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'BeatmapCard',
     components: {
         ProcessTasks,
+        QuestImg,
+        ModesIcons,
     },
     props: {
         beatmap: {
@@ -66,6 +57,9 @@ export default Vue.extend({
             required: true,
         },
     },
+    emits: [
+        'update:selectedBeatmap',
+    ],
     data () {
         return {
             defaultUrl: 'https://osu.ppy.sh/images/layout/beatmaps/default-bg.png',
@@ -115,35 +109,8 @@ export default Vue.extend({
 </script>
 
 <style scoped>
-    .map-card{
-        overflow:hidden;
-        height:75px;
-    }
-
-    .card-status {
-        position: absolute;
-        top: 0px;
-        right: 0px;
-        width: 0px;
-        height: 0px;
-        border-bottom: 15px solid transparent;
-        z-index: 10000;
-    }
-
-    .card-status-wip {
-        border-left: 4px solid var(--wip);
-    }
-
-    .card-status-done {
-        border-left: 4px solid var(--done);
-    }
-
-    .card-status-qualified {
-        border-left: 4px solid var(--guild);
-    }
-
-    .card-status-ranked {
-        border-left: 4px solid var(--ranked);
+    .map-card {
+        overflow: hidden;
+        height: 75px;
     }
 </style>
-

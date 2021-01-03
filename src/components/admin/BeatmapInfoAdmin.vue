@@ -9,12 +9,12 @@
                 {{ beatmap.song.artist }} - {{ beatmap.song.title }}
             </a>
             <span v-else>{{ beatmap.song.artist }} - {{ beatmap.song.title }}</span>
-            (<a :href="'https://osu.ppy.sh/users/' + beatmap.host.osuId" target="_blank">{{ beatmap.host.username }}</a>)
+            <user-link :user="beatmap.host" />
         </template>
 
         <template #default>
             <div class="container">
-                <p class="form-row">
+                <p class="row">
                     <select v-model="status" class="form-control form-control-sm w-25 mx-2">
                         <option value="WIP">
                             WIP
@@ -33,13 +33,11 @@
                         Save status
                     </button>
                 </p>
-                <p class="form-row">
+                <p class="row">
                     <select v-model="taskId" class="form-control form-control-sm w-50 mx-2">
                         <option v-for="task in sortedTasks" :key="task.id" :value="task.id">
                             {{ task.name }} ---
-                            <template v-for="(mapper, i) in task.mappers">
-                                {{ listUser(mapper.username, i, task.mappers.length) }}
-                            </template>
+                            {{ task.mappers.join(', ') }}
                             {{ task.name == 'Storyboard' ? ' --- ' + task.sbQuality : '' }}
                         </option>
                     </select>
@@ -47,7 +45,7 @@
                         Remove difficulty
                     </button>
                 </p>
-                <p class="form-row">
+                <p class="row">
                     <select v-model="modderId" class="form-control form-control-sm w-50 mx-2">
                         <option v-for="modder in beatmap.modders" :key="modder.id" :value="modder.id">
                             {{ modder.username }}
@@ -57,7 +55,7 @@
                         Remove modder
                     </button>
                 </p>
-                <p class="form-row">
+                <p class="row">
                     <input
                         v-model="beatmapUrl"
                         class="form-control form-control-sm mx-2 w-75"
@@ -69,7 +67,7 @@
                         Save URL
                     </button>
                 </p>
-                <p v-if="storyboardTaskId" class="form-row">
+                <p v-if="storyboardTaskId" class="row">
                     <select v-model="storyboardQuality" class="form-control form-control-sm w-25 mx-2">
                         <option value="1">
                             1
@@ -85,7 +83,7 @@
                         Save Storyboard Quality
                     </button>
                 </p>
-                <p class="form-row">
+                <p class="row">
                     <input
                         v-model="packId"
                         class="form-control form-control-sm mx-2 w-50"
@@ -110,12 +108,12 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import ModalDialog from '@components/ModalDialog.vue';
 import { Beatmap } from '../../../interfaces/beatmap/beatmap';
-import { Task } from '../../../interfaces/beatmap/task';
+import { SBQuality, Task } from '../../../interfaces/beatmap/task';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'BeatmapInfoAdmin',
     components: {
         ModalDialog,
@@ -132,8 +130,8 @@ export default Vue.extend({
             taskId: null,
             modderId: null,
             beatmapUrl: this.beatmap.url,
-            storyboardQuality: null,
-            storyboardTaskId: null,
+            storyboardQuality: null as null | SBQuality,
+            storyboardTaskId: null as null | string,
             packId: this.beatmap.packId,
         };
     },
@@ -171,9 +169,9 @@ export default Vue.extend({
             });
         },
         async updateBeatmapStatus(e): Promise<void> {
-            const status = await this.executePost(`/admin/beatmaps/${this.beatmap.id}/updateStatus`, { status: this.status }, e);
+            const status = await this.$http.executePost(`/admin/beatmaps/${this.beatmap.id}/updateStatus`, { status: this.status }, e);
 
-            if (!this.isError(status)) {
+            if (!this.$http.isError(status)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `updated beatmap status`,
                     type: 'info',
@@ -185,9 +183,9 @@ export default Vue.extend({
             }
         },
         async deleteTask(e): Promise<void> {
-            const res = await this.executePost(`/admin/beatmaps/${this.beatmap.id}/tasks/${this.taskId}/delete`, {}, e);
+            const res = await this.$http.executePost(`/admin/beatmaps/${this.beatmap.id}/tasks/${this.taskId}/delete`, {}, e);
 
-            if (!this.isError(res)) {
+            if (!this.$http.isError(res)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `deleted task`,
                     type: 'info',
@@ -199,9 +197,9 @@ export default Vue.extend({
             }
         },
         async deleteModder(e): Promise<void> {
-            const res = await this.executePost(`/admin/beatmaps/${this.beatmap.id}/modders/${this.modderId}/delete`, {}, e);
+            const res = await this.$http.executePost(`/admin/beatmaps/${this.beatmap.id}/modders/${this.modderId}/delete`, {}, e);
 
-            if (!this.isError(res)) {
+            if (!this.$http.isError(res)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `deleted modder`,
                     type: 'info',
@@ -213,9 +211,9 @@ export default Vue.extend({
             }
         },
         async updateUrl(e): Promise<void> {
-            const url = await this.executePost(`/admin/beatmaps/${this.beatmap.id}/updateUrl`, { url: this.beatmapUrl }, e);
+            const url = await this.$http.executePost(`/admin/beatmaps/${this.beatmap.id}/updateUrl`, { url: this.beatmapUrl }, e);
 
-            if (!this.isError(url)) {
+            if (!this.$http.isError(url)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `updated URL`,
                     type: 'info',
@@ -227,9 +225,9 @@ export default Vue.extend({
             }
         },
         async updateStoryboardQuality(e): Promise<void> {
-            const task = await this.executePost(`/admin/beatmaps/${this.beatmap.id}/updateStoryboardQuality`, { storyboardQuality: this.storyboardQuality, taskId: this.storyboardTaskId }, e);
+            const task = await this.$http.executePost(`/admin/beatmaps/${this.beatmap.id}/updateStoryboardQuality`, { storyboardQuality: this.storyboardQuality, taskId: this.storyboardTaskId }, e);
 
-            if (!this.isError(task)) {
+            if (!this.$http.isError(task)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `updated storyboard quality`,
                     type: 'info',
@@ -242,9 +240,9 @@ export default Vue.extend({
             }
         },
         async updatePackId(e): Promise<void> {
-            const packId = await this.executePost(`/admin/beatmaps/${this.beatmap.id}/updatePackId`, { packId: this.packId }, e);
+            const packId = await this.$http.executePost(`/admin/beatmaps/${this.beatmap.id}/updatePackId`, { packId: this.packId }, e);
 
-            if (!this.isError(packId)) {
+            if (!this.$http.isError(packId)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `updated pack id`,
                     type: 'info',
@@ -256,9 +254,9 @@ export default Vue.extend({
             }
         },
         async updateIsShowcase(e): Promise<void> {
-            const isShowcase = await this.executePost(`/admin/beatmaps/${this.beatmap.id}/updateIsShowcase`, { isShowcase: !this.beatmap.isShowcase }, e);
+            const isShowcase = await this.$http.executePost(`/admin/beatmaps/${this.beatmap.id}/updateIsShowcase`, { isShowcase: !this.beatmap.isShowcase }, e);
 
-            if (!this.isError(isShowcase)) {
+            if (!this.$http.isError(isShowcase)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `updated isShowcase`,
                     type: 'info',

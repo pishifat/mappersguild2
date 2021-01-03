@@ -1,55 +1,48 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const path = require('path');
+const { merge } = require('webpack-merge');
+const base = require('./webpack.base.config');
 const CopyPlugin = require('copy-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const { entry, rules, externals } = require('./webpack.base.config');
-const path = require('path');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-module.exports = {
-    entry,
+module.exports = merge(base, {
     output: {
-        filename: '[name].[contenthash].js',
-        path: path.resolve(__dirname, 'dist/public/js/'),
+        path: path.resolve(__dirname, 'dist/public/'),
+        filename: 'js/[name].[contenthash].js',
+        chunkFilename: 'js/[name].[contenthash].js',
         publicPath: '/',
     },
     mode: 'production',
-    module: {
-        rules,
-    },
     plugins: [
         new CleanWebpackPlugin(),
-        new VueLoaderPlugin(),
-        new CopyPlugin(
-            {
-                patterns: [
-                    { from: 'public', to: path.resolve(__dirname, 'dist/public') },
-                    { from: 'views', to: path.resolve(__dirname, 'dist/views') },
-                ],
-            }),
+        new MiniCssExtractPlugin({
+            filename: 'css/[name].css',
+            chunkFilename: 'css/[id].css',
+        }),
+        new HtmlWebpackPlugin({
+            template: path.join(__dirname, 'views/template.html'),
+            filename: path.join(__dirname, 'dist/views/index.hbs'),
+        }),
+        new CopyPlugin({
+            patterns: [
+                { from: 'public', to: path.resolve(__dirname, 'dist/public') },
+                { from: 'views/error.hbs', to: path.resolve(__dirname, 'dist/views/') },
+            ],
+        }),
     ],
-    resolve: {
-        extensions: ['.ts', '.js', '.json'],
-        alias: {
-            vue$: 'vue/dist/vue.min.js',
-            '@': path.resolve(__dirname, 'src/'),
-            '@components': path.resolve(__dirname, 'src/components/'),
-            '@pages': path.resolve(__dirname, 'src/pages/'),
-            '@interfaces': path.resolve(__dirname, 'interfaces'),
+    optimization: {
+        moduleIds: 'deterministic',
+        runtimeChunk: 'single',
+        splitChunks: {
+            cacheGroups: {
+                vendors: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: 'vendors',
+                    chunks: 'all',
+                },
+            },
         },
     },
-    externals,
-    // webpack 5 is supposed to handle optimization better now ?
-    // optimization: {
-    //     moduleIds: 'hashed',
-    //     runtimeChunk: 'single',
-    //     splitChunks: {
-    //         cacheGroups: {
-    //             vendors: {
-    //                 test: /[\\/]node_modules[\\/]/,
-    //                 name: 'vendors',
-    //                 chunks: 'all',
-    //             },
-    //         },
-    //     },
-    // },
-};
+});

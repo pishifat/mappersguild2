@@ -68,12 +68,10 @@
                         <p class="text-secondary">
                             Clicking a map card opens its info page. Below the difficulty table is a dropdown menu:
                         </p>
-                        <div class="input-group input-group-sm mb-3 ml-4" style="width: 200px">
-                            <div class="input-group-prepend">
-                                <button class="btn btn-outline-info">
-                                    <i class="fas fa-plus" />
-                                </button>
-                            </div>
+                        <div class="input-group input-group-sm mb-3 ms-4" style="width: 200px">
+                            <button class="btn btn-outline-info">
+                                <i class="fas fa-plus" />
+                            </button>
                             <select id="diffSelection" class="form-control form-control-sm">
                                 <option value="Easy">
                                     Easy
@@ -454,8 +452,8 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-export default Vue.extend({
+import { defineComponent } from 'vue';
+export default defineComponent({
 
 });
 </script>

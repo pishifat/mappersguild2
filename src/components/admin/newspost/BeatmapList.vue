@@ -5,7 +5,7 @@
         </p>
         <div v-for="beatmap in beatmaps" :key="beatmap.id">
             - [{{ beatmap.song.artist }} - {{ beatmap.song.title }}]({{ beatmap.url }})
-            {{ beatmap.mappers.length > 1 ? 'hosted by' : 'by' }}
+            {{ hasUniqueMapper(beatmap.tasks) ? 'by' : 'hosted by' }}
             [{{ beatmap.host.username }}]({{ 'https://osu.ppy.sh/users/' + beatmap.host.osuId }})
         </div>
         <br>
@@ -13,14 +13,16 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { PropType, defineComponent } from 'vue';
+import { Beatmap } from '@interfaces/beatmap/beatmap';
+import { Task } from '@interfaces/beatmap/task';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'BeatmapList',
     props: {
         beatmaps: {
-            type: Array,
-            default: null,
+            type: Array as PropType<Beatmap[]>,
+            default: () => [],
         },
         displayMode: {
             type: String,
@@ -34,6 +36,20 @@ export default Vue.extend({
     computed: {
         navigation(): string {
             return '<a id="' + this.rawMode + '"></a>';
+        },
+    },
+    methods: {
+        hasUniqueMapper (tasks: Task[]) {
+            let uniqueMapper = '';
+
+            for (const task of tasks) {
+                for (const mapper of task.mappers) {
+                    if (!uniqueMapper) uniqueMapper = mapper.id;
+                    else if (uniqueMapper !== mapper.id) return false;
+                }
+            }
+
+            return true;
         },
     },
 });

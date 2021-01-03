@@ -1,12 +1,15 @@
 import Axios from 'axios';
-import { BasicError } from 'helpers/helpers';
-import { store } from '../app';
+import { store } from './main';
+import { enableTooltips, hideTooltip } from '../helpers';
+import { ErrorResponse } from '@interfaces/api/shared';
 
-async function executeRequest<T>(requestType, url, data, e, updateLoadingState): Promise<T | BasicError> {
+async function executeRequest (requestType, url, data, e, updateLoadingState, store) {
     if (updateLoadingState) store.commit('updateLoadingState');
-    if (e) e.target.disabled = true;
 
-    $(`[data-toggle='tooltip']`).tooltip('hide');
+    if (e) {
+        hideTooltip(e.target);
+        e.target.disabled = true;
+    }
 
     try {
         let res;
@@ -21,6 +24,8 @@ async function executeRequest<T>(requestType, url, data, e, updateLoadingState):
             store.dispatch('updateToastMessages', { message: res.data.error });
         }
 
+        enableTooltips();
+
         return res.data;
     } catch (error) {
         store.dispatch('updateToastMessages', { message: 'Something went wrong!' });
@@ -32,20 +37,24 @@ async function executeRequest<T>(requestType, url, data, e, updateLoadingState):
     }
 }
 
-export function isError<T>(error: T | BasicError): error is BasicError {
-    return (error as BasicError).error !== undefined;
+export function isError<T>(error: T | ErrorResponse): error is ErrorResponse {
+    if (!error) return false;
+
+    return (error as ErrorResponse).error !== undefined;
 }
 
 export const http = {
-    async executePost<T>(url, data, e?): Promise<T | BasicError> {
-        return await executeRequest('post', url, data, e, false);
+    async executePost<T>(url, data, e?): Promise<T | ErrorResponse> {
+        return await executeRequest('post', url, data, e, false, store);
     },
 
-    async executeGet<T>(url, e?, updateLoadingState?): Promise<T | BasicError> {
-        return await executeRequest('get', url, null, e, updateLoadingState);
+    async executeGet<T>(url, e?, updateLoadingState?): Promise<T | ErrorResponse> {
+        return await executeRequest('get', url, null, e, updateLoadingState, store);
     },
 
-    async initialRequest<T>(url): Promise<T | BasicError> {
-        return await executeRequest('get', url, null, null, true);
+    async initialRequest<T>(url): Promise<T | ErrorResponse> {
+        return await executeRequest('get', url, null, null, true, store);
     },
+
+    isError,
 };

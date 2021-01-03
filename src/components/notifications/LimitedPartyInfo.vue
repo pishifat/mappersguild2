@@ -5,22 +5,19 @@
         :loaded="Boolean(party)"
     >
         <template #header>
-            {{ party.name }}
+            {{ party.leader.username }}'s party
         </template>
 
         <template #default>
             <p>
                 Members: (<span :class="party.id + '-member-count'">{{ party.members.length }}</span>)
             </p>
-            <p style="margin-left: 20px;">
-                <template v-for="(member, i) in party.members">
-                    <a :key="i" :href="'https://osu.ppy.sh/users/' + member.osuId" target="_blank">
-                        {{ listUser(member.username, i, party.members.length) }}
-                    </a>
-                </template>
+            <p>
+                <user-link-list :users="party.members" />
             </p>
             <p>
-                Leader: <a :href="'https://osu.ppy.sh/users/' + party.leader.osuId" target="_blank">{{ party.leader.username }}</a>
+                Leader:
+                <user-link :user="party.leader" />
             </p>
             <p>
                 Rank: {{ party.rank }}
@@ -30,17 +27,20 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent, PropType } from 'vue';
 import ModalDialog from '@components/ModalDialog.vue';
+import UserLinkList from '@components/UserLinkList.vue';
+import { Party } from '@interfaces/party';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'LimitedPartyInfo',
     components: {
         ModalDialog,
+        UserLinkList,
     },
     props: {
         party: {
-            type: Object,
+            type: Object as PropType<Party>,
             required: true,
         },
     },

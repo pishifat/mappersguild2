@@ -1,8 +1,8 @@
 <template>
     <modal-dialog
         id="editing-judging-modal"
-        data-backdrop="static"
-        data-keyboard="false"
+        data-bs-backdrop="static"
+        data-bs-keyboard="false"
         :loaded="Boolean(editingSubmission)"
     >
         <template #header>
@@ -10,8 +10,8 @@
         </template>
 
         <template #default>
-            <div v-if="editingCriteria.name != 'comments'" class="form-group">
-                <label for="score">Score</label>
+            <div v-if="editingCriteria.name != 'comments'" class="mb-3">
+                <label class="form-label" for="score">Score</label>
                 <input
                     id="score"
                     v-model="editingScore"
@@ -24,9 +24,9 @@
             </div>
             <div
                 v-else
-                class="form-group"
+                class="mb-3"
             >
-                <label for="comment">
+                <label class="form-label" for="comment">
                     Comment
                 </label>
                 <textarea
@@ -54,18 +54,18 @@
             >
                 Save changes
             </button>
-            <div id="close-button" data-dismiss="modal" />
+            <div id="close-button" data-bs-dismiss="modal" />
         </template>
     </modal-dialog>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { JudgingScore } from '../../../interfaces/contest/judgingScore';
 import { mapState, mapGetters } from 'vuex';
 import ModalDialog from '@components/ModalDialog.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'EditingCriteriaModal',
     components: {
         ModalDialog,
@@ -117,14 +117,14 @@ export default Vue.extend({
             return judgingScore;
         },
         async save (e: any): Promise<void> {
-            const res = await this.executePost<{ success?: string; error?: string; judgingDone: [] }>('/judging/save', {
+            const res = await this.$http.executePost<{ success?: string; error?: string; judgingDone: [] }>('/judging/save', {
                 submissionId: this.editingSubmission?.id,
                 criteriaId: this.editingCriteria?.id,
                 score: this.editingScore,
                 comment: this.editingComment,
             }, e);
 
-            if (this.isError(res)) return;
+            if (this.$http.isError(res)) return;
 
             this.$store.commit('setJudgingDone', res.judgingDone);
 

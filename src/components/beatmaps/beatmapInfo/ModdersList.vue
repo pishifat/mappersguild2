@@ -5,10 +5,8 @@
                 Modders ({{ beatmap.modders.length }})
                 <small
                     v-if="canEdit"
-                    class="ml-1"
-                    data-toggle="tooltip"
-                    data-placement="right"
-                    title="add/remove yourself from modder list"
+                    v-bs-tooltip:right="'add/remove yourself from modder list'"
+                    class="ms-1"
                 >
                     <a
                         href="#"
@@ -19,33 +17,25 @@
                     </a>
                 </small>
             </div>
-            <div class="small ml-3">
+            <div class="small ms-3">
                 <i v-if="beatmap.modders.length == 0" class="text-white-50">
                     none
                 </i>
-                <span v-else>
-                    <template v-for="(modder, i) in beatmap.modders">
-                        <a
-                            :key="modder.id"
-                            :href="'https://osu.ppy.sh/users/' + modder.osuId"
-                            target="_blank"
-                        >
-                            {{ listUser(modder.username, i, beatmap.modders.length) }}
-                        </a>
-                    </template>
-                </span>
+                <user-link-list v-else :users="beatmap.modders" />
             </div>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
+import UserLinkList from '@components/UserLinkList.vue';
 import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'ModdersList',
+    components: { UserLinkList },
     props: {
         canEdit: Boolean,
         beatmap: {
@@ -64,9 +54,9 @@ export default Vue.extend({
     methods: {
         async updateModder(e): Promise<void> {
             e.target.classList.add('fake-button-disable');
-            const bm = await this.executePost(`/beatmaps/${this.beatmap.id}/updateModder`);
+            const bm = await this.$http.executePost(`/beatmaps/${this.beatmap.id}/updateModder`);
 
-            if (!this.isError(bm)) {
+            if (!this.$http.isError(bm)) {
                 this.$store.dispatch('beatmaps/updateBeatmap', bm);
             }
 

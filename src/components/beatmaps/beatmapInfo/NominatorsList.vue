@@ -4,10 +4,8 @@
             Potential Nominators ({{ beatmap.bns.length }})
             <small
                 v-if="canEdit"
-                class="ml-1"
-                data-toggle="tooltip"
-                data-placement="right"
-                title="add/remove yourself from potential BN list"
+                v-bs-tooltip:right="'add/remove yourself from potential BN list'"
+                class="ms-1"
             >
                 <a
                     v-if="isBn"
@@ -28,31 +26,22 @@
             </small>
         </div>
 
-        <div class="small ml-3">
+        <div class="small ms-3">
             <i v-if="beatmap.bns.length == 0" class="text-white-50">none</i>
-
-            <span v-else>
-                <template v-for="(bn, i) in beatmap.bns">
-                    <a
-                        :key="bn.id"
-                        :href="'https://osu.ppy.sh/users/' + bn.osuId"
-                        target="_blank"
-                    >
-                        {{ listUser(bn.username, i, beatmap.bns.length) }}
-                    </a>
-                </template>
-            </span>
+            <user-link-list v-else :users="beatmap.bns" />
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
+import UserLinkList from '@components/UserLinkList.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'NominatorsList',
+    components: { UserLinkList },
     props: {
         canEdit: Boolean,
         beatmap: {
@@ -71,9 +60,9 @@ export default Vue.extend({
     methods: {
         async updateBn(e): Promise<void> {
             e.target.classList.add('fake-button-disable');
-            const bm = await this.executePost<Beatmap>(`/beatmaps/${this.beatmap.id}/updateBn`);
+            const bm = await this.$http.executePost<Beatmap>(`/beatmaps/${this.beatmap.id}/updateBn`);
 
-            if (!this.isError(bm)) {
+            if (!this.$http.isError(bm)) {
                 this.$store.dispatch('beatmaps/updateBeatmap', bm);
             }
 

@@ -1,5 +1,5 @@
 <template>
-    <div class="form-group row">
+    <div class="mb-3 row">
         <div class="col-sm-3 col-form-label">
             <b>{{ label }}</b>
         </div>
@@ -14,9 +14,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'FormFieldBase',
     props: {
         label: {

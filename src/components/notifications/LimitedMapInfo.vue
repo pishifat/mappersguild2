@@ -7,9 +7,7 @@
     >
         <template #header>
             {{ beatmap.song.artist }} - {{ beatmap.song.title }} ({{ beatmap.host.username }})
-            <i v-if="beatmap.mode == 'taiko'" class="fas fa-drum" />
-            <i v-else-if="beatmap.mode == 'catch'" class="fas fa-apple-alt" />
-            <i v-else-if="beatmap.mode == 'mania'" class="fas fa-stream" />
+            <modes-icons v-if="beatmap.mode !== 'osu'" :modes="[beatmap.mode]" />
         </template>
 
         <template #default>
@@ -18,15 +16,17 @@
                     <div class="col-sm-12">
                         <table class="table table-sm">
                             <thead>
-                                <th scope="col">
-                                    Difficulty
-                                </th>
-                                <th scope="col">
-                                    Mapper(s)
-                                </th>
-                                <th v-if="beatmap.status != 'Ranked'" scope="col">
-                                    Status
-                                </th>
+                                <tr>
+                                    <th scope="col">
+                                        Difficulty
+                                    </th>
+                                    <th scope="col">
+                                        Mapper(s)
+                                    </th>
+                                    <th v-if="beatmap.status != 'Ranked'" scope="col">
+                                        Status
+                                    </th>
+                                </tr>
                             </thead>
                             <transition-group id="difficulties" tag="tbody" name="list">
                                 <tr v-for="task in beatmap.tasks" :id="task.id + 'Row'" :key="task.id">
@@ -34,11 +34,7 @@
                                         {{ task.name }}
                                     </td>
                                     <td scope="row">
-                                        <template v-for="(mapper, i) in task.mappers">
-                                            <a :key="mapper.id" :href="'https://osu.ppy.sh/users/' + mapper.osuId" target="_blank">
-                                                {{ listUser(mapper.username, i, task.mappers.length) }}
-                                            </a>
-                                        </template>
+                                        <user-link-list :users="task.mappers" />
                                     </td>
                                     <td v-if="beatmap.status != 'Ranked'" scope="row" :class="task.status.toLowerCase()">
                                         {{ task.status }}
@@ -54,15 +50,19 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import ModalDialog from '@components/ModalDialog.vue';
+import UserLinkList from '@components/UserLinkList.vue';
 import { Beatmap } from '../../../interfaces/beatmap/beatmap';
 import { Task, TaskName } from '../../../interfaces/beatmap/task';
+import ModesIcons from '@components/ModesIcons.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'LimitedMapInfo',
     components: {
         ModalDialog,
+        UserLinkList,
+        ModesIcons,
     },
     props: {
         beatmap: {

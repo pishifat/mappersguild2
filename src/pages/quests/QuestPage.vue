@@ -33,7 +33,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapGetters, mapState } from 'vuex';
 import QuestPageFilters from '@pages/quests/QuestPageFilters.vue';
 import StatusQuests from '@pages/quests/StatusQuests.vue';
@@ -41,7 +41,7 @@ import SubmitQuestModal from '@components/quests/SubmitQuestModal.vue';
 import QuestInfoModal from '@components/quests/QuestInfoModal.vue';
 import questsModule from '@store/modules/quests/index';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'QuestPage',
     components: {
         QuestPageFilters,
@@ -70,7 +70,7 @@ export default Vue.extend({
         await this.$store.dispatch('quests/loadQuests', id);
 
         if (id) {
-            $('#editQuest').modal('show');
+            this.$bs.showModal('editQuest');
         }
 
         await this.$store.dispatch('quests/searchQuests');

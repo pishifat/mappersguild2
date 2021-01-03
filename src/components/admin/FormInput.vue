@@ -4,21 +4,21 @@
         :description="description"
     >
         <input
-            :value="value"
+            :value="modelValue"
             :type="type"
             :placeholder="placeholder"
             class="form-control form-control-sm"
             autocomplete="off"
-            @input="$emit('input', $event.target.value)"
+            @input="$emit('update:modelValue', $event.target.value)"
         >
     </form-field-base>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import FormFieldBase from './FormFieldBase.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'FormField',
     components: { FormFieldBase },
     props: {
@@ -30,7 +30,7 @@ export default Vue.extend({
             type: String,
             default: '',
         },
-        value: {
+        modelValue: {
             type: [String, Number],
             required: true,
         },
@@ -43,5 +43,8 @@ export default Vue.extend({
             default: '',
         },
     },
+    emits: [
+        'update:modelValue',
+    ],
 });
 </script>

@@ -1,25 +1,28 @@
 <template>
-    <div style="position: fixed; bottom: 20px; left: 20px; z-index: 2000;">
-        <div
-            v-for="(toast, i) in toastMessages"
-            :key="i"
-            class="toast show"
-        >
-            <div
-                class="toast-body"
-                :class="getToastTypeClass(toast)"
-            >
-                {{ toast.message }}
+    <div class="position-fixed bottom-0 w-100" style="z-index: 2000">
+        <div class="position-relative">
+            <div class="toast-container position-absolute bottom-0 start-50 translate-middle-x p-3">
+                <div
+                    v-for="(toast, i) in toastMessages"
+                    :key="i"
+                    class="toast show d-flex align-items-center"
+                    :class="getToastTypeClass(toast)"
+                    data-bs-autohide="true"
+                >
+                    <div class="toast-body">
+                        {{ toast.message }}
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 
-export default Vue.extend({
+export default defineComponent({
     computed: {
         ...mapState({
             toastMessages: (state: any) => state.toasts.toastMessages,

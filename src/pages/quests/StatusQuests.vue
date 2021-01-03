@@ -3,7 +3,7 @@
         <h5 :class="collapsed ? 'mb-2' : 'mb-0'">
             <a
                 :href="'#' + status"
-                data-toggle="collapse"
+                data-bs-toggle="collapse"
                 @click.prevent="collapsed = !collapsed"
             >
                 {{ status }} quests ({{ questCount }})
@@ -36,12 +36,12 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
+import { mapState } from 'vuex';
 import { Quest } from '@interfaces/quest';
 import QuestCard from '@components/quests/QuestCard.vue';
-import { mapState } from 'vuex';
 
-export default Vue.extend({
+export default defineComponent({
     components: {
         QuestCard,
     },

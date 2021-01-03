@@ -4,18 +4,16 @@
             <div class="col-sm-12">
                 <button
                     v-if="!tasksPointsArray"
-                    class="btn btn-sm btn-outline-info ml-1"
-                    data-toggle="tooltip"
-                    data-placement="top"
-                    title="calculate points for all difficulties"
+                    v-bs-tooltip="'calculate points for all difficulties'"
+                    class="btn btn-sm btn-outline-info ms-1"
                     @click="findPoints($event)"
                 >
                     Calculate points
                 </button>
-                <span v-if="isLoading" class="small text-white-50 ml-2">
+                <span v-if="isLoading" class="small text-white-50 ms-2">
                     calculating...
                 </span>
-                <span v-else-if="pointsInfo" class="small text-white-50 ml-2">
+                <span v-else-if="pointsInfo" class="small text-white-50 ms-2">
                     {{ pointsInfo }}
                 </span>
             </div>
@@ -34,7 +32,7 @@
                 </ul>
             </div>
             <div v-if="totalPoints" class="col-sm-12">
-                <span class="small text-white-50 ml-2">
+                <span class="small text-white-50 ms-2">
                     total: {{ Math.round(totalPoints*10)/10 }}
                 </span>
             </div>
@@ -43,10 +41,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'Points',
     props: {
         beatmap: {
@@ -75,9 +73,9 @@ export default Vue.extend({
     methods: {
         async findPoints(e): Promise<void> {
             this.isLoading = true;
-            const res: any = await this.executeGet(`/beatmaps/${this.beatmap.id}/findPoints`, e);
+            const res: any = await this.$http.executeGet(`/beatmaps/${this.beatmap.id}/findPoints`, e);
 
-            if (!this.isError(res)) {
+            if (!this.$http.isError(res)) {
                 this.tasksPointsArray = res.tasksPointsArray;
                 this.usersPointsArrays = res.usersPointsArrays;
                 this.pointsInfo = res.pointsInfo;

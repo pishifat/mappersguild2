@@ -21,7 +21,7 @@
                 maxlength="1000"
             />
 
-            <div class="text-right">
+            <div class="text-end">
                 <button
                     type="button"
                     class="btn btn-sm btn-outline-info  mt-1"
@@ -42,9 +42,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'ScreeningNotes',
     props: {
         submissionId: {
@@ -69,9 +69,9 @@ export default Vue.extend({
         },
         async updateComment(e): Promise<void> {
             if (this.savedComment != this.newComment) {
-                const submission = await this.executePost('/screening/updateSubmission/' + this.submissionId, { comment: this.newComment.trim() }, e);
+                const submission = await this.$http.executePost('/screening/updateSubmission/' + this.submissionId, { comment: this.newComment.trim() }, e);
 
-                if (!this.isError(submission)) {
+                if (!this.$http.isError(submission)) {
                     this.showCommentInput = !this.showCommentInput;
                     this.$store.commit('updateSubmission', submission);
                 }

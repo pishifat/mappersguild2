@@ -32,12 +32,12 @@
                         '![Mystery header](/wiki/shared/news/banners/mappersguild-mystery.jpg)' }}
                 </p>
                 <p>
-                    For the **{{ quest.name + ' (' + questModes(quest.modes) + ')' }}** quest, the mapper{{ quest.completedMembers.length == 1 ? '' : 's' }} had to {{ quest.descriptionMain.substring(0,1).toLowerCase() + quest.descriptionMain.substring(1) }}
+                    For the **{{ quest.name + ' (' + questModes(quest.modes) + ')' }}** quest, the mapper{{ quest.currentParty.members.length == 1 ? '' : 's' }} had to {{ quest.descriptionMain.substring(0,1).toLowerCase() + quest.descriptionMain.substring(1) }}
                 </p>
                 <p>
                     This quest was completed by
-                    <span v-for="(member, i) in quest.completedMembers" :key="member.id">
-                        **[{{ member.username }}]({{ 'https://osu.ppy.sh/users/' + member.osuId }})**{{ separateUsername(i, quest.completedMembers.length) }}
+                    <span v-for="(member, i) in quest.currentParty.members" :key="member.id">
+                        **[{{ member.username }}]({{ 'https://osu.ppy.sh/users/' + member.osuId }})**{{ separateUsername(i, quest.currentParty.members.length) }}
                     </span>
                 </p>
                 <div v-for="beatmap in quest.associatedMaps" :key="beatmap.id">
@@ -121,14 +121,14 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
 import { Quest } from '../../../../interfaces/quest';
 import BeatmapList from './BeatmapList.vue';
 import CopyPaste from '../../CopyPaste.vue';
 import ModalDialog from '@components/ModalDialog.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'NewsPost',
     components: {
         BeatmapList,
@@ -163,7 +163,7 @@ export default Vue.extend({
     },
     methods: {
         async loadNewsInfo(e): Promise<void> {
-            const res: any = await this.executeGet('/admin/beatmaps/loadNewsInfo/' + this.date, e);
+            const res: any = await this.$http.executeGet('/admin/beatmaps/loadNewsInfo/' + this.date, e);
 
             if (res) {
                 this.beatmaps = res.beatmaps;

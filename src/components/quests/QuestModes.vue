@@ -1,42 +1,17 @@
 <template>
     <small>
         {{ status == 'open' ? 'Modes available' : 'Modes' }}:
-        <i
-            v-if="modes.includes('osu')"
-            class="fas fa-circle"
-            data-toggle="tooltip"
-            data-placement="top"
-            title="osu!"
-        />
-        <i
-            v-if="modes.includes('taiko')"
-            class="fas fa-drum"
-            data-toggle="tooltip"
-            data-placement="top"
-            title="osu!taiko"
-        />
-        <i
-            v-if="modes.includes('catch')"
-            class="fas fa-apple-alt"
-            data-toggle="tooltip"
-            data-placement="top"
-            title="osu!catch"
-        />
-        <i
-            v-if="modes.includes('mania')"
-            class="fas fa-stream"
-            data-toggle="tooltip"
-            data-placement="top"
-            title="osu!mania"
-        />
+        <modes-icons :modes="modes" />
     </small>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
+import ModesIcons from '@components/ModesIcons.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'QuestModes',
+    components: { ModesIcons },
     props: {
         status: {
             type: String,

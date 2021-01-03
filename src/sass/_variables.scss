@@ -1,4 +1,5 @@
 $transition-collapse: none; // pishi doesnt like them
+$modal-fade-transform: scale(.2);
 
 //
 // Color system
@@ -27,7 +28,7 @@ $green:   #36d8a2;
 $teal:    #37ac89;
 $cyan:    #428ae7;
 
-$primary:       #607D8B;
+$primary:       #5e747e;
 $secondary:     rgb(218, 201, 201);
 $success:       $green;
 $info:          $cyan;
@@ -36,7 +37,7 @@ $danger:        $red;
 $light:         $gray-600;
 $dark:          $gray-900;
 
-$theme-colors: (
+$custom-colors: (
   // beatmaps status
   "wip":        darken($yellow, 5%),
   "done":       $green,
@@ -56,8 +57,18 @@ $theme-colors: (
   "expert":   rgb(231, 205, 255),
 );
 
-$component-active-bg:       $green;
-$yiq-contrasted-threshold:  175;
+$theme-colors: (
+  "primary":    $primary,
+  "secondary":  $secondary,
+  "success":    $success,
+  "info":       $info,
+  "warning":    $warning,
+  "danger":     $danger,
+  "light":      $light,
+  "dark":       $dark
+);
+
+$theme-colors:  map-merge($theme-colors, $custom-colors);
 
 // Typography
 
@@ -73,6 +84,7 @@ $body-color:                      $white;
 
 $link-color:                      #d3cfca;
 $link-hover-color:                $white;
+$link-decoration:                 none;
 $link-hover-decoration:           none;
 
 // Forms

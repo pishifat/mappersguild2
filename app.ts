@@ -38,6 +38,8 @@ import adminJudgingRouter from './routes/admin/judging';
 import judgingRouter from './routes/judging';
 import contestResultsRouter from './routes/contestResults';
 import showcaseRouter from './routes/showcase';
+import partiesRouter from './routes/parties';
+import invitesRouter from './routes/invites';
 
 const app = express();
 const MongoStore = MongoStoreSession(session);
@@ -45,6 +47,7 @@ const MongoStore = MongoStoreSession(session);
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
+app.set('view options', { layout: false });
 
 // settings/middlewares
 app.use(logger('dev'));
@@ -76,6 +79,9 @@ app.use(
         store: new MongoStore({ mongooseConnection: mongoose.connection }),
         resave: false,
         saveUninitialized: false,
+        cookie: {
+            sameSite: 'lax',
+        },
     })
 );
 
@@ -87,8 +93,10 @@ app.use('/beatmaps', tasksRouter);
 app.use('/featuredArtists', featuredArtistsRouter);
 app.use('/users', usersRouter);
 app.use('/quests', questsRouter);
+app.use('/parties', partiesRouter);
 app.use('/logs', logsRouter);
 app.use('/notifications', notificationsRouter);
+app.use('/invites', invitesRouter);
 app.use('/screening', screeningRouter);
 app.use('/judging', judgingRouter);
 app.use('/contestresults', contestResultsRouter);
@@ -105,21 +113,21 @@ app.use('/admin/judging', adminJudgingRouter);
 
 // catch 404
 app.use((req, res) => {
-    res.render('index',{
-        layout: false,
-        loggedIn: req.session?.mongoId,
-    });
+    res.render('index');
 });
 
 // error handler
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err, req, res, next) => {
+    let customErrorMessage = '';
+    if (err.name == 'DocumentNotFoundError') customErrorMessage = 'Error: Object not found';
+
     // set locals, only providing error in development
     res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
 
     if (req.accepts(['html', 'json']) === 'json') {
-        res.json({ error: err.message || 'Something went wrong!' });
+        res.json({ error: customErrorMessage || err.message || 'Something went wrong!' });
     } else {
         res.status(err.status || 500);
         res.render('error');

@@ -24,7 +24,7 @@
                         />
                     </transition-group>
 
-                    <p v-else class="ml-4">
+                    <p v-else class="ms-4">
                         No submissions...
                     </p>
                 </div>
@@ -38,12 +38,12 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import SubmissionCard from '@components/screening/SubmissionCard.vue';
 import screeningModule from '@store/screening';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'ScreeningPage',
     components: {
         SubmissionCard,
@@ -56,15 +56,15 @@ export default Vue.extend({
             this.$store.registerModule('screening', screeningModule);
         }
     },
-    destroyed() {
+    unmounted () {
         if (this.$store.hasModule('screening')) {
             this.$store.unregisterModule('screening');
         }
     },
     async created () {
-        const res: any = await this.initialRequest('/screening/relevantInfo');
+        const res: any = await this.$http.initialRequest('/screening/relevantInfo');
 
-        if (!this.isError(res)) {
+        if (!this.$http.isError(res)) {
             this.$store.commit('setContests', res.contests || []);
         }
     },

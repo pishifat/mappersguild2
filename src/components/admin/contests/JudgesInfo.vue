@@ -16,9 +16,7 @@
                 v-for="judge in judges"
                 :key="judge.id"
             >
-                <a :href="'https://osu.ppy.sh/users/' + judge.osuId" target="_blank">
-                    {{ judge.username }}
-                </a>
+                <user-link :user="judge" />
 
                 <a
                     v-if="confirmDelete != judge.id"
@@ -32,7 +30,7 @@
                     v-else
                     class="text-danger"
                     href="#"
-                    @click.prevent="removeJudge(judge.id)"
+                    @click.prevent="removeJudge(judge.id, $event)"
                 >
                     confirm
                 </a>
@@ -46,9 +44,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent, PropType } from 'vue';
+import { User } from '@interfaces/user';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'JudgesInfo',
     props: {
         contestId: {
@@ -56,7 +55,7 @@ export default Vue.extend({
             required: true,
         },
         judges: {
-            type: Array,
+            type: Array as PropType<User[]>,
             required: true,
         },
     },
@@ -68,9 +67,9 @@ export default Vue.extend({
     },
     methods: {
         async addJudge(e): Promise<void> {
-            const judge = await this.executePost(`/admin/contests/${this.contestId}/judges/add`, { judgeInput: this.judgeInput }, e);
+            const judge = await this.$http.executePost(`/admin/contests/${this.contestId}/judges/add`, { judgeInput: this.judgeInput }, e);
 
-            if (!this.isError(judge)) {
+            if (!this.$http.isError(judge)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `added ${this.judgeInput} (${this.judges.length + 1})`,
                     type: 'info',
@@ -82,9 +81,9 @@ export default Vue.extend({
             }
         },
         async removeJudge(judgeId, e): Promise<void> {
-            const res = await this.executePost(`/admin/contests/${this.contestId}/judges/remove`, { judgeId }, e);
+            const res = await this.$http.executePost(`/admin/contests/${this.contestId}/judges/remove`, { judgeId }, e);
 
-            if (!this.isError(res)) {
+            if (!this.$http.isError(res)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `deleted`,
                     type: 'info',

@@ -12,7 +12,7 @@
                         <table class="table table-responsive-sm mb-0">
                             <thead>
                                 <tr>
-                                    <th class="text-left">
+                                    <th class="text-start">
                                         <a
                                             href="#"
                                             @click.prevent="sortSubmissionsBy('name')"
@@ -49,17 +49,17 @@
                             </thead>
                             <tbody>
                                 <tr v-for="submission in sortedSubmissions" :key="submission.id">
-                                    <td class="text-left">
+                                    <td class="text-start">
                                         {{ submission.name }}
                                     </td>
-                                    <td v-for="criteria in criterias" :key="criteria.id" class="text-left">
+                                    <td v-for="criteria in criterias" :key="criteria.id" class="text-start">
                                         <a
                                             href="#"
-                                            data-toggle="modal"
-                                            data-target="#editing-judging-modal"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#editing-judging-modal"
                                             @click.prevent="selectForEditing(submission.id, criteria.id)"
                                         >
-                                            <i class="mr-1 fas fa-edit" />
+                                            <i class="me-1 fas fa-edit" />
                                             <span v-if="criteria.name != 'comments'">
                                                 {{ getScore(submission.id, criteria.id) + `/${criteria.maxScore}` }}
                                             </span>
@@ -87,7 +87,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import EditingCriteriaModal from '@components/judging/EditingCriteriaModal.vue';
 import { Contest } from '../../interfaces/contest/contest';
@@ -97,7 +97,7 @@ import { Judging } from '../../interfaces/contest/judging';
 import { JudgingScore } from '../../interfaces/contest/judgingScore';
 import judgingModule from '@store/judging';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'JudgingPage',
     components: {
         EditingCriteriaModal,
@@ -195,15 +195,15 @@ export default Vue.extend({
             this.$store.registerModule('judging', judgingModule);
         }
     },
-    destroyed() {
+    unmounted () {
         if (this.$store.hasModule('judging')) {
             this.$store.unregisterModule('judging');
         }
     },
     async created () {
-        const res = await this.initialRequest<{ contest: Contest; criterias: Criteria[]; judgingDone: Judging[] }>('/judging/relevantInfo');
+        const res = await this.$http.initialRequest<{ contest: Contest; criterias: Criteria[]; judgingDone: Judging[] }>('/judging/relevantInfo');
 
-        if (!this.isError(res)) {
+        if (!this.$http.isError(res)) {
             this.$store.commit('setContest', res.contest);
             this.$store.commit('setCriterias', res.criterias);
             this.$store.commit('setJudgingDone', res.judgingDone);

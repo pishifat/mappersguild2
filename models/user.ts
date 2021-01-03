@@ -1,5 +1,6 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { DocumentQuery, Model, Schema } from 'mongoose';
 import { User, PointsInfo } from '../interfaces/user';
+import { escapeUsername } from '../helpers/helpers';
 
 const UserSchema = new Schema({
     osuId: { type: Number, required: true, unique: true },
@@ -79,7 +80,28 @@ UserSchema.virtual('mainMode').get(function(this: User) {
     return modes[0].name;
 });
 
-const UserModel = mongoose.model<User>('User', UserSchema);
+interface QueryHelpers {
+    byUsername<Q extends DocumentQuery<any, User>>(this: Q, username: string): Q;
+    byUsernameOrOsuId<Q extends DocumentQuery<any, User>>(this: Q, user: string): Q;
+}
+
+UserSchema.query.byUsername = function (this: DocumentQuery<any, User>, username: string) {
+    return this.where({ username: new RegExp('^' + escapeUsername(username) + '$', 'i') });
+};
+
+UserSchema.query.byUsernameOrOsuId = function (this: DocumentQuery<any, User> & QueryHelpers, user: string) {
+    const osuId = parseInt(user, 10);
+
+    if (isNaN(osuId)) {
+        this.byUsername(user);
+
+        return this.where({ username: new RegExp('^' + escapeUsername(user) + '$', 'i') });
+    } else {
+        return this.where({ osuId });
+    }
+};
+
+const UserModel = mongoose.model<User, Model<User, QueryHelpers>>('User', UserSchema);
 
 const populatePointsVirtuals = 'osuId username rank easyPoints normalPoints hardPoints insanePoints expertPoints storyboardPoints questPoints modPoints hostPoints contestParticipantPoints contestScreenerPoints contestJudgePoints';
 

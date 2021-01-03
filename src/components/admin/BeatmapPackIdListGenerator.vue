@@ -7,7 +7,7 @@
             autocomplete="off"
             placeholder="map URLs separated by newlines..."
         />
-        <button class="btn btn-sm btn-block btn-outline-info" @click="generateBeatmapPackIdList()">
+        <button class="btn btn-sm w-100 btn-outline-info" @click="generateBeatmapPackIdList()">
             Generate beatmap pack ID list
         </button>
         <div v-if="output.length">
@@ -19,10 +19,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import CopyPaste from '../CopyPaste.vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'BeatmapPackIdListGenerator',
     components: {
         CopyPaste,

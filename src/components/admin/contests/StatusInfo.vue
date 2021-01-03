@@ -33,9 +33,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'StatusInfo',
     props: {
         contestId: {
@@ -55,9 +55,9 @@ export default Vue.extend({
     },
     methods: {
         async updateStatus(e): Promise<void> {
-            const status = await this.executePost(`/admin/contests/${this.contestId}/updateStatus`, { status: this.newStatus }, e);
+            const status = await this.$http.executePost(`/admin/contests/${this.contestId}/updateStatus`, { status: this.newStatus }, e);
 
-            if (!this.isError(status)) {
+            if (!this.$http.isError(status)) {
                 this.showStatusInput = false;
                 this.$store.dispatch('updateToastMessages', {
                     message: `updated contest status`,

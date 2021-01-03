@@ -37,7 +37,7 @@
                     placeholder="artist name..."
                 >
             </p>
-            <p class="form-row">
+            <p class="row">
                 <select v-model="status" class="form-control form-control-sm w-25 mx-2">
                     <option value="public">
                         Public
@@ -94,12 +94,12 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import ModalDialog from '@components/ModalDialog.vue';
 import { FeaturedArtist } from '../../../interfaces/featuredArtist';
 import { FeaturedSong } from '../../../interfaces/featuredSong';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'FeaturedArtistInfo',
     components: { ModalDialog },
     props: {
@@ -143,9 +143,9 @@ export default Vue.extend({
     },
     methods: {
         async updateOsuId(e): Promise<void> {
-            const osuId = await this.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/updateOsuId`, { osuId: this.osuId }, e);
+            const osuId = await this.$http.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/updateOsuId`, { osuId: this.osuId }, e);
 
-            if (!this.isError(osuId)) {
+            if (!this.$http.isError(osuId)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `updated osu id`,
                     type: 'info',
@@ -157,12 +157,12 @@ export default Vue.extend({
             }
 
             // mark artist as "released" on /artists
-            await this.executePost('/artists/toggleIsUpToDate/' + this.featuredArtist.id, { value: true });
+            await this.$http.executePost('/artists/toggleIsUpToDate/' + this.featuredArtist.id, { value: true });
         },
         async updateName(e): Promise<void> {
-            const name = await this.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/updateName`, { name: this.name }, e);
+            const name = await this.$http.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/updateName`, { name: this.name }, e);
 
-            if (!this.isError(name)) {
+            if (!this.$http.isError(name)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `updated name`,
                     type: 'info',
@@ -174,9 +174,9 @@ export default Vue.extend({
             }
         },
         async updateStatus(e): Promise<void> {
-            const status = await this.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/updateStatus`, { status: this.status }, e);
+            const status = await this.$http.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/updateStatus`, { status: this.status }, e);
 
-            if (!this.isError(status)) {
+            if (!this.$http.isError(status)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `updated status`,
                     type: 'info',
@@ -188,9 +188,9 @@ export default Vue.extend({
             }
         },
         async addSong(e): Promise<void> {
-            const song = await this.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/songs/create`, { artist: this.artist, title: this.title }, e);
+            const song = await this.$http.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/songs/create`, { artist: this.artist, title: this.title }, e);
 
-            if (!this.isError(song)) {
+            if (!this.$http.isError(song)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `added song`,
                     type: 'info',
@@ -208,9 +208,9 @@ export default Vue.extend({
                 return;
             }
 
-            const song = await this.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/songs/${this.selectedSong.id}/update`, { artist: this.artist, title: this.title }, e);
+            const song = await this.$http.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/songs/${this.selectedSong.id}/update`, { artist: this.artist, title: this.title }, e);
 
-            if (!this.isError(song)) {
+            if (!this.$http.isError(song)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `updated song`,
                     type: 'info',
@@ -228,9 +228,9 @@ export default Vue.extend({
                 return;
             }
 
-            const res = await this.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/songs/${this.selectedSong.id}/delete`, {}, e);
+            const res = await this.$http.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/songs/${this.selectedSong.id}/delete`, {}, e);
 
-            if (!this.isError(res)) {
+            if (!this.$http.isError(res)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `deleted song`,
                     type: 'info',

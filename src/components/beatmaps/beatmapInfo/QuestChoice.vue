@@ -6,18 +6,16 @@
                     Quest
                     <a
                         id="editLink"
+                        v-bs-tooltip:right="'connect mapset with a quest'"
                         href="#"
                         :class="showQuestInput ? 'text-danger' : ''"
-                        class="text-success small ml-1"
-                        data-toggle="tooltip"
-                        data-placement="right"
-                        title="connect mapset with a quest"
+                        class="text-success small ms-1"
                         @click.prevent="showQuestInput = !showQuestInput"
                     >
                         <i class="fas fa-edit" />
                     </a>
                 </div>
-                <div class="small ml-3 text-white-50">
+                <div class="small ms-3 text-white-50">
                     <span v-if="beatmap.quest">{{ beatmap.quest.name }}</span>
                     <i v-else>none</i>
                 </div>
@@ -39,23 +37,19 @@
                         </option>
                         <option
                             v-for="quest in userQuests"
-                            :key="quest._id"
-                            :value="quest._id"
+                            :key="quest.id"
+                            :value="quest.id"
                         >
                             {{ quest.name }}
                         </option>
                     </select>
-                    <div class="input-group-append">
-                        <button
-                            class="btn btn-outline-info"
-                            data-toggle="tooltip"
-                            data-placement="top"
-                            title="link beatmap to quest"
-                            @click="saveQuest($event)"
-                        >
-                            Save
-                        </button>
-                    </div>
+                    <button
+                        v-bs-tooltip="'link beatmap to quest'"
+                        class="btn btn-outline-info"
+                        @click="linkQuest($event)"
+                    >
+                        Save
+                    </button>
                 </div>
             </div>
         </div>
@@ -63,11 +57,12 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
-import { Quest } from '../../../../interfaces/quest';
+import { defineComponent } from 'vue';
+import { Beatmap } from '@interfaces/beatmap/beatmap';
+import { Quest } from '@interfaces/quest';
+import { mapState } from 'vuex';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'QuestChoice',
     props: {
         beatmap: {
@@ -82,25 +77,31 @@ export default Vue.extend({
             dropdownQuestId: '',
         };
     },
+    computed: mapState([
+        'loggedInUser',
+    ]),
     watch: {
         beatmap (): void {
             this.showQuestInput = false;
-            this.dropdownQuestId = this.beatmap.quest?.id;
+            this.dropdownQuestId = this.beatmap.quest?.id || '';
         },
     },
     async created() {
-        const res: any = await this.executeGet('/beatmaps/users/quests');
-        this.userQuests = res.userQuests;
+        const res = await this.$http.executeGet<Quest[]>(`/users/${this.loggedInUser.id}/quests`);
+
+        if (!this.$http.isError(res)) {
+            this.userQuests = res;
+        }
     },
     methods: {
-        async saveQuest(e): Promise<void> {
-            const bm = await this.executePost<Beatmap>(
-                `/beatmaps/${this.beatmap.id}/saveQuest`,
+        async linkQuest(e): Promise<void> {
+            const bm = await this.$http.executePost<Beatmap>(
+                `/beatmaps/${this.beatmap.id}/linkQuest`,
                 { questId: this.dropdownQuestId },
                 e
             );
 
-            if (!this.isError(bm)) {
+            if (!this.$http.isError(bm)) {
                 this.$store.dispatch('beatmaps/updateBeatmap', bm);
             }
         },

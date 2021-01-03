@@ -6,18 +6,16 @@
                     Link
                     <a
                         id="editLink"
+                        v-bs-tooltip:right="'edit link'"
                         href="#"
-                        class="text-success small ml-1"
+                        class="text-success small ms-1"
                         :class="{ 'text-danger': showLinkInput }"
-                        data-toggle="tooltip"
-                        data-placement="right"
-                        title="edit link"
                         @click.prevent="showLinkInput = !showLinkInput"
                     >
                         <i class="fas fa-edit" />
                     </a>
                 </div>
-                <div class="small ml-3">
+                <div class="small ms-3">
                     <a v-if="beatmap.url" :href="beatmap.url" target="_blank">
                         {{ beatmap.url }}
                     </a>
@@ -38,19 +36,15 @@
                         placeholder="URL"
                         @keyup.enter="saveLink($event)"
                     >
-                    <div class="input-group-append">
-                        <button
-                            id="addLinkButton"
-                            class="btn btn-outline-info"
-                            type="submit"
-                            data-toggle="tooltip"
-                            data-placement="right"
-                            title="use new osu!web link for card image"
-                            @click="saveLink($event)"
-                        >
-                            Save
-                        </button>
-                    </div>
+                    <button
+                        id="addLinkButton"
+                        v-bs-tooltip:right="'use new osu!web link for card image'"
+                        class="btn btn-outline-info"
+                        type="submit"
+                        @click="saveLink($event)"
+                    >
+                        Save
+                    </button>
                 </div>
             </div>
         </div>
@@ -58,10 +52,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
 
-export default Vue.extend({
+export default defineComponent({
     name: 'BeatmapLink',
     props: {
         beatmap: {
@@ -88,9 +82,9 @@ export default Vue.extend({
     },
     methods: {
         async saveLink(e): Promise<void> {
-            const bm = await this.executePost<Beatmap>(`/beatmaps/${this.beatmap.id}/setLink`, { url: this.url }, e);
+            const bm = await this.$http.executePost<Beatmap>(`/beatmaps/${this.beatmap.id}/setLink`, { url: this.url }, e);
 
-            if (!this.isError(bm)) {
+            if (!this.$http.isError(bm)) {
                 this.showLinkInput = false;
                 this.$store.dispatch('beatmaps/updateBeatmap', bm);
             }

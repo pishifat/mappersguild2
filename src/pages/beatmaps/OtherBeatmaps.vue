@@ -1,7 +1,7 @@
 <template>
     <div class="container card card-body py-3">
-        <h5 class="ml-2">
-            <a href="#otherBeatmaps" data-toggle="collapse">
+        <h5 class="ms-2">
+            <a href="#otherBeatmaps" data-bs-toggle="collapse">
                 Other beatmaps ({{ otherBeatmaps && !isLoadingOtherBeatmaps ? otherBeatmaps.length : '...' }})
                 <i class="fas fa-angle-down" />
             </a>
@@ -13,7 +13,7 @@
             class="collapse"
         >
             <div :class="{ 'loading-data' : isLoadingOtherBeatmaps }">
-                <p v-if="!otherBeatmaps.length && !isLoadingOtherBeatmaps" class="ml-5 text-white-50">
+                <p v-if="!otherBeatmaps.length && !isLoadingOtherBeatmaps" class="ms-5 text-white-50">
                     None...
                 </p>
 
@@ -28,7 +28,7 @@
                         class="btn btn-sm btn-outline-info my-4"
                         @click.prevent="showMore($event)"
                     >
-                        <i class="fas fa-angle-down mr-1" /> show more <i class="fas fa-angle-down ml-1" />
+                        <i class="fas fa-angle-down me-1" /> show more <i class="fas fa-angle-down ms-1" />
                     </button>
                 </div>
             </div>
@@ -37,11 +37,11 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import BeatmapTableRow from '@components/beatmaps/BeatmapTableRow.vue';
 
-export default Vue.extend({
+export default defineComponent({
     components: {
         BeatmapTableRow,
     },

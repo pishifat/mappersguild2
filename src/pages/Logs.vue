@@ -4,15 +4,17 @@
             <div class="col-md-12">
                 <table class="table table-sm mt-3">
                     <thead>
-                        <th scope="col">
-                            date
-                        </th>
-                        <th scope="col">
-                            user
-                        </th>
-                        <th scope="col">
-                            action
-                        </th>
+                        <tr>
+                            <th scope="col">
+                                date
+                            </th>
+                            <th scope="col">
+                                user
+                            </th>
+                            <th scope="col">
+                                action
+                            </th>
+                        </tr>
                     </thead>
                     <tbody>
                         <tr
@@ -37,7 +39,7 @@
                         type="button"
                         @click="showMore($event)"
                     >
-                        <i class="fas fa-angle-down mr-1" /> show more <i class="fas fa-angle-down ml-1" />
+                        <i class="fas fa-angle-down me-1" /> show more <i class="fas fa-angle-down ms-1" />
                     </button>
                 </div>
             </div>
@@ -47,13 +49,13 @@
 
 <script lang="ts">
 import { Log } from '@interfaces/log';
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 
 interface LogsResponse {
     logs: Log[]
 }
 
-export default Vue.extend({
+export default defineComponent({
     data () {
         return {
             skip: 100,
@@ -61,9 +63,9 @@ export default Vue.extend({
         };
     },
     async created () {
-        const data = await this.initialRequest<LogsResponse>(`/logs/query`);
+        const data = await this.$http.initialRequest<LogsResponse>(`/logs/query`);
 
-        if (!this.isError(data)) {
+        if (!this.$http.isError(data)) {
             this.logs = data.logs;
         }
     },
@@ -89,9 +91,9 @@ export default Vue.extend({
             return action;
         },
         async showMore (e) {
-            const data = await this.executeGet<LogsResponse>(`/logs/query?skip=${this.skip}`, e);
+            const data = await this.$http.executeGet<LogsResponse>(`/logs/query?skip=${this.skip}`, e);
 
-            if (!this.isError(data)) {
+            if (!this.$http.isError(data)) {
                 this.skip += 100;
                 this.logs = [...this.logs, ...data.logs];
             }
