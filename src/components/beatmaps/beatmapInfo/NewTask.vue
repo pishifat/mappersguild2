@@ -43,7 +43,7 @@
                     v-model="requestTaskUsername"
                     class="form-control"
                     type="text"
-                    placeholder="request to... (if needed)"
+                    placeholder="request to... (optional)"
                     maxlength="18"
                     @keyup.enter="taskToAddCollaborator ? addCollab($event) : requestTask(beatmap.id, $event)"
                 >

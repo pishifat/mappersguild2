@@ -6,7 +6,7 @@
 
         <button
             v-bs-tooltip:bottom="'mark mapset and all diffs as done'"
-            class="btn btn-sm"
+            class="btn btn-sm me-1"
             :class="beatmap.status == 'Done' ? 'btn-success' : 'btn-outline-success'"
             :disabled="beatmap.status == 'Done'"
             @click="setStatus('Done', $event)"
@@ -16,7 +16,7 @@
 
         <button
             v-bs-tooltip:bottom="'mark mapset as work-in-progress'"
-            class="btn btn-sm"
+            class="btn btn-sm me-1"
             :class="beatmap.status == 'WIP' ? 'btn-warning' : 'btn-outline-warning'"
             :disabled="beatmap.status == 'WIP'"
             @click="setStatus('WIP', $event)"

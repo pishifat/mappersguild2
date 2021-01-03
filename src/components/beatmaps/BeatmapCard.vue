@@ -22,7 +22,7 @@
                     <quest-img :beatmap="beatmap" />
 
                     Hosted by
-                    <user-link :user="beatmap.host" />
+                    <user-link class="me-1" :user="beatmap.host" />
 
                     <modes-icons v-if="beatmap.mode !== 'osu'" :modes="[beatmap.mode]" />
                     <process-tasks

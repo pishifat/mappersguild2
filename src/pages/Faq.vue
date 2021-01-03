@@ -105,7 +105,7 @@
                             <input
                                 class="form-control form-control-sm d-inline w-auto"
                                 type="text"
-                                placeholder="request to... (if needed)"
+                                placeholder="request to... (optional)"
                                 maxlength="18"
                             >
                             while adding a new difficulty. Invites bypass task locks.

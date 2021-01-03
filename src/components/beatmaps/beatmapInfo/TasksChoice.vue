@@ -76,7 +76,7 @@
                                 <a
                                     v-bs-tooltip="'delete'"
                                     href="#"
-                                    class="text-danger"
+                                    class="text-danger me-1"
                                     @click.prevent="removeTask(task.id, $event)"
                                 >
                                     <i class="fas fa-minus" />
@@ -85,7 +85,7 @@
                                     v-if="task.status == 'WIP'"
                                     v-bs-tooltip="'mark as done'"
                                     href="#"
-                                    class="text-success mx-1"
+                                    class="text-success me-1"
                                     @click.prevent="setTaskStatus(task.id, 'Done', $event)"
                                 >
                                     <i class="fas fa-check" />
@@ -94,7 +94,7 @@
                                     v-if="task.status == 'Done' && beatmap.status != 'Done'"
                                     v-bs-tooltip="'mark as WIP'"
                                     href="#"
-                                    class="text-wip"
+                                    class="text-wip me-1"
                                     @click.prevent="setTaskStatus(task.id, 'WIP', $event)"
                                 >
                                     <i class="fas fa-ellipsis-h" />

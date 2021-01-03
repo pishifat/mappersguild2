@@ -5,7 +5,7 @@
         </div>
         <button
             v-bs-tooltip="'osu!'"
-            class="btn btn-sm rounded-100"
+            class="btn btn-sm rounded-100 me-1"
             :class="beatmap.mode == 'osu' ? 'btn-info' : 'btn-outline-info'"
             :disabled="beatmap.mode == 'osu'"
             @click="setMode(beatmap.id, 'osu', $event)"
@@ -14,7 +14,7 @@
         </button>
         <button
             v-bs-tooltip="'osu!taiko'"
-            class="btn btn-sm rounded-100"
+            class="btn btn-sm rounded-100 me-1"
             :class="beatmap.mode == 'taiko' ? 'btn-info' : 'btn-outline-info'"
             :disabled="beatmap.mode == 'taiko'"
             @click="setMode(beatmap.id, 'taiko', $event)"
@@ -23,7 +23,7 @@
         </button>
         <button
             v-bs-tooltip="'osu!catch'"
-            class="btn btn-sm rounded-100"
+            class="btn btn-sm rounded-100 me-1"
             :class="beatmap.mode == 'catch' ? 'btn-info' : 'btn-outline-info'"
             :disabled="beatmap.mode == 'catch'"
             @click="setMode(beatmap.id, 'catch', $event)"
@@ -32,7 +32,7 @@
         </button>
         <button
             v-bs-tooltip="'osu!mania'"
-            class="btn btn-sm rounded-100"
+            class="btn btn-sm rounded-100 me-1"
             :class="beatmap.mode == 'mania' ? 'btn-info' : 'btn-outline-info'"
             :disabled="beatmap.mode == 'mania'"
             @click="setMode(beatmap.id, 'mania', $event)"
@@ -41,7 +41,7 @@
         </button>
         <button
             v-bs-tooltip="'multiple modes'"
-            class="btn btn-sm rounded-100"
+            class="btn btn-sm rounded-100 me-1"
             :class="beatmap.mode == 'hybrid' ? 'btn-info' : 'btn-outline-info'"
             :disabled="beatmap.mode == 'hybrid'"
             @click="setMode(beatmap.id, 'hybrid', $event)"

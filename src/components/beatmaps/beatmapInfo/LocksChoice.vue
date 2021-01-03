@@ -28,7 +28,7 @@
                             >
                                 <i class="fas fa-minus" />
                             </a>
-                            <span class="text-white-50">
+                            <span class="text-white-50 mx-1">
                                 {{ task }}
                             </span>
                         </div>
