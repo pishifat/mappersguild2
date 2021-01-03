@@ -18,7 +18,7 @@
                     {{ featuredArtist.label }}
                 </option>
             </form-select>
-            <div v-if="!isAdmin" class="row col">
+            <div v-if="!isAdmin" class="row col ms-4">
                 <ul class="small text-secondary">
                     <li>This artist's logo will be used as the quest's icon.</li>
                     <li>If your quest allows songs from a few artists, choose whichever best expresses its theme.</li>
@@ -33,7 +33,7 @@
                 label="Required mapsets"
                 type="number"
             />
-            <div v-if="!isAdmin" class="row col">
+            <div v-if="!isAdmin" class="row col ms-4">
                 <ul class="small text-secondary">
                     <li>Submitting quest for approval requires you to spend points correlating to how many mapsets are required. The fewer required mapsets, the more points you'll have to spend (and vice versa).</li>
                     <li>Choosing a number pre-fills various fields, though these can still be customized.</li>

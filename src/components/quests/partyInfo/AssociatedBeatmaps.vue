@@ -12,7 +12,7 @@
             >
                 <i
                     v-bs-tooltip="map.status"
-                    class="fas"
+                    class="fas me-1"
                     :class="[`text-${map.status.toLowerCase()}`, findIcon(map.status)]"
                 />
                 <a v-if="map.url" :href="map.url" target="_blank">
