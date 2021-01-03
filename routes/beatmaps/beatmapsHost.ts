@@ -154,12 +154,12 @@ beatmapsHostRouter.post('/:id/setLink', isValidBeatmap, isBeatmapHost, async (re
     let url = req.body.url;
 
     if (!url?.length) {
-        url = undefined;
+        url = null;
     }
 
     const regexp = /^(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/;
 
-    if (!regexp.test(url)) {
+    if (!regexp.test(url) && url) {
         return res.json({ error: 'Not a valid URL' });
     }
 
