@@ -26,7 +26,7 @@ indexRouter.get('/home', async (req, res) => {
         .aggregate()
         .match({ status: FeaturedArtistStatus.Public })
         .match({ isUpToDate: true })
-        .sort({ updatedAt: -1 })
+        .sort({ osuId: -1 })
         .lookup({
             from: 'featuredsongs',
             let: { songs: '$songs' },
