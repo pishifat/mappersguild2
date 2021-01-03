@@ -26,7 +26,7 @@
                         <div class="col-sm-7">
                             <div class="row no-gutters">
                                 <div class="col-sm-4">
-                                    <i v-if="quest.status == 'open' && quest.parties.some(p => !p.lock)" class="fas fa-star-of-life fa-xs text-primary" />
+                                    <i v-if="quest.status == 'open' && quest.parties.some(p => !p.lock)" v-bs-tooltip="'quest has joinable party'" class="fas fa-star-of-life fa-xs text-primary me-1" />
                                     <quest-size
                                         :quest="quest"
                                     />
