@@ -9,7 +9,7 @@
                 {{ beatmap.song.artist }} - {{ beatmap.song.title }}
             </a>
             <span v-else>{{ beatmap.song.artist }} - {{ beatmap.song.title }}</span>
-            (<a :href="'https://osu.ppy.sh/users/' + beatmap.host.osuId" target="_blank">{{ beatmap.host.username }}</a>)
+            <user-link :user="beatmap.host" />
         </template>
 
         <template #default>
@@ -37,9 +37,7 @@
                     <select v-model="taskId" class="form-control form-control-sm w-50 mx-2">
                         <option v-for="task in sortedTasks" :key="task.id" :value="task.id">
                             {{ task.name }} ---
-                            <template v-for="(mapper, i) in task.mappers">
-                                {{ listUser(mapper.username, i, task.mappers.length) }}
-                            </template>
+                            {{ task.mappers.join(', ') }}
                             {{ task.name == 'Storyboard' ? ' --- ' + task.sbQuality : '' }}
                         </option>
                     </select>

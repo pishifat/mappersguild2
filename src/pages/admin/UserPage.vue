@@ -17,7 +17,7 @@
                         @update:selected-id="selectedUserId = $event"
                     >
                         <td>
-                            <a :href="'https://osu.ppy.sh/users/' + user.osuId" target="_blank">{{ user.username }}</a>
+                            <user-link :user="user" />
                         </td>
                         <td>
                             <i

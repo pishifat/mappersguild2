@@ -24,7 +24,7 @@
                     </div>
                     <div class="col-sm-3 small">
                         <span class="text-white-50">Hosted by</span>
-                        <a :href="'https://osu.ppy.sh/users/' + beatmap.host.osuId" target="_blank" @click.stop>{{ beatmap.host.username }}</a>
+                        <user-link :user="beatmap.host" />
                         <i v-if="beatmap.mode == 'taiko'" class="fas fa-drum text-white-50" />
                         <i v-else-if="beatmap.mode == 'catch'" class="fas fa-apple-alt text-white-50" />
                         <i v-else-if="beatmap.mode == 'mania'" class="fas fa-stream text-white-50" />

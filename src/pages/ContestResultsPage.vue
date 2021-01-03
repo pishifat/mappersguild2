@@ -10,9 +10,7 @@
                 </h5>
                 <p>
                     created by
-                    <a :href="'https://osu.ppy.sh/users/' + submission.creator.osuId" target="_blank">
-                        {{ submission.creator.username }}
-                    </a>
+                    <user-link :user="submission.creator" />
                 </p>
             </div>
 

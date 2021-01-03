@@ -11,9 +11,7 @@
                     v-for="(judging, i) in submission.judgings"
                     :key="judging.id"
                 >
-                    <a :href="'https://osu.ppy.sh/users/' + judging.judge.osuId" target="_blank">
-                        {{ judging.judge.username }}
-                    </a>
+                    <user-link :user="judging.judge" />
 
                     <div
                         v-for="judgingScore in judging.judgingScores"

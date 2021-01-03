@@ -30,17 +30,7 @@
 
         <div class="small ms-3">
             <i v-if="beatmap.bns.length == 0" class="text-white-50">none</i>
-
-            <span v-else>
-                <a
-                    v-for="(bn, i) in beatmap.bns"
-                    :key="bn.id"
-                    :href="'https://osu.ppy.sh/users/' + bn.osuId"
-                    target="_blank"
-                >
-                    {{ listUser(bn.username, i, beatmap.bns.length) }}
-                </a>
-            </span>
+            <user-link-list v-else :users="beatmap.bns" />
         </div>
     </div>
 </template>
@@ -49,9 +39,11 @@
 import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
+import UserLinkList from '@components/UserLinkList.vue';
 
 export default defineComponent({
     name: 'NominatorsList',
+    components: { UserLinkList },
     props: {
         canEdit: Boolean,
         beatmap: {

@@ -5,9 +5,7 @@
         :loaded="Boolean(user)"
     >
         <template #header>
-            <a :href="'https://osu.ppy.sh/users/' + user.osuId" target="_blank">
-                {{ user.username }}
-            </a>
+            <user-link :user="user" />
         </template>
 
         <template #default>

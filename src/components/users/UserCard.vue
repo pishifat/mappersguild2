@@ -9,13 +9,7 @@
             <img :src="'https://a.ppy.sh/' + user.osuId" class="card-avatar-img">
 
             <div class="mb-2">
-                <a
-                    :href="'https://osu.ppy.sh/users/' + user.osuId"
-                    target="_blank"
-                    @click.stop
-                >
-                    {{ user.username }}
-                </a>
+                <user-link :user="user" />
             </div>
 
             <div class="text-secondary">

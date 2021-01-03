@@ -7,7 +7,7 @@ import './sass/app.scss';
 import { createApp } from 'vue';
 import { store } from './store/main';
 import Root from './App.vue';
-import mixins from './mixins';
+import UserLink from './components/UserLink.vue';
 import router from './router/main';
 import { http } from '@store/http';
 import { showModal, hideModal } from './helpers';
@@ -16,7 +16,7 @@ const app = createApp(Root);
 
 app.use(store);
 app.use(router);
-app.mixin(mixins);
+app.component('UserLink', UserLink);
 
 app.config.globalProperties.$http = http;
 app.config.globalProperties.$bs = {

@@ -68,48 +68,42 @@
                                     </a>
                                 </template>
 
+                                <user-link class="mx-1" :user="mapper" />
                                 <a
-                                    :href="'https://osu.ppy.sh/users/' + mapper.osuId"
-                                    target="_blank"
+                                    v-if="
+                                        task.mappers.length > 1 &&
+                                            canEditTaskCollaborators(task) &&
+                                            mapper.osuId != loggedInUser.osuId
+                                    "
+                                    href="#"
+                                    class="text-danger"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="remove collaborator"
+                                    @click.prevent="removeCollab(task.id, mapper.id, $event)"
                                 >
-                                    {{ mapper.username }}
-                                    <a
-                                        v-if="
-                                            task.mappers.length > 1 &&
-                                                canEditTaskCollaborators(task) &&
-                                                mapper.osuId != loggedInUser.osuId
-                                        "
-                                        href="#"
-                                        class="text-danger"
-                                        data-bs-toggle="tooltip"
-                                        data-bs-placement="top"
-                                        title="remove collaborator"
-                                        @click.prevent="removeCollab(task.id, mapper.id, $event)"
-                                    >
-                                        <i class="fas fa-minus" />
-                                    </a>
+                                    <i class="fas fa-minus" />
                                 </a>
                             </div>
                         </td>
 
                         <!-- Actions -->
                         <td v-if="!isRanked && !isQualified">
-                            <a
-                                v-if="canEditTask(task)"
-                                href="#"
-                                class="text-danger"
-                                data-bs-toggle="tooltip"
-                                data-bs-placement="top"
-                                title="delete"
-                                @click.prevent="removeTask(task.id, $event)"
-                            >
-                                <i class="fas fa-minus" />
-                            </a>
-                            <span v-if="canEditTask(task)">
+                            <template v-if="canEditTask(task)">
+                                <a
+                                    href="#"
+                                    class="text-danger"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="delete"
+                                    @click.prevent="removeTask(task.id, $event)"
+                                >
+                                    <i class="fas fa-minus" />
+                                </a>
                                 <a
                                     v-if="task.status == 'WIP'"
                                     href="#"
-                                    class="text-success"
+                                    class="text-success mx-1"
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="top"
                                     title="mark as done"
@@ -128,7 +122,7 @@
                                 >
                                     <i class="fas fa-ellipsis-h" />
                                 </a>
-                            </span>
+                            </template>
                         </td>
                     </tr>
                 </transition-group>

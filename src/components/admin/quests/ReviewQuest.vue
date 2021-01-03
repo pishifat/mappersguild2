@@ -2,9 +2,10 @@
     <modal-dialog id="reviewQuest" :loaded="Boolean(quest)">
         <template #header>
             {{ quest.name }} by
-            <a :href="'https://osu.ppy.sh/users/' + quest.creator.osuId" class="text-dark" target="_blank">
-                {{ quest.creator.username }}
-            </a>
+            <user-link
+                class="text-dark"
+                :user="quest.creator"
+            />
         </template>
 
         <template #default>

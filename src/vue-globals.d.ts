@@ -18,7 +18,5 @@ declare module '@vue/runtime-core' {
         };
 
         $store: Store<MainState>;
-
-        listUser(username: string, i: number, length: number): string;
     }
 }

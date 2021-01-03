@@ -191,7 +191,7 @@
                             <tbody>
                                 <tr v-for="user in actionUsers" :key="user.id" class="text-white-50">
                                     <td scope="row">
-                                        <a :href="'https://osu.ppy.sh/users/' + user.osuId" target="_blank">{{ user.username }}</a>
+                                        <user-link :user="user" />
                                     </td>
                                     <td scope="row">
                                         <i

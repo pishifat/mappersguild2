@@ -19,7 +19,7 @@
                 {{ selectedBeatmap.song.artist }} - {{ selectedBeatmap.song.title }}
             </span>
 
-            <a :href="'https://osu.ppy.sh/users/' + selectedBeatmap.host.osuId" class="mx-1" target="_blank">({{ selectedBeatmap.host.username }})</a>
+            <user-link class="mx-1" :user="selectedBeatmap.host" />
 
             <i
                 v-if="selectedBeatmap.mode == 'taiko'"

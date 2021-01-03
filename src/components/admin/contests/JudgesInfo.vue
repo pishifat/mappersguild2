@@ -16,9 +16,7 @@
                 v-for="judge in judges"
                 :key="judge.id"
             >
-                <a :href="'https://osu.ppy.sh/users/' + judge.osuId" target="_blank">
-                    {{ judge.username }}
-                </a>
+                <user-link :user="judge" />
 
                 <a
                     v-if="confirmDelete != judge.id"
@@ -32,7 +30,7 @@
                     v-else
                     class="text-danger"
                     href="#"
-                    @click.prevent="removeJudge(judge.id)"
+                    @click.prevent="removeJudge(judge.id, $event)"
                 >
                     confirm
                 </a>
@@ -46,7 +44,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, PropType } from 'vue';
+import { User } from '@interfaces/user';
 
 export default defineComponent({
     name: 'JudgesInfo',
@@ -56,7 +55,7 @@ export default defineComponent({
             required: true,
         },
         judges: {
-            type: Array,
+            type: Array as PropType<User[]>,
             required: true,
         },
     },

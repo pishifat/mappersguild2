@@ -20,7 +20,8 @@
                     {{ map.song.artist }} - {{ map.song.title }}
                 </a>
                 <span v-else>{{ map.song.artist }} - {{ map.song.title }}</span>
-                by <a :href="'https://osu.ppy.sh/users/' + map.host.osuId" target="_blank">{{ map.host.username }}</a>
+                by
+                <user-link :user="map.host" />
             </li>
         </ul>
 

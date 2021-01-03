@@ -2,9 +2,7 @@
     <div class="row">
         <div class="col-sm">
             <h5 class="d-inline-block">
-                <a :href="'https://osu.ppy.sh/users/' + party.leader.osuId" target="_blank">
-                    {{ party.leader.username }}
-                </a>'s party
+                <user-link :user="party.leader" />'s party
             </h5>
 
             <!-- party rank icon -->

@@ -2,14 +2,11 @@
     <modal-dialog id="editQuest">
         <template #header>
             {{ quest.name }} by
-            <a
+            <user-link
                 v-if="quest.creator"
-                :href="'https://osu.ppy.sh/users/' + quest.creator.osuId"
                 class="text-dark"
-                target="_blank"
-            >
-                {{ quest.creator.username }}
-            </a>
+                :user="quest.creator"
+            />
         </template>
 
         <p>

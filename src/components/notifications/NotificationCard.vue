@@ -2,13 +2,7 @@
     <div class="col-md-12 my-1">
         <div class="card card-body card-level-2 p-2">
             <div class="card-text small">
-                <a
-                    :href="'https://osu.ppy.sh/users/' + notification.sender.osuId"
-                    target="_blank"
-                    @click.stop
-                >
-                    {{ notification.sender.username }}
-                </a>
+                <user-link :user="notification.sender" />
 
                 {{ notification.info }}
 

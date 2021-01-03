@@ -6,9 +6,7 @@
             </a>
             <span v-if="selectedQuest.creator.username != 'pishifat'">
                 created by
-                <a :href="'https://osu.ppy.sh/users/' + selectedQuest.creator.osuId" target="_blank" class="text-dark">
-                    {{ selectedQuest.creator.username }}
-                </a>
+                <user-link class="text-dark" :user="selectedQuest.creator" />
             </span>
             <div v-if="selectedQuest.art" class="small">
                 <a :href="'https://osu.ppy.sh/beatmaps/artists/' + selectedQuest.art" target="_blank">

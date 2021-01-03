@@ -6,9 +6,7 @@
         </b>
         <ul class="mb-0">
             <li v-for="member in members" :key="member.id">
-                <a :href="'https://osu.ppy.sh/users/' + member.osuId" target="_blank">
-                    {{ member.username }}
-                </a>
+                <user-link :user="member" />
                 <i
                     v-if="member.rank > 0"
                     class="fas fa-crown"

@@ -5,9 +5,7 @@
         :header-class="selectedUser ? ('bg-rank-' + selectedUser.rank) : ''"
     >
         <template #header>
-            <a :href="'https://osu.ppy.sh/users/' + selectedUser.osuId" class="text-dark" target="_blank">
-                {{ selectedUser.username }}
-            </a>
+            <user-link class="text-dark" :user="selectedUser" />
         </template>
 
         <template #default>
@@ -255,12 +253,7 @@
                             <i v-else-if="map.mode == 'mania'" class="fas fa-stream" />
                         </td>
                         <td scope="row">
-                            <a
-                                :href="'https://osu.ppy.sh/users/' + map.host.osuId"
-                                target="_blank"
-                            >
-                                {{ map.host.username }}
-                            </a>
+                            <user-link :user="map.host" />
                         </td>
                         <td scope="row" class="text-white-50">
                             {{ userTasks(map) }}

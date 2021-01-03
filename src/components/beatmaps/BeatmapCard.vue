@@ -22,13 +22,7 @@
                     <quest-img :beatmap="beatmap" />
 
                     Hosted by
-                    <a
-                        :href="'https://osu.ppy.sh/users/' + beatmap.host.osuId"
-                        target="_blank"
-                        @click.stop
-                    >
-                        {{ beatmap.host.username }}
-                    </a>
+                    <user-link :user="beatmap.host" />
 
                     <i v-if="beatmap.mode == 'taiko'" class="fas fa-drum" />
                     <i v-else-if="beatmap.mode == 'catch'" class="fas fa-apple-alt" />

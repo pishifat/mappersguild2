@@ -42,10 +42,7 @@
             >
                 {{ submission.name }}
                 <span class="text-white-50">by</span>
-                <a :href="'https://osu.ppy.sh/users/' + submission.creator.osuId" target="_blank">
-                    {{ submission.creator.username }}
-                </a>
-
+                <user-link :user="submission.creator" />
 
                 <a
                     v-if="confirmDelete != submission.id"
