@@ -238,11 +238,11 @@
                     <tr v-for="map in userBeatmaps" :key="map.id">
                         <td scope="row">
                             <i
-                                v-bs-tooltip="`map.status`"
-                                class="fas"
+                                v-bs-tooltip="map.status"
+                                class="fas me-1"
                                 :class="['text-' + map.status.toLowerCase(), findIcon(map.status)]"
                             />
-                            <a :href="'/beatmaps?id=' + map.id" target="_blank">
+                            <a :href="'/beatmaps?id=' + map.id" target="_blank" class="me-1">
                                 {{ map.song.artist }} - {{ map.song.title }}
                             </a>
                             <modes-icons v-if="map.mode !== 'osu'" :modes="[map.mode]" />
