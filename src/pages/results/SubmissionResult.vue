@@ -8,10 +8,13 @@
                 <h5 v-bs-tooltip="'anonymized submission name'">
                     {{ submission.name }}
                 </h5>
-                <p>
+                <div>
                     created by
                     <user-link :user="submission.creator" />
-                </p>
+                </div>
+                <a v-if="loggedInUser" href="#" @click.prevent="$store.commit('setSubmission', null)">
+                    show all submissions
+                </a>
             </div>
 
             <hr>
@@ -62,38 +65,40 @@
                             <p class="ms-3">
                                 User {{ i+1 }}
                             </p>
-                            <div class="row">
-                                <table class="col-sm-5 ms-4 table table-sm table-responsive-sm">
-                                    <thead>
-                                        <tr>
-                                            <th class="text-start">
-                                                Category
-                                            </th>
-                                            <th class="text-start">
-                                                Score
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="judgingScore in filteredAndSortedJudgingScores(judging.judgingScores)" :key="judgingScore.id">
-                                            <td class="text-start text-capitalize">
-                                                {{ judgingScore.criteria.name }}
-                                            </td>
-                                            <td class="text-start">
-                                                {{ judgingScore.score }}/{{ judgingScore.criteria.maxScore }}
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-start">
-                                                TOTAL
-                                            </td>
-                                            <td class="text-start">
-                                                {{ findTotalJudgingPoints(judging.judgingScores) }}/{{ findTotalCriteriaPoints(judging.judgingScores) }}
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                <div class="col-sm-6 small">
+                            <div class="row ms-3">
+                                <div class="col-sm-5">
+                                    <table class="table table-sm table-responsive-sm">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-start">
+                                                    Category
+                                                </th>
+                                                <th class="text-start">
+                                                    Score
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="judgingScore in filteredAndSortedJudgingScores(judging.judgingScores)" :key="judgingScore.id">
+                                                <td class="text-start text-capitalize">
+                                                    {{ judgingScore.criteria.name }}
+                                                </td>
+                                                <td class="text-start">
+                                                    {{ judgingScore.score }}/{{ judgingScore.criteria.maxScore }}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-start">
+                                                    TOTAL
+                                                </td>
+                                                <td class="text-start">
+                                                    {{ findTotalJudgingPoints(judging.judgingScores) }}/{{ findTotalCriteriaPoints(judging.judgingScores) }}
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col-sm-7 small">
                                     Comment:
                                     <span class="text-white-50" style="white-space: pre-line;">
                                         {{ findJudgeComment (judging.judgingScores) }}
@@ -114,16 +119,16 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
-import { Submission } from '../../interfaces/contest/submission';
-import { Judging } from '../../interfaces/contest/judging';
-import { Screening } from '../../interfaces/contest/screening';
-import contestResultsModule from '@store/contestResults';
+import { Submission } from '@interfaces/contest/submission';
+import { Judging } from '@interfaces/contest/judging';
+import { Screening } from '@interfaces/contest/screening';
 
 export default defineComponent({
-    name: 'ContestResultsPage',
+    name: 'SubmissionResult',
     computed: {
         ...mapState({
             submission: (state: any) => state.contestResults.submission as Submission,
+            loggedInUser: (state: any) => state.loggedInUser,
         }),
         voteCount (): number {
             let count = 0;
@@ -149,30 +154,6 @@ export default defineComponent({
 
             return screenings;
         },
-    },
-    beforeCreate () {
-        if (!this.$store.hasModule('contestResults')) {
-            this.$store.registerModule('contestResults', contestResultsModule);
-        }
-    },
-    unmounted () {
-        if (this.$store.hasModule('contestResults')) {
-            this.$store.unregisterModule('contestResults');
-        }
-    },
-    async created () {
-        const submissionId = this.$route.query.submission;
-        let submission;
-
-        if (submissionId) {
-            submission = await this.$http.initialRequest<Submission>('/contestResults/searchSubmission/' + submissionId);
-        }
-
-        if (!submission || this.$http.isError(submission)) {
-            this.$router.push('/404');
-        } else {
-            this.$store.commit('setSubmission', submission);
-        }
     },
     methods: {
         findTotalJudgingPoints (judgingScores) {
@@ -212,8 +193,6 @@ export default defineComponent({
             return [...judgingScores].sort(function(a, b) {
                 return sortOrder.indexOf(a.criteria.name) - sortOrder.indexOf(b.criteria.name);
             });
-
-
         },
     },
 });

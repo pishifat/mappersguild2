@@ -3,7 +3,7 @@ import Faq from '../pages/Faq.vue';
 const Beatmaps = () => import(/* webpackChunkName: "public", webpackPrefetch: true */ '../pages/beatmaps/BeatmapPage.vue');
 const Quests = () => import(/* webpackChunkName: "public", webpackPrefetch: true */ '../pages/quests/QuestPage.vue');
 const Users = () => import(/* webpackChunkName: "public", webpackPrefetch: true */ '../pages/users/UserPage.vue');
-const ContestResults = () => import(/* webpackChunkName: "public", webpackPrefetch: true */ '../pages/ContestResultsPage.vue');
+const ContestResults = () => import(/* webpackChunkName: "public", webpackPrefetch: true */ '../pages/results/ContestResultsPage.vue');
 const NotFound = () => import(/* webpackChunkName: "public", webpackPrefetch: true */ '../pages/NotFound.vue');
 
 const Logs = () => import(/* webpackChunkName: "logged", webpackPrefetch: true */ '../pages/Logs.vue');

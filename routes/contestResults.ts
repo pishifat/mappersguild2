@@ -8,7 +8,7 @@ const contestResultsRouter = express.Router();
 const submissionPopulate = [
     {
         path: 'contest',
-        select: 'name screeners',
+        select: 'name screeners status',
     },
     {
         path: 'evaluations',
@@ -30,13 +30,27 @@ const submissionPopulate = [
     },
 ];
 
+contestResultsRouter.get('/participated', async (req, res) => {
+    let submissions = await SubmissionModel
+        .find({
+            creator: req.session?.mongoId,
+        })
+        .populate(submissionPopulate);
+
+    submissions = submissions.filter(s => s.contest.status === ContestStatus.Complete);
+
+    res.json(submissions);
+});
+
 contestResultsRouter.get('/searchSubmission/:id', async (req, res) => {
     const submission =
         await SubmissionModel
             .findById(req.params.id)
             .populate(submissionPopulate);
 
-    if (submission?.contest.status !== ContestStatus.Complete) res.json(null);
+    if (submission?.contest.status !== ContestStatus.Complete) {
+        return res.json(null);
+    }
 
     res.json(submission);
 });
