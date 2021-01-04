@@ -1,4 +1,5 @@
 import express from 'express';
+import { ContestStatus } from '../interfaces/contest/contest';
 import { SubmissionModel } from '../models/contest/submission';
 
 const contestResultsRouter = express.Router();
@@ -34,6 +35,8 @@ contestResultsRouter.get('/searchSubmission/:id', async (req, res) => {
         await SubmissionModel
             .findById(req.params.id)
             .populate(submissionPopulate);
+
+    if (submission?.contest.status !== ContestStatus.Complete) res.json(null);
 
     res.json(submission);
 });

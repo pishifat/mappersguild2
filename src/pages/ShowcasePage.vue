@@ -45,12 +45,12 @@ export default defineComponent({
         }
     },
     async created() {
-        const params: any = new URLSearchParams(document.location.search.substring(1));
+        const id = this.$route.query.id;
 
-        if (params.get('id') && params.get('id').length) {
+        if (id) {
             const [res, urlBeatmap] = await Promise.all<any, any>([
                 this.$http.initialRequest('/showcase/relevantInfo'),
-                this.$http.executeGet('/showcase/searchOnLoad/' + params.get('id')),
+                this.$http.executeGet('/showcase/searchOnLoad/' + id),
             ]);
 
             if (res) {

@@ -113,17 +113,17 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { mapState } from 'vuex';
 import { Submission } from '../../interfaces/contest/submission';
 import { Judging } from '../../interfaces/contest/judging';
 import { Screening } from '../../interfaces/contest/screening';
-import { mapState } from 'vuex';
-import contestResultsAdminModule from '@store/admin/users';
+import contestResultsModule from '@store/contestResults';
 
 export default defineComponent({
     name: 'ContestResultsPage',
     computed: {
         ...mapState({
-            submission: (state: any) => state.contestResultsAdmin.submission,
+            submission: (state: any) => state.contestResults.submission as Submission,
         }),
         voteCount (): number {
             let count = 0;
@@ -151,25 +151,25 @@ export default defineComponent({
         },
     },
     beforeCreate () {
-        if (!this.$store.hasModule('contestResultsAdmin')) {
-            this.$store.registerModule('contestResultsAdmin', contestResultsAdminModule);
+        if (!this.$store.hasModule('contestResults')) {
+            this.$store.registerModule('contestResults', contestResultsModule);
         }
     },
     unmounted () {
-        if (this.$store.hasModule('contestResultsAdmin')) {
-            this.$store.unregisterModule('contestResultsAdmin');
+        if (this.$store.hasModule('contestResults')) {
+            this.$store.unregisterModule('contestResults');
         }
     },
     async created () {
-        const params: any = new URLSearchParams(document.location.search.substring(1));
+        const submissionId = this.$route.query.submission;
         let submission;
 
-        if (params.get('submission') && params.get('submission').length) {
-            submission = await this.$http.initialRequest<{ submission: Submission }>('/contestResults/searchSubmission/' + params.get('submission'));
+        if (submissionId) {
+            submission = await this.$http.initialRequest<Submission>('/contestResults/searchSubmission/' + submissionId);
         }
 
         if (!submission || this.$http.isError(submission)) {
-            this.$router.push('/');
+            this.$router.push('/404');
         } else {
             this.$store.commit('setSubmission', submission);
         }
