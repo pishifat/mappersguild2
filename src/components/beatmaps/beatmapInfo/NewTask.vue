@@ -8,7 +8,7 @@
                 <select
                     v-if="!taskToAddCollaborator"
                     v-model="selectedTask"
-                    class="form-control"
+                    class="form-select"
                 >
                     <option
                         v-for="task in remainingTasks"
@@ -22,7 +22,7 @@
                 <select
                     v-if="beatmap.mode == 'hybrid' && !taskToAddCollaborator"
                     v-model="selectedMode"
-                    class="form-control"
+                    class="form-select"
                 >
                     <option value="osu">
                         osu!

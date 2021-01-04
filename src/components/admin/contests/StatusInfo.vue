@@ -8,7 +8,7 @@
             <select
                 v-else
                 v-model="newStatus"
-                class="form-control form-control-sm w-25"
+                class="form-select form-select-sm w-25"
                 @change="updateStatus($event)"
             >
                 <option value="beatmapping">

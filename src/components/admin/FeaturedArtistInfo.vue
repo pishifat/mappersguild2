@@ -39,7 +39,7 @@
                     </button>
                 </p>
                 <p class="row">
-                    <select v-model="status" class="form-control form-control-sm w-50 mx-2">
+                    <select v-model="status" class="form-select form-select-sm w-50 mx-2">
                         <option value="public">
                             Public
                         </option>
@@ -56,7 +56,7 @@
                 </p>
                 <hr>
                 <p class="row">
-                    <select id="editSongSelection" v-model="selectedSong" class="form-control form-control-sm">
+                    <select id="editSongSelection" v-model="selectedSong" class="form-select form-select-sm">
                         <option v-for="song in alphabeticalSongs" :key="song.id" :value="song">
                             {{ song.title }} --- ({{ song.artist }})
                         </option>

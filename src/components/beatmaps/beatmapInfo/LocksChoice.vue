@@ -45,7 +45,7 @@
                 <div class="input-group input-group-sm">
                     <select
                         v-model="lockTaskSelection"
-                        class="form-control"
+                        class="form-select"
                     >
                         <option
                             v-for="task in remainingTasks"

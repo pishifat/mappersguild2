@@ -24,7 +24,7 @@
         <!-- TRANSFER/KICK -->
         <div class="col-12">
             <div class="input-group input-group-sm">
-                <select v-model="dropdownUserId" class="form-control">
+                <select v-model="dropdownUserId" class="form-select">
                     <option value="" disabled>
                         Select a member
                     </option>

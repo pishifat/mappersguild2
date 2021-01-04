@@ -1,7 +1,7 @@
 <template>
     <form-field-base :label="label">
         <select
-            class="form-control form-control-sm"
+            class="form-select form-select-sm"
             @input="$emit('update:modelValue', $event.target.value)"
         >
             <option value="" selected>

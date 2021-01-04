@@ -19,7 +19,7 @@
         <template #default>
             <div class="container">
                 <p class="row">
-                    <select v-model="status" class="form-control form-control-sm w-50 mx-2">
+                    <select v-model="status" class="form-select form-select-sm w-50 mx-2">
                         <option value="WIP">
                             WIP
                         </option>
@@ -38,7 +38,7 @@
                     </button>
                 </p>
                 <p class="row">
-                    <select v-model="taskId" class="form-control form-control-sm w-50 mx-2">
+                    <select v-model="taskId" class="form-select form-select-sm w-50 mx-2">
                         <option v-for="task in sortedTasks" :key="task.id" :value="task.id">
                             {{ task.name }} ---
                             {{ task.mappers.join(', ') }}
@@ -50,7 +50,7 @@
                     </button>
                 </p>
                 <p class="row">
-                    <select v-model="modderId" class="form-control form-control-sm w-50 mx-2">
+                    <select v-model="modderId" class="form-select form-select-sm w-50 mx-2">
                         <option v-for="modder in beatmap.modders" :key="modder.id" :value="modder.id">
                             {{ modder.username }}
                         </option>
@@ -72,7 +72,7 @@
                     </button>
                 </p>
                 <p v-if="storyboardTaskId" class="row">
-                    <select v-model="storyboardQuality" class="form-control form-control-sm w-50 mx-2">
+                    <select v-model="storyboardQuality" class="form-select form-select-sm w-50 mx-2">
                         <option value="1">
                             1
                         </option>

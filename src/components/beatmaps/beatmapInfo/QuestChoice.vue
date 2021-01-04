@@ -30,7 +30,7 @@
                 <div class="input-group input-group-sm">
                     <select
                         v-model="dropdownQuestId"
-                        class="form-control form-control-sm"
+                        class="form-select"
                     >
                         <option value="">
                             No quest

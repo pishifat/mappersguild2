@@ -11,7 +11,7 @@
         <template #default>
             <div class="container">
                 <p class="row">
-                    <select v-model="group" class="form-control form-control-sm w-50 mx-2">
+                    <select v-model="group" class="form-select form-select-sm w-50 mx-2">
                         <option value="user">
                             User
                         </option>

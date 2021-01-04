@@ -72,7 +72,7 @@
                             <button class="btn btn-outline-info">
                                 <i class="fas fa-plus" />
                             </button>
-                            <select id="diffSelection" class="form-control form-control-sm">
+                            <select id="diffSelection" class="form-select">
                                 <option value="Easy">
                                     Easy
                                 </option>

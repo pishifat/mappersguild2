@@ -11,7 +11,7 @@
                     <div id="artistForm" class="input-group input-group-sm mb-3">
                         <select
                             v-model="selectedArtist"
-                            class="form-control"
+                            class="form-select"
                         >
                             <option value="" disabled>
                                 Select an artist
@@ -39,23 +39,21 @@
                     </p>
                 </div>
                 <div class="col-lg-11">
-                    <div id="songForm" class="input-group input-group-sm mb-3">
-                        <select
-                            v-model="selectedSong"
-                            class="form-control form-control-sm"
-                            :disabled="!featuredSongs.length"
-                        >
-                            <option value="" disabled>
-                                Select an artist to view songs
-                            </option>
-                            <option value="-" disabled>
-                                ---
-                            </option>
-                            <option v-for="featuredSong in featuredSongs" :key="featuredSong.id" :value="featuredSong.id">
-                                {{ featuredSong.title }} --- ({{ featuredSong.artist }})
-                            </option>
-                        </select>
-                    </div>
+                    <select
+                        v-model="selectedSong"
+                        class="form-select form-select-sm"
+                        :disabled="!featuredSongs.length"
+                    >
+                        <option value="" disabled>
+                            Select an artist to view songs
+                        </option>
+                        <option value="-" disabled>
+                            ---
+                        </option>
+                        <option v-for="featuredSong in featuredSongs" :key="featuredSong.id" :value="featuredSong.id">
+                            {{ featuredSong.title }} --- ({{ featuredSong.artist }})
+                        </option>
+                    </select>
                 </div>
             </div>
 
