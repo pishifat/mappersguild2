@@ -242,11 +242,13 @@ export default defineComponent({
             }
         },
         async dropQuest(e): Promise<void> {
-            const quests = await this.$http.executePost<Quest[]>(`/quests/${this.quest.id}/drop`, {}, e);
+            if (confirm(`Are you sure?`)) {
+                const quests = await this.$http.executePost<Quest[]>(`/quests/${this.quest.id}/drop`, {}, e);
 
-            if (!this.$http.isError(quests)) {
-                this.$bs.hideModal('editQuest');
-                this.$store.dispatch('quests/setQuests', quests);
+                if (!this.$http.isError(quests)) {
+                    this.$bs.hideModal('editQuest');
+                    this.$store.dispatch('quests/setQuests', quests);
+                }
             }
         },
         async acceptQuest(e): Promise<void> {

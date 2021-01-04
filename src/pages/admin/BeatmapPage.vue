@@ -9,7 +9,7 @@
                     <data-table
                         v-slot="{ obj: beatmap }"
                         :data="beatmaps"
-                        :headers="['METADATA', 'PACK ID', 'STATUS']"
+                        :headers="['METADATA', 'PACK ID', 'CREATOR', 'STATUS']"
                         :custom-data-target="'#editBeatmap'"
                         @update:selected-id="selectedBeatmapId = $event"
                     >
@@ -22,6 +22,9 @@
                         </td>
                         <td>
                             {{ beatmap.packId }}
+                        </td>
+                        <td>
+                            <user-link :user="beatmap.host" />
                         </td>
                         <td>
                             {{ beatmap.status }}
@@ -56,6 +59,7 @@ import DataTable from '../../components/admin/DataTable.vue';
 import { Beatmap } from '../../../interfaces/beatmap/beatmap';
 import beatmapsAdminModule from '@store/admin/beatmaps';
 import ModesIcons from '@components/ModesIcons.vue';
+import UserLink from '@components/UserLink.vue';
 
 export default defineComponent({
     components: {
@@ -65,6 +69,7 @@ export default defineComponent({
         BundledBeatmapsList,
         BeatmapPackIdListGenerator,
         ModesIcons,
+        UserLink,
     },
     data () {
         return {
