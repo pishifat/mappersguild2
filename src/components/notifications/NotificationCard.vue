@@ -11,7 +11,7 @@
                     <span v-else>"{{ notification.map.song.artist }} - {{ notification.map.song.title }}"</span>
                     <a
                         href="#"
-                        class="text-done"
+                        class="text-done ms-1"
                         data-bs-toggle="modal"
                         data-bs-target="#limitedEditBeatmap"
                         @click.prevent="selectBeatmap()"
