@@ -59,7 +59,6 @@ import DataTable from '../../components/admin/DataTable.vue';
 import { Beatmap } from '../../../interfaces/beatmap/beatmap';
 import beatmapsAdminModule from '@store/admin/beatmaps';
 import ModesIcons from '@components/ModesIcons.vue';
-import UserLink from '@components/UserLink.vue';
 
 export default defineComponent({
     components: {
@@ -69,7 +68,6 @@ export default defineComponent({
         BundledBeatmapsList,
         BeatmapPackIdListGenerator,
         ModesIcons,
-        UserLink,
     },
     data () {
         return {
