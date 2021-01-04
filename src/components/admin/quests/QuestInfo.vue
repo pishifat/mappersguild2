@@ -9,142 +9,143 @@
             />
         </template>
 
-        <p>
-            <button class="btn btn-sm btn-outline-info" @click="renameQuest($event)">
-                Rename quest
-            </button>
-            <input
-                v-model="renameQuestName"
-                class="form-control form-control-sm mx-2 w-50"
-                type="text"
-                autocomplete="off"
-                placeholder="quest name..."
-            >
-        </p>
-        <p>
-            <button class="btn btn-sm btn-outline-info" @click="updatePrice($event)">
-                Update price
-            </button>
-            <input
-                v-model="price"
-                class="form-control form-control-sm mx-2 w-50"
-                type="text"
-                autocomplete="off"
-                placeholder="price..."
-            >
-        </p>
-        <p>
-            <button class="btn btn-sm btn-outline-info" @click="updateRequiredMapsets($event)">
-                Update required mapsets
-            </button>
-            <input
-                v-model="requiredMapsets"
-                class="form-control form-control-sm mx-2 w-50"
-                type="text"
-                autocomplete="off"
-                placeholder="required mapsets..."
-            >
-        </p>
-        <p>
-            <button class="btn btn-sm btn-outline-info" @click="updateMinParty($event)">
-                Update minParty
-            </button>
-            <input
-                v-model="minParty"
-                class="form-control form-control-sm mx-2 w-50"
-                type="text"
-                autocomplete="off"
-                placeholder="minParty..."
-            >
-        </p>
-        <p>
-            <button class="btn btn-sm btn-outline-info" @click="updateMaxParty($event)">
-                Update maxParty
-            </button>
-            <input
-                v-model="maxParty"
-                class="form-control form-control-sm mx-2 w-50"
-                type="text"
-                autocomplete="off"
-                placeholder="maxParty..."
-            >
-        </p>
-        <p>
-            <button class="btn btn-sm btn-outline-info" @click="updateDescription($event)">
-                Update description
-            </button>
-        </p>
-        <p>
-            <textarea
-                v-model="description"
-                class="form-control form-control-sm mx-2 mt-2 w-100"
-                type="text"
-                autocomplete="off"
-                placeholder="quest description..."
+        <div class="container">
+            <p class="row">
+                <input
+                    v-model="renameQuestName"
+                    class="form-control form-control-sm mx-2 w-50"
+                    type="text"
+                    autocomplete="off"
+                    placeholder="quest name..."
+                >
+                <button class="btn btn-sm btn-outline-info w-25" @click="renameQuest($event)">
+                    Rename quest
+                </button>
+            </p>
+            <p class="row">
+                <input
+                    v-model="price"
+                    class="form-control form-control-sm mx-2 w-50"
+                    type="text"
+                    autocomplete="off"
+                    placeholder="price..."
+                >
+                <button class="btn btn-sm btn-outline-info w-25" @click="updatePrice($event)">
+                    Update price
+                </button>
+            </p>
+            <p class="row">
+                <input
+                    v-model="requiredMapsets"
+                    class="form-control form-control-sm mx-2 w-50"
+                    type="text"
+                    autocomplete="off"
+                    placeholder="required mapsets..."
+                >
+                <button class="btn btn-sm btn-outline-info w-25" @click="updateRequiredMapsets($event)">
+                    Update required mapsets
+                </button>
+            </p>
+            <p class="row">
+                <input
+                    v-model="minParty"
+                    class="form-control form-control-sm mx-2 w-50"
+                    type="text"
+                    autocomplete="off"
+                    placeholder="minParty..."
+                >
+                <button class="btn btn-sm btn-outline-info w-25" @click="updateMinParty($event)">
+                    Update minParty
+                </button>
+            </p>
+            <p class="row">
+                <input
+                    v-model="maxParty"
+                    class="form-control form-control-sm mx-2 w-50"
+                    type="text"
+                    autocomplete="off"
+                    placeholder="maxParty..."
+                >
+                <button class="btn btn-sm btn-outline-info w-25" @click="updateMaxParty($event)">
+                    Update maxParty
+                </button>
+            </p>
+            <p class="row">
+                <textarea
+                    v-model="description"
+                    class="form-control form-control-sm mx-2 mt-2 w-50"
+                    type="text"
+                    autocomplete="off"
+                    placeholder="quest description..."
+                />
+                <button class="btn btn-sm btn-outline-info w-25" @click="updateDescription($event)">
+                    Update description
+                </button>
+            </p>
+
+            <template v-if="quest.status == 'wip'">
+                <p>
+                    <button class="btn btn-sm btn-outline-danger w-100" @click="dropQuest($event)">
+                        Drop quest
+                    </button>
+                </p>
+                <p>
+                    <button class="btn btn-sm btn-outline-success w-100" @click="completeQuest($event)">
+                        Complete quest
+                    </button>
+                </p>
+                <p>
+                    <button class="btn btn-sm btn-outline-info w-100" @click="resetQuestDeadline($event)">
+                        Reset quest deadline
+                    </button>
+                </p>
+            </template>
+
+            <p class="row">
+                <input
+                    v-model="duplicateQuestName"
+                    class="form-control form-control-sm mx-2 w-50"
+                    type="text"
+                    autocomplete="off"
+                    placeholder="new quest name..."
+                >
+                <button class="btn btn-sm btn-outline-info w-25" @click="duplicateQuest($event)">
+                    Duplicate quest
+                </button>
+            </p>
+            <p class="row">
+                <input
+                    v-model="expiration"
+                    class="form-control form-control-sm mx-2 w-50"
+                    type="text"
+                    autocomplete="off"
+                    :placeholder="quest.expiration"
+                >
+                <button class="btn btn-sm btn-outline-info w-25" @click="updateExpiration($event)">
+                    Set expiration date
+                </button>
+            </p>
+
+            <p>
+                <modes-icons
+                    :modes="quest.modes"
+                    :toggler="true"
+                    @toggle="toggleQuestMode($event)"
+                />
+            </p>
+
+            <associated-beatmaps
+                v-if="quest.status == 'done' || quest.status == 'wip'"
+                class="mb-4"
+                :associated-maps="quest.associatedMaps"
             />
-        </p>
 
-        <template v-if="quest.status == 'wip'">
             <p>
-                <button class="btn btn-sm btn-outline-danger" @click="dropQuest($event)">
-                    Drop quest
+                <button class="btn btn-sm btn-outline-danger w-100" @click="deleteQuest($event)">
+                    Delete quest
                 </button>
             </p>
-            <p>
-                <button class="btn btn-sm btn-outline-success" @click="completeQuest($event)">
-                    Complete quest
-                </button>
-            </p>
-            <p>
-                <button class="btn btn-sm btn-outline-info" @click="resetQuestDeadline($event)">
-                    Reset quest deadline
-                </button>
-            </p>
-        </template>
-
-        <p>
-            <button class="btn btn-sm btn-outline-info" @click="duplicateQuest($event)">
-                Duplicate quest
-            </button>
-            <input
-                v-model="duplicateQuestName"
-                class="form-control form-control-sm mx-2 w-50"
-                type="text"
-                autocomplete="off"
-                placeholder="new quest name..."
-            >
-        </p>
-        <p>
-            <button class="btn btn-sm btn-outline-info" @click="updateExpiration($event)">
-                Set expiration date
-            </button>
-            <input
-                v-model="expiration"
-                class="form-control form-control-sm mx-2 w-50"
-                type="text"
-                autocomplete="off"
-                :placeholder="quest.expiration"
-            > {{ quest.isExpired }}
-        </p>
-        <p>
-            <modes-icons
-                :modes="quest.modes"
-                :toggler="true"
-                @toggle="toggleQuestMode($event)"
-            />
-        </p>
-
-        <associated-beatmaps
-            v-if="quest.status == 'done' || quest.status == 'wip'"
-            class="mb-4"
-            :associated-maps="quest.associatedMaps"
-        />
-
-        <p>
-            <button class="btn btn-sm btn-outline-danger" @click="deleteQuest($event)">
-                Delete quest
-            </button>
-        </p>
+        </div>
     </modal-dialog>
 </template>
 

@@ -11,7 +11,7 @@
         <template #default>
             <div class="container">
                 <p class="row">
-                    <select v-model="group" class="form-control form-control-sm w-25 mx-2">
+                    <select v-model="group" class="form-control form-control-sm w-50 mx-2">
                         <option value="user">
                             User
                         </option>
@@ -25,39 +25,39 @@
                             Spectator
                         </option>
                     </select>
-                    <button class="btn btn-sm btn-outline-info" @click="updateGroup($event)">
+                    <button class="btn btn-sm btn-outline-info w-25" @click="updateGroup($event)">
                         Save group
                     </button>
                 </p>
-                <p>
+                <p class="row">
                     <input
                         v-model="badge"
-                        class="form-control form-control-sm mx-2"
+                        class="form-control form-control-sm mx-2 w-50"
                         type="text"
                         autocomplete="off"
                     >
-                    <button class="btn btn-sm btn-outline-info" @click="updateBadge($event)">
+                    <button class="btn btn-sm btn-outline-info w-25" @click="updateBadge($event)">
                         Save badge
                     </button>
                 </p>
-                <p>
+                <p class="row">
                     <input
                         v-model="discordId"
-                        class="form-control form-control-sm mx-2"
+                        class="form-control form-control-sm mx-2 w-50"
                         type="text"
                         autocomplete="off"
                     >
-                    <button class="btn btn-sm btn-outline-info" @click="updateDiscordId($event)">
+                    <button class="btn btn-sm btn-outline-info w-25" @click="updateDiscordId($event)">
                         Save Discord ID
                     </button>
                 </p>
                 <p>
-                    <button class="btn btn-sm btn-outline-info" @click="calculateUserPoints($event)">
+                    <button class="btn btn-sm btn-outline-info w-100" @click="calculateUserPoints($event)">
                         Calculate user points
                     </button>
                 </p>
                 <p>
-                    <button class="btn btn-sm btn-outline-info" @click="toggleBypassLogin($event)">
+                    <button class="btn btn-sm btn-outline-info w-100" @click="toggleBypassLogin($event)">
                         {{ user.bypassLogin ? 'Enable' : 'Disable' }} ranked maps login requirement
                     </button>
                 </p>

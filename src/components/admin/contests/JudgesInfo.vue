@@ -1,12 +1,11 @@
 <template>
     <div>
-        <p>
-            Add judge:
+        <p class="row">
             <input
                 v-model.number="judgeInput"
-                class="form-control form-control-sm"
+                class="form-control form-control-sm w-50"
                 autocomplete="off"
-                placeholder="new judge's osuId..."
+                placeholder="new judge's username/osuId..."
                 @keyup.enter="addJudge($event)"
             >
         </p>

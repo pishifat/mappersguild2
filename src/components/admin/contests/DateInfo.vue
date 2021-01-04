@@ -13,7 +13,7 @@
                 placeholder="yyyy-mm-dd"
                 @change="updateContestStart($event)"
             >
-            <a href="#" @click.prevent="showContestStartDateInput = !showContestStartDateInput">
+            <a href="#" class="ms-1" @click.prevent="showContestStartDateInput = !showContestStartDateInput">
                 <i class="fas fa-edit" />
             </a>
         </p>

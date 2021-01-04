@@ -12,17 +12,17 @@
                     <span class="small col-sm-8">
                         <span v-if="artist.isUpToDate" class="text-white-50">up to date</span>
                         <span v-else>
-                            <span v-if="artist.projectedRelease" class="text-done">{{ new Date(artist.projectedRelease).toString().slice(4,15) }}</span>
+                            <span v-if="artist.projectedRelease" class="text-done me-1">{{ new Date(artist.projectedRelease).toString().slice(4,15) }}</span>
 
                             <span v-if="artist.ppySigned">
                                 <span class="text-danger">
-                                    <span v-if="!artist.songsReceived">[song assets]</span>
-                                    <span v-if="!artist.songsTimed">[timed oszs]</span>
-                                    <span v-if="!artist.assetsReceived">[other assets]</span>
+                                    <span v-if="!artist.songsReceived" class="me-1">[song assets]</span>
+                                    <span v-if="!artist.songsTimed" class="me-1">[timed oszs]</span>
+                                    <span v-if="!artist.assetsReceived" class="me-1">[other assets]</span>
                                 </span>
                                 <span class="text-white-50">
-                                    <span v-if="artist.isMinor">[minor]</span>
-                                    <span v-if="!artist.hasRankedMaps">[no ranked maps]</span>
+                                    <span v-if="artist.isMinor" class="me-1">[minor]</span>
+                                    <span v-if="!artist.hasRankedMaps" class="me-1">[no ranked maps]</span>
                                 </span>
                             </span>
 

@@ -13,82 +13,85 @@
         </template>
 
         <template #default>
-            <p>
-                <button class="btn btn-sm btn-outline-info" @click="updateOsuId($event)">
-                    Save osu! ID
-                </button>
-                <input
-                    v-model="osuId"
-                    class="form-control form-control-sm mx-2 w-50"
-                    type="text"
-                    autocomplete="off"
-                    placeholder="osu id..."
-                >
-            </p>
-            <p>
-                <button class="btn btn-sm btn-outline-info" @click="updateName($event)">
-                    Save name
-                </button>
-                <input
-                    v-model="name"
-                    class="form-control form-control-sm mx-2 w-50"
-                    type="text"
-                    autocomplete="off"
-                    placeholder="artist name..."
-                >
-            </p>
-            <p class="row">
-                <select v-model="status" class="form-control form-control-sm w-25 mx-2">
-                    <option value="public">
-                        Public
-                    </option>
-                    <option value="private">
-                        Private
-                    </option>
-                    <option value="showcase">
-                        Showcase
-                    </option>
-                </select>
-                <button class="btn btn-sm btn-outline-info" @click="updateStatus($event)">
-                    Save status
-                </button>
-            </p>
-            <p>
-                <select id="editSongSelection" v-model="selectedSong" class="form-control form-control-sm">
-                    <option v-for="song in alphabeticalSongs" :key="song.id" :value="song">
-                        {{ song.title }} --- ({{ song.artist }})
-                    </option>
-                </select>
-            </p>
-            <p>
-                <input
-                    v-model="artist"
-                    class="form-control form-control-sm mx-2 w-75"
-                    type="text"
-                    autocomplete="off"
-                    placeholder="artist..."
-                >
-            </p>
-            <p>
-                <input
-                    v-model="title"
-                    class="form-control form-control-sm mx-2 w-75"
-                    type="text"
-                    autocomplete="off"
-                    placeholder="title..."
-                >
-            </p>
-            <p>
-                <button class="btn btn-sm btn-outline-info" @click="addSong($event)">
-                    Add song
-                </button>
-                <button class="btn btn-sm btn-outline-info" @click="editSong($event)">
-                    Edit song
-                </button>
-                <button class="btn btn-sm btn-outline-danger" @click="deleteSong($event)">
-                    Delete song
-                </button>
-            </p>
+            <div class="container">
+                <p class="row">
+                    <input
+                        v-model="osuId"
+                        class="form-control form-control-sm mx-2 w-50"
+                        type="text"
+                        autocomplete="off"
+                        placeholder="osu id..."
+                    >
+                    <button class="btn btn-sm btn-outline-info w-25" @click="updateOsuId($event)">
+                        Save osu! ID
+                    </button>
+                </p>
+                <p class="row">
+                    <input
+                        v-model="name"
+                        class="form-control form-control-sm mx-2 w-50"
+                        type="text"
+                        autocomplete="off"
+                        placeholder="artist name..."
+                    >
+                    <button class="btn btn-sm btn-outline-info w-25" @click="updateName($event)">
+                        Save name
+                    </button>
+                </p>
+                <p class="row">
+                    <select v-model="status" class="form-control form-control-sm w-50 mx-2">
+                        <option value="public">
+                            Public
+                        </option>
+                        <option value="private">
+                            Private
+                        </option>
+                        <option value="showcase">
+                            Showcase
+                        </option>
+                    </select>
+                    <button class="btn btn-sm btn-outline-info w-25" @click="updateStatus($event)">
+                        Save status
+                    </button>
+                </p>
+                <hr>
+                <p class="row">
+                    <select id="editSongSelection" v-model="selectedSong" class="form-control form-control-sm">
+                        <option v-for="song in alphabeticalSongs" :key="song.id" :value="song">
+                            {{ song.title }} --- ({{ song.artist }})
+                        </option>
+                    </select>
+                </p>
+                <p class="row">
+                    <input
+                        v-model="artist"
+                        class="form-control form-control-sm mx-2 w-75"
+                        type="text"
+                        autocomplete="off"
+                        placeholder="artist..."
+                    >
+                </p>
+                <p class="row">
+                    <input
+                        v-model="title"
+                        class="form-control form-control-sm mx-2 w-75"
+                        type="text"
+                        autocomplete="off"
+                        placeholder="title..."
+                    >
+                </p>
+                <p>
+                    <button class="btn btn-sm btn-outline-info mx-1" @click="addSong($event)">
+                        Add song
+                    </button>
+                    <button class="btn btn-sm btn-outline-info mx-1" @click="editSong($event)">
+                        Edit song
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger mx-1" @click="deleteSong($event)">
+                        Delete song
+                    </button>
+                </p>
+            </div>
         </template>
     </modal-dialog>
 </template>

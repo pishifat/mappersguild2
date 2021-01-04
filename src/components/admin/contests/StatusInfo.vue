@@ -25,7 +25,7 @@
                 </option>
             </select>
 
-            <a href="#" @click.prevent="showStatusInput = !showStatusInput">
+            <a href="#" class="ms-1" @click.prevent="showStatusInput = !showStatusInput">
                 <i class="fas fa-edit" />
             </a>
         </p>

@@ -2,10 +2,10 @@
     <div>
         <div class="container card card-body py-1 mb-4">
             <div class="row mx-3 mt-2">
-                <button class="btn btn-sm btn-info w-100" @click="loadActionBeatmaps($event, false)">
+                <button class="btn btn-sm btn-info w-100 mb-1" @click="loadActionBeatmaps($event, false)">
                     Load beatmaps
                 </button>
-                <button class="btn btn-sm btn-info w-100" @click="loadActionBeatmaps($event, true)">
+                <button class="btn btn-sm btn-info w-100 mb-1" @click="loadActionBeatmaps($event, true)">
                     Load WIP beatmaps
                 </button>
             </div>
@@ -40,10 +40,10 @@
                                 <tr v-for="beatmap in actionBeatmaps" :key="beatmap.id" class="text-white-50">
                                     <td scope="row">
                                         <modes-icons :modes="[beatmap.mode]" />
-                                        <a v-if="beatmap.url" :href="beatmap.url">
+                                        <a v-if="beatmap.url" :href="beatmap.url" class="ms-1">
                                             {{ generateMetadata(beatmap.song) }}
                                         </a>
-                                        <span v-else>{{ generateMetadata(beatmap.song) }}</span>
+                                        <span v-else class="ms-1">{{ generateMetadata(beatmap.song) }}</span>
                                     </td>
                                     <td scope="row">
                                         {{ beatmap.packId }}
@@ -72,7 +72,7 @@
 
         <div class="container card card-body py-1 mb-4">
             <div class="row mx-3 mt-2">
-                <button class="btn btn-sm btn-info w-100" @click="loadActionQuests($event)">
+                <button class="btn btn-sm btn-info w-100 mb-1" @click="loadActionQuests($event)">
                     Load quests
                 </button>
             </div>
@@ -147,11 +147,11 @@
 
         <div class="container card card-body py-1">
             <div class="row mx-3 mt-2">
-                <button class="btn btn-sm btn-info w-100" @click="updateUserPoints($event)">
+                <button class="btn btn-sm btn-info w-100 mb-1" @click="updateUserPoints($event)">
                     Update user points
                 </button>
                 <span v-if="calculatingPoints" class="ms-2 small text-white-50">calculating points...</span>
-                <button class="btn btn-sm btn-info w-100" @click="loadActionUsers($event)">
+                <button class="btn btn-sm btn-info w-100 mb-1" @click="loadActionUsers($event)">
                     Load users
                 </button>
             </div>

@@ -15,10 +15,10 @@
                     >
                         <td class="text-truncate">
                             <modes-icons :modes="[beatmap.mode]" />
-                            <a v-if="beatmap.url" :href="beatmap.url">
+                            <a v-if="beatmap.url" :href="beatmap.url" class="ms-1">
                                 {{ formatMetadata(beatmap.song) }}
                             </a>
-                            <span v-else>{{ formatMetadata(beatmap.song) }}</span>
+                            <span v-else class="ms-1">{{ formatMetadata(beatmap.song) }}</span>
                         </td>
                         <td>
                             {{ beatmap.packId }}

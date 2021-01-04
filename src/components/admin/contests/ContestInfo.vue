@@ -2,7 +2,7 @@
     <div
         class="container card card-body py-3 mb-2"
     >
-        <h4 class="text-center">
+        <h4>
             {{ contest.name }}
         </h4>
 

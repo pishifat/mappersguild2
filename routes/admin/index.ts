@@ -107,10 +107,9 @@ adminRouter.get('/loadActionQuests/', async (req, res) => {
         .find({ status: QuestStatus.Pending })
         .defaultPopulate();
 
-    res.json({
-        quests,
-        pendingQuests,
-    });
+    quests = quests.concat(pendingQuests);
+
+    res.json(quests);
 });
 
 /* GET users in need of action */

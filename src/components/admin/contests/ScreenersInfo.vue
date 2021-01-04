@@ -1,12 +1,11 @@
 <template>
     <div>
-        <p>
-            Add screener:
+        <p class="row">
             <input
                 v-model.number="screenerInput"
-                class="form-control form-control-sm"
+                class="form-control form-control-sm w-50"
                 autocomplete="off"
-                placeholder="username/osuId"
+                placeholder="new screener username/osuId..."
                 @keyup.enter="addScreener($event)"
             >
         </p>

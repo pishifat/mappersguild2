@@ -7,7 +7,7 @@
         >
             <div class="row">
                 <div class="col-sm">
-                    <h4 class="my-2 text-center">
+                    <h4 class="my-2">
                         {{ contest.name }}
                     </h4>
 

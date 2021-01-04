@@ -1,27 +1,26 @@
 <template>
     <div>
-        <p>
-            Add submission:
+        <p class="row">
             <input
                 v-model="name"
-                class="form-control form-control-sm w-25"
+                class="form-control form-control-sm w-25 col-sm-3 me-2"
                 type="text"
                 autocomplete="off"
                 placeholder="new submission's name..."
             >
             <input
                 v-model="creatorOsuId"
-                class="form-control form-control-sm w-25"
+                class="form-control form-control-sm w-25 col-sm-3 me-2"
                 type="text"
                 autocomplete="off"
                 placeholder="new submission's creator osuId..."
             >
             <button
                 type="button"
-                class="btn btn-sm btn-outline-info"
+                class="btn btn-sm btn-outline-info col-sm-3 me-2"
                 @click="addSubmission($event)"
             >
-                Save
+                Add submission
             </button>
         </p>
 
@@ -41,7 +40,7 @@
                 :key="submission.id"
             >
                 {{ submission.name }}
-                <span class="text-white-50">by</span>
+                <span class="text-white-50 me-1">by</span>
                 <user-link :user="submission.creator" />
 
                 <a

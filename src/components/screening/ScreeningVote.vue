@@ -4,14 +4,14 @@
             v-for="i in 5"
             :key="i"
             class="mx-1"
-            :class="{ 'disabled': usedVotes.includes(i) && savedVote != i }"
+            :class="{ 'disabled-star': (usedVotes.includes(i) && savedVote != i) || voteLoading }"
             :disabled="voteLoading"
             href="#"
             @click.prevent="updateVote(i)"
         >
             <i
-                class="fa-star"
-                :class="{'fas': usedVotes.includes(i) || savedVote == i, 'far': !usedVotes.includes(i) }"
+                class="fa-star fas"
+                :class="{'text-warning': usedVotes.includes(i) && savedVote == i }"
             />
         </a>
     </div>
@@ -59,3 +59,12 @@ export default defineComponent({
     },
 });
 </script>
+
+<style scoped>
+
+.disabled-star {
+    pointer-events: none;
+    color: gray;
+}
+
+</style>

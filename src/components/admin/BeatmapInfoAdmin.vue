@@ -8,14 +8,18 @@
             >
                 {{ beatmap.song.artist }} - {{ beatmap.song.title }}
             </a>
+
             <span v-else>{{ beatmap.song.artist }} - {{ beatmap.song.title }}</span>
-            <user-link :user="beatmap.host" />
+
+            | <user-link class="me-1" :user="beatmap.host" />
+
+            <modes-icons :modes="[beatmap.mode]" />
         </template>
 
         <template #default>
             <div class="container">
                 <p class="row">
-                    <select v-model="status" class="form-control form-control-sm w-25 mx-2">
+                    <select v-model="status" class="form-control form-control-sm w-50 mx-2">
                         <option value="WIP">
                             WIP
                         </option>
@@ -29,7 +33,7 @@
                             Ranked
                         </option>
                     </select>
-                    <button class="btn btn-sm btn-outline-info" @click="updateBeatmapStatus($event)">
+                    <button class="btn btn-sm btn-outline-info w-25" @click="updateBeatmapStatus($event)">
                         Save status
                     </button>
                 </p>
@@ -41,7 +45,7 @@
                             {{ task.name == 'Storyboard' ? ' --- ' + task.sbQuality : '' }}
                         </option>
                     </select>
-                    <button class="btn btn-sm btn-outline-danger" @click="deleteTask($event)">
+                    <button class="btn btn-sm btn-outline-danger w-25" @click="deleteTask($event)">
                         Remove difficulty
                     </button>
                 </p>
@@ -51,24 +55,24 @@
                             {{ modder.username }}
                         </option>
                     </select>
-                    <button class="btn btn-sm btn-outline-danger" @click="deleteModder($event)">
+                    <button class="btn btn-sm btn-outline-danger w-25" @click="deleteModder($event)">
                         Remove modder
                     </button>
                 </p>
                 <p class="row">
                     <input
                         v-model="beatmapUrl"
-                        class="form-control form-control-sm mx-2 w-75"
+                        class="form-control form-control-sm mx-2 w-50"
                         type="text"
                         autocomplete="off"
                         placeholder="beatmap url..."
                     >
-                    <button class="btn btn-sm btn-outline-info" @click="updateUrl($event)">
+                    <button class="btn btn-sm btn-outline-info w-25" @click="updateUrl($event)">
                         Save URL
                     </button>
                 </p>
                 <p v-if="storyboardTaskId" class="row">
-                    <select v-model="storyboardQuality" class="form-control form-control-sm w-25 mx-2">
+                    <select v-model="storyboardQuality" class="form-control form-control-sm w-50 mx-2">
                         <option value="1">
                             1
                         </option>
@@ -79,7 +83,7 @@
                             3
                         </option>
                     </select>
-                    <button class="btn btn-sm btn-outline-info" @click="updateStoryboardQuality($event)">
+                    <button class="btn btn-sm btn-outline-info w-25" @click="updateStoryboardQuality($event)">
                         Save Storyboard Quality
                     </button>
                 </p>
@@ -91,13 +95,13 @@
                         autocomplete="off"
                         placeholder="osu! beatmap pack ID..."
                     >
-                    <button class="btn btn-sm btn-outline-info" @click="updatePackId($event)">
+                    <button class="btn btn-sm btn-outline-info w-25" @click="updatePackId($event)">
                         Save pack ID
                     </button>
                 </p>
                 <p>
                     Featured Artist showcase:
-                    <span class="text-danger">{{ beatmap.isShowcase ? 'true' : 'false' }}</span>
+                    <span class="text-danger me-2">{{ beatmap.isShowcase ? 'true' : 'false' }}</span>
                     <button class="btn btn-sm btn-outline-info" @click="updateIsShowcase($event)">
                         Toggle
                     </button>
@@ -112,11 +116,13 @@ import { defineComponent } from 'vue';
 import ModalDialog from '@components/ModalDialog.vue';
 import { Beatmap } from '../../../interfaces/beatmap/beatmap';
 import { SBQuality, Task } from '../../../interfaces/beatmap/task';
+import ModesIcons from '@components/ModesIcons.vue';
 
 export default defineComponent({
     name: 'BeatmapInfoAdmin',
     components: {
         ModalDialog,
+        ModesIcons,
     },
     props: {
         beatmap: {
