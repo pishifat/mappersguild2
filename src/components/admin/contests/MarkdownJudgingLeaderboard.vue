@@ -6,7 +6,7 @@
         <div>
             | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- |
         </div>
-        <div v-for="(usersScore, i) in usersScores" :key="usersScore.id">
+        <div v-for="(usersScore, i) in usersScores" :key="i">
             | \#{{ i+1 }}
             | [TITLE](LINK) by [{{ usersScore.creator.username }}](https://osu.ppy.sh/users/{{ usersScore.creator.osuId }})
             | [see details](https://mappersguild.com/contestresults?submission={{ getSubmissionIdByCreatorId(usersScore.creator.id) }})
@@ -22,9 +22,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import { Contest } from '../../../../interfaces/contest/contest';
-import { CriteriaName } from '../../../../interfaces/contest/criteria';
+import { defineComponent, PropType } from 'vue';
+import { UserScore } from '@interfaces/contest/judging';
+import { Contest } from '@interfaces/contest/contest';
+import { CriteriaName } from '@interfaces/contest/criteria';
 import CopyPaste from '../../CopyPaste.vue';
 
 export default defineComponent({
@@ -34,7 +35,7 @@ export default defineComponent({
     },
     props: {
         usersScores: {
-            type: Array,
+            type: Array as PropType<UserScore[]>,
             required: true,
         },
         contest: {
@@ -56,7 +57,7 @@ export default defineComponent({
         getCriteriaSumbyName (name: CriteriaName, criteriaSum): number {
             const cSum = criteriaSum.find(c => c.name === name);
 
-            return cSum.sum || NaN;
+            return cSum?.sum || NaN;
         },
     },
 });

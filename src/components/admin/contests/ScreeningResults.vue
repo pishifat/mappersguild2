@@ -87,8 +87,9 @@ export default defineComponent({
         };
     },
     computed: {
-        sortedSubmissions(): any[] {
-            const sortedSubmissions: any = [...this.submissions];
+        sortedSubmissions(): Submission[] {
+            // "Deep copy" to avoid vuex complains
+            const sortedSubmissions: Submission[] = JSON.parse(JSON.stringify(this.submissions));
 
             for (let i = 0; i < sortedSubmissions.length; i++) {
                 const submission = sortedSubmissions[i];

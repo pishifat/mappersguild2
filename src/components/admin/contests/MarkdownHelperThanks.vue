@@ -13,7 +13,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, PropType } from 'vue';
+import { User } from '@interfaces/user';
 import CopyPaste from '../../CopyPaste.vue';
 
 export default defineComponent({
@@ -23,11 +24,11 @@ export default defineComponent({
     },
     props: {
         screeners: {
-            type: Array,
+            type: Array as PropType<User[]>,
             default: () => [],
         },
         judges: {
-            type: Array,
+            type: Array as PropType<User[]>,
             default: () => [],
         },
     },
