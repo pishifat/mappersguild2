@@ -1,6 +1,6 @@
 <template>
     <small>
-        {{ status == 'open' ? 'Modes available' : 'Modes' }}:
+        Modes:
         <modes-icons :modes="modes" />
     </small>
 </template>
