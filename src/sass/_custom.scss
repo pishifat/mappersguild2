@@ -15,6 +15,10 @@
 $second-bg: rgba(66, 64, 61, 0.7);
 $second-bg-hover: rgb(66, 64, 61);
 
+a {
+    font-weight: bold;
+}
+
 body {
     background: url('/images/triangles.png') repeat fixed;
 }
