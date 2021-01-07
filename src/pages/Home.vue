@@ -43,15 +43,21 @@
                         </div>
                         <div class="card card-body card-home-showcase small">
                             <template v-for="song in artist.songs">
-                                <a
+                                <template
                                     v-for="beatmap in song.beatmaps"
                                     :key="beatmap.id"
                                     :href="beatmap.url"
                                     target="_blank"
                                 >
-                                    {{ song.title }} by
-                                    {{ beatmap.host.username }}
-                                </a>
+                                    <a
+                                        v-if="beatmap.url"
+                                        :href="beatmap.url"
+                                        target="_blank"
+                                    >
+                                        {{ song.title }} by {{ beatmap.host.username }}
+                                    </a>
+                                    <span v-else>{{ song.title }} by {{ beatmap.host.username }}</span>
+                                </template>
                             </template>
                         </div>
                     </div>
