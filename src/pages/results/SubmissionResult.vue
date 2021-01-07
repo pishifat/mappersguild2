@@ -1,18 +1,18 @@
 <template>
     <div>
         <div v-if="submission" class="container p-3">
-            <div class="text-center">
+            <div>
                 <h4>
                     {{ submission.contest.name }}
                 </h4>
-                <h5 v-bs-tooltip="'anonymized submission name'">
-                    {{ submission.name }}
+                <h5>
+                    <span v-bs-tooltip="'anonymized submission name'">{{ submission.name }}</span>
                 </h5>
                 <div>
                     created by
                     <user-link :user="submission.creator" />
                 </div>
-                <a v-if="loggedInUser" href="#" @click.prevent="$store.commit('setSubmission', null)">
+                <a v-if="loggedInUser && loggedInUser.id == submission.creator.id" href="#" @click.prevent="$store.commit('setSubmission', null)">
                     show all submissions
                 </a>
             </div>

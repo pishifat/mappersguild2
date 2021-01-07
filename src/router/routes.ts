@@ -28,7 +28,7 @@ const routes = [
     { path: '/beatmaps', component: Beatmaps, meta: { title: 'Beatmaps' } },
     { path: '/quests', component: Quests, meta: { title: 'Quests' } },
     { path: '/users', component: Users, meta: { title: 'Users' } },
-    { path: '/contestResults', component: ContestResults, meta: { title: 'Contest Result' } },
+    { path: '/contestResults', component: ContestResults, meta: { title: 'Contest Results' } },
 
     // Logged
     { path: '/logs', component: Logs, meta: { title: 'Logs' } },

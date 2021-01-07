@@ -4,7 +4,7 @@
             <div class="col-sm">
                 <div class="card">
                     <div class="card-header">
-                        <h4 class="text-center my-2">
+                        <h4 class="my-2">
                             {{ contest.name }}
                         </h4>
                     </div>
