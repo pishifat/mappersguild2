@@ -104,10 +104,8 @@ adminRouter.get('/loadActionQuests/', (req, res) => __awaiter(void 0, void 0, vo
     const pendingQuests = yield quest_1.QuestModel
         .find({ status: quest_2.QuestStatus.Pending })
         .defaultPopulate();
-    res.json({
-        quests,
-        pendingQuests,
-    });
+    quests = quests.concat(pendingQuests);
+    res.json(quests);
 }));
 adminRouter.get('/loadActionUsers/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const allUsers = yield user_1.UserModel.find({});

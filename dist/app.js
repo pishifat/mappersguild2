@@ -99,9 +99,7 @@ app.use('/admin/quests', quests_2.default);
 app.use('/admin/contests', contests_1.default);
 app.use('/admin/judging', judging_1.default);
 app.use((req, res) => {
-    res.render('index', {
-        isDev: req.app.get('env') === 'development',
-    });
+    res.render('index');
 });
 app.use((err, req, res, next) => {
     let customErrorMessage = '';

@@ -13,12 +13,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const contest_1 = require("../interfaces/contest/contest");
 const submission_1 = require("../models/contest/submission");
 const contestResultsRouter = express_1.default.Router();
 const submissionPopulate = [
     {
         path: 'contest',
-        select: 'name screeners',
+        select: 'name screeners status',
     },
     {
         path: 'evaluations',
@@ -39,10 +40,23 @@ const submissionPopulate = [
         },
     },
 ];
+contestResultsRouter.get('/participated', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    let submissions = yield submission_1.SubmissionModel
+        .find({
+        creator: (_a = req.session) === null || _a === void 0 ? void 0 : _a.mongoId,
+    })
+        .populate(submissionPopulate);
+    submissions = submissions.filter(s => s.contest.status === contest_1.ContestStatus.Complete);
+    res.json(submissions);
+}));
 contestResultsRouter.get('/searchSubmission/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const submission = yield submission_1.SubmissionModel
         .findById(req.params.id)
         .populate(submissionPopulate);
+    if ((submission === null || submission === void 0 ? void 0 : submission.contest.status) !== contest_1.ContestStatus.Complete) {
+        return res.json(null);
+    }
     res.json(submission);
 }));
 exports.default = contestResultsRouter;

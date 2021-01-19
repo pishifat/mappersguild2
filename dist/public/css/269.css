@@ -1,0 +1,6 @@
+.modal-header,.modal-body,.modal-footer{z-index:1}.modal-header{color:var(--bs-dark)}.modal-header a{color:var(--bs-dark)}.modal-header a:hover{color:var(--bs-gray-dark);font-weight:bold}.the-a-background::before{content:"";background-image:url("/images/the_A.png");background-repeat:no-repeat;background-size:contain;width:100%;height:100%;opacity:.25;position:absolute}
+.quest-icon[data-v-7f5b5ec0]{width:24px;height:24px}
+.mode-margin{margin-left:1px;margin-right:1px}
+.map-card[data-v-0e5d497a]{overflow:hidden;height:75px}
+.rounded-100[data-v-79fd40f6]{border-radius:100% !important}
+@media(min-width: 992px){.bm-col-separator-left[data-v-3dc524c0]{border-left:3px solid rgba(100,88,88,.42)}}.fake-button-disable[data-v-3dc524c0]{pointer-events:none;opacity:.6}
