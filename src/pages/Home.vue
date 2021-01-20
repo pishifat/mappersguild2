@@ -301,7 +301,7 @@
                     <ul class="text-secondary">
                         <li>Maps created through the Mappers’ Guild will be used in medals and occasionally as promotional material.</li>
                         <li>Many quests will have their own themed medals, while other unrelated mapsets will be grouped under a general Mappers’ Guild medal. Special quests involving unannounced featured artists will additionally be used as promotional material in news posts when applicable.</li>
-                        <li>Mappers' Guild mapsets that include difficulty spreads beginning from an Easy difficulty are elligible to be bundled in new installations of osu!.</li>
+                        <li>Mappers' Guild mapsets that include difficulty spreads beginning from an Easy difficulty are eligible to be bundled in new installations of osu!.</li>
                     </ul>
                 </div>
                 <div class="col-md-2 text-center">
