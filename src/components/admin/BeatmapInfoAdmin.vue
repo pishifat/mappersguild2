@@ -40,9 +40,7 @@
                 <p class="row">
                     <select v-model="taskId" class="form-select form-select-sm w-50 mx-2">
                         <option v-for="task in sortedTasks" :key="task.id" :value="task.id">
-                            {{ task.name }} ---
-                            {{ task.mappers.join(', ') }}
-                            {{ task.name == 'Storyboard' ? ' --- ' + task.sbQuality : '' }}
+                            {{ findTaskInfo(task) }}
                         </option>
                     </select>
                     <button class="btn btn-sm btn-outline-danger w-25" @click="deleteTask($event)">
@@ -173,6 +171,15 @@ export default defineComponent({
                     this.storyboardTaskId = task.id;
                 }
             });
+        },
+        findTaskInfo(task): string {
+            let text = `${task.name} --- `;
+            const mappers = task.mappers.map(m => m.username);
+            text += mappers.join(', ');
+
+            if (task.name == 'Storyboard') text += ` --- ${task.sbQuality}`;
+
+            return text;
         },
         async updateBeatmapStatus(e): Promise<void> {
             const status = await this.$http.executePost(`/admin/beatmaps/${this.beatmap.id}/updateStatus`, { status: this.status }, e);
