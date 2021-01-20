@@ -100,7 +100,7 @@ adminRouter.get('/loadActionQuests/', async (req, res) => {
 
     quests = quests.filter(q =>
         q.associatedMaps.length >= q.requiredMapsets &&
-        q.associatedMaps.some(b => b.status === BeatmapStatus.Ranked)
+        q.associatedMaps.every(b => b.status === BeatmapStatus.Ranked)
     );
 
     const pendingQuests = await QuestModel

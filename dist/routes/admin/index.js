@@ -100,7 +100,7 @@ adminRouter.get('/loadActionQuests/', (req, res) => __awaiter(void 0, void 0, vo
         .find({ status: quest_2.QuestStatus.WIP })
         .defaultPopulate();
     quests = quests.filter(q => q.associatedMaps.length >= q.requiredMapsets &&
-        q.associatedMaps.some(b => b.status === beatmap_2.BeatmapStatus.Ranked));
+        q.associatedMaps.every(b => b.status === beatmap_2.BeatmapStatus.Ranked));
     const pendingQuests = yield quest_1.QuestModel
         .find({ status: quest_2.QuestStatus.Pending })
         .defaultPopulate();
