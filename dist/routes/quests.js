@@ -94,7 +94,7 @@ questsRouter.post('/:id/accept', middlewares_1.isNotSpectator, (req, res) => __a
         || quest.isExpired) {
         return res.json({ error: `Requirements weren't met` });
     }
-    const remainingModes = quest.modes;
+    const remainingModes = [...quest.modes];
     for (const mode of party.modes) {
         const i = remainingModes.findIndex(m => m === mode);
         if (i === -1) {
@@ -117,6 +117,7 @@ questsRouter.post('/:id/accept', middlewares_1.isNotSpectator, (req, res) => __a
         quest.status = status;
         quest.accepted = accepted;
         quest.deadline = deadline;
+        yield quest.save();
     }
     else {
         const newQuest = new quest_2.QuestModel();
