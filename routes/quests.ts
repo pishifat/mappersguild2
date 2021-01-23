@@ -97,7 +97,7 @@ questsRouter.post('/:id/accept', isNotSpectator, async (req, res) => {
         return res.json({ error: `Requirements weren't met` });
     }
 
-    const remainingModes = quest.modes;
+    const remainingModes = [...quest.modes];
 
     // check if quest has the modes available for the party's modes
     for (const mode of party.modes) {
@@ -131,6 +131,8 @@ questsRouter.post('/:id/accept', isNotSpectator, async (req, res) => {
         quest.status = status;
         quest.accepted = accepted;
         quest.deadline = deadline;
+
+        await quest.save();
     } else {
         // Create a new WIP quest and leave the old one open with the remaning modes
         const newQuest = new QuestModel();
