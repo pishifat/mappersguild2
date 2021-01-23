@@ -64,7 +64,7 @@
                             <span v-else>
                                 never
                             </span>
-                            <a href="#" @click.prevent="showContactedInput = !showContactedInput">
+                            <a href="#" class="ms-1" @click.prevent="showContactedInput = !showContactedInput">
                                 <i class="fas fa-edit" />
                             </a>
                         </span>
@@ -151,7 +151,7 @@
 
                         <div class="small ms-2">
                             Projected release: <span :class="'text-' + artist.projectedRelease ? 'done' : 'open'">{{ artist.projectedRelease ? new Date(artist.projectedRelease).toString().slice(4,15) : '...' }}</span>
-                            <a href="#" @click.prevent="showDateInput = !showDateInput">
+                            <a href="#" class="ms-1" @click.prevent="showDateInput = !showDateInput">
                                 <i class="fas fa-edit" />
                             </a>
                         </div>
@@ -213,7 +213,7 @@
                 </div>
                 <!--notes-->
                 <div class="mb-1 ms-2">
-                    <a href="#" @click.prevent="updateNotes(null)">
+                    <a href="#" class="me-1" @click.prevent="updateNotes(null)">
                         <i class="fas fa-edit" />
                     </a>
                     <span v-if="!showNotesInput" class="small text-white-50" v-html="filterLinks(artist.notes)" />
