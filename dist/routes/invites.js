@@ -95,7 +95,7 @@ invitesRouter.post('/:id/accept', (req, res) => __awaiter(void 0, void 0, void 0
             .findOne(invite.map._id)
             .defaultPopulate()
             .orFail();
-        yield beatmap.checkTaskAvailability(user, invite.taskName, invite.taskMode, invite.actionType, invite.modified.id);
+        yield beatmap.checkTaskAvailability(user, invite.taskName, invite.taskMode, invite.actionType, invite.modified.toString());
         if (invite.actionType === invite_2.ActionType.Collab) {
             const task = yield task_1.TaskModel.findById(invite.modified._id).orFail();
             task.mappers.push(user);

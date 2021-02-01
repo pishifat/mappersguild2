@@ -109,7 +109,7 @@ invitesRouter.post('/:id/accept', async (req, res) => {
             .defaultPopulate()
             .orFail();
 
-        await beatmap.checkTaskAvailability(user, invite.taskName, invite.taskMode, invite.actionType, invite.modified.id);
+        await beatmap.checkTaskAvailability(user, invite.taskName, invite.taskMode, invite.actionType, invite.modified.toString());
 
         if (invite.actionType === ActionType.Collab) {
             const task = await TaskModel.findById(invite.modified._id).orFail();
