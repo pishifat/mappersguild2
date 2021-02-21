@@ -150,7 +150,7 @@
                         </div>
 
                         <div class="small ms-2">
-                            Projected release: <span :class="'text-' + artist.projectedRelease ? 'done' : 'open'">{{ artist.projectedRelease ? new Date(artist.projectedRelease).toString().slice(4,15) : '...' }}</span>
+                            Projected release: <span :class="'text-' + (artist.projectedRelease ? 'done' : 'open')">{{ artist.projectedRelease ? new Date(artist.projectedRelease).toString().slice(4,15) : '...' }}</span>
                             <a href="#" class="ms-1" @click.prevent="showDateInput = !showDateInput">
                                 <i class="fas fa-edit" />
                             </a>

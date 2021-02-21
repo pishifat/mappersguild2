@@ -11,7 +11,7 @@
                         Awaiting response ({{ contactedArtists.length }})
                         <i class="fas fa-angle-down" />
                     </a>
-                    <button class="btn btn-sm btn-outline-info" @click="setAllAsRejected($event)">
+                    <button class="btn btn-sm btn-outline-info ms-2" @click="setAllAsRejected($event)">
                         Mark all as rejected
                     </button>
                 </h5>
@@ -31,7 +31,7 @@
                         Not contacted ({{ notContacted.length }})
                         <i class="fas fa-angle-down" />
                     </a>
-                    <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#addArtist">
+                    <button class="btn btn-sm btn-outline-info ms-2" data-bs-toggle="modal" data-bs-target="#addArtist">
                         Add artist
                     </button>
                 </h5>
