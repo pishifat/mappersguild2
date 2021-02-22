@@ -24,8 +24,6 @@ const discordApi_1 = require("../../helpers/discordApi");
 const party_1 = require("../../models/party");
 const spentPoints_1 = require("../../models/spentPoints");
 const helpers_1 = require("../../helpers/helpers");
-const featuredArtist_1 = require("../../models/featuredArtist");
-const helpers_2 = require("../../helpers/helpers");
 const adminQuestsRouter = express_1.default.Router();
 adminQuestsRouter.use(middlewares_1.isLoggedIn);
 adminQuestsRouter.use(middlewares_1.isAdmin);
@@ -50,56 +48,17 @@ adminQuestsRouter.post('/create', (req, res) => __awaiter(void 0, void 0, void 0
         quest.expiration = new Date();
         quest.expiration.setDate(quest.expiration.getDate() + 90);
         quest.creator = (_a = req === null || req === void 0 ? void 0 : req.session) === null || _a === void 0 ? void 0 : _a.mongoId;
+        quest.status = quest_2.QuestStatus.Scheduled;
         const newQuest = yield quest_1.QuestModel.create(quest);
         newQuests.push(newQuest);
         log_1.LogModel.generate((_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId, `created quest "${newQuest.name}"`, log_2.LogCategory.Quest);
-    }
-    const webhooks = [];
-    for (const quest of newQuests) {
-        const i = webhooks.findIndex(w => w.artist && w.artist == quest.art);
-        if (i !== -1) {
-            webhooks[i].quests.push(quest);
-        }
-        else {
-            webhooks.push({
-                artist: quest.art,
-                isMbc: quest.isMbc,
-                url: quest.isMbc ? 'https://mappersguild.com/images/mbc-icon.png' : quest.art ? `https://assets.ppy.sh/artists/${quest.art}/cover.jpg` : 'https://mappersguild.com/images/no-art-icon.png',
-                quests: [quest],
-            });
-        }
-    }
-    for (const webhook of webhooks) {
-        let title = 'New ';
-        if (webhook.artist && !webhook.isMbc) {
-            const artist = yield featuredArtist_1.FeaturedArtistModel.findOne({ osuId: webhook.artist }).orFail();
-            title += `${artist.label} `;
-        }
-        title += webhook.quests.length > 1 ? `quests:\n` : `quest:\n`;
-        let description = '';
-        for (const quest of webhook.quests) {
-            description += `\n[**${quest.name}**](https://mappersguild.com/quests?id=${quest.id})`;
-            description += `\n- **Objective:** ${quest.descriptionMain}`;
-            description += `\n- **Members:** ${quest.minParty == quest.maxParty ? quest.maxParty : quest.minParty + '-' + quest.maxParty} member${quest.maxParty == 1 ? '' : 's'}`;
-            description += `\n- **Price:** ${quest.price} points from each member`;
-            description += `\n`;
-        }
-        discordApi_1.webhookPost([{
-                color: discordApi_1.webhookColors.orange,
-                title,
-                description,
-                thumbnail: {
-                    url: webhook.url,
-                },
-            }]);
-        yield helpers_1.sleep(1000);
     }
     const quests = yield quest_1.QuestModel.findAll();
     res.json({
         quests,
     });
 }));
-adminQuestsRouter.post('/:id/publish', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+adminQuestsRouter.post('/:id/schedule', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _c;
     const quest = yield quest_1.QuestModel
         .findById(req.params.id)
@@ -108,33 +67,9 @@ adminQuestsRouter.post('/:id/publish', (req, res) => __awaiter(void 0, void 0, v
     const expiration = new Date();
     expiration.setDate(expiration.getDate() + 90);
     quest.expiration = expiration;
-    quest.status = quest_2.QuestStatus.Open;
+    quest.status = quest_2.QuestStatus.Scheduled;
     yield quest.save();
-    log_1.LogModel.generate((_c = req.session) === null || _c === void 0 ? void 0 : _c.mongoId, `published quest "${quest.name}" by "${quest.creator.username}"`, log_2.LogCategory.Quest);
-    discordApi_1.webhookPost([{
-            author: {
-                name: quest.creator.username,
-                url: `https://osu.ppy.sh/users/${quest.creator.osuId}`,
-                icon_url: `https://a.ppy.sh/${quest.creator.osuId}`,
-            },
-            color: discordApi_1.webhookColors.yellow,
-            description: `New custom quest: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id})`,
-            thumbnail: {
-                url: `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`,
-            },
-            fields: [{
-                    name: 'Objective',
-                    value: `${quest.descriptionMain}`,
-                },
-                {
-                    name: 'Party size',
-                    value: `${quest.minParty == quest.maxParty ? quest.maxParty : quest.minParty + '-' + quest.maxParty} member${quest.maxParty == 1 ? '' : 's'}`,
-                },
-                {
-                    name: 'Price',
-                    value: `${quest.price} points from each member`,
-                }],
-        }]);
+    log_1.LogModel.generate((_c = req.session) === null || _c === void 0 ? void 0 : _c.mongoId, `scheduled quest "${quest.name}" by "${quest.creator.username}"`, log_2.LogCategory.Quest);
     res.json(quest.status);
 }));
 adminQuestsRouter.post('/:id/reject', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -191,31 +126,22 @@ adminQuestsRouter.post('/:id/drop', (req, res) => __awaiter(void 0, void 0, void
     let quest = yield quest_1.QuestModel.defaultFindByIdOrFail(req.params.id);
     quest = yield quest.drop();
     res.json(quest);
-    const { memberList, modeList } = helpers_2.generateLists(quest.modes, quest.currentParty.members);
-    discordApi_1.webhookPost([Object.assign(Object.assign(Object.assign(Object.assign({}, helpers_2.generateAuthorWebhook(quest.currentParty.leader)), { color: discordApi_1.webhookColors.red, description: `Dropped quest: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id}) [**${modeList}**]` }), helpers_2.generateThumbnailUrl(quest)), { fields: [{
+    const { memberList, modeList } = helpers_1.generateLists(quest.modes, quest.currentParty.members);
+    discordApi_1.webhookPost([Object.assign(Object.assign(Object.assign(Object.assign({}, helpers_1.generateAuthorWebhook(quest.currentParty.leader)), { color: discordApi_1.webhookColors.red, description: `Dropped quest: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id}) [**${modeList}**]` }), helpers_1.generateThumbnailUrl(quest)), { fields: [{
                     name: 'Party members',
                     value: memberList,
                 }] })]);
     log_1.LogModel.generate((_d = req.session) === null || _d === void 0 ? void 0 : _d.mongoId, `forced party to drop quest "${quest.name}"`, log_2.LogCategory.Quest);
 }));
-adminQuestsRouter.post('/:id/complete', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+adminQuestsRouter.post('/:id/scheduleForCompletion', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _e;
     const quest = yield quest_1.QuestModel.defaultFindByIdOrFail(req.params.id);
     if (quest.status !== quest_2.QuestStatus.WIP) {
         throw new Error(`Quest is ${quest.status}`);
     }
-    quest.completed = new Date();
-    quest.status = quest_2.QuestStatus.Done;
+    quest.queuedForCompletion = req.body.queuedForCompletion;
     yield quest.save();
-    for (const member of quest.currentParty.members) {
-        points_1.updateUserPoints(member.id);
-    }
-    const { modeList, memberList } = helpers_2.generateLists(quest.modes, quest.currentParty.members);
-    discordApi_1.webhookPost([Object.assign(Object.assign(Object.assign(Object.assign({}, helpers_2.generateAuthorWebhook(quest.currentParty.leader)), { color: discordApi_1.webhookColors.purple, description: `Completed quest: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id}) [**${modeList}**]` }), helpers_2.generateThumbnailUrl(quest)), { fields: [{
-                    name: 'Members',
-                    value: memberList,
-                }] })]);
-    res.json(quest);
+    res.json(req.body.queuedForCompletion);
     log_1.LogModel.generate((_e = req.session) === null || _e === void 0 ? void 0 : _e.mongoId, `marked quest "${quest.name}" as complete`, log_2.LogCategory.Quest);
 }));
 adminQuestsRouter.post('/:id/toggleMode', (req, res) => __awaiter(void 0, void 0, void 0, function* () {

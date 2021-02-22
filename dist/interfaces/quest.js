@@ -9,4 +9,5 @@ var QuestStatus;
     QuestStatus["Pending"] = "pending";
     QuestStatus["Rejected"] = "rejected";
     QuestStatus["Hidden"] = "hidden";
+    QuestStatus["Scheduled"] = "scheduled";
 })(QuestStatus = exports.QuestStatus || (exports.QuestStatus = {}));

@@ -168,10 +168,10 @@ beatmapsRouter.post('/:id/updateModder', middlewares_1.isNotSpectator, (req, res
     });
     let update;
     if (isAlreadyModder) {
-        update = { $pull: { modders: (_j = req.session) === null || _j === void 0 ? void 0 : _j.mongoId } };
+        update = { $pull: { modders: (_j = req.session) === null || _j === void 0 ? void 0 : _j.mongoId }, queuedForRank: false };
     }
     else {
-        update = { $push: { modders: (_k = req.session) === null || _k === void 0 ? void 0 : _k.mongoId } };
+        update = { $push: { modders: (_k = req.session) === null || _k === void 0 ? void 0 : _k.mongoId }, queuedForRank: false };
     }
     let b = yield beatmap_1.BeatmapModel
         .findById(req.params.id)

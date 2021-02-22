@@ -15,14 +15,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const middlewares_1 = require("../../helpers/middlewares");
 const beatmap_1 = require("../../models/beatmap/beatmap");
-const featuredArtist_1 = require("../../models/featuredArtist");
 const beatmap_2 = require("../../interfaces/beatmap/beatmap");
 const quest_1 = require("../../models/quest");
 const helpers_1 = require("../../helpers/helpers");
-const points_1 = require("../../helpers/points");
 const task_1 = require("../../models/beatmap/task");
 const osuApi_1 = require("../../helpers/osuApi");
-const discordApi_1 = require("../../helpers/discordApi");
 const task_2 = require("../../interfaces/beatmap/task");
 const user_1 = require("../../interfaces/user");
 const user_2 = require("../../models/user");
@@ -41,7 +38,7 @@ adminBeatmapsRouter.get('/load', (req, res) => __awaiter(void 0, void 0, void 0,
     res.json(beatmaps);
 }));
 adminBeatmapsRouter.post('/:id/updateStatus', middlewares_1.isSuperAdmin, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let b = yield beatmap_1.BeatmapModel
+    const b = yield beatmap_1.BeatmapModel
         .findByIdAndUpdate(req.params.id, { status: req.body.status })
         .orFail();
     if (req.body.status == beatmap_2.BeatmapStatus.Done) {
@@ -55,77 +52,11 @@ adminBeatmapsRouter.post('/:id/updateStatus', middlewares_1.isSuperAdmin, (req, 
         if (osuApi_1.isOsuResponseError(bmInfo)) {
             return res.json(helpers_1.defaultErrorMessage);
         }
-        b.length = bmInfo.hit_length;
-        b.rankedDate = bmInfo.approved_date;
+        yield helpers_1.setBeatmapStatusRanked(b.id, bmInfo);
+    }
+    else {
+        b.queuedForRank = false;
         yield b.save();
-        b = yield beatmap_1.BeatmapModel
-            .findById(req.params.id)
-            .defaultPopulate()
-            .orFail();
-        for (const modder of b.modders) {
-            points_1.updateUserPoints(modder.id);
-        }
-        points_1.updateUserPoints(b.host.id);
-        const gdUsernames = [];
-        const gdUsers = [];
-        const modes = [];
-        let storyboard;
-        for (const task of b.tasks) {
-            if (task.mode == 'sb' && task.mappers[0].id != b.host.id) {
-                storyboard = task;
-            }
-            else if (task.mode != 'sb') {
-                task.mappers.forEach(mapper => {
-                    if (!gdUsernames.includes(mapper.username) && mapper.username != b.host.username) {
-                        gdUsernames.push(mapper.username);
-                        gdUsers.push(mapper);
-                    }
-                });
-                if (!modes.includes(task.mode)) {
-                    modes.push(task.mode);
-                }
-            }
-        }
-        let gdText = '';
-        if (!gdUsers.length) {
-            gdText = '\nNo guest difficulties';
-        }
-        else if (gdUsers.length > 1) {
-            gdText = '\nGuest difficulties by ';
-        }
-        else if (gdUsers.length == 1) {
-            gdText = '\nGuest difficulty by ';
-        }
-        if (gdUsers.length) {
-            for (let i = 0; i < gdUsers.length; i++) {
-                const user = gdUsers[i];
-                gdText += `[**${user.username}**](https://osu.ppy.sh/users/${user.osuId})`;
-                if (i + 1 < gdUsers.length) {
-                    gdText += ', ';
-                }
-                points_1.updateUserPoints(user.id);
-            }
-        }
-        let storyboardText = '';
-        if (storyboard) {
-            const storyboarder = storyboard.mappers[0];
-            storyboardText = `\nStoryboard by [**${storyboarder.username}**](https://osu.ppy.sh/users/${storyboarder.osuId})`;
-            points_1.updateUserPoints(storyboarder.id);
-        }
-        let showcaseText = '';
-        if (b.isShowcase) {
-            const artist = yield featuredArtist_1.FeaturedArtistModel.findOne({ songs: b.song._id });
-            if (artist)
-                showcaseText = `\n\nThis beatmap was created for [${b.song.artist}](https://osu.ppy.sh/beatmaps/artists/${artist.osuId})'s Featured Artist announcement!`;
-        }
-        const description = `💖 [**${b.song.artist} - ${b.song.title}**](${b.url}) [**${modes.join(', ')}**] has been ranked\n\nHosted by [**${b.host.username}**](https://osu.ppy.sh/users/${b.host.osuId})${gdText}${storyboardText}${showcaseText}`;
-        discordApi_1.webhookPost([{
-                color: discordApi_1.webhookColors.blue,
-                description,
-                thumbnail: {
-                    url: `https://assets.ppy.sh/beatmaps/${osuId}/covers/list.jpg`,
-                },
-            }]);
     }
     res.json(req.body.status);
 }));
@@ -176,6 +107,12 @@ adminBeatmapsRouter.post('/:id/updateIsShowcase', (req, res) => __awaiter(void 0
         .findByIdAndUpdate(req.params.id, { isShowcase: req.body.isShowcase })
         .orFail();
     res.json(req.body.isShowcase);
+}));
+adminBeatmapsRouter.post('/:id/updateQueuedForRank', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    yield beatmap_1.BeatmapModel
+        .findByIdAndUpdate(req.params.id, { queuedForRank: req.body.queuedForRank })
+        .orFail();
+    res.json(req.body.queuedForRank);
 }));
 adminBeatmapsRouter.get('/loadNewsInfo/:date', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (isNaN(Date.parse(req.params.date))) {

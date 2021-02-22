@@ -19,6 +19,7 @@ mongoose_1.default.plugin(schema => {
         }
     });
 });
+const automation_1 = __importDefault(require("./helpers/automation"));
 const index_1 = __importDefault(require("./routes/index"));
 const beatmaps_1 = __importDefault(require("./routes/beatmaps/beatmaps"));
 const beatmapsHost_1 = __importDefault(require("./routes/beatmaps/beatmapsHost"));
@@ -120,5 +121,9 @@ const port = process.env.PORT || '3000';
 app.set('port', port);
 app.listen(port, () => {
     console.log('Listening on ' + port);
+    automation_1.default.setQualified.start();
+    automation_1.default.setRanked.start();
+    automation_1.default.publishQuests.start();
+    automation_1.default.completeQuests.start();
 });
 exports.default = app;

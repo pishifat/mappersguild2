@@ -49,6 +49,7 @@ const BeatmapSchema = new mongoose_1.Schema({
     packId: { type: Number },
     rankedDate: { type: Date },
     isShowcase: { type: Boolean },
+    queuedForRank: { type: Boolean },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 const queryHelpers = {
     sortByLastest() {
