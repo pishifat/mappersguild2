@@ -10,6 +10,7 @@ export enum QuestStatus {
     Pending = 'pending',
     Rejected = 'rejected',
     Hidden = 'hidden',
+    Scheduled = 'scheduled',
 }
 
 export type QuestMode = Omit<BeatmapMode, BeatmapMode.Hybrid>;
@@ -34,6 +35,7 @@ export interface Quest extends Document {
     accepted: Date;
     deadline: Date;
     completed: Date;
+    queuedForCompletion: boolean;
     /** (virtual ref) */
     parties: Party[];
     /** (virtual) */

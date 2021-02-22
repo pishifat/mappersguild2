@@ -38,4 +38,5 @@ export interface Beatmap {
     updatedAt: Date;
     createdAt: Date;
     isShowcase: boolean;
+    queuedForRank: boolean;
 }

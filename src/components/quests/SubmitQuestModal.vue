@@ -145,9 +145,9 @@
                 <button
                     v-if="queuedQuests.length"
                     class="btn btn-outline-success w-100"
-                    @click="publishQuests($event)"
+                    @click="scheduleQuests($event)"
                 >
-                    Publish quests
+                    Schedule quests
                 </button>
             </div>
         </div>
@@ -160,7 +160,7 @@ import { mapState } from 'vuex';
 import ModalDialog from '@components/ModalDialog.vue';
 import { FeaturedArtist } from '../../../interfaces/featuredArtist';
 import { Quest } from '../../../interfaces/quest';
-import { PublishQuestsData, PublishQuestsResponse, SubmitQuestData } from '@interfaces/api/quests';
+import { ScheduleQuestsData, ScheduleQuestsResponse, SubmitQuestData } from '@interfaces/api/quests';
 import FormInput from '@components/admin/FormInput.vue';
 import FormTextarea from '@components/admin/FormTextarea.vue';
 import FormSelect from '@components/admin/FormSelect.vue';
@@ -363,12 +363,12 @@ export default defineComponent({
                 this.resetQuestDetails();
             }
         },
-        async publishQuests(e): Promise<void> { // for pishifat
-            const data: PublishQuestsData = {
+        async scheduleQuests(e): Promise<void> { // for pishifat
+            const data: ScheduleQuestsData = {
                 quests: this.queuedQuests,
             };
 
-            const res = await this.$http.executePost<PublishQuestsResponse>('/admin/quests/create', data, e);
+            const res = await this.$http.executePost<ScheduleQuestsResponse>('/admin/quests/create', data, e);
 
             if (!this.$http.isError(res)) {
                 this.$bs.hideModal('submitQuest');

@@ -15,7 +15,7 @@ const questSchema = new Schema({
     minRank: { type: Number, required: true },
     art: { type: Number },
     isMbc: { type: Boolean },
-    status: { type: String, enum: ['open', 'wip', 'done', 'pending', 'rejected', 'hidden'], default: 'open' },
+    status: { type: String, enum: ['open', 'wip', 'done', 'pending', 'rejected', 'hidden', 'scheduled'], default: 'open' },
     modes: [{ type: String, default: ['osu', 'taiko', 'catch', 'mania'], required: true }],
     expiration: { type: Date },
     //status is wip
@@ -23,6 +23,7 @@ const questSchema = new Schema({
     deadline: { type: Date },
     //status is done
     completed: { type: Date },
+    queuedForCompletion: { type: Boolean },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 questSchema.virtual('associatedMaps', {

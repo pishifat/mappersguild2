@@ -17,6 +17,7 @@ mongoose.plugin(schema => {
     });
 });
 
+import automation from './helpers/automation';
 import indexRouter from './routes/index';
 import beatmapsRouter from './routes/beatmaps/beatmaps';
 import beatmapsHostRouter from './routes/beatmaps/beatmapsHost';
@@ -141,6 +142,10 @@ const port = process.env.PORT || '3000';
 app.set('port', port);
 app.listen(port, () => {
     console.log('Listening on ' + port);
+    automation.setQualified.start();
+    automation.setRanked.start();
+    automation.publishQuests.start();
+    automation.completeQuests.start();
 });
 
 export default app;

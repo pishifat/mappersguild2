@@ -90,13 +90,14 @@
                     </button>
                 </p>
                 <p>
-                    <button class="btn btn-sm btn-outline-success w-100" @click="completeQuest($event)">
-                        Complete quest
-                    </button>
-                </p>
-                <p>
                     <button class="btn btn-sm btn-outline-info w-100" @click="resetQuestDeadline($event)">
                         Reset quest deadline
+                    </button>
+                </p>
+                <p class="row">
+                    <span class="col-sm-6">Scheduled for completion: <span class="text-danger">{{ quest.queuedForCompletion ? 'true' : 'false' }}</span></span>
+                    <button class="btn btn-sm btn-outline-success col-sm-6 ms-3 w-25" @click="scheduleQuestForCompletion($event)">
+                        Toggle
                     </button>
                 </p>
             </template>
@@ -251,25 +252,31 @@ export default defineComponent({
             }
         },
         async dropQuest(e): Promise<void> {
-            const quest = await this.$http.executePost(`/admin/quests/${this.quest.id}/drop`, {}, e);
+            const status = await this.$http.executePost(`/admin/quests/${this.quest.id}/drop`, {}, e);
 
-            if (!this.$http.isError(quest)) {
+            if (!this.$http.isError(status)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `quest force dropped`,
                     type: 'info',
                 });
-                this.$store.commit('quests/updateQuest', quest);
+                this.$store.commit('updateStatus', {
+                    questId: this.quest.id,
+                    status,
+                });
             }
         },
-        async completeQuest(e): Promise<void> {
-            const quest = await this.$http.executePost(`/admin/quests/${this.quest.id}/complete`, {}, e);
+        async scheduleQuestForCompletion(e): Promise<void> {
+            const queuedForCompletion = await this.$http.executePost(`/admin/quests/${this.quest.id}/scheduleForCompletion`, { queuedForCompletion: !this.quest.queuedForCompletion }, e);
 
-            if (!this.$http.isError(quest)) {
+            if (!this.$http.isError(queuedForCompletion)) {
                 this.$store.dispatch('updateToastMessages', {
-                    message: `quest marked as complete`,
+                    message: `quest queued for completion toggled: ${queuedForCompletion}`,
                     type: 'info',
                 });
-                this.$store.commit('quests/updateQuest', quest);
+                this.$store.commit('updateQueuedForCompletion', {
+                    questId: this.quest.id,
+                    queuedForCompletion,
+                });
             }
         },
         async duplicateQuest(e): Promise<void> {

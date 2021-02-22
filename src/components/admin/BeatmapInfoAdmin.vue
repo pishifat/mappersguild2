@@ -97,10 +97,21 @@
                         Save pack ID
                     </button>
                 </p>
-                <p>
-                    Featured Artist showcase:
-                    <span class="text-danger me-2">{{ beatmap.isShowcase ? 'true' : 'false' }}</span>
-                    <button class="btn btn-sm btn-outline-info" @click="updateIsShowcase($event)">
+                <p class="row">
+                    <span class="col-sm-6">
+                        Featured Artist showcase:
+                        <span class="text-danger me-2">{{ beatmap.isShowcase ? 'true' : 'false' }}</span>
+                    </span>
+                    <button class="btn btn-sm btn-outline-info ms-3 w-25" @click="updateIsShowcase($event)">
+                        Toggle
+                    </button>
+                </p>
+                <p v-if="beatmap.status == 'Qualified'" class="row">
+                    <span class="col-sm-6">
+                        Queued for rank:
+                        <span class="text-danger me-2">{{ beatmap.queuedForRank ? 'true' : 'false' }}</span>
+                    </span>
+                    <button class="btn btn-sm btn-outline-info ms-3 w-25" @click="updateQueuedForRank($event)">
                         Toggle
                     </button>
                 </p>
@@ -271,12 +282,26 @@ export default defineComponent({
 
             if (!this.$http.isError(isShowcase)) {
                 this.$store.dispatch('updateToastMessages', {
-                    message: `updated isShowcase`,
+                    message: `updated isShowcase: ${isShowcase}`,
                     type: 'info',
                 });
                 this.$store.commit('updateIsShowcase', {
                     beatmapId: this.beatmap.id,
                     isShowcase,
+                });
+            }
+        },
+        async updateQueuedForRank(e): Promise<void> {
+            const queuedForRank = await this.$http.executePost(`/admin/beatmaps/${this.beatmap.id}/updateQueuedForRank`, { queuedForRank: !this.beatmap.queuedForRank }, e);
+
+            if (!this.$http.isError(queuedForRank)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated queuedForRank: ${queuedForRank}`,
+                    type: 'info',
+                });
+                this.$store.commit('updateQueuedForRank', {
+                    beatmapId: this.beatmap.id,
+                    queuedForRank,
                 });
             }
         },

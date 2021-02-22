@@ -2,6 +2,12 @@ import { Party } from '../interfaces/party';
 import { Quest } from '../interfaces/quest';
 import { User } from '../interfaces/user';
 import { OsuAuthResponse } from './osuApi';
+import { webhookPost, webhookColors } from './discordApi';
+import { BeatmapStatus } from '../interfaces/beatmap/beatmap';
+import { BeatmapModel } from '../models/beatmap/beatmap';
+import { updateUserPoints } from './points';
+import { FeaturedArtistModel } from '../models/featuredArtist';
+import { FeaturedSong } from '../interfaces/featuredSong';
 
 export function findBeatmapsetId(url: string): number {
     const indexStart = url.indexOf('beatmapsets/') + 'beatmapsets/'.length;
@@ -15,6 +21,134 @@ export function findBeatmapsetId(url: string): number {
     }
 
     return parseInt(bmId, 10);
+}
+
+export function findBeatmapsetStatus(osuStatus): string {
+    let status = '';
+
+    switch (osuStatus) {
+        case 4:
+            status = 'Loved';
+            break;
+        case 3:
+            status = BeatmapStatus.Qualified;
+            break;
+        case 2:
+            status = 'Approved';
+            break;
+        case 1:
+            status = BeatmapStatus.Ranked;
+            break;
+        default:
+            status = BeatmapStatus.Done;
+            break;
+    }
+
+    return status;
+}
+
+export async function setBeatmapStatusRanked(id, bmInfo): Promise<void> {
+    // update status (only helpful for automated calls)
+    await BeatmapModel.findByIdAndUpdate(id, { status: BeatmapStatus.Ranked });
+
+    // query for populated beatmap
+    const beatmap = await BeatmapModel
+        .findById(id)
+        .defaultPopulate()
+        .orFail();
+
+    // set length (for task points calculation) and ranked date (for quest points calculation) according to osu! db
+    beatmap.length = bmInfo.hit_length;
+    beatmap.rankedDate = bmInfo.approved_date;
+    await beatmap.save();
+
+    // calculate points for modders
+    for (const modder of beatmap.modders) {
+        updateUserPoints(modder.id);
+    }
+
+    // calculate points for host
+    updateUserPoints(beatmap.host.id);
+
+    // establish empty variables
+    const gdUsernames: string[] = [];
+    const gdUsers: User[] = [];
+    const modes: string[] = [];
+    let storyboard;
+
+    // fill empty variables with data
+    for (const task of beatmap.tasks) {
+        if (task.mode == 'sb' && task.mappers[0].id != beatmap.host.id) {
+            storyboard = task;
+        } else if (task.mode != 'sb') {
+            task.mappers.forEach(mapper => {
+                if (!gdUsernames.includes(mapper.username) && mapper.username != beatmap.host.username) {
+                    gdUsernames.push(mapper.username);
+                    gdUsers.push(mapper);
+                }
+            });
+
+            if (!modes.includes(task.mode)) {
+                modes.push(task.mode);
+            }
+        }
+    }
+
+    // create template for webhook descriptiuon
+    let gdText = '';
+
+    if (!gdUsers.length) {
+        gdText = '\nNo guest difficulties';
+    } else if (gdUsers.length > 1) {
+        gdText = '\nGuest difficulties by ';
+    } else if (gdUsers.length == 1) {
+        gdText = '\nGuest difficulty by ';
+    }
+
+    // add users to webhook description
+    if (gdUsers.length) {
+        for (let i = 0; i < gdUsers.length; i++) {
+            const user = gdUsers[i];
+            gdText += `[**${user.username}**](https://osu.ppy.sh/users/${user.osuId})`;
+
+            if (i+1 < gdUsers.length) {
+                gdText += ', ';
+            }
+
+            // update points for all guest difficulty creators
+            updateUserPoints(user.id);
+        }
+    }
+
+    let storyboardText = '';
+
+    // add storyboarder to webhook and update points for storyboarder
+    if (storyboard) {
+        const storyboarder = storyboard.mappers[0];
+        storyboardText = `\nStoryboard by [**${storyboarder.username}**](https://osu.ppy.sh/users/${storyboarder.osuId})`;
+        updateUserPoints(storyboarder.id);
+    }
+
+    let showcaseText = '';
+
+    if (beatmap.isShowcase) {
+        const artist = await FeaturedArtistModel.findOne({ songs: beatmap.song._id as FeaturedSong });
+        if (artist) showcaseText = `\n\nThis beatmap was created for [${beatmap.song.artist}](https://osu.ppy.sh/beatmaps/artists/${artist.osuId})'s Featured Artist announcement!`;
+    }
+
+    const description = `💖 [**${beatmap.song.artist} - ${beatmap.song.title}**](${beatmap.url}) [**${modes.join(', ')}**] has been ranked\n\nHosted by [**${beatmap.host.username}**](https://osu.ppy.sh/users/${beatmap.host.osuId})${gdText}${storyboardText}${showcaseText}`;
+
+    // publish webhook
+    await webhookPost([{
+        color: webhookColors.blue,
+        description,
+        thumbnail: {
+            url: `https://assets.ppy.sh/beatmaps/${bmInfo.beatmapset_id}/covers/list.jpg`,
+        },
+    }]);
+
+    // pause to not exceed rate limit
+    await sleep(500);
 }
 
 export function sleep(ms: number): Promise<void> {

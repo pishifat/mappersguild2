@@ -192,9 +192,9 @@ beatmapsRouter.post('/:id/updateModder', isNotSpectator, async (req, res) => {
     let update;
 
     if (isAlreadyModder) {
-        update = { $pull: { modders: req.session?.mongoId } };
+        update = { $pull: { modders: req.session?.mongoId }, queuedForRank: false };
     } else {
-        update = { $push: { modders: req.session?.mongoId } };
+        update = { $push: { modders: req.session?.mongoId }, queuedForRank: false };
     }
 
     let b = await BeatmapModel

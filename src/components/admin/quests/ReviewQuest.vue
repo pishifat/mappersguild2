@@ -173,7 +173,7 @@
                 <div class="radial-divisor" />
 
                 <button type="submit" class="btn btn-outline-success w-100" @click="acceptPendingQuest($event)">
-                    Publish quest
+                    Schedule quest
                 </button>
                 <button type="submit" class="btn btn-outline-danger w-100" @click="rejectPendingQuest($event)">
                     Reject quest
@@ -259,11 +259,11 @@ export default defineComponent({
     },
     methods: {
         async acceptPendingQuest(e): Promise<void> {
-            const status = await this.$http.executePost(`/admin/quests/${this.quest.id}/publish`, {}, e);
+            const status = await this.$http.executePost(`/admin/quests/${this.quest.id}/schedule`, {}, e);
 
             if (!this.$http.isError(status)) {
                 this.$store.dispatch('updateToastMessages', {
-                    message: `published quest`,
+                    message: `scheduled quest`,
                     type: 'info',
                 });
                 this.$store.commit('updateStatus', {

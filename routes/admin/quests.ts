@@ -9,8 +9,6 @@ import { LogCategory } from '../../interfaces/log';
 import { webhookPost, webhookColors } from '../../helpers/discordApi';
 import { PartyModel } from '../../models/party';
 import { SpentPointsModel } from '../../models/spentPoints';
-import { sleep } from '../../helpers/helpers';
-import { FeaturedArtistModel } from '../../models/featuredArtist';
 import { generateAuthorWebhook, generateLists, generateThumbnailUrl } from '../../helpers/helpers';
 
 const adminQuestsRouter = express.Router();
@@ -43,60 +41,12 @@ adminQuestsRouter.post('/create', async (req, res) => {
         quest.expiration = new Date();
         quest.expiration.setDate(quest.expiration.getDate() + 90);
         quest.creator = req?.session?.mongoId;
+        quest.status = QuestStatus.Scheduled;
 
         const newQuest = await QuestModel.create(quest);
         newQuests.push(newQuest);
 
         LogModel.generate(req.session?.mongoId, `created quest "${newQuest.name}"`, LogCategory.Quest);
-    }
-
-    const webhooks: any = [];
-
-    for (const quest of newQuests) {
-        const i = webhooks.findIndex(w => w.artist && w.artist == quest.art);
-
-        if (i !== -1) {
-            webhooks[i].quests.push(quest);
-        } else {
-            webhooks.push({
-                artist: quest.art,
-                isMbc: quest.isMbc,
-                url: quest.isMbc ? 'https://mappersguild.com/images/mbc-icon.png' : quest.art ? `https://assets.ppy.sh/artists/${quest.art}/cover.jpg` : 'https://mappersguild.com/images/no-art-icon.png',
-                quests: [quest],
-            });
-        }
-    }
-
-    for (const webhook of webhooks) {
-        let title = 'New ';
-
-        if (webhook.artist && !webhook.isMbc) {
-            const artist = await FeaturedArtistModel.findOne({ osuId: webhook.artist }).orFail();
-            title += `${artist.label} `;
-        }
-
-        title += webhook.quests.length > 1 ? `quests:\n` : `quest:\n`;
-
-        let description = '';
-
-        for (const quest of webhook.quests) {
-            description += `\n[**${quest.name}**](https://mappersguild.com/quests?id=${quest.id})`;
-            description += `\n- **Objective:** ${quest.descriptionMain}`;
-            description += `\n- **Members:** ${quest.minParty == quest.maxParty ? quest.maxParty : quest.minParty + '-' + quest.maxParty} member${quest.maxParty == 1 ? '' : 's'}`;
-            description += `\n- **Price:** ${quest.price} points from each member`;
-            description += `\n`;
-        }
-
-        webhookPost([{
-            color: webhookColors.orange,
-            title,
-            description,
-            thumbnail: {
-                url: webhook.url,
-            },
-        }]);
-
-        await sleep(1000);
     }
 
     const quests = await QuestModel.findAll();
@@ -106,8 +56,8 @@ adminQuestsRouter.post('/create', async (req, res) => {
     });
 });
 
-/* POST publish quest */
-adminQuestsRouter.post('/:id/publish', async (req, res) => {
+/* POST schedule quest */
+adminQuestsRouter.post('/:id/schedule', async (req, res) => {
     const quest = await QuestModel
         .findById(req.params.id)
         .defaultPopulate()
@@ -117,36 +67,11 @@ adminQuestsRouter.post('/:id/publish', async (req, res) => {
     expiration.setDate(expiration.getDate() + 90);
     quest.expiration = expiration;
 
-    quest.status = QuestStatus.Open;
+    quest.status = QuestStatus.Scheduled;
 
     await quest.save();
 
-    LogModel.generate(req.session?.mongoId, `published quest "${quest.name}" by "${quest.creator.username}"`, LogCategory.Quest);
-
-    webhookPost([{
-        author: {
-            name: quest.creator.username,
-            url: `https://osu.ppy.sh/users/${quest.creator.osuId}`,
-            icon_url: `https://a.ppy.sh/${quest.creator.osuId}`,
-        },
-        color: webhookColors.yellow,
-        description: `New custom quest: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id})`,
-        thumbnail: {
-            url: `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`,
-        },
-        fields: [{
-            name: 'Objective',
-            value: `${quest.descriptionMain}`,
-        },
-        {
-            name: 'Party size',
-            value: `${quest.minParty == quest.maxParty ? quest.maxParty : quest.minParty + '-' + quest.maxParty} member${quest.maxParty == 1 ? '' : 's'}`,
-        },
-        {
-            name: 'Price',
-            value: `${quest.price} points from each member`,
-        }],
-    }]);
+    LogModel.generate(req.session?.mongoId, `scheduled quest "${quest.name}" by "${quest.creator.username}"`, LogCategory.Quest);
 
     res.json(quest.status);
 });
@@ -255,37 +180,18 @@ adminQuestsRouter.post('/:id/drop', async (req, res) => {
     LogModel.generate(req.session?.mongoId, `forced party to drop quest "${quest.name}"`, LogCategory.Quest);
 });
 
-/* POST complete quest */
-adminQuestsRouter.post('/:id/complete', async (req, res) => {
+/* POST schedule quest for completion */
+adminQuestsRouter.post('/:id/scheduleForCompletion', async (req, res) => {
     const quest = await QuestModel.defaultFindByIdOrFail(req.params.id);
 
     if (quest.status !== QuestStatus.WIP) {
         throw new Error(`Quest is ${quest.status}`);
     }
 
-    quest.completed = new Date();
-    quest.status = QuestStatus.Done;
+    quest.queuedForCompletion = req.body.queuedForCompletion;
     await quest.save();
 
-    for (const member of quest.currentParty.members) {
-        updateUserPoints(member.id);
-    }
-
-    //webhook
-    const { modeList, memberList } = generateLists(quest.modes, quest.currentParty.members);
-
-    webhookPost([{
-        ...generateAuthorWebhook(quest.currentParty.leader),
-        color: webhookColors.purple,
-        description: `Completed quest: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id}) [**${modeList}**]`,
-        ...generateThumbnailUrl(quest),
-        fields: [{
-            name: 'Members',
-            value: memberList,
-        }],
-    }]);
-
-    res.json(quest);
+    res.json(req.body.queuedForCompletion);
 
     LogModel.generate(req.session?.mongoId, `marked quest "${quest.name}" as complete`, LogCategory.Quest);
 });

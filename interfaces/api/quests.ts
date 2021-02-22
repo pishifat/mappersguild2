@@ -12,15 +12,15 @@ export interface SubmitQuestData {
     requiredMapsets: number;
 }
 
-export interface PublishQuestsData {
+export interface ScheduleQuestsData {
     quests: Partial<Quest>[];
 }
 
-export interface PublishQuests {
+export interface ScheduleQuests {
     quests: Quest[];
 }
 
-export type PublishQuestsResponse = PublishQuests | ErrorResponse;
+export type ScheduleQuestsResponse = ScheduleQuests | ErrorResponse;
 
 export type QuestResponse = Quest | ErrorResponse;
 

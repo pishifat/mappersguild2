@@ -5,9 +5,6 @@
                 <button class="btn btn-sm btn-info w-100 mb-1" @click="loadActionBeatmaps($event, false)">
                     Load beatmaps
                 </button>
-                <button class="btn btn-sm btn-info w-100 mb-1" @click="loadActionBeatmaps($event, true)">
-                    Load WIP beatmaps
-                </button>
             </div>
             <div class="row">
                 <div class="col">
@@ -306,15 +303,13 @@ export default defineComponent({
 
             return metadata;
         },
-        async loadActionBeatmaps(e, queryWip): Promise<void> {
+        async loadActionBeatmaps(e): Promise<void> {
             let result = true;
-
-            if (queryWip) result = confirm('Are you sure you want to load WIP beatmaps? This will take a while...');
 
             if (result) {
                 this.$store.commit('setActionBeatmaps', []);
                 this.$store.commit('setActionBeatmapsLoading', true);
-                const actionBeatmaps = await this.$http.executeGet<Beatmap[]>(`/admin/loadActionBeatmaps/${queryWip}`, e);
+                const actionBeatmaps = await this.$http.executeGet<Beatmap[]>(`/admin/loadActionBeatmaps`, e);
 
                 if (!this.$http.isError(actionBeatmaps)) {
                     this.$store.commit('setActionBeatmaps', actionBeatmaps);

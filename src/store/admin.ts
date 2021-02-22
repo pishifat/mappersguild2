@@ -115,6 +115,20 @@ const store: Module<AdminState, MainState> = {
                 beatmap.packId = payload.packId;
             }
         },
+        updateIsShowcase (state, payload): void {
+            const beatmap = state.actionBeatmaps.find(b => b.id == payload.beatmapId);
+
+            if (beatmap) {
+                beatmap.isShowcase = payload.isShowcase;
+            }
+        },
+        updateQueuedForRank (state, payload): void {
+            const beatmap = state.actionBeatmaps.find(b => b.id == payload.beatmapId);
+
+            if (beatmap) {
+                beatmap.queuedForRank = payload.queuedForRank;
+            }
+        },
 
         // quests
         updateArt (state, payload): void {
@@ -183,6 +197,14 @@ const store: Module<AdminState, MainState> = {
                     const i = state.actionQuests.findIndex(q => q.id === payload.questId);
                     state.actionQuests.splice(i,1);
                 }
+            }
+        },
+        updateQueuedForCompletion (state, payload): void {
+            const quest = state.actionQuests.find(q => q.id == payload.questId);
+
+            if (quest) {
+                console.log(payload.queuedForCompletion);
+                quest.queuedForCompletion = payload.queuedForCompletion;
             }
         },
 
