@@ -113,7 +113,7 @@ beatmapsHostRouter.post('/:id/linkQuest', isValidBeatmap, isBeatmapHost, async (
             .orFail();
 
         for (const task of beatmap.tasks) {
-            if (!quest.modes.includes(task.mode)) {
+            if (!quest.modes.includes(task.mode) && task.mode !== 'sb') {
                 return res.json({ error: `Some of this mapset's difficulties are not the correct mode for this quest!` });
             }
 
