@@ -10,7 +10,7 @@ import { FeaturedArtistModel } from '../models/featuredArtist';
 import { updateUserPoints } from './points';
 
 /* compare beatmap status MG vs. osu and update */
-const setQualified = cron.schedule('20 0 * * *', async () => {
+const setQualified = cron.schedule('0 18 * * *', async () => {
     const statusQuery = [
         { status: { $ne: BeatmapStatus.Ranked } },
         { status: { $ne: BeatmapStatus.Secret } },
@@ -97,7 +97,7 @@ function generateQuestDetails(quest) {
 }
 
 /* publish new quests */
-const publishQuests = cron.schedule('0 20 * * *', async () => {
+const publishQuests = cron.schedule('0 21 * * *', async () => {
     const scheduledQuests = await QuestModel
         .find({
             status: QuestStatus.Scheduled,
