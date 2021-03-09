@@ -146,6 +146,7 @@ app.listen(port, () => {
     automation.setRanked.start();
     automation.publishQuests.start();
     automation.completeQuests.start();
+    automation.rankUsers.start();
 });
 
 export default app;

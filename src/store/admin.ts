@@ -220,12 +220,7 @@ const store: Module<AdminState, MainState> = {
             const user = state.actionUsers.find(u => u.id == payload.userId);
 
             if (user) {
-                user.badge = payload.badge;
-
-                if (user.badge == user.rank) {
-                    const i = state.actionUsers.findIndex(u => u.id === payload.userId);
-                    state.actionUsers.splice(i,1);
-                }
+                user.queuedBadge = payload.badge;
             }
         },
         updateDiscordId (state, payload): void {

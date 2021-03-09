@@ -18,38 +18,12 @@ adminUsersRouter.get('/load', async (req, res) => {
     res.json(users);
 });
 
-/* POST update user badge */
+/* POST update user queuedBadge */
 adminUsersRouter.post('/:id/updateBadge', async (req, res) => {
     const badge = parseInt(req.body.badge, 10);
-    const user = await UserModel.findByIdAndUpdate(req.params.id, { badge }).orFail();
+    const user = await UserModel.findByIdAndUpdate(req.params.id, { queuedBadge: badge }).orFail();
 
     res.json(badge);
-
-    let rankColor = webhookColors.white;
-
-    if (badge == 1) {
-        rankColor = webhookColors.brown;
-    } else if (badge == 2) {
-        rankColor = webhookColors.gray;
-    } else if (badge == 3) {
-        rankColor = webhookColors.lightYellow;
-    } else if (badge == 4) {
-        rankColor = webhookColors.lightBlue;
-    }
-
-    let description = `**Reached rank ${badge}** with ${user.totalPoints} total points`;
-
-    if (badge == 4) description += `\n\n...there's no reward for this (yet) but 1000+ points is pretty impressive`;
-
-    webhookPost([{
-        author: {
-            name: user.username,
-            icon_url: `https://a.ppy.sh/${user.osuId}`,
-            url: `https://osu.ppy.sh/u/${user.osuId}`,
-        },
-        color: rankColor,
-        description,
-    }]);
 });
 
 /* POST update user group */

@@ -37,7 +37,7 @@
                         autocomplete="off"
                     >
                     <button class="btn btn-sm btn-outline-info w-25" @click="updateBadge($event)">
-                        Save badge
+                        Queue badge
                     </button>
                 </p>
                 <p class="row">
@@ -123,7 +123,7 @@ export default defineComponent({
 
             if (badge) {
                 this.$store.dispatch('updateToastMessages', {
-                    message: `set badge to ${badge}`,
+                    message: `set queued badge to ${badge}`,
                     type: 'info',
                 });
                 this.$store.commit('updateBadge', {

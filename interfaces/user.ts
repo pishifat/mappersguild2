@@ -24,6 +24,7 @@ export interface User extends Document {
     username: string;
     group: UserGroup;
     badge: number;
+    queuedBadge: number;
     completedQuests: Quest[];
     bypassLogin: boolean;
     discordId: string; // js doesnt support 18 digit numbers...

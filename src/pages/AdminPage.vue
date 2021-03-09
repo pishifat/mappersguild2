@@ -172,6 +172,9 @@
                                         RANK
                                     </th>
                                     <th scope="col">
+                                        QUEUED BADGE
+                                    </th>
+                                    <th scope="col">
                                         BADGE
                                     </th>
                                     <th scope="col">
@@ -186,18 +189,26 @@
                                     </td>
                                     <td scope="row">
                                         <i
-                                            v-if="user.rank > 0"
+                                            v-if="user.rank"
                                             v-bs-tooltip="`rank ${user.rank} user`"
                                             class="fas fa-crown"
                                             :class="'text-rank-' + user.rank"
                                         />
                                     </td>
+                                    <td scope="row" :class="{ 'bg-open': user.rank != user.queuedBadge }">
+                                        <i
+                                            v-if="user.queuedBadge"
+                                            v-bs-tooltip="`rank ${user.queuedBadge} user`"
+                                            class="fas fa-crown"
+                                            :class="'text-rank-' + user.queuedBadge"
+                                        />
+                                    </td>
                                     <td scope="row" :class="{ 'bg-open': user.rank != user.badge }">
                                         <i
-                                            v-if="user.badge > 0"
-                                            v-bs-tooltip="`rank ${user.rank} user`"
+                                            v-if="user.badge"
+                                            v-bs-tooltip="`rank ${user.badge} user`"
                                             class="fas fa-crown"
-                                            :class="'text-rank-' + user.rank"
+                                            :class="'text-rank-' + user.badge"
                                         />
                                     </td>
                                     <td scope="row">

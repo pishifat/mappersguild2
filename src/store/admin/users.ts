@@ -18,7 +18,7 @@ const store: Module<UserState, MainState> = {
             const user = state.users.find(u => u.id == payload.userId);
 
             if (user) {
-                user.badge = payload.badge;
+                user.queuedBadge = payload.badge;
             }
         },
         updateDiscordId (state, payload): void {

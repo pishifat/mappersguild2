@@ -6,11 +6,12 @@ import { BeatmapModel } from '../models/beatmap/beatmap';
 import { BeatmapStatus } from '../interfaces/beatmap/beatmap';
 import { QuestModel } from '../models/quest';
 import { QuestStatus } from '../interfaces/quest';
+import { UserModel } from '../models/user';
 import { FeaturedArtistModel } from '../models/featuredArtist';
 import { updateUserPoints } from './points';
 
 /* compare beatmap status MG vs. osu and update */
-const setQualified = cron.schedule('0 18 * * *', async () => {
+const setQualified = cron.schedule('0 18 * * *', async () => { /* 10:00 AM PST */
     const statusQuery = [
         { status: { $ne: BeatmapStatus.Ranked } },
         { status: { $ne: BeatmapStatus.Secret } },
@@ -56,7 +57,7 @@ const setQualified = cron.schedule('0 18 * * *', async () => {
 });
 
 /* if MG Qualified beatmap is osu Ranked and already checked, post webhook */
-const setRanked = cron.schedule('0 1 * * *', async () => {
+const setRanked = cron.schedule('0 1 * * *', async () => { /* 5:00 PM PST */
     const qualifiedBeatmaps = await BeatmapModel
         .find({
             status: BeatmapStatus.Qualified,
@@ -97,7 +98,7 @@ function generateQuestDetails(quest) {
 }
 
 /* publish new quests */
-const publishQuests = cron.schedule('0 21 * * *', async () => {
+const publishQuests = cron.schedule('0 21 * * *', async () => { /* 1:00 PM PST */
     const scheduledQuests = await QuestModel
         .find({
             status: QuestStatus.Scheduled,
@@ -182,7 +183,7 @@ const publishQuests = cron.schedule('0 21 * * *', async () => {
 });
 
 /* publish completed quest webhooks */
-const completeQuests = cron.schedule('1 1 * * *', async () => {
+const completeQuests = cron.schedule('0 3 * * *', async () => { /* 7:00 PM PST */
     const scheduledQuests = await QuestModel
         .find({
             queuedForCompletion: true,
@@ -214,10 +215,57 @@ const completeQuests = cron.schedule('1 1 * * *', async () => {
                 value: memberList,
             }],
         }]);
+
+        await sleep(1000);
     }
 }, {
     scheduled: false,
 });
 
+/* publish webhooks for users who rank up */
+const rankUsers = cron.schedule('1 3 * * *', async () => { /* 7:01 PM PST */
+    const rankedUsers = await UserModel.find({ rank: { $gte: 1 } });
 
-export default { setQualified, setRanked, publishQuests, completeQuests };
+    for (let i = 0; i < rankedUsers.length; i++) {
+        const user = rankedUsers[i];
+
+        if (user.rank !== user.badge && user.rank == user.queuedBadge) {
+            user.badge = user.queuedBadge;
+            await user.save();
+
+            //webhook
+            const badge = user.queuedBadge;
+            let rankColor = webhookColors.white;
+
+            if (badge == 1) {
+                rankColor = webhookColors.brown;
+            } else if (badge == 2) {
+                rankColor = webhookColors.gray;
+            } else if (badge == 3) {
+                rankColor = webhookColors.lightYellow;
+            } else if (badge == 4) {
+                rankColor = webhookColors.lightBlue;
+            }
+
+            let description = `**Reached rank ${badge}** with ${user.totalPoints} total points`;
+
+            if (badge == 4) description += `\n\n...there's no reward for this (yet) but 1000+ points is pretty impressive`;
+
+            webhookPost([{
+                author: {
+                    name: user.username,
+                    icon_url: `https://a.ppy.sh/${user.osuId}`,
+                    url: `https://osu.ppy.sh/u/${user.osuId}`,
+                },
+                color: rankColor,
+                description,
+            }]);
+
+            await sleep(1000);
+        }
+    }
+}, {
+    scheduled: false,
+});
+
+export default { setQualified, setRanked, publishQuests, completeQuests, rankUsers };
