@@ -20,6 +20,7 @@ const beatmap_1 = require("../models/beatmap/beatmap");
 const beatmap_2 = require("../interfaces/beatmap/beatmap");
 const quest_1 = require("../models/quest");
 const quest_2 = require("../interfaces/quest");
+const user_1 = require("../models/user");
 const featuredArtist_1 = require("../models/featuredArtist");
 const points_1 = require("./points");
 const setQualified = node_cron_1.default.schedule('0 18 * * *', () => __awaiter(void 0, void 0, void 0, function* () {
@@ -156,7 +157,7 @@ const publishQuests = node_cron_1.default.schedule('0 21 * * *', () => __awaiter
 }), {
     scheduled: false,
 });
-const completeQuests = node_cron_1.default.schedule('1 1 * * *', () => __awaiter(void 0, void 0, void 0, function* () {
+const completeQuests = node_cron_1.default.schedule('0 3 * * *', () => __awaiter(void 0, void 0, void 0, function* () {
     const scheduledQuests = yield quest_1.QuestModel
         .find({
         queuedForCompletion: true,
@@ -176,8 +177,48 @@ const completeQuests = node_cron_1.default.schedule('1 1 * * *', () => __awaiter
                         name: 'Members',
                         value: memberList,
                     }] })]);
+        yield helpers_1.sleep(1000);
     }
 }), {
     scheduled: false,
 });
-exports.default = { setQualified, setRanked, publishQuests, completeQuests };
+const rankUsers = node_cron_1.default.schedule('1 3 * * *', () => __awaiter(void 0, void 0, void 0, function* () {
+    const rankedUsers = yield user_1.UserModel.find({ rank: { $gte: 1 } });
+    for (let i = 0; i < rankedUsers.length; i++) {
+        const user = rankedUsers[i];
+        if (user.rank !== user.badge && user.rank == user.queuedBadge) {
+            user.badge = user.queuedBadge;
+            yield user.save();
+            const badge = user.queuedBadge;
+            let rankColor = discordApi_1.webhookColors.white;
+            if (badge == 1) {
+                rankColor = discordApi_1.webhookColors.brown;
+            }
+            else if (badge == 2) {
+                rankColor = discordApi_1.webhookColors.gray;
+            }
+            else if (badge == 3) {
+                rankColor = discordApi_1.webhookColors.lightYellow;
+            }
+            else if (badge == 4) {
+                rankColor = discordApi_1.webhookColors.lightBlue;
+            }
+            let description = `**Reached rank ${badge}** with ${user.totalPoints} total points`;
+            if (badge == 4)
+                description += `\n\n...there's no reward for this (yet) but 1000+ points is pretty impressive`;
+            discordApi_1.webhookPost([{
+                    author: {
+                        name: user.username,
+                        icon_url: `https://a.ppy.sh/${user.osuId}`,
+                        url: `https://osu.ppy.sh/u/${user.osuId}`,
+                    },
+                    color: rankColor,
+                    description,
+                }]);
+            yield helpers_1.sleep(1000);
+        }
+    }
+}), {
+    scheduled: false,
+});
+exports.default = { setQualified, setRanked, publishQuests, completeQuests, rankUsers };

@@ -16,7 +16,6 @@ const express_1 = __importDefault(require("express"));
 const middlewares_1 = require("../../helpers/middlewares");
 const user_1 = require("../../models/user");
 const points_1 = require("../../helpers/points");
-const discordApi_1 = require("../../helpers/discordApi");
 const user_2 = require("../../interfaces/user");
 const adminUsersRouter = express_1.default.Router();
 adminUsersRouter.use(middlewares_1.isLoggedIn);
@@ -28,33 +27,8 @@ adminUsersRouter.get('/load', (req, res) => __awaiter(void 0, void 0, void 0, fu
 }));
 adminUsersRouter.post('/:id/updateBadge', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const badge = parseInt(req.body.badge, 10);
-    const user = yield user_1.UserModel.findByIdAndUpdate(req.params.id, { badge }).orFail();
+    const user = yield user_1.UserModel.findByIdAndUpdate(req.params.id, { queuedBadge: badge }).orFail();
     res.json(badge);
-    let rankColor = discordApi_1.webhookColors.white;
-    if (badge == 1) {
-        rankColor = discordApi_1.webhookColors.brown;
-    }
-    else if (badge == 2) {
-        rankColor = discordApi_1.webhookColors.gray;
-    }
-    else if (badge == 3) {
-        rankColor = discordApi_1.webhookColors.lightYellow;
-    }
-    else if (badge == 4) {
-        rankColor = discordApi_1.webhookColors.lightBlue;
-    }
-    let description = `**Reached rank ${badge}** with ${user.totalPoints} total points`;
-    if (badge == 4)
-        description += `\n\n...there's no reward for this (yet) but 1000+ points is pretty impressive`;
-    discordApi_1.webhookPost([{
-            author: {
-                name: user.username,
-                icon_url: `https://a.ppy.sh/${user.osuId}`,
-                url: `https://osu.ppy.sh/u/${user.osuId}`,
-            },
-            color: rankColor,
-            description,
-        }]);
 }));
 adminUsersRouter.post('/:id/updateGroup', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     yield user_1.UserModel.findByIdAndUpdate(req.params.id, { group: req.body.group }).orFail();
