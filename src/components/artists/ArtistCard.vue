@@ -14,7 +14,7 @@
                         <span v-else>
                             <span v-if="artist.projectedRelease" class="text-done me-1">{{ new Date(artist.projectedRelease).toString().slice(4,15) }}</span>
 
-                            <span v-if="artist.ppySigned">
+                            <span v-if="artist.tracksSelected">
                                 <span class="text-danger">
                                     <span v-if="!artist.songsReceived" class="me-1">[song assets]</span>
                                     <span v-if="!artist.songsTimed" class="me-1">[timed oszs]</span>
@@ -197,7 +197,7 @@
                             <u>Other</u>
                         </div>
 
-                        <div v-if="!artist.osuId" class="small ms-2">
+                        <div class="small ms-2">
                             Minor release:
                             <a href="#" @click.stop.prevent="toggleIsMinor()">
                                 <i class="fas" :class="artist.isMinor ? 'text-done fa-check' : 'text-danger fa-times'" />
