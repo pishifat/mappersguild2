@@ -109,8 +109,7 @@ BeatmapSchema.methods.checkTaskAvailability = function (user, taskName, taskMode
             this.tasks.some(t => t.name === task_1.TaskName.Storyboard)) {
             throw new Error('There can only be one storyboard on a mapset!');
         }
-        if (inviteType !== invite_1.ActionType.Collab &&
-            this.host.id != user.id &&
+        if (this.host.id != user.id &&
             this.tasksLocked &&
             this.tasksLocked.some(t => t === taskName)) {
             throw new Error('This task is locked by the mapset host!');

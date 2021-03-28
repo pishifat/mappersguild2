@@ -105,9 +105,8 @@ BeatmapSchema.methods.checkTaskAvailability = async function (this: Beatmap, use
         throw new Error('There can only be one storyboard on a mapset!');
     }
 
-    // Collabs and host can bypass this
+    // host and invites can bypass this
     if (
-        inviteType !== ActionType.Collab &&
         this.host.id != user.id &&
         this.tasksLocked &&
         this.tasksLocked.some(t => t === taskName)
