@@ -116,10 +116,10 @@ export default defineComponent({
             judgingDone: (state: any) => state.judging.judgingDone,
         }),
         filteredSubmissions (): Submission[] {
-            const filteredSubmissions: any = [...this.contest.submissions];
+            const indexes: number[] = [];
 
-            for (let i = 0; i < filteredSubmissions.length; i++) {
-                const submission = filteredSubmissions[i];
+            for (let i = 0; i < this.contest.submissions.length; i++) {
+                const submission = this.contest.submissions[i];
                 const total = submission.evaluations.reduce((acc, e) => {
                     if (e.vote) {
                         return acc + e.vote;
@@ -127,10 +127,19 @@ export default defineComponent({
 
                     return acc;
                 }, 0);
-                filteredSubmissions[i].total = total;
+
+                if (total >= this.contest.judgingThreshold) {
+                    indexes.push(i);
+                }
             }
 
-            return this.contest.submissions.filter(s => s.total >= this.contest.judgingThreshold);
+            const filteredSubmissions: any[] = [];
+
+            for (const i of indexes) {
+                filteredSubmissions.push(this.contest.submissions[i]);
+            }
+
+            return filteredSubmissions;
         },
         sortedSubmissions (): Submission[] {
             const submissions = this.filteredSubmissions;
