@@ -98,7 +98,7 @@ function generateQuestDetails(quest) {
 }
 
 /* publish new quests */
-const publishQuests = cron.schedule('0 21 * * *', async () => { /* 1:00 PM PST */
+const publishQuests = cron.schedule('0 22 * * *', async () => { /* 1:00 PM PST */
     const scheduledQuests = await QuestModel
         .find({
             status: QuestStatus.Scheduled,

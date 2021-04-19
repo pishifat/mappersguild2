@@ -88,7 +88,7 @@ function generateQuestDetails(quest) {
     text += `\n`;
     return text;
 }
-const publishQuests = node_cron_1.default.schedule('0 21 * * *', () => __awaiter(void 0, void 0, void 0, function* () {
+const publishQuests = node_cron_1.default.schedule('0 22 * * *', () => __awaiter(void 0, void 0, void 0, function* () {
     const scheduledQuests = yield quest_1.QuestModel
         .find({
         status: quest_2.QuestStatus.Scheduled,
