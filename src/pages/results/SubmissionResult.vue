@@ -23,33 +23,38 @@
                 <h5>
                     Screening results
                 </h5>
-                <p class="ms-3">
-                    Comments are usually each screener's initial thoughts. They're not intended to be constructive feedback and many screeners use comments as notes for determining their top 5.
-                </p>
-                <div v-for="(evaluation, i) in randomizedScreening" :key="evaluation.id">
-                    <div>
-                        <div class="ms-3">
-                            User {{ i+1 }}
-                            <i
-                                v-if="evaluation.vote"
-                                v-bs-tooltip="'user placed in top 5'"
-                                class="fas fa-check text-done"
-                            />
+                <div v-if="submission.evaluations && submission.evaluations.length">
+                    <p class="ms-3">
+                        Comments are usually each screener's initial thoughts. They're not intended to be constructive feedback and many screeners use comments as notes for determining their top 5.
+                    </p>
+                    <div v-for="(evaluation, i) in randomizedScreening" :key="evaluation.id">
+                        <div>
+                            <div class="ms-3">
+                                User {{ i+1 }}
+                                <i
+                                    v-if="evaluation.vote"
+                                    v-bs-tooltip="'user placed in top 5'"
+                                    class="fas fa-check text-done"
+                                />
+                            </div>
+                            <div class="ms-4 mb-2 small text-white-50" style="word-break: break-word;">
+                                {{ evaluation.comment ? evaluation.comment : '[no comment]' }}
+                            </div>
                         </div>
-                        <div class="ms-4 mb-2 small text-white-50" style="word-break: break-word;">
-                            {{ evaluation.comment ? evaluation.comment : '[no comment]' }}
+                    </div>
+                    <div v-for="i in emptyEvaluationCount" :key="i">
+                        <div>
+                            <div class="ms-3">
+                                User {{ submission.evaluations.length + i }}
+                            </div>
+                            <div class="ms-4 mb-2 small text-white-50" style="word-break: break-word;">
+                                [no comment]
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div v-for="i in emptyEvaluationCount" :key="i">
-                    <div>
-                        <div class="ms-3">
-                            User {{ submission.evaluations.length + i }}
-                        </div>
-                        <div class="ms-4 mb-2 small text-white-50" style="word-break: break-word;">
-                            [no comment]
-                        </div>
-                    </div>
+                <div v-else class="ms-3">
+                    This contest skipped screening.
                 </div>
             </div>
 
