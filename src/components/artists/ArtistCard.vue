@@ -14,11 +14,14 @@
                         <span v-else>
                             <span v-if="artist.projectedRelease" class="text-done me-1">{{ new Date(artist.projectedRelease).toString().slice(4,15) }}</span>
 
-                            <span v-if="artist.tracksSelected">
+                            <span v-if="artist.contractSent">
                                 <span class="text-danger">
-                                    <span v-if="!artist.songsReceived" class="me-1">[song assets]</span>
-                                    <span v-if="!artist.songsTimed" class="me-1">[timed oszs]</span>
-                                    <span v-if="!artist.assetsReceived" class="me-1">[other assets]</span>
+                                    <span v-if="!artist.artistSigned" class="me-1">[artist signed]</span>
+                                    <span v-if="!artist.ppySigned" class="me-1">[ppy signed]</span>
+                                    <span v-if="!artist.ppyPaid" class="me-1">[ppy paid]</span>
+                                    <span v-if="!artist.songsReceived" class="me-1">[songs]</span>
+                                    <span v-if="!artist.songsTimed" class="me-1">[timing]</span>
+                                    <span v-if="!artist.assetsReceived" class="me-1">[images]</span>
                                 </span>
                                 <span class="text-white-50">
                                     <span v-if="artist.isMinor" class="me-1">[minor]</span>
@@ -28,12 +31,7 @@
 
                             <span v-else class="text-white-50">
                                 <span v-if="artist.isRejected">{{ artist.isResponded ? 'stopped responding' : 'no response' }}</span>
-                                <span v-else-if="artist.ppyPaid">awaiting ppy signature</span>
-                                <span v-else-if="artist.artistSigned">awaiting ppy payment/signature</span>
-                                <span v-else-if="artist.contractSent">awaiting artist signature</span>
-                                <span v-else-if="artist.tracksSelected">awaiting contract details</span>
-                                <span v-else-if="artist.isResponded">negotiating</span>
-                                <span v-else-if="artist.isContacted">awaiting response</span>
+                                <span v-else-if="artist.tracksSelected">tracks confirmed</span>
                             </span>
                         </span>
 
