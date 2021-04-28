@@ -5,7 +5,6 @@
                 :contest="contest"
                 :users-scores="usersScores"
                 :judges-correl="judgesCorrel"
-                :criterias="criterias"
             />
 
             <div class="container">
@@ -86,7 +85,6 @@ export default defineComponent({
             selected: null as Submission | null,
             usersScores: [],
             judgesCorrel: [],
-            criterias: [],
         };
     },
     computed: {
@@ -95,13 +93,12 @@ export default defineComponent({
         },
     },
     async created (): Promise<void> {
-        const data = await this.$http.executeGet<{ contest: Contest; usersScores: []; judgesCorrel: []; criterias: [] }>(`/admin/judging/${this.contestId}`);
+        const data = await this.$http.executeGet<{ contest: Contest; usersScores: []; judgesCorrel: [] }>(`/admin/judging/${this.contestId}`);
 
         if (!this.$http.isError(data)) {
             this.contest = data.contest;
             this.usersScores = data.usersScores;
             this.judgesCorrel = data.judgesCorrel;
-            this.criterias = data.criterias;
         }
     },
     methods: {

@@ -6,6 +6,7 @@ import { UserModel } from '../../models/user';
 import { UserGroup } from '../../interfaces/user';
 import { SubmissionModel } from '../../models/contest/submission';
 import { sendPm, isOsuResponseError } from '../../helpers/osuApi';
+import { CriteriaModel } from '../../models/contest/criteria';
 
 
 const adminContestsRouter = express.Router();
@@ -36,7 +37,7 @@ const defaultContestPopulate = [
         path: 'judges',
     },
     {
-        path: 'voters',
+        path: 'criterias',
     },
 ];
 
@@ -48,6 +49,13 @@ adminContestsRouter.get('/relevantInfo', async (req, res) => {
         .sort({ contestStart: -1 });
 
     res.json(contests);
+});
+
+/* GET retrieve all criterias */
+adminContestsRouter.get('/criterias', async (req, res) => {
+    const criterias = await CriteriaModel.find({});
+
+    res.json({ criterias });
 });
 
 /* POST create a contest */
@@ -63,13 +71,26 @@ adminContestsRouter.post('/create', async (req, res) => {
     res.json(contest);
 });
 
-/* POST update isTheme */
-adminContestsRouter.post('/:id/updateIsTheme', async (req, res) => {
-    const contest = await ContestModel
-        .findByIdAndUpdate(req.params.id, { isTheme: req.body.isTheme })
-        .orFail();
+/* POST add criteria */
+adminContestsRouter.post('/addCriteria', async (req, res) => {
+    const { name, maxScore } = req.body;
 
-    res.json(contest.isTheme);
+    if (!name || !name.length) {
+        return res.json({ error: 'Invalid name' });
+    }
+
+    if (isNaN(maxScore)) {
+        return res.json({ error: 'Invalid maxScore' });
+    }
+
+    const criteria = new CriteriaModel();
+    criteria.name = name;
+    criteria.maxScore = maxScore;
+    await criteria.save();
+
+    const allCriteria = await CriteriaModel.find({});
+
+    res.json(allCriteria);
 });
 
 /* POST update contest status */
@@ -322,6 +343,32 @@ adminContestsRouter.post('/:id/updateJudgingThreshold', async (req, res) => {
 
     res.json(newJudgingThreshold);
 });
+
+/* POST update criterias */
+adminContestsRouter.post('/:id/toggleCriteria', async (req, res) => {
+    const contest = await ContestModel
+        .findById(req.params.id)
+        .populate(defaultContestPopulate)
+        .orFail();
+
+    const newCriteriaId = req.body.criteriaId;
+    const criteriaIds = contest.criterias.map(c => c.id);
+    const i = criteriaIds.findIndex(c => c === newCriteriaId);
+
+    if (i >= 0) {
+        criteriaIds.splice(i, 1);
+    } else {
+        criteriaIds.push(newCriteriaId);
+    }
+
+    const newContest = await ContestModel
+        .findByIdAndUpdate(req.params.id, { criterias: criteriaIds })
+        .populate(defaultContestPopulate)
+        .orFail();
+
+    res.json(newContest.criterias);
+});
+
 
 /* POST send results pm */
 adminContestsRouter.post('/sendResultsPm', async (req, res) => {

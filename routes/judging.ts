@@ -7,13 +7,16 @@ import { JudgingScoreModel } from '../models/contest/judgingScore';
 import { JudgingModel } from '../models/contest/judging';
 import { ContestStatus } from '../interfaces/contest/contest';
 
-const defaultContestPopulate = {
-    path: 'submissions',
-    select: '_id name evaluations',
-    populate: {
-        path: 'evaluations',
+const defaultContestPopulate = [
+    {
+        path: 'submissions',
+        select: '_id name evaluations',
+        populate: {
+            path: 'evaluations',
+        },
     },
-};
+    { path: 'criterias' },
+];
 
 const defaultJudgingPopulate = [
     { path: 'submission', select: 'name' },
@@ -51,26 +54,15 @@ judgingRouter.use(isJudge);
 
 judgingRouter.get('/relevantInfo', async (req, res) => {
     const contest = res.locals.contest;
-    let criteriaQuery;
 
-    if (contest.isTheme) {
-        criteriaQuery = { name: { $ne: 'limitation' } };
-    } else {
-        criteriaQuery = { name: { $ne: 'theme' } };
-    }
-
-    const [criterias, judgingDone] = await Promise.all([
-        CriteriaModel.find(criteriaQuery),
-        JudgingModel
-            .find({
-                judge: req.session?.mongoId,
-            })
-            .populate(defaultJudgingPopulate),
-    ]);
+    const judgingDone = await JudgingModel
+        .find({
+            judge: req.session?.mongoId,
+        })
+        .populate(defaultJudgingPopulate);
 
     res.json({
         contest,
-        criterias,
         judgingDone,
     });
 });
@@ -90,7 +82,13 @@ judgingRouter.post('/save', async (req, res) => {
     const parsedScore = parseInt(score, 10);
 
     if (submission.contest.id != res.locals.contest.id) {
-        return res.json({ error: 'woah' });
+        return res.json({ error: 'Invalid contest' });
+    }
+
+    const contestCriteriaIds = res.locals.contest.criterias.map(c => c.id);
+
+    if (!contestCriteriaIds.includes(criteriaId)) {
+        return res.json({ error: 'Invalid criteria' });
     }
 
     if (score > criteria.maxScore) {

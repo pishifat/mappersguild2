@@ -20,7 +20,7 @@
                                             Entry's Name
                                         </a>
                                     </th>
-                                    <th v-for="criteria in criterias" :key="criteria.id">
+                                    <th v-for="criteria in contest.criterias" :key="criteria.id">
                                         <a
                                             href="#"
                                             class="text-capitalize"
@@ -52,7 +52,7 @@
                                     <td class="text-start">
                                         {{ submission.name }}
                                     </td>
-                                    <td v-for="criteria in criterias" :key="criteria.id" class="text-start">
+                                    <td v-for="criteria in contest.criterias" :key="criteria.id" class="text-start">
                                         <a
                                             href="#"
                                             data-bs-toggle="modal"
@@ -112,7 +112,6 @@ export default defineComponent({
     computed: {
         ...mapState({
             contest: (state: any) => state.judging.contest,
-            criterias: (state: any) => state.judging.criterias,
             judgingDone: (state: any) => state.judging.judgingDone,
         }),
         filteredSubmissions (): Submission[] {
@@ -196,7 +195,7 @@ export default defineComponent({
         },
 
         maxPossibleScore (): number {
-            return this.criterias.reduce((acc, c) => c.maxScore + acc, 0);
+            return this.contest.criterias.reduce((acc, c) => c.maxScore + acc, 0);
         },
     },
     beforeCreate () {
@@ -210,11 +209,10 @@ export default defineComponent({
         }
     },
     async created () {
-        const res = await this.$http.initialRequest<{ contest: Contest; criterias: Criteria[]; judgingDone: Judging[] }>('/judging/relevantInfo');
+        const res = await this.$http.initialRequest<{ contest: Contest; judgingDone: Judging[] }>('/judging/relevantInfo');
 
         if (!this.$http.isError(res)) {
             this.$store.commit('setContest', res.contest);
-            this.$store.commit('setCriterias', res.criterias);
             this.$store.commit('setJudgingDone', res.judgingDone);
         }
     },
@@ -254,7 +252,7 @@ export default defineComponent({
             if (!judging)
                 return false;
 
-            return judging.judgingScores.length === this.criterias.length;
+            return judging.judgingScores.length === this.contest.criterias.length;
         },
         sortSubmissionsBy (type: string, criteriaId?: string): void {
             this.sortBy = type;

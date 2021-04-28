@@ -7,7 +7,6 @@ import { MainState } from './main';
 
 interface JudgingState {
     contest: Contest | null;
-    criterias: Criteria[];
     judgingDone: Judging[];
     editingSubmissionId: Submission['id'] | null;
     editingCriteriaId: Criteria['id'] | null;
@@ -16,7 +15,6 @@ interface JudgingState {
 const store: Module<JudgingState, MainState> = {
     state: {
         contest: null,
-        criterias: [],
         judgingDone: [],
         editingSubmissionId: null,
         editingCriteriaId: null,
@@ -24,9 +22,6 @@ const store: Module<JudgingState, MainState> = {
     mutations: {
         setContest (state, contest: Contest): void {
             state.contest = contest;
-        },
-        setCriterias (state, criterias: Criteria[]): void {
-            state.criterias = criterias;
         },
         setJudgingDone (state, judgingDone: Judging[]): void {
             state.judgingDone = judgingDone;
@@ -43,7 +38,7 @@ const store: Module<JudgingState, MainState> = {
             return state.contest?.submissions.find(s => s.id === state.editingSubmissionId);
         },
         editingCriteria: (state): Criteria | undefined => {
-            return state.criterias.find(c => c.id === state.editingCriteriaId);
+            return state.contest?.criterias.find(c => c.id === state.editingCriteriaId);
         },
     },
 };

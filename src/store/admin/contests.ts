@@ -90,11 +90,11 @@ const store: Module<ContestState, MainState> = {
                 contest.judgingThreshold = payload.judgingThreshold;
             }
         },
-        updateIsTheme (state, payload): void {
+        updateContestCriterias (state, payload): void {
             const contest = state.contests.find(c => c.id == payload.contestId);
 
             if (contest) {
-                contest.isTheme = payload.isTheme;
+                contest.criterias = payload.criterias;
             }
         },
     },

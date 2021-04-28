@@ -12,9 +12,8 @@ const contestSchema = new Schema({
     submissions: [{ type: 'ObjectId', ref: 'Submission' }],
     screeners: [{ type: 'ObjectId', ref: 'User' }],
     judges: [{ type: 'ObjectId', ref: 'User' }],
-    voters: [{ type: 'ObjectId', ref: 'User' }],
     judgingThreshold: { type: Number },
-    isTheme: { type: Boolean },
+    criterias: [{ type: 'ObjectId', ref: 'Criteria' }],
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const ContestModel = mongoose.model<Contest>('Contest', contestSchema);

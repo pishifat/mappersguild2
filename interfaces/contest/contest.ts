@@ -1,5 +1,6 @@
 import { User } from '../user';
 import { Submission } from './submission';
+import { Criteria } from './criteria';
 
 export enum ContestStatus {
     Beatmapping = 'beatmapping',
@@ -17,7 +18,6 @@ export interface Contest {
     submissions: Submission[];
     screeners: User[];
     judges: User[];
-    voters: User[];
     judgingThreshold: number;
-    isTheme: boolean;
+    criterias: Criteria[] | Criteria['_id'];
 }

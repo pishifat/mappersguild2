@@ -1,7 +1,6 @@
 import express from 'express';
 import { isLoggedIn, isSuperAdmin } from '../../helpers/middlewares';
 import { ContestModel, Contest } from '../../models/contest/contest';
-import { CriteriaModel } from '../../models/contest/criteria';
 import { UserScore, JudgeCorrel } from '../../interfaces/contest/judging';
 
 export function calculateContestScores(contest?: Contest): { usersScores: UserScore[]; judgesCorrel: JudgeCorrel[] } {
@@ -165,6 +164,7 @@ adminJudgingRouter.get('/:id', async (req, res) => {
                 },
             },
             { path: 'judges' },
+            { path: 'criterias' },
         ])
         .orFail();
 
@@ -180,12 +180,11 @@ adminJudgingRouter.get('/:id', async (req, res) => {
 
     contest.submissions = filteredSubmissions;
 
-    const criterias = await CriteriaModel.find({});
     const { usersScores, judgesCorrel } = calculateContestScores(contest);
 
     res.json({
         contest,
-        criterias,
+        criterias: contest.criterias,
         usersScores,
         judgesCorrel,
     });

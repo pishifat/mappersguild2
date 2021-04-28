@@ -11,16 +11,30 @@
                 :contest-id="contest.id"
                 :contest-start="contest.contestStart ? contest.contestStart.slice(0,10) : null"
             />
-            <gimmick-toggle
-                :contest-id="contest.id"
-                :is-theme="contest.isTheme"
-            />
             <status-info
                 :contest-id="contest.id"
                 :status="contest.status"
             />
 
             <div>
+                <h5>
+                    Submissions
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-outline-info"
+                        @click="submissionsVisible = !submissionsVisible"
+                    >
+                        {{ submissionsVisible ? 'Hide' : 'Show' }}
+                    </button>
+                </h5>
+                <submissions-info
+                    v-if="submissionsVisible"
+                    :contest-id="contest.id"
+                    :submissions="contest.submissions"
+                />
+
+                <hr>
+
                 <h5>
                     Screeners and Judges
                     <button
@@ -51,23 +65,6 @@
                     />
                 </div>
 
-                <h5>
-                    Submissions
-                    <button
-                        type="button"
-                        class="btn btn-sm btn-outline-info"
-                        @click="submissionsVisible = !submissionsVisible"
-                    >
-                        {{ submissionsVisible ? 'Hide' : 'Show' }}
-                    </button>
-                </h5>
-
-                <submissions-info
-                    v-if="submissionsVisible"
-                    :contest-id="contest.id"
-                    :submissions="contest.submissions"
-                />
-
                 <div v-if="contest.submissions.length">
                     <h5>
                         Screening Results
@@ -79,6 +76,7 @@
                             {{ screeningResultsVisible ? 'Hide' : 'Show' }}
                         </button>
                     </h5>
+
                     <screening-results
                         v-if="screeningResultsVisible"
                         :contest-id="contest.id"
@@ -86,6 +84,25 @@
                         :submissions="contest.submissions"
                         :judging-threshold="contest.judgingThreshold"
                     />
+
+                    <hr>
+
+                    <h5>
+                        Judging Criteria
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-outline-info"
+                            @click="judgingCriteriaVisible = !judgingCriteriaVisible"
+                        >
+                            {{ judgingCriteriaVisible ? 'Hide' : 'Show' }}
+                        </button>
+                    </h5>
+                    <criteria-selection
+                        v-if="judgingCriteriaVisible"
+                        :contest-id="contest.id"
+                        :criterias="contest.criterias"
+                    />
+
                     <h5>
                         Judging Results
                         <button
@@ -115,7 +132,7 @@ import ScreenersInfo from './ScreenersInfo.vue';
 import JudgesInfo from './JudgesInfo.vue';
 import ScreeningResults from './ScreeningResults.vue';
 import JudgingResults from './JudgingResults.vue';
-import GimmickToggle from './GimmickToggle.vue';
+import CriteriaSelection from './CriteriaSelection.vue';
 import SubmissionsInfo from './SubmissionsInfo.vue';
 import MarkdownHelperThanks from './MarkdownHelperThanks.vue';
 
@@ -128,7 +145,7 @@ export default defineComponent({
         JudgesInfo,
         ScreeningResults,
         JudgingResults,
-        GimmickToggle,
+        CriteriaSelection,
         SubmissionsInfo,
         MarkdownHelperThanks,
     },
@@ -145,6 +162,7 @@ export default defineComponent({
             screenersAndJudgesVisible: false,
             submissionsVisible: false,
             screeningResultsVisible: false,
+            judgingCriteriaVisible: false,
             judgingResultsVisible: false,
         };
     },

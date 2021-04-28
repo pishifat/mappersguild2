@@ -36,7 +36,7 @@
                             <th>Name</th>
                             <template v-if="displayMode === 'criterias'">
                                 <th
-                                    v-for="criteria in criterias"
+                                    v-for="criteria in contest.criterias"
                                     :key="criteria.id"
                                 >
                                     <a
@@ -90,7 +90,7 @@
                             <td>{{ i + 1 }}</td>
                             <td>{{ score.creator.username }}</td>
                             <template v-if="displayMode === 'criterias'">
-                                <td v-for="criteria in criterias" :key="criteria.id">
+                                <td v-for="criteria in contest.criterias" :key="criteria.id">
                                     {{ getCriteriaScore(score, criteria.id) }}
                                 </td>
                             </template>
@@ -145,7 +145,6 @@ import { defineComponent, PropType } from 'vue';
 import { Submission } from '../../../../interfaces/contest/submission';
 import { UserScore, JudgeCorrel } from '../../../../interfaces/contest/judging';
 import { Contest } from '../../../../interfaces/contest/contest';
-import { Criteria } from '../../../../interfaces/contest/criteria';
 
 export default defineComponent({
     name: 'JudgingLeaderboard',
@@ -160,10 +159,6 @@ export default defineComponent({
         },
         judgesCorrel: {
             type: Array as PropType<JudgeCorrel[]>,
-            required: true,
-        },
-        criterias: {
-            type: Array as PropType<Criteria[]>,
             required: true,
         },
     },
