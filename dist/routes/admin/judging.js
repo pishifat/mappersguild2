@@ -16,7 +16,6 @@ exports.calculateContestScores = void 0;
 const express_1 = __importDefault(require("express"));
 const middlewares_1 = require("../../helpers/middlewares");
 const contest_1 = require("../../models/contest/contest");
-const criteria_1 = require("../../models/contest/criteria");
 function calculateContestScores(contest) {
     var _a, _b;
     const usersScores = [];
@@ -144,6 +143,7 @@ adminJudgingRouter.get('/:id', (req, res) => __awaiter(void 0, void 0, void 0, f
             },
         },
         { path: 'judges' },
+        { path: 'criterias' },
     ])
         .orFail();
     const filteredSubmissions = [...contest.submissions].filter(submission => {
@@ -154,11 +154,10 @@ adminJudgingRouter.get('/:id', (req, res) => __awaiter(void 0, void 0, void 0, f
         return total >= contest.judgingThreshold;
     });
     contest.submissions = filteredSubmissions;
-    const criterias = yield criteria_1.CriteriaModel.find({});
     const { usersScores, judgesCorrel } = calculateContestScores(contest);
     res.json({
         contest,
-        criterias,
+        criterias: contest.criterias,
         usersScores,
         judgesCorrel,
     });

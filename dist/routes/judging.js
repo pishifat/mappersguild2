@@ -20,13 +20,16 @@ const criteria_1 = require("../models/contest/criteria");
 const judgingScore_1 = require("../models/contest/judgingScore");
 const judging_1 = require("../models/contest/judging");
 const contest_2 = require("../interfaces/contest/contest");
-const defaultContestPopulate = {
-    path: 'submissions',
-    select: '_id name evaluations',
-    populate: {
-        path: 'evaluations',
+const defaultContestPopulate = [
+    {
+        path: 'submissions',
+        select: '_id name evaluations',
+        populate: {
+            path: 'evaluations',
+        },
     },
-};
+    { path: 'criterias' },
+];
 const defaultJudgingPopulate = [
     { path: 'submission', select: 'name' },
     {
@@ -58,24 +61,13 @@ judgingRouter.use(isJudge);
 judgingRouter.get('/relevantInfo', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const contest = res.locals.contest;
-    let criteriaQuery;
-    if (contest.isTheme) {
-        criteriaQuery = { name: { $ne: 'limitation' } };
-    }
-    else {
-        criteriaQuery = { name: { $ne: 'theme' } };
-    }
-    const [criterias, judgingDone] = yield Promise.all([
-        criteria_1.CriteriaModel.find(criteriaQuery),
-        judging_1.JudgingModel
-            .find({
-            judge: (_a = req.session) === null || _a === void 0 ? void 0 : _a.mongoId,
-        })
-            .populate(defaultJudgingPopulate),
-    ]);
+    const judgingDone = yield judging_1.JudgingModel
+        .find({
+        judge: (_a = req.session) === null || _a === void 0 ? void 0 : _a.mongoId,
+    })
+        .populate(defaultJudgingPopulate);
     res.json({
         contest,
-        criterias,
         judgingDone,
     });
 }));
@@ -93,7 +85,11 @@ judgingRouter.post('/save', (req, res) => __awaiter(void 0, void 0, void 0, func
     ]);
     const parsedScore = parseInt(score, 10);
     if (submission.contest.id != res.locals.contest.id) {
-        return res.json({ error: 'woah' });
+        return res.json({ error: 'Invalid contest' });
+    }
+    const contestCriteriaIds = res.locals.contest.criterias.map(c => c.id);
+    if (!contestCriteriaIds.includes(criteriaId)) {
+        return res.json({ error: 'Invalid criteria' });
     }
     if (score > criteria.maxScore) {
         return res.json({ error: 'Score is higher than expected' });

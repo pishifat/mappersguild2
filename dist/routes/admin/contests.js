@@ -20,6 +20,7 @@ const user_1 = require("../../models/user");
 const user_2 = require("../../interfaces/user");
 const submission_1 = require("../../models/contest/submission");
 const osuApi_1 = require("../../helpers/osuApi");
+const criteria_1 = require("../../models/contest/criteria");
 const adminContestsRouter = express_1.default.Router();
 adminContestsRouter.use(middlewares_1.isLoggedIn);
 adminContestsRouter.use(middlewares_1.isSuperAdmin);
@@ -46,7 +47,7 @@ const defaultContestPopulate = [
         path: 'judges',
     },
     {
-        path: 'voters',
+        path: 'criterias',
     },
 ];
 adminContestsRouter.get('/relevantInfo', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -55,6 +56,10 @@ adminContestsRouter.get('/relevantInfo', (req, res) => __awaiter(void 0, void 0,
         .populate(defaultContestPopulate)
         .sort({ contestStart: -1 });
     res.json(contests);
+}));
+adminContestsRouter.get('/criterias', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const criterias = yield criteria_1.CriteriaModel.find({});
+    res.json({ criterias });
 }));
 adminContestsRouter.post('/create', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.body.name) {
@@ -65,11 +70,20 @@ adminContestsRouter.post('/create', (req, res) => __awaiter(void 0, void 0, void
     yield contest.save();
     res.json(contest);
 }));
-adminContestsRouter.post('/:id/updateIsTheme', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const contest = yield contest_1.ContestModel
-        .findByIdAndUpdate(req.params.id, { isTheme: req.body.isTheme })
-        .orFail();
-    res.json(contest.isTheme);
+adminContestsRouter.post('/addCriteria', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { name, maxScore } = req.body;
+    if (!name || !name.length) {
+        return res.json({ error: 'Invalid name' });
+    }
+    if (isNaN(maxScore)) {
+        return res.json({ error: 'Invalid maxScore' });
+    }
+    const criteria = new criteria_1.CriteriaModel();
+    criteria.name = name;
+    criteria.maxScore = maxScore;
+    yield criteria.save();
+    const allCriteria = yield criteria_1.CriteriaModel.find({});
+    res.json(allCriteria);
 }));
 adminContestsRouter.post('/:id/updateStatus', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const contest = yield contest_1.ContestModel
@@ -257,6 +271,26 @@ adminContestsRouter.post('/:id/updateJudgingThreshold', (req, res) => __awaiter(
     contest.judgingThreshold = newJudgingThreshold;
     yield contest.save();
     res.json(newJudgingThreshold);
+}));
+adminContestsRouter.post('/:id/toggleCriteria', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const contest = yield contest_1.ContestModel
+        .findById(req.params.id)
+        .populate(defaultContestPopulate)
+        .orFail();
+    const newCriteriaId = req.body.criteriaId;
+    const criteriaIds = contest.criterias.map(c => c.id);
+    const i = criteriaIds.findIndex(c => c === newCriteriaId);
+    if (i >= 0) {
+        criteriaIds.splice(i, 1);
+    }
+    else {
+        criteriaIds.push(newCriteriaId);
+    }
+    const newContest = yield contest_1.ContestModel
+        .findByIdAndUpdate(req.params.id, { criterias: criteriaIds })
+        .populate(defaultContestPopulate)
+        .orFail();
+    res.json(newContest.criterias);
 }));
 adminContestsRouter.post('/sendResultsPm', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const message = `hello, thank you for recently participating in "${req.body.contestName}"! screening/judging details on your submission can be found here: https://mappersguild.com/contestresults?submission=${req.body.submissionId}`;
