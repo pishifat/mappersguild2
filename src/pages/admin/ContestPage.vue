@@ -2,8 +2,6 @@
     <div>
         <add-contest />
 
-        <markdown-new-contest-template />
-
         <contest-info
             v-for="contest in contests"
             :key="contest.id"
@@ -17,7 +15,6 @@ import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import ContestInfo from '@components/admin/contests/ContestInfo.vue';
 import AddContest from '@components/admin/contests/AddContest.vue';
-import MarkdownNewContestTemplate from '@components/admin/contests/MarkdownNewContestTemplate.vue';
 import { Contest } from '@interfaces/contest/contest';
 import contestsModule from '@store/admin/contests';
 
@@ -26,7 +23,6 @@ export default defineComponent({
     components: {
         ContestInfo,
         AddContest,
-        MarkdownNewContestTemplate,
     },
     computed: mapState({
         contests: (state: any) => state.contests.contests,
