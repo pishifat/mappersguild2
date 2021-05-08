@@ -38,4 +38,5 @@ export interface FeaturedArtist {
     // other
     hasRankedMaps: boolean;
     isMinor: boolean;
+    isGroup: boolean;
 }

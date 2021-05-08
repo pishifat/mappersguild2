@@ -63,7 +63,7 @@
                                 </li>
                                 <li class="nav-item">
                                     <router-link class="nav-link" to="/artists">
-                                        Featured Artists
+                                        Artists
                                     </router-link>
                                 </li>
                                 <li class="nav-item dropdown">

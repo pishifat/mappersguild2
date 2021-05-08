@@ -26,6 +26,7 @@
                                 <span class="text-white-50">
                                     <span v-if="artist.isMinor" class="me-1">[minor]</span>
                                     <span v-if="!artist.hasRankedMaps" class="me-1">[no ranked maps]</span>
+                                    <span v-if="artist.isGroup" class="me-1">[group]</span>
                                 </span>
                             </span>
 
@@ -205,6 +206,12 @@
                             Ranked maps:
                             <a href="#" @click.stop.prevent="toggleHasRankedMaps()">
                                 <i class="fas" :class="artist.hasRankedMaps ? 'text-done fa-check' : 'text-danger fa-times'" />
+                            </a>
+                        </div>
+                        <div class="small ms-2">
+                            Group release:
+                            <a href="#" @click.stop.prevent="toggleIsGroup()">
+                                <i class="fas" :class="artist.isGroup ? 'text-done fa-check' : 'text-danger fa-times'" />
                             </a>
                         </div>
                     </div>
@@ -398,6 +405,13 @@ export default defineComponent({
         },
         async toggleIsMinor (): Promise<void> {
             const artist = await this.$http.executePost('/artists/toggleIsMinor/' + this.artist.id, { value: !this.artist.isMinor });
+
+            if (artist) {
+                this.$store.commit('updateArtist', artist);
+            }
+        },
+        async toggleIsGroup (): Promise<void> {
+            const artist = await this.$http.executePost('/artists/toggleIsGroup/' + this.artist.id, { value: !this.artist.isGroup });
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);
