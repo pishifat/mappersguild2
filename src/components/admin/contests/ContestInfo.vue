@@ -32,6 +32,11 @@
                     :contest-id="contest.id"
                     :submissions="contest.submissions"
                 />
+                <download-info
+                    v-if="submissionsVisible"
+                    :contest-id="contest.id"
+                    :download="contest.download"
+                />
 
                 <hr>
 
@@ -134,6 +139,7 @@ import ScreeningResults from './ScreeningResults.vue';
 import JudgingResults from './JudgingResults.vue';
 import CriteriaSelection from './CriteriaSelection.vue';
 import SubmissionsInfo from './SubmissionsInfo.vue';
+import DownloadInfo from './DownloadInfo.vue';
 import MarkdownHelperThanks from './MarkdownHelperThanks.vue';
 
 export default defineComponent({
@@ -147,6 +153,7 @@ export default defineComponent({
         JudgingResults,
         CriteriaSelection,
         SubmissionsInfo,
+        DownloadInfo,
         MarkdownHelperThanks,
     },
     props: {

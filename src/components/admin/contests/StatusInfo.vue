@@ -8,7 +8,7 @@
             <select
                 v-else
                 v-model="newStatus"
-                class="form-select form-select-sm w-25"
+                class="form-select form-select-sm w-25 d-inline"
                 @change="updateStatus($event)"
             >
                 <option value="beatmapping">
@@ -25,7 +25,7 @@
                 </option>
             </select>
 
-            <a href="#" class="ms-1" @click.prevent="showStatusInput = !showStatusInput">
+            <a href="#" class="ms-1 d-inline" @click.prevent="showStatusInput = !showStatusInput">
                 <i class="fas fa-edit" />
             </a>
         </p>

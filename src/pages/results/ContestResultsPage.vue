@@ -1,6 +1,7 @@
 <template>
     <div class="container card card-body">
-        <submission-result v-if="submission" />
+        <contest-results v-if="contest" />
+        <submission-result v-else-if="submission" />
         <div v-else-if="submissions.length" class="row">
             <div
                 v-for="submission in submissions"
@@ -27,15 +28,19 @@ import { defineComponent } from 'vue';
 import { mapMutations, mapState } from 'vuex';
 import contestResultsModule from '@store/contestResults';
 import { Submission } from '@interfaces/contest/submission';
+import { Contest } from '@interfaces/contest/contest';
 import SubmissionResult from './SubmissionResult.vue';
+import ContestResults from './ContestResults.vue';
 
 export default defineComponent({
     name: 'ContestResultsPage',
     components: {
         SubmissionResult,
+        ContestResults,
     },
     computed: {
         ...mapState({
+            contest: (state: any) => state.contestResults.contest as Contest,
             submissions: (state: any) => state.contestResults.submissions as Submission[],
             submission: (state: any) => state.contestResults.submission as Submission,
         }),
@@ -51,10 +56,15 @@ export default defineComponent({
         }
     },
     async created () {
+        const contestId = this.$route.query.contest;
         const submissionId = this.$route.query.submission;
-        let submissions, submission;
+        let contest, submissions, submission;
 
-        if (submissionId) {
+        if (contestId) {
+            contest = await this.$http.initialRequest<Submission>('/contestResults/searchContest/' + contestId);
+
+            if (!this.$http.isError(contest)) this.setContest(contest);
+        } else if (submissionId) {
             [submission, submissions] = await Promise.all([
                 this.$http.initialRequest<Submission>('/contestResults/searchSubmission/' + submissionId),
                 this.$http.executeGet<Submission[]>('/contestResults/participated'),
@@ -73,6 +83,7 @@ export default defineComponent({
     },
     methods: {
         ...mapMutations([
+            'setContest',
             'setSubmissions',
             'setSubmission',
         ]),

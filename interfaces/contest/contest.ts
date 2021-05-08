@@ -20,4 +20,5 @@ export interface Contest {
     judges: User[];
     judgingThreshold: number;
     criterias: Criteria[] | Criteria['_id'];
+    download: string;
 }

@@ -7,13 +7,13 @@
             <input
                 v-else
                 v-model="newContestStart"
-                class="form-control form-control-sm date-input"
+                class="form-control form-control-sm date-input d-inline"
                 type="text"
                 autocomplete="off"
                 placeholder="yyyy-mm-dd"
                 @change="updateContestStart($event)"
             >
-            <a href="#" class="ms-1" @click.prevent="showContestStartDateInput = !showContestStartDateInput">
+            <a href="#" class="ms-1 d-inline" @click.prevent="showContestStartDateInput = !showContestStartDateInput">
                 <i class="fas fa-edit" />
             </a>
         </p>

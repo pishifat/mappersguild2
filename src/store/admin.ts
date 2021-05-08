@@ -203,7 +203,6 @@ const store: Module<AdminState, MainState> = {
             const quest = state.actionQuests.find(q => q.id == payload.questId);
 
             if (quest) {
-                console.log(payload.queuedForCompletion);
                 quest.queuedForCompletion = payload.queuedForCompletion;
             }
         },

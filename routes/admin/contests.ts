@@ -120,6 +120,20 @@ adminContestsRouter.post('/:id/updateContestStart', async (req, res) => {
     res.json(newContestStart);
 });
 
+/* POST update submissions download link */
+adminContestsRouter.post('/:id/updateDownload', async (req, res) => {
+    const download = req.body.download;
+
+    const contest = await ContestModel
+        .findById(req.params.id)
+        .orFail();
+
+    contest.download = download;
+    await contest.save();
+
+    res.json(download);
+});
+
 /* POST add a screener to the list */
 adminContestsRouter.post('/:id/screeners/add', async (req, res) => {
     const contest = await ContestModel

@@ -14,6 +14,7 @@ const contestSchema = new Schema({
     judges: [{ type: 'ObjectId', ref: 'User' }],
     judgingThreshold: { type: Number },
     criterias: [{ type: 'ObjectId', ref: 'Criteria' }],
+    download: { type: String },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const ContestModel = mongoose.model<Contest>('Contest', contestSchema);

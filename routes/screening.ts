@@ -35,7 +35,7 @@ async function isScreener(req, res, next): Promise<void> {
             screeners: res.locals.userRequest._id,
         })
         .populate(defaultContestPopulate)
-        .select('_id name submissions screeners');
+        .select('_id name submissions screeners download');
 
     if (contests.length) {
         res.locals.contests = contests;

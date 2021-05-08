@@ -10,6 +10,11 @@
                     <h4 class="my-2">
                         {{ contest.name }}
                     </h4>
+                    <h5>
+                        <a :href="contest.download" target="_blank">
+                            {{ contest.download }}
+                        </a>
+                    </h5>
 
                     <transition-group
                         v-if="contest.submissions.length"

@@ -7,6 +7,11 @@
                         <h4 class="my-2">
                             {{ contest.name }}
                         </h4>
+                        <h5>
+                            <a :href="contest.download" target="_blank">
+                                {{ contest.download }}
+                            </a>
+                        </h5>
                     </div>
                     <div class="card-body p-0">
                         <table class="table table-responsive-sm mb-0">

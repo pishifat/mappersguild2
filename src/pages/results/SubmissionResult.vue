@@ -2,19 +2,33 @@
     <div>
         <div v-if="submission" class="container p-3">
             <div>
-                <h4>
+                <h3>
                     {{ submission.contest.name }}
+                </h3>
+                <h4>
+                    Submission by <user-link :user="submission.creator" />
                 </h4>
                 <h5>
-                    <span v-bs-tooltip="'anonymized submission name'">{{ submission.name }}</span>
+                    Anonymized as "{{ submission.name }}"
                 </h5>
-                <div>
-                    created by
-                    <user-link :user="submission.creator" />
+                <div v-if="loggedInUser && loggedInUser.id == submission.creator.id">
+                    <a href="#" @click.prevent="$store.commit('setSubmission', null)">
+                        Your previous contest submissions
+                    </a>
                 </div>
-                <a v-if="loggedInUser && loggedInUser.id == submission.creator.id" href="#" @click.prevent="$store.commit('setSubmission', null)">
-                    show all submissions
-                </a>
+
+                <div v-if="submission.contest.download" class="mt-2">
+                    <div>
+                        <a :href="'/contestresults?contest=' + submission.contest.id" target="_blank">
+                            Full {{ submission.contest.name }} results
+                        </a>
+                    </div>
+                    <div>
+                        <a :href="submission.contest.download" target="_blank">
+                            Download all {{ submission.contest.name }} submissions
+                        </a>
+                    </div>
+                </div>
             </div>
 
             <hr>

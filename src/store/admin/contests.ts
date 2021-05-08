@@ -83,6 +83,13 @@ const store: Module<ContestState, MainState> = {
                 contest.contestStart = payload.contestStart;
             }
         },
+        updateDownload (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                contest.download = payload.download;
+            }
+        },
         updateJudgingThreshold (state, payload): void {
             const contest = state.contests.find(c => c.id == payload.contestId);
 
