@@ -21,6 +21,8 @@ const user_2 = require("../../interfaces/user");
 const submission_1 = require("../../models/contest/submission");
 const osuApi_1 = require("../../helpers/osuApi");
 const criteria_1 = require("../../models/contest/criteria");
+const points_1 = require("../../helpers/points");
+const contest_2 = require("../../interfaces/contest/contest");
 const adminContestsRouter = express_1.default.Router();
 adminContestsRouter.use(middlewares_1.isLoggedIn);
 adminContestsRouter.use(middlewares_1.isSuperAdmin);
@@ -88,8 +90,14 @@ adminContestsRouter.post('/addCriteria', (req, res) => __awaiter(void 0, void 0,
 adminContestsRouter.post('/:id/updateStatus', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const contest = yield contest_1.ContestModel
         .findByIdAndUpdate(req.params.id, { status: req.body.status })
+        .populate(defaultContestPopulate)
         .orFail();
     res.json(contest.status);
+    if (contest.status == contest_2.ContestStatus.Complete) {
+        for (const submission of contest.submissions) {
+            points_1.updateUserPoints(submission.creator._id);
+        }
+    }
 }));
 adminContestsRouter.post('/:id/updateContestStart', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const newContestStart = new Date(req.body.date);
@@ -102,6 +110,15 @@ adminContestsRouter.post('/:id/updateContestStart', (req, res) => __awaiter(void
     contest.contestStart = newContestStart;
     yield contest.save();
     res.json(newContestStart);
+}));
+adminContestsRouter.post('/:id/updateDownload', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const download = req.body.download;
+    const contest = yield contest_1.ContestModel
+        .findById(req.params.id)
+        .orFail();
+    contest.download = download;
+    yield contest.save();
+    res.json(download);
 }));
 adminContestsRouter.post('/:id/screeners/add', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const contest = yield contest_1.ContestModel

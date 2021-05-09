@@ -45,7 +45,7 @@ function isScreener(req, res, next) {
             screeners: res.locals.userRequest._id,
         })
             .populate(defaultContestPopulate)
-            .select('_id name submissions screeners');
+            .select('_id name submissions screeners download');
         if (contests.length) {
             res.locals.contests = contests;
             return next();

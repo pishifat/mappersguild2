@@ -100,6 +100,11 @@ artistsRouter.post('/toggleIsMinor/:id', (req, res) => __awaiter(void 0, void 0,
     a = yield featuredArtist_1.FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
     res.json(a);
 }));
+artistsRouter.post('/toggleIsGroup/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let a = yield featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { isGroup: req.body.value });
+    a = yield featuredArtist_1.FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
+    res.json(a);
+}));
 artistsRouter.post('/toggleIsUpToDate/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let a = yield featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, {
         isUpToDate: req.body.value,

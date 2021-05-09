@@ -15,11 +15,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const contest_1 = require("../interfaces/contest/contest");
 const submission_1 = require("../models/contest/submission");
+const contest_2 = require("../models/contest/contest");
 const contestResultsRouter = express_1.default.Router();
 const submissionPopulate = [
     {
         path: 'contest',
-        select: 'name screeners status',
+        select: 'name screeners status download id',
     },
     {
         path: 'evaluations',
@@ -40,6 +41,35 @@ const submissionPopulate = [
         },
     },
 ];
+const contestPopulate = [
+    {
+        path: 'submissions',
+        populate: [
+            {
+                path: 'evaluations',
+                select: 'comment vote',
+            },
+            {
+                path: 'judgings',
+                select: '-judge',
+                populate: {
+                    path: 'judgingScores',
+                    populate: {
+                        path: 'criteria',
+                    },
+                },
+            },
+            {
+                path: 'creator',
+                select: 'osuId username',
+            },
+        ],
+    },
+    {
+        path: 'criterias',
+        select: 'maxScore',
+    },
+];
 contestResultsRouter.get('/participated', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     let submissions = yield submission_1.SubmissionModel
@@ -58,5 +88,14 @@ contestResultsRouter.get('/searchSubmission/:id', (req, res) => __awaiter(void 0
         return res.json(null);
     }
     res.json(submission);
+}));
+contestResultsRouter.get('/searchContest/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const contest = yield contest_2.ContestModel
+        .findById(req.params.id)
+        .populate(contestPopulate);
+    if ((contest === null || contest === void 0 ? void 0 : contest.status) !== contest_1.ContestStatus.Complete || !contest.download) {
+        return res.json(null);
+    }
+    res.json(contest);
 }));
 exports.default = contestResultsRouter;
