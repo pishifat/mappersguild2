@@ -7,6 +7,8 @@ import { UserGroup } from '../../interfaces/user';
 import { SubmissionModel } from '../../models/contest/submission';
 import { sendPm, isOsuResponseError } from '../../helpers/osuApi';
 import { CriteriaModel } from '../../models/contest/criteria';
+import { updateUserPoints } from '../../helpers/points';
+import { ContestStatus } from '../../interfaces/contest/contest';
 
 
 const adminContestsRouter = express.Router();
@@ -97,9 +99,16 @@ adminContestsRouter.post('/addCriteria', async (req, res) => {
 adminContestsRouter.post('/:id/updateStatus', async (req, res) => {
     const contest = await ContestModel
         .findByIdAndUpdate(req.params.id, { status: req.body.status })
+        .populate(defaultContestPopulate)
         .orFail();
 
     res.json(contest.status);
+
+    if (contest.status == ContestStatus.Complete) {
+        for (const submission of contest.submissions) {
+            updateUserPoints(submission.creator._id);
+        }
+    }
 });
 
 /* POST update contest start date */
