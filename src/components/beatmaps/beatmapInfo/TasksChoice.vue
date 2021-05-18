@@ -11,7 +11,7 @@
                 </thead>
                 <transition-group tag="tbody" name="list">
                     <tr
-                        v-for="task in beatmap.tasks"
+                        v-for="task in sortedTasks"
                         :id="task.id + 'Row'"
                         :key="task.id"
                     >
@@ -151,6 +151,18 @@ export default defineComponent({
         ...mapState([
             'loggedInUser',
         ]),
+        sortedTasks(): Task[] {
+            const difficultyOrder = ['Easy', 'Normal', 'Hard', 'Insane', 'Expert', 'Storyboard'];
+            const modeOrder = ['osu', 'taiko', 'catch', 'mania', 'sb'];
+
+            const newTasks = [...this.beatmap.tasks].sort(function(a, b) {
+                return difficultyOrder.indexOf(a.name) - difficultyOrder.indexOf(b.name);
+            });
+
+            return newTasks.sort(function(a, b) {
+                return modeOrder.indexOf(a.mode) - modeOrder.indexOf(b.mode);
+            });
+        },
     },
     methods: {
         isOwner(mappers: User[]): boolean {
