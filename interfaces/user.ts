@@ -28,6 +28,7 @@ export interface User extends Document {
     completedQuests: Quest[];
     bypassLogin: boolean;
     discordId: string; // js doesnt support 18 digit numbers...
+    isShowcaseMapper: boolean;
 
     rank: number;
     easyPoints: number;

@@ -14,6 +14,7 @@ import { setSession } from '../helpers/helpers';
 
 const indexRouter = express.Router();
 
+/* GET loggedInUser */
 indexRouter.get('/me', async (req, res) => {
     const user = await UserModel.findById(req.session?.mongoId);
 
@@ -190,6 +191,13 @@ indexRouter.get('/callback', async (req, res) => {
             res.redirect(lastPage);
         }
     }
+});
+
+/* POST toggle isShowcaseMapper */
+indexRouter.post('/toggleIsShowcaseMapper', async (req, res) => {
+    const user = await UserModel.findByIdAndUpdate(req.session?.mongoId, { isShowcaseMapper: req.body.value } );
+
+    res.json(user);
 });
 
 export default indexRouter;

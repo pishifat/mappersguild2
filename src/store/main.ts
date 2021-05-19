@@ -34,6 +34,9 @@ export const store = createStore<MainState>({
         setAvailablePoints (state, points) {
             if (state.loggedInUser) state.loggedInUser.availablePoints = points;
         },
+        updateLoggedInUser (state, user: User): void {
+            state.loggedInUser = user;
+        },
     },
     strict: process.env.NODE_ENV !== 'production',
 });

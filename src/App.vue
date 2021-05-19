@@ -132,6 +132,16 @@
                                 <span class="dropdown-item small disabled">Modding points: <span class="float-end">{{ loggedInUser.pointsInfo.modding }}</span></span>
                                 <span class="dropdown-item small disabled">Other points: <span class="float-end">{{ loggedInUser.pointsInfo.other }}</span></span>
                                 <div class="dropdown-divider" />
+                                <span class="ms-3 small text-white-50">
+                                    <a href="https://osu.ppy.sh/wiki/Featured_Artists/Featured_Artist_Showcase_Beatmaps" target="_blank" @click.stop>
+                                        FA showcase
+                                    </a>
+                                    mapper:
+                                    <a class="float-end me-3" href="#" @click.stop.prevent="toggleIsShowcaseMapper()">
+                                        <i class="fas" :class="loggedInUser.isShowcaseMapper ? 'text-done fa-check' : 'text-danger fa-times'" />
+                                    </a>
+                                </span>
+                                <div class="dropdown-divider" />
                                 <form action="/logout" method="GET">
                                     <button class="btn btn-sm btn-outline-danger float-end me-2" type="submit">
                                         Log Out
@@ -221,6 +231,15 @@ export default defineComponent({
         ]),
         title () {
             return this.$route.meta.title;
+        },
+    },
+    methods: {
+        async toggleIsShowcaseMapper() {
+            const user = await this.$http.executePost('/toggleIsShowcaseMapper', { value: !this.loggedInUser.isShowcaseMapper });
+
+            if (user) {
+                this.$store.commit('updateLoggedInUser', user);
+            }
         },
     },
 });
