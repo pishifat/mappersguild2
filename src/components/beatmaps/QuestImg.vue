@@ -1,7 +1,7 @@
 <template>
     <img
         v-if="beatmap.quest || beatmap.isShowcase"
-        v-bs-tooltip="beatmap.quest && beatmap.quest.name"
+        v-bs-tooltip="(beatmap.quest && beatmap.quest.name) || 'FA showcase'"
         class="rounded-circle me-1 quest-icon"
         :src="url"
     >
