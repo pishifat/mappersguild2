@@ -18,7 +18,6 @@ const invite_1 = require("../models/invite");
 const notification_1 = require("../models/notification");
 const notificationsRouter = express_1.default.Router();
 notificationsRouter.use(middlewares_1.isLoggedIn);
-notificationsRouter.use(middlewares_1.isUser);
 const notificationPopulate = [
     { path: 'sender', select: 'username osuId' },
     {
@@ -72,13 +71,13 @@ notificationsRouter.get('/relevantInfo', (req, res) => __awaiter(void 0, void 0,
     ]);
     res.json({ notifications, invites });
 }));
-notificationsRouter.post('/:id/hide', middlewares_1.isNotSpectator, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+notificationsRouter.post('/:id/hide', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const notification = yield notification_1.NotificationModel.findById(req.params.id).orFail();
     notification.visible = false;
     yield notification.save();
     res.json(notification);
 }));
-notificationsRouter.post('/hideAll/', middlewares_1.isNotSpectator, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+notificationsRouter.post('/hideAll/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _c;
     const notifications = yield notification_1.NotificationModel
         .find({

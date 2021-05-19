@@ -15,12 +15,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const middlewares_1 = require("../helpers/middlewares");
 const beatmap_1 = require("../interfaces/beatmap/beatmap");
+const user_1 = require("../interfaces/user");
 const log_1 = require("../interfaces/log");
 const invite_1 = require("../interfaces/invite");
 const party_1 = require("../models/party");
 const quest_1 = require("../models/quest");
 const log_2 = require("../models/log");
-const user_1 = require("../models/user");
+const user_2 = require("../models/user");
 const invite_2 = require("../models/invite");
 const beatmap_2 = require("../models/beatmap/beatmap");
 const quest_2 = require("../interfaces/quest");
@@ -50,8 +51,7 @@ function isPartyLeader(req, res, next) {
 }
 const partiesRouter = express_1.default.Router();
 partiesRouter.use(middlewares_1.isLoggedIn);
-partiesRouter.use(middlewares_1.isNotSpectator);
-partiesRouter.post('/create', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+partiesRouter.post('/create', middlewares_1.isNotSpectator, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const questId = req.body.questId;
     let quest = yield quest_1.QuestModel.defaultFindByIdOrFail(questId);
@@ -67,7 +67,7 @@ partiesRouter.post('/create', (req, res) => __awaiter(void 0, void 0, void 0, fu
     res.json(quest);
     log_2.LogModel.generate((_a = req.session) === null || _a === void 0 ? void 0 : _a.mongoId, `created a party for ${quest.name}`, log_1.LogCategory.Party);
 }));
-partiesRouter.post('/:id/join', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+partiesRouter.post('/:id/join', middlewares_1.isNotSpectator, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _b;
     const party = yield party_1.PartyModel.defaultFindByIdOrFail(req.params.id);
     if (party.quest.status !== quest_2.QuestStatus.Open) {
@@ -129,7 +129,7 @@ partiesRouter.post('/:id/invite', isPartyLeader, (req, res) => __awaiter(void 0,
     const inviteError = 'Invite not sent: ';
     const party = res.locals.party;
     const [user, quest] = yield Promise.all([
-        user_1.UserModel
+        user_2.UserModel
             .findOne()
             .byUsernameOrOsuId(req.body.username)
             .orFail(new Error(inviteError + cannotFindUserMessage)),
@@ -150,9 +150,12 @@ partiesRouter.post('/:id/invite', isPartyLeader, (req, res) => __awaiter(void 0,
 partiesRouter.post('/:id/transferLeadership', isPartyLeader, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _g;
     const party = res.locals.party;
-    const user = yield user_1.UserModel
+    const user = yield user_2.UserModel
         .findById(req.body.userId)
         .orFail(new Error(cannotFindUserMessage));
+    if (user.group == user_1.UserGroup.Spectator) {
+        return res.json({ error: 'Only members with 3+ ranked maps can lead a party!' });
+    }
     party.leader = user;
     yield party.save();
     res.json(party);
@@ -161,7 +164,7 @@ partiesRouter.post('/:id/transferLeadership', isPartyLeader, (req, res) => __awa
 partiesRouter.post('/:id/kick', isPartyLeader, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _h;
     const party = res.locals.party;
-    const user = yield user_1.UserModel
+    const user = yield user_2.UserModel
         .findById(req.body.userId)
         .orFail(new Error(cannotFindUserMessage));
     const hasRanked = yield hasRankedBeatmaps(party.quest.id, user.id);

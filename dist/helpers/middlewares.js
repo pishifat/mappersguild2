@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isBn = exports.isNotSpectator = exports.isUser = exports.isSuperAdmin = exports.isSecret = exports.isAdmin = exports.isLoggedIn = exports.unauthorize = void 0;
+exports.isBn = exports.isNotSpectator = exports.isSuperAdmin = exports.isSecret = exports.isAdmin = exports.isLoggedIn = exports.unauthorize = void 0;
 const user_1 = require("../models/user");
 const user_2 = require("../interfaces/user");
 const osuApi_1 = require("./osuApi");
@@ -76,21 +76,12 @@ function isSuperAdmin(req, res, next) {
     }
 }
 exports.isSuperAdmin = isSuperAdmin;
-function isUser(req, res, next) {
-    if (res.locals.userRequest.group == user_2.UserGroup.User || res.locals.userRequest.group == user_2.UserGroup.Admin || res.locals.userRequest.group == user_2.UserGroup.Secret) {
-        next();
-    }
-    else {
-        unauthorize(req, res);
-    }
-}
-exports.isUser = isUser;
 function isNotSpectator(req, res, next) {
     if (res.locals.userRequest.group != user_2.UserGroup.Spectator) {
         next();
     }
     else {
-        return res.json({ error: 'Spectators cannot perform this action!' });
+        return res.json({ error: 'You need 3+ ranked maps to do this! You can only join parties/beatmaps through invites.' });
     }
 }
 exports.isNotSpectator = isNotSpectator;

@@ -50,8 +50,6 @@ const invitePopulate = [
 ];
 const invitesRouter = express_1.default.Router();
 invitesRouter.use(middlewares_1.isLoggedIn);
-invitesRouter.use(middlewares_1.isUser);
-invitesRouter.use(middlewares_1.isNotSpectator);
 invitesRouter.post('/:id/hide', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const invite = yield invite_1.InviteModel
         .findById(req.params.id)

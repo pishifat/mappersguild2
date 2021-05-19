@@ -58,7 +58,7 @@ tasksRouter.post('/addTask/:mapId', middlewares_1.isNotSpectator, middlewares_2.
         }
     }
 }));
-tasksRouter.post('/removeTask/:id', middlewares_1.isNotSpectator, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+tasksRouter.post('/removeTask/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _c, _d, _e, _f, _g;
     const [b, t] = yield Promise.all([
         beatmap_1.BeatmapModel
@@ -88,7 +88,7 @@ tasksRouter.post('/removeTask/:id', middlewares_1.isNotSpectator, (req, res) => 
         }
     }
 }));
-tasksRouter.post('/task/:taskId/addCollab', middlewares_1.isNotSpectator, middlewares_2.isValidUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+tasksRouter.post('/task/:taskId/addCollab', middlewares_2.isValidUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = res.locals.userRequest;
     const userToRequest = res.locals.user;
     const taskId = req.params.taskId;
@@ -118,7 +118,7 @@ tasksRouter.post('/task/:taskId/addCollab', middlewares_1.isNotSpectator, middle
     }
     res.json(beatmap);
 }));
-tasksRouter.post('/task/:taskId/removeCollab', middlewares_1.isNotSpectator, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+tasksRouter.post('/task/:taskId/removeCollab', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _h, _j;
     const taskId = req.params.taskId;
     const [u, b, t] = yield Promise.all([
@@ -150,7 +150,7 @@ tasksRouter.post('/task/:taskId/removeCollab', middlewares_1.isNotSpectator, (re
         log_1.LogModel.generate((_j = req.session) === null || _j === void 0 ? void 0 : _j.mongoId, `removed "${u.username}" from collab mapper of "${updatedTask.name}" on "${updatedB.song.artist} - ${updatedB.song.title}"`, log_2.LogCategory.Beatmap);
     }
 }));
-tasksRouter.post('/setTaskStatus/:taskId', middlewares_1.isNotSpectator, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+tasksRouter.post('/setTaskStatus/:taskId', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _k, _l, _m, _o, _p;
     const t = yield task_1.TaskModel
         .findById(req.params.taskId)

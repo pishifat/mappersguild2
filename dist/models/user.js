@@ -30,6 +30,7 @@ const UserSchema = new mongoose_1.Schema({
     queuedBadge: { type: Number, default: 0 },
     bypassLogin: { type: Boolean },
     discordId: { type: String },
+    isShowcaseMapper: { type: Boolean },
     rank: { type: Number, default: 0 },
     easyPoints: { type: Number, default: 0 },
     normalPoints: { type: Number, default: 0 },

@@ -160,7 +160,7 @@ beatmapsRouter.post('/create', middlewares_1.isNotSpectator, (req, res) => __awa
         log_1.LogModel.generate((_g = req.session) === null || _g === void 0 ? void 0 : _g.mongoId, `created new map "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
     }
 }));
-beatmapsRouter.post('/:id/updateModder', middlewares_1.isNotSpectator, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+beatmapsRouter.post('/:id/updateModder', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _h, _j, _k, _l, _m, _o, _p;
     const isAlreadyModder = yield beatmap_1.BeatmapModel.findOne({
         _id: req.params.id,
@@ -196,7 +196,7 @@ beatmapsRouter.post('/:id/updateModder', middlewares_1.isNotSpectator, (req, res
         }
     }
 }));
-beatmapsRouter.post('/:id/updateBn', middlewares_1.isNotSpectator, middlewares_2.isValidBeatmap, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+beatmapsRouter.post('/:id/updateBn', middlewares_2.isValidBeatmap, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _q, _r, _s, _t, _u, _v, _w, _x;
     const b = res.locals.beatmap;
     const isAlreadyBn = yield beatmap_1.BeatmapModel.findOne({

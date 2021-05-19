@@ -178,4 +178,9 @@ indexRouter.get('/callback', (req, res) => __awaiter(void 0, void 0, void 0, fun
         }
     }
 }));
+indexRouter.post('/toggleIsShowcaseMapper', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _b;
+    const user = yield user_1.UserModel.findByIdAndUpdate((_b = req.session) === null || _b === void 0 ? void 0 : _b.mongoId, { isShowcaseMapper: req.body.value });
+    res.json(user);
+}));
 exports.default = indexRouter;
