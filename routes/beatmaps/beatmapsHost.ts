@@ -13,10 +13,9 @@ import { QuestModel } from '../../models/quest';
 const beatmapsHostRouter = express.Router();
 
 beatmapsHostRouter.use(isLoggedIn);
-beatmapsHostRouter.use(isNotSpectator);
 
 /* POST set game mode. */
-beatmapsHostRouter.post('/:id/setMode', isValidBeatmap, isBeatmapHost, async (req, res) => {
+beatmapsHostRouter.post('/:id/setMode', isValidBeatmap, isBeatmapHost, isNotSpectator, async (req, res) => {
     let b: Beatmap = res.locals.beatmap;
 
     if (req.body.mode != BeatmapMode.Hybrid) {
@@ -51,7 +50,7 @@ beatmapsHostRouter.post('/:id/setMode', isValidBeatmap, isBeatmapHost, async (re
 });
 
 /* POST set status of the beatmapset from extended view. */
-beatmapsHostRouter.post('/:id/setStatus', isValidBeatmap, isBeatmapHost, async (req, res) => {
+beatmapsHostRouter.post('/:id/setStatus', isValidBeatmap, isBeatmapHost, isNotSpectator, async (req, res) => {
     const validBeatmap: Beatmap = res.locals.beatmap;
 
     if (validBeatmap.status == BeatmapStatus.Secret) {
@@ -95,7 +94,7 @@ beatmapsHostRouter.post('/:id/setStatus', isValidBeatmap, isBeatmapHost, async (
 });
 
 /* POST save a party/quest to a map */
-beatmapsHostRouter.post('/:id/linkQuest', isValidBeatmap, isBeatmapHost, async (req, res) => {
+beatmapsHostRouter.post('/:id/linkQuest', isValidBeatmap, isBeatmapHost, isNotSpectator, async (req, res) => {
     let beatmap: Beatmap = res.locals.beatmap;
     const questId = req.body.questId;
 
@@ -150,7 +149,7 @@ beatmapsHostRouter.post('/:id/linkQuest', isValidBeatmap, isBeatmapHost, async (
 });
 
 /* POST edit link from extended view. */
-beatmapsHostRouter.post('/:id/setLink', isValidBeatmap, isBeatmapHost, async (req, res) => {
+beatmapsHostRouter.post('/:id/setLink', isValidBeatmap, isBeatmapHost, isNotSpectator, async (req, res) => {
     let url = req.body.url;
 
     if (!url?.length) {
@@ -185,7 +184,7 @@ beatmapsHostRouter.post('/:id/setLink', isValidBeatmap, isBeatmapHost, async (re
 });
 
 /* POST locks task from extended view. */
-beatmapsHostRouter.post('/:id/lockTask', isValidBeatmap, isBeatmapHost, async (req, res) => {
+beatmapsHostRouter.post('/:id/lockTask', isValidBeatmap, isBeatmapHost, isNotSpectator, async (req, res) => {
     if (!req.body.task) {
         return res.json({ error: 'Not a valid task' });
     }
@@ -212,7 +211,7 @@ beatmapsHostRouter.post('/:id/lockTask', isValidBeatmap, isBeatmapHost, async (r
 });
 
 /* POST unlocks task from extended view. */
-beatmapsHostRouter.post('/:id/unlockTask', isValidBeatmap, isBeatmapHost, async (req, res) => {
+beatmapsHostRouter.post('/:id/unlockTask', isValidBeatmap, isBeatmapHost, isNotSpectator, async (req, res) => {
     await BeatmapModel.findByIdAndUpdate(req.params.id, {
         $pull: { tasksLocked: req.body.task },
     });
@@ -234,7 +233,7 @@ beatmapsHostRouter.post('/:id/unlockTask', isValidBeatmap, isBeatmapHost, async 
 });
 
 /* POST delete map */
-beatmapsHostRouter.post('/:id/delete', isValidBeatmap, isBeatmapHost, async (req, res) => {
+beatmapsHostRouter.post('/:id/delete', isValidBeatmap, isBeatmapHost, isNotSpectator, async (req, res) => {
     const b: Beatmap = res.locals.beatmap;
 
     for (let i = 0; i < b.tasks.length; i++) {

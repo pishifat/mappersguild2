@@ -184,7 +184,7 @@ beatmapsRouter.post('/create', isNotSpectator, async (req, res) => {
 });
 
 /* POST modder from extended view, returns new modders list. */
-beatmapsRouter.post('/:id/updateModder', isNotSpectator, async (req, res) => {
+beatmapsRouter.post('/:id/updateModder', async (req, res) => {
     const isAlreadyModder = await BeatmapModel.findOne({
         _id: req.params.id,
         modders: req.session?.mongoId,
@@ -245,7 +245,7 @@ beatmapsRouter.post('/:id/updateModder', isNotSpectator, async (req, res) => {
 });
 
 /* POST bn from extended view, returns new bns list. */
-beatmapsRouter.post('/:id/updateBn', isNotSpectator, isValidBeatmap, async (req, res) => {
+beatmapsRouter.post('/:id/updateBn', isValidBeatmap, async (req, res) => {
     const b: Beatmap = res.locals.beatmap;
     const isAlreadyBn = await BeatmapModel.findOne({
         _id: req.params.id,

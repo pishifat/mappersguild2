@@ -70,7 +70,7 @@ tasksRouter.post('/addTask/:mapId', isNotSpectator, isValidBeatmap, async (req, 
 });
 
 /* POST delete task from extended view. */
-tasksRouter.post('/removeTask/:id', isNotSpectator, async (req, res) => {
+tasksRouter.post('/removeTask/:id', async (req, res) => {
     const [b, t] = await Promise.all([
         BeatmapModel
             .findOne({
@@ -117,7 +117,7 @@ tasksRouter.post('/removeTask/:id', isNotSpectator, async (req, res) => {
 });
 
 /* POST invite collab user to task. */
-tasksRouter.post('/task/:taskId/addCollab', isNotSpectator, isValidUser, async (req, res) => {
+tasksRouter.post('/task/:taskId/addCollab', isValidUser, async (req, res) => {
     const user: User = res.locals.userRequest;
     const userToRequest: User = res.locals.user;
     const taskId: any = req.params.taskId;
@@ -165,7 +165,7 @@ tasksRouter.post('/task/:taskId/addCollab', isNotSpectator, isValidUser, async (
 });
 
 /* POST remove collab user from task. */
-tasksRouter.post('/task/:taskId/removeCollab', isNotSpectator, async (req, res) => {
+tasksRouter.post('/task/:taskId/removeCollab', async (req, res) => {
     const taskId: any = req.params.taskId;
 
     const [u, b, t] = await Promise.all([
@@ -211,7 +211,7 @@ tasksRouter.post('/task/:taskId/removeCollab', isNotSpectator, async (req, res) 
 });
 
 /* POST set status of the task selected from extended view. */
-tasksRouter.post('/setTaskStatus/:taskId', isNotSpectator, async (req, res) => {
+tasksRouter.post('/setTaskStatus/:taskId', async (req, res) => {
     const t = await TaskModel
         .findById(req.params.taskId)
         .orFail();

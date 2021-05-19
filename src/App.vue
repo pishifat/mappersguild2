@@ -207,7 +207,7 @@
         </footer>
 
         <toast-messages />
-        <notifications-access v-if="loggedInUser && loggedInUser.group != 'spectator'" />
+        <notifications-access v-if="loggedInUser" />
     </div>
 </template>
 

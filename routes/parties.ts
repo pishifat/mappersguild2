@@ -1,7 +1,7 @@
 import express from 'express';
 import { isLoggedIn, isNotSpectator } from '../helpers/middlewares';
 import { BeatmapStatus } from '../interfaces/beatmap/beatmap';
-import { User } from '../interfaces/user';
+import { User, UserGroup } from '../interfaces/user';
 import { LogCategory } from '../interfaces/log';
 import { ActionType } from '../interfaces/invite';
 import { PartyModel } from '../models/party';
@@ -44,10 +44,9 @@ async function isPartyLeader (req, res, next): Promise<void> {
 const partiesRouter = express.Router();
 
 partiesRouter.use(isLoggedIn);
-partiesRouter.use(isNotSpectator);
 
 /* POST create party */
-partiesRouter.post('/create', async (req, res) => {
+partiesRouter.post('/create', isNotSpectator, async (req, res) => {
     const questId = req.body.questId;
     let quest = await QuestModel.defaultFindByIdOrFail(questId);
 
@@ -68,7 +67,7 @@ partiesRouter.post('/create', async (req, res) => {
 });
 
 /* POST join party */
-partiesRouter.post('/:id/join', async (req, res) => {
+partiesRouter.post('/:id/join', isNotSpectator, async (req, res) => {
     const party = await PartyModel.defaultFindByIdOrFail(req.params.id);
 
     if (party.quest.status !== QuestStatus.Open) {
@@ -193,6 +192,10 @@ partiesRouter.post('/:id/transferLeadership', isPartyLeader, async (req, res) =>
     const user = await UserModel
         .findById(req.body.userId)
         .orFail(new Error(cannotFindUserMessage));
+
+    if (user.group == UserGroup.Spectator) {
+        return res.json({ error: 'Only members with 3+ ranked maps can lead a party!' });
+    }
 
     party.leader = user;
     await party.save();

@@ -1,5 +1,5 @@
 import express from 'express';
-import { isLoggedIn, isUser, isNotSpectator } from '../helpers/middlewares';
+import { isLoggedIn } from '../helpers/middlewares';
 import { updateUserPoints } from '../helpers/points';
 import { PartyModel } from '../models/party';
 import { BeatmapModel } from '../models/beatmap/beatmap';
@@ -40,8 +40,6 @@ const invitePopulate = [
 const invitesRouter = express.Router();
 
 invitesRouter.use(isLoggedIn);
-invitesRouter.use(isUser);
-invitesRouter.use(isNotSpectator);
 
 /* POST hide invite and create notifications because of it */
 invitesRouter.post('/:id/hide', async (req, res) => {

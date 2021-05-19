@@ -1,12 +1,11 @@
 import express from 'express';
-import { isLoggedIn, isUser, isNotSpectator } from '../helpers/middlewares';
+import { isLoggedIn } from '../helpers/middlewares';
 import { InviteModel } from '../models/invite';
 import { NotificationModel } from '../models/notification';
 
 const notificationsRouter = express.Router();
 
 notificationsRouter.use(isLoggedIn);
-notificationsRouter.use(isUser);
 
 //populations
 const notificationPopulate = [
@@ -67,7 +66,7 @@ notificationsRouter.get('/relevantInfo', async (req, res) => {
 });
 
 /* POST hide notification */
-notificationsRouter.post('/:id/hide', isNotSpectator, async (req, res) => {
+notificationsRouter.post('/:id/hide', async (req, res) => {
     const notification = await NotificationModel.findById(req.params.id).orFail();
     notification.visible = false;
     await notification.save();
@@ -76,7 +75,7 @@ notificationsRouter.post('/:id/hide', isNotSpectator, async (req, res) => {
 });
 
 /* POST hide all pending notifications */
-notificationsRouter.post('/hideAll/', isNotSpectator, async (req, res) => {
+notificationsRouter.post('/hideAll/', async (req, res) => {
     const notifications = await NotificationModel
         .find({
             recipient: req.session?.mongoId,
