@@ -88,6 +88,26 @@ adminUsersRouter.get('/findTieredUsers', async (req, res) => {
     res.json({ osuUsers, taikoUsers, catchUsers, maniaUsers });
 });
 
+/* GET find FA showcase users */
+adminUsersRouter.get('/findShowcaseUsers', async (req, res) => {
+    const [osuUsers, taikoUsers, catchUsers, maniaUsers] = await Promise.all([
+        UserModel
+            .find({ isShowcaseMapper: true, group: { $nin: [UserGroup.Secret, UserGroup.Admin] }, osuPoints: { $gte: 1 } })
+            .orFail(),
+        UserModel
+            .find({ isShowcaseMapper: true, group: { $nin: [UserGroup.Secret, UserGroup.Admin] }, taikoPoints: { $gte: 1 } })
+            .orFail(),
+        UserModel
+            .find({ isShowcaseMapper: true, group: { $nin: [UserGroup.Secret, UserGroup.Admin] }, catchPoints: { $gte: 1 } })
+            .orFail(),
+        UserModel
+            .find({ isShowcaseMapper: true, group: { $nin: [UserGroup.Secret, UserGroup.Admin] }, maniaPoints: { $gte: 1 } })
+            .orFail(),
+    ]);
+
+    res.json({ osuUsers, taikoUsers, catchUsers, maniaUsers });
+});
+
 /* POST find input users for DiscordHighlightGenerator */
 adminUsersRouter.post('/findInputUsers', async (req, res) => {
     const inputUsers = req.body.inputUsers;

@@ -55,6 +55,8 @@
 
         <tiered-user-list />
 
+        <showcase-user-list />
+
         <discord-highlight-generator />
     </div>
 </template>
@@ -64,6 +66,7 @@ import { defineComponent } from 'vue';
 import UserInfo from '../../components/admin/UserInfo.vue';
 import DataTable from '../../components/admin/DataTable.vue';
 import TieredUserList from '../../components/admin/TieredUserList.vue';
+import ShowcaseUserList from '../../components/admin/ShowcaseUserList.vue';
 import DiscordHighlightGenerator from '../../components/admin/DiscordHighlightGenerator.vue';
 import { User } from '../../../interfaces/user';
 import { mapState } from 'vuex';
@@ -74,6 +77,7 @@ export default defineComponent({
         DataTable,
         UserInfo,
         TieredUserList,
+        ShowcaseUserList,
         DiscordHighlightGenerator,
     },
     data () {
