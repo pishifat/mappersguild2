@@ -36,8 +36,8 @@
                             </span>
 
                             <span class="text-white-50">
+                                <span v-if="!artist.hasRankedMaps" class="me-1 text-danger">[no ranked maps]</span>
                                 <span v-if="artist.isMinor" class="me-1">[minor]</span>
-                                <span v-if="!artist.hasRankedMaps" class="me-1">[no ranked maps]</span>
                                 <span v-if="artist.isGroup" class="me-1">[group]</span>
                             </span>
                         </span>
