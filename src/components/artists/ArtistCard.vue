@@ -28,16 +28,17 @@
                                     <span v-if="!artist.songsTimed" class="me-1">[timing]</span>
                                     <span v-if="!artist.assetsReceived" class="me-1">[images]</span>
                                 </span>
-                                <span class="text-white-50">
-                                    <span v-if="artist.isMinor" class="me-1">[minor]</span>
-                                    <span v-if="!artist.hasRankedMaps" class="me-1">[no ranked maps]</span>
-                                    <span v-if="artist.isGroup" class="me-1">[group]</span>
-                                </span>
                             </span>
 
                             <span v-else class="text-white-50">
                                 <span v-if="artist.isRejected">{{ artist.isResponded ? 'stopped responding' : 'no response' }}</span>
-                                <span v-else-if="artist.tracksSelected">tracks confirmed</span>
+                                <span v-else-if="artist.tracksSelected" class="text-success">[tracks confirmed] </span>
+                            </span>
+
+                            <span class="text-white-50">
+                                <span v-if="artist.isMinor" class="me-1">[minor]</span>
+                                <span v-if="!artist.hasRankedMaps" class="me-1">[no ranked maps]</span>
+                                <span v-if="artist.isGroup" class="me-1">[group]</span>
                             </span>
                         </span>
 
