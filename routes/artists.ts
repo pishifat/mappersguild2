@@ -2,6 +2,7 @@ import express from 'express';
 import { isAdmin, isLoggedIn } from '../helpers/middlewares';
 import { FeaturedArtistModel } from '../models/featuredArtist';
 import { UserModel } from '../models/user';
+import { User } from '../interfaces/user';
 
 const artistsRouter = express.Router();
 
@@ -198,7 +199,7 @@ artistsRouter.post('/updateShowcaseMappers/:id', async (req, res) => {
     } else {
         const usersSplit: string[] = req.body.showcaseMappers.split(',');
 
-        const userIds = [];
+        const userIds: User['_id'] = [];
 
         for (const u of usersSplit) {
             const user = await UserModel

@@ -15,11 +15,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const middlewares_1 = require("../helpers/middlewares");
 const featuredArtist_1 = require("../models/featuredArtist");
+const user_1 = require("../models/user");
 const artistsRouter = express_1.default.Router();
 artistsRouter.use(middlewares_1.isLoggedIn);
 artistsRouter.use(middlewares_1.isAdmin);
 const defaultPopulate = [
     { path: 'songs', select: 'artist title' },
+    { path: 'showcaseMappers', select: 'username osuId' },
 ];
 artistsRouter.get('/relevantInfo', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
@@ -136,6 +138,31 @@ artistsRouter.post('/updateNotes/:id', (req, res) => __awaiter(void 0, void 0, v
     let a = yield featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { notes: req.body.notes });
     a = yield featuredArtist_1.FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
     res.json(a);
+}));
+artistsRouter.post('/updateShowcaseMappers/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let a;
+    if (!req.body.showcaseMappers.length) {
+        yield featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { showcaseMappers: [] });
+        a = yield featuredArtist_1.FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
+    }
+    else {
+        const usersSplit = req.body.showcaseMappers.split(',');
+        const userIds = [];
+        for (const u of usersSplit) {
+            const user = yield user_1.UserModel
+                .findOne()
+                .byUsernameOrOsuId(u);
+            if (!user) {
+                return res.json({ error: `Cannot find ${u}!` });
+            }
+            else {
+                userIds.push(user._id);
+            }
+        }
+        yield featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { showcaseMappers: userIds });
+        a = yield featuredArtist_1.FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
+    }
+    res.json({ artist: a });
 }));
 artistsRouter.post('/reset/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let a = yield featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, {

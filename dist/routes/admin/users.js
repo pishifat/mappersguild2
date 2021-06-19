@@ -72,6 +72,23 @@ adminUsersRouter.get('/findTieredUsers', (req, res) => __awaiter(void 0, void 0,
     ]);
     res.json({ osuUsers, taikoUsers, catchUsers, maniaUsers });
 }));
+adminUsersRouter.get('/findShowcaseUsers', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const [osuUsers, taikoUsers, catchUsers, maniaUsers] = yield Promise.all([
+        user_1.UserModel
+            .find({ isShowcaseMapper: true, group: { $nin: [user_2.UserGroup.Secret, user_2.UserGroup.Admin] }, osuPoints: { $gte: 1 } })
+            .orFail(),
+        user_1.UserModel
+            .find({ isShowcaseMapper: true, group: { $nin: [user_2.UserGroup.Secret, user_2.UserGroup.Admin] }, taikoPoints: { $gte: 1 } })
+            .orFail(),
+        user_1.UserModel
+            .find({ isShowcaseMapper: true, group: { $nin: [user_2.UserGroup.Secret, user_2.UserGroup.Admin] }, catchPoints: { $gte: 1 } })
+            .orFail(),
+        user_1.UserModel
+            .find({ isShowcaseMapper: true, group: { $nin: [user_2.UserGroup.Secret, user_2.UserGroup.Admin] }, maniaPoints: { $gte: 1 } })
+            .orFail(),
+    ]);
+    res.json({ osuUsers, taikoUsers, catchUsers, maniaUsers });
+}));
 adminUsersRouter.post('/findInputUsers', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const inputUsers = req.body.inputUsers;
     const usernames = inputUsers.split('\n');

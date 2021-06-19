@@ -28,6 +28,7 @@ const featuredArtistSchema = new mongoose_1.Schema({
     songs: [{ type: 'ObjectId', ref: 'FeaturedSong' }],
     lastContacted: { type: Date },
     notes: { type: String },
+    showcaseMappers: [{ type: 'ObjectId', ref: 'User' }],
     isContacted: { type: Boolean },
     isResponded: { type: Boolean },
     tracksSelected: { type: Boolean },

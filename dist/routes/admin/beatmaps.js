@@ -131,50 +131,25 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', (req, res) => __awaiter(void 0, v
         quest_1.QuestModel
             .find({ completed: { $gte: date } })
             .defaultPopulate()
-            .sort({ requiredMapsets: 1 })
+            .sort({ requiredMapsets: -1 })
             .orFail(),
         user_2.UserModel
             .find({ group: { $ne: user_1.UserGroup.Spectator } })
             .orFail(),
     ]);
-    const maps = yield osuApi_1.getMaps(date);
-    const externalBeatmaps = [];
-    const osuIds = [];
-    b.forEach(map => {
-        if (map.url) {
-            const osuId = helpers_1.findBeatmapsetId(map.url);
-            if (!osuIds.includes(osuId)) {
-                osuIds.push(osuId);
-            }
-        }
-    });
-    if (!osuApi_1.isOsuResponseError(maps)) {
-        maps.forEach(map => {
-            map.beatmapset_id = parseInt(map.beatmapset_id, 10);
-            if (!osuIds.includes(map.beatmapset_id)) {
-                osuIds.push(map.beatmapset_id);
-                map.tags = map.tags.split(' ');
-                if ((map.tags.includes('featured') && map.tags.includes('artist')) || map.tags.includes('fa')) {
-                    externalBeatmaps.push({
-                        osuId: map.beatmapset_id,
-                        artist: map.artist,
-                        title: map.title,
-                        creator: map.creator,
-                        creatorOsuId: map.creator_id
-                    });
-                }
-            }
-        });
-    }
+    console.log(b.length);
+    console.log(q.length);
     const users = [];
     for (const user of u) {
         user.hostCount = 0;
         user.taskCount = 0;
+        const modes = [];
         for (const beatmap of b) {
             for (const task of beatmap.tasks) {
                 for (const mapper of task.mappers) {
                     if (mapper.id == user.id) {
                         user.taskCount++;
+                        modes.push(task.mode);
                     }
                 }
             }
@@ -182,17 +157,17 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', (req, res) => __awaiter(void 0, v
                 user.hostCount++;
         }
         if (user.taskCount >= 10 || user.hostCount >= 3) {
-            users.push({ username: user.username, osuId: user.osuId, taskCount: user.taskCount, hostCount: user.hostCount });
+            users.push({ username: user.username, osuId: user.osuId, taskCount: user.taskCount, hostCount: user.hostCount, modes: [...new Set(modes)] });
         }
     }
     users.sort(function (a, b) {
-        if (a.hostCount < b.hostCount)
+        if (a.taskCount < b.taskCount)
             return 1;
-        if (a.hostCount > b.hostCount)
+        if (a.taskCount > b.taskCount)
             return -1;
         return 0;
     });
-    res.json({ beatmaps: b, quests: q, externalBeatmaps, users });
+    res.json({ beatmaps: b, quests: q, users });
 }));
 adminBeatmapsRouter.get('/findBundledBeatmaps', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const easyTasks = yield task_1.TaskModel
