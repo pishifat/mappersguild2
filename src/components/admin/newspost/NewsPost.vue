@@ -13,42 +13,46 @@
             >
         </p>
 
-        <p>
-            notes to self from last news post:
-            - for the repeat packs (double, mini-pack, etc) they don't need to state the exact objective each time. too repetitive
-            - separate quests by type (special, big pack, mini pack, solo)
-            - not sure what to do about ranked maps list (probably too big each time? users is cool at least)
-        </p>
-
         <p v-if="quests">
             Quest data:
         </p>
 
         <copy-paste v-if="quests" :distinct="'quests'">
             <div v-for="quest in quests" :key="quest.id">
-                <p>
-                    {{ quest.art && quest.associatedMaps.length ?
-                        '![' + quest.associatedMaps[0].song.artist + ' header](https://assets.ppy.sh/artists/' + quest.art + '/header.jpg)' :
-                        '![Mystery header](/wiki/shared/news/banners/mappersguild-mystery.jpg)' }}
-                </p>
-                <p>
-                    For the **{{ quest.name + ' (' + questModes(quest.modes) + ')' }}** quest, the mapper{{ quest.currentParty.members.length == 1 ? '' : 's' }} had to {{ quest.descriptionMain.substring(0,1).toLowerCase() + quest.descriptionMain.substring(1) }}
-                </p>
-                <p>
-                    This quest was completed by
-                    <span v-for="(member, i) in quest.currentParty.members" :key="member.id">
-                        **[{{ member.username }}]({{ 'https://osu.ppy.sh/users/' + member.osuId }})**{{ separateUsername(i, quest.currentParty.members.length) }}
-                    </span>
-                </p>
-                <div v-for="beatmap in quest.associatedMaps" :key="beatmap.id">
-                    - [{{ beatmap.song.artist }} - {{ beatmap.song.title }}]({{ beatmap.url }})
-                    {{ hasMultipleMappers(beatmap.tasks) ? 'hosted by' : 'by' }}
-                    [{{ beatmap.host.username }}]({{ 'https://osu.ppy.sh/users/' + beatmap.host.osuId }})
-                    <span v-if="quest.modes.length > 1">
-                        ({{ beatmap.mode == 'osu' ? 'osu!' : beatmap.mode == 'hybrid' ? 'hybrid' : 'osu!' + beatmap.mode }})
-                    </span>
+                <div v-if="quest.requiredMapsets > 2">
+                    <p>
+                        {{ quest.art && quest.associatedMaps.length ?
+                            '![' + quest.associatedMaps[0].song.artist + ' header](https://assets.ppy.sh/artists/' + quest.art + '/header.jpg)' :
+                            '![Mystery header](/wiki/shared/news/banners/mappersguild-mystery.jpg)' }}
+                    </p>
+                    <p>
+                        For the **{{ quest.name + ' (' + questModes(quest.modes) + ')' }}** quest, the mapper{{ quest.currentParty.members.length == 1 ? '' : 's' }} had to {{ quest.descriptionMain.substring(0,1).toLowerCase() + quest.descriptionMain.substring(1) }}
+                    </p>
+                    <p>
+                        This quest was completed by
+                        <span v-for="(member, i) in quest.currentParty.members" :key="member.id">
+                            **[{{ member.username }}]({{ 'https://osu.ppy.sh/users/' + member.osuId }})**{{ separateUsername(i, quest.currentParty.members.length) }}
+                        </span>
+                    </p>
+                    <div v-for="beatmap in quest.associatedMaps" :key="beatmap.id">
+                        - [{{ beatmap.song.artist }} - {{ beatmap.song.title }}]({{ beatmap.url }})
+                        {{ hasMultipleMappers(beatmap.tasks) ? 'hosted by' : 'by' }}
+                        [{{ beatmap.host.username }}]({{ 'https://osu.ppy.sh/users/' + beatmap.host.osuId }})
+                        <span v-if="quest.modes.length > 1">
+                            ({{ beatmap.mode == 'osu' ? 'osu!' : beatmap.mode == 'hybrid' ? 'hybrid' : 'osu!' + beatmap.mode }})
+                        </span>
+                    </div>
+                    <br>
                 </div>
-                <br>
+                <div v-else>
+                    - **{{ quest.name + ' (' + questModes(quest.modes) + ')' }}**:
+                    <span v-for="(beatmap, i) in quest.associatedMaps" :key="beatmap.id">
+                        [{{ beatmap.song.artist }} - {{ beatmap.song.title }}]({{ beatmap.url }})
+                        {{ hasMultipleMappers(beatmap.tasks) ? 'hosted by' : 'by' }}
+                        [{{ beatmap.host.username }}]({{ 'https://osu.ppy.sh/users/' + beatmap.host.osuId }}){{ separateUsername(i, quest.associatedMaps.length) }}
+                    </span>
+                    <br>
+                </div>
             </div>
         </copy-paste>
 
@@ -108,13 +112,13 @@
 
         <copy-paste v-if="users" :distinct="'users'">
             <div>
-                | User | Beatmaps Ranked | Difficulties Ranked |
+                | User | Modes | Beatmaps Ranked | Difficulties Ranked |
             </div>
             <div>
-                | :-- | :-- | :-- |
+                | :-- | :-- | :-- | :-- |
             </div>
             <div v-for="user in users" :key="user.id">
-                | [{{ user.username }}]({{ 'https://osu.ppy.sh/users/' + user.osuId }}) | {{ user.hostCount }} | {{ user.taskCount }} |
+                | [{{ user.username }}]({{ 'https://osu.ppy.sh/users/' + user.osuId }}) | <span v-for="(mode, i) in user.modes" :key="mode">{{ mode == 'osu' ? 'osu!' : mode == 'sb' ? 'Storyboarder' : 'osu!' + mode }}{{ separateCommas(i, user.modes.length) }}</span> | {{ user.hostCount }} | {{ user.taskCount }} |
             </div>
         </copy-paste>
     </modal-dialog>
@@ -137,7 +141,7 @@ export default defineComponent({
     },
     data() {
         return {
-            date: '2020-03-23',
+            date: '2020-11-20',
             beatmaps: [] as Beatmap[],
             quests: [] as Quest[],
             externalBeatmaps: [] as any,
@@ -196,6 +200,13 @@ export default defineComponent({
                 return ', ';
             } else if (i < length - 1) {
                 return ' and';
+            } else {
+                return '';
+            }
+        },
+        separateCommas(i, length): string {
+            if (i < length - 1) {
+                return ', ';
             } else {
                 return '';
             }
