@@ -1,4 +1,5 @@
 import { FeaturedSong } from './featuredSong';
+import { User } from './user';
 
 export enum FeaturedArtistStatus {
     Public = 'public',
@@ -15,6 +16,7 @@ export interface FeaturedArtist {
     songs: FeaturedSong[];
     lastContacted: Date;
     notes: string;
+    showcaseMappers: User[];
 
     // discussion
     isContacted: boolean;

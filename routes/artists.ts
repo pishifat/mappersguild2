@@ -1,6 +1,7 @@
 import express from 'express';
 import { isAdmin, isLoggedIn } from '../helpers/middlewares';
 import { FeaturedArtistModel } from '../models/featuredArtist';
+import { UserModel } from '../models/user';
 
 const artistsRouter = express.Router();
 
@@ -10,6 +11,7 @@ artistsRouter.use(isAdmin);
 // population
 const defaultPopulate = [
     { path: 'songs', select: 'artist title' },
+    { path: 'showcaseMappers', select: 'username osuId' },
 ];
 
 artistsRouter.get('/relevantInfo', async (req, res) => {
@@ -184,6 +186,37 @@ artistsRouter.post('/updateNotes/:id', async (req, res) => {
     a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
 
     res.json(a);
+});
+
+/* POST update showcase mappers */
+artistsRouter.post('/updateShowcaseMappers/:id', async (req, res) => {
+    let a;
+
+    if (!req.body.showcaseMappers.length) {
+        await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { showcaseMappers: [] });
+        a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
+    } else {
+        const usersSplit: string[] = req.body.showcaseMappers.split(',');
+
+        const userIds = [];
+
+        for (const u of usersSplit) {
+            const user = await UserModel
+                .findOne()
+                .byUsernameOrOsuId(u);
+
+            if (!user) {
+                return res.json({ error: `Cannot find ${u}!` });
+            } else {
+                userIds.push(user._id);
+            }
+        }
+
+        await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { showcaseMappers: userIds });
+        a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
+    }
+
+    res.json({ artist: a });
 });
 
 /* POST reset progress */

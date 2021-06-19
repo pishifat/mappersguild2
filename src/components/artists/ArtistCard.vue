@@ -217,22 +217,45 @@
                     </div>
                 </div>
                 <!--notes-->
-                <div class="mb-1 ms-2">
-                    <a href="#" class="me-1" @click.prevent="updateNotes(null)">
-                        <i class="fas fa-edit" />
-                    </a>
-                    <span v-if="!showNotesInput" class="small text-white-50" v-html="filterLinks(artist.notes)" />
-                    <input
-                        v-if="showNotesInput"
-                        v-model="notes"
-                        class="small w-75"
-                        rows="4"
-                        type="text"
-                        placeholder="enter to submit..."
-                        style="border-radius: 5px 5px 5px 5px;"
-                        @keyup.enter="updateNotes($event)"
-                        @change="updateNotes($event)"
-                    >
+                <div class="row">
+                    <div class="mb-1 ms-2 col-sm-4">
+                        <a href="#" class="me-1" @click.prevent="updateNotes(null)">
+                            <i class="fas fa-edit" />
+                        </a>
+                        <span v-if="!showNotesInput" class="small text-white-50" v-html="filterLinks(artist.notes)" />
+                        <input
+                            v-if="showNotesInput"
+                            v-model="notes"
+                            class="small w-75"
+                            rows="4"
+                            type="text"
+                            placeholder="enter to submit..."
+                            style="border-radius: 5px 5px 5px 5px;"
+                            @keyup.enter="updateNotes($event)"
+                            @change="updateNotes($event)"
+                        >
+                    </div>
+                    <!--showcase mappers-->
+                    <div class="mb-1 col-sm-4">
+                        <a href="#" class="me-1" @click.prevent="updateShowcaseMappers(null)">
+                            <i class="fas fa-edit" />
+                        </a>
+                        <span v-if="!showShowcaseMappersInput" class="small text-white-50">
+                            <span v-if="!artist.showcaseMappers || !artist.showcaseMappers.length">...</span>
+                            <user-link-list v-else :users="artist.showcaseMappers" />
+                        </span>
+                        <input
+                            v-if="showShowcaseMappersInput"
+                            v-model="showcaseMappers"
+                            class="small w-75"
+                            rows="4"
+                            type="text"
+                            placeholder="enter to submit..."
+                            style="border-radius: 5px 5px 5px 5px;"
+                            @keyup.enter="updateShowcaseMappers($event)"
+                            @change="updateShowcaseMappers($event)"
+                        >
+                    </div>
                 </div>
             </div>
         </div>
@@ -242,9 +265,11 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { mapMutations } from 'vuex';
+import UserLinkList from '@components/UserLinkList.vue';
 
 export default defineComponent({
     name: 'ArtistCard',
+    components: { UserLinkList },
     props: {
         artist: {
             type: Object,
@@ -258,8 +283,11 @@ export default defineComponent({
             contactedInput: '',
             showContactedInput: false,
             showNotesInput: false,
+            showShowcaseMappersInput: false,
             tempNotes: '',
+            tempShowcaseMappers: '',
             notes: this.artist.notes,
+            showcaseMappers: this.showcaseMappersText(this.artist.showcaseMappers),
         };
     },
     computed: {
@@ -277,18 +305,20 @@ export default defineComponent({
     watch: {
         artist(): void {
             this.tempNotes = this.artist.notes;
+            this.tempShowcaseMappers = this.showcaseMappersText(this.artist.showcaseMappers);
         },
     },
     created () {
         this.tempNotes = this.artist.notes;
+        this.tempShowcaseMappers = this.showcaseMappersText(this.artist.showcaseMappers);
     },
     methods: {
         ...mapMutations([
             'updateArtist',
             'deleteArtist',
         ]),
-        filterLinks (notes): string {
-            return (notes || '...').replace(
+        filterLinks (text): string {
+            return (text || '...').replace(
                 /([^\S]|^)(((https?:\/\/)|(www\.))(\S+))/gi,
                 function(match, space, url) {
                     let hyperlink = url;
@@ -300,6 +330,19 @@ export default defineComponent({
                     return space + '<a href="' + hyperlink + '" target="_blank">' + url + '</a>';
                 }
             );
+        },
+        showcaseMappersText(users): string {
+            let text = '';
+
+            if (!users || !users.length) {
+                return text;
+            } else {
+                for (const user of users) {
+                    text += user.username + ', ';
+                }
+
+                return text.slice(0, text.length - 2);
+            }
         },
         contactedToday(): void {
             const date = new Date();
@@ -464,6 +507,24 @@ export default defineComponent({
 
                 if (artist) {
                     this.$store.commit('updateArtist', artist);
+                }
+            }
+        },
+        async updateShowcaseMappers (e): Promise<void> {
+            if (!e || !this.showcaseMappers || !this.showcaseMappers.length) {
+                this.showShowcaseMappersInput = !this.showShowcaseMappersInput;
+            }
+
+            if (this.showcaseMappers !== this.tempShowcaseMappers) {
+                const res: any = await this.$http.executePost('/artists/updateShowcaseMappers/' + this.artist.id, { showcaseMappers: this.showcaseMappers }, e);
+
+                if (res && !res.error) {
+                    this.$store.commit('updateArtist', res.artist);
+                    if (res.artist.showcaseMappers.length) this.showShowcaseMappersInput = !this.showShowcaseMappersInput;
+
+                    const newShowcaseMappers = this.showcaseMappersText(res.artist.showcaseMappers);
+                    this.showcaseMappers = newShowcaseMappers;
+                    this.tempShowcaseMappers = newShowcaseMappers;
                 }
             }
         },

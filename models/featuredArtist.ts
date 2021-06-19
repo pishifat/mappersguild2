@@ -12,6 +12,7 @@ const featuredArtistSchema = new Schema({
     songs: [{ type: 'ObjectId', ref: 'FeaturedSong' }],
     lastContacted: { type: Date },
     notes: { type: String },
+    showcaseMappers: [{ type: 'ObjectId', ref: 'User' }],
 
     // discussion
     isContacted: { type: Boolean },
