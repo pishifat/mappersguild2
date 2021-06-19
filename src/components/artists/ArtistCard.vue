@@ -4,7 +4,12 @@
             <div class="card-body p-0 mx-2 my-1">
                 <div class="row">
                     <span class="col-sm-4">
-                        <a :href="'#details' + artist.id" data-bs-toggle="collapse" class="ms-1">
+                        <a
+                            :href="'#details' + artist.id"
+                            data-bs-toggle="collapse"
+                            class="ms-1"
+                            @click.prevent
+                        >
                             {{ artist.label }}
                             <i class="fas fa-angle-down" />
                         </a>
