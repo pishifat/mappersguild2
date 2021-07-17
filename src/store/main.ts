@@ -7,7 +7,8 @@ export interface MainState {
     initialized: boolean;
     isLoading: boolean;
     loggedInUser: User | null;
-    homeArtists: FeaturedArtist[],
+    homeArtists: FeaturedArtist[];
+    limit: number;
 }
 
 export const store = createStore<MainState>({
@@ -19,14 +20,18 @@ export const store = createStore<MainState>({
         isLoading: false,
         loggedInUser: null,
         homeArtists: [],
+        limit: 6,
     },
     mutations: {
         setInitialData (state, user: User | null) {
             state.loggedInUser = user;
             state.initialized = true;
         },
-        setHomeData (state, homeArtists) {
+        setHomeArtists (state, homeArtists) {
             state.homeArtists = homeArtists;
+        },
+        setLimit (state, limit) {
+            state.limit = limit;
         },
         updateLoadingState (state) {
             state.isLoading = !state.isLoading;

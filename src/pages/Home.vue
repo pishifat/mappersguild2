@@ -62,6 +62,16 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="text-center">
+                    <button
+                        class="btn btn-sm btn-primary"
+                        type="button"
+                        @click="showMore($event)"
+                    >
+                        <i class="fas fa-angle-down me-1" /> show more artists <i class="fas fa-angle-down ms-1" />
+                    </button>
+                </div>
             </transition-group>
         </div>
 
@@ -359,18 +369,28 @@ export default defineComponent({
         ...mapState([
             'loggedInUser',
             'homeArtists',
+            'limit',
         ]),
     },
     async created () {
-        const data = await this.$http.executeGet<{ artists: FeaturedArtist[] }>('/home');
+        const data = await this.$http.executeGet<{ artists: FeaturedArtist[] }>('/home/' + this.limit);
 
         if (!this.$http.isError(data)) {
-            this.$store.commit('setHomeData', data.artists);
+            this.$store.commit('setHomeArtists', data.artists);
+            this.$store.commit('setLimit', this.limit + 6);
         }
     },
     methods: {
         fallbackImg (e) {
             e.target.src = '/images/no-art-icon.png';
+        },
+        async showMore (e) {
+            const data = await this.$http.executeGet<{ artists: FeaturedArtist[] }>('/home/' + this.limit);
+
+            if (!this.$http.isError(data)) {
+                this.$store.commit('setHomeArtists', data.artists);
+                this.$store.commit('setLimit', this.limit + 6);
+            }
         },
     },
 });

@@ -21,8 +21,14 @@ indexRouter.get('/me', async (req, res) => {
     res.json(user);
 });
 
-/* GET landing page. */
-indexRouter.get('/home', async (req, res) => {
+/* GET home artists */
+indexRouter.get('/home/:limit', async (req, res) => {
+    let limit = parseInt(req.params.limit);
+
+    if (isNaN(limit)) {
+        limit = 6;
+    }
+
     const artists = await FeaturedArtistModel
         .aggregate()
         .match({ status: FeaturedArtistStatus.Public })
@@ -63,7 +69,7 @@ indexRouter.get('/home', async (req, res) => {
         .match({
             'songs.beatmaps_count': { $gt: 0 },
         })
-        .limit(6);
+        .limit(limit);
 
     res.json({
         artists,
