@@ -31,7 +31,11 @@ indexRouter.get('/me', (req, res) => __awaiter(void 0, void 0, void 0, function*
     const user = yield user_1.UserModel.findById((_a = req.session) === null || _a === void 0 ? void 0 : _a.mongoId);
     res.json(user);
 }));
-indexRouter.get('/home', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+indexRouter.get('/home/:limit', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let limit = parseInt(req.params.limit);
+    if (isNaN(limit)) {
+        limit = 6;
+    }
     const artists = yield featuredArtist_1.FeaturedArtistModel
         .aggregate()
         .match({ status: featuredArtist_2.FeaturedArtistStatus.Public })
@@ -72,7 +76,7 @@ indexRouter.get('/home', (req, res) => __awaiter(void 0, void 0, void 0, functio
         .match({
         'songs.beatmaps_count': { $gt: 0 },
     })
-        .limit(6);
+        .limit(limit);
     res.json({
         artists,
     });
