@@ -38,10 +38,6 @@ export default {
                 return [];
             },
         },
-        evalType: {
-            type: String,
-            default: '',
-        },
     },
     methods: {
         async sendMessages (e) {

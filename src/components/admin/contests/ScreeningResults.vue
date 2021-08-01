@@ -1,22 +1,21 @@
 <template>
     <div>
-        <p>
-            Judging threshold:
+        <div class="row mb-2">
             <input
                 v-model="newJudgingThreshold"
-                class="form-control form-control-sm w-25"
+                class="form-control form-control-sm col-sm-2 me-2 w-25"
                 type="text"
                 autocomplete="off"
-                placeholder="lowest score judges see..."
+                placeholder="judging threshold"
             >
             <button
                 type="button"
-                class="btn btn-sm btn-outline-info"
+                class="btn btn-sm btn-outline-info col-sm-2"
                 @click="updateJudgingThreshold($event)"
             >
                 Save
             </button>
-        </p>
+        </div>
         <ul>
             <li
                 v-for="submission in sortedSubmissions"
@@ -49,6 +48,9 @@
                 </div>
             </li>
         </ul>
+        <bot-chat-messages-all-participants
+            :mongo-id="contestId"
+        />
     </div>
 </template>
 
@@ -56,6 +58,7 @@
 import { defineComponent } from 'vue';
 import ScreeningDetail from './ScreeningDetail.vue';
 import MessageTemplate from './MessageTemplate.vue';
+import BotChatMessagesAllParticipants from './BotChatMessagesAllParticipants.vue';
 import { Submission } from '../../../../interfaces/contest/submission';
 
 export default defineComponent({
@@ -63,6 +66,7 @@ export default defineComponent({
     components: {
         ScreeningDetail,
         MessageTemplate,
+        BotChatMessagesAllParticipants,
     },
     props: {
         contestId: {

@@ -418,4 +418,28 @@ adminContestsRouter.post('/:id/sendMessages', async (req, res) => {
     res.json({ success: 'Messages sent! A copy was sent to you for confirmation' });
 });
 
+/* POST send all results messages to contest's participants */
+adminContestsRouter.post('/:id/sendAllMessages', async (req, res) => {
+    const contest = await ContestModel
+        .findById(req.params.id)
+        .populate(defaultContestPopulate)
+        .orFail();
+
+    if (contest.status !== ContestStatus.Complete) {
+        return res.json({ error: 'Contest must be set as complete!' });
+    }
+
+    for (const submission of contest.submissions) {
+        const messages: string[] = [];
+
+        messages.push(`hello! thank you for participating in ${contest.name}!`);
+        messages.push(`screening/judging details for your submission can be found here: https://mappersguild.com/contestresults?submission=${submission.id}`);
+        messages.push(`a news post including the full results will be published soon!`);
+
+        await sendMessages(submission.creator.osuId, messages);
+    }
+
+    res.json({ success: 'Messages sent! A copy was sent to you for confirmation' });
+});
+
 export default adminContestsRouter;
