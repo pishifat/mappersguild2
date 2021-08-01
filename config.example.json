@@ -1,7 +1,13 @@
 {
-    "id": 0,
-    "secret": "",
-    "redirect": "",
+    "oauth": {
+        "id": 0,
+        "secret": "",
+        "redirect": ""
+    },
+    "bot": {
+        "id": 0,
+        "secret": ""
+    },
     "connection": "",
     "session": "",
     "webhook": {

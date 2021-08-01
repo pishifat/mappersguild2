@@ -62,9 +62,9 @@ export async function getToken(code: string): Promise<OsuAuthResponse | ErrorRes
     const postData = querystring.stringify({
         grant_type: 'authorization_code',
         code,
-        redirect_uri: config.redirect,
-        client_id: config.id,
-        client_secret: config.secret,
+        redirect_uri: config.oauth.redirect,
+        client_id: config.oauth.id,
+        client_secret: config.oauth.secret,
     });
 
     const options: AxiosRequestConfig = {
@@ -82,8 +82,8 @@ export async function getToken(code: string): Promise<OsuAuthResponse | ErrorRes
 export async function refreshToken(refreshToken: string): Promise<OsuAuthResponse | ErrorResponse> {
     const postData = querystring.stringify({
         grant_type: 'refresh_token',
-        client_id: config.id,
-        client_secret: config.secret,
+        client_id: config.oauth.id,
+        client_secret: config.oauth.secret,
         refresh_token: refreshToken,
     });
 

@@ -385,7 +385,7 @@ export default defineComponent({
             e.target.src = '/images/no-art-icon.png';
         },
         async showMore (e) {
-            const data = await this.$http.executeGet<{ artists: FeaturedArtist[] }>('/home/' + this.limit);
+            const data = await this.$http.executeGet<{ artists: FeaturedArtist[] }>('/home/' + this.limit, e);
 
             if (!this.$http.isError(data)) {
                 this.$store.commit('setHomeArtists', data.artists);
