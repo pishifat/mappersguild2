@@ -1,26 +1,22 @@
 <template>
     <div>
-        <a :href="'https://osu.ppy.sh/community/chat?sendto=' + osuId" target="_blank">
-            <button class="btn btn-sm btn-outline-info"> <!--  @click="sendResultsPm($event)" -->
-                Send results PM
-            </button>
-        </a>
-        <copy-paste :distinct="submissionId">
-            hello, thank you for recently participating in "{{ contestName }}"!
-            screening/judging details on your submission can be found here:
-            https://mappersguild.com/contestresults?submission={{ submissionId }}
-        </copy-paste>
+        <bot-chat-message
+            :messages="messages"
+            :message-type="'contest'"
+            :mongo-id="contestId"
+            :users="[{ osuId }]"
+        />
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import CopyPaste from '../../CopyPaste.vue';
+import BotChatMessage from '../BotChatMessage.vue';
 
 export default defineComponent({
     name: 'MessageTemplate',
     components: {
-        CopyPaste,
+        BotChatMessage,
     },
     props: {
         osuId: {
@@ -35,17 +31,20 @@ export default defineComponent({
             type: String,
             required: true,
         },
+        contestId: {
+            type: String,
+            required: true,
+        },
     },
-    methods: {
-        async sendResultsPm(e): Promise<void> { // waiting on https://github.com/ppy/osu-web/issues/6359
-            const res = await this.$http.executePost(`/admin/contests/sendResultsPm`, { contestName: this.contestName, submissionId: this.submissionId, osuId: this.osuId }, e);
+    computed: {
+        messages () {
+            let messages: string[] = [];
 
-            if (!this.$http.isError(res)) {
-                this.$store.dispatch('updateToastMessages', {
-                    message: `sent results pm`,
-                    type: 'info',
-                });
-            }
+            messages.push(`hello! thank you for participating in ${this.contestName}!`);
+            messages.push(`screening/judging details for your submission can be found here: https://mappersguild.com/contestresults?submission=${this.submissionId}`);
+            messages.push(`a news post including the full results will be published soon!`);
+
+            return messages;
         },
     },
 });

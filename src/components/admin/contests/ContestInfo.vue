@@ -27,15 +27,15 @@
                         {{ submissionsVisible ? 'Hide' : 'Show' }}
                     </button>
                 </h5>
-                <submissions-info
-                    v-if="submissionsVisible"
-                    :contest-id="contest.id"
-                    :submissions="contest.submissions"
-                />
                 <download-info
                     v-if="submissionsVisible"
                     :contest-id="contest.id"
                     :download="contest.download"
+                />
+                <submissions-info
+                    v-if="submissionsVisible"
+                    :contest-id="contest.id"
+                    :submissions="contest.submissions"
                 />
 
                 <hr>

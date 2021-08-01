@@ -43,6 +43,7 @@
                             :osu-id="submission.creator.osuId"
                             :submission-id="submission.id"
                             :contest-name="contestName"
+                            :contest-id="contestId"
                         />
                     </div>
                 </div>

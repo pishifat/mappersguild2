@@ -5,7 +5,7 @@ import { ContestModel } from '../../models/contest/contest';
 import { UserModel } from '../../models/user';
 import { UserGroup } from '../../interfaces/user';
 import { SubmissionModel } from '../../models/contest/submission';
-import { sendPm, isOsuResponseError } from '../../helpers/osuApi';
+import { sendMessages } from '../../helpers/osuBot';
 import { CriteriaModel } from '../../models/contest/criteria';
 import { updateUserPoints } from '../../helpers/points';
 import { ContestStatus } from '../../interfaces/contest/contest';
@@ -392,18 +392,30 @@ adminContestsRouter.post('/:id/toggleCriteria', async (req, res) => {
     res.json(newContest.criterias);
 });
 
+/* POST send messages */
+adminContestsRouter.post('/:id/sendMessages', async (req, res) => {
+    const contest = await ContestModel
+        .findById(req.params.id)
+        .populate(defaultContestPopulate)
+        .orFail();
 
-/* POST send results pm */
-adminContestsRouter.post('/sendResultsPm', async (req, res) => {
-    const message = `hello, thank you for recently participating in "${req.body.contestName}"! screening/judging details on your submission can be found here: https://mappersguild.com/contestresults?submission=${req.body.submissionId}`;
-
-    const response = await sendPm(req.session!.accessToken!, parseInt(req.body.osuId), message);
-
-    if (isOsuResponseError(response)) {
-        return res.json({ error: 'Could not send PM' });
+    if (contest.status !== ContestStatus.Complete) {
+        return res.json({ error: 'Contest must be set as complete!' });
     }
 
-    res.json(true);
+    let messages;
+
+    req.body.users.push({ osuId: req.session.osuId });
+
+    for (const user of req.body.users) {
+        messages = await sendMessages(user.osuId, req.body.messages);
+    }
+
+    if (messages !== true) {
+        return res.json({ error: `Messages were not sent.` });
+    }
+
+    res.json({ success: 'Messages sent! A copy was sent to you for confirmation' });
 });
 
 export default adminContestsRouter;

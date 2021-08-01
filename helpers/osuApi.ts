@@ -162,20 +162,3 @@ export async function getMaps(date: Date): Promise<OsuBeatmapResponse[] | ErrorR
         return defaultErrorMessage;
     }
 }
-
-export async function sendPm(token: string, osuId: number, message: string): Promise<OsuAuthResponse | ErrorResponse> {
-    const options: AxiosRequestConfig = {
-        url: 'https://osu.ppy.sh/api/v2/chat/new',
-        method: 'POST',
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-        data: {
-            target_id: osuId,
-            message,
-            is_action: false,
-        },
-    };
-
-    return await executeRequest(options);
-}
