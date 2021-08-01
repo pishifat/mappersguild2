@@ -415,7 +415,7 @@ adminContestsRouter.post('/:id/sendMessages', async (req, res) => {
         return res.json({ error: `Messages were not sent.` });
     }
 
-    res.json({ success: 'Messages sent! A copy was sent to you for confirmation' });
+    res.json({ success: 'Messages sent!' });
 });
 
 /* POST send all results messages to contest's participants */

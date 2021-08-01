@@ -53,8 +53,6 @@
             @update-user="updateUser($event)"
         />
 
-        <tiered-user-list />
-
         <showcase-user-list />
 
         <discord-highlight-generator />
@@ -65,7 +63,6 @@
 import { defineComponent } from 'vue';
 import UserInfo from '../../components/admin/UserInfo.vue';
 import DataTable from '../../components/admin/DataTable.vue';
-import TieredUserList from '../../components/admin/TieredUserList.vue';
 import ShowcaseUserList from '../../components/admin/ShowcaseUserList.vue';
 import DiscordHighlightGenerator from '../../components/admin/DiscordHighlightGenerator.vue';
 import { User } from '../../../interfaces/user';
@@ -76,7 +73,6 @@ export default defineComponent({
     components: {
         DataTable,
         UserInfo,
-        TieredUserList,
         ShowcaseUserList,
         DiscordHighlightGenerator,
     },

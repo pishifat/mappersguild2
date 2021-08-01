@@ -1,71 +1,50 @@
 <template>
     <div class="container card card-body py-1 mb-4">
-        <button class="btn btn-sm w-100 btn-outline-info" @click="findShowcaseUsers($event)">
+        <button class="btn btn-sm w-100 btn-outline-info mb-3" @click="findShowcaseUsers($event)">
             Load FA showcase users
         </button>
 
-        <div v-if="osuUsers.length">
-            osu
-            <copy-paste :distinct="'osu'">
-                <div v-for="user in osuUsers" :key="user.id">
-                    {{ user.username }}
-                </div>
-            </copy-paste>
-            <p v-for="user in osuUsers" :key="user.osuId">
-                <a :href="'https://osu.ppy.sh/community/chat?sendto=' + user.osuId" target="_blank">
-                    <button class="btn btn-sm btn-outline-info">
-                        {{ user.username }}
-                    </button>
-                </a>
-            </p>
-        </div>
+        <bot-chat-message
+            v-if="uniqueUsers.length"
+            :messages="messages"
+            :message-type="'showcase'"
+            :mongo-id="''"
+            :users="uniqueUsers"
+        />
 
-        <div v-if="taikoUsers.length">
-            taiko
-            <copy-paste :distinct="'taiko'">
-                <div v-for="user in taikoUsers" :key="user.id">
-                    {{ user.username }}
-                </div>
-            </copy-paste>
-            <p v-for="user in taikoUsers" :key="user.osuId">
-                <a :href="'https://osu.ppy.sh/community/chat?sendto=' + user.osuId" target="_blank">
-                    <button class="btn btn-sm btn-outline-info">
+        <div v-if="osuUsers.length && taikoUsers.length && catchUsers.length && maniaUsers.length" class="row">
+            <div v-if="osuUsers.length" class="col-sm-3">
+                osu!
+                <copy-paste :distinct="'osu'">
+                    <div v-for="user in osuUsers" :key="user.id">
                         {{ user.username }}
-                    </button>
-                </a>
-            </p>
-        </div>
-
-        <div v-if="catchUsers.length">
-            catch
-            <copy-paste :distinct="'catch'">
-                <div v-for="user in catchUsers" :key="user.id">
-                    {{ user.username }}
-                </div>
-            </copy-paste>
-            <p v-for="user in catchUsers" :key="user.osuId">
-                <a :href="'https://osu.ppy.sh/community/chat?sendto=' + user.osuId" target="_blank">
-                    <button class="btn btn-sm btn-outline-info">
+                    </div>
+                </copy-paste>
+            </div>
+            <div v-if="taikoUsers.length" class="col-sm-3">
+                osu!taiko
+                <copy-paste :distinct="'taiko'">
+                    <div v-for="user in taikoUsers" :key="user.id">
                         {{ user.username }}
-                    </button>
-                </a>
-            </p>
-        </div>
-
-        <div v-if="maniaUsers.length">
-            mania
-            <copy-paste :distinct="'mania'">
-                <div v-for="user in maniaUsers" :key="user.id">
-                    {{ user.username }}
-                </div>
-            </copy-paste>
-            <p v-for="user in maniaUsers" :key="user.osuId">
-                <a :href="'https://osu.ppy.sh/community/chat?sendto=' + user.osuId" target="_blank">
-                    <button class="btn btn-sm btn-outline-info">
+                    </div>
+                </copy-paste>
+            </div>
+            <div v-if="catchUsers.length" class="col-sm-3">
+                osu!catch
+                <copy-paste :distinct="'catch'">
+                    <div v-for="user in catchUsers" :key="user.id">
                         {{ user.username }}
-                    </button>
-                </a>
-            </p>
+                    </div>
+                </copy-paste>
+            </div>
+            <div v-if="maniaUsers.length" class="col-sm-3">
+                osu!mania
+                <copy-paste :distinct="'mania'">
+                    <div v-for="user in maniaUsers" :key="user.id">
+                        {{ user.username }}
+                    </div>
+                </copy-paste>
+            </div>
         </div>
     </div>
 </template>
@@ -74,11 +53,13 @@
 import { defineComponent } from 'vue';
 import { User } from '../../../interfaces/user';
 import CopyPaste from '../CopyPaste.vue';
+import BotChatMessage from './BotChatMessage.vue';
 
 export default defineComponent({
     name: 'ShowcaseUserList',
     components: {
         CopyPaste,
+        BotChatMessage,
     },
     data() {
         return {
@@ -87,6 +68,30 @@ export default defineComponent({
             catchUsers: [] as User[],
             maniaUsers: [] as User[],
         };
+    },
+    computed: {
+        uniqueUsers(): User[] {
+            const allUsers = this.osuUsers.concat(this.taikoUsers, this.catchUsers, this.maniaUsers);
+
+            const uniqueUsers: User[] = [];
+
+            for (const user of allUsers) {
+                const exists = uniqueUsers.find(u => u.osuId == user.osuId);
+
+                if (!exists) uniqueUsers.push(user);
+            }
+
+            return uniqueUsers;
+        },
+        messages(): string[] {
+            const messages: string[] = [];
+
+            messages.push('hello');
+            messages.push('test');
+            messages.push('goodbye');
+
+            return messages;
+        },
     },
     methods: {
         async findShowcaseUsers(e): Promise<void> {

@@ -44,17 +44,20 @@ export default {
             const result = confirm(`Are you sure?`);
 
             if (result) {
-                let route = '';
+                let url = '';
 
                 switch (this.messageType) {
                     case 'contest':
-                        route = 'contests';
+                        url = `/admin/contests/${this.mongoId}/sendMessages`;
+                        break;
+                    case 'showcase':
+                        url = `/admin/users/sendMessages`;
                         break;
                     default:
                         return '';
                 }
 
-                await this.$http.executePost(`/admin/${route}/${this.mongoId}/sendMessages`, { users: this.users, messages: this.messages }, e);
+                await this.$http.executePost(url, { users: this.users, messages: this.messages }, e);
             }
         },
     },
