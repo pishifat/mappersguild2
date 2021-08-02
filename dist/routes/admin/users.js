@@ -16,6 +16,7 @@ const express_1 = __importDefault(require("express"));
 const middlewares_1 = require("../../helpers/middlewares");
 const user_1 = require("../../models/user");
 const points_1 = require("../../helpers/points");
+const osuBot_1 = require("../../helpers/osuBot");
 const user_2 = require("../../interfaces/user");
 const adminUsersRouter = express_1.default.Router();
 adminUsersRouter.use(middlewares_1.isLoggedIn);
@@ -55,23 +56,6 @@ adminUsersRouter.post('/:id/toggleBypassLogin', (req, res) => __awaiter(void 0, 
     yield user_1.UserModel.findByIdAndUpdate(req.params.id, { bypassLogin, group }).orFail();
     res.json({ bypassLogin, group });
 }));
-adminUsersRouter.get('/findTieredUsers', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const [osuUsers, taikoUsers, catchUsers, maniaUsers] = yield Promise.all([
-        user_1.UserModel
-            .find({ rank: { $gte: 1 }, osuPoints: { $gte: 1 } })
-            .orFail(),
-        user_1.UserModel
-            .find({ rank: { $gte: 1 }, taikoPoints: { $gte: 1 } })
-            .orFail(),
-        user_1.UserModel
-            .find({ rank: { $gte: 1 }, catchPoints: { $gte: 1 } })
-            .orFail(),
-        user_1.UserModel
-            .find({ rank: { $gte: 1 }, maniaPoints: { $gte: 1 } })
-            .orFail(),
-    ]);
-    res.json({ osuUsers, taikoUsers, catchUsers, maniaUsers });
-}));
 adminUsersRouter.get('/findShowcaseUsers', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const [osuUsers, taikoUsers, catchUsers, maniaUsers] = yield Promise.all([
         user_1.UserModel
@@ -98,5 +82,15 @@ adminUsersRouter.post('/findInputUsers', (req, res) => __awaiter(void 0, void 0,
         users.push(user);
     }
     res.json({ users });
+}));
+adminUsersRouter.post('/sendMessages', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let messages;
+    for (const user of req.body.users) {
+        messages = yield osuBot_1.sendMessages(user.osuId, req.body.messages);
+    }
+    if (messages !== true) {
+        return res.json({ error: `Messages were not sent.` });
+    }
+    res.json({ success: 'Messages sent!' });
 }));
 exports.default = adminUsersRouter;

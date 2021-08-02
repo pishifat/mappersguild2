@@ -19,7 +19,7 @@ const contest_1 = require("../../models/contest/contest");
 const user_1 = require("../../models/user");
 const user_2 = require("../../interfaces/user");
 const submission_1 = require("../../models/contest/submission");
-const osuApi_1 = require("../../helpers/osuApi");
+const osuBot_1 = require("../../helpers/osuBot");
 const criteria_1 = require("../../models/contest/criteria");
 const points_1 = require("../../helpers/points");
 const contest_2 = require("../../interfaces/contest/contest");
@@ -309,12 +309,39 @@ adminContestsRouter.post('/:id/toggleCriteria', (req, res) => __awaiter(void 0, 
         .orFail();
     res.json(newContest.criterias);
 }));
-adminContestsRouter.post('/sendResultsPm', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const message = `hello, thank you for recently participating in "${req.body.contestName}"! screening/judging details on your submission can be found here: https://mappersguild.com/contestresults?submission=${req.body.submissionId}`;
-    const response = yield osuApi_1.sendPm(req.session.accessToken, parseInt(req.body.osuId), message);
-    if (osuApi_1.isOsuResponseError(response)) {
-        return res.json({ error: 'Could not send PM' });
+adminContestsRouter.post('/:id/sendMessages', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const contest = yield contest_1.ContestModel
+        .findById(req.params.id)
+        .populate(defaultContestPopulate)
+        .orFail();
+    if (contest.status !== contest_2.ContestStatus.Complete) {
+        return res.json({ error: 'Contest must be set as complete!' });
     }
-    res.json(true);
+    let messages;
+    req.body.users.push({ osuId: req.session.osuId });
+    for (const user of req.body.users) {
+        messages = yield osuBot_1.sendMessages(user.osuId, req.body.messages);
+    }
+    if (messages !== true) {
+        return res.json({ error: `Messages were not sent.` });
+    }
+    res.json({ success: 'Messages sent!' });
+}));
+adminContestsRouter.post('/:id/sendAllMessages', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const contest = yield contest_1.ContestModel
+        .findById(req.params.id)
+        .populate(defaultContestPopulate)
+        .orFail();
+    if (contest.status !== contest_2.ContestStatus.Complete) {
+        return res.json({ error: 'Contest must be set as complete!' });
+    }
+    for (const submission of contest.submissions) {
+        const messages = [];
+        messages.push(`hello! thank you for participating in ${contest.name}!`);
+        messages.push(`screening/judging details for your submission can be found here: https://mappersguild.com/contestresults?submission=${submission.id}`);
+        messages.push(`a news post including the full results will be published soon!`);
+        yield osuBot_1.sendMessages(submission.creator.osuId, messages);
+    }
+    res.json({ success: 'Messages sent! A copy was sent to you for confirmation' });
 }));
 exports.default = adminContestsRouter;

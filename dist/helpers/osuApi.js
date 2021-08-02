@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendPm = exports.getMaps = exports.beatmapsetInfo = exports.getUserInfo = exports.refreshToken = exports.getToken = exports.isOsuResponseError = void 0;
+exports.getMaps = exports.beatmapsetInfo = exports.getUserInfo = exports.refreshToken = exports.getToken = exports.isOsuResponseError = void 0;
 const axios_1 = __importDefault(require("axios"));
 const querystring_1 = __importDefault(require("querystring"));
 const helpers_1 = require("./helpers");
@@ -40,9 +40,9 @@ function getToken(code) {
         const postData = querystring_1.default.stringify({
             grant_type: 'authorization_code',
             code,
-            redirect_uri: config_json_1.default.redirect,
-            client_id: config_json_1.default.id,
-            client_secret: config_json_1.default.secret,
+            redirect_uri: config_json_1.default.oauth.redirect,
+            client_id: config_json_1.default.oauth.id,
+            client_secret: config_json_1.default.oauth.secret,
         });
         const options = {
             url: 'https://osu.ppy.sh/oauth/token',
@@ -60,8 +60,8 @@ function refreshToken(refreshToken) {
     return __awaiter(this, void 0, void 0, function* () {
         const postData = querystring_1.default.stringify({
             grant_type: 'refresh_token',
-            client_id: config_json_1.default.id,
-            client_secret: config_json_1.default.secret,
+            client_id: config_json_1.default.oauth.id,
+            client_secret: config_json_1.default.oauth.secret,
             refresh_token: refreshToken,
         });
         const options = {
@@ -140,21 +140,3 @@ function getMaps(date) {
     });
 }
 exports.getMaps = getMaps;
-function sendPm(token, osuId, message) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const options = {
-            url: 'https://osu.ppy.sh/api/v2/chat/new',
-            method: 'POST',
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-            data: {
-                target_id: osuId,
-                message,
-                is_action: false,
-            },
-        };
-        return yield executeRequest(options);
-    });
-}
-exports.sendPm = sendPm;
