@@ -87,7 +87,7 @@ indexRouter.get('/login', (req, res) => {
     }
 
     res.redirect(
-        `https://osu.ppy.sh/oauth/authorize?response_type=code&client_id=${config.oauth.id}&redirect_uri=${encodeURIComponent(config.oauth.redirect)}&state=${hashedState}&scope=identify`
+        `https://osu.ppy.sh/oauth/authorize?response_type=code&client_id=${config.id}&redirect_uri=${encodeURIComponent(config.redirect)}&state=${hashedState}&scope=identify`
     );
 });
 

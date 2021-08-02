@@ -1,9 +1,7 @@
 {
-    "oauth": {
-        "id": 0,
-        "secret": "",
-        "redirect": ""
-    },
+    "id": 0,
+    "secret": "",
+    "redirect": "",
     "bot": {
         "id": 0,
         "secret": ""
