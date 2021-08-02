@@ -40,9 +40,9 @@ function getToken(code) {
         const postData = querystring_1.default.stringify({
             grant_type: 'authorization_code',
             code,
-            redirect_uri: config_json_1.default.oauth.redirect,
-            client_id: config_json_1.default.oauth.id,
-            client_secret: config_json_1.default.oauth.secret,
+            redirect_uri: config_json_1.default.redirect,
+            client_id: config_json_1.default.id,
+            client_secret: config_json_1.default.secret,
         });
         const options = {
             url: 'https://osu.ppy.sh/oauth/token',
@@ -60,8 +60,8 @@ function refreshToken(refreshToken) {
     return __awaiter(this, void 0, void 0, function* () {
         const postData = querystring_1.default.stringify({
             grant_type: 'refresh_token',
-            client_id: config_json_1.default.oauth.id,
-            client_secret: config_json_1.default.oauth.secret,
+            client_id: config_json_1.default.id,
+            client_secret: config_json_1.default.secret,
             refresh_token: refreshToken,
         });
         const options = {

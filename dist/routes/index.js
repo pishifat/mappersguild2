@@ -88,7 +88,7 @@ indexRouter.get('/login', (req, res) => {
     if (!req.session.lastPage) {
         req.session.lastPage = req.get('referer');
     }
-    res.redirect(`https://osu.ppy.sh/oauth/authorize?response_type=code&client_id=${config_json_1.default.oauth.id}&redirect_uri=${encodeURIComponent(config_json_1.default.oauth.redirect)}&state=${hashedState}&scope=identify`);
+    res.redirect(`https://osu.ppy.sh/oauth/authorize?response_type=code&client_id=${config_json_1.default.id}&redirect_uri=${encodeURIComponent(config_json_1.default.redirect)}&state=${hashedState}&scope=identify`);
 });
 indexRouter.get('/logout', middlewares_1.isLoggedIn, (req, res) => {
     req.session.destroy((error) => {
