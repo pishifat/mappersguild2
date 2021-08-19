@@ -1,8 +1,10 @@
 import express from 'express';
 import { isAdmin, isLoggedIn } from '../helpers/middlewares';
 import { FeaturedArtistModel } from '../models/featuredArtist';
+import { OsuBeatmapModel } from '../models/osuBeatmap';
 import { UserModel } from '../models/user';
 import { User } from '../interfaces/user';
+import fs from 'fs';
 
 const artistsRouter = express.Router();
 
@@ -15,11 +17,16 @@ const defaultPopulate = [
     { path: 'showcaseMappers', select: 'username osuId' },
 ];
 
+// population
+const defaultOsuBeatmapPopulate = [
+    { path: 'featuredArtists', select: 'label osuId' },
+];
+
 artistsRouter.get('/relevantInfo', async (req, res) => {
     const a = await FeaturedArtistModel
         .find({})
         .populate(defaultPopulate)
-        .sort({ updatedAt: -1 });
+        .sort({ label: 1 });
 
     res.json({ artists: a, userId: req.session?.mongoId });
 });
@@ -274,6 +281,174 @@ artistsRouter.post('/setAllAsRejected/', async (req, res) => {
         .sort({ updatedAt: -1 });
 
     res.json(a);
+});
+
+/* POST generate OsuBeatmaps from csv file */
+artistsRouter.post('/osuBeatmaps/generateFromCsv', async (req, res) => {
+    if (req.session.osuId !== 3178418) {
+        return res.json({ error: 'stop' });
+    }
+
+    const buffer = fs.readFileSync('osumaps.csv');
+    const csv = buffer.toString();
+
+    if (!csv) {
+        return res.json(`couldn't read csv`);
+    }
+
+    res.send('test');
+
+    const data = csv.split('\r\n');
+
+    for (const unsplitRow of data) {
+        const row = unsplitRow.split('","');
+        const beatmapsetOsuId = parseInt(row[0].slice(1, row[0].length));
+        const beatmapOsuId = parseInt(row[1]);
+        const artist = row[18];
+        const title = row[20];
+        const source = row[25];
+        const favourites = parseInt(row[29]);
+        const playcount = parseInt(row[35]);
+
+        console.log(artist + ' - ' + title);
+        console.log(beatmapsetOsuId);
+
+        const existingBeatmap = await OsuBeatmapModel
+            .findOne({ artist, title });
+
+        if (!existingBeatmap) {
+            const osuBeatmap = new OsuBeatmapModel();
+
+            osuBeatmap.artist = artist;
+            osuBeatmap.title = title;
+            osuBeatmap.beatmapsetOsuIds = [beatmapsetOsuId];
+            osuBeatmap.beatmapOsuIds = [beatmapOsuId];
+            osuBeatmap.favourites = favourites;
+            osuBeatmap.sources = [source];
+            osuBeatmap.playcount = playcount;
+            osuBeatmap.isLicensed = false;
+
+            await osuBeatmap.save();
+        } else if (!existingBeatmap.beatmapOsuIds.includes(beatmapOsuId)) {
+            existingBeatmap.beatmapOsuIds.push(beatmapOsuId);
+
+            if (!existingBeatmap.beatmapsetOsuIds.includes(beatmapsetOsuId)) {
+                existingBeatmap.beatmapsetOsuIds.push(beatmapsetOsuId);
+                existingBeatmap.favourites += favourites;
+            }
+
+            if (!existingBeatmap.sources.includes(source) && source.length) {
+                existingBeatmap.sources.push(source);
+            }
+
+            existingBeatmap.playcount += playcount;
+
+            await existingBeatmap.save();
+        }
+    }
+
+    const osuBeatmaps = await OsuBeatmapModel
+        .find({})
+        .sort({ playcount: -1 });
+
+    res.json(osuBeatmaps);
+});
+
+/* GET load osu beatmaps */
+artistsRouter.get('/osuBeatmaps/loadOsuBeatmaps/:limit', async (req, res) => {
+    const osuBeatmaps = await OsuBeatmapModel
+        .find({})
+        .sort({ playcount: -1 })
+        .populate(defaultOsuBeatmapPopulate)
+        .limit(parseInt(req.params.limit));
+
+    res.json(osuBeatmaps);
+});
+
+/* POST toggle osuBeatmap isLicensed */
+artistsRouter.post('/osuBeatmaps/updateIsLicensed/:id', async (req, res) => {
+    const osuBeatmap = await OsuBeatmapModel
+        .findById(req.params.id)
+        .orFail();
+
+    const newOsuBeatmap = await OsuBeatmapModel
+        .findByIdAndUpdate(req.params.id, { isLicensed: !osuBeatmap.isLicensed })
+        .populate(defaultOsuBeatmapPopulate)
+        .orFail();
+
+    res.json(newOsuBeatmap);
+});
+
+/* POST update osuBeatmap comment */
+artistsRouter.post('/osuBeatmaps/updateComment/:id', async (req, res) => {
+    const newOsuBeatmap = await OsuBeatmapModel
+        .findByIdAndUpdate(req.params.id, { comment: req.body.comment })
+        .populate(defaultOsuBeatmapPopulate)
+        .orFail();
+
+    res.json(newOsuBeatmap);
+});
+
+/* POST update osuBeatmap custom comment (other) */
+artistsRouter.post('/osuBeatmaps/updateCustomComment/:id', async (req, res) => {
+    const newOsuBeatmap = await OsuBeatmapModel
+        .findByIdAndUpdate(req.params.id, { customComment: req.body.customComment })
+        .populate(defaultOsuBeatmapPopulate)
+        .orFail();
+
+    res.json(newOsuBeatmap);
+});
+
+/* POST add FA to song */
+artistsRouter.post('/osuBeatmaps/addArtistToOsuBeatmap/:id', async (req, res) => {
+    const newOsuBeatmap = await OsuBeatmapModel
+        .findByIdAndUpdate(req.params.id, { $push: { featuredArtists: req.body.artistId } })
+        .populate(defaultOsuBeatmapPopulate)
+        .orFail();
+
+    res.json(newOsuBeatmap);
+});
+
+/* POST remove FA from song */
+artistsRouter.post('/osuBeatmaps/removeArtistFromOsuBeatmap/:id', async (req, res) => {
+    const newOsuBeatmap = await OsuBeatmapModel
+        .findByIdAndUpdate(req.params.id, { $pull: { featuredArtists: req.body.artistId } })
+        .populate(defaultOsuBeatmapPopulate)
+        .orFail();
+
+    res.json(newOsuBeatmap);
+});
+
+/* POST add administrator to song */
+artistsRouter.post('/osuBeatmaps/addAdministratorToOsuBeatmap/:id', async (req, res) => {
+    const newOsuBeatmap = await OsuBeatmapModel
+        .findByIdAndUpdate(req.params.id, { $push: { administrators: req.body.administrator } })
+        .populate(defaultOsuBeatmapPopulate)
+        .orFail();
+
+    res.json(newOsuBeatmap);
+});
+
+/* POST remove administrator from song */
+artistsRouter.post('/osuBeatmaps/removeAdministratorFromOsuBeatmap/:id', async (req, res) => {
+    const newOsuBeatmap = await OsuBeatmapModel
+        .findByIdAndUpdate(req.params.id, { $pull: { administrators: req.body.administrator } })
+        .populate(defaultOsuBeatmapPopulate)
+        .orFail();
+
+    res.json(newOsuBeatmap);
+});
+
+/* POST update lastChecked */
+artistsRouter.post('/osuBeatmaps/updateLastChecked/:id', async (req, res) => {
+    console.log(req.body.date);
+    const newOsuBeatmap = await OsuBeatmapModel
+        .findByIdAndUpdate(req.params.id, { lastChecked: req.body.date })
+        .populate(defaultOsuBeatmapPopulate)
+        .orFail();
+
+    console.log(newOsuBeatmap.lastChecked);
+    res.json(newOsuBeatmap);
 });
 
 export default artistsRouter;

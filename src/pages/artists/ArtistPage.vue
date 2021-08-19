@@ -12,6 +12,10 @@
 
         <artists-inactive />
 
+        <div class="radial-divisor" />
+
+        <osu-beatmaps-list />
+
         <add-artist />
     </div>
 </template>
@@ -23,6 +27,7 @@ import ArtistPageFilters from './ArtistPageFilters.vue';
 import ArtistsInProgress from './ArtistsInProgress.vue';
 import ArtistsPlanned from './ArtistsPlanned.vue';
 import ArtistsInactive from './ArtistsInactive.vue';
+import OsuBeatmapsList from '@components/artists/OsuBeatmapsList.vue';
 import artistsModule from '@store/artists';
 
 export default defineComponent({
@@ -33,6 +38,7 @@ export default defineComponent({
         ArtistsPlanned,
         ArtistsInactive,
         AddArtist,
+        OsuBeatmapsList,
     },
     beforeCreate () {
         if (!this.$store.hasModule('artists')) {
