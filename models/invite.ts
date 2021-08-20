@@ -3,6 +3,7 @@ import mongoose, { Document, Schema, Model } from 'mongoose';
 import { Invite as IInvite } from '../interfaces/invite';
 
 export interface Invite extends IInvite, Document {
+    _id: any;
     id: string;
 }
 
@@ -29,7 +30,7 @@ interface InviteStatics extends Model<Invite> {
     ) => Promise<Invite>;
 }
 
-const inviteSchema = new Schema({
+const inviteSchema = new Schema<Invite, InviteStatics>({
     recipient: { type: 'ObjectId', ref: 'User', required: true },
     sender: { type: 'ObjectId', ref: 'User', required: true },
     modified: { type: 'ObjectId', required: true },

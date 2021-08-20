@@ -3,7 +3,12 @@ import mongoose, { Schema, Model, DocumentQuery } from 'mongoose';
 import { Quest, QuestStatus } from '../interfaces/quest';
 import { BeatmapModel } from './beatmap/beatmap';
 
-const questSchema = new Schema({
+interface QuestStatics extends Model<Quest, typeof queryHelpers> {
+    findAll (): Promise<Quest[]>;
+    defaultFindByIdOrFail (id: any): Promise<Quest>;
+}
+
+const questSchema = new Schema<Quest, QuestStatics>({
     creator: { type: 'ObjectId', ref: 'User' },
     name: { type: String, required: true },
     price: { type: Number, default: 0 },
@@ -122,20 +127,15 @@ const queryHelpers = {
 
 questSchema.query = queryHelpers;
 
-interface QuestStatics extends Model<Quest> {
-    findAll (): Promise<Quest[]>;
-    defaultFindByIdOrFail (id: any): Promise<Quest>;
-}
-
-questSchema.statics.findAll = function (this: Quest) {
-    return QuestModel
+questSchema.statics.findAll = function (this: QuestStatics) {
+    return this
         .find({})
         .defaultPopulate()
         .sortByLastest();
 };
 
-questSchema.statics.defaultFindByIdOrFail = function (this: Quest, id: any) {
-    return QuestModel
+questSchema.statics.defaultFindByIdOrFail = function (this: QuestStatics, id: any) {
+    return this
         .findById(id)
         .defaultPopulate()
         .orFail();

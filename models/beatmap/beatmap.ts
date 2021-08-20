@@ -5,6 +5,7 @@ import { User, UserGroup } from '../../interfaces/user';
 import { Beatmap as IBeatmap, BeatmapStatus } from '../../interfaces/beatmap/beatmap';
 
 export interface Beatmap extends IBeatmap, Document {
+    _id: any;
     id: string;
 
     /** find if an user participated in a task within this beatmap */
@@ -17,7 +18,7 @@ export interface Beatmap extends IBeatmap, Document {
     checkTaskAvailability (user: User, taskName: TaskName, taskMode: TaskMode, inviteType?: ActionType, acceptingTaskId?: string): Promise<boolean>;
 }
 
-const BeatmapSchema = new Schema({
+const BeatmapSchema = new Schema<Beatmap>({
     song: { type: 'ObjectId', ref: 'FeaturedSong' },
     host: { type: 'ObjectId', ref: 'User', required: true },
     status: { type: String, enum: ['WIP', 'Done', 'Qualified', 'Ranked', 'Secret'], default: 'WIP' },

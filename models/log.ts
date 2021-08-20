@@ -3,6 +3,7 @@ import { Log as ILog } from '../interfaces/log';
 import { User } from '../interfaces/user';
 
 export interface Log extends ILog, Document {
+    _id: any;
     id: string;
 }
 
@@ -14,7 +15,7 @@ interface LogStatics extends Model<Log> {
     ) => void;
 }
 
-const logSchema = new Schema({
+const logSchema = new Schema<Log, LogStatics>({
     user: { type: 'ObjectId', ref: 'User' },
     action: { type: String, required: true },
     category: { type: String, enum: ['beatmap', 'quest', 'party', 'user', 'artist', 'error'], required: true },

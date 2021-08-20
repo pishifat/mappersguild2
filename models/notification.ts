@@ -3,6 +3,7 @@ import mongoose, { Document, Schema, Model } from 'mongoose';
 import { Notification as INotification } from '../interfaces/notification';
 
 export interface Notification extends INotification, Document {
+    _id: any;
     id: string;
 }
 
@@ -25,7 +26,7 @@ interface NotificationStatics extends Model<Notification> {
     ) => Promise<Notification>;
 }
 
-const notificationSchema = new Schema({
+const notificationSchema = new Schema<Notification, NotificationStatics>({
     recipient: { type: 'ObjectId', ref: 'User', required: true },
     sender: { type: 'ObjectId', ref: 'User' },
     modified: { type: 'ObjectId', required: true },

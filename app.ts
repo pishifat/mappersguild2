@@ -10,7 +10,7 @@ import 'express-async-errors';
 
 // Return the 'new' updated object by default when doing findByIdAndUpdate
 mongoose.plugin(schema => {
-    schema.pre('findOneAndUpdate', function(this) {
+    schema.pre('findOneAndUpdate', function(this: any) {
         if (!('new' in this.options)) {
             this.setOptions({ new: true });
         }

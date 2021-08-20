@@ -2,7 +2,11 @@ import mongoose, { Schema, DocumentQuery, Model } from 'mongoose';
 import { Party } from '../interfaces/party';
 import { User } from '../interfaces/user';
 
-const partySchema = new Schema({
+interface IPartyModel extends Model<Party, typeof queryHelpers> {
+    defaultFindByIdOrFail (id: any): Promise<Party>;
+}
+
+const partySchema = new Schema<Party, IPartyModel>({
     leader: { type: 'ObjectId', ref: 'User' },
     members: [{ type: 'ObjectId', ref: 'User' }],
     lock: { type: Boolean, default: false },
@@ -66,10 +70,6 @@ partySchema.methods.addUser = async function (this: Party, user: User) {
     this.setPartyRank();
     await this.save();
 };
-
-interface IPartyModel extends Model<Party, typeof queryHelpers> {
-    defaultFindByIdOrFail (id: any): Promise<Party>;
-}
 
 partySchema.statics.defaultFindByIdOrFail = function (this: IPartyModel, id: any) {
     return this

@@ -2,10 +2,11 @@ import mongoose, { Document, Schema } from 'mongoose';
 import { Submission as ISubmission } from '../../interfaces/contest/submission';
 
 export interface Submission extends ISubmission, Document {
+    _id: any;
     id: string;
 }
 
-const submissionSchema = new Schema({
+const submissionSchema = new Schema<Submission>({
     name: { type: String, required: true },
     creator: { type: 'ObjectId', ref: 'User', required: true },
     evaluations: [{ type: 'ObjectId', ref: 'Screening' }],

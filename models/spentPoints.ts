@@ -10,7 +10,7 @@ interface SpentPointsStatics extends Model<SpentPoints> {
     ) => Promise<SpentPoints>;
 }
 
-const spentPointsSchema = new Schema({
+const spentPointsSchema = new Schema<SpentPoints, SpentPointsStatics>({
     category: { type: String, enum: ['extendDeadline', 'acceptQuest', 'createQuest', 'reopenQuest'], required: true },
     user: { type: 'ObjectId', ref: 'User', required: true },
     quest: { type: 'ObjectId', ref: 'Quest', required: true },

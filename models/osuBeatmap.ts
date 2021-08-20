@@ -6,7 +6,7 @@ export interface OsuBeatmap extends IOsuBeatmap, Document {
     id: string;
 }
 
-const osuBeatmapSchema = new Schema({
+const osuBeatmapSchema = new Schema<OsuBeatmap>({
     beatmapsetOsuIds: [{ type: Number }],
     beatmapOsuIds: [{ type: Number }],
     artist: { type: String },

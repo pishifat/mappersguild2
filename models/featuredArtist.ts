@@ -2,10 +2,11 @@ import mongoose, { Document, Schema } from 'mongoose';
 import { FeaturedArtist as IFeaturedArtist } from '../interfaces/featuredArtist';
 
 export interface FeaturedArtist extends IFeaturedArtist, Document {
+    _id: any;
     id: string;
 }
 
-const featuredArtistSchema = new Schema({
+const featuredArtistSchema = new Schema<FeaturedArtist>({
     label: { type: String, required: true },
     osuId: { type: Number },
     status: { type: String, enum: ['public', 'private', 'showcase'], default: 'private' },

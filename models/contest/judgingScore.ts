@@ -1,7 +1,7 @@
 import mongoose, { Schema } from 'mongoose';
 import { JudgingScore } from '../../interfaces/contest/judgingScore';
 
-const judgingScoreSchema = new Schema({
+const judgingScoreSchema = new Schema<JudgingScore>({
     criteria: { type: 'ObjectId', ref: 'Criteria', required: true },
     score: { type: Number },
     comment: { type: String, trim: true },
