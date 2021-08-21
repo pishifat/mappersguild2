@@ -4,14 +4,14 @@
   "private": true,
   "scripts": {
     "prod": "cross-env NODE_ENV=production node ./dist/app.js",
-    "build-src": "cross-env NODE_ENV=production vue-tsc --noEmit && vite build",
-    "build-app": "cross-env NODE_ENV=production tsc --project tsconfig.app.json",
+    "build-src": "vue-tsc --noEmit && vite build",
+    "build-app": "cross-env NODE_ENV=production tsc --project api/tsconfig.json",
     "dev": "run-p -rl watch-app watch-src",
-    "watch-app": "ts-node-dev --respawn --transpile-only --no-notify app.ts",
+    "watch-app": "ts-node-dev --respawn --transpile-only --no-notify --project api/tsconfig.json api/app.ts",
     "watch-src": "vite",
     "serve": "vite preview",
     "lint": "eslint . --ext .ts,.js,.vue",
-    "tsc": "tsc --noEmit true --project tsconfig.app.json"
+    "tsc": "tsc --noEmit true --project api/tsconfig.json"
   },
   "dependencies": {
     "@popperjs/core": "^2.9.3",
