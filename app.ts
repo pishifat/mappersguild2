@@ -1,5 +1,4 @@
 import express from 'express';
-import path from 'path';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import mongoose from 'mongoose';
@@ -45,17 +44,11 @@ import invitesRouter from './routes/invites';
 const app = express();
 const MongoStore = MongoStoreSession(session);
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'hbs');
-app.set('view options', { layout: false });
-
 // settings/middlewares
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
 
 // db
 mongoose.connect(config.connection, {
@@ -114,7 +107,8 @@ app.use('/admin/judging', adminJudgingRouter);
 
 // catch 404
 app.use((req, res) => {
-    res.render('index');
+    res.status(404);
+    res.json({ error: 'Not Found' });
 });
 
 // error handler
@@ -127,12 +121,7 @@ app.use((err, req, res, next) => {
     res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-    if (req.accepts(['html', 'json']) === 'json') {
-        res.json({ error: customErrorMessage || err.message || 'Something went wrong!' });
-    } else {
-        res.status(err.status || 500);
-        res.render('error');
-    }
+    res.json({ error: customErrorMessage || err.message || 'Something went wrong!' });
 
     console.log(err);
 });

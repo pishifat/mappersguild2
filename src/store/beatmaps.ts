@@ -178,7 +178,7 @@ const store: Module<BeatmapsState, MainState> = {
             const quest = state.filterQuest !== 'any' ? `&quest=${state.filterQuest}` : '';
             const search = state.filterValue ? `&search=${state.filterValue}` : '';
 
-            const response = await Axios.get(`/beatmaps/search?mode=${state.filterMode}&limit=${state.fetchLimit + status + quest + search}`);
+            const response = await Axios.get(`/api/beatmaps/search?mode=${state.filterMode}&limit=${state.fetchLimit + status + quest + search}`);
 
             if (response.data?.allBeatmaps) {
                 commit('setAllBeatmaps', response.data.allBeatmaps);

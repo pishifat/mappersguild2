@@ -39,7 +39,7 @@ export default defineComponent({
         };
     },
     async created () {
-        const res: any = await Axios.get('/notifications/relevantInfo');
+        const res: any = await Axios.get('/api/notifications/relevantInfo');
 
         if (res.data && !res.data.error) {
             this.notifications = res.data.notifications.length;

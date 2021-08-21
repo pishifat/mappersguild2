@@ -13,10 +13,10 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
-    document.title = to.meta.title || `Mappers' Guild`;
+    document.title = to.meta.title as string || `Mappers' Guild`;
 
     if (!store.state.initialized) {
-        const { data } = await Axios.get<User | null | ErrorResponse>('/me');
+        const { data } = await Axios.get<User | null | ErrorResponse>('/api/me');
 
         if (!isError(data)) store.commit('setInitialData', data);
     }

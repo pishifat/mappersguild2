@@ -13,7 +13,7 @@
                 </div>
 
                 <div v-if="!loggedInUser" class="col-12 text-center">
-                    <a href="/login" class="btn btn-primary">
+                    <a href="/api/login" class="btn btn-primary">
                         connect your osu! account
                         <i class="fas fa-external-link-alt" />
                     </a>
@@ -335,7 +335,7 @@
                         </p>
                     </div>
                     <div class="col-12 text-center">
-                        <a href="/login" class="btn btn-primary">Verify osu! account</a>
+                        <a href="/api/login" class="btn btn-primary">Verify osu! account</a>
                     </div>
                 </div>
             </div>

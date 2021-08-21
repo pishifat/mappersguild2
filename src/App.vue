@@ -142,7 +142,7 @@
                                     </a>
                                 </span>
                                 <div class="dropdown-divider" />
-                                <form action="/logout" method="GET">
+                                <form action="/api/logout" method="GET">
                                     <button class="btn btn-sm btn-outline-danger float-end me-2" type="submit">
                                         Log Out
                                     </button>
@@ -162,7 +162,7 @@
 
                         <form
                             class="ms-auto me-3"
-                            action="/login"
+                            action="/api/login"
                             method="GET"
                         >
                             <button class="btn btn-sm btn-info" type="submit">
