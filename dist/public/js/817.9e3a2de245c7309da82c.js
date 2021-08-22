@@ -1,1 +1,0 @@
-(self.webpackChunkmappersguild=self.webpackChunkmappersguild||[]).push([[817],{2817:(e,n,t)=>{"use strict";t.r(n),t.d(n,{default:()=>s});var o=t(5393);const c={class:"text-center"},r=(0,o.defineComponent)({name:"NotFound"});r.render=function(e,n,t,r,s,u){return(0,o.openBlock)(),(0,o.createBlock)("h3",c," Not found :( ")};const s=r}}]);
