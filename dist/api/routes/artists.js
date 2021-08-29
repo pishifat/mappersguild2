@@ -312,14 +312,6 @@ artistsRouter.post('/osuBeatmaps/updateComment/:id', async (req, res) => {
         .orFail();
     res.json(newOsuBeatmap);
 });
-/* POST update osuBeatmap custom comment (other) */
-artistsRouter.post('/osuBeatmaps/updateCustomComment/:id', async (req, res) => {
-    const newOsuBeatmap = await osuBeatmap_1.OsuBeatmapModel
-        .findByIdAndUpdate(req.params.id, { customComment: req.body.customComment })
-        .populate(defaultOsuBeatmapPopulate)
-        .orFail();
-    res.json(newOsuBeatmap);
-});
 /* POST add FA to song */
 artistsRouter.post('/osuBeatmaps/addArtistToOsuBeatmap/:id', async (req, res) => {
     const newOsuBeatmap = await osuBeatmap_1.OsuBeatmapModel
@@ -359,7 +351,6 @@ artistsRouter.post('/osuBeatmaps/updateLastChecked/:id', async (req, res) => {
         .findByIdAndUpdate(req.params.id, { lastChecked: req.body.date })
         .populate(defaultOsuBeatmapPopulate)
         .orFail();
-    console.log(newOsuBeatmap.lastChecked);
     res.json(newOsuBeatmap);
 });
 exports.default = artistsRouter;
