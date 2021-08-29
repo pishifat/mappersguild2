@@ -34,23 +34,38 @@
                 <data-table
                     v-slot="{ obj: beatmap }"
                     :data="filteredBeatmaps"
-                    :headers="['', 'SONG/MAP', 'COMMENT', 'ADMIN', 'PLAYS', 'FAVOURITES']"
+                    :headers="['', 'SONG/MAP', 'ADMIN', 'COMMENT', 'PLAYS', 'FAVOURITES']"
                     :custom-data-target="'#editBeatmap'"
                     @update:selected-id="selectedBeatmapId = $event"
                 >
-                    <td :class="beatmap.isLicensed ? 'bg-success' : 'bg-danger'" />
+                    <td
+                        v-bs-tooltip="!beatmap.lastChecked ? 'not checked' : beatmap.isLicensed ? 'licensed' : 'not licensed'"
+                        :class="!beatmap.lastChecked ? 'bg-warning' : beatmap.isLicensed ? 'bg-success' : 'bg-danger'"
+                    />
                     <td class="text-truncate">
                         <a :href="'https://osu.ppy.sh/beatmapsets/' + beatmap.beatmapsetOsuIds[0]" target="_blank">
-                            {{ beatmap.artist.length > 30 ? beatmap.artist.slice(0,30) + "..." : beatmap.artist }}
+                            {{ beatmap.artist.length > 23 ? beatmap.artist.slice(0,20) + "..." : beatmap.artist }}
                             -
-                            {{ beatmap.title.length > 30 ? beatmap.title.slice(0,30) + "..." : beatmap.title }}
+                            {{ beatmap.title.length > 23 ? beatmap.title.slice(0,20) + "..." : beatmap.title }}
                         </a>
+                        <span
+                            v-if="beatmap.sources.length && beatmap.sources[0].length"
+                            v-bs-tooltip="beatmap.sources.length == 1 ? beatmap.sources[0] : beatmap.sources.join(', ')"
+                            class="text-info"
+                        >
+                            (src)
+                        </span>
                     </td>
                     <td>
-                        {{ beatmap.comment == 'None' ? '' : beatmap.comment }}{{ beatmap.customComment && beatmap.customComment.length ? '*' : '' }}
+                        {{ beatmap.administrators.length ? beatmap.administrators.join(', ') : '' }}
                     </td>
                     <td>
-                        {{ beatmap.administrators.length ? beatmap.administrators[0] : '' }}{{ beatmap.administrators.length > 1 ? '+' : '' }}
+                        <span v-if="beatmap.comment && beatmap.comment.length < 23">
+                            {{ beatmap.comment }}
+                        </span>
+                        <span v-else-if="beatmap.comment" v-bs-tooltip="beatmap.comment">
+                            {{ beatmap.comment.slice(0,20) + '...' }}
+                        </span>
                     </td>
                     <td>
                         {{ Number(beatmap.playcount).toLocaleString() }}

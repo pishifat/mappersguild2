@@ -25,7 +25,7 @@
                             </li>
                         </ul>
                     </div>
-                    <div v-if="beatmap.sources.length" class="col-sm-6">
+                    <div v-if="beatmap.sources.length && beatmap.sources[0].length" class="col-sm-6">
                         Sources: ({{ beatmap.sources.length }}):
                         <ul>
                             <li v-for="source in beatmap.sources" :key="source">
@@ -86,19 +86,28 @@
                             {{ administrator }}
                         </li>
                     </ul>
-                    <div class="row">
-                        <select v-model="administratorInput" class="form-select form-select-sm mb-2 col-sm-12">
+                    <p class="row">
+                        <select v-model="administratorInput" class="form-select form-select-sm mx-2 mb-2">
+                            <option value="Unknown">
+                                Unknown
+                            </option>
+                            <option value="Independent">
+                                Independent
+                            </option>
+                            <option value="" disabled>
+                                ---
+                            </option>
                             <option v-for="administrator in administratorPresets" :key="administrator" :value="administrator">
                                 {{ administrator }}
                             </option>
                         </select>
-                        <button class="btn btn-sm btn-outline-info col-sm-6 w-25 me-2" @click="addAdministratorToOsuBeatmap($event)">
+                        <button class="btn btn-sm btn-outline-info w-25 mx-2" @click="addAdministratorToOsuBeatmap($event)">
                             Add to list
                         </button>
-                        <button class="btn btn-sm btn-outline-danger col-sm-6 w-25" @click="removeAdministratorFromOsuBeatmap($event)">
+                        <button class="btn btn-sm btn-outline-danger w-25" @click="removeAdministratorFromOsuBeatmap($event)">
                             Remove from list
                         </button>
-                    </div>
+                    </p>
                 </div>
 
                 <hr>
@@ -125,20 +134,16 @@
                         Save custom comment
                     </button>
                 </p>
-                <p class="text-small text-white-50">
-                    {{ beatmap.customComment }}
+                <p class="text-white-50 small">
+                    {{ beatmap.comment }}
                 </p>
 
                 <hr>
 
-                <p class="text-small text-white-50">
-                    Updated: {{ new Date(beatmap.updatedAt).toLocaleString() }}
-                </p>
                 <p>
                     <span class="text-small text-white-50">
                         Last checked: {{ beatmap.lastChecked ? new Date(beatmap.lastChecked).toLocaleString() : '...' }}
                     </span>
-
                     <a href="#" class="ms-1" @click.prevent="showLastCheckedInput = !showLastCheckedInput">
                         <i class="fas fa-edit" />
                     </a>
@@ -155,6 +160,10 @@
                         <a href="#" class="small" @click.stop.prevent="contactedToday()">mark as today</a>
                     </span>
                 </p>
+
+                <p class="text-small text-white-50">
+                    Updated: {{ new Date(beatmap.updatedAt).toLocaleString() }}
+                </p>
             </div>
         </template>
     </modal-dialog>
@@ -164,7 +173,7 @@
 import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import ModalDialog from '@components/ModalDialog.vue';
-import { OsuBeatmap, Comment, Administrator } from '../../../interfaces/osuBeatmap';
+import { OsuBeatmap } from '../../../interfaces/osuBeatmap';
 
 export default defineComponent({
     name: 'BeatmapInfoAdmin',
@@ -188,21 +197,24 @@ export default defineComponent({
             administratorInput: '',
             showLastCheckedInput: false,
             lastCheckedInput: '',
+            administratorPresets: [
+                'Universal',
+                'Sony',
+                'Warner',
+                'KONAMI',
+                'SMIRAL',
+            ],
+            commentPresets: [
+                'Exclusive',
+                'Too expensive',
+                'Administrator rejected',
+                'No response',
+                'No admin contact info',
+                'Never contacted',
+            ],
         };
     },
     computed: {
-        commentPresets(): Array<any> {
-            const objectComments = Object.entries(Comment);
-            const comments = objectComments.map(arr => arr[1]);
-
-            return comments;
-        },
-        administratorPresets(): Array<any> {
-            const objectComments = Object.entries(Administrator);
-            const comments = objectComments.map(arr => arr[1]);
-
-            return comments;
-        },
         ...mapState({
             artists: (state: any) => state.artists.artists,
         }),
@@ -218,7 +230,6 @@ export default defineComponent({
     methods: {
         findBeatmapInfo(): void {
             this.commentInput = this.beatmap.comment;
-            this.customCommentInput = this.beatmap.customComment;
         },
         updateBeatmap (b): void {
             this.$emit('update:updateBeatmap', b);
@@ -232,7 +243,7 @@ export default defineComponent({
             this.updateBeatmap(osuBeatmap);
         },
         async updateCustomComment(e): Promise<void> {
-            const osuBeatmap = await this.$http.executePost(`/artists/osuBeatmaps/updateCustomComment/${this.beatmap.id}`, { customComment: this.customCommentInput }, e);
+            const osuBeatmap = await this.$http.executePost(`/artists/osuBeatmaps/updateComment/${this.beatmap.id}`, { comment: this.customCommentInput }, e);
             this.updateBeatmap(osuBeatmap);
         },
         async addArtistToOsuBeatmap(e): Promise<void> {

@@ -17,7 +17,6 @@ const osuBeatmapSchema = new Schema<OsuBeatmap>({
     isLicensed: { type: Boolean },
     featuredArtists: [{ type: 'ObjectId', ref: 'FeaturedArtist' }],
     comment: { type: String },
-    customComment: { type: String },
     administrators: [{ type: String }],
     lastChecked: { type: Date },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
