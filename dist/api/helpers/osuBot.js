@@ -23,7 +23,7 @@ async function getBotToken() {
             grant_type: 'client_credentials',
             client_id: config_json_1.default.bot.id,
             client_secret: config_json_1.default.bot.secret,
-            scope: 'bot chat.write',
+            scope: 'delegate chat.write',
         });
         tokenInfo = {
             expiresAt: new Date(Date.now() + data.expires_in * 1000),
