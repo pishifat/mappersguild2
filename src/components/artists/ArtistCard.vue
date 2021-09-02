@@ -36,7 +36,7 @@
                             </span>
 
                             <span class="text-white-50">
-                                <span v-if="!artist.hasRankedMaps" class="me-1 text-danger">[ranked]</span>
+                                <span v-if="!artist.hasRankedMaps" class="me-1 text-warning">[showcase]</span>
                                 <span v-if="artist.isMinor" class="me-1">[minor]</span>
                                 <span v-if="artist.isGroup" class="me-1">[group]</span>
                             </span>
@@ -209,7 +209,7 @@
                             </a>
                         </div>
                         <div class="small ms-2">
-                            Ranked maps:
+                            Need showcase map:
                             <a href="#" @click.stop.prevent="toggleHasRankedMaps()">
                                 <i class="fas" :class="artist.hasRankedMaps ? 'text-done fa-check' : 'text-danger fa-times'" />
                             </a>
