@@ -86,9 +86,9 @@ export default defineComponent({
         messages(): string[] {
             const messages: string[] = [];
 
-            messages.push('hello');
-            messages.push('test');
-            messages.push('goodbye');
+            messages.push(`hello! you're receiving this message because you marked yourself as a "FA showcase mapper" in the mappers guild https://i.imgur.com/aJt9uL1.png`);
+            messages.push(`if you'd like to map an upcoming featured artist for an announcement in October-December, send me some of the genres you'd like to map!`);
+            messages.push(`thank you!! -pishifat`);
 
             return messages;
         },
