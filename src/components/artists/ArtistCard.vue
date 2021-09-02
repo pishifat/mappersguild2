@@ -209,7 +209,7 @@
                             </a>
                         </div>
                         <div class="small ms-2">
-                            Need showcase map:
+                            Has showcase map:
                             <a href="#" @click.stop.prevent="toggleHasRankedMaps()">
                                 <i class="fas" :class="artist.hasRankedMaps ? 'text-done fa-check' : 'text-danger fa-times'" />
                             </a>
