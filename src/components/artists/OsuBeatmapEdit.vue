@@ -67,9 +67,6 @@
                             <button class="btn btn-sm btn-outline-info col-sm-6 w-25 me-2" @click="addArtistToOsuBeatmap($event)">
                                 Add to list
                             </button>
-                            <button class="btn btn-sm btn-outline-danger col-sm-6 w-25" @click="removeArtistFromOsuBeatmap($event)">
-                                Remove from list
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -84,10 +81,17 @@
                         </li>
                         <li v-for="administrator in beatmap.administrators" v-else :key="administrator">
                             {{ administrator }}
+                            <a
+                                href="#"
+                                class="text-danger"
+                                @click.prevent="removeAdministratorFromOsuBeatmap(administrator)"
+                            >
+                                <i class="fas fa-minus" />
+                            </a>
                         </li>
                     </ul>
                     <p class="row">
-                        <select v-model="administratorInput" class="form-select form-select-sm mx-2 mb-2">
+                        <select v-model="administratorInput" class="form-select form-select-sm mx-2 w-50">
                             <option value="Unknown">
                                 Unknown
                             </option>
@@ -101,11 +105,17 @@
                                 {{ administrator }}
                             </option>
                         </select>
+                    </p>
+                    <p class="row">
+                        <input
+                            v-model="administratorInput"
+                            class="form-control form-control-sm mx-2 w-50"
+                            type="text"
+                            autocomplete="off"
+                            placeholder="custom admin..."
+                        >
                         <button class="btn btn-sm btn-outline-info w-25 mx-2" @click="addAdministratorToOsuBeatmap($event)">
                             Add to list
-                        </button>
-                        <button class="btn btn-sm btn-outline-danger w-25" @click="removeAdministratorFromOsuBeatmap($event)">
-                            Remove from list
                         </button>
                     </p>
                 </div>
@@ -260,8 +270,8 @@ export default defineComponent({
                 this.updateBeatmap(osuBeatmap);
             }
         },
-        async removeAdministratorFromOsuBeatmap(e): Promise<void> {
-            const osuBeatmap = await this.$http.executePost(`/artists/osuBeatmaps/removeAdministratorFromOsuBeatmap/${this.beatmap.id}`, { administrator: this.administratorInput }, e);
+        async removeAdministratorFromOsuBeatmap(administrator): Promise<void> {
+            const osuBeatmap = await this.$http.executePost(`/artists/osuBeatmaps/removeAdministratorFromOsuBeatmap/${this.beatmap.id}`, { administrator });
             this.updateBeatmap(osuBeatmap);
         },
         async updateLastChecked(): Promise<void> {
