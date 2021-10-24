@@ -108,7 +108,7 @@
                 <div class="col-lg-12">
                     <h4>How does the Mappers' Guild work?</h4>
                     <p class="text-secondary">
-                        In addition to making maps of music licensed by osu!, the Mappers' Guild has similaritiess to any other MMO-style guild.
+                        In addition to making maps of music licensed by osu!, the Mappers' Guild has similarities to any other MMO-style guild.
                         We support subgroups of mappers (parties) working together to create map packs for specifically assigned artists or other content (quests).
                         By creating maps and participating in the mapping process, a user can earn points and level up to receive rewards!
                     </p>
