@@ -41,6 +41,7 @@ const featuredArtistSchema = new mongoose_1.Schema({
     ppySigned: { type: Boolean },
     // publication
     projectedRelease: { type: Date },
+    isNotifiedOfRelease: { type: Boolean },
     songsTimed: { type: Boolean },
     songsReceived: { type: Boolean },
     assetsReceived: { type: Boolean },
