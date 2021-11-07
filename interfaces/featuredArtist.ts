@@ -32,6 +32,7 @@ export interface FeaturedArtist {
 
     // publication
     projectedRelease?: Date;
+    isNotifiedOfRelease: boolean;
     songsReceived: boolean;
     songsTimed: boolean;
     assetsReceived: boolean;

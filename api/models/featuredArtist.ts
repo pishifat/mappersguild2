@@ -29,6 +29,7 @@ const featuredArtistSchema = new Schema<FeaturedArtist>({
 
     // publication
     projectedRelease: { type: Date },
+    isNotifiedOfRelease: { type: Boolean },
     songsTimed: { type: Boolean },
     songsReceived: { type: Boolean },
     assetsReceived: { type: Boolean },

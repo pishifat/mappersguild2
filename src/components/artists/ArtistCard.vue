@@ -36,6 +36,7 @@
                             </span>
 
                             <span class="text-white-50">
+                                <span v-if="!artist.isNotifiedOfRelease" class="me-1 text-warning">[notified]</span>
                                 <span v-if="!artist.hasRankedMaps" class="me-1 text-warning">[showcase]</span>
                                 <span v-if="artist.isMinor" class="me-1">[minor]</span>
                                 <span v-if="artist.isGroup" class="me-1">[group]</span>
@@ -203,15 +204,21 @@
                         </div>
 
                         <div class="small ms-2">
-                            Minor release:
-                            <a href="#" @click.stop.prevent="toggleIsMinor()">
-                                <i class="fas" :class="artist.isMinor ? 'text-done fa-check' : 'text-danger fa-times'" />
-                            </a>
-                        </div>
-                        <div class="small ms-2">
                             Has showcase map:
                             <a href="#" @click.stop.prevent="toggleHasRankedMaps()">
                                 <i class="fas" :class="artist.hasRankedMaps ? 'text-done fa-check' : 'text-danger fa-times'" />
+                            </a>
+                        </div>
+                        <div class="small ms-2">
+                            Notified artist of release:
+                            <a href="#" @click.stop.prevent="toggleIsNotifiedOfRelease()">
+                                <i class="fas" :class="artist.isNotifiedOfRelease ? 'text-done fa-check' : 'text-danger fa-times'" />
+                            </a>
+                        </div>
+                        <div class="small ms-2">
+                            Minor release:
+                            <a href="#" @click.stop.prevent="toggleIsMinor()">
+                                <i class="fas" :class="artist.isMinor ? 'text-done fa-check' : 'text-danger fa-times'" />
                             </a>
                         </div>
                         <div class="small ms-2">
@@ -447,6 +454,13 @@ export default defineComponent({
         },
         async toggleHasRankedMaps (): Promise<void> {
             const artist = await this.$http.executePost('/artists/toggleHasRankedMaps/' + this.artist.id, { value: !this.artist.hasRankedMaps });
+
+            if (artist) {
+                this.$store.commit('updateArtist', artist);
+            }
+        },
+        async toggleIsNotifiedOfRelease (): Promise<void> {
+            const artist = await this.$http.executePost('/artists/toggleIsNotifiedOfRelease/' + this.artist.id, { value: !this.artist.isNotifiedOfRelease });
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);
