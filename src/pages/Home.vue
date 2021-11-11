@@ -160,17 +160,21 @@
             </div>
 
             <div class="row text-center mb-3">
-                <div class="col-md-4">
+                <div class="col-md-4" style="width: 25% !important">
                     <p>Bronze (100 points)</p>
                     <img src="/images/rank1.png" class="osu-badge">
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-4" style="width: 25% !important">
                     <p>Silver (250 points)</p>
                     <img src="/images/rank2.png" class="osu-badge">
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-4" style="width: 25% !important">
                     <p>Gold (500 points)</p>
                     <img src="/images/rank3.png" class="osu-badge">
+                </div>
+                <div class="col-md-4" style="width: 25% !important">
+                    <p>Platinum (1000 points)</p>
+                    <img src="/images/rank4.png" class="osu-badge">
                 </div>
             </div>
 
