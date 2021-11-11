@@ -154,7 +154,7 @@
                 <div class="col-lg-12">
                     <h5>Profile badge</h5>
                     <p class="text-secondary">
-                        Depending on a user's rank within the Mappers' Guild, they can have access to special quests + upcoming Featured Artist showcase opportunities (unlocked at rank 1) and the ability to design quests (unlocked at rank 2). Additionally, ranked users earn one of three profile badges:
+                        Depending on a user's rank within the Mappers' Guild, they can have access to special quests + upcoming Featured Artist showcase opportunities (unlocked at rank 1) and the ability to design quests (unlocked at rank 2). Additionally, ranked users earn one of four profile badges:
                     </p>
                 </div>
             </div>
