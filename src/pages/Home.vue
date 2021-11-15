@@ -154,23 +154,27 @@
                 <div class="col-lg-12">
                     <h5>Profile badge</h5>
                     <p class="text-secondary">
-                        Depending on a user's rank within the Mappers' Guild, they can have access to special quests + upcoming Featured Artist showcase opportunities (unlocked at rank 1) and the ability to design quests (unlocked at rank 2). Additionally, ranked users earn one of three profile badges:
+                        Depending on a user's rank within the Mappers' Guild, they can have access to special quests + upcoming Featured Artist showcase opportunities (unlocked at rank 1) and the ability to design quests (unlocked at rank 2). Additionally, ranked users earn one of four profile badges:
                     </p>
                 </div>
             </div>
 
             <div class="row text-center mb-3">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <p>Bronze (100 points)</p>
                     <img src="/images/rank1.png" class="osu-badge">
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <p>Silver (250 points)</p>
                     <img src="/images/rank2.png" class="osu-badge">
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <p>Gold (500 points)</p>
                     <img src="/images/rank3.png" class="osu-badge">
+                </div>
+                <div class="col-md-3">
+                    <p>Platinum (1000 points)</p>
+                    <img src="/images/rank4.png" class="osu-badge">
                 </div>
             </div>
 
