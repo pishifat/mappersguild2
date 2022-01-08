@@ -395,6 +395,23 @@
                 <div id="rewards" class="col-md-12 mx-auto">
                     <div class="card card-body">
                         <h4>Rewards</h4>
+
+                        <h5>Can I earn points for X?</h5>
+                        <p class="text-secondary">
+                            If you don't see it mentioned anywhere, no. For extra clarity, here's some examples of
+                            things that do not reward points:
+                        </p>
+                        <ul class="text-secondary">
+                            <li>Anything unrelated to osu!'s featured artists</li>
+                            <li>Mapsets you've ranked before joining the Mappers' Guild</li>
+                            <li>Mapsets you've ranked before the artist/song was featured (excluding maps planned for the announcement)</li>
+                            <li>Guest difficulties for mapsets uninvolved with the Mappers' Guild</li>
+                            <li>Mapsets with participation from users uninvolved in the Mappers' Guild</li>
+                            <li>Skinning and background creation (these gave small points rewards in the past)</li>
+                            <li>Hitsounding (this is part of a host's bonus points)</li>
+                            <li>Mapset with non-osu!-licensed background/storyboard content</li>
+                        </ul>
+
                         <h5>How do I earn points and badges?</h5>
                         <p class="text-secondary">
                             See the points breakdown on the <a href="/">home page</a>.
@@ -422,21 +439,6 @@
                         <p class="text-secondary">
                             Badges are published every 2-3 months. Medals are published at no set interval.
                         </p>
-
-                        <h5>Can I earn points for X?</h5>
-                        <p class="text-secondary">
-                            If you don't see it mentioned anywhere, no. For extra clarity, here's some examples of
-                            things that do not reward points:
-                        </p>
-                        <ul class="text-secondary">
-                            <li>Anything unrelated to osu!'s featured artists</li>
-                            <li>Mapsets you've ranked before joining the Mappers' Guild</li>
-                            <li>Guest difficulties for mapsets uninvolved with the Mappers' Guild</li>
-                            <li>Mapsets with participation from users uninvolved in the Mappers' Guild</li>
-                            <li>Skinning and background creation (these gave small points rewards in the past)</li>
-                            <li>Hitsounding (this is part of a host's bonus points)</li>
-                            <li>Mapset with non-osu!-licensed background/storyboard content</li>
-                        </ul>
 
                         <h5>What happens if someone abuses the points system?</h5>
                         <div class="text-secondary">

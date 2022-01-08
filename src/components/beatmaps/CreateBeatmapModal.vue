@@ -137,6 +137,8 @@
         <button type="submit" class="btn btn-outline-success w-100" @click="saveNewMap($event)">
             Save
         </button>
+
+        <small class="text-white-50">Check the <a :href="'/faq#rewards'" target="_blank">FAQ</a> to ensure your beatmap is elligible for points.</small>
     </modal-dialog>
 </template>
 
