@@ -24,9 +24,11 @@
                                     <span v-if="!artist.artistSigned" class="me-1">[artist signed]</span>
                                     <span v-if="!artist.ppySigned" class="me-1">[ppy signed]</span>
                                     <span v-if="!artist.ppyPaid" class="me-1">[ppy paid]</span>
-                                    <span v-if="!artist.songsReceived" class="me-1">[songs]</span>
-                                    <span v-if="!artist.songsTimed" class="me-1">[timing]</span>
+                                </span>
+                                <span v-if="artist.ppySigned && artist.ppyPaid" class="text-danger">
                                     <span v-if="!artist.assetsReceived" class="me-1">[images]</span>
+                                    <span v-if="!artist.songsReceived" class="me-1">[songs]</span>
+                                    <span v-if="!artist.songsTimed && artist.songsReceived" class="me-1">[timing]</span>
                                 </span>
                             </span>
 
@@ -34,6 +36,9 @@
                                 <span v-if="artist.isRejected">{{ artist.isResponded ? 'stopped responding' : 'no response' }}</span>
                                 <span v-else-if="artist.tracksSelected" class="text-success">[tracks confirmed] </span>
                             </span>
+
+
+
 
                             <span class="text-white-50">
                                 <span v-if="!artist.isNotifiedOfRelease" class="me-1 text-warning">[notified]</span>
