@@ -28,7 +28,7 @@
                                 <span v-if="artist.ppySigned && artist.ppyPaid" class="text-danger">
                                     <span v-if="!artist.assetsReceived" class="me-1">[images]</span>
                                     <span v-if="!artist.songsReceived" class="me-1">[songs]</span>
-                                    <span v-if="!artist.songsTimed && artist.songsReceived" class="me-1">[timing]</span>
+                                    <span v-if="!artist.songsTimed && artist.assetsReceived" class="me-1">[timing]</span>
                                 </span>
                             </span>
 
