@@ -44,7 +44,7 @@
                                 <span v-if="!artist.isNotifiedOfRelease" class="me-1 text-warning">[notified]</span>
                                 <span v-if="!artist.hasRankedMaps" class="me-1 text-warning">[showcase]</span>
                                 <span v-if="artist.isMinor" class="me-1">[minor]</span>
-                                <span v-if="artist.isGroup" class="me-1">[group]</span>
+                                <span v-if="artist.isMonstercat" class="me-1 text-primary">[group]</span>
                             </span>
                         </span>
 
@@ -227,9 +227,9 @@
                             </a>
                         </div>
                         <div class="small ms-2">
-                            Group release:
-                            <a href="#" @click.stop.prevent="toggleIsGroup()">
-                                <i class="fas" :class="artist.isGroup ? 'text-done fa-check' : 'text-danger fa-times'" />
+                            Monstercat release:
+                            <a href="#" @click.stop.prevent="toggleIsMonstercat()">
+                                <i class="fas" :class="artist.isMonstercat ? 'text-done fa-check' : 'text-danger fa-times'" />
                             </a>
                         </div>
                     </div>
@@ -478,8 +478,8 @@ export default defineComponent({
                 this.$store.commit('updateArtist', artist);
             }
         },
-        async toggleIsGroup (): Promise<void> {
-            const artist = await this.$http.executePost('/artists/toggleIsGroup/' + this.artist.id, { value: !this.artist.isGroup });
+        async toggleIsMonstercat (): Promise<void> {
+            const artist = await this.$http.executePost('/artists/toggleIsMonstercat/' + this.artist.id, { value: !this.artist.isMonstercat });
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);
