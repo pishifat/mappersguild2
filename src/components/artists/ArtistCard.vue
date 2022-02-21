@@ -42,7 +42,7 @@
 
                             <span class="text-white-50">
                                 <span v-if="!artist.hasRankedMaps" class="me-1 text-danger">[showcase]</span>
-                                <span v-if="!artist.isNotifiedOfRelease" class="me-1 text-warning">[notified]</span>
+                                <span v-if="!artist.isNotifiedOfRelease" class="me-1">[notified]</span>
                                 <span v-if="artist.isMonstercat" class="me-1 text-primary">[monstercat]</span>
                                 <span v-if="artist.isMinor" class="me-1">[minor]</span>
                             </span>
