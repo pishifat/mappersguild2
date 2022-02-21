@@ -44,7 +44,7 @@
                                 <span v-if="!artist.isNotifiedOfRelease" class="me-1 text-warning">[notified]</span>
                                 <span v-if="!artist.hasRankedMaps" class="me-1 text-warning">[showcase]</span>
                                 <span v-if="artist.isMinor" class="me-1">[minor]</span>
-                                <span v-if="artist.isMonstercat" class="me-1 text-primary">[group]</span>
+                                <span v-if="artist.isMonstercat" class="me-1 text-primary">[monstercat]</span>
                             </span>
                         </span>
 

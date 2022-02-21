@@ -152,9 +152,9 @@ artistsRouter.post('/toggleIsMinor/:id', async (req, res) => {
     res.json(a);
 });
 
-/* POST toggle isGroup */
-artistsRouter.post('/toggleIsGroup/:id', async (req, res) => {
-    let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { isGroup: req.body.value });
+/* POST toggle isMonstercat */
+artistsRouter.post('/toggleIsMonstercat/:id', async (req, res) => {
+    let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { isMonstercat: req.body.value });
     a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
 
     res.json(a);
