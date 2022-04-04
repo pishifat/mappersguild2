@@ -33,7 +33,7 @@ artistsRouter.get('/relevantInfo', async (req, res) => {
 
 /* POST new artist. */
 artistsRouter.post('/create', async (req, res) => {
-    const exists = await FeaturedArtistModel.find({ label: req.body.name.trim() });
+    const exists = await FeaturedArtistModel.findOne({ label: req.body.name.trim() });
 
     if (exists) {
         return res.json({ error: 'already exists' });
