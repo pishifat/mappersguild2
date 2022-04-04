@@ -32,6 +32,7 @@ indexRouter.get('/home/:limit', async (req, res) => {
         .aggregate()
         .match({ status: featuredArtist_2.FeaturedArtistStatus.Public })
         .match({ isUpToDate: true })
+        .match({ osuId: { $ne: 727 } })
         .sort({ osuId: -1 })
         .lookup({
         from: 'featuredsongs',
