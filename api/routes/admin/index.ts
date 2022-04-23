@@ -46,7 +46,11 @@ adminRouter.get('/loadActionQuests/', async (req, res) => {
 
 /* GET users in need of action */
 adminRouter.get('/loadActionUsers/', async (req, res) => {
-    const allUsers = await UserModel.find({});
+    const invalids = [5226970, 7496029]; // user IDs for people who specifically asked not to earn badges
+
+    const allUsers = await UserModel.find({
+        osuId: { $nin: invalids },
+    });
     const actionUsers = allUsers.filter(u => u.badge !== u.rank);
 
     res.json(actionUsers);
