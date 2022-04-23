@@ -9,6 +9,7 @@ import { beatmapsetInfo, isOsuResponseError } from '../../helpers/osuApi';
 import { TaskName, TaskStatus, TaskMode } from '../../../interfaces/beatmap/task';
 import { User, UserGroup } from '../../../interfaces/user';
 import { UserModel } from '../../models/user';
+import { sendMessages } from '../../helpers/osuBot';
 
 const adminBeatmapsRouter = express.Router();
 
@@ -154,6 +155,39 @@ adminBeatmapsRouter.post('/:id/updateQueuedForRank', async (req, res) => {
         .orFail();
 
     res.json(req.body.queuedForRank);
+});
+
+/* POST reject mapset from earning points */
+adminBeatmapsRouter.post('/:id/rejectMapset', async (req, res) => {
+    const beatmap = await BeatmapModel
+        .findByIdAndUpdate(req.params.id, { status: BeatmapStatus.WIP })
+        .defaultPopulate()
+        .orFail();
+
+    const inputMessages = req.body.messages.trim();
+    const splitMessages = inputMessages.split('\n');
+
+    const messages = [`hello! your beatmap on mappersguild https://mappersguild.com/beatmaps?id=${beatmap.id} isn't eligible to earn points for the following reason:`];
+
+    for (const message of splitMessages) {
+        messages.push(message.trim());
+    }
+
+    if (req.body.isResolvable) {
+        messages.push(`when the issue is resolved, mark the mapset as "Done" to re-attempt points processing!`);
+        messages.push(`thank you!!`);
+    } else {
+        messages.push(`sorry :(`);
+    }
+
+    const finalMessages = await sendMessages(beatmap.host.osuId, messages);
+
+
+    if (finalMessages !== true) {
+        return res.json({ error: `Messages were not sent.` });
+    }
+
+    res.json(beatmap.status);
 });
 
 /* GET news info */

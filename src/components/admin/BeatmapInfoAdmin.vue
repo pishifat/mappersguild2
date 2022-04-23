@@ -106,15 +106,32 @@
                         Toggle
                     </button>
                 </p>
-                <p v-if="beatmap.status == 'Qualified'" class="row">
-                    <span class="col-sm-6">
-                        Queued for rank:
-                        <span class="text-danger me-2">{{ beatmap.queuedForRank ? 'true' : 'false' }}</span>
-                    </span>
-                    <button class="btn btn-sm btn-outline-info ms-3 w-25" @click="updateQueuedForRank($event)">
-                        Toggle
-                    </button>
-                </p>
+                <span v-if="beatmap.status == 'Qualified'">
+                    <p class="row">
+                        <span class="col-sm-6">
+                            Queued for rank:
+                            <span class="text-danger me-2">{{ beatmap.queuedForRank ? 'true' : 'false' }}</span>
+                        </span>
+                        <button class="btn btn-sm btn-outline-info ms-3 w-25" @click="updateQueuedForRank($event)">
+                            Toggle
+                        </button>
+                    </p>
+                    <p class="row">
+                        <textarea
+                            v-model="rejectionInput"
+                            class="form-control form-control-sm w-25"
+                            type="text"
+                            autocomplete="off"
+                            placeholder="messages separated by new lines..."
+                        />
+                        <button class="btn btn-sm btn-outline-info ms-2 w-25" @click="rejectMapset($event, true)">
+                            Reject with resolution option
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger ms-2 w-25" @click="rejectMapset($event, false)">
+                            Reject WITHOUT resolution
+                        </button>
+                    </p>
+                </span>
             </div>
         </template>
     </modal-dialog>
@@ -148,6 +165,7 @@ export default defineComponent({
             storyboardQuality: null as null | SBQuality,
             storyboardTaskId: null as null | string,
             packId: this.beatmap.packId,
+            rejectionInput: '',
         };
     },
     computed: {
@@ -182,6 +200,7 @@ export default defineComponent({
                     this.storyboardTaskId = task.id;
                 }
             });
+            this.rejectionInput = '';
         },
         findTaskInfo(task): string {
             let text = `${task.name} --- `;
@@ -303,6 +322,24 @@ export default defineComponent({
                     beatmapId: this.beatmap.id,
                     queuedForRank,
                 });
+            }
+        },
+        async rejectMapset(e, isResolvable): Promise<void> {
+            const result = confirm(`Are you sure?`);
+
+            if (result) {
+                const status = await this.$http.executePost(`/admin/beatmaps/${this.beatmap.id}/rejectMapset`, { messages: this.rejectionInput, isResolvable }, e);
+
+                if (!this.$http.isError(status)) {
+                    this.$store.dispatch('updateToastMessages', {
+                        message: `updated beatmap status`,
+                        type: 'info',
+                    });
+                    this.$store.commit('updateBeatmapStatus', {
+                        beatmapId: this.beatmap.id,
+                        status,
+                    });
+                }
             }
         },
     },
