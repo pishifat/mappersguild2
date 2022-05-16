@@ -6,6 +6,7 @@ const Users = () => import('../pages/users/UserPage.vue');
 const ContestResults = () => import('../pages/results/ContestResultsPage.vue');
 const Error = () => import('../pages/Error.vue');
 const NotFound = () => import('../pages/NotFound.vue');
+const ContestListing = () => import('../pages/contests/ContestPage.vue');
 
 const Logs = () => import('../pages/Logs.vue');
 const Notifications = () => import('../pages/NotificationPage.vue');
@@ -16,7 +17,6 @@ const Showcase = () => import('../pages/ShowcasePage.vue');
 
 const Admin = () => import('../pages/AdminPage.vue');
 const AdminBeatmaps = () => import('../pages/admin/BeatmapPage.vue');
-const AdminContests = () => import('../pages/admin/ContestPage.vue');
 const AdminFeaturedArtists = () => import('../pages/admin/FeaturedArtistPage.vue');
 const AdminQuests = () => import('../pages/admin/QuestPage.vue');
 const AdminUsers = () => import('../pages/admin/UserPage.vue');
@@ -31,6 +31,7 @@ const routes = [
     { path: '/users', component: Users, meta: { title: 'Users' } },
     { path: '/contestResults', component: ContestResults, meta: { title: 'Contest Results' } },
     { path: '/error', component: Error, meta: { title: 'Oops' } },
+    { path: '/contests/listing', component: ContestListing, meta: { title: 'Contest Listing' } },
 
     // Logged
     { path: '/logs', component: Logs, meta: { title: 'Logs' } },
@@ -44,7 +45,6 @@ const routes = [
     // Admin
     { path: '/admin/summary', component: Admin, meta: { title: 'Admin' } },
     { path: '/admin/beatmaps', component: AdminBeatmaps, meta: { title: 'Admin - Beatmaps' } },
-    { path: '/admin/contests', component: AdminContests, meta: { title: 'Admin - Contests' } },
     { path: '/admin/featuredArtists', component: AdminFeaturedArtists, meta: { title: 'Admin - FA' } },
     { path: '/admin/quests', component: AdminQuests, meta: { title: 'Admin - Quests' } },
     { path: '/admin/users', component: AdminUsers, meta: { title: 'Admin - Users' } },

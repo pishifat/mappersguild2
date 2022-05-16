@@ -13,8 +13,11 @@ export interface Contest {
     _id: any;
     id: string;
     name: string;
+    creator: User;
+    url: string;
     status: ContestStatus;
     contestStart: Date;
+    contestEnd: Date;
     submissions: Submission[];
     screeners: User[];
     judges: User[];

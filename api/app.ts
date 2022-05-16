@@ -33,7 +33,7 @@ import adminFeaturedArtistsRouter from './routes/admin/featuredArtists';
 import adminQuestsRouter from './routes/admin/quests';
 import artistsRouter from './routes/artists';
 import screeningRouter from './routes/screening';
-import adminContestsRouter from './routes/admin/contests';
+import contestsListingRouter from './routes/contests/listing';
 import adminJudgingRouter from './routes/admin/judging';
 import judgingRouter from './routes/judging';
 import contestResultsRouter from './routes/contestResults';
@@ -102,7 +102,7 @@ app.use('/admin/users', adminUsersRouter);
 app.use('/admin/beatmaps', adminBeatmapsRouter);
 app.use('/admin/featuredArtists', adminFeaturedArtistsRouter);
 app.use('/admin/quests', adminQuestsRouter);
-app.use('/admin/contests', adminContestsRouter);
+app.use('/contests/listing', contestsListingRouter);
 app.use('/admin/judging', adminJudgingRouter);
 
 // catch 404

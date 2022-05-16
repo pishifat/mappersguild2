@@ -1,17 +1,16 @@
 <template>
-    <div
-        class="container card card-body py-3 mb-2"
-    >
+    <div>
         <h4>
             {{ contest.name }}
         </h4>
 
-        <div class="container">
+        <div>
             <date-info
                 :contest-id="contest.id"
                 :contest-start="contest.contestStart ? contest.contestStart.slice(0,10) : null"
+                :contest-end="contest.contestEnd ? contest.contestEnd.slice(0,10) : null"
             />
-            <status-info
+            <!--<status-info
                 :contest-id="contest.id"
                 :status="contest.status"
             />
@@ -123,7 +122,7 @@
                         :contest-id="contest.id"
                     />
                 </div>
-            </div>
+            </div>-->
         </div>
     </div>
 </template>
@@ -132,29 +131,29 @@
 import { defineComponent } from 'vue';
 import { Contest } from '../../../../interfaces/contest/contest';
 import DateInfo from './DateInfo.vue';
-import StatusInfo from './StatusInfo.vue';
-import ScreenersInfo from './ScreenersInfo.vue';
-import JudgesInfo from './JudgesInfo.vue';
-import ScreeningResults from './ScreeningResults.vue';
-import JudgingResults from './JudgingResults.vue';
-import CriteriaSelection from './CriteriaSelection.vue';
-import SubmissionsInfo from './SubmissionsInfo.vue';
-import DownloadInfo from './DownloadInfo.vue';
-import MarkdownHelperThanks from './MarkdownHelperThanks.vue';
+//import StatusInfo from './StatusInfo.vue';
+//import ScreenersInfo from './ScreenersInfo.vue';
+//import JudgesInfo from './JudgesInfo.vue';
+//import ScreeningResults from './ScreeningResults.vue';
+//import JudgingResults from './JudgingResults.vue';
+//import CriteriaSelection from './CriteriaSelection.vue';
+//import SubmissionsInfo from './SubmissionsInfo.vue';
+//import DownloadInfo from './DownloadInfo.vue';
+//import MarkdownHelperThanks from './MarkdownHelperThanks.vue';
 
 export default defineComponent({
     name: 'ContestInfo',
     components: {
         DateInfo,
-        StatusInfo,
-        ScreenersInfo,
-        JudgesInfo,
-        ScreeningResults,
-        JudgingResults,
-        CriteriaSelection,
-        SubmissionsInfo,
-        DownloadInfo,
-        MarkdownHelperThanks,
+        //StatusInfo,
+        //ScreenersInfo,
+        //JudgesInfo,
+        //ScreeningResults,
+        //JudgingResults,
+        //CriteriaSelection,
+        //SubmissionsInfo,
+        //DownloadInfo,
+        //MarkdownHelperThanks,
     },
     props: {
         contest: {

@@ -29,7 +29,7 @@ export default defineComponent({
     },
     methods: {
         async addContest(e): Promise<void> {
-            const contest = await this.$http.executePost(`/admin/contests/create`, { name: this.contestName }, e);
+            const contest = await this.$http.executePost(`/contests/listing/create`, { name: this.contestName }, e);
 
             if (!this.$http.isError(contest)) {
                 this.$store.dispatch('updateToastMessages', {

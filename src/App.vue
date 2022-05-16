@@ -43,29 +43,34 @@
                                     FAQ
                                 </router-link>
                             </li>
-                            <template v-if="loggedInUser.group === 'admin' || loggedInUser.group === 'secret'">
-                                <li class="nav-item">
-                                    <router-link class="nav-link" to="/showcase">
-                                        Showcase
-                                    </router-link>
-                                </li>
-                            </template>
+                            <li class="nav-item dropdown">
+                                <a
+                                    id="adminDropdown"
+                                    class="nav-link dropdown-toggle"
+                                    data-bs-toggle="dropdown"
+                                    href="#"
+                                >
+                                    Contests
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <router-link class="dropdown-item" to="/contests/listing">
+                                            Contest listing
+                                        </router-link>
+                                    </li>
+                                    <li>
+                                        <router-link class="dropdown-item" to="/contests/screening">
+                                            Screening
+                                        </router-link>
+                                    </li>
+                                    <li>
+                                        <router-link class="dropdown-item" to="/contests/judging">
+                                            Judging
+                                        </router-link>
+                                    </li>
+                                </ul>
+                            </li>
                             <template v-if="loggedInUser.group === 'admin'">
-                                <li class="nav-item">
-                                    <router-link class="nav-link" to="/screening">
-                                        Screening
-                                    </router-link>
-                                </li>
-                                <li class="nav-item">
-                                    <router-link class="nav-link" to="/judging">
-                                        Judging
-                                    </router-link>
-                                </li>
-                                <li class="nav-item">
-                                    <router-link class="nav-link" to="/artists">
-                                        Artists
-                                    </router-link>
-                                </li>
                                 <li class="nav-item dropdown">
                                     <a
                                         id="adminDropdown"
@@ -84,11 +89,6 @@
                                         <li>
                                             <router-link class="dropdown-item" to="/admin/beatmaps">
                                                 Beatmaps
-                                            </router-link>
-                                        </li>
-                                        <li>
-                                            <router-link class="dropdown-item" to="/admin/contests">
-                                                Contests
                                             </router-link>
                                         </li>
                                         <li>

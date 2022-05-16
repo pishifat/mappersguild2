@@ -8,8 +8,11 @@ export interface Contest extends IContest, Document {
 
 const contestSchema = new Schema<Contest>({
     name: { type: String, required: true },
+    creator: { type: 'ObjectId', ref: 'User' },
+    url: { type: String },
     status: { type: String, enum: ['beatmapping', 'screening', 'judging', 'complete'], default: 'beatmapping' },
     contestStart: { type: Date },
+    contestEnd: { type: Date },
     submissions: [{ type: 'ObjectId', ref: 'Submission' }],
     screeners: [{ type: 'ObjectId', ref: 'User' }],
     judges: [{ type: 'ObjectId', ref: 'User' }],

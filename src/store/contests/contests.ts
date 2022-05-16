@@ -4,16 +4,41 @@ import { Contest } from '../../../interfaces/contest/contest';
 
 interface ContestState {
     contests: Contest[];
+    selectedContestId: string | null;
 }
 
 const store: Module<ContestState, MainState> = {
     state: {
         contests: [],
+        selectedContestId: null,
     },
     mutations: {
         setContests (state, contests: Contest[]): void {
             state.contests = contests;
         },
+        setSelectedContestId (state, id: string): void {
+            state.selectedContestId = id;
+        },
+        updateContestStart (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                contest.contestStart = payload.contestStart;
+            }
+        },
+        updateContestEnd (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                contest.contestEnd = payload.contestEnd;
+            }
+        },
+
+
+
+
+
+
         addContest (state, contest: Contest): void {
             state.contests.unshift(contest);
         },
@@ -76,13 +101,6 @@ const store: Module<ContestState, MainState> = {
                 contest.status = payload.status;
             }
         },
-        updateContestStart (state, payload): void {
-            const contest = state.contests.find(c => c.id == payload.contestId);
-
-            if (contest) {
-                contest.contestStart = payload.contestStart;
-            }
-        },
         updateDownload (state, payload): void {
             const contest = state.contests.find(c => c.id == payload.contestId);
 
@@ -103,6 +121,11 @@ const store: Module<ContestState, MainState> = {
             if (contest) {
                 contest.criterias = payload.criterias;
             }
+        },
+    },
+    getters: {
+        selectedContest: (state): Contest | undefined => {
+            return state.contests.find(u => u.id === state.selectedContestId);
         },
     },
 };

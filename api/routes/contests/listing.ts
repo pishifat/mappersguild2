@@ -41,17 +41,80 @@ const defaultContestPopulate = [
     {
         path: 'criterias',
     },
+    {
+        path: 'creator',
+    },
 ];
 
 /* GET retrieve all the contests info */
 adminContestsRouter.get('/relevantInfo', async (req, res) => {
     const contests = await ContestModel
-        .find({})
+        .find({ creator: req.session.mongoId })
         .populate(defaultContestPopulate)
-        .sort({ contestStart: -1 });
+        .sort({ contestStart: -1 })
+        .limit(4);
 
     res.json(contests);
 });
+
+/* POST update contest start date */
+adminContestsRouter.post('/:id/updateContestStart', async (req, res) => {
+    const newContestStart = new Date(req.body.date);
+
+    if (!(newContestStart instanceof Date && !isNaN(newContestStart.getTime()))) {
+        return res.json({ error: 'Invalid date' });
+    }
+
+    const contest = await ContestModel
+        .findById(req.params.id)
+        .orFail();
+
+    contest.contestStart = newContestStart;
+    await contest.save();
+
+    res.json(newContestStart);
+});
+
+/* POST update contest end date */
+adminContestsRouter.post('/:id/updateContestEnd', async (req, res) => {
+    const newContestEnd = new Date(req.body.date);
+
+    if (!(newContestEnd instanceof Date && !isNaN(newContestEnd.getTime()))) {
+        return res.json({ error: 'Invalid date' });
+    }
+
+    const contest = await ContestModel
+        .findById(req.params.id)
+        .orFail();
+
+    contest.contestEnd = newContestEnd;
+    await contest.save();
+
+    res.json(newContestEnd);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* GET retrieve all criterias */
 adminContestsRouter.get('/criterias', async (req, res) => {
@@ -109,24 +172,6 @@ adminContestsRouter.post('/:id/updateStatus', async (req, res) => {
             updateUserPoints(submission.creator._id);
         }
     }
-});
-
-/* POST update contest start date */
-adminContestsRouter.post('/:id/updateContestStart', async (req, res) => {
-    const newContestStart = new Date(req.body.date);
-
-    if (!(newContestStart instanceof Date && !isNaN(newContestStart.getTime()))) {
-        return res.json({ error: 'Invalid date' });
-    }
-
-    const contest = await ContestModel
-        .findById(req.params.id)
-        .orFail();
-
-    contest.contestStart = newContestStart;
-    await contest.save();
-
-    res.json(newContestStart);
 });
 
 /* POST update submissions download link */
