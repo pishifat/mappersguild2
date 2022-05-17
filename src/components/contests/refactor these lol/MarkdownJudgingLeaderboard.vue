@@ -25,7 +25,6 @@
 import { defineComponent, PropType } from 'vue';
 import { UserScore } from '@interfaces/contest/judging';
 import { Contest } from '@interfaces/contest/contest';
-import { CriteriaName } from '@interfaces/contest/criteria';
 import CopyPaste from '../../CopyPaste.vue';
 
 export default defineComponent({
@@ -54,7 +53,7 @@ export default defineComponent({
             return submission!.id;
         },
 
-        getCriteriaSumbyName (name: CriteriaName, criteriaSum): number {
+        getCriteriaSumbyName (name: string, criteriaSum): number {
             const cSum = criteriaSum.find(c => c.name === name);
 
             return cSum?.sum || NaN;

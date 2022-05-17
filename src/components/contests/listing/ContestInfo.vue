@@ -1,8 +1,10 @@
 <template>
     <div>
-        <h4>
+        <h4 class="mb-4">
             {{ contest.name }}
         </h4>
+
+        <h5>General</h5>
 
         <div>
             <status-info
@@ -50,6 +52,10 @@
 
                 <hr>
 
+                <h4 class="mb-4">
+                    Screening
+                </h4>
+
                 <h5>
                     Screeners
                 </h5>
@@ -77,6 +83,45 @@
                 <div>send this link to your screeners [insert link]. make sure contest status is set to "Screening"!</div>
 
                 <hr>
+
+                <h5>
+                    Screening Results
+                </h5>
+
+                <div class="row mb-2">
+                    <judging-threshold
+                        class="col-sm-4"
+                        :contest-id="contest.id"
+                        :judging-threshold="contest.judgingThreshold"
+                    />
+
+                    <div class="col-sm-8 small text-secondary">
+                        Submissions with this <i class="fa-star fas text-warning small" /> score or above in "screening results" will be available to judges. If your contest skips the screening process, set this to "0".
+                    </div>
+                </div>
+
+                <div class="ms-2 mb-2">
+                    <a href="#screeningResults" data-bs-toggle="collapse" @click.prevent>
+                        See screening results
+                        <i class="fas fa-angle-down" />
+                    </a>
+                </div>
+
+                <screening-results
+                    id="screeningResults"
+                    class="collapse"
+                    :contest-id="contest.id"
+                    :contest-name="contest.name"
+                    :submissions="contest.submissions"
+                    :judging-threshold="contest.judgingThreshold"
+                    :screeners="contest.screeners"
+                />
+
+                <hr>
+
+                <h4 class="mb-4">
+                    Judging
+                </h4>
 
                 <h5>
                     Judges
@@ -107,57 +152,14 @@
                 <hr>
 
                 <h5>
-                    Screening Results
-                </h5>
-
-                <div class="row mb-2">
-                    <judging-threshold
-                        class="col-sm-4"
-                        :contest-id="contest.id"
-                        :judging-threshold="contest.judgingThreshold"
-                    />
-
-                    <div class="col-sm-8 small text-secondary">
-                        Submissions with this score or above in "screening results" will be available to judges. If your contest skips the screening process, set this to "0".
-                    </div>
-                </div>
-
-
-                <div class="ms-2 mb-2">
-                    <a href="#screeningResults" data-bs-toggle="collapse" @click.prevent>
-                        See screening results
-                        <i class="fas fa-angle-down" />
-                    </a>
-                </div>
-
-                <screening-results
-                    id="screeningResults"
-                    class="collapse"
-                    :contest-id="contest.id"
-                    :contest-name="contest.name"
-                    :submissions="contest.submissions"
-                    :judging-threshold="contest.judgingThreshold"
-                />
-
-                <!--<hr>
-
-                <h5>
                     Judging Criteria
-                    <button
-                        type="button"
-                        class="btn btn-sm btn-outline-info"
-                        @click="judgingCriteriaVisible = !judgingCriteriaVisible"
-                    >
-                        {{ judgingCriteriaVisible ? 'Hide' : 'Show' }}
-                    </button>
                 </h5>
                 <criteria-selection
-                    v-if="judgingCriteriaVisible"
                     :contest-id="contest.id"
                     :criterias="contest.criterias"
                 />
 
-                <h5>
+                <!--<h5>
                     Judging Results
                     <button
                         type="button"
@@ -189,8 +191,8 @@ import JudgesInfo from './JudgesInfo.vue';
 import MarkdownUserList from './MarkdownUserList.vue';
 import ScreeningResults from './screening/ScreeningResults.vue';
 import JudgingThreshold from './screening/JudgingThreshold.vue';
+import CriteriaSelection from './judging/CriteriaSelection.vue';
 //import JudgingResults from './JudgingResults.vue';
-//import CriteriaSelection from './CriteriaSelection.vue';
 
 
 
@@ -207,8 +209,8 @@ export default defineComponent({
         MarkdownUserList,
         ScreeningResults,
         JudgingThreshold,
+        CriteriaSelection,
         //JudgingResults,
-        //CriteriaSelection,
     },
     props: {
         contest: {

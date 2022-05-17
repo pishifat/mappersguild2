@@ -7,12 +7,12 @@
             >
                 <div class="d-flex justify-content-between">
                     <a
-                        :class="submission.total >= judgingThreshold ? 'text-success' : ''"
+                        :class="submission.total >= judgingThreshold ? 'pass-threshold' : ''"
                         data-bs-toggle="collapse"
                         :href="`#collapse-${submission.id}`"
                     >
-                        {{ submission.name }}
-                        ({{ submission.total }})
+                        {{ submission.creator.username }}
+                        ({{ submission.total }} <i class="fa-star fas small" />)
                         <i class="fas fa-angle-down" />
                     </a>
                 </div>
@@ -21,6 +21,7 @@
                     <div>
                         <screening-detail
                             :evaluations="submission.evaluations"
+                            :screeners="screeners"
                         />
                         <!--<message-template
                             :osu-id="submission.creator.osuId"
@@ -39,11 +40,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, PropType } from 'vue';
 import ScreeningDetail from './ScreeningDetail.vue';
 //import MessageTemplate from './MessageTemplate.vue';
 //import BotChatMessagesAllParticipants from './BotChatMessagesAllParticipants.vue';
 import { Submission } from '../../../../../interfaces/contest/submission';
+import { User } from '../../../../../interfaces/user';
 
 export default defineComponent({
     name: 'ScreeningResults',
@@ -66,8 +68,14 @@ export default defineComponent({
             default: 0,
         },
         submissions: {
-            type: Array as () => Submission[],
+            type: Array as PropType<Submission[]>,
             required: true,
+        },
+        screeners: {
+            type: Array as PropType<User[]>,
+            default () {
+                return [];
+            },
         },
     },
     data () {
@@ -102,21 +110,17 @@ export default defineComponent({
             return sortedSubmissions;
         },
     },
-    methods: {
-        async updateJudgingThreshold(e): Promise<void> {
-            const judgingThreshold = await this.$http.executePost(`/admin/contests/${this.contestId}/updateJudgingThreshold`, { judgingThreshold: this.newJudgingThreshold }, e);
-
-            if (!this.$http.isError(judgingThreshold)) {
-                this.$store.dispatch('updateToastMessages', {
-                    message: `updated judging threshold`,
-                    type: 'info',
-                });
-                this.$store.commit('updateJudgingThreshold', {
-                    contestId: this.contestId,
-                    judgingThreshold,
-                });
-            }
-        },
-    },
 });
 </script>
+
+<style scoped>
+
+.pass-threshold {
+    color: #36d8a2;
+}
+
+.pass-threshold:hover {
+    color: lightgreen;
+}
+
+</style>

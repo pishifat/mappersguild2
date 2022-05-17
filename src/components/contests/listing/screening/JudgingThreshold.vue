@@ -15,7 +15,7 @@
                     href="#"
                     @click.prevent="updateJudgingThreshold($event)"
                 >
-                    save
+                    save <i class="fa-star fas small" />
                 </button>
             </div>
         </div>
