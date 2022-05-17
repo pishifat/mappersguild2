@@ -102,7 +102,20 @@ const store: Module<ContestState, MainState> = {
                 contest.judgingThreshold = payload.judgingThreshold;
             }
         },
+        updateStatus (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
 
+            if (contest) {
+                contest.status = payload.status;
+            }
+        },
+        updateContestCriterias (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                contest.criterias = payload.criterias;
+            }
+        },
 
 
 
@@ -123,20 +136,6 @@ const store: Module<ContestState, MainState> = {
                 contest.submissions = payload.submissions;
             }
         },*/
-        updateStatus (state, payload): void {
-            const contest = state.contests.find(c => c.id == payload.contestId);
-
-            if (contest) {
-                contest.status = payload.status;
-            }
-        },
-        updateContestCriterias (state, payload): void {
-            const contest = state.contests.find(c => c.id == payload.contestId);
-
-            if (contest) {
-                contest.criterias = payload.criterias;
-            }
-        },
     },
     getters: {
         selectedContest: (state): Contest | undefined => {

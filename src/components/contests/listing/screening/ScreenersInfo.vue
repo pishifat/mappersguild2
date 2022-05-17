@@ -73,6 +73,12 @@ export default defineComponent({
             confirmDelete: null,
         };
     },
+    watch: {
+        contestId(): void {
+            this.screenerInput = null;
+            this.screenerInput = null;
+        },
+    },
     methods: {
         async addScreener(e): Promise<void> {
             const screener = await this.$http.executePost(`/contests/listing/${this.contestId}/screeners/add`, { screenerInput: this.screenerInput }, e);

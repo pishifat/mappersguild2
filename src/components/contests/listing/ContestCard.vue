@@ -2,8 +2,6 @@
     <div class="col-sm-12 my-2" @click="selectContest()">
         <div
             class="card card-hover card-level-2 card-body"
-            data-bs-toggle="modal"
-            data-bs-target="#extendedInfo"
         >
             <div class="mb-2">
                 <a v-if="contest.url && contest.url.length" :href="contest.url" target="_blank">

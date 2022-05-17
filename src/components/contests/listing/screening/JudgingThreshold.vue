@@ -42,6 +42,11 @@ export default defineComponent({
             newJudgingThreshold: this.judgingThreshold,
         };
     },
+    watch: {
+        contestId(): void {
+            this.newJudgingThreshold = this.judgingThreshold;
+        },
+    },
     methods: {
         async updateJudgingThreshold(e): Promise<void> {
             const judgingThreshold = await this.$http.executePost(`/contests/listing/${this.contestId}/updateJudgingThreshold`, { judgingThreshold: this.newJudgingThreshold }, e);

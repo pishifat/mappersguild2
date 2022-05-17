@@ -38,6 +38,7 @@
                         <i class="fas fa-angle-down" />
                     </a>
                 </div>
+
                 <submissions-info
                     id="submissions"
                     class="collapse"
@@ -159,20 +160,15 @@
                     :criterias="contest.criterias"
                 />
 
-                <!--<h5>
+                <hr>
+
+                <h5>
                     Judging Results
-                    <button
-                        type="button"
-                        class="btn btn-sm btn-outline-info"
-                        @click="judgingResultsVisible = !judgingResultsVisible"
-                    >
-                        {{ judgingResultsVisible ? 'Hide' : 'Show' }}
-                    </button>
                 </h5>
+
                 <judging-results
-                    v-if="judgingResultsVisible"
                     :contest-id="contest.id"
-                />-->
+                />
             </div>
         </div>
     </div>
@@ -187,12 +183,12 @@ import Urls from './Urls.vue';
 import SubmissionsInfo from './SubmissionsInfo.vue';
 import DownloadInfo from './DownloadInfo.vue';
 import ScreenersInfo from './screening/ScreenersInfo.vue';
-import JudgesInfo from './JudgesInfo.vue';
+import JudgesInfo from './judging/JudgesInfo.vue';
 import MarkdownUserList from './MarkdownUserList.vue';
 import ScreeningResults from './screening/ScreeningResults.vue';
 import JudgingThreshold from './screening/JudgingThreshold.vue';
 import CriteriaSelection from './judging/CriteriaSelection.vue';
-//import JudgingResults from './JudgingResults.vue';
+import JudgingResults from './judging/JudgingResults.vue';
 
 
 
@@ -210,7 +206,7 @@ export default defineComponent({
         ScreeningResults,
         JudgingThreshold,
         CriteriaSelection,
-        //JudgingResults,
+        JudgingResults,
     },
     props: {
         contest: {

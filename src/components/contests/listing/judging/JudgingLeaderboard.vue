@@ -1,7 +1,8 @@
 <template>
-    <div class="container">
-        <div class="row my-3">
+    <div>
+        <div class="row">
             <div class="col-sm">
+                Score display:
                 <a
                     href="#"
                     :class="displayMode === 'criterias' ? 'border-bottom border-secondary' : ''"
@@ -29,23 +30,17 @@
         </div>
         <div class="row">
             <div class="col-sm">
-                <table class="table table-sm table-responsive-lg">
+                <table class="table table-sm small table-responsive-lg">
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>Name</th>
+                            <th>User</th>
                             <template v-if="displayMode === 'criterias'">
                                 <th
-                                    v-for="criteria in contest.criterias"
+                                    v-for="criteria in scoredCriteria"
                                     :key="criteria.id"
                                 >
-                                    <a
-                                        href="#"
-                                        class="text-capitalize"
-                                        @click.prevent="sortByCriteria(criteria.id)"
-                                    >
-                                        {{ criteria.name }}
-                                    </a>
+                                    {{ criteria.name }}
                                 </th>
                             </template>
                             <template v-else>
@@ -53,12 +48,7 @@
                                     v-for="judge in judges"
                                     :key="judge.id"
                                 >
-                                    <a
-                                        href="#"
-                                        @click.prevent="sortByJudge(judge.id)"
-                                    >
-                                        {{ judge.username }}
-                                    </a>
+                                    {{ judge.username }}
                                 </th>
                             </template>
                             <th>
@@ -88,9 +78,9 @@
                             @click="selectedScore = score"
                         >
                             <td>{{ i + 1 }}</td>
-                            <td>{{ score.creator.username }}</td>
+                            <td><user-link :user="score.creator" /></td>
                             <template v-if="displayMode === 'criterias'">
-                                <td v-for="criteria in contest.criterias" :key="criteria.id">
+                                <td v-for="criteria in scoredCriteria" :key="criteria.id">
                                     {{ getCriteriaScore(score, criteria.id) }}
                                 </td>
                             </template>
@@ -142,9 +132,11 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
-import { Submission } from '../../../../interfaces/contest/submission';
-import { UserScore, JudgeCorrel } from '../../../../interfaces/contest/judging';
-import { Contest } from '../../../../interfaces/contest/contest';
+import { Submission } from '@interfaces/contest/submission';
+import { UserScore, JudgeCorrel } from '@interfaces/contest/judging';
+import { Contest } from '@interfaces/contest/contest';
+import { Criteria } from '@interfaces/contest/criteria';
+import { User } from '@interfaces/user';
 
 export default defineComponent({
     name: 'JudgingLeaderboard',
@@ -167,7 +159,6 @@ export default defineComponent({
             selectedScore: null as UserScore | null,
             displayMode: 'criterias' as 'criterias' | 'judges' | 'detail',
             sortDesc: false,
-            judges: this.contest.judges,
         };
     },
     computed: {
@@ -178,12 +169,17 @@ export default defineComponent({
 
             return undefined;
         },
+        scoredCriteria (): Criteria[] {
+            return this.contest.criterias.filter(c => c.name !== 'comments');
+        },
+        judges (): User[] {
+            return this.contest.judges;
+        },
     },
     methods: {
         getCriteriaScore (score: UserScore, criteriaId: string): number {
             return score.criteriaSum.find(c => c.criteriaId === criteriaId)?.sum || 0;
         },
-
         getJudgeScore (score: UserScore, judgeId: string, std = false): number | string {
             const judgeScore = score.judgingSum.find(j => j.judgeId === judgeId);
             const stdScore = judgeScore?.standardized || 0;
@@ -194,25 +190,20 @@ export default defineComponent({
 
             return judgeScore?.sum || 0;
         },
-
         getJudgeAvg (id: string): number | string {
             return this.judgesCorrel.find(j => j.id === id)?.rawAvg.toFixed(4) || 0;
         },
-
         getJudgeSd (id: string): number | string {
             return this.judgesCorrel.find(j => j.id === id)?.sd.toFixed(4) || 0;
         },
-
         getJudgeCorrel (id: string): number | string {
             const correl = this.judgesCorrel.find(j => j.id === id)?.correl || 0;
 
             return correl.toFixed(4);
         },
-
         getFinalScore (standardizedFinalScore: number): string {
             return isNaN(standardizedFinalScore) ? '0' : standardizedFinalScore.toFixed(4);
         },
-
         sortByCriteria (criteriaId: number): void {
             this.sortDesc = !this.sortDesc;
 
@@ -221,7 +212,6 @@ export default defineComponent({
                 sortDesc: this.sortDesc,
             });
         },
-
         sortByJudge (judgeId: number): void {
             this.sortDesc = !this.sortDesc;
 
@@ -230,7 +220,6 @@ export default defineComponent({
                 sortDesc: this.sortDesc,
             });
         },
-
         sortByRawScore (): void {
             this.sortDesc = !this.sortDesc;
 
@@ -239,7 +228,6 @@ export default defineComponent({
             });
 
         },
-
         sortByStdScore (): void {
             this.sortDesc = !this.sortDesc;
 

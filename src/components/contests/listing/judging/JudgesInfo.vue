@@ -73,6 +73,12 @@ export default defineComponent({
             confirmDelete: null,
         };
     },
+    watch: {
+        contestId(): void {
+            this.judgeInput = null;
+            this.confirmDelete = null;
+        },
+    },
     methods: {
         async addJudge(e): Promise<void> {
             const judge = await this.$http.executePost(`/contests/listing/${this.contestId}/judges/add`, { judgeInput: this.judgeInput }, e);

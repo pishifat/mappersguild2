@@ -24,66 +24,75 @@
             </div>
         </div>
 
-        <table
-            v-if="criterias.length"
-            class="table table-sm table-responsive-lg"
-        >
-            <thead>
-                <tr>
-                    <th>Criteria</th>
-                    <th>Max score</th>
-                    <th>Delete</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr
-                    v-for="criteria in scoredCriteria"
-                    :key="criteria.id"
+        <div class="ms-2 mb-2">
+            <a href="#judgingCriteria" data-bs-toggle="collapse" @click.prevent>
+                See judging status per submission
+                <i class="fas fa-angle-down" />
+            </a>
+
+            <div id="judgingCriteria" class="collapse mx-2">
+                <table
+                    v-if="criterias.length"
+                    class="table table-sm table-responsive-lg"
                 >
-                    <td class="text-capitalize">
-                        {{ criteria.name }}
-                    </td>
-                    <td>
-                        {{ criteria.maxScore }}
-                    </td>
-                    <td>
-                        <a
-                            v-if="confirmDelete != criteria.id"
-                            href="#"
-                            class="text-danger"
-                            @click.prevent="confirmDelete = criteria.id"
+                    <thead>
+                        <tr>
+                            <th>Criteria</th>
+                            <th>Max score</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr
+                            v-for="criteria in scoredCriteria"
+                            :key="criteria.id"
                         >
-                            delete
-                        </a>
-                        <a
-                            v-else
-                            :class="processingDelete ? 'text-secondary disabled' : 'text-danger'"
-                            href="#"
-                            @click.prevent="deleteSubmission(criteria.id, $event)"
-                        >
-                            confirm
-                        </a>
-                    </td>
-                </tr>
-                <tr>
-                    <td :class="commentsEnabled ? '' : 'text-secondary'">
-                        Comments {{ commentsEnabled ? '' : '(disabled)' }}
-                    </td>
-                    <td :class="commentsEnabled ? '' : 'text-secondary'">
-                        N/A
-                    </td>
-                    <td>
-                        <a
-                            href="#"
-                            class="text-danger"
-                            @click.prevent="toggleComments()"
-                        >
-                            {{ commentsEnabled ? 'disable' : 'enable' }}
-                        </a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+                            <td class="text-capitalize">
+                                {{ criteria.name }}
+                            </td>
+                            <td>
+                                {{ criteria.maxScore }}
+                            </td>
+                            <td>
+                                <a
+                                    v-if="confirmDelete != criteria.id"
+                                    href="#"
+                                    class="text-danger"
+                                    @click.prevent="confirmDelete = criteria.id"
+                                >
+                                    delete
+                                </a>
+                                <a
+                                    v-else
+                                    :class="processingDelete ? 'text-secondary disabled' : 'text-danger'"
+                                    href="#"
+                                    @click.prevent="deleteCriteria(criteria.id, $event)"
+                                >
+                                    confirm
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td :class="commentsEnabled ? '' : 'text-secondary'">
+                                Comments {{ commentsEnabled ? '' : '(disabled)' }}
+                            </td>
+                            <td :class="commentsEnabled ? '' : 'text-secondary'">
+                                N/A
+                            </td>
+                            <td>
+                                <a
+                                    href="#"
+                                    class="text-danger"
+                                    @click.prevent="toggleComments()"
+                                >
+                                    {{ commentsEnabled ? 'disable' : 'enable' }}
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -105,10 +114,10 @@ export default defineComponent({
     },
     data () {
         return {
-            allCriterias: [] as Criteria[],
-            nameInput: '',
-            maxScoreInput: '',
+            nameInput: null,
+            maxScoreInput: null,
             processingDelete: false,
+            confirmDelete: null,
         };
     },
     computed: {
@@ -119,16 +128,40 @@ export default defineComponent({
             return this.criterias.some(c => c.name == 'comments');
         },
     },
+    watch: {
+        contestId(): void {
+            this.nameInput = null;
+            this.maxScoreInput = null;
+            this.confirmDelete = null;
+        },
+    },
     methods: {
         async addCriteria(e): Promise<void> {
-            const allCriterias = await this.$http.executePost<Criteria[]>(`/contests/listing/addCriteria`, { name: this.nameInput.toLowerCase(), maxScore: parseInt(this.maxScoreInput), contestId: this.contestId }, e);
+            const criterias = await this.$http.executePost<Criteria[]>(`/contests/listing/${this.contestId}/addCriteria`, { name: this.nameInput, maxScore: this.maxScoreInput }, e);
 
-            if (!this.$http.isError(allCriterias)) {
+            if (!this.$http.isError(criterias)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `Added criteria`,
                     type: 'info',
                 });
-                this.allCriterias = allCriterias;
+                this.$store.commit('updateContestCriterias', {
+                    contestId: this.contestId,
+                    criterias,
+                });
+            }
+        },
+        async deleteCriteria(criteriaId, e): Promise<void> {
+            const criterias = await this.$http.executePost<Criteria[]>(`/contests/listing/${this.contestId}/deleteCriteria`, { criteriaId }, e);
+
+            if (!this.$http.isError(criterias)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `Deleted criteria`,
+                    type: 'info',
+                });
+                this.$store.commit('updateContestCriterias', {
+                    contestId: this.contestId,
+                    criterias,
+                });
             }
         },
         async toggleComments(): Promise<void> {
