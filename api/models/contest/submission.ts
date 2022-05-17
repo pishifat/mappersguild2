@@ -9,6 +9,7 @@ export interface Submission extends ISubmission, Document {
 const submissionSchema = new Schema<Submission>({
     name: { type: String, required: true },
     creator: { type: 'ObjectId', ref: 'User', required: true },
+    url: { type: String },
     evaluations: [{ type: 'ObjectId', ref: 'Screening' }],
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 

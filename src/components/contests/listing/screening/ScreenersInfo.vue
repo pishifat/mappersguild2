@@ -1,16 +1,25 @@
 <template>
     <div>
-        <p class="row">
+        <div class="input-group mb-2">
             <input
                 v-model.number="screenerInput"
-                class="form-control form-control-sm w-50"
+                class="form-control form-control-sm"
                 autocomplete="off"
                 placeholder="new screener username/osuId..."
                 @keyup.enter="addScreener($event)"
             >
-        </p>
+            <div class="input-group-append">
+                <button
+                    class="btn btn-primary"
+                    href="#"
+                    @click.prevent="addScreener($event)"
+                >
+                    <i class="fas fa-plus fa-xs" />
+                </button>
+            </div>
+        </div>
 
-        <ul v-if="screeners.length">
+        <ol v-if="screeners.length">
             <li
                 v-for="screener in screeners"
                 :key="screener.id"
@@ -34,7 +43,7 @@
                     confirm
                 </a>
             </li>
-        </ul>
+        </ol>
 
         <div v-else class="text-white-50 m-4">
             None...
@@ -66,11 +75,11 @@ export default defineComponent({
     },
     methods: {
         async addScreener(e): Promise<void> {
-            const screener = await this.$http.executePost(`/admin/contests/${this.contestId}/screeners/add`, { screenerInput: this.screenerInput }, e);
+            const screener = await this.$http.executePost(`/contests/listing/${this.contestId}/screeners/add`, { screenerInput: this.screenerInput }, e);
 
             if (!this.$http.isError(screener)) {
                 this.$store.dispatch('updateToastMessages', {
-                    message: `added ${this.screenerInput} (${this.screeners.length + 1})`,
+                    message: `Added ${this.screenerInput} to list (${this.screeners.length + 1})`,
                     type: 'info',
                 });
                 this.$store.commit('addScreener', {
@@ -80,11 +89,11 @@ export default defineComponent({
             }
         },
         async removeScreener(screenerId, e): Promise<void> {
-            const res = await this.$http.executePost(`/admin/contests/${this.contestId}/screeners/remove`, { screenerId }, e);
+            const res = await this.$http.executePost(`/contests/listing/${this.contestId}/screeners/remove`, { screenerId }, e);
 
             if (!this.$http.isError(res)) {
                 this.$store.dispatch('updateToastMessages', {
-                    message: `deleted`,
+                    message: `Removed user from list`,
                     type: 'info',
                 });
                 this.$store.commit('deleteScreener', {

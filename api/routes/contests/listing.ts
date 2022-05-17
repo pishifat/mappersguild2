@@ -7,7 +7,6 @@ import { UserGroup } from '../../../interfaces/user';
 import { SubmissionModel } from '../../models/contest/submission';
 import { sendMessages } from '../../helpers/osuBot';
 import { CriteriaModel } from '../../models/contest/criteria';
-import { updateUserPoints } from '../../helpers/points';
 import { ContestStatus } from '../../../interfaces/contest/contest';
 
 
@@ -93,71 +92,6 @@ adminContestsRouter.post('/:id/updateContestEnd', async (req, res) => {
     res.json(newContestEnd);
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* GET retrieve all criterias */
-adminContestsRouter.get('/criterias', async (req, res) => {
-    const criterias = await CriteriaModel.find({});
-
-    res.json({ criterias });
-});
-
-/* POST create a contest */
-adminContestsRouter.post('/create', async (req, res) => {
-    if (!req.body.name) {
-        return res.json({ error: 'Missing contest name' });
-    }
-
-    const contest = new ContestModel();
-    contest.name = req.body.name.trim();
-    await contest.save();
-
-    res.json(contest);
-});
-
-/* POST add criteria */
-adminContestsRouter.post('/addCriteria', async (req, res) => {
-    const { name, maxScore } = req.body;
-
-    if (!name || !name.length) {
-        return res.json({ error: 'Invalid name' });
-    }
-
-    if (isNaN(maxScore)) {
-        return res.json({ error: 'Invalid maxScore' });
-    }
-
-    const criteria = new CriteriaModel();
-    criteria.name = name;
-    criteria.maxScore = maxScore;
-    await criteria.save();
-
-    const allCriteria = await CriteriaModel.find({});
-
-    res.json(allCriteria);
-});
-
 /* POST update contest status */
 adminContestsRouter.post('/:id/updateStatus', async (req, res) => {
     const contest = await ContestModel
@@ -166,12 +100,26 @@ adminContestsRouter.post('/:id/updateStatus', async (req, res) => {
         .orFail();
 
     res.json(contest.status);
+});
 
-    if (contest.status == ContestStatus.Complete) {
-        for (const submission of contest.submissions) {
-            updateUserPoints(submission.creator._id);
-        }
-    }
+/* POST update contest URL */
+adminContestsRouter.post('/:id/updateUrl', async (req, res) => {
+    const contest = await ContestModel
+        .findByIdAndUpdate(req.params.id, { url: req.body.url })
+        .populate(defaultContestPopulate)
+        .orFail();
+
+    res.json(contest.url);
+});
+
+/* POST update contest osu! contest listing URL */
+adminContestsRouter.post('/:id/updateOsuContestListingUrl', async (req, res) => {
+    const contest = await ContestModel
+        .findByIdAndUpdate(req.params.id, { osuContestListingUrl: req.body.url })
+        .populate(defaultContestPopulate)
+        .orFail();
+
+    res.json(contest.osuContestListingUrl);
 });
 
 /* POST update submissions download link */
@@ -186,6 +134,15 @@ adminContestsRouter.post('/:id/updateDownload', async (req, res) => {
     await contest.save();
 
     res.json(download);
+});
+
+/* POST delete a submission */
+adminContestsRouter.post('/:id/submissions/:submissionId/delete', async (req, res) => {
+    const submission = await SubmissionModel
+        .findByIdAndRemove(req.params.submissionId)
+        .orFail();
+
+    res.json(submission);
 });
 
 /* POST add a screener to the list */
@@ -310,6 +267,80 @@ adminContestsRouter.post('/:id/judges/remove', async (req, res) => {
     res.json(user);
 });
 
+/* POST update judging threshold */
+adminContestsRouter.post('/:id/updateJudgingThreshold', async (req, res) => {
+    const newJudgingThreshold = parseInt(req.body.judgingThreshold);
+
+    if (isNaN(newJudgingThreshold)) {
+        return res.json({ error: 'Invalid number' });
+    }
+
+    const contest = await ContestModel
+        .findById(req.params.id)
+        .orFail();
+
+    contest.judgingThreshold = newJudgingThreshold;
+    await contest.save();
+
+    console.log(contest.judgingThreshold);
+
+    res.json(newJudgingThreshold);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* GET retrieve all criterias */
+adminContestsRouter.get('/criterias', async (req, res) => {
+    const criterias = await CriteriaModel.find({});
+
+    res.json({ criterias });
+});
+
+/* POST create a contest */
+adminContestsRouter.post('/create', async (req, res) => {
+    if (!req.body.name) {
+        return res.json({ error: 'Missing contest name' });
+    }
+
+    const contest = new ContestModel();
+    contest.name = req.body.name.trim();
+    await contest.save();
+
+    res.json(contest);
+});
+
+/* POST add criteria */
+adminContestsRouter.post('/addCriteria', async (req, res) => {
+    const { name, maxScore } = req.body;
+
+    if (!name || !name.length) {
+        return res.json({ error: 'Invalid name' });
+    }
+
+    if (isNaN(maxScore)) {
+        return res.json({ error: 'Invalid maxScore' });
+    }
+
+    const criteria = new CriteriaModel();
+    criteria.name = name;
+    criteria.maxScore = maxScore;
+    await criteria.save();
+
+    const allCriteria = await CriteriaModel.find({});
+
+    res.json(allCriteria);
+});
+
 /* POST create a submission entry */
 adminContestsRouter.post('/:id/submissions/create', async (req, res) => {
     const osuId = parseInt(req.body.osuId, 10);
@@ -383,33 +414,6 @@ adminContestsRouter.post('/:id/submissions/createFromCsv', async (req, res) => {
     await contest.populate(defaultContestPopulate).execPopulate();
 
     res.json(contest.submissions);
-});
-
-/* POST delete a submission */
-adminContestsRouter.post('/:id/submissions/:submissionId/delete', async (req, res) => {
-    const submission = await SubmissionModel
-        .findByIdAndRemove(req.params.submissionId)
-        .orFail();
-
-    res.json(submission);
-});
-
-/* POST update judging threshold */
-adminContestsRouter.post('/:id/updateJudgingThreshold', async (req, res) => {
-    const newJudgingThreshold = parseInt(req.body.judgingThreshold);
-
-    if (isNaN(newJudgingThreshold)) {
-        return res.json({ error: 'Invalid number' });
-    }
-
-    const contest = await ContestModel
-        .findById(req.params.id)
-        .orFail();
-
-    contest.judgingThreshold = newJudgingThreshold;
-    await contest.save();
-
-    res.json(newJudgingThreshold);
 });
 
 /* POST update criterias */

@@ -1,5 +1,5 @@
 <template>
-    <div :id="'copyText' + distinct" class="copy-text small text-white-50 font-monospace" @click="copy">
+    <div :id="'copyText' + distinct" class="copy-text small text-white-50 font-monospace">
         <slot />
     </div>
 </template>
@@ -55,7 +55,7 @@ export default {
 }
 
 .copy-text {
-    cursor: pointer;
+    /*cursor: pointer;*/
     background-color: darkslategray;
     margin: 0.75rem 0.75rem 0.75rem 0.75rem;
     padding: 0.75rem 0.75rem 0.75rem 0.75rem;

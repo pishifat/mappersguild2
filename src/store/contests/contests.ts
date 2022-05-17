@@ -33,24 +33,25 @@ const store: Module<ContestState, MainState> = {
                 contest.contestEnd = payload.contestEnd;
             }
         },
-
-
-
-
-
-
-        addContest (state, contest: Contest): void {
-            state.contests.unshift(contest);
-        },
-        addSubmission (state, payload): void {
-            const contest = state.contests.find(c => c.id == payload.contestId);
-            contest?.submissions.push(payload.submission);
-        },
-        addSubmissionsFromCsv (state, payload): void {
+        updateUrl (state, payload): void {
             const contest = state.contests.find(c => c.id == payload.contestId);
 
             if (contest) {
-                contest.submissions = payload.submissions;
+                contest.url = payload.url;
+            }
+        },
+        updateOsuContestListingUrl (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                contest.osuContestListingUrl = payload.osuContestListingUrl;
+            }
+        },
+        updateDownload (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                contest.download = payload.download;
             }
         },
         deleteSubmission (state, payload): void {
@@ -87,25 +88,11 @@ const store: Module<ContestState, MainState> = {
             const contest = state.contests.find(c => c.id == payload.contestId);
 
             if (contest) {
-                const judgeIndex = contest.screeners.findIndex(s => s.id == payload.screenerId);
+                const judgeIndex = contest.judges.findIndex(s => s.id == payload.judgeId);
 
                 if (judgeIndex !== -1) {
-                    contest.screeners.splice(judgeIndex, 1);
+                    contest.judges.splice(judgeIndex, 1);
                 }
-            }
-        },
-        updateStatus (state, payload): void {
-            const contest = state.contests.find(c => c.id == payload.contestId);
-
-            if (contest) {
-                contest.status = payload.status;
-            }
-        },
-        updateDownload (state, payload): void {
-            const contest = state.contests.find(c => c.id == payload.contestId);
-
-            if (contest) {
-                contest.download = payload.download;
             }
         },
         updateJudgingThreshold (state, payload): void {
@@ -113,6 +100,34 @@ const store: Module<ContestState, MainState> = {
 
             if (contest) {
                 contest.judgingThreshold = payload.judgingThreshold;
+            }
+        },
+
+
+
+
+
+
+
+
+
+
+
+        addContest (state, contest: Contest): void {
+            state.contests.unshift(contest);
+        },
+        /*addSubmissionsFromCsv (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                contest.submissions = payload.submissions;
+            }
+        },*/
+        updateStatus (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                contest.status = payload.status;
             }
         },
         updateContestCriterias (state, payload): void {

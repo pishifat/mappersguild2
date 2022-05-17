@@ -1,14 +1,23 @@
 <template>
     <div>
-        <p class="row">
+        <div class="input-group mb-2">
             <input
                 v-model.number="judgeInput"
-                class="form-control form-control-sm w-50"
+                class="form-control form-control-sm"
                 autocomplete="off"
-                placeholder="new judge's username/osuId..."
+                placeholder="new judge username/osuId..."
                 @keyup.enter="addJudge($event)"
             >
-        </p>
+            <div class="input-group-append">
+                <button
+                    class="btn btn-primary"
+                    href="#"
+                    @click.prevent="addJudge($event)"
+                >
+                    <i class="fas fa-plus fa-xs" />
+                </button>
+            </div>
+        </div>
 
         <ul v-if="judges.length">
             <li
@@ -66,11 +75,11 @@ export default defineComponent({
     },
     methods: {
         async addJudge(e): Promise<void> {
-            const judge = await this.$http.executePost(`/admin/contests/${this.contestId}/judges/add`, { judgeInput: this.judgeInput }, e);
+            const judge = await this.$http.executePost(`/contests/listing/${this.contestId}/judges/add`, { judgeInput: this.judgeInput }, e);
 
             if (!this.$http.isError(judge)) {
                 this.$store.dispatch('updateToastMessages', {
-                    message: `added ${this.judgeInput} (${this.judges.length + 1})`,
+                    message: `Added ${this.judgeInput} to list (${this.judges.length + 1})`,
                     type: 'info',
                 });
                 this.$store.commit('addJudge', {
@@ -80,11 +89,11 @@ export default defineComponent({
             }
         },
         async removeJudge(judgeId, e): Promise<void> {
-            const res = await this.$http.executePost(`/admin/contests/${this.contestId}/judges/remove`, { judgeId }, e);
+            const res = await this.$http.executePost(`/contests/listing/${this.contestId}/judges/remove`, { judgeId }, e);
 
             if (!this.$http.isError(res)) {
                 this.$store.dispatch('updateToastMessages', {
-                    message: `deleted`,
+                    message: `Removed user from list`,
                     type: 'info',
                 });
                 this.$store.commit('deleteJudge', {

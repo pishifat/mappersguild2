@@ -1,21 +1,5 @@
 <template>
     <div>
-        <div class="row mb-2">
-            <input
-                v-model="newJudgingThreshold"
-                class="form-control form-control-sm col-sm-2 me-2 w-25"
-                type="text"
-                autocomplete="off"
-                placeholder="judging threshold"
-            >
-            <button
-                type="button"
-                class="btn btn-sm btn-outline-info col-sm-2"
-                @click="updateJudgingThreshold($event)"
-            >
-                Save
-            </button>
-        </div>
         <ul>
             <li
                 v-for="submission in sortedSubmissions"
@@ -38,35 +22,35 @@
                         <screening-detail
                             :evaluations="submission.evaluations"
                         />
-                        <message-template
+                        <!--<message-template
                             :osu-id="submission.creator.osuId"
                             :submission-id="submission.id"
                             :contest-name="contestName"
                             :contest-id="contestId"
-                        />
+                        />-->
                     </div>
                 </div>
             </li>
         </ul>
-        <bot-chat-messages-all-participants
+        <!--<bot-chat-messages-all-participants
             :mongo-id="contestId"
-        />
+        />-->
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
 import ScreeningDetail from './ScreeningDetail.vue';
-import MessageTemplate from './MessageTemplate.vue';
-import BotChatMessagesAllParticipants from './BotChatMessagesAllParticipants.vue';
-import { Submission } from '../../../../interfaces/contest/submission';
+//import MessageTemplate from './MessageTemplate.vue';
+//import BotChatMessagesAllParticipants from './BotChatMessagesAllParticipants.vue';
+import { Submission } from '../../../../../interfaces/contest/submission';
 
 export default defineComponent({
     name: 'ScreeningResults',
     components: {
         ScreeningDetail,
-        MessageTemplate,
-        BotChatMessagesAllParticipants,
+        //MessageTemplate,
+        //BotChatMessagesAllParticipants,
     },
     props: {
         contestId: {

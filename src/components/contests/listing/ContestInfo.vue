@@ -5,124 +5,173 @@
         </h4>
 
         <div>
-            <date-info
-                :contest-id="contest.id"
-                :contest-start="contest.contestStart ? contest.contestStart.slice(0,10) : null"
-                :contest-end="contest.contestEnd ? contest.contestEnd.slice(0,10) : null"
-            />
-            <!--<status-info
+            <status-info
+                class="mb-2"
                 :contest-id="contest.id"
                 :status="contest.status"
             />
 
+            <date-info
+                class="mb-2"
+                :contest-id="contest.id"
+                :contest-start="contest.contestStart ? contest.contestStart.slice(0,10) : null"
+                :contest-end="contest.contestEnd ? contest.contestEnd.slice(0,10) : null"
+            />
+
+            <urls
+                :contest-id="contest.id"
+                :url="contest.url || null"
+                :osu-contest-listing-url="contest.osuContestListingUrl || null"
+            />
+
+            <hr>
+
             <div>
                 <h5>
                     Submissions
-                    <button
-                        type="button"
-                        class="btn btn-sm btn-outline-info"
-                        @click="submissionsVisible = !submissionsVisible"
-                    >
-                        {{ submissionsVisible ? 'Hide' : 'Show' }}
-                    </button>
                 </h5>
-                <download-info
-                    v-if="submissionsVisible"
-                    :contest-id="contest.id"
-                    :download="contest.download"
-                />
+                <div class="ms-2 mb-2">
+                    <a href="#submissions" data-bs-toggle="collapse" @click.prevent>
+                        See all submissions ({{ contest.submissions.length }})
+                        <i class="fas fa-angle-down" />
+                    </a>
+                </div>
                 <submissions-info
-                    v-if="submissionsVisible"
+                    id="submissions"
+                    class="collapse"
                     :contest-id="contest.id"
                     :submissions="contest.submissions"
+                />
+
+                <download-info
+                    :contest-id="contest.id"
+                    :download="contest.download"
                 />
 
                 <hr>
 
                 <h5>
-                    Screeners and Judges
-                    <button
-                        type="button"
-                        class="btn btn-sm btn-outline-info"
-                        @click="screenersAndJudgesVisible = !screenersAndJudgesVisible"
-                    >
-                        {{ screenersAndJudgesVisible ? 'Hide' : 'Show' }}
-                    </button>
+                    Screeners
                 </h5>
 
-                <div v-if="screenersAndJudgesVisible" class="row">
+                <div class="ms-2 mb-2">
+                    <a href="#screeners" data-bs-toggle="collapse" @click.prevent>
+                        See all screeners ({{ contest.screeners.length }})
+                        <i class="fas fa-angle-down" />
+                    </a>
+                </div>
+
+                <div id="screeners" class="row collapse">
                     <screeners-info
-                        class="col-sm-6"
+                        class="col-sm-4"
                         :contest-id="contest.id"
                         :screeners="contest.screeners"
                     />
 
-                    <judges-info
-                        class="col-sm-6"
-                        :contest-id="contest.id"
-                        :judges="contest.judges"
-                    />
-
-                    <markdown-helper-thanks
-                        :screeners="contest.screeners"
-                        :judges="contest.judges"
+                    <markdown-user-list
+                        class="col-sm-7"
+                        :users="contest.screeners"
                     />
                 </div>
 
-                <div v-if="contest.submissions.length">
-                    <h5>
-                        Screening Results
-                        <button
-                            type="button"
-                            class="btn btn-sm btn-outline-info"
-                            @click="screeningResultsVisible = !screeningResultsVisible"
-                        >
-                            {{ screeningResultsVisible ? 'Hide' : 'Show' }}
-                        </button>
-                    </h5>
+                <div>send this link to your screeners [insert link]. make sure contest status is set to "Screening"!</div>
 
-                    <screening-results
-                        v-if="screeningResultsVisible"
+                <hr>
+
+                <h5>
+                    Judges
+                </h5>
+
+                <div class="ms-2 mb-2">
+                    <a href="#judges" data-bs-toggle="collapse" @click.prevent>
+                        See all judges ({{ contest.judges.length }})
+                        <i class="fas fa-angle-down" />
+                    </a>
+                </div>
+
+                <div id="judges" class="row collapse">
+                    <judges-info
+                        class="col-sm-4"
                         :contest-id="contest.id"
-                        :contest-name="contest.name"
-                        :submissions="contest.submissions"
+                        :judges="contest.judges"
+                    />
+
+                    <markdown-user-list
+                        class="col-sm-7"
+                        :users="contest.judges"
+                    />
+                </div>
+
+                <div>send this link to your judges [insert link]. make sure contest status is set to "Judging" and your download link includes only relevant submissions!</div>
+
+                <hr>
+
+                <h5>
+                    Screening Results
+                </h5>
+
+                <div class="row mb-2">
+                    <judging-threshold
+                        class="col-sm-4"
+                        :contest-id="contest.id"
                         :judging-threshold="contest.judgingThreshold"
                     />
 
-                    <hr>
-
-                    <h5>
-                        Judging Criteria
-                        <button
-                            type="button"
-                            class="btn btn-sm btn-outline-info"
-                            @click="judgingCriteriaVisible = !judgingCriteriaVisible"
-                        >
-                            {{ judgingCriteriaVisible ? 'Hide' : 'Show' }}
-                        </button>
-                    </h5>
-                    <criteria-selection
-                        v-if="judgingCriteriaVisible"
-                        :contest-id="contest.id"
-                        :criterias="contest.criterias"
-                    />
-
-                    <h5>
-                        Judging Results
-                        <button
-                            type="button"
-                            class="btn btn-sm btn-outline-info"
-                            @click="judgingResultsVisible = !judgingResultsVisible"
-                        >
-                            {{ judgingResultsVisible ? 'Hide' : 'Show' }}
-                        </button>
-                    </h5>
-                    <judging-results
-                        v-if="judgingResultsVisible"
-                        :contest-id="contest.id"
-                    />
+                    <div class="col-sm-8 small text-secondary">
+                        Submissions with this score or above in "screening results" will be available to judges. If your contest skips the screening process, set this to "0".
+                    </div>
                 </div>
-            </div>-->
+
+
+                <div class="ms-2 mb-2">
+                    <a href="#screeningResults" data-bs-toggle="collapse" @click.prevent>
+                        See screening results
+                        <i class="fas fa-angle-down" />
+                    </a>
+                </div>
+
+                <screening-results
+                    id="screeningResults"
+                    class="collapse"
+                    :contest-id="contest.id"
+                    :contest-name="contest.name"
+                    :submissions="contest.submissions"
+                    :judging-threshold="contest.judgingThreshold"
+                />
+
+                <!--<hr>
+
+                <h5>
+                    Judging Criteria
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-outline-info"
+                        @click="judgingCriteriaVisible = !judgingCriteriaVisible"
+                    >
+                        {{ judgingCriteriaVisible ? 'Hide' : 'Show' }}
+                    </button>
+                </h5>
+                <criteria-selection
+                    v-if="judgingCriteriaVisible"
+                    :contest-id="contest.id"
+                    :criterias="contest.criterias"
+                />
+
+                <h5>
+                    Judging Results
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-outline-info"
+                        @click="judgingResultsVisible = !judgingResultsVisible"
+                    >
+                        {{ judgingResultsVisible ? 'Hide' : 'Show' }}
+                    </button>
+                </h5>
+                <judging-results
+                    v-if="judgingResultsVisible"
+                    :contest-id="contest.id"
+                />-->
+            </div>
         </div>
     </div>
 </template>
@@ -131,29 +180,35 @@
 import { defineComponent } from 'vue';
 import { Contest } from '../../../../interfaces/contest/contest';
 import DateInfo from './DateInfo.vue';
-//import StatusInfo from './StatusInfo.vue';
-//import ScreenersInfo from './ScreenersInfo.vue';
-//import JudgesInfo from './JudgesInfo.vue';
-//import ScreeningResults from './ScreeningResults.vue';
+import StatusInfo from './StatusInfo.vue';
+import Urls from './Urls.vue';
+import SubmissionsInfo from './SubmissionsInfo.vue';
+import DownloadInfo from './DownloadInfo.vue';
+import ScreenersInfo from './screening/ScreenersInfo.vue';
+import JudgesInfo from './JudgesInfo.vue';
+import MarkdownUserList from './MarkdownUserList.vue';
+import ScreeningResults from './screening/ScreeningResults.vue';
+import JudgingThreshold from './screening/JudgingThreshold.vue';
 //import JudgingResults from './JudgingResults.vue';
 //import CriteriaSelection from './CriteriaSelection.vue';
-//import SubmissionsInfo from './SubmissionsInfo.vue';
-//import DownloadInfo from './DownloadInfo.vue';
-//import MarkdownHelperThanks from './MarkdownHelperThanks.vue';
+
+
 
 export default defineComponent({
     name: 'ContestInfo',
     components: {
         DateInfo,
-        //StatusInfo,
-        //ScreenersInfo,
-        //JudgesInfo,
-        //ScreeningResults,
+        StatusInfo,
+        SubmissionsInfo,
+        DownloadInfo,
+        Urls,
+        ScreenersInfo,
+        JudgesInfo,
+        MarkdownUserList,
+        ScreeningResults,
+        JudgingThreshold,
         //JudgingResults,
         //CriteriaSelection,
-        //SubmissionsInfo,
-        //DownloadInfo,
-        //MarkdownHelperThanks,
     },
     props: {
         contest: {
