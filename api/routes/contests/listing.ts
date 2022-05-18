@@ -10,10 +10,10 @@ import { CriteriaModel } from '../../models/contest/criteria';
 import { ContestStatus } from '../../../interfaces/contest/contest';
 import { UserScore, JudgeCorrel } from '../../../interfaces/contest/judging';
 
-const adminContestsRouter = express.Router();
+const contestListingRouter = express.Router();
 
-adminContestsRouter.use(isLoggedIn);
-adminContestsRouter.use(isSuperAdmin);
+contestListingRouter.use(isLoggedIn);
+contestListingRouter.use(isSuperAdmin);
 
 const defaultContestPopulate = [
     {
@@ -45,19 +45,101 @@ const defaultContestPopulate = [
     },
 ];
 
+// hides mediator info
+function getLimitedDefaultPopulate (mongoId) {
+    return {
+        path: 'submissions',
+        populate: {
+            path: 'creator',
+            select: 'username osuId',
+            match: {
+                _id: mongoId,
+            },
+        },
+    };
+}
+
+function getPopulate (isCreator, mongoId) {
+    if (isCreator) return defaultContestPopulate;
+
+    return getLimitedDefaultPopulate(mongoId);
+}
+
+const publicContestPopulate = [
+    {
+        path: 'submissions',
+        populate: [
+            {
+                path: 'evaluations',
+                populate: {
+                    path: 'screener',
+                },
+            },
+            {
+                path: 'creator',
+                select: '_id osuId username',
+            },
+        ],
+    },
+    {
+        path: 'screeners',
+    },
+    {
+        path: 'judges',
+    },
+    {
+        path: 'criterias',
+    },
+    {
+        path: 'creator',
+    },
+];
+
 /* GET retrieve all the contests info */
-adminContestsRouter.get('/relevantInfo', async (req, res) => {
+contestListingRouter.get('/relevantInfo/:contestType', async (req, res) => {
+    const contestType = req.params.contestType;
+
+    let query;
+
+    if (contestType == 'activeContests') {
+        query = { creator: { $ne: req.session.mongoId }, status: { $ne: ContestStatus.Complete } };
+    } else if (contestType == 'completedContests') {
+        query = { creator: { $ne: req.session.mongoId }, status: ContestStatus.Complete };
+    } else if (contestType == 'myContests') {
+        query = { creator: req.session.mongoId };
+    }
+
     const contests = await ContestModel
-        .find({ creator: req.session.mongoId })
-        .populate(defaultContestPopulate)
-        .sort({ contestStart: -1 })
-        .limit(4);
+        .find(query)
+        .populate(getPopulate(contestType == 'myContests', req.session.mongoId))
+        .sort({ contestStart: -1 });
 
     res.json(contests);
 });
 
+/* POST create a contest */
+contestListingRouter.post('/create', async (req, res) => {
+    const name = req.body.name.trim();
+
+    if (!name) {
+        return res.json({ error: 'Missing contest name' });
+    }
+
+    const exists = await ContestModel.findOne({ name });
+
+    if (exists) {
+        return res.json({ error: 'Contest with this name already exists!' });
+    }
+
+    const contest = new ContestModel();
+    contest.name = req.body.name.trim();
+    await contest.save();
+
+    res.json(contest);
+});
+
 /* POST update contest start date */
-adminContestsRouter.post('/:id/updateContestStart', async (req, res) => {
+contestListingRouter.post('/:id/updateContestStart', async (req, res) => {
     const newContestStart = new Date(req.body.date);
 
     if (!(newContestStart instanceof Date && !isNaN(newContestStart.getTime()))) {
@@ -75,7 +157,7 @@ adminContestsRouter.post('/:id/updateContestStart', async (req, res) => {
 });
 
 /* POST update contest end date */
-adminContestsRouter.post('/:id/updateContestEnd', async (req, res) => {
+contestListingRouter.post('/:id/updateContestEnd', async (req, res) => {
     const newContestEnd = new Date(req.body.date);
 
     if (!(newContestEnd instanceof Date && !isNaN(newContestEnd.getTime()))) {
@@ -93,7 +175,7 @@ adminContestsRouter.post('/:id/updateContestEnd', async (req, res) => {
 });
 
 /* POST update contest status */
-adminContestsRouter.post('/:id/updateStatus', async (req, res) => {
+contestListingRouter.post('/:id/updateStatus', async (req, res) => {
     const contest = await ContestModel
         .findByIdAndUpdate(req.params.id, { status: req.body.status })
         .populate(defaultContestPopulate)
@@ -103,7 +185,7 @@ adminContestsRouter.post('/:id/updateStatus', async (req, res) => {
 });
 
 /* POST update contest URL */
-adminContestsRouter.post('/:id/updateUrl', async (req, res) => {
+contestListingRouter.post('/:id/updateUrl', async (req, res) => {
     const contest = await ContestModel
         .findByIdAndUpdate(req.params.id, { url: req.body.url })
         .populate(defaultContestPopulate)
@@ -113,7 +195,7 @@ adminContestsRouter.post('/:id/updateUrl', async (req, res) => {
 });
 
 /* POST update contest osu! contest listing URL */
-adminContestsRouter.post('/:id/updateOsuContestListingUrl', async (req, res) => {
+contestListingRouter.post('/:id/updateOsuContestListingUrl', async (req, res) => {
     const contest = await ContestModel
         .findByIdAndUpdate(req.params.id, { osuContestListingUrl: req.body.url })
         .populate(defaultContestPopulate)
@@ -123,7 +205,7 @@ adminContestsRouter.post('/:id/updateOsuContestListingUrl', async (req, res) => 
 });
 
 /* POST update submissions download link */
-adminContestsRouter.post('/:id/updateDownload', async (req, res) => {
+contestListingRouter.post('/:id/updateDownload', async (req, res) => {
     const download = req.body.download;
 
     const contest = await ContestModel
@@ -137,7 +219,7 @@ adminContestsRouter.post('/:id/updateDownload', async (req, res) => {
 });
 
 /* POST delete a submission */
-adminContestsRouter.post('/:id/submissions/:submissionId/delete', async (req, res) => {
+contestListingRouter.post('/:id/submissions/:submissionId/delete', async (req, res) => {
     const submission = await SubmissionModel
         .findByIdAndRemove(req.params.submissionId)
         .orFail();
@@ -146,7 +228,7 @@ adminContestsRouter.post('/:id/submissions/:submissionId/delete', async (req, re
 });
 
 /* POST add a screener to the list */
-adminContestsRouter.post('/:id/screeners/add', async (req, res) => {
+contestListingRouter.post('/:id/screeners/add', async (req, res) => {
     const contest = await ContestModel
         .findById(req.params.id)
         .orFail();
@@ -184,7 +266,7 @@ adminContestsRouter.post('/:id/screeners/add', async (req, res) => {
 });
 
 /* POST remove a screener from the list */
-adminContestsRouter.post('/:id/screeners/remove', async (req, res) => {
+contestListingRouter.post('/:id/screeners/remove', async (req, res) => {
     const [contest, user] = await Promise.all([
         ContestModel
             .findById(req.params.id)
@@ -207,7 +289,7 @@ adminContestsRouter.post('/:id/screeners/remove', async (req, res) => {
 });
 
 /* POST add a judge to the list */
-adminContestsRouter.post('/:id/judges/add', async (req, res) => {
+contestListingRouter.post('/:id/judges/add', async (req, res) => {
     const contest = await ContestModel
         .findById(req.params.id)
         .orFail();
@@ -245,7 +327,7 @@ adminContestsRouter.post('/:id/judges/add', async (req, res) => {
 });
 
 /* POST remove a judge from the list */
-adminContestsRouter.post('/:id/judges/remove', async (req, res) => {
+contestListingRouter.post('/:id/judges/remove', async (req, res) => {
     const [contest, user] = await Promise.all([
         ContestModel
             .findById(req.params.id)
@@ -268,7 +350,7 @@ adminContestsRouter.post('/:id/judges/remove', async (req, res) => {
 });
 
 /* POST update judging threshold */
-adminContestsRouter.post('/:id/updateJudgingThreshold', async (req, res) => {
+contestListingRouter.post('/:id/updateJudgingThreshold', async (req, res) => {
     const newJudgingThreshold = parseInt(req.body.judgingThreshold);
 
     if (isNaN(newJudgingThreshold)) {
@@ -286,7 +368,7 @@ adminContestsRouter.post('/:id/updateJudgingThreshold', async (req, res) => {
 });
 
 /* POST add criteria */
-adminContestsRouter.post('/:id/addCriteria', async (req, res) => {
+contestListingRouter.post('/:id/addCriteria', async (req, res) => {
     const name = req.body.name.toLowerCase();
     const maxScore = parseInt(req.body.maxScore);
 
@@ -329,7 +411,7 @@ adminContestsRouter.post('/:id/addCriteria', async (req, res) => {
 });
 
 /* POST add criteria */
-adminContestsRouter.post('/:id/deleteCriteria', async (req, res) => {
+contestListingRouter.post('/:id/deleteCriteria', async (req, res) => {
     const criteriaId = req.body.criteriaId;
 
     const [contest, criteria] = await Promise.all([
@@ -366,7 +448,7 @@ adminContestsRouter.post('/:id/deleteCriteria', async (req, res) => {
 });
 
 /* POST toggle comment criteria */
-adminContestsRouter.post('/:id/toggleComments', async (req, res) => {
+contestListingRouter.post('/:id/toggleComments', async (req, res) => {
     const [contest, commentCriteria] = await Promise.all([
         ContestModel
             .findById(req.params.id)
@@ -535,7 +617,7 @@ export function calculateContestScores(contest?: Contest): { usersScores: UserSc
 }
 
 /* GET contest judging results */
-adminContestsRouter.get('/:id/judgingResults', async (req, res) => {
+contestListingRouter.get('/:id/judgingResults', async (req, res) => {
     // TODO filter top X from screening
     const contest = await ContestModel
         .findById(req.params.id)
@@ -605,21 +687,10 @@ adminContestsRouter.get('/:id/judgingResults', async (req, res) => {
 
 
 
-/* POST create a contest */
-adminContestsRouter.post('/create', async (req, res) => {
-    if (!req.body.name) {
-        return res.json({ error: 'Missing contest name' });
-    }
 
-    const contest = new ContestModel();
-    contest.name = req.body.name.trim();
-    await contest.save();
-
-    res.json(contest);
-});
 
 /* POST create a submission entry */
-adminContestsRouter.post('/:id/submissions/create', async (req, res) => {
+contestListingRouter.post('/:id/submissions/create', async (req, res) => {
     const osuId = parseInt(req.body.osuId, 10);
     const [contest, user] = await Promise.all([
         ContestModel
@@ -645,7 +716,7 @@ adminContestsRouter.post('/:id/submissions/create', async (req, res) => {
 });
 
 /* POST create submissions from CSV file */
-adminContestsRouter.post('/:id/submissions/createFromCsv', async (req, res) => {
+contestListingRouter.post('/:id/submissions/createFromCsv', async (req, res) => {
     const contest = await ContestModel.findById(req.params.id).orFail();
 
     // read masking csv
@@ -694,7 +765,7 @@ adminContestsRouter.post('/:id/submissions/createFromCsv', async (req, res) => {
 });
 
 /* POST send messages */
-adminContestsRouter.post('/:id/sendMessages', async (req, res) => {
+contestListingRouter.post('/:id/sendMessages', async (req, res) => {
     const contest = await ContestModel
         .findById(req.params.id)
         .populate(defaultContestPopulate)
@@ -720,7 +791,7 @@ adminContestsRouter.post('/:id/sendMessages', async (req, res) => {
 });
 
 /* POST send all results messages to contest's participants */
-adminContestsRouter.post('/:id/sendAllMessages', async (req, res) => {
+contestListingRouter.post('/:id/sendAllMessages', async (req, res) => {
     const contest = await ContestModel
         .findById(req.params.id)
         .populate(defaultContestPopulate)
@@ -743,4 +814,4 @@ adminContestsRouter.post('/:id/sendAllMessages', async (req, res) => {
     res.json({ success: 'Messages sent! A copy was sent to you for confirmation' });
 });
 
-export default adminContestsRouter;
+export default contestListingRouter;

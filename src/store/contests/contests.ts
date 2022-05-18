@@ -16,6 +16,9 @@ const store: Module<ContestState, MainState> = {
         setContests (state, contests: Contest[]): void {
             state.contests = contests;
         },
+        addContest (state, contest: Contest): void {
+            state.contests.unshift(contest);
+        },
         setSelectedContestId (state, id: string): void {
             state.selectedContestId = id;
         },
@@ -126,9 +129,7 @@ const store: Module<ContestState, MainState> = {
 
 
 
-        addContest (state, contest: Contest): void {
-            state.contests.unshift(contest);
-        },
+
         /*addSubmissionsFromCsv (state, payload): void {
             const contest = state.contests.find(c => c.id == payload.contestId);
 
