@@ -1,8 +1,10 @@
 <template>
     <div>
-        <h4 class="mb-4">
-            {{ contest.name }}
-        </h4>
+        <contest-header
+            :name="contest.name"
+            :url="contest.url"
+            :creator="contest.creator"
+        />
 
         <h5>General</h5>
 
@@ -11,6 +13,8 @@
                 class="mb-2"
                 :contest-id="contest.id"
                 :status="contest.status"
+                :contest-start="contest.contestStart"
+                :contest-end="contest.contestEnd"
             />
 
             <date-info
@@ -24,6 +28,17 @@
                 :contest-id="contest.id"
                 :url="contest.url || null"
                 :osu-contest-listing-url="contest.osuContestListingUrl || null"
+            />
+
+            <description
+                :contest-id="contest.id"
+                :description="contest.description"
+            />
+
+            <visibility
+                v-if="!contest.isVisible"
+                :contest-id="contest.id"
+                :is-visible="contest.isVisible"
             />
 
             <hr>
@@ -176,10 +191,13 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { Contest } from '../../../../interfaces/contest/contest';
+import { Contest } from '@interfaces/contest/contest';
+import ContestHeader from './ContestHeader.vue';
 import DateInfo from './DateInfo.vue';
 import StatusInfo from './StatusInfo.vue';
 import Urls from './Urls.vue';
+import Description from './Description.vue';
+import Visibility from './Visibility.vue';
 import SubmissionsInfo from './SubmissionsInfo.vue';
 import DownloadInfo from './DownloadInfo.vue';
 import ScreenersInfo from './screening/ScreenersInfo.vue';
@@ -195,11 +213,14 @@ import JudgingResults from './judging/JudgingResults.vue';
 export default defineComponent({
     name: 'ContestInfo',
     components: {
+        ContestHeader,
         DateInfo,
         StatusInfo,
         SubmissionsInfo,
         DownloadInfo,
         Urls,
+        Description,
+        Visibility,
         ScreenersInfo,
         JudgesInfo,
         MarkdownUserList,

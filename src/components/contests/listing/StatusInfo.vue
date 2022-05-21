@@ -10,13 +10,13 @@
             <option value="beatmapping">
                 Beatmapping
             </option>
-            <option value="screening">
+            <option value="screening" :disabled="new Date(contestEnd) < new Date()">
                 Screening
             </option>
-            <option value="judging">
+            <option value="judging" :disabled="new Date(contestEnd) < new Date()">
                 Judging
             </option>
-            <option value="complete">
+            <option value="complete" :disabled="new Date(contestEnd) < new Date()">
                 Complete
             </option>
         </select>
@@ -37,6 +37,14 @@ export default defineComponent({
             type: String,
             default: null,
         },
+        contestStart: {
+            type: String,
+            default: null,
+        },
+        contestEnd: {
+            type: String,
+            default: null,
+        },
     },
     data () {
         return {
@@ -53,7 +61,6 @@ export default defineComponent({
             const status = await this.$http.executePost(`/contests/listing/${this.contestId}/updateStatus`, { status: this.newStatus }, e);
 
             if (!this.$http.isError(status)) {
-                this.showStatusInput = false;
                 this.$store.dispatch('updateToastMessages', {
                     message: `updated contest status`,
                     type: 'info',

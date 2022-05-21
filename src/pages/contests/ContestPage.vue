@@ -43,11 +43,14 @@
                 <div v-if="!selectedContestId">
                     No contest selected! Choose one on the left.
                 </div>
-                <div v-else>
-                    <contest-info
-                        :contest="selectedContest"
-                    />
-                </div>
+                <limited-contest-info
+                    v-else-if="displayMode !== 'myContests'"
+                    :contest="selectedContest"
+                />
+                <contest-info
+                    v-else-if="selectedContest.creator.id == loggedInUser.id"
+                    :contest="selectedContest"
+                />
             </div>
         </div>
 
@@ -59,8 +62,8 @@
 import { defineComponent } from 'vue';
 import { mapState, mapGetters } from 'vuex';
 import ContestCard from '@components/contests/listing/ContestCard.vue';
-
 import ContestInfo from '@components/contests/listing/ContestInfo.vue';
+import LimitedContestInfo from '@components/contests/listing/LimitedContestInfo.vue';
 import AddContest from '@components/contests/AddContest.vue';
 import { Contest } from '@interfaces/contest/contest';
 import contestListingModule from '@store/contests/contests';
@@ -71,6 +74,7 @@ export default defineComponent({
         ContestCard,
         AddContest,
         ContestInfo,
+        LimitedContestInfo,
     },
     data () {
         return {
@@ -112,6 +116,7 @@ export default defineComponent({
     methods: {
         async loadContests (): Promise<void> {
             this.$store.commit('setContests', null);
+            this.$store.commit('setSelectedContestId', null);
             const contests = await this.$http.executeGet<Contest[]>(`/contests/listing/relevantInfo/${this.displayMode}`);
 
             if (!this.$http.isError(contests)) {

@@ -73,7 +73,6 @@ export default defineComponent({
 
             return judges.length;
         },
-
         getMissingJudges (submission: Submission): string {
             const judgeIds = submission.judgings.map(j => j.judge.id);
             const missingJudges: User[] = [];
@@ -81,6 +80,12 @@ export default defineComponent({
             for (const judge of this.contest.judges) {
                 if (!judgeIds.includes(judge.id)) {
                     missingJudges.push(judge);
+                } else {
+                    const judging = submission.judgings.find(j => j.judge.id === judge.id);
+
+                    if (judging && judging.judgingScores.length !== this.contest.criterias.length) {
+                        missingJudges.push(judge);
+                    }
                 }
             }
 

@@ -25,4 +25,6 @@ export interface Contest {
     judgingThreshold: number;
     criterias: Criteria[] | Criteria['_id'];
     download: string;
+    isVisible: boolean;
+    description: string;
 }

@@ -42,7 +42,6 @@ export default defineComponent({
     data () {
         return {
             newDownload: this.download,
-            showDownloadInput: false,
         };
     },
     methods: {
@@ -50,7 +49,6 @@ export default defineComponent({
             const download = await this.$http.executePost(`/contests/listing/${this.contestId}/updateDownload`, { download: this.newDownload }, e);
 
             if (!this.$http.isError(download)) {
-                this.showDownloadInput = false;
                 this.$store.dispatch('updateToastMessages', {
                     message: `updated contest start date`,
                     type: 'info',

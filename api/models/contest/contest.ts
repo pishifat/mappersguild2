@@ -20,6 +20,8 @@ const contestSchema = new Schema<Contest>({
     judgingThreshold: { type: Number, default: 0 },
     criterias: [{ type: 'ObjectId', ref: 'Criteria' }],
     download: { type: String },
+    isVisible: { type: Boolean, default: false },
+    description: { type: String },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const ContestModel = mongoose.model<Contest>('Contest', contestSchema);

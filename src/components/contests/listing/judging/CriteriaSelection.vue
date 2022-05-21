@@ -26,7 +26,7 @@
 
         <div class="ms-2 mb-2">
             <a href="#judgingCriteria" data-bs-toggle="collapse" @click.prevent>
-                See judging status per submission
+                See judging criteria
                 <i class="fas fa-angle-down" />
             </a>
 
