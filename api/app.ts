@@ -36,7 +36,7 @@ import screeningRouter from './routes/screening';
 import contestsListingRouter from './routes/contests/listing';
 import adminJudgingRouter from './routes/admin/judging';
 import judgingRouter from './routes/judging';
-import contestResultsRouter from './routes/contestResults';
+import resultsRouter from './routes/contests/results';
 import showcaseRouter from './routes/showcase';
 import partiesRouter from './routes/parties';
 import invitesRouter from './routes/invites';
@@ -93,8 +93,10 @@ app.use('/notifications', notificationsRouter);
 app.use('/invites', invitesRouter);
 app.use('/screening', screeningRouter);
 app.use('/judging', judgingRouter);
-app.use('/contestresults', contestResultsRouter);
 app.use('/showcase', showcaseRouter);
+
+app.use('/contests/listing', contestsListingRouter);
+app.use('/contests/results', resultsRouter);
 
 app.use('/artists', artistsRouter);
 app.use('/admin', adminRouter);
@@ -102,7 +104,6 @@ app.use('/admin/users', adminUsersRouter);
 app.use('/admin/beatmaps', adminBeatmapsRouter);
 app.use('/admin/featuredArtists', adminFeaturedArtistsRouter);
 app.use('/admin/quests', adminQuestsRouter);
-app.use('/contests/listing', contestsListingRouter);
 app.use('/admin/judging', adminJudgingRouter);
 
 // catch 404

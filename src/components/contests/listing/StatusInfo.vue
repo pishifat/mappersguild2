@@ -7,16 +7,19 @@
             class="form-select form-select w-50 d-inline"
             @change="updateStatus($event)"
         >
+            <option value="hidden">
+                Hidden
+            </option>
             <option value="beatmapping">
                 Beatmapping
             </option>
-            <option value="screening" :disabled="new Date(contestEnd) < new Date()">
+            <option value="screening">
                 Screening
             </option>
-            <option value="judging" :disabled="new Date(contestEnd) < new Date()">
+            <option value="judging">
                 Judging
             </option>
-            <option value="complete" :disabled="new Date(contestEnd) < new Date()">
+            <option value="complete">
                 Complete
             </option>
         </select>
@@ -69,6 +72,8 @@ export default defineComponent({
                     contestId: this.contestId,
                     status,
                 });
+            } else {
+                this.newStatus = this.status;
             }
         },
     },

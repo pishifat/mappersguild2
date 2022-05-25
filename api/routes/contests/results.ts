@@ -1,9 +1,9 @@
 import express from 'express';
-import { ContestStatus } from '../../interfaces/contest/contest';
-import { SubmissionModel } from '../models/contest/submission';
-import { ContestModel } from '../models/contest/contest';
+import { ContestStatus } from '../../../interfaces/contest/contest';
+import { SubmissionModel } from '../../models/contest/submission';
+import { ContestModel } from '../../models/contest/contest';
 
-const contestResultsRouter = express.Router();
+const resultsRouter = express.Router();
 
 // population
 const submissionPopulate = [
@@ -62,7 +62,7 @@ const contestPopulate = [
 ];
 
 /* GET participated submissions */
-contestResultsRouter.get('/participated', async (req, res) => {
+resultsRouter.get('/participated', async (req, res) => {
     let submissions = await SubmissionModel
         .find({
             creator: req.session?.mongoId,
@@ -75,7 +75,7 @@ contestResultsRouter.get('/participated', async (req, res) => {
 });
 
 /* GET submission */
-contestResultsRouter.get('/searchSubmission/:id', async (req, res) => {
+resultsRouter.get('/searchSubmission/:id', async (req, res) => {
     const submission =
         await SubmissionModel
             .findById(req.params.id)
@@ -89,7 +89,7 @@ contestResultsRouter.get('/searchSubmission/:id', async (req, res) => {
 });
 
 /* GET contest */
-contestResultsRouter.get('/searchContest/:id', async (req, res) => {
+resultsRouter.get('/searchContest/:id', async (req, res) => {
     const contest =
         await ContestModel
             .findById(req.params.id)
@@ -102,4 +102,4 @@ contestResultsRouter.get('/searchContest/:id', async (req, res) => {
     res.json(contest);
 });
 
-export default contestResultsRouter;
+export default resultsRouter;

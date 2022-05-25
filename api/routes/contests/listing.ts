@@ -1,6 +1,6 @@
 import express from 'express';
 import fs from 'fs';
-import { isLoggedIn, isSuperAdmin } from '../../helpers/middlewares';
+import { isLoggedIn } from '../../helpers/middlewares';
 import { isContestCreator } from './middlewares';
 import { Contest, ContestModel } from '../../models/contest/contest';
 import { UserModel } from '../../models/user';
@@ -11,10 +11,11 @@ import { CriteriaModel } from '../../models/contest/criteria';
 import { ContestStatus } from '../../../interfaces/contest/contest';
 import { UserScore, JudgeCorrel } from '../../../interfaces/contest/judging';
 
-const contestListingRouter = express.Router();
+const listingRouter = express.Router();
 
-contestListingRouter.use(isLoggedIn);
-contestListingRouter.use(isSuperAdmin);
+listingRouter.use(isLoggedIn);
+
+const limitedContestSelect = '-screeners -judges -judgingThreshold -criterias -download';
 
 const defaultContestPopulate = [
     {
@@ -48,21 +49,19 @@ const defaultContestPopulate = [
 
 // hides mediator info
 function getLimitedDefaultPopulate (mongoId) {
-    return [{
-        path: 'submissions',
-        populate: {
-            path: 'creator',
-            select: 'username osuId',
+    return [
+        {
+            path: 'submissions',
+            select: '-evaluations',
             match: {
-                _id: mongoId,
+                creator: mongoId,
             },
         },
-        select: 'name',
-    },
-    {
-        path: 'creator',
-        select: 'username osuId',
-    }];
+        {
+            path: 'creator',
+            select: 'username osuId',
+        },
+    ];
 }
 
 function getPopulate (isCreator, mongoId) {
@@ -72,17 +71,18 @@ function getPopulate (isCreator, mongoId) {
 }
 
 /* GET retrieve all the contests info */
-contestListingRouter.get('/relevantInfo/:contestType', async (req, res) => {
+listingRouter.get('/relevantInfo/:contestType', async (req, res) => {
     const contestType = req.params.contestType;
-    const isCreator = contestType == 'myContests';
+    const isCreator = contestType == 'myContests' || contestType == 'completedContests';
 
     let query;
-    let select = '-screeners -judges -judgingThreshold -criterias -download';
+    let select = limitedContestSelect;
 
     if (contestType == 'activeContests') {
-        query = { status: { $ne: ContestStatus.Complete }, isVisible: true };
+        query = { $nor: [ { status: ContestStatus.Complete }, { status: ContestStatus.Hidden } ] };
     } else if (contestType == 'completedContests') {
-        query = { status: ContestStatus.Complete, isVisible: true };
+        query = { status: ContestStatus.Complete };
+        select = '';
     } else if (isCreator) {
         query = { creator: req.session.mongoId };
         select = '';
@@ -91,7 +91,7 @@ contestListingRouter.get('/relevantInfo/:contestType', async (req, res) => {
     const contests = await ContestModel
         .find(query)
         .populate(getPopulate(isCreator, req.session.mongoId))
-        .sort({ contestStart: -1, createdAt: -1 })
+        .sort({ createdAt: -1, contestStart: -1 })
         .select(select)
         .limit(4);
 
@@ -99,7 +99,7 @@ contestListingRouter.get('/relevantInfo/:contestType', async (req, res) => {
 });
 
 /* POST create a contest */
-contestListingRouter.post('/create', async (req, res) => {
+listingRouter.post('/create', async (req, res) => {
     const name = req.body.name.trim();
 
     if (!name) {
@@ -114,35 +114,42 @@ contestListingRouter.post('/create', async (req, res) => {
 
     const contest = new ContestModel();
     contest.name = req.body.name.trim();
+    contest.creator = req.session.mongoId;
     await contest.save();
 
-    res.json(contest);
+    const newContest = await ContestModel
+        .findById(contest.id)
+        .populate(defaultContestPopulate)
+        .orFail();
+
+    res.json(newContest);
 });
 
 /* POST update contest start date */
-contestListingRouter.post('/:id/updateContestStart', isContestCreator, async (req, res) => {
+listingRouter.post('/:id/updateContestStart', isContestCreator, async (req, res) => {
     const newContestStart = new Date(req.body.date);
 
     if (!(newContestStart instanceof Date && !isNaN(newContestStart.getTime()))) {
         return res.json({ error: 'Invalid date' });
     }
 
+
     const contest = await ContestModel
         .findById(req.params.id)
         .orFail();
 
-    if (contest.contestEnd && contest.contestEnd < contest.contestStart) {
+    if (contest.contestEnd && new Date(contest.contestEnd) < newContestStart) {
         return res.json({ error: 'Start date must be before end date!' });
     }
 
     contest.contestStart = newContestStart;
     await contest.save();
 
-    res.json(newContestStart);
+    res.json(contest.contestStart);
 });
 
 /* POST update contest end date */
-contestListingRouter.post('/:id/updateContestEnd', isContestCreator, async (req, res) => {
+listingRouter.post('/:id/updateContestEnd', isContestCreator, async (req, res) => {
     const newContestEnd = new Date(req.body.date);
 
     if (!(newContestEnd instanceof Date && !isNaN(newContestEnd.getTime()))) {
@@ -153,40 +160,91 @@ contestListingRouter.post('/:id/updateContestEnd', isContestCreator, async (req,
         .findById(req.params.id)
         .orFail();
 
-    if (contest.contestStart && contest.contestEnd < contest.contestStart) {
+    if (contest.contestStart && newContestEnd < new Date(contest.contestStart)) {
         return res.json({ error: 'End date must be after start date!' });
     }
 
     contest.contestEnd = newContestEnd;
     await contest.save();
 
-    res.json(newContestEnd);
+    res.json(contest.contestEnd);
 });
 
 /* POST update contest status */
-contestListingRouter.post('/:id/updateStatus', isContestCreator, async (req, res) => {
+listingRouter.post('/:id/updateStatus', isContestCreator, async (req, res) => {
     const contest = await ContestModel
-        .findByIdAndUpdate(req.params.id, { status: req.body.status })
+        .findById(req.params.id)
         .populate(defaultContestPopulate)
         .orFail();
+
+    // beatmapping requirements
+    const beatmappingStatusRequirements: string[] = [];
+
+    if (!contest.contestStart) beatmappingStatusRequirements.push('start date');
+    if (!contest.contestEnd) beatmappingStatusRequirements.push('end date');
+    if (!contest.url) beatmappingStatusRequirements.push('details URL');
+    if (!contest.description) beatmappingStatusRequirements.push('description');
+
+    if (beatmappingStatusRequirements.length) {
+        return res.json({ error: `Missing requirements: ${beatmappingStatusRequirements.join(', ')}!` });
+    }
+
+    // general evaluation requirements
+    const evaluationStatusRequirements: string[] = [];
+
+    if (!contest.submissions.length) evaluationStatusRequirements.push('submissions');
+    if (!contest.download) evaluationStatusRequirements.push('anonymized entries download link');
+
+    // screening requirements
+    if (req.body.status == ContestStatus.Screening) {
+        if (!contest.screeners.length) evaluationStatusRequirements.push('screening users');
+    }
+
+    // judging requirements
+    if (req.body.status == ContestStatus.Judging) {
+        if (!contest.judges.length) evaluationStatusRequirements.push('judging users');
+        if (!contest.judgingThreshold && contest.judgingThreshold != 0) evaluationStatusRequirements.push('judging threshold');
+        if (!contest.criterias.length) evaluationStatusRequirements.push('judging criteria');
+    }
+
+    if (evaluationStatusRequirements.length) {
+        return res.json({ error: `Missing requirements: ${evaluationStatusRequirements.join(', ')}!` });
+    }
+
+    // complete requirements
+    const completeStatusRequirements: string[] = [];
+
+    if (req.body.status == ContestStatus.Complete) {
+        for (const submission of contest.submissions) {
+            if (!submission.name) completeStatusRequirements.push(`submission name (${submission.id})`);
+            console.log(submission);
+
+            // CONTINUE FROM HERE LATER
+        }
+    }
+
+    if (completeStatusRequirements.length) {
+        return res.json({ error: `Missing requirements: ${completeStatusRequirements.join(', ')}!` });
+    }
+
+    contest.status = req.body.status;
+    await contest.save();
 
     res.json(contest.status);
 });
 
 /* POST update contest description */
-contestListingRouter.post('/:id/updateDescription', isContestCreator, async (req, res) => {
+listingRouter.post('/:id/updateDescription', isContestCreator, async (req, res) => {
     const contest = await ContestModel
-        .findByIdAndUpdate(req.params.id, { description: req.body.description })
+        .findByIdAndUpdate(req.params.id, { description: req.body.description.trim() })
         .populate(defaultContestPopulate)
         .orFail();
-
-    console.log(contest);
 
     res.json(contest.description);
 });
 
 /* POST update contest URL */
-contestListingRouter.post('/:id/updateUrl', isContestCreator, async (req, res) => {
+listingRouter.post('/:id/updateUrl', isContestCreator, async (req, res) => {
     const contest = await ContestModel
         .findByIdAndUpdate(req.params.id, { url: req.body.url })
         .populate(defaultContestPopulate)
@@ -195,40 +253,8 @@ contestListingRouter.post('/:id/updateUrl', isContestCreator, async (req, res) =
     res.json(contest.url);
 });
 
-/* POST toggle isVisible */
-contestListingRouter.post('/:id/toggleIsVisible', isContestCreator, async (req, res) => {
-    const contest = await ContestModel
-        .findById(req.params.id)
-        .orFail();
-
-    if (contest.contestEnd < contest.contestStart) {
-        return res.json({ error: 'End date must be after start date!' });
-    }
-
-    if (!contest.url) {
-        return res.json({ error: 'Need an external link to contest details!' });
-    }
-
-    if (!contest.contestStart) {
-        return res.json({ error: 'Need a date for opening submissions!' });
-    }
-
-    if (!contest.contestEnd) {
-        return res.json({ error: 'Need a date for closing submissions!' });
-    }
-
-    if (contest.status !== ContestStatus.Beatmapping) {
-        return res.json({ error: 'Contest status must be "Beatmapping" to begin!' });
-    }
-
-    contest.isVisible = !contest.isVisible;
-    //await contest.save();
-
-    res.json(contest.isVisible);
-});
-
 /* POST update contest osu! contest listing URL */
-contestListingRouter.post('/:id/updateOsuContestListingUrl', isContestCreator, async (req, res) => {
+listingRouter.post('/:id/updateOsuContestListingUrl', isContestCreator, async (req, res) => {
     const contest = await ContestModel
         .findByIdAndUpdate(req.params.id, { osuContestListingUrl: req.body.url })
         .populate(defaultContestPopulate)
@@ -238,7 +264,7 @@ contestListingRouter.post('/:id/updateOsuContestListingUrl', isContestCreator, a
 });
 
 /* POST update submissions download link */
-contestListingRouter.post('/:id/updateDownload', isContestCreator, async (req, res) => {
+listingRouter.post('/:id/updateDownload', isContestCreator, async (req, res) => {
     const download = req.body.download;
 
     const contest = await ContestModel
@@ -248,11 +274,11 @@ contestListingRouter.post('/:id/updateDownload', isContestCreator, async (req, r
     contest.download = download;
     await contest.save();
 
-    res.json(download);
+    res.json(contest.download);
 });
 
 /* POST delete a submission */
-contestListingRouter.post('/:id/submissions/:submissionId/delete', isContestCreator, async (req, res) => {
+listingRouter.post('/:id/submissions/:submissionId/delete', isContestCreator, async (req, res) => {
     const submission = await SubmissionModel
         .findByIdAndRemove(req.params.submissionId)
         .orFail();
@@ -261,7 +287,7 @@ contestListingRouter.post('/:id/submissions/:submissionId/delete', isContestCrea
 });
 
 /* POST add a screener to the list */
-contestListingRouter.post('/:id/screeners/add', isContestCreator, async (req, res) => {
+listingRouter.post('/:id/screeners/add', isContestCreator, async (req, res) => {
     const contest = await ContestModel
         .findById(req.params.id)
         .orFail();
@@ -299,7 +325,7 @@ contestListingRouter.post('/:id/screeners/add', isContestCreator, async (req, re
 });
 
 /* POST remove a screener from the list */
-contestListingRouter.post('/:id/screeners/remove', isContestCreator, async (req, res) => {
+listingRouter.post('/:id/screeners/remove', isContestCreator, async (req, res) => {
     const [contest, user] = await Promise.all([
         ContestModel
             .findById(req.params.id)
@@ -322,7 +348,7 @@ contestListingRouter.post('/:id/screeners/remove', isContestCreator, async (req,
 });
 
 /* POST add a judge to the list */
-contestListingRouter.post('/:id/judges/add', isContestCreator, async (req, res) => {
+listingRouter.post('/:id/judges/add', isContestCreator, async (req, res) => {
     const contest = await ContestModel
         .findById(req.params.id)
         .orFail();
@@ -360,7 +386,7 @@ contestListingRouter.post('/:id/judges/add', isContestCreator, async (req, res) 
 });
 
 /* POST remove a judge from the list */
-contestListingRouter.post('/:id/judges/remove', isContestCreator, async (req, res) => {
+listingRouter.post('/:id/judges/remove', isContestCreator, async (req, res) => {
     const [contest, user] = await Promise.all([
         ContestModel
             .findById(req.params.id)
@@ -383,7 +409,7 @@ contestListingRouter.post('/:id/judges/remove', isContestCreator, async (req, re
 });
 
 /* POST update judging threshold */
-contestListingRouter.post('/:id/updateJudgingThreshold', isContestCreator, async (req, res) => {
+listingRouter.post('/:id/updateJudgingThreshold', isContestCreator, async (req, res) => {
     const newJudgingThreshold = parseInt(req.body.judgingThreshold);
 
     if (isNaN(newJudgingThreshold)) {
@@ -397,11 +423,11 @@ contestListingRouter.post('/:id/updateJudgingThreshold', isContestCreator, async
     contest.judgingThreshold = newJudgingThreshold;
     await contest.save();
 
-    res.json(newJudgingThreshold);
+    res.json(contest.judgingThreshold);
 });
 
 /* POST add criteria */
-contestListingRouter.post('/:id/addCriteria', isContestCreator, async (req, res) => {
+listingRouter.post('/:id/addCriteria', isContestCreator, async (req, res) => {
     const name = req.body.name.toLowerCase();
     const maxScore = parseInt(req.body.maxScore);
 
@@ -444,7 +470,7 @@ contestListingRouter.post('/:id/addCriteria', isContestCreator, async (req, res)
 });
 
 /* POST add criteria */
-contestListingRouter.post('/:id/deleteCriteria', isContestCreator, async (req, res) => {
+listingRouter.post('/:id/deleteCriteria', isContestCreator, async (req, res) => {
     const criteriaId = req.body.criteriaId;
 
     const [contest, criteria] = await Promise.all([
@@ -481,7 +507,7 @@ contestListingRouter.post('/:id/deleteCriteria', isContestCreator, async (req, r
 });
 
 /* POST toggle comment criteria */
-contestListingRouter.post('/:id/toggleComments', isContestCreator, async (req, res) => {
+listingRouter.post('/:id/toggleComments', isContestCreator, async (req, res) => {
     const [contest, commentCriteria] = await Promise.all([
         ContestModel
             .findById(req.params.id)
@@ -650,7 +676,7 @@ export function calculateContestScores(contest?: Contest): { usersScores: UserSc
 }
 
 /* GET contest judging results */
-contestListingRouter.get('/:id/judgingResults', isContestCreator, async (req, res) => {
+listingRouter.get('/:id/judgingResults', isContestCreator, async (req, res) => {
     const contest = await ContestModel
         .findById(req.params.id)
         .populate([
@@ -693,7 +719,52 @@ contestListingRouter.get('/:id/judgingResults', isContestCreator, async (req, re
     });
 });
 
+/* POST create submission */
+listingRouter.post('/:id/createSubmission', async (req, res) => {
+    const contest = await ContestModel
+        .findById(req.params.id)
+        .populate(defaultContestPopulate)
+        .orFail();
 
+    const url = req.body.submissionUrl;
+
+    if (contest.status !== ContestStatus.Beatmapping) {
+        return res.json({ error: 'Contest is not accepting new submissions!' });
+    }
+
+    const regexp = /^(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/;
+
+    if (!regexp.test(url) && url) {
+        return res.json({ error: 'Not a valid URL' });
+    }
+
+    const userSubmission = contest.submissions.find(s => s.creator.id == req.session.mongoId);
+
+    if (!userSubmission) {
+        const submission = new SubmissionModel();
+        submission.creator = req.session.mongoId;
+        submission.url = url;
+        await submission.save();
+
+        contest.submissions.push(submission);
+        await contest.save();
+    } else {
+        const submission = await SubmissionModel
+            .findById(userSubmission._id)
+            .orFail();
+
+        submission.url = url;
+        await submission.save();
+    }
+
+    const newContest = await ContestModel
+        .findById(req.params.id)
+        .populate(getPopulate(false, req.session.mongoId))
+        .select(limitedContestSelect)
+        .orFail();
+
+    res.json(newContest.submissions);
+});
 
 
 
@@ -722,7 +793,7 @@ contestListingRouter.get('/:id/judgingResults', isContestCreator, async (req, re
 
 
 /* POST create a submission entry */
-contestListingRouter.post('/:id/submissions/create', async (req, res) => {
+listingRouter.post('/:id/submissions/create', async (req, res) => {
     const osuId = parseInt(req.body.osuId, 10);
     const [contest, user] = await Promise.all([
         ContestModel
@@ -748,7 +819,7 @@ contestListingRouter.post('/:id/submissions/create', async (req, res) => {
 });
 
 /* POST create submissions from CSV file */
-contestListingRouter.post('/:id/submissions/createFromCsv', async (req, res) => {
+listingRouter.post('/:id/submissions/createFromCsv', async (req, res) => {
     const contest = await ContestModel.findById(req.params.id).orFail();
 
     // read masking csv
@@ -797,7 +868,7 @@ contestListingRouter.post('/:id/submissions/createFromCsv', async (req, res) => 
 });
 
 /* POST send messages */
-contestListingRouter.post('/:id/sendMessages', async (req, res) => {
+listingRouter.post('/:id/sendMessages', async (req, res) => {
     const contest = await ContestModel
         .findById(req.params.id)
         .populate(defaultContestPopulate)
@@ -823,7 +894,7 @@ contestListingRouter.post('/:id/sendMessages', async (req, res) => {
 });
 
 /* POST send all results messages to contest's participants */
-contestListingRouter.post('/:id/sendAllMessages', async (req, res) => {
+listingRouter.post('/:id/sendAllMessages', async (req, res) => {
     const contest = await ContestModel
         .findById(req.params.id)
         .populate(defaultContestPopulate)
@@ -837,7 +908,7 @@ contestListingRouter.post('/:id/sendAllMessages', async (req, res) => {
         const messages: string[] = [];
 
         messages.push(`hello! thank you for participating in ${contest.name}!`);
-        messages.push(`screening/judging details for your submission can be found here: https://mappersguild.com/contestresults?submission=${submission.id}`);
+        messages.push(`screening/judging details for your submission can be found here: https://mappersguild.com/contests/results?submission=${submission.id}`);
         messages.push(`a news post including the full results will be published soon!`);
 
         await sendMessages(submission.creator.osuId, messages);
@@ -846,4 +917,4 @@ contestListingRouter.post('/:id/sendAllMessages', async (req, res) => {
     res.json({ success: 'Messages sent! A copy was sent to you for confirmation' });
 });
 
-export default contestListingRouter;
+export default listingRouter;

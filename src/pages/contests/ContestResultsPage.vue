@@ -26,11 +26,11 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { mapMutations, mapState } from 'vuex';
-import contestResultsModule from '@store/contestResults';
+import resultsModule from '@store/contestResults';
 import { Submission } from '@interfaces/contest/submission';
 import { Contest } from '@interfaces/contest/contest';
-import SubmissionResult from './SubmissionResult.vue';
-import ContestResults from './ContestResults.vue';
+import SubmissionResult from '@components/contests/listing/results/SubmissionResult.vue';
+import ContestResults from '@components/contests/listing/results/ContestResults.vue';
 
 export default defineComponent({
     name: 'ContestResultsPage',
@@ -47,7 +47,7 @@ export default defineComponent({
     },
     beforeCreate () {
         if (!this.$store.hasModule('contestResults')) {
-            this.$store.registerModule('contestResults', contestResultsModule);
+            this.$store.registerModule('contestResults', resultsModule);
         }
     },
     unmounted () {
@@ -61,22 +61,22 @@ export default defineComponent({
         let contest, submissions, submission;
 
         if (contestId) {
-            contest = await this.$http.initialRequest<Submission>('/contestResults/searchContest/' + contestId);
+            contest = await this.$http.initialRequest<Submission>('/contests/results/searchContest/' + contestId);
 
             if (!this.$http.isError(contest)) this.setContest(contest);
         } else if (submissionId) {
             [submission, submissions] = await Promise.all([
-                this.$http.initialRequest<Submission>('/contestResults/searchSubmission/' + submissionId),
-                this.$http.executeGet<Submission[]>('/contestResults/participated'),
+                this.$http.initialRequest<Submission>('/contests/results/searchSubmission/' + submissionId),
+                this.$http.executeGet<Submission[]>('/contests/results/participated'),
             ]);
 
             if (!submission || this.$http.isError(submission)) {
-                this.$router.replace('/contestResults');
+                this.$router.replace('/contests/results');
             } else {
                 this.setSubmission(submission);
             }
         } else {
-            submissions = await this.$http.initialRequest<Submission[]>('/contestResults/participated');
+            submissions = await this.$http.initialRequest<Submission[]>('/contests/results/participated');
         }
 
         if (!this.$http.isError(submissions)) this.setSubmissions(submissions);

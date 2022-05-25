@@ -11,7 +11,7 @@ const contestSchema = new Schema<Contest>({
     creator: { type: 'ObjectId', ref: 'User' },
     url: { type: String },
     osuContestListingUrl: { type: String },
-    status: { type: String, enum: ['beatmapping', 'screening', 'judging', 'complete'], default: 'beatmapping' },
+    status: { type: String, enum: ['hidden', 'beatmapping', 'screening', 'judging', 'complete'], default: 'hidden' },
     contestStart: { type: Date },
     contestEnd: { type: Date },
     submissions: [{ type: 'ObjectId', ref: 'Submission' }],
@@ -20,7 +20,6 @@ const contestSchema = new Schema<Contest>({
     judgingThreshold: { type: Number, default: 0 },
     criterias: [{ type: 'ObjectId', ref: 'Criteria' }],
     download: { type: String },
-    isVisible: { type: Boolean, default: false },
     description: { type: String },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 

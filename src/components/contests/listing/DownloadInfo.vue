@@ -13,14 +13,19 @@
             >
         </div>
         <div class="col-sm-4 small text-secondary">
-            This link will appear at the top of judging/screening pages. It should include all relevant anonymous submissions. Test the link
+            This link will appear at the top of judging/screening pages. It should include all relevant anonymous submissions.
             <a
                 v-if="download"
                 :href="download"
                 target="_blank"
-            >here</a>.
+            >Test the link here!</a>
         </div>
-        <div>[insert advice on anonymizing entries here later]</div>
+        <pre>
+            insert stuff about anonymizing entries later. process should be something like:
+            1. download all the .oszs and put them in a folder locally
+            2. run .bat file (contest-anonymization project)
+            3. paste output here which applies anonymous names to submissions
+        </pre>
     </div>
 </template>
 

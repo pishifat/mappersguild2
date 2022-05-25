@@ -3,6 +3,7 @@ import { Submission } from './submission';
 import { Criteria } from './criteria';
 
 export enum ContestStatus {
+    Hidden = 'hidden',
     Beatmapping = 'beatmapping',
     Screening = 'screening',
     Judging = 'judging',
@@ -25,6 +26,5 @@ export interface Contest {
     judgingThreshold: number;
     criterias: Criteria[] | Criteria['_id'];
     download: string;
-    isVisible: boolean;
     description: string;
 }

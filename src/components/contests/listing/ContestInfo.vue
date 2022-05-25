@@ -35,12 +35,6 @@
                 :description="contest.description"
             />
 
-            <visibility
-                v-if="!contest.isVisible"
-                :contest-id="contest.id"
-                :is-visible="contest.isVisible"
-            />
-
             <hr>
 
             <div>
@@ -197,7 +191,6 @@ import DateInfo from './DateInfo.vue';
 import StatusInfo from './StatusInfo.vue';
 import Urls from './Urls.vue';
 import Description from './Description.vue';
-import Visibility from './Visibility.vue';
 import SubmissionsInfo from './SubmissionsInfo.vue';
 import DownloadInfo from './DownloadInfo.vue';
 import ScreenersInfo from './screening/ScreenersInfo.vue';
@@ -207,8 +200,6 @@ import ScreeningResults from './screening/ScreeningResults.vue';
 import JudgingThreshold from './screening/JudgingThreshold.vue';
 import CriteriaSelection from './judging/CriteriaSelection.vue';
 import JudgingResults from './judging/JudgingResults.vue';
-
-
 
 export default defineComponent({
     name: 'ContestInfo',
@@ -220,7 +211,6 @@ export default defineComponent({
         DownloadInfo,
         Urls,
         Description,
-        Visibility,
         ScreenersInfo,
         JudgesInfo,
         MarkdownUserList,

@@ -27,8 +27,8 @@
                 <tbody>
                     <tr v-for="submission in contest.submissions" :key="submission.id + 'screen'">
                         <td scope="row">
-                            <a :href="'/contestresults?submission=' + submission.id">
-                                {{ submission.name }}
+                            <a :href="'/contests/results?submission=' + submission.id">
+                                {{ submission.name }} <i class="fa fa-arrow-right" />
                             </a>
                         </td>
                         <td scope="row">

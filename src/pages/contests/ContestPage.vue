@@ -66,7 +66,7 @@ import ContestInfo from '@components/contests/listing/ContestInfo.vue';
 import LimitedContestInfo from '@components/contests/listing/LimitedContestInfo.vue';
 import AddContest from '@components/contests/AddContest.vue';
 import { Contest } from '@interfaces/contest/contest';
-import contestListingModule from '@store/contests/contests';
+import listingModule from '@store/contests/contests';
 
 export default defineComponent({
     name: 'ContestPage',
@@ -89,7 +89,9 @@ export default defineComponent({
             contests: (state: any) => state.contests.contests,
             selectedContestId: (state: any) => state.contests.selectedContestId,
         }),
-        ...mapGetters(['selectedContest']),
+        ...mapGetters([
+            'selectedContest',
+        ]),
     },
     watch: {
         async displayMode () {
@@ -98,7 +100,7 @@ export default defineComponent({
     },
     beforeCreate () {
         if (!this.$store.hasModule('contests')) {
-            this.$store.registerModule('contests', contestListingModule);
+            this.$store.registerModule('contests', listingModule);
         }
     },
     unmounted () {

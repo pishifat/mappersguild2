@@ -59,6 +59,11 @@
                                         </router-link>
                                     </li>
                                     <li>
+                                        <router-link class="dropdown-item" to="/contests/results">
+                                            Results
+                                        </router-link>
+                                    </li>
+                                    <li>
                                         <router-link class="dropdown-item" to="/contests/screening">
                                             Screening
                                         </router-link>

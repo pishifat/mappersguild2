@@ -9,7 +9,7 @@
         <div v-for="(usersScore, i) in usersScores" :key="i">
             | \#{{ i+1 }}
             | [TITLE](LINK) by [{{ usersScore.creator.username }}](https://osu.ppy.sh/users/{{ usersScore.creator.osuId }})
-            | [details](https://mappersguild.com/contestresults?submission={{ getSubmissionIdByCreatorId(usersScore.creator.id) }})
+            | [details](https://mappersguild.com/contests/results?submission={{ getSubmissionIdByCreatorId(usersScore.creator.id) }})
             <span v-for="criteria in scoredCriteria" :key="criteria.id">| {{ getCriteriaSumbyName(criteria.name, usersScore.criteriaSum) + ' ' }}</span>
             | **{{ Math.round(usersScore.standardizedFinalScore *100) / 100 }}** ({{ usersScore.rawFinalScore }}) |
         </div>

@@ -3,8 +3,11 @@
         Contest description:
         <textarea
             v-model="newDescription"
+            length="4"
             class="ml-1 form-control"
             placeholder="click outside the box to save..."
+            maxlength="40000"
+            rows="6"
             @change="updateDescription($event)"
         />
         <small class="text-secondary">Click outside the text box to save. Also, this section supports <a href="https://www.markdownguide.org/cheat-sheet/" target="_blank">markdown</a>!</small>

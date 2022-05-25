@@ -3,7 +3,9 @@
         <div v-if="submission" class="container p-3">
             <div>
                 <h3>
-                    {{ submission.contest.name }}
+                    <a :href="'/contests/results?contest=' + submission.contest.id">
+                        <i class="fa fa-arrow-left" /> {{ submission.contest.name }}
+                    </a>
                 </h3>
                 <h4>
                     Submission by <user-link :user="submission.creator" />
@@ -13,19 +15,14 @@
                 </h5>
                 <div v-if="loggedInUser && loggedInUser.id == submission.creator.id">
                     <a href="#" @click.prevent="$store.commit('setSubmission', null)">
-                        Your previous contest submissions
+                        Your other contest submissions
                     </a>
                 </div>
 
                 <div v-if="submission.contest.download" class="mt-2">
                     <div>
-                        <a :href="'/contestresults?contest=' + submission.contest.id" target="_blank">
-                            Full {{ submission.contest.name }} results
-                        </a>
-                    </div>
-                    <div>
                         <a :href="submission.contest.download" target="_blank">
-                            Download all {{ submission.contest.name }} submissions
+                            Download all submissions
                         </a>
                     </div>
                 </div>

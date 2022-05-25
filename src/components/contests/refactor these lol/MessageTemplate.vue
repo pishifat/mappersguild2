@@ -41,7 +41,7 @@ export default defineComponent({
             let messages: string[] = [];
 
             messages.push(`hello! thank you for participating in ${this.contestName}!`);
-            messages.push(`screening/judging details for your submission can be found here: https://mappersguild.com/contestresults?submission=${this.submissionId}`);
+            messages.push(`screening/judging details for your submission can be found here: https://mappersguild.com/contests/results?submission=${this.submissionId}`);
             messages.push(`a news post including the full results will be published soon!`);
 
             return messages;

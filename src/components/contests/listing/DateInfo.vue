@@ -69,6 +69,8 @@ export default defineComponent({
                     contestId: this.contestId,
                     contestStart,
                 });
+            } else {
+                this.newContestStart = this.contestStart;
             }
         },
         async updateContestEnd(e): Promise<void> {
@@ -83,6 +85,8 @@ export default defineComponent({
                     contestId: this.contestId,
                     contestEnd,
                 });
+            } else {
+                this.newContestEnd = this.contestEnd;
             }
         },
     },

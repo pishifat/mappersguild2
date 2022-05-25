@@ -1,6 +1,7 @@
 import { Module } from 'vuex';
 import { MainState } from '@store/main';
 import { Contest } from '../../../interfaces/contest/contest';
+import { Submission } from '../../../interfaces/contest/submission';
 
 interface ContestState {
     contests: Contest[];
@@ -18,6 +19,7 @@ const store: Module<ContestState, MainState> = {
         },
         addContest (state, contest: Contest): void {
             state.contests.unshift(contest);
+            state.selectedContestId = contest.id;
         },
         setSelectedContestId (state, id: string): void {
             state.selectedContestId = id;
@@ -119,18 +121,18 @@ const store: Module<ContestState, MainState> = {
                 contest.criterias = payload.criterias;
             }
         },
-        updateIsVisible (state, payload): void {
-            const contest = state.contests.find(c => c.id == payload.contestId);
-
-            if (contest) {
-                contest.isVisible = payload.isVisible;
-            }
-        },
         updateDescription (state, payload): void {
             const contest = state.contests.find(c => c.id == payload.contestId);
 
             if (contest) {
                 contest.description = payload.description;
+            }
+        },
+        updateSubmissions (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                contest.submissions = payload.submissions;
             }
         },
 
@@ -154,7 +156,16 @@ const store: Module<ContestState, MainState> = {
     },
     getters: {
         selectedContest: (state): Contest | undefined => {
-            return state.contests.find(u => u.id === state.selectedContestId);
+            return state.contests.find(c => c.id === state.selectedContestId);
+        },
+        userSubmission: (state): Submission | undefined | null => {
+            const contest = state.contests.find(c => c.id === state.selectedContestId);
+
+            if (contest && contest.submissions && contest.submissions.length) {
+                return contest.submissions[0];
+            } else {
+                return null;
+            }
         },
     },
 };

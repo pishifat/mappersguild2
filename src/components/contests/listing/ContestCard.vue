@@ -13,7 +13,7 @@
             </div>
 
             <div class="text-secondary">
-                {{ contest.status == 'complete' ? 'completed' : contest.status + ' phase' }}
+                {{ contest.status == 'complete' ? 'completed' : contest.status == 'hidden' ? 'hidden' : contest.status + ' phase' }}
             </div>
         </div>
     </div>
