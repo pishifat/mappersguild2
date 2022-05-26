@@ -34,7 +34,7 @@
                 <h5>
                     Screening results
                 </h5>
-                <div v-if="submission.evaluations && submission.evaluations.length">
+                <div v-if="submission.screenings && submission.screenings.length">
                     <p class="ms-3">
                         Comments are usually each screener's initial thoughts. They're not intended to be constructive feedback and many screeners use comments as notes for determining their top 5.
                     </p>
@@ -56,7 +56,7 @@
                     <div v-for="i in emptyEvaluationCount" :key="i">
                         <div>
                             <div class="ms-3">
-                                User {{ submission.evaluations.length + i }}
+                                User {{ submission.screenings.length + i }}
                             </div>
                             <div class="ms-4 mb-2 small text-white-50" style="word-break: break-word;">
                                 [no comment]
@@ -149,14 +149,14 @@ export default defineComponent({
         voteCount (): number {
             let count = 0;
 
-            this.submission.evaluations.forEach(evaluation => {
-                if (!isNaN(evaluation.vote)) count += evaluation.vote;
+            this.submission.screenings.forEach(screening => {
+                if (!isNaN(screening.vote)) count += screening.vote;
             });
 
             return count;
         },
         emptyEvaluationCount (): number {
-            return this.submission.contest.screeners.length - this.submission.evaluations.length;
+            return this.submission.contest.screeners.length - this.submission.screenings.length;
         },
         randomizedJudging (): Judging[] {
             let judgings = [...this.submission.judgings];
@@ -165,7 +165,7 @@ export default defineComponent({
             return judgings;
         },
         randomizedScreening (): Screening[] {
-            let screenings = [...this.submission.evaluations];
+            let screenings = [...this.submission.screenings];
             screenings = screenings.sort(() => Math.random() - 0.5); // doesn't need to be pure random
 
             return screenings;

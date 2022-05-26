@@ -26,6 +26,12 @@ submissionSchema.virtual('judgings', {
     foreignField: 'submission',
 });
 
+submissionSchema.virtual('screenings', {
+    ref: 'Screening',
+    localField: '_id',
+    foreignField: 'submission',
+});
+
 const SubmissionModel = mongoose.model<Submission>('Submission', submissionSchema);
 
 export { SubmissionModel };

@@ -13,6 +13,8 @@ export interface Submission {
     /** Virtually populated */
     contest: Contest;
     /** Virtually populated */
+    screenings: Screening[];
+    /** Virtually populated */
     judgings: Judging[];
     /** Calculated client-side */
     total: number;

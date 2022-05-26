@@ -69,7 +69,7 @@ export default defineComponent({
         },
         async updateComment(e): Promise<void> {
             if (this.savedComment != this.newComment) {
-                const submission = await this.$http.executePost('/screening/updateSubmission/' + this.submissionId, { comment: this.newComment.trim() }, e);
+                const submission = await this.$http.executePost('/contests/screening/updateSubmission/' + this.submissionId, { comment: this.newComment.trim() }, e);
 
                 if (!this.$http.isError(submission)) {
                     this.showCommentInput = !this.showCommentInput;

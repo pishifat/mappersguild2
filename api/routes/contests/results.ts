@@ -12,7 +12,7 @@ const submissionPopulate = [
         select: 'name screeners status download id',
     },
     {
-        path: 'evaluations',
+        path: 'screenings',
         select: 'comment vote',
     },
     {
@@ -36,7 +36,7 @@ const contestPopulate = [
         path: 'submissions',
         populate: [
             {
-                path: 'evaluations',
+                path: 'screenings',
                 select: 'comment vote',
             },
             {

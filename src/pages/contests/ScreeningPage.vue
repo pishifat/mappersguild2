@@ -37,7 +37,7 @@
         </div>
 
         <div v-if="!contests.length" class="text-center p-3">
-            No contests available for screening...
+            No contests available for screening.
         </div>
     </div>
 </template>
@@ -67,7 +67,7 @@ export default defineComponent({
         }
     },
     async created () {
-        const res: any = await this.$http.initialRequest('/screening/relevantInfo');
+        const res: any = await this.$http.initialRequest('/contests/screening/relevantInfo');
 
         if (!this.$http.isError(res)) {
             this.$store.commit('setContests', res.contests || []);

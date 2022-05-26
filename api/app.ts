@@ -32,7 +32,7 @@ import adminBeatmapsRouter from './routes/admin/beatmaps';
 import adminFeaturedArtistsRouter from './routes/admin/featuredArtists';
 import adminQuestsRouter from './routes/admin/quests';
 import artistsRouter from './routes/artists';
-import screeningRouter from './routes/screening';
+import screeningRouter from './routes/contests/screening';
 import contestsListingRouter from './routes/contests/listing';
 import adminJudgingRouter from './routes/admin/judging';
 import judgingRouter from './routes/judging';
@@ -91,12 +91,12 @@ app.use('/parties', partiesRouter);
 app.use('/logs', logsRouter);
 app.use('/notifications', notificationsRouter);
 app.use('/invites', invitesRouter);
-app.use('/screening', screeningRouter);
-app.use('/judging', judgingRouter);
 app.use('/showcase', showcaseRouter);
 
 app.use('/contests/listing', contestsListingRouter);
 app.use('/contests/results', resultsRouter);
+app.use('/contests/screening', screeningRouter);
+app.use('/judging', judgingRouter);
 
 app.use('/artists', artistsRouter);
 app.use('/admin', adminRouter);

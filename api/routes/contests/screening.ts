@@ -1,9 +1,9 @@
 import express from 'express';
-import { isLoggedIn, unauthorize } from '../helpers/middlewares';
-import { ContestModel } from '../models/contest/contest';
-import { SubmissionModel } from '../models/contest/submission';
-import { ScreeningModel, Screening } from '../models/contest/screening';
-import { ContestStatus } from '../../interfaces/contest/contest';
+import { isLoggedIn, unauthorize } from '../../helpers/middlewares';
+import { ContestModel } from '../../models/contest/contest';
+import { SubmissionModel } from '../../models/contest/submission';
+import { ScreeningModel, Screening } from '../../models/contest/screening';
+import { ContestStatus } from '../../../interfaces/contest/contest';
 
 const defaultContestPopulate = {
     path: 'submissions',
@@ -37,22 +37,32 @@ async function isScreener(req, res, next): Promise<void> {
         .populate(defaultContestPopulate)
         .select('_id name submissions screeners download');
 
+    console.log(contests);
+
     if (contests.length) {
         res.locals.contests = contests;
 
         return next();
     }
 
+
     return unauthorize(req, res);
 }
 
 screeningRouter.use(isLoggedIn);
-screeningRouter.use(isScreener);
 
-screeningRouter.get('/relevantInfo', (req, res) => {
-    res.json({
-        contests: res.locals.contests,
-    });
+screeningRouter.get('/relevantInfo', async (req, res) => {
+    const contests = await ContestModel
+        .find({
+            status: ContestStatus.Screening,
+            screeners: res.locals.userRequest._id,
+        })
+        .populate(defaultContestPopulate)
+        .select('_id name submissions screeners download');
+
+    console.log(contests);
+
+    res.json({ contests });
 });
 
 /* POST update submission comment */

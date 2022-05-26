@@ -35,11 +35,11 @@
                             <user-link :user="submission.creator" />
                         </td>
                         <td v-if="contest.judgingThreshold">
-                            <span v-for="i in voteCount(submission.evaluations)" :key="i">
+                            <span v-for="i in voteCount(submission.screenings)" :key="i">
                                 <i class="fas fa-check text-done me-1" />
                             </span>
-                            <span v-if="voteCount(submission.evaluations, true) > 0">
-                                ({{ voteCount(submission.evaluations, true) }})
+                            <span v-if="voteCount(submission.screenings, true) > 0">
+                                ({{ voteCount(submission.screenings, true) }})
                             </span>
                         </td>
                         <td v-else>
@@ -79,10 +79,10 @@ export default defineComponent({
         },
     },
     methods: {
-        voteCount (evaluations, accuracy): number {
+        voteCount (screenings, accuracy): number {
             let count = 0;
 
-            for (const evaluation of evaluations) {
+            for (const evaluation of screenings) {
                 if (evaluation.vote && !isNaN(evaluation.vote)) {
                     if (accuracy) count += evaluation.vote;
                     else count++;

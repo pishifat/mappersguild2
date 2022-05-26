@@ -6,6 +6,7 @@ import { Contest, ContestModel } from '../../models/contest/contest';
 import { UserModel } from '../../models/user';
 import { UserGroup } from '../../../interfaces/user';
 import { SubmissionModel } from '../../models/contest/submission';
+import { ScreeningModel } from '../../models/contest/screening';
 import { sendMessages } from '../../helpers/osuBot';
 import { CriteriaModel } from '../../models/contest/criteria';
 import { ContestStatus } from '../../../interfaces/contest/contest';
@@ -22,7 +23,7 @@ const defaultContestPopulate = [
         path: 'submissions',
         populate: [
             {
-                path: 'evaluations',
+                path: 'evaluations screenings',
                 populate: {
                     path: 'screener',
                 },
@@ -52,7 +53,7 @@ function getLimitedDefaultPopulate (mongoId) {
     return [
         {
             path: 'submissions',
-            select: '-evaluations',
+            select: '-evaluations -screenings',
             match: {
                 creator: mongoId,
             },
@@ -94,6 +95,12 @@ listingRouter.get('/relevantInfo/:contestType', async (req, res) => {
         .sort({ createdAt: -1, contestStart: -1 })
         .select(select)
         .limit(4);
+
+    for (const contest of contests) {
+        for (const submission of contest.submissions) {
+            console.log(submission.screenings);
+        }
+    }
 
     res.json(contests);
 });
@@ -214,12 +221,19 @@ listingRouter.post('/:id/updateStatus', isContestCreator, async (req, res) => {
     // complete requirements
     const completeStatusRequirements: string[] = [];
 
+    console.log(contest.screeners);
+
     if (req.body.status == ContestStatus.Complete) {
         for (const submission of contest.submissions) {
             if (!submission.name) completeStatusRequirements.push(`submission name (${submission.id})`);
             console.log(submission);
 
-            // CONTINUE FROM HERE LATER
+            //console.log(submission);
+
+            /* things to check
+            - screeners all checked things
+            - judges filled out everything
+            */
         }
     }
 
@@ -683,7 +697,7 @@ listingRouter.get('/:id/judgingResults', isContestCreator, async (req, res) => {
             {
                 path: 'submissions',
                 populate: {
-                    path: 'judgings creator evaluations',
+                    path: 'judgings creator screenings',
                     populate: {
                         path: 'judgingScores judge',
                         populate: {
@@ -700,7 +714,7 @@ listingRouter.get('/:id/judgingResults', isContestCreator, async (req, res) => {
     const filteredSubmissions = [...contest.submissions].filter(submission => {
         let total = 0;
 
-        submission.evaluations.forEach(e => {
+        submission.screenings.forEach(e => {
             total += e.vote;
         });
 

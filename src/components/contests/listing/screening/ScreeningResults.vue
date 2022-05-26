@@ -20,7 +20,7 @@
                 <div :id="`collapse-${submission.id}`" class="collapse">
                     <div>
                         <screening-detail
-                            :evaluations="submission.evaluations"
+                            :screenings="submission.screenings"
                             :screeners="screeners"
                         />
                         <!--<message-template
@@ -90,7 +90,7 @@ export default defineComponent({
 
             for (let i = 0; i < sortedSubmissions.length; i++) {
                 const submission = sortedSubmissions[i];
-                const total = submission.evaluations.reduce((acc, e) => {
+                const total = submission.screenings.reduce((acc, e) => {
                     if (e.vote) {
                         return acc + e.vote;
                     }

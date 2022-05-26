@@ -25,7 +25,7 @@ import { User } from '@interfaces/user';
 export default defineComponent({
     name: 'ScreeningDetail',
     props: {
-        evaluations: {
+        screenings: {
             type: Array as PropType<Screening[]>,
             required: true,
         },
@@ -38,7 +38,7 @@ export default defineComponent({
     },
     methods: {
         findComment (userId: string): string {
-            const evaluation = this.evaluations.find(e => e.screener.id == userId);
+            const evaluation = this.screenings.find(e => e.screener.id == userId);
 
             if (!evaluation) {
                 return 'No comment';
@@ -47,7 +47,7 @@ export default defineComponent({
             }
         },
         findVote (userId: string): number {
-            const evaluation = this.evaluations.find(e => e.screener.id == userId);
+            const evaluation = this.screenings.find(e => e.screener.id == userId);
 
             if (!evaluation) {
                 return 0;
