@@ -32,7 +32,9 @@
                     <contest-card
                         v-for="contest in contests"
                         :key="contest.id"
+                        class="col-sm-12 my-2"
                         :contest="contest"
+                        :route="'listing'"
                     />
                 </transition-group>
                 <div v-if="!contests" class="container card card-body py-3 mb-2 text-secondary">
@@ -61,7 +63,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { mapState, mapGetters } from 'vuex';
-import ContestCard from '@components/contests/listing/ContestCard.vue';
+import ContestCard from '@components/contests/ContestCard.vue';
 import ContestInfo from '@components/contests/listing/ContestInfo.vue';
 import LimitedContestInfo from '@components/contests/listing/LimitedContestInfo.vue';
 import AddContest from '@components/contests/AddContest.vue';
@@ -109,21 +111,35 @@ export default defineComponent({
         }
     },
     async created() {
-        const contests = await this.$http.initialRequest<Contest[]>(`/contests/listing/relevantInfo/${this.displayMode}`);
-
-        if (!this.$http.isError(contests)) {
-            this.$store.commit('setContests', contests);
-        }
+        await this.loadContests();
     },
     methods: {
         async loadContests (): Promise<void> {
             this.$store.commit('setContests', null);
             this.$store.commit('setSelectedContestId', null);
-            const contests = await this.$http.executeGet<Contest[]>(`/contests/listing/relevantInfo/${this.displayMode}`);
 
-            if (!this.$http.isError(contests)) {
-                this.$store.commit('setContests', contests);
-                this.$store.commit('setSelectedContestId', null);
+            const id = this.$route.query.contest;
+
+            if (id && !this.contests) {
+                const contest: any = await this.$http.initialRequest(`/contests/listing/searchContest/${id}`);
+
+                if (!this.$http.isError(contest)) {
+                    if (contest.creator.id == this.loggedInUser.id) {
+                        this.displayMode = 'myContests';
+                    } else if (contest.status == 'complete') {
+                        this.displayMode = 'completedContests';
+                    }
+
+                    this.$store.commit('setContests', [contest] || []);
+                    this.$store.commit('setSelectedContestId', id);
+                }
+            } else {
+                const contests = await this.$http.executeGet<Contest[]>(`/contests/listing/relevantInfo/${this.displayMode}`);
+
+                if (!this.$http.isError(contests)) {
+                    this.$store.commit('setContests', contests);
+                    this.$store.commit('setSelectedContestId', null);
+                }
             }
         },
     },

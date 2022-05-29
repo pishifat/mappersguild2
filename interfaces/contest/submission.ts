@@ -9,7 +9,6 @@ export interface Submission {
     name: string;
     creator: User;
     url: string;
-    evaluations: Screening[];
     /** Virtually populated */
     contest: Contest;
     /** Virtually populated */

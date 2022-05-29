@@ -65,7 +65,7 @@ export default defineComponent({
 
             if (!this.$http.isError(status)) {
                 this.$store.dispatch('updateToastMessages', {
-                    message: `updated contest status`,
+                    message: `Updated contest status`,
                     type: 'info',
                 });
                 this.$store.commit('updateStatus', {

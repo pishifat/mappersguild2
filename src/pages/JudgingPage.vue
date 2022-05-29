@@ -124,7 +124,7 @@ export default defineComponent({
 
             for (let i = 0; i < this.contest.submissions.length; i++) {
                 const submission = this.contest.submissions[i];
-                const total = submission.evaluations.reduce((acc, e) => {
+                const total = submission.screenings.reduce((acc, e) => {
                     if (e.vote) {
                         return acc + e.vote;
                     }

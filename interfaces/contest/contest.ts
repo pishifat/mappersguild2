@@ -17,6 +17,7 @@ export interface Contest {
     creator: User;
     url: string;
     osuContestListingUrl: string;
+    resultsUrl: string;
     status: ContestStatus;
     contestStart: Date;
     contestEnd: Date;

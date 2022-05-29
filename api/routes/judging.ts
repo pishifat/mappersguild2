@@ -10,9 +10,9 @@ import { ContestStatus } from '../../interfaces/contest/contest';
 const defaultContestPopulate = [
     {
         path: 'submissions',
-        select: '_id name evaluations',
+        select: '_id name screenings',
         populate: {
-            path: 'evaluations',
+            path: 'screenings',
         },
     },
     { path: 'criterias' },

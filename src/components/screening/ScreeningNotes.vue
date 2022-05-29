@@ -24,14 +24,14 @@
             <div class="text-end">
                 <button
                     type="button"
-                    class="btn btn-sm btn-outline-info  mt-1"
+                    class="btn btn-sm btn-outline-info mt-1 mx-1"
                     @click="cancelUpdate()"
                 >
                     Cancel
                 </button>
                 <button
                     type="button"
-                    class="btn btn-sm btn-outline-info  mt-1"
+                    class="btn btn-sm btn-outline-info mt-1 mx-1"
                     @click="updateComment($event)"
                 >
                     Save

@@ -56,7 +56,7 @@ export default defineComponent({
             'loggedInUser',
         ]),
         relatedScreening(): Screening | undefined {
-            return this.submission.evaluations.find(e => e.screener._id === this.loggedInUser.id);
+            return this.submission.screenings.find(s => s.screener._id === this.loggedInUser.id);
         },
     },
 });

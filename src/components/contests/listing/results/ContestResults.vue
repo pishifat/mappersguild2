@@ -1,7 +1,12 @@
 <template>
     <div>
         <div v-if="contest" class="container p-3">
-            <h4>{{ contest.name }} results</h4>
+            <h4>
+                <a v-if="contest.url || contest.resultsUrl" :href="contest.resultsUrl ? contest.resultsUrl : contest.url" target="_blank">
+                    {{ contest.name }} results
+                </a>
+                <span v-else>{{ contest.name }} results</span>
+            </h4>
             <div>
                 <a :href="contest.download" target="_blank">
                     Download all submissions
@@ -82,9 +87,9 @@ export default defineComponent({
         voteCount (screenings, accuracy): number {
             let count = 0;
 
-            for (const evaluation of screenings) {
-                if (evaluation.vote && !isNaN(evaluation.vote)) {
-                    if (accuracy) count += evaluation.vote;
+            for (const screening of screenings) {
+                if (screening.vote && !isNaN(screening.vote)) {
+                    if (accuracy) count += screening.vote;
                     else count++;
                 }
             }

@@ -23,7 +23,7 @@ const defaultContestPopulate = [
         path: 'submissions',
         populate: [
             {
-                path: 'evaluations screenings',
+                path: 'screenings',
                 populate: {
                     path: 'screener',
                 },
@@ -53,7 +53,7 @@ function getLimitedDefaultPopulate (mongoId) {
     return [
         {
             path: 'submissions',
-            select: '-evaluations -screenings',
+            select: '-screenings',
             match: {
                 creator: mongoId,
             },
@@ -65,17 +65,13 @@ function getLimitedDefaultPopulate (mongoId) {
     ];
 }
 
-function getPopulate (isCreator, mongoId) {
-    if (isCreator) return defaultContestPopulate;
+function getPopulate (showFullData, mongoId) {
+    if (showFullData) return defaultContestPopulate;
 
     return getLimitedDefaultPopulate(mongoId);
 }
 
-/* GET retrieve all the contests info */
-listingRouter.get('/relevantInfo/:contestType', async (req, res) => {
-    const contestType = req.params.contestType;
-    const isCreator = contestType == 'myContests' || contestType == 'completedContests';
-
+function getQueryAndSelect (mongoId, contestType, showFullData) {
     let query;
     let select = limitedContestSelect;
 
@@ -84,25 +80,64 @@ listingRouter.get('/relevantInfo/:contestType', async (req, res) => {
     } else if (contestType == 'completedContests') {
         query = { status: ContestStatus.Complete };
         select = '';
-    } else if (isCreator) {
-        query = { creator: req.session.mongoId };
+    } else if (showFullData) {
+        query = { creator: mongoId };
         select = '';
     }
 
+    return { query, select };
+}
+
+/* GET retrieve all the contests info */
+listingRouter.get('/relevantInfo/:contestType', async (req, res) => {
+    const contestType = req.params.contestType;
+    const showFullData = contestType == 'myContests' || contestType == 'completedContests';
+
+    const { query, select } = getQueryAndSelect(req.session.mongoId, contestType, showFullData);
+    const populate = getPopulate(showFullData, req.session.mongoId);
+
     const contests = await ContestModel
         .find(query)
-        .populate(getPopulate(isCreator, req.session.mongoId))
+        .populate(populate)
         .sort({ createdAt: -1, contestStart: -1 })
         .select(select)
         .limit(4);
 
-    for (const contest of contests) {
+    /* for (const contest of contests) {
         for (const submission of contest.submissions) {
             console.log(submission.screenings);
         }
-    }
+    } */
 
     res.json(contests);
+});
+
+/* GET specific contest from search */
+listingRouter.get('/searchContest/:contestId', async (req, res) => {
+    let contest = await ContestModel
+        .findOne({
+            creator: req.session.mongoId,
+            _id: req.params.contestId,
+        })
+        .populate(defaultContestPopulate);
+
+    if (!contest) {
+        const tempContest = await ContestModel
+            .findById(req.params.contestId)
+            .orFail();
+
+        if (tempContest.status == ContestStatus.Complete) {
+            contest = await ContestModel
+                .findById(req.params.contestId)
+                .populate(defaultContestPopulate);
+        } else {
+            contest = await ContestModel
+                .findById(req.params.contestId)
+                .populate(getLimitedDefaultPopulate(req.session.mongoId));
+        }
+    }
+
+    res.json(contest);
 });
 
 /* POST create a contest */
@@ -196,7 +231,7 @@ listingRouter.post('/:id/updateStatus', isContestCreator, async (req, res) => {
         return res.json({ error: `Missing requirements: ${beatmappingStatusRequirements.join(', ')}!` });
     }
 
-    // general evaluation requirements
+    // general evaluation requirements (judging and screening)
     const evaluationStatusRequirements: string[] = [];
 
     if (!contest.submissions.length) evaluationStatusRequirements.push('submissions');
@@ -275,6 +310,15 @@ listingRouter.post('/:id/updateOsuContestListingUrl', isContestCreator, async (r
         .orFail();
 
     res.json(contest.osuContestListingUrl);
+});
+/* POST update results URL */
+listingRouter.post('/:id/updateResultsUrl', isContestCreator, async (req, res) => {
+    const contest = await ContestModel
+        .findByIdAndUpdate(req.params.id, { resultsUrl: req.body.url })
+        .populate(defaultContestPopulate)
+        .orFail();
+
+    res.json(contest.resultsUrl);
 });
 
 /* POST update submissions download link */

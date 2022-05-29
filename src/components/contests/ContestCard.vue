@@ -1,5 +1,5 @@
 <template>
-    <div class="col-sm-12 my-2" @click="selectContest()">
+    <div @click="selectContest()">
         <div
             class="card card-hover card-level-2 card-body"
         >
@@ -30,6 +30,10 @@ export default defineComponent({
             type: Object as PropType<Contest>,
             required: true,
         },
+        route: {
+            type: String,
+            required: true,
+        },
     },
     data () {
         return {
@@ -39,6 +43,10 @@ export default defineComponent({
     methods: {
         selectContest(): void {
             this.$store.commit('setSelectedContestId', this.contest.id);
+
+            if (this.$route.query.id !== this.contest.id) {
+                this.$router.replace(`/contests/${this.route}?contest=${this.contest.id}`);
+            }
         },
     },
 });

@@ -38,21 +38,21 @@ export default defineComponent({
     },
     methods: {
         findComment (userId: string): string {
-            const evaluation = this.screenings.find(e => e.screener.id == userId);
+            const screening = this.screenings.find(s => s.screener.id == userId);
 
-            if (!evaluation) {
+            if (!screening) {
                 return 'No comment';
             } else {
-                return evaluation.comment;
+                return screening.comment;
             }
         },
         findVote (userId: string): number {
-            const evaluation = this.screenings.find(e => e.screener.id == userId);
+            const screening = this.screenings.find(s => s.screener.id == userId);
 
-            if (!evaluation) {
+            if (!screening) {
                 return 0;
             } else {
-                return evaluation.vote;
+                return screening.vote;
             }
         },
     },

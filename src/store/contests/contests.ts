@@ -52,6 +52,13 @@ const store: Module<ContestState, MainState> = {
                 contest.osuContestListingUrl = payload.osuContestListingUrl;
             }
         },
+        updateResultsUrl (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                contest.resultsUrl = payload.resultsUrl;
+            }
+        },
         updateDownload (state, payload): void {
             const contest = state.contests.find(c => c.id == payload.contestId);
 

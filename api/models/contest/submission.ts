@@ -10,7 +10,6 @@ const submissionSchema = new Schema<Submission>({
     name: { type: String },
     creator: { type: 'ObjectId', ref: 'User', required: true },
     url: { type: String },
-    evaluations: [{ type: 'ObjectId', ref: 'Screening' }],
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 submissionSchema.virtual('contest', {

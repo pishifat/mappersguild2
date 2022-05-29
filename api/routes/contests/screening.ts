@@ -7,9 +7,9 @@ import { ContestStatus } from '../../../interfaces/contest/contest';
 
 const defaultContestPopulate = {
     path: 'submissions',
-    select: '_id name evaluations',
+    select: '_id name screenings',
     populate: {
-        path: 'evaluations',
+        path: 'screenings',
         populate: {
             path: 'screener',
             select: '_id osuId username',
@@ -18,7 +18,7 @@ const defaultContestPopulate = {
 };
 
 const defaultSubmissionPopulate = {
-    path: 'evaluations',
+    path: 'screenings',
     populate: {
         path: 'screener',
         select: '_id osuId username',
@@ -28,29 +28,25 @@ const defaultSubmissionPopulate = {
 const screeningRouter = express.Router();
 
 async function isScreener(req, res, next): Promise<void> {
-    //if population doesn't work here, there's a problem
-    const contests = await ContestModel
-        .find({
+    const contest = await ContestModel
+        .findOne({
             status: ContestStatus.Screening,
             screeners: res.locals.userRequest._id,
+            submissions: req.params.submissionId,
         })
         .populate(defaultContestPopulate)
         .select('_id name submissions screeners download');
 
-    console.log(contests);
-
-    if (contests.length) {
-        res.locals.contests = contests;
-
+    if (contest) {
         return next();
     }
-
 
     return unauthorize(req, res);
 }
 
 screeningRouter.use(isLoggedIn);
 
+/* GET page */
 screeningRouter.get('/relevantInfo', async (req, res) => {
     const contests = await ContestModel
         .find({
@@ -58,22 +54,34 @@ screeningRouter.get('/relevantInfo', async (req, res) => {
             screeners: res.locals.userRequest._id,
         })
         .populate(defaultContestPopulate)
-        .select('_id name submissions screeners download');
+        .select('_id name submissions screeners download status url');
 
-    console.log(contests);
+    res.json(contests);
+});
 
-    res.json({ contests });
+/* GET specific contest from search */
+screeningRouter.get('/searchContest/:contestId', async (req, res) => {
+    const contest = await ContestModel
+        .findOne({
+            status: ContestStatus.Screening,
+            screeners: res.locals.userRequest._id,
+            _id: req.params.contestId,
+        })
+        .populate(defaultContestPopulate)
+        .select('_id name submissions screeners download status url');
+
+    res.json(contest);
 });
 
 /* POST update submission comment */
-screeningRouter.post('/updateSubmission/:submissionId', async (req, res) => {
+screeningRouter.post('/updateSubmission/:submissionId', isScreener, async (req, res) => {
     let submission = await SubmissionModel
         .findById(req.params.submissionId)
         .populate(defaultSubmissionPopulate)
         .orFail();
 
-    const userEvaluation = submission.evaluations.find(e => e.screener.id === req.session?.mongoId);
-    let vote = userEvaluation ? userEvaluation.vote : 0;
+    const userScreening = submission.screenings.find(s => s.screener.id === req.session?.mongoId);
+    let vote = userScreening ? userScreening.vote : 0;
 
     if (req.body.vote !== undefined) {
         vote = parseInt(req.body.vote, 10);
@@ -83,15 +91,13 @@ screeningRouter.post('/updateSubmission/:submissionId', async (req, res) => {
         }
     }
 
-    if (!userEvaluation) {
-        const j = new ScreeningModel();
-        j.screener = req.session?.mongoId;
-        j.comment = req.body.comment;
-        j.vote = vote;
-        await j.save();
-
-        submission.evaluations.push(j);
-        await submission.save();
+    if (!userScreening) {
+        const screening = new ScreeningModel();
+        screening.screener = req.session?.mongoId;
+        screening.comment = req.body.comment;
+        screening.vote = vote;
+        screening.submission = submission._id;
+        await screening.save();
     } else {
         const updatedValues: Partial<Screening> = {};
 
@@ -103,7 +109,7 @@ screeningRouter.post('/updateSubmission/:submissionId', async (req, res) => {
             updatedValues.vote = vote;
         }
 
-        await ScreeningModel.findByIdAndUpdate(userEvaluation.id, updatedValues);
+        await ScreeningModel.findByIdAndUpdate(userScreening.id, updatedValues);
     }
 
     submission = await SubmissionModel

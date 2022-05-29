@@ -20,6 +20,16 @@
                 >
             </div>
         </div>
+        <div class="col-sm-6">
+            <div class="form-inline w-100">
+                Results URL:
+                <input
+                    v-model="newResultsUrl"
+                    class="ml-1 form-control"
+                    @change="updateResultsUrl($event)"
+                >
+            </div>
+        </div>
     </div>
 </template>
 
@@ -41,17 +51,23 @@ export default defineComponent({
             type: String,
             default: null,
         },
+        resultsUrl: {
+            type: String,
+            default: null,
+        },
     },
     data () {
         return {
             newUrl: this.url,
             newOsuContestListingUrl: this.osuContestListingUrl,
+            newResultsUrl: this.resultsUrl,
         };
     },
     watch: {
         contestId(): void {
             this.newUrl = this.url;
             this.newOsuContestListingUrl = this.osuContestListingUrl;
+            this.newResultsUrl = this.resultsUrl;
         },
     },
     methods: {
@@ -80,6 +96,20 @@ export default defineComponent({
                 this.$store.commit('updateOsuContestListingUrl', {
                     contestId: this.contestId,
                     osuContestListingUrl,
+                });
+            }
+        },
+        async updateResultsUrl(e): Promise<void> {
+            const resultsUrl = await this.$http.executePost(`/contests/listing/${this.contestId}/updateResultsUrl`, { url: this.newResultsUrl }, e);
+
+            if (!this.$http.isError(resultsUrl)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `Updated results url`,
+                    type: 'info',
+                });
+                this.$store.commit('updateResultsUrl', {
+                    contestId: this.contestId,
+                    resultsUrl,
                 });
             }
         },

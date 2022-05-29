@@ -36,7 +36,7 @@ export default defineComponent({
     },
     computed: {
         ...mapState({
-            voteLoading: (state: any) => state.voteLoading,
+            voteLoading: (state: any) => state.screening.voteLoading as boolean,
         }),
         ...mapGetters(['usedVotes']),
     },
@@ -48,7 +48,7 @@ export default defineComponent({
                 vote = ScreeningPlacement.None;
             }
 
-            const submission = await this.$http.executePost('/screening/updateSubmission/' + this.submissionId, { vote });
+            const submission = await this.$http.executePost('/contests/screening/updateSubmission/' + this.submissionId, { vote });
 
             if (!this.$http.isError(submission)) {
                 this.$store.commit('updateSubmission', submission);

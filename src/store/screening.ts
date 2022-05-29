@@ -5,17 +5,22 @@ import { MainState } from './main';
 
 interface ScreeningState {
     contests: Contest[];
+    selectedContestId: string | null;
     voteLoading: boolean;
 }
 
 const store: Module<ScreeningState, MainState> = {
     state: {
         contests: [],
+        selectedContestId: null,
         voteLoading: false,
     },
     mutations: {
         setContests (state, contests: Contest[]): void {
             state.contests = contests;
+        },
+        setSelectedContestId (state, id: string): void {
+            state.selectedContestId = id;
         },
         setVoteLoading (state, value: boolean): void {
             state.voteLoading = value;
@@ -34,17 +39,19 @@ const store: Module<ScreeningState, MainState> = {
         },
     },
     getters: {
+        selectedContest: (state): Contest | undefined => {
+            return state.contests.find(c => c.id === state.selectedContestId);
+        },
         usedVotes: (state, getters, rootState): number[] => {
+            const contest = getters.selectedContest;
             const usedVotes: number[] = [];
 
-            state.contests.forEach(c => {
-                c.submissions.forEach(s => {
-                    const e = s.evaluations.find(e => e.screener.id === rootState.loggedInUser?.id);
+            contest.submissions.forEach(s => {
+                const e = s.screenings.find(s => s.screener.id === rootState.loggedInUser?.id);
 
-                    if (e) {
-                        usedVotes.push(e.vote);
-                    }
-                });
+                if (e) {
+                    usedVotes.push(e.vote);
+                }
             });
 
             return usedVotes;
