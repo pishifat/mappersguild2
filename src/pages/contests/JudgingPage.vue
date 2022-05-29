@@ -95,11 +95,11 @@
 import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import EditingCriteriaModal from '@components/judging/EditingCriteriaModal.vue';
-import { Contest } from '../../interfaces/contest/contest';
-import { Criteria } from '../../interfaces/contest/criteria';
-import { Submission } from '../../interfaces/contest/submission';
-import { Judging } from '../../interfaces/contest/judging';
-import { JudgingScore } from '../../interfaces/contest/judgingScore';
+import { Contest } from '@interfaces/contest/contest';
+import { Criteria } from '@interfaces/contest/criteria';
+import { Submission } from '@interfaces/contest/submission';
+import { Judging } from '@interfaces/contest/judging';
+import { JudgingScore } from '@interfaces/contest/judgingScore';
 import judgingModule from '@store/judging';
 
 export default defineComponent({
@@ -214,7 +214,7 @@ export default defineComponent({
         }
     },
     async created () {
-        const res = await this.$http.initialRequest<{ contest: Contest; judgingDone: Judging[] }>('/judging/relevantInfo');
+        const res = await this.$http.initialRequest<{ contest: Contest; judgingDone: Judging[] }>('/contests/judging/relevantInfo');
 
         if (!this.$http.isError(res)) {
             this.$store.commit('setContest', res.contest);

@@ -1,11 +1,11 @@
 import express from 'express';
-import { isLoggedIn, unauthorize } from '../helpers/middlewares';
-import { ContestModel } from '../models/contest/contest';
-import { SubmissionModel } from '../models/contest/submission';
-import { CriteriaModel } from '../models/contest/criteria';
-import { JudgingScoreModel } from '../models/contest/judgingScore';
-import { JudgingModel } from '../models/contest/judging';
-import { ContestStatus } from '../../interfaces/contest/contest';
+import { isLoggedIn, unauthorize } from '../../helpers/middlewares';
+import { ContestModel } from '../../models/contest/contest';
+import { SubmissionModel } from '../../models/contest/submission';
+import { CriteriaModel } from '../../models/contest/criteria';
+import { JudgingScoreModel } from '../../models/contest/judgingScore';
+import { JudgingModel } from '../../models/contest/judging';
+import { ContestStatus } from '../../../interfaces/contest/contest';
 
 const defaultContestPopulate = [
     {

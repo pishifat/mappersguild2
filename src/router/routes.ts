@@ -13,7 +13,7 @@ const Logs = () => import('../pages/Logs.vue');
 const Notifications = () => import('../pages/NotificationPage.vue');
 
 // Contests
-const Judging = () => import('../pages/JudgingPage.vue');
+const Judging = () => import('../pages/contests/JudgingPage.vue');
 const Screening = () => import('../pages/contests/ScreeningPage.vue');
 const Listing = () => import('../pages/contests/ContestPage.vue');
 const Results = () => import('../pages/contests/ContestResultsPage.vue');
@@ -45,7 +45,7 @@ const routes = [
     // Contests
     { path: '/contests/listing', component: Listing, meta: { title: 'Contest Listing' } },
     { path: '/contests/results', component: Results, meta: { title: 'Contest Results' } },
-    { path: '/judging', component: Judging, meta: { title: 'Judging' } },
+    { path: '/contests/judging', component: Judging, meta: { title: 'Contest Judging' } },
     { path: '/contests/screening', component: Screening, meta: { title: 'Contest Screening' } },
 
     // Admin

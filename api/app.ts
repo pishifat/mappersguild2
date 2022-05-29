@@ -35,7 +35,7 @@ import artistsRouter from './routes/artists';
 import screeningRouter from './routes/contests/screening';
 import contestsListingRouter from './routes/contests/listing';
 import adminJudgingRouter from './routes/admin/judging';
-import judgingRouter from './routes/judging';
+import judgingRouter from './routes/contests/judging';
 import resultsRouter from './routes/contests/results';
 import showcaseRouter from './routes/showcase';
 import partiesRouter from './routes/parties';
@@ -96,7 +96,7 @@ app.use('/showcase', showcaseRouter);
 app.use('/contests/listing', contestsListingRouter);
 app.use('/contests/results', resultsRouter);
 app.use('/contests/screening', screeningRouter);
-app.use('/judging', judgingRouter);
+app.use('/contests/judging', judgingRouter);
 
 app.use('/artists', artistsRouter);
 app.use('/admin', adminRouter);
