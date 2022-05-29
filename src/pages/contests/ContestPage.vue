@@ -26,7 +26,7 @@
                 </div>
                 <hr>
                 <add-contest
-                    v-if="displayMode == 'myContests' && contests"
+                    v-if="displayMode == 'myContests' && contests && !loadedSpecificContest"
                 />
                 <transition-group name="list" tag="div" class="row">
                     <contest-card
@@ -39,6 +39,15 @@
                 </transition-group>
                 <div v-if="!contests" class="container card card-body py-3 mb-2 text-secondary">
                     Loading...
+                </div>
+                <div v-if="loadedSpecificContest">
+                    <button
+                        class="btn w-100 btn-info"
+                        type="button"
+                        @click="loadMore()"
+                    >
+                        Load other contests
+                    </button>
                 </div>
             </div>
             <div class="col-sm-9 container card card-body">
@@ -81,6 +90,8 @@ export default defineComponent({
     data () {
         return {
             displayMode: 'activeContests',
+            firstLoadComplete: false,
+            loadedSpecificContest: false,
         };
     },
     computed: {
@@ -97,7 +108,10 @@ export default defineComponent({
     },
     watch: {
         async displayMode () {
-            await this.loadContests();
+            if (this.firstLoadComplete) {
+                this.$router.replace(`/contests/listing`);
+                await this.loadContests();
+            }
         },
     },
     beforeCreate () {
@@ -112,15 +126,16 @@ export default defineComponent({
     },
     async created() {
         await this.loadContests();
+        this.firstLoadComplete = true;
     },
     methods: {
         async loadContests (): Promise<void> {
-            this.$store.commit('setContests', null);
-            this.$store.commit('setSelectedContestId', null);
-
             const id = this.$route.query.contest;
 
-            if (id && !this.contests) {
+            if (id && !this.contests.length) {
+                this.$store.commit('setContests', null);
+                this.$store.commit('setSelectedContestId', null);
+
                 const contest: any = await this.$http.initialRequest(`/contests/listing/searchContest/${id}`);
 
                 if (!this.$http.isError(contest)) {
@@ -132,15 +147,25 @@ export default defineComponent({
 
                     this.$store.commit('setContests', [contest] || []);
                     this.$store.commit('setSelectedContestId', id);
+
+                    this.loadedSpecificContest = true;
                 }
             } else {
+                this.$store.commit('setContests', null);
+                this.$store.commit('setSelectedContestId', null);
+
                 const contests = await this.$http.executeGet<Contest[]>(`/contests/listing/relevantInfo/${this.displayMode}`);
 
                 if (!this.$http.isError(contests)) {
                     this.$store.commit('setContests', contests);
                     this.$store.commit('setSelectedContestId', null);
+
+                    this.loadedSpecificContest = false;
                 }
             }
+        },
+        async loadMore (): Promise<void> { // only used when a specific contest is pre-loaded
+            await this.loadContests();
         },
     },
 });
