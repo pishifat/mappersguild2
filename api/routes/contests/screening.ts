@@ -33,9 +33,7 @@ async function isScreener(req, res, next): Promise<void> {
             status: ContestStatus.Screening,
             screeners: res.locals.userRequest._id,
             submissions: req.params.submissionId,
-        })
-        .populate(defaultContestPopulate)
-        .select('_id name submissions screeners download');
+        });
 
     if (contest) {
         return next();

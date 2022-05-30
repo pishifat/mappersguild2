@@ -4,6 +4,10 @@
             class="card card-hover card-level-2 card-body"
         >
             <div class="mb-2">
+                <span class="me-1"><modes-icons
+                    v-if="contest.mode"
+                    :modes="[contest.mode]"
+                /></span>
                 <a v-if="contest.url && contest.url.length" :href="contest.url" target="_blank">
                     {{ contest.name }}
                 </a>
@@ -22,9 +26,13 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
 import { Contest } from '@interfaces/contest/contest';
+import ModesIcons from '@components/ModesIcons.vue';
 
 export default defineComponent({
     name: 'ContestCard',
+    components: {
+        ModesIcons,
+    },
     props: {
         contest: {
             type: Object as PropType<Contest>,

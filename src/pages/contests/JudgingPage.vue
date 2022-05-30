@@ -1,19 +1,38 @@
 <template>
-    <div>
-        <div v-if="contest" class="row mb-2">
-            <div class="col-sm">
+    <div class="container card card-body py-1">
+        <div v-if="contests && contests.length" class="row">
+            <contest-card
+                v-for="contest in contests"
+                :key="contest.id"
+                class="col-sm-4 my-2"
+                :contest="contest"
+                :route="'judging'"
+            />
+            <div v-if="loadedSpecificContest" class="col-sm-4 my-2">
+                <button
+                    class="btn w-100 btn-info h-100"
+                    type="button"
+                    @click="loadMore()"
+                >
+                    Load other contests
+                </button>
+            </div>
+            <div v-if="selectedContest">
+                <hr>
+
                 <div class="card">
-                    <div class="card-header">
-                        <h4 class="my-2">
-                            {{ contest.name }}
-                        </h4>
-                        <h5>
-                            <a :href="contest.download" target="_blank">
-                                {{ contest.download }}
-                            </a>
-                        </h5>
-                    </div>
-                    <div class="card-body p-0">
+                    <h4 class="my-2">
+                        {{ selectedContest.name }}
+                    </h4>
+                    <h5>
+                        <a :href="selectedContest.download" target="_blank">
+                            Download all submissions
+                        </a>
+                    </h5>
+
+                    [judging instructions go here]
+
+                    <div class="card-body p-0 mt-2">
                         <table class="table table-responsive-sm mb-0">
                             <thead>
                                 <tr>
@@ -25,10 +44,10 @@
                                             Entry's Name
                                         </a>
                                     </th>
-                                    <th v-for="criteria in contest.criterias" :key="criteria.id">
+                                    <th v-for="criteria in selectedContest.criterias" :key="criteria.id">
                                         <a
                                             href="#"
-                                            class="text-capitalize"
+                                            class="text-start"
                                             @click.prevent="sortSubmissionsBy('criteria', criteria.id)"
                                         >
                                             {{ criteria.name }}
@@ -57,7 +76,7 @@
                                     <td class="text-start">
                                         {{ submission.name }}
                                     </td>
-                                    <td v-for="criteria in contest.criterias" :key="criteria.id" class="text-start">
+                                    <td v-for="criteria in selectedContest.criterias" :key="criteria.id" class="text-start">
                                         <a
                                             href="#"
                                             data-bs-toggle="modal"
@@ -86,14 +105,14 @@
                 </div>
             </div>
         </div>
-
         <editing-criteria-modal />
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { mapState } from 'vuex';
+import { mapState, mapGetters } from 'vuex';
+import ContestCard from '@components/contests/ContestCard.vue';
 import EditingCriteriaModal from '@components/judging/EditingCriteriaModal.vue';
 import { Contest } from '@interfaces/contest/contest';
 import { Criteria } from '@interfaces/contest/criteria';
@@ -106,24 +125,29 @@ export default defineComponent({
     name: 'JudgingPage',
     components: {
         EditingCriteriaModal,
+        ContestCard,
     },
     data () {
         return {
             sortBy: 'name',
             sortByCriteria: '',
             sortDesc: false,
+            loadedSpecificContest: false,
         };
     },
     computed: {
         ...mapState({
-            contest: (state: any) => state.judging.contest,
+            contests: (state: any) => state.judging.contests,
             judgingDone: (state: any) => state.judging.judgingDone,
         }),
+        ...mapGetters([
+            'selectedContest',
+        ]),
         filteredSubmissions (): Submission[] {
             const indexes: number[] = [];
 
-            for (let i = 0; i < this.contest.submissions.length; i++) {
-                const submission = this.contest.submissions[i];
+            for (let i = 0; i < this.selectedContest.submissions.length; i++) {
+                const submission = this.selectedContest.submissions[i];
                 const total = submission.screenings.reduce((acc, e) => {
                     if (e.vote) {
                         return acc + e.vote;
@@ -132,7 +156,7 @@ export default defineComponent({
                     return acc;
                 }, 0);
 
-                if (total >= this.contest.judgingThreshold) {
+                if (total >= this.selectedContest.judgingThreshold) {
                     indexes.push(i);
                 }
             }
@@ -140,7 +164,7 @@ export default defineComponent({
             const filteredSubmissions: any[] = [];
 
             for (const i of indexes) {
-                filteredSubmissions.push(this.contest.submissions[i]);
+                filteredSubmissions.push(this.selectedContest.submissions[i]);
             }
 
             return filteredSubmissions;
@@ -200,7 +224,7 @@ export default defineComponent({
         },
 
         maxPossibleScore (): number {
-            return this.contest.criterias.reduce((acc, c) => c.maxScore + acc, 0);
+            return this.selectedContest.criterias.reduce((acc, c) => c.maxScore + acc, 0);
         },
     },
     beforeCreate () {
@@ -214,14 +238,35 @@ export default defineComponent({
         }
     },
     async created () {
-        const res = await this.$http.initialRequest<{ contest: Contest; judgingDone: Judging[] }>('/contests/judging/relevantInfo');
-
-        if (!this.$http.isError(res)) {
-            this.$store.commit('setContest', res.contest);
-            this.$store.commit('setJudgingDone', res.judgingDone);
-        }
+        await this.loadContests();
     },
     methods: {
+        async loadContests(): Promise<void> {
+            const id = this.$route.query.contest;
+
+            if (id && !this.contests.length) {
+                const res: any = await this.$http.initialRequest(`/contests/judging/searchContest/${id}`);
+
+                if (!this.$http.isError(res)) {
+                    this.$store.commit('setContests', [res.contest] || []);
+                    this.$store.commit('setSelectedContestId', id);
+                    this.$store.commit('setJudgingDone', res.judgingDone);
+
+                    this.loadedSpecificContest = true;
+                }
+            } else {
+                this.$router.replace(`/contests/judging`);
+                const res: any = await this.$http.initialRequest<{ contests: Contest[]; judgingDone: Judging[] }>('/contests/judging/relevantInfo');
+
+                if (!this.$http.isError(res)) {
+                    this.$store.commit('setContests', res.contests);
+                    this.$store.commit('setSelectedContestId', null);
+                    this.$store.commit('setJudgingDone', res.judgingDone);
+
+                    this.loadedSpecificContest = false;
+                }
+            }
+        },
         selectForEditing (submissionId: Submission['id'], criteriaId: Criteria['id']): void {
             this.$store.commit('setEditingSubmissionId', submissionId);
             this.$store.commit('setEditingCriteriaId', criteriaId);
@@ -257,7 +302,7 @@ export default defineComponent({
             if (!judging)
                 return false;
 
-            return judging.judgingScores.length === this.contest.criterias.length;
+            return judging.judgingScores.length === this.selectedContest.criterias.length;
         },
         sortSubmissionsBy (type: string, criteriaId?: string): void {
             this.sortBy = type;
@@ -266,6 +311,9 @@ export default defineComponent({
             if (type === 'criteria' && criteriaId) {
                 this.sortByCriteria = criteriaId;
             }
+        },
+        async loadMore (): Promise<void> {
+            await this.loadContests();
         },
     },
 });

@@ -1,6 +1,6 @@
 <template>
     <div class="container card card-body py-1">
-        <div v-if="contests.length" class="row">
+        <div v-if="contests && contests.length" class="row">
             <contest-card
                 v-for="contest in contests"
                 :key="contest.id"
@@ -8,7 +8,15 @@
                 :contest="contest"
                 :route="'screening'"
             />
-
+            <div v-if="loadedSpecificContest" class="col-sm-4 my-2">
+                <button
+                    class="btn w-100 btn-info h-100"
+                    type="button"
+                    @click="loadMore()"
+                >
+                    Load other contests
+                </button>
+            </div>
             <div v-if="selectedContest">
                 <hr>
                 <h4 class="my-2">
@@ -51,7 +59,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { mapState, mapGetters } from 'vuex';
-import SubmissionCard from '@components/screening/SubmissionCard.vue';
+import SubmissionCard from '@components/contests/screening/SubmissionCard.vue';
 import ContestCard from '@components/contests/ContestCard.vue';
 import screeningModule from '@store/screening';
 
@@ -60,6 +68,11 @@ export default defineComponent({
     components: {
         SubmissionCard,
         ContestCard,
+    },
+    data () {
+        return {
+            loadedSpecificContest: false,
+        };
     },
     computed: {
         ...mapState({
@@ -80,28 +93,36 @@ export default defineComponent({
         }
     },
     async created () {
-        this.$store.commit('setContests', null);
-        this.$store.commit('setSelectedContestId', null);
+        await this.loadContests();
+    },
+    methods: {
+        async loadContests(): Promise<void> {
+            const id = this.$route.query.contest;
 
-        const id = this.$route.query.contest;
+            if (id && !this.contests.length) {
+                const contest: any = await this.$http.initialRequest(`/contests/screening/searchContest/${id}`);
 
-        if (id) {
-            const contest: any = await this.$http.initialRequest(`/contests/screening/searchContest/${id}`);
+                if (!this.$http.isError(contest)) {
+                    this.$store.commit('setContests', [contest] || []);
+                    this.$store.commit('setSelectedContestId', id);
 
-            if (!this.$http.isError(contest)) {
-                this.$store.commit('setContests', [contest] || []);
-                this.$store.commit('setSelectedContestId', id);
+                    this.loadedSpecificContest = true;
+                }
+            } else {
+                this.$router.replace(`/contests/screening`);
+                const contests: any = await this.$http.initialRequest('/contests/screening/relevantInfo');
+
+                if (!this.$http.isError(contests)) {
+                    this.$store.commit('setContests', contests || []);
+                    this.$store.commit('setSelectedContestId', null);
+
+                    this.loadedSpecificContest = false;
+                }
             }
-        } else {
-            const contests: any = await this.$http.initialRequest('/contests/screening/relevantInfo');
-
-            if (!this.$http.isError(contests)) {
-                this.$store.commit('setContests', contests || []);
-                this.$store.commit('setSelectedContestId', null);
-            }
-        }
-
-
+        },
+        async loadMore (): Promise<void> {
+            await this.loadContests();
+        },
     },
 });
 </script>

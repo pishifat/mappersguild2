@@ -17,8 +17,9 @@
             <thead>
                 <tr>
                     <th>Creator</th>
+                    <th>Anonymized name</th>
                     <th>Link</th>
-                    <th>Delete</th>
+                    <th />
                 </tr>
             </thead>
             <tbody>
@@ -31,7 +32,21 @@
                             :user="submission.creator"
                         />
                     </td>
-                    <td><a :href="submission.url" target="_blank">{{ submission.url }}</a></td>
+                    <td :class="submission.name ? '' : 'text-danger'">
+                        <input
+                            v-if="manualAnonEdit == submission.id"
+                            v-model="newAnonymousName"
+                            class="ml-1 form-control form-control-sm"
+                            @change="updateAnonymousSubmissionName(submission.id, $event)"
+                        >
+                        <span v-else class="me-1">{{ submission.name || 'TBD' }}</span>
+                        <a href="#" @click.prevent="manualAnonEdit == submission.id ? manualAnonEdit = null : manualAnonEdit = submission.id">
+                            <i class="fas fa-edit" />
+                        </a>
+                    </td>
+                    <td>
+                        <a :href="submission.url" target="_blank">{{ submission.url }}</a>
+                    </td>
                     <td>
                         <a
                             v-if="confirmDelete != submission.id"
@@ -78,7 +93,14 @@ export default defineComponent({
             creatorOsuId: '',
             confirmDelete: null,
             processingDelete: false,
+            manualAnonEdit: null,
+            newAnonymousName: '',
         };
+    },
+    watch: {
+        manualAnonEdit() {
+            this.findAnonymousSubmissionName();
+        },
     },
     methods: {
         /*async addSubmissionsFromCsv(e): Promise<void> {
@@ -95,6 +117,29 @@ export default defineComponent({
                 });
             }
         },*/
+        findAnonymousSubmissionName(): void {
+            const relevantSubmission = this.submissions.find(s => s.id == this.manualAnonEdit);
+
+            if (relevantSubmission) {
+                this.newAnonymousName = relevantSubmission.name;
+            }
+        },
+        async updateAnonymousSubmissionName(submissionId, e): Promise<void> {
+            const name = await this.$http.executePost(`/contests/listing/${this.contestId}/submissions/${submissionId}/updateAnonymousSubmissionName`, { name: this.newAnonymousName }, e);
+
+            if (!this.$http.isError(name)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `Updated anonymous submission name`,
+                    type: 'info',
+                });
+                // do the store thing later
+                this.$store.commit('updateAnonymousSubmissionName', {
+                    contestId: this.contestId,
+                    submissionId,
+                    name,
+                });
+            }
+        },
         async deleteSubmission(submissionId, e): Promise<void> {
             this.processingDelete = true;
             const res = await this.$http.executePost(`/contests/listing/${this.contestId}/submissions/${submissionId}/delete`, {}, e);

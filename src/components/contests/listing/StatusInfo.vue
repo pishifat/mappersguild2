@@ -7,6 +7,9 @@
             class="form-select form-select w-50 d-inline"
             @change="updateStatus($event)"
         >
+            <option value="" disabled>
+                Select a status
+            </option>
             <option value="hidden">
                 Hidden
             </option>
@@ -37,14 +40,6 @@ export default defineComponent({
             required: true,
         },
         status: {
-            type: String,
-            default: null,
-        },
-        contestStart: {
-            type: String,
-            default: null,
-        },
-        contestEnd: {
             type: String,
             default: null,
         },

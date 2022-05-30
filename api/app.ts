@@ -34,7 +34,6 @@ import adminQuestsRouter from './routes/admin/quests';
 import artistsRouter from './routes/artists';
 import screeningRouter from './routes/contests/screening';
 import contestsListingRouter from './routes/contests/listing';
-import adminJudgingRouter from './routes/admin/judging';
 import judgingRouter from './routes/contests/judging';
 import resultsRouter from './routes/contests/results';
 import showcaseRouter from './routes/showcase';
@@ -104,7 +103,6 @@ app.use('/admin/users', adminUsersRouter);
 app.use('/admin/beatmaps', adminBeatmapsRouter);
 app.use('/admin/featuredArtists', adminFeaturedArtistsRouter);
 app.use('/admin/quests', adminQuestsRouter);
-app.use('/admin/judging', adminJudgingRouter);
 
 // catch 404
 app.use((req, res) => {

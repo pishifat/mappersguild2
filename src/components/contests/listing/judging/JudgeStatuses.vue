@@ -5,7 +5,7 @@
         >
             <thead>
                 <tr>
-                    <th>User</th>
+                    <th>Submission creator</th>
                     <th>Count</th>
                     <th>Incomplete judges</th>
                 </tr>

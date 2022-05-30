@@ -121,6 +121,13 @@ const store: Module<ContestState, MainState> = {
                 contest.status = payload.status;
             }
         },
+        updateMode (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                contest.mode = payload.mode;
+            }
+        },
         updateContestCriterias (state, payload): void {
             const contest = state.contests.find(c => c.id == payload.contestId);
 
@@ -140,6 +147,17 @@ const store: Module<ContestState, MainState> = {
 
             if (contest) {
                 contest.submissions = payload.submissions;
+            }
+        },
+        updateAnonymousSubmissionName (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                const submissionIndex = contest.submissions.findIndex(s => s.id == payload.submissionId);
+
+                if (submissionIndex !== -1) {
+                    contest.submissions[submissionIndex].name = payload.name;
+                }
             }
         },
 

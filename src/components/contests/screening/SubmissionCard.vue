@@ -33,10 +33,10 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import ScreeningVote from '@components/screening/ScreeningVote.vue';
-import ScreeningNotes from '@components/screening/ScreeningNotes.vue';
-import { Submission } from '../../../interfaces/contest/submission';
-import { Screening } from '../../../interfaces/contest/screening';
+import ScreeningVote from '@components/contests/screening/ScreeningVote.vue';
+import ScreeningNotes from '@components/contests/screening/ScreeningNotes.vue';
+import { Submission } from '@interfaces/contest/submission';
+import { Screening } from '@interfaces/contest/screening';
 import { mapState } from 'vuex';
 
 export default defineComponent({

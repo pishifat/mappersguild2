@@ -164,7 +164,7 @@ export default defineComponent({
                 }
             }
         },
-        async loadMore (): Promise<void> { // only used when a specific contest is pre-loaded
+        async loadMore (): Promise<void> {
             await this.loadContests();
         },
     },

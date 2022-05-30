@@ -17,6 +17,12 @@
                 :contest-end="contest.contestEnd"
             />
 
+            <mode-info
+                class="mb-2"
+                :contest-id="contest.id"
+                :mode="contest.mode"
+            />
+
             <date-info
                 class="mb-2"
                 :contest-id="contest.id"
@@ -60,6 +66,15 @@
                     :download="contest.download"
                 />
 
+                <div class="ms-2 mb-2">
+                    <a href="#anonymizationGuide" data-bs-toggle="collapse" @click.prevent>
+                        See submission anonymization guide
+                        <i class="fas fa-angle-down" />
+                    </a>
+                </div>
+
+                <anonymization-guide id="anonymizationGuide" class="collapse" />
+
                 <hr>
 
                 <h4 class="mb-4">
@@ -91,12 +106,28 @@
                 </div>
 
                 <div>send this link to your screeners [insert link]. make sure contest status is set to "Screening"!</div>
+                <div class="text-danger">
+                    deleting a user will remove their screening/judging
+                </div>
 
                 <hr>
 
                 <h5>
                     Screening Results
                 </h5>
+
+                <div class="ms-2 mb-2">
+                    <a href="#screeningStatus" data-bs-toggle="collapse" @click.prevent>
+                        See screening status per screener
+                        <i class="fas fa-angle-down" />
+                    </a>
+                </div>
+
+                <screening-status
+                    id="screeningStatus"
+                    class="collapse mx-2"
+                    :contest="contest"
+                />
 
                 <div class="row mb-2">
                     <judging-threshold
@@ -158,6 +189,9 @@
                 </div>
 
                 <div>send this link to your judges [insert link]. make sure contest status is set to "Judging" and your download link includes only relevant submissions!</div>
+                <div class="text-danger">
+                    deleting a user will remove their screening/judging
+                </div>
 
                 <hr>
 
@@ -189,11 +223,14 @@ import { Contest } from '@interfaces/contest/contest';
 import ContestHeader from './ContestHeader.vue';
 import DateInfo from './DateInfo.vue';
 import StatusInfo from './StatusInfo.vue';
+import ModeInfo from './ModeInfo.vue';
+import AnonymizationGuide from './AnonymizationGuide.vue';
 import Urls from './Urls.vue';
 import Description from './Description.vue';
 import SubmissionsInfo from './SubmissionsInfo.vue';
 import DownloadInfo from './DownloadInfo.vue';
 import ScreenersInfo from './screening/ScreenersInfo.vue';
+import ScreeningStatus from './screening/ScreeningStatus.vue';
 import JudgesInfo from './judging/JudgesInfo.vue';
 import MarkdownUserList from './MarkdownUserList.vue';
 import ScreeningResults from './screening/ScreeningResults.vue';
@@ -206,6 +243,8 @@ export default defineComponent({
     components: {
         ContestHeader,
         DateInfo,
+        AnonymizationGuide,
+        ModeInfo,
         StatusInfo,
         SubmissionsInfo,
         DownloadInfo,
@@ -215,6 +254,7 @@ export default defineComponent({
         JudgesInfo,
         MarkdownUserList,
         ScreeningResults,
+        ScreeningStatus,
         JudgingThreshold,
         CriteriaSelection,
         JudgingResults,

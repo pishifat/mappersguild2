@@ -23,36 +23,23 @@
                             :screenings="submission.screenings"
                             :screeners="screeners"
                         />
-                        <!--<message-template
-                            :osu-id="submission.creator.osuId"
-                            :submission-id="submission.id"
-                            :contest-name="contestName"
-                            :contest-id="contestId"
-                        />-->
                     </div>
                 </div>
             </li>
         </ul>
-        <!--<bot-chat-messages-all-participants
-            :mongo-id="contestId"
-        />-->
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
 import ScreeningDetail from './ScreeningDetail.vue';
-//import MessageTemplate from './MessageTemplate.vue';
-//import BotChatMessagesAllParticipants from './BotChatMessagesAllParticipants.vue';
-import { Submission } from '../../../../../interfaces/contest/submission';
-import { User } from '../../../../../interfaces/user';
+import { Submission } from '@interfaces/contest/submission';
+import { User } from '@interfaces/user';
 
 export default defineComponent({
     name: 'ScreeningResults',
     components: {
         ScreeningDetail,
-        //MessageTemplate,
-        //BotChatMessagesAllParticipants,
     },
     props: {
         contestId: {

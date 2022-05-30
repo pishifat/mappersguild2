@@ -31,14 +31,13 @@ const defaultJudgingPopulate = [
 const judgingRouter = express.Router();
 
 async function isJudge(req, res, next): Promise<void> {
-    const query = ContestModel
+    const contest = await ContestModel
         .findOne({
             status: ContestStatus.Judging,
             judges: res.locals.userRequest._id,
+            submissions: req.body.submissionId,
         })
         .populate(defaultContestPopulate);
-
-    const contest = await query.exec();
 
     if (contest) {
         res.locals.contest = contest;
@@ -50,10 +49,39 @@ async function isJudge(req, res, next): Promise<void> {
 }
 
 judgingRouter.use(isLoggedIn);
-judgingRouter.use(isJudge);
 
+/* GET page */
 judgingRouter.get('/relevantInfo', async (req, res) => {
-    const contest = res.locals.contest;
+    const contests = await ContestModel
+        .find({
+            status: ContestStatus.Judging,
+            judges: res.locals.userRequest._id,
+        })
+        .populate(defaultContestPopulate)
+        .select('_id name submissions judges download status url judgingThreshold');
+
+    const judgingDone = await JudgingModel
+        .find({
+            judge: req.session?.mongoId,
+        })
+        .populate(defaultJudgingPopulate);
+
+    res.json({
+        contests,
+        judgingDone,
+    });
+});
+
+/* GET specific contest from search */
+judgingRouter.get('/searchContest/:contestId', async (req, res) => {
+    const contest = await ContestModel
+        .findOne({
+            status: ContestStatus.Judging,
+            judges: res.locals.userRequest._id,
+            _id: req.params.contestId,
+        })
+        .populate(defaultContestPopulate)
+        .select('_id name submissions judges download status url judgingThreshold');
 
     const judgingDone = await JudgingModel
         .find({
@@ -67,7 +95,8 @@ judgingRouter.get('/relevantInfo', async (req, res) => {
     });
 });
 
-judgingRouter.post('/save', async (req, res) => {
+/* POST save judging */
+judgingRouter.post('/save', isJudge, async (req, res) => {
     const { submissionId, criteriaId, score, comment } = req.body;
     const [criteria, submission] = await Promise.all([
         CriteriaModel.findById(criteriaId).orFail(),

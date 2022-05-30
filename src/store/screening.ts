@@ -5,7 +5,7 @@ import { MainState } from './main';
 
 interface ScreeningState {
     contests: Contest[];
-    selectedContestId: string | null;
+    selectedContestId: Contest['id'] | null;
     voteLoading: boolean;
 }
 
@@ -19,7 +19,7 @@ const store: Module<ScreeningState, MainState> = {
         setContests (state, contests: Contest[]): void {
             state.contests = contests;
         },
-        setSelectedContestId (state, id: string): void {
+        setSelectedContestId (state, id: Contest['id']): void {
             state.selectedContestId = id;
         },
         setVoteLoading (state, value: boolean): void {

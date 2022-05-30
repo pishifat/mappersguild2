@@ -1,16 +1,17 @@
 import express from 'express';
 import fs from 'fs';
 import { isLoggedIn } from '../../helpers/middlewares';
-import { isContestCreator } from './middlewares';
+import { isContestCreator, isEditable } from './middlewares';
 import { Contest, ContestModel } from '../../models/contest/contest';
 import { UserModel } from '../../models/user';
 import { UserGroup } from '../../../interfaces/user';
 import { SubmissionModel } from '../../models/contest/submission';
-import { ScreeningModel } from '../../models/contest/screening';
 import { sendMessages } from '../../helpers/osuBot';
 import { CriteriaModel } from '../../models/contest/criteria';
 import { ContestStatus } from '../../../interfaces/contest/contest';
 import { UserScore, JudgeCorrel } from '../../../interfaces/contest/judging';
+import { ScreeningModel } from '../../models/contest/screening';
+import { JudgingModel } from '../../models/contest/judging';
 
 const listingRouter = express.Router();
 
@@ -31,6 +32,12 @@ const defaultContestPopulate = [
             {
                 path: 'creator',
                 select: '_id osuId username',
+            },
+            {
+                path: 'judgings',
+                populate: {
+                    path: 'judge',
+                },
             },
         ],
     },
@@ -101,13 +108,7 @@ listingRouter.get('/relevantInfo/:contestType', async (req, res) => {
         .populate(populate)
         .sort({ createdAt: -1, contestStart: -1 })
         .select(select)
-        .limit(4);
-
-    /* for (const contest of contests) {
-        for (const submission of contest.submissions) {
-            console.log(submission.screenings);
-        }
-    } */
+        .limit(5);
 
     res.json(contests);
 });
@@ -168,7 +169,7 @@ listingRouter.post('/create', async (req, res) => {
 });
 
 /* POST update contest start date */
-listingRouter.post('/:id/updateContestStart', isContestCreator, async (req, res) => {
+listingRouter.post('/:id/updateContestStart', isContestCreator, isEditable, async (req, res) => {
     const newContestStart = new Date(req.body.date);
 
     if (!(newContestStart instanceof Date && !isNaN(newContestStart.getTime()))) {
@@ -191,7 +192,7 @@ listingRouter.post('/:id/updateContestStart', isContestCreator, async (req, res)
 });
 
 /* POST update contest end date */
-listingRouter.post('/:id/updateContestEnd', isContestCreator, async (req, res) => {
+listingRouter.post('/:id/updateContestEnd', isContestCreator, isEditable, async (req, res) => {
     const newContestEnd = new Date(req.body.date);
 
     if (!(newContestEnd instanceof Date && !isNaN(newContestEnd.getTime()))) {
@@ -213,7 +214,7 @@ listingRouter.post('/:id/updateContestEnd', isContestCreator, async (req, res) =
 });
 
 /* POST update contest status */
-listingRouter.post('/:id/updateStatus', isContestCreator, async (req, res) => {
+listingRouter.post('/:id/updateStatus', isContestCreator, isEditable, async (req, res) => {
     const contest = await ContestModel
         .findById(req.params.id)
         .populate(defaultContestPopulate)
@@ -226,6 +227,7 @@ listingRouter.post('/:id/updateStatus', isContestCreator, async (req, res) => {
     if (!contest.contestEnd) beatmappingStatusRequirements.push('end date');
     if (!contest.url) beatmappingStatusRequirements.push('details URL');
     if (!contest.description) beatmappingStatusRequirements.push('description');
+    if (!contest.mode) beatmappingStatusRequirements.push('mode');
 
     if (beatmappingStatusRequirements.length) {
         return res.json({ error: `Missing requirements: ${beatmappingStatusRequirements.join(', ')}!` });
@@ -234,16 +236,27 @@ listingRouter.post('/:id/updateStatus', isContestCreator, async (req, res) => {
     // general evaluation requirements (judging and screening)
     const evaluationStatusRequirements: string[] = [];
 
-    if (!contest.submissions.length) evaluationStatusRequirements.push('submissions');
-    if (!contest.download) evaluationStatusRequirements.push('anonymized entries download link');
-
     // screening requirements
     if (req.body.status == ContestStatus.Screening) {
+        if (!contest.submissions.length) evaluationStatusRequirements.push('submissions');
+        if (!contest.download) evaluationStatusRequirements.push('anonymized entries download link');
+
+        for (const submission of contest.submissions) {
+            if (!submission.name) evaluationStatusRequirements.push(`submission name (${submission.id})`);
+        }
+
         if (!contest.screeners.length) evaluationStatusRequirements.push('screening users');
     }
 
     // judging requirements
     if (req.body.status == ContestStatus.Judging) {
+        if (!contest.submissions.length) evaluationStatusRequirements.push('submissions');
+        if (!contest.download) evaluationStatusRequirements.push('anonymized entries download link');
+
+        for (const submission of contest.submissions) {
+            if (!submission.name) evaluationStatusRequirements.push(`submission name (${submission.id})`);
+        }
+
         if (!contest.judges.length) evaluationStatusRequirements.push('judging users');
         if (!contest.judgingThreshold && contest.judgingThreshold != 0) evaluationStatusRequirements.push('judging threshold');
         if (!contest.criterias.length) evaluationStatusRequirements.push('judging criteria');
@@ -256,19 +269,59 @@ listingRouter.post('/:id/updateStatus', isContestCreator, async (req, res) => {
     // complete requirements
     const completeStatusRequirements: string[] = [];
 
-    console.log(contest.screeners);
-
     if (req.body.status == ContestStatus.Complete) {
+        if (!contest.submissions.length) evaluationStatusRequirements.push('submissions');
+        if (!contest.download) evaluationStatusRequirements.push('anonymized entries download link');
+
         for (const submission of contest.submissions) {
-            if (!submission.name) completeStatusRequirements.push(`submission name (${submission.id})`);
-            console.log(submission);
+            if (!submission.name) evaluationStatusRequirements.push(`submission name (${submission.id})`);
+        }
 
-            //console.log(submission);
+        const screenerIds = contest.screeners.map(s => s.id);
+        const judgeIds = contest.judges.map(j => j.id);
 
-            /* things to check
-            - screeners all checked things
-            - judges filled out everything
-            */
+        for (const submission of contest.submissions) {
+            for (const screening of submission.screenings) {
+                if (!screenerIds.includes(screening.screener.id)) {
+                    completeStatusRequirements.push(`${screening.screener.username} has a saved screening despite not being a screener`);
+                }
+            }
+
+            for (const judging of submission.judgings) {
+                if (!judgeIds.includes(judging.judge.id)) {
+                    completeStatusRequirements.push(`${judging.judge.username} has a saved judging despite not being a judge`);
+                }
+            }
+        }
+
+        for (const screener of contest.screeners) {
+            let count = 0;
+
+            for (const submission of contest.submissions) {
+                for (const screening of submission.screenings) {
+                    if (screening.screener.id == screener.id && screening.vote) {
+                        count++;
+                    }
+                }
+            }
+
+            if (count < 5) completeStatusRequirements.push(`screener incomplete (${screener.username})`);
+        }
+
+        for (const submission of contest.submissions) {
+            if (submission.judgings) {
+                for (const judge of contest.judges) {
+                    const judging = submission.judgings.find(j => j.judge.id === judge.id);
+
+                    if (judging && judging.judgingScores.length !== contest.criterias.length) {
+                        completeStatusRequirements.push(`judge incomplete (${judge.username})`);
+                    }
+                }
+
+                if (submission.judgings.length && submission.judgings.length < contest.judges.length) {
+                    completeStatusRequirements.push(`judging incomplete (${submission.id})`);
+                }
+            }
         }
     }
 
@@ -282,8 +335,21 @@ listingRouter.post('/:id/updateStatus', isContestCreator, async (req, res) => {
     res.json(contest.status);
 });
 
+/* POST update contest mode */
+listingRouter.post('/:id/updateMode', isContestCreator, isEditable, async (req, res) => {
+    const contest = await ContestModel
+        .findById(req.params.id)
+        .populate(defaultContestPopulate)
+        .orFail();
+
+    contest.mode = req.body.mode;
+    await contest.save();
+
+    res.json(contest.mode);
+});
+
 /* POST update contest description */
-listingRouter.post('/:id/updateDescription', isContestCreator, async (req, res) => {
+listingRouter.post('/:id/updateDescription', isContestCreator, isEditable, async (req, res) => {
     const contest = await ContestModel
         .findByIdAndUpdate(req.params.id, { description: req.body.description.trim() })
         .populate(defaultContestPopulate)
@@ -293,7 +359,7 @@ listingRouter.post('/:id/updateDescription', isContestCreator, async (req, res) 
 });
 
 /* POST update contest URL */
-listingRouter.post('/:id/updateUrl', isContestCreator, async (req, res) => {
+listingRouter.post('/:id/updateUrl', isContestCreator, isEditable, async (req, res) => {
     const contest = await ContestModel
         .findByIdAndUpdate(req.params.id, { url: req.body.url })
         .populate(defaultContestPopulate)
@@ -303,7 +369,7 @@ listingRouter.post('/:id/updateUrl', isContestCreator, async (req, res) => {
 });
 
 /* POST update contest osu! contest listing URL */
-listingRouter.post('/:id/updateOsuContestListingUrl', isContestCreator, async (req, res) => {
+listingRouter.post('/:id/updateOsuContestListingUrl', isContestCreator, isEditable, async (req, res) => {
     const contest = await ContestModel
         .findByIdAndUpdate(req.params.id, { osuContestListingUrl: req.body.url })
         .populate(defaultContestPopulate)
@@ -335,8 +401,20 @@ listingRouter.post('/:id/updateDownload', isContestCreator, async (req, res) => 
     res.json(contest.download);
 });
 
+/* POST update submission anonymous name */
+listingRouter.post('/:id/submissions/:submissionId/updateAnonymousSubmissionName', isContestCreator, isEditable, async (req, res) => {
+    const submission = await SubmissionModel
+        .findById(req.params.submissionId)
+        .orFail();
+
+    submission.name = req.body.name;
+    await submission.save();
+
+    res.json(submission.name);
+});
+
 /* POST delete a submission */
-listingRouter.post('/:id/submissions/:submissionId/delete', isContestCreator, async (req, res) => {
+listingRouter.post('/:id/submissions/:submissionId/delete', isContestCreator, isEditable, async (req, res) => {
     const submission = await SubmissionModel
         .findByIdAndRemove(req.params.submissionId)
         .orFail();
@@ -345,7 +423,7 @@ listingRouter.post('/:id/submissions/:submissionId/delete', isContestCreator, as
 });
 
 /* POST add a screener to the list */
-listingRouter.post('/:id/screeners/add', isContestCreator, async (req, res) => {
+listingRouter.post('/:id/screeners/add', isContestCreator, isEditable, async (req, res) => {
     const contest = await ContestModel
         .findById(req.params.id)
         .orFail();
@@ -383,10 +461,11 @@ listingRouter.post('/:id/screeners/add', isContestCreator, async (req, res) => {
 });
 
 /* POST remove a screener from the list */
-listingRouter.post('/:id/screeners/remove', isContestCreator, async (req, res) => {
+listingRouter.post('/:id/screeners/remove', isContestCreator, isEditable, async (req, res) => {
     const [contest, user] = await Promise.all([
         ContestModel
             .findById(req.params.id)
+            .populate(defaultContestPopulate)
             .orFail(),
 
         UserModel
@@ -394,7 +473,9 @@ listingRouter.post('/:id/screeners/remove', isContestCreator, async (req, res) =
             .orFail(),
     ]);
 
-    if (!contest.screeners.includes(user._id)) {
+    const screenerIds = contest.screeners.map(s => s.id);
+
+    if (!screenerIds.includes(user.id)) {
         return res.json({ error: 'User is not a screener!' });
     }
 
@@ -402,11 +483,19 @@ listingRouter.post('/:id/screeners/remove', isContestCreator, async (req, res) =
         .findByIdAndUpdate(contest._id, { $pull: { screeners: user._id } })
         .orFail();
 
+    for (const submission of contest.submissions) {
+        await ScreeningModel
+            .deleteMany({
+                submission: submission._id,
+                screener: user._id,
+            });
+    }
+
     res.json(user);
 });
 
 /* POST add a judge to the list */
-listingRouter.post('/:id/judges/add', isContestCreator, async (req, res) => {
+listingRouter.post('/:id/judges/add', isContestCreator, isEditable, async (req, res) => {
     const contest = await ContestModel
         .findById(req.params.id)
         .orFail();
@@ -444,10 +533,11 @@ listingRouter.post('/:id/judges/add', isContestCreator, async (req, res) => {
 });
 
 /* POST remove a judge from the list */
-listingRouter.post('/:id/judges/remove', isContestCreator, async (req, res) => {
+listingRouter.post('/:id/judges/remove', isContestCreator, isEditable, async (req, res) => {
     const [contest, user] = await Promise.all([
         ContestModel
             .findById(req.params.id)
+            .populate(defaultContestPopulate)
             .orFail(),
 
         UserModel
@@ -455,7 +545,9 @@ listingRouter.post('/:id/judges/remove', isContestCreator, async (req, res) => {
             .orFail(),
     ]);
 
-    if (!contest.judges.includes(user._id)) {
+    const judgeIds = contest.judges.map(j => j.id);
+
+    if (!judgeIds.includes(user.id)) {
         return res.json({ error: 'User is not a judge!' });
     }
 
@@ -463,11 +555,19 @@ listingRouter.post('/:id/judges/remove', isContestCreator, async (req, res) => {
         .findByIdAndUpdate(contest._id, { $pull: { judges: user._id } })
         .orFail();
 
+    for (const submission of contest.submissions) {
+        await JudgingModel
+            .deleteMany({
+                submission: submission._id,
+                judge: user._id,
+            });
+    }
+
     res.json(user);
 });
 
 /* POST update judging threshold */
-listingRouter.post('/:id/updateJudgingThreshold', isContestCreator, async (req, res) => {
+listingRouter.post('/:id/updateJudgingThreshold', isContestCreator, isEditable, async (req, res) => {
     const newJudgingThreshold = parseInt(req.body.judgingThreshold);
 
     if (isNaN(newJudgingThreshold)) {
@@ -485,7 +585,7 @@ listingRouter.post('/:id/updateJudgingThreshold', isContestCreator, async (req, 
 });
 
 /* POST add criteria */
-listingRouter.post('/:id/addCriteria', isContestCreator, async (req, res) => {
+listingRouter.post('/:id/addCriteria', isContestCreator, isEditable, async (req, res) => {
     const name = req.body.name.toLowerCase();
     const maxScore = parseInt(req.body.maxScore);
 
@@ -528,7 +628,7 @@ listingRouter.post('/:id/addCriteria', isContestCreator, async (req, res) => {
 });
 
 /* POST add criteria */
-listingRouter.post('/:id/deleteCriteria', isContestCreator, async (req, res) => {
+listingRouter.post('/:id/deleteCriteria', isContestCreator, isEditable, async (req, res) => {
     const criteriaId = req.body.criteriaId;
 
     const [contest, criteria] = await Promise.all([
@@ -778,7 +878,7 @@ listingRouter.get('/:id/judgingResults', isContestCreator, async (req, res) => {
 });
 
 /* POST create submission */
-listingRouter.post('/:id/createSubmission', async (req, res) => {
+listingRouter.post('/:id/createSubmission', isEditable, async (req, res) => {
     const contest = await ContestModel
         .findById(req.params.id)
         .populate(defaultContestPopulate)

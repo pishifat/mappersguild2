@@ -10,6 +10,13 @@ export enum ContestStatus {
     Complete = 'complete',
 }
 
+export enum ContestMode {
+    Osu = 'osu',
+    Taiko = 'taiko',
+    Catch = 'catch',
+    Mania = 'mania',
+}
+
 export interface Contest {
     _id: any;
     id: string;
@@ -28,4 +35,5 @@ export interface Contest {
     criterias: Criteria[] | Criteria['_id'];
     download: string;
     description: string;
+    mode: ContestMode;
 }
