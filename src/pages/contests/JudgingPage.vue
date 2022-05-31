@@ -30,7 +30,17 @@
                         </a>
                     </h5>
 
-                    [judging instructions go here]
+                    <div class="mb-2">
+                        <a href="#judgingInstructions" data-bs-toggle="collapse" @click.prevent>
+                            See judging instructions
+                            <i class="fas fa-angle-down" />
+                        </a>
+                    </div>
+
+                    <judging-instructions
+                        id="judgingInstructions"
+                        class="collapse"
+                    />
 
                     <div class="card-body p-0 mt-2">
                         <table class="table table-responsive-sm mb-0">
@@ -83,10 +93,11 @@
                                             data-bs-target="#editing-judging-modal"
                                             @click.prevent="selectForEditing(submission.id, criteria.id)"
                                         >
-                                            <i class="me-1 fas fa-edit" />
                                             <span v-if="criteria.name != 'comments'">
                                                 {{ getScore(submission.id, criteria.id) + `/${criteria.maxScore}` }}
                                             </span>
+                                            <span v-else>{{ getComment(submission.id) }}</span>
+                                            <i class="ms-1 fas fa-edit" />
                                         </a>
                                     </td>
                                     <td>
@@ -114,6 +125,7 @@ import { defineComponent } from 'vue';
 import { mapState, mapGetters } from 'vuex';
 import ContestCard from '@components/contests/ContestCard.vue';
 import EditingCriteriaModal from '@components/judging/EditingCriteriaModal.vue';
+import JudgingInstructions from '@components/judging/JudgingInstructions.vue';
 import { Contest } from '@interfaces/contest/contest';
 import { Criteria } from '@interfaces/contest/criteria';
 import { Submission } from '@interfaces/contest/submission';
@@ -126,6 +138,7 @@ export default defineComponent({
     components: {
         EditingCriteriaModal,
         ContestCard,
+        JudgingInstructions,
     },
     data () {
         return {
@@ -314,6 +327,22 @@ export default defineComponent({
         },
         async loadMore (): Promise<void> {
             await this.loadContests();
+        },
+        getComment (submissionId: string): string {
+            const judging = this.judgingDone.find(j => j.submission.id === submissionId);
+            if (!judging) return '...';
+
+            console.log(judging);
+
+            let comment = '...';
+
+            for (const score of judging.judgingScores) {
+                if (score.comment && score.comment.length) {
+                    comment = score.comment.length > 10 ? score.comment.slice(0,10) + '...' : score.comment;
+                }
+            }
+
+            return comment;
         },
     },
 });

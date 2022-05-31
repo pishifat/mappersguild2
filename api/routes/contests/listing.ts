@@ -924,106 +924,67 @@ listingRouter.post('/:id/createSubmission', isEditable, async (req, res) => {
     res.json(newContest.submissions);
 });
 
+/* POST create submissions from CSV data */
+listingRouter.post('/:id/submissions/syncAnonymousNames', async (req, res) => {
+    const contest = await ContestModel
+        .findById(req.params.id)
+        .populate(defaultContestPopulate)
+        .orFail();
 
+    const csv = req.body.csv;
+    const lines = csv.split('\n');
 
+    const errors: string[] = [];
 
+    for (const submission of contest.submissions) {
+        const userLine = lines.find(line => {
+            if (line.includes(submission.creator.osuId)) {
+                return true;
+            }
+        });
 
+        if (userLine) {
+            const lineSplit = userLine.split(',');
+            const mask = lineSplit[2];
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* POST create a submission entry */
-listingRouter.post('/:id/submissions/create', async (req, res) => {
-    const osuId = parseInt(req.body.osuId, 10);
-    const [contest, user] = await Promise.all([
-        ContestModel
-            .findById(req.params.id)
-            .orFail(),
-
-        UserModel
-            .findOne({ osuId })
-            .orFail(),
-    ]);
-    const submission = new SubmissionModel();
-    submission.name = req.body.name;
-    submission.creator = user._id;
-    await submission.save();
-    contest.submissions.push(submission);
-    await contest.save();
-    await submission.populate({
-        path: 'creator',
-        select: '_id osuId username',
-    }).execPopulate();
-
-    res.json(submission);
-});
-
-/* POST create submissions from CSV file */
-listingRouter.post('/:id/submissions/createFromCsv', async (req, res) => {
-    const contest = await ContestModel.findById(req.params.id).orFail();
-
-    // read masking csv
-    const buffer = fs.readFileSync('contest.csv');
-    const csv = buffer.toString();
-
-    if (!csv) {
-        return res.json(`couldn't read csv`);
-    }
-
-    const data = csv.split('\r\n');
-
-    for (const unsplitSubmission of data) {
-        const splitSubmission = unsplitSubmission.split(',');
-        const username = splitSubmission[0];
-        const osuId = parseInt(splitSubmission[1], 10);
-        const mask = splitSubmission[2];
-        console.log(username);
-
-        const submission = new SubmissionModel();
-
-        submission.name = mask;
-
-        const user = await UserModel.findOne({ osuId });
-
-        if (user) {
-            submission.creator = user._id;
+            await SubmissionModel.findByIdAndUpdate(submission._id, { name: mask });
         } else {
-            const newUser = new UserModel();
-            newUser.osuId = osuId;
-            newUser.username = username;
-            newUser.group = UserGroup.Spectator;
-            await newUser.save();
-
-            submission.creator = newUser._id;
+            errors.push(submission.creator.username);
         }
-
-        await submission.save();
-        contest.submissions.push(submission);
     }
 
-    await contest.save();
     await contest.populate(defaultContestPopulate).execPopulate();
 
-    res.json(contest.submissions);
+    res.json({ submissions: contest.submissions, errors });
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* POST send messages */
 listingRouter.post('/:id/sendMessages', async (req, res) => {

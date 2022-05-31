@@ -18,7 +18,7 @@
             </div>
         </div>
         <div v-else class="text-center">
-            Nothing to see here
+            Contests you participated in will show up here!
         </div>
     </div>
 </template>

@@ -73,7 +73,11 @@
                     </a>
                 </div>
 
-                <anonymization-guide id="anonymizationGuide" class="collapse" />
+                <anonymization-guide
+                    id="anonymizationGuide"
+                    class="collapse"
+                    :contest-id="contest.id"
+                />
 
                 <hr>
 
@@ -92,7 +96,7 @@
                     </a>
                 </div>
 
-                <div id="screeners" class="row collapse">
+                <div id="screeners" class="row collapse mb-2">
                     <screeners-info
                         class="col-sm-4"
                         :contest-id="contest.id"
@@ -103,12 +107,15 @@
                         class="col-sm-7"
                         :users="contest.screeners"
                     />
+                    <div class="text-danger small col-sm-12">
+                        Note: Deleting a user from this list will remove all of their screening progress.
+                    </div>
                 </div>
 
-                <div>send this link to your screeners [insert link]. make sure contest status is set to "Screening"!</div>
-                <div class="text-danger">
-                    deleting a user will remove their screening/judging
-                </div>
+
+
+                <div>To begin screening, send this link to the users above and ensure your contest's status is set to "Screening"!</div>
+                <code>https://mappersguild.com/contests/screening?contest={{ contest.id }}</code>
 
                 <hr>
 
@@ -175,7 +182,7 @@
                     </a>
                 </div>
 
-                <div id="judges" class="row collapse">
+                <div id="judges" class="row collapse mb-2">
                     <judges-info
                         class="col-sm-4"
                         :contest-id="contest.id"
@@ -186,12 +193,14 @@
                         class="col-sm-7"
                         :users="contest.judges"
                     />
+
+                    <div class="text-danger small col-sm-12">
+                        Note: Deleting a user from this list will remove all of their judging progress.
+                    </div>
                 </div>
 
-                <div>send this link to your judges [insert link]. make sure contest status is set to "Judging" and your download link includes only relevant submissions!</div>
-                <div class="text-danger">
-                    deleting a user will remove their screening/judging
-                </div>
+                <div>To begin judging, send this link to the users above and ensure your contest's status is set to "Judging"!</div>
+                <code>https://mappersguild.com/contests/judging?contest={{ contest.id }}</code>
 
                 <hr>
 

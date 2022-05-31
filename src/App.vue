@@ -55,7 +55,7 @@
                                 <ul class="dropdown-menu">
                                     <li>
                                         <router-link class="dropdown-item" to="/contests/listing">
-                                            Contest listing
+                                            Listing
                                         </router-link>
                                     </li>
                                     <li>
@@ -112,6 +112,11 @@
                                             </router-link>
                                         </li>
                                     </ul>
+                                </li>
+                                <li v-if="loggedInUser.osuId === 3178418" class="nav-item">
+                                    <router-link class="nav-link" to="/artists">
+                                        FA Schedule
+                                    </router-link>
                                 </li>
                             </template>
                         </ul>

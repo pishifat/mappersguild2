@@ -28,8 +28,16 @@
                     </a>
                 </h5>
                 <div class="mb-2">
-                    [screening instructions go here]
+                    <a href="#screeningInstructions" data-bs-toggle="collapse" @click.prevent>
+                        See screening instructions
+                        <i class="fas fa-angle-down" />
+                    </a>
                 </div>
+
+                <screening-instructions
+                    id="screeningInstructions"
+                    class="collapse"
+                />
 
                 <transition-group
                     v-if="selectedContest.submissions.length"
@@ -60,6 +68,7 @@
 import { defineComponent } from 'vue';
 import { mapState, mapGetters } from 'vuex';
 import SubmissionCard from '@components/contests/screening/SubmissionCard.vue';
+import ScreeningInstructions from '@components/contests/screening/ScreeningInstructions.vue';
 import ContestCard from '@components/contests/ContestCard.vue';
 import screeningModule from '@store/screening';
 
@@ -68,6 +77,7 @@ export default defineComponent({
     components: {
         SubmissionCard,
         ContestCard,
+        ScreeningInstructions,
     },
     data () {
         return {

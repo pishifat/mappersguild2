@@ -91,6 +91,9 @@
                         </tr>
                     </tbody>
                 </table>
+                <div v-else>
+                    No criteria yet...
+                </div>
             </div>
         </div>
     </div>
