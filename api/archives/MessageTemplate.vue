@@ -11,12 +11,12 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import BotChatMessage from '../BotChatMessage.vue';
+//import BotChatMessage from '../BotChatMessage.vue';
 
 export default defineComponent({
     name: 'MessageTemplate',
     components: {
-        BotChatMessage,
+        //BotChatMessage,
     },
     props: {
         osuId: {
