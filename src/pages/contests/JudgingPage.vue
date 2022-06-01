@@ -332,8 +332,6 @@ export default defineComponent({
             const judging = this.judgingDone.find(j => j.submission.id === submissionId);
             if (!judging) return '...';
 
-            console.log(judging);
-
             let comment = '...';
 
             for (const score of judging.judgingScores) {

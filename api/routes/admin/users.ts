@@ -86,8 +86,6 @@ adminUsersRouter.get('/findContestHelperUsers', async (req, res) => {
         UserModel.find({ isContestHelper: true, maniaPoints: { $gte: 1 } }),
     ]);
 
-    console.log(taikoUsers);
-
     res.json({ osuUsers, taikoUsers, catchUsers, maniaUsers });
 });
 

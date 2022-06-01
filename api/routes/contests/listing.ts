@@ -108,7 +108,7 @@ listingRouter.get('/relevantInfo/:contestType', async (req, res) => {
         .populate(populate)
         .sort({ createdAt: -1, contestStart: -1 })
         .select(select)
-        .limit(5);
+        .limit(1111);
 
     res.json(contests);
 });
@@ -270,11 +270,12 @@ listingRouter.post('/:id/updateStatus', isContestCreator, isEditable, async (req
     const completeStatusRequirements: string[] = [];
 
     if (req.body.status == ContestStatus.Complete) {
-        if (!contest.submissions.length) evaluationStatusRequirements.push('submissions');
-        if (!contest.download) evaluationStatusRequirements.push('anonymized entries download link');
+        if (!contest.submissions.length) completeStatusRequirements.push('submissions');
+        if (!contest.download || !contest.download.length) completeStatusRequirements.push('anonymized entries download link');
+        if (!contest.resultsUrl || !contest.resultsUrl.length) completeStatusRequirements.push('results url');
 
         for (const submission of contest.submissions) {
-            if (!submission.name) evaluationStatusRequirements.push(`submission name (${submission.id})`);
+            if (!submission.name) completeStatusRequirements.push(`submission name (${submission.id})`);
         }
 
         const screenerIds = contest.screeners.map(s => s.id);
@@ -283,6 +284,7 @@ listingRouter.post('/:id/updateStatus', isContestCreator, isEditable, async (req
         for (const submission of contest.submissions) {
             for (const screening of submission.screenings) {
                 if (!screenerIds.includes(screening.screener.id)) {
+                    //await ScreeningModel.findByIdAndRemove(screening.id);
                     completeStatusRequirements.push(`${screening.screener.username} has a saved screening despite not being a screener`);
                 }
             }

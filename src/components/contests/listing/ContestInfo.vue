@@ -34,6 +34,7 @@
                 :contest-id="contest.id"
                 :url="contest.url || null"
                 :osu-contest-listing-url="contest.osuContestListingUrl || null"
+                :results-url="contest.resultsUrl || null"
             />
 
             <description

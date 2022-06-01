@@ -48,7 +48,8 @@
 
         <div v-else>
             <h5>Results</h5>
-            <a :href="'/contests/results?contest=' + contest.id" target="_blank">View contest results here!</a>
+            <div><a :href="contest.resultsUrl" target="_blank">View contest results here!</a></div>
+            <div><a :href="'/contests/results?contest=' + contest.id" target="_blank">View Mappers' Guild judging scores here!</a></div>
         </div>
     </div>
 </template>
