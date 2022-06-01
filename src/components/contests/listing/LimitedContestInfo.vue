@@ -9,7 +9,6 @@
         <h5>General</h5>
 
         <div v-if="contest.description">
-            Description:
             <div class="small mt-2 bg-dark pt-3 pb-1 px-3 mb-2 rounded" v-html="$md.render(contest.description.trim())" />
         </div>
 

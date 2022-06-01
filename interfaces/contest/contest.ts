@@ -25,6 +25,7 @@ export interface Contest {
     url: string;
     osuContestListingUrl: string;
     resultsUrl: string;
+    isApproved: boolean;
     status: ContestStatus;
     contestStart: Date;
     contestEnd: Date;

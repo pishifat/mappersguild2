@@ -13,8 +13,7 @@
                 class="mb-2"
                 :contest-id="contest.id"
                 :status="contest.status"
-                :contest-start="contest.contestStart"
-                :contest-end="contest.contestEnd"
+                :is-approved="contest.isApproved"
             />
 
             <mode-info

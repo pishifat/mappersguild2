@@ -3,6 +3,7 @@ import { MainState } from './main';
 import { Beatmap, BeatmapStatus } from '@interfaces/beatmap/beatmap';
 import { Quest } from '@interfaces/quest';
 import { User } from '@interfaces/user';
+import { Contest } from '@interfaces/contest/contest';
 
 interface AdminState {
     actionBeatmaps: Beatmap[];
@@ -11,9 +12,12 @@ interface AdminState {
     actionQuestsLoading: boolean;
     actionUsers: User[];
     actionUsersLoading: boolean;
+    actionContests: Contest[];
+    actionContestsLoading: boolean;
     selectedBeatmap: null | Beatmap;
     selectedQuest: null | Quest;
     selectedUser: null | User;
+    selectedContest: null | Contest;
 }
 
 const store: Module<AdminState, MainState> = {
@@ -24,9 +28,12 @@ const store: Module<AdminState, MainState> = {
         actionQuestsLoading: false,
         actionUsers: [],
         actionUsersLoading: false,
+        actionContests: [],
+        actionContestsLoading: false,
         selectedBeatmap: null,
         selectedQuest: null,
         selectedUser: null,
+        selectedContest: null,
     },
     mutations: {
         setActionBeatmaps (state, actionBeatmaps: Beatmap[]): void {
@@ -47,6 +54,12 @@ const store: Module<AdminState, MainState> = {
         setActionUsersLoading (state, value: boolean): void {
             state.actionUsersLoading = value;
         },
+        setActionContests (state, actionContests: Contest[]): void {
+            state.actionContests = actionContests;
+        },
+        setActionContestsLoading (state, value: boolean): void {
+            state.actionContestsLoading = value;
+        },
         setSelectedBeatmap (state, selectedBeatmap: Beatmap): void {
             state.selectedBeatmap = selectedBeatmap;
         },
@@ -55,6 +68,9 @@ const store: Module<AdminState, MainState> = {
         },
         setSelectedUser (state, selectedUser: User): void {
             state.selectedUser = selectedUser;
+        },
+        setSelectedContest (state, selectedContest: Contest): void {
+            state.selectedContest = selectedContest;
         },
 
         // beatmaps

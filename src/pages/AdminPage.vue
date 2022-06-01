@@ -142,7 +142,7 @@
             </div>
         </div>
 
-        <div class="container card card-body py-1">
+        <div class="container card card-body py-1 mb-4">
             <div class="row mx-3 mt-2">
                 <button class="btn btn-sm btn-info w-100 mb-1" @click="loadActionUsers($event)">
                     Load users
@@ -226,6 +226,63 @@
             </div>
         </div>
 
+        <div class="container card card-body py-1">
+            <div class="row mx-3 mt-2">
+                <button class="btn btn-sm btn-info w-100 mb-1" @click="loadActionContests($event)">
+                    Load contests
+                </button>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <h5 class="ms-4 mt-2">
+                        <a href="#actionContests" data-bs-toggle="collapse">
+                            Contests
+                            <i class="fas fa-angle-down" />
+                        </a>
+                        <span v-if="actionContestsLoading" class="ms-2 small text-white-50">loading...</span>
+                    </h5>
+                    <div v-if="actionContests" id="actionContests" class="show">
+                        <table v-if="actionContests.length" class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th scope="col">
+                                        CONTEST
+                                    </th>
+                                    <th scope="col">
+                                        CREATOR
+                                    </th>
+                                    <th scope="col">
+                                        EDIT
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="contest in actionContests" :key="contest.id" class="text-white-50">
+                                    <td scope="row">
+                                        <a :href="'/contests/listing?contest=' + contest.id">{{ contest.name }}</a>
+                                    </td>
+                                    <td scope="row">
+                                        <user-link :user="contest.creator" />
+                                    </td>
+                                    <td scope="row">
+                                        <a
+                                            href="#"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#editContest"
+                                            @click.prevent="$store.commit('setSelectedContest', contest)"
+                                        >
+                                            edit
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <span v-else-if="!actionContestsLoading" class="text-white-50 ms-5">None...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="radial-divisor" />
 
         <beatmap-info-admin
@@ -247,6 +304,11 @@
             v-if="selectedUser"
             :user="selectedUser"
         />
+
+        <contest-info
+            v-if="selectedContest"
+            :contest="selectedContest"
+        />
     </div>
 </template>
 
@@ -257,6 +319,7 @@ import BeatmapInfoAdmin from '../components/admin/BeatmapInfoAdmin.vue';
 import QuestInfo from '../components/admin/quests/QuestInfo.vue';
 import ReviewQuest from '../components/admin/quests/ReviewQuest.vue';
 import UserInfo from '../components/admin/UserInfo.vue';
+import ContestInfo from '../components/admin/ContestInfo.vue';
 import { Beatmap } from '@interfaces/beatmap/beatmap';
 import { Quest } from '@interfaces/quest';
 import { User } from '@interfaces/user';
@@ -270,6 +333,7 @@ export default defineComponent({
         QuestInfo,
         ReviewQuest,
         UserInfo,
+        ContestInfo,
         ModesIcons,
     },
     computed: mapState({
@@ -279,9 +343,12 @@ export default defineComponent({
         actionQuestsLoading: (state: any) => state.admin.actionQuestsLoading,
         actionUsers: (state: any) => state.admin.actionUsers,
         actionUsersLoading: (state: any) => state.admin.actionUsersLoading,
+        actionContests: (state: any) => state.admin.actionContests,
+        actionContestsLoading: (state: any) => state.admin.actionContestsLoading,
         selectedBeatmap: (state: any) => state.admin.selectedBeatmap,
         selectedQuest: (state: any) => state.admin.selectedQuest,
         selectedUser: (state: any) => state.admin.selectedUser,
+        selectedContest: (state: any) => state.admin.selectedContest,
     }),
     beforeCreate () {
         if (!this.$store.hasModule('admin')) {
@@ -341,6 +408,17 @@ export default defineComponent({
             }
 
             this.$store.commit('setActionUsersLoading', false);
+        },
+        async loadActionContests(e): Promise<void> {
+            this.$store.commit('setActionContests', []);
+            this.$store.commit('setActionContestsLoading', true);
+            const actionContests = await this.$http.executeGet<User[]>('/admin/loadActionContests', e);
+
+            if (!this.$http.isError(actionContests)) {
+                this.$store.commit('setActionContests', actionContests);
+            }
+
+            this.$store.commit('setActionContestsLoading', false);
         },
     },
 });

@@ -26,6 +26,9 @@
                 Complete
             </option>
         </select>
+        <div v-if="status == 'beatmapping' && !isApproved" class="small text-danger mt-2">
+            Your contest has been queued for approval. Once approved, it will appear in "Active contests".
+        </div>
     </div>
 </template>
 
@@ -42,6 +45,10 @@ export default defineComponent({
         status: {
             type: String,
             default: null,
+        },
+        isApproved: {
+            type: Boolean,
+            required: true,
         },
     },
     data () {
