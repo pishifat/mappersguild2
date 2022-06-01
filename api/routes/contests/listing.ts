@@ -343,6 +343,22 @@ listingRouter.post('/:id/updateStatus', isContestCreator, isEditable, async (req
     res.json(contest.status);
 });
 
+/* POST update contest name */
+listingRouter.post('/:id/updateName', isContestCreator, isEditable, async (req, res) => {
+    const name = req.body.name.trim();
+
+    if (!name.length) {
+        return res.json({ error: `Name doesn't exist` });
+    }
+
+    const contest = await ContestModel
+        .findByIdAndUpdate(req.params.id, { name })
+        .populate(defaultContestPopulate)
+        .orFail();
+
+    res.json(contest.name);
+});
+
 /* POST update contest mode */
 listingRouter.post('/:id/updateMode', isContestCreator, isEditable, async (req, res) => {
     const contest = await ContestModel

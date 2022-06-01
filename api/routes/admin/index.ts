@@ -6,7 +6,6 @@ import { UserModel } from '../../models/user';
 import { BeatmapModel } from '../../models/beatmap/beatmap';
 import { BeatmapStatus } from '../../../interfaces/beatmap/beatmap';
 import { ContestModel } from '../../models/contest/contest';
-import { ContestStatus } from '../../../interfaces/contest/contest';
 
 
 const adminRouter = express.Router();

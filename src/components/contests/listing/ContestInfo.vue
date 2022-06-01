@@ -9,6 +9,11 @@
         <h5>General</h5>
 
         <div>
+            <name
+                class="mb-2"
+                :contest-id="contest.id"
+                :name="contest.name"
+            />
             <status-info
                 class="mb-2"
                 :contest-id="contest.id"
@@ -231,6 +236,7 @@ import { defineComponent } from 'vue';
 import { Contest } from '@interfaces/contest/contest';
 import ContestHeader from './ContestHeader.vue';
 import DateInfo from './DateInfo.vue';
+import Name from './Name.vue';
 import StatusInfo from './StatusInfo.vue';
 import ModeInfo from './ModeInfo.vue';
 import AnonymizationGuide from './AnonymizationGuide.vue';
@@ -252,6 +258,7 @@ export default defineComponent({
     components: {
         ContestHeader,
         DateInfo,
+        Name,
         AnonymizationGuide,
         ModeInfo,
         StatusInfo,

@@ -3,23 +3,45 @@
         <div class="col-sm-6">
             <div class="form-inline w-100">
                 Submissions open:
-                <input
-                    v-model="newContestStart"
-                    class="ml-1 form-control"
-                    type="date"
-                    @change="updateContestStart($event)"
-                >
+                <div class="input-group">
+                    <input
+                        v-model="newContestStart"
+                        class="ml-1 form-control"
+                        type="date"
+                        @keyup.enter="updateContestStart($event)"
+                    >
+                    <div class="input-group-append">
+                        <button
+                            class="btn btn-primary"
+                            href="#"
+                            @click="updateContestStart($event)"
+                        >
+                            Save date
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="col-sm-6">
             <div class="form-inline w-100">
                 Submissions close:
-                <input
-                    v-model="newContestEnd"
-                    class="ml-1 form-control"
-                    type="date"
-                    @change="updateContestEnd($event)"
-                >
+                <div class="input-group">
+                    <input
+                        v-model="newContestEnd"
+                        class="ml-1 form-control"
+                        type="date"
+                        @keyup.enter="updateContestEnd($event)"
+                    >
+                    <div class="input-group-append">
+                        <button
+                            class="btn btn-primary"
+                            href="#"
+                            @click="updateContestEnd($event)"
+                        >
+                            Save date
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
