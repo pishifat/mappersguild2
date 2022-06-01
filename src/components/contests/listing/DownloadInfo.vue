@@ -43,6 +43,11 @@ export default defineComponent({
             newDownload: this.download,
         };
     },
+    watch: {
+        contestId(): void {
+            this.newDownload = this.download;
+        },
+    },
     methods: {
         async updateDownload(e): Promise<void> {
             const download = await this.$http.executePost(`/contests/listing/${this.contestId}/updateDownload`, { download: this.newDownload }, e);
