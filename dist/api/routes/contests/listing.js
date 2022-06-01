@@ -303,6 +303,18 @@ listingRouter.post('/:id/updateStatus', middlewares_2.isContestCreator, middlewa
     await contest.save();
     res.json(contest.status);
 });
+/* POST update contest name */
+listingRouter.post('/:id/updateName', middlewares_2.isContestCreator, middlewares_2.isEditable, async (req, res) => {
+    const name = req.body.name.trim();
+    if (!name.length) {
+        return res.json({ error: `Name doesn't exist` });
+    }
+    const contest = await contest_1.ContestModel
+        .findByIdAndUpdate(req.params.id, { name })
+        .populate(defaultContestPopulate)
+        .orFail();
+    res.json(contest.name);
+});
 /* POST update contest mode */
 listingRouter.post('/:id/updateMode', middlewares_2.isContestCreator, middlewares_2.isEditable, async (req, res) => {
     const contest = await contest_1.ContestModel
