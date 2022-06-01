@@ -64,7 +64,6 @@ adminRouter.get('/loadActionContests/', async (req, res) => {
     const actionContests = await ContestModel
         .find({
             isApproved: false,
-            status: ContestStatus.Beatmapping,
         })
         .populate({ path: 'creator' });
 

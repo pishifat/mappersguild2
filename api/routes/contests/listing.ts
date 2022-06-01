@@ -83,9 +83,9 @@ function getQueryAndSelect (mongoId, contestType, showFullData) {
     let select = limitedContestSelect;
 
     if (contestType == 'activeContests') {
-        query = { $nor: [ { status: ContestStatus.Complete }, { status: ContestStatus.Hidden } ] };
+        query = { $nor: [ { status: ContestStatus.Complete }, { status: ContestStatus.Hidden } ], isApproved: true };
     } else if (contestType == 'completedContests') {
-        query = { status: ContestStatus.Complete };
+        query = { status: ContestStatus.Complete, isApproved: true };
         select = '';
     } else if (showFullData) {
         query = { creator: mongoId };
