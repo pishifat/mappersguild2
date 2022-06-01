@@ -22,9 +22,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SubmissionModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 const submissionSchema = new mongoose_1.Schema({
-    name: { type: String, required: true },
+    name: { type: String },
     creator: { type: 'ObjectId', ref: 'User', required: true },
-    evaluations: [{ type: 'ObjectId', ref: 'Screening' }],
+    url: { type: String },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 submissionSchema.virtual('contest', {
     ref: 'Contest',
@@ -34,6 +34,11 @@ submissionSchema.virtual('contest', {
 });
 submissionSchema.virtual('judgings', {
     ref: 'Judging',
+    localField: '_id',
+    foreignField: 'submission',
+});
+submissionSchema.virtual('screenings', {
+    ref: 'Screening',
     localField: '_id',
     foreignField: 'submission',
 });

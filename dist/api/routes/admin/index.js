@@ -10,6 +10,7 @@ const quest_2 = require("../../../interfaces/quest");
 const user_1 = require("../../models/user");
 const beatmap_1 = require("../../models/beatmap/beatmap");
 const beatmap_2 = require("../../../interfaces/beatmap/beatmap");
+const contest_1 = require("../../models/contest/contest");
 const adminRouter = express_1.default.Router();
 adminRouter.use(middlewares_1.isLoggedIn);
 adminRouter.use(middlewares_1.isAdmin);
@@ -45,5 +46,14 @@ adminRouter.get('/loadActionUsers/', async (req, res) => {
     });
     const actionUsers = allUsers.filter(u => u.badge !== u.rank);
     res.json(actionUsers);
+});
+/* GET contests in need of action */
+adminRouter.get('/loadActionContests/', async (req, res) => {
+    const actionContests = await contest_1.ContestModel
+        .find({
+        isApproved: false,
+    })
+        .populate({ path: 'creator' });
+    res.json(actionContests);
 });
 exports.default = adminRouter;

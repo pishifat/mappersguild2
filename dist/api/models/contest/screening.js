@@ -23,6 +23,7 @@ exports.ScreeningModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 const screeningSchema = new mongoose_1.Schema({
     screener: { type: 'ObjectId', ref: 'User', required: true },
+    submission: { type: 'ObjectId', ref: 'Submission', required: true },
     comment: { type: String, trim: true },
     vote: { type: Number, enum: [0, 1, 2, 3, 4, 5], default: 0 },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
