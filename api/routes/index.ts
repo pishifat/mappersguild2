@@ -207,4 +207,11 @@ indexRouter.post('/toggleIsShowcaseMapper', async (req, res) => {
     res.json(user);
 });
 
+/* POST toggle isContestHelper */
+indexRouter.post('/toggleIsContestHelper', async (req, res) => {
+    const user = await UserModel.findByIdAndUpdate(req.session?.mongoId, { isContestHelper: req.body.value } );
+
+    res.json(user);
+});
+
 export default indexRouter;

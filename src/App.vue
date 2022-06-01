@@ -143,12 +143,19 @@
                                 <span class="dropdown-item small disabled">Other points: <span class="float-end">{{ loggedInUser.pointsInfo.other }}</span></span>
                                 <div class="dropdown-divider" />
                                 <span class="ms-3 small text-white-50">
-                                    <a href="https://osu.ppy.sh/wiki/Featured_Artists/Featured_Artist_Showcase_Beatmaps" target="_blank" @click.stop>
-                                        FA showcase
-                                    </a>
-                                    mapper:
+                                    <span v-bs-tooltip:left="'create maps for upcoming Featured Artist announcements'">
+                                        <a href="https://osu.ppy.sh/wiki/Featured_Artists/Featured_Artist_Showcase_Beatmaps" target="_blank" @click.stop>
+                                            FA showcase
+                                        </a>
+                                        mapper:</span>
                                     <a class="float-end me-3" href="#" @click.stop.prevent="toggleIsShowcaseMapper()">
                                         <i class="fas" :class="loggedInUser.isShowcaseMapper ? 'text-done fa-check' : 'text-danger fa-times'" />
+                                    </a>
+                                </span>
+                                <span class="ms-3 small text-white-50">
+                                    <span v-bs-tooltip:left="'be a screener/judge for official mapping contests'">Contest helper:</span>
+                                    <a class="float-end me-3" href="#" @click.stop.prevent="toggleIsContestHelper()">
+                                        <i class="fas" :class="loggedInUser.isContestHelper ? 'text-done fa-check' : 'text-danger fa-times'" />
                                     </a>
                                 </span>
                                 <div class="dropdown-divider" />
@@ -246,6 +253,13 @@ export default defineComponent({
     methods: {
         async toggleIsShowcaseMapper() {
             const user = await this.$http.executePost('/toggleIsShowcaseMapper', { value: !this.loggedInUser.isShowcaseMapper });
+
+            if (user) {
+                this.$store.commit('updateLoggedInUser', user);
+            }
+        },
+        async toggleIsContestHelper() {
+            const user = await this.$http.executePost('/toggleIsContestHelper', { value: !this.loggedInUser.isContestHelper });
 
             if (user) {
                 this.$store.commit('updateLoggedInUser', user);

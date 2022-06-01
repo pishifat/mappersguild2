@@ -29,6 +29,7 @@ export interface User extends Document {
     bypassLogin: boolean;
     discordId: string; // js doesnt support 18 digit numbers...
     isShowcaseMapper: boolean;
+    isContestHelper: boolean;
 
     rank: number;
     easyPoints: number;

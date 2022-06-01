@@ -144,10 +144,6 @@
 
         <div class="container card card-body py-1">
             <div class="row mx-3 mt-2">
-                <button class="btn btn-sm btn-info w-100 mb-1" @click="updateUserPoints($event)">
-                    Update user points
-                </button>
-                <span v-if="calculatingPoints" class="ms-2 small text-white-50">calculating points...</span>
                 <button class="btn btn-sm btn-info w-100 mb-1" @click="loadActionUsers($event)">
                     Load users
                 </button>
@@ -276,11 +272,6 @@ export default defineComponent({
         UserInfo,
         ModesIcons,
     },
-    data() {
-        return {
-            calculatingPoints: false,
-        };
-    },
     computed: mapState({
         actionBeatmaps: (state: any) => state.admin.actionBeatmaps,
         actionBeatmapsLoading: (state: any) => state.admin.actionBeatmapsLoading,
@@ -350,14 +341,6 @@ export default defineComponent({
             }
 
             this.$store.commit('setActionUsersLoading', false);
-        },
-        async updateUserPoints(e): Promise<void> {
-            this.calculatingPoints = true;
-            const success = await this.$http.executePost('/admin/users/updateAllUserPoints', {}, e);
-
-            if (success) {
-                this.calculatingPoints = false;
-            }
         },
     },
 });

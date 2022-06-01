@@ -1,18 +1,18 @@
 <template>
     <div class="container card card-body py-1 my-2">
-        <button class="btn btn-sm w-100 btn-outline-info mb-3" @click="findShowcaseUsers($event)">
-            Load FA showcase users
+        <button class="btn btn-sm w-100 btn-outline-info mb-3" @click="findContestHelperUsers($event)">
+            Load contest helper users
         </button>
 
-        <bot-chat-message
+        <!--<bot-chat-message
             v-if="uniqueUsers.length"
             :messages="messages"
             :message-type="'showcase'"
             :mongo-id="''"
             :users="uniqueUsers"
-        />
+        />-->
 
-        <div v-if="osuUsers.length && taikoUsers.length && catchUsers.length && maniaUsers.length" class="row">
+        <div v-if="osuUsers && taikoUsers && catchUsers && maniaUsers" class="row">
             <div v-if="osuUsers.length" class="col-sm-3">
                 osu!
                 <copy-paste :distinct="'osu'">
@@ -53,13 +53,13 @@
 import { defineComponent } from 'vue';
 import { User } from '../../../interfaces/user';
 import CopyPaste from '../CopyPaste.vue';
-import BotChatMessage from './BotChatMessage.vue';
+//import BotChatMessage from './BotChatMessage.vue';
 
 export default defineComponent({
     name: 'ShowcaseUserList',
     components: {
         CopyPaste,
-        BotChatMessage,
+        //BotChatMessage,
     },
     data() {
         return {
@@ -94,8 +94,8 @@ export default defineComponent({
         },
     },
     methods: {
-        async findShowcaseUsers(e): Promise<void> {
-            const res: any = await this.$http.executeGet('/admin/users/findShowcaseUsers', e);
+        async findContestHelperUsers(e): Promise<void> {
+            const res: any = await this.$http.executeGet('/admin/users/findContestHelperUsers', e);
 
             if (res && !res.error) {
                 this.osuUsers = res.osuUsers;
