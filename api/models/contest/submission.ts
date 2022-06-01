@@ -7,9 +7,9 @@ export interface Submission extends ISubmission, Document {
 }
 
 const submissionSchema = new Schema<Submission>({
-    name: { type: String, required: true },
+    name: { type: String },
     creator: { type: 'ObjectId', ref: 'User', required: true },
-    evaluations: [{ type: 'ObjectId', ref: 'Screening' }],
+    url: { type: String },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 submissionSchema.virtual('contest', {
@@ -21,6 +21,12 @@ submissionSchema.virtual('contest', {
 
 submissionSchema.virtual('judgings', {
     ref: 'Judging',
+    localField: '_id',
+    foreignField: 'submission',
+});
+
+submissionSchema.virtual('screenings', {
+    ref: 'Screening',
     localField: '_id',
     foreignField: 'submission',
 });

@@ -11,6 +11,7 @@ const UserSchema = new Schema<User>({
     bypassLogin: { type: Boolean },
     discordId: { type: String },
     isShowcaseMapper: { type: Boolean },
+    isContestHelper: { type: Boolean },
 
     rank: { type: Number, default: 0 },
     easyPoints: { type: Number, default: 0 },

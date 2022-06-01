@@ -3,12 +3,6 @@
         <div class="container card card-body py-1">
             <div class="row">
                 <div class="col-sm">
-                    <button class="btn btn-sm btn-info w-100" @click="updateUserPoints($event)">
-                        Update user points
-                    </button>
-
-                    <span v-if="calculatingPoints" class="ms-2 small text-white-50">calculating points...</span>
-
                     <data-table
                         v-slot="{ obj: user }"
                         :data="users"
@@ -54,6 +48,7 @@
         />
 
         <showcase-user-list />
+        <contest-helper-user-list />
 
         <discord-highlight-generator />
     </div>
@@ -64,6 +59,7 @@ import { defineComponent } from 'vue';
 import UserInfo from '../../components/admin/UserInfo.vue';
 import DataTable from '../../components/admin/DataTable.vue';
 import ShowcaseUserList from '../../components/admin/ShowcaseUserList.vue';
+import ContestHelperUserList from '../../components/admin/ContestHelperUserList.vue';
 import DiscordHighlightGenerator from '../../components/admin/DiscordHighlightGenerator.vue';
 import { User } from '../../../interfaces/user';
 import { mapState } from 'vuex';
@@ -74,12 +70,12 @@ export default defineComponent({
         DataTable,
         UserInfo,
         ShowcaseUserList,
+        ContestHelperUserList,
         DiscordHighlightGenerator,
     },
     data () {
         return {
             selectedUserId: '',
-            calculatingPoints: false,
         };
     },
     computed: {
@@ -113,14 +109,6 @@ export default defineComponent({
 
             if (i !== -1) {
                 this.users[i] = u;
-            }
-        },
-        async updateUserPoints(e): Promise<void> {
-            this.calculatingPoints = true;
-            const success = await this.$http.executePost('/admin/users/updateAllUserPoints', {}, e);
-
-            if (success) {
-                this.calculatingPoints = false;
             }
         },
     },

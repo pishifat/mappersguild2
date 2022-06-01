@@ -43,29 +43,39 @@
                                     FAQ
                                 </router-link>
                             </li>
-                            <template v-if="loggedInUser.group === 'admin' || loggedInUser.group === 'secret'">
-                                <li class="nav-item">
-                                    <router-link class="nav-link" to="/showcase">
-                                        Showcase
-                                    </router-link>
-                                </li>
-                            </template>
+                            <li class="nav-item dropdown">
+                                <a
+                                    id="adminDropdown"
+                                    class="nav-link dropdown-toggle"
+                                    data-bs-toggle="dropdown"
+                                    href="#"
+                                >
+                                    Contests
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <router-link class="dropdown-item" to="/contests/listing">
+                                            Listing
+                                        </router-link>
+                                    </li>
+                                    <li>
+                                        <router-link class="dropdown-item" to="/contests/results">
+                                            Results
+                                        </router-link>
+                                    </li>
+                                    <li>
+                                        <router-link class="dropdown-item" to="/contests/screening">
+                                            Screening
+                                        </router-link>
+                                    </li>
+                                    <li>
+                                        <router-link class="dropdown-item" to="/contests/judging">
+                                            Judging
+                                        </router-link>
+                                    </li>
+                                </ul>
+                            </li>
                             <template v-if="loggedInUser.group === 'admin'">
-                                <li class="nav-item">
-                                    <router-link class="nav-link" to="/screening">
-                                        Screening
-                                    </router-link>
-                                </li>
-                                <li class="nav-item">
-                                    <router-link class="nav-link" to="/judging">
-                                        Judging
-                                    </router-link>
-                                </li>
-                                <li class="nav-item">
-                                    <router-link class="nav-link" to="/artists">
-                                        Artists
-                                    </router-link>
-                                </li>
                                 <li class="nav-item dropdown">
                                     <a
                                         id="adminDropdown"
@@ -87,11 +97,6 @@
                                             </router-link>
                                         </li>
                                         <li>
-                                            <router-link class="dropdown-item" to="/admin/contests">
-                                                Contests
-                                            </router-link>
-                                        </li>
-                                        <li>
                                             <router-link class="dropdown-item" to="/admin/featuredArtists">
                                                 Featured Artists
                                             </router-link>
@@ -107,6 +112,11 @@
                                             </router-link>
                                         </li>
                                     </ul>
+                                </li>
+                                <li v-if="loggedInUser.osuId === 3178418" class="nav-item">
+                                    <router-link class="nav-link" to="/artists">
+                                        FA Schedule
+                                    </router-link>
                                 </li>
                             </template>
                         </ul>
@@ -133,12 +143,19 @@
                                 <span class="dropdown-item small disabled">Other points: <span class="float-end">{{ loggedInUser.pointsInfo.other }}</span></span>
                                 <div class="dropdown-divider" />
                                 <span class="ms-3 small text-white-50">
-                                    <a href="https://osu.ppy.sh/wiki/Featured_Artists/Featured_Artist_Showcase_Beatmaps" target="_blank" @click.stop>
-                                        FA showcase
-                                    </a>
-                                    mapper:
+                                    <span v-bs-tooltip:left="'create maps for upcoming Featured Artist announcements'">
+                                        <a href="https://osu.ppy.sh/wiki/Featured_Artists/Featured_Artist_Showcase_Beatmaps" target="_blank" @click.stop>
+                                            FA showcase
+                                        </a>
+                                        mapper:</span>
                                     <a class="float-end me-3" href="#" @click.stop.prevent="toggleIsShowcaseMapper()">
                                         <i class="fas" :class="loggedInUser.isShowcaseMapper ? 'text-done fa-check' : 'text-danger fa-times'" />
+                                    </a>
+                                </span>
+                                <span class="ms-3 small text-white-50">
+                                    <span v-bs-tooltip:left="'be a screener/judge for official mapping contests'">Contest helper:</span>
+                                    <a class="float-end me-3" href="#" @click.stop.prevent="toggleIsContestHelper()">
+                                        <i class="fas" :class="loggedInUser.isContestHelper ? 'text-done fa-check' : 'text-danger fa-times'" />
                                     </a>
                                 </span>
                                 <div class="dropdown-divider" />
@@ -236,6 +253,13 @@ export default defineComponent({
     methods: {
         async toggleIsShowcaseMapper() {
             const user = await this.$http.executePost('/toggleIsShowcaseMapper', { value: !this.loggedInUser.isShowcaseMapper });
+
+            if (user) {
+                this.$store.commit('updateLoggedInUser', user);
+            }
+        },
+        async toggleIsContestHelper() {
+            const user = await this.$http.executePost('/toggleIsContestHelper', { value: !this.loggedInUser.isContestHelper });
 
             if (user) {
                 this.$store.commit('updateLoggedInUser', user);

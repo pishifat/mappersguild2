@@ -12,12 +12,16 @@ import router from './router/main';
 import { http } from '@store/http';
 import { showModal, hideModal } from './helpers';
 import { tooltip } from './directives';
+import MarkdownIt from 'markdown-it';
 
 const app = createApp(Root);
 
 app.use(store);
 app.use(router);
 app.component('UserLink', UserLink);
+
+const md = new MarkdownIt();
+app.config.globalProperties.$md = md;
 
 app.config.globalProperties.$http = http;
 app.config.globalProperties.$bs = {

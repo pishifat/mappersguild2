@@ -67,7 +67,7 @@ export const webhookColors = {
     darkPurple: 4263999,
     purple: 8536232,        // quest completed
 
-    pink: 16728232,
+    pink: 16728232,         // open contest
     white: 15724527,        // re-open quest
     brown: 7554849,         // rank 1 tier up
     gray: 11186352,         // rank 2 tier up

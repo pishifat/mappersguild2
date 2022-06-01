@@ -14,6 +14,7 @@ const quest_2 = require("../../interfaces/quest");
 const user_1 = require("../models/user");
 const featuredArtist_1 = require("../models/featuredArtist");
 const points_1 = require("./points");
+const user_2 = require("../../interfaces/user");
 /* compare beatmap status MG vs. osu and update */
 const setQualified = node_cron_1.default.schedule('0 18 * * *', async () => {
     const statusQuery = [
@@ -232,4 +233,13 @@ const rankUsers = node_cron_1.default.schedule('1 3 * * *', async () => {
 }, {
     scheduled: false,
 });
-exports.default = { setQualified, setRanked, publishQuests, completeQuests, rankUsers };
+/* update points for all users once every month */
+const updatePoints = node_cron_1.default.schedule('0 0 10 * *', async () => {
+    const users = await user_1.UserModel.find({ group: { $ne: user_2.UserGroup.Spectator } });
+    for (const user of users) {
+        points_1.updateUserPoints(user.id);
+    }
+}, {
+    scheduled: false,
+});
+exports.default = { setQualified, setRanked, publishQuests, completeQuests, rankUsers, updatePoints };

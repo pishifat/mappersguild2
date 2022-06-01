@@ -78,6 +78,7 @@ export default defineComponent({
     },
     computed: {
         ...mapState({
+            selectedContestId: (state: any) => state.judging.selectedContestId,
             judgingDone: (state: any) => state.judging.judgingDone,
         }),
         ...mapGetters([
@@ -95,14 +96,16 @@ export default defineComponent({
     },
     methods: {
         getUserInput(): void {
-            const judgingToCriterias = this.getJudgingToCriterias(this.editingSubmission.id, this.editingCriteria.id);
+            if (this.editingSubmission) {
+                const judgingToCriterias = this.getJudgingToCriterias(this.editingSubmission.id, this.editingCriteria.id);
 
-            if (judgingToCriterias) {
-                this.editingScore = judgingToCriterias.score;
-                this.editingComment = judgingToCriterias.comment;
-            } else {
-                this.editingScore = 0;
-                this.editingComment = '';
+                if (judgingToCriterias) {
+                    this.editingScore = judgingToCriterias.score;
+                    this.editingComment = judgingToCriterias.comment;
+                } else {
+                    this.editingScore = 0;
+                    this.editingComment = '';
+                }
             }
         },
         getJudgingToCriterias(submissionId: string, criteriaId: string): JudgingScore | null {
@@ -117,7 +120,7 @@ export default defineComponent({
             return judgingScore;
         },
         async save (e: any): Promise<void> {
-            const res = await this.$http.executePost<{ success?: string; error?: string; judgingDone: [] }>('/judging/save', {
+            const res = await this.$http.executePost<{ success?: string; error?: string; judgingDone: [] }>('/contests/judging/save', {
                 submissionId: this.editingSubmission?.id,
                 criteriaId: this.editingCriteria?.id,
                 score: this.editingScore,

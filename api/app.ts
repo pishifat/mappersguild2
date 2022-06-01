@@ -28,15 +28,15 @@ import usersRouter from './routes/users';
 import logsRouter from './routes/logs';
 import adminRouter from './routes/admin/index';
 import adminUsersRouter from './routes/admin/users';
+import adminContestsRouter from './routes/admin/contests';
 import adminBeatmapsRouter from './routes/admin/beatmaps';
 import adminFeaturedArtistsRouter from './routes/admin/featuredArtists';
 import adminQuestsRouter from './routes/admin/quests';
 import artistsRouter from './routes/artists';
-import screeningRouter from './routes/screening';
-import adminContestsRouter from './routes/admin/contests';
-import adminJudgingRouter from './routes/admin/judging';
-import judgingRouter from './routes/judging';
-import contestResultsRouter from './routes/contestResults';
+import screeningRouter from './routes/contests/screening';
+import contestsListingRouter from './routes/contests/listing';
+import judgingRouter from './routes/contests/judging';
+import resultsRouter from './routes/contests/results';
 import showcaseRouter from './routes/showcase';
 import partiesRouter from './routes/parties';
 import invitesRouter from './routes/invites';
@@ -91,19 +91,20 @@ app.use('/parties', partiesRouter);
 app.use('/logs', logsRouter);
 app.use('/notifications', notificationsRouter);
 app.use('/invites', invitesRouter);
-app.use('/screening', screeningRouter);
-app.use('/judging', judgingRouter);
-app.use('/contestresults', contestResultsRouter);
 app.use('/showcase', showcaseRouter);
+
+app.use('/contests/listing', contestsListingRouter);
+app.use('/contests/results', resultsRouter);
+app.use('/contests/screening', screeningRouter);
+app.use('/contests/judging', judgingRouter);
 
 app.use('/artists', artistsRouter);
 app.use('/admin', adminRouter);
 app.use('/admin/users', adminUsersRouter);
+app.use('/admin/contests', adminContestsRouter);
 app.use('/admin/beatmaps', adminBeatmapsRouter);
 app.use('/admin/featuredArtists', adminFeaturedArtistsRouter);
 app.use('/admin/quests', adminQuestsRouter);
-app.use('/admin/contests', adminContestsRouter);
-app.use('/admin/judging', adminJudgingRouter);
 
 // catch 404
 app.use((req, res) => {
@@ -136,6 +137,7 @@ app.listen(port, () => {
     automation.publishQuests.start();
     automation.completeQuests.start();
     automation.rankUsers.start();
+    automation.updatePoints.start();
 });
 
 export default app;

@@ -23,14 +23,22 @@ exports.ContestModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 const contestSchema = new mongoose_1.Schema({
     name: { type: String, required: true },
-    status: { type: String, enum: ['beatmapping', 'screening', 'judging', 'complete'], default: 'beatmapping' },
+    creator: { type: 'ObjectId', ref: 'User' },
+    url: { type: String },
+    osuContestListingUrl: { type: String },
+    resultsUrl: { type: String },
+    isApproved: { type: Boolean },
+    status: { type: String, enum: ['hidden', 'beatmapping', 'screening', 'judging', 'complete'], default: 'hidden' },
     contestStart: { type: Date },
+    contestEnd: { type: Date },
     submissions: [{ type: 'ObjectId', ref: 'Submission' }],
     screeners: [{ type: 'ObjectId', ref: 'User' }],
     judges: [{ type: 'ObjectId', ref: 'User' }],
-    judgingThreshold: { type: Number },
+    judgingThreshold: { type: Number, default: 0 },
     criterias: [{ type: 'ObjectId', ref: 'Criteria' }],
     download: { type: String },
+    description: { type: String },
+    mode: { type: String },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 const ContestModel = mongoose_1.default.model('Contest', contestSchema);
 exports.ContestModel = ContestModel;

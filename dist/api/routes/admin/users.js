@@ -39,14 +39,6 @@ adminUsersRouter.post('/:id/calculateUserPoints', async (req, res) => {
     const points = await points_1.updateUserPoints(req.params.id);
     res.json(points);
 });
-/* POST update user points */
-adminUsersRouter.post('/updateAllUserPoints', async (req, res) => {
-    const users = await user_1.UserModel.find({}).select('username').orFail();
-    for (const user of users) {
-        points_1.updateUserPoints(user.id);
-    }
-    res.json('user points updated');
-});
 /* POST toggle bypassLogin */
 adminUsersRouter.post('/:id/toggleBypassLogin', async (req, res) => {
     const bypassLogin = req.body.bypassLogin;
@@ -69,6 +61,16 @@ adminUsersRouter.get('/findShowcaseUsers', async (req, res) => {
         user_1.UserModel
             .find({ isShowcaseMapper: true, group: { $nin: [user_2.UserGroup.Secret, user_2.UserGroup.Admin] }, maniaPoints: { $gte: 1 } })
             .orFail(),
+    ]);
+    res.json({ osuUsers, taikoUsers, catchUsers, maniaUsers });
+});
+/* GET find Contest Helper users */
+adminUsersRouter.get('/findContestHelperUsers', async (req, res) => {
+    const [osuUsers, taikoUsers, catchUsers, maniaUsers] = await Promise.all([
+        user_1.UserModel.find({ isContestHelper: true, osuPoints: { $gte: 1 } }),
+        user_1.UserModel.find({ isContestHelper: true, taikoPoints: { $gte: 1 } }),
+        user_1.UserModel.find({ isContestHelper: true, catchPoints: { $gte: 1 } }),
+        user_1.UserModel.find({ isContestHelper: true, maniaPoints: { $gte: 1 } }),
     ]);
     res.json({ osuUsers, taikoUsers, catchUsers, maniaUsers });
 });

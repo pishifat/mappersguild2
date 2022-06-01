@@ -1,4 +1,5 @@
 import { User } from '../user';
+import { Submission } from './submission';
 
 export enum ScreeningPlacement {
     First = 5,
@@ -13,6 +14,7 @@ export interface Screening {
     _id: any;
     id: string;
     screener: User;
+    submission: Submission;
     comment: string;
     vote: ScreeningPlacement;
 }

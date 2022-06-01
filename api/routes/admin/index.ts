@@ -5,6 +5,9 @@ import { QuestStatus } from '../../../interfaces/quest';
 import { UserModel } from '../../models/user';
 import { BeatmapModel } from '../../models/beatmap/beatmap';
 import { BeatmapStatus } from '../../../interfaces/beatmap/beatmap';
+import { ContestModel } from '../../models/contest/contest';
+import { ContestStatus } from '../../../interfaces/contest/contest';
+
 
 const adminRouter = express.Router();
 
@@ -54,6 +57,17 @@ adminRouter.get('/loadActionUsers/', async (req, res) => {
     const actionUsers = allUsers.filter(u => u.badge !== u.rank);
 
     res.json(actionUsers);
+});
+
+/* GET contests in need of action */
+adminRouter.get('/loadActionContests/', async (req, res) => {
+    const actionContests = await ContestModel
+        .find({
+            isApproved: false,
+        })
+        .populate({ path: 'creator' });
+
+    res.json(actionContests);
 });
 
 export default adminRouter;

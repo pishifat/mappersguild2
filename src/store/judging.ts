@@ -6,7 +6,8 @@ import { Judging } from '../../interfaces/contest/judging';
 import { MainState } from './main';
 
 interface JudgingState {
-    contest: Contest | null;
+    contests: Contest[];
+    selectedContestId: Contest['id'] | null;
     judgingDone: Judging[];
     editingSubmissionId: Submission['id'] | null;
     editingCriteriaId: Criteria['id'] | null;
@@ -14,14 +15,18 @@ interface JudgingState {
 
 const store: Module<JudgingState, MainState> = {
     state: {
-        contest: null,
+        contests: [],
+        selectedContestId: null,
         judgingDone: [],
         editingSubmissionId: null,
         editingCriteriaId: null,
     },
     mutations: {
-        setContest (state, contest: Contest): void {
-            state.contest = contest;
+        setContests (state, contests: Contest[]): void {
+            state.contests = contests;
+        },
+        setSelectedContestId (state, id: Contest['id']): void {
+            state.selectedContestId = id;
         },
         setJudgingDone (state, judgingDone: Judging[]): void {
             state.judgingDone = judgingDone;
@@ -34,11 +39,14 @@ const store: Module<JudgingState, MainState> = {
         },
     },
     getters: {
-        editingSubmission: (state): Submission | undefined => {
-            return state.contest?.submissions.find(s => s.id === state.editingSubmissionId);
+        selectedContest: (state): Contest | undefined => {
+            return state.contests.find(c => c.id === state.selectedContestId);
         },
-        editingCriteria: (state): Criteria | undefined => {
-            return state.contest?.criterias.find(c => c.id === state.editingCriteriaId);
+        editingSubmission: (state, getters): Submission | undefined => {
+            return getters.selectedContest?.submissions.find(s => s.id === state.editingSubmissionId);
+        },
+        editingCriteria: (state, getters): Criteria | undefined => {
+            return getters.selectedContest?.criterias.find(c => c.id === state.editingCriteriaId);
         },
     },
 };

@@ -1,5 +1,5 @@
 <template>
-    <div class="container card card-body py-1 mb-4">
+    <div class="container card card-body py-1 my-2">
         <button class="btn btn-sm w-100 btn-outline-info mb-3" @click="findShowcaseUsers($event)">
             Load FA showcase users
         </button>

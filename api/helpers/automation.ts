@@ -9,6 +9,7 @@ import { QuestStatus } from '../../interfaces/quest';
 import { UserModel } from '../models/user';
 import { FeaturedArtistModel } from '../models/featuredArtist';
 import { updateUserPoints } from './points';
+import { UserGroup } from '../../interfaces/user';
 
 /* compare beatmap status MG vs. osu and update */
 const setQualified = cron.schedule('0 18 * * *', async () => { /* 10:00 AM PST */
@@ -266,4 +267,15 @@ const rankUsers = cron.schedule('1 3 * * *', async () => { /* 7:01 PM PST */
     scheduled: false,
 });
 
-export default { setQualified, setRanked, publishQuests, completeQuests, rankUsers };
+/* update points for all users once every month */
+const updatePoints = cron.schedule('0 0 10 * *', async () => {
+    const users = await UserModel.find({ group: { $ne: UserGroup.Spectator } });
+
+    for (const user of users) {
+        updateUserPoints(user.id);
+    }
+}, {
+    scheduled: false,
+});
+
+export default { setQualified, setRanked, publishQuests, completeQuests, rankUsers, updatePoints };

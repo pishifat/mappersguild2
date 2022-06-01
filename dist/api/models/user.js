@@ -31,6 +31,7 @@ const UserSchema = new mongoose_1.Schema({
     bypassLogin: { type: Boolean },
     discordId: { type: String },
     isShowcaseMapper: { type: Boolean },
+    isContestHelper: { type: Boolean },
     rank: { type: Number, default: 0 },
     easyPoints: { type: Number, default: 0 },
     normalPoints: { type: Number, default: 0 },
