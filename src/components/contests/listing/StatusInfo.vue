@@ -26,7 +26,7 @@
                 Complete
             </option>
         </select>
-        <div v-if="!isApproved && contest.status !== 'hidden'" class="small text-danger mt-2">
+        <div v-if="!isApproved && status !== 'hidden'" class="small text-danger mt-2">
             Your contest has been queued for approval. Once approved, it will appear in "Active contests".
         </div>
     </div>

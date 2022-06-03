@@ -21,14 +21,13 @@ adminContestsRouter.post('/:id/toggleIsApproved', async (req, res) => {
     res.json({ isApproved });
 
     webhookPost([{
-        title: `New beatmapping contest: "${contest.name}"`,
         author: {
             name: `${contest.creator.username}`,
             url: `https://osu.ppy.sh/users/${contest.creator.osuId}`,
             icon_url: `https://a.ppy.sh/${contest.creator.osuId}`,
         },
         color: webhookColors.pink,
-        description: contest.description,
+        description: `**New ${contest.mode == 'osu' ? 'osu!' : 'osu!' + contest.mode} beatmapping contest: [${contest.name}](${contest.url})**\n\n` + contest.description,
     }]);
 });
 
