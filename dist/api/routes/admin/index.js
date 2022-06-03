@@ -11,6 +11,7 @@ const user_1 = require("../../models/user");
 const beatmap_1 = require("../../models/beatmap/beatmap");
 const beatmap_2 = require("../../../interfaces/beatmap/beatmap");
 const contest_1 = require("../../models/contest/contest");
+const contest_2 = require("../../../interfaces/contest/contest");
 const adminRouter = express_1.default.Router();
 adminRouter.use(middlewares_1.isLoggedIn);
 adminRouter.use(middlewares_1.isAdmin);
@@ -52,6 +53,7 @@ adminRouter.get('/loadActionContests/', async (req, res) => {
     const actionContests = await contest_1.ContestModel
         .find({
         isApproved: { $ne: true },
+        contestStatus: { $ne: contest_2.ContestStatus.Hidden },
     })
         .populate({ path: 'creator' });
     res.json(actionContests);
