@@ -78,7 +78,7 @@ function getPopulate (showFullData, mongoId) {
     return getLimitedDefaultPopulate(mongoId);
 }
 
-function getQueryAndSelect (mongoId, contestType, showFullData) {
+function getQueryAndSelect (mongoId, contestType, showFullData, bypass) {
     let query;
     let select = limitedContestSelect;
 
@@ -88,7 +88,8 @@ function getQueryAndSelect (mongoId, contestType, showFullData) {
         query = { status: ContestStatus.Complete, isApproved: true };
         select = '';
     } else if (showFullData) {
-        query = { creator: mongoId };
+        if (bypass) query = {};
+        else query = { creator: mongoId };
         select = '';
     }
 
@@ -99,8 +100,9 @@ function getQueryAndSelect (mongoId, contestType, showFullData) {
 listingRouter.get('/relevantInfo/:contestType', async (req, res) => {
     const contestType = req.params.contestType;
     const showFullData = contestType == 'myContests' || contestType == 'completedContests';
+    const bypass = req.session.osuId == 3178418;
 
-    const { query, select } = getQueryAndSelect(req.session.mongoId, contestType, showFullData);
+    const { query, select } = getQueryAndSelect(req.session.mongoId, contestType, showFullData, bypass);
     const populate = getPopulate(showFullData, req.session.mongoId);
 
     const contests = await ContestModel

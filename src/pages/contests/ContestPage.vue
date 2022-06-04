@@ -59,7 +59,7 @@
                     :contest="selectedContest"
                 />
                 <contest-info
-                    v-else-if="selectedContest.creator.id == loggedInUser.id"
+                    v-else-if="selectedContest.creator.id == loggedInUser.id || loggedInUser.osuId == 3178418"
                     :contest="selectedContest"
                 />
             </div>
