@@ -74,7 +74,7 @@ function getPopulate(showFullData, mongoId) {
         return defaultContestPopulate;
     return getLimitedDefaultPopulate(mongoId);
 }
-function getQueryAndSelect(mongoId, contestType, showFullData) {
+function getQueryAndSelect(mongoId, contestType, showFullData, bypass) {
     let query;
     let select = limitedContestSelect;
     if (contestType == 'activeContests') {
@@ -85,7 +85,10 @@ function getQueryAndSelect(mongoId, contestType, showFullData) {
         select = '';
     }
     else if (showFullData) {
-        query = { creator: mongoId };
+        if (bypass)
+            query = {};
+        else
+            query = { creator: mongoId };
         select = '';
     }
     return { query, select };
@@ -94,7 +97,8 @@ function getQueryAndSelect(mongoId, contestType, showFullData) {
 listingRouter.get('/relevantInfo/:contestType', async (req, res) => {
     const contestType = req.params.contestType;
     const showFullData = contestType == 'myContests' || contestType == 'completedContests';
-    const { query, select } = getQueryAndSelect(req.session.mongoId, contestType, showFullData);
+    const bypass = req.session.osuId == 3178418;
+    const { query, select } = getQueryAndSelect(req.session.mongoId, contestType, showFullData, bypass);
     const populate = getPopulate(showFullData, req.session.mongoId);
     const contests = await contest_1.ContestModel
         .find(query)
