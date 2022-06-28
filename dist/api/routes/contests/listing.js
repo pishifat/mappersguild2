@@ -94,8 +94,10 @@ function getQueryAndSelect(mongoId, contestType, showFullData, bypass) {
     return { query, select };
 }
 /* GET retrieve all the contests info */
-listingRouter.get('/relevantInfo/:contestType', async (req, res) => {
-    const contestType = req.params.contestType;
+listingRouter.get('/relevantInfo', async (req, res) => {
+    const contestType = req.query.displayMode;
+    const limit = parseInt(req.query.limit);
+    const skip = parseInt(req.query.skip);
     const showFullData = contestType == 'myContests' || contestType == 'completedContests';
     const bypass = req.session.osuId == 3178418;
     const { query, select } = getQueryAndSelect(req.session.mongoId, contestType, showFullData, bypass);
@@ -105,7 +107,8 @@ listingRouter.get('/relevantInfo/:contestType', async (req, res) => {
         .populate(populate)
         .sort({ createdAt: -1, contestStart: -1 })
         .select(select)
-        .limit(1111);
+        .limit(limit)
+        .skip(skip);
     res.json(contests);
 });
 /* GET specific contest from search */
