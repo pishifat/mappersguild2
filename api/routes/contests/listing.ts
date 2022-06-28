@@ -986,7 +986,7 @@ listingRouter.post('/:id/submissions/syncAnonymousNames', async (req, res) => {
 });
 
 /* POST create submissions from CSV data */
-listingRouter.post('/:id/delete', async (req, res) => {
+listingRouter.post('/:id/delete', isContestCreator, isEditable, async (req, res) => {
     const contest = await ContestModel
         .findById(req.params.id)
         .populate(defaultContestPopulate)

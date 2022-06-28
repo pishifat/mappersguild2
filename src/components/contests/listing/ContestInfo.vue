@@ -298,14 +298,18 @@ export default defineComponent({
     },
     methods: {
         async deleteContest(e): Promise<void> {
-            const res = await this.$http.executePost(`/contests/listing/${this.contest.id}/delete`, {}, e);
+            const result = confirm(`Are you sure?`);
 
-            if (!this.$http.isError(res)) {
-                this.$store.dispatch('updateToastMessages', {
-                    message: `Deleted contest`,
-                    type: 'info',
-                });
-                this.$store.commit('deleteContest', this.contest.id);
+            if (result) {
+                const res = await this.$http.executePost(`/contests/listing/${this.contest.id}/delete`, {}, e);
+
+                if (!this.$http.isError(res)) {
+                    this.$store.dispatch('updateToastMessages', {
+                        message: `Deleted contest`,
+                        type: 'info',
+                    });
+                    this.$store.commit('deleteContest', this.contest.id);
+                }
             }
         },
     },
