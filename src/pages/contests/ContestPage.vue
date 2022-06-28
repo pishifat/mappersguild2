@@ -232,13 +232,17 @@ export default defineComponent({
             );
 
             if (!this.$http.isError(contests)) {
-                this.skip += this.limit;
-                this.$store.commit('setContests', [
-                    ...(this.contests || []),
-                    ...contests,
-                ]);
-                this.$store.commit('setSelectedContestId', null);
+                if (this.skip == 0) {
+                    this.$store.commit('setContests', contests);
+                } else {
+                    this.$store.commit('setContests', [
+                        ...(this.contests || []),
+                        ...contests,
+                    ]);
+                }
 
+                this.skip += this.limit;
+                this.$store.commit('setSelectedContestId', null);
                 this.loadedSpecificContest = false;
             }
 

@@ -70,28 +70,27 @@ function getLimitedDefaultPopulate(mongoId) {
     ];
 }
 
-function getPopulate(showFullData, mongoId) {
-    if (showFullData) return defaultContestPopulate;
-
-    return getLimitedDefaultPopulate(mongoId);
-}
-
-function getQueryAndSelect(mongoId, contestType, showFullData, bypass) {
+function getQuerySelectPopulate(mongoId, contestType, showFullData, bypass) {
     let query;
-    let select = limitedContestSelect;
+    let select;
+    let populate;
 
     if (contestType == 'activeContests') {
         query = { $nor: [{ status: ContestStatus.Complete }, { status: ContestStatus.Hidden }], isApproved: true };
+        select = limitedContestSelect;
+        populate = getLimitedDefaultPopulate(mongoId);
     } else if (contestType == 'completedContests') {
         query = { status: ContestStatus.Complete, isApproved: true };
-        select = '';
+        select = limitedContestSelect;
+        populate = [{ path: 'creator', select: 'username osuId' }];
     } else if (showFullData) {
         if (bypass) query = {};
         else query = { creator: mongoId };
         select = '';
+        populate = defaultContestPopulate;
     }
 
-    return { query, select };
+    return { query, select, populate };
 }
 
 /* GET retrieve all the contests info */
@@ -103,8 +102,8 @@ listingRouter.get('/relevantInfo', async (req, res) => {
     const showFullData = contestType == 'myContests' || contestType == 'completedContests';
     const bypass = req.session.osuId == 3178418;
 
-    const { query, select } = getQueryAndSelect(req.session.mongoId, contestType, showFullData, bypass);
-    const populate = getPopulate(showFullData, req.session.mongoId);
+    const { query, select, populate } = getQuerySelectPopulate(req.session.mongoId, contestType, showFullData, bypass);
+
 
     const contests = await ContestModel
         .find(query)
@@ -945,7 +944,7 @@ listingRouter.post('/:id/createSubmission', isEditable, async (req, res) => {
 
     const newContest = await ContestModel
         .findById(req.params.id)
-        .populate(getPopulate(false, req.session.mongoId))
+        .populate(getLimitedDefaultPopulate(req.session.mongoId))
         .select(limitedContestSelect)
         .orFail();
 
