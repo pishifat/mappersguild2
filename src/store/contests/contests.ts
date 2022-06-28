@@ -21,6 +21,15 @@ const store: Module<ContestState, MainState> = {
             state.contests.unshift(contest);
             state.selectedContestId = contest.id;
         },
+        deleteContest (state, id: string): void {
+            state.selectedContestId = null;
+
+            const contestIndex = state.contests.findIndex(s => s.id == id);
+
+            if (contestIndex !== -1) {
+                state.contests.splice(contestIndex, 1);
+            }
+        },
         setSelectedContestId (state, id: string): void {
             state.selectedContestId = id;
         },

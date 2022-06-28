@@ -5,7 +5,7 @@
             class="form-control mb-2"
             type="text"
             placeholder="name"
-        >
+        />
 
         <button
             class="btn w-100 btn-info"
@@ -29,7 +29,7 @@ export default defineComponent({
     },
     methods: {
         async addContest(e): Promise<void> {
-            const contest = await this.$http.executePost(`/contests/listing/create`, { name: this.contestName }, e);
+            const contest: any = await this.$http.executePost(`/contests/listing/create`, { name: this.contestName }, e);
 
             if (!this.$http.isError(contest)) {
                 this.$store.dispatch('updateToastMessages', {
@@ -37,6 +37,7 @@ export default defineComponent({
                     type: 'info',
                 });
                 this.$store.commit('addContest', contest);
+                this.$router.replace(`/contests/listing?contest=${contest.id}`);
             }
         },
     },

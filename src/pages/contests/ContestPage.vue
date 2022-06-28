@@ -151,10 +151,10 @@ export default defineComponent({
         async displayMode() {
             this.moreContestsAvailable = true;
             this.skip = 0;
-            this.$store.commit('setContests', null);
-            this.$store.commit('setSelectedContestId', null);
 
             if (this.firstLoadComplete) {
+                this.$store.commit('setContests', null);
+                this.$store.commit('setSelectedContestId', null);
                 this.$router.replace(`/contests/listing`);
                 await this.loadContests();
             }
@@ -179,9 +179,6 @@ export default defineComponent({
             const id = this.$route.query.contest;
 
             if (id && !this.firstLoadComplete) {
-                this.$store.commit('setContests', null);
-                this.$store.commit('setSelectedContestId', null);
-
                 const contest: any = await this.$http.initialRequest(
                     `/contests/listing/searchContest/${id}`
                 );
@@ -199,6 +196,10 @@ export default defineComponent({
                     this.$store.commit('setSelectedContestId', id);
 
                     this.loadedSpecificContest = true;
+                } else {
+                    this.$router.replace(`/contests/listing`);
+                    this.firstLoadComplete = true;
+                    await this.loadContests();
                 }
             } else {
                 let contests;

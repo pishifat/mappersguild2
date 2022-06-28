@@ -986,6 +986,22 @@ listingRouter.post('/:id/submissions/syncAnonymousNames', async (req, res) => {
     res.json({ submissions: contest.submissions, errors });
 });
 
+/* POST create submissions from CSV data */
+listingRouter.post('/:id/delete', async (req, res) => {
+    const contest = await ContestModel
+        .findById(req.params.id)
+        .populate(defaultContestPopulate)
+        .orFail();
+
+    if (contest.status != ContestStatus.Hidden || contest.submissions.length) {
+        return res.json({ error: 'Cannot delete contest at this stage. Set status to "Hidden" instead.' });
+    }
+
+    await contest.remove();
+
+    res.json({ success: 'Deleted' });
+});
+
 
 
 

@@ -229,7 +229,7 @@
 
                 <hr />
 
-                <button class="btn btn-sm btn-outline-warning w-25" @click="updateOsuId($event)">
+                <button v-if="contest.status == 'hidden' && !contest.submissions.length" class="btn btn-sm btn-outline-danger w-100" @click="deleteContest($event)">
                     Delete contest
                 </button>
             </div>
@@ -295,6 +295,19 @@ export default defineComponent({
             judgingCriteriaVisible: false,
             judgingResultsVisible: false,
         };
+    },
+    methods: {
+        async deleteContest(e): Promise<void> {
+            const res = await this.$http.executePost(`/contests/listing/${this.contest.id}/delete`, {}, e);
+
+            if (!this.$http.isError(res)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `Deleted contest`,
+                    type: 'info',
+                });
+                this.$store.commit('deleteContest', this.contest.id);
+            }
+        },
     },
 });
 </script>
