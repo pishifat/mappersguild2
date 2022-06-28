@@ -8,7 +8,7 @@
         <user-link :user="creator">
             {{ creator.username }}
         </user-link>
-        <hr>
+        <hr />
     </div>
 </template>
 

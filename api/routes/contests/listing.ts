@@ -150,9 +150,19 @@ listingRouter.get('/searchContest/:contestId', async (req, res) => {
     res.json(contest);
 });
 
+/* GET user contests */
+listingRouter.get('/loadUserContests', async (req, res) => {
+    const contests = await ContestModel
+        .find({ creator: req.session.mongoId })
+        .select('name');
+
+    res.json(contests);
+});
+
 /* POST create a contest */
 listingRouter.post('/create', async (req, res) => {
     const name = req.body.name.trim();
+    const templateId = req.body.templateId;
 
     if (!name) {
         return res.json({ error: 'Missing contest name' });
@@ -167,6 +177,15 @@ listingRouter.post('/create', async (req, res) => {
     const contest = new ContestModel();
     contest.name = req.body.name.trim();
     contest.creator = req.session.mongoId;
+
+    if (templateId && templateId.length) {
+        const templateContest = await ContestModel.findById(templateId).orFail();
+
+        contest.mode = templateContest.mode;
+        contest.url = templateContest.url;
+        contest.description = templateContest.description;
+    }
+
     await contest.save();
 
     const newContest = await ContestModel
