@@ -1,6 +1,6 @@
 <template>
     <div class="form-inline w-100 mt-2">
-        Contest description:
+        <div>Contest description</div>
         <textarea
             v-model="newDescription"
             length="4"
@@ -11,7 +11,16 @@
             @change="updateDescription($event)"
         />
         <small class="text-secondary">Click outside the text box to save. Also, this section supports <a href="https://www.markdownguide.org/cheat-sheet/" target="_blank">markdown</a>!</small>
-    </div>
+
+        <template v-if="newDescription">
+            <div class="mt-2">
+                Preview description
+            </div>
+            <div>
+                <div class="small bg-dark pt-3 pb-1 px-3 mb-2 rounded" v-html="$md.render(newDescription.trim())" />
+            </div>
+        </template>
+</div>
 </template>
 
 <script lang="ts">

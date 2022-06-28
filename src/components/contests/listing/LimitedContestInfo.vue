@@ -20,7 +20,7 @@
             <a :href="contest.url" target="_blank">Read more about the contest here!</a>
         </div>
 
-        <hr>
+        <hr />
 
         <div v-if="contest.status !== 'complete'">
             <h5>Submission</h5>
