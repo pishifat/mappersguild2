@@ -46,7 +46,7 @@
                 :description="contest.description"
             />
 
-            <hr>
+            <hr />
 
             <div>
                 <h5>
@@ -84,7 +84,7 @@
                     :contest-id="contest.id"
                 />
 
-                <hr>
+                <hr />
 
                 <h4 class="mb-4">
                     Screening
@@ -122,7 +122,7 @@
                 <div>To begin screening, send this link to the users above and ensure your contest's status is set to "Screening"!</div>
                 <code>https://mappersguild.com/contests/screening?contest={{ contest.id }}</code>
 
-                <hr>
+                <hr />
 
                 <h5>
                     Screening Results
@@ -170,7 +170,7 @@
                     :screeners="contest.screeners"
                 />
 
-                <hr>
+                <hr />
 
                 <h4 class="mb-4">
                     Judging
@@ -207,7 +207,7 @@
                 <div>To begin judging, send this link to the users above and ensure your contest's status is set to "Judging"!</div>
                 <code>https://mappersguild.com/contests/judging?contest={{ contest.id }}</code>
 
-                <hr>
+                <hr />
 
                 <h5>
                     Judging Criteria
@@ -217,7 +217,7 @@
                     :criterias="contest.criterias"
                 />
 
-                <hr>
+                <hr />
 
                 <h5>
                     Judging Results
@@ -226,6 +226,12 @@
                 <judging-results
                     :contest-id="contest.id"
                 />
+
+                <hr />
+
+                <button class="btn btn-sm btn-outline-warning w-25" @click="updateOsuId($event)">
+                    Delete contest
+                </button>
             </div>
         </div>
     </div>
@@ -281,10 +287,8 @@ export default defineComponent({
             required: true,
         },
     },
-    data () {
+    data() {
         return {
-            newContestStart: this.contest.contestStart,
-            showContestStartDateInput: false,
             screenersAndJudgesVisible: false,
             submissionsVisible: false,
             screeningResultsVisible: false,

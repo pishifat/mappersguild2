@@ -7,7 +7,7 @@
                     v-model="newUrl"
                     class="ml-1 form-control"
                     @change="updateUrl($event)"
-                >
+                />
             </div>
         </div>
         <div class="col-sm-6">
@@ -17,7 +17,7 @@
                     v-model="newOsuContestListingUrl"
                     class="ml-1 form-control"
                     @change="updateOsuContestListingUrl($event)"
-                >
+                />
             </div>
         </div>
         <div class="col-sm-6">
@@ -27,7 +27,7 @@
                     v-model="newResultsUrl"
                     class="ml-1 form-control"
                     @change="updateResultsUrl($event)"
-                >
+                />
             </div>
         </div>
     </div>

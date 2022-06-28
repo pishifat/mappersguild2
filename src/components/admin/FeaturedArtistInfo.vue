@@ -21,7 +21,7 @@
                         type="text"
                         autocomplete="off"
                         placeholder="osu id..."
-                    >
+                    />
                     <button class="btn btn-sm btn-outline-info w-25" @click="updateOsuId($event)">
                         Save osu! ID
                     </button>
@@ -33,7 +33,7 @@
                         type="text"
                         autocomplete="off"
                         placeholder="artist name..."
-                    >
+                    />
                     <button class="btn btn-sm btn-outline-info w-25" @click="updateName($event)">
                         Save name
                     </button>
@@ -54,7 +54,7 @@
                         Save status
                     </button>
                 </p>
-                <hr>
+                <hr />
                 <p class="row">
                     <select id="editSongSelection" v-model="selectedSong" class="form-select form-select-sm">
                         <option v-for="song in alphabeticalSongs" :key="song.id" :value="song">
@@ -69,7 +69,7 @@
                         type="text"
                         autocomplete="off"
                         placeholder="artist..."
-                    >
+                    />
                 </p>
                 <p class="row">
                     <input
@@ -78,7 +78,7 @@
                         type="text"
                         autocomplete="off"
                         placeholder="title..."
-                    >
+                    />
                 </p>
                 <p>
                     <button class="btn btn-sm btn-outline-info mx-1" @click="addSong($event)">
