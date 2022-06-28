@@ -3,11 +3,14 @@
         <div class="row">
             <div class="col-sm-3">
                 <div class="container card card-body py-3 mb-2">
-                    <a
-                        href="#"
-                        @click.prevent="displayMode = 'activeContests'"
-                    >
-                        <span :class="displayMode === 'activeContests' ? 'border-bottom border-secondary' : ''">
+                    <a href="#" @click.prevent="displayMode = 'activeContests'">
+                        <span
+                            :class="
+                                displayMode === 'activeContests'
+                                    ? 'border-bottom border-secondary'
+                                    : ''
+                            "
+                        >
                             Active contests
                         </span>
                     </a>
@@ -15,18 +18,35 @@
                         href="#"
                         @click.prevent="displayMode = 'completedContests'"
                     >
-                        <span :class="displayMode === 'completedContests' ? 'border-bottom border-secondary' : ''">Completed contests</span>
+                        <span
+                            :class="
+                                displayMode === 'completedContests'
+                                    ? 'border-bottom border-secondary'
+                                    : ''
+                            "
+                        >
+                            Completed contests
+                        </span>
                     </a>
-                    <a
-                        href="#"
-                        @click.prevent="displayMode = 'myContests'"
-                    >
-                        <span :class="displayMode === 'myContests' ? 'border-bottom border-secondary' : ''">My contests</span>
+                    <a href="#" @click.prevent="displayMode = 'myContests'">
+                        <span
+                            :class="
+                                displayMode === 'myContests'
+                                    ? 'border-bottom border-secondary'
+                                    : ''
+                            "
+                        >
+                            My contests
+                        </span>
                     </a>
                 </div>
-                <hr>
+                <hr />
                 <add-contest
-                    v-if="displayMode == 'myContests' && contests && !loadedSpecificContest"
+                    v-if="
+                        displayMode == 'myContests' &&
+                        contests &&
+                        !loadedSpecificContest
+                    "
                 />
                 <transition-group name="list" tag="div" class="row">
                     <contest-card
@@ -37,16 +57,34 @@
                         :route="'listing'"
                     />
                 </transition-group>
-                <div v-if="!contests" class="container card card-body py-3 mb-2 text-secondary">
+                <div
+                    v-if="!contests"
+                    class="container card card-body py-3 mb-2 text-secondary"
+                >
                     Loading...
                 </div>
                 <div v-if="loadedSpecificContest">
                     <button
                         class="btn w-100 btn-info"
                         type="button"
-                        @click="loadMore()"
+                        @click="loadMore($event)"
                     >
                         Load other contests
+                    </button>
+                </div>
+                <div
+                    v-else-if="
+                        moreContestsAvailable &&
+                        contests &&
+                        contests.length >= limit
+                    "
+                >
+                    <button
+                        class="btn w-100 btn-info"
+                        type="button"
+                        @click="loadMore($event)"
+                    >
+                        Load more contests
                     </button>
                 </div>
             </div>
@@ -59,7 +97,10 @@
                     :contest="selectedContest"
                 />
                 <contest-info
-                    v-else-if="selectedContest.creator.id == loggedInUser.id || loggedInUser.osuId == 3178418"
+                    v-else-if="
+                        selectedContest.creator.id == loggedInUser.id ||
+                        loggedInUser.osuId == 3178418
+                    "
                     :contest="selectedContest"
                 />
             </div>
@@ -87,39 +128,44 @@ export default defineComponent({
         ContestInfo,
         LimitedContestInfo,
     },
-    data () {
+    data() {
         return {
             displayMode: 'activeContests',
             firstLoadComplete: false,
             loadedSpecificContest: false,
+            limit: 8,
+            skip: 0,
+            total: 0,
+            moreContestsAvailable: true,
         };
     },
     computed: {
-        ...mapState([
-            'loggedInUser',
-        ]),
+        ...mapState(['loggedInUser']),
         ...mapState({
             contests: (state: any) => state.contests.contests,
             selectedContestId: (state: any) => state.contests.selectedContestId,
         }),
-        ...mapGetters([
-            'selectedContest',
-        ]),
+        ...mapGetters(['selectedContest']),
     },
     watch: {
-        async displayMode () {
+        async displayMode() {
+            this.moreContestsAvailable = true;
+            this.skip = 0;
+            this.$store.commit('setContests', null);
+            this.$store.commit('setSelectedContestId', null);
+
             if (this.firstLoadComplete) {
                 this.$router.replace(`/contests/listing`);
                 await this.loadContests();
             }
         },
     },
-    beforeCreate () {
+    beforeCreate() {
         if (!this.$store.hasModule('contests')) {
             this.$store.registerModule('contests', listingModule);
         }
     },
-    unmounted () {
+    unmounted() {
         if (this.$store.hasModule('contests')) {
             this.$store.unregisterModule('contests');
         }
@@ -129,20 +175,24 @@ export default defineComponent({
         this.firstLoadComplete = true;
     },
     methods: {
-        async loadContests (): Promise<void> {
+        async loadContests(): Promise<void> {
             const id = this.$route.query.contest;
 
-            if (id && !this.contests.length) {
+            if (id && !this.firstLoadComplete) {
                 this.$store.commit('setContests', null);
                 this.$store.commit('setSelectedContestId', null);
 
-                const contest: any = await this.$http.initialRequest(`/contests/listing/searchContest/${id}`);
+                const contest: any = await this.$http.initialRequest(
+                    `/contests/listing/searchContest/${id}`
+                );
 
                 if (!this.$http.isError(contest)) {
                     if (contest.creator.id == this.loggedInUser.id) {
                         this.displayMode = 'myContests';
                     } else if (contest.status == 'complete') {
                         this.displayMode = 'completedContests';
+                    } else {
+                        this.displayMode == 'activeContests';
                     }
 
                     this.$store.commit('setContests', [contest] || []);
@@ -151,12 +201,20 @@ export default defineComponent({
                     this.loadedSpecificContest = true;
                 }
             } else {
-                this.$store.commit('setContests', null);
-                this.$store.commit('setSelectedContestId', null);
+                let contests;
 
-                const contests = await this.$http.executeGet<Contest[]>(`/contests/listing/relevantInfo/${this.displayMode}`);
+                if (!this.firstLoadComplete) {
+                    contests = await this.$http.initialRequest<Contest[]>(
+                        `/contests/listing/relevantInfo?displayMode=${this.displayMode}&limit=${this.limit}&skip=${this.skip}`
+                    );
+                } else {
+                    contests = await this.$http.executeGet<Contest[]>(
+                        `/contests/listing/relevantInfo?displayMode=${this.displayMode}&limit=${this.limit}&skip=${this.skip}`
+                    );
+                }
 
                 if (!this.$http.isError(contests)) {
+                    this.skip += this.limit;
                     this.$store.commit('setContests', contests);
                     this.$store.commit('setSelectedContestId', null);
 
@@ -164,8 +222,33 @@ export default defineComponent({
                 }
             }
         },
-        async loadMore (): Promise<void> {
-            await this.loadContests();
+        async loadMore(e): Promise<void> {
+            this.total = this.contests.length;
+
+            const contests = await this.$http.executeGet<Contest[]>(
+                `/contests/listing/relevantInfo?displayMode=${this.displayMode}&limit=${this.limit}&skip=${this.skip}`,
+                e
+            );
+
+            if (!this.$http.isError(contests)) {
+                this.skip += this.limit;
+                this.$store.commit('setContests', [
+                    ...(this.contests || []),
+                    ...contests,
+                ]);
+                this.$store.commit('setSelectedContestId', null);
+
+                this.loadedSpecificContest = false;
+            }
+
+            if (this.total == this.contests.length) {
+                this.moreContestsAvailable = false;
+
+                this.$store.dispatch('updateToastMessages', {
+                    message: `No more contests to load!`,
+                    type: 'info',
+                });
+            }
         },
     },
 });

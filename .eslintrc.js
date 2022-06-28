@@ -67,10 +67,16 @@ module.exports = {
             { blankLine: 'always', prev: '*', next: 'block-like' },
             { blankLine: 'always', prev: 'block-like', next: '*' },
         ],
-        'vue/html-indent': [
-            'error',
-            4,
-        ],
+        'vue/html-indent': 'off',
+        'vue/html-self-closing': ['error', {
+            'html': {
+                'void': 'always',
+                'normal': 'always',
+                'component': 'always',
+            },
+            'svg': 'always',
+            'math': 'always',
+        }],
         'vue/max-attributes-per-line': ['error', {
             singleline: 3,
             multiline: 1,

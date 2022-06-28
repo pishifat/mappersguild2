@@ -1,10 +1,8 @@
 import express from 'express';
-import fs from 'fs';
 import { isLoggedIn } from '../../helpers/middlewares';
 import { isContestCreator, isEditable } from './middlewares';
 import { Contest, ContestModel } from '../../models/contest/contest';
 import { UserModel } from '../../models/user';
-import { UserGroup } from '../../../interfaces/user';
 import { SubmissionModel } from '../../models/contest/submission';
 import { sendMessages } from '../../helpers/osuBot';
 import { CriteriaModel } from '../../models/contest/criteria';
@@ -56,7 +54,7 @@ const defaultContestPopulate = [
 ];
 
 // hides mediator info
-function getLimitedDefaultPopulate (mongoId) {
+function getLimitedDefaultPopulate(mongoId) {
     return [
         {
             path: 'submissions',
@@ -72,18 +70,18 @@ function getLimitedDefaultPopulate (mongoId) {
     ];
 }
 
-function getPopulate (showFullData, mongoId) {
+function getPopulate(showFullData, mongoId) {
     if (showFullData) return defaultContestPopulate;
 
     return getLimitedDefaultPopulate(mongoId);
 }
 
-function getQueryAndSelect (mongoId, contestType, showFullData, bypass) {
+function getQueryAndSelect(mongoId, contestType, showFullData, bypass) {
     let query;
     let select = limitedContestSelect;
 
     if (contestType == 'activeContests') {
-        query = { $nor: [ { status: ContestStatus.Complete }, { status: ContestStatus.Hidden } ], isApproved: true };
+        query = { $nor: [{ status: ContestStatus.Complete }, { status: ContestStatus.Hidden }], isApproved: true };
     } else if (contestType == 'completedContests') {
         query = { status: ContestStatus.Complete, isApproved: true };
         select = '';
@@ -97,8 +95,11 @@ function getQueryAndSelect (mongoId, contestType, showFullData, bypass) {
 }
 
 /* GET retrieve all the contests info */
-listingRouter.get('/relevantInfo/:contestType', async (req, res) => {
-    const contestType = req.params.contestType;
+listingRouter.get('/relevantInfo', async (req, res) => {
+    const contestType = req.query.displayMode;
+    const limit = parseInt(req.query.limit as string);
+    const skip = parseInt(req.query.skip as string);
+
     const showFullData = contestType == 'myContests' || contestType == 'completedContests';
     const bypass = req.session.osuId == 3178418;
 
@@ -110,7 +111,8 @@ listingRouter.get('/relevantInfo/:contestType', async (req, res) => {
         .populate(populate)
         .sort({ createdAt: -1, contestStart: -1 })
         .select(select)
-        .limit(1111);
+        .limit(limit)
+        .skip(skip);
 
     res.json(contests);
 });

@@ -15,4 +15,5 @@ export interface Log extends Document {
     user: User;
     action: string;
     category: LogCategory;
+    createdAt?: Date;
 }

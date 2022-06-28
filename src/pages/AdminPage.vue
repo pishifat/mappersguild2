@@ -2,7 +2,10 @@
     <div>
         <div class="container card card-body py-1 mb-4">
             <div class="row mx-3 mt-2">
-                <button class="btn btn-sm btn-info w-100 mb-1" @click="loadActionBeatmaps($event, false)">
+                <button
+                    class="btn btn-sm btn-info w-100 mb-1"
+                    @click="loadActionBeatmaps($event, false)"
+                >
                     Load beatmaps
                 </button>
             </div>
@@ -13,34 +16,43 @@
                             Beatmaps
                             <i class="fas fa-angle-down" />
                         </a>
-                        <span v-if="actionBeatmapsLoading" class="ms-2 small text-white-50">loading...</span>
+                        <span
+                            v-if="actionBeatmapsLoading"
+                            class="ms-2 small text-white-50"
+                            >loading...</span
+                        >
                     </h5>
                     <div id="actionBeatmaps" class="show">
-                        <table v-if="actionBeatmaps.length" class="table table-sm">
+                        <table
+                            v-if="actionBeatmaps.length"
+                            class="table table-sm"
+                        >
                             <thead>
                                 <tr>
-                                    <th scope="col">
-                                        METADATA
-                                    </th>
-                                    <th scope="col">
-                                        PACK ID
-                                    </th>
-                                    <th scope="col">
-                                        STATUS
-                                    </th>
-                                    <th scope="col">
-                                        EDIT
-                                    </th>
+                                    <th scope="col">METADATA</th>
+                                    <th scope="col">PACK ID</th>
+                                    <th scope="col">STATUS</th>
+                                    <th scope="col">EDIT</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="beatmap in actionBeatmaps" :key="beatmap.id" class="text-white-50">
+                                <tr
+                                    v-for="beatmap in actionBeatmaps"
+                                    :key="beatmap.id"
+                                    class="text-white-50"
+                                >
                                     <td scope="row">
                                         <modes-icons :modes="[beatmap.mode]" />
-                                        <a v-if="beatmap.url" :href="beatmap.url" class="ms-1">
+                                        <a
+                                            v-if="beatmap.url"
+                                            :href="beatmap.url"
+                                            class="ms-1"
+                                        >
                                             {{ generateMetadata(beatmap.song) }}
                                         </a>
-                                        <span v-else class="ms-1">{{ generateMetadata(beatmap.song) }}</span>
+                                        <span v-else class="ms-1">{{
+                                            generateMetadata(beatmap.song)
+                                        }}</span>
                                     </td>
                                     <td scope="row">
                                         {{ beatmap.packId }}
@@ -53,7 +65,12 @@
                                             href="#"
                                             data-bs-toggle="modal"
                                             data-bs-target="#editBeatmap"
-                                            @click.prevent="$store.commit('setSelectedBeatmap', beatmap)"
+                                            @click.prevent="
+                                                $store.commit(
+                                                    'setSelectedBeatmap',
+                                                    beatmap
+                                                )
+                                            "
                                         >
                                             edit
                                         </a>
@@ -61,7 +78,11 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <span v-else-if="!actionBeatmapsLoading" class="text-white-50 ms-5">None...</span>
+                        <span
+                            v-else-if="!actionBeatmapsLoading"
+                            class="text-white-50 ms-5"
+                            >None...</span
+                        >
                     </div>
                 </div>
             </div>
@@ -69,7 +90,10 @@
 
         <div class="container card card-body py-1 mb-4">
             <div class="row mx-3 mt-2">
-                <button class="btn btn-sm btn-info w-100 mb-1" @click="loadActionQuests($event)">
+                <button
+                    class="btn btn-sm btn-info w-100 mb-1"
+                    @click="loadActionQuests($event)"
+                >
                     Load quests
                 </button>
             </div>
@@ -80,34 +104,33 @@
                             Quests
                             <i class="fas fa-angle-down" />
                         </a>
-                        <span v-if="actionQuestsLoading" class="ms-2 small text-white-50">loading...</span>
+                        <span
+                            v-if="actionQuestsLoading"
+                            class="ms-2 small text-white-50"
+                            >loading...</span
+                        >
                     </h5>
                     <div id="actionQuests" class="show">
-                        <table v-if="actionQuests.length" class="table table-sm">
+                        <table
+                            v-if="actionQuests.length"
+                            class="table table-sm"
+                        >
                             <thead>
                                 <tr>
-                                    <th scope="col">
-                                        NAME
-                                    </th>
-                                    <th scope="col">
-                                        CREATOR
-                                    </th>
-                                    <th scope="col">
-                                        MODES
-                                    </th>
-                                    <th scope="col">
-                                        STATUS
-                                    </th>
-                                    <th scope="col">
-                                        MAPSETS
-                                    </th>
-                                    <th scope="col">
-                                        EDIT
-                                    </th>
+                                    <th scope="col">NAME</th>
+                                    <th scope="col">CREATOR</th>
+                                    <th scope="col">MODES</th>
+                                    <th scope="col">STATUS</th>
+                                    <th scope="col">MAPSETS</th>
+                                    <th scope="col">EDIT</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="quest in actionQuests" :key="quest.id" class="text-white-50">
+                                <tr
+                                    v-for="quest in actionQuests"
+                                    :key="quest.id"
+                                    class="text-white-50"
+                                >
                                     <td scope="row">
                                         {{ quest.name }}
                                     </td>
@@ -127,8 +150,17 @@
                                         <a
                                             href="#"
                                             data-bs-toggle="modal"
-                                            :data-bs-target="quest.status == 'pending' ? '#reviewQuest' : '#editQuest'"
-                                            @click.prevent="$store.commit('setSelectedQuest', quest)"
+                                            :data-bs-target="
+                                                quest.status == 'pending'
+                                                    ? '#reviewQuest'
+                                                    : '#editQuest'
+                                            "
+                                            @click.prevent="
+                                                $store.commit(
+                                                    'setSelectedQuest',
+                                                    quest
+                                                )
+                                            "
                                         >
                                             edit
                                         </a>
@@ -136,7 +168,11 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <span v-else-if="!actionQuestsLoading" class="text-white-50 ms-5">None...</span>
+                        <span
+                            v-else-if="!actionQuestsLoading"
+                            class="text-white-50 ms-5"
+                            >None...</span
+                        >
                     </div>
                 </div>
             </div>
@@ -144,7 +180,10 @@
 
         <div class="container card card-body py-1 mb-4">
             <div class="row mx-3 mt-2">
-                <button class="btn btn-sm btn-info w-100 mb-1" @click="loadActionUsers($event)">
+                <button
+                    class="btn btn-sm btn-info w-100 mb-1"
+                    @click="loadActionUsers($event)"
+                >
                     Load users
                 </button>
             </div>
@@ -155,54 +194,71 @@
                             Users
                             <i class="fas fa-angle-down" />
                         </a>
-                        <span v-if="actionUsersLoading" class="ms-2 small text-white-50">loading...</span>
+                        <span
+                            v-if="actionUsersLoading"
+                            class="ms-2 small text-white-50"
+                            >loading...</span
+                        >
                     </h5>
                     <div v-if="actionUsers" id="actionUsers" class="show">
                         <table v-if="actionUsers.length" class="table table-sm">
                             <thead>
                                 <tr>
-                                    <th scope="col">
-                                        USERNAME
-                                    </th>
-                                    <th scope="col">
-                                        RANK
-                                    </th>
-                                    <th scope="col">
-                                        QUEUED BADGE
-                                    </th>
-                                    <th scope="col">
-                                        BADGE
-                                    </th>
-                                    <th scope="col">
-                                        EDIT
-                                    </th>
+                                    <th scope="col">USERNAME</th>
+                                    <th scope="col">RANK</th>
+                                    <th scope="col">QUEUED BADGE</th>
+                                    <th scope="col">BADGE</th>
+                                    <th scope="col">EDIT</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="user in actionUsers" :key="user.id" class="text-white-50">
+                                <tr
+                                    v-for="user in actionUsers"
+                                    :key="user.id"
+                                    class="text-white-50"
+                                >
                                     <td scope="row">
                                         <user-link :user="user" />
                                     </td>
                                     <td scope="row">
                                         <i
                                             v-if="user.rank"
-                                            v-bs-tooltip="`rank ${user.rank} user`"
+                                            v-bs-tooltip="
+                                                `rank ${user.rank} user`
+                                            "
                                             class="fas fa-crown"
                                             :class="'text-rank-' + user.rank"
                                         />
                                     </td>
-                                    <td scope="row" :class="{ 'bg-open': user.rank != user.queuedBadge }">
+                                    <td
+                                        scope="row"
+                                        :class="{
+                                            'bg-open':
+                                                user.rank != user.queuedBadge,
+                                        }"
+                                    >
                                         <i
                                             v-if="user.queuedBadge"
-                                            v-bs-tooltip="`rank ${user.queuedBadge} user`"
+                                            v-bs-tooltip="
+                                                `rank ${user.queuedBadge} user`
+                                            "
                                             class="fas fa-crown"
-                                            :class="'text-rank-' + user.queuedBadge"
+                                            :class="
+                                                'text-rank-' + user.queuedBadge
+                                            "
                                         />
                                     </td>
-                                    <td scope="row" :class="{ 'bg-open': user.rank != user.badge }">
+                                    <td
+                                        scope="row"
+                                        :class="{
+                                            'bg-open': user.rank != user.badge,
+                                        }"
+                                    >
                                         <i
                                             v-if="user.badge"
-                                            v-bs-tooltip="`rank ${user.badge} user`"
+                                            v-bs-tooltip="
+                                                `rank ${user.badge} user`
+                                            "
                                             class="fas fa-crown"
                                             :class="'text-rank-' + user.badge"
                                         />
@@ -212,7 +268,12 @@
                                             href="#"
                                             data-bs-toggle="modal"
                                             data-bs-target="#editUser"
-                                            @click.prevent="$store.commit('setSelectedUser', user)"
+                                            @click.prevent="
+                                                $store.commit(
+                                                    'setSelectedUser',
+                                                    user
+                                                )
+                                            "
                                         >
                                             edit
                                         </a>
@@ -220,7 +281,11 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <span v-else-if="!actionUsersLoading" class="text-white-50 ms-5">None...</span>
+                        <span
+                            v-else-if="!actionUsersLoading"
+                            class="text-white-50 ms-5"
+                            >None...</span
+                        >
                     </div>
                 </div>
             </div>
@@ -228,7 +293,10 @@
 
         <div class="container card card-body py-1">
             <div class="row mx-3 mt-2">
-                <button class="btn btn-sm btn-info w-100 mb-1" @click="loadActionContests($event)">
+                <button
+                    class="btn btn-sm btn-info w-100 mb-1"
+                    @click="loadActionContests($event)"
+                >
                     Load contests
                 </button>
             </div>
@@ -239,27 +307,38 @@
                             Contests
                             <i class="fas fa-angle-down" />
                         </a>
-                        <span v-if="actionContestsLoading" class="ms-2 small text-white-50">loading...</span>
+                        <span
+                            v-if="actionContestsLoading"
+                            class="ms-2 small text-white-50"
+                            >loading...</span
+                        >
                     </h5>
                     <div v-if="actionContests" id="actionContests" class="show">
-                        <table v-if="actionContests.length" class="table table-sm">
+                        <table
+                            v-if="actionContests.length"
+                            class="table table-sm"
+                        >
                             <thead>
                                 <tr>
-                                    <th scope="col">
-                                        CONTEST
-                                    </th>
-                                    <th scope="col">
-                                        CREATOR
-                                    </th>
-                                    <th scope="col">
-                                        EDIT
-                                    </th>
+                                    <th scope="col">CONTEST</th>
+                                    <th scope="col">CREATOR</th>
+                                    <th scope="col">EDIT</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="contest in actionContests" :key="contest.id" class="text-white-50">
+                                <tr
+                                    v-for="contest in actionContests"
+                                    :key="contest.id"
+                                    class="text-white-50"
+                                >
                                     <td scope="row">
-                                        <a :href="'/contests/listing?contest=' + contest.id">{{ contest.name }}</a>
+                                        <a
+                                            :href="
+                                                '/contests/listing?contest=' +
+                                                contest.id
+                                            "
+                                            >{{ contest.name }}</a
+                                        >
                                     </td>
                                     <td scope="row">
                                         <user-link :user="contest.creator" />
@@ -269,7 +348,12 @@
                                             href="#"
                                             data-bs-toggle="modal"
                                             data-bs-target="#editContest"
-                                            @click.prevent="$store.commit('setSelectedContest', contest)"
+                                            @click.prevent="
+                                                $store.commit(
+                                                    'setSelectedContest',
+                                                    contest
+                                                )
+                                            "
                                         >
                                             edit
                                         </a>
@@ -277,7 +361,11 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <span v-else-if="!actionContestsLoading" class="text-white-50 ms-5">None...</span>
+                        <span
+                            v-else-if="!actionContestsLoading"
+                            class="text-white-50 ms-5"
+                            >None...</span
+                        >
                     </div>
                 </div>
             </div>
@@ -285,30 +373,15 @@
 
         <div class="radial-divisor" />
 
-        <beatmap-info-admin
-            v-if="selectedBeatmap"
-            :beatmap="selectedBeatmap"
-        />
+        <beatmap-info-admin v-if="selectedBeatmap" :beatmap="selectedBeatmap" />
 
-        <quest-info
-            v-if="selectedQuest"
-            :quest="selectedQuest"
-        />
+        <quest-info v-if="selectedQuest" :quest="selectedQuest" />
 
-        <review-quest
-            v-if="selectedQuest"
-            :quest="selectedQuest"
-        />
+        <review-quest v-if="selectedQuest" :quest="selectedQuest" />
 
-        <user-info
-            v-if="selectedUser"
-            :user="selectedUser"
-        />
+        <user-info v-if="selectedUser" :user="selectedUser" />
 
-        <contest-info
-            v-if="selectedContest"
-            :contest="selectedContest"
-        />
+        <contest-info v-if="selectedContest" :contest="selectedContest" />
     </div>
 </template>
 
@@ -338,24 +411,26 @@ export default defineComponent({
     },
     computed: mapState({
         actionBeatmaps: (state: any) => state.admin.actionBeatmaps,
-        actionBeatmapsLoading: (state: any) => state.admin.actionBeatmapsLoading,
+        actionBeatmapsLoading: (state: any) =>
+            state.admin.actionBeatmapsLoading,
         actionQuests: (state: any) => state.admin.actionQuests,
         actionQuestsLoading: (state: any) => state.admin.actionQuestsLoading,
         actionUsers: (state: any) => state.admin.actionUsers,
         actionUsersLoading: (state: any) => state.admin.actionUsersLoading,
         actionContests: (state: any) => state.admin.actionContests,
-        actionContestsLoading: (state: any) => state.admin.actionContestsLoading,
+        actionContestsLoading: (state: any) =>
+            state.admin.actionContestsLoading,
         selectedBeatmap: (state: any) => state.admin.selectedBeatmap,
         selectedQuest: (state: any) => state.admin.selectedQuest,
         selectedUser: (state: any) => state.admin.selectedUser,
         selectedContest: (state: any) => state.admin.selectedContest,
     }),
-    beforeCreate () {
+    beforeCreate() {
         if (!this.$store.hasModule('admin')) {
             this.$store.registerModule('admin', adminModule);
         }
     },
-    unmounted () {
+    unmounted() {
         if (this.$store.hasModule('admin')) {
             this.$store.unregisterModule('admin');
         }
@@ -365,7 +440,7 @@ export default defineComponent({
             let metadata = song.artist + ' - ';
 
             if (song.title.length > 40) {
-                metadata += song.title.slice(0,40) + '...';
+                metadata += song.title.slice(0, 40) + '...';
             } else {
                 metadata += song.title;
             }
@@ -378,7 +453,10 @@ export default defineComponent({
             if (result) {
                 this.$store.commit('setActionBeatmaps', []);
                 this.$store.commit('setActionBeatmapsLoading', true);
-                const actionBeatmaps = await this.$http.executeGet<Beatmap[]>(`/admin/loadActionBeatmaps`, e);
+                const actionBeatmaps = await this.$http.executeGet<Beatmap[]>(
+                    `/admin/loadActionBeatmaps`,
+                    e
+                );
 
                 if (!this.$http.isError(actionBeatmaps)) {
                     this.$store.commit('setActionBeatmaps', actionBeatmaps);
@@ -390,7 +468,10 @@ export default defineComponent({
         async loadActionQuests(e): Promise<void> {
             this.$store.commit('setActionQuests', []);
             this.$store.commit('setActionQuestsLoading', true);
-            const actionQuests = await this.$http.executeGet<Quest[]>('/admin/loadActionQuests', e);
+            const actionQuests = await this.$http.executeGet<Quest[]>(
+                '/admin/loadActionQuests',
+                e
+            );
 
             if (!this.$http.isError(actionQuests)) {
                 this.$store.commit('setActionQuests', actionQuests);
@@ -401,7 +482,10 @@ export default defineComponent({
         async loadActionUsers(e): Promise<void> {
             this.$store.commit('setActionUsers', []);
             this.$store.commit('setActionUsersLoading', true);
-            const actionUsers = await this.$http.executeGet<User[]>('/admin/loadActionUsers', e);
+            const actionUsers = await this.$http.executeGet<User[]>(
+                '/admin/loadActionUsers',
+                e
+            );
 
             if (!this.$http.isError(actionUsers)) {
                 this.$store.commit('setActionUsers', actionUsers);
@@ -412,7 +496,10 @@ export default defineComponent({
         async loadActionContests(e): Promise<void> {
             this.$store.commit('setActionContests', []);
             this.$store.commit('setActionContestsLoading', true);
-            const actionContests = await this.$http.executeGet<User[]>('/admin/loadActionContests', e);
+            const actionContests = await this.$http.executeGet<User[]>(
+                '/admin/loadActionContests',
+                e
+            );
 
             if (!this.$http.isError(actionContests)) {
                 this.$store.commit('setActionContests', actionContests);

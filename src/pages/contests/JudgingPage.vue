@@ -18,7 +18,7 @@
                 </button>
             </div>
             <div v-if="selectedContest">
-                <hr>
+                <hr />
 
                 <div class="card">
                     <h4 class="my-2">
@@ -31,7 +31,11 @@
                     </h5>
 
                     <div class="mb-2">
-                        <a href="#judgingInstructions" data-bs-toggle="collapse" @click.prevent>
+                        <a
+                            href="#judgingInstructions"
+                            data-bs-toggle="collapse"
+                            @click.prevent
+                        >
                             See judging instructions
                             <i class="fas fa-angle-down" />
                         </a>
@@ -49,16 +53,26 @@
                                     <th class="text-start">
                                         <a
                                             href="#"
-                                            @click.prevent="sortSubmissionsBy('name')"
+                                            @click.prevent="
+                                                sortSubmissionsBy('name')
+                                            "
                                         >
                                             Entry's Name
                                         </a>
                                     </th>
-                                    <th v-for="criteria in selectedContest.criterias" :key="criteria.id">
+                                    <th
+                                        v-for="criteria in selectedContest.criterias"
+                                        :key="criteria.id"
+                                    >
                                         <a
                                             href="#"
                                             class="text-start"
-                                            @click.prevent="sortSubmissionsBy('criteria', criteria.id)"
+                                            @click.prevent="
+                                                sortSubmissionsBy(
+                                                    'criteria',
+                                                    criteria.id
+                                                )
+                                            "
                                         >
                                             {{ criteria.name }}
                                         </a>
@@ -66,7 +80,9 @@
                                     <th>
                                         <a
                                             href="#"
-                                            @click.prevent="sortSubmissionsBy('total')"
+                                            @click.prevent="
+                                                sortSubmissionsBy('total')
+                                            "
                                         >
                                             Total
                                         </a>
@@ -74,7 +90,9 @@
                                     <th>
                                         <a
                                             href="#"
-                                            @click.prevent="sortSubmissionsBy('completed')"
+                                            @click.prevent="
+                                                sortSubmissionsBy('completed')
+                                            "
                                         >
                                             Completed
                                         </a>
@@ -82,31 +100,60 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="submission in sortedSubmissions" :key="submission.id">
+                                <tr
+                                    v-for="submission in sortedSubmissions"
+                                    :key="submission.id"
+                                >
                                     <td class="text-start">
                                         {{ submission.name }}
                                     </td>
-                                    <td v-for="criteria in selectedContest.criterias" :key="criteria.id" class="text-start">
+                                    <td
+                                        v-for="criteria in selectedContest.criterias"
+                                        :key="criteria.id"
+                                        class="text-start"
+                                    >
                                         <a
                                             href="#"
                                             data-bs-toggle="modal"
                                             data-bs-target="#editing-judging-modal"
-                                            @click.prevent="selectForEditing(submission.id, criteria.id)"
+                                            @click.prevent="
+                                                selectForEditing(
+                                                    submission.id,
+                                                    criteria.id
+                                                )
+                                            "
                                         >
-                                            <span v-if="criteria.name != 'comments'">
-                                                {{ getScore(submission.id, criteria.id) + `/${criteria.maxScore}` }}
+                                            <span
+                                                v-if="
+                                                    criteria.name != 'comments'
+                                                "
+                                            >
+                                                {{
+                                                    getScore(
+                                                        submission.id,
+                                                        criteria.id
+                                                    ) + `/${criteria.maxScore}`
+                                                }}
                                             </span>
-                                            <span v-else>{{ getComment(submission.id) }}</span>
+                                            <span v-else>{{
+                                                getComment(submission.id)
+                                            }}</span>
                                             <i class="ms-1 fas fa-edit" />
                                         </a>
                                     </td>
                                     <td>
-                                        {{ getTotalScore(submission.id) }}/{{ maxPossibleScore }}
+                                        {{ getTotalScore(submission.id) }}/{{
+                                            maxPossibleScore
+                                        }}
                                     </td>
                                     <td class="text-center">
                                         <i
                                             class="fa"
-                                            :class="isCompleted(submission.id) ? 'fa-check text-success' : 'fa-times text-danger'"
+                                            :class="
+                                                isCompleted(submission.id)
+                                                    ? 'fa-check text-success'
+                                                    : 'fa-times text-danger'
+                                            "
                                         />
                                     </td>
                                 </tr>
@@ -140,7 +187,7 @@ export default defineComponent({
         ContestCard,
         JudgingInstructions,
     },
-    data () {
+    data() {
         return {
             sortBy: 'name',
             sortByCriteria: '',
@@ -153,10 +200,8 @@ export default defineComponent({
             contests: (state: any) => state.judging.contests,
             judgingDone: (state: any) => state.judging.judgingDone,
         }),
-        ...mapGetters([
-            'selectedContest',
-        ]),
-        filteredSubmissions (): Submission[] {
+        ...mapGetters(['selectedContest']),
+        filteredSubmissions(): Submission[] {
             const indexes: number[] = [];
 
             for (let i = 0; i < this.selectedContest.submissions.length; i++) {
@@ -182,7 +227,7 @@ export default defineComponent({
 
             return filteredSubmissions;
         },
-        sortedSubmissions (): Submission[] {
+        sortedSubmissions(): Submission[] {
             const submissions = this.filteredSubmissions;
             if (!submissions) return [];
 
@@ -236,21 +281,24 @@ export default defineComponent({
             return submissions;
         },
 
-        maxPossibleScore (): number {
-            return this.selectedContest.criterias.reduce((acc, c) => c.maxScore + acc, 0);
+        maxPossibleScore(): number {
+            return this.selectedContest.criterias.reduce(
+                (acc, c) => c.maxScore + acc,
+                0
+            );
         },
     },
-    beforeCreate () {
+    beforeCreate() {
         if (!this.$store.hasModule('judging')) {
             this.$store.registerModule('judging', judgingModule);
         }
     },
-    unmounted () {
+    unmounted() {
         if (this.$store.hasModule('judging')) {
             this.$store.unregisterModule('judging');
         }
     },
-    async created () {
+    async created() {
         await this.loadContests();
     },
     methods: {
@@ -258,7 +306,9 @@ export default defineComponent({
             const id = this.$route.query.contest;
 
             if (id && !this.contests.length) {
-                const res: any = await this.$http.initialRequest(`/contests/judging/searchContest/${id}`);
+                const res: any = await this.$http.initialRequest(
+                    `/contests/judging/searchContest/${id}`
+                );
 
                 if (!this.$http.isError(res)) {
                     this.$store.commit('setContests', [res.contest] || []);
@@ -269,7 +319,10 @@ export default defineComponent({
                 }
             } else {
                 this.$router.replace(`/contests/judging`);
-                const res: any = await this.$http.initialRequest<{ contests: Contest[]; judgingDone: Judging[] }>('/contests/judging/relevantInfo');
+                const res: any = await this.$http.initialRequest<{
+                    contests: Contest[];
+                    judgingDone: Judging[];
+                }>('/contests/judging/relevantInfo');
 
                 if (!this.$http.isError(res)) {
                     this.$store.commit('setContests', res.contests);
@@ -280,44 +333,59 @@ export default defineComponent({
                 }
             }
         },
-        selectForEditing (submissionId: Submission['id'], criteriaId: Criteria['id']): void {
+        selectForEditing(
+            submissionId: Submission['id'],
+            criteriaId: Criteria['id']
+        ): void {
             this.$store.commit('setEditingSubmissionId', submissionId);
             this.$store.commit('setEditingCriteriaId', criteriaId);
         },
-        getJudgingToCriterias(submissionId: string, criteriaId: string): JudgingScore | null {
-            const judging = this.judgingDone.find(j => j.submission.id === submissionId);
-            if (!judging)
-                return null;
+        getJudgingToCriterias(
+            submissionId: string,
+            criteriaId: string
+        ): JudgingScore | null {
+            const judging = this.judgingDone.find(
+                (j) => j.submission.id === submissionId
+            );
+            if (!judging) return null;
 
-            const judgingScore = judging.judgingScores.find((q) => q.criteria.id === criteriaId);
-            if (!judgingScore)
-                return null;
+            const judgingScore = judging.judgingScores.find(
+                (q) => q.criteria.id === criteriaId
+            );
+            if (!judgingScore) return null;
 
             return judgingScore;
         },
         getScore(submissionId: string, criteriaId: string): number {
-            const qualifierJudgingToCriterias = this.getJudgingToCriterias(submissionId, criteriaId);
-            if (!qualifierJudgingToCriterias)
-                return 0;
+            const qualifierJudgingToCriterias = this.getJudgingToCriterias(
+                submissionId,
+                criteriaId
+            );
+            if (!qualifierJudgingToCriterias) return 0;
 
             return qualifierJudgingToCriterias.score;
         },
         getTotalScore(submissionId: string): number {
-            const judging = this.judgingDone.find(j => j.submission.id === submissionId);
+            const judging = this.judgingDone.find(
+                (j) => j.submission.id === submissionId
+            );
 
-            if (!judging)
-                return 0;
+            if (!judging) return 0;
 
             return judging.judgingScores.reduce((acc, j) => j.score + acc, 0);
         },
         isCompleted(submissionId: string): boolean {
-            const judging = this.judgingDone.find(j => j.submission.id === submissionId);
-            if (!judging)
-                return false;
+            const judging = this.judgingDone.find(
+                (j) => j.submission.id === submissionId
+            );
+            if (!judging) return false;
 
-            return judging.judgingScores.length === this.selectedContest.criterias.length;
+            return (
+                judging.judgingScores.length ===
+                this.selectedContest.criterias.length
+            );
         },
-        sortSubmissionsBy (type: string, criteriaId?: string): void {
+        sortSubmissionsBy(type: string, criteriaId?: string): void {
             this.sortBy = type;
             this.sortDesc = !this.sortDesc;
 
@@ -325,18 +393,23 @@ export default defineComponent({
                 this.sortByCriteria = criteriaId;
             }
         },
-        async loadMore (): Promise<void> {
+        async loadMore(): Promise<void> {
             await this.loadContests();
         },
-        getComment (submissionId: string): string {
-            const judging = this.judgingDone.find(j => j.submission.id === submissionId);
+        getComment(submissionId: string): string {
+            const judging = this.judgingDone.find(
+                (j) => j.submission.id === submissionId
+            );
             if (!judging) return '...';
 
             let comment = '...';
 
             for (const score of judging.judgingScores) {
                 if (score.comment && score.comment.length) {
-                    comment = score.comment.length > 10 ? score.comment.slice(0,10) + '...' : score.comment;
+                    comment =
+                        score.comment.length > 10
+                            ? score.comment.slice(0, 10) + '...'
+                            : score.comment;
                 }
             }
 
