@@ -19,7 +19,12 @@
                     class="ml-1 form-control w-50 d-inline form-control-sm"
                     @change="updateCreators($event)"
                 />
-                <a href="#" class="ms-1" @click.prevent="showCreatorInput = !showCreatorInput">
+                <a
+                    v-if="creatorIds.includes(loggedInUser.id)"
+                    href="#"
+                    class="ms-1"
+                    @click.prevent="showCreatorInput = !showCreatorInput"
+                >
                     <i class="fas fa-edit" />
                 </a>
             </div>
@@ -30,6 +35,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
+import { mapState } from 'vuex';
 import { User } from '@interfaces/user';
 import UserLinkList from '@components/UserLinkList.vue';
 
@@ -61,6 +67,12 @@ export default defineComponent({
             showCreatorInput: false,
             creatorInput: '',
         };
+    },
+    computed: {
+        ...mapState(['loggedInUser']),
+        creatorIds (): string[] {
+            return this.creators.map(c => c.id);
+        },
     },
     watch: {
         creators (): void {
