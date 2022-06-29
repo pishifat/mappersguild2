@@ -21,7 +21,7 @@ export interface Contest {
     _id: any;
     id: string;
     name: string;
-    creator: User;
+    creators: User[];
     url: string;
     osuContestListingUrl: string;
     resultsUrl: string;

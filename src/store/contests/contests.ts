@@ -82,6 +82,13 @@ const store: Module<ContestState, MainState> = {
                 contest.download = payload.download;
             }
         },
+        updateCreators (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                contest.creators = payload.creators;
+            }
+        },
         deleteSubmission (state, payload): void {
             const contest = state.contests.find(c => c.id == payload.contestId);
 

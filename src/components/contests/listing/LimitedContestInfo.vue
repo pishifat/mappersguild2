@@ -1,9 +1,10 @@
 <template>
     <div>
         <contest-header
+            :contest-id="contest.id"
             :name="contest.name"
             :url="contest.url"
-            :creator="contest.creator"
+            :creators="contest.creators"
         />
 
         <contest-banner
@@ -33,6 +34,11 @@
             <div v-if="!contest.osuContestListingUrl">
                 <div v-if="new Date(contest.contestEnd) < new Date()">
                     This contest is no longer accepting new submissions.
+                </div>
+
+                <div v-else-if="new Date(contest.contestStart) > new Date()">
+                    <div>This contest is not yet opened for submissions.</div>
+                    <div>Maps can be submitted after <code>{{ new Date(contest.contestStart) }}</code></div>
                 </div>
 
                 <div v-else>

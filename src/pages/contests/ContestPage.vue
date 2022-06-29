@@ -3,7 +3,7 @@
         <div class="row">
             <div class="col-sm-3">
                 <div class="container card card-body py-3 mb-2">
-                    <div class="input-group mb-1">
+                    <div class="input-group">
                         <button
                             class="btn btn-primary"
                             href="#"
@@ -19,117 +19,81 @@
                             autocomplete="off"
                         />
                     </div>
+                    <hr />
                     <div>
                         Contest category
                     </div>
-                    <div class="small">
-                        <a href="#" @click.prevent="displayMode = 'activeContests'">
-                            <span
-                                :class="
-                                    displayMode === 'activeContests'
-                                        ? 'border-bottom border-secondary'
-                                        : ''
-                                "
+                    <div class="small ms-2">
+                        <div>
+                            <a
+                                href="#"
+                                :class="loadingCategory ? 'pe-none opacity-50' : ''"
+                                @click.prevent="displayMode = 'activeContests'"
                             >
-                                Active
-                            </span>
-                        </a>
-                    </div>
-                    <div class="small">
-                        <a
-                            href="#"
-                            @click.prevent="displayMode = 'completedContests'"
-                        >
-                            <span
-                                :class="
-                                    displayMode === 'completedContests'
-                                        ? 'border-bottom border-secondary'
-                                        : ''
-                                "
+                                <span :class="displayMode === 'activeContests' ? 'border-bottom border-secondary' : ''">
+                                    Active
+                                </span>
+                            </a>
+                        </div>
+                        <div>
+                            <a
+                                href="#"
+                                :class="loadingCategory ? 'pe-none opacity-50' : ''"
+                                @click.prevent="displayMode = 'completedContests'"
                             >
-                                Completed
-                            </span>
-                        </a>
-                    </div>
-                    <div class="small">
-                        <a href="#" @click.prevent="displayMode = 'myContests'">
-                            <span
-                                :class="
-                                    displayMode === 'myContests'
-                                        ? 'border-bottom border-secondary'
-                                        : ''
-                                "
+                                <span :class="displayMode === 'completedContests' ? 'border-bottom border-secondary' : ''">
+                                    Completed
+                                </span>
+                            </a>
+                        </div>
+                        <div>
+                            <a
+                                href="#"
+                                :class="loadingCategory ? 'pe-none opacity-50' : ''"
+                                @click.prevent="displayMode = 'myContests'"
                             >
-                                My contests
-                            </span>
-                        </a>
+                                <span :class="displayMode === 'myContests' ? 'border-bottom border-secondary' : ''">
+                                    My contests
+                                </span>
+                            </a>
+                        </div>
                     </div>
                     <hr />
                     <div>
                         Contest mode
                     </div>
-                    <div>
-                        <div class="small">
+                    <div class="small mx-2">
+                        <div>
                             <a href="#" @click.prevent="filterMode = ''">
-                                <span
-                                    :class="
-                                        filterMode === ''
-                                            ? 'border-bottom border-secondary'
-                                            : ''
-                                    "
-                                >
+                                <span :class="filterMode === '' ? 'border-bottom border-secondary' : ''">
                                     Any
                                 </span>
                             </a>
                         </div>
-                        <div class="small">
+                        <div>
                             <a href="#" @click.prevent="filterMode = 'osu'">
-                                <span
-                                    :class="
-                                        filterMode === 'osu'
-                                            ? 'border-bottom border-secondary'
-                                            : ''
-                                    "
-                                >
+                                <span :class="filterMode === 'osu' ? 'border-bottom border-secondary' : ''">
                                     osu!
                                 </span>
                             </a>
                         </div>
-                        <div class="small">
+                        <div>
                             <a href="#" @click.prevent="filterMode = 'taiko'">
-                                <span
-                                    :class="
-                                        filterMode === 'taiko'
-                                            ? 'border-bottom border-secondary'
-                                            : ''
-                                    "
-                                >
+                                <span :class="filterMode === 'taiko' ? 'border-bottom border-secondary' : ''">
                                     osu!taiko
                                 </span>
                             </a>
                         </div>
-                        <div class="small">
+                        <div>
                             <a href="#" @click.prevent="filterMode = 'catch'">
-                                <span
-                                    :class="
-                                        filterMode === 'catch'
-                                            ? 'border-bottom border-secondary'
-                                            : ''
-                                    "
-                                >
+                                <span :class="filterMode === 'catch' ? 'border-bottom border-secondary' : ''">
                                     osu!catch
                                 </span>
                             </a>
                         </div>
-                        <div class="small">
+                        <div>
                             <a href="#" @click.prevent="filterMode = 'mania'">
-                                <span
-                                    :class="
-                                        filterMode === 'mania'
-                                            ? 'border-bottom border-secondary'
-                                            : ''
-                                    "
-                                >
+                                <span :class="filterMode === 'mania' ? 'border-bottom border-secondary' : ''">
                                     osu!mania
                                 </span>
                             </a>
@@ -160,7 +124,7 @@
                     Loading...
                 </div>
                 <div
-                    v-if="filteredContests && !filteredContests.length"
+                    v-if="contests && !filteredContests.length"
                     class="container card card-body py-3 mb-2 text-secondary"
                 >
                     No contests available. Try other filters!
@@ -200,7 +164,7 @@
                 />
                 <contest-info
                     v-else-if="
-                        selectedContest.creator.id == loggedInUser.id ||
+                        creatorIds.includes(loggedInUser.id) ||
                         loggedInUser.osuId == 3178418
                     "
                     :contest="selectedContest"
@@ -241,6 +205,7 @@ export default defineComponent({
             skip: 0,
             total: 0,
             moreContestsAvailable: true,
+            loadingCategory: false,
         };
     },
     computed: {
@@ -251,18 +216,25 @@ export default defineComponent({
         }),
         ...mapGetters(['selectedContest']),
         filteredContests(): Contest[] {
-            let fContests = [...this.contests];
+            if (this.contests) {
+                let fContests = [...this.contests];
 
-            if (this.filterMode.length) {
-                fContests = fContests.filter(c => c.mode == this.filterMode);
+                if (this.filterMode.length) {
+                    fContests = fContests.filter(c => c.mode == this.filterMode);
+                }
+
+                if (this.filterValue.length) {
+                    const lowercaseFilterValue = this.filterValue.toLowerCase();
+                    fContests = fContests.filter(c => c.name.toLowerCase().includes(lowercaseFilterValue));
+                }
+
+                return fContests;
+            } else {
+                return [];
             }
-
-            if (this.filterValue.length) {
-                const lowercaseFilterValue = this.filterValue.toLowerCase();
-                fContests = fContests.filter(c => c.name.toLowerCase().includes(lowercaseFilterValue));
-            }
-
-            return fContests;
+        },
+        creatorIds(): string[] {
+            return this.selectedContest.creators.map(c => c.id);
         },
     },
     watch: {
@@ -271,10 +243,12 @@ export default defineComponent({
             this.skip = 0;
 
             if (this.firstLoadComplete) {
+                this.loadingCategory = true;
                 this.$store.commit('setContests', null);
                 this.$store.commit('setSelectedContestId', null);
                 this.$router.replace(`/contests/listing`);
                 await this.loadContests();
+                this.loadingCategory = false;
             }
         },
     },
@@ -302,7 +276,9 @@ export default defineComponent({
                 );
 
                 if (!this.$http.isError(contest)) {
-                    if (contest.creator.id == this.loggedInUser.id) {
+                    const tempCreatorIds = contest.creators.map(c => c.id);
+
+                    if (tempCreatorIds.includes(this.loggedInUser.id)) {
                         this.displayMode = 'myContests';
                     } else if (contest.status == 'complete') {
                         this.displayMode = 'completedContests';

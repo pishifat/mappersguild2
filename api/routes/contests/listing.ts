@@ -3,6 +3,7 @@ import { isLoggedIn } from '../../helpers/middlewares';
 import { isContestCreator, isEditable } from './middlewares';
 import { Contest, ContestModel } from '../../models/contest/contest';
 import { UserModel } from '../../models/user';
+import { User } from '../../../interfaces/user';
 import { SubmissionModel } from '../../models/contest/submission';
 import { sendMessages } from '../../helpers/osuBot';
 import { CriteriaModel } from '../../models/contest/criteria';
@@ -49,7 +50,7 @@ const defaultContestPopulate = [
         path: 'criterias',
     },
     {
-        path: 'creator',
+        path: 'creators',
     },
 ];
 
@@ -64,7 +65,7 @@ function getLimitedDefaultPopulate(mongoId) {
             },
         },
         {
-            path: 'creator',
+            path: 'creators',
             select: 'username osuId',
         },
     ];
@@ -82,10 +83,10 @@ function getQuerySelectPopulate(mongoId, contestType, showFullData, bypass) {
     } else if (contestType == 'completedContests') {
         query = { status: ContestStatus.Complete, isApproved: true };
         select = limitedContestSelect;
-        populate = [{ path: 'creator', select: 'username osuId' }];
+        populate = [{ path: 'creators', select: 'username osuId' }];
     } else if (showFullData) {
         if (bypass) query = {};
-        else query = { creator: mongoId };
+        else query = { creators: mongoId };
         select = '';
         populate = defaultContestPopulate;
     }
@@ -104,7 +105,6 @@ listingRouter.get('/relevantInfo', async (req, res) => {
 
     const { query, select, populate } = getQuerySelectPopulate(req.session.mongoId, contestType, showFullData, bypass);
 
-
     const contests = await ContestModel
         .find(query)
         .populate(populate)
@@ -120,7 +120,7 @@ listingRouter.get('/relevantInfo', async (req, res) => {
 listingRouter.get('/searchContest/:contestId', async (req, res) => {
     let contest = await ContestModel
         .findOne({
-            creator: req.session.mongoId,
+            creators: req.session.mongoId,
             _id: req.params.contestId,
         })
         .populate(defaultContestPopulate);
@@ -153,7 +153,7 @@ listingRouter.get('/searchContest/:contestId', async (req, res) => {
 /* GET user contests */
 listingRouter.get('/loadUserContests', async (req, res) => {
     const contests = await ContestModel
-        .find({ creator: req.session.mongoId })
+        .find({ creators: req.session.mongoId })
         .select('name');
 
     res.json(contests);
@@ -176,7 +176,7 @@ listingRouter.post('/create', async (req, res) => {
 
     const contest = new ContestModel();
     contest.name = req.body.name.trim();
-    contest.creator = req.session.mongoId;
+    contest.creators = [req.session.mongoId];
 
     if (templateId && templateId.length) {
         const templateContest = await ContestModel.findById(templateId).orFail();
@@ -941,6 +941,12 @@ listingRouter.post('/:id/createSubmission', isEditable, async (req, res) => {
         .populate(defaultContestPopulate)
         .orFail();
 
+    const today = new Date();
+
+    if (new Date(contest.contestStart) > today) {
+        return res.json({ error: `Contest not accepting submissions until ${contest.contestStart}` });
+    }
+
     const url = req.body.submissionUrl;
 
     if (contest.status !== ContestStatus.Beatmapping) {
@@ -1029,6 +1035,34 @@ listingRouter.post('/:id/delete', isContestCreator, isEditable, async (req, res)
     await contest.remove();
 
     res.json({ success: 'Deleted' });
+});
+
+/* POST update creators */
+listingRouter.post('/:id/updateCreators', isContestCreator, isEditable, async (req, res) => {
+    const usersSplit: string[] = req.body.creatorInput.split(',');
+
+    const userIds: User['_id'] = [];
+
+    for (const u of usersSplit) {
+        const user = await UserModel
+            .findOne()
+            .byUsernameOrOsuId(u.trim());
+
+        if (!user) {
+            return res.json({ error: `Cannot find ${u}!` });
+        } else {
+            userIds.push(user._id);
+        }
+    }
+
+    await ContestModel.findByIdAndUpdate(req.params.id, { creators: userIds });
+
+    const updatedContest = await ContestModel
+        .findById(req.params.id)
+        .populate(defaultContestPopulate)
+        .orFail();
+
+    res.json(updatedContest.creators);
 });
 
 

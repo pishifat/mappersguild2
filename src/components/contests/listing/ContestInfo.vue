@@ -1,9 +1,10 @@
 <template>
     <div>
         <contest-header
+            :contest-id="contest.id"
             :name="contest.name"
             :url="contest.url"
-            :creator="contest.creator"
+            :creators="contest.creators"
         />
 
         <contest-banner

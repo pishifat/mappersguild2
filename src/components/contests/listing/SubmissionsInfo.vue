@@ -38,7 +38,7 @@
                             v-model="newAnonymousName"
                             class="ml-1 form-control form-control-sm"
                             @change="updateAnonymousSubmissionName(submission.id, $event)"
-                        >
+                        />
                         <span v-else class="me-1">{{ submission.name || 'TBD' }}</span>
                         <a href="#" @click.prevent="manualAnonEdit == submission.id ? manualAnonEdit = null : manualAnonEdit = submission.id">
                             <i class="fas fa-edit" />

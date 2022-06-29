@@ -4,7 +4,7 @@
             <div class="row mx-3 mt-2">
                 <button
                     class="btn btn-sm btn-info w-100 mb-1"
-                    @click="loadActionBeatmaps($event, false)"
+                    @click="loadActionBeatmaps($event)"
                 >
                     Load beatmaps
                 </button>
@@ -19,8 +19,7 @@
                         <span
                             v-if="actionBeatmapsLoading"
                             class="ms-2 small text-white-50"
-                            >loading...</span
-                        >
+                            >loading...</span>
                     </h5>
                     <div id="actionBeatmaps" class="show">
                         <table
@@ -29,10 +28,18 @@
                         >
                             <thead>
                                 <tr>
-                                    <th scope="col">METADATA</th>
-                                    <th scope="col">PACK ID</th>
-                                    <th scope="col">STATUS</th>
-                                    <th scope="col">EDIT</th>
+                                    <th scope="col">
+METADATA
+</th>
+                                    <th scope="col">
+PACK ID
+</th>
+                                    <th scope="col">
+STATUS
+</th>
+                                    <th scope="col">
+EDIT
+</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -81,8 +88,7 @@
                         <span
                             v-else-if="!actionBeatmapsLoading"
                             class="text-white-50 ms-5"
-                            >None...</span
-                        >
+                            >None...</span>
                     </div>
                 </div>
             </div>
@@ -107,8 +113,7 @@
                         <span
                             v-if="actionQuestsLoading"
                             class="ms-2 small text-white-50"
-                            >loading...</span
-                        >
+                            >loading...</span>
                     </h5>
                     <div id="actionQuests" class="show">
                         <table
@@ -117,12 +122,24 @@
                         >
                             <thead>
                                 <tr>
-                                    <th scope="col">NAME</th>
-                                    <th scope="col">CREATOR</th>
-                                    <th scope="col">MODES</th>
-                                    <th scope="col">STATUS</th>
-                                    <th scope="col">MAPSETS</th>
-                                    <th scope="col">EDIT</th>
+                                    <th scope="col">
+NAME
+</th>
+                                    <th scope="col">
+CREATOR
+</th>
+                                    <th scope="col">
+MODES
+</th>
+                                    <th scope="col">
+STATUS
+</th>
+                                    <th scope="col">
+MAPSETS
+</th>
+                                    <th scope="col">
+EDIT
+</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -171,8 +188,7 @@
                         <span
                             v-else-if="!actionQuestsLoading"
                             class="text-white-50 ms-5"
-                            >None...</span
-                        >
+                            >None...</span>
                     </div>
                 </div>
             </div>
@@ -197,18 +213,27 @@
                         <span
                             v-if="actionUsersLoading"
                             class="ms-2 small text-white-50"
-                            >loading...</span
-                        >
+                            >loading...</span>
                     </h5>
                     <div v-if="actionUsers" id="actionUsers" class="show">
                         <table v-if="actionUsers.length" class="table table-sm">
                             <thead>
                                 <tr>
-                                    <th scope="col">USERNAME</th>
-                                    <th scope="col">RANK</th>
-                                    <th scope="col">QUEUED BADGE</th>
-                                    <th scope="col">BADGE</th>
-                                    <th scope="col">EDIT</th>
+                                    <th scope="col">
+USERNAME
+</th>
+                                    <th scope="col">
+RANK
+</th>
+                                    <th scope="col">
+QUEUED BADGE
+</th>
+                                    <th scope="col">
+BADGE
+</th>
+                                    <th scope="col">
+EDIT
+</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -284,8 +309,7 @@
                         <span
                             v-else-if="!actionUsersLoading"
                             class="text-white-50 ms-5"
-                            >None...</span
-                        >
+                            >None...</span>
                     </div>
                 </div>
             </div>
@@ -310,8 +334,7 @@
                         <span
                             v-if="actionContestsLoading"
                             class="ms-2 small text-white-50"
-                            >loading...</span
-                        >
+                            >loading...</span>
                     </h5>
                     <div v-if="actionContests" id="actionContests" class="show">
                         <table
@@ -320,9 +343,15 @@
                         >
                             <thead>
                                 <tr>
-                                    <th scope="col">CONTEST</th>
-                                    <th scope="col">CREATOR</th>
-                                    <th scope="col">EDIT</th>
+                                    <th scope="col">
+                                        CONTEST
+                                        </th>
+                                    <th scope="col">
+                                        CREATOR
+                                        </th>
+                                    <th scope="col">
+                                        EDIT
+                                        </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -337,11 +366,10 @@
                                                 '/contests/listing?contest=' +
                                                 contest.id
                                             "
-                                            >{{ contest.name }}</a
-                                        >
+                                            >{{ contest.name }}</a>
                                     </td>
                                     <td scope="row">
-                                        <user-link :user="contest.creator" />
+                                        <user-link-list :users="contest.creators" />
                                     </td>
                                     <td scope="row">
                                         <a
@@ -364,8 +392,7 @@
                         <span
                             v-else-if="!actionContestsLoading"
                             class="text-white-50 ms-5"
-                            >None...</span
-                        >
+                            >None...</span>
                     </div>
                 </div>
             </div>
@@ -398,6 +425,7 @@ import { Quest } from '@interfaces/quest';
 import { User } from '@interfaces/user';
 import adminModule from '@store/admin';
 import ModesIcons from '@components/ModesIcons.vue';
+import UserLinkList from '@components/UserLinkList.vue';
 
 export default defineComponent({
     name: 'AdminPage',
@@ -408,6 +436,7 @@ export default defineComponent({
         UserInfo,
         ContestInfo,
         ModesIcons,
+        UserLinkList,
     },
     computed: mapState({
         actionBeatmaps: (state: any) => state.admin.actionBeatmaps,
