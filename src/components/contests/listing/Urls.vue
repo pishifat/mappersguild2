@@ -30,6 +30,16 @@
                 />
             </div>
         </div>
+        <div class="col-sm-6">
+            <div class="form-inline w-100">
+                Banner URL:
+                <input
+                    v-model="newBannerUrl"
+                    class="ml-1 form-control"
+                    @change="updateBannerUrl($event)"
+                />
+            </div>
+        </div>
     </div>
 </template>
 
@@ -55,12 +65,17 @@ export default defineComponent({
             type: String,
             default: null,
         },
+        bannerUrl: {
+            type: String,
+            default: null,
+        },
     },
     data () {
         return {
             newUrl: this.url,
             newOsuContestListingUrl: this.osuContestListingUrl,
             newResultsUrl: this.resultsUrl,
+            newBannerUrl: this.bannerUrl,
         };
     },
     watch: {
@@ -68,6 +83,7 @@ export default defineComponent({
             this.newUrl = this.url;
             this.newOsuContestListingUrl = this.osuContestListingUrl;
             this.newResultsUrl = this.resultsUrl;
+            this.newBannerUrl = this.bannerUrl;
         },
     },
     methods: {
@@ -110,6 +126,20 @@ export default defineComponent({
                 this.$store.commit('updateResultsUrl', {
                     contestId: this.contestId,
                     resultsUrl,
+                });
+            }
+        },
+        async updateBannerUrl(e): Promise<void> {
+            const bannerUrl = await this.$http.executePost(`/contests/listing/${this.contestId}/updateBannerUrl`, { url: this.newBannerUrl }, e);
+
+            if (!this.$http.isError(bannerUrl)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `Updated banner url`,
+                    type: 'info',
+                });
+                this.$store.commit('updateBannerUrl', {
+                    contestId: this.contestId,
+                    bannerUrl,
                 });
             }
         },

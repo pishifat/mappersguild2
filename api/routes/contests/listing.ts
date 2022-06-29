@@ -423,6 +423,7 @@ listingRouter.post('/:id/updateOsuContestListingUrl', isContestCreator, isEditab
 
     res.json(contest.osuContestListingUrl);
 });
+
 /* POST update results URL */
 listingRouter.post('/:id/updateResultsUrl', isContestCreator, async (req, res) => {
     const contest = await ContestModel
@@ -431,6 +432,16 @@ listingRouter.post('/:id/updateResultsUrl', isContestCreator, async (req, res) =
         .orFail();
 
     res.json(contest.resultsUrl);
+});
+
+/* POST update banner URL */
+listingRouter.post('/:id/updateBannerUrl', isContestCreator, async (req, res) => {
+    const contest = await ContestModel
+        .findByIdAndUpdate(req.params.id, { bannerUrl: req.body.url })
+        .populate(defaultContestPopulate)
+        .orFail();
+
+    res.json(contest.bannerUrl);
 });
 
 /* POST update submissions download link */

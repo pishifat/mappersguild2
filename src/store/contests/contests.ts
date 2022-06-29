@@ -68,6 +68,13 @@ const store: Module<ContestState, MainState> = {
                 contest.resultsUrl = payload.resultsUrl;
             }
         },
+        updateBannerUrl (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                contest.bannerUrl = payload.bannerUrl;
+            }
+        },
         updateDownload (state, payload): void {
             const contest = state.contests.find(c => c.id == payload.contestId);
 

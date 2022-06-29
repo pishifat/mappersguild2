@@ -37,4 +37,5 @@ export interface Contest {
     download: string;
     description: string;
     mode: ContestMode;
+    bannerUrl: string;
 }

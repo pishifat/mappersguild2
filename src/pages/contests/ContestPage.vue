@@ -3,42 +3,138 @@
         <div class="row">
             <div class="col-sm-3">
                 <div class="container card card-body py-3 mb-2">
-                    <a href="#" @click.prevent="displayMode = 'activeContests'">
-                        <span
-                            :class="
-                                displayMode === 'activeContests'
-                                    ? 'border-bottom border-secondary'
-                                    : ''
-                            "
+                    <div class="input-group mb-1">
+                        <button
+                            class="btn btn-primary"
+                            href="#"
                         >
-                            Active contests
-                        </span>
-                    </a>
-                    <a
-                        href="#"
-                        @click.prevent="displayMode = 'completedContests'"
-                    >
-                        <span
-                            :class="
-                                displayMode === 'completedContests'
-                                    ? 'border-bottom border-secondary'
-                                    : ''
-                            "
+                            <i class="fas fa-search" />
+                        </button>
+                        <input
+                            v-model="filterValue"
+                            class="form-control form-control-sm"
+                            type="text"
+                            placeholder="search"
+                            maxlength="200"
+                            autocomplete="off"
+                        />
+                    </div>
+                    <div>
+                        Contest category
+                    </div>
+                    <div class="small">
+                        <a href="#" @click.prevent="displayMode = 'activeContests'">
+                            <span
+                                :class="
+                                    displayMode === 'activeContests'
+                                        ? 'border-bottom border-secondary'
+                                        : ''
+                                "
+                            >
+                                Active
+                            </span>
+                        </a>
+                    </div>
+                    <div class="small">
+                        <a
+                            href="#"
+                            @click.prevent="displayMode = 'completedContests'"
                         >
-                            Completed contests
-                        </span>
-                    </a>
-                    <a href="#" @click.prevent="displayMode = 'myContests'">
-                        <span
-                            :class="
-                                displayMode === 'myContests'
-                                    ? 'border-bottom border-secondary'
-                                    : ''
-                            "
-                        >
-                            My contests
-                        </span>
-                    </a>
+                            <span
+                                :class="
+                                    displayMode === 'completedContests'
+                                        ? 'border-bottom border-secondary'
+                                        : ''
+                                "
+                            >
+                                Completed
+                            </span>
+                        </a>
+                    </div>
+                    <div class="small">
+                        <a href="#" @click.prevent="displayMode = 'myContests'">
+                            <span
+                                :class="
+                                    displayMode === 'myContests'
+                                        ? 'border-bottom border-secondary'
+                                        : ''
+                                "
+                            >
+                                My contests
+                            </span>
+                        </a>
+                    </div>
+                    <hr />
+                    <div>
+                        Contest mode
+                    </div>
+                    <div>
+                        <div class="small">
+                            <a href="#" @click.prevent="filterMode = ''">
+                                <span
+                                    :class="
+                                        filterMode === ''
+                                            ? 'border-bottom border-secondary'
+                                            : ''
+                                    "
+                                >
+                                    Any
+                                </span>
+                            </a>
+                        </div>
+                        <div class="small">
+                            <a href="#" @click.prevent="filterMode = 'osu'">
+                                <span
+                                    :class="
+                                        filterMode === 'osu'
+                                            ? 'border-bottom border-secondary'
+                                            : ''
+                                    "
+                                >
+                                    osu!
+                                </span>
+                            </a>
+                        </div>
+                        <div class="small">
+                            <a href="#" @click.prevent="filterMode = 'taiko'">
+                                <span
+                                    :class="
+                                        filterMode === 'taiko'
+                                            ? 'border-bottom border-secondary'
+                                            : ''
+                                    "
+                                >
+                                    osu!taiko
+                                </span>
+                            </a>
+                        </div>
+                        <div class="small">
+                            <a href="#" @click.prevent="filterMode = 'catch'">
+                                <span
+                                    :class="
+                                        filterMode === 'catch'
+                                            ? 'border-bottom border-secondary'
+                                            : ''
+                                    "
+                                >
+                                    osu!catch
+                                </span>
+                            </a>
+                        </div>
+                        <div class="small">
+                            <a href="#" @click.prevent="filterMode = 'mania'">
+                                <span
+                                    :class="
+                                        filterMode === 'mania'
+                                            ? 'border-bottom border-secondary'
+                                            : ''
+                                    "
+                                >
+                                    osu!mania
+                                </span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
                 <hr />
                 <add-contest
@@ -50,7 +146,7 @@
                 />
                 <transition-group name="list" tag="div" class="row">
                     <contest-card
-                        v-for="contest in contests"
+                        v-for="contest in filteredContests"
                         :key="contest.id"
                         class="col-sm-12 my-2"
                         :contest="contest"
@@ -62,6 +158,12 @@
                     class="container card card-body py-3 mb-2 text-secondary"
                 >
                     Loading...
+                </div>
+                <div
+                    v-if="filteredContests && !filteredContests.length"
+                    class="container card card-body py-3 mb-2 text-secondary"
+                >
+                    No contests available. Try other filters!
                 </div>
                 <div v-if="loadedSpecificContest">
                     <button
@@ -131,9 +233,11 @@ export default defineComponent({
     data() {
         return {
             displayMode: 'activeContests',
+            filterMode: '',
+            filterValue: '',
             firstLoadComplete: false,
             loadedSpecificContest: false,
-            limit: 8,
+            limit: 200,
             skip: 0,
             total: 0,
             moreContestsAvailable: true,
@@ -146,6 +250,20 @@ export default defineComponent({
             selectedContestId: (state: any) => state.contests.selectedContestId,
         }),
         ...mapGetters(['selectedContest']),
+        filteredContests(): Contest[] {
+            let fContests = [...this.contests];
+
+            if (this.filterMode.length) {
+                fContests = fContests.filter(c => c.mode == this.filterMode);
+            }
+
+            if (this.filterValue.length) {
+                const lowercaseFilterValue = this.filterValue.toLowerCase();
+                fContests = fContests.filter(c => c.name.toLowerCase().includes(lowercaseFilterValue));
+            }
+
+            return fContests;
+        },
     },
     watch: {
         async displayMode() {
@@ -220,6 +338,10 @@ export default defineComponent({
                     this.$store.commit('setSelectedContestId', null);
 
                     this.loadedSpecificContest = false;
+
+                    if (contests.length < this.limit) {
+                        this.moreContestsAvailable = false;
+                    }
                 }
             }
         },

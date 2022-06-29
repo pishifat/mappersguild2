@@ -6,6 +6,11 @@
             :creator="contest.creator"
         />
 
+        <contest-banner
+            v-if="contest.bannerUrl"
+            :banner-url="contest.bannerUrl"
+        />
+
         <h5>General</h5>
 
         <div>
@@ -39,6 +44,7 @@
                 :url="contest.url || null"
                 :osu-contest-listing-url="contest.osuContestListingUrl || null"
                 :results-url="contest.resultsUrl || null"
+                :banner-url="contest.bannerUrl || null"
             />
 
             <description
@@ -241,6 +247,7 @@
 import { defineComponent } from 'vue';
 import { Contest } from '@interfaces/contest/contest';
 import ContestHeader from './ContestHeader.vue';
+import ContestBanner from './ContestBanner.vue';
 import DateInfo from './DateInfo.vue';
 import Name from './Name.vue';
 import StatusInfo from './StatusInfo.vue';
@@ -263,6 +270,7 @@ export default defineComponent({
     name: 'ContestInfo',
     components: {
         ContestHeader,
+        ContestBanner,
         DateInfo,
         Name,
         AnonymizationGuide,

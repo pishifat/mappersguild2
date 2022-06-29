@@ -6,6 +6,11 @@
             :creator="contest.creator"
         />
 
+        <contest-banner
+            v-if="contest.bannerUrl"
+            :banner-url="contest.bannerUrl"
+        />
+
         <h5>General</h5>
 
         <div v-if="contest.description">
@@ -57,12 +62,14 @@
 import { defineComponent } from 'vue';
 import { Contest } from '@interfaces/contest/contest';
 import ContestHeader from './ContestHeader.vue';
+import ContestBanner from './ContestBanner.vue';
 import MapSubmissionForm from './MapSubmissionForm.vue';
 
 export default defineComponent({
     name: 'LimitedContestInfo',
     components: {
         ContestHeader,
+        ContestBanner,
         MapSubmissionForm,
     },
     props: {

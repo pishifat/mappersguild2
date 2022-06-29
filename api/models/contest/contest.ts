@@ -24,6 +24,7 @@ const contestSchema = new Schema<Contest>({
     download: { type: String },
     description: { type: String },
     mode: { type: String },
+    bannerUrl: { type: String },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const ContestModel = mongoose.model<Contest>('Contest', contestSchema);

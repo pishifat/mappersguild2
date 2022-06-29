@@ -19,7 +19,7 @@
                         :value="filterValue"
                         @input="newFilterValue = $event.target.value"
                         @keyup.enter="$emit('update:filterValue', $event.target.value)"
-                    >
+                    />
                     <slot />
                 </div>
             </div>
