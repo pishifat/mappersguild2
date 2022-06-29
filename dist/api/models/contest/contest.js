@@ -23,7 +23,7 @@ exports.ContestModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 const contestSchema = new mongoose_1.Schema({
     name: { type: String, required: true },
-    creator: { type: 'ObjectId', ref: 'User' },
+    creators: [{ type: 'ObjectId', ref: 'User' }],
     url: { type: String },
     osuContestListingUrl: { type: String },
     resultsUrl: { type: String },
@@ -39,6 +39,7 @@ const contestSchema = new mongoose_1.Schema({
     download: { type: String },
     description: { type: String },
     mode: { type: String },
+    bannerUrl: { type: String },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 const ContestModel = mongoose_1.default.model('Contest', contestSchema);
 exports.ContestModel = ContestModel;

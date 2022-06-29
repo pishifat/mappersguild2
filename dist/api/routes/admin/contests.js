@@ -16,18 +16,18 @@ adminContestsRouter.post('/:id/toggleIsApproved', async (req, res) => {
     const isApproved = req.body.isApproved;
     const contest = await contest_1.ContestModel
         .findByIdAndUpdate(req.params.id, { isApproved })
-        .populate({ path: 'creator' })
+        .populate({ path: 'creators' })
         .orFail();
     res.json({ isApproved });
     discordApi_1.webhookPost([{
             title: `New ${contest.mode == 'osu' ? 'osu!' : 'osu!' + contest.mode} beatmapping contest`,
             author: {
-                name: `${contest.creator.username}`,
-                url: `https://osu.ppy.sh/users/${contest.creator.osuId}`,
-                icon_url: `https://a.ppy.sh/${contest.creator.osuId}`,
+                name: `${contest.creators[0].username}`,
+                url: `https://osu.ppy.sh/users/${contest.creators[0].osuId}`,
+                icon_url: `https://a.ppy.sh/${contest.creators[0].osuId}`,
             },
             color: discordApi_1.webhookColors.pink,
-            description: `**[${contest.name}](${contest.url})**\n\n` + contest.description,
+            description: `**[${contest.name}](${contest.url})**\n[Mappers' Guild listing](http://localhost:8080/contests/listing?contest=${contest.id})\n\n` + contest.description,
         }]);
 });
 exports.default = adminContestsRouter;

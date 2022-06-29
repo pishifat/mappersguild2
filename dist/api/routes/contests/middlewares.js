@@ -8,10 +8,11 @@ async function isContestCreator(req, res, next) {
     const contest = await contest_2.ContestModel
         .findById(id)
         .orFail();
-    if (!contest.creator) {
+    if (!contest.creators || !contest.creators.length) {
         return res.json({ error: 'Contest has no creator' });
     }
-    if (req.session?.mongoId != contest.creator.toString() && req.session?.osuId !== 3178418) {
+    const creatorIds = contest.creators.map(c => c.toString());
+    if (!creatorIds.includes(req.session?.mongoId) && req.session?.osuId !== 3178418) {
         return res.json({ error: 'You are not the contest creator!' });
     }
     next();

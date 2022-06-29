@@ -55,7 +55,7 @@ adminRouter.get('/loadActionContests/', async (req, res) => {
         isApproved: { $ne: true },
         contestStatus: { $ne: contest_2.ContestStatus.Hidden },
     })
-        .populate({ path: 'creator' });
+        .populate({ path: 'creators' });
     res.json(actionContests);
 });
 exports.default = adminRouter;

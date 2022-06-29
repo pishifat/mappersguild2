@@ -50,7 +50,7 @@ const defaultContestPopulate = [
         path: 'criterias',
     },
     {
-        path: 'creator',
+        path: 'creators',
     },
 ];
 // hides mediator info
@@ -64,34 +64,34 @@ function getLimitedDefaultPopulate(mongoId) {
             },
         },
         {
-            path: 'creator',
+            path: 'creators',
             select: 'username osuId',
         },
     ];
 }
-function getPopulate(showFullData, mongoId) {
-    if (showFullData)
-        return defaultContestPopulate;
-    return getLimitedDefaultPopulate(mongoId);
-}
-function getQueryAndSelect(mongoId, contestType, showFullData, bypass) {
+function getQuerySelectPopulate(mongoId, contestType, showFullData, bypass) {
     let query;
-    let select = limitedContestSelect;
+    let select;
+    let populate;
     if (contestType == 'activeContests') {
         query = { $nor: [{ status: contest_2.ContestStatus.Complete }, { status: contest_2.ContestStatus.Hidden }], isApproved: true };
+        select = limitedContestSelect;
+        populate = getLimitedDefaultPopulate(mongoId);
     }
     else if (contestType == 'completedContests') {
         query = { status: contest_2.ContestStatus.Complete, isApproved: true };
-        select = '';
+        select = limitedContestSelect;
+        populate = [{ path: 'creators', select: 'username osuId' }];
     }
     else if (showFullData) {
         if (bypass)
             query = {};
         else
-            query = { creator: mongoId };
+            query = { creators: mongoId };
         select = '';
+        populate = defaultContestPopulate;
     }
-    return { query, select };
+    return { query, select, populate };
 }
 /* GET retrieve all the contests info */
 listingRouter.get('/relevantInfo', async (req, res) => {
@@ -100,8 +100,7 @@ listingRouter.get('/relevantInfo', async (req, res) => {
     const skip = parseInt(req.query.skip);
     const showFullData = contestType == 'myContests' || contestType == 'completedContests';
     const bypass = req.session.osuId == 3178418;
-    const { query, select } = getQueryAndSelect(req.session.mongoId, contestType, showFullData, bypass);
-    const populate = getPopulate(showFullData, req.session.mongoId);
+    const { query, select, populate } = getQuerySelectPopulate(req.session.mongoId, contestType, showFullData, bypass);
     const contests = await contest_1.ContestModel
         .find(query)
         .populate(populate)
@@ -115,7 +114,7 @@ listingRouter.get('/relevantInfo', async (req, res) => {
 listingRouter.get('/searchContest/:contestId', async (req, res) => {
     let contest = await contest_1.ContestModel
         .findOne({
-        creator: req.session.mongoId,
+        creators: req.session.mongoId,
         _id: req.params.contestId,
     })
         .populate(defaultContestPopulate);
@@ -141,9 +140,17 @@ listingRouter.get('/searchContest/:contestId', async (req, res) => {
     }
     res.json(contest);
 });
+/* GET user contests */
+listingRouter.get('/loadUserContests', async (req, res) => {
+    const contests = await contest_1.ContestModel
+        .find({ creators: req.session.mongoId })
+        .select('name');
+    res.json(contests);
+});
 /* POST create a contest */
 listingRouter.post('/create', async (req, res) => {
     const name = req.body.name.trim();
+    const templateId = req.body.templateId;
     if (!name) {
         return res.json({ error: 'Missing contest name' });
     }
@@ -153,7 +160,13 @@ listingRouter.post('/create', async (req, res) => {
     }
     const contest = new contest_1.ContestModel();
     contest.name = req.body.name.trim();
-    contest.creator = req.session.mongoId;
+    contest.creators = [req.session.mongoId];
+    if (templateId && templateId.length) {
+        const templateContest = await contest_1.ContestModel.findById(templateId).orFail();
+        contest.mode = templateContest.mode;
+        contest.url = templateContest.url;
+        contest.description = templateContest.description;
+    }
     await contest.save();
     const newContest = await contest_1.ContestModel
         .findById(contest.id)
@@ -363,6 +376,14 @@ listingRouter.post('/:id/updateResultsUrl', middlewares_2.isContestCreator, asyn
         .populate(defaultContestPopulate)
         .orFail();
     res.json(contest.resultsUrl);
+});
+/* POST update banner URL */
+listingRouter.post('/:id/updateBannerUrl', middlewares_2.isContestCreator, async (req, res) => {
+    const contest = await contest_1.ContestModel
+        .findByIdAndUpdate(req.params.id, { bannerUrl: req.body.url })
+        .populate(defaultContestPopulate)
+        .orFail();
+    res.json(contest.bannerUrl);
 });
 /* POST update submissions download link */
 listingRouter.post('/:id/updateDownload', middlewares_2.isContestCreator, async (req, res) => {
@@ -764,6 +785,10 @@ listingRouter.post('/:id/createSubmission', middlewares_2.isEditable, async (req
         .findById(req.params.id)
         .populate(defaultContestPopulate)
         .orFail();
+    const today = new Date();
+    if (new Date(contest.contestStart) > today) {
+        return res.json({ error: `Contest not accepting submissions until ${contest.contestStart}` });
+    }
     const url = req.body.submissionUrl;
     if (contest.status !== contest_2.ContestStatus.Beatmapping) {
         return res.json({ error: 'Contest is not accepting new submissions!' });
@@ -790,7 +815,7 @@ listingRouter.post('/:id/createSubmission', middlewares_2.isEditable, async (req
     }
     const newContest = await contest_1.ContestModel
         .findById(req.params.id)
-        .populate(getPopulate(false, req.session.mongoId))
+        .populate(getLimitedDefaultPopulate(req.session.mongoId))
         .select(limitedContestSelect)
         .orFail();
     res.json(newContest.submissions);
@@ -821,6 +846,40 @@ listingRouter.post('/:id/submissions/syncAnonymousNames', async (req, res) => {
     }
     await contest.populate(defaultContestPopulate).execPopulate();
     res.json({ submissions: contest.submissions, errors });
+});
+/* POST create submissions from CSV data */
+listingRouter.post('/:id/delete', middlewares_2.isContestCreator, middlewares_2.isEditable, async (req, res) => {
+    const contest = await contest_1.ContestModel
+        .findById(req.params.id)
+        .populate(defaultContestPopulate)
+        .orFail();
+    if (contest.status != contest_2.ContestStatus.Hidden || contest.submissions.length) {
+        return res.json({ error: 'Cannot delete contest at this stage. Set status to "Hidden" instead.' });
+    }
+    await contest.remove();
+    res.json({ success: 'Deleted' });
+});
+/* POST update creators */
+listingRouter.post('/:id/updateCreators', middlewares_2.isContestCreator, middlewares_2.isEditable, async (req, res) => {
+    const usersSplit = req.body.creatorInput.split(',');
+    const userIds = [];
+    for (const u of usersSplit) {
+        const user = await user_1.UserModel
+            .findOne()
+            .byUsernameOrOsuId(u.trim());
+        if (!user) {
+            return res.json({ error: `Cannot find ${u}!` });
+        }
+        else {
+            userIds.push(user._id);
+        }
+    }
+    await contest_1.ContestModel.findByIdAndUpdate(req.params.id, { creators: userIds });
+    const updatedContest = await contest_1.ContestModel
+        .findById(req.params.id)
+        .populate(defaultContestPopulate)
+        .orFail();
+    res.json(updatedContest.creators);
 });
 /* POST send messages */
 listingRouter.post('/:id/sendMessages', async (req, res) => {
