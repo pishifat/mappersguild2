@@ -27,7 +27,7 @@ adminContestsRouter.post('/:id/toggleIsApproved', async (req, res) => {
                 icon_url: `https://a.ppy.sh/${contest.creators[0].osuId}`,
             },
             color: discordApi_1.webhookColors.pink,
-            description: `**[${contest.name}](${contest.url})**\n[Mappers' Guild listing](http://localhost:8080/contests/listing?contest=${contest.id})\n\n` + contest.description,
+            description: `**[${contest.name}](${contest.url})**\n[Mappers' Guild listing](http://mappersguild.com/contests/listing?contest=${contest.id})\n\n` + contest.description,
         }]);
 });
 exports.default = adminContestsRouter;
