@@ -64,7 +64,7 @@
                         type="text"
                         autocomplete="off"
                         placeholder="beatmap url..."
-                    >
+                    />
                     <button class="btn btn-sm btn-outline-info w-25" @click="updateUrl($event)">
                         Save URL
                     </button>
@@ -92,7 +92,7 @@
                         type="text"
                         autocomplete="off"
                         placeholder="osu! beatmap pack ID..."
-                    >
+                    />
                     <button class="btn btn-sm btn-outline-info w-25" @click="updatePackId($event)">
                         Save pack ID
                     </button>
@@ -325,7 +325,7 @@ export default defineComponent({
             }
         },
         async rejectMapset(e, isResolvable): Promise<void> {
-            const result = confirm(`Are you sure?`);
+            const result = confirm(`Are you sure? THIS ONLY WORKS LOCALLY I DON'T KNOW WHY`);
 
             if (result) {
                 const status = await this.$http.executePost(`/admin/beatmaps/${this.beatmap.id}/rejectMapset`, { messages: this.rejectionInput, isResolvable }, e);
