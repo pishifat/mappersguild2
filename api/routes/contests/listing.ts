@@ -125,14 +125,6 @@ listingRouter.get('/searchContest/:contestId', async (req, res) => {
         })
         .populate(defaultContestPopulate);
 
-    console.log(contest);
-
-    /*if (req.session.osuId == 3178418) {
-        contest = await ContestModel
-            .findById(req.params.contestId)
-            .populate(defaultContestPopulate);
-    }*/
-
     if (!contest) {
         const tempContest = await ContestModel
             .findById(req.params.contestId)
