@@ -3,17 +3,7 @@
         <div class="col-sm-12 mb-2">
             Current submission:
             <span v-if="!userSubmission" class="me-2 text-secondary">No submission yet!</span>
-            <span v-else-if="userSubmission && userSubmission.url">
-                <a
-
-                    :href="userSubmission.url"
-                    target="_blank"
-                    class="small"
-                >
-                    {{ userSubmission.url }}
-                </a>
-                <span class="small text-secondary ms-1">(last updated <code>{{ new Date(userSubmission.updatedAt).toString().slice(4,33) }}</code>)</span>
-            </span>
+            <current-submission v-else-if="userSubmission && userSubmission.url" />
         </div>
         <div class="col-sm-8">
             <input
@@ -22,7 +12,7 @@
                 type="text"
                 autocomplete="off"
                 placeholder="link..."
-            >
+            />
         </div>
         <div class="col-sm-4">
             <button class="btn btn-sm btn-outline-info w-100" @click="createSubmission($event)">
@@ -38,9 +28,13 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { mapState, mapGetters } from 'vuex';
+import CurrentSubmission from './CurrentSubmission.vue';
 
 export default defineComponent({
     name: 'MapSubmissionForm',
+    components: {
+        CurrentSubmission,
+    },
     props: {
         contestId: {
             type: String,

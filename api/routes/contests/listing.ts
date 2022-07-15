@@ -125,11 +125,13 @@ listingRouter.get('/searchContest/:contestId', async (req, res) => {
         })
         .populate(defaultContestPopulate);
 
-    if (req.session.osuId == 3178418) {
+    console.log(contest);
+
+    /*if (req.session.osuId == 3178418) {
         contest = await ContestModel
             .findById(req.params.contestId)
             .populate(defaultContestPopulate);
-    }
+    }*/
 
     if (!contest) {
         const tempContest = await ContestModel
@@ -143,7 +145,8 @@ listingRouter.get('/searchContest/:contestId', async (req, res) => {
         } else {
             contest = await ContestModel
                 .findById(req.params.contestId)
-                .populate(getLimitedDefaultPopulate(req.session.mongoId));
+                .populate(getLimitedDefaultPopulate(req.session.mongoId))
+                .select(limitedContestSelect);
         }
     }
 
@@ -945,6 +948,10 @@ listingRouter.post('/:id/createSubmission', isEditable, async (req, res) => {
 
     if (new Date(contest.contestStart) > today) {
         return res.json({ error: `Contest not accepting submissions until ${contest.contestStart}` });
+    }
+
+    if (new Date(contest.contestEnd) < today) {
+        return res.json({ error: `This contest is no longer accepting new submissions.` });
     }
 
     const url = req.body.submissionUrl;
