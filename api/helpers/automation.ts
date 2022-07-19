@@ -267,8 +267,8 @@ const rankUsers = cron.schedule('1 3 * * *', async () => { /* 7:01 PM PST */
     scheduled: false,
 });
 
-/* update points for all users once every month */
-const updatePoints = cron.schedule('0 0 10 * *', async () => {
+/* update points for all users once every month (21st) */
+const updatePoints = cron.schedule('0 0 21 * *', async () => {
     const users = await UserModel.find({ group: { $ne: UserGroup.Spectator } });
 
     for (const user of users) {

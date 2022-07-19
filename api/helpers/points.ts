@@ -10,6 +10,7 @@ import { UserModel } from '../models/user';
 import { ErrorResponse } from '../../interfaces/api/shared';
 import { SpentPointsCategory } from '../../interfaces/spentPoints';
 import { Quest, QuestStatus } from '../../interfaces/quest';
+import { ContestStatus } from '../../interfaces/contest/contest';
 
 export const extendQuestPrice = 10;
 
@@ -294,20 +295,32 @@ export async function calculateMbcPoints(userId: any): Promise<MbcPoints> {
      * MBC they screened
      * MBC they judged
      */
-    const [submittedContests, screenedContests, judgedContests] = await Promise.all([
-        SubmissionModel.countDocuments({
-            creator: userId,
-        }),
+    const [submissions, screenedContests, judgedContests] = await Promise.all([
+        SubmissionModel
+            .find({ creator: userId })
+            .populate({ path: 'contest', select: 'name' }),
         ContestModel.countDocuments({
             screeners: userId,
+            name: { $regex: 'Monthly Beatmapping Contest' },
+            status: ContestStatus.Complete,
         }),
         ContestModel.countDocuments({
             judges: userId,
+            name: { $regex: 'Monthly Beatmapping Contest' },
+            status: ContestStatus.Complete,
         }),
     ]);
 
+    let relevantSubmissionCount = 0;
+
+    for (const submission of submissions) {
+        if (submission.contest.name.includes('Monthly Beatmapping Contest')) {
+            relevantSubmissionCount++;
+        }
+    }
+
     return {
-        ContestParticipant: submittedContests * 5, // 5 points per entry
+        ContestParticipant: relevantSubmissionCount * 5, // 5 points per entry
         ContestScreener: screenedContests, // 1 point per screening
         ContestJudge: judgedContests, // 1 point per judging
     };
