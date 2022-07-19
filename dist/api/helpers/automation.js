@@ -233,8 +233,8 @@ const rankUsers = node_cron_1.default.schedule('1 3 * * *', async () => {
 }, {
     scheduled: false,
 });
-/* update points for all users once every month */
-const updatePoints = node_cron_1.default.schedule('0 0 10 * *', async () => {
+/* update points for all users once every month (21st) */
+const updatePoints = node_cron_1.default.schedule('0 0 21 * *', async () => {
     const users = await user_1.UserModel.find({ group: { $ne: user_2.UserGroup.Spectator } });
     for (const user of users) {
         points_1.updateUserPoints(user.id);

@@ -11,6 +11,7 @@ const spentPoints_1 = require("../models/spentPoints");
 const user_1 = require("../models/user");
 const spentPoints_2 = require("../../interfaces/spentPoints");
 const quest_1 = require("../../interfaces/quest");
+const contest_2 = require("../../interfaces/contest/contest");
 exports.extendQuestPrice = 10;
 function getLengthNerf(length) {
     const lengthNerf = 125;
@@ -262,19 +263,29 @@ async function calculateMbcPoints(userId) {
      * MBC they screened
      * MBC they judged
      */
-    const [submittedContests, screenedContests, judgedContests] = await Promise.all([
-        submission_1.SubmissionModel.countDocuments({
-            creator: userId,
-        }),
+    const [submissions, screenedContests, judgedContests] = await Promise.all([
+        submission_1.SubmissionModel
+            .find({ creator: userId })
+            .populate({ path: 'contest', select: 'name' }),
         contest_1.ContestModel.countDocuments({
             screeners: userId,
+            name: { $regex: 'Monthly Beatmapping Contest' },
+            status: contest_2.ContestStatus.Complete,
         }),
         contest_1.ContestModel.countDocuments({
             judges: userId,
+            name: { $regex: 'Monthly Beatmapping Contest' },
+            status: contest_2.ContestStatus.Complete,
         }),
     ]);
+    let relevantSubmissionCount = 0;
+    for (const submission of submissions) {
+        if (submission.contest.name.includes('Monthly Beatmapping Contest')) {
+            relevantSubmissionCount++;
+        }
+    }
     return {
-        ContestParticipant: submittedContests * 5,
+        ContestParticipant: relevantSubmissionCount * 5,
         ContestScreener: screenedContests,
         ContestJudge: judgedContests, // 1 point per judging
     };
