@@ -89,4 +89,16 @@ adminFeaturedArtistsRouter.post('/:id/songs/:songId/delete', async (req, res) =>
     res.json({ success: 'ok' });
 });
 
+/* POST remove song from artist */
+adminFeaturedArtistsRouter.get('/findRecentlyLicensedSongs', async (req, res) => {
+    const startDate = new Date('2022-01-01');
+    const endDate = new Date('2022-07-27');
+
+    const songs = await FeaturedSongModel.find({ createdAt: { $gt: startDate, $lt: endDate } }).sort({ createdAt: -1 });
+
+    console.log(songs.length);
+
+    res.json({ songs });
+});
+
 export default adminFeaturedArtistsRouter;

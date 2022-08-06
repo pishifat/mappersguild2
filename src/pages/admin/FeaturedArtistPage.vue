@@ -25,6 +25,8 @@
             </div>
         </div>
 
+        <recent-licensed-songs />
+
         <featured-artist-info
             :featured-artist="selectedFeaturedArtist"
         />
@@ -35,6 +37,7 @@
 import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import FeaturedArtistInfo from '../../components/admin/FeaturedArtistInfo.vue';
+import RecentLicensedSongs from '../../components/admin/RecentLicensedSongs.vue';
 import DataTable from '../../components/admin/DataTable.vue';
 import { FeaturedArtist } from '../../../interfaces/featuredArtist';
 import artistsAdminModule from '@store/admin/featuredArtists';
@@ -43,6 +46,7 @@ export default defineComponent({
     components: {
         DataTable,
         FeaturedArtistInfo,
+        RecentLicensedSongs,
     },
     data () {
         return {
