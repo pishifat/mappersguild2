@@ -277,7 +277,7 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
             if (beatmap.host.id == user.id) user.hostCount++;
         }
 
-        if (user.taskCount >= 10 || user.hostCount >= 3) {
+        if (user.taskCount >= 30 || user.hostCount >= 5) {
             users.push({ username: user.username, osuId: user.osuId, taskCount: user.taskCount, hostCount: user.hostCount, modes: [...new Set(modes)] });
         }
     }
