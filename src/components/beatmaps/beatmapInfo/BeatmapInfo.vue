@@ -19,7 +19,7 @@
                     </div>
                 </div>
 
-                <hr>
+                <hr />
 
                 <div class="row">
                     <div class="col-sm">
@@ -71,7 +71,7 @@
             </div>
         </div>
 
-        <hr>
+        <hr />
 
         <div class="row">
             <!-- points calculation -->

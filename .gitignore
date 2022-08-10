@@ -28,3 +28,4 @@ config.json
 public/js/
 *.csv
 .vscode/
+MailGenerator.vue
