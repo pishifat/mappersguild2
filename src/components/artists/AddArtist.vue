@@ -2,19 +2,37 @@
     <modal-dialog id="addArtist" title="Add artist">
         <div class="container">
             <div class="mb-3 row">
-                <label class="form-label col-sm-3 mt-1" for="artistName"> Artist/Label:</label>
                 <input
                     v-model="name"
+                    placeholder="artist/label"
                     class="col-sm-9 form-control"
                     style="border-radius: 100px 100px 100px 100px"
                     type="text"
                     @keyup.enter="createArtist($event)"
-                >
+                />
+                <input
+                    v-model="comment"
+                    placeholder="comment"
+                    class="col-sm-9 form-control mt-2"
+                    style="border-radius: 100px 100px 100px 100px"
+                    type="text"
+                    @keyup.enter="createArtist($event)"
+                />
+                <div class="form-check mt-2">
+                    <input
+                        id="isContacted"
+                        v-model="isContacted"
+                        :checked="isContacted"
+                        class="form-check-input"
+                        type="checkbox"
+                    />
+                    <label class="form-check-label" for="isContacted">
+                        contacted?
+                    </label>
+                </div>
             </div>
 
-            <div class="radial-divisor" />
-
-            <button type="button" class="btn btn-outline-info float-end" @click="createArtist($event)">
+            <button type="button" class="btn btn-outline-info w-100" @click="createArtist($event)">
                 Save
             </button>
         </div>
@@ -33,15 +51,20 @@ export default defineComponent({
     data () {
         return {
             name: '',
+            comment: '',
+            isContacted: true,
         };
     },
     methods: {
         async createArtist (e): Promise<void> {
-            const artist = await this.$http.executePost('/artists/create', { name: this.name }, e);
+            const artist = await this.$http.executePost('/artists/create', { name: this.name, comment: this.comment, isContacted: this.isContacted }, e);
+
+            console.log(artist);
 
             if (!this.$http.isError(artist)) {
                 this.$store.commit('addArtist', artist);
                 this.$bs.hideModal('addArtist');
+
             }
         },
     },
