@@ -53,7 +53,7 @@ adminRouter.get('/loadActionContests/', async (req, res) => {
     const actionContests = await contest_1.ContestModel
         .find({
         isApproved: { $ne: true },
-        contestStatus: { $ne: contest_2.ContestStatus.Hidden },
+        status: { $ne: contest_2.ContestStatus.Hidden },
     })
         .populate({ path: 'creators' });
     res.json(actionContests);

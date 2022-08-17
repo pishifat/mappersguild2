@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.calculateContestScores = void 0;
 const express_1 = __importDefault(require("express"));
 const middlewares_1 = require("../../helpers/middlewares");
+const discordApi_1 = require("../../helpers/discordApi");
 const middlewares_2 = require("./middlewares");
 const contest_1 = require("../../models/contest/contest");
 const user_1 = require("../../models/user");
@@ -317,6 +318,12 @@ listingRouter.post('/:id/updateStatus', middlewares_2.isContestCreator, middlewa
     }
     contest.status = req.body.status;
     await contest.save();
+    if (req.body.status == contest_2.ContestStatus.Beatmapping) {
+        discordApi_1.devWebhookPost([{
+                color: discordApi_1.webhookColors.lightBlue,
+                description: `**${contest.name}** pending approval\n\nlisting: https://mappersguild.com/contests/listing?contest=${contest.id}\nadmin: https://mappersguild.com/admin/summary`,
+            }]);
+    }
     res.json(contest.status);
 });
 /* POST update contest name */

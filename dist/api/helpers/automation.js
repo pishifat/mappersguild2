@@ -10,11 +10,77 @@ const discordApi_1 = require("./discordApi");
 const beatmap_1 = require("../models/beatmap/beatmap");
 const beatmap_2 = require("../../interfaces/beatmap/beatmap");
 const quest_1 = require("../models/quest");
+const contest_1 = require("../models/contest/contest");
+const contest_2 = require("../../interfaces/contest/contest");
 const quest_2 = require("../../interfaces/quest");
 const user_1 = require("../models/user");
 const featuredArtist_1 = require("../models/featuredArtist");
 const points_1 = require("./points");
 const user_2 = require("../../interfaces/user");
+/* dev notification for actions */
+const sendActionNotifications = node_cron_1.default.schedule('0 19 * * *', async () => {
+    // beatmaps
+    const actionBeatmaps = await beatmap_1.BeatmapModel
+        .find({
+        status: beatmap_2.BeatmapStatus.Qualified,
+        queuedForRank: { $ne: true },
+    })
+        .defaultPopulate()
+        .sort({ updatedAt: 1 });
+    if (actionBeatmaps.length) {
+        discordApi_1.devWebhookPost([{
+                title: `beatmaps`,
+                color: discordApi_1.webhookColors.lightRed,
+                description: `**${actionBeatmaps.length}** pending beatmaps\n\nadmin: https://mappersguild.com/admin/summary`,
+            }]);
+    }
+    // quests
+    let quests = await quest_1.QuestModel
+        .find({ status: quest_2.QuestStatus.WIP })
+        .defaultPopulate();
+    quests = quests.filter(q => q.associatedMaps.length >= q.requiredMapsets &&
+        q.associatedMaps.every(b => b.status === beatmap_2.BeatmapStatus.Ranked));
+    const pendingQuests = await quest_1.QuestModel
+        .find({ status: quest_2.QuestStatus.Pending })
+        .defaultPopulate();
+    quests = quests.concat(pendingQuests);
+    if (quests.length) {
+        discordApi_1.devWebhookPost([{
+                title: `quests`,
+                color: discordApi_1.webhookColors.lightRed,
+                description: `**${quests.length}** pending quests\n\nadmin: https://mappersguild.com/admin/summary`,
+            }]);
+    }
+    // users
+    const invalids = [5226970, 7496029]; // user IDs for people who specifically asked not to earn badges
+    const allUsers = await user_1.UserModel.find({
+        osuId: { $nin: invalids },
+    });
+    const actionUsers = allUsers.filter(u => u.badge !== u.rank);
+    if (actionUsers.length) {
+        discordApi_1.devWebhookPost([{
+                title: `users`,
+                color: discordApi_1.webhookColors.lightRed,
+                description: `**${actionUsers.length}** pending user badges\n\nadmin: https://mappersguild.com/admin/summary`,
+            }]);
+    }
+    // contests
+    const actionContests = await contest_1.ContestModel
+        .find({
+        isApproved: { $ne: true },
+        status: { $ne: contest_2.ContestStatus.Hidden },
+    })
+        .populate({ path: 'creators' });
+    if (actionContests.length) {
+        discordApi_1.devWebhookPost([{
+                title: `contests`,
+                color: discordApi_1.webhookColors.lightRed,
+                description: `**${actionContests.length}** pending contests\n\nadmin: https://mappersguild.com/admin/summary`,
+            }]);
+    }
+}, {
+    scheduled: false,
+});
 /* compare beatmap status MG vs. osu and update */
 const setQualified = node_cron_1.default.schedule('0 18 * * *', async () => {
     const statusQuery = [
@@ -242,4 +308,4 @@ const updatePoints = node_cron_1.default.schedule('0 0 21 * *', async () => {
 }, {
     scheduled: false,
 });
-exports.default = { setQualified, setRanked, publishQuests, completeQuests, rankUsers, updatePoints };
+exports.default = { sendActionNotifications, setQualified, setRanked, publishQuests, completeQuests, rankUsers, updatePoints };
