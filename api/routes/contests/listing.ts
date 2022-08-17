@@ -1,5 +1,6 @@
 import express from 'express';
 import { isLoggedIn } from '../../helpers/middlewares';
+import { devWebhookPost, webhookColors } from '../../helpers/discordApi';
 import { isContestCreator, isEditable } from './middlewares';
 import { Contest, ContestModel } from '../../models/contest/contest';
 import { UserModel } from '../../models/user';
@@ -356,6 +357,13 @@ listingRouter.post('/:id/updateStatus', isContestCreator, isEditable, async (req
 
     contest.status = req.body.status;
     await contest.save();
+
+    if (req.body.status == ContestStatus.Beatmapping) {
+        devWebhookPost([{
+            color: webhookColors.lightBlue,
+            description: `**${contest.name}** pending approval\n\nlisting: https://mappersguild.com/contests/listing?contest=${contest.id}\nadmin: https://mappersguild.com/admin/summary`,
+        }]);
+    }
 
     res.json(contest.status);
 });

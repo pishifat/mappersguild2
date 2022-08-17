@@ -42,8 +42,26 @@ export async function webhookPost(message: DiscordWebhookMessage[]): Promise<{ s
     }
 }
 
+export async function devWebhookPost(message: DiscordWebhookMessage[]): Promise<{ success: 'ok' } | typeof defaultErrorMessage > {
+    const url = `https://discordapp.com/api/webhooks/${config.devWebhook.id}/${config.devWebhook.token}`;
+
+    try {
+        const res = await Axios.post(url, {
+            embeds: message,
+        });
+
+        if (res?.data) {
+            return { success: 'ok' };
+        }
+
+        return defaultErrorMessage;
+    } catch (error) {
+        return defaultErrorMessage;
+    }
+}
+
 export const webhookColors = {
-    lightRed: 16742771,     // new member joins
+    lightRed: 16742771,     // new member joins, DEV: actions
     darkRed: 8787477,
     red: 15607337,          // drop quest
 
@@ -59,7 +77,7 @@ export const webhookColors = {
     darkGreen: 1921053,
     green: 4380222,         // accept quest
 
-    lightBlue: 8643583,
+    lightBlue: 8643583,     // DEV: new contest to review
     darkBlue: 1911891,
     blue: 6786559,          // map ranked
 

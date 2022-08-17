@@ -132,6 +132,7 @@ const port = process.env.PORT || '3000';
 app.set('port', port);
 app.listen(port, () => {
     console.log('Listening on ' + port);
+    automation.sendActionNotifications.start();
     automation.setQualified.start();
     automation.setRanked.start();
     automation.publishQuests.start();

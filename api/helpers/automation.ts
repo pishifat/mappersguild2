@@ -1,15 +1,96 @@
 import cron from 'node-cron';
 import { findBeatmapsetId, sleep, findBeatmapsetStatus, setBeatmapStatusRanked, generateAuthorWebhook, generateThumbnailUrl, generateLists } from './helpers';
 import { beatmapsetInfo, isOsuResponseError } from './osuApi';
-import { webhookPost, webhookColors } from './discordApi';
+import { devWebhookPost, webhookPost, webhookColors } from './discordApi';
 import { BeatmapModel } from '../models/beatmap/beatmap';
 import { BeatmapStatus } from '../../interfaces/beatmap/beatmap';
 import { QuestModel } from '../models/quest';
+import { ContestModel } from '../models/contest/contest';
+import { ContestStatus } from '../../interfaces/contest/contest';
 import { QuestStatus } from '../../interfaces/quest';
 import { UserModel } from '../models/user';
 import { FeaturedArtistModel } from '../models/featuredArtist';
 import { updateUserPoints } from './points';
 import { UserGroup } from '../../interfaces/user';
+
+/* dev notification for actions */
+const sendActionNotifications = cron.schedule('0 19 * * *', async () => { /* 11:00 AM PST */
+    // beatmaps
+    const actionBeatmaps = await BeatmapModel
+        .find({
+            status: BeatmapStatus.Qualified,
+            queuedForRank: { $ne: true },
+        })
+        .defaultPopulate()
+        .sort({ updatedAt: 1 });
+
+    if (actionBeatmaps.length) {
+        devWebhookPost([{
+            title: `beatmaps`,
+            color: webhookColors.lightRed,
+            description: `**${actionBeatmaps.length}** pending beatmaps\n\nadmin: https://mappersguild.com/admin/summary`,
+        }]);
+    }
+
+    // quests
+    let quests = await QuestModel
+        .find({ status: QuestStatus.WIP })
+        .defaultPopulate();
+
+    quests = quests.filter(q =>
+        q.associatedMaps.length >= q.requiredMapsets &&
+        q.associatedMaps.every(b => b.status === BeatmapStatus.Ranked)
+    );
+
+    const pendingQuests = await QuestModel
+        .find({ status: QuestStatus.Pending })
+        .defaultPopulate();
+
+    quests = quests.concat(pendingQuests);
+
+    if (quests.length) {
+        devWebhookPost([{
+            title: `quests`,
+            color: webhookColors.lightRed,
+            description: `**${quests.length}** pending quests\n\nadmin: https://mappersguild.com/admin/summary`,
+        }]);
+    }
+
+    // users
+    const invalids = [5226970, 7496029]; // user IDs for people who specifically asked not to earn badges
+
+    const allUsers = await UserModel.find({
+        osuId: { $nin: invalids },
+    });
+    const actionUsers = allUsers.filter(u => u.badge !== u.rank);
+
+    if (actionUsers.length) {
+        devWebhookPost([{
+            title: `users`,
+            color: webhookColors.lightRed,
+            description: `**${actionUsers.length}** pending user badges\n\nadmin: https://mappersguild.com/admin/summary`,
+        }]);
+    }
+
+    // contests
+    const actionContests = await ContestModel
+        .find({
+            isApproved: { $ne: true },
+            status: { $ne: ContestStatus.Hidden },
+        })
+        .populate({ path: 'creators' });
+
+    if (actionContests.length) {
+        devWebhookPost([{
+            title: `contests`,
+            color: webhookColors.lightRed,
+            description: `**${actionContests.length}** pending contests\n\nadmin: https://mappersguild.com/admin/summary`,
+        }]);
+    }
+
+}, {
+    scheduled: false,
+});
 
 /* compare beatmap status MG vs. osu and update */
 const setQualified = cron.schedule('0 18 * * *', async () => { /* 10:00 AM PST */
@@ -278,4 +359,4 @@ const updatePoints = cron.schedule('0 0 21 * *', async () => {
     scheduled: false,
 });
 
-export default { setQualified, setRanked, publishQuests, completeQuests, rankUsers, updatePoints };
+export default { sendActionNotifications, setQualified, setRanked, publishQuests, completeQuests, rankUsers, updatePoints };

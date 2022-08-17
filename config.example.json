@@ -12,5 +12,9 @@
         "id": "",
         "token": ""
     },
-    "v1token": ""
+    "v1token": "",
+    "devWebhook": {
+        "id": "",
+        "token": ""
+    }
 }
