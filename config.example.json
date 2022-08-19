@@ -16,5 +16,9 @@
     "devWebhook": {
         "id": "",
         "token": ""
+    },
+    "regrazWebhook": {
+        "id": "",
+        "token": ""
     }
 }

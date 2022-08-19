@@ -60,6 +60,24 @@ export async function devWebhookPost(message: DiscordWebhookMessage[]): Promise<
     }
 }
 
+export async function regrazWebhookPost(message: DiscordWebhookMessage[]): Promise<{ success: 'ok' } | typeof defaultErrorMessage > {
+    const url = `https://discordapp.com/api/webhooks/${config.regrazWebhook.id}/${config.regrazWebhook.token}`;
+
+    try {
+        const res = await Axios.post(url, {
+            embeds: message,
+        });
+
+        if (res?.data) {
+            return { success: 'ok' };
+        }
+
+        return defaultErrorMessage;
+    } catch (error) {
+        return defaultErrorMessage;
+    }
+}
+
 export const webhookColors = {
     lightRed: 16742771,     // new member joins, DEV: actions
     darkRed: 8787477,
