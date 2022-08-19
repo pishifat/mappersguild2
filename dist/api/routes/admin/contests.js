@@ -29,5 +29,15 @@ adminContestsRouter.post('/:id/toggleIsApproved', async (req, res) => {
             color: discordApi_1.webhookColors.pink,
             description: `**[${contest.name}](${contest.url})**\n[Mappers' Guild listing](http://mappersguild.com/contests/listing?contest=${contest.id})\n\n` + contest.description,
         }]);
+    discordApi_1.regrazWebhookPost([{
+            title: `New ${contest.mode == 'osu' ? 'osu!' : 'osu!' + contest.mode} beatmapping contest`,
+            author: {
+                name: `${contest.creators[0].username}`,
+                url: `https://osu.ppy.sh/users/${contest.creators[0].osuId}`,
+                icon_url: `https://a.ppy.sh/${contest.creators[0].osuId}`,
+            },
+            color: discordApi_1.webhookColors.pink,
+            description: `**[${contest.name}](${contest.url})**\n[Mappers' Guild listing](http://mappersguild.com/contests/listing?contest=${contest.id})\n\n` + contest.description,
+        }]);
 });
 exports.default = adminContestsRouter;
