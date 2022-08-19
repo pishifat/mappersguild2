@@ -321,6 +321,7 @@ listingRouter.post('/:id/updateStatus', middlewares_2.isContestCreator, middlewa
     await contest.save();
     if (req.body.status == contest_2.ContestStatus.Beatmapping) {
         console.log(config_json_1.default.devWebhook);
+        console.log('in');
         discordApi_1.devWebhookPost([{
                 color: discordApi_1.webhookColors.lightBlue,
                 description: `**${contest.name}** pending approval\n\nlisting: https://mappersguild.com/contests/listing?contest=${contest.id}\nadmin: https://mappersguild.com/admin/summary`,
