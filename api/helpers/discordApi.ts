@@ -43,7 +43,7 @@ export async function webhookPost(message: DiscordWebhookMessage[]): Promise<{ s
 }
 
 export async function devWebhookPost(message: DiscordWebhookMessage[]): Promise<{ success: 'ok' } | typeof defaultErrorMessage > {
-    const url = `https://discordapp.com/api/webhooks/${config.devWebhook.id}/${config.devWebhook.token}`;
+    const url = `https://discordapp.com/api/webhooks/${config.webhook.devId}/${config.webhook.devToken}`;
 
     try {
         const res = await Axios.post(url, {
