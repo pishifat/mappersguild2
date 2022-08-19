@@ -16,6 +16,7 @@ const criteria_1 = require("../../models/contest/criteria");
 const contest_2 = require("../../../interfaces/contest/contest");
 const screening_1 = require("../../models/contest/screening");
 const judging_1 = require("../../models/contest/judging");
+const config_json_1 = __importDefault(require("../../../config.json"));
 const listingRouter = express_1.default.Router();
 listingRouter.use(middlewares_1.isLoggedIn);
 const limitedContestSelect = '-screeners -judges -judgingThreshold -criterias -download';
@@ -319,6 +320,7 @@ listingRouter.post('/:id/updateStatus', middlewares_2.isContestCreator, middlewa
     contest.status = req.body.status;
     await contest.save();
     if (req.body.status == contest_2.ContestStatus.Beatmapping) {
+        console.log(config_json_1.default.devWebhook);
         discordApi_1.devWebhookPost([{
                 color: discordApi_1.webhookColors.lightBlue,
                 description: `**${contest.name}** pending approval\n\nlisting: https://mappersguild.com/contests/listing?contest=${contest.id}\nadmin: https://mappersguild.com/admin/summary`,

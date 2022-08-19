@@ -12,6 +12,7 @@ import { ContestStatus } from '../../../interfaces/contest/contest';
 import { UserScore, JudgeCorrel } from '../../../interfaces/contest/judging';
 import { ScreeningModel } from '../../models/contest/screening';
 import { JudgingModel } from '../../models/contest/judging';
+import config from '../../../config.json';
 
 const listingRouter = express.Router();
 
@@ -359,6 +360,7 @@ listingRouter.post('/:id/updateStatus', isContestCreator, isEditable, async (req
     await contest.save();
 
     if (req.body.status == ContestStatus.Beatmapping) {
+        console.log(config.devWebhook);
         devWebhookPost([{
             color: webhookColors.lightBlue,
             description: `**${contest.name}** pending approval\n\nlisting: https://mappersguild.com/contests/listing?contest=${contest.id}\nadmin: https://mappersguild.com/admin/summary`,
