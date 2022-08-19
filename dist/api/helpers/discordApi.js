@@ -24,7 +24,7 @@ async function webhookPost(message) {
 }
 exports.webhookPost = webhookPost;
 async function devWebhookPost(message) {
-    const url = `https://discordapp.com/api/webhooks/${config_json_1.default.devWebhook.id}/${config_json_1.default.devWebhook.token}`;
+    const url = `https://discordapp.com/api/webhooks/${config_json_1.default.webhook.devId}/${config_json_1.default.webhook.devToken}`;
     try {
         const res = await axios_1.default.post(url, {
             embeds: message,
