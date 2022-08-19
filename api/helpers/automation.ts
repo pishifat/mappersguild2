@@ -14,7 +14,7 @@ import { updateUserPoints } from './points';
 import { UserGroup } from '../../interfaces/user';
 
 /* dev notification for actions */
-const sendActionNotifications = cron.schedule('0 19 * * *', async () => { /* 11:00 AM PST */
+const sendActionNotifications = cron.schedule('0 23 * * *', async () => { /* 4:00 PM PST */
     // beatmaps
     const actionBeatmaps = await BeatmapModel
         .find({
