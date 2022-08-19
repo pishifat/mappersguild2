@@ -18,7 +18,7 @@ const featuredArtist_1 = require("../models/featuredArtist");
 const points_1 = require("./points");
 const user_2 = require("../../interfaces/user");
 /* dev notification for actions */
-const sendActionNotifications = node_cron_1.default.schedule('0 19 * * *', async () => {
+const sendActionNotifications = node_cron_1.default.schedule('0 23 * * *', async () => {
     // beatmaps
     const actionBeatmaps = await beatmap_1.BeatmapModel
         .find({
