@@ -28,7 +28,7 @@ adminContestsRouter.post('/:id/toggleIsApproved', async (req, res) => {
             icon_url: `https://a.ppy.sh/${contest.creators[0].osuId}`,
         },
         color: webhookColors.pink,
-        description: `**[${contest.name}](${contest.url})**\n[Mappers' Guild listing](http://mappersguild.com/contests/listing?contest=${contest.id})\n\n` + contest.description,
+        description: `**[${contest.name}](${contest.url})**\n[Mappers' Guild listing](http://mappersguild.com/contests/listing?contest=${contest.id})\n\n` + `${contest.description.length > 250 ? contest.description.slice(0,250) + '... *(truncated)*' : contest.description}`,
     }]);
 
     regrazWebhookPost([{
@@ -39,7 +39,7 @@ adminContestsRouter.post('/:id/toggleIsApproved', async (req, res) => {
             icon_url: `https://a.ppy.sh/${contest.creators[0].osuId}`,
         },
         color: webhookColors.pink,
-        description: `**[${contest.name}](${contest.url})**\n[Mappers' Guild listing](http://mappersguild.com/contests/listing?contest=${contest.id})\n\n` + contest.description,
+        description: `**[${contest.name}](${contest.url})**\n[Mappers' Guild listing](http://mappersguild.com/contests/listing?contest=${contest.id})\n\n` + `${contest.description.length > 250 ? contest.description.slice(0,250) + '... *(truncated)*' : contest.description}`,
     }]);
 });
 
