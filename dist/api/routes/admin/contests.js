@@ -27,7 +27,7 @@ adminContestsRouter.post('/:id/toggleIsApproved', async (req, res) => {
                 icon_url: `https://a.ppy.sh/${contest.creators[0].osuId}`,
             },
             color: discordApi_1.webhookColors.pink,
-            description: `**[${contest.name}](${contest.url})**\n[Mappers' Guild listing](http://mappersguild.com/contests/listing?contest=${contest.id})\n\n` + contest.description,
+            description: `**[${contest.name}](${contest.url})**\n[Mappers' Guild listing](http://mappersguild.com/contests/listing?contest=${contest.id})\n\n` + `${contest.description.length > 250 ? contest.description.slice(0, 250) + '... *(truncated)*' : contest.description}`,
         }]);
     discordApi_1.regrazWebhookPost([{
             title: `New ${contest.mode == 'osu' ? 'osu!' : 'osu!' + contest.mode} beatmapping contest`,
@@ -37,7 +37,7 @@ adminContestsRouter.post('/:id/toggleIsApproved', async (req, res) => {
                 icon_url: `https://a.ppy.sh/${contest.creators[0].osuId}`,
             },
             color: discordApi_1.webhookColors.pink,
-            description: `**[${contest.name}](${contest.url})**\n[Mappers' Guild listing](http://mappersguild.com/contests/listing?contest=${contest.id})\n\n` + contest.description,
+            description: `**[${contest.name}](${contest.url})**\n[Mappers' Guild listing](http://mappersguild.com/contests/listing?contest=${contest.id})\n\n` + `${contest.description.length > 250 ? contest.description.slice(0, 250) + '... *(truncated)*' : contest.description}`,
         }]);
 });
 exports.default = adminContestsRouter;
