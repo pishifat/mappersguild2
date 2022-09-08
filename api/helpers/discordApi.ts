@@ -60,8 +60,19 @@ export async function devWebhookPost(message: DiscordWebhookMessage[]): Promise<
     }
 }
 
-export async function regrazWebhookPost(message: DiscordWebhookMessage[]): Promise<{ success: 'ok' } | typeof defaultErrorMessage > {
-    const url = `https://discordapp.com/api/webhooks/${config.regrazWebhook.id}/${config.regrazWebhook.token}`;
+export async function externalWebhookPost(message: DiscordWebhookMessage[], type: string): Promise<{ success: 'ok' } | typeof defaultErrorMessage > {
+    let id;
+    let token;
+
+    if (type == 'regraz') {
+        id = config.regrazWebhook.id;
+        token = config.regrazWebhook.token;
+    } else if (type == 'riana') {
+        id = config.rianaWebhook.id;
+        token = config.rianaWebhook.token;
+    }
+
+    const url = `https://discordapp.com/api/webhooks/${id}/${token}`;
 
     try {
         const res = await Axios.post(url, {

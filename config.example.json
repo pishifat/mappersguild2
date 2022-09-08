@@ -20,5 +20,9 @@
     "regrazWebhook": {
         "id": "",
         "token": ""
+    },
+    "rianaWebhook": {
+        "id": "",
+        "token": ""
     }
 }
