@@ -17,7 +17,14 @@
                 osu!
                 <copy-paste :distinct="'osu'">
                     <div v-for="user in osuUsers" :key="user.id">
-                        {{ user.username }}
+                        <user-link
+                            :user="user"
+                        />
+                        <button
+                            v-bs-tooltip="'send messages'"
+                            class="btn tiny-button btn-outline-info ms-1"
+                            @click="sendMessages(user, $event)"
+                        />
                     </div>
                 </copy-paste>
             </div>
@@ -25,7 +32,14 @@
                 osu!taiko
                 <copy-paste :distinct="'taiko'">
                     <div v-for="user in taikoUsers" :key="user.id">
-                        {{ user.username }}
+                        <user-link
+                            :user="user"
+                        />
+                        <button
+                            v-bs-tooltip="'send messages'"
+                            class="btn tiny-button btn-outline-info ms-1"
+                            @click="sendMessages(user, $event)"
+                        />
                     </div>
                 </copy-paste>
             </div>
@@ -33,7 +47,14 @@
                 osu!catch
                 <copy-paste :distinct="'catch'">
                     <div v-for="user in catchUsers" :key="user.id">
-                        {{ user.username }}
+                        <user-link
+                            :user="user"
+                        />
+                        <button
+                            v-bs-tooltip="'send messages'"
+                            class="btn tiny-button btn-outline-info ms-1"
+                            @click="sendMessages(user, $event)"
+                        />
                     </div>
                 </copy-paste>
             </div>
@@ -41,7 +62,14 @@
                 osu!mania
                 <copy-paste :distinct="'mania'">
                     <div v-for="user in maniaUsers" :key="user.id">
-                        {{ user.username }}
+                        <user-link
+                            :user="user"
+                        />
+                        <button
+                            v-bs-tooltip="'send messages'"
+                            class="btn tiny-button btn-outline-info ms-1"
+                            @click="sendMessages(user, $event)"
+                        />
                     </div>
                 </copy-paste>
             </div>
@@ -86,8 +114,9 @@ export default defineComponent({
         messages(): string[] {
             const messages: string[] = [];
 
-            messages.push(`hello! you're receiving this message because you marked yourself as a "FA showcase mapper" in the mappers guild https://i.imgur.com/aJt9uL1.png`);
-            messages.push(`if you'd like to map an upcoming featured artist for an announcement in October-December, send me some of the genres you'd like to map!`);
+            messages.push(`hello! you're receiving this message because you marked yourself as a "FA showcase mapper" in the mappers guild https://osu.ppy.sh/home/news/2022-07-25-mappers-guild-updates#how-to-participate`);
+            messages.push(`if you'd like to map an upcoming featured artist song for an announcement in October-December, send me some of the genres you'd like to map!`);
+            messages.push(`i'll link some upcoming artists in return`);
             messages.push(`thank you!! -pishifat`);
 
             return messages;
@@ -104,6 +133,28 @@ export default defineComponent({
                 this.maniaUsers = res.maniaUsers;
             }
         },
+        async sendMessages (user, e) {
+            const result = confirm(`Are you sure you want to send messages to the user?`);
+
+            if (result) {
+                const res = await this.$http.executePost('/admin/users/sendMessages', { users: [user], messages: this.messages }, e);
+
+                if (!this.$http.isError(res)) {
+                    this.$store.dispatch('updateToastMessages', {
+                        message: `sent`,
+                        type: 'info',
+                    });
+                }
+            }
+        },
     },
 });
 </script>
+
+<style scoped>
+.tiny-button {
+    font-size: 8px;
+    max-height: 10px;
+    padding: 5px 10px;
+}
+</style>
