@@ -35,7 +35,7 @@
                         class="form-control form-control-sm mx-2 w-50"
                         type="text"
                         autocomplete="off"
-                    >
+                    />
                     <button class="btn btn-sm btn-outline-info w-25" @click="updateBadge($event)">
                         Queue badge
                     </button>
@@ -46,7 +46,7 @@
                         class="form-control form-control-sm mx-2 w-50"
                         type="text"
                         autocomplete="off"
-                    >
+                    />
                     <button class="btn btn-sm btn-outline-info w-25" @click="updateDiscordId($event)">
                         Save Discord ID
                     </button>
@@ -59,6 +59,11 @@
                 <p>
                     <button class="btn btn-sm btn-outline-info w-100" @click="toggleBypassLogin($event)">
                         {{ user.bypassLogin ? 'Enable' : 'Disable' }} ranked maps login requirement
+                    </button>
+                </p>
+                <p>
+                    <button class="btn btn-sm btn-outline-info w-100" @click="toggleIsShowcaseMapper($event)">
+                        {{ user.isShowcaseMapper ? 'Disable' : 'Enable' }} showcase mapper
                     </button>
                 </p>
             </div>
@@ -168,6 +173,21 @@ export default defineComponent({
                     userId: this.user.id,
                     group: res.group,
                     bypassLogin: res.bypassLogin,
+                });
+            }
+
+        },
+        async toggleIsShowcaseMapper(e): Promise<void> {
+            const res: any = await this.$http.executePost(`/admin/users/${this.user.id}/toggleIsShowcaseMapper`, { isShowcaseMapper: !this.user.isShowcaseMapper }, e);
+
+            if (res) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `set isShowcaseMapper ${res.isShowcaseMapper}`,
+                    type: 'info',
+                });
+                this.$store.commit('updateIsShowcaseMapper', {
+                    userId: this.user.id,
+                    isShowcaseMapper: res.isShowcaseMapper,
                 });
             }
 
