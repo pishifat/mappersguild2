@@ -46,6 +46,12 @@ adminUsersRouter.post('/:id/toggleBypassLogin', async (req, res) => {
     await user_1.UserModel.findByIdAndUpdate(req.params.id, { bypassLogin, group }).orFail();
     res.json({ bypassLogin, group });
 });
+/* POST toggle bypassLogin */
+adminUsersRouter.post('/:id/toggleIsShowcaseMapper', async (req, res) => {
+    const isShowcaseMapper = req.body.isShowcaseMapper;
+    await user_1.UserModel.findByIdAndUpdate(req.params.id, { isShowcaseMapper }).orFail();
+    res.json({ isShowcaseMapper });
+});
 /* GET find FA showcase users */
 adminUsersRouter.get('/findShowcaseUsers', async (req, res) => {
     const [osuUsers, taikoUsers, catchUsers, maniaUsers] = await Promise.all([
