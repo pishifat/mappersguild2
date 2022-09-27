@@ -24,13 +24,13 @@
                         <th v-bs-tooltip="'screeners sort entries in their ordered top 5. #1 adds 5 points, #2 adds 4 points, etc.'" scope="col">
                             Screener votes ({{ contest.screeners.length * 5 }})
                         </th>
-                        <th v-bs-tooltip="'see results news post for cases where standardized scores affect outcome'" scope="col">
+                        <th v-bs-tooltip="'see results news/forum post for cases where standardized scores affect outcome'" scope="col">
                             Judge scores ({{ maxScore }})
                         </th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="submission in contest.submissions" :key="submission.id + 'screen'">
+                    <tr v-for="submission in sortedSubmissions" :key="submission.id + 'screen'">
                         <td scope="row">
                             <a :href="'/contests/results?submission=' + submission.id">
                                 {{ submission.name }} <i class="fa fa-arrow-right" />
@@ -66,6 +66,7 @@
 import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import { Contest } from '@interfaces/contest/contest';
+import { Submission } from '@interfaces/contest/submission';
 
 export default defineComponent({
     name: 'ContestResults',
@@ -81,6 +82,15 @@ export default defineComponent({
             }
 
             return count * this.contest.judges.length;
+        },
+        sortedSubmissions (): Submission[] {
+            return [...this.contest.submissions].sort((a, b) => {
+                const aValue = this.judgeScore(a.judgings);
+                const bValue = this.judgeScore(b.judgings);
+
+                return bValue - aValue;
+            });
+
         },
     },
     methods: {
