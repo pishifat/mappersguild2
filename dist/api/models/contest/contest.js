@@ -33,6 +33,7 @@ const contestSchema = new mongoose_1.Schema({
     contestEnd: { type: Date },
     submissions: [{ type: 'ObjectId', ref: 'Submission' }],
     screeners: [{ type: 'ObjectId', ref: 'User' }],
+    screeningVoteCount: { type: Number, default: 5 },
     judges: [{ type: 'ObjectId', ref: 'User' }],
     judgingThreshold: { type: Number, default: 0 },
     criterias: [{ type: 'ObjectId', ref: 'Criteria' }],

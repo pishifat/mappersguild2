@@ -255,6 +255,33 @@ listingRouter.post('/:id/updateStatus', middlewares_2.isContestCreator, middlewa
             evaluationStatusRequirements.push('judging threshold');
         if (!contest.criterias.length)
             evaluationStatusRequirements.push('judging criteria');
+        let invalidScreening = false;
+        for (const screener of contest.screeners) {
+            let count = 0;
+            for (const submission of contest.submissions) {
+                for (const screening of submission.screenings) {
+                    if (screening.screener.id == screener.id && screening.vote) {
+                        if (screening.vote > contest.screeningVoteCount) {
+                            invalidScreening = true;
+                        }
+                        count++;
+                    }
+                }
+            }
+            if (invalidScreening)
+                evaluationStatusRequirements.push(`screener has a vote for a value out of bounds (${screener.username})`);
+            if (count < contest.screeningVoteCount)
+                evaluationStatusRequirements.push(`screener incomplete (${screener.username})`);
+        }
+        const screenerIds = contest.screeners.map(s => s.id);
+        for (const submission of contest.submissions) {
+            for (const screening of submission.screenings) {
+                if (!screenerIds.includes(screening.screener.id)) {
+                    //await ScreeningModel.findByIdAndRemove(screening.id);
+                    evaluationStatusRequirements.push(`${screening.screener.username} has a saved screening despite not being a screener`);
+                }
+            }
+        }
     }
     if (evaluationStatusRequirements.length) {
         return res.json({ error: `Missing requirements: ${evaluationStatusRequirements.join(', ')}!` });
@@ -272,32 +299,13 @@ listingRouter.post('/:id/updateStatus', middlewares_2.isContestCreator, middlewa
             if (!submission.name)
                 completeStatusRequirements.push(`submission name (${submission.id})`);
         }
-        const screenerIds = contest.screeners.map(s => s.id);
         const judgeIds = contest.judges.map(j => j.id);
         for (const submission of contest.submissions) {
-            for (const screening of submission.screenings) {
-                if (!screenerIds.includes(screening.screener.id)) {
-                    //await ScreeningModel.findByIdAndRemove(screening.id);
-                    completeStatusRequirements.push(`${screening.screener.username} has a saved screening despite not being a screener`);
-                }
-            }
             for (const judging of submission.judgings) {
                 if (!judgeIds.includes(judging.judge.id)) {
                     completeStatusRequirements.push(`${judging.judge.username} has a saved judging despite not being a judge`);
                 }
             }
-        }
-        for (const screener of contest.screeners) {
-            let count = 0;
-            for (const submission of contest.submissions) {
-                for (const screening of submission.screenings) {
-                    if (screening.screener.id == screener.id && screening.vote) {
-                        count++;
-                    }
-                }
-            }
-            if (count < 5)
-                completeStatusRequirements.push(`screener incomplete (${screener.username})`);
         }
         for (const submission of contest.submissions) {
             if (submission.judgings) {
@@ -542,6 +550,19 @@ listingRouter.post('/:id/updateJudgingThreshold', middlewares_2.isContestCreator
     contest.judgingThreshold = newJudgingThreshold;
     await contest.save();
     res.json(contest.judgingThreshold);
+});
+/* POST update screening vote count */
+listingRouter.post('/:id/updateScreeningVoteCount', middlewares_2.isContestCreator, middlewares_2.isEditable, async (req, res) => {
+    const newScreeningVoteCount = parseInt(req.body.screeningVoteCount);
+    if (isNaN(newScreeningVoteCount) || newScreeningVoteCount > 10 || newScreeningVoteCount < 1) {
+        return res.json({ error: 'Invalid number' });
+    }
+    const contest = await contest_1.ContestModel
+        .findById(req.params.id)
+        .orFail();
+    contest.screeningVoteCount = newScreeningVoteCount;
+    await contest.save();
+    res.json(contest.screeningVoteCount);
 });
 /* POST add criteria */
 listingRouter.post('/:id/addCriteria', middlewares_2.isContestCreator, middlewares_2.isEditable, async (req, res) => {

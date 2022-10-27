@@ -49,7 +49,7 @@ screeningRouter.get('/relevantInfo', async (req, res) => {
         screeners: res.locals.userRequest._id,
     })
         .populate(defaultContestPopulate)
-        .select('_id name submissions screeners download status url');
+        .select('_id name submissions screeners download status url screeningVoteCount');
     res.json(contests);
 });
 /* GET specific contest from search */
@@ -61,7 +61,7 @@ screeningRouter.get('/searchContest/:contestId', async (req, res) => {
         _id: req.params.contestId,
     })
         .populate(defaultContestPopulate)
-        .select('_id name submissions screeners download status url');
+        .select('_id name submissions screeners download status url screeningVoteCount');
     res.json(contest);
 });
 /* POST update submission comment */
