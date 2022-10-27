@@ -14,6 +14,7 @@
                         <screening-vote
                             :submission-id="submission.id"
                             :saved-vote="relatedScreening && relatedScreening.vote"
+                            :screening-vote-count="screeningVoteCount"
                         />
                     </div>
                 </div>
@@ -49,6 +50,10 @@ export default defineComponent({
         submission: {
             type: Object as () => Submission,
             required: true,
+        },
+        screeningVoteCount: {
+            type: Number,
+            default: 0,
         },
     },
     computed: {

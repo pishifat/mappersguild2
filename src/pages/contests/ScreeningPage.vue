@@ -18,7 +18,7 @@
                 </button>
             </div>
             <div v-if="selectedContest">
-                <hr>
+                <hr />
                 <h4 class="my-2">
                     {{ selectedContest.name }}
                 </h4>
@@ -49,6 +49,7 @@
                         v-for="submission in selectedContest.submissions"
                         :key="submission.id"
                         :submission="submission"
+                        :screening-vote-count="selectedContest.screeningVoteCount"
                     />
                 </transition-group>
 

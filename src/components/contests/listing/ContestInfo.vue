@@ -135,6 +135,18 @@
                     Screening Results
                 </h5>
 
+                <div class="row mb-2">
+                    <screening-vote-count
+                        class="col-sm-4"
+                        :contest-id="contest.id"
+                        :screening-vote-count="contest.screeningVoteCount"
+                    />
+
+                    <div class="col-sm-8 small text-secondary">
+                        The amount of submissions each screener can give a vote to. The limit is set to "5" by default, meaning screeners can choose the top 5 maps. The limit is 10.
+                    </div>
+                </div>
+
                 <div class="ms-2 mb-2">
                     <a href="#screeningStatus" data-bs-toggle="collapse" @click.prevent>
                         See screening status per screener
@@ -264,6 +276,7 @@ import JudgesInfo from './judging/JudgesInfo.vue';
 import MarkdownUserList from './MarkdownUserList.vue';
 import ScreeningResults from './screening/ScreeningResults.vue';
 import JudgingThreshold from './screening/JudgingThreshold.vue';
+import ScreeningVoteCount from './screening/ScreeningVoteCount.vue';
 import CriteriaSelection from './judging/CriteriaSelection.vue';
 import JudgingResults from './judging/JudgingResults.vue';
 
@@ -287,6 +300,7 @@ export default defineComponent({
         ScreeningResults,
         ScreeningStatus,
         JudgingThreshold,
+        ScreeningVoteCount,
         CriteriaSelection,
         JudgingResults,
     },

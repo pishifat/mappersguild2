@@ -137,6 +137,13 @@ const store: Module<ContestState, MainState> = {
                 contest.judgingThreshold = payload.judgingThreshold;
             }
         },
+        updateScreeningVoteCount (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                contest.screeningVoteCount = payload.screeningVoteCount;
+            }
+        },
         updateStatus (state, payload): void {
             const contest = state.contests.find(c => c.id == payload.contestId);
 

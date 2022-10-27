@@ -18,8 +18,8 @@
                     <td>
                         <user-link :user="screener" />
                     </td>
-                    <td :class="findScreenerDetails(screener).count >= 5 ? 'text-success' : 'text-danger'">
-                        {{ findScreenerDetails(screener).count }}/5
+                    <td :class="findScreenerDetails(screener).count == contest.screeningVoteCount ? 'text-success' : 'text-danger'">
+                        {{ findScreenerDetails(screener).count }}/{{ contest.screeningVoteCount }}
                     </td>
                     <td>
                         <span v-for="unusedVote in findScreenerDetails(screener).unusedVotes" :key="unusedVote">
@@ -66,8 +66,12 @@ export default defineComponent({
                 }
             }
 
-            const possibleVotes: ScreeningPlacement[] = [1,2,3,4,5];
             const unusedVotes: ScreeningPlacement[] = [];
+            const possibleVotes: ScreeningPlacement[] = [];
+
+            for (let i = 0; i < this.contest.screeningVoteCount; i++) {
+                possibleVotes.push(i+1);
+            }
 
             for (const vote of possibleVotes) {
                 if (!usedVotes.includes(vote)) {

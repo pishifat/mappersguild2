@@ -1,7 +1,7 @@
 <template>
     <div>
         <a
-            v-for="i in 5"
+            v-for="i in screeningVoteCount"
             :key="i"
             class="mx-1"
             :class="{ 'disabled-star': (usedVotes.includes(i) && savedVote != i) || voteLoading }"
@@ -30,6 +30,10 @@ export default defineComponent({
             required: true,
         },
         savedVote: {
+            type: Number,
+            default: 0,
+        },
+        screeningVoteCount: {
             type: Number,
             default: 0,
         },
