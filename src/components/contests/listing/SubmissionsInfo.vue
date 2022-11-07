@@ -1,14 +1,27 @@
 <template>
     <div>
-        <!--<p v-if="!submissions.length">
-            <button
-                type="button"
-                class="btn btn-sm btn-outline-info"
-                @click="addSubmissionsFromCsv($event)"
-            >
-                Add submissions from CSV (local only)
-            </button>
-        </p>-->
+        <div v-if="!submissions.length && osuContestListingUrl">
+            <span class="small text-secondary">If your contest uses the osu! contest listing, follow the anonymization guide below and paste your <code>.csv</code> output here as raw text to add submissions:</span>
+
+            <div class="row">
+                <div class="col-sm-10">
+                    <textarea
+                        v-model="csvInput"
+                        class="form-control form-inline"
+                        rows="1"
+                    />
+                </div>
+                <div class="col-sm-2">
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-outline-info mt-1 mx-1"
+                        @click="addSubmissionsFromCsv($event)"
+                    >
+                        Save
+                    </button>
+                </div>
+            </div>
+        </div>
 
         <table
             v-if="submissions.length"
@@ -86,6 +99,10 @@ export default defineComponent({
             type: Array as () => Submission[],
             required: true,
         },
+        osuContestListingUrl: {
+            type: String,
+            default: '',
+        },
     },
     data () {
         return {
@@ -95,6 +112,7 @@ export default defineComponent({
             processingDelete: false,
             manualAnonEdit: null,
             newAnonymousName: '',
+            csvInput: '',
         };
     },
     watch: {
@@ -103,12 +121,12 @@ export default defineComponent({
         },
     },
     methods: {
-        /*async addSubmissionsFromCsv(e): Promise<void> {
-            const submissions = await this.$http.executePost(`/admin/contests/${this.contestId}/submissions/createFromCsv`, {}, e);
+        async addSubmissionsFromCsv(e): Promise<void> {
+            const submissions = await this.$http.executePost(`/contests/listing/${this.contestId}/submissions/addSubmissionsFromCsv`, { csv: this.csvInput }, e);
 
             if (!this.$http.isError(submissions)) {
                 this.$store.dispatch('updateToastMessages', {
-                    message: `added csv entries`,
+                    message: `Added entries from .csv data`,
                     type: 'info',
                 });
                 this.$store.commit('addSubmissionsFromCsv', {
@@ -116,7 +134,7 @@ export default defineComponent({
                     submissions,
                 });
             }
-        },*/
+        },
         findAnonymousSubmissionName(): void {
             const relevantSubmission = this.submissions.find(s => s.id == this.manualAnonEdit);
 

@@ -197,24 +197,13 @@ const store: Module<ContestState, MainState> = {
                 }
             }
         },
-
-
-
-
-
-
-
-
-
-
-
-        /*addSubmissionsFromCsv (state, payload): void {
+        addSubmissionsFromCsv (state, payload): void {
             const contest = state.contests.find(c => c.id == payload.contestId);
 
             if (contest) {
                 contest.submissions = payload.submissions;
             }
-        },*/
+        },
     },
     getters: {
         selectedContest: (state): Contest | undefined => {

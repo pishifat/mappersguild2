@@ -71,6 +71,7 @@
                     class="collapse"
                     :contest-id="contest.id"
                     :submissions="contest.submissions"
+                    :osu-contest-listing-url="contest.osuContestListingUrl"
                 />
 
                 <download-info

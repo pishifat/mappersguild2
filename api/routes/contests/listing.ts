@@ -4,7 +4,7 @@ import { devWebhookPost, webhookColors } from '../../helpers/discordApi';
 import { isContestCreator, isEditable } from './middlewares';
 import { Contest, ContestModel } from '../../models/contest/contest';
 import { UserModel } from '../../models/user';
-import { User } from '../../../interfaces/user';
+import { User, UserGroup } from '../../../interfaces/user';
 import { SubmissionModel } from '../../models/contest/submission';
 import { sendMessages } from '../../helpers/osuBot';
 import { CriteriaModel } from '../../models/contest/criteria';
@@ -12,7 +12,6 @@ import { ContestStatus } from '../../../interfaces/contest/contest';
 import { UserScore, JudgeCorrel } from '../../../interfaces/contest/judging';
 import { ScreeningModel } from '../../models/contest/screening';
 import { JudgingModel } from '../../models/contest/judging';
-import config from '../../../config.json';
 
 const listingRouter = express.Router();
 
@@ -1023,8 +1022,8 @@ listingRouter.post('/:id/createSubmission', isEditable, async (req, res) => {
     res.json(newContest.submissions);
 });
 
-/* POST create submissions from CSV data */
-listingRouter.post('/:id/submissions/syncAnonymousNames', async (req, res) => {
+/* POST anonymize submissions from CSV data */
+listingRouter.post('/:id/submissions/syncAnonymousNames', isContestCreator, isEditable, async (req, res) => {
     const contest = await ContestModel
         .findById(req.params.id)
         .populate(defaultContestPopulate)
@@ -1058,6 +1057,45 @@ listingRouter.post('/:id/submissions/syncAnonymousNames', async (req, res) => {
 });
 
 /* POST create submissions from CSV data */
+listingRouter.post('/:id/submissions/addSubmissionsFromCsv', isContestCreator, isEditable, async (req, res) => {
+    const contest = await ContestModel
+        .findById(req.params.id)
+        .populate(defaultContestPopulate)
+        .orFail();
+
+    const csv = req.body.csv.trim();
+    const lines = csv.split('\n');
+
+    for (const rawLine of lines) {
+        const line = rawLine.split(',');
+        const submission = new SubmissionModel();
+
+        let user = await UserModel.findOne({ osuId: parseInt(line[1]) });
+
+        if (!user) {
+            user = new UserModel();
+            user.username = line[0];
+            user.osuId = parseInt(line[1]);
+            user.group = UserGroup.Spectator;
+
+            await user.save();
+        }
+
+        submission.creator = user._id;
+        submission.name = line[2];
+
+        await submission.save();
+
+        contest.submissions.push(submission);
+    }
+
+    await contest.save();
+    await contest.populate(defaultContestPopulate).execPopulate();
+
+    res.json(contest.submissions);
+});
+
+/* POST delete a submission */
 listingRouter.post('/:id/delete', isContestCreator, isEditable, async (req, res) => {
     const contest = await ContestModel
         .findById(req.params.id)

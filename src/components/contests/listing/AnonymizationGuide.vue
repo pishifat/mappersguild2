@@ -22,7 +22,7 @@
                     <button
                         type="button"
                         class="btn btn-sm btn-outline-info mt-1 mx-1"
-                        @click="applyCsvOutput()"
+                        @click="applyCsvOutput($event)"
                     >
                         Save
                     </button>
@@ -53,7 +53,7 @@ export default defineComponent({
     },
     data () {
         return {
-            csvOutput: null,
+            csvOutput: '',
             errors: [],
         };
     },
