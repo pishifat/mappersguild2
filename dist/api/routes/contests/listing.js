@@ -10,6 +10,7 @@ const discordApi_1 = require("../../helpers/discordApi");
 const middlewares_2 = require("./middlewares");
 const contest_1 = require("../../models/contest/contest");
 const user_1 = require("../../models/user");
+const user_2 = require("../../../interfaces/user");
 const submission_1 = require("../../models/contest/submission");
 const osuBot_1 = require("../../helpers/osuBot");
 const criteria_1 = require("../../models/contest/criteria");
@@ -847,8 +848,8 @@ listingRouter.post('/:id/createSubmission', middlewares_2.isEditable, async (req
         .orFail();
     res.json(newContest.submissions);
 });
-/* POST create submissions from CSV data */
-listingRouter.post('/:id/submissions/syncAnonymousNames', async (req, res) => {
+/* POST anonymize submissions from CSV data */
+listingRouter.post('/:id/submissions/syncAnonymousNames', middlewares_2.isContestCreator, middlewares_2.isEditable, async (req, res) => {
     const contest = await contest_1.ContestModel
         .findById(req.params.id)
         .populate(defaultContestPopulate)
@@ -875,6 +876,34 @@ listingRouter.post('/:id/submissions/syncAnonymousNames', async (req, res) => {
     res.json({ submissions: contest.submissions, errors });
 });
 /* POST create submissions from CSV data */
+listingRouter.post('/:id/submissions/addSubmissionsFromCsv', middlewares_2.isContestCreator, middlewares_2.isEditable, async (req, res) => {
+    const contest = await contest_1.ContestModel
+        .findById(req.params.id)
+        .populate(defaultContestPopulate)
+        .orFail();
+    const csv = req.body.csv.trim();
+    const lines = csv.split('\n');
+    for (const rawLine of lines) {
+        const line = rawLine.split(',');
+        const submission = new submission_1.SubmissionModel();
+        let user = await user_1.UserModel.findOne({ osuId: parseInt(line[1]) });
+        if (!user) {
+            user = new user_1.UserModel();
+            user.username = line[0];
+            user.osuId = parseInt(line[1]);
+            user.group = user_2.UserGroup.Spectator;
+            await user.save();
+        }
+        submission.creator = user._id;
+        submission.name = line[2];
+        await submission.save();
+        contest.submissions.push(submission);
+    }
+    await contest.save();
+    await contest.populate(defaultContestPopulate).execPopulate();
+    res.json(contest.submissions);
+});
+/* POST delete a submission */
 listingRouter.post('/:id/delete', middlewares_2.isContestCreator, middlewares_2.isEditable, async (req, res) => {
     const contest = await contest_1.ContestModel
         .findById(req.params.id)
