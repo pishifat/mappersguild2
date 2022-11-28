@@ -60,6 +60,14 @@ export function isSecret(req, res, next): void {
     }
 }
 
+export function isMentorshipAdmin(req, res, next): void {
+    if (res.locals.userRequest.isMentorshipAdmin || res.locals.userRequest.group == UserGroup.Admin) {
+        next();
+    } else {
+        unauthorize(req, res);
+    }
+}
+
 export function isSuperAdmin(req, res, next): void {
     if (res.locals.userRequest.osuId == 3178418 || res.locals.userRequest.osuId == 1052994) {
         next();

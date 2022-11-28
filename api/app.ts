@@ -40,6 +40,7 @@ import resultsRouter from './routes/contests/results';
 import showcaseRouter from './routes/showcase';
 import partiesRouter from './routes/parties';
 import invitesRouter from './routes/invites';
+import mentorshipRouter from './routes/mentorship';
 
 const app = express();
 const MongoStore = MongoStoreSession(session);
@@ -92,6 +93,7 @@ app.use('/logs', logsRouter);
 app.use('/notifications', notificationsRouter);
 app.use('/invites', invitesRouter);
 app.use('/showcase', showcaseRouter);
+app.use('/mentorship', mentorshipRouter);
 
 app.use('/contests/listing', contestsListingRouter);
 app.use('/contests/results', resultsRouter);

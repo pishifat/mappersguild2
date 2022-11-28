@@ -3,7 +3,7 @@
         <nav id="top" class="navbar navbar-expand-md navbar-dark bg-dark">
             <div class="container-fluid">
                 <router-link class="navbar-brand" to="/">
-                    <img src="/images/mg-icon.png" alt="">
+                    <img src="/images/mg-icon.png" alt="" />
                 </router-link>
 
                 <button
@@ -41,6 +41,11 @@
                             <li class="nav-item">
                                 <router-link class="nav-link" to="/faq">
                                     FAQ
+                                </router-link>
+                            </li>
+                            <li v-if="loggedInUser.isMentorshipAdmin" class="nav-item">
+                                <router-link class="nav-link" to="/mentorship">
+                                    Mentorship
                                 </router-link>
                             </li>
                             <li class="nav-item dropdown">
@@ -128,16 +133,16 @@
                                 href="#"
                                 data-bs-toggle="dropdown"
                             >
-                                <img :src="`https://a.ppy.sh/${loggedInUser.osuId}`" class="rounded-circle nav-avatar ms-2">
+                                <img :src="`https://a.ppy.sh/${loggedInUser.osuId}`" class="rounded-circle nav-avatar ms-2" />
                             </a>
                             <div class="dropdown-menu dropdown-menu-end">
                                 <router-link :to="`/users?id=${loggedInUser.id}`" class="dropdown-item">
                                     View full points breakdown
                                 </router-link>
-                                <hr class="my-2">
+                                <hr class="my-2" />
                                 <span class="dropdown-item disabled">Total points: <span class="float-end">{{ loggedInUser.pointsInfo.total }}</span></span>
                                 <span class="dropdown-item disabled">Available points: <span class="float-end">{{ loggedInUser.pointsInfo.available }} <i class="fas fa-coins" /></span></span>
-                                <hr class="my-2">
+                                <hr class="my-2" />
                                 <span class="dropdown-item small disabled">Mapping points: <span class="float-end">{{ loggedInUser.pointsInfo.mapping }}</span></span>
                                 <span class="dropdown-item small disabled">Modding points: <span class="float-end">{{ loggedInUser.pointsInfo.modding }}</span></span>
                                 <span class="dropdown-item small disabled">Other points: <span class="float-end">{{ loggedInUser.pointsInfo.other }}</span></span>
@@ -199,7 +204,7 @@
                         src="/images/mg-logo-text.png"
                         width="100"
                         height="100"
-                    >
+                    />
                 </div>
                 <div class="col ps-0 my-auto">
                     <h1>{{ title }}</h1>

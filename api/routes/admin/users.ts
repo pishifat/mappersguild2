@@ -57,13 +57,22 @@ adminUsersRouter.post('/:id/toggleBypassLogin', async (req, res) => {
     res.json({ bypassLogin, group });
 });
 
-/* POST toggle bypassLogin */
+/* POST toggle isShowcaseMapper */
 adminUsersRouter.post('/:id/toggleIsShowcaseMapper', async (req, res) => {
     const isShowcaseMapper = req.body.isShowcaseMapper;
 
     await UserModel.findByIdAndUpdate(req.params.id, { isShowcaseMapper }).orFail();
 
     res.json({ isShowcaseMapper });
+});
+
+/* POST toggle isMentorshipAdmin */
+adminUsersRouter.post('/:id/toggleIsMentorshipAdmin', async (req, res) => {
+    const isMentorshipAdmin = req.body.isMentorshipAdmin;
+
+    await UserModel.findByIdAndUpdate(req.params.id, { isMentorshipAdmin }).orFail();
+
+    res.json({ isMentorshipAdmin });
 });
 
 /* GET find FA showcase users */

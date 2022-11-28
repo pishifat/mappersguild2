@@ -42,6 +42,13 @@ const store: Module<UserState, MainState> = {
                 user.isShowcaseMapper = payload.isShowcaseMapper;
             }
         },
+        updateIsMentorshipAdmin (state, payload): void {
+            const user = state.users.find(u => u.id == payload.userId);
+
+            if (user) {
+                user.isMentorshipAdmin = payload.isMentorshipAdmin;
+            }
+        },
     },
 };
 

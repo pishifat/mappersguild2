@@ -12,7 +12,15 @@ const UserSchema = new Schema<User>({
     discordId: { type: String },
     isShowcaseMapper: { type: Boolean },
     isContestHelper: { type: Boolean },
-
+    isMentorshipAdmin: { type: Boolean },
+    mentorships: [{
+        _id: false,
+        cycle: { type: 'ObjectId', ref: 'MentorshipCycle', required: true },
+        mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania'], required: true },
+        group: { type: String, enum: ['mentor', 'mentee'], required: true },
+        mentor: { type: 'ObjectId', ref: 'User' },
+        mentee: { type: 'ObjectId', ref: 'User' },
+    }],
     rank: { type: Number, default: 0 },
     easyPoints: { type: Number, default: 0 },
     normalPoints: { type: Number, default: 0 },

@@ -17,7 +17,7 @@
                     type="text"
                     autocomplete="off"
                     placeholder="quest name..."
-                >
+                />
                 <button class="btn btn-sm btn-outline-info w-25" @click="renameQuest($event)">
                     Rename quest
                 </button>
@@ -29,7 +29,7 @@
                     type="text"
                     autocomplete="off"
                     placeholder="price..."
-                >
+                />
                 <button class="btn btn-sm btn-outline-info w-25" @click="updatePrice($event)">
                     Update price
                 </button>
@@ -41,7 +41,7 @@
                     type="text"
                     autocomplete="off"
                     placeholder="required mapsets..."
-                >
+                />
                 <button class="btn btn-sm btn-outline-info w-25" @click="updateRequiredMapsets($event)">
                     Update required mapsets
                 </button>
@@ -53,7 +53,7 @@
                     type="text"
                     autocomplete="off"
                     placeholder="minParty..."
-                >
+                />
                 <button class="btn btn-sm btn-outline-info w-25" @click="updateMinParty($event)">
                     Update minParty
                 </button>
@@ -65,7 +65,7 @@
                     type="text"
                     autocomplete="off"
                     placeholder="maxParty..."
-                >
+                />
                 <button class="btn btn-sm btn-outline-info w-25" @click="updateMaxParty($event)">
                     Update maxParty
                 </button>
@@ -109,7 +109,7 @@
                     type="text"
                     autocomplete="off"
                     placeholder="new quest name..."
-                >
+                />
                 <button class="btn btn-sm btn-outline-info w-25" @click="duplicateQuest($event)">
                     Duplicate quest
                 </button>
@@ -121,7 +121,7 @@
                     type="text"
                     autocomplete="off"
                     :placeholder="quest.expiration"
-                >
+                />
                 <button class="btn btn-sm btn-outline-info w-25" @click="updateExpiration($event)">
                     Set expiration date
                 </button>

@@ -28,6 +28,7 @@ const Artists = () => import('../pages/artists/ArtistPage.vue');
 
 // Other
 const Showcase = () => import('../pages/ShowcasePage.vue');
+const Mentorship = () => import('../pages/MentorshipPage.vue');
 
 const routes = [
     // Public
@@ -58,6 +59,7 @@ const routes = [
 
     // Other
     { path: '/showcase', component: Showcase, meta: { title: 'FA Showcase Beatmaps' } },
+    { path: '/mentorship', component: Mentorship, meta: { title: 'Mentorship' } },
 
     // Fallback
     { path: '/:pathMatch(.*)*', component: NotFound, meta: { title: 'Oops' } },

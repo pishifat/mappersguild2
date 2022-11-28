@@ -1,5 +1,6 @@
 import { BeatmapMode } from './beatmap/beatmap';
 import { Quest } from './quest';
+import { MentorshipCycle } from './mentorshipCycle';
 import { Document } from 'mongoose';
 
 export enum UserGroup {
@@ -30,7 +31,14 @@ export interface User extends Document {
     discordId: string; // js doesnt support 18 digit numbers...
     isShowcaseMapper: boolean;
     isContestHelper: boolean;
-
+    isMentorshipAdmin: boolean;
+    mentorships: {
+        cycle: MentorshipCycle;
+        mode: string;
+        group: string;
+        mentor: User;
+        mentee: User;
+    }[];
     rank: number;
     easyPoints: number;
     normalPoints: number;

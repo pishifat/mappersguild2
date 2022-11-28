@@ -14,7 +14,7 @@ import { defineComponent, PropType } from 'vue';
 import { User } from '@interfaces/user';
 
 export default defineComponent({
-    name: 'UserLink',
+    name: 'UserLinkList',
     props: {
         users: {
             type: Array as PropType<User[]>,

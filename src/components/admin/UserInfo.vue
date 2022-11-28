@@ -66,6 +66,11 @@
                         {{ user.isShowcaseMapper ? 'Disable' : 'Enable' }} showcase mapper
                     </button>
                 </p>
+                <p>
+                    <button class="btn btn-sm btn-outline-info w-100" @click="toggleIsMentorshipAdmin($event)">
+                        {{ user.isMentorshipAdmin ? 'Disable' : 'Enable' }} mentorship admin
+                    </button>
+                </p>
             </div>
         </template>
     </modal-dialog>
@@ -190,7 +195,20 @@ export default defineComponent({
                     isShowcaseMapper: res.isShowcaseMapper,
                 });
             }
+        },
+        async toggleIsMentorshipAdmin(e): Promise<void> {
+            const res: any = await this.$http.executePost(`/admin/users/${this.user.id}/toggleIsMentorshipAdmin`, { isMentorshipAdmin: !this.user.isMentorshipAdmin }, e);
 
+            if (res) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `set isMentorshipAdmin ${res.isMentorshipAdmin}`,
+                    type: 'info',
+                });
+                this.$store.commit('updateIsMentorshipAdmin', {
+                    userId: this.user.id,
+                    isMentorshipAdmin: res.isMentorshipAdmin,
+                });
+            }
         },
     },
 });
