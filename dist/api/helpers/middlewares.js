@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isBn = exports.isNotSpectator = exports.isSuperAdmin = exports.isSecret = exports.isAdmin = exports.isLoggedIn = exports.unauthorize = void 0;
+exports.isBn = exports.isNotSpectator = exports.isSuperAdmin = exports.isMentorshipAdmin = exports.isSecret = exports.isAdmin = exports.isLoggedIn = exports.unauthorize = void 0;
 const user_1 = require("../models/user");
 const user_2 = require("../../interfaces/user");
 const osuApi_1 = require("./osuApi");
@@ -58,6 +58,15 @@ function isSecret(req, res, next) {
     }
 }
 exports.isSecret = isSecret;
+function isMentorshipAdmin(req, res, next) {
+    if (res.locals.userRequest.isMentorshipAdmin || res.locals.userRequest.group == user_2.UserGroup.Admin) {
+        next();
+    }
+    else {
+        unauthorize(req, res);
+    }
+}
+exports.isMentorshipAdmin = isMentorshipAdmin;
 function isSuperAdmin(req, res, next) {
     if (res.locals.userRequest.osuId == 3178418 || res.locals.userRequest.osuId == 1052994) {
         next();

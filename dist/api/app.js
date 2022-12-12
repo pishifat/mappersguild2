@@ -43,6 +43,7 @@ const results_1 = __importDefault(require("./routes/contests/results"));
 const showcase_1 = __importDefault(require("./routes/showcase"));
 const parties_1 = __importDefault(require("./routes/parties"));
 const invites_1 = __importDefault(require("./routes/invites"));
+const mentorship_1 = __importDefault(require("./routes/mentorship"));
 const app = express_1.default();
 const MongoStore = connect_mongo_1.default(express_session_1.default);
 // settings/middlewares
@@ -87,6 +88,7 @@ app.use('/logs', logs_1.default);
 app.use('/notifications', notifications_1.default);
 app.use('/invites', invites_1.default);
 app.use('/showcase', showcase_1.default);
+app.use('/mentorship', mentorship_1.default);
 app.use('/contests/listing', listing_1.default);
 app.use('/contests/results', results_1.default);
 app.use('/contests/screening', screening_1.default);

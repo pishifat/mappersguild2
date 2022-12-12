@@ -32,6 +32,14 @@ const UserSchema = new mongoose_1.Schema({
     discordId: { type: String },
     isShowcaseMapper: { type: Boolean },
     isContestHelper: { type: Boolean },
+    isMentorshipAdmin: { type: Boolean },
+    mentorships: [{
+            _id: false,
+            cycle: { type: 'ObjectId', ref: 'MentorshipCycle', required: true },
+            mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania'], required: true },
+            group: { type: String, enum: ['mentor', 'mentee'], required: true },
+            mentor: { type: 'ObjectId', ref: 'User' },
+        }],
     rank: { type: Number, default: 0 },
     easyPoints: { type: Number, default: 0 },
     normalPoints: { type: Number, default: 0 },
@@ -93,6 +101,11 @@ UserSchema.virtual('mainMode').get(function () {
     ];
     modes.sort((a, b) => b.points - a.points);
     return modes[0].name;
+});
+UserSchema.virtual('mentees', {
+    ref: 'User',
+    localField: '_id',
+    foreignField: 'mentorships.mentor',
 });
 UserSchema.query.byUsername = function (username) {
     return this.where({ username: new RegExp('^' + helpers_1.escapeUsername(username) + '$', 'i') });
