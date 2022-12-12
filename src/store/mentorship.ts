@@ -50,62 +50,6 @@ const store: Module<UsersState, MainState> = {
         allCycles: (state): MentorshipCycle[] => {
             return state.cycles;
         },
-        cycleOsuMentors: (state): User[] | undefined => {
-            const cycleIndex = state.cycles.findIndex(c => c.id == state.selectedCycleId);
-
-            if (cycleIndex !== -1) {
-                return state.cycles[cycleIndex].osuMentors;
-            }
-        },
-        cycleTaikoMentors: (state): User[] | undefined => {
-            const cycleIndex = state.cycles.findIndex(c => c.id == state.selectedCycleId);
-
-            if (cycleIndex !== -1) {
-                return state.cycles[cycleIndex].taikoMentors;
-            }
-        },
-        cycleCatchMentors: (state): User[] | undefined => {
-            const cycleIndex = state.cycles.findIndex(c => c.id == state.selectedCycleId);
-
-            if (cycleIndex !== -1) {
-                return state.cycles[cycleIndex].catchMentors;
-            }
-        },
-        cycleManiaMentors: (state): User[] | undefined => {
-            const cycleIndex = state.cycles.findIndex(c => c.id == state.selectedCycleId);
-
-            if (cycleIndex !== -1) {
-                return state.cycles[cycleIndex].maniaMentors;
-            }
-        },
-        cycleOsuMentees: (state): User[] | undefined => {
-            const cycleIndex = state.cycles.findIndex(c => c.id == state.selectedCycleId);
-
-            if (cycleIndex !== -1) {
-                return state.cycles[cycleIndex].osuMentees;
-            }
-        },
-        cycleTaikoMentees: (state): User[] | undefined => {
-            const cycleIndex = state.cycles.findIndex(c => c.id == state.selectedCycleId);
-
-            if (cycleIndex !== -1) {
-                return state.cycles[cycleIndex].taikoMentees;
-            }
-        },
-        cycleCatchMentees: (state): User[] | undefined => {
-            const cycleIndex = state.cycles.findIndex(c => c.id == state.selectedCycleId);
-
-            if (cycleIndex !== -1) {
-                return state.cycles[cycleIndex].catchMentees;
-            }
-        },
-        cycleManiaMentees: (state): User[] | undefined => {
-            const cycleIndex = state.cycles.findIndex(c => c.id == state.selectedCycleId);
-
-            if (cycleIndex !== -1) {
-                return state.cycles[cycleIndex].maniaMentees;
-            }
-        },
         selectedCycle: (state): MentorshipCycle | undefined => {
             return state.cycles.find(c => c.id === state.selectedCycleId);
         },

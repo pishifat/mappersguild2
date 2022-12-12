@@ -22,7 +22,7 @@
                     v-model.number="cycleUrlInput"
                     class="form-control form-control-sm"
                     autocomplete="off"
-                    placeholder="forum link..."
+                    placeholder="cycle details link..."
                     @keyup.enter="addCycle($event)"
                 />
                 <input

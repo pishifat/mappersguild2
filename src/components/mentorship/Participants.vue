@@ -18,54 +18,26 @@
             </div>
             <div v-if="selectedCycle">
                 <hr />
-                <h4>{{ selectedCycle.name }}</h4>
-                <div>
-                    <h5>Mentors</h5>
-                    <div class="row">
-                        <participant-list
-                            :group="'mentor'"
-                            :mode="'osu'"
-                            :users="cycleOsuMentors"
-                        />
-                        <participant-list
-                            :group="'mentor'"
-                            :mode="'taiko'"
-                            :users="cycleTaikoMentors"
-                        />
-                        <participant-list
-                            :group="'mentor'"
-                            :mode="'catch'"
-                            :users="cycleCatchMentors"
-                        />
-                        <participant-list
-                            :group="'mentor'"
-                            :mode="'mania'"
-                            :users="cycleManiaMentors"
-                        />
+                <h4>
+                    {{ selectedCycle.name }}
+                    <div class="small text-secondary">
+                        {{ selectedCycle.startDate.slice(0,10) }} - {{ selectedCycle.endDate.slice(0,10) }}
                     </div>
-                </div>
-                <div class="mt-2">
-                    <h5>Mentees</h5>
+                </h4>
+
+                <div>
                     <div class="row">
                         <participant-list
-                            :group="'mentee'"
                             :mode="'osu'"
-                            :users="cycleOsuMentees"
                         />
                         <participant-list
-                            :group="'mentee'"
                             :mode="'taiko'"
-                            :users="cycleTaikoMentees"
                         />
                         <participant-list
-                            :group="'mentee'"
                             :mode="'catch'"
-                            :users="cycleCatchMentees"
                         />
                         <participant-list
-                            :group="'mentee'"
                             :mode="'mania'"
-                            :users="cycleManiaMentees"
                         />
                     </div>
                 </div>
@@ -97,14 +69,6 @@ export default defineComponent({
         ...mapGetters('mentorship', [
             'allCycles',
             'selectedCycle',
-            'cycleOsuMentors',
-            'cycleTaikoMentors',
-            'cycleCatchMentors',
-            'cycleManiaMentors',
-            'cycleOsuMentees',
-            'cycleTaikoMentees',
-            'cycleCatchMentees',
-            'cycleManiaMentees',
         ]),
     },
     watch: {

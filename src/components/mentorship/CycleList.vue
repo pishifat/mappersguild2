@@ -1,22 +1,37 @@
 <template>
     <div class="col-sm-3">
         <div class="text-center">
-            <b :class="cycles.length >= 4 && group == 'mentee' ? 'text-danger' : ''">{{ mode == 'osu' ? 'osu!' : 'osu!' + mode }} {{ group }} cycles ({{ cycles.length }})</b>
-            <div v-if="group == 'mentor'" class="text-secondary small">
-                {{ modeDuration }}
-            </div>
+            <b :class="modeMentorships.length >= 4 && group == 'mentee' ? 'text-danger' : ''">{{ mode == 'osu' ? 'osu!' : 'osu!' + mode }} {{ group }} cycles ({{ modeMentorships.length }})</b>
         </div>
         <ul>
-            <li v-for="cycle in cycles" :key="cycle.id">
-                <a :href="cycle.url" target="_blank">{{ cycle.number }} - {{ cycle.name }}</a>
+            <li v-for="mentorship in modeMentorships" :key="mentorship.id + mode">
+                <a :href="mentorship.cycle.url" target="_blank">{{ mentorship.cycle.number }}: {{ mentorship.cycle.name }}</a>
+                <span class="small text-secondary"> ({{ calculateDuration([mentorship]) }} days) </span>
+                <ul v-if="mentorship.mentor">
+                    <li class="small text-secondary">
+                        mentored by
+                        <user-link
+                            :user="mentorship.mentor"
+                        />
+                    </li>
+                </ul>
+                <ul v-if="group == 'mentor' && findRelevantMentees(mentorship.cycle.id).length">
+                    <li v-for="mentee in findRelevantMentees(mentorship.cycle.id)" :key="mentee.id + mode + mentorship.cycle.id" class="small text-secondary">
+                        mentor of
+                        <user-link
+                            :user="mentee"
+                        />
+                    </li>
+                </ul>
             </li>
         </ul>
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue';
-import { MentorshipCycle } from '@interfaces/mentorshipCycle';
+import { defineComponent } from 'vue';
+import { mapState } from 'vuex';
+import { User } from '@interfaces/user';
 
 export default defineComponent({
     name: 'CycleList',
@@ -29,29 +44,53 @@ export default defineComponent({
             type: String,
             default: '',
         },
-        cycles: {
-            type: Array as PropType<MentorshipCycle[]>,
-            required: true,
-        },
     },
     data () {
         return {
-            modeDuration: 0,
+            //modeDuration: 0,
         };
     },
+    computed: {
+        ...mapState('mentorship', [
+            'selectedUser',
+        ]),
+        modeMentorships(): any {
+            if (this.selectedUser.mentorships) {
+                return this.selectedUser.mentorships.filter(m => {
+                    if (m.group == this.group && m.mode == this.mode) {
+                        return true;
+                    }
+                });
+            }
+
+            return [];
+        },
+        modeDuration(): number {
+            return this.calculateDuration(this.modeMentorships);
+        },
+    },
     methods: {
-        calculateDuration() {
+        calculateDuration(mentorships): number {
             let duration = 0;
 
-            for (const cycle of this.cycles) {
-                if (new Date() > new Date(cycle.endDate)) {
-                    const difference = new Date(cycle.endDate).getTime() - new Date(cycle.startDate).getTime();
+            for (const mentorship of mentorships) {
+                if (new Date() > new Date(mentorship.cycle.endDate)) {
+                    const difference = new Date(mentorship.cycle.endDate).getTime() - new Date(mentorship.cycle.startDate).getTime();
                     const days = difference / (1000*60*60*24);
                     duration += days;
                 }
             }
 
-            this.modeDuration = duration;
+            return duration;
+        },
+        findRelevantMentees(cycleId): User[] {
+            return this.selectedUser.mentees.filter(m => {
+                for (const mentorship of m.mentorships) {
+                    if (mentorship.cycle.toString() == cycleId && mentorship.group == 'mentee' && mentorship.mode == this.mode) {
+                        return true;
+                    }
+                }
+            });
         },
     },
 });

@@ -8,17 +8,9 @@ const mentorshipCycleSchema = new Schema<MentorshipCycle>({
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
     url: { type: String },
-    osuMentors: [{ type: 'ObjectId', ref: 'User' }],
-    taikoMentors: [{ type: 'ObjectId', ref: 'User' }],
-    catchMentors: [{ type: 'ObjectId', ref: 'User' }],
-    maniaMentors: [{ type: 'ObjectId', ref: 'User' }],
-    osuMentees: [{ type: 'ObjectId', ref: 'User' }],
-    taikoMentees: [{ type: 'ObjectId', ref: 'User' }],
-    catchMentees: [{ type: 'ObjectId', ref: 'User' }],
-    maniaMentees: [{ type: 'ObjectId', ref: 'User' }],
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
-mentorshipCycleSchema.virtual('test', {
+mentorshipCycleSchema.virtual('participants', {
     ref: 'User',
     localField: '_id',
     foreignField: 'mentorships.cycle',

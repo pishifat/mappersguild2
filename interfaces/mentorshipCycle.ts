@@ -10,13 +10,5 @@ export interface MentorshipCycle extends Document {
     url: string;
 
     /** virtual field to populate */
-    osuMentors: User[];
-    taikoMentors: User[];
-    catchMentors: User[];
-    maniaMentors: User[];
-    osuMentees: User[];
-    taikoMentees: User[];
-    catchMentees: User[];
-    maniaMentees: User[];
-    test: User[];
+    participants: User[];
 }

@@ -19,7 +19,6 @@ const UserSchema = new Schema<User>({
         mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania'], required: true },
         group: { type: String, enum: ['mentor', 'mentee'], required: true },
         mentor: { type: 'ObjectId', ref: 'User' },
-        mentee: { type: 'ObjectId', ref: 'User' },
     }],
     rank: { type: Number, default: 0 },
     easyPoints: { type: Number, default: 0 },
@@ -89,6 +88,12 @@ UserSchema.virtual('mainMode').get(function(this: User) {
     modes.sort((a, b) => b.points - a.points);
 
     return modes[0].name;
+});
+
+UserSchema.virtual('mentees', {
+    ref: 'User',
+    localField: '_id',
+    foreignField: 'mentorships.mentor',
 });
 
 interface QueryHelpers {

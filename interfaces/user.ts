@@ -63,4 +63,5 @@ export interface User extends Document {
     pointsInfo: Record<string, any>;
     mainMode: Omit<BeatmapMode, BeatmapMode.Hybrid>;
     createdAt: Date;
+    mentees: User[];
 }
