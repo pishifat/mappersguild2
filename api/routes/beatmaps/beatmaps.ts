@@ -22,7 +22,6 @@ beatmapsRouter.get('/relevantInfo', async (req, res) => {
         .find({
             host: req.session?.mongoId,
             mode: res.locals.userRequest.mainMode,
-            status: { $ne: BeatmapStatus.Secret },
         })
         .defaultPopulate()
         .sortByLastest();
@@ -35,7 +34,7 @@ beatmapsRouter.get('/relevantInfo', async (req, res) => {
 
 /* GET map load from URL */
 beatmapsRouter.get('/searchOnLoad/:id', async (req, res) => {
-    const urlBeatmap = await BeatmapModel.findOne( { _id: req.params.id, status: { $ne: BeatmapStatus.Secret } }).defaultPopulate();
+    const urlBeatmap = await BeatmapModel.findOne( { _id: req.params.id }).defaultPopulate();
 
     if (!urlBeatmap) {
         return res.json({ error: 'Beatmap ID does not exist!' });
@@ -52,7 +51,6 @@ beatmapsRouter.get('/guestBeatmaps', async (req, res) => {
 
     const userBeatmaps = await BeatmapModel
         .find({
-            status: { $ne: BeatmapStatus.Secret },
             $or: [
                 {
                     tasks: {
@@ -84,7 +82,6 @@ beatmapsRouter.get('/search', async (req, res) => {
 
     const allBeatmapsQuery = BeatmapModel.find({
         host: { $ne: req.session?.mongoId },
-        status: { $ne: BeatmapStatus.Secret },
     });
 
     if (mode != 'any') {
@@ -94,7 +91,7 @@ beatmapsRouter.get('/search', async (req, res) => {
         ]);
     }
 
-    if (status && status !== BeatmapStatus.Secret) allBeatmapsQuery.where('status', status);
+    if (status) allBeatmapsQuery.where('status', status);
     if (quest) allBeatmapsQuery.exists('quest', false);
 
     // this actually returns every map, pretty dumb, need to fix somehow
@@ -213,34 +210,32 @@ beatmapsRouter.post('/:id/updateModder', async (req, res) => {
 
     res.json(b);
 
-    if (b.status !== BeatmapStatus.Secret) {
-        if (isAlreadyModder) {
-            LogModel.generate(
-                req.session?.mongoId,
-                `removed from modder list on "${b.song.artist} - ${b.song.title}"`,
-                LogCategory.Beatmap
-            );
-            NotificationModel.generate(
-                b._id,
-                `removed themself from the modder list of your mapset`,
-                b.host._id,
-                req.session?.mongoId,
-                b._id
-            );
-        } else {
-            LogModel.generate(
-                req.session?.mongoId,
-                `modded "${b.song.artist} - ${b.song.title}"`,
-                LogCategory.Beatmap
-            );
-            NotificationModel.generate(
-                b._id,
-                `modded your mapset`,
-                b.host._id,
-                req.session?.mongoId,
-                b._id
-            );
-        }
+    if (isAlreadyModder) {
+        LogModel.generate(
+            req.session?.mongoId,
+            `removed from modder list on "${b.song.artist} - ${b.song.title}"`,
+            LogCategory.Beatmap
+        );
+        NotificationModel.generate(
+            b._id,
+            `removed themself from the modder list of your mapset`,
+            b.host._id,
+            req.session?.mongoId,
+            b._id
+        );
+    } else {
+        LogModel.generate(
+            req.session?.mongoId,
+            `modded "${b.song.artist} - ${b.song.title}"`,
+            LogCategory.Beatmap
+        );
+        NotificationModel.generate(
+            b._id,
+            `modded your mapset`,
+            b.host._id,
+            req.session?.mongoId,
+            b._id
+        );
     }
 });
 
@@ -283,34 +278,32 @@ beatmapsRouter.post('/:id/updateBn', isValidBeatmap, async (req, res) => {
 
     res.json(updatedBeatmap);
 
-    if (updatedBeatmap.status !== BeatmapStatus.Secret) {
-        if (isAlreadyBn) {
-            LogModel.generate(
-                req.session?.mongoId,
-                `removed from Beatmap Nominator list on "${updatedBeatmap.song.artist} - ${updatedBeatmap.song.title}"`,
-                LogCategory.Beatmap
-            );
-            NotificationModel.generate(
-                updatedBeatmap._id,
-                `removed themself from the Beatmap Nominator list on your mapset`,
-                updatedBeatmap.host._id,
-                req.session?.mongoId,
-                updatedBeatmap._id
-            );
-        } else {
-            LogModel.generate(
-                req.session?.mongoId,
-                `added to Beatmap Nominator list on "${updatedBeatmap.song.artist} - ${updatedBeatmap.song.title}"`,
-                LogCategory.Beatmap
-            );
-            NotificationModel.generate(
-                updatedBeatmap._id,
-                `added themself to the Beatmap Nominator list on your mapset`,
-                updatedBeatmap.host._id,
-                req.session?.mongoId,
-                updatedBeatmap._id
-            );
-        }
+    if (isAlreadyBn) {
+        LogModel.generate(
+            req.session?.mongoId,
+            `removed from Beatmap Nominator list on "${updatedBeatmap.song.artist} - ${updatedBeatmap.song.title}"`,
+            LogCategory.Beatmap
+        );
+        NotificationModel.generate(
+            updatedBeatmap._id,
+            `removed themself from the Beatmap Nominator list on your mapset`,
+            updatedBeatmap.host._id,
+            req.session?.mongoId,
+            updatedBeatmap._id
+        );
+    } else {
+        LogModel.generate(
+            req.session?.mongoId,
+            `added to Beatmap Nominator list on "${updatedBeatmap.song.artist} - ${updatedBeatmap.song.title}"`,
+            LogCategory.Beatmap
+        );
+        NotificationModel.generate(
+            updatedBeatmap._id,
+            `added themself to the Beatmap Nominator list on your mapset`,
+            updatedBeatmap.host._id,
+            req.session?.mongoId,
+            updatedBeatmap._id
+        );
     }
 });
 

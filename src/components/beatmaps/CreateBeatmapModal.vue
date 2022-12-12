@@ -73,12 +73,12 @@
                             class="form-check-input"
                             type="radio"
                             :value="mode.value"
-                        >
+                        />
                         <label class="form-check-label" :for="mode.value">
                             {{ mode.name }}
                         </label>
                     </div>
-                    <br><small class="text-white-50">If you want a hybrid mapset, change this later.</small>
+                    <br /><small class="text-white-50">If you want a hybrid mapset, change this later.</small>
                 </div>
             </div>
 
@@ -98,7 +98,7 @@
                             class="form-check-input"
                             type="checkbox"
                             :value="task"
-                        >
+                        />
                         <label class="form-check-label" :for="task">
                             {{ task }}
                         </label>
@@ -107,7 +107,7 @@
             </div>
 
             <p>
-                Select one or more difficulties <i>you don't want anyone else to claim</i>. These can be changed later: <br>
+                Select one or more difficulties <i>you don't want anyone else to claim</i>. These can be changed later: <br />
                 <small class="text-white-50">For example, if you don't want any guest difficulties, you should mark everything.</small>
             </p>
             <div class="mb-3 row">
@@ -123,7 +123,7 @@
                             class="form-check-input"
                             type="checkbox"
                             :value="task"
-                        >
+                        />
                         <label class="form-check-label" :for="`lock-${task}`">
                             {{ task }}
                         </label>
@@ -146,16 +146,13 @@
 import { defineComponent } from 'vue';
 import { FeaturedSong } from '@interfaces/featuredSong';
 import { FeaturedArtist } from '@interfaces/featuredArtist';
-import { Beatmap } from '@interfaces/beatmap/beatmap';
+import { Beatmap, BeatmapStatus } from '@interfaces/beatmap/beatmap';
 import ModalDialog from '@components/ModalDialog.vue';
 
 export default defineComponent({
     name: 'CreateBeatmapModal',
     components: {
         ModalDialog,
-    },
-    props: {
-        isSecret: Boolean,
     },
     data () {
         return {
@@ -176,7 +173,7 @@ export default defineComponent({
         };
     },
     async created () {
-        const res: any = await this.$http.executeGet<FeaturedArtist[]>(`/featuredArtists/${this.isSecret ? 'showcase' : ''}`);
+        const res: any = await this.$http.executeGet<FeaturedArtist[]>(`/featuredArtists`);
 
         if (res) {
             this.featuredArtists = res.sort((a, b) => {
@@ -199,7 +196,7 @@ export default defineComponent({
             }
 
             e.target.disabled = true;
-            const res: any = await this.$http.executeGet<FeaturedSong[]>(`/featuredArtists/${this.selectedArtist}/${this.isSecret ? 'showcaseSongs' : 'songs'}`);
+            const res: any = await this.$http.executeGet<FeaturedSong[]>(`/featuredArtists/${this.selectedArtist}/songs`);
 
             if (res) {
                 this.featuredSongs = res.sort((a,b) => {
@@ -227,7 +224,7 @@ export default defineComponent({
                 tasks: this.checkedTasks,
                 tasksLocked: this.checkedLocks,
                 mode: this.selectedMode,
-                status: this.isSecret ? 'Secret' : 'WIP',
+                status: BeatmapStatus.WIP,
             }, e);
 
             if (!this.$http.isError(beatmap)) {

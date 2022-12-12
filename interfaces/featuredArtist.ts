@@ -42,4 +42,5 @@ export interface FeaturedArtist {
     hasRankedMaps: boolean;
     isMinor: boolean;
     isMonstercat: boolean;
+    referenceUrl: string;
 }

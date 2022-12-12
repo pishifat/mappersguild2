@@ -49,22 +49,20 @@ tasksRouter.post('/addTask/:mapId', isNotSpectator, isValidBeatmap, async (req, 
 
     res.json(beatmap);
 
-    if (beatmap.status !== BeatmapStatus.Secret) {
-        LogModel.generate(
-            req.session?.mongoId,
-            `added "${taskName}" difficulty to "${beatmap.song.artist} - ${beatmap.song.title}"`,
-            LogCategory.Beatmap
-        );
+    LogModel.generate(
+        req.session?.mongoId,
+        `added "${taskName}" difficulty to "${beatmap.song.artist} - ${beatmap.song.title}"`,
+        LogCategory.Beatmap
+    );
 
-        if (!isHost) {
-            NotificationModel.generate(
-                beatmap._id,
-                `added "${taskName}" difficulty to your mapset`,
-                beatmap.host._id,
-                req.session?.mongoId,
-                beatmap._id
-            );
-        }
+    if (!isHost) {
+        NotificationModel.generate(
+            beatmap._id,
+            `added "${taskName}" difficulty to your mapset`,
+            beatmap.host._id,
+            req.session?.mongoId,
+            beatmap._id
+        );
     }
 
 });
@@ -97,22 +95,20 @@ tasksRouter.post('/removeTask/:id', async (req, res) => {
 
     res.json(updatedBeatmap);
 
-    if (updatedBeatmap.status !== BeatmapStatus.Secret) {
-        LogModel.generate(
-            req.session?.mongoId,
-            `removed "${t.name}" from "${updatedBeatmap.song.artist} - ${updatedBeatmap.song.title}"`,
-            LogCategory.Beatmap
-        );
+    LogModel.generate(
+        req.session?.mongoId,
+        `removed "${t.name}" from "${updatedBeatmap.song.artist} - ${updatedBeatmap.song.title}"`,
+        LogCategory.Beatmap
+    );
 
-        if (updatedBeatmap.host.id != req.session?.mongoId) {
-            NotificationModel.generate(
-                updatedBeatmap._id,
-                `removed task "${t.name}" from your mapset`,
-                updatedBeatmap.host._id,
-                req.session?.mongoId,
-                updatedBeatmap._id
-            );
-        }
+    if (updatedBeatmap.host.id != req.session?.mongoId) {
+        NotificationModel.generate(
+            updatedBeatmap._id,
+            `removed task "${t.name}" from your mapset`,
+            updatedBeatmap.host._id,
+            req.session?.mongoId,
+            updatedBeatmap._id
+        );
     }
 });
 
@@ -199,15 +195,13 @@ tasksRouter.post('/task/:taskId/removeCollab', async (req, res) => {
 
     res.json(updatedB);
 
-    if (updatedB.status !== BeatmapStatus.Secret) {
-        LogModel.generate(
-            req.session?.mongoId,
-            `removed "${u.username}" from collab mapper of "${updatedTask.name}" on "${updatedB.song.artist} - ${
-                updatedB.song.title
-            }"`,
-            LogCategory.Beatmap
-        );
-    }
+    LogModel.generate(
+        req.session?.mongoId,
+        `removed "${u.username}" from collab mapper of "${updatedTask.name}" on "${updatedB.song.artist} - ${
+            updatedB.song.title
+        }"`,
+        LogCategory.Beatmap
+    );
 });
 
 /* POST set status of the task selected from extended view. */
@@ -238,22 +232,20 @@ tasksRouter.post('/setTaskStatus/:taskId', async (req, res) => {
 
     res.json(b);
 
-    if (b.status !== BeatmapStatus.Secret) {
-        LogModel.generate(
-            req.session?.mongoId,
-            `changed status of "${t.name}" on "${b.song.artist} - ${b.song.title}"`,
-            LogCategory.Beatmap
-        );
+    LogModel.generate(
+        req.session?.mongoId,
+        `changed status of "${t.name}" on "${b.song.artist} - ${b.song.title}"`,
+        LogCategory.Beatmap
+    );
 
-        if (b.host.id != req.session?.mongoId) {
-            NotificationModel.generate(
-                b._id,
-                `changed status of "${t.name}" on your mapset`,
-                b.host._id,
-                req.session?.mongoId,
-                b._id
-            );
-        }
+    if (b.host.id != req.session?.mongoId) {
+        NotificationModel.generate(
+            b._id,
+            `changed status of "${t.name}" on your mapset`,
+            b.host._id,
+            req.session?.mongoId,
+            b._id
+        );
     }
 });
 

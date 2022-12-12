@@ -8,7 +8,6 @@ import { TaskModel } from '../models/beatmap/task';
 import { Quest, QuestStatus } from '../../interfaces/quest';
 import { User } from '../../interfaces/user';
 import { UserGroup } from '../../interfaces/user';
-import { BeatmapStatus } from '../../interfaces/beatmap/beatmap';
 import { PartyModel } from '../models/party';
 
 const usersRouter = express.Router();
@@ -82,7 +81,6 @@ usersRouter.get('/findUserBeatmaps/:id', async (req, res) => {
 
     const userBeatmaps = await BeatmapModel
         .find({
-            status: { $ne: BeatmapStatus.Secret },
             $or: [
                 {
                     tasks: {

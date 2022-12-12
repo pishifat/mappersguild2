@@ -28,6 +28,13 @@ const store: Module<FeaturedArtistState, MainState> = {
                 featuredArtist.label = payload.name;
             }
         },
+        updateReferenceUrl (state, payload): void {
+            const featuredArtist = state.featuredArtists.find(f => f.id == payload.featuredArtistId);
+
+            if (featuredArtist) {
+                featuredArtist.referenceUrl = payload.referenceUrl;
+            }
+        },
         addSong (state, payload): void {
             const featuredArtist = state.featuredArtists.find(f => f.id == payload.featuredArtistId);
 

@@ -36,7 +36,7 @@
 import { defineComponent, PropType } from 'vue';
 import BeatmapInfo from '@components/beatmaps/beatmapInfo/BeatmapInfo.vue';
 import ModalDialog from '@components/ModalDialog.vue';
-import { Beatmap, BeatmapStatus } from '@interfaces/beatmap/beatmap';
+import { Beatmap } from '@interfaces/beatmap/beatmap';
 import QuestImg from '@components/beatmaps/QuestImg.vue';
 import ModesIcons from '@components/ModesIcons.vue';
 
@@ -56,7 +56,7 @@ export default defineComponent({
     watch: {
         selectedBeatmap(): void {
             if (this.selectedBeatmap && this.$route.query.id !== this.selectedBeatmap.id) {
-                this.$router.replace(`/${this.selectedBeatmap.status === BeatmapStatus.Secret ? 'showcase' : 'beatmaps'}?id=${this.selectedBeatmap.id}`);
+                this.$router.replace(`/beatmaps?id=${this.selectedBeatmap.id}`);
             }
         },
     },

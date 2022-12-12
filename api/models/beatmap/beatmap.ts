@@ -1,7 +1,7 @@
 import mongoose, { Document, Schema, DocumentQuery, Model } from 'mongoose';
 import { TaskMode, TaskName } from '../../../interfaces/beatmap/task';
 import { ActionType } from '../../../interfaces/invite';
-import { User, UserGroup } from '../../../interfaces/user';
+import { User } from '../../../interfaces/user';
 import { Beatmap as IBeatmap, BeatmapStatus } from '../../../interfaces/beatmap/beatmap';
 
 export interface Beatmap extends IBeatmap, Document {
@@ -21,7 +21,7 @@ export interface Beatmap extends IBeatmap, Document {
 const BeatmapSchema = new Schema<Beatmap>({
     song: { type: 'ObjectId', ref: 'FeaturedSong' },
     host: { type: 'ObjectId', ref: 'User', required: true },
-    status: { type: String, enum: ['WIP', 'Done', 'Qualified', 'Ranked', 'Secret'], default: 'WIP' },
+    status: { type: String, enum: ['WIP', 'Done', 'Qualified', 'Ranked'], default: 'WIP' },
     tasks: [{ type: 'ObjectId', ref: 'Task' }],
     tasksLocked: [{ type: String, enum: ['Easy', 'Normal', 'Hard', 'Insane', 'Expert', 'Storyboard'] }],
     modders: [{ type: 'ObjectId', ref: 'User' }],
@@ -125,10 +125,6 @@ BeatmapSchema.methods.checkTaskAvailability = async function (this: Beatmap, use
         if (task.mappers.some(m => m.id == user.id)) {
             throw new Error(`You're already a mapper on this task!`);
         }
-    }
-
-    if (this.status == BeatmapStatus.Secret && user.group !== UserGroup.Admin && user.group !== UserGroup.Secret) {
-        throw new Error('Cannot invite to non-showcase users!');
     }
 
     return true;

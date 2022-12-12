@@ -8,7 +8,6 @@ export enum BeatmapStatus {
     Done = 'Done',
     Qualified = 'Qualified',
     Ranked = 'Ranked',
-    Secret = 'Secret',
 }
 
 export enum BeatmapMode {

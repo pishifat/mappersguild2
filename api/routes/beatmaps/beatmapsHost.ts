@@ -40,22 +40,16 @@ beatmapsHostRouter.post('/:id/setMode', isValidBeatmap, isBeatmapHost, isNotSpec
 
     res.json(b);
 
-    if (b.status !== BeatmapStatus.Secret) {
-        LogModel.generate(
-            req.session?.mongoId,
-            `changed mode of "${b.song.artist} - ${b.song.title}" to "${req.body.mode}"`,
-            LogCategory.Beatmap
-        );
-    }
+    LogModel.generate(
+        req.session?.mongoId,
+        `changed mode of "${b.song.artist} - ${b.song.title}" to "${req.body.mode}"`,
+        LogCategory.Beatmap
+    );
 });
 
 /* POST set status of the beatmapset from extended view. */
 beatmapsHostRouter.post('/:id/setStatus', isValidBeatmap, isBeatmapHost, isNotSpectator, async (req, res) => {
     const validBeatmap: Beatmap = res.locals.beatmap;
-
-    if (validBeatmap.status == BeatmapStatus.Secret) {
-        return res.json({ error: 'Cannot change status of secret map!' });
-    }
 
     if (req.body.status == BeatmapStatus.Done) {
         if (validBeatmap.tasks.length == 0) {
@@ -97,10 +91,6 @@ beatmapsHostRouter.post('/:id/setStatus', isValidBeatmap, isBeatmapHost, isNotSp
 beatmapsHostRouter.post('/:id/linkQuest', isValidBeatmap, isBeatmapHost, isNotSpectator, async (req, res) => {
     let beatmap: Beatmap = res.locals.beatmap;
     const questId = req.body.questId;
-
-    if (beatmap.status === BeatmapStatus.Secret) {
-        return res.json({ error: 'Cannot add quest to secret beatmap!' });
-    }
 
     if (questId) {
         const quest = await QuestModel
@@ -174,13 +164,11 @@ beatmapsHostRouter.post('/:id/setLink', isValidBeatmap, isBeatmapHost, isNotSpec
 
     res.json(b);
 
-    if (b.status !== BeatmapStatus.Secret) {
-        LogModel.generate(
-            req.session?.mongoId,
-            `edited link on "${b.song.artist} - ${b.song.title}"`,
-            LogCategory.Beatmap
-        );
-    }
+    LogModel.generate(
+        req.session?.mongoId,
+        `edited link on "${b.song.artist} - ${b.song.title}"`,
+        LogCategory.Beatmap
+    );
 });
 
 /* POST locks task from extended view. */
@@ -201,13 +189,11 @@ beatmapsHostRouter.post('/:id/lockTask', isValidBeatmap, isBeatmapHost, isNotSpe
 
     res.json(b);
 
-    if (b.status !== BeatmapStatus.Secret) {
-        LogModel.generate(
-            req.session?.mongoId,
-            `locked claims for "${req.body.task}" on "${b.song.artist} - ${b.song.title}"`,
-            LogCategory.Beatmap
-        );
-    }
+    LogModel.generate(
+        req.session?.mongoId,
+        `locked claims for "${req.body.task}" on "${b.song.artist} - ${b.song.title}"`,
+        LogCategory.Beatmap
+    );
 });
 
 /* POST unlocks task from extended view. */
@@ -223,13 +209,11 @@ beatmapsHostRouter.post('/:id/unlockTask', isValidBeatmap, isBeatmapHost, isNotS
 
     res.json(b);
 
-    if (b.status !== BeatmapStatus.Secret) {
-        LogModel.generate(
-            req.session?.mongoId,
-            `unlocked claims for "${req.body.task}" on "${b.song.artist} - ${b.song.title}"`,
-            LogCategory.Beatmap
-        );
-    }
+    LogModel.generate(
+        req.session?.mongoId,
+        `unlocked claims for "${req.body.task}" on "${b.song.artist} - ${b.song.title}"`,
+        LogCategory.Beatmap
+    );
 });
 
 /* POST delete map */
@@ -243,13 +227,11 @@ beatmapsHostRouter.post('/:id/delete', isValidBeatmap, isBeatmapHost, isNotSpect
     await BeatmapModel.findByIdAndRemove(req.params.id);
     res.json(b);
 
-    if (b.status !== BeatmapStatus.Secret) {
-        LogModel.generate(
-            req.session?.mongoId,
-            `deleted "${b.song.artist} - ${b.song.title}"`,
-            LogCategory.Beatmap
-        );
-    }
+    LogModel.generate(
+        req.session?.mongoId,
+        `deleted "${b.song.artist} - ${b.song.title}"`,
+        LogCategory.Beatmap
+    );
 });
 
 export default beatmapsHostRouter;

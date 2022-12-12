@@ -96,7 +96,6 @@ const sendActionNotifications = cron.schedule('0 23 * * *', async () => { /* 4:0
 const setQualified = cron.schedule('0 18 * * *', async () => { /* 10:00 AM PST */
     const statusQuery = [
         { status: { $ne: BeatmapStatus.Ranked } },
-        { status: { $ne: BeatmapStatus.Secret } },
         { status: { $ne: BeatmapStatus.WIP } },
     ];
 

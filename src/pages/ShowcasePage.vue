@@ -1,40 +1,19 @@
 <template>
     <div>
         <div class="container card card-body py-3 mb-3">
-            <button
-                class="btn w-100 btn-outline-info"
-                href="#"
-                data-bs-toggle="modal"
-                data-bs-target="#addBeatmap"
-            >
-                Add beatmap <i class="fas fa-plus fa-xs" />
-            </button>
+            temp
         </div>
-
-        <showcase-beatmaps />
-
-        <!-- beatmap info modal -->
-        <edit-beatmap-modal :selected-beatmap="selectedBeatmap" />
-
-        <!-- create beatmap modal -->
-        <create-beatmap-modal :is-secret="true" />
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import CreateBeatmapModal from '@components/beatmaps/CreateBeatmapModal.vue';
-import ShowcaseBeatmaps from '@pages/beatmaps/ShowcaseBeatmaps.vue';
-import EditBeatmapModal from '@pages/beatmaps/EditBeatmapModal.vue';
 import beatmapsModule from '@store/beatmaps';
 import { mapState } from 'vuex';
 
 export default defineComponent({
     name: 'ShowcasePage',
     components: {
-        ShowcaseBeatmaps,
-        EditBeatmapModal,
-        CreateBeatmapModal,
     },
     computed: mapState('beatmaps', [
         'selectedBeatmap',

@@ -5,7 +5,6 @@ import { PartyModel } from '../models/party';
 import { BeatmapModel } from '../models/beatmap/beatmap';
 import { TaskModel } from '../models/beatmap/task';
 import { TaskName, TaskMode } from '../../interfaces/beatmap/task';
-import { BeatmapStatus } from '../../interfaces/beatmap/beatmap';
 import { InviteModel } from '../models/invite';
 import { NotificationModel } from '../models/notification';
 import { SpentPointsModel } from '../models/spentPoints';
@@ -137,20 +136,18 @@ invitesRouter.post('/:id/accept', async (req, res) => {
             notificationTargetId = beatmap._id;
         }
 
-        if (beatmap.status !== BeatmapStatus.Secret) {
-            LogModel.generate(
-                user.id,
-                logMessage,
-                LogCategory.Beatmap
-            );
-            NotificationModel.generate(
-                notificationTargetId,
-                notificationMessage,
-                invite.sender,
-                invite.recipient,
-                beatmap._id
-            );
-        }
+        LogModel.generate(
+            user.id,
+            logMessage,
+            LogCategory.Beatmap
+        );
+        NotificationModel.generate(
+            notificationTargetId,
+            notificationMessage,
+            invite.sender,
+            invite.recipient,
+            beatmap._id
+        );
     } else if (invite.actionType === ActionType.Join) {
         const party = await PartyModel.defaultFindByIdOrFail(invite.modified._id);
 

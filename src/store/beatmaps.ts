@@ -76,8 +76,7 @@ const store: Module<BeatmapsState, MainState> = {
             state.selectedBeatmap = beatmap;
         },
         addBeatmap (state, beatmap: Beatmap): void {
-            if (beatmap.status === BeatmapStatus.Secret) state.showcaseBeatmaps.unshift(beatmap);
-            else state.userBeatmaps.unshift(beatmap);
+            state.userBeatmaps.unshift(beatmap);
         },
         updateBeatmap (state, beatmap: Beatmap): void {
             let i = state.allBeatmaps.findIndex(b => b.id === beatmap.id);

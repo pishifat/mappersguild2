@@ -54,6 +54,18 @@
                         Save status
                     </button>
                 </p>
+                <p class="row">
+                    <input
+                        v-model="referenceUrl"
+                        class="form-control form-control-sm mx-2 w-50"
+                        type="text"
+                        autocomplete="off"
+                        placeholder="artist reference url..."
+                    />
+                    <button class="btn btn-sm btn-outline-info w-25" @click="updateReferenceUrl($event)">
+                        Save reference URL
+                    </button>
+                </p>
                 <hr />
                 <p class="row">
                     <select id="editSongSelection" v-model="selectedSong" class="form-select form-select-sm">
@@ -116,6 +128,7 @@ export default defineComponent({
             osuId: 0,
             name: '',
             status: '',
+            referenceUrl: '',
             selectedSong: null as null | FeaturedSong,
             artist: '',
             title: '',
@@ -135,6 +148,7 @@ export default defineComponent({
             this.osuId = this.featuredArtist.osuId;
             this.name = this.featuredArtist.label;
             this.status = this.featuredArtist.status;
+            this.referenceUrl = this.featuredArtist.referenceUrl;
             this.title = '';
         },
         selectedSong(): void {
@@ -187,6 +201,20 @@ export default defineComponent({
                 this.$store.commit('updateStatus', {
                     featuredArtistId: this.featuredArtist.id,
                     status,
+                });
+            }
+        },
+        async updateReferenceUrl(e): Promise<void> {
+            const referenceUrl = await this.$http.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/updateReferenceUrl`, { referenceUrl: this.referenceUrl }, e);
+
+            if (!this.$http.isError(referenceUrl)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated reference URL`,
+                    type: 'info',
+                });
+                this.$store.commit('updateReferenceUrl', {
+                    featuredArtistId: this.featuredArtist.id,
+                    referenceUrl,
                 });
             }
         },
