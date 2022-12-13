@@ -1,6 +1,7 @@
 import { UserModel } from '../models/user';
 import { UserGroup } from '../../interfaces/user';
 import { refreshToken, isOsuResponseError, getUserInfo } from './osuApi';
+import { FeaturedArtistModel } from '../models/featuredArtist';
 
 export function unauthorize(req, res) {
     if (req.accepts(['html', 'json']) === 'json') {
@@ -52,14 +53,6 @@ export function isAdmin(req, res, next): void {
     }
 }
 
-export function isSecret(req, res, next): void {
-    if (res.locals.userRequest.group == UserGroup.Secret || res.locals.userRequest.group == UserGroup.Admin) {
-        next();
-    } else {
-        unauthorize(req, res);
-    }
-}
-
 export function isMentorshipAdmin(req, res, next): void {
     if (res.locals.userRequest.isMentorshipAdmin || res.locals.userRequest.group == UserGroup.Admin) {
         next();
@@ -94,4 +87,25 @@ export async function isBn(accessToken): Promise<boolean> {
     }
 
     return false;
+}
+
+export async function canEditArtist(req, res, next): Promise<void> {
+    if (res.locals.userRequest.group == UserGroup.Admin || res.locals.userRequest.group == UserGroup.Secret) {
+        return next();
+    }
+
+    const id = req.params.id || req.params.artistId;
+
+    const artist = await FeaturedArtistModel
+        .findById(id)
+        .defaultPopulate()
+        .orFail();
+
+    const offeredUsersIds = artist.offeredUsers.map(u => u.id);
+
+    if (offeredUsersIds.includes(res.locals.userRequest.id)) {
+        next();
+    } else {
+        unauthorize(req, res);
+    }
 }

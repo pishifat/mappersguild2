@@ -2,6 +2,8 @@ import express from 'express';
 import { isLoggedIn, isAdmin, isSuperAdmin } from '../../helpers/middlewares';
 import { FeaturedArtistModel } from '../../models/featuredArtist';
 import { FeaturedSongModel } from '../../models/featuredSong';
+import { UserModel } from '../../models/user';
+import { User } from '../../../interfaces/user';
 
 const adminFeaturedArtistsRouter = express.Router();
 
@@ -9,13 +11,11 @@ adminFeaturedArtistsRouter.use(isLoggedIn);
 adminFeaturedArtistsRouter.use(isAdmin);
 adminFeaturedArtistsRouter.use(isSuperAdmin);
 
-const defaultPopulate = { path: 'songs', select: 'artist title' };
-
 /* GET featured artists */
 adminFeaturedArtistsRouter.get('/load', async (req, res) => {
     const featuredArtists = await FeaturedArtistModel
         .find({})
-        .populate(defaultPopulate)
+        .defaultPopulate()
         .sort({ osuId: 1, label: 1 });
 
     /* log artists who haven't had a ranked map in x timeframe. convert to more user friendly system
@@ -63,6 +63,44 @@ adminFeaturedArtistsRouter.post('/:id/updateReferenceUrl', async (req, res) => {
     await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { referenceUrl: req.body.referenceUrl }).orFail();
 
     res.json(req.body.referenceUrl);
+});
+
+/* POST update osz templates URL */
+adminFeaturedArtistsRouter.post('/:id/updateOszTemplatesUrl', async (req, res) => {
+    await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { oszTemplatesUrl: req.body.oszTemplatesUrl }).orFail();
+
+    res.json(req.body.oszTemplatesUrl);
+});
+
+/* POST update offered users for showcase mapping */
+adminFeaturedArtistsRouter.post('/:id/updateOfferedUsers', async (req, res) => {
+    let a;
+
+    if (!req.body.offeredUsers.length) {
+        a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { offeredUsers: [] });
+        a = await FeaturedArtistModel.findById(req.params.id).defaultPopulate();
+    } else {
+        const usersSplit: string[] = req.body.offeredUsers.split(',');
+
+        const userIds: User['_id'] = [];
+
+        for (const u of usersSplit) {
+            const user = await UserModel
+                .findOne()
+                .byUsernameOrOsuId(u);
+
+            if (!user) {
+                return res.json({ error: `Cannot find ${u}!` });
+            } else {
+                userIds.push(user._id);
+            }
+        }
+
+        await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { offeredUsers: userIds });
+        a = await FeaturedArtistModel.findById(req.params.id).defaultPopulate();
+    }
+
+    res.json(a.offeredUsers);
 });
 
 /* POST add song to artist */

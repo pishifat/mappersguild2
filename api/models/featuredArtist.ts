@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema, DocumentQuery, Model } from 'mongoose';
 import { FeaturedArtist as IFeaturedArtist } from '../../interfaces/featuredArtist';
 
 export interface FeaturedArtist extends IFeaturedArtist, Document {
@@ -13,7 +13,6 @@ const featuredArtistSchema = new Schema<FeaturedArtist>({
     songs: [{ type: 'ObjectId', ref: 'FeaturedSong' }],
     lastContacted: { type: Date },
     notes: { type: String },
-    showcaseMappers: [{ type: 'ObjectId', ref: 'User' }],
 
     // discussion
     isContacted: { type: Boolean },
@@ -39,9 +38,33 @@ const featuredArtistSchema = new Schema<FeaturedArtist>({
     hasRankedMaps: { type: Boolean },
     isMinor: { type: Boolean },
     isMonstercat: { type: Boolean },
+
+    // showcase mappers
     referenceUrl: { type: String },
+    oszTemplatesUrl: { type: String },
+    showcaseMappers: [{ type: 'ObjectId', ref: 'User' }],
+    offeredUsers: [{ type: 'ObjectId', ref: 'User' }],
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
-const FeaturedArtistModel = mongoose.model<FeaturedArtist>('FeaturedArtist', featuredArtistSchema);
+const queryHelpers = {
+    defaultPopulate<Q extends DocumentQuery<any, FeaturedArtist>>(this: Q) {
+        return this.populate([
+            { path: 'songs', select: 'artist title' },
+            { path: 'showcaseMappers', select: 'username osuId' },
+            { path: 'offeredUsers', select: 'username osuId' },
+            {
+                path: 'songs',
+                populate: {
+                    path: 'songShowcaseMappers',
+                    select: '_id osuId username',
+                },
+            },
+        ]);
+    },
+};
+
+featuredArtistSchema.query = queryHelpers;
+
+const FeaturedArtistModel = mongoose.model<FeaturedArtist, Model<FeaturedArtist, typeof queryHelpers>>('FeaturedArtist', featuredArtistSchema);
 
 export { FeaturedArtistModel };

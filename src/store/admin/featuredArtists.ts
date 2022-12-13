@@ -35,6 +35,20 @@ const store: Module<FeaturedArtistState, MainState> = {
                 featuredArtist.referenceUrl = payload.referenceUrl;
             }
         },
+        updateOszTemplatesUrl (state, payload): void {
+            const featuredArtist = state.featuredArtists.find(f => f.id == payload.featuredArtistId);
+
+            if (featuredArtist) {
+                featuredArtist.oszTemplatesUrl = payload.oszTemplatesUrl;
+            }
+        },
+        updateOfferedUsers (state, payload): void {
+            const featuredArtist = state.featuredArtists.find(f => f.id == payload.featuredArtistId);
+
+            if (featuredArtist) {
+                featuredArtist.offeredUsers = payload.offeredUsers;
+            }
+        },
         addSong (state, payload): void {
             const featuredArtist = state.featuredArtists.find(f => f.id == payload.featuredArtistId);
 

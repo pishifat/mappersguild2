@@ -60,6 +60,24 @@ export async function devWebhookPost(message: DiscordWebhookMessage[]): Promise<
     }
 }
 
+export async function showcaseWebhookPost(message: DiscordWebhookMessage[]): Promise<{ success: 'ok' } | typeof defaultErrorMessage > {
+    const url = `https://discordapp.com/api/webhooks/${config.showcaseWebhook.id}/${config.showcaseWebhook.token}`;
+
+    try {
+        const res = await Axios.post(url, {
+            embeds: message,
+        });
+
+        if (res?.data) {
+            return { success: 'ok' };
+        }
+
+        return defaultErrorMessage;
+    } catch (error) {
+        return defaultErrorMessage;
+    }
+}
+
 export async function externalWebhookPost(message: DiscordWebhookMessage[], type: string): Promise<{ success: 'ok' } | typeof defaultErrorMessage > {
     let id;
     let token;

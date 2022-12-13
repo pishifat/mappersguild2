@@ -8,7 +8,6 @@ import { MainState } from './main';
 interface BeatmapsState {
     allBeatmaps: Beatmap[];
     userBeatmaps: Beatmap[];
-    showcaseBeatmaps: Beatmap[];
     filterValue: string;
     filterMode: FilterMode;
     filterStatus: BeatmapStatus | 'any';
@@ -24,7 +23,6 @@ const store: Module<BeatmapsState, MainState> = {
     state: {
         allBeatmaps: [],
         userBeatmaps: [],
-        showcaseBeatmaps: [],
         filterValue: '',
         filterMode: FilterMode.any,
         filterStatus: 'any',
@@ -40,9 +38,6 @@ const store: Module<BeatmapsState, MainState> = {
         },
         setUserBeatmaps (state, beatmaps: Beatmap[]): void {
             state.userBeatmaps = beatmaps;
-        },
-        setShowcaseBeatmaps (state, beatmaps: Beatmap[]): void {
-            state.showcaseBeatmaps = beatmaps;
         },
         setFilterValue (state, value: string): void {
             state.filterValue = value;
@@ -84,9 +79,6 @@ const store: Module<BeatmapsState, MainState> = {
 
             i = state.userBeatmaps.findIndex(b => b.id === beatmap.id);
             if (i !== -1) state.userBeatmaps[i] = beatmap;
-
-            i = state.showcaseBeatmaps.findIndex(b => b.id === beatmap.id);
-            if (i !== -1) state.showcaseBeatmaps[i] = beatmap;
         },
         deleteBeatmap (state, beatmap: Beatmap): void {
             let i = state.allBeatmaps.findIndex(b => b.id === beatmap.id);
@@ -94,9 +86,6 @@ const store: Module<BeatmapsState, MainState> = {
 
             i = state.userBeatmaps.findIndex(b => b.id === beatmap.id);
             if (i !== -1) state.userBeatmaps.splice(i, 1);
-
-            i = state.showcaseBeatmaps.findIndex(b => b.id === beatmap.id);
-            if (i !== -1) state.showcaseBeatmaps.splice(i, 1);
         },
     },
     getters: {

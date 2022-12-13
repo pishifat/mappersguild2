@@ -12,12 +12,6 @@ artistsRouter.use(isLoggedIn);
 artistsRouter.use(isAdmin);
 
 // population
-const defaultPopulate = [
-    { path: 'songs', select: 'artist title' },
-    { path: 'showcaseMappers', select: 'username osuId' },
-];
-
-// population
 const defaultOsuBeatmapPopulate = [
     { path: 'featuredArtists', select: 'label osuId' },
 ];
@@ -25,7 +19,7 @@ const defaultOsuBeatmapPopulate = [
 artistsRouter.get('/relevantInfo', async (req, res) => {
     const a = await FeaturedArtistModel
         .find({})
-        .populate(defaultPopulate)
+        .defaultPopulate()
         .sort({ label: 1 });
 
     res.json({ artists: a, userId: req.session?.mongoId });
@@ -62,7 +56,7 @@ artistsRouter.post('/create', async (req, res) => {
 /* POST toggle isContacted */
 artistsRouter.post('/toggleIsContacted/:id', async (req, res) => {
     let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { isContacted: req.body.value });
-    a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
+    a = await FeaturedArtistModel.findById(req.params.id).defaultPopulate();
 
     res.json(a);
 });
@@ -70,7 +64,7 @@ artistsRouter.post('/toggleIsContacted/:id', async (req, res) => {
 /* POST toggle isResponded */
 artistsRouter.post('/toggleisResponded/:id', async (req, res) => {
     let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { isResponded: req.body.value });
-    a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
+    a = await FeaturedArtistModel.findById(req.params.id).defaultPopulate();
 
     res.json(a);
 });
@@ -78,7 +72,7 @@ artistsRouter.post('/toggleisResponded/:id', async (req, res) => {
 /* POST toggle tracksSelected */
 artistsRouter.post('/toggleTracksSelected/:id', async (req, res) => {
     let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { tracksSelected: req.body.value });
-    a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
+    a = await FeaturedArtistModel.findById(req.params.id).defaultPopulate();
 
     res.json(a);
 });
@@ -86,7 +80,7 @@ artistsRouter.post('/toggleTracksSelected/:id', async (req, res) => {
 /* POST toggle isRejected */
 artistsRouter.post('/toggleisRejected/:id', async (req, res) => {
     let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { isRejected: req.body.value });
-    a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
+    a = await FeaturedArtistModel.findById(req.params.id).defaultPopulate();
 
     res.json(a);
 });
@@ -94,7 +88,7 @@ artistsRouter.post('/toggleisRejected/:id', async (req, res) => {
 /* POST toggle contractSent */
 artistsRouter.post('/toggleContractSent/:id', async (req, res) => {
     let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { contractSent: req.body.value });
-    a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
+    a = await FeaturedArtistModel.findById(req.params.id).defaultPopulate();
 
     res.json(a);
 });
@@ -102,7 +96,7 @@ artistsRouter.post('/toggleContractSent/:id', async (req, res) => {
 /* POST toggle artistSigned */
 artistsRouter.post('/toggleArtistSigned/:id', async (req, res) => {
     let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { artistSigned: req.body.value });
-    a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
+    a = await FeaturedArtistModel.findById(req.params.id).defaultPopulate();
 
     res.json(a);
 });
@@ -110,7 +104,7 @@ artistsRouter.post('/toggleArtistSigned/:id', async (req, res) => {
 /* POST toggle ppyPaid */
 artistsRouter.post('/togglePpyPaid/:id', async (req, res) => {
     let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { ppyPaid: req.body.value });
-    a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
+    a = await FeaturedArtistModel.findById(req.params.id).defaultPopulate();
 
     res.json(a);
 });
@@ -118,7 +112,7 @@ artistsRouter.post('/togglePpyPaid/:id', async (req, res) => {
 /* POST toggle ppySigned */
 artistsRouter.post('/togglePpySigned/:id', async (req, res) => {
     let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { ppySigned: req.body.value });
-    a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
+    a = await FeaturedArtistModel.findById(req.params.id).defaultPopulate();
 
     res.json(a);
 });
@@ -126,7 +120,7 @@ artistsRouter.post('/togglePpySigned/:id', async (req, res) => {
 /* POST toggle songsTimed */
 artistsRouter.post('/toggleSongsTimed/:id', async (req, res) => {
     let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { songsTimed: req.body.value });
-    a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
+    a = await FeaturedArtistModel.findById(req.params.id).defaultPopulate();
 
     res.json(a);
 });
@@ -134,7 +128,7 @@ artistsRouter.post('/toggleSongsTimed/:id', async (req, res) => {
 /* POST toggle songsReceived */
 artistsRouter.post('/toggleSongsReceived/:id', async (req, res) => {
     let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { songsReceived: req.body.value });
-    a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
+    a = await FeaturedArtistModel.findById(req.params.id).defaultPopulate();
 
     res.json(a);
 });
@@ -142,7 +136,7 @@ artistsRouter.post('/toggleSongsReceived/:id', async (req, res) => {
 /* POST toggle assetsReceived */
 artistsRouter.post('/toggleAssetsReceived/:id', async (req, res) => {
     let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { assetsReceived: req.body.value });
-    a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
+    a = await FeaturedArtistModel.findById(req.params.id).defaultPopulate();
 
     res.json(a);
 });
@@ -150,7 +144,7 @@ artistsRouter.post('/toggleAssetsReceived/:id', async (req, res) => {
 /* POST toggle hasRankedMaps */
 artistsRouter.post('/toggleHasRankedMaps/:id', async (req, res) => {
     let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { hasRankedMaps: req.body.value });
-    a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
+    a = await FeaturedArtistModel.findById(req.params.id).defaultPopulate();
 
     res.json(a);
 });
@@ -158,7 +152,7 @@ artistsRouter.post('/toggleHasRankedMaps/:id', async (req, res) => {
 /* POST toggle isNotifiedOfRelease */
 artistsRouter.post('/toggleIsNotifiedOfRelease/:id', async (req, res) => {
     let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { isNotifiedOfRelease: req.body.value });
-    a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
+    a = await FeaturedArtistModel.findById(req.params.id).defaultPopulate();
 
     res.json(a);
 });
@@ -166,7 +160,7 @@ artistsRouter.post('/toggleIsNotifiedOfRelease/:id', async (req, res) => {
 /* POST toggle isMinor */
 artistsRouter.post('/toggleIsMinor/:id', async (req, res) => {
     let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { isMinor: req.body.value });
-    a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
+    a = await FeaturedArtistModel.findById(req.params.id).defaultPopulate();
 
     res.json(a);
 });
@@ -174,7 +168,7 @@ artistsRouter.post('/toggleIsMinor/:id', async (req, res) => {
 /* POST toggle isMonstercat */
 artistsRouter.post('/toggleIsMonstercat/:id', async (req, res) => {
     let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { isMonstercat: req.body.value });
-    a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
+    a = await FeaturedArtistModel.findById(req.params.id).defaultPopulate();
 
     res.json(a);
 });
@@ -194,7 +188,7 @@ artistsRouter.post('/toggleIsUpToDate/:id', async (req, res) => {
         hasRankedMaps: false,
         projectedRelease: undefined,
     });
-    a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
+    a = await FeaturedArtistModel.findById(req.params.id).defaultPopulate();
 
     res.json(a);
 });
@@ -202,7 +196,7 @@ artistsRouter.post('/toggleIsUpToDate/:id', async (req, res) => {
 /* POST update projectedRelease */
 artistsRouter.post('/updateProjectedRelease/:id', async (req, res) => {
     let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { projectedRelease: req.body.date });
-    a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
+    a = await FeaturedArtistModel.findById(req.params.id).defaultPopulate();
 
     res.json(a);
 });
@@ -210,7 +204,7 @@ artistsRouter.post('/updateProjectedRelease/:id', async (req, res) => {
 /* POST update projectedRelease */
 artistsRouter.post('/updateLastContacted/:id', async (req, res) => {
     let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { lastContacted: req.body.date });
-    a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
+    a = await FeaturedArtistModel.findById(req.params.id).defaultPopulate();
 
     res.json(a);
 });
@@ -218,7 +212,7 @@ artistsRouter.post('/updateLastContacted/:id', async (req, res) => {
 /* POST update notes */
 artistsRouter.post('/updateNotes/:id', async (req, res) => {
     let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { notes: req.body.notes });
-    a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
+    a = await FeaturedArtistModel.findById(req.params.id).defaultPopulate();
 
     res.json(a);
 });
@@ -229,7 +223,7 @@ artistsRouter.post('/updateShowcaseMappers/:id', async (req, res) => {
 
     if (!req.body.showcaseMappers.length) {
         await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { showcaseMappers: [] });
-        a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
+        a = await FeaturedArtistModel.findById(req.params.id).defaultPopulate();
     } else {
         const usersSplit: string[] = req.body.showcaseMappers.split(',');
 
@@ -248,7 +242,7 @@ artistsRouter.post('/updateShowcaseMappers/:id', async (req, res) => {
         }
 
         await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { showcaseMappers: userIds });
-        a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
+        a = await FeaturedArtistModel.findById(req.params.id).defaultPopulate();
     }
 
     res.json({ artist: a });
@@ -270,7 +264,7 @@ artistsRouter.post('/reset/:id', async (req, res) => {
         isUpToDate: false,
         projectedRelease: undefined,
     });
-    a = await FeaturedArtistModel.findById(req.params.id).populate(defaultPopulate);
+    a = await FeaturedArtistModel.findById(req.params.id).defaultPopulate();
 
     res.json(a);
 });
@@ -304,7 +298,7 @@ artistsRouter.post('/setAllAsRejected/', async (req, res) => {
 
     const a = await FeaturedArtistModel
         .find({})
-        .populate(defaultPopulate)
+        .defaultPopulate()
         .sort({ updatedAt: -1 });
 
     res.json(a);

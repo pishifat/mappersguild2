@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema, DocumentQuery, Model } from 'mongoose';
 import { FeaturedSong as IFeaturedSong } from '../../interfaces/featuredSong';
 
 export interface FeaturedSong extends IFeaturedSong, Document {
@@ -9,8 +9,19 @@ export interface FeaturedSong extends IFeaturedSong, Document {
 const featuredSongSchema = new Schema<FeaturedSong>({
     artist: { type: String, required: true },
     title: { type: String },
+    songShowcaseMappers: [{ type: 'ObjectId', ref: 'User' }],
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
-const FeaturedSongModel = mongoose.model<FeaturedSong>('FeaturedSong', featuredSongSchema);
+const queryHelpers = {
+    defaultPopulate<Q extends DocumentQuery<any, FeaturedSong>>(this: Q) {
+        return this.populate([
+            { path: 'songShowcaseMappers', select: 'username osuId' },
+        ]);
+    },
+};
+
+featuredSongSchema.query = queryHelpers;
+
+const FeaturedSongModel = mongoose.model<FeaturedSong, Model<FeaturedSong, typeof queryHelpers>>('FeaturedSong', featuredSongSchema);
 
 export { FeaturedSongModel };

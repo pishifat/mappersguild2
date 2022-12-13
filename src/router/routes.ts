@@ -55,7 +55,7 @@ const routes = [
     { path: '/admin/featuredArtists', component: AdminFeaturedArtists, meta: { title: 'Admin - FA' } },
     { path: '/admin/quests', component: AdminQuests, meta: { title: 'Admin - Quests' } },
     { path: '/admin/users', component: AdminUsers, meta: { title: 'Admin - Users' } },
-    { path: '/artists', component: Artists, meta: { title: 'Artists' } },
+    { path: '/artists', component: Artists, meta: { title: 'FA Schedule' } },
 
     // Other
     { path: '/showcase', component: Showcase, meta: { title: 'FA Showcase Beatmaps' } },

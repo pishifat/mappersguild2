@@ -7,6 +7,7 @@ const inviteError = 'Invite not sent: ';
 
 export async function isValidBeatmap(req: express.Request, res: express.Response, next: express.NextFunction): Promise<express.Response | void> {
     const id = req.params.id || req.params.mapId;
+
     const beatmap = await BeatmapModel
         .findById(id)
         .where('status')

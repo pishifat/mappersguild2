@@ -14,31 +14,34 @@
 
         <template #default>
             <div class="container">
-                <p class="row">
+                <h5>General</h5>
+                <div class="row mb-2 mx-1">
                     <input
                         v-model="osuId"
                         class="form-control form-control-sm mx-2 w-50"
                         type="text"
                         autocomplete="off"
                         placeholder="osu id..."
+                        @keyup.enter="updateOsuId($event)"
                     />
                     <button class="btn btn-sm btn-outline-info w-25" @click="updateOsuId($event)">
                         Save osu! ID
                     </button>
-                </p>
-                <p class="row">
+                </div>
+                <div class="row mb-2 mx-1">
                     <input
                         v-model="name"
                         class="form-control form-control-sm mx-2 w-50"
                         type="text"
                         autocomplete="off"
                         placeholder="artist name..."
+                        @keyup.enter="updateName($event)"
                     />
                     <button class="btn btn-sm btn-outline-info w-25" @click="updateName($event)">
                         Save name
                     </button>
-                </p>
-                <p class="row">
+                </div>
+                <div class="row mb-2 mx-1">
                     <select v-model="status" class="form-select form-select-sm w-50 mx-2">
                         <option value="public">
                             Public
@@ -53,46 +56,88 @@
                     <button class="btn btn-sm btn-outline-info w-25" @click="updateStatus($event)">
                         Save status
                     </button>
-                </p>
-                <p class="row">
+                </div>
+                <hr />
+                <h5>Showcase info</h5>
+                <div class="row mb-2 mx-1">
                     <input
                         v-model="referenceUrl"
                         class="form-control form-control-sm mx-2 w-50"
                         type="text"
                         autocomplete="off"
                         placeholder="artist reference url..."
+                        @keyup.enter="updateReferenceUrl($event)"
                     />
                     <button class="btn btn-sm btn-outline-info w-25" @click="updateReferenceUrl($event)">
                         Save reference URL
                     </button>
-                </p>
+                </div>
+                <div class="row mb-2 mx-1">
+                    <input
+                        v-model="oszTemplatesUrl"
+                        class="form-control form-control-sm mx-2 w-50"
+                        type="text"
+                        autocomplete="off"
+                        placeholder="osz templates url..."
+                        @keyup.enter="updateOszTemplatesUrl($event)"
+                    />
+                    <button class="btn btn-sm btn-outline-info w-25" @click="updateOszTemplatesUrl($event)">
+                        Save .osz templates URL
+                    </button>
+                </div>
+                <div class="row mb-2 mx-1">
+                    <input
+                        v-model="offeredUsers"
+                        class="form-control form-control-sm mx-2 w-50"
+                        type="text"
+                        autocomplete="off"
+                        placeholder="offered user usernames..."
+                        @keyup.enter="updateOfferedUsers($event)"
+                    />
+                    <button class="btn btn-sm btn-outline-info w-25" @click="updateOfferedUsers($event)">
+                        Save offered users
+                    </button>
+                </div>
+                <div v-if="featuredArtist.offeredUsers && featuredArtist.offeredUsers.length" class="small mx-4">
+                    offered:
+                    <user-link-list
+                        :users="featuredArtist.offeredUsers"
+                    />
+                </div>
+                <div v-if="featuredArtist.showcaseMappers && featuredArtist.showcaseMappers.length" class="small mx-4">
+                    showcase mappers:
+                    <user-link-list
+                        :users="featuredArtist.showcaseMappers"
+                    />
+                </div>
                 <hr />
-                <p class="row">
+                <h5>Songs</h5>
+                <div class="row mb-2 mx-2 w-50">
                     <select id="editSongSelection" v-model="selectedSong" class="form-select form-select-sm">
                         <option v-for="song in alphabeticalSongs" :key="song.id" :value="song">
                             {{ song.title }} --- ({{ song.artist }})
                         </option>
                     </select>
-                </p>
-                <p class="row">
+                </div>
+                <div class="row mb-2 mx-2">
                     <input
                         v-model="artist"
-                        class="form-control form-control-sm mx-2 w-75"
+                        class="form-control form-control-sm w-75"
                         type="text"
                         autocomplete="off"
                         placeholder="artist..."
                     />
-                </p>
-                <p class="row">
+                </div>
+                <div class="row mb-2 mx-2">
                     <input
                         v-model="title"
-                        class="form-control form-control-sm mx-2 w-75"
+                        class="form-control form-control-sm w-75"
                         type="text"
                         autocomplete="off"
                         placeholder="title..."
                     />
-                </p>
-                <p>
+                </div>
+                <div class="mx-1">
                     <button class="btn btn-sm btn-outline-info mx-1" @click="addSong($event)">
                         Add song
                     </button>
@@ -102,7 +147,7 @@
                     <button class="btn btn-sm btn-outline-danger mx-1" @click="deleteSong($event)">
                         Delete song
                     </button>
-                </p>
+                </div>
             </div>
         </template>
     </modal-dialog>
@@ -111,12 +156,16 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import ModalDialog from '@components/ModalDialog.vue';
-import { FeaturedArtist } from '../../../interfaces/featuredArtist';
-import { FeaturedSong } from '../../../interfaces/featuredSong';
+import { FeaturedArtist } from '@interfaces/featuredArtist';
+import { FeaturedSong } from '@interfaces/featuredSong';
+import UserLinkList from '@components/UserLinkList.vue';
 
 export default defineComponent({
     name: 'FeaturedArtistInfo',
-    components: { ModalDialog },
+    components: {
+        ModalDialog,
+        UserLinkList,
+    },
     props: {
         featuredArtist: {
             type: Object as () => FeaturedArtist,
@@ -129,6 +178,8 @@ export default defineComponent({
             name: '',
             status: '',
             referenceUrl: '',
+            oszTemplatesUrl: '',
+            offeredUsers: '',
             selectedSong: null as null | FeaturedSong,
             artist: '',
             title: '',
@@ -149,6 +200,8 @@ export default defineComponent({
             this.name = this.featuredArtist.label;
             this.status = this.featuredArtist.status;
             this.referenceUrl = this.featuredArtist.referenceUrl;
+            this.oszTemplatesUrl = this.featuredArtist.oszTemplatesUrl;
+            this.offeredUsers = this.generateUserListText(this.featuredArtist.offeredUsers);
             this.title = '';
         },
         selectedSong(): void {
@@ -159,6 +212,17 @@ export default defineComponent({
         },
     },
     methods: {
+        generateUserListText(users): string {
+            let text = '';
+
+            if (!users || !users.length) {
+                return text;
+            } else {
+                const usernames = users.map(u => u.username);
+
+                return usernames.join(', ');
+            }
+        },
         async updateOsuId(e): Promise<void> {
             const osuId = await this.$http.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/updateOsuId`, { osuId: this.osuId }, e);
 
@@ -215,6 +279,34 @@ export default defineComponent({
                 this.$store.commit('updateReferenceUrl', {
                     featuredArtistId: this.featuredArtist.id,
                     referenceUrl,
+                });
+            }
+        },
+        async updateOszTemplatesUrl(e): Promise<void> {
+            const oszTemplatesUrl = await this.$http.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/updateOszTemplatesUrl`, { oszTemplatesUrl: this.oszTemplatesUrl }, e);
+
+            if (!this.$http.isError(oszTemplatesUrl)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated osz templates URL`,
+                    type: 'info',
+                });
+                this.$store.commit('updateOszTemplatesUrl', {
+                    featuredArtistId: this.featuredArtist.id,
+                    oszTemplatesUrl,
+                });
+            }
+        },
+        async updateOfferedUsers(e): Promise<void> {
+            const offeredUsers = await this.$http.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/updateOfferedUsers`, { offeredUsers: this.offeredUsers }, e);
+
+            if (!this.$http.isError(offeredUsers)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated offered users`,
+                    type: 'info',
+                });
+                this.$store.commit('updateOfferedUsers', {
+                    featuredArtistId: this.featuredArtist.id,
+                    offeredUsers,
                 });
             }
         },

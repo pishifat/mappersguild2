@@ -16,7 +16,6 @@ export interface FeaturedArtist {
     songs: FeaturedSong[];
     lastContacted: Date;
     notes: string;
-    showcaseMappers: User[];
 
     // discussion
     isContacted: boolean;
@@ -42,5 +41,10 @@ export interface FeaturedArtist {
     hasRankedMaps: boolean;
     isMinor: boolean;
     isMonstercat: boolean;
+
+    // showcase mappers
     referenceUrl: string;
+    oszTemplatesUrl: string;
+    showcaseMappers: User[];
+    offeredUsers: User[];
 }
