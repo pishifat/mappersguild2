@@ -17,6 +17,10 @@
         "id": "",
         "token": ""
     },
+    "showcaseWebhook": {
+        "id": "",
+        "token": ""
+    },
     "regrazWebhook": {
         "id": "",
         "token": ""
