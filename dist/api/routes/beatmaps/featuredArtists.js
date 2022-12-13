@@ -14,24 +14,10 @@ featuredArtistsRouter.get('/', async (req, res) => {
     const featuredArtists = await featuredArtist_1.FeaturedArtistModel.find({ status: featuredArtist_2.FeaturedArtistStatus.Public });
     res.json(featuredArtists);
 });
-/* GET showcase artists for new map entry */
-featuredArtistsRouter.get('/showcase', middlewares_1.isSecret, async (req, res) => {
-    const featuredArtists = await featuredArtist_1.FeaturedArtistModel.find({ status: featuredArtist_2.FeaturedArtistStatus.Showcase });
-    res.json(featuredArtists);
-});
 /* GET songs for new map entry */
 featuredArtistsRouter.get('/:id/songs', async (req, res) => {
     const fa = await featuredArtist_1.FeaturedArtistModel
         .findOne({ _id: req.params.id, status: featuredArtist_2.FeaturedArtistStatus.Public })
-        .populate({ path: 'songs', select: 'artist title' })
-        .sort({ label: -1 })
-        .orFail();
-    res.json(fa.songs);
-});
-/* GET showcase songs for new map entry */
-featuredArtistsRouter.get('/:id/showcaseSongs', middlewares_1.isSecret, async (req, res) => {
-    const fa = await featuredArtist_1.FeaturedArtistModel
-        .findOne({ _id: req.params.id, status: featuredArtist_2.FeaturedArtistStatus.Showcase })
         .populate({ path: 'songs', select: 'artist title' })
         .sort({ label: -1 })
         .orFail();

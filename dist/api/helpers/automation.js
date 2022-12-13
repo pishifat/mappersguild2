@@ -85,7 +85,6 @@ const sendActionNotifications = node_cron_1.default.schedule('0 23 * * *', async
 const setQualified = node_cron_1.default.schedule('0 18 * * *', async () => {
     const statusQuery = [
         { status: { $ne: beatmap_2.BeatmapStatus.Ranked } },
-        { status: { $ne: beatmap_2.BeatmapStatus.Secret } },
         { status: { $ne: beatmap_2.BeatmapStatus.WIP } },
     ];
     const allBeatmaps = await beatmap_1.BeatmapModel

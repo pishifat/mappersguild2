@@ -42,11 +42,9 @@ tasksRouter.post('/addTask/:mapId', middlewares_1.isNotSpectator, middlewares_2.
         .defaultPopulate()
         .orFail();
     res.json(beatmap);
-    if (beatmap.status !== beatmap_2.BeatmapStatus.Secret) {
-        log_1.LogModel.generate(req.session?.mongoId, `added "${taskName}" difficulty to "${beatmap.song.artist} - ${beatmap.song.title}"`, log_2.LogCategory.Beatmap);
-        if (!isHost) {
-            notification_1.NotificationModel.generate(beatmap._id, `added "${taskName}" difficulty to your mapset`, beatmap.host._id, req.session?.mongoId, beatmap._id);
-        }
+    log_1.LogModel.generate(req.session?.mongoId, `added "${taskName}" difficulty to "${beatmap.song.artist} - ${beatmap.song.title}"`, log_2.LogCategory.Beatmap);
+    if (!isHost) {
+        notification_1.NotificationModel.generate(beatmap._id, `added "${taskName}" difficulty to your mapset`, beatmap.host._id, req.session?.mongoId, beatmap._id);
     }
 });
 /* POST delete task from extended view. */
@@ -72,11 +70,9 @@ tasksRouter.post('/removeTask/:id', async (req, res) => {
         .defaultPopulate()
         .orFail();
     res.json(updatedBeatmap);
-    if (updatedBeatmap.status !== beatmap_2.BeatmapStatus.Secret) {
-        log_1.LogModel.generate(req.session?.mongoId, `removed "${t.name}" from "${updatedBeatmap.song.artist} - ${updatedBeatmap.song.title}"`, log_2.LogCategory.Beatmap);
-        if (updatedBeatmap.host.id != req.session?.mongoId) {
-            notification_1.NotificationModel.generate(updatedBeatmap._id, `removed task "${t.name}" from your mapset`, updatedBeatmap.host._id, req.session?.mongoId, updatedBeatmap._id);
-        }
+    log_1.LogModel.generate(req.session?.mongoId, `removed "${t.name}" from "${updatedBeatmap.song.artist} - ${updatedBeatmap.song.title}"`, log_2.LogCategory.Beatmap);
+    if (updatedBeatmap.host.id != req.session?.mongoId) {
+        notification_1.NotificationModel.generate(updatedBeatmap._id, `removed task "${t.name}" from your mapset`, updatedBeatmap.host._id, req.session?.mongoId, updatedBeatmap._id);
     }
 });
 /* POST invite collab user to task. */
@@ -138,9 +134,7 @@ tasksRouter.post('/task/:taskId/removeCollab', async (req, res) => {
         .defaultPopulate()
         .orFail();
     res.json(updatedB);
-    if (updatedB.status !== beatmap_2.BeatmapStatus.Secret) {
-        log_1.LogModel.generate(req.session?.mongoId, `removed "${u.username}" from collab mapper of "${updatedTask.name}" on "${updatedB.song.artist} - ${updatedB.song.title}"`, log_2.LogCategory.Beatmap);
-    }
+    log_1.LogModel.generate(req.session?.mongoId, `removed "${u.username}" from collab mapper of "${updatedTask.name}" on "${updatedB.song.artist} - ${updatedB.song.title}"`, log_2.LogCategory.Beatmap);
 });
 /* POST set status of the task selected from extended view. */
 tasksRouter.post('/setTaskStatus/:taskId', async (req, res) => {
@@ -164,11 +158,9 @@ tasksRouter.post('/setTaskStatus/:taskId', async (req, res) => {
         .defaultPopulate()
         .orFail();
     res.json(b);
-    if (b.status !== beatmap_2.BeatmapStatus.Secret) {
-        log_1.LogModel.generate(req.session?.mongoId, `changed status of "${t.name}" on "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
-        if (b.host.id != req.session?.mongoId) {
-            notification_1.NotificationModel.generate(b._id, `changed status of "${t.name}" on your mapset`, b.host._id, req.session?.mongoId, b._id);
-        }
+    log_1.LogModel.generate(req.session?.mongoId, `changed status of "${t.name}" on "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
+    if (b.host.id != req.session?.mongoId) {
+        notification_1.NotificationModel.generate(b._id, `changed status of "${t.name}" on your mapset`, b.host._id, req.session?.mongoId, b._id);
     }
 });
 /* POST request added task*/

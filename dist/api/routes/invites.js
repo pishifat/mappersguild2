@@ -10,7 +10,6 @@ const party_1 = require("../models/party");
 const beatmap_1 = require("../models/beatmap/beatmap");
 const task_1 = require("../models/beatmap/task");
 const task_2 = require("../../interfaces/beatmap/task");
-const beatmap_2 = require("../../interfaces/beatmap/beatmap");
 const invite_1 = require("../models/invite");
 const notification_1 = require("../models/notification");
 const spentPoints_1 = require("../models/spentPoints");
@@ -111,10 +110,8 @@ invitesRouter.post('/:id/accept', async (req, res) => {
             notificationMessage = `accepted the invite to create a difficulty on your mapset`;
             notificationTargetId = beatmap._id;
         }
-        if (beatmap.status !== beatmap_2.BeatmapStatus.Secret) {
-            log_1.LogModel.generate(user.id, logMessage, log_2.LogCategory.Beatmap);
-            notification_1.NotificationModel.generate(notificationTargetId, notificationMessage, invite.sender, invite.recipient, beatmap._id);
-        }
+        log_1.LogModel.generate(user.id, logMessage, log_2.LogCategory.Beatmap);
+        notification_1.NotificationModel.generate(notificationTargetId, notificationMessage, invite.sender, invite.recipient, beatmap._id);
     }
     else if (invite.actionType === invite_2.ActionType.Join) {
         const party = await party_1.PartyModel.defaultFindByIdOrFail(invite.modified._id);

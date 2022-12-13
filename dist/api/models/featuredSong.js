@@ -24,6 +24,15 @@ const mongoose_1 = __importStar(require("mongoose"));
 const featuredSongSchema = new mongoose_1.Schema({
     artist: { type: String, required: true },
     title: { type: String },
+    songShowcaseMappers: [{ type: 'ObjectId', ref: 'User' }],
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
+const queryHelpers = {
+    defaultPopulate() {
+        return this.populate([
+            { path: 'songShowcaseMappers', select: 'username osuId' },
+        ]);
+    },
+};
+featuredSongSchema.query = queryHelpers;
 const FeaturedSongModel = mongoose_1.default.model('FeaturedSong', featuredSongSchema);
 exports.FeaturedSongModel = FeaturedSongModel;

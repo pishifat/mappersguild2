@@ -12,7 +12,6 @@ const spentPoints_1 = require("../models/spentPoints");
 const task_1 = require("../models/beatmap/task");
 const quest_2 = require("../../interfaces/quest");
 const user_2 = require("../../interfaces/user");
-const beatmap_2 = require("../../interfaces/beatmap/beatmap");
 const party_1 = require("../models/party");
 const usersRouter = express_1.default.Router();
 usersRouter.use(middlewares_1.isLoggedIn);
@@ -72,7 +71,6 @@ usersRouter.get('/findUserBeatmaps/:id', async (req, res) => {
         .select('_id');
     const userBeatmaps = await beatmap_1.BeatmapModel
         .find({
-        status: { $ne: beatmap_2.BeatmapStatus.Secret },
         $or: [
             {
                 tasks: {

@@ -28,7 +28,6 @@ const featuredArtistSchema = new mongoose_1.Schema({
     songs: [{ type: 'ObjectId', ref: 'FeaturedSong' }],
     lastContacted: { type: Date },
     notes: { type: String },
-    showcaseMappers: [{ type: 'ObjectId', ref: 'User' }],
     // discussion
     isContacted: { type: Boolean },
     isResponded: { type: Boolean },
@@ -50,6 +49,28 @@ const featuredArtistSchema = new mongoose_1.Schema({
     hasRankedMaps: { type: Boolean },
     isMinor: { type: Boolean },
     isMonstercat: { type: Boolean },
+    // showcase mappers
+    referenceUrl: { type: String },
+    oszTemplatesUrl: { type: String },
+    showcaseMappers: [{ type: 'ObjectId', ref: 'User' }],
+    offeredUsers: [{ type: 'ObjectId', ref: 'User' }],
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
+const queryHelpers = {
+    defaultPopulate() {
+        return this.populate([
+            { path: 'songs', select: 'artist title' },
+            { path: 'showcaseMappers', select: 'username osuId' },
+            { path: 'offeredUsers', select: 'username osuId' },
+            {
+                path: 'songs',
+                populate: {
+                    path: 'songShowcaseMappers',
+                    select: '_id osuId username',
+                },
+            },
+        ]);
+    },
+};
+featuredArtistSchema.query = queryHelpers;
 const FeaturedArtistModel = mongoose_1.default.model('FeaturedArtist', featuredArtistSchema);
 exports.FeaturedArtistModel = FeaturedArtistModel;

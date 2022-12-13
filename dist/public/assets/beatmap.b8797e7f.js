@@ -1,1 +1,0 @@
-var a,e,i,d;(e=a||(a={})).WIP="WIP",e.Done="Done",e.Qualified="Qualified",e.Ranked="Ranked",e.Secret="Secret",(d=i||(i={})).Osu="osu",d.Taiko="taiko",d.Catch="catch",d.Mania="mania",d.Hybrid="hybrid";export{i as B,a};

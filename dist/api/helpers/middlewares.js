@@ -1,9 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isBn = exports.isNotSpectator = exports.isSuperAdmin = exports.isMentorshipAdmin = exports.isSecret = exports.isAdmin = exports.isLoggedIn = exports.unauthorize = void 0;
+exports.canEditArtist = exports.isBn = exports.isNotSpectator = exports.isSuperAdmin = exports.isMentorshipAdmin = exports.isAdmin = exports.isLoggedIn = exports.unauthorize = void 0;
 const user_1 = require("../models/user");
 const user_2 = require("../../interfaces/user");
 const osuApi_1 = require("./osuApi");
+const featuredArtist_1 = require("../models/featuredArtist");
 function unauthorize(req, res) {
     if (req.accepts(['html', 'json']) === 'json') {
         res.json({ error: 'Unauthorized - May need to login first' });
@@ -49,15 +50,6 @@ function isAdmin(req, res, next) {
     }
 }
 exports.isAdmin = isAdmin;
-function isSecret(req, res, next) {
-    if (res.locals.userRequest.group == user_2.UserGroup.Secret || res.locals.userRequest.group == user_2.UserGroup.Admin) {
-        next();
-    }
-    else {
-        unauthorize(req, res);
-    }
-}
-exports.isSecret = isSecret;
 function isMentorshipAdmin(req, res, next) {
     if (res.locals.userRequest.isMentorshipAdmin || res.locals.userRequest.group == user_2.UserGroup.Admin) {
         next();
@@ -95,3 +87,21 @@ async function isBn(accessToken) {
     return false;
 }
 exports.isBn = isBn;
+async function canEditArtist(req, res, next) {
+    if (res.locals.userRequest.group == user_2.UserGroup.Admin || res.locals.userRequest.group == user_2.UserGroup.Secret) {
+        return next();
+    }
+    const id = req.params.id || req.params.artistId;
+    const artist = await featuredArtist_1.FeaturedArtistModel
+        .findById(id)
+        .defaultPopulate()
+        .orFail();
+    const offeredUsersIds = artist.offeredUsers.map(u => u.id);
+    if (offeredUsersIds.includes(res.locals.userRequest.id)) {
+        next();
+    }
+    else {
+        unauthorize(req, res);
+    }
+}
+exports.canEditArtist = canEditArtist;

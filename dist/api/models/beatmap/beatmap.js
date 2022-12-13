@@ -23,12 +23,11 @@ exports.BeatmapModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 const task_1 = require("../../../interfaces/beatmap/task");
 const invite_1 = require("../../../interfaces/invite");
-const user_1 = require("../../../interfaces/user");
 const beatmap_1 = require("../../../interfaces/beatmap/beatmap");
 const BeatmapSchema = new mongoose_1.Schema({
     song: { type: 'ObjectId', ref: 'FeaturedSong' },
     host: { type: 'ObjectId', ref: 'User', required: true },
-    status: { type: String, enum: ['WIP', 'Done', 'Qualified', 'Ranked', 'Secret'], default: 'WIP' },
+    status: { type: String, enum: ['WIP', 'Done', 'Qualified', 'Ranked'], default: 'WIP' },
     tasks: [{ type: 'ObjectId', ref: 'Task' }],
     tasksLocked: [{ type: String, enum: ['Easy', 'Normal', 'Hard', 'Insane', 'Expert', 'Storyboard'] }],
     modders: [{ type: 'ObjectId', ref: 'User' }],
@@ -114,9 +113,6 @@ BeatmapSchema.methods.checkTaskAvailability = async function (user, taskName, ta
         if (task.mappers.some(m => m.id == user.id)) {
             throw new Error(`You're already a mapper on this task!`);
         }
-    }
-    if (this.status == beatmap_1.BeatmapStatus.Secret && user.group !== user_1.UserGroup.Admin && user.group !== user_1.UserGroup.Secret) {
-        throw new Error('Cannot invite to non-showcase users!');
     }
     return true;
 };

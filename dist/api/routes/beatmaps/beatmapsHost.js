@@ -36,16 +36,11 @@ beatmapsHostRouter.post('/:id/setMode', middlewares_2.isValidBeatmap, middleware
         .defaultPopulate()
         .orFail();
     res.json(b);
-    if (b.status !== beatmap_2.BeatmapStatus.Secret) {
-        log_1.LogModel.generate(req.session?.mongoId, `changed mode of "${b.song.artist} - ${b.song.title}" to "${req.body.mode}"`, log_2.LogCategory.Beatmap);
-    }
+    log_1.LogModel.generate(req.session?.mongoId, `changed mode of "${b.song.artist} - ${b.song.title}" to "${req.body.mode}"`, log_2.LogCategory.Beatmap);
 });
 /* POST set status of the beatmapset from extended view. */
 beatmapsHostRouter.post('/:id/setStatus', middlewares_2.isValidBeatmap, middlewares_2.isBeatmapHost, middlewares_1.isNotSpectator, async (req, res) => {
     const validBeatmap = res.locals.beatmap;
-    if (validBeatmap.status == beatmap_2.BeatmapStatus.Secret) {
-        return res.json({ error: 'Cannot change status of secret map!' });
-    }
     if (req.body.status == beatmap_2.BeatmapStatus.Done) {
         if (validBeatmap.tasks.length == 0) {
             return res.json({ error: `You can't mark an empty mapset as complete!` });
@@ -74,9 +69,6 @@ beatmapsHostRouter.post('/:id/setStatus', middlewares_2.isValidBeatmap, middlewa
 beatmapsHostRouter.post('/:id/linkQuest', middlewares_2.isValidBeatmap, middlewares_2.isBeatmapHost, middlewares_1.isNotSpectator, async (req, res) => {
     let beatmap = res.locals.beatmap;
     const questId = req.body.questId;
-    if (beatmap.status === beatmap_2.BeatmapStatus.Secret) {
-        return res.json({ error: 'Cannot add quest to secret beatmap!' });
-    }
     if (questId) {
         const quest = await quest_1.QuestModel
             .findById(questId)
@@ -129,9 +121,7 @@ beatmapsHostRouter.post('/:id/setLink', middlewares_2.isValidBeatmap, middleware
         .defaultPopulate()
         .orFail();
     res.json(b);
-    if (b.status !== beatmap_2.BeatmapStatus.Secret) {
-        log_1.LogModel.generate(req.session?.mongoId, `edited link on "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
-    }
+    log_1.LogModel.generate(req.session?.mongoId, `edited link on "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
 });
 /* POST locks task from extended view. */
 beatmapsHostRouter.post('/:id/lockTask', middlewares_2.isValidBeatmap, middlewares_2.isBeatmapHost, middlewares_1.isNotSpectator, async (req, res) => {
@@ -146,9 +136,7 @@ beatmapsHostRouter.post('/:id/lockTask', middlewares_2.isValidBeatmap, middlewar
         .defaultPopulate()
         .orFail();
     res.json(b);
-    if (b.status !== beatmap_2.BeatmapStatus.Secret) {
-        log_1.LogModel.generate(req.session?.mongoId, `locked claims for "${req.body.task}" on "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
-    }
+    log_1.LogModel.generate(req.session?.mongoId, `locked claims for "${req.body.task}" on "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
 });
 /* POST unlocks task from extended view. */
 beatmapsHostRouter.post('/:id/unlockTask', middlewares_2.isValidBeatmap, middlewares_2.isBeatmapHost, middlewares_1.isNotSpectator, async (req, res) => {
@@ -160,9 +148,7 @@ beatmapsHostRouter.post('/:id/unlockTask', middlewares_2.isValidBeatmap, middlew
         .defaultPopulate()
         .orFail();
     res.json(b);
-    if (b.status !== beatmap_2.BeatmapStatus.Secret) {
-        log_1.LogModel.generate(req.session?.mongoId, `unlocked claims for "${req.body.task}" on "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
-    }
+    log_1.LogModel.generate(req.session?.mongoId, `unlocked claims for "${req.body.task}" on "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
 });
 /* POST delete map */
 beatmapsHostRouter.post('/:id/delete', middlewares_2.isValidBeatmap, middlewares_2.isBeatmapHost, middlewares_1.isNotSpectator, async (req, res) => {
@@ -172,8 +158,6 @@ beatmapsHostRouter.post('/:id/delete', middlewares_2.isValidBeatmap, middlewares
     }
     await beatmap_1.BeatmapModel.findByIdAndRemove(req.params.id);
     res.json(b);
-    if (b.status !== beatmap_2.BeatmapStatus.Secret) {
-        log_1.LogModel.generate(req.session?.mongoId, `deleted "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
-    }
+    log_1.LogModel.generate(req.session?.mongoId, `deleted "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
 });
 exports.default = beatmapsHostRouter;
