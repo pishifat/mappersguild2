@@ -41,6 +41,14 @@
                         :mode="'mania'"
                         :group="'mentor'"
                     />
+                    <cycle-list
+                        :mode="'modding'"
+                        :group="'mentor'"
+                    />
+                    <cycle-list
+                        :mode="'graduation'"
+                        :group="'mentor'"
+                    />
                 </div>
                 <div>
                     Mentee for <b>{{ totalMenteeDuration }} days</b> across all cycles and game modes
@@ -60,6 +68,14 @@
                     />
                     <cycle-list
                         :mode="'mania'"
+                        :group="'mentee'"
+                    />
+                    <cycle-list
+                        :mode="'modding'"
+                        :group="'mentee'"
+                    />
+                    <cycle-list
+                        :mode="'graduation'"
                         :group="'mentee'"
                     />
                 </div>

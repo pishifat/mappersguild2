@@ -1,6 +1,6 @@
 <template>
     <div class="col-sm-3">
-            <h5>{{ mode == 'osu' ? 'osu!' : 'osu!' + mode }}</h5>
+            <h5>{{ title }}</h5>
         <ol>
             <li v-for="user in modeMentors" :key="user.id + mode">
                 <user-link
@@ -74,7 +74,7 @@
                 </div>
             </li>
         </ol>
-        <div class="input-group">
+        <div class="input-group mb-3">
             <input
                 v-model="mentorInput"
                 class="form-control form-control-sm"
@@ -156,6 +156,15 @@ export default defineComponent({
 
                 return 0;
             });
+        },
+        title(): string {
+            if (this.mode == 'modding' || this.mode == 'graduation') {
+                return this.mode;
+            } else if (this.mode == 'osu') {
+                return 'osu!';
+            } else {
+                return 'osu!' + this.mode;
+            }
         },
     },
     beforeCreate () {

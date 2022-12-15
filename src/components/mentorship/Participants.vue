@@ -39,6 +39,12 @@
                         <participant-list
                             :mode="'mania'"
                         />
+                        <participant-list
+                            :mode="'modding'"
+                        />
+                        <participant-list
+                            :mode="'graduation'"
+                        />
                     </div>
                 </div>
             </div>

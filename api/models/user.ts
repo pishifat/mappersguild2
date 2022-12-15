@@ -16,7 +16,7 @@ const UserSchema = new Schema<User>({
     mentorships: [{
         _id: false,
         cycle: { type: 'ObjectId', ref: 'MentorshipCycle', required: true },
-        mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania'], required: true },
+        mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania', 'modding', 'graduation'], required: true }, // graduation = mentoring someone on how to mentor. stupid name
         group: { type: String, enum: ['mentor', 'mentee'], required: true },
         mentor: { type: 'ObjectId', ref: 'User' },
     }],

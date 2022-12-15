@@ -1,7 +1,7 @@
 <template>
     <div class="col-sm-3">
         <div class="text-center">
-            <b :class="modeMentorships.length >= 4 && group == 'mentee' ? 'text-danger' : ''">{{ mode == 'osu' ? 'osu!' : 'osu!' + mode }} {{ group }} cycles ({{ modeMentorships.length }})</b>
+            <b :class="modeMentorships.length >= 4 && group == 'mentee' ? 'text-danger' : ''">{{ title }} {{ group }} cycles ({{ modeMentorships.length }})</b>
         </div>
         <ul>
             <li v-for="mentorship in modeMentorships" :key="mentorship.id + mode">
@@ -45,11 +45,6 @@ export default defineComponent({
             default: '',
         },
     },
-    data () {
-        return {
-            //modeDuration: 0,
-        };
-    },
     computed: {
         ...mapState('mentorship', [
             'selectedUser',
@@ -67,6 +62,15 @@ export default defineComponent({
         },
         modeDuration(): number {
             return this.calculateDuration(this.modeMentorships);
+        },
+        title(): string {
+            if (this.mode == 'modding' || this.mode == 'graduation') {
+                return this.mode;
+            } else if (this.mode == 'osu') {
+                return 'osu!';
+            } else {
+                return 'osu!' + this.mode;
+            }
         },
     },
     methods: {
