@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getMaps = exports.beatmapsetInfo = exports.getUserInfo = exports.refreshToken = exports.getToken = exports.isOsuResponseError = void 0;
+exports.getMaps = exports.beatmapsetInfo = exports.getUserInfoFromId = exports.getUserInfo = exports.refreshToken = exports.getToken = exports.isOsuResponseError = void 0;
 const axios_1 = __importDefault(require("axios"));
 const querystring_1 = __importDefault(require("querystring"));
 const helpers_1 = require("./helpers");
@@ -72,6 +72,12 @@ async function getUserInfo(token) {
     return await executeRequest(options);
 }
 exports.getUserInfo = getUserInfo;
+async function getUserInfoFromId(id) {
+    const url = `https://osu.ppy.sh/api/get_user?k=${config_json_1.default.v1token}&u=${id}`;
+    const res = await axios_1.default.get(url);
+    return res.data[0];
+}
+exports.getUserInfoFromId = getUserInfoFromId;
 async function beatmapsetInfo(setId) {
     const url = `https://osu.ppy.sh/api/get_beatmaps?k=${config_json_1.default.v1token}&s=${setId}`;
     try {

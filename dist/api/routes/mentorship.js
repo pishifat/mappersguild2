@@ -6,7 +6,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const middlewares_1 = require("../helpers/middlewares");
 const user_1 = require("../models/user");
+const user_2 = require("../../interfaces/user");
 const mentorshipCycle_1 = require("../models/mentorshipCycle");
+const osuApi_1 = require("../helpers/osuApi");
 const mentorshipRouter = express_1.default.Router();
 mentorshipRouter.use(middlewares_1.isLoggedIn);
 mentorshipRouter.use(middlewares_1.isMentorshipAdmin);
@@ -146,13 +148,27 @@ mentorshipRouter.post('/addMentor', async (req, res) => {
             regexp = new RegExp('^' + userInput + '$', 'i');
         }
         user = await user_1.UserModel
-            .findOne({ username: regexp })
-            .orFail();
+            .findOne({ username: regexp });
     }
     else {
         user = await user_1.UserModel
-            .findOne({ osuId })
-            .orFail();
+            .findOne({ osuId });
+    }
+    if (!user) {
+        const userInfo = await osuApi_1.getUserInfoFromId(userInput);
+        if (!osuApi_1.isOsuResponseError(userInfo)) {
+            const osuId = parseInt(userInfo.user_id, 10);
+            const username = userInfo.username;
+            const group = user_2.UserGroup.Spectator;
+            const existingUser = await user_1.UserModel.findOne({ osuId });
+            if (!existingUser) { // in case mg search doesn't find a user, but osu does
+                user = new user_1.UserModel();
+                user.osuId = osuId;
+                user.username = username;
+                user.group = group;
+                await user.save();
+            }
+        }
     }
     const exists = user.mentorships.some(m => m.cycle.toString() == cycle.id && m.mode == mode);
     if (exists) {
@@ -187,13 +203,27 @@ mentorshipRouter.post('/addMentee', async (req, res) => {
             regexp = new RegExp('^' + userInput + '$', 'i');
         }
         user = await user_1.UserModel
-            .findOne({ username: regexp })
-            .orFail();
+            .findOne({ username: regexp });
     }
     else {
         user = await user_1.UserModel
-            .findOne({ osuId })
-            .orFail();
+            .findOne({ osuId });
+    }
+    if (!user) {
+        const userInfo = await osuApi_1.getUserInfoFromId(userInput);
+        if (!osuApi_1.isOsuResponseError(userInfo)) {
+            const osuId = parseInt(userInfo.user_id, 10);
+            const username = userInfo.username;
+            const group = user_2.UserGroup.Spectator;
+            const existingUser = await user_1.UserModel.findOne({ osuId });
+            if (!existingUser) { // in case mg search doesn't find a user, but osu does
+                user = new user_1.UserModel();
+                user.osuId = osuId;
+                user.username = username;
+                user.group = group;
+                await user.save();
+            }
+        }
     }
     const exists = user.mentorships.some(m => m.cycle.toString() == cycle.id && m.mode == mode);
     if (exists) {

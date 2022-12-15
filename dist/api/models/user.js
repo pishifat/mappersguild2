@@ -36,7 +36,7 @@ const UserSchema = new mongoose_1.Schema({
     mentorships: [{
             _id: false,
             cycle: { type: 'ObjectId', ref: 'MentorshipCycle', required: true },
-            mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania'], required: true },
+            mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania', 'modding', 'graduation'], required: true },
             group: { type: String, enum: ['mentor', 'mentee'], required: true },
             mentor: { type: 'ObjectId', ref: 'User' },
         }],
