@@ -112,7 +112,15 @@ export default defineComponent({
                 }
             });
 
-            return this.calculateDuration(mentorships);
+            const uniqueCycles = mentorships.reduce((unique, b) => {
+                if (!unique.some(a => a.cycle.id === b.cycle.id)) {
+                    unique.push(b);
+                }
+
+                return unique;
+            },[]);
+
+            return this.calculateDuration(uniqueCycles);
         },
         totalMenteeDuration(): number {
             const mentorships = this.selectedUser.mentorships.filter(m => {
@@ -121,7 +129,15 @@ export default defineComponent({
                 }
             });
 
-            return this.calculateDuration(mentorships);
+            const uniqueCycles = mentorships.reduce((unique, b) => {
+                if (!unique.some(a => a.cycle.id === b.cycle.id)) {
+                    unique.push(b);
+                }
+
+                return unique;
+            },[]);
+
+            return this.calculateDuration(uniqueCycles);
         },
     },
     beforeCreate () {
