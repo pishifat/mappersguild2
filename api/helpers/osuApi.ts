@@ -35,12 +35,13 @@ export interface OsuAuthResponse {
     ranked_and_approved_beatmapset_count: number;
 }
 
-export interface OsuChatMessageResponse {
-    id: number;
-    // fill in the rest when function is allowed
+export interface OsuApiV1UserResponse {
+    user_id: string,
+    username: string,
+    // don't care about anything else
 }
 
-export function isOsuResponseError(errorResponse: OsuBeatmapResponse | OsuBeatmapResponse[] | OsuAuthResponse | OsuChatMessageResponse | ErrorResponse): errorResponse is ErrorResponse {
+export function isOsuResponseError(errorResponse: OsuBeatmapResponse | OsuBeatmapResponse[] | OsuAuthResponse | OsuApiV1UserResponse | ErrorResponse): errorResponse is ErrorResponse {
     return (errorResponse as ErrorResponse).error !== undefined;
 }
 
@@ -109,6 +110,13 @@ export async function getUserInfo(token: string): Promise<OsuAuthResponse | Erro
     };
 
     return await executeRequest(options);
+}
+
+export async function getUserInfoFromId(id: string): Promise<OsuApiV1UserResponse | ErrorResponse> {
+    const url = `https://osu.ppy.sh/api/get_user?k=${config.v1token}&u=${id}`;
+    const res = await axios.get(url);
+
+    return res.data[0];
 }
 
 export async function beatmapsetInfo(setId: number): Promise<OsuBeatmapResponse | ErrorResponse> {

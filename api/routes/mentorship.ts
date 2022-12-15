@@ -1,7 +1,9 @@
 import express from 'express';
 import { isLoggedIn, isMentorshipAdmin } from '../helpers/middlewares';
 import { UserModel } from '../models/user';
+import { UserGroup } from '../../interfaces/user';
 import { MentorshipCycleModel } from '../models/mentorshipCycle';
+import { getUserInfoFromId, isOsuResponseError } from '../helpers/osuApi';
 
 const mentorshipRouter = express.Router();
 
@@ -172,12 +174,29 @@ mentorshipRouter.post('/addMentor', async (req, res) => {
         }
 
         user = await UserModel
-            .findOne({ username: regexp })
-            .orFail();
+            .findOne({ username: regexp });
     } else {
         user = await UserModel
-            .findOne({ osuId })
-            .orFail();
+            .findOne({ osuId });
+    }
+
+    if (!user) {
+        const userInfo = await getUserInfoFromId(userInput);
+
+        if (!isOsuResponseError(userInfo)) {
+            const osuId = parseInt(userInfo.user_id, 10);
+            const username = userInfo.username;
+            const group = UserGroup.Spectator;
+            const existingUser = await UserModel.findOne({ osuId });
+
+            if (!existingUser) { // in case mg search doesn't find a user, but osu does
+                user = new UserModel();
+                user.osuId = osuId;
+                user.username = username;
+                user.group = group;
+                await user.save();
+            }
+        }
     }
 
     const exists = user.mentorships.some(m => m.cycle.toString() == cycle.id && m.mode == mode);
@@ -223,12 +242,29 @@ mentorshipRouter.post('/addMentee', async (req, res) => {
         }
 
         user = await UserModel
-            .findOne({ username: regexp })
-            .orFail();
+            .findOne({ username: regexp });
     } else {
         user = await UserModel
-            .findOne({ osuId })
-            .orFail();
+            .findOne({ osuId });
+    }
+
+    if (!user) {
+        const userInfo = await getUserInfoFromId(userInput);
+
+        if (!isOsuResponseError(userInfo)) {
+            const osuId = parseInt(userInfo.user_id, 10);
+            const username = userInfo.username;
+            const group = UserGroup.Spectator;
+            const existingUser = await UserModel.findOne({ osuId });
+
+            if (!existingUser) { // in case mg search doesn't find a user, but osu does
+                user = new UserModel();
+                user.osuId = osuId;
+                user.username = username;
+                user.group = group;
+                await user.save();
+            }
+        }
     }
 
     const exists = user.mentorships.some(m => m.cycle.toString() == cycle.id && m.mode == mode);
