@@ -51,6 +51,12 @@ const queryHelpers = {
         return this.populate([
             { path: 'songs', select: 'artist title' },
             { path: 'showcaseMappers', select: 'username osuId' },
+        ]);
+    },
+    defaultPopulateWithSongs<Q extends DocumentQuery<any, FeaturedArtist>>(this: Q) {
+        return this.populate([
+            { path: 'songs', select: 'artist title' },
+            { path: 'showcaseMappers', select: 'username osuId' },
             { path: 'offeredUsers', select: 'username osuId' },
             {
                 path: 'songs',

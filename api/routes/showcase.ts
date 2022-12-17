@@ -26,7 +26,7 @@ showcaseRouter.get('/relevantInfo', async (req, res) => {
 
     const artists = await FeaturedArtistModel
         .find(query)
-        .defaultPopulate()
+        .defaultPopulateWithSongs()
         .sort({ label: 1 });
 
     res.json({
@@ -38,7 +38,7 @@ showcaseRouter.get('/relevantInfo', async (req, res) => {
 showcaseRouter.post('/addShowcaseMapper/:id', canEditArtist, async (req, res) => {
     let artist = await FeaturedArtistModel
         .findById(req.params.id)
-        .defaultPopulate()
+        .defaultPopulateWithSongs()
         .orFail();
 
     const mapperIds = artist.showcaseMappers.map(u => u.id);
@@ -52,7 +52,7 @@ showcaseRouter.post('/addShowcaseMapper/:id', canEditArtist, async (req, res) =>
 
     artist = await FeaturedArtistModel
         .findById(req.params.id)
-        .defaultPopulate()
+        .defaultPopulateWithSongs()
         .orFail();
 
     res.json(artist);
@@ -72,7 +72,7 @@ showcaseRouter.post('/addShowcaseMapper/:id', canEditArtist, async (req, res) =>
 showcaseRouter.post('/removeShowcaseMapper/:id', canEditArtist, async (req, res) => {
     let artist = await FeaturedArtistModel
         .findById(req.params.id)
-        .defaultPopulate()
+        .defaultPopulateWithSongs()
         .orFail();
 
     const mapperIds = artist.showcaseMappers.map(u => u.id);
@@ -105,7 +105,7 @@ showcaseRouter.post('/removeShowcaseMapper/:id', canEditArtist, async (req, res)
 
     artist = await FeaturedArtistModel
         .findById(req.params.id)
-        .defaultPopulate()
+        .defaultPopulateWithSongs()
         .orFail();
 
     res.json(artist);
@@ -126,7 +126,7 @@ showcaseRouter.post('/addSongShowcaseMapper/:artistId/:songId', canEditArtist, a
     const [artist, song] = await Promise.all([
         FeaturedArtistModel
             .findById(req.params.artistId)
-            .defaultPopulate()
+            .defaultPopulateWithSongs()
             .orFail(),
         FeaturedSongModel
             .findById(req.params.songId)
@@ -151,7 +151,7 @@ showcaseRouter.post('/addSongShowcaseMapper/:artistId/:songId', canEditArtist, a
 
     const newArtist = await FeaturedArtistModel
         .findById(req.params.artistId)
-        .defaultPopulate()
+        .defaultPopulateWithSongs()
         .orFail();
 
     res.json(newArtist);
@@ -186,7 +186,7 @@ showcaseRouter.post('/removeSongShowcaseMapper/:artistId/:songId', canEditArtist
 
     const artist = await FeaturedArtistModel
         .findById(req.params.artistId)
-        .defaultPopulate()
+        .defaultPopulateWithSongs()
         .orFail();
 
     res.json(artist);

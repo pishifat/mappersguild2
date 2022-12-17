@@ -15,7 +15,7 @@ adminFeaturedArtistsRouter.use(isSuperAdmin);
 adminFeaturedArtistsRouter.get('/load', async (req, res) => {
     const featuredArtists = await FeaturedArtistModel
         .find({})
-        .defaultPopulate()
+        .defaultPopulateWithSongs()
         .sort({ osuId: 1, label: 1 });
 
     /* log artists who haven't had a ranked map in x timeframe. convert to more user friendly system
@@ -78,7 +78,7 @@ adminFeaturedArtistsRouter.post('/:id/updateOfferedUsers', async (req, res) => {
 
     if (!req.body.offeredUsers.length) {
         a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { offeredUsers: [] });
-        a = await FeaturedArtistModel.findById(req.params.id).defaultPopulate();
+        a = await FeaturedArtistModel.findById(req.params.id).defaultPopulateWithSongs();
     } else {
         const usersSplit: string[] = req.body.offeredUsers.split(',');
 
@@ -97,7 +97,7 @@ adminFeaturedArtistsRouter.post('/:id/updateOfferedUsers', async (req, res) => {
         }
 
         await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { offeredUsers: userIds });
-        a = await FeaturedArtistModel.findById(req.params.id).defaultPopulate();
+        a = await FeaturedArtistModel.findById(req.params.id).defaultPopulateWithSongs();
     }
 
     res.json(a.offeredUsers);
