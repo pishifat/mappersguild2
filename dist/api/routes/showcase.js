@@ -25,8 +25,8 @@ showcaseRouter.get('/relevantInfo', async (req, res) => {
     }
     const artists = await featuredArtist_1.FeaturedArtistModel
         .find(query)
-        .defaultPopulate()
-        .sort({ label: -1 });
+        .defaultPopulateWithSongs()
+        .sort({ label: 1 });
     res.json({
         artists,
     });
@@ -35,7 +35,7 @@ showcaseRouter.get('/relevantInfo', async (req, res) => {
 showcaseRouter.post('/addShowcaseMapper/:id', middlewares_1.canEditArtist, async (req, res) => {
     let artist = await featuredArtist_1.FeaturedArtistModel
         .findById(req.params.id)
-        .defaultPopulate()
+        .defaultPopulateWithSongs()
         .orFail();
     const mapperIds = artist.showcaseMappers.map(u => u.id);
     if (mapperIds.includes(req.session.mongoId)) {
@@ -45,7 +45,7 @@ showcaseRouter.post('/addShowcaseMapper/:id', middlewares_1.canEditArtist, async
     await artist.save();
     artist = await featuredArtist_1.FeaturedArtistModel
         .findById(req.params.id)
-        .defaultPopulate()
+        .defaultPopulateWithSongs()
         .orFail();
     res.json(artist);
     discordApi_1.showcaseWebhookPost([{
@@ -62,7 +62,7 @@ showcaseRouter.post('/addShowcaseMapper/:id', middlewares_1.canEditArtist, async
 showcaseRouter.post('/removeShowcaseMapper/:id', middlewares_1.canEditArtist, async (req, res) => {
     let artist = await featuredArtist_1.FeaturedArtistModel
         .findById(req.params.id)
-        .defaultPopulate()
+        .defaultPopulateWithSongs()
         .orFail();
     const mapperIds = artist.showcaseMappers.map(u => u.id);
     const i = mapperIds.indexOf(req.session.mongoId);
@@ -87,7 +87,7 @@ showcaseRouter.post('/removeShowcaseMapper/:id', middlewares_1.canEditArtist, as
     await artist.save();
     artist = await featuredArtist_1.FeaturedArtistModel
         .findById(req.params.id)
-        .defaultPopulate()
+        .defaultPopulateWithSongs()
         .orFail();
     res.json(artist);
     discordApi_1.showcaseWebhookPost([{
@@ -105,7 +105,7 @@ showcaseRouter.post('/addSongShowcaseMapper/:artistId/:songId', middlewares_1.ca
     const [artist, song] = await Promise.all([
         featuredArtist_1.FeaturedArtistModel
             .findById(req.params.artistId)
-            .defaultPopulate()
+            .defaultPopulateWithSongs()
             .orFail(),
         featuredSong_1.FeaturedSongModel
             .findById(req.params.songId)
@@ -124,7 +124,7 @@ showcaseRouter.post('/addSongShowcaseMapper/:artistId/:songId', middlewares_1.ca
     await song.save();
     const newArtist = await featuredArtist_1.FeaturedArtistModel
         .findById(req.params.artistId)
-        .defaultPopulate()
+        .defaultPopulateWithSongs()
         .orFail();
     res.json(newArtist);
     discordApi_1.showcaseWebhookPost([{
@@ -152,7 +152,7 @@ showcaseRouter.post('/removeSongShowcaseMapper/:artistId/:songId', middlewares_1
     await song.save();
     const artist = await featuredArtist_1.FeaturedArtistModel
         .findById(req.params.artistId)
-        .defaultPopulate()
+        .defaultPopulateWithSongs()
         .orFail();
     res.json(artist);
     discordApi_1.showcaseWebhookPost([{

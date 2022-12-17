@@ -16,7 +16,7 @@ adminFeaturedArtistsRouter.use(middlewares_1.isSuperAdmin);
 adminFeaturedArtistsRouter.get('/load', async (req, res) => {
     const featuredArtists = await featuredArtist_1.FeaturedArtistModel
         .find({})
-        .defaultPopulate()
+        .defaultPopulateWithSongs()
         .sort({ osuId: 1, label: 1 });
     /* log artists who haven't had a ranked map in x timeframe. convert to more user friendly system
     for (let i = 0; i < featuredArtists.length; i++) {
@@ -65,7 +65,7 @@ adminFeaturedArtistsRouter.post('/:id/updateOfferedUsers', async (req, res) => {
     let a;
     if (!req.body.offeredUsers.length) {
         a = await featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { offeredUsers: [] });
-        a = await featuredArtist_1.FeaturedArtistModel.findById(req.params.id).defaultPopulate();
+        a = await featuredArtist_1.FeaturedArtistModel.findById(req.params.id).defaultPopulateWithSongs();
     }
     else {
         const usersSplit = req.body.offeredUsers.split(',');
@@ -82,7 +82,7 @@ adminFeaturedArtistsRouter.post('/:id/updateOfferedUsers', async (req, res) => {
             }
         }
         await featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { offeredUsers: userIds });
-        a = await featuredArtist_1.FeaturedArtistModel.findById(req.params.id).defaultPopulate();
+        a = await featuredArtist_1.FeaturedArtistModel.findById(req.params.id).defaultPopulateWithSongs();
     }
     res.json(a.offeredUsers);
 });
