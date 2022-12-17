@@ -27,7 +27,7 @@ showcaseRouter.get('/relevantInfo', async (req, res) => {
     const artists = await FeaturedArtistModel
         .find(query)
         .defaultPopulate()
-        .sort({ label: -1 });
+        .sort({ label: 1 });
 
     res.json({
         artists,

@@ -43,11 +43,6 @@
                                     FAQ
                                 </router-link>
                             </li>
-                            <li v-if="loggedInUser.isMentorshipAdmin" class="nav-item">
-                                <router-link class="nav-link" to="/mentorship">
-                                    Mentorship
-                                </router-link>
-                            </li>
                             <li class="nav-item dropdown">
                                 <a
                                     id="adminDropdown"
@@ -79,6 +74,21 @@
                                         </router-link>
                                     </li>
                                 </ul>
+                            </li>
+                            <li v-if="loggedInUser.isMentorshipAdmin" class="nav-item">
+                                <router-link class="nav-link" to="/mentorship">
+                                    Mentorship
+                                </router-link>
+                            </li>
+                            <li v-if="loggedInUser.group == 'secret' || loggedInUser.group == 'admin'" class="nav-item">
+                                <router-link class="nav-link" to="/showcase">
+                                    FA Showcase
+                                </router-link>
+                            </li>
+                            <li v-if="loggedInUser.osuId === 3178418" class="nav-item">
+                                <router-link class="nav-link" to="/artists">
+                                    FA Schedule
+                                </router-link>
                             </li>
                             <template v-if="loggedInUser.group === 'admin'">
                                 <li class="nav-item dropdown">
@@ -117,11 +127,6 @@
                                             </router-link>
                                         </li>
                                     </ul>
-                                </li>
-                                <li v-if="loggedInUser.osuId === 3178418" class="nav-item">
-                                    <router-link class="nav-link" to="/artists">
-                                        FA Schedule
-                                    </router-link>
                                 </li>
                             </template>
                         </ul>

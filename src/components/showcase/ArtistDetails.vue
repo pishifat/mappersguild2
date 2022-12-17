@@ -1,13 +1,15 @@
 <template>
     <div>
-        <a :href="'#' + artist.label" data-bs-toggle="collapse" :class="!artist.hasRankedMaps ? 'text-warning' : ''">
+        <a :href="'#' + artist.label.replace(/\s|[0-9]/g, '') + 'Artist'" data-bs-toggle="collapse" :class="!artist.hasRankedMaps ? 'text-warning' : ''">
             {{ artist.label }}
             <i class="fas fa-angle-down" />
         </a>
         —
-        <user-link-list
-            :users="artist.showcaseMappers"
-        />
+        <span class="small">
+            <user-link-list
+                :users="artist.showcaseMappers"
+            />
+        </span>
         <a
             v-if="artist.showcaseMappers && isShowcaseMapper"
             href="#"
@@ -26,7 +28,7 @@
             >
             add
         </a>
-        <div :id="artist.label" class="collapse">
+        <div :id="artist.label.replace(/\s|[0-9]/g, '') + 'Artist'" class="collapse">
             <div class="small ms-2">
                 <div v-if="artist.referenceUrl">
                     <a v-if="artist.referenceUrl" :href="artist.referenceUrl" target="_blank">{{ artist.referenceUrl }}</a>
