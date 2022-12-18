@@ -98,7 +98,7 @@ export async function canEditArtist(req, res, next): Promise<void> {
 
     const artist = await FeaturedArtistModel
         .findById(id)
-        .defaultPopulate()
+        .defaultPopulateWithSongs()
         .orFail();
 
     const offeredUsersIds = artist.offeredUsers.map(u => u.id);
