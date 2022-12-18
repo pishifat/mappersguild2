@@ -94,7 +94,7 @@ async function canEditArtist(req, res, next) {
     const id = req.params.id || req.params.artistId;
     const artist = await featuredArtist_1.FeaturedArtistModel
         .findById(id)
-        .defaultPopulate()
+        .defaultPopulateWithSongs()
         .orFail();
     const offeredUsersIds = artist.offeredUsers.map(u => u.id);
     if (offeredUsersIds.includes(res.locals.userRequest.id)) {
