@@ -19,8 +19,11 @@ showcaseRouter.get('/relevantInfo', async (req, res) => {
 
     if (!showAllShowcaseArtists) {
         query = {
+            $or: [
+                { offeredUsers: { $in: req.session.mongoId } },
+                { showcaseMappers: { $in: req.session.mongoId } },
+            ],
             status: FeaturedArtistStatus.Showcase,
-            offeredUsers: { $in: req.session.mongoId },
         };
     }
 

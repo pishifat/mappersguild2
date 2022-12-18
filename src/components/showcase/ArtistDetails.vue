@@ -48,6 +48,12 @@
                 <div v-else>
                     Deadline hasn't been set yet, but expect it to be within the next 4 months
                 </div>
+                <div v-if="artist.offeredUsers && artist.offeredUsers.length && loggedInUser.group == 'admin'">
+                    offered to
+                    <user-link-list
+                        :users="artist.offeredUsers"
+                    />
+                </div>
             </div>
             <ul>
                 <li v-for="song in artist.songs" :key="song.id" class="small text-secondary">
