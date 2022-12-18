@@ -102,8 +102,9 @@ export async function canEditArtist(req, res, next): Promise<void> {
         .orFail();
 
     const offeredUsersIds = artist.offeredUsers.map(u => u.id);
+    const showcaseMapperIds = artist.showcaseMappers.map(u => u.id);
 
-    if (offeredUsersIds.includes(res.locals.userRequest.id)) {
+    if (offeredUsersIds.includes(res.locals.userRequest.id) || showcaseMapperIds.includes(res.locals.userRequest.id)) {
         next();
     } else {
         unauthorize(req, res);
