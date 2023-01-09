@@ -14,7 +14,7 @@
 
         <div class="ms-2 mb-2">
             <a href="#judgingLeaderboard" data-bs-toggle="collapse" @click.prevent>
-                See judging leaderboard
+                See judging leaderboards
                 <i class="fas fa-angle-down" />
             </a>
             <judging-leaderboard
@@ -26,20 +26,6 @@
                 :judges-correl="judgesCorrel"
             />
         </div>
-
-        <div class="ms-2 mb-2">
-            <a href="#markdownJudgingLeaderboard" data-bs-toggle="collapse" @click.prevent>
-                See markdown judging leaderboard
-                <i class="fas fa-angle-down" />
-            </a>
-            <markdown-judging-leaderboard
-                id="markdownJudgingLeaderboard"
-                class="collapse"
-                :users-scores="usersScores"
-                :contest="contest"
-                :judge-count="judgeCount"
-            />
-        </div>
     </div>
 </template>
 
@@ -47,7 +33,6 @@
 import { defineComponent } from 'vue';
 import JudgingLeaderboard from './JudgingLeaderboard.vue';
 import JudgeStatuses from './JudgeStatuses.vue';
-import MarkdownJudgingLeaderboard from './MarkdownJudgingLeaderboard.vue';
 import { Contest } from '@interfaces/contest/contest';
 import { Submission } from '@interfaces/contest/submission';
 
@@ -55,7 +40,6 @@ export default defineComponent({
     name: 'JudgingResults',
     components: {
         JudgingLeaderboard,
-        MarkdownJudgingLeaderboard,
         JudgeStatuses,
     },
     props: {

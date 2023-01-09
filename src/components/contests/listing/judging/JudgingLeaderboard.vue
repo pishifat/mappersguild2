@@ -127,6 +127,92 @@
                 </table>
             </div>
         </div>
+
+        <!-- csv for copy paste. it's formatted stupidly to make spaces correct -->
+        <div>Spreadsheet</div>
+        <div class="small text-secondary">
+            <ol>
+                <li>
+                    Copy/paste the text below into a text editor
+                </li>
+                <li>
+                    Save the file with a <code>.csv</code> extension
+                </li>
+                <li>
+                    Import the file to Google Drive or Excel for an automatically formatted spreadsheet
+                </li>
+            </ol>
+        </div>
+        <copy-paste>
+            <div>
+                #,User,<span v-if="displayMode === 'criterias'">
+                    <span v-for="criteria in scoredCriteria" :key="criteria.id">
+                        {{ criteria.name + ',' }}
+                    </span>
+                </span><span v-else><span v-for="judge in judges" :key="judge.id">
+                        {{ judge.username + ',' }}
+                    </span></span>Final Score (raw),Final Score (standardized),
+            </div>
+            <div v-for="(score, i) in usersScores" :key="i">
+                {{ i+1 }},{{ score.creator.username }},<span v-if="displayMode === 'criterias'">
+                    <span v-for="criteria in scoredCriteria" :key="criteria.id">
+                        {{ getCriteriaScore(score, criteria.id) + ',' }}
+                    </span>
+                </span><span v-else>
+                    <span v-for="judge in judges" :key="judge.id">
+                        {{ getJudgeScore(score, judge.id, displayMode === 'detail') + ',' }}
+                    </span></span>{{ score.rawFinalScore }},{{ getFinalScore(score.standardizedFinalScore) }},
+            </div>
+        </copy-paste>
+
+        <div>Markdown</div>
+        <div class="small text-secondary">
+            Copy/paste this into any <code>.md</code> file
+        </div>
+        <copy-paste>
+        <div>
+            | Rank | User
+            <span v-if="displayMode === 'criterias'">
+                <span v-for="criteria in scoredCriteria" :key="criteria.id">
+                    | {{ criteria.name }}
+                </span>
+            </span>
+            <span v-else>
+                <span v-for="judge in judges" :key="judge.id">
+                    | {{ judge.username }}
+                </span>
+            </span>
+            | Final Score (raw) | Final Score (standardized) |
+        </div>
+        <div>
+            | :-- | :--
+            <span v-if="displayMode === 'criterias'">
+                <span v-for="criteria in scoredCriteria" :key="criteria.id">
+                    | :--
+                </span>
+            </span>
+            <span v-else>
+                <span v-for="judge in judges" :key="judge.id">
+                    | :--
+                </span>
+            </span>
+            | :-- | :-- |
+        </div>
+        <div v-for="(score, i) in usersScores" :key="i">
+            | {{ i+1 }} | {{ '[' + score.creator.username + '](' + score.creator.osuId + ')' }}
+            <span v-if="displayMode === 'criterias'">
+                <span v-for="criteria in scoredCriteria" :key="criteria.id">
+                    | {{ getCriteriaScore(score, criteria.id) }}
+                </span>
+            </span>
+            <span v-else>
+                <span v-for="judge in judges" :key="judge.id">
+                    | {{ getJudgeScore(score, judge.id, displayMode === 'detail') }}
+                </span>
+            </span>
+            | {{ score.rawFinalScore }} | {{ getFinalScore(score.standardizedFinalScore) }} |
+        </div>
+    </copy-paste>
     </div>
 </template>
 
@@ -137,9 +223,13 @@ import { UserScore, JudgeCorrel } from '@interfaces/contest/judging';
 import { Contest } from '@interfaces/contest/contest';
 import { Criteria } from '@interfaces/contest/criteria';
 import { User } from '@interfaces/user';
+import CopyPaste from '../../../CopyPaste.vue';
 
 export default defineComponent({
     name: 'JudgingLeaderboard',
+    components: {
+        CopyPaste,
+    },
     props: {
         contest: {
             type: Object as PropType<Contest>,
