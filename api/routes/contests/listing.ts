@@ -237,6 +237,18 @@ listingRouter.post('/:id/updateContestEnd', isContestCreator, isEditable, async 
     res.json(contest.contestEnd);
 });
 
+/* POST toggle isFeaturedArtistContest */
+listingRouter.post('/:id/toggleIsFeaturedArtistContest', isContestCreator, isEditable, async (req, res) => {
+    const contest = await ContestModel
+        .findById(req.params.id)
+        .orFail();
+
+    contest.isFeaturedArtistContest = !contest.isFeaturedArtistContest;
+    await contest.save();
+
+    res.json(contest.isFeaturedArtistContest);
+});
+
 /* POST update contest status */
 listingRouter.post('/:id/updateStatus', isContestCreator, isEditable, async (req, res) => {
     const contest = await ContestModel

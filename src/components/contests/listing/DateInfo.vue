@@ -9,7 +9,7 @@
                         class="ml-1 form-control"
                         type="date"
                         @keyup.enter="updateContestStart($event)"
-                    >
+                    />
                     <div class="input-group-append">
                         <button
                             class="btn btn-primary"
@@ -31,7 +31,7 @@
                         class="ml-1 form-control"
                         type="date"
                         @keyup.enter="updateContestEnd($event)"
-                    >
+                    />
                     <div class="input-group-append">
                         <button
                             class="btn btn-primary"

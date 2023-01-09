@@ -252,6 +252,29 @@ const store: Module<AdminState, MainState> = {
                 user.bypassLogin = payload.bypassLogin;
             }
         },
+
+        // contests
+        updateIsApproved (state, payload): void {
+            const contest = state.actionContests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                contest.isApproved = payload.isApproved;
+            }
+        },
+        updateIsFeaturedArtistContest (state, payload): void {
+            const contest = state.actionContests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                contest.isFeaturedArtistContest = payload.isFeaturedArtistContest;
+            }
+        },
+        updateIsEligibleForPoints (state, payload): void {
+            const contest = state.actionContests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                contest.isFeaturedArtistContest = payload.isFeaturedArtistContest;
+            }
+        },
     },
 };
 

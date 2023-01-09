@@ -33,6 +33,12 @@
                 :mode="contest.mode"
             />
 
+            <featured-artist-contest-toggle
+                class="mb-2"
+                :contest-id="contest.id"
+                :is-featured-artist-contest="contest.isFeaturedArtistContest"
+            />
+
             <date-info
                 class="mb-2"
                 :contest-id="contest.id"
@@ -42,10 +48,10 @@
 
             <urls
                 :contest-id="contest.id"
-                :url="contest.url || null"
-                :osu-contest-listing-url="contest.osuContestListingUrl || null"
-                :results-url="contest.resultsUrl || null"
-                :banner-url="contest.bannerUrl || null"
+                :url="contest.url || undefined"
+                :osu-contest-listing-url="contest.osuContestListingUrl || undefined"
+                :results-url="contest.resultsUrl || undefined"
+                :banner-url="contest.bannerUrl || undefined"
             />
 
             <description
@@ -280,6 +286,7 @@ import JudgingThreshold from './screening/JudgingThreshold.vue';
 import ScreeningVoteCount from './screening/ScreeningVoteCount.vue';
 import CriteriaSelection from './judging/CriteriaSelection.vue';
 import JudgingResults from './judging/JudgingResults.vue';
+import FeaturedArtistContestToggle from './FeaturedArtistContestToggle.vue';
 
 export default defineComponent({
     name: 'ContestInfo',
@@ -304,6 +311,7 @@ export default defineComponent({
         ScreeningVoteCount,
         CriteriaSelection,
         JudgingResults,
+        FeaturedArtistContestToggle,
     },
     props: {
         contest: {

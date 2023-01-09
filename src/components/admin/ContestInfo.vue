@@ -6,13 +6,32 @@
 
         <template #default>
             <div class="container">
-                <p>
-                    <button
-                        class="btn btn-sm btn-outline-info w-100"
-                        @click="toggleIsApproved($event)"
-                    >
-                        {{ contest.isApproved ? 'Disable' : 'Enable' }} public
-                        visibility
+                <p class="row">
+                    <span class="col-sm-6">
+                        Featured Artist contest:
+                        <span class="text-danger me-2">{{ contest.isFeaturedArtistContest ? 'true' : 'false' }}</span>
+                    </span>
+                    <button class="btn btn-sm btn-outline-info ms-3 w-25" @click="toggleIsFeaturedArtistContest($event)">
+                        Toggle
+                    </button>
+                </p>
+                <p class="row">
+                    <span class="col-sm-6">
+                        Eligible for points:
+                        <span class="text-danger me-2">{{ contest.isEligibleForPoints ? 'true' : 'false' }}</span>
+                    </span>
+                    <button class="btn btn-sm btn-outline-info ms-3 w-25" @click="toggleIsEligibleForPoints($event)">
+                        Toggle
+                    </button>
+                </p>
+                <hr />
+                <p class="row">
+                    <span class="col-sm-6">
+                        Publicly visible:
+                        <span class="text-danger me-2">{{ contest.isApproved ? 'true' : 'false' }}</span>
+                    </span>
+                    <button class="btn btn-sm btn-outline-info ms-3 w-25" @click="toggleIsApproved($event)">
+                        Toggle
                     </button>
                 </p>
             </div>
@@ -52,6 +71,42 @@ export default defineComponent({
                 this.$store.commit('updateIsApproved', {
                     contestId: this.contest.id,
                     isApproved: res.isApproved,
+                });
+            }
+        },
+        async toggleIsFeaturedArtistContest(e): Promise<void> {
+            const res: any = await this.$http.executePost(
+                `/admin/contests/${this.contest.id}/toggleIsFeaturedArtistContest`,
+                { isFeaturedArtistContest: !this.contest.isFeaturedArtistContest },
+                e
+            );
+
+            if (res) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `set isFeaturedArtistContest to ${res.isFeaturedArtistContest}`,
+                    type: 'info',
+                });
+                this.$store.commit('updateIsFeaturedArtistContest', {
+                    contestId: this.contest.id,
+                    isFeaturedArtistContest: res.isFeaturedArtistContest,
+                });
+            }
+        },
+        async toggleIsEligibleForPoints(e): Promise<void> {
+            const res: any = await this.$http.executePost(
+                `/admin/contests/${this.contest.id}/toggleIsEligibleForPoints`,
+                { isEligibleForPoints: !this.contest.isEligibleForPoints },
+                e
+            );
+
+            if (res) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `set isEligibleForPoints to ${res.isEligibleForPoints}`,
+                    type: 'info',
+                });
+                this.$store.commit('updateIsEligibleForPoints', {
+                    contestId: this.contest.id,
+                    isEligibleForPoints: res.isEligibleForPoints,
                 });
             }
         },

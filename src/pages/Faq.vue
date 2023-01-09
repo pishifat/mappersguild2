@@ -107,7 +107,7 @@
                                 type="text"
                                 placeholder="request to... (optional)"
                                 maxlength="18"
-                            >
+                            />
                             while adding a new difficulty. Invites bypass task locks.
                         </p>
 
@@ -127,7 +127,7 @@
                         </p>
 
                         <h5>What do the difficulty icons mean?</h5>
-                        <img class="rounded mb-2" src="/images/faq/diffcolors.png" style="max-width: 100px; heigth: auto">
+                        <img class="rounded mb-2" src="/images/faq/diffcolors.png" style="max-width: 100px; heigth: auto" />
                         <p class="text-secondary">
                             Letters indicate the type of difficulty. E stands for Easy, N for Normal, etc.
                         </p>

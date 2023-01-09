@@ -161,7 +161,7 @@ export default defineComponent({
 
             if (points) {
                 this.$store.dispatch('updateToastMessages', {
-                    message: `calculated points: ${points}`,
+                    message: `calculated points`,
                     type: 'info',
                 });
             }

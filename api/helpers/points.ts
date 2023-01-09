@@ -121,13 +121,14 @@ interface TasksPoints {
     QuestReward: number;
 }
 
-interface MbcPoints {
+interface ContestPoints {
+    ContestCreator: number;
     ContestParticipant: number;
     ContestScreener: number;
     ContestJudge: number;
 }
 
-export async function getUserRank(userId: any, tasksPoints: TasksPoints, modPoints: number, hostPoints: number, mbcPoints: MbcPoints): Promise<{ rank: number; totalPoints: number }> {
+export async function getUserRank(userId: any, tasksPoints: TasksPoints, modPoints: number, hostPoints: number, contestPoints: ContestPoints): Promise<{ rank: number; totalPoints: number }> {
     const user = await UserModel.findById(userId).orFail();
     const totalPoints = tasksPoints.Easy +
         tasksPoints.Normal +
@@ -138,9 +139,9 @@ export async function getUserRank(userId: any, tasksPoints: TasksPoints, modPoin
         tasksPoints.QuestReward +
         modPoints +
         hostPoints +
-        mbcPoints.ContestParticipant +
-        mbcPoints.ContestScreener +
-        mbcPoints.ContestJudge +
+        contestPoints.ContestParticipant +
+        contestPoints.ContestScreener +
+        contestPoints.ContestJudge +
         (user.legacyPoints || 0);
 
     let rank = 0;
@@ -289,24 +290,33 @@ export async function calculateSpentPoints(userId: any): Promise<number> {
     return total;
 }
 
-export async function calculateMbcPoints(userId: any): Promise<MbcPoints> {
+export async function calculateContestPoints(userId: any): Promise<ContestPoints> {
     /**
-     * MBC they submitted entries to
-     * MBC they screened
-     * MBC they judged
+     * FA contests they created
+     * FA contests they submitted entries to
+     * FA contests they screened
+     * FA contests they judged
      */
-    const [submissions, screenedContests, judgedContests] = await Promise.all([
+    const [createdContests, submissions, screenedContests, judgedContests] = await Promise.all([
+        ContestModel.countDocuments({
+            creators: userId,
+            isFeaturedArtistContest: true,
+            isEligibleForPoints: true,
+            status: ContestStatus.Complete,
+        }),
         SubmissionModel
             .find({ creator: userId })
-            .populate({ path: 'contest', select: 'name' }),
+            .populate({ path: 'contest', select: 'isFeaturedArtistContest isEligibleForPoints' }),
         ContestModel.countDocuments({
             screeners: userId,
-            name: { $regex: 'Monthly Beatmapping Contest' },
+            isFeaturedArtistContest: true,
+            isEligibleForPoints: true,
             status: ContestStatus.Complete,
         }),
         ContestModel.countDocuments({
             judges: userId,
-            name: { $regex: 'Monthly Beatmapping Contest' },
+            isFeaturedArtistContest: true,
+            isEligibleForPoints: true,
             status: ContestStatus.Complete,
         }),
     ]);
@@ -314,13 +324,14 @@ export async function calculateMbcPoints(userId: any): Promise<MbcPoints> {
     let relevantSubmissionCount = 0;
 
     for (const submission of submissions) {
-        if (submission.contest.name.includes('Monthly Beatmapping Contest')) {
+        if (submission.contest.isFeaturedArtistContest && submission.contest.isEligibleForPoints) {
             relevantSubmissionCount++;
         }
     }
 
     return {
-        ContestParticipant: relevantSubmissionCount * 5, // 5 points per entry
+        ContestCreator: createdContests * 5, // 5 points per contest hosted
+        ContestParticipant: relevantSubmissionCount * 3, // 3 points per entry
         ContestScreener: screenedContests, // 1 point per screening
         ContestJudge: judgedContests, // 1 point per judging
     };
@@ -334,15 +345,15 @@ function demicalRound(value: number): number {
  * @returns Total points
  */
 export async function updateUserPoints(userId: any): Promise<number | ErrorResponse> {
-    const [taskPoints, modPoints, hostPoints, spentPoints, mbcPoints] = await Promise.all([
+    const [taskPoints, modPoints, hostPoints, spentPoints, contestPoints] = await Promise.all([
         calculateTasksPoints(userId),
         calculateModPoints(userId),
         calculateHostPoints(userId),
         calculateSpentPoints(userId),
-        calculateMbcPoints(userId),
+        calculateContestPoints(userId),
     ]);
 
-    const { rank, totalPoints } = await getUserRank(userId, taskPoints, modPoints, hostPoints, mbcPoints);
+    const { rank, totalPoints } = await getUserRank(userId, taskPoints, modPoints, hostPoints, contestPoints);
 
     await UserModel.findByIdAndUpdate(userId, {
         // Tasks
@@ -363,10 +374,11 @@ export async function updateUserPoints(userId: any): Promise<number | ErrorRespo
         questPoints: taskPoints['QuestReward'],
         completedQuests: taskPoints['Quests'],
 
-        // MBC
-        contestParticipantPoints: mbcPoints.ContestParticipant,
-        contestScreenerPoints: mbcPoints.ContestScreener,
-        contestJudgePoints: mbcPoints.ContestJudge,
+        // FA Contests
+        contestCreatorPoints: contestPoints.ContestCreator,
+        contestParticipantPoints: contestPoints.ContestParticipant,
+        contestScreenerPoints: contestPoints.ContestScreener,
+        contestJudgePoints: contestPoints.ContestJudge,
 
         // Rest
         modPoints,

@@ -27,7 +27,7 @@ export async function isEditable(req: express.Request, res: express.Response, ne
         .findById(id)
         .orFail();
 
-    if (contest.status == ContestStatus.Complete) {
+    if (contest.status == ContestStatus.Complete && res.locals.userRequest.osuId !== 3178418) { // only pishifat can edit completed contests
         return res.json({ error: 'Cannot edit this section of completed contests' });
     }
 

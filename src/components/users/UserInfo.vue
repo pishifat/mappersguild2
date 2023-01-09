@@ -78,22 +78,28 @@
                                 :tooltip-title="'5 points per mapset hosted'"
                             />
                             <user-points-row
+                                v-if="selectedUser.contestCreatorPoints"
+                                :points="selectedUser.contestCreatorPoints"
+                                :display="'FA contest creation'"
+                                :tooltip-title="`creation of FA beatmapping contests hosted on Mappers' Guild`"
+                            />
+                            <user-points-row
                                 v-if="selectedUser.contestParticipantPoints"
                                 :points="selectedUser.contestParticipantPoints"
-                                :display="'MBC participation'"
-                                :tooltip-title="'participation in Monthly Beatmapping Contests'"
+                                :display="'FA contest participation'"
+                                :tooltip-title="`participating in FA beatmapping contests hosted on Mappers' Guild`"
                             />
                             <user-points-row
                                 v-if="selectedUser.contestScreenerPoints"
                                 :points="selectedUser.contestScreenerPoints"
-                                :display="'MBC screening'"
-                                :tooltip-title="'screening entries for Monthly Beatmapping Contests'"
+                                :display="'FA contest screening'"
+                                :tooltip-title="`screening entries in FA beatmapping contests hosted on Mappers' Guild`"
                             />
                             <user-points-row
                                 v-if="selectedUser.contestJudgePoints"
                                 :points="selectedUser.contestJudgePoints"
-                                :display="'MBC judging'"
-                                :tooltip-title="'judging entries for Monthly Beatmapping Contests'"
+                                :display="'FA contest judging'"
+                                :tooltip-title="`judging entries in FA beatmapping contests hosted on Mappers' Guild`"
                             />
                             <user-points-row
                                 v-if="selectedUser.legacyPoints"

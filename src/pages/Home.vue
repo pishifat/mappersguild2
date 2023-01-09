@@ -7,7 +7,7 @@
                         class="mb-5"
                         src="/images/mg-logo.png"
                         style="width: 300px; min-width: 300px;"
-                    >
+                    />
                     <h1>Mappers' Guild</h1>
                     <h5>learn more below</h5>
                 </div>
@@ -38,7 +38,7 @@
                                     :title="artist.label"
                                     style="max-width: 170px; width: 170px; height: 170px"
                                     @error="fallbackImg"
-                                >
+                                />
                             </a>
                         </div>
                         <div class="card card-body card-home-showcase small">
@@ -95,7 +95,7 @@
                 </div>
 
                 <div class="col-md-6" style="object-fit: cover;">
-                    <img src="/images/mappers-guild-sets.jpg" style="width:100%; border-radius:4px 4px 4px 4px">
+                    <img src="/images/mappers-guild-sets.jpg" style="width:100%; border-radius:4px 4px 4px 4px" />
                     <a href="https://osu.ppy.sh/home/news/2018-05-25-new-featured-artist-cranky" class="small float-end my-2 me-3"><b>example Mappers' Guild content</b></a>
                 </div>
             </div>
@@ -162,19 +162,19 @@
             <div class="row text-center mb-3">
                 <div class="col-md-3">
                     <p>Bronze (100 points)</p>
-                    <img src="/images/rank1.png" class="osu-badge">
+                    <img src="/images/rank1.png" class="osu-badge" />
                 </div>
                 <div class="col-md-3">
                     <p>Silver (250 points)</p>
-                    <img src="/images/rank2.png" class="osu-badge">
+                    <img src="/images/rank2.png" class="osu-badge" />
                 </div>
                 <div class="col-md-3">
                     <p>Gold (500 points)</p>
-                    <img src="/images/rank3.png" class="osu-badge">
+                    <img src="/images/rank3.png" class="osu-badge" />
                 </div>
                 <div class="col-md-3">
                     <p>Platinum (1000 points)</p>
-                    <img src="/images/rank4.png" class="osu-badge">
+                    <img src="/images/rank4.png" class="osu-badge" />
                 </div>
             </div>
 
@@ -274,7 +274,7 @@
                             </tr>
                             <tr>
                                 <td scope="row">
-                                    MBC Participation
+                                    FA Contest Organization
                                 </td>
                                 <td scope="row">
                                     5
@@ -282,7 +282,15 @@
                             </tr>
                             <tr>
                                 <td scope="row">
-                                    MBC Screening
+                                    FA Contest Participation
+                                </td>
+                                <td scope="row">
+                                    3
+                                </td>
+                            </tr>
+                            <tr>
+                                <td scope="row">
+                                    FA Contest Screening
                                 </td>
                                 <td scope="row">
                                     1
@@ -290,7 +298,7 @@
                             </tr>
                             <tr>
                                 <td scope="row">
-                                    MBC Voting
+                                    FA Contest Judging
                                 </td>
                                 <td scope="row">
                                     1
@@ -304,7 +312,7 @@
                     <ul>
                         <li>Difficulty points scale according to a map's drain time, with the midpoint being around 2.5 minutes. Collaborative difficulties split points evenly between users.</li>
                         <li>All mapping-related points are rewarded upon a map reaching Ranked status. Storyboard points are subjectively determined by storyboard content (2, 7.5, or 10 points for minimalist, typical, and extraordinary content)</li>
-                        <li>Contest points are earned through involvement with the <a href="https://osu.ppy.sh/help/wiki/Contests/Monthly_Beatmapping_Contest">Monthly Beatmapping Contest</a></li>
+                        <li>Contest points are earned through involvement with the <a href="https://osu.ppy.sh/help/wiki/Contests/Monthly_Beatmapping_Contest">Monthly Beatmapping Contest</a> and other contests that exclusively use Featured Artist songs.</li>
                     </ul>
                 </div>
             </div>
@@ -319,7 +327,7 @@
                     </ul>
                 </div>
                 <div class="col-md-2 text-center">
-                    <img src="/images/medal.png" class="osu-badge">
+                    <img src="/images/medal.png" class="osu-badge" />
                 </div>
             </div>
         </div>
@@ -346,7 +354,7 @@
         </template>
 
         <div class="text-center" style="margin-bottom: 50px;">
-            <img src="/images/mg-logo.png" style="width:171px; height: 150px; margin-top: 50px;">
+            <img src="/images/mg-logo.png" style="width:171px; height: 150px; margin-top: 50px;" />
         </div>
 
         <a

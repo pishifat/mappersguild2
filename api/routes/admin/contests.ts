@@ -9,6 +9,30 @@ adminContestsRouter.use(isLoggedIn);
 adminContestsRouter.use(isAdmin);
 adminContestsRouter.use(isSuperAdmin);
 
+/* POST toggle isFeaturedArtistContest */
+adminContestsRouter.post('/:id/toggleIsFeaturedArtistContest', async (req, res) => {
+    const isFeaturedArtistContest = req.body.isFeaturedArtistContest;
+
+    await ContestModel
+        .findByIdAndUpdate(req.params.id, { isFeaturedArtistContest })
+        .populate({ path: 'creators' })
+        .orFail();
+
+    res.json({ isFeaturedArtistContest });
+});
+
+/* POST toggle isEligibleForPoints */
+adminContestsRouter.post('/:id/toggleIsEligibleForPoints', async (req, res) => {
+    const isEligibleForPoints = req.body.isEligibleForPoints;
+
+    await ContestModel
+        .findByIdAndUpdate(req.params.id, { isEligibleForPoints })
+        .populate({ path: 'creators' })
+        .orFail();
+
+    res.json({ isEligibleForPoints });
+});
+
 /* POST update contest isApproved */
 adminContestsRouter.post('/:id/toggleIsApproved', async (req, res) => {
     const isApproved = req.body.isApproved;

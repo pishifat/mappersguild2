@@ -49,6 +49,7 @@ export interface User extends Document {
     questPoints: number;
     modPoints: number;
     hostPoints: number;
+    contestCreatorPoints: number;
     contestParticipantPoints: number;
     contestScreenerPoints: number;
     contestJudgePoints: number;

@@ -39,4 +39,6 @@ export interface Contest {
     description: string;
     mode: ContestMode;
     bannerUrl: string;
+    isFeaturedArtistContest: boolean;
+    isEligibleForPoints: boolean;
 }
