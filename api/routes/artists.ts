@@ -27,7 +27,7 @@ artistsRouter.get('/relevantInfo', async (req, res) => {
 
 /* POST new artist. */
 artistsRouter.post('/create', async (req, res) => {
-    const { name, comment, isContacted } = req.body;
+    const { name, comment, isContacted, isResponded } = req.body;
 
     const exists = await FeaturedArtistModel.findOne({ label: name.trim() });
 
@@ -43,9 +43,13 @@ artistsRouter.post('/create', async (req, res) => {
         a.notes = comment;
     }
 
-    if (isContacted) {
+    if (isContacted || isResponded) {
         a.isContacted = true;
         a.lastContacted = new Date();
+    }
+
+    if (isResponded) {
+        a.isResponded = true;
     }
 
     await a.save();

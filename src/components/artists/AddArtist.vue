@@ -30,6 +30,18 @@
                         contacted?
                     </label>
                 </div>
+                <div class="form-check mt-2">
+                    <input
+                        id="isResponded"
+                        v-model="isResponded"
+                        :checked="isResponded"
+                        class="form-check-input"
+                        type="checkbox"
+                    />
+                    <label class="form-check-label" for="isResponded">
+                        responded?
+                    </label>
+                </div>
             </div>
 
             <button type="button" class="btn btn-outline-info w-100" @click="createArtist($event)">
@@ -53,15 +65,15 @@ export default defineComponent({
             name: '',
             comment: '',
             isContacted: true,
+            isResponded: false,
         };
     },
     methods: {
         async createArtist (e): Promise<void> {
-            const artist = await this.$http.executePost('/artists/create', { name: this.name, comment: this.comment, isContacted: this.isContacted }, e);
-
-            console.log(artist);
+            const artist = await this.$http.executePost('/artists/create', { name: this.name, comment: this.comment, isContacted: this.isContacted, isResponded: this.isResponded }, e);
 
             if (!this.$http.isError(artist)) {
+                console.log(artist);
                 this.$store.commit('addArtist', artist);
                 this.$bs.hideModal('addArtist');
 
