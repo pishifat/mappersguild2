@@ -1,6 +1,6 @@
 <template>
     <div class="col-sm-12">
-        <div class="card" :class="isInProgress && daysAgo > 21 ? 'overdue' : 'bg-dark'">
+        <div class="card bg-dark">
             <div class="card-body p-0 mx-2 my-1">
                 <div class="row">
                     <span class="col-sm-4">
@@ -527,9 +527,5 @@ input:focus {
     border-color: transparent;
     filter: drop-shadow(1px 1px 1px #000000);
     border-radius: 0 100px 100px 0;
-}
-
-.overdue {
-    background-color: rgba(255, 251, 0, 0.05)!important;
 }
 </style>
