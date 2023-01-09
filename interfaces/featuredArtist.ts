@@ -20,7 +20,6 @@ export interface FeaturedArtist {
     // discussion
     isContacted: boolean;
     isResponded: boolean;
-    tracksSelected: boolean;
     isRejected: boolean;
 
     // contract

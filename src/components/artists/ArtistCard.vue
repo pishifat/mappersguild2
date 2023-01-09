@@ -34,7 +34,6 @@
 
                             <span v-else class="text-white-50">
                                 <span v-if="artist.isRejected">{{ artist.isResponded ? 'stopped responding' : 'no response' }}</span>
-                                <span v-else-if="artist.tracksSelected" class="text-success">[tracks confirmed] </span>
                             </span>
 
 
@@ -109,12 +108,6 @@
                             </a>
                         </div>
                         <div class="small ms-2">
-                            Tracks confirmed:
-                            <a href="#" @click.stop.prevent="toggleTracksSelected()">
-                                <i class="fas" :class="artist.tracksSelected ? 'text-done fa-check' : 'text-danger fa-times'" />
-                            </a>
-                        </div>
-                        <div v-if="!artist.tracksSelected" class="small ms-2">
                             Rejected:
                             <a href="#" @click.stop.prevent="toggleIsRejected()">
                                 <i class="fas" :class="artist.isRejected ? 'text-done fa-check' : 'text-danger fa-times'" />
@@ -368,13 +361,6 @@ export default defineComponent({
         },
         async toggleIsResponded (): Promise<void> {
             const artist = await this.$http.executePost('/artists/toggleIsResponded/' + this.artist.id, { value: !this.artist.isResponded });
-
-            if (artist) {
-                this.$store.commit('updateArtist', artist);
-            }
-        },
-        async toggleTracksSelected (): Promise<void> {
-            const artist = await this.$http.executePost('/artists/toggleTracksSelected/' + this.artist.id, { value: !this.artist.tracksSelected });
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);

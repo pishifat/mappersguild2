@@ -73,14 +73,6 @@ artistsRouter.post('/toggleisResponded/:id', async (req, res) => {
     res.json(a);
 });
 
-/* POST toggle tracksSelected */
-artistsRouter.post('/toggleTracksSelected/:id', async (req, res) => {
-    let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { tracksSelected: req.body.value });
-    a = await FeaturedArtistModel.findById(req.params.id).defaultPopulate();
-
-    res.json(a);
-});
-
 /* POST toggle isRejected */
 artistsRouter.post('/toggleisRejected/:id', async (req, res) => {
     let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { isRejected: req.body.value });
@@ -157,8 +149,6 @@ artistsRouter.post('/toggleHasRankedMaps/:id', async (req, res) => {
 artistsRouter.post('/toggleIsUpToDate/:id', async (req, res) => {
     let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, {
         isUpToDate: req.body.value,
-        isResponded: false,
-        tracksSelected: false,
         contractSent: false,
         artistSigned: false,
         ppyPaid: false,
@@ -167,7 +157,9 @@ artistsRouter.post('/toggleIsUpToDate/:id', async (req, res) => {
         songsTimed: false,
         hasRankedMaps: false,
         projectedRelease: undefined,
+        showcaseMappers: [],
     });
+
     a = await FeaturedArtistModel.findById(req.params.id).defaultPopulate();
 
     res.json(a);
@@ -232,7 +224,6 @@ artistsRouter.post('/updateShowcaseMappers/:id', async (req, res) => {
 artistsRouter.post('/reset/:id', async (req, res) => {
     let a = await FeaturedArtistModel.findByIdAndUpdate(req.params.id, {
         isResponded: false,
-        tracksSelected: false,
         isRejected: false,
         contractSent: false,
         artistSigned: false,

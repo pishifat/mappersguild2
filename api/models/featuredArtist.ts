@@ -17,7 +17,6 @@ const featuredArtistSchema = new Schema<FeaturedArtist>({
     // discussion
     isContacted: { type: Boolean },
     isResponded: { type: Boolean },
-    tracksSelected: { type: Boolean },
     isRejected: { type: Boolean },
 
     // contract
