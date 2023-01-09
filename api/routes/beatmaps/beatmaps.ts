@@ -2,12 +2,12 @@ import express from 'express';
 import { BeatmapModel, Beatmap } from '../../models/beatmap/beatmap';
 import { BeatmapMode, BeatmapStatus } from '../../../interfaces/beatmap/beatmap';
 import { TaskModel, Task } from '../../models/beatmap/task';
-import { TaskName } from '../../../interfaces/beatmap/task';
+import { TaskName, SBQuality } from '../../../interfaces/beatmap/task';
 import { NotificationModel } from '../../models/notification';
 import { LogModel } from '../../models/log';
 import { LogCategory } from '../../../interfaces/log';
 import { isLoggedIn, isNotSpectator, isBn } from '../../helpers/middlewares';
-import { findDifficultyPoints, getLengthNerf, getQuestBonus } from '../../helpers/points';
+import { findDifficultyPoints, getLengthNerf, getQuestBonus, findStoryboardPoints } from '../../helpers/points';
 import { defaultErrorMessage, findBeatmapsetId } from '../../helpers/helpers';
 import { beatmapsetInfo, isOsuResponseError } from '../../helpers/osuApi';
 import { isValidBeatmap } from './middlewares';
@@ -369,7 +369,10 @@ beatmapsRouter.get('/:id/findPoints', async (req, res) => {
 
     // calculate points
     beatmap.tasks.forEach(task => {
-        if (task.name != TaskName.Storyboard) {
+        if (task.name == TaskName.Storyboard) {
+            const taskPoints = findStoryboardPoints(task.sbQuality);
+            tasksPointsArray.push(`${task.name}: ${taskPoints == 0 ? 'TBD' : taskPoints}`);
+        } else {
             // difficulty-specific points
             const taskPoints = findDifficultyPoints(task.name, 1);
 
@@ -382,20 +385,28 @@ beatmapsRouter.get('/:id/findPoints', async (req, res) => {
 
             totalPoints += finalPoints;
             tasksPointsArray.push(`${task.name}: ${finalPoints.toFixed(1)}`);
+        }
 
-            // user-specific points
-            task.mappers.forEach(mapper => {
-                const userTaskPoints = findDifficultyPoints(task.name, task.mappers.length);
+        // user-specific points
+        task.mappers.forEach(mapper => {
+            let userTaskPoints;
 
-                usersPointsArrays.forEach(userArray => {
-                    if (userArray[0] == mapper.username) {
+            if (task.name == TaskName.Storyboard) {
+                userTaskPoints = findStoryboardPoints(task.sbQuality);
+            } else {
+                userTaskPoints = findDifficultyPoints(task.name, task.mappers.length);
+            }
+
+            usersPointsArrays.forEach(userArray => {
+                if (userArray[0] == mapper.username) {
+                    if (task.name == TaskName.Storyboard) {
+                        userArray[1] += Math.round((userTaskPoints/task.mappers.length)*10)/10;
+                    } else {
                         userArray[1] += Math.round(((userTaskPoints + (questBonus/task.mappers.length))*lengthNerf)*10)/10;
                     }
-                });
+                }
             });
-        } else {
-            tasksPointsArray.push(`${task.name}: TBD`);
-        }
+        });
     });
 
     if (validQuest) {
