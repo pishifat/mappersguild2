@@ -31,7 +31,6 @@ export interface FeaturedArtist {
 
     // publication
     projectedRelease?: Date;
-    isNotifiedOfRelease: boolean;
     songsReceived: boolean;
     songsTimed: boolean;
     assetsReceived: boolean;
@@ -39,8 +38,6 @@ export interface FeaturedArtist {
 
     // other
     hasRankedMaps: boolean;
-    isMinor: boolean;
-    isMonstercat: boolean;
 
     // showcase mappers
     referenceUrl: string;

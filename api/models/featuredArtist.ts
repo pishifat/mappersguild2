@@ -28,7 +28,6 @@ const featuredArtistSchema = new Schema<FeaturedArtist>({
 
     // publication
     projectedRelease: { type: Date },
-    isNotifiedOfRelease: { type: Boolean },
     songsTimed: { type: Boolean },
     songsReceived: { type: Boolean },
     assetsReceived: { type: Boolean },
@@ -36,8 +35,6 @@ const featuredArtistSchema = new Schema<FeaturedArtist>({
 
     // other
     hasRankedMaps: { type: Boolean },
-    isMinor: { type: Boolean },
-    isMonstercat: { type: Boolean },
 
     // showcase mappers
     referenceUrl: { type: String },

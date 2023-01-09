@@ -42,9 +42,6 @@
 
                             <span class="text-white-50">
                                 <span v-if="!artist.hasRankedMaps" class="me-1 text-danger">[showcase]</span>
-                                <span v-if="!artist.isNotifiedOfRelease" class="me-1">[notified]</span>
-                                <span v-if="artist.isMonstercat" class="me-1 text-primary">[monstercat]</span>
-                                <span v-if="artist.isMinor" class="me-1">[minor]</span>
                             </span>
                         </span>
 
@@ -214,24 +211,6 @@
                                 <i class="fas" :class="artist.hasRankedMaps ? 'text-done fa-check' : 'text-danger fa-times'" />
                             </a>
                         </div>
-                        <div class="small ms-2">
-                            Notified artist of release:
-                            <a href="#" @click.stop.prevent="toggleIsNotifiedOfRelease()">
-                                <i class="fas" :class="artist.isNotifiedOfRelease ? 'text-done fa-check' : 'text-danger fa-times'" />
-                            </a>
-                        </div>
-                        <div class="small ms-2">
-                            Minor release:
-                            <a href="#" @click.stop.prevent="toggleIsMinor()">
-                                <i class="fas" :class="artist.isMinor ? 'text-done fa-check' : 'text-danger fa-times'" />
-                            </a>
-                        </div>
-                        <div class="small ms-2">
-                            Monstercat release:
-                            <a href="#" @click.stop.prevent="toggleIsMonstercat()">
-                                <i class="fas" :class="artist.isMonstercat ? 'text-done fa-check' : 'text-danger fa-times'" />
-                            </a>
-                        </div>
                     </div>
                 </div>
                 <!--notes-->
@@ -251,7 +230,7 @@
                             style="border-radius: 5px 5px 5px 5px;"
                             @keyup.enter="updateNotes($event)"
                             @change="updateNotes($event)"
-                        >
+                        />
                     </div>
                     <!--showcase mappers-->
                     <div class="mb-1 col-sm-4">
@@ -459,27 +438,6 @@ export default defineComponent({
         },
         async toggleHasRankedMaps (): Promise<void> {
             const artist = await this.$http.executePost('/artists/toggleHasRankedMaps/' + this.artist.id, { value: !this.artist.hasRankedMaps });
-
-            if (artist) {
-                this.$store.commit('updateArtist', artist);
-            }
-        },
-        async toggleIsNotifiedOfRelease (): Promise<void> {
-            const artist = await this.$http.executePost('/artists/toggleIsNotifiedOfRelease/' + this.artist.id, { value: !this.artist.isNotifiedOfRelease });
-
-            if (artist) {
-                this.$store.commit('updateArtist', artist);
-            }
-        },
-        async toggleIsMinor (): Promise<void> {
-            const artist = await this.$http.executePost('/artists/toggleIsMinor/' + this.artist.id, { value: !this.artist.isMinor });
-
-            if (artist) {
-                this.$store.commit('updateArtist', artist);
-            }
-        },
-        async toggleIsMonstercat (): Promise<void> {
-            const artist = await this.$http.executePost('/artists/toggleIsMonstercat/' + this.artist.id, { value: !this.artist.isMonstercat });
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);
