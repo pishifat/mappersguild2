@@ -33,11 +33,8 @@
                             </span>
 
                             <span v-else class="text-white-50">
-                                <span v-if="artist.isRejected">{{ artist.isResponded ? 'stopped responding' : 'no response' }}</span>
+                                <span v-if="artist.isRejected">{{ artist.isResponded ? 'stopped responding/rejected ' : 'no response ' }}</span>
                             </span>
-
-
-
 
                             <span class="text-white-50">
                                 <span v-if="!artist.hasRankedMaps" class="me-1 text-danger">[showcase]</span>
