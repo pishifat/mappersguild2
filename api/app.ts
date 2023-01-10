@@ -136,6 +136,7 @@ app.listen(port, () => {
     console.log('Listening on ' + port);
     automation.sendActionNotifications.start();
     automation.setQualified.start();
+    automation.qualifiedMapChecks.start();
     automation.setRanked.start();
     automation.publishQuests.start();
     automation.completeQuests.start();

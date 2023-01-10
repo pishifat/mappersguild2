@@ -1,6 +1,7 @@
 import cron from 'node-cron';
 import { findBeatmapsetId, sleep, findBeatmapsetStatus, setBeatmapStatusRanked, generateAuthorWebhook, generateThumbnailUrl, generateLists } from './helpers';
-import { beatmapsetInfo, isOsuResponseError } from './osuApi';
+import { beatmapsetInfo, isOsuResponseError, getClientCredentialsGrant, getBeatmapsetV2Info, getDiscussions } from './osuApi';
+import { sendMessages } from './osuBot';
 import { devWebhookPost, webhookPost, webhookColors } from './discordApi';
 import { BeatmapModel } from '../models/beatmap/beatmap';
 import { BeatmapStatus } from '../../interfaces/beatmap/beatmap';
@@ -12,6 +13,7 @@ import { UserModel } from '../models/user';
 import { FeaturedArtistModel } from '../models/featuredArtist';
 import { updateUserPoints } from './points';
 import { UserGroup } from '../../interfaces/user';
+import { TaskName } from '../../interfaces/beatmap/task';
 
 /* dev notification for actions */
 const sendActionNotifications = cron.schedule('0 23 * * *', async () => { /* 4:00 PM PST */
@@ -105,6 +107,10 @@ const setQualified = cron.schedule('0 18 * * *', async () => { /* 10:00 AM PST *
             $and: statusQuery,
         });
 
+    const response = await getClientCredentialsGrant();
+    let token;
+    if (!isOsuResponseError(response)) token = response.access_token;
+
     for (const bm of allBeatmaps) {
         if (bm.url.indexOf('osu.ppy.sh/beatmapsets/') > -1) {
             const osuId = findBeatmapsetId(bm.url);
@@ -120,6 +126,26 @@ const setQualified = cron.schedule('0 18 * * *', async () => { /* 10:00 AM PST *
                 if ((status == BeatmapStatus.Qualified || status == BeatmapStatus.Ranked) && bm.status == BeatmapStatus.Done) {
                     bm.status = BeatmapStatus.Qualified;
                     await bm.save();
+
+                    // remove modders who didn't post anything
+                    for (const modder of bm.modders) {
+                        const currentBeatmap = await BeatmapModel
+                            .findById(bm._id)
+                            .defaultPopulate()
+                            .orFail();
+
+                        const discussionInfo = await getDiscussions(token, `?beatmapset_id=${osuId}&message_types%5B%5D=suggestion&message_types%5B%5D=problem&user=${modder.osuId}`);
+                        await sleep(500);
+
+                        if (!isOsuResponseError(discussionInfo) && discussionInfo.discussions && !discussionInfo.discussions.length) {
+                            const i = currentBeatmap.modders.findIndex(m => m.id == modder.id);
+
+                            if (i !== -1) {
+                                currentBeatmap.modders.splice(i, 1);
+                                await currentBeatmap.save();
+                            }
+                        }
+                    }
                 }
 
                 /*  osu:    Pending
@@ -130,6 +156,103 @@ const setQualified = cron.schedule('0 18 * * *', async () => { /* 10:00 AM PST *
                     bm.queuedForRank = false;
                     await bm.save();
                 }
+            }
+        }
+    }
+}, {
+    scheduled: false,
+});
+
+/* check */
+const qualifiedMapChecks = cron.schedule('30 18 * * *', async () => { /* 10:30 AM PST */
+    const qualifiedBeatmaps = await BeatmapModel
+        .find({
+            status: BeatmapStatus.Qualified,
+            queuedForRank: { $ne: true },
+        })
+        .defaultPopulate();
+
+    const response = await getClientCredentialsGrant();
+
+    if (!isOsuResponseError(response)) {
+        const token = response.access_token;
+
+        for (const beatmap of qualifiedBeatmaps) {
+            const osuId = findBeatmapsetId(beatmap.url);
+            const bmInfo = await getBeatmapsetV2Info(token, osuId);
+            await sleep(500);
+
+            const messages = [`hello! your beatmap on mappersguild https://mappersguild.com/beatmaps?id=${beatmap.id} isn't eligible to earn points for the following reason(s):`];
+
+            if (!isOsuResponseError(bmInfo)) {
+                // check if host matches
+                if (beatmap.host.osuId !== bmInfo.user_id) {
+                    messages.push(`you are not the host of this mapset`);
+                }
+
+                // check if # of difficulties match
+                const difficultyTasks = [...beatmap.tasks].filter(t => t.name !== TaskName.Storyboard);
+
+                if (difficultyTasks.length !== bmInfo.beatmaps.length) {
+                    messages.push(`difficulty count does not match. difficulties on https://mappersguild.com/beatmaps?id=${beatmap.id} must match difficulties on ${beatmap.url}`);
+                }
+
+                // check if GD assignments are somewhat accurate. it won't ever be correct because web assignments aren't correct, but this will ensure some amount of credibility (especially in cases where a host assigns a GD to themselves on MG)
+                const osuMapperIds: number[] = [];
+                const mgMapperIds: number[] = [];
+
+                for (const bm of bmInfo.beatmaps) {
+                    if (!osuMapperIds.includes(bm.user_id)) {
+                        osuMapperIds.push(bm.user_id);
+                    }
+                }
+
+                for (const task of difficultyTasks) {
+                    for (const mapper of task.mappers) {
+                        if (!mgMapperIds.includes(mapper.osuId)) {
+                            mgMapperIds.push(mapper.osuId);
+                        }
+                    }
+                }
+
+                let gdTrigger = false;
+
+                for (const osuId of osuMapperIds) {
+                    if (!mgMapperIds.includes(osuId)) {
+                        gdTrigger = true;
+                    }
+                }
+
+                if (gdTrigger) {
+                    messages.push(`guest difficulty missing or incorrectly assigned. difficulties on https://mappersguild.com/beatmaps?id=${beatmap.id} must match difficulties on ${beatmap.url}`);
+                }
+
+                // check if ranked date is older than 1y
+                const osuRankedDate = new Date(bmInfo.ranked_date);
+                const oneYearAgo = new Date();
+                oneYearAgo.setDate(oneYearAgo.getDate() - 365);
+
+                if (oneYearAgo > osuRankedDate) {
+                    messages.push(`map is over a year old (and probably not eligible anymore)`);
+                }
+            }
+
+            if (messages.length > 1) {
+                // send to user
+                //await sendMessages(3178418, messages);
+
+                // change beatmap status
+                //beatmap.status = BeatmapStatus.WIP;
+                //beatmap.queuedForRank = false;
+                //await beatmap.save();
+
+                // send to me (ensure that nothing went wrong)
+                // this is the only active one while i see if it actually works as intended
+                devWebhookPost([{
+                    title: `actionBeatmap rejected`,
+                    color: webhookColors.lightRed,
+                    description: messages.join('\n'),
+                }]);
             }
         }
     }
@@ -358,4 +481,4 @@ const updatePoints = cron.schedule('0 0 21 * *', async () => {
     scheduled: false,
 });
 
-export default { sendActionNotifications, setQualified, setRanked, publishQuests, completeQuests, rankUsers, updatePoints };
+export default { sendActionNotifications, setQualified, qualifiedMapChecks, setRanked, publishQuests, completeQuests, rankUsers, updatePoints };

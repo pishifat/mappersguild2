@@ -23,6 +23,20 @@ export interface OsuBeatmapResponse {
     tags: string[];
 }
 
+export interface OsuBeatmapsetV2Response {
+    beatmaps: [];
+    user_id: number;
+    ranked_date: string;
+}
+
+export interface OsuBeatmapsetDiscussionV2Response {
+    discussions: [];
+}
+
+export interface OsuBeatmapV2 {
+    user_id: number;
+}
+
 export interface OsuAuthResponse {
     id: number;
     username: string;
@@ -41,7 +55,7 @@ export interface OsuApiV1UserResponse {
     // don't care about anything else
 }
 
-export function isOsuResponseError(errorResponse: OsuBeatmapResponse | OsuBeatmapResponse[] | OsuAuthResponse | OsuApiV1UserResponse | ErrorResponse): errorResponse is ErrorResponse {
+export function isOsuResponseError(errorResponse: OsuBeatmapResponse | OsuBeatmapResponse[] | OsuAuthResponse | OsuApiV1UserResponse | OsuBeatmapsetV2Response | OsuBeatmapsetDiscussionV2Response | ErrorResponse): errorResponse is ErrorResponse {
     return (errorResponse as ErrorResponse).error !== undefined;
 }
 
@@ -66,6 +80,26 @@ export async function getToken(code: string): Promise<OsuAuthResponse | ErrorRes
         redirect_uri: config.redirect,
         client_id: config.id,
         client_secret: config.secret,
+    });
+
+    const options: AxiosRequestConfig = {
+        url: 'https://osu.ppy.sh/oauth/token',
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        data: postData,
+    };
+
+    return await executeRequest(options);
+}
+
+export async function getClientCredentialsGrant(): Promise<OsuAuthResponse | ErrorResponse> {
+    const postData = querystring.stringify({
+        grant_type: 'client_credentials',
+        client_id: config.id,
+        client_secret: config.secret,
+        scope: 'public',
     });
 
     const options: AxiosRequestConfig = {
@@ -137,6 +171,52 @@ export async function beatmapsetInfo(setId: number): Promise<OsuBeatmapResponse 
             beatmapResponse.approved_date = new Date(beatmapResponse.approved_date);
 
             return beatmapResponse;
+        }
+
+        return defaultErrorMessage;
+    } catch (error) {
+        return defaultErrorMessage;
+    }
+}
+
+export async function getBeatmapsetV2Info(token, setId): Promise<OsuBeatmapsetV2Response | ErrorResponse> {
+    const options: AxiosRequestConfig = {
+        method: 'GET',
+        url: `https://osu.ppy.sh/api/v2/beatmapsets/${setId}`,
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    };
+
+    try {
+        const res = await axios(options);
+
+        if (res?.data) {
+            return res.data;
+        }
+
+        return defaultErrorMessage;
+    } catch (error) {
+        return defaultErrorMessage;
+    }
+}
+
+export async function getDiscussions(token, params): Promise<OsuBeatmapsetDiscussionV2Response | ErrorResponse> {
+    const url = `https://osu.ppy.sh/api/v2/beatmapsets/discussions${params}`;
+
+    const options: AxiosRequestConfig = {
+        method: 'GET',
+        url,
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    };
+
+    try {
+        const res = await axios(options);
+
+        if (res?.data) {
+            return res.data;
         }
 
         return defaultErrorMessage;

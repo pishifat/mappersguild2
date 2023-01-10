@@ -2,7 +2,7 @@ import express from 'express';
 import { BeatmapModel, Beatmap } from '../../models/beatmap/beatmap';
 import { BeatmapMode, BeatmapStatus } from '../../../interfaces/beatmap/beatmap';
 import { TaskModel, Task } from '../../models/beatmap/task';
-import { TaskName, SBQuality } from '../../../interfaces/beatmap/task';
+import { TaskName } from '../../../interfaces/beatmap/task';
 import { NotificationModel } from '../../models/notification';
 import { LogModel } from '../../models/log';
 import { LogCategory } from '../../../interfaces/log';
