@@ -124,6 +124,7 @@ app.listen(port, () => {
     console.log('Listening on ' + port);
     automation_1.default.sendActionNotifications.start();
     automation_1.default.setQualified.start();
+    automation_1.default.qualifiedMapChecks.start();
     automation_1.default.setRanked.start();
     automation_1.default.publishQuests.start();
     automation_1.default.completeQuests.start();

@@ -50,6 +50,14 @@ adminRouter.get('/loadActionUsers/', async (req, res) => {
 });
 /* GET contests in need of action */
 adminRouter.get('/loadActionContests/', async (req, res) => {
+    const a = await contest_1.ContestModel
+        .find({
+        isFeaturedArtistContest: { $ne: true },
+        status: contest_2.ContestStatus.Complete,
+    });
+    for (const aa of a) {
+        console.log(aa.name);
+    }
     const actionContests = await contest_1.ContestModel
         .find({
         isApproved: { $ne: true },

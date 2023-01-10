@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateUserPoints = exports.calculateMbcPoints = exports.calculateSpentPoints = exports.calculateModPoints = exports.calculateHostPoints = exports.calculateTasksPoints = exports.getUserRank = exports.findCreateQuestPointsSpent = exports.getReopenQuestPoints = exports.findStoryboardPoints = exports.getQuestBonus = exports.findQuestPoints = exports.findDifficultyPoints = exports.getLengthNerf = exports.extendQuestPrice = void 0;
+exports.updateUserPoints = exports.calculateContestPoints = exports.calculateSpentPoints = exports.calculateModPoints = exports.calculateHostPoints = exports.calculateTasksPoints = exports.getUserRank = exports.findCreateQuestPointsSpent = exports.getReopenQuestPoints = exports.findStoryboardPoints = exports.getQuestBonus = exports.findQuestPoints = exports.findDifficultyPoints = exports.getLengthNerf = exports.extendQuestPrice = void 0;
 const beatmap_1 = require("../../interfaces/beatmap/beatmap");
 const beatmap_2 = require("../models/beatmap/beatmap");
 const task_1 = require("../../interfaces/beatmap/task");
@@ -106,7 +106,7 @@ function findCreateQuestPointsSpent(questArtist, requiredMapsets) {
     return points;
 }
 exports.findCreateQuestPointsSpent = findCreateQuestPointsSpent;
-async function getUserRank(userId, tasksPoints, modPoints, hostPoints, mbcPoints) {
+async function getUserRank(userId, tasksPoints, modPoints, hostPoints, contestPoints) {
     const user = await user_1.UserModel.findById(userId).orFail();
     const totalPoints = tasksPoints.Easy +
         tasksPoints.Normal +
@@ -117,9 +117,9 @@ async function getUserRank(userId, tasksPoints, modPoints, hostPoints, mbcPoints
         tasksPoints.QuestReward +
         modPoints +
         hostPoints +
-        mbcPoints.ContestParticipant +
-        mbcPoints.ContestScreener +
-        mbcPoints.ContestJudge +
+        contestPoints.ContestParticipant +
+        contestPoints.ContestScreener +
+        contestPoints.ContestJudge +
         (user.legacyPoints || 0);
     let rank = 0;
     if (totalPoints < 100) {
@@ -257,40 +257,50 @@ async function calculateSpentPoints(userId) {
     return total;
 }
 exports.calculateSpentPoints = calculateSpentPoints;
-async function calculateMbcPoints(userId) {
+async function calculateContestPoints(userId) {
     /**
-     * MBC they submitted entries to
-     * MBC they screened
-     * MBC they judged
+     * FA contests they created
+     * FA contests they submitted entries to
+     * FA contests they screened
+     * FA contests they judged
      */
-    const [submissions, screenedContests, judgedContests] = await Promise.all([
+    const [createdContests, submissions, screenedContests, judgedContests] = await Promise.all([
+        contest_1.ContestModel.countDocuments({
+            creators: userId,
+            isFeaturedArtistContest: true,
+            isEligibleForPoints: true,
+            status: contest_2.ContestStatus.Complete,
+        }),
         submission_1.SubmissionModel
             .find({ creator: userId })
-            .populate({ path: 'contest', select: 'name' }),
+            .populate({ path: 'contest', select: 'isFeaturedArtistContest isEligibleForPoints' }),
         contest_1.ContestModel.countDocuments({
             screeners: userId,
-            name: { $regex: 'Monthly Beatmapping Contest' },
+            isFeaturedArtistContest: true,
+            isEligibleForPoints: true,
             status: contest_2.ContestStatus.Complete,
         }),
         contest_1.ContestModel.countDocuments({
             judges: userId,
-            name: { $regex: 'Monthly Beatmapping Contest' },
+            isFeaturedArtistContest: true,
+            isEligibleForPoints: true,
             status: contest_2.ContestStatus.Complete,
         }),
     ]);
     let relevantSubmissionCount = 0;
     for (const submission of submissions) {
-        if (submission.contest.name.includes('Monthly Beatmapping Contest')) {
+        if (submission.contest.isFeaturedArtistContest && submission.contest.isEligibleForPoints) {
             relevantSubmissionCount++;
         }
     }
     return {
-        ContestParticipant: relevantSubmissionCount * 5,
+        ContestCreator: createdContests * 5,
+        ContestParticipant: relevantSubmissionCount * 3,
         ContestScreener: screenedContests,
         ContestJudge: judgedContests, // 1 point per judging
     };
 }
-exports.calculateMbcPoints = calculateMbcPoints;
+exports.calculateContestPoints = calculateContestPoints;
 function demicalRound(value) {
     return Math.round(value * 1000) / 1000;
 }
@@ -298,14 +308,14 @@ function demicalRound(value) {
  * @returns Total points
  */
 async function updateUserPoints(userId) {
-    const [taskPoints, modPoints, hostPoints, spentPoints, mbcPoints] = await Promise.all([
+    const [taskPoints, modPoints, hostPoints, spentPoints, contestPoints] = await Promise.all([
         calculateTasksPoints(userId),
         calculateModPoints(userId),
         calculateHostPoints(userId),
         calculateSpentPoints(userId),
-        calculateMbcPoints(userId),
+        calculateContestPoints(userId),
     ]);
-    const { rank, totalPoints } = await getUserRank(userId, taskPoints, modPoints, hostPoints, mbcPoints);
+    const { rank, totalPoints } = await getUserRank(userId, taskPoints, modPoints, hostPoints, contestPoints);
     await user_1.UserModel.findByIdAndUpdate(userId, {
         // Tasks
         easyPoints: demicalRound(taskPoints['Easy']),
@@ -322,10 +332,11 @@ async function updateUserPoints(userId) {
         // Quests
         questPoints: taskPoints['QuestReward'],
         completedQuests: taskPoints['Quests'],
-        // MBC
-        contestParticipantPoints: mbcPoints.ContestParticipant,
-        contestScreenerPoints: mbcPoints.ContestScreener,
-        contestJudgePoints: mbcPoints.ContestJudge,
+        // FA Contests
+        contestCreatorPoints: contestPoints.ContestCreator,
+        contestParticipantPoints: contestPoints.ContestParticipant,
+        contestScreenerPoints: contestPoints.ContestScreener,
+        contestJudgePoints: contestPoints.ContestJudge,
         // Rest
         modPoints,
         hostPoints,

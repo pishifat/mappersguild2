@@ -202,8 +202,9 @@ const qualifiedMapChecks = cron.schedule('30 18 * * *', async () => { /* 10:30 A
                 const mgMapperIds: number[] = [];
 
                 for (const bm of bmInfo.beatmaps) {
-                    if (!osuMapperIds.includes(bm.user_id)) {
-                        osuMapperIds.push(bm.user_id);
+                    if (!osuMapperIds.includes(bm['user_id'])) {
+                        const userId = parseInt(bm['user_id']);
+                        osuMapperIds.push(userId);
                     }
                 }
 

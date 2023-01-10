@@ -273,7 +273,11 @@ beatmapsRouter.get('/:id/findPoints', async (req, res) => {
     });
     // calculate points
     beatmap.tasks.forEach(task => {
-        if (task.name != task_2.TaskName.Storyboard) {
+        if (task.name == task_2.TaskName.Storyboard) {
+            const taskPoints = points_1.findStoryboardPoints(task.sbQuality);
+            tasksPointsArray.push(`${task.name}: ${taskPoints == 0 ? 'TBD' : taskPoints}`);
+        }
+        else {
             // difficulty-specific points
             const taskPoints = points_1.findDifficultyPoints(task.name, 1);
             if (beatmap.quest) {
@@ -283,19 +287,27 @@ beatmapsRouter.get('/:id/findPoints', async (req, res) => {
             const finalPoints = ((taskPoints + questBonus) * lengthNerf);
             totalPoints += finalPoints;
             tasksPointsArray.push(`${task.name}: ${finalPoints.toFixed(1)}`);
-            // user-specific points
-            task.mappers.forEach(mapper => {
-                const userTaskPoints = points_1.findDifficultyPoints(task.name, task.mappers.length);
-                usersPointsArrays.forEach(userArray => {
-                    if (userArray[0] == mapper.username) {
+        }
+        // user-specific points
+        task.mappers.forEach(mapper => {
+            let userTaskPoints;
+            if (task.name == task_2.TaskName.Storyboard) {
+                userTaskPoints = points_1.findStoryboardPoints(task.sbQuality);
+            }
+            else {
+                userTaskPoints = points_1.findDifficultyPoints(task.name, task.mappers.length);
+            }
+            usersPointsArrays.forEach(userArray => {
+                if (userArray[0] == mapper.username) {
+                    if (task.name == task_2.TaskName.Storyboard) {
+                        userArray[1] += Math.round((userTaskPoints / task.mappers.length) * 10) / 10;
+                    }
+                    else {
                         userArray[1] += Math.round(((userTaskPoints + (questBonus / task.mappers.length)) * lengthNerf) * 10) / 10;
                     }
-                });
+                }
             });
-        }
-        else {
-            tasksPointsArray.push(`${task.name}: TBD`);
-        }
+        });
     });
     if (validQuest) {
         pointsInfo += ` + includes ${questBonus == 1 ? questBonus + ' quest bonus point' : questBonus + ' quest bonus points'} per difficulty`;

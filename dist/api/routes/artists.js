@@ -57,12 +57,6 @@ artistsRouter.post('/toggleisResponded/:id', async (req, res) => {
     a = await featuredArtist_1.FeaturedArtistModel.findById(req.params.id).defaultPopulate();
     res.json(a);
 });
-/* POST toggle tracksSelected */
-artistsRouter.post('/toggleTracksSelected/:id', async (req, res) => {
-    let a = await featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { tracksSelected: req.body.value });
-    a = await featuredArtist_1.FeaturedArtistModel.findById(req.params.id).defaultPopulate();
-    res.json(a);
-});
 /* POST toggle isRejected */
 artistsRouter.post('/toggleisRejected/:id', async (req, res) => {
     let a = await featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { isRejected: req.body.value });
@@ -117,30 +111,10 @@ artistsRouter.post('/toggleHasRankedMaps/:id', async (req, res) => {
     a = await featuredArtist_1.FeaturedArtistModel.findById(req.params.id).defaultPopulate();
     res.json(a);
 });
-/* POST toggle isNotifiedOfRelease */
-artistsRouter.post('/toggleIsNotifiedOfRelease/:id', async (req, res) => {
-    let a = await featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { isNotifiedOfRelease: req.body.value });
-    a = await featuredArtist_1.FeaturedArtistModel.findById(req.params.id).defaultPopulate();
-    res.json(a);
-});
-/* POST toggle isMinor */
-artistsRouter.post('/toggleIsMinor/:id', async (req, res) => {
-    let a = await featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { isMinor: req.body.value });
-    a = await featuredArtist_1.FeaturedArtistModel.findById(req.params.id).defaultPopulate();
-    res.json(a);
-});
-/* POST toggle isMonstercat */
-artistsRouter.post('/toggleIsMonstercat/:id', async (req, res) => {
-    let a = await featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { isMonstercat: req.body.value });
-    a = await featuredArtist_1.FeaturedArtistModel.findById(req.params.id).defaultPopulate();
-    res.json(a);
-});
 /* POST toggle isUpToDate */
 artistsRouter.post('/toggleIsUpToDate/:id', async (req, res) => {
     let a = await featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, {
         isUpToDate: req.body.value,
-        isResponded: false,
-        tracksSelected: false,
         contractSent: false,
         artistSigned: false,
         ppyPaid: false,
@@ -149,6 +123,7 @@ artistsRouter.post('/toggleIsUpToDate/:id', async (req, res) => {
         songsTimed: false,
         hasRankedMaps: false,
         projectedRelease: undefined,
+        showcaseMappers: [],
     });
     a = await featuredArtist_1.FeaturedArtistModel.findById(req.params.id).defaultPopulate();
     res.json(a);
@@ -201,7 +176,6 @@ artistsRouter.post('/updateShowcaseMappers/:id', async (req, res) => {
 artistsRouter.post('/reset/:id', async (req, res) => {
     let a = await featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, {
         isResponded: false,
-        tracksSelected: false,
         isRejected: false,
         contractSent: false,
         artistSigned: false,

@@ -23,7 +23,7 @@ async function isEditable(req, res, next) {
     const contest = await contest_2.ContestModel
         .findById(id)
         .orFail();
-    if (contest.status == contest_1.ContestStatus.Complete) {
+    if (contest.status == contest_1.ContestStatus.Complete && res.locals.userRequest.osuId !== 3178418) { // only pishifat can edit completed contests
         return res.json({ error: 'Cannot edit this section of completed contests' });
     }
     next();

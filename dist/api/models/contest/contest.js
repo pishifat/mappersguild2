@@ -28,7 +28,7 @@ const contestSchema = new mongoose_1.Schema({
     osuContestListingUrl: { type: String },
     resultsUrl: { type: String },
     isApproved: { type: Boolean },
-    status: { type: String, enum: ['hidden', 'beatmapping', 'screening', 'judging', 'complete'], default: 'hidden' },
+    status: { type: String, enum: ['hidden', 'beatmapping', 'screening', 'judging', 'locked', 'complete'], default: 'hidden' },
     contestStart: { type: Date },
     contestEnd: { type: Date },
     submissions: [{ type: 'ObjectId', ref: 'Submission' }],
@@ -41,6 +41,8 @@ const contestSchema = new mongoose_1.Schema({
     description: { type: String },
     mode: { type: String },
     bannerUrl: { type: String },
+    isFeaturedArtistContest: { type: Boolean, default: false },
+    isEligibleForPoints: { type: Boolean, default: true }, // for multi-part contests that use FA
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 const ContestModel = mongoose_1.default.model('Contest', contestSchema);
 exports.ContestModel = ContestModel;

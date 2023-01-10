@@ -31,7 +31,6 @@ const featuredArtistSchema = new mongoose_1.Schema({
     // discussion
     isContacted: { type: Boolean },
     isResponded: { type: Boolean },
-    tracksSelected: { type: Boolean },
     isRejected: { type: Boolean },
     // contract
     contractSent: { type: Boolean },
@@ -40,15 +39,12 @@ const featuredArtistSchema = new mongoose_1.Schema({
     ppySigned: { type: Boolean },
     // publication
     projectedRelease: { type: Date },
-    isNotifiedOfRelease: { type: Boolean },
     songsTimed: { type: Boolean },
     songsReceived: { type: Boolean },
     assetsReceived: { type: Boolean },
     isUpToDate: { type: Boolean },
     // other
     hasRankedMaps: { type: Boolean },
-    isMinor: { type: Boolean },
-    isMonstercat: { type: Boolean },
     // showcase mappers
     referenceUrl: { type: String },
     oszTemplatesUrl: { type: String },

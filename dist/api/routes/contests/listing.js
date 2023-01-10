@@ -204,6 +204,15 @@ listingRouter.post('/:id/updateContestEnd', middlewares_2.isContestCreator, midd
     await contest.save();
     res.json(contest.contestEnd);
 });
+/* POST toggle isFeaturedArtistContest */
+listingRouter.post('/:id/toggleIsFeaturedArtistContest', middlewares_2.isContestCreator, middlewares_2.isEditable, async (req, res) => {
+    const contest = await contest_1.ContestModel
+        .findById(req.params.id)
+        .orFail();
+    contest.isFeaturedArtistContest = !contest.isFeaturedArtistContest;
+    await contest.save();
+    res.json(contest.isFeaturedArtistContest);
+});
 /* POST update contest status */
 listingRouter.post('/:id/updateStatus', middlewares_2.isContestCreator, middlewares_2.isEditable, async (req, res) => {
     const contest = await contest_1.ContestModel
@@ -289,7 +298,7 @@ listingRouter.post('/:id/updateStatus', middlewares_2.isContestCreator, middlewa
     }
     // complete requirements
     const completeStatusRequirements = [];
-    if (req.body.status == contest_2.ContestStatus.Complete) {
+    if (req.body.status == contest_2.ContestStatus.Locked || req.body.status == contest_2.ContestStatus.Complete) {
         if (!contest.submissions.length)
             completeStatusRequirements.push('submissions');
         if (!contest.download || !contest.download.length)

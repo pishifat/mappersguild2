@@ -50,6 +50,7 @@ const UserSchema = new mongoose_1.Schema({
     questPoints: { type: Number, default: 0 },
     modPoints: { type: Number, default: 0 },
     hostPoints: { type: Number, default: 0 },
+    contestCreatorPoints: { type: Number, default: 0 },
     contestParticipantPoints: { type: Number, default: 0 },
     contestScreenerPoints: { type: Number, default: 0 },
     contestJudgePoints: { type: Number, default: 0 },
@@ -64,7 +65,8 @@ const UserSchema = new mongoose_1.Schema({
 UserSchema.virtual('totalPoints').get(function () {
     return Math.round((this.easyPoints + this.normalPoints + this.hardPoints + this.insanePoints + this.expertPoints +
         this.storyboardPoints + this.questPoints + this.modPoints + this.hostPoints +
-        this.contestParticipantPoints + this.contestScreenerPoints + this.contestJudgePoints + this.legacyPoints) * 10) / 10;
+        this.contestCreatorPoints + this.contestParticipantPoints + this.contestScreenerPoints + this.contestJudgePoints +
+        this.legacyPoints) * 10) / 10;
 });
 UserSchema.virtual('availablePoints').get(function () {
     return Math.round((this.totalPoints - this.spentPoints) * 10) / 10;
@@ -76,7 +78,7 @@ UserSchema.virtual('pointsInfo').get(function () {
         mapping: Math.round((this.osuPoints + this.taikoPoints + this.catchPoints + this.maniaPoints) * 10) / 10,
         modding: this.modPoints,
         other: this.storyboardPoints + this.questPoints + this.hostPoints +
-            this.contestParticipantPoints + this.contestScreenerPoints + this.contestJudgePoints + this.legacyPoints,
+            this.contestCreatorPoints + this.contestParticipantPoints + this.contestScreenerPoints + this.contestJudgePoints + this.legacyPoints,
     };
     return pointsInfo;
 });
@@ -122,5 +124,5 @@ UserSchema.query.byUsernameOrOsuId = function (user) {
 };
 const UserModel = mongoose_1.default.model('User', UserSchema);
 exports.UserModel = UserModel;
-const populatePointsVirtuals = 'osuId username rank easyPoints normalPoints hardPoints insanePoints expertPoints storyboardPoints questPoints modPoints hostPoints contestParticipantPoints contestScreenerPoints contestJudgePoints';
+const populatePointsVirtuals = 'osuId username rank easyPoints normalPoints hardPoints insanePoints expertPoints storyboardPoints questPoints modPoints hostPoints contestCreatorPoints contestParticipantPoints contestScreenerPoints contestJudgePoints';
 exports.populatePointsVirtuals = populatePointsVirtuals;
