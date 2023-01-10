@@ -22,6 +22,9 @@
             <option value="judging">
                 Judging
             </option>
+            <option value="locked">
+                Locked (prevents editing while you publish results)
+            </option>
             <option value="complete">
                 Complete
             </option>

@@ -13,7 +13,7 @@ const contestSchema = new Schema<Contest>({
     osuContestListingUrl: { type: String },
     resultsUrl: { type: String },
     isApproved: { type: Boolean },
-    status: { type: String, enum: ['hidden', 'beatmapping', 'screening', 'judging', 'complete'], default: 'hidden' },
+    status: { type: String, enum: ['hidden', 'beatmapping', 'screening', 'judging', 'locked', 'complete'], default: 'hidden' },
     contestStart: { type: Date },
     contestEnd: { type: Date },
     submissions: [{ type: 'ObjectId', ref: 'Submission' }],

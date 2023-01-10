@@ -17,7 +17,7 @@
             </div>
 
             <div class="text-secondary">
-                {{ contest.status == 'complete' ? 'completed' : contest.status == 'hidden' ? 'hidden' : contest.status + ' phase' }}
+                {{ contest.status == 'complete' || contest.status == 'hidden' || contest.status == 'locked' ? contest.status : contest.status + ' phase' }}
             </div>
         </div>
     </div>

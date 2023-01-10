@@ -7,6 +7,7 @@ export enum ContestStatus {
     Beatmapping = 'beatmapping',
     Screening = 'screening',
     Judging = 'judging',
+    Locked = 'locked',
     Complete = 'complete',
 }
 

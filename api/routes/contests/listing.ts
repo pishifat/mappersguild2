@@ -337,7 +337,7 @@ listingRouter.post('/:id/updateStatus', isContestCreator, isEditable, async (req
     // complete requirements
     const completeStatusRequirements: string[] = [];
 
-    if (req.body.status == ContestStatus.Complete) {
+    if (req.body.status == ContestStatus.Locked || req.body.status == ContestStatus.Complete) {
         if (!contest.submissions.length) completeStatusRequirements.push('submissions');
         if (!contest.download || !contest.download.length) completeStatusRequirements.push('anonymized entries download link');
         if (!contest.resultsUrl || !contest.resultsUrl.length) completeStatusRequirements.push('results url');
