@@ -109,16 +109,15 @@ mentorshipRouter.post('/toggleIsMentorshipAdmin', async (req, res) => {
 
 /* POST add cycle */
 mentorshipRouter.post('/addCycle', async (req, res) => {
-    const { number, name, url, startDate, endDate } = req.body;
+    const { number, name, url, startDate, endDate, duplicateCycleId } = req.body;
 
     if (!number || !name || !url || !startDate || !endDate) {
         return res.json({ error: 'Missing input!' });
     }
 
-    const [numberCycle, nameCycle, urlCycle] = await Promise.all([
+    const [numberCycle, nameCycle] = await Promise.all([
         MentorshipCycleModel.findOne({ number }),
         MentorshipCycleModel.findOne({ name }),
-        MentorshipCycleModel.findOne({ url }),
     ]);
 
     if (numberCycle) {
@@ -127,10 +126,6 @@ mentorshipRouter.post('/addCycle', async (req, res) => {
 
     if (nameCycle) {
         return res.json({ error: 'Cycle already exists with this name!' });
-    }
-
-    if (urlCycle) {
-        return res.json({ error: 'Cycle already exists with this URL!' });
     }
 
     if (startDate > endDate) {
@@ -144,6 +139,33 @@ mentorshipRouter.post('/addCycle', async (req, res) => {
     cycle.startDate = new Date(startDate);
     cycle.endDate = new Date(endDate);
     await cycle.save();
+
+    if (duplicateCycleId && duplicateCycleId.length) {
+        const duplicateCycle = await MentorshipCycleModel
+            .findById(duplicateCycleId)
+            .orFail();
+
+        const users = await UserModel
+            .find({
+                'mentorships.cycle': duplicateCycle._id,
+            })
+            .populate(userCyclePopulate);
+
+        for (const user of users) {
+            for (const mentorship of user.mentorships) {
+                if (mentorship.cycle.id === duplicateCycle.id) {
+                    user.mentorships.push({
+                        cycle: cycle._id,
+                        mode: mentorship.mode,
+                        group: mentorship.group,
+                        mentor: mentorship.mentor ? mentorship.mentor._id : null,
+                    });
+                }
+            }
+
+            await user.save();
+        }
+    }
 
     await cycle.populate({
         path: 'participants',
@@ -310,6 +332,134 @@ mentorshipRouter.post('/removeParticipant', async (req, res) => {
     }
 
     await user.save();
+
+    await cycle.populate({
+        path: 'participants',
+    }).execPopulate();
+
+    res.json(cycle);
+});
+
+/* POST update cycle name */
+mentorshipRouter.post('/updateCycleName', async (req, res) => {
+    const { cycleId, name } = req.body;
+    const finalName = name.trim();
+
+    const [cycle, exists] = await Promise.all([
+        MentorshipCycleModel
+            .findById(cycleId)
+            .populate(defaultCyclePopulate)
+            .orFail(),
+        MentorshipCycleModel
+            .findOne({ name: finalName }),
+    ]);
+
+    if (exists) {
+        return res.json({ error: 'Cycle already exists with this name!' });
+    }
+
+    cycle.name = name;
+    await cycle.save();
+
+    await cycle.populate({
+        path: 'participants',
+    }).execPopulate();
+
+    res.json(cycle);
+});
+
+/* POST update cycle number */
+mentorshipRouter.post('/updateCycleNumber', async (req, res) => {
+    const { cycleId, number } = req.body;
+    const finalNumber = parseInt(number, 10);
+
+    const [cycle, exists] = await Promise.all([
+        MentorshipCycleModel
+            .findById(cycleId)
+            .populate(defaultCyclePopulate)
+            .orFail(),
+        MentorshipCycleModel
+            .findOne({ number: finalNumber }),
+    ]);
+
+    if (exists) {
+        return res.json({ error: 'Cycle already exists with this number!' });
+    }
+
+    cycle.number = finalNumber;
+    await cycle.save();
+
+    await cycle.populate({
+        path: 'participants',
+    }).execPopulate();
+
+    res.json(cycle);
+});
+
+/* POST update cycle url */
+mentorshipRouter.post('/updateCycleUrl', async (req, res) => {
+    const { cycleId, url } = req.body;
+    const finalUrl = url.trim();
+
+    const cycle = await MentorshipCycleModel
+        .findById(cycleId)
+        .populate(defaultCyclePopulate)
+        .orFail();
+
+    cycle.url = finalUrl;
+    await cycle.save();
+
+    await cycle.populate({
+        path: 'participants',
+    }).execPopulate();
+
+    res.json(cycle);
+});
+
+/* POST update cycle start date */
+mentorshipRouter.post('/updateCycleStartDate', async (req, res) => {
+    const { cycleId, startDate } = req.body;
+    const finalStartDate = new Date(startDate);
+
+    const cycle = await MentorshipCycleModel
+        .findById(cycleId)
+        .populate(defaultCyclePopulate)
+        .orFail();
+
+    const endDate = new Date(cycle.endDate);
+
+    if (finalStartDate > endDate) {
+        return res.json({ error: 'Cycle starts before cycle ends! Check your dates.' });
+    }
+
+    cycle.startDate = finalStartDate;
+    await cycle.save();
+
+    await cycle.populate({
+        path: 'participants',
+    }).execPopulate();
+
+    res.json(cycle);
+});
+
+/* POST update cycle end date */
+mentorshipRouter.post('/updateCycleEndDate', async (req, res) => {
+    const { cycleId, endDate } = req.body;
+    const finalEndDate = new Date(endDate);
+
+    const cycle = await MentorshipCycleModel
+        .findById(cycleId)
+        .populate(defaultCyclePopulate)
+        .orFail();
+
+    const startDate = new Date(cycle.startDate);
+
+    if (startDate > finalEndDate) {
+        return res.json({ error: 'Cycle starts before cycle ends! Check your dates.' });
+    }
+
+    cycle.endDate = finalEndDate;
+    await cycle.save();
 
     await cycle.populate({
         path: 'participants',

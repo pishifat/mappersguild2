@@ -1,41 +1,57 @@
 <template>
     <div>
         <div class="container card card-body py-3 mb-2">
-            <h5>Add cycle</h5>
-            <div class="input-group">
+            <h5>New cycle</h5>
+            <div class="text-secondary">
+                Add a new cycle based on input below.
+            </div>
+            <div class="text-secondary">
+                To copy relationships from an existing cycle, select the cycle in the dropdown.
+            </div>
+            <div class="row">
+                <div class="col-sm-6 mb-2">
+                    <select
+                        v-model="duplicateCycleId"
+                        class="form-select form-select d-inline"
+                    >
+                        <option value="" selected disabled>
+                            Select a cycle to duplicate
+                        </option>
+                        <option v-for="cycle in allCycles" :key="cycle.id" :value="cycle.id">
+                            {{ cycle.number }} - {{ cycle.name }}
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div class="input-group mt-2">
                 <input
                     v-model.number="cycleNumberInput"
                     class="form-control form-control-sm"
                     autocomplete="off"
                     type="number"
                     placeholder="new cycle number..."
-                    @keyup.enter="addCycle($event)"
                 />
                 <input
                     v-model.number="cycleNameInput"
                     class="form-control form-control-sm"
                     autocomplete="off"
                     placeholder="new cycle name..."
-                    @keyup.enter="addCycle($event)"
                 />
                 <input
                     v-model.number="cycleUrlInput"
                     class="form-control form-control-sm"
                     autocomplete="off"
                     placeholder="cycle details link..."
-                    @keyup.enter="addCycle($event)"
                 />
                 <input
                     v-model="cycleStartInput"
                     class="form-control form-control-sm"
                     type="date"
-                    @keyup.enter="addCycle($event)"
                 />
                 <input
                     v-model="cycleEndInput"
                     class="form-control form-control-sm"
                     type="date"
-                    @keyup.enter="addCycle($event)"
                 />
                 <div class="input-group-append">
                     <button
@@ -57,7 +73,7 @@ import { mapState, mapGetters } from 'vuex';
 import mentorshipModule from '@store/mentorship';
 
 export default defineComponent({
-    name: 'MentorshipPage',
+    name: 'Cycles',
     data () {
         return {
             cycleNumberInput: null,
@@ -65,6 +81,7 @@ export default defineComponent({
             cycleUrlInput: null,
             cycleStartInput: null,
             cycleEndInput: null,
+            duplicateCycleId: '',
         };
     },
     computed: {
@@ -85,7 +102,7 @@ export default defineComponent({
             const result = confirm('Are you sure? Details cannot be changed after adding.');
 
             if (result) {
-                const cycle: any = await this.$http.executePost(`/mentorship/addCycle`, { number: this.cycleNumberInput, name: this.cycleNameInput, url: this.cycleUrlInput, startDate: this.cycleStartInput, endDate: this.cycleEndInput }, e);
+                const cycle: any = await this.$http.executePost(`/mentorship/addCycle`, { number: this.cycleNumberInput, name: this.cycleNameInput, url: this.cycleUrlInput, startDate: this.cycleStartInput, endDate: this.cycleEndInput, duplicateCycleId: this.duplicateCycleId }, e);
 
                 if (!this.$http.isError(cycle)) {
                     this.$store.dispatch('updateToastMessages', {

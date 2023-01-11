@@ -2,6 +2,9 @@
     <div>
         <div class="container card card-body py-3">
             <h5>User Details</h5>
+            <div class="text-secondary mb-2">
+                View a user's mentorship history
+            </div>
             <div class="input-group w-25">
                 <input
                     v-model="userInput"
