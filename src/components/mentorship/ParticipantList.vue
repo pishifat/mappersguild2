@@ -176,7 +176,7 @@ export default defineComponent({
         findMentees(id): User[] {
             const mentees = this.modeMentees.filter(p => {
                 for (const mentorship of p.mentorships) {
-                    if (mentorship.group == 'mentee' && mentorship.mentor.toString() == id) {
+                    if (mentorship.group == 'mentee' && mentorship.mentor.toString() == id && mentorship.cycle.toString() == this.selectedCycle.id) {
                         return true;
                     }
                 }
