@@ -21,7 +21,12 @@ adminUsersRouter.get('/load', async (req, res) => {
 /* POST update user queuedBadge */
 adminUsersRouter.post('/:id/updateBadge', async (req, res) => {
     const badge = parseInt(req.body.badge, 10);
-    await UserModel.findByIdAndUpdate(req.params.id, { queuedBadge: badge }).orFail();
+
+    if (badge == 0) {
+        await UserModel.findByIdAndUpdate(req.params.id, { queuedBadge: badge, badge }).orFail();
+    } else {
+        await UserModel.findByIdAndUpdate(req.params.id, { queuedBadge: badge }).orFail();
+    }
 
     res.json(badge);
 });
