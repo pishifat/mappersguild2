@@ -45,7 +45,7 @@
                             </li>
                             <li class="nav-item dropdown">
                                 <a
-                                    id="adminDropdown"
+                                    id="contestDropdown"
                                     class="nav-link dropdown-toggle"
                                     data-bs-toggle="dropdown"
                                     href="#"
@@ -75,7 +75,10 @@
                                     </li>
                                 </ul>
                             </li>
-                            <li v-if="loggedInUser.isMentorshipAdmin" class="nav-item">
+                            <li v-if="loggedInUser.isMentorshipAdmin || loggedInUser.group == 'secret' || loggedInUser.group == 'admin'" class="nav-item mx-2" style="opacity: 0%; pointer-events: none;">
+                                |
+                            </li>
+                            <li v-if="loggedInUser.isMentorshipAdmin || loggedInUser.group == 'admin'" class="nav-item">
                                 <router-link class="nav-link" to="/mentorship">
                                     Mentorship
                                 </router-link>

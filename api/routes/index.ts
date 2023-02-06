@@ -11,6 +11,7 @@ import { webhookPost, webhookColors } from '../helpers/discordApi';
 import { FeaturedArtistModel } from '../models/featuredArtist';
 import { FeaturedArtistStatus } from '../../interfaces/featuredArtist';
 import { setSession } from '../helpers/helpers';
+import { QuestModel } from '../models/quest';
 
 const indexRouter = express.Router();
 
@@ -72,8 +73,11 @@ indexRouter.get('/home/:limit', async (req, res) => {
         })
         .limit(limit);
 
+    const quest = await QuestModel.findById('62d0799b1cfaf430df14eae3').defaultPopulate();
+
     res.json({
         artists,
+        quest,
     });
 });
 

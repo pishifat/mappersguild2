@@ -15,7 +15,7 @@
                     <img
                         :src="questIcon"
                         class="card-avatar-img"
-                    >
+                    />
                 </div>
                 <div class="col-sm-11">
                     <div class="row no-gutters">

@@ -1,5 +1,6 @@
 import { FeaturedArtist } from '@interfaces/featuredArtist';
 import { User } from '@interfaces/user';
+import { Quest } from '@interfaces/quest';
 import { createStore } from 'vuex';
 import toastsModule from './modules/toasts';
 
@@ -8,6 +9,7 @@ export interface MainState {
     isLoading: boolean;
     loggedInUser: User | null;
     homeArtists: FeaturedArtist[];
+    exampleQuest: Quest | null;
     limit: number;
 }
 
@@ -20,6 +22,7 @@ export const store = createStore<MainState>({
         isLoading: false,
         loggedInUser: null,
         homeArtists: [],
+        exampleQuest: null,
         limit: 6,
     },
     mutations: {
@@ -32,6 +35,9 @@ export const store = createStore<MainState>({
         },
         setLimit (state, limit) {
             state.limit = limit;
+        },
+        setExampleQuest (state, exampleQuest) {
+            state.exampleQuest = exampleQuest;
         },
         updateLoadingState (state) {
             state.isLoading = !state.isLoading;
