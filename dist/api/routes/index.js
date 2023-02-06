@@ -16,6 +16,7 @@ const discordApi_1 = require("../helpers/discordApi");
 const featuredArtist_1 = require("../models/featuredArtist");
 const featuredArtist_2 = require("../../interfaces/featuredArtist");
 const helpers_1 = require("../helpers/helpers");
+const quest_1 = require("../models/quest");
 const indexRouter = express_1.default.Router();
 /* GET loggedInUser */
 indexRouter.get('/me', async (req, res) => {
@@ -70,8 +71,10 @@ indexRouter.get('/home/:limit', async (req, res) => {
         'songs.beatmaps_count': { $gt: 0 },
     })
         .limit(limit);
+    const quest = await quest_1.QuestModel.findById('62d0799b1cfaf430df14eae3').defaultPopulate();
     res.json({
         artists,
+        quest,
     });
 });
 /* GET user's code to login */
