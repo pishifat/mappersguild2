@@ -146,7 +146,7 @@ export async function getUserInfo(token: string): Promise<OsuAuthResponse | Erro
     return await executeRequest(options);
 }
 
-export async function getUserInfoFromId(id: string): Promise<OsuApiV1UserResponse | ErrorResponse> {
+export async function getUserInfoFromId(id: string | number): Promise<OsuApiV1UserResponse | ErrorResponse> {
     const url = `https://osu.ppy.sh/api/get_user?k=${config.v1token}&u=${id}`;
     const res = await axios.get(url);
 

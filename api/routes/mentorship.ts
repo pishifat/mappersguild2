@@ -468,4 +468,43 @@ mentorshipRouter.post('/updateCycleEndDate', async (req, res) => {
     res.json(cycle);
 });
 
+/* POST add restricted user */
+mentorshipRouter.post('/addRestrictedUser', async (req, res) => {
+    const { usernameInput, osuIdInput } = req.body;
+
+    const osuId = parseInt(osuIdInput, 10);
+    const username = usernameInput.trim();
+    let user;
+
+    if (isNaN(osuId)) {
+        return res.json({ error: 'Invalid osu! ID' });
+    }
+
+    user = await UserModel.findOne  ({
+        $or: [
+            { username },
+            { osuId },
+        ],
+    });
+
+    if (user) {
+        return res.json({ error: `User already in Mappers' Guild` });
+    }
+
+    const usernameUserInfo = await getUserInfoFromId(username);
+    const osuIdUserInfo = await getUserInfoFromId(osuId);
+
+    if (usernameUserInfo || osuIdUserInfo) {
+        return res.json({ error: 'User exists on osu! web. Recheck username or osu! ID' });
+    }
+
+    user = new UserModel();
+    user.osuId = osuId;
+    user.username = username;
+    user.group = UserGroup.Spectator;
+    await user.save();
+
+    res.json(user);
+});
+
 export default mentorshipRouter;

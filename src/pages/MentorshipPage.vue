@@ -5,6 +5,7 @@
         <hr />
         <cycles />
         <administrators />
+        <add-restricted-user />
     </div>
 </template>
 
@@ -18,6 +19,7 @@ import Administrators from '@components/mentorship/Administrators.vue';
 import Cycles from '@components/mentorship/Cycles.vue';
 import Participants from '@components/mentorship/Participants.vue';
 import UserDetails from '@components/mentorship/UserDetails.vue';
+import AddRestrictedUser from '@components/mentorship/AddRestrictedUser.vue';
 
 export default defineComponent({
     name: 'MentorshipPage',
@@ -26,6 +28,7 @@ export default defineComponent({
         Cycles,
         Participants,
         UserDetails,
+        AddRestrictedUser,
     },
     data () {
         return {
@@ -52,17 +55,6 @@ export default defineComponent({
         if (!this.$http.isError(res)) {
             this.$store.commit('mentorship/setAdmins', res.admins);
             this.$store.commit('mentorship/setCycles', res.cycles);
-
-            /*const id = this.$route.query.id;
-
-            if (id) {
-                const i = this.allUsers.findIndex(u => u.id == id);
-
-                if (i >= 0) {
-                    this.$store.commit('mentorship/setSelectedUserId', id);
-                    this.$bs.showModal('extendedInfo');
-                }
-            }*/
         }
     },
     methods: {
