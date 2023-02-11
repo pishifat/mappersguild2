@@ -90,7 +90,7 @@ export default defineComponent({
         findRelevantMentees(cycleId): User[] {
             return this.selectedUser.mentees.filter(m => {
                 for (const mentorship of m.mentorships) {
-                    if (mentorship.cycle.toString() == cycleId && mentorship.group == 'mentee' && mentorship.mode == this.mode) {
+                    if (mentorship.cycle.toString() == cycleId && mentorship.group == 'mentee' && mentorship.mode == this.mode && mentorship.mentor.toString() == this.selectedUser.id) {
                         return true;
                     }
                 }
