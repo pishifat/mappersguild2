@@ -232,6 +232,7 @@ mentorshipRouter.post('/addMentor', async (req, res) => {
         cycle: cycle._id,
         mode,
         group: 'mentor',
+        phases: [1,2,3],
     });
 
     await user.save();
@@ -301,6 +302,7 @@ mentorshipRouter.post('/addMentee', async (req, res) => {
         mode,
         group: 'mentee',
         mentor: mentorId,
+        phases: [1,2,3],
     });
 
     await user.save();
