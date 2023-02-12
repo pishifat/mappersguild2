@@ -178,6 +178,9 @@
                         <participant-list
                             :mode="'graduation'"
                         />
+                        <participant-list
+                            :mode="'storyboard'"
+                        />
                     </div>
                 </div>
             </div>

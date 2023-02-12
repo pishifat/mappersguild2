@@ -194,7 +194,7 @@ export default defineComponent({
             });
         },
         title(): string {
-            if (this.mode == 'modding' || this.mode == 'graduation') {
+            if (this.mode == 'modding' || this.mode == 'graduation' || this.mode == 'storyboard') {
                 return this.mode;
             } else if (this.mode == 'osu') {
                 return 'osu!';

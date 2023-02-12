@@ -52,6 +52,10 @@
                         :mode="'graduation'"
                         :group="'mentor'"
                     />
+                    <cycle-list
+                        :mode="'storyboard'"
+                        :group="'mentor'"
+                    />
                 </div>
                 <div>
                     Mentee for <b>{{ totalMenteeDuration }} days</b> across all cycles and game modes
@@ -79,6 +83,10 @@
                     />
                     <cycle-list
                         :mode="'graduation'"
+                        :group="'mentee'"
+                    />
+                    <cycle-list
+                        :mode="'storyboard'"
                         :group="'mentee'"
                     />
                 </div>
