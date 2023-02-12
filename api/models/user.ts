@@ -19,6 +19,7 @@ const UserSchema = new Schema<User>({
         mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania', 'modding', 'graduation'], required: true }, // graduation = mentoring someone on how to mentor. stupid name
         group: { type: String, enum: ['mentor', 'mentee'], required: true },
         mentor: { type: 'ObjectId', ref: 'User' },
+        phases: [{ type: Number, default: [1, 2, 3] }],
     }],
     rank: { type: Number, default: 0 },
     easyPoints: { type: Number, default: 0 },
@@ -46,7 +47,7 @@ const UserSchema = new Schema<User>({
 UserSchema.virtual('totalPoints').get(function(this: User) {
     return Math.round((this.easyPoints + this.normalPoints + this.hardPoints + this.insanePoints + this.expertPoints +
         this.storyboardPoints + this.questPoints + this.modPoints + this.hostPoints +
-        this.contestCreatorPoints + this.contestParticipantPoints + this.contestScreenerPoints + this.contestJudgePoints + 
+        this.contestCreatorPoints + this.contestParticipantPoints + this.contestScreenerPoints + this.contestJudgePoints +
         this.legacyPoints)*10)/10;
 });
 

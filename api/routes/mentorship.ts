@@ -15,7 +15,7 @@ const defaultCyclePopulate = [
 ];
 
 const userCyclePopulate = [
-    { path: 'mentorships.cycle', select: 'name startDate endDate number url' },
+    { path: 'mentorships.cycle', select: 'name startDate endDate number url phases' },
     { path: 'mentorships', populate: { path: 'mentor' } },
     { path: 'mentees' },
 ];
@@ -159,6 +159,7 @@ mentorshipRouter.post('/addCycle', async (req, res) => {
                         mode: mentorship.mode,
                         group: mentorship.group,
                         mentor: mentorship.mentor ? mentorship.mentor._id : null,
+                        phases: mentorship.phases,
                     });
                 }
             }
@@ -505,6 +506,79 @@ mentorshipRouter.post('/addRestrictedUser', async (req, res) => {
     await user.save();
 
     res.json(user);
+});
+
+/* POST toggle phase */
+mentorshipRouter.post('/togglePhase', async (req, res) => {
+    const { cycleId, userId, mode, phaseNum } = req.body;
+
+    const [cycle, user] = await Promise.all([
+        MentorshipCycleModel
+            .findById(cycleId)
+            .populate(defaultCyclePopulate)
+            .orFail(),
+        UserModel
+            .findById(userId)
+            .populate(userCyclePopulate)
+            .orFail(),
+    ]);
+
+    const mentorshipIndex = user.mentorships.findIndex(m => m.cycle.id == cycle.id && m.mode == mode);
+    const mentorship = user.mentorships[mentorshipIndex];
+
+    if (mentorshipIndex == -1) {
+        return res.json({ error: `Couldn't find mentorship` });
+    }
+
+    // toggle the phase for relevant user's mentorship entry. save after following checks
+    const phaseIndex = user.mentorships[mentorshipIndex].phases.indexOf(phaseNum);
+
+    if (phaseIndex !== -1) {
+        user.mentorships[mentorshipIndex].phases.splice(phaseIndex, 1);
+    } else {
+        user.mentorships[mentorshipIndex].phases.push(phaseNum);
+    }
+
+    // disallow removing phases if mentee is logged in that phase
+    if (mentorship.group == 'mentor') {
+        const cycleMentees = await UserModel
+            .find({
+                'mentorships.cycle': cycle.id,
+                'mentorships.mentor': user.id,
+            })
+            .populate(userCyclePopulate);
+
+        for (const mentee of cycleMentees) {
+            const menteeMentorshipIndex = mentee.mentorships.findIndex(m => m.cycle.id == cycle.id && m.mode == mode && m.mentor.id == user.id);
+            const menteePhaseIndex = mentee.mentorships[menteeMentorshipIndex].phases.indexOf(phaseNum);
+
+            // return if mentee is in phase that you're trying to remove from mentor
+            if (phaseIndex !== -1 && menteePhaseIndex !== -1) {
+                return res.json({ error: `Can't remove mentor from phase while mentee(s) are in phase` });
+            }
+        }
+    } else if (mentorship.group == 'mentee') {
+        const mentor = await UserModel
+            .findById(mentorship.mentor._id)
+            .populate(userCyclePopulate)
+            .orFail();
+
+        const mentorMentorshipIndex = mentor.mentorships.findIndex(m => m.cycle.id == cycle.id && m.mode == mode);
+        const mentorPhaseIndex = mentor.mentorships[mentorMentorshipIndex].phases.indexOf(phaseNum);
+
+        // return if mentor isn't mentoring that phase
+        if (mentorPhaseIndex == -1) {
+            return res.json({ error: `Can't add mentee to phase that mentor isn't mentoring` });
+        }
+    }
+
+    await user.save();
+
+    await cycle.populate({
+        path: 'participants',
+    }).execPopulate();
+
+    res.json(cycle);
 });
 
 export default mentorshipRouter;

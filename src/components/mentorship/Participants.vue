@@ -154,6 +154,10 @@
                     {{ selectedCycle.startDate.slice(0,10) }} - {{ selectedCycle.endDate.slice(0,10) }}
                 </h5>
 
+                <button class="btn btn-sm btn-outline-info mb-2" @click="toggleShowPhases()">
+                    {{ showPhases ? 'Hide' : 'Show' }} phases
+                </button>
+
                 <div>
                     <div class="row">
                         <participant-list
@@ -207,6 +211,9 @@ export default defineComponent({
         ...mapState([
             'loggedInUser',
         ]),
+        ...mapState('mentorship', [
+            'showPhases',
+        ]),
         ...mapGetters('mentorship', [
             'allCycles',
             'selectedCycle',
@@ -228,6 +235,9 @@ export default defineComponent({
         }
     },
     methods: {
+        toggleShowPhases(): void {
+            this.$store.commit('mentorship/toggleShowPhases');
+        },
         async updateCycleName(e): Promise<void> {
             const cycle: any = await this.$http.executePost(`/mentorship/updateCycleName`, { cycleId: this.selectedCycle.id, name: this.cycleNameInput }, e);
 

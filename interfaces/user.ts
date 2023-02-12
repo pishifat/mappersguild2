@@ -37,6 +37,7 @@ export interface User extends Document {
         mode: string;
         group: string;
         mentor: User;
+        phases: number[];
     }[];
     rank: number;
     easyPoints: number;

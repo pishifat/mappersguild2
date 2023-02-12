@@ -162,7 +162,8 @@ export default defineComponent({
             for (const mentorship of mentorships) {
                 if (new Date() > new Date(mentorship.cycle.endDate)) {
                     const difference = new Date(mentorship.cycle.endDate).getTime() - new Date(mentorship.cycle.startDate).getTime();
-                    const days = difference / (1000*60*60*24);
+
+                    const days = Math.round((difference*(mentorship.phases.length/3)) / (1000*60*60*24));
                     duration += days;
                 }
             }

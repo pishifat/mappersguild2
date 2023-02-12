@@ -1,11 +1,16 @@
 <template>
     <div class="col-sm-3">
-            <h5>{{ title }}</h5>
+        <h5>{{ title }}</h5>
         <ol>
             <li v-for="user in modeMentors" :key="user.id + mode">
                 <user-link
                     :user="user"
                 />
+                <span
+                    v-if="!involvedInAllPhases(user)"
+                    v-bs-tooltip="'skips phases'"
+                    class="text-secondary"
+                >*</span>
                 <a
                     href="#"
                     class="text-success ms-1 small"
@@ -31,11 +36,27 @@
                         confirm
                     </a>
                 </span>
+                <span v-if="showPhases" class="small">
+                    <a
+                        v-for="i in 3"
+                        :key="i"
+                        href="#"
+                        :class="phaseEdit ? 'fake-button-disable' : ''"
+                        @click.prevent="togglePhase(user, i)"
+                    >
+                        <span :class="isPhaseParticipant(user, i) ? '' : 'text-danger'" class="ms-1">P{{ i }}</span>
+                    </a>
+                </span>
                 <ul>
                     <li v-for="mentee in findMentees(user.id)" :key="mentee.id + mode" class="small">
                         <user-link
                             :user="mentee"
                         />
+                        <span
+                            v-if="!involvedInAllPhases(mentee)"
+                            v-bs-tooltip="'skips phases'"
+                            class="text-secondary"
+                        >*</span>
                         <a
                             v-if="confirmDeleteMentee != mentee.id"
                             href="#"
@@ -52,6 +73,17 @@
                         >
                             confirm
                         </a>
+                        <span v-if="showPhases" class="small">
+                            <a
+                                v-for="i in 3"
+                                :key="i"
+                                href="#"
+                                :class="phaseEdit ? 'fake-button-disable' : ''"
+                                @click.prevent="togglePhase(mentee, i)"
+                            >
+                                <span :class="isPhaseParticipant(mentee, i) ? '' : 'text-danger'" class="ms-1">P{{ i }}</span>
+                            </a>
+                        </span>
                     </li>
                 </ul>
                 <div v-if="editingMentorId == user.id" class="input-group">
@@ -116,11 +148,15 @@ export default defineComponent({
             editingMentorId: '',
             confirmDeleteMentor: '',
             confirmDeleteMentee: '',
+            phaseEdit: false,
         };
     },
     computed: {
         ...mapState([
             'loggedInUser',
+        ]),
+        ...mapState('mentorship', [
+            'showPhases',
         ]),
         ...mapGetters('mentorship', [
             'selectedCycle',
@@ -184,6 +220,20 @@ export default defineComponent({
 
             return mentees;
         },
+        isPhaseParticipant(user, phaseNum): boolean {
+            const cycle = user.mentorships.find(m => m.cycle.toString() == this.selectedCycle.id && m.mode == this.mode);
+
+            if (cycle.phases.includes(phaseNum)) {
+                return true;
+            }
+
+            return false;
+        },
+        involvedInAllPhases(user): boolean {
+            const cycle = user.mentorships.find(m => m.cycle.toString() == this.selectedCycle.id && m.mode == this.mode);
+
+            return cycle.phases.length == 3;
+        },
         async addMentor(e): Promise<void> {
             const cycle: any = await this.$http.executePost(`/mentorship/addMentor`, { cycleId: this.selectedCycle.id, userInput: this.mentorInput, mode: this.mode }, e);
 
@@ -222,6 +272,27 @@ export default defineComponent({
                 this.confirmDeleteMentor = '';
             }
         },
+        async togglePhase(user, phaseNum): Promise<void> {
+            this.phaseEdit = true;
+            const cycle: any = await this.$http.executePost(`/mentorship/togglePhase`, { cycleId: this.selectedCycle.id, userId: user.id, mode: this.mode, phaseNum });
+
+            if (!this.$http.isError(cycle)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `Toggled phase ${phaseNum} for ${user.username}`,
+                    type: 'info',
+                });
+                this.$store.commit('mentorship/updateCycle', cycle);
+            }
+
+            this.phaseEdit = false;
+        },
     },
 });
 </script>
+
+<style scoped>
+.fake-button-disable {
+    pointer-events: none;
+    opacity: 0.6;
+}
+</style>

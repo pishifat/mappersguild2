@@ -8,6 +8,7 @@ interface UsersState {
     cycles: MentorshipCycle[];
     selectedCycleId: string | null;
     selectedUser: User | null;
+    showPhases: boolean;
 }
 
 const store: Module<UsersState, MainState> = {
@@ -17,6 +18,7 @@ const store: Module<UsersState, MainState> = {
         cycles: [],
         selectedCycleId: null,
         selectedUser: null,
+        showPhases: false,
     },
     mutations: {
         setAdmins (state, admins: User[]): void {
@@ -41,6 +43,9 @@ const store: Module<UsersState, MainState> = {
         },
         setSelectedUser (state, user: User): void {
             state.selectedUser = user;
+        },
+        toggleShowPhases (state): void {
+            state.showPhases = !state.showPhases;
         },
     },
     getters: {
