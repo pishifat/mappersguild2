@@ -25,7 +25,7 @@
             </div>
             <div v-if="selectedUser">
                 <div class="mt-2">
-                    Mentor for <b>{{ totalMentorDuration }} days</b> across all cycles and game modes
+                    Mentor for <b>{{ totalMentorDuration }}</b> across all cycles and game modes
                 </div>
                 <div class="row mt-2">
                     <cycle-list
@@ -58,7 +58,7 @@
                     />
                 </div>
                 <div>
-                    Mentee for <b>{{ totalMenteeDuration }} days</b> across all cycles and game modes
+                    Mentee for <b>{{ totalMenteeDuration }}</b> across all cycles and game modes
                 </div>
                 <div class="row mt-2">
                     <cycle-list
@@ -116,7 +116,7 @@ export default defineComponent({
         ...mapState('mentorship', [
             'selectedUser',
         ]),
-        totalMentorDuration(): number {
+        totalMentorDuration(): string {
             const mentorships = this.selectedUser.mentorships.filter(m => {
                 if (m.group == 'mentor') {
                     return true;
@@ -131,9 +131,18 @@ export default defineComponent({
                 return unique;
             },[]);
 
-            return this.calculateDuration(uniqueCycles);
+            const days = this.calculateDuration(uniqueCycles);
+
+            let years = Math.floor(days / 365);
+            let remainingDays = Math.round(days % 365);
+
+            if (years > 0) {
+                return `${years} ${years == 1 ? 'year' : 'years'} and ${remainingDays} days`;
+            } else {
+                return `${remainingDays} days`;
+            }
         },
-        totalMenteeDuration(): number {
+        totalMenteeDuration(): string {
             const mentorships = this.selectedUser.mentorships.filter(m => {
                 if (m.group == 'mentee') {
                     return true;
@@ -148,7 +157,16 @@ export default defineComponent({
                 return unique;
             },[]);
 
-            return this.calculateDuration(uniqueCycles);
+            const days = this.calculateDuration(uniqueCycles);
+
+            let years = Math.floor(days / 365);
+            let remainingDays = Math.round(days % 365);
+
+            if (years > 0) {
+                return `${years} ${years == 1 ? 'year' : 'years'}, ${remainingDays} days`;
+            } else {
+                return `${remainingDays} days`;
+            }
         },
     },
     beforeCreate () {

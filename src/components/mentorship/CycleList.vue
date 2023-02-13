@@ -1,7 +1,7 @@
 <template>
     <div class="col-sm-3">
         <div class="text-center">
-            <b :class="modeMentorships.length >= 4 && group == 'mentee' ? 'text-danger' : ''">{{ title }} {{ group }} cycles ({{ modeMentorships.length }})</b>
+            <b :class="modeMentorships.length >= 4 && group == 'mentee' ? 'text-danger' : ''">{{ title }} {{ group }} cycles ({{ mentorshipsToPhases }})</b>
         </div>
         <ul>
             <li v-for="mentorship in modeMentorships" :key="mentorship.id + mode">
@@ -59,6 +59,21 @@ export default defineComponent({
             }
 
             return [];
+        },
+        mentorshipsToPhases(): number {
+            if (this.modeMentorships.length) {
+                let count = 0;
+
+                for (const mentorship of this.modeMentorships) {
+                    if (mentorship.phases.length) {
+                        count += mentorship.phases.length/3;
+                    }
+                }
+
+                return Math.round(count*100)/100;
+            }
+
+            return 0;
         },
         modeDuration(): number {
             return this.calculateDuration(this.modeMentorships);
