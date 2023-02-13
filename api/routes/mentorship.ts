@@ -552,11 +552,14 @@ mentorshipRouter.post('/togglePhase', async (req, res) => {
 
         for (const mentee of cycleMentees) {
             const menteeMentorshipIndex = mentee.mentorships.findIndex(m => m.cycle.id == cycle.id && m.mode == mode && m.mentor.id == user.id);
-            const menteePhaseIndex = mentee.mentorships[menteeMentorshipIndex].phases.indexOf(phaseNum);
 
-            // return if mentee is in phase that you're trying to remove from mentor
-            if (phaseIndex !== -1 && menteePhaseIndex !== -1) {
-                return res.json({ error: `Can't remove mentor from phase while mentee(s) are in phase` });
+            if (menteeMentorshipIndex !== -1) {
+                const menteePhaseIndex = mentee.mentorships[menteeMentorshipIndex].phases.indexOf(phaseNum);
+
+                // return if mentee is in phase that you're trying to remove from mentor
+                if (phaseIndex !== -1 && menteePhaseIndex !== -1) {
+                    return res.json({ error: `Can't remove mentor from phase while mentee(s) are in phase` });
+                }
             }
         }
     } else if (mentorship.group == 'mentee') {
