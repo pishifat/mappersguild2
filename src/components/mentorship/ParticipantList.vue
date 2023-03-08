@@ -42,9 +42,9 @@
                         :key="i"
                         href="#"
                         :class="phaseEdit ? 'fake-button-disable' : ''"
-                        @click.prevent="togglePhase(user, i)"
+                        @click.prevent="togglePhase(user, i, null)"
                     >
-                        <span :class="isPhaseParticipant(user, i) ? '' : 'text-danger'" class="ms-1">P{{ i }}</span>
+                        <span :class="isPhaseParticipant(user, i, user.id) ? '' : 'text-danger'" class="ms-1">P{{ i }}</span>
                     </a>
                 </span>
                 <ul>
@@ -79,9 +79,9 @@
                                 :key="i"
                                 href="#"
                                 :class="phaseEdit ? 'fake-button-disable' : ''"
-                                @click.prevent="togglePhase(mentee, i)"
+                                @click.prevent="togglePhase(mentee, i, user.id)"
                             >
-                                <span :class="isPhaseParticipant(mentee, i) ? '' : 'text-danger'" class="ms-1">P{{ i }}</span>
+                                <span :class="isPhaseParticipant(mentee, i, user.id) ? '' : 'text-danger'" class="ms-1">P{{ i }}</span>
                             </a>
                         </span>
                     </li>
@@ -220,8 +220,8 @@ export default defineComponent({
 
             return mentees;
         },
-        isPhaseParticipant(user, phaseNum): boolean {
-            const cycle = user.mentorships.find(m => m.cycle.toString() == this.selectedCycle.id && m.mode == this.mode);
+        isPhaseParticipant(user, phaseNum, mentorId): boolean {
+            const cycle = user.mentorships.find(m => m.cycle.toString() == this.selectedCycle.id && m.mode == this.mode && (m.mentor ? m.mentor.toString() == mentorId : mentorId == user.id));
 
             if (cycle.phases.includes(phaseNum)) {
                 return true;
@@ -272,9 +272,9 @@ export default defineComponent({
                 this.confirmDeleteMentor = '';
             }
         },
-        async togglePhase(user, phaseNum): Promise<void> {
+        async togglePhase(user, phaseNum, mentorId): Promise<void> {
             this.phaseEdit = true;
-            const cycle: any = await this.$http.executePost(`/mentorship/togglePhase`, { cycleId: this.selectedCycle.id, userId: user.id, mode: this.mode, phaseNum });
+            const cycle: any = await this.$http.executePost(`/mentorship/togglePhase`, { cycleId: this.selectedCycle.id, userId: user.id, mode: this.mode, phaseNum, mentorId });
 
             if (!this.$http.isError(cycle)) {
                 this.$store.dispatch('updateToastMessages', {
