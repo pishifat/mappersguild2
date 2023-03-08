@@ -24,8 +24,8 @@ const store: Module<UsersState, MainState> = {
         selectedUserId: null,
         filterValue: '',
         filterMode: FilterMode.any,
-        sortBy: 'createdAt',
-        sortDesc: false,
+        sortBy: 'rank',
+        sortDesc: true,
         pagination: {
             page: 1,
             limit: 16,
