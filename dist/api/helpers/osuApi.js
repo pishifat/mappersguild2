@@ -101,16 +101,22 @@ async function beatmapsetInfo(setId) {
     try {
         const res = await axios_1.default.get(url);
         if (res?.data?.length > 0) {
-            const beatmapResponse = res.data[0];
-            beatmapResponse.approved = parseInt(beatmapResponse.approved, 10);
-            beatmapResponse.beatmap_id = parseInt(beatmapResponse.beatmap_id, 10);
-            beatmapResponse.beatmapset_id = parseInt(beatmapResponse.beatmapset_id, 10);
-            beatmapResponse.creator_id = parseInt(beatmapResponse.creator_id, 10);
-            beatmapResponse.hit_length = parseInt(beatmapResponse.hit_length, 10);
-            beatmapResponse.total_length = parseInt(beatmapResponse.total_length, 10);
-            beatmapResponse.mode = parseInt(beatmapResponse.mode, 10);
-            beatmapResponse.approved_date = new Date(beatmapResponse.approved_date);
-            return beatmapResponse;
+            const beatmaps = res.data;
+            let longestBeatmap = res.data[0];
+            for (const beatmap of beatmaps) {
+                if (parseInt(beatmap.total_length) > parseInt(longestBeatmap.total_length)) {
+                    longestBeatmap = beatmap;
+                }
+            }
+            longestBeatmap.approved = parseInt(longestBeatmap.approved, 10);
+            longestBeatmap.beatmap_id = parseInt(longestBeatmap.beatmap_id, 10);
+            longestBeatmap.beatmapset_id = parseInt(longestBeatmap.beatmapset_id, 10);
+            longestBeatmap.creator_id = parseInt(longestBeatmap.creator_id, 10);
+            longestBeatmap.hit_length = parseInt(longestBeatmap.hit_length, 10);
+            longestBeatmap.total_length = parseInt(longestBeatmap.total_length, 10);
+            longestBeatmap.mode = parseInt(longestBeatmap.mode, 10);
+            longestBeatmap.approved_date = new Date(longestBeatmap.approved_date);
+            return longestBeatmap;
         }
         return helpers_1.defaultErrorMessage;
     }

@@ -192,7 +192,7 @@ mentorshipRouter.post('/addMentor', async (req, res) => {
     }
     const exists = user.mentorships.some(m => m.cycle.toString() == cycle.id && m.mode == mode);
     if (exists) {
-        return res.json({ error: 'User already mentor/mentee for this cycle and mode' });
+        return res.json({ error: 'User already mentor for this cycle and mode' });
     }
     user.mentorships.push({
         cycle: cycle._id,
@@ -246,16 +246,31 @@ mentorshipRouter.post('/addMentee', async (req, res) => {
             }
         }
     }
-    const exists = user.mentorships.some(m => m.cycle.toString() == cycle.id && m.mode == mode);
-    if (exists) {
-        return res.json({ error: 'User already mentor/mentee for this cycle and mode' });
+    const mentorshipsThisCycle = user.mentorships.filter(m => m.cycle.toString() == cycle.id && m.mode == mode);
+    const phases = [];
+    if (mentorshipsThisCycle && mentorshipsThisCycle.length) {
+        for (const mentorship of mentorshipsThisCycle) {
+            for (const phase of mentorship.phases) {
+                phases.push(phase);
+            }
+        }
+    }
+    const maxPhases = [1, 2, 3];
+    const validPhases = [];
+    for (const num of maxPhases) {
+        if (!phases.includes(num)) {
+            validPhases.push(num);
+        }
+    }
+    if (!validPhases.length) {
+        return res.json({ error: 'User already mentee for all phases in this cycle and mode' });
     }
     user.mentorships.push({
         cycle: cycle._id,
         mode,
         group: 'mentee',
         mentor: mentorId,
-        phases: [1, 2, 3],
+        phases: validPhases,
     });
     await user.save();
     await cycle.populate({
@@ -414,7 +429,7 @@ mentorshipRouter.post('/addRestrictedUser', async (req, res) => {
 });
 /* POST toggle phase */
 mentorshipRouter.post('/togglePhase', async (req, res) => {
-    const { cycleId, userId, mode, phaseNum } = req.body;
+    const { cycleId, userId, mode, phaseNum, mentorId } = req.body;
     const [cycle, user] = await Promise.all([
         mentorshipCycle_1.MentorshipCycleModel
             .findById(cycleId)
@@ -425,7 +440,13 @@ mentorshipRouter.post('/togglePhase', async (req, res) => {
             .populate(userCyclePopulate)
             .orFail(),
     ]);
-    const mentorshipIndex = user.mentorships.findIndex(m => m.cycle.id == cycle.id && m.mode == mode);
+    let mentorshipIndex;
+    if (mentorId) {
+        mentorshipIndex = user.mentorships.findIndex(m => m.cycle.id == cycle.id && m.mode == mode && m.mentor.id == mentorId);
+    }
+    else {
+        mentorshipIndex = user.mentorships.findIndex(m => m.cycle.id == cycle.id && m.mode == mode);
+    }
     const mentorship = user.mentorships[mentorshipIndex];
     if (mentorshipIndex == -1) {
         return res.json({ error: `Couldn't find mentorship` });
@@ -436,7 +457,22 @@ mentorshipRouter.post('/togglePhase', async (req, res) => {
         user.mentorships[mentorshipIndex].phases.splice(phaseIndex, 1);
     }
     else {
-        user.mentorships[mentorshipIndex].phases.push(phaseNum);
+        // ensure the phase isn't active for another mentorship in the same cycle
+        const mentorshipsThisCycle = user.mentorships.filter(m => m.cycle.id == cycle.id && m.mode == mode);
+        const phases = [];
+        if (mentorshipsThisCycle && mentorshipsThisCycle.length) {
+            for (const mentorship of mentorshipsThisCycle) {
+                for (const phase of mentorship.phases) {
+                    phases.push(phase);
+                }
+            }
+        }
+        if (phases.includes(phaseNum) && mentorId) {
+            return res.json({ error: 'Mentee is already mentored in this phase of this cycle in this mode' });
+        }
+        else {
+            user.mentorships[mentorshipIndex].phases.push(phaseNum);
+        }
     }
     // disallow removing phases if mentee is logged in that phase
     if (mentorship.group == 'mentor') {
