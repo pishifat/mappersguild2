@@ -1,1 +1,0 @@
-import{d as a,o as r,b as e,f as n}from"./vendor.df51a6ea.js";var s=a({name:"Error"});const o={class:"container text-center mb-2"},t=[n("div",{class:"card"},[n("div",{class:"card-header"}," Something went wrong! "),n("div",{class:"card-body"}," Contact pishifat if you continue having problems ")],-1)];s.render=function(a,n,s,d,c,i){return r(),e("div",o,t)};export{s as default};
