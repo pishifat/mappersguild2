@@ -340,7 +340,7 @@ listingRouter.post('/:id/updateStatus', isContestCreator, isEditable, async (req
     if (req.body.status == ContestStatus.Locked || req.body.status == ContestStatus.Complete) {
         if (!contest.submissions.length) completeStatusRequirements.push('submissions');
         if (!contest.download || !contest.download.length) completeStatusRequirements.push('anonymized entries download link');
-        if (!contest.resultsUrl || !contest.resultsUrl.length) completeStatusRequirements.push('results url');
+        if (req.body.status == ContestStatus.Complete && (!contest.resultsUrl || !contest.resultsUrl.length)) completeStatusRequirements.push('results url'); // this one only applies to completed contests, not locked ones
 
         for (const submission of contest.submissions) {
             if (!submission.name) completeStatusRequirements.push(`submission name (${submission.id})`);
