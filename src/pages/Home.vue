@@ -26,7 +26,7 @@
                 <a href="https://osu.ppy.sh/wiki/Community/Mappers_Guild" target="_blank">The Mappers' Guild</a> is a hub for beatmaps associated with <a href="https://osu.ppy.sh/beatmaps/artists" target="_blank">osu!'s Featured Artists</a>!
             </div>
             <hr />
-            <div>For the most newest info about the Mappers' Guild, check out the channels below on the <a href="https://discord.gg/ppy" target="_blank">osu!dev Discord server</a>.</div>
+            <div>For the most newest info about Featured Artist mapping, check out the channels below on the <a href="https://discord.gg/ppy" target="_blank">osu!dev Discord server</a>.</div>
             <ul>
                 <li>
                     <code>#featured-artists</code>
