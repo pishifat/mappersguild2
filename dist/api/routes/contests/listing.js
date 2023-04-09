@@ -303,8 +303,8 @@ listingRouter.post('/:id/updateStatus', middlewares_2.isContestCreator, middlewa
             completeStatusRequirements.push('submissions');
         if (!contest.download || !contest.download.length)
             completeStatusRequirements.push('anonymized entries download link');
-        if (!contest.resultsUrl || !contest.resultsUrl.length)
-            completeStatusRequirements.push('results url');
+        if (req.body.status == contest_2.ContestStatus.Complete && (!contest.resultsUrl || !contest.resultsUrl.length))
+            completeStatusRequirements.push('results url'); // this one only applies to completed contests, not locked ones
         for (const submission of contest.submissions) {
             if (!submission.name)
                 completeStatusRequirements.push(`submission name (${submission.id})`);
