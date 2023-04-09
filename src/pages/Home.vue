@@ -20,12 +20,35 @@
             </div>
         </div>
 
-        <div class="container card card-body py-4">
+        <div class="container card card-body py-4 my-4">
             <h4>What is the Mappers' Guild?</h4>
             <div class="text-secondary">
                 <a href="https://osu.ppy.sh/wiki/Community/Mappers_Guild" target="_blank">The Mappers' Guild</a> is a hub for beatmaps associated with <a href="https://osu.ppy.sh/beatmaps/artists" target="_blank">osu!'s Featured Artists</a>!
             </div>
             <hr />
+            <div>For the most newest info about the Mappers' Guild, check out the channels below on the <a href="https://discord.gg/ppy" target="_blank">osu!dev Discord server</a>.</div>
+            <ul>
+                <li>
+                    <code>#featured-artists</code>
+                    <ul>
+                        <li>Events related to Featured Artists. Currently, this involves creating <a href="https://discord.com/channels/188630481301012481/1094639474941636819/1094685118603481129" target="_blank">playlists for osu!(lazer) with new Featured Artist beatmaps!</a></li>
+                        <li>Quick feedback from the mapping community on your Featured Artist maps</li>
+                        <li>Discussion related to Featured Artists</li>
+                    </ul>
+                </li>
+                <li>
+                    <code>#mappers-guild</code>
+                    <ul>
+                        <li>Mappers' Guild quest activity</li>
+                        <li>Feed of newly ranked Mappers' Guild beatmaps</li>
+                        <li>Mappers' Guild member announcements</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <div class="container card card-body py-4 my-4">
+            <h4>How does the Mappers' Guild work?</h4>
             <h5>Rewards</h5>
             <div class="text-secondary small mb-2">
                 Earn any of these profile badges (displayed on your osu! profile) by participating in the Mappers' Guild:
