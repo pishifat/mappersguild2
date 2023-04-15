@@ -37,7 +37,7 @@ const defaultContestPopulate = [
             {
                 path: 'judgings',
                 populate: {
-                    path: 'judge',
+                    path: 'judge judgingScores',
                 },
             },
         ],
