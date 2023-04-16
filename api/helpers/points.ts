@@ -139,6 +139,7 @@ export async function getUserRank(userId: any, tasksPoints: TasksPoints, modPoin
         tasksPoints.QuestReward +
         modPoints +
         hostPoints +
+        contestPoints.ContestCreator +
         contestPoints.ContestParticipant +
         contestPoints.ContestScreener +
         contestPoints.ContestJudge +
