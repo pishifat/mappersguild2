@@ -319,7 +319,7 @@
                 Quests are created weekly for every new osu! Featured Artist. See the <a href="/quests">quest listing</a> and explore what quests are available!
             </div>
             <hr />
-            <h5>Bounties</h5>
+            <!--<h5>Bounties</h5>
             <div class="text-secondary small">
                 <b>Bounties</b> are an upcoming addition to the Mappers' Guild (likely in March 2023). Here's an outline of how they will (probably) work:
                 <ul>
@@ -335,7 +335,7 @@
                     <li>A bounty's reward is specified per bounty. Due to the volatility and rarity of bounties, they yield higher rewards than quests.</li>
                 </ul>
             </div>
-            <hr />
+            <hr />-->
             <h5>Contests</h5>
             <div class="text-secondary small">
                 The <a href="/contests/listing">Mappers' Guild contest listing</a> serves as a central location for beatmap contest management. It includes:
