@@ -117,6 +117,7 @@ async function getUserRank(userId, tasksPoints, modPoints, hostPoints, contestPo
         tasksPoints.QuestReward +
         modPoints +
         hostPoints +
+        contestPoints.ContestCreator +
         contestPoints.ContestParticipant +
         contestPoints.ContestScreener +
         contestPoints.ContestJudge +
