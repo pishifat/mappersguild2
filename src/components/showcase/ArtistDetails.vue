@@ -46,7 +46,7 @@
                     {{ month }} (deadline estimate)
                 </div>
                 <div v-else>
-                    Deadline hasn't been set yet, but expect it to be within the next 4 months
+                    Deadline hasn't been set yet.
                 </div>
                 <div v-if="artist.offeredUsers && artist.offeredUsers.length && loggedInUser.group == 'admin'">
                     offered to
