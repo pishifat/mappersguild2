@@ -1,6 +1,6 @@
 <template>
     <modal-dialog
-        id="editUser"
+        :id="`editUser${currentGroup}`"
         :header-class="user ? 'bg-rank-' + user.rank : ''"
         :loaded="Boolean(user)"
     >
@@ -90,6 +90,10 @@ export default defineComponent({
         user: {
             type: Object as () => User,
             default: null,
+        },
+        currentGroup: {
+            type: String,
+            default: '',
         },
     },
     data() {

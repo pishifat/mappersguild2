@@ -20,7 +20,7 @@
             class="collapse"
             :data="groupedUsers"
             :headers="['USERNAME', 'RANK', 'QUEUED BADGE', 'BADGE']"
-            :custom-data-target="'#editUser'"
+            :custom-data-target="`#editUser${group}`"
             @update:selected-id="selectedUserId = $event"
         >
             <td>
@@ -54,6 +54,7 @@
 
         <user-info
             :user="selectedUser"
+            :current-group="group"
         />
     </div>
 </template>
