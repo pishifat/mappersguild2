@@ -1,51 +1,24 @@
 <template>
     <div>
-        <div class="container card card-body py-1">
-            <div class="row">
-                <div class="col-sm">
-                    <data-table
-                        v-slot="{ obj: user }"
-                        :data="users"
-                        :headers="['USERNAME', 'RANK', 'QUEUED BADGE', 'BADGE']"
-                        :custom-data-target="'#editUser'"
-                        @update:selected-id="selectedUserId = $event"
-                    >
-                        <td>
-                            <user-link :user="user" />
-                        </td>
-                        <td>
-                            <i
-                                v-if="user.rank"
-                                v-bs-tooltip="`rank ${user.rank} user`"
-                                class="fas fa-crown"
-                                :class="'text-rank-' + user.rank"
-                            />
-                        </td>
-                        <td :class="{ 'bg-open': user.rank != user.queuedBadge }">
-                            <i
-                                v-if="user.queuedBadge"
-                                v-bs-tooltip="`rank ${user.queuedBadge} user`"
-                                class="fas fa-crown"
-                                :class="'text-rank-' + user.queuedBadge"
-                            />
-                        </td>
-                        <td :class="{ 'bg-open': user.rank != user.badge }">
-                            <i
-                                v-if="user.badge"
-                                v-bs-tooltip="`rank ${user.badge} user`"
-                                class="fas fa-crown"
-                                :class="'text-rank-' + user.badge"
-                            />
-                        </td>
-                    </data-table>
-                </div>
-            </div>
+        <div class="container card card-body">
+            <h4 class="mt-2">Groups</h4>
+            <admin-user-table
+                :grouped-users="admins"
+                :group="'admin'"
+            />
+            <admin-user-table
+                :grouped-users="showcaseUsers"
+                :group="'secret'"
+            />
+            <admin-user-table
+                :grouped-users="normalUsers"
+                :group="'user'"
+            />
+            <admin-user-table
+                :grouped-users="spectators"
+                :group="'spectator'"
+            />
         </div>
-
-        <user-info
-            :user="selectedUser"
-            @update-user="updateUser($event)"
-        />
 
         <showcase-user-list />
         <contest-helper-user-list />
@@ -56,19 +29,17 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import UserInfo from '../../components/admin/UserInfo.vue';
-import DataTable from '../../components/admin/DataTable.vue';
+import AdminUserTable from './AdminUserTable.vue';
 import ShowcaseUserList from '../../components/admin/ShowcaseUserList.vue';
 import ContestHelperUserList from '../../components/admin/ContestHelperUserList.vue';
 import DiscordHighlightGenerator from '../../components/admin/DiscordHighlightGenerator.vue';
-import { User } from '../../../interfaces/user';
+import { User, UserGroup } from '../../../interfaces/user';
 import { mapState } from 'vuex';
 import usersAdminModule from '@store/admin/users';
 
 export default defineComponent({
     components: {
-        DataTable,
-        UserInfo,
+        AdminUserTable,
         ShowcaseUserList,
         ContestHelperUserList,
         DiscordHighlightGenerator,
@@ -84,6 +55,18 @@ export default defineComponent({
         }),
         selectedUser(): undefined | User {
             return this.users.find(u => u.id === this.selectedUserId);
+        },
+        spectators(): User[] {
+            return this.users.filter(u => u.group == UserGroup.Spectator);
+        },
+        normalUsers(): User[] {
+            return this.users.filter(u => u.group == UserGroup.User);
+        },
+        showcaseUsers(): User[] {
+            return this.users.filter(u => u.group == UserGroup.Secret);
+        },
+        admins(): User[] {
+            return this.users.filter(u => u.group == UserGroup.Admin);
         },
     },
     beforeCreate () {
@@ -102,15 +85,6 @@ export default defineComponent({
         if (!this.$http.isError(users)) {
             this.$store.commit('setUsers', users);
         }
-    },
-    methods: {
-        updateUser(u): void {
-            const i = this.users.findIndex(user => user.id == u.id);
-
-            if (i !== -1) {
-                this.users[i] = u;
-            }
-        },
     },
 });
 </script>
