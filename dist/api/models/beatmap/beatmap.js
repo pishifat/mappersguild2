@@ -101,6 +101,7 @@ BeatmapSchema.methods.checkTaskAvailability = async function (user, taskName, ta
     }
     // host and invites can bypass this
     if (this.host.id != user.id &&
+        !inviteType &&
         this.tasksLocked &&
         this.tasksLocked.some(t => t === taskName)) {
         throw new Error('This task is locked by the mapset host!');

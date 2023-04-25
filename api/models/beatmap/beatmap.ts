@@ -109,6 +109,7 @@ BeatmapSchema.methods.checkTaskAvailability = async function (this: Beatmap, use
     // host and invites can bypass this
     if (
         this.host.id != user.id &&
+        !inviteType &&
         this.tasksLocked &&
         this.tasksLocked.some(t => t === taskName)
     ) {
