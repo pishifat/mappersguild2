@@ -43,4 +43,9 @@ export interface FeaturedArtist {
     oszTemplatesUrl: string;
     showcaseMappers: User[];
     offeredUsers: User[];
+
+    // actionArtist admin processing
+    lastReviewed: Date;
+    reviewComment: string;
+    permanentlyDismiss: boolean;
 }

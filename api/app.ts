@@ -142,6 +142,7 @@ app.listen(port, () => {
     automation.completeQuests.start();
     automation.rankUsers.start();
     automation.updatePoints.start();
+    automation.processDailyArtists.start();
 });
 
 export default app;

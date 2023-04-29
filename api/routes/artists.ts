@@ -423,7 +423,6 @@ artistsRouter.post('/osuBeatmaps/removeAdministratorFromOsuBeatmap/:id', async (
 
 /* POST update lastChecked */
 artistsRouter.post('/osuBeatmaps/updateLastChecked/:id', async (req, res) => {
-    console.log(req.body.date);
     const newOsuBeatmap = await OsuBeatmapModel
         .findByIdAndUpdate(req.params.id, { lastChecked: req.body.date })
         .populate(defaultOsuBeatmapPopulate)

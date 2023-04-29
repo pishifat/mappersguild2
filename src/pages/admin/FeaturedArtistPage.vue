@@ -7,6 +7,7 @@
                         v-slot="{ obj: featuredArtist }"
                         :data="featuredArtists"
                         :headers="['ARTIST']"
+                        :custom-data-target="'#editFeaturedArtist'"
                         @update:selected-id="selectedFeaturedArtistId = $event"
                     >
                         <td>

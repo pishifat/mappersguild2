@@ -1,5 +1,5 @@
 <template>
-    <modal-dialog id="edit" :loaded="Boolean(featuredArtist)">
+    <modal-dialog id="editFeaturedArtist" :loaded="Boolean(featuredArtist)">
         <template #header>
             <a
                 v-if="featuredArtist.osuId"
@@ -148,6 +148,39 @@
                         Delete song
                     </button>
                 </div>
+                <hr />
+                <h5>Admin review</h5>
+                <div class="row mb-2 mx-1">
+                    <input
+                        v-model="reviewComment"
+                        class="form-control form-control-sm mx-2 w-50"
+                        type="text"
+                        autocomplete="off"
+                        placeholder="review comment..."
+                        @keyup.enter="updateReviewComment($event)"
+                    />
+                    <button class="btn btn-sm btn-outline-info w-25" @click="updateReviewComment($event)">
+                        Update review comment
+                    </button>
+                </div>
+                <div class="row mb-2">
+                    <span class="col-sm-6">
+                        Last reviewed:
+                        <span class="text-secondary">{{ new Date(featuredArtist.lastReviewed) || 'Never' }}</span>
+                    </span>
+                    <button class="btn btn-sm btn-outline-info ms-3 w-25" @click="updateLastReviewed($event)">
+                        Set as today
+                    </button>
+                </div>
+                <div class="row mb-2">
+                    <span class="col-sm-6">
+                        Permanently dismissed:
+                        <span class="text-danger me-2">{{ featuredArtist.permanentlyDismiss ? 'true' : 'false' }}</span>
+                    </span>
+                    <button class="btn btn-sm btn-outline-info ms-3 w-25" @click="updatePermanentlyDismiss($event)">
+                        Toggle
+                    </button>
+                </div>
             </div>
         </template>
     </modal-dialog>
@@ -183,6 +216,7 @@ export default defineComponent({
             selectedSong: null as null | FeaturedSong,
             artist: '',
             title: '',
+            reviewComment: '',
         };
     },
     computed: {
@@ -203,6 +237,7 @@ export default defineComponent({
             this.oszTemplatesUrl = this.featuredArtist.oszTemplatesUrl;
             this.offeredUsers = this.generateUserListText(this.featuredArtist.offeredUsers);
             this.title = '';
+            this.reviewComment = this.featuredArtist.reviewComment;
         },
         selectedSong(): void {
             if (this.selectedSong) {
@@ -361,6 +396,48 @@ export default defineComponent({
                 this.$store.commit('deleteSong', {
                     featuredArtistId: this.featuredArtist.id,
                     songId: this.selectedSong.id,
+                });
+            }
+        },
+        async updateReviewComment(e): Promise<void> {
+            const reviewComment = await this.$http.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/updateReviewComment`, { reviewComment: this.reviewComment }, e);
+
+            if (!this.$http.isError(reviewComment)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated review comment`,
+                    type: 'info',
+                });
+                this.$store.commit('updateReviewComment', {
+                    featuredArtistId: this.featuredArtist.id,
+                    reviewComment,
+                });
+            }
+        },
+        async updateLastReviewed(e): Promise<void> {
+            const lastReviewed = await this.$http.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/updateLastReviewed`, {}, e);
+
+            if (!this.$http.isError(lastReviewed)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated last reviewed`,
+                    type: 'info',
+                });
+                this.$store.commit('updateLastReviewed', {
+                    featuredArtistId: this.featuredArtist.id,
+                    lastReviewed,
+                });
+            }
+        },
+        async updatePermanentlyDismiss(e): Promise<void> {
+            const permanentlyDismiss = await this.$http.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/togglePermanentlyDismiss`, {}, e);
+
+            if (!this.$http.isError(permanentlyDismiss)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated permanenlty dismiss: ${permanentlyDismiss}`,
+                    type: 'info',
+                });
+                this.$store.commit('updatePermanentlyDismiss', {
+                    featuredArtistId: this.featuredArtist.id,
+                    permanentlyDismiss,
                 });
             }
         },

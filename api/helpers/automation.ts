@@ -1,7 +1,6 @@
 import cron from 'node-cron';
 import { findBeatmapsetId, sleep, findBeatmapsetStatus, setBeatmapStatusRanked, generateAuthorWebhook, generateThumbnailUrl, generateLists } from './helpers';
-import { beatmapsetInfo, isOsuResponseError, getClientCredentialsGrant, getBeatmapsetV2Info, getDiscussions } from './osuApi';
-import { sendMessages } from './osuBot';
+import { beatmapsetInfo, isOsuResponseError, getClientCredentialsGrant, getBeatmapsetV2Info, getDiscussions, getBeatmapsSearch } from './osuApi';
 import { devWebhookPost, webhookPost, webhookColors } from './discordApi';
 import { BeatmapModel } from '../models/beatmap/beatmap';
 import { BeatmapStatus } from '../../interfaces/beatmap/beatmap';
@@ -482,4 +481,39 @@ const updatePoints = cron.schedule('0 0 21 * *', async () => {
     scheduled: false,
 });
 
-export default { sendActionNotifications, setQualified, qualifiedMapChecks, setRanked, publishQuests, completeQuests, rankUsers, updatePoints };
+/* create FeaturedArtist for every artist that doesn't already exist based on the last 50 maps ranked per day */
+const processDailyArtists = cron.schedule('0 19 * * *', async () => {
+    const response = await getClientCredentialsGrant();
+    let token;
+    if (!isOsuResponseError(response)) token = response.access_token;
+
+    const searchResults: any = await getBeatmapsSearch(token, ``);
+
+    if (searchResults.beatmapsets && searchResults.beatmapsets.length) {
+        for (const beatmapset of searchResults.beatmapsets) {
+            const fa = await FeaturedArtistModel.findOne({ label: { '$regex': `^${beatmapset.artist}$`, '$options': 'i' } });
+
+            if (!fa) {
+                const artistSearchResults: any = await getBeatmapsSearch(token, `?q=artist%3D"${beatmapset.artist}"&s=any&sort=plays_desc`);
+
+                if (artistSearchResults.beatmapsets && artistSearchResults.beatmapsets.length) {
+                    let playcount = 0;
+
+                    for (const beatmapset of artistSearchResults.beatmapsets) {
+                        playcount += beatmapset.play_count;
+                    }
+
+                    if (playcount > 5000) {
+                        const a = new FeaturedArtistModel();
+                        a.label = beatmapset.artist;
+                        await a.save();
+                    }
+                }
+            }
+        }
+    }
+}, {
+    scheduled: false,
+});
+
+export default { sendActionNotifications, setQualified, qualifiedMapChecks, setRanked, publishQuests, completeQuests, rankUsers, updatePoints, processDailyArtists };

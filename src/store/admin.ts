@@ -4,6 +4,7 @@ import { Beatmap, BeatmapStatus } from '@interfaces/beatmap/beatmap';
 import { Quest } from '@interfaces/quest';
 import { User } from '@interfaces/user';
 import { Contest } from '@interfaces/contest/contest';
+import { FeaturedArtist } from '@interfaces/featuredArtist';
 
 interface AdminState {
     actionBeatmaps: Beatmap[];
@@ -14,10 +15,13 @@ interface AdminState {
     actionUsersLoading: boolean;
     actionContests: Contest[];
     actionContestsLoading: boolean;
+    actionArtists: FeaturedArtist[];
+    actionArtistsLoading: boolean;
     selectedBeatmap: null | Beatmap;
     selectedQuest: null | Quest;
     selectedUser: null | User;
     selectedContest: null | Contest;
+    selectedArtist: null | FeaturedArtist;
 }
 
 const store: Module<AdminState, MainState> = {
@@ -30,10 +34,13 @@ const store: Module<AdminState, MainState> = {
         actionUsersLoading: false,
         actionContests: [],
         actionContestsLoading: false,
+        actionArtists: [],
+        actionArtistsLoading: false,
         selectedBeatmap: null,
         selectedQuest: null,
         selectedUser: null,
         selectedContest: null,
+        selectedArtist: null,
     },
     mutations: {
         setActionBeatmaps (state, actionBeatmaps: Beatmap[]): void {
@@ -60,6 +67,12 @@ const store: Module<AdminState, MainState> = {
         setActionContestsLoading (state, value: boolean): void {
             state.actionContestsLoading = value;
         },
+        setActionArtists (state, actionArtists: FeaturedArtist[]): void {
+            state.actionArtists = actionArtists;
+        },
+        setActionArtistsLoading (state, value: boolean): void {
+            state.actionArtistsLoading = value;
+        },
         setSelectedBeatmap (state, selectedBeatmap: Beatmap): void {
             state.selectedBeatmap = selectedBeatmap;
         },
@@ -71,6 +84,9 @@ const store: Module<AdminState, MainState> = {
         },
         setSelectedContest (state, selectedContest: Contest): void {
             state.selectedContest = selectedContest;
+        },
+        setSelectedArtist (state, selectedArtist: FeaturedArtist): void {
+            state.selectedArtist = selectedArtist;
         },
 
         // beatmaps
@@ -273,6 +289,29 @@ const store: Module<AdminState, MainState> = {
 
             if (contest) {
                 contest.isFeaturedArtistContest = payload.isFeaturedArtistContest;
+            }
+        },
+
+        // artists
+        updateReviewComment (state, payload): void {
+            const artist = state.actionArtists.find(f => f.id == payload.featuredArtistId);
+
+            if (artist) {
+                artist.reviewComment = payload.reviewComment;
+            }
+        },
+        updateLastReviewed (state, payload): void {
+            const artist = state.actionArtists.find(f => f.id == payload.featuredArtistId);
+
+            if (artist) {
+                artist.lastReviewed = payload.lastReviewed;
+            }
+        },
+        updatePermanentlyDismiss (state, payload): void {
+            const artist = state.actionArtists.find(f => f.id == payload.featuredArtistId);
+
+            if (artist) {
+                artist.permanentlyDismiss = payload.permanentlyDismiss;
             }
         },
     },

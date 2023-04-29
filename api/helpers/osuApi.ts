@@ -33,6 +33,10 @@ export interface OsuBeatmapsetDiscussionV2Response {
     discussions: [];
 }
 
+export interface OsuBeatmapsetSearchV2Response {
+    beatmapsets: [];
+}
+
 export interface OsuBeatmapV2 {
     user_id: number;
 }
@@ -55,7 +59,7 @@ export interface OsuApiV1UserResponse {
     // don't care about anything else
 }
 
-export function isOsuResponseError(errorResponse: OsuBeatmapResponse | OsuBeatmapResponse[] | OsuAuthResponse | OsuApiV1UserResponse | OsuBeatmapsetV2Response | OsuBeatmapsetDiscussionV2Response | ErrorResponse): errorResponse is ErrorResponse {
+export function isOsuResponseError(errorResponse: OsuBeatmapResponse | OsuBeatmapResponse[] | OsuAuthResponse | OsuApiV1UserResponse | OsuBeatmapsetV2Response | OsuBeatmapsetDiscussionV2Response | OsuBeatmapsetSearchV2Response | ErrorResponse): errorResponse is ErrorResponse {
     return (errorResponse as ErrorResponse).error !== undefined;
 }
 
@@ -252,6 +256,30 @@ export async function getMaps(date: Date): Promise<OsuBeatmapResponse[] | ErrorR
 
         if (beatmaps.length > 0) {
             return beatmaps;
+        }
+
+        return defaultErrorMessage;
+    } catch (error) {
+        return defaultErrorMessage;
+    }
+}
+
+export async function getBeatmapsSearch(token, params): Promise<OsuBeatmapsetSearchV2Response | ErrorResponse> {
+    const url = `https://osu.ppy.sh/api/v2/beatmapsets/search/${params}`;
+
+    const options: AxiosRequestConfig = {
+        method: 'GET',
+        url,
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    };
+
+    try {
+        const res = await axios(options);
+
+        if (res?.data) {
+            return res.data;
         }
 
         return defaultErrorMessage;

@@ -1,22 +1,22 @@
 <template>
     <div>
+        <div class="radial-divisor" />
+
         <artist-page-filters />
 
-        <artists-in-progress />
+        <artists-in-progress class="mb-2" />
 
-        <div class="radial-divisor" />
-
-        <artists-planned />
-
-        <div class="radial-divisor" />
+        <artists-planned class="mb-2" />
 
         <artists-inactive />
 
         <div class="radial-divisor" />
 
-        <osu-beatmaps-list />
+        <!--<osu-beatmaps-list />
 
-        <div class="radial-divisor" />
+        <div class="radial-divisor" />-->
+
+        <artist-search class="mb-2 card card-body" />
 
         <mail-generator v-if="loggedInUser.osuId == 3178418" />
 
@@ -32,7 +32,8 @@ import ArtistPageFilters from './ArtistPageFilters.vue';
 import ArtistsInProgress from './ArtistsInProgress.vue';
 import ArtistsPlanned from './ArtistsPlanned.vue';
 import ArtistsInactive from './ArtistsInactive.vue';
-import OsuBeatmapsList from '@components/artists/OsuBeatmapsList.vue';
+//import OsuBeatmapsList from '@components/artists/OsuBeatmapsList.vue';
+import ArtistSearch from '@components/artists/ArtistSearch.vue';
 import MailGenerator from '@components/artists/MailGenerator.vue';
 import artistsModule from '@store/artists';
 
@@ -44,7 +45,8 @@ export default defineComponent({
         ArtistsPlanned,
         ArtistsInactive,
         AddArtist,
-        OsuBeatmapsList,
+        ArtistSearch,
+        //OsuBeatmapsList,
         MailGenerator,
     },
     computed: {

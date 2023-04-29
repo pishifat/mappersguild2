@@ -76,6 +76,27 @@ const store: Module<FeaturedArtistState, MainState> = {
                 }
             }
         },
+        updateReviewComment (state, payload): void {
+            const featuredArtist = state.featuredArtists.find(f => f.id == payload.featuredArtistId);
+
+            if (featuredArtist) {
+                featuredArtist.reviewComment = payload.reviewComment;
+            }
+        },
+        updateLastReviewed (state, payload): void {
+            const featuredArtist = state.featuredArtists.find(f => f.id == payload.featuredArtistId);
+
+            if (featuredArtist) {
+                featuredArtist.lastReviewed = payload.lastReviewed;
+            }
+        },
+        updatePermanentlyDismiss (state, payload): void {
+            const featuredArtist = state.featuredArtists.find(f => f.id == payload.featuredArtistId);
+
+            if (featuredArtist) {
+                featuredArtist.permanentlyDismiss = payload.permanentlyDismiss;
+            }
+        },
     },
 };
 

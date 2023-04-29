@@ -18,7 +18,7 @@
                         placeholder="beatmap content..."
                         autocomplete="off"
                         @keyup.enter="savedFilterValue = filterValue.toLowerCase()"
-                    >
+                    />
                     <slot />
                 </div>
             </div>
