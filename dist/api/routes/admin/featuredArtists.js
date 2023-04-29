@@ -119,4 +119,20 @@ adminFeaturedArtistsRouter.get('/findRecentlyLicensedSongs', async (req, res) =>
     console.log(songs.length);
     res.json({ songs });
 });
+/* POST update review comment */
+adminFeaturedArtistsRouter.post('/:id/updateReviewComment', async (req, res) => {
+    await featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { reviewComment: req.body.reviewComment }).orFail();
+    res.json(req.body.reviewComment);
+});
+/* POST update last reviewed */
+adminFeaturedArtistsRouter.post('/:id/updateLastReviewed', async (req, res) => {
+    await featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { lastReviewed: new Date() }).orFail();
+    res.json(new Date());
+});
+/* POST toggle permanently dismiss */
+adminFeaturedArtistsRouter.post('/:id/togglePermanentlyDismiss', async (req, res) => {
+    const artist = await featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id).orFail();
+    await featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { permanentlyDismiss: !artist.permanentlyDismiss }).orFail();
+    res.json(!artist.permanentlyDismiss);
+});
 exports.default = adminFeaturedArtistsRouter;

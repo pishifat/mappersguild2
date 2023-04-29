@@ -12,9 +12,12 @@ const beatmap_1 = require("../../models/beatmap/beatmap");
 const beatmap_2 = require("../../../interfaces/beatmap/beatmap");
 const contest_1 = require("../../models/contest/contest");
 const contest_2 = require("../../../interfaces/contest/contest");
+const osuApi_1 = require("../../helpers/osuApi");
+const featuredArtist_1 = require("../../models/featuredArtist");
 const adminRouter = express_1.default.Router();
 adminRouter.use(middlewares_1.isLoggedIn);
 adminRouter.use(middlewares_1.isAdmin);
+adminRouter.use(middlewares_1.isSuperAdmin);
 /* GET beatmaps in need of action */
 adminRouter.get('/loadActionBeatmaps/', async (req, res) => {
     const actionBeatmaps = await beatmap_1.BeatmapModel
@@ -57,5 +60,32 @@ adminRouter.get('/loadActionContests/', async (req, res) => {
     })
         .populate({ path: 'creators' });
     res.json(actionContests);
+});
+/* GET artists in need of action */
+adminRouter.get('/loadActionArtists/', async (req, res) => {
+    const oneYearAgo = new Date();
+    oneYearAgo.setDate(oneYearAgo.getDate() - 365);
+    const actionArtists = await featuredArtist_1.FeaturedArtistModel
+        .find({
+        $or: [
+            { lastReviewed: { $lt: oneYearAgo } },
+            { lastReviewed: { $exists: false } },
+        ],
+        permanentlyDismiss: { $ne: true },
+        osuId: { $exists: false },
+    })
+        .defaultPopulateWithSongs()
+        .sort({ lastReviewed: -1, lastContacted: -1 });
+    res.json(actionArtists);
+});
+/* POST update lastChecked */
+adminRouter.get('/artistSearch/:input', async (req, res) => {
+    const response = await osuApi_1.getClientCredentialsGrant();
+    if (osuApi_1.isOsuResponseError(response)) {
+        return res.json({ error: `Couldn't get client credentials.` });
+    }
+    const token = response.access_token;
+    const searchResults = await osuApi_1.getBeatmapsSearch(token, `?q=artist%3D"${req.params.input}"&s=any&sort=plays_desc`);
+    res.json(searchResults);
 });
 exports.default = adminRouter;

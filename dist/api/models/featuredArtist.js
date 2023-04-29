@@ -50,6 +50,10 @@ const featuredArtistSchema = new mongoose_1.Schema({
     oszTemplatesUrl: { type: String },
     showcaseMappers: [{ type: 'ObjectId', ref: 'User' }],
     offeredUsers: [{ type: 'ObjectId', ref: 'User' }],
+    // actionArtist admin processing
+    lastReviewed: { type: Date },
+    reviewComment: { type: String },
+    permanentlyDismiss: { type: Boolean, default: false },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 const queryHelpers = {
     defaultPopulate() {

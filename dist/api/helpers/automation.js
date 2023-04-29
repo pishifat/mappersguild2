@@ -407,4 +407,33 @@ const updatePoints = node_cron_1.default.schedule('0 0 21 * *', async () => {
 }, {
     scheduled: false,
 });
-exports.default = { sendActionNotifications, setQualified, qualifiedMapChecks, setRanked, publishQuests, completeQuests, rankUsers, updatePoints };
+/* create FeaturedArtist for every artist that doesn't already exist based on the last 50 maps ranked per day */
+const processDailyArtists = node_cron_1.default.schedule('0 19 * * *', async () => {
+    const response = await osuApi_1.getClientCredentialsGrant();
+    let token;
+    if (!osuApi_1.isOsuResponseError(response))
+        token = response.access_token;
+    const searchResults = await osuApi_1.getBeatmapsSearch(token, ``);
+    if (searchResults.beatmapsets && searchResults.beatmapsets.length) {
+        for (const beatmapset of searchResults.beatmapsets) {
+            const fa = await featuredArtist_1.FeaturedArtistModel.findOne({ label: { '$regex': `^${beatmapset.artist}$`, '$options': 'i' } });
+            if (!fa) {
+                const artistSearchResults = await osuApi_1.getBeatmapsSearch(token, `?q=artist%3D"${beatmapset.artist}"&s=any&sort=plays_desc`);
+                if (artistSearchResults.beatmapsets && artistSearchResults.beatmapsets.length) {
+                    let playcount = 0;
+                    for (const beatmapset of artistSearchResults.beatmapsets) {
+                        playcount += beatmapset.play_count;
+                    }
+                    if (playcount > 5000) {
+                        const a = new featuredArtist_1.FeaturedArtistModel();
+                        a.label = beatmapset.artist;
+                        await a.save();
+                    }
+                }
+            }
+        }
+    }
+}, {
+    scheduled: false,
+});
+exports.default = { sendActionNotifications, setQualified, qualifiedMapChecks, setRanked, publishQuests, completeQuests, rankUsers, updatePoints, processDailyArtists };

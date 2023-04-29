@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getMaps = exports.getDiscussions = exports.getBeatmapsetV2Info = exports.beatmapsetInfo = exports.getUserInfoFromId = exports.getUserInfo = exports.refreshToken = exports.getClientCredentialsGrant = exports.getToken = exports.isOsuResponseError = void 0;
+exports.getBeatmapsSearch = exports.getMaps = exports.getDiscussions = exports.getBeatmapsetV2Info = exports.beatmapsetInfo = exports.getUserInfoFromId = exports.getUserInfo = exports.refreshToken = exports.getClientCredentialsGrant = exports.getToken = exports.isOsuResponseError = void 0;
 const axios_1 = __importDefault(require("axios"));
 const querystring_1 = __importDefault(require("querystring"));
 const helpers_1 = require("./helpers");
@@ -189,3 +189,24 @@ async function getMaps(date) {
     }
 }
 exports.getMaps = getMaps;
+async function getBeatmapsSearch(token, params) {
+    const url = `https://osu.ppy.sh/api/v2/beatmapsets/search/${params}`;
+    const options = {
+        method: 'GET',
+        url,
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    };
+    try {
+        const res = await axios_1.default(options);
+        if (res?.data) {
+            return res.data;
+        }
+        return helpers_1.defaultErrorMessage;
+    }
+    catch (error) {
+        return helpers_1.defaultErrorMessage;
+    }
+}
+exports.getBeatmapsSearch = getBeatmapsSearch;

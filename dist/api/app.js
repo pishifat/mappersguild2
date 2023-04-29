@@ -130,5 +130,6 @@ app.listen(port, () => {
     automation_1.default.completeQuests.start();
     automation_1.default.rankUsers.start();
     automation_1.default.updatePoints.start();
+    automation_1.default.processDailyArtists.start();
 });
 exports.default = app;
