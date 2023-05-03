@@ -671,9 +671,8 @@ export default defineComponent({
                     message: `updated last reviewed`,
                     type: 'info',
                 });
-                this.$store.commit('updateLastReviewed', {
+                this.$store.commit('removeFromActionArtists', {
                     featuredArtistId: artistId,
-                    lastReviewed,
                 });
             }
         },
@@ -685,9 +684,8 @@ export default defineComponent({
                     message: `updated permanenlty dismiss: ${permanentlyDismiss}`,
                     type: 'info',
                 });
-                this.$store.commit('updatePermanentlyDismiss', {
+                this.$store.commit('removeFromActionArtists', {
                     featuredArtistId: artistId,
-                    permanentlyDismiss,
                 });
             }
         },

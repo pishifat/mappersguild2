@@ -89,7 +89,8 @@ adminRouter.get('/loadActionArtists/', async (req, res) => {
             osuId: { $exists: false },
         })
         .defaultPopulateWithSongs()
-        .sort({ lastReviewed: -1, lastContacted: -1 });
+        .sort({ lastReviewed: -1, lastContacted: -1 })
+        .limit(50);
 
     res.json(actionArtists);
 });

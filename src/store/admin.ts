@@ -314,6 +314,13 @@ const store: Module<AdminState, MainState> = {
                 artist.permanentlyDismiss = payload.permanentlyDismiss;
             }
         },
+        removeFromActionArtists (state, payload): void {
+            const i = state.actionArtists.findIndex(a => a.id == payload.featuredArtistId);
+
+            if (i !== -1) {
+                state.actionArtists.splice(i, 1);
+            }
+        },
     },
 };
 
