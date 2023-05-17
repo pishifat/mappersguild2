@@ -22,7 +22,7 @@
             This contest is currently in the <b>{{ contest.status }}</b> phase.
         </div>
 
-        <div v-if="!contest.isFeaturedArtistContest">
+        <div v-if="contest.isFeaturedArtistContest">
             You can earn <a href="/faq#rewards" target="_blank">Mappers' Guild points</a> by participating in this contest because it only uses Featured Artist songs.
         </div>
 
