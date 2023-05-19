@@ -73,6 +73,7 @@ adminRouter.get('/loadActionArtists/', async (req, res) => {
         ],
         permanentlyDismiss: { $ne: true },
         osuId: { $exists: false },
+        artistSigned: { $ne: true },
     })
         .defaultPopulateWithSongs()
         .sort({ lastReviewed: -1, lastContacted: -1 })
