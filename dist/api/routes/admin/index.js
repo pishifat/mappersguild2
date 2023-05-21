@@ -76,7 +76,7 @@ adminRouter.get('/loadActionArtists/', async (req, res) => {
         artistSigned: { $ne: true },
     })
         .defaultPopulateWithSongs()
-        .sort({})
+        .sort({ createdAt: -1 })
         .limit(50);
     res.json(actionArtists);
 });

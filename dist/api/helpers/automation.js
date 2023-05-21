@@ -416,7 +416,7 @@ const processDailyArtists = node_cron_1.default.schedule('0 19 * * *', async () 
     const searchResults = await osuApi_1.getBeatmapsSearch(token, ``);
     if (searchResults.beatmapsets && searchResults.beatmapsets.length) {
         for (const beatmapset of searchResults.beatmapsets) {
-            const fa = await featuredArtist_1.FeaturedArtistModel.findOne({ label: { '$regex': `^${beatmapset.artist}$`, '$options': 'i' } });
+            const fa = await featuredArtist_1.FeaturedArtistModel.findOne({ label: beatmapset.artist });
             if (!fa) {
                 const artistSearchResults = await osuApi_1.getBeatmapsSearch(token, `?q=artist%3D"${beatmapset.artist}"&s=any&sort=plays_desc`);
                 if (artistSearchResults.beatmapsets && artistSearchResults.beatmapsets.length) {
