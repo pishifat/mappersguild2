@@ -491,7 +491,7 @@ const processDailyArtists = cron.schedule('0 19 * * *', async () => {
 
     if (searchResults.beatmapsets && searchResults.beatmapsets.length) {
         for (const beatmapset of searchResults.beatmapsets) {
-            const fa = await FeaturedArtistModel.findOne({ label: { '$regex': `^${beatmapset.artist}$`, '$options': 'i' } });
+            const fa = await FeaturedArtistModel.findOne({ label: beatmapset.artist });
 
             if (!fa) {
                 const artistSearchResults: any = await getBeatmapsSearch(token, `?q=artist%3D"${beatmapset.artist}"&s=any&sort=plays_desc`);

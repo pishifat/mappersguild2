@@ -147,10 +147,10 @@ adminFeaturedArtistsRouter.get('/findRecentlyLicensedSongs', async (req, res) =>
 });
 
 /* POST update review comment */
-adminFeaturedArtistsRouter.post('/:id/updateReviewComment', async (req, res) => {
-    await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { reviewComment: req.body.reviewComment }).orFail();
+adminFeaturedArtistsRouter.post('/:id/updateNotes', async (req, res) => {
+    await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { notes: req.body.notes }).orFail();
 
-    res.json(req.body.reviewComment);
+    res.json(req.body.notes);
 });
 
 /* POST update last reviewed */

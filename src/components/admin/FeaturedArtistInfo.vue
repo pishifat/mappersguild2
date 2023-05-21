@@ -149,18 +149,18 @@
                     </button>
                 </div>
                 <hr />
-                <h5>Admin review</h5>
+                <h5>Notes</h5>
                 <div class="row mb-2 mx-1">
                     <input
-                        v-model="reviewComment"
+                        v-model="notes"
                         class="form-control form-control-sm mx-2 w-50"
                         type="text"
                         autocomplete="off"
-                        placeholder="review comment..."
-                        @keyup.enter="updateReviewComment($event)"
+                        placeholder="notes..."
+                        @keyup.enter="updateNotes($event)"
                     />
-                    <button class="btn btn-sm btn-outline-info w-25" @click="updateReviewComment($event)">
-                        Update review comment
+                    <button class="btn btn-sm btn-outline-info w-25" @click="updateNotes($event)">
+                        Update notes
                     </button>
                 </div>
                 <div class="row mb-2">
@@ -216,7 +216,7 @@ export default defineComponent({
             selectedSong: null as null | FeaturedSong,
             artist: '',
             title: '',
-            reviewComment: '',
+            notes: '',
         };
     },
     computed: {
@@ -237,7 +237,7 @@ export default defineComponent({
             this.oszTemplatesUrl = this.featuredArtist.oszTemplatesUrl;
             this.offeredUsers = this.generateUserListText(this.featuredArtist.offeredUsers);
             this.title = '';
-            this.reviewComment = this.featuredArtist.reviewComment;
+            this.notes = this.featuredArtist.notes;
         },
         selectedSong(): void {
             if (this.selectedSong) {
@@ -399,17 +399,17 @@ export default defineComponent({
                 });
             }
         },
-        async updateReviewComment(e): Promise<void> {
-            const reviewComment = await this.$http.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/updateReviewComment`, { reviewComment: this.reviewComment }, e);
+        async updateNotes(e): Promise<void> {
+            const notes = await this.$http.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/updateNotes`, { notes: this.notes }, e);
 
-            if (!this.$http.isError(reviewComment)) {
+            if (!this.$http.isError(notes)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `updated review comment`,
                     type: 'info',
                 });
-                this.$store.commit('updateReviewComment', {
+                this.$store.commit('updateNotes', {
                     featuredArtistId: this.featuredArtist.id,
-                    reviewComment,
+                    notes,
                 });
             }
         },

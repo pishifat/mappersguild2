@@ -76,11 +76,11 @@ const store: Module<FeaturedArtistState, MainState> = {
                 }
             }
         },
-        updateReviewComment (state, payload): void {
+        updateNotes (state, payload): void {
             const featuredArtist = state.featuredArtists.find(f => f.id == payload.featuredArtistId);
 
             if (featuredArtist) {
-                featuredArtist.reviewComment = payload.reviewComment;
+                featuredArtist.notes = payload.notes;
             }
         },
         updateLastReviewed (state, payload): void {

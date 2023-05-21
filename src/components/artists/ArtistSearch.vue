@@ -24,6 +24,8 @@
             </div>
         </div>
         <div v-if="beatmapsets && beatmapsets.length">
+            <div><a :href="`https://osu.ppy.sh/beatmapsets?q=artist%3D%22${input}%22`" target="_blank">{{ `https://osu.ppy.sh/beatmapsets?q=artist%3D%22${input}%22` }}</a></div>
+            <div><a :href="`https://www.google.com/search?q=%22${input}%22`" target="_blank">{{ `https://www.google.com/search?q=%22${input}%22` }}</a></div>
             <div class="row">
                 <div class="col-sm">
                     <table class="table table-sm">

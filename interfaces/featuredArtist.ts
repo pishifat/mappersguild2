@@ -46,6 +46,5 @@ export interface FeaturedArtist {
 
     // actionArtist admin processing
     lastReviewed: Date;
-    reviewComment: string;
     permanentlyDismiss: boolean;
 }

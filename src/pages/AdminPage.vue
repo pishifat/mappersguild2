@@ -462,7 +462,7 @@
                                         </a>
                                     </td>
                                     <td scope="row" class="small">
-                                        {{ artist.reviewComment }}
+                                        <div v-if="artist.notes && artist.notes.length">{{ artist.notes }}</div>
                                     </td>
                                     <td scope="row">
                                         <a

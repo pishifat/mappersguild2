@@ -43,7 +43,6 @@ const featuredArtistSchema = new Schema<FeaturedArtist>({
 
     // actionArtist admin processing
     lastReviewed: { type: Date },
-    reviewComment: { type: String },
     permanentlyDismiss: { type: Boolean, default: false },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 

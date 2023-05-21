@@ -293,11 +293,11 @@ const store: Module<AdminState, MainState> = {
         },
 
         // artists
-        updateReviewComment (state, payload): void {
+        updateNotes (state, payload): void {
             const artist = state.actionArtists.find(f => f.id == payload.featuredArtistId);
 
             if (artist) {
-                artist.reviewComment = payload.reviewComment;
+                artist.notes = payload.notes;
             }
         },
         updateLastReviewed (state, payload): void {
