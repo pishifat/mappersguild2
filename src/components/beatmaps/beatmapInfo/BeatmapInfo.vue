@@ -40,7 +40,7 @@
                 <div class="row mb-2">
                     <div class="col-sm">
                         <mode-choice
-                            v-if="beatmap.status == 'WIP' || beatmap.status == 'Secret'"
+                            v-if="beatmap.status == 'WIP'"
                             :beatmap="beatmap"
                         />
                     </div>
@@ -49,14 +49,12 @@
                 <div class="row mb-2">
                     <div class="col-sm">
                         <status-choice
-                            v-if="beatmap.status !== 'Secret'"
                             :beatmap="beatmap"
                         />
                     </div>
                 </div>
 
                 <quest-choice
-                    v-if="beatmap.status !== 'Secret'"
                     :beatmap="beatmap"
                 />
 
@@ -65,8 +63,9 @@
                 />
 
                 <locks-choice
-                    v-if="beatmap.status == 'WIP' || beatmap.status == 'Secret'"
+                    v-if="beatmap.status == 'WIP'"
                     :beatmap="beatmap"
+                    :beatmap-id="beatmap.id"
                 />
             </div>
         </div>
@@ -178,10 +177,5 @@ export default defineComponent({
     .bm-col-separator-left {
         border-left: 3px solid rgba(100, 88, 88, 0.42);
     }
-}
-
-.fake-button-disable {
-    pointer-events: none;
-    opacity: 0.6;
 }
 </style>

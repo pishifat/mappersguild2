@@ -237,7 +237,6 @@
         </footer>
 
         <toast-messages />
-        <notifications-access v-if="loggedInUser" />
     </div>
 </template>
 
@@ -246,13 +245,11 @@ import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import LoadingPage from '@components/LoadingPage.vue';
 import ToastMessages from '@components/ToastMessages.vue';
-import NotificationsAccess from '@components/NotificationsAccess.vue';
 
 export default defineComponent({
     components: {
         LoadingPage,
         ToastMessages,
-        NotificationsAccess,
     },
     computed: {
         ...mapState([

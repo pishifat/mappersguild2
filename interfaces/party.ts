@@ -6,6 +6,7 @@ export interface Party extends Document {
     _id: any;
     id: string;
     leader: User;
+    pendingMembers: User[];
     members: User[];
     lock: boolean;
     rank: number;
@@ -16,7 +17,7 @@ export interface Party extends Document {
      * - adds an user to the party
      * -updates the party rank
      * */
-    addUser (user: User): Promise<void>;
+    addUser (user: User, isNotSelf: boolean, isLeader: boolean): Promise<void>;
     /**
      * - find and remove an user from members' array
      * - updates the party rank

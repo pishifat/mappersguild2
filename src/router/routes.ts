@@ -10,7 +10,6 @@ const NotFound = () => import('../pages/NotFound.vue');
 
 // Logs
 const Logs = () => import('../pages/Logs.vue');
-const Notifications = () => import('../pages/NotificationPage.vue');
 
 // Contests
 const Judging = () => import('../pages/contests/JudgingPage.vue');
@@ -41,7 +40,6 @@ const routes = [
 
     // Logs
     { path: '/logs', component: Logs, meta: { title: 'Logs' } },
-    { path: '/notifications', component: Notifications, meta: { title: 'Notifications & Invites' } },
 
     // Contests
     { path: '/contests/listing', component: Listing, meta: { title: 'Contest Listing' } },

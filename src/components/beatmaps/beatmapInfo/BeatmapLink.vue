@@ -35,7 +35,7 @@
                         type="text"
                         placeholder="URL"
                         @keyup.enter="saveLink($event)"
-                    >
+                    />
                     <button
                         id="addLinkButton"
                         v-bs-tooltip:right="'use new osu!web link for card image'"

@@ -1,7 +1,9 @@
 <template>
     <div>
         <div class="container card card-body">
-            <h4 class="mt-2">Groups</h4>
+            <h4 class="mt-2">
+                Groups
+            </h4>
             <admin-user-table
                 :grouped-users="admins"
                 :group="'admin'"

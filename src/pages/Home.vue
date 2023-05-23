@@ -400,8 +400,6 @@
                                 <template
                                     v-for="beatmap in song.beatmaps"
                                     :key="beatmap.id"
-                                    :href="beatmap.url"
-                                    target="_blank"
                                 >
                                     <a
                                         v-if="beatmap.url"
@@ -442,7 +440,7 @@
                 position: fixed;
                 z-index: 1060;
                 right: 20px;"
-            :style="loggedInUser ? 'bottom: 80px;' : 'bottom: 20px;'"
+            :style="loggedInUser ? 'bottom: 20px;' : 'bottom: 20px;'"
         >
             visit BN/NAT site
         </a>

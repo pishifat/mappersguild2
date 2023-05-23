@@ -280,7 +280,7 @@ export async function calculateSpentPoints(userId: any): Promise<number> {
         if (spentPoints.category == SpentPointsCategory.AcceptQuest) {
             total += spentPoints.quest.price; // price of quest on listing
         } else if (spentPoints.category == SpentPointsCategory.ExtendDeadline) {
-            total += extendQuestPrice; // 10 points to extend deadline
+            total += extendQuestPrice; // 10 points to extend deadline. no longer used
         } else if (spentPoints.category == SpentPointsCategory.ReopenQuest) {
             total += getReopenQuestPoints(spentPoints.quest.price);
         } else if (spentPoints.category == SpentPointsCategory.CreateQuest) {

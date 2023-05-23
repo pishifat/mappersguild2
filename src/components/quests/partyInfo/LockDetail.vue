@@ -2,7 +2,7 @@
     <span>
         <i
             v-if="party.lock"
-            v-bs-tooltip="'party is invite-only'"
+            v-bs-tooltip="'party is locked'"
             class="fas fa-lock fa-sm"
         />
         <i

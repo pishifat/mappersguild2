@@ -45,6 +45,23 @@ export async function isLoggedIn(req, res, next): Promise<void> {
     next();
 }
 
+export async function isValidUser(req, res, next): Promise<void> {
+    if (!req.body.user) {
+        next();
+    } else {
+        const u = await UserModel
+            .findOne()
+            .byUsernameOrOsuId(req.body.user);
+
+        if (!u) {
+            return res.json({ error: 'Cannot find user!' });
+        }
+
+        res.locals.user = u;
+        next();
+    }
+}
+
 export function isAdmin(req, res, next): void {
     if (res.locals.userRequest.group == UserGroup.Admin) {
         next();

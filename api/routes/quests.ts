@@ -158,6 +158,7 @@ questsRouter.post('/:id/accept', isNotSpectator, async (req, res) => {
         await quest.save();
 
         party.quest = newQuest;
+        party.pendingMembers = [];
         await party.save();
 
         quest = newQuest;
@@ -227,36 +228,6 @@ questsRouter.post('/:id/drop', isPartyLeader, async (req, res) => {
             value: memberList,
         }],
     }]);
-});
-
-/* POST extend deadline */
-questsRouter.post('/:id/extendDeadline', isPartyLeader, async (req, res) => {
-    const quest: Quest = res.locals.quest;
-
-    if (quest.currentParty.members.some(m => m.availablePoints < extendQuestPrice)) {
-        return res.json({ error: 'One or more of your party members do not have enough points to extend the deadline!' });
-    }
-
-    for (const member of quest.currentParty.members) {
-        SpentPointsModel.generate(SpentPointsCategory.ExtendDeadline, member.id, quest.id);
-        updateUserPoints(member.id);
-    }
-
-    if (!quest.deadline) throw new Error();
-
-    const deadline = new Date(quest.deadline);
-    deadline.setDate(deadline.getDate() + 30);
-    quest.deadline = deadline;
-    await quest.save();
-
-    const user = await UserModel.findById(req.session?.mongoId).orFail();
-
-    res.json({
-        quest,
-        availablePoints: user.availablePoints,
-    } as ExtendDeadlineResponse);
-
-    LogModel.generate(req.session?.mongoId, `extended deadline for ${quest.name}`, LogCategory.Party);
 });
 
 /* POST reopen expired quest. */

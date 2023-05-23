@@ -81,7 +81,7 @@
                                 style="border-radius: 5px 5px 5px 5px; "
                                 maxlength="10"
                                 @keyup.enter="updateLastContacted()"
-                            >
+                            />
                             <a href="#" @click.stop.prevent="contactedToday()">mark as today</a>
                         </span>
                     </span>
@@ -162,7 +162,7 @@
                                 style="border-radius: 5px 5px 5px 5px; "
                                 maxlength="10"
                                 @keyup.enter="updateProjectedRelease()"
-                            >
+                            />
                         </p>
                         <div class="small ms-2">
                             Songs received:
@@ -241,7 +241,7 @@
                             style="border-radius: 5px 5px 5px 5px;"
                             @keyup.enter="updateShowcaseMappers($event)"
                             @change="updateShowcaseMappers($event)"
-                        >
+                        />
                     </div>
                 </div>
             </div>

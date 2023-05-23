@@ -23,7 +23,6 @@ import beatmapsHostRouter from './routes/beatmaps/beatmapsHost';
 import tasksRouter from './routes/beatmaps/tasks';
 import featuredArtistsRouter from './routes/beatmaps/featuredArtists';
 import questsRouter from './routes/quests';
-import notificationsRouter from './routes/notifications';
 import usersRouter from './routes/users';
 import logsRouter from './routes/logs';
 import adminRouter from './routes/admin/index';
@@ -39,7 +38,6 @@ import judgingRouter from './routes/contests/judging';
 import resultsRouter from './routes/contests/results';
 import showcaseRouter from './routes/showcase';
 import partiesRouter from './routes/parties';
-import invitesRouter from './routes/invites';
 import mentorshipRouter from './routes/mentorship';
 
 const app = express();
@@ -90,8 +88,6 @@ app.use('/users', usersRouter);
 app.use('/quests', questsRouter);
 app.use('/parties', partiesRouter);
 app.use('/logs', logsRouter);
-app.use('/notifications', notificationsRouter);
-app.use('/invites', invitesRouter);
 app.use('/showcase', showcaseRouter);
 app.use('/mentorship', mentorshipRouter);
 

@@ -110,7 +110,7 @@ const queryHelpers = {
     },
     defaultPopulate<Q extends DocumentQuery<any, Quest>>(this: Q) {
         return this.populate([
-            { path: 'parties', populate: { path: 'members leader' } },
+            { path: 'parties', populate: { path: 'members pendingMembers leader' } },
             {
                 path: 'associatedMaps',
                 populate: {

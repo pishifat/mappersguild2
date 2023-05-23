@@ -1,7 +1,7 @@
 <template>
     <div>
         <div>
-            Potential Nominators ({{ beatmap.bns.length }})
+            Nominators ({{ beatmap.bns.length }})
             <small
                 v-if="canEdit"
                 v-bs-tooltip:right="'add/remove yourself from potential BN list'"

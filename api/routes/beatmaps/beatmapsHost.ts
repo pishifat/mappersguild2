@@ -97,7 +97,7 @@ beatmapsHostRouter.post('/:id/linkQuest', isValidBeatmap, isBeatmapHost, isNotSp
             .findById(questId)
             .populate({
                 path: 'parties',
-                populate: { path: 'members' },
+                populate: { path: 'members pendingMembers' },
             })
             .orFail();
 
