@@ -18,7 +18,7 @@ const defaultOsuBeatmapPopulate = [
 
 artistsRouter.get('/relevantInfo', async (req, res) => {
     const a = await FeaturedArtistModel
-        .find({ permanentlyDismiss: { $ne: true } })
+        .find({})
         .defaultPopulate()
         .sort({ label: 1 });
 
