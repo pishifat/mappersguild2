@@ -1,6 +1,6 @@
 import cron from 'node-cron';
 import { findBeatmapsetId, sleep, findBeatmapsetStatus, setBeatmapStatusRanked, generateAuthorWebhook, generateThumbnailUrl, generateLists, setNominators, getLongestBeatmapLength } from './helpers';
-import { beatmapsetInfo, isOsuResponseError, getClientCredentialsGrant, getBeatmapsetV2Info, getDiscussions, getBeatmapsSearch } from './osuApi';
+import { isOsuResponseError, getClientCredentialsGrant, getBeatmapsetV2Info, getDiscussions, getBeatmapsSearch } from './osuApi';
 import { devWebhookPost, webhookPost, webhookColors } from './discordApi';
 import { BeatmapModel } from '../models/beatmap/beatmap';
 import { BeatmapStatus } from '../../interfaces/beatmap/beatmap';
@@ -107,53 +107,55 @@ const setQualified = cron.schedule('0 18 * * *', async () => { /* 10:00 AM PST *
         });
 
     const response = await getClientCredentialsGrant();
-    let token;
-    if (!isOsuResponseError(response)) token = response.access_token;
 
-    for (const bm of allBeatmaps) {
-        if (bm.url.indexOf('osu.ppy.sh/beatmapsets/') > -1) {
-            const osuId = findBeatmapsetId(bm.url);
-            const bmInfo = await beatmapsetInfo(osuId);
-            await sleep(500);
+    if (!isOsuResponseError(response)) {
+        const token = response.access_token;
 
-            if (!isOsuResponseError(bmInfo)) {
-                const status = findBeatmapsetStatus(bmInfo.approved);
+        for (const bm of allBeatmaps) {
+            if (bm.url.indexOf('osu.ppy.sh/beatmapsets/') > -1) {
+                const osuId = findBeatmapsetId(bm.url);
+                const bmInfo = await getBeatmapsetV2Info(token, osuId);
+                await sleep(500);
 
-                /*  osu:    Qualified/Ranked
-                    MG:     Pending
-                    save:   Qualified on MG */
-                if ((status == BeatmapStatus.Qualified || status == BeatmapStatus.Ranked) && bm.status == BeatmapStatus.Done) {
-                    bm.status = BeatmapStatus.Qualified;
-                    await bm.save();
+                if (!isOsuResponseError(bmInfo)) {
+                    const status = findBeatmapsetStatus(bmInfo.ranked_date);
 
-                    // remove modders who didn't post anything
-                    for (const modder of bm.modders) {
-                        const currentBeatmap = await BeatmapModel
-                            .findById(bm._id)
-                            .defaultPopulate()
-                            .orFail();
+                    /*  osu:    Qualified/Ranked
+                        MG:     Pending
+                        save:   Qualified on MG */
+                    if ((status == BeatmapStatus.Qualified || status == BeatmapStatus.Ranked) && bm.status == BeatmapStatus.Done) {
+                        bm.status = BeatmapStatus.Qualified;
+                        await bm.save();
 
-                        const discussionInfo = await getDiscussions(token, `?beatmapset_id=${osuId}&message_types%5B%5D=suggestion&message_types%5B%5D=problem&user=${modder.osuId}`);
-                        await sleep(500);
+                        // remove modders who didn't post anything
+                        for (const modder of bm.modders) {
+                            const currentBeatmap = await BeatmapModel
+                                .findById(bm._id)
+                                .defaultPopulate()
+                                .orFail();
 
-                        if (!isOsuResponseError(discussionInfo) && discussionInfo.discussions && !discussionInfo.discussions.length) {
-                            const i = currentBeatmap.modders.findIndex(m => m.id == modder.id);
+                            const discussionInfo = await getDiscussions(token, `?beatmapset_id=${osuId}&message_types%5B%5D=suggestion&message_types%5B%5D=problem&user=${modder.osuId}`);
+                            await sleep(500);
 
-                            if (i !== -1) {
-                                currentBeatmap.modders.splice(i, 1);
-                                await currentBeatmap.save();
+                            if (!isOsuResponseError(discussionInfo) && discussionInfo.discussions && !discussionInfo.discussions.length) {
+                                const i = currentBeatmap.modders.findIndex(m => m.id == modder.id);
+
+                                if (i !== -1) {
+                                    currentBeatmap.modders.splice(i, 1);
+                                    await currentBeatmap.save();
+                                }
                             }
                         }
                     }
-                }
 
-                /*  osu:    Pending
-                    MG:     Qualified
-                    save:   Pending on MG + un-queue for rank */
-                if (status == BeatmapStatus.Done && bm.status == BeatmapStatus.Qualified) {
-                    bm.status = BeatmapStatus.Done;
-                    bm.queuedForRank = false;
-                    await bm.save();
+                    /*  osu:    Pending
+                        MG:     Qualified
+                        save:   Pending on MG + un-queue for rank */
+                    if (status == BeatmapStatus.Done && bm.status == BeatmapStatus.Qualified) {
+                        bm.status = BeatmapStatus.Done;
+                        bm.queuedForRank = false;
+                        await bm.save();
+                    }
                 }
             }
         }

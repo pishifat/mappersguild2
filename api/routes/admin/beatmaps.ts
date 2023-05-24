@@ -226,41 +226,6 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
     console.log(b.length);
     console.log(q.length);
 
-    /*const maps: any = await getMaps(date);
-    const externalBeatmaps: any = [];
-
-    const osuIds: any = [];
-
-    b.forEach(map => {
-        if (map.url) {
-            const osuId = findBeatmapsetId(map.url);
-
-            if (!osuIds.includes(osuId)) {
-                osuIds.push(osuId);
-            }
-        }
-    });
-
-    if (!isOsuResponseError(maps)) {
-        maps.forEach(map => {
-            map.beatmapset_id = parseInt(map.beatmapset_id, 10);
-
-            if (!osuIds.includes(map.beatmapset_id)) {
-                osuIds.push(map.beatmapset_id);
-                map.tags = map.tags.split(' ');
-
-                if ((map.tags.includes('featured') && map.tags.includes('artist')) || map.tags.includes('fa')) {
-                    externalBeatmaps.push({
-                        osuId: map.beatmapset_id,
-                        artist: map.artist,
-                        title: map.title,
-                        creator: map.creator,
-                        creatorOsuId: map.creator_id });
-                }
-            }
-        });
-    }*/
-
     const users: UserSummary[] = [];
 
     for (const user of u as UserCounts[]) {

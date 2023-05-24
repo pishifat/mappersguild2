@@ -7,8 +7,8 @@ import { LogModel } from '../../models/log';
 import { LogCategory } from '../../../interfaces/log';
 import { isLoggedIn, isNotSpectator, isBn } from '../../helpers/middlewares';
 import { findDifficultyPoints, getLengthNerf, getQuestBonus, findStoryboardPoints } from '../../helpers/points';
-import { defaultErrorMessage, findBeatmapsetId } from '../../helpers/helpers';
-import { beatmapsetInfo, isOsuResponseError } from '../../helpers/osuApi';
+import { defaultErrorMessage, findBeatmapsetId, getLongestBeatmapLength } from '../../helpers/helpers';
+import { getClientCredentialsGrant, getBeatmapsetV2Info, isOsuResponseError } from '../../helpers/osuApi';
 import { isValidBeatmap } from './middlewares';
 
 const beatmapsRouter = express.Router();
@@ -280,11 +280,23 @@ beatmapsRouter.post('/:id/updateBn', isValidBeatmap, async (req, res) => {
 
 /* GET calculate points for a given beatmap */
 beatmapsRouter.get('/:id/findPoints', async (req, res) => {
-    const beatmap = await BeatmapModel
-        .findById(req.params.id)
-        .defaultPopulate()
-        .orFail();
+    const [beatmap, response] = await Promise.all([
+        BeatmapModel
+            .findById(req.params.id)
+            .defaultPopulate()
+            .orFail(),
+        getClientCredentialsGrant(),
+    ]);
 
+    // check if token exists
+    if (isOsuResponseError(response)) {
+        return res.json(defaultErrorMessage);
+    }
+
+    // set token
+    const token = response.access_token;
+
+    // check if url is valid
     if (!beatmap.url) {
         return res.json({ error: 'Need a beatmapset link to calculate points!' });
     }
@@ -295,10 +307,11 @@ beatmapsRouter.get('/:id/findPoints', async (req, res) => {
         return res.json({ error: 'Need a beatmapset link to calculate points!' });
     }
 
-    const bmInfo = await beatmapsetInfo(beatmapsetId);
+    // get osu-web beatmap info
+    const bmInfo = await getBeatmapsetV2Info(token, beatmapsetId);
 
     if (isOsuResponseError(bmInfo)) {
-        return res.json({ error: defaultErrorMessage });
+        return res.json(defaultErrorMessage);
     }
 
     // sort tasks to expected difficulty scaling
@@ -311,14 +324,15 @@ beatmapsRouter.get('/:id/findPoints', async (req, res) => {
     // set up task points info
     const tasksPointsArray: string[] = [];
 
-    const lengthNerf = getLengthNerf(bmInfo.hit_length);
-    const seconds = bmInfo.hit_length % 60;
-    const minutes = (bmInfo.hit_length - seconds) / 60;
+    const length = getLongestBeatmapLength(bmInfo.beatmaps);
+    const lengthNerf = getLengthNerf(length);
+    const seconds = length % 60;
+    const minutes = (length - seconds) / 60;
     const lengthDisplay = `${minutes}m${seconds}s`;
 
     let pointsInfo = `based on ${lengthDisplay} length`;
 
-    const rankedDate = beatmap.status != 'Ranked' ? new Date() : bmInfo.approved_date;
+    const rankedDate = beatmap.status != 'Ranked' ? new Date() : bmInfo.ranked_date;
 
     let validQuest = false;
     let questBonus = 0;
@@ -348,7 +362,7 @@ beatmapsRouter.get('/:id/findPoints', async (req, res) => {
             const taskPoints = findDifficultyPoints(task.name, 1);
 
             if (beatmap.quest) {
-                questBonus = getQuestBonus(beatmap.quest.deadline, rankedDate, 1);
+                questBonus = getQuestBonus(beatmap.quest.deadline, new Date(rankedDate), 1);
                 validQuest = true;
             }
 

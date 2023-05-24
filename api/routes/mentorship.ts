@@ -3,7 +3,8 @@ import { isLoggedIn, isMentorshipAdmin } from '../helpers/middlewares';
 import { UserModel } from '../models/user';
 import { UserGroup } from '../../interfaces/user';
 import { MentorshipCycleModel } from '../models/mentorshipCycle';
-import { getUserInfoFromId, isOsuResponseError } from '../helpers/osuApi';
+import { getUserInfoFromId, isOsuResponseError, getClientCredentialsGrant } from '../helpers/osuApi';
+import { defaultErrorMessage } from '../helpers/helpers';
 
 const mentorshipRouter = express.Router();
 
@@ -179,10 +180,19 @@ mentorshipRouter.post('/addCycle', async (req, res) => {
 mentorshipRouter.post('/addMentor', async (req, res) => {
     const { cycleId, userInput, mode } = req.body;
 
-    const cycle = await MentorshipCycleModel
-        .findById(cycleId)
-        .populate(defaultCyclePopulate)
-        .orFail();
+    const [cycle, response] = await Promise.all([
+        MentorshipCycleModel
+            .findById(cycleId)
+            .populate(defaultCyclePopulate)
+            .orFail(),
+        getClientCredentialsGrant(),
+    ]);
+
+    if (isOsuResponseError(response)) {
+        return res.json(defaultErrorMessage);
+    }
+
+    const token = response.access_token;
 
     let user;
     const osuId = parseInt(userInput, 10);
@@ -204,10 +214,14 @@ mentorshipRouter.post('/addMentor', async (req, res) => {
     }
 
     if (!user) {
-        const userInfo = await getUserInfoFromId(userInput);
+        const userInfo = await getUserInfoFromId(token, userInput);
+
+        if (isOsuResponseError(userInfo)) {
+            return res.json( defaultErrorMessage );
+        }
 
         if (!isOsuResponseError(userInfo)) {
-            const osuId = parseInt(userInfo.user_id, 10);
+            const osuId = userInfo.id;
             const username = userInfo.username;
             const group = UserGroup.Spectator;
             const existingUser = await UserModel.findOne({ osuId });
@@ -248,10 +262,19 @@ mentorshipRouter.post('/addMentor', async (req, res) => {
 mentorshipRouter.post('/addMentee', async (req, res) => {
     const { cycleId, userInput, mode, mentorId } = req.body;
 
-    const cycle = await MentorshipCycleModel
-        .findById(cycleId)
-        .populate(defaultCyclePopulate)
-        .orFail();
+    const [cycle, response] = await Promise.all([
+        MentorshipCycleModel
+            .findById(cycleId)
+            .populate(defaultCyclePopulate)
+            .orFail(),
+        getClientCredentialsGrant(),
+    ]);
+
+    if (isOsuResponseError(response)) {
+        return res.json(defaultErrorMessage);
+    }
+
+    const token = response.access_token;
 
     let user;
     const osuId = parseInt(userInput, 10);
@@ -273,10 +296,10 @@ mentorshipRouter.post('/addMentee', async (req, res) => {
     }
 
     if (!user) {
-        const userInfo = await getUserInfoFromId(userInput);
+        const userInfo = await getUserInfoFromId(token, userInput);
 
         if (!isOsuResponseError(userInfo)) {
-            const osuId = parseInt(userInfo.user_id, 10);
+            const osuId = userInfo.id;
             const username = userInfo.username;
             const group = UserGroup.Spectator;
             const existingUser = await UserModel.findOne({ osuId });
@@ -496,37 +519,45 @@ mentorshipRouter.post('/addRestrictedUser', async (req, res) => {
 
     const osuId = parseInt(osuIdInput, 10);
     const username = usernameInput.trim();
-    let user;
 
     if (isNaN(osuId)) {
         return res.json({ error: 'Invalid osu! ID' });
     }
 
-    user = await UserModel.findOne  ({
-        $or: [
-            { username },
-            { osuId },
-        ],
-    });
+    const [user, response] = await Promise.all([
+        UserModel.findOne({
+            $or: [
+                { username },
+                { osuId },
+            ],
+        }),
+        getClientCredentialsGrant(),
+    ]);
+
+    if (isOsuResponseError(response)) {
+        return res.json(defaultErrorMessage);
+    }
+
+    const token = response.access_token;
 
     if (user) {
         return res.json({ error: `User already in Mappers' Guild` });
     }
 
-    const usernameUserInfo = await getUserInfoFromId(username);
-    const osuIdUserInfo = await getUserInfoFromId(osuId);
+    const usernameUserInfo = await getUserInfoFromId(token, username);
+    const osuIdUserInfo = await getUserInfoFromId(token, osuId);
 
     if (usernameUserInfo || osuIdUserInfo) {
         return res.json({ error: 'User exists on osu! web. Recheck username or osu! ID' });
     }
 
-    user = new UserModel();
-    user.osuId = osuId;
-    user.username = username;
-    user.group = UserGroup.Spectator;
-    await user.save();
+    const newUser = new UserModel();
+    newUser.osuId = osuId;
+    newUser.username = username;
+    newUser.group = UserGroup.Spectator;
+    await newUser.save();
 
-    res.json(user);
+    res.json(newUser);
 });
 
 /* POST toggle phase */
