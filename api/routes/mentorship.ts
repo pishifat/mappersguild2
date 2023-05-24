@@ -544,13 +544,6 @@ mentorshipRouter.post('/addRestrictedUser', async (req, res) => {
         return res.json({ error: `User already in Mappers' Guild` });
     }
 
-    const usernameUserInfo = await getUserInfoFromId(token, username);
-    const osuIdUserInfo = await getUserInfoFromId(token, osuId);
-
-    if (usernameUserInfo || osuIdUserInfo) {
-        return res.json({ error: 'User exists on osu! web. Recheck username or osu! ID' });
-    }
-
     const newUser = new UserModel();
     newUser.osuId = osuId;
     newUser.username = username;
