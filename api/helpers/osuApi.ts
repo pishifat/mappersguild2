@@ -41,6 +41,7 @@ export interface OsuBeatmapsetSearchV2Response {
 
 export interface OsuBeatmapV2 {
     user_id: number;
+    hit_length: number;
 }
 
 export interface OsuAuthResponse {

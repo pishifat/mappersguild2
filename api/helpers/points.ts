@@ -258,22 +258,23 @@ export async function calculateHostPoints(userId: any): Promise<number> {
 
 /** 1 point per mod */
 export async function calculateModPoints(userId: any): Promise<number> {
-    const moddedBeatmaps = await BeatmapModel.countDocuments({
-        status: BeatmapStatus.Ranked,
-        modders: userId,
-        bns: { $ne: userId },
-    });
-
-    const nominatorBeatmaps = await BeatmapModel
-        .find({
+    const [modderPoints, nominatorBeatmaps] = await Promise.all([
+        BeatmapModel.countDocuments({
             status: BeatmapStatus.Ranked,
-            bns: userId,
-        })
-        .defaultPopulate();
+            modders: userId,
+            bns: { $ne: userId },
+        }),
+        BeatmapModel
+            .find({
+                status: BeatmapStatus.Ranked,
+                bns: userId,
+            })
+            .defaultPopulate(),
+    ]);
 
-    // do something with lengthNerf + number of diffs, so BNs receive scaled points
+    const nominatorPoints = nominatorBeatmaps.map(b => getLengthNerf(b.length)).reduce((a, b) => a + b, 0);
 
-    return moddedBeatmaps;
+    return modderPoints + nominatorPoints;
 }
 
 export async function calculateSpentPoints(userId: any): Promise<number> {
@@ -348,7 +349,7 @@ export async function calculateContestPoints(userId: any): Promise<ContestPoints
     };
 }
 
-function demicalRound(value: number): number {
+function decimalRound(value: number): number {
     return Math.round(value * 1000) / 1000;
 }
 
@@ -368,18 +369,18 @@ export async function updateUserPoints(userId: any): Promise<number | ErrorRespo
 
     await UserModel.findByIdAndUpdate(userId, {
         // Tasks
-        easyPoints: demicalRound(taskPoints['Easy']),
-        normalPoints: demicalRound(taskPoints['Normal']),
-        hardPoints: demicalRound(taskPoints['Hard']),
-        insanePoints: demicalRound(taskPoints['Insane']),
-        expertPoints: demicalRound(taskPoints['Expert']),
-        storyboardPoints: demicalRound(taskPoints['Storyboard']),
+        easyPoints: decimalRound(taskPoints['Easy']),
+        normalPoints: decimalRound(taskPoints['Normal']),
+        hardPoints: decimalRound(taskPoints['Hard']),
+        insanePoints: decimalRound(taskPoints['Insane']),
+        expertPoints: decimalRound(taskPoints['Expert']),
+        storyboardPoints: decimalRound(taskPoints['Storyboard']),
 
         // Total per mode
-        osuPoints: demicalRound(taskPoints['osu']),
-        taikoPoints: demicalRound(taskPoints['taiko']),
-        catchPoints: demicalRound(taskPoints['catch']),
-        maniaPoints: demicalRound(taskPoints['mania']),
+        osuPoints: decimalRound(taskPoints['osu']),
+        taikoPoints: decimalRound(taskPoints['taiko']),
+        catchPoints: decimalRound(taskPoints['catch']),
+        maniaPoints: decimalRound(taskPoints['mania']),
 
         // Quests
         questPoints: taskPoints['QuestReward'],
@@ -392,7 +393,7 @@ export async function updateUserPoints(userId: any): Promise<number | ErrorRespo
         contestJudgePoints: contestPoints.ContestJudge,
 
         // Rest
-        modPoints,
+        modPoints: decimalRound(modPoints),
         hostPoints,
         spentPoints,
         rank,

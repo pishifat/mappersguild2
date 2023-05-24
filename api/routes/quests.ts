@@ -1,6 +1,6 @@
 import express from 'express';
 import { isLoggedIn, isNotSpectator } from '../helpers/middlewares';
-import { extendQuestPrice, findCreateQuestPointsSpent } from '../helpers/points';
+import { findCreateQuestPointsSpent } from '../helpers/points';
 import { generateLists, generateThumbnailUrl, generateAuthorWebhook } from '../helpers/helpers';
 import { BeatmapMode } from '../../interfaces/beatmap/beatmap';
 import { Quest, QuestStatus } from '../../interfaces/quest';
@@ -14,8 +14,7 @@ import { SpentPointsModel } from '../models/spentPoints';
 import { FeaturedArtistModel } from '../models/featuredArtist';
 import { User } from '../../interfaces/user';
 import { FilterMode } from '../../interfaces/extras';
-import { ExtendDeadlineResponse, PointsRefreshResponse } from '../../interfaces/api/quests';
-import { UserModel } from '../models/user';
+import { PointsRefreshResponse } from '../../interfaces/api/quests';
 
 async function isPartyLeader (req, res, next): Promise<void> {
     if (!req.params.id) return res.json({ error: 'Invalid' });

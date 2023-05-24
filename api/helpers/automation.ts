@@ -1,5 +1,5 @@
 import cron from 'node-cron';
-import { findBeatmapsetId, sleep, findBeatmapsetStatus, setBeatmapStatusRanked, generateAuthorWebhook, generateThumbnailUrl, generateLists } from './helpers';
+import { findBeatmapsetId, sleep, findBeatmapsetStatus, setBeatmapStatusRanked, generateAuthorWebhook, generateThumbnailUrl, generateLists, setNominators, getLongestBeatmapLength } from './helpers';
 import { beatmapsetInfo, isOsuResponseError, getClientCredentialsGrant, getBeatmapsetV2Info, getDiscussions, getBeatmapsSearch } from './osuApi';
 import { devWebhookPost, webhookPost, webhookColors } from './discordApi';
 import { BeatmapModel } from '../models/beatmap/beatmap';
@@ -283,7 +283,7 @@ const setRanked = cron.schedule('0 1 * * *', async () => { /* 5:00 PM PST */
                 if (!isOsuResponseError(bmInfo)) {
                     const status = findBeatmapsetStatus(bmInfo.ranked);
 
-                    if (status == BeatmapStatus.Ranked && bmInfo.beatmaps[0].hit_length) { // everything breaks if no hit_length
+                    if (status == BeatmapStatus.Ranked) {
                         await setBeatmapStatusRanked(bm.id, bmInfo);
                     }
                 }
@@ -487,6 +487,46 @@ const updatePoints = cron.schedule('0 0 21 * *', async () => {
     scheduled: false,
 });
 
+/* validate ranked beatmaps for accurate ranked_date/current_nominators/hit_length. limited to 100 beatmaps daily because it takes too long otherwise, and it doesn't need to be done that frequently */
+const validateRankedBeatmaps = cron.schedule('0 4 * * *', async () => { /* 8:00 PM PST */
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setDate(threeMonthsAgo.getDate() - 100); // this will be a problem after reaching 10,000 ranked maps in the database. so i don't need to worry about it probably
+
+    const [beatmaps, response] = await Promise.all([
+        BeatmapModel
+            .find({
+                status: BeatmapStatus.Ranked,
+                updatedAt: { $lt: threeMonthsAgo },
+            })
+            .defaultPopulate()
+            .limit(100)
+            .orFail(),
+        getClientCredentialsGrant(),
+    ]);
+
+    await sleep(250);
+
+    if (!isOsuResponseError(response)) {
+        const token = response.access_token;
+
+        for (const beatmap of beatmaps) {
+            const osuId = findBeatmapsetId(beatmap.url);
+            const bmInfo: any = await getBeatmapsetV2Info(token, osuId);
+            await sleep(250);
+
+            if (!isOsuResponseError(bmInfo)) {
+                console.log(beatmap.song.artist + ' - ' + beatmap.song.title);
+                await setNominators(beatmap, bmInfo);
+                beatmap.length = getLongestBeatmapLength(bmInfo.beatmaps);
+                beatmap.rankedDate = bmInfo.ranked_date;
+                await beatmap.save();
+            }
+        }
+    }
+}, {
+    scheduled: false,
+});
+
 /* create FeaturedArtist for every artist that doesn't already exist based on the last 50 maps ranked per day */
 const processDailyArtists = cron.schedule('0 19 * * *', async () => {
     const response = await getClientCredentialsGrant();
@@ -522,4 +562,4 @@ const processDailyArtists = cron.schedule('0 19 * * *', async () => {
     scheduled: false,
 });
 
-export default { sendActionNotifications, setQualified, qualifiedMapChecks, setRanked, publishQuests, completeQuests, rankUsers, updatePoints, processDailyArtists };
+export default { sendActionNotifications, setQualified, qualifiedMapChecks, setRanked, publishQuests, completeQuests, rankUsers, updatePoints, processDailyArtists, validateRankedBeatmaps };

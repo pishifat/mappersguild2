@@ -48,19 +48,10 @@ export function findBeatmapsetStatus(osuStatus): string {
     return status;
 }
 
-export async function setBeatmapStatusRanked(id, bmInfo): Promise<void> {
-    // update status (only helpful for automated calls)
-    await BeatmapModel.findByIdAndUpdate(id, { status: BeatmapStatus.Ranked });
-
-    // query for populated beatmap
-    let beatmap = await BeatmapModel
-        .findById(id)
-        .defaultPopulate()
-        .orFail();
-
-    // put nominators in fields if applicable
+export async function setNominators(beatmap, bmInfo): Promise<void> {
     const modderIds = beatmap.modders.map(m => m.id);
     const bnsIds = beatmap.bns.map(b => b.id);
+    beatmap.bns = [];
 
     if (bmInfo.current_nominations && bmInfo.current_nominations.length) {
         for (const nom of bmInfo.current_nominations) {
@@ -79,6 +70,32 @@ export async function setBeatmapStatusRanked(id, bmInfo): Promise<void> {
             }
         }
     }
+}
+
+export function getLongestBeatmapLength(beatmaps): number {
+    let longestBeatmap = beatmaps[0];
+
+    for (const beatmap of beatmaps) {
+        if (parseInt(beatmap.hit_length) > parseInt(longestBeatmap.hit_length)) {
+            longestBeatmap = beatmap;
+        }
+    }
+
+    return longestBeatmap.hit_length;
+}
+
+export async function setBeatmapStatusRanked(id, bmInfo): Promise<void> {
+    // update status (only helpful for automated calls)
+    await BeatmapModel.findByIdAndUpdate(id, { status: BeatmapStatus.Ranked });
+
+    // query for populated beatmap
+    let beatmap = await BeatmapModel
+        .findById(id)
+        .defaultPopulate()
+        .orFail();
+
+    // assign bns to bns field (synced with osu-web)
+    await setNominators(beatmap, bmInfo);
 
     // re-query to include nominators in modders pool
     beatmap = await BeatmapModel
@@ -87,15 +104,7 @@ export async function setBeatmapStatusRanked(id, bmInfo): Promise<void> {
         .orFail();
 
     // set length (for task points calculation) and ranked date (for quest points calculation) according to osu! db
-    let longestBeatmap = bmInfo.beatmaps[0];
-
-    for (const b of bmInfo.beatmaps) {
-        if (parseInt(b.hit_length) > parseInt(longestBeatmap.hit_length)) {
-            longestBeatmap = beatmap;
-        }
-    }
-
-    beatmap.length = longestBeatmap.hit_length;
+    beatmap.length = getLongestBeatmapLength(bmInfo.beatmaps);
     beatmap.rankedDate = bmInfo.ranked_date;
     await beatmap.save();
 

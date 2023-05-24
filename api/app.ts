@@ -139,6 +139,7 @@ app.listen(port, () => {
     automation.rankUsers.start();
     automation.updatePoints.start();
     automation.processDailyArtists.start();
+    automation.validateRankedBeatmaps.start();
 });
 
 export default app;
