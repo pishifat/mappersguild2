@@ -261,7 +261,17 @@ export async function calculateModPoints(userId: any): Promise<number> {
     const moddedBeatmaps = await BeatmapModel.countDocuments({
         status: BeatmapStatus.Ranked,
         modders: userId,
+        bns: { $ne: userId },
     });
+
+    const nominatorBeatmaps = await BeatmapModel
+        .find({
+            status: BeatmapStatus.Ranked,
+            bns: userId,
+        })
+        .defaultPopulate();
+
+    // do something with lengthNerf + number of diffs, so BNs receive scaled points
 
     return moddedBeatmaps;
 }

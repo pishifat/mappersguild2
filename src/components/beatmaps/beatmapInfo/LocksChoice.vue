@@ -8,6 +8,7 @@
                         v-if="beatmap.tasksLocked.length < 6"
                         v-bs-tooltip:right="'edit locks'"
                         class="text-success small ms-1"
+                        :class="{ 'text-danger': showLocksInput }"
                         href="#"
                         @click.prevent="showLocksInput = !showLocksInput"
                     >

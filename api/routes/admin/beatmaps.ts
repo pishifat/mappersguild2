@@ -3,9 +3,9 @@ import { isLoggedIn, isAdmin, isSuperAdmin } from '../../helpers/middlewares';
 import { BeatmapModel } from '../../models/beatmap/beatmap';
 import { BeatmapStatus } from '../../../interfaces/beatmap/beatmap';
 import { QuestModel } from '../../models/quest';
-import { findBeatmapsetId, defaultErrorMessage, setBeatmapStatusRanked } from '../../helpers/helpers';
+import { findBeatmapsetId, setBeatmapStatusRanked, sleep } from '../../helpers/helpers';
 import { TaskModel } from '../../models/beatmap/task';
-import { beatmapsetInfo, isOsuResponseError } from '../../helpers/osuApi';
+import { isOsuResponseError, getClientCredentialsGrant, getBeatmapsetV2Info } from '../../helpers/osuApi';
 import { TaskName, TaskStatus, TaskMode } from '../../../interfaces/beatmap/task';
 import { User, UserGroup } from '../../../interfaces/user';
 import { UserModel } from '../../models/user';
@@ -46,14 +46,20 @@ adminBeatmapsRouter.post('/:id/updateStatus', isSuperAdmin, async (req, res) => 
     if (req.body.status == BeatmapStatus.Ranked) {
         // fetch osu api's beatmap data
         const osuId = findBeatmapsetId(b.url);
+        const response = await getClientCredentialsGrant();
+        await sleep(500);
 
-        const bmInfo = await beatmapsetInfo(osuId);
+        if (!isOsuResponseError(response)) {
+            const token = response.access_token;
+            const bmInfo: any = await getBeatmapsetV2Info(token, osuId);
+            await sleep(500);
 
-        if (isOsuResponseError(bmInfo)) {
-            return res.json(defaultErrorMessage);
+            if (!isOsuResponseError(bmInfo)) {
+                if (bmInfo.beatmaps[0].hit_length) { // everything breaks if no hit_length
+                    await setBeatmapStatusRanked(b.id, bmInfo);
+                }
+            }
         }
-
-        await setBeatmapStatusRanked(b.id, bmInfo);
     } else {
         b.queuedForRank = false;
         await b.save();

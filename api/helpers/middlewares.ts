@@ -127,3 +127,17 @@ export async function canEditArtist(req, res, next): Promise<void> {
         unauthorize(req, res);
     }
 }
+
+export function isValidUrl(req, res, next): void {
+    if (!req.body.url?.length) {
+        req.body.url = null;
+    }
+
+    const regexp = /^(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/;
+
+    if (!regexp.test(req.body.url) && req.body.url) {
+        return res.json({ error: 'Not a valid URL' });
+    }
+
+    next();
+}

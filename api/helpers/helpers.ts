@@ -8,6 +8,7 @@ import { BeatmapModel } from '../models/beatmap/beatmap';
 import { updateUserPoints } from './points';
 import { FeaturedArtistModel } from '../models/featuredArtist';
 import { FeaturedSong } from '../../interfaces/featuredSong';
+import { UserModel } from '../models/user';
 
 export function findBeatmapsetId(url: string): number {
     const indexStart = url.indexOf('beatmapsets/') + 'beatmapsets/'.length;
@@ -52,14 +53,50 @@ export async function setBeatmapStatusRanked(id, bmInfo): Promise<void> {
     await BeatmapModel.findByIdAndUpdate(id, { status: BeatmapStatus.Ranked });
 
     // query for populated beatmap
-    const beatmap = await BeatmapModel
+    let beatmap = await BeatmapModel
+        .findById(id)
+        .defaultPopulate()
+        .orFail();
+
+    // put nominators in fields if applicable
+    const modderIds = beatmap.modders.map(m => m.id);
+    const bnsIds = beatmap.bns.map(b => b.id);
+
+    if (bmInfo.current_nominations && bmInfo.current_nominations.length) {
+        for (const nom of bmInfo.current_nominations) {
+            const nomModder = await UserModel.findOne({ osuId: nom.user_id });
+
+            if (nomModder) {
+                if (!modderIds.includes(nomModder.id)) {
+                    beatmap.modders.push(nomModder._id);
+                    await beatmap.save();
+                }
+
+                if (!bnsIds.includes(nomModder.id)) {
+                    beatmap.bns.push(nomModder._id);
+                    await beatmap.save();
+                }
+            }
+        }
+    }
+
+    // re-query to include nominators in modders pool
+    beatmap = await BeatmapModel
         .findById(id)
         .defaultPopulate()
         .orFail();
 
     // set length (for task points calculation) and ranked date (for quest points calculation) according to osu! db
-    beatmap.length = bmInfo.hit_length;
-    beatmap.rankedDate = bmInfo.approved_date;
+    let longestBeatmap = bmInfo.beatmaps[0];
+
+    for (const b of bmInfo.beatmaps) {
+        if (parseInt(b.hit_length) > parseInt(longestBeatmap.hit_length)) {
+            longestBeatmap = beatmap;
+        }
+    }
+
+    beatmap.length = longestBeatmap.hit_length;
+    beatmap.rankedDate = bmInfo.ranked_date;
     await beatmap.save();
 
     // calculate points for modders
@@ -143,7 +180,7 @@ export async function setBeatmapStatusRanked(id, bmInfo): Promise<void> {
         color: webhookColors.blue,
         description,
         thumbnail: {
-            url: `https://assets.ppy.sh/beatmaps/${bmInfo.beatmapset_id}/covers/list.jpg`,
+            url: `https://assets.ppy.sh/beatmaps/${bmInfo.id}/covers/list.jpg`,
         },
     }]);
 

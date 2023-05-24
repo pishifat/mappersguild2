@@ -1,5 +1,5 @@
 import express from 'express';
-import { isLoggedIn } from '../../helpers/middlewares';
+import { isLoggedIn, isValidUrl } from '../../helpers/middlewares';
 import { devWebhookPost, webhookColors } from '../../helpers/discordApi';
 import { isContestCreator, isEditable } from './middlewares';
 import { Contest, ContestModel } from '../../models/contest/contest';
@@ -978,7 +978,7 @@ listingRouter.get('/:id/judgingResults', isContestCreator, async (req, res) => {
 });
 
 /* POST create submission */
-listingRouter.post('/:id/createSubmission', isEditable, async (req, res) => {
+listingRouter.post('/:id/createSubmission', isEditable, isValidUrl, async (req, res) => {
     const contest = await ContestModel
         .findById(req.params.id)
         .populate(defaultContestPopulate)
@@ -994,19 +994,12 @@ listingRouter.post('/:id/createSubmission', isEditable, async (req, res) => {
         return res.json({ error: `This contest is no longer accepting new submissions.` });
     }
 
-    const url = req.body.submissionUrl;
-
     if (contest.status !== ContestStatus.Beatmapping) {
         return res.json({ error: 'Contest is not accepting new submissions!' });
     }
 
-    const regexp = /^(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/;
-
-    if (!regexp.test(url) && url) {
-        return res.json({ error: 'Not a valid URL' });
-    }
-
     const userSubmission = contest.submissions.find(s => s.creator.id == req.session.mongoId);
+    const url = req.body.url;
 
     if (!userSubmission) {
         const submission = new SubmissionModel();

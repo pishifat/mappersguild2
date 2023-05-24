@@ -38,7 +38,6 @@
                     />
                     <button
                         id="addLinkButton"
-                        v-bs-tooltip:right="'use new osu!web link for card image'"
                         class="btn btn-outline-info"
                         type="submit"
                         @click="saveLink($event)"

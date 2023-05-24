@@ -31,8 +31,12 @@
                 <li>
                     <code>#featured-artists</code>
                     <ul>
-                        <li>Discussion and events related to Featured Artists, such as creating <a href="https://discord.com/channels/188630481301012481/1094639474941636819/1094685118603481129" target="_blank">playlists for osu!(lazer) with new Featured Artist beatmaps!</a></li>
-                        <li>Quick feedback from the mapping community on your Featured Artist maps</li>
+                        <li>
+                            Discussion and events related to Featured Artists
+                        </li>
+                        <li>
+                            Quick feedback from the mapping community on your Featured Artist maps
+                        </li>
                     </ul>
                 </li>
                 <li>

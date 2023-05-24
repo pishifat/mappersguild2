@@ -272,14 +272,20 @@ const setRanked = cron.schedule('0 1 * * *', async () => { /* 5:00 PM PST */
     for (const bm of qualifiedBeatmaps) {
         if (bm.url.indexOf('osu.ppy.sh/beatmapsets/') > -1) {
             const osuId = findBeatmapsetId(bm.url);
-            const bmInfo = await beatmapsetInfo(osuId);
+            const response = await getClientCredentialsGrant();
             await sleep(500);
 
-            if (!isOsuResponseError(bmInfo)) {
-                const status = findBeatmapsetStatus(bmInfo.approved);
+            if (!isOsuResponseError(response)) {
+                const token = response.access_token;
+                const bmInfo: any = await getBeatmapsetV2Info(token, osuId);
+                await sleep(500);
 
-                if (status == BeatmapStatus.Ranked) {
-                    await setBeatmapStatusRanked(bm.id, bmInfo);
+                if (!isOsuResponseError(bmInfo)) {
+                    const status = findBeatmapsetStatus(bmInfo.ranked);
+
+                    if (status == BeatmapStatus.Ranked && bmInfo.beatmaps[0].hit_length) { // everything breaks if no hit_length
+                        await setBeatmapStatusRanked(bm.id, bmInfo);
+                    }
                 }
             }
         }

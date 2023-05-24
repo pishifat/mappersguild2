@@ -5,7 +5,7 @@ import { TaskModel } from '../../models/beatmap/task';
 import { TaskName, TaskStatus } from '../../../interfaces/beatmap/task';
 import { LogModel } from '../../models/log';
 import { LogCategory } from '../../../interfaces/log';
-import { isLoggedIn, isNotSpectator } from '../../helpers/middlewares';
+import { isLoggedIn, isNotSpectator, isValidUrl } from '../../helpers/middlewares';
 import { isBeatmapHost, isValidBeatmap } from './middlewares';
 import { UserModel } from '../../models/user';
 import { QuestModel } from '../../models/quest';
@@ -139,19 +139,8 @@ beatmapsHostRouter.post('/:id/linkQuest', isValidBeatmap, isBeatmapHost, isNotSp
 });
 
 /* POST edit link from extended view. */
-beatmapsHostRouter.post('/:id/setLink', isValidBeatmap, isBeatmapHost, isNotSpectator, async (req, res) => {
-    let url = req.body.url;
-
-    if (!url?.length) {
-        url = null;
-    }
-
-    const regexp = /^(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/;
-
-    if (!regexp.test(url) && url) {
-        return res.json({ error: 'Not a valid URL' });
-    }
-
+beatmapsHostRouter.post('/:id/setLink', isValidBeatmap, isBeatmapHost, isValidUrl, isNotSpectator, async (req, res) => {
+    const url = req.body.url;
     let b: Beatmap = res.locals.beatmap;
 
     b.url = url;
