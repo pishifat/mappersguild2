@@ -3,11 +3,13 @@ import { findBeatmapsetId, sleep, findBeatmapsetStatus, setBeatmapStatusRanked, 
 import { isOsuResponseError, getClientCredentialsGrant, getBeatmapsetV2Info, getDiscussions, getBeatmapsSearch } from './osuApi';
 import { devWebhookPost, webhookPost, webhookColors } from './discordApi';
 import { BeatmapModel } from '../models/beatmap/beatmap';
+import { LogModel } from '../models/log';
 import { BeatmapStatus } from '../../interfaces/beatmap/beatmap';
 import { QuestModel } from '../models/quest';
 import { ContestModel } from '../models/contest/contest';
 import { ContestStatus } from '../../interfaces/contest/contest';
 import { QuestStatus } from '../../interfaces/quest';
+import { LogCategory } from '../../interfaces/log';
 import { UserModel } from '../models/user';
 import { FeaturedArtistModel } from '../models/featuredArtist';
 import { updateUserPoints } from './points';
@@ -529,6 +531,56 @@ const validateRankedBeatmaps = cron.schedule('0 4 * * *', async () => { /* 8:00 
     scheduled: false,
 });
 
+/* drop quests that have been inactive for >1 year */
+const dropOverdueQuests = cron.schedule('2 3 * * *', async () => { /* 7:02 PM PST */
+    const oneYearAgo = new Date();
+    oneYearAgo.setDate(oneYearAgo.getDate() - 365);
+
+    const quests = await QuestModel
+        .find({
+            status: QuestStatus.WIP,
+            updatedAt: { $lt: oneYearAgo },
+            deadline: { $lt: oneYearAgo },
+        })
+        .defaultPopulate();
+
+    for (const quest of quests) {
+        let recentlyUpdatedMap = false;
+
+        for (const beatmap of quest.associatedMaps) {
+            const lastUpdated = new Date(beatmap.updatedAt);
+
+            if (lastUpdated > oneYearAgo && !recentlyUpdatedMap) {
+                recentlyUpdatedMap = true;
+            }
+        }
+
+        if (!recentlyUpdatedMap) {
+            const members = quest.currentParty.members;
+            const leader = quest.currentParty.leader;
+            await quest.drop();
+
+            //logs
+            const { modeList, memberList } = generateLists(quest.modes, members);
+            LogModel.generate(null, `party dropped quest "${quest.name}" for mode${quest.modes.length > 1 ? 's' : ''} "${modeList}"`, LogCategory.Quest );
+
+            //webhook
+            await webhookPost([{
+                ...generateAuthorWebhook(leader),
+                color: webhookColors.red,
+                description: `Automatically dropped quest due to inactivity: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id}) [**${modeList}**]`,
+                ...generateThumbnailUrl(quest),
+                fields: [{
+                    name: 'Party members',
+                    value: memberList,
+                }],
+            }]);
+        }
+    }
+}, {
+    scheduled: false,
+});
+
 /* create FeaturedArtist for every artist that doesn't already exist based on the last 50 maps ranked per day */
 const processDailyArtists = cron.schedule('0 19 * * *', async () => {
     const response = await getClientCredentialsGrant();
@@ -564,4 +616,4 @@ const processDailyArtists = cron.schedule('0 19 * * *', async () => {
     scheduled: false,
 });
 
-export default { sendActionNotifications, setQualified, qualifiedMapChecks, setRanked, publishQuests, completeQuests, rankUsers, updatePoints, processDailyArtists, validateRankedBeatmaps };
+export default { sendActionNotifications, setQualified, qualifiedMapChecks, setRanked, publishQuests, completeQuests, rankUsers, updatePoints, processDailyArtists, validateRankedBeatmaps, dropOverdueQuests };
