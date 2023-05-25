@@ -21,11 +21,6 @@
             :quests="completeQuests"
         />
 
-        <status-quests
-            status="Expired"
-            :quests="expiredQuests"
-        />
-
         <submit-quest-modal />
 
         <quest-info-modal />
@@ -52,6 +47,7 @@ export default defineComponent({
     computed: {
         ...mapState('quests', [
             'isFirstLoadDone',
+            'isLoadingQuests',
         ]),
         ...mapGetters('quests', [
             'openQuests',
@@ -73,7 +69,6 @@ export default defineComponent({
             this.$bs.showModal('editQuest');
         }
 
-        await this.$store.dispatch('quests/searchQuests');
         this.$store.commit('quests/setFirstLoadDone');
     },
 });

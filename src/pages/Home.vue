@@ -491,8 +491,6 @@ export default defineComponent({
             this.$store.commit('setLimit', this.limit + 6);
             this.$store.commit('setExampleQuest', data.quest);
         }
-
-        console.log(this.exampleQuest);
     },
     methods: {
         fallbackImg (e) {

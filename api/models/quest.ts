@@ -4,7 +4,7 @@ import { Quest, QuestStatus } from '../../interfaces/quest';
 import { BeatmapModel } from './beatmap/beatmap';
 
 interface QuestStatics extends Model<Quest, typeof queryHelpers> {
-    findAll (): Promise<Quest[]>;
+    findAll (limit?: number): Promise<Quest[]>;
     defaultFindByIdOrFail (id: any): Promise<Quest>;
 }
 
@@ -105,7 +105,7 @@ questSchema.methods.drop = async function (this: Quest) {
 };
 
 const queryHelpers = {
-    sortByLastest<Q extends DocumentQuery<any, Quest>>(this: Q) {
+    sortByLatest<Q extends DocumentQuery<any, Quest>>(this: Q) {
         return this.sort({ createdAt: -1 });
     },
     defaultPopulate<Q extends DocumentQuery<any, Quest>>(this: Q) {
@@ -127,11 +127,14 @@ const queryHelpers = {
 
 questSchema.query = queryHelpers;
 
-questSchema.statics.findAll = function (this: QuestStatics) {
+questSchema.statics.findAll = function (this: QuestStatics, limit?: number) {
+    if (!limit) limit = 10000;
+
     return this
         .find({})
         .defaultPopulate()
-        .sortByLastest();
+        .sortByLatest()
+        .limit(limit);
 };
 
 questSchema.statics.defaultFindByIdOrFail = function (this: QuestStatics, id: any) {

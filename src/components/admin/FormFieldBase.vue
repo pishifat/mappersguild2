@@ -1,9 +1,12 @@
 <template>
-    <div class="mb-3 row">
-        <div class="col-sm-3 col-form-label">
-            <b>{{ label }}</b>
+    <div class="row" :class="autoColumns ? '' : 'mb-3'">
+        <div
+            :class="autoColumns ? 'col-auto filter-title' : 'col-sm-3'"
+            class="col-form-label"
+        >
+            {{ label }}
         </div>
-        <div class="col-sm-9">
+        <div :class="autoColumns ? 'col' : 'col-sm-9'">
             <slot />
 
             <p v-if="description" class="text-secondary small">
@@ -26,6 +29,10 @@ export default defineComponent({
         description: {
             type: String,
             default: '',
+        },
+        autoColumns: {
+            type: Boolean,
+            default: false,
         },
     },
 });

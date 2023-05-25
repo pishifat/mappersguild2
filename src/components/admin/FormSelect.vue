@@ -1,5 +1,8 @@
 <template>
-    <form-field-base :label="label">
+    <form-field-base
+        :label="label"
+        :auto-columns="autoColumns"
+    >
         <select
             class="form-select form-select-sm"
             @input="$emit('update:modelValue', $event.target.value)"
@@ -48,6 +51,10 @@ export default defineComponent({
         options: {
             type: Array,
             default: () => [],
+        },
+        autoColumns: {
+            type: Boolean,
+            default: false,
         },
     },
     emits: [

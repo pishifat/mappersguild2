@@ -1,6 +1,6 @@
 <template>
     <div class="container card card-body my-2">
-        <h5 :class="collapsed ? 'mb-2' : 'mb-0'">
+        <h5 :class="collapsed ? 'mb-0' : 'mb-2'">
             <a
                 :href="'#' + status"
                 data-bs-toggle="collapse"
@@ -12,11 +12,9 @@
         </h5>
         <div
             :id="status"
-            class="row"
+            class="row show"
             :class="{
                 'loading-data': (isLoadingQuests && isFirstLoadDone),
-                'show': openQuests,
-                'collapse': !openQuests
             }"
         >
             <div class="col-sm">
@@ -31,13 +29,26 @@
                     />
                 </transition-group>
             </div>
+            <div class="text-center">
+                <button
+                    v-bs-tooltip="'this can take a few seconds. searching for a specific artist is probably better'"
+                    class="btn btn-sm btn-primary"
+                    type="button"
+                    :disabled="isLoadingQuests"
+                    @click="showAll()"
+                >
+                    <i class="fas fa-angle-down me-1" />
+                        show all quests
+                    <i class="fas fa-angle-down ms-1" />
+                </button>
+            </div>
         </div>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { mapState } from 'vuex';
+import { mapState, mapActions } from 'vuex';
 import { Quest } from '@interfaces/quest';
 import QuestCard from '@components/quests/QuestCard.vue';
 
@@ -57,7 +68,7 @@ export default defineComponent({
     },
     data () {
         return {
-            collapsed: this.status === 'Open',
+            collapsed: false,
         };
     },
     computed: {
@@ -72,6 +83,14 @@ export default defineComponent({
         },
         openQuests (): boolean {
             return this.status === 'Open';
+        },
+    },
+    methods: {
+        ...mapActions('quests', [
+            'searchQuests',
+        ]),
+        showAll (): void {
+            this.searchQuests(true);
         },
     },
 });

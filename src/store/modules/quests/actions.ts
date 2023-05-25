@@ -1,8 +1,7 @@
 import { ActionTree } from 'vuex';
-import { Quest, QuestStatus } from '@interfaces/quest';
+import { Quest } from '@interfaces/quest';
 import { QuestsState } from './index';
 import { http, isError } from '@store/http';
-import { FilterMode } from '@interfaces/extras';
 import { Party } from '@interfaces/party';
 import { MainState } from '@store/main';
 
@@ -23,27 +22,42 @@ const actions: ActionTree<QuestsState, MainState> | undefined = {
         commit('setFilterValue', value);
     },
 
+    updateFilterMode ({ commit }, value: string): void {
+        commit('setFilterMode', value);
+    },
+
+    updateFilterArtist ({ commit }, value: string): void {
+        commit('setFilterArtist', value);
+    },
+
     async loadQuests ({ commit, rootState }, id?: string): Promise<void> {
         const mainMode = rootState.loggedInUser?.mainMode;
-        let url = `/quests/search?mode=${mainMode}&status=${QuestStatus.Open}`;
+        let url = `/quests/search?mode=${mainMode}&limit=${100}`;
         if (id) url += `&id=${id}`;
+
         const quests = await http.initialRequest<Quest[]>(url);
 
         if (!isError(quests)) {
             commit('setQuests', quests);
             commit('setFilterMode', mainMode);
+            commit('setIsLoadingQuests', false);
 
             if (id) {
                 commit('setSelectedQuestId', id);
             }
         }
     },
-
-    async searchQuests ({ commit, state }, mode?: FilterMode): Promise<void> {
-        if (mode) commit('setFilterMode', mode);
+    async searchQuests ({ commit, state }, all?: boolean): Promise<void> {
         commit('setIsLoadingQuests', true);
 
-        const quests = await http.executeGet<Quest[]>(`/quests/search?mode=${state.filterMode}`);
+        let limit = 100;
+
+        if (all) {
+            limit = 10000;
+            commit('setFilterArtist', '');
+        }
+
+        const quests = await http.executeGet<Quest[]>(`/quests/search?mode=${state.filterMode}&artist=${state.filterArtist}&limit=${limit}`);
 
         if (!isError(quests)) {
             commit('setQuests', quests);

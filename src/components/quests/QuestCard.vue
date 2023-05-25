@@ -7,6 +7,7 @@
         >
             <div
                 class="row no-gutters align-items-center"
+                :class="quest.isExpired ? 'text-muted' : ''"
                 data-bs-toggle="modal"
                 data-bs-target="#editQuest"
                 @click="selectQuest"
@@ -101,7 +102,9 @@ export default defineComponent({
             );
         },
         cardClass(): string {
-            if (this.quest.status == 'wip' && this.timeRemaining < 0) {
+            if (this.quest.isExpired) {
+                return 'expired';
+            } else if (this.quest.status == 'wip' && this.timeRemaining < 0) {
                 return 'overdue';
             } else if (this.quest.minRank) {
                 return 'rank-restricted';
@@ -135,6 +138,10 @@ export default defineComponent({
 
 .overdue {
     background-color: rgba(255, 251, 0, 0.05)!important;
+}
+
+.expired {
+    background-color: rgba(255, 255, 255, 0.075)!important;
 }
 
 .fake-button-disable {

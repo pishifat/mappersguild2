@@ -35,7 +35,7 @@ const BeatmapSchema = new Schema<Beatmap>({
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const queryHelpers = {
-    sortByLastest<Q extends DocumentQuery<any, Beatmap>>(this: Q) {
+    sortByLatest<Q extends DocumentQuery<any, Beatmap>>(this: Q) {
         return this.sort({ updatedAt: -1 });
     },
     defaultPopulate<Q extends DocumentQuery<any, Beatmap>>(this: Q) {

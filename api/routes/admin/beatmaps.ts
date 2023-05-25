@@ -276,7 +276,7 @@ adminBeatmapsRouter.get('/findBundledBeatmaps', async (req, res) => {
             status: BeatmapStatus.Ranked,
         })
         .defaultPopulate()
-        .sortByLastest();
+        .sortByLatest();
 
     res.json(easyBeatmaps);
 });

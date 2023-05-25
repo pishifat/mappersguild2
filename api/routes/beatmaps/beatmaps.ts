@@ -23,7 +23,7 @@ beatmapsRouter.get('/relevantInfo', async (req, res) => {
             mode: res.locals.userRequest.mainMode,
         })
         .defaultPopulate()
-        .sortByLastest();
+        .sortByLatest();
 
     res.json({
         beatmaps: hostBeatmaps,
@@ -62,7 +62,7 @@ beatmapsRouter.get('/guestBeatmaps', async (req, res) => {
             ],
         })
         .defaultPopulate()
-        .sortByLastest();
+        .sortByLatest();
 
     res.json({ userBeatmaps });
 });
@@ -95,7 +95,7 @@ beatmapsRouter.get('/search', async (req, res) => {
 
     // this actually returns every map, pretty dumb, need to fix somehow
     if (!search && limit) allBeatmapsQuery.limit(limit);
-    let allBeatmaps = await allBeatmapsQuery.defaultPopulate().sortByLastest();
+    let allBeatmaps = await allBeatmapsQuery.defaultPopulate().sortByLatest();
 
     if (search) {
         const tags = search

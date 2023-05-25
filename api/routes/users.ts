@@ -93,7 +93,7 @@ usersRouter.get('/findUserBeatmaps/:id', async (req, res) => {
             ],
         })
         .defaultPopulate()
-        .sortByLastest();
+        .sortByLatest();
 
     res.json(userBeatmaps);
 });

@@ -15,6 +15,7 @@ import { FeaturedArtistModel } from '../models/featuredArtist';
 import { User } from '../../interfaces/user';
 import { FilterMode } from '../../interfaces/extras';
 import { PointsRefreshResponse } from '../../interfaces/api/quests';
+import { UserModel } from '../models/user';
 
 async function isPartyLeader (req, res, next): Promise<void> {
     if (!req.params.id) return res.json({ error: 'Invalid' });
@@ -33,36 +34,39 @@ const questsRouter = express.Router();
 
 questsRouter.use(isLoggedIn);
 
-/* GET on load quests info */
+/* GET quests */
 questsRouter.get('/search', async (req, res) => {
     let query: Record<string, any> = {};
 
     const mode = req.query.mode?.toString();
-    const status = req.query.status?.toString();
+    const limit = req.query.limit!.toString();
+    const artist = req.query.artist?.toString();
     const id = req.query.id?.toString();
 
     if (mode !== FilterMode.any) query.modes = mode;
 
-    if (status === QuestStatus.Open) {
-        query.status = QuestStatus.Open;
-        query.expiration = { $gt: new Date() };
-    } else {
-        query.status = { $ne: QuestStatus.Hidden };
+    query.status = { $ne: QuestStatus.Hidden };
+
+    if (artist) {
+        if (artist == 'user') {
+            const pishifat = await UserModel.findOne({ osuId: 3178418 }).orFail();
+            query = { creator: { $ne: pishifat._id } };
+        } else if (artist == 'none') {
+            query.art = null;
+        } else {
+            query.art = artist;
+        }
     }
 
     if (id) {
-        query = {
-            $or: [
-                query,
-                { _id: id },
-            ],
-        };
+        query = { _id: id };
     }
 
     const quests = await QuestModel
         .find(query)
         .defaultPopulate()
-        .sortByLastest();
+        .sortByLatest()
+        .limit(parseInt(limit));
 
     res.json(quests);
 });
@@ -169,10 +173,13 @@ questsRouter.post('/:id/accept', isNotSpectator, async (req, res) => {
         await updateUserPoints(member.id);
     }
 
-    const allQuests = await QuestModel.findAll();
+    quest = await QuestModel
+        .findById(quest.id)
+        .defaultPopulate()
+        .orFail();
 
     res.json({
-        quests: allQuests,
+        quests: [quest],
         availablePoints: res.locals.userRequest.availablePoints - quest.price,
     } as PointsRefreshResponse);
 
@@ -208,7 +215,7 @@ questsRouter.post('/:id/drop', isPartyLeader, async (req, res) => {
     const leader = quest.currentParty.leader;
     await quest.drop();
 
-    const allQuests = await QuestModel.findAll();
+    const allQuests = await QuestModel.findAll(100);
 
     res.json(allQuests);
 
@@ -233,7 +240,7 @@ questsRouter.post('/:id/drop', isPartyLeader, async (req, res) => {
 questsRouter.post('/:id/reopen', isNotSpectator, async (req, res) => {
     const questId = req.params.id;
     const user: User = res.locals.userRequest;
-    const quest = await QuestModel
+    let quest = await QuestModel
         .findById(questId)
         .defaultPopulate()
         .orFail();
@@ -245,16 +252,17 @@ questsRouter.post('/:id/reopen', isNotSpectator, async (req, res) => {
     const newExpiration = new Date();
     newExpiration.setDate(newExpiration.getDate() + 90);
 
-    await QuestModel.findByIdAndUpdate(questId, {
-        expiration: newExpiration,
-    });
+    quest = await QuestModel
+        .findByIdAndUpdate(questId, {
+            expiration: newExpiration,
+        })
+        .defaultPopulate()
+        .orFail();
 
     SpentPointsModel.generate(SpentPointsCategory.ReopenQuest, req.session?.mongoId, quest._id);
     updateUserPoints(req.session?.mongoId);
 
-    const allQuests = await QuestModel.findAll();
-
-    res.json({ quests: allQuests, availablePoints: user.availablePoints } as PointsRefreshResponse);
+    res.json({ quests: [quest], availablePoints: user.availablePoints } as PointsRefreshResponse);
 
     LogModel.generate(req.session?.mongoId, `re-opened quest "${quest.name}"`, LogCategory.Quest );
 

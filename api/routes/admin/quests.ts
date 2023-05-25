@@ -49,7 +49,7 @@ adminQuestsRouter.post('/create', async (req, res) => {
         LogModel.generate(req.session?.mongoId, `created quest "${newQuest.name}"`, LogCategory.Quest);
     }
 
-    const quests = await QuestModel.findAll();
+    const quests = await QuestModel.findAll(10000);
 
     res.json({
         quests,

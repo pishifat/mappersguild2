@@ -9,6 +9,7 @@ export interface QuestsState {
     quests: Quest[];
     filterValue: string;
     filterMode: FilterMode;
+    filterArtist: string;
     isLoadingQuests: boolean;
     selectedQuestId: null | string;
     isFirstLoadDone: boolean;
@@ -20,6 +21,7 @@ const store: Module<QuestsState, MainState> = {
         quests: [],
         filterValue: '',
         filterMode: FilterMode.any,
+        filterArtist: '',
         isLoadingQuests: true,
         selectedQuestId: null,
         isFirstLoadDone: false,
@@ -36,6 +38,9 @@ const store: Module<QuestsState, MainState> = {
         },
         setFilterMode (state, mode: FilterMode): void {
             state.filterMode = mode;
+        },
+        setFilterArtist (state, artist: string): void {
+            state.filterArtist = artist;
         },
         setIsLoadingQuests (state, value: boolean): void {
             state.isLoadingQuests = value;
@@ -80,16 +85,13 @@ const store: Module<QuestsState, MainState> = {
             return quests;
         },
         openQuests: (state, getters): Quest[] => {
-            return getters.filteredQuests.filter(q => q.status == QuestStatus.Open && !q.isExpired);
+            return getters.filteredQuests.filter(q => q.status == QuestStatus.Open);
         },
         wipQuests: (state, getters): Quest[] => {
             return getters.filteredQuests.filter(q => q.status == QuestStatus.WIP);
         },
         completeQuests: (state, getters): Quest[] => {
             return getters.filteredQuests.filter(q => q.status == QuestStatus.Done);
-        },
-        expiredQuests: (state, getters): Quest[] => {
-            return getters.filteredQuests.filter(q => q.isExpired);
         },
     },
     actions,
