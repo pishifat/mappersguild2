@@ -17,13 +17,22 @@ showcaseRouter.get('/relevantInfo', async (req, res) => {
     // show all artists if admin or secret usergroup
     const showAllShowcaseArtists = res.locals.userRequest.group == UserGroup.Admin || res.locals.userRequest.group == UserGroup.Secret;
 
-    if (!showAllShowcaseArtists) {
+    if (showAllShowcaseArtists) {
+        query = {
+            $or: [
+                { offeredUsers: { $in: req.session.mongoId } },
+                { showcaseMappers: { $in: req.session.mongoId } },
+                { status: FeaturedArtistStatus.Showcase },
+            ],
+            status: { $ne: FeaturedArtistStatus.Public },
+        };
+    } else {
         query = {
             $or: [
                 { offeredUsers: { $in: req.session.mongoId } },
                 { showcaseMappers: { $in: req.session.mongoId } },
             ],
-            status: FeaturedArtistStatus.Showcase,
+            status: { $ne: FeaturedArtistStatus.Public },
         };
     }
 
