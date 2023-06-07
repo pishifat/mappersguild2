@@ -13,7 +13,7 @@
                             v-model="selectedArtist"
                             class="form-select"
                         >
-                            <option value="" disabled>
+                            <option value="">
                                 Select an artist
                             </option>
                             <option value="-" disabled>
@@ -27,6 +27,13 @@
                                 {{ featuredArtist.label }}
                             </option>
                         </select>
+                        <input
+                            v-model="artistInput"
+                            type="text"
+                            class="form-control"
+                            placeholder="or input the artist's name..."
+                            @keyup.enter="setArtist($event)"
+                        />
                         <button id="artistButton" class="btn btn-outline-info" @click="setArtist($event)">
                             Load songs
                         </button>
@@ -159,6 +166,7 @@ export default defineComponent({
             featuredArtists: [] as FeaturedArtist[],
             featuredSongs: [] as FeaturedSong[],
             selectedArtist: '',
+            artistInput: '',
             selectedSong: '',
             selectedMode: 'osu',
             checkedTasks: [],
@@ -186,16 +194,34 @@ export default defineComponent({
     },
     methods: {
         async setArtist(e): Promise<void> {
+            if (!this.selectedArtist && !this.artistInput) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: 'Select or type an artist!',
+                    type: 'danger',
+                });
+
+                return;
+            }
+
+            if (this.artistInput) {
+                const artist = this.featuredArtists.find(a => a.label.toLowerCase().includes(this.artistInput.toLowerCase()));
+
+                if (artist) {
+                    this.selectedArtist = artist.id;
+                }
+            }
+
             if (!this.selectedArtist) {
                 this.$store.dispatch('updateToastMessages', {
-                    message: 'Select an artist!',
-                    type: 'info',
+                    message: `Couldn't find artist! Check your typing or select one from the list.`,
+                    type: 'danger',
                 });
 
                 return;
             }
 
             e.target.disabled = true;
+
             const res: any = await this.$http.executeGet<FeaturedSong[]>(`/featuredArtists/${this.selectedArtist}/songs`);
 
             if (res) {
