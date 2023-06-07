@@ -2,7 +2,7 @@
     <div v-if="beatmap" class="container">
         <div class="row">
             <!-- LEFT SIDE -->
-            <div :class="(isHost && !isRanked && !isQualified) ? 'col-lg-7' : 'col-sm-12'">
+            <div :class="(isHost && !isRanked) ? 'col-lg-7' : 'col-sm-12'">
                 <div class="row mb-2">
                     <div class="col-sm-6">
                         <modders-list
@@ -36,7 +36,7 @@
 
             <!-- RIGHT SIDE -->
             <!-- host options -->
-            <div v-if="isHost && !isRanked && !isQualified" class="col-lg-5 bm-col-separator-left">
+            <div v-if="isHost && !isRanked" class="col-lg-5 bm-col-separator-left">
                 <div class="row mb-2">
                     <div class="col-sm">
                         <mode-choice
@@ -46,7 +46,7 @@
                     </div>
                 </div>
 
-                <div class="row mb-2">
+                <div v-if="!isQualified" class="row mb-2">
                     <div class="col-sm">
                         <status-choice
                             :beatmap="beatmap"
@@ -59,6 +59,7 @@
                 />
 
                 <beatmap-link
+                    v-if="!isQualified"
                     :beatmap="beatmap"
                 />
 
