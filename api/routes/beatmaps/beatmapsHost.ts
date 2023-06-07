@@ -103,7 +103,7 @@ beatmapsHostRouter.post('/:id/linkQuest', isValidBeatmap, isBeatmapHost, isNotSp
 
         for (const task of beatmap.tasks) {
             if (!quest.modes.includes(task.mode) && task.mode !== 'sb') {
-                return res.json({ error: `Some of this mapset's difficulties are not the correct mode for this quest!` });
+                return res.json({ error: `Some of this mapset's difficulties are not the correct mode for the selected quest!` });
             }
 
             for (const mapper of task.mappers) {
@@ -112,7 +112,7 @@ beatmapsHostRouter.post('/:id/linkQuest', isValidBeatmap, isBeatmapHost, isNotSp
                     .orFail();
 
                 if (!quest.currentParty?.members.some(m => m.id == user.id)) {
-                    return res.json({ error: `Some of this mapset's mappers are not assigned to your quest!` });
+                    return res.json({ error: `Some of this mapset's mappers are not assigned to the selected quest!` });
                 }
             }
         }

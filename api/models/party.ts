@@ -2,6 +2,9 @@ import mongoose, { Schema, DocumentQuery, Model } from 'mongoose';
 import { Party } from '../../interfaces/party';
 import { User } from '../../interfaces/user';
 import { QuestStatus } from '../../interfaces/quest';
+import { SpentPointsCategory } from '../../interfaces/spentPoints';
+import { SpentPointsModel } from '../models/spentPoints';
+import { updateUserPoints } from '../helpers/points';
 
 interface IPartyModel extends Model<Party, typeof queryHelpers> {
     defaultFindByIdOrFail (id: any): Promise<Party>;
@@ -52,7 +55,7 @@ partySchema.methods.addUser = async function (this: Party, user: User, isNotSelf
     await this.quest.populate({
         path: 'parties',
         populate: {
-            path: 'members',
+            path: 'members pendingMembers',
             select: 'id',
         },
     }).execPopulate();
@@ -69,8 +72,12 @@ partySchema.methods.addUser = async function (this: Party, user: User, isNotSelf
         throw new Error('Already in a party for this quest');
     }
 
-    if (user.availablePoints < this.quest.price) {
-        throw new Error('Not have enough points available to accept this quest');
+    if (this.pendingMembers.some(m => m.id == user.id)) {
+        throw new Error('Already pending in this party');
+    }
+
+    if (user.availablePoints < this.quest.price && this.leader.availablePoints < this.quest.price*2) {
+        throw new Error('Not enough points available to accept this quest');
     }
 
     if (this.members.length >= this.quest.maxParty) {
@@ -84,6 +91,16 @@ partySchema.methods.addUser = async function (this: Party, user: User, isNotSelf
 
         const i = this.pendingMembers.findIndex(m => m.id == user.id);
         if (i !== -1) this.pendingMembers.splice(i, 1);
+
+        if (this.quest.status == QuestStatus.WIP) {
+            if (user.availablePoints > this.quest.price) {
+                await SpentPointsModel.generate(SpentPointsCategory.AcceptQuest, user.id, this.quest.id);
+                await updateUserPoints(user.id);
+            } else {
+                await SpentPointsModel.generate(SpentPointsCategory.AcceptQuest, this.leader.id, this.quest.id);
+                await updateUserPoints(this.leader.id);
+            }
+        }
     }
 
     this.setPartyRank();

@@ -7,10 +7,10 @@ import { Quest, QuestStatus } from '../../interfaces/quest';
 import { LogCategory } from '../../interfaces/log';
 import { webhookPost, webhookColors } from '../helpers/discordApi';
 import { SpentPointsCategory } from '../../interfaces/spentPoints';
+import { SpentPointsModel } from '../models/spentPoints';
 import { updateUserPoints } from '../helpers/points';
 import { QuestModel } from '../models/quest';
 import { LogModel } from '../models/log';
-import { SpentPointsModel } from '../models/spentPoints';
 import { FeaturedArtistModel } from '../models/featuredArtist';
 import { User } from '../../interfaces/user';
 import { FilterMode } from '../../interfaces/extras';
@@ -84,11 +84,6 @@ questsRouter.post('/:id/accept', isNotSpectator, async (req, res) => {
 
     if (!party.modes.length) {
         return res.json({ error: 'Your party has no modes selected!' });
-    }
-
-    // check if all party members can afford quest
-    if (party.members.some(m => m.availablePoints < quest.price)) {
-        return res.json({ error: 'Someone in your party does not have enough points to accept the quest!' });
     }
 
     // check if quest is valid to accept
@@ -169,8 +164,13 @@ questsRouter.post('/:id/accept', isNotSpectator, async (req, res) => {
 
     // spend points
     for (const member of party.members) {
-        await SpentPointsModel.generate(SpentPointsCategory.AcceptQuest, member._id, quest._id);
-        await updateUserPoints(member.id);
+        if (member.availablePoints > quest.price) { // if user can afford it, suck their points
+            await SpentPointsModel.generate(SpentPointsCategory.AcceptQuest, member._id, quest._id);
+            await updateUserPoints(member.id);
+        } else {                                    // if user can't afford it, suck party leader's points (even if that goes negative i don't care. if someone bypasses the front-end lock for this they deserve to do the quest)
+            await SpentPointsModel.generate(SpentPointsCategory.AcceptQuest, party.leader._id, quest._id);
+            await updateUserPoints(party.leader.id);
+        }
     }
 
     quest = await QuestModel

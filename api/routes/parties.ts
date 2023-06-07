@@ -97,6 +97,18 @@ partiesRouter.post('/:id/leave', async (req, res) => {
     await party.quest.dissociateBeatmaps(userId);
 });
 
+/* POST remove user from pending members */
+partiesRouter.post('/:id/removeFromPendingMembers', isPartyLeader, async (req, res) => {
+    const party = await PartyModel
+        .findByIdAndUpdate(req.params.id, { $pull: { pendingMembers: req.body.userId } })
+        .defaultPopulate()
+        .orFail();
+
+    res.json(party);
+
+    LogModel.generate(req.session?.mongoId, `removed from pending members of party`, LogCategory.Party);
+});
+
 /* POST delete party */
 partiesRouter.post('/:id/delete', isPartyLeader, async (req, res) => {
     const party: Party = res.locals.party;

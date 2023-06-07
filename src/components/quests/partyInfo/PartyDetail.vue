@@ -34,11 +34,11 @@
         />
 
         <pending-members-detail
-            v-if="party.pendingMembers && party.pendingMembers.length"
+            v-if="party.pendingMembers && party.pendingMembers.length && !isDone"
             :members="party.pendingMembers"
             :price="quest.price"
-            :status="quest.status"
             :party-id="party.id"
+            :leader-id="party.leader.id"
         />
     </div>
 </template>

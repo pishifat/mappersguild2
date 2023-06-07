@@ -146,12 +146,16 @@ export default defineComponent({
             'loggedInUser',
         ]),
         enoughPoints(): boolean {
-            let valid = true;
+            let invalids = 0;
             this.party.members.forEach(member => {
-                if (member.availablePoints < this.price) valid = false;
+                if (member.availablePoints < this.price) invalids++;
             });
 
-            return valid;
+            if (invalids && this.loggedInUser.availablePoints < (this.price*invalids)) {
+                return false;
+            }
+
+            return true;
         },
     },
     methods: {
@@ -252,7 +256,7 @@ export default defineComponent({
                 }
             }
 
-            if (confirm(`Are you sure?\n\nThis quest will only allow beatmaps of these modes: ${modesText}\n\nAll members of your party will spend ${this.price} points.\n\nYou have ${this.loggedInUser.availablePoints} points available.`)) {
+            if (confirm(`Are you sure?\n\nThis quest will only allow beatmaps of these modes: ${modesText}\n\nAll members of your party will spend ${this.price} points. If any members of your party don't have enough points, your available points will be subtracted instead.\n\nYou have ${this.loggedInUser.availablePoints} points available.`)) {
                 const res = await this.$http.executePost<PointsRefreshResponse>(`/quests/${this.quest.id}/accept`, {}, e);
 
                 if (!this.$http.isError(res)) {
