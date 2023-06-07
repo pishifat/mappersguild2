@@ -9,7 +9,7 @@ import { isOsuResponseError, getClientCredentialsGrant, getBeatmapsetV2Info } fr
 import { TaskName, TaskStatus, TaskMode } from '../../../interfaces/beatmap/task';
 import { User, UserGroup } from '../../../interfaces/user';
 import { UserModel } from '../../models/user';
-import { sendMessages } from '../../helpers/osuBot';
+import { sendAnnouncement } from '../../helpers/osuBot';
 
 const adminBeatmapsRouter = express.Router();
 
@@ -168,26 +168,26 @@ adminBeatmapsRouter.post('/:id/rejectMapset', async (req, res) => {
         .defaultPopulate()
         .orFail();
 
+    const channel = {
+        name: `MG - Mapset error`,
+        description: `One of your Mappers' Guild beatmaps encountered a problem with points processing. You may need to make adjustments before points can be earned.`,
+    };
+
+    let message = `hello! your beatmap of [${beatmap.song.artist} - ${beatmap.song.title}](https://mappersguild.com/beatmaps?id=${beatmap.id}) isn't eligible to earn points for the following reason:\n\n- `;
+
     const inputMessages = req.body.messages.trim();
-    const splitMessages = inputMessages.split('\n');
-
-    const messages = [`hello! your beatmap on mappersguild https://mappersguild.com/beatmaps?id=${beatmap.id} isn't eligible to earn points for the following reason:`];
-
-    for (const message of splitMessages) {
-        messages.push(message.trim());
-    }
+    message += inputMessages;
 
     if (req.body.isResolvable) {
-        messages.push(`when the issue is resolved, mark the mapset as "Done" to re-attempt points processing!`);
-        messages.push(`thank you!!`);
+        message += `\n\nwhen the issue is resolved, mark the mapset as \`Done\` to re-attempt points processing!`;
+        message += `\n\nthank you!!`;
     } else {
-        messages.push(`sorry :(`);
+        message += `\n\nsorry :(`;
     }
 
-    const finalMessages = await sendMessages(beatmap.host.osuId, messages);
+    const announcement = await sendAnnouncement([beatmap.host.id], channel, message);
 
-
-    if (finalMessages !== true) {
+    if (announcement !== true) {
         return res.json({ error: `Messages were not sent.` });
     }
 

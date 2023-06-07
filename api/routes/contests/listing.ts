@@ -6,7 +6,7 @@ import { Contest, ContestModel } from '../../models/contest/contest';
 import { UserModel } from '../../models/user';
 import { User, UserGroup } from '../../../interfaces/user';
 import { SubmissionModel } from '../../models/contest/submission';
-import { sendMessages } from '../../helpers/osuBot';
+import { sendAnnouncement } from '../../helpers/osuBot';
 import { CriteriaModel } from '../../models/contest/criteria';
 import { ContestStatus } from '../../../interfaces/contest/contest';
 import { UserScore, JudgeCorrel } from '../../../interfaces/contest/judging';
@@ -378,13 +378,30 @@ listingRouter.post('/:id/updateStatus', isContestCreator, isEditable, async (req
     }
 
     contest.status = req.body.status;
-    await contest.save();
+    // await contest.save();
 
     if (req.body.status == ContestStatus.Beatmapping) {
         devWebhookPost([{
             color: webhookColors.lightBlue,
             description: `**${contest.name}** pending approval\n\nlisting: https://mappersguild.com/contests/listing?contest=${contest.id}\nadmin: https://mappersguild.com/admin/summary`,
         }]);
+    }
+
+    if (req.body.status == ContestStatus.Complete) {
+        const participantIds = contest.submissions.map(s => s.creator.osuId);
+        const judgeIds = contest.judges.map(j => j.osuId);
+        const screenerIds = contest.screeners.map(s => s.osuId);
+
+        const osuIds = participantIds.concat(judgeIds, screenerIds);
+
+        const channel = {
+            name: `Results - ${contest.name}`,
+            description: `A beatmapping contest you participated in is completed!`,
+        };
+
+        const message = `hello! thank you for participating in **${contest.name}**!\n\nview results for this contest below:\n- [**results announcement**](${contest.resultsUrl})\n- [screening/judging details](https://mappersguild.com/contests/results?contest=${contest.id})`;
+
+        await sendAnnouncement(osuIds, channel, message);
     }
 
     res.json(contest.status);
@@ -1171,83 +1188,6 @@ listingRouter.post('/:id/manuallyAddSubmission', isContestCreator, isEditable, a
     console.log(newSubmission);
 
     res.json(newSubmission);
-});
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* POST send messages */
-listingRouter.post('/:id/sendMessages', async (req, res) => {
-    const contest = await ContestModel
-        .findById(req.params.id)
-        .populate(defaultContestPopulate)
-        .orFail();
-
-    if (contest.status !== ContestStatus.Complete) {
-        return res.json({ error: 'Contest must be set as complete!' });
-    }
-
-    let messages;
-
-    req.body.users.push({ osuId: req.session.osuId });
-
-    for (const user of req.body.users) {
-        messages = await sendMessages(user.osuId, req.body.messages);
-    }
-
-    if (messages !== true) {
-        return res.json({ error: `Messages were not sent.` });
-    }
-
-    res.json({ success: 'Messages sent!' });
-});
-
-/* POST send all results messages to contest's participants */
-listingRouter.post('/:id/sendAllMessages', async (req, res) => {
-    const contest = await ContestModel
-        .findById(req.params.id)
-        .populate(defaultContestPopulate)
-        .orFail();
-
-    if (contest.status !== ContestStatus.Complete) {
-        return res.json({ error: 'Contest must be set as complete!' });
-    }
-
-    for (const submission of contest.submissions) {
-        const messages: string[] = [];
-
-        messages.push(`hello! thank you for participating in ${contest.name}!`);
-        messages.push(`screening/judging details for your submission can be found here: https://mappersguild.com/contests/results?submission=${submission.id}`);
-        messages.push(`a news post including the full results will be published soon!`);
-
-        await sendMessages(submission.creator.osuId, messages);
-    }
-
-    res.json({ success: 'Messages sent! A copy was sent to you for confirmation' });
 });
 
 export default listingRouter;

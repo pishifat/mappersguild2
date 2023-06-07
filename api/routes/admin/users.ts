@@ -2,7 +2,6 @@ import express from 'express';
 import { isLoggedIn, isAdmin, isSuperAdmin } from '../../helpers/middlewares';
 import { UserModel } from '../../models/user';
 import { updateUserPoints } from '../../helpers/points';
-import { sendMessages } from '../../helpers/osuBot';
 import { UserGroup, User } from '../../../interfaces/user';
 
 const adminUsersRouter = express.Router();
@@ -124,21 +123,6 @@ adminUsersRouter.post('/findInputUsers', async (req, res) => {
     }
 
     res.json({ users });
-});
-
-/* POST send messages */
-adminUsersRouter.post('/sendMessages', async (req, res) => {
-    let messages;
-
-    for (const user of req.body.users) {
-        messages = await sendMessages(user.osuId, req.body.messages);
-    }
-
-    if (messages !== true) {
-        return res.json({ error: `Messages were not sent.` });
-    }
-
-    res.json({ success: 'Messages sent!' });
 });
 
 export default adminUsersRouter;
