@@ -524,21 +524,12 @@ mentorshipRouter.post('/addRestrictedUser', async (req, res) => {
         return res.json({ error: 'Invalid osu! ID' });
     }
 
-    const [user, response] = await Promise.all([
-        UserModel.findOne({
-            $or: [
-                { username },
-                { osuId },
-            ],
-        }),
-        getClientCredentialsGrant(),
-    ]);
-
-    if (isOsuResponseError(response)) {
-        return res.json(defaultErrorMessage);
-    }
-
-    const token = response.access_token;
+    const user = await UserModel.findOne({
+        $or: [
+            { username },
+            { osuId },
+        ],
+    });
 
     if (user) {
         return res.json({ error: `User already in Mappers' Guild` });

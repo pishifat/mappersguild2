@@ -1144,6 +1144,34 @@ listingRouter.post('/:id/updateCreators', isContestCreator, isEditable, async (r
     res.json(updatedContest.creators);
 });
 
+/* POST manually add submission */
+listingRouter.post('/:id/manuallyAddSubmission', isContestCreator, isEditable, async (req, res) => {
+    const { username, anonymizedName, url } = req.body;
+
+    const user = await UserModel
+        .findOne()
+        .byUsernameOrOsuId(username);
+
+    if (!user) {
+        return res.json({ error: `User doesn't exist. Make sure they've logged into this website at least once! If you still run into problems, contact pishifat.` });
+    }
+
+    const submission = new SubmissionModel();
+    submission.name = anonymizedName;
+    submission.creator = user._id;
+    submission.url = url;
+    await submission.save();
+
+    const contest = await ContestModel
+        .findByIdAndUpdate(req.params.id, { $push: { submissions: submission._id } })
+        .populate(defaultContestPopulate)
+        .orFail();
+
+    const newSubmission = contest.submissions.find(s => s.id == submission.id);
+    console.log(newSubmission);
+
+    res.json(newSubmission);
+});
 
 
 

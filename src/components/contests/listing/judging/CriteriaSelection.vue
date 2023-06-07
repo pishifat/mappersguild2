@@ -6,13 +6,13 @@
                 type="text"
                 class="form-control"
                 placeholder="criteria name..."
-            >
+            />
             <input
                 v-model="maxScoreInput"
                 type="number"
                 class="form-control"
                 placeholder="total points..."
-            >
+            />
             <div class="input-group-append">
                 <button
                     class="btn btn-primary"
