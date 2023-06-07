@@ -51,16 +51,6 @@ adminUsersRouter.post('/:id/calculateUserPoints', async (req, res) => {
     res.json(points);
 });
 
-/* POST toggle bypassLogin */
-adminUsersRouter.post('/:id/toggleBypassLogin', async (req, res) => {
-    const bypassLogin = req.body.bypassLogin;
-    const group = bypassLogin ? UserGroup.User : UserGroup.Spectator;
-
-    await UserModel.findByIdAndUpdate(req.params.id, { bypassLogin, group }).orFail();
-
-    res.json({ bypassLogin, group });
-});
-
 /* POST toggle isShowcaseMapper */
 adminUsersRouter.post('/:id/toggleIsShowcaseMapper', async (req, res) => {
     const isShowcaseMapper = req.body.isShowcaseMapper;

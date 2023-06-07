@@ -182,7 +182,7 @@
                         </li>
                     </ul>
 
-                    <div v-if="currentQuests.length" class="small">
+                    <div v-if="createdQuestNames.length" class="small">
                         Created quests:
                     </div>
                     <ul class="p-0 mb-2 ms-4">

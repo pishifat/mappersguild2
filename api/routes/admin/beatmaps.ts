@@ -219,7 +219,20 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
             .orFail(),
 
         UserModel
-            .find({ group: { $ne: UserGroup.Spectator } })
+            .find({
+                $or:
+                    [
+                        { osuPoints: { $gt: 0 } },
+                        { taikoPoints: { $gt: 0 } },
+                        { catchPoints: { $gt: 0 } },
+                        { maniaPoints: { $gt: 0 } },
+                        { storyboardPoints: { $gt: 0 } },
+                        { modPoints: { $gt: 0 } },
+                        { contestParticipantPoints: { $gt: 0 } },
+                        { contestJudgePoints: { $gt: 0 } },
+                        { contestScreenerPoints: { $gt: 0 } },
+                    ],
+            })
             .orFail(),
     ]);
 

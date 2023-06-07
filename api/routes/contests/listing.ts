@@ -1098,7 +1098,7 @@ listingRouter.post('/:id/submissions/addSubmissionsFromCsv', isContestCreator, i
             user = new UserModel();
             user.username = line[0];
             user.osuId = parseInt(line[1]);
-            user.group = UserGroup.Spectator;
+            user.group = UserGroup.User;
 
             await user.save();
         }

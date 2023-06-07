@@ -5,10 +5,9 @@ import { escapeUsername } from '../helpers/helpers';
 const UserSchema = new Schema<User>({
     osuId: { type: Number, required: true, unique: true },
     username: { type: String, required: true },
-    group: { type: String, enum: ['user', 'admin', 'spectator', 'secret'], default: 'user' },
+    group: { type: String, enum: ['user', 'admin', 'secret'], default: 'user' },
     badge: { type: Number, default: 0 },
     queuedBadge: { type: Number, default: 0 },
-    bypassLogin: { type: Boolean },
     discordId: { type: String },
     isShowcaseMapper: { type: Boolean },
     isContestHelper: { type: Boolean },

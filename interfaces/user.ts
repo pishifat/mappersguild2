@@ -6,7 +6,6 @@ import { Document } from 'mongoose';
 export enum UserGroup {
     User = 'user',
     Admin = 'admin',
-    Spectator = 'spectator',
     Secret = 'secret',
 }
 
@@ -27,7 +26,6 @@ export interface User extends Document {
     badge: number;
     queuedBadge: number;
     completedQuests: Quest[];
-    bypassLogin: boolean;
     discordId: string; // js doesnt support 18 digit numbers...
     isShowcaseMapper: boolean;
     isContestHelper: boolean;

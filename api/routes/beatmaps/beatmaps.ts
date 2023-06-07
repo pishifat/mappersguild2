@@ -5,7 +5,7 @@ import { TaskModel, Task } from '../../models/beatmap/task';
 import { TaskName } from '../../../interfaces/beatmap/task';
 import { LogModel } from '../../models/log';
 import { LogCategory } from '../../../interfaces/log';
-import { isLoggedIn, isNotSpectator, isBn } from '../../helpers/middlewares';
+import { isLoggedIn, isBn } from '../../helpers/middlewares';
 import { findDifficultyPoints, getLengthNerf, getQuestBonus, findStoryboardPoints } from '../../helpers/points';
 import { defaultErrorMessage, findBeatmapsetId, getLongestBeatmapLength } from '../../helpers/helpers';
 import { getClientCredentialsGrant, getBeatmapsetV2Info, isOsuResponseError } from '../../helpers/osuApi';
@@ -122,7 +122,7 @@ beatmapsRouter.get('/search', async (req, res) => {
 });
 
 /* POST create new map */
-beatmapsRouter.post('/create', isNotSpectator, async (req, res) => {
+beatmapsRouter.post('/create', async (req, res) => {
     if (!req.body.song) {
         return res.json({ error: 'Missing song!' });
     }

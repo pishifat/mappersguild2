@@ -1,5 +1,5 @@
 import express from 'express';
-import { isLoggedIn, isNotSpectator } from '../helpers/middlewares';
+import { isLoggedIn } from '../helpers/middlewares';
 import { findCreateQuestPointsSpent } from '../helpers/points';
 import { generateLists, generateThumbnailUrl, generateAuthorWebhook } from '../helpers/helpers';
 import { BeatmapMode } from '../../interfaces/beatmap/beatmap';
@@ -72,7 +72,7 @@ questsRouter.get('/search', async (req, res) => {
 });
 
 /* POST accepts quest. */
-questsRouter.post('/:id/accept', isNotSpectator, async (req, res) => {
+questsRouter.post('/:id/accept', async (req, res) => {
     let quest = await QuestModel
         .findById(req.params.id)
         .where('status', QuestStatus.Open)
@@ -237,7 +237,7 @@ questsRouter.post('/:id/drop', isPartyLeader, async (req, res) => {
 });
 
 /* POST reopen expired quest. */
-questsRouter.post('/:id/reopen', isNotSpectator, async (req, res) => {
+questsRouter.post('/:id/reopen', async (req, res) => {
     const questId = req.params.id;
     const user: User = res.locals.userRequest;
     let quest = await QuestModel
@@ -280,7 +280,7 @@ questsRouter.post('/:id/reopen', isNotSpectator, async (req, res) => {
 });
 
 /* POST add quest */
-questsRouter.post('/submit', isNotSpectator, async (req, res) => {
+questsRouter.post('/submit', async (req, res) => {
     //quest creation
     const user: User = res.locals.userRequest;
     const artist = await FeaturedArtistModel.findOne({ osuId: req.body.art });

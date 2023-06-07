@@ -28,13 +28,6 @@ const store: Module<UserState, MainState> = {
                 user.discordId = payload.discordId;
             }
         },
-        updateBypassLogin (state, payload): void {
-            const user = state.users.find(u => u.id == payload.userId);
-
-            if (user) {
-                user.bypassLogin = payload.bypassLogin;
-            }
-        },
         updateIsShowcaseMapper (state, payload): void {
             const user = state.users.find(u => u.id == payload.userId);
 

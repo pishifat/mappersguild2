@@ -223,7 +223,7 @@ mentorshipRouter.post('/addMentor', async (req, res) => {
         if (!isOsuResponseError(userInfo)) {
             const osuId = userInfo.id;
             const username = userInfo.username;
-            const group = UserGroup.Spectator;
+            const group = UserGroup.User;
             const existingUser = await UserModel.findOne({ osuId });
 
             if (!existingUser) { // in case mg search doesn't find a user, but osu does
@@ -301,7 +301,7 @@ mentorshipRouter.post('/addMentee', async (req, res) => {
         if (!isOsuResponseError(userInfo)) {
             const osuId = userInfo.id;
             const username = userInfo.username;
-            const group = UserGroup.Spectator;
+            const group = UserGroup.User;
             const existingUser = await UserModel.findOne({ osuId });
 
             if (!existingUser) { // in case mg search doesn't find a user, but osu does
@@ -538,7 +538,7 @@ mentorshipRouter.post('/addRestrictedUser', async (req, res) => {
     const newUser = new UserModel();
     newUser.osuId = osuId;
     newUser.username = username;
-    newUser.group = UserGroup.Spectator;
+    newUser.group = UserGroup.User;
     await newUser.save();
 
     res.json(newUser);

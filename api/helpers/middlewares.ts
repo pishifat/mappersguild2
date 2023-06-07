@@ -86,14 +86,6 @@ export function isSuperAdmin(req, res, next): void {
     }
 }
 
-export function isNotSpectator(req, res, next): void {
-    if (res.locals.userRequest.group != UserGroup.Spectator) {
-        next();
-    } else {
-        return res.json({ error: 'You need 3+ ranked maps to do this! You can only join parties/beatmaps through invites.' });
-    }
-}
-
 export async function isBn(accessToken): Promise<boolean> {
     if (accessToken) {
         const res = await getUserInfo(accessToken);

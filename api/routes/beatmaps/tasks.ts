@@ -4,7 +4,7 @@ import { BeatmapStatus } from '../../../interfaces/beatmap/beatmap';
 import { TaskModel } from '../../models/beatmap/task';
 import { TaskMode, TaskName } from '../../../interfaces/beatmap/task';
 import { UserModel } from '../../models/user';
-import { isLoggedIn, isNotSpectator, isValidUser } from '../../helpers/middlewares';
+import { isLoggedIn, isValidUser } from '../../helpers/middlewares';
 import { isValidBeatmap } from './middlewares';
 import { LogModel } from '../../models/log';
 import { LogCategory } from '../../../interfaces/log';
@@ -15,7 +15,7 @@ const tasksRouter = express.Router();
 tasksRouter.use(isLoggedIn);
 
 /* POST create task */
-tasksRouter.post('/addTask/:mapId', isNotSpectator, isValidBeatmap, isValidUser, async (req, res) => {
+tasksRouter.post('/addTask/:mapId', isValidBeatmap, isValidUser, async (req, res) => {
     let beatmap: Beatmap = res.locals.beatmap;
     const user: User = req.body.user && req.body.user.length ? res.locals.user : res.locals.userRequest;
     const taskName: TaskName = req.body.taskName;
@@ -86,7 +86,7 @@ tasksRouter.post('/removeTask/:id', async (req, res) => {
 });
 
 /* POST add mapper to task */
-tasksRouter.post('/addCollab/:mapId', isNotSpectator, isValidBeatmap, isValidUser, async (req, res) => {
+tasksRouter.post('/addCollab/:mapId', isValidBeatmap, isValidUser, async (req, res) => {
     let beatmap: Beatmap = res.locals.beatmap;
     const user: User = req.body.user && req.body.user.length ? res.locals.user : res.locals.userRequest;
     const task = await TaskModel

@@ -16,10 +16,6 @@
                 :grouped-users="normalUsers"
                 :group="'user'"
             />
-            <admin-user-table
-                :grouped-users="spectators"
-                :group="'spectator'"
-            />
         </div>
 
         <showcase-user-list />
@@ -57,9 +53,6 @@ export default defineComponent({
         }),
         selectedUser(): undefined | User {
             return this.users.find(u => u.id === this.selectedUserId);
-        },
-        spectators(): User[] {
-            return this.users.filter(u => u.group == UserGroup.Spectator);
         },
         normalUsers(): User[] {
             return this.users.filter(u => u.group == UserGroup.User);

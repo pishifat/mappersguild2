@@ -136,7 +136,7 @@ indexRouter.get('/callback', async (req, res) => {
 
     const osuId = response.id;
     const username = response.username;
-    const group = response.ranked_and_approved_beatmapset_count >= 3 ? UserGroup.User : UserGroup.Spectator;
+    const group = UserGroup.User;
     let user = await UserModel.findOne({ osuId });
 
     if (!user) {
@@ -148,41 +148,11 @@ indexRouter.get('/callback', async (req, res) => {
 
         req.session.mongoId = user._id;
 
-        if (user.group == UserGroup.User) {
-            webhookPost([{
-                author: {
-                    name: user.username,
-                    icon_url: `https://a.ppy.sh/${user.osuId}`,
-                    url: `https://osu.ppy.sh/u/${user.osuId}`,
-                },
-                color: webhookColors.lightRed,
-                description: `Joined the Mappers' Guild!`,
-            }]);
-            LogModel.generate(req.session.mongoId, `joined the Mappers' Guild`, LogCategory.User);
-        } else {
-            LogModel.generate(req.session.mongoId, `verified their account for the first time`, LogCategory.User);
-        }
+        LogModel.generate(req.session.mongoId, `joined the Mappers' Guild`, LogCategory.User);
     } else {
         if (user.username != username) {
             user.username = username;
             await user.save();
-        }
-
-        // User got 3 ranked maps from his last login
-        if (user.group === UserGroup.Spectator && group === UserGroup.User && !user.bypassLogin) {
-            user.group = group;
-            await user.save();
-
-            webhookPost([{
-                author: {
-                    name: user.username,
-                    icon_url: `https://a.ppy.sh/${user.osuId}`,
-                    url: `https://osu.ppy.sh/u/${user.osuId}`,
-                },
-                color: webhookColors.lightRed,
-                description: `Joined the Mappers' Guild!`,
-            }]);
-            LogModel.generate(user._id, `joined the Mappers' Guild`, LogCategory.User);
         }
 
         req.session.mongoId = user._id;
