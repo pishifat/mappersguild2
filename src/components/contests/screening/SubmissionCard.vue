@@ -6,7 +6,12 @@
         >
             <div class="card-body p-2">
                 <div class="row">
-                    <div class="col-sm-6">
+                    <div v-if="isTempFormat" class="col-sm-6">
+                        <a :href="submission.url" target="_blank" @click.stop>
+                            {{ submission.name }}
+                        </a>
+                    </div>
+                    <div v-else class="col-sm-6">
                         {{ submission.name }}
                     </div>
 
@@ -19,7 +24,7 @@
                     </div>
                 </div>
 
-                <div class="row">
+                <div v-if="!isTempFormat" class="row">
                     <div class="col-sm">
                         <screening-notes
                             :submission-id="submission.id"
@@ -54,6 +59,10 @@ export default defineComponent({
         screeningVoteCount: {
             type: Number,
             default: 0,
+        },
+        isTempFormat: {
+            type: Boolean,
+            default: false,
         },
     },
     computed: {
