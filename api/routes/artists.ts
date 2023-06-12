@@ -155,9 +155,7 @@ artistsRouter.post('/toggleIsUpToDate/:id', async (req, res) => {
         ppySigned: false,
         songsReceived: false,
         songsTimed: false,
-        hasRankedMaps: false,
         projectedRelease: undefined,
-        showcaseMappers: [],
     });
 
     a = await FeaturedArtistModel.findById(req.params.id).defaultPopulate();

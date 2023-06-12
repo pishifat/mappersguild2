@@ -9,7 +9,7 @@ export interface FeaturedArtist extends IFeaturedArtist, Document {
 const featuredArtistSchema = new Schema<FeaturedArtist>({
     label: { type: String, required: true },
     osuId: { type: Number },
-    status: { type: String, enum: ['public', 'private', 'showcase'], default: 'private' },
+    status: { type: String, enum: ['public', 'private', 'showcase', 'playlist'], default: 'private' },
     songs: [{ type: 'ObjectId', ref: 'FeaturedSong' }],
     lastContacted: { type: Date },
     notes: { type: String },

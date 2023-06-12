@@ -5,6 +5,7 @@ export enum FeaturedArtistStatus {
     Public = 'public',
     Private = 'private',
     Showcase = 'showcase',
+    Playlist = 'playlist',
 }
 
 export interface FeaturedArtist {
