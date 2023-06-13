@@ -7,6 +7,7 @@ import { MainState } from '@store/main';
 
 export interface QuestsState {
     quests: Quest[];
+    exampleQuest: Quest | null;
     filterValue: string;
     filterMode: FilterMode;
     filterArtist: string;
@@ -19,6 +20,7 @@ const store: Module<QuestsState, MainState> = {
     namespaced: true,
     state: {
         quests: [],
+        exampleQuest: null,
         filterValue: '',
         filterMode: FilterMode.any,
         filterArtist: '',
@@ -41,6 +43,9 @@ const store: Module<QuestsState, MainState> = {
         },
         setFilterArtist (state, artist: string): void {
             state.filterArtist = artist;
+        },
+        setExampleQuest (state, quest: Quest): void {
+            state.exampleQuest = quest;
         },
         setIsLoadingQuests (state, value: boolean): void {
             state.isLoadingQuests = value;

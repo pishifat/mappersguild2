@@ -4,15 +4,20 @@ import { Quest } from '../../../interfaces/quest';
 
 interface QuestState {
     quests: Quest[];
+    exampleQuest: Quest | null;
 }
 
 const store: Module<QuestState, MainState> = {
     state: {
         quests: [],
+        exampleQuest: null,
     },
     mutations: {
         setQuests (state, quests: Quest[]): void {
             state.quests = quests;
+        },
+        setExampleQuest (state, exampleQuest) {
+            state.exampleQuest = exampleQuest;
         },
         updateQuest (state, quest: Quest): void {
             const i = state.quests.findIndex(q => q.id === quest.id);

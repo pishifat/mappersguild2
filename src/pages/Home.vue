@@ -282,43 +282,11 @@
             <div class="text-secondary small">
                 You can earn extra points by mapping songs by specific osu! Featured Artists through <a href="/quests">Quests</a>. Here's an example:
             </div>
-            <quest-card
-                v-if="exampleQuest"
-                :key="exampleQuest.id"
+
+            <example-quest
                 :quest="exampleQuest"
-                style="pointer-events: none;"
             />
-            <div class="text-secondary small">
-                <ul>
-                    <li><b>Quest name:</b> {{ exampleQuest.name }}</li>
-                    <li><b>Quest objective:</b> {{ exampleQuest.descriptionMain }}</li>
-                    <li>
-                        <b>Quest size:</b> <quest-size
-                            :quest="exampleQuest"
-                        />
-                        (Quest requires a party of at least {{ exampleQuest.minParty }} users and may have up to {{ exampleQuest.maxParty }} users)
-                    </li>
-                    <li>
-                        <b>Quest price:</b> <quest-price
-                            :quest="exampleQuest"
-                        />
-                        (Quest requires {{ exampleQuest.price }} points from each party member to participate)
-                    </li>
-                    <li>
-                        <b>Quest deadline:</b> <quest-time
-                            :timeframe="exampleQuest.timeframe"
-                        />
-                        (Quest must be completed in {{ Math.round(exampleQuest.timeframe / (1000*60*60*24)) }} days to earn maximum points)
-                    </li>
-                    <li>
-                        <b>Quest modes:</b> <quest-modes
-                            :status="exampleQuest.status"
-                            :modes="exampleQuest.modes"
-                        />
-                        (Quest is available for these modes)
-                    </li>
-                </ul>
-            </div>
+
             <div class="text-secondary small">
                 Quests are created weekly for every new osu! Featured Artist. See the <a href="/quests">quest listing</a> and explore what quests are available!
             </div>
@@ -453,22 +421,14 @@
 
 <script lang="ts">
 import { FeaturedArtist } from '@interfaces/featuredArtist';
-import { Quest } from '@interfaces/quest';
 import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
-import QuestCard from '@components/quests/QuestCard.vue';
-import QuestSize from '@components/quests/QuestSize.vue';
-import QuestPrice from '@components/quests/QuestPrice.vue';
-import QuestTime from '@components/quests/QuestTime.vue';
-import QuestModes from '@components/quests/QuestModes.vue';
+import { Quest } from '@interfaces/quest';
+import ExampleQuest from '@components/quests/ExampleQuest.vue';
 
 export default defineComponent({
     components: {
-        QuestCard,
-        QuestSize,
-        QuestPrice,
-        QuestTime,
-        QuestModes,
+        ExampleQuest,
     },
     data () {
         return {
@@ -484,12 +444,18 @@ export default defineComponent({
         ]),
     },
     async created () {
-        const data = await this.$http.executeGet<{ artists: FeaturedArtist[], quest: Quest }>('/home/' + this.limit);
+        const [artists, quest] = await Promise.all<any>([
+            this.$http.executeGet<FeaturedArtist[]>('/home/' + this.limit),
+            this.$http.executeGet<Quest>('/quests/example'),
+        ]);
 
-        if (!this.$http.isError(data)) {
-            this.$store.commit('setHomeArtists', data.artists);
+        if (!this.$http.isError(artists)) {
+            this.$store.commit('setHomeArtists', artists);
             this.$store.commit('setLimit', this.limit + 6);
-            this.$store.commit('setExampleQuest', data.quest);
+        }
+
+        if (!this.$http.isError(quest)) {
+            this.$store.commit('setExampleQuest', quest);
         }
     },
     methods: {

@@ -31,6 +31,7 @@ import adminContestsRouter from './routes/admin/contests';
 import adminBeatmapsRouter from './routes/admin/beatmaps';
 import adminFeaturedArtistsRouter from './routes/admin/featuredArtists';
 import adminQuestsRouter from './routes/admin/quests';
+import adminMissionsRouter from './routes/admin/missions';
 import artistsRouter from './routes/artists';
 import screeningRouter from './routes/contests/screening';
 import contestsListingRouter from './routes/contests/listing';
@@ -39,6 +40,7 @@ import resultsRouter from './routes/contests/results';
 import showcaseRouter from './routes/showcase';
 import partiesRouter from './routes/parties';
 import mentorshipRouter from './routes/mentorship';
+import missionsRouter from './routes/missions';
 
 const app = express();
 const MongoStore = MongoStoreSession(session);
@@ -90,6 +92,7 @@ app.use('/parties', partiesRouter);
 app.use('/logs', logsRouter);
 app.use('/showcase', showcaseRouter);
 app.use('/mentorship', mentorshipRouter);
+app.use('/missions', missionsRouter);
 
 app.use('/contests/listing', contestsListingRouter);
 app.use('/contests/results', resultsRouter);
@@ -103,6 +106,7 @@ app.use('/admin/contests', adminContestsRouter);
 app.use('/admin/beatmaps', adminBeatmapsRouter);
 app.use('/admin/featuredArtists', adminFeaturedArtistsRouter);
 app.use('/admin/quests', adminQuestsRouter);
+app.use('/admin/missions', adminMissionsRouter);
 
 // catch 404
 app.use((req, res) => {

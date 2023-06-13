@@ -4,6 +4,7 @@ import Faq from '../pages/Faq.vue';
 // Public
 const Beatmaps = () => import('../pages/beatmaps/BeatmapPage.vue');
 const Quests = () => import('../pages/quests/QuestPage.vue');
+const Missions = () => import('../pages/missions/MissionPage.vue');
 const Users = () => import('../pages/users/UserPage.vue');
 const Error = () => import('../pages/Error.vue');
 const NotFound = () => import('../pages/NotFound.vue');
@@ -22,6 +23,7 @@ const Admin = () => import('../pages/AdminPage.vue');
 const AdminBeatmaps = () => import('../pages/admin/BeatmapPage.vue');
 const AdminFeaturedArtists = () => import('../pages/admin/FeaturedArtistPage.vue');
 const AdminQuests = () => import('../pages/admin/QuestPage.vue');
+const AdminMissions = () => import('../pages/admin/MissionPage.vue');
 const AdminUsers = () => import('../pages/admin/UserPage.vue');
 const Artists = () => import('../pages/artists/ArtistPage.vue');
 
@@ -34,7 +36,8 @@ const routes = [
     { path: '/', component: Home, alias: '/home' },
     { path: '/faq', component: Faq, meta: { title: 'FAQ' } },
     { path: '/beatmaps', component: Beatmaps, meta: { title: 'Beatmaps' } },
-    { path: '/quests', component: Quests, meta: { title: 'Quests' } },
+    { path: '/quests', component: Quests, meta: { title: 'Normal Quests' } },
+    { path: '/missions', component: Missions, meta: { title: 'Priority Quests' } },
     { path: '/users', component: Users, meta: { title: 'Users' } },
     { path: '/error', component: Error, meta: { title: 'Oops' } },
 
@@ -52,6 +55,7 @@ const routes = [
     { path: '/admin/beatmaps', component: AdminBeatmaps, meta: { title: 'Admin - Beatmaps' } },
     { path: '/admin/featuredArtists', component: AdminFeaturedArtists, meta: { title: 'Admin - FA' } },
     { path: '/admin/quests', component: AdminQuests, meta: { title: 'Admin - Quests' } },
+    { path: '/admin/missions', component: AdminMissions, meta: { title: 'Admin - Missions' } },
     { path: '/admin/users', component: AdminUsers, meta: { title: 'Admin - Users' } },
     { path: '/artists', component: Artists, meta: { title: 'FA Schedule' } },
 

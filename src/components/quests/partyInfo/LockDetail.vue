@@ -1,5 +1,5 @@
 <template>
-    <span>
+    <span class="mx-1">
         <i
             v-if="party.lock"
             v-bs-tooltip="'party is locked'"

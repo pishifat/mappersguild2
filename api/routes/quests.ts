@@ -71,6 +71,11 @@ questsRouter.get('/search', async (req, res) => {
     res.json(quests);
 });
 
+/* GET example quest */
+questsRouter.get('/example', async (req, res) => {
+    res.json(await QuestModel.findById('62d0799b1cfaf430df14eae3').defaultPopulate());
+});
+
 /* POST accepts quest. */
 questsRouter.post('/:id/accept', async (req, res) => {
     let quest = await QuestModel

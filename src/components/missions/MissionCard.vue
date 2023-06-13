@@ -1,0 +1,120 @@
+<template>
+    <div class="col-sm-12">
+        <div
+            class="card card-level-2 card-body mb-3"
+            data-bs-toggle="modal"
+            data-bs-target="#extendedInfo"
+        >
+            <img :src="findTierImage" class="card-mission-tier" />
+            <!--<div class="radial-divisor-vertical" />-->
+
+            <div class="ms-3 row my-1">
+                <h5 class="col-sm-12">{{ mission.name }}</h5>
+                <hr />
+
+                <div class="col-sm-6 row">
+                    <div class="col-sm-12 mb-2">
+                        <b>Objective:</b>
+                        <span class="text-secondary ms-1">{{ mission.objective }}</span>
+                    </div>
+                    <div class="col-sm-12 mb-2">
+                        <b>Requirements:</b>
+                        <span class="text-secondary ms-1">{{ mission.objective }}</span>
+                    </div>
+                    <div class="col-sm-12 small">
+                        <b>Deadline:</b>
+                        <span class="text-secondary ms-1">{{ new Date(mission.deadline).toLocaleString() }}</span>
+                    </div>
+                    <div class="col-sm-12 small">
+                        <b>Applicable Featured Artists:</b>
+                        <span v-if="mission.artists && mission.artists.length" class="text-secondary ms-1">
+                            <artist-link-list
+                                :artists="mission.artists"
+                            />
+                        </span>
+                        <span v-else class="text-secondary ms-1">Any</span>
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    // add something here to add beatmap to mission (so the page is more tahn just raw info lol)
+                    <div class="col-sm-12">
+                        <associated-beatmaps
+                            v-if="mission.status == 'open'"
+                            :associated-maps="mission.associatedMaps || []"
+                        />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script lang="ts">
+import { defineComponent } from 'vue';
+import { mapState } from 'vuex';
+import { Mission } from '../../../interfaces/mission';
+import ArtistLinkList from '@components/ArtistLinkList.vue';
+import AssociatedBeatmaps from '@components/missions/AssociatedBeatmaps.vue';
+
+export default defineComponent({
+    name: 'MissionCard',
+    components: {
+        ArtistLinkList,
+        AssociatedBeatmaps,
+    },
+    props: {
+        mission: {
+            type: Object as () => Mission,
+            required: true,
+        },
+    },
+    computed: {
+        ...mapState([
+            'loggedInUser',
+        ]),
+        findTierImage(): string {
+            switch (this.mission.tier) {
+                case 1:
+                    return '/images/bronze.png';
+                case 2:
+                    return '/images/silver.png';
+                case 3:
+                    return '/images/gold.png';
+                case 4:
+                    return '/images/platinum.png';
+                default:
+                    return '/images/bronze.png';
+            }
+        },
+    },
+});
+</script>
+
+<style scoped>
+.card-mission-tier {
+    position: absolute;
+    top: calc(50% - 45px);
+    left: -20px;
+    max-width: 90px;
+    max-height: 90px;
+    object-fit: cover;
+}
+
+.card-body {
+    padding: 0.5rem 1rem 0.5rem 3.5rem;
+}
+
+.card-header {
+    padding: 0.5rem 1rem 0.5rem 3.5rem;
+}
+.radial-divisor-vertical {
+    position: absolute;
+    top: calc(50% - 3px);
+    left: calc(45%);
+    transform: rotate(90deg);
+    height: 3px;
+    width: 10%;
+    background-image: radial-gradient(var(--guild), transparent);
+}
+</style>

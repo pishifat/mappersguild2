@@ -1,8 +1,6 @@
 <template>
-    <div class="card card-body container">
-        <h5>
-            Associated maps
-        </h5>
+    <div>
+        <b>Associated maps:</b>
 
         <ul v-if="associatedMaps && associatedMaps.length" class="ps-3 mb-0 list-unstyled">
             <li
@@ -33,7 +31,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { Beatmap, BeatmapStatus } from '../../../../interfaces/beatmap/beatmap';
+import { Beatmap, BeatmapStatus } from '@interfaces/beatmap/beatmap';
 
 export default defineComponent({
     props: {

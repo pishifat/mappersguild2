@@ -23,11 +23,28 @@
                                     Beatmaps
                                 </router-link>
                             </li>
-                            <li class="nav-item">
-                                <router-link class="nav-link" to="/quests">
-                                    Quests
-                                </router-link>
-                            </li>
+                            <li class="nav-item dropdown">
+                                    <a
+                                        id="questDropdown"
+                                        class="nav-link dropdown-toggle"
+                                        data-bs-toggle="dropdown"
+                                        href="#"
+                                    >
+                                        Quests
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <router-link class="dropdown-item" to="/missions">
+                                                Priority quests
+                                            </router-link>
+                                        </li>
+                                        <li>
+                                            <router-link class="dropdown-item" to="/quests">
+                                                Normal quests
+                                            </router-link>
+                                        </li>
+                                    </ul>
+                                </li>
                             <li class="nav-item">
                                 <router-link class="nav-link" to="/users">
                                     Users
@@ -122,6 +139,11 @@
                                         <li>
                                             <router-link class="dropdown-item" to="/admin/quests">
                                                 Quests
+                                            </router-link>
+                                        </li>
+                                        <li>
+                                            <router-link class="dropdown-item" to="/admin/missions">
+                                                Missions
                                             </router-link>
                                         </li>
                                         <li>

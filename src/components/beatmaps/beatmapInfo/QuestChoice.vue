@@ -36,11 +36,30 @@
                             No quest
                         </option>
                         <option
+                            v-if="userQuests.length"
+                            disabled
+                        >
+                            --- claimed quests ---
+                        </option>
+                        <option
                             v-for="quest in userQuests"
                             :key="quest.id"
                             :value="quest.id"
                         >
                             {{ quest.name }}
+                        </option>
+                        <option
+                            v-if="openMissions.length"
+                            disabled
+                        >
+                            --- open priority quests ---
+                        </option>
+                        <option
+                            v-for="mission in openMissions"
+                            :key="mission.id"
+                            :value="mission.id"
+                        >
+                            {{ mission.name }}
                         </option>
                     </select>
                     <button
@@ -60,6 +79,7 @@
 import { defineComponent } from 'vue';
 import { Beatmap } from '@interfaces/beatmap/beatmap';
 import { Quest } from '@interfaces/quest';
+import { Mission } from '@interfaces/mission';
 import { mapState } from 'vuex';
 
 export default defineComponent({
@@ -73,6 +93,7 @@ export default defineComponent({
     data () {
         return {
             userQuests: [] as Quest[],
+            openMissions: [] as Mission[],
             showQuestInput: false,
             dropdownQuestId: '',
         };
@@ -87,10 +108,15 @@ export default defineComponent({
         },
     },
     async created() {
-        const res = await this.$http.executeGet<Quest[]>(`/users/${this.loggedInUser.id}/quests`);
+        const quests = await this.$http.executeGet<Quest[]>(`/users/${this.loggedInUser.id}/quests`);
+        const missions = await this.$http.executeGet<Mission[]>(`/missions/open`);
 
-        if (!this.$http.isError(res)) {
-            this.userQuests = res;
+        if (!this.$http.isError(quests)) {
+            this.userQuests = quests;
+        }
+
+        if (!this.$http.isError(missions)) {
+            this.openMissions = missions;
         }
     },
     methods: {
