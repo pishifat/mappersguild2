@@ -2,6 +2,7 @@ import { Task, TaskName } from './task';
 import { FeaturedSong } from '../featuredSong';
 import { User } from '../user';
 import { Quest } from '../quest';
+import { Mission } from '../mission';
 
 export enum BeatmapStatus {
     WIP = 'WIP',
@@ -29,6 +30,7 @@ export interface Beatmap {
     modders: User[];
     bns: User[];
     quest: Quest | undefined;
+    mission: Mission | undefined;
     url: string;
     mode: BeatmapMode;
     length: number;

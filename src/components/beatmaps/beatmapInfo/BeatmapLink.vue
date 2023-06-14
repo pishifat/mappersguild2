@@ -16,7 +16,13 @@
                     </a>
                 </div>
                 <div class="small ms-3">
-                    <a v-if="beatmap.url" :href="beatmap.url" target="_blank">
+                    <a
+                        v-if="beatmap.url"
+                        :href="beatmap.url"
+                        target="_blank"
+                        class="text-truncate"
+                        style="display: block;"
+                    >
                         {{ beatmap.url }}
                     </a>
                     <i v-else class="text-white-50">none</i>

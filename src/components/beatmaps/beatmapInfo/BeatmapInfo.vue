@@ -54,7 +54,7 @@
                     </div>
                 </div>
 
-                <quest-choice
+                <quest-or-mission-choice
                     :beatmap="beatmap"
                 />
 
@@ -103,7 +103,7 @@ import { mapState } from 'vuex';
 import ModeChoice from './ModeChoice.vue';
 import StatusChoice from './StatusChoice.vue';
 import TasksChoice from './TasksChoice.vue';
-import QuestChoice from './QuestChoice.vue';
+import QuestOrMissionChoice from './QuestOrMissionChoice.vue';
 import ModdersList from './ModdersList.vue';
 import NominatorsList from './NominatorsList.vue';
 import BeatmapLink from './BeatmapLink.vue';
@@ -117,7 +117,7 @@ export default defineComponent({
         ModeChoice,
         StatusChoice,
         TasksChoice,
-        QuestChoice,
+        QuestOrMissionChoice,
         ModdersList,
         NominatorsList,
         BeatmapLink,

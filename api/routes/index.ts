@@ -7,11 +7,9 @@ import { LogCategory } from '../../interfaces/log';
 import { isLoggedIn } from '../helpers/middlewares';
 import { getToken, getUserInfo, isOsuResponseError } from '../helpers/osuApi';
 import { UserGroup } from '../../interfaces/user';
-import { webhookPost, webhookColors } from '../helpers/discordApi';
 import { FeaturedArtistModel } from '../models/featuredArtist';
 import { FeaturedArtistStatus } from '../../interfaces/featuredArtist';
 import { setSession } from '../helpers/helpers';
-import { QuestModel } from '../models/quest';
 
 const indexRouter = express.Router();
 
@@ -132,6 +130,8 @@ indexRouter.get('/callback', async (req, res) => {
     const osuId = response.id;
     const username = response.username;
     const group = UserGroup.User;
+    const rankedBeatmapsCount = response.ranked_and_approved_beatmapset_count;
+    const globalRank = response.statistics.global_rank;
     let user = await UserModel.findOne({ osuId });
 
     if (!user) {
@@ -139,14 +139,34 @@ indexRouter.get('/callback', async (req, res) => {
         user.osuId = osuId;
         user.username = username;
         user.group = group;
+        user.rankedBeatmapsCount = rankedBeatmapsCount;
+        user.globalRank = globalRank;
         await user.save();
 
         req.session.mongoId = user._id;
 
         LogModel.generate(req.session.mongoId, `joined the Mappers' Guild`, LogCategory.User);
     } else {
+        let saveTrigger = false;
+
         if (user.username != username) {
             user.username = username;
+            saveTrigger = true;
+        }
+
+        if (user.rankedBeatmapsCount != rankedBeatmapsCount) {
+            user.rankedBeatmapsCount = rankedBeatmapsCount;
+            saveTrigger = true;
+        }
+
+        console.log(globalRank);
+
+        if (user.globalRank != globalRank) {
+            user.globalRank = globalRank;
+            saveTrigger = true;
+        }
+
+        if (saveTrigger) {
             await user.save();
         }
 

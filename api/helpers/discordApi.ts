@@ -136,5 +136,5 @@ export const webhookColors = {
     white: 15724527,        // re-open quest
     brown: 7554849,         // rank 1 tier up
     gray: 11186352,         // rank 2 tier up
-    black: 2564903,
+    black: 2564903,         // mission closed
 };

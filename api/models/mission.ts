@@ -10,19 +10,17 @@ interface MissionStatics extends Model<Mission, typeof queryHelpers> {
 const missionSchema = new Schema<Mission, MissionStatics>({
     name: { type: String, required: true },
     artists: [{ type: 'ObjectId', ref: 'FeaturedArtist' }],
-    status: { type: String, enum: ['open', 'closed'], default: 'open' },
+    status: { type: String, enum: ['open', 'closed', 'hidden'], default: 'open' },
     tier: { type: Number, required: true },
     objective: { type: String, required: true },
     deadline: { type: Date, required: true },
-    userRequirements: {
-        _id: false,
-        // fill this with things
-    },
-    beatmapRequirements: {
-        _id: false,
-        mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania'] },
-
-    },
+    winCondition: { type: String, required: true },
+    openingAnnounced: { type: Boolean, default: false },
+    closingAnnounced: { type: Boolean, default: false },
+    winningBeatmaps: [{ type: 'ObjectId', ref: 'Beatmap' }],
+    /* user requirements. optional and growing */
+    userMaximumRankedBeatmapsCount: { type: Number },
+    userMaximumGlobalRank: { type: Number },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 missionSchema.virtual('associatedMaps', {
@@ -36,9 +34,18 @@ const queryHelpers = {
         return this.sort({ createdAt: -1 });
     },
     defaultPopulate<Q extends DocumentQuery<any, Mission>>(this: Q) {
-        return this.populate([{
-            path: 'artists', select: 'label osuId',
-        }]);
+        return this.populate([
+            { path: 'artists', select: 'label osuId' },
+            {
+                path: 'associatedMaps',
+                populate: {
+                    path: 'song host tasks',
+                    populate: {
+                        path: 'mappers',
+                    },
+                },
+            },
+        ]);
     },
 };
 

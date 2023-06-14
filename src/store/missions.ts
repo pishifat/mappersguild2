@@ -1,9 +1,12 @@
 import { Module } from 'vuex';
 import { Mission, MissionStatus } from '@interfaces/mission';
+import { Beatmap } from '@interfaces/beatmap/beatmap';
 import { MainState } from '@store/main';
 
 export interface MissionsState {
+    filterValue: string;
     missions: Mission[];
+    userBeatmaps: Beatmap[];
     isLoadingMissions: boolean;
     isFirstLoadDone: boolean;
 }
@@ -11,7 +14,9 @@ export interface MissionsState {
 const store: Module<MissionsState, MainState> = {
     namespaced: true,
     state: {
+        filterValue: '',
         missions: [] as Mission[],
+        userBeatmaps: [] as Beatmap[],
         isLoadingMissions: true,
         isFirstLoadDone: false,
     },
@@ -22,6 +27,12 @@ const store: Module<MissionsState, MainState> = {
         setMissions (state, missions: Mission[]): void {
             state.missions = missions;
         },
+        setUserBeatmaps (state, beatmaps: Beatmap[]): void {
+            state.userBeatmaps = beatmaps;
+        },
+        setFilterValue (state, value: string): void {
+            state.filterValue = value;
+        },
         updateMission (state, mission: Mission): void {
             const i = state.missions.findIndex(m => m.id === mission.id);
             if (i !== -1) state.missions[i] = mission;
@@ -31,16 +42,11 @@ const store: Module<MissionsState, MainState> = {
         filteredMissions: (state): Mission[] => {
             let missions = state.missions;
 
-            /*if (state.filterMode !== FilterMode.any) {
-                const mode = state.filterMode;
-                quests = quests.filter(q => q.modes.includes(mode));
-            }
-
             if (state.filterValue.length > 2) {
-                quests = quests.filter(q => {
-                    return q.name.toLowerCase().includes(state.filterValue.toLowerCase());
+                missions = missions.filter(m => {
+                    return m.name.toLowerCase().includes(state.filterValue.toLowerCase());
                 });
-            }*/
+            }
 
             return missions;
         },
@@ -49,6 +55,11 @@ const store: Module<MissionsState, MainState> = {
         },
         closedMissions: (state, getters): Mission[] => {
             return getters.filteredMissions.filter(m => m.status == MissionStatus.Closed);
+        },
+    },
+    actions: {
+        updateFilterValue ({ commit }, value: string): void {
+            commit('setFilterValue', value);
         },
     },
 };

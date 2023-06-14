@@ -1,14 +1,16 @@
 import cron from 'node-cron';
-import { findBeatmapsetId, sleep, findBeatmapsetStatus, setBeatmapStatusRanked, generateAuthorWebhook, generateThumbnailUrl, generateLists, setNominators, getLongestBeatmapLength } from './helpers';
+import { findBeatmapsetId, sleep, findBeatmapsetStatus, setBeatmapStatusRanked, generateAuthorWebhook, generateThumbnailUrl, generateMissionThumbnailUrl, generateLists, setNominators, getLongestBeatmapLength } from './helpers';
 import { isOsuResponseError, getClientCredentialsGrant, getBeatmapsetV2Info, getDiscussions, getBeatmapsSearch } from './osuApi';
 import { devWebhookPost, webhookPost, webhookColors } from './discordApi';
 import { BeatmapModel } from '../models/beatmap/beatmap';
 import { LogModel } from '../models/log';
 import { BeatmapStatus } from '../../interfaces/beatmap/beatmap';
 import { QuestModel } from '../models/quest';
+import { MissionModel } from '../models/mission';
 import { ContestModel } from '../models/contest/contest';
 import { ContestStatus } from '../../interfaces/contest/contest';
 import { QuestStatus } from '../../interfaces/quest';
+import { MissionStatus } from '../../interfaces/mission';
 import { LogCategory } from '../../interfaces/log';
 import { UserModel } from '../models/user';
 import { FeaturedArtistModel } from '../models/featuredArtist';
@@ -465,6 +467,58 @@ const dropOverdueQuests = cron.schedule('2 3 * * *', async () => { /* 8:02 PM PS
     scheduled: false,
 });
 
+/* mark missions past deadline as inactive */
+const closeMissions = cron.schedule('0 4 * * *', async () => { /* 9:00 PM PST */
+    const today = new Date();
+
+    const missions = await MissionModel
+        .find({
+            $or: [
+                { status: MissionStatus.Open },
+                { status: MissionStatus.Closed, closingAnnounced: false },
+            ],
+            openingAnnounced: true,
+        })
+        .defaultPopulate();
+
+    for (const mission of missions) {
+        let closeTrigger = false;
+
+        const deadline = new Date(mission.deadline);
+
+        if (today > deadline) {
+            closeTrigger = true;
+        }
+
+        if (closeTrigger) {
+            await MissionModel.findByIdAndUpdate(mission.id, { status: MissionStatus.Closed });
+
+            //logs
+            LogModel.generate(null, `"${mission.name}" closed (past deadline)`, LogCategory.Mission );
+
+            //webhook (notify me -> select winners -> announce winners)
+            if (mission.winningBeatmaps && mission.winningBeatmaps.length) {
+                await webhookPost([{
+                    color: webhookColors.black,
+                    description: `Closed mission [**${mission.name}**](https://mappersguild.com/missions)`,
+                    ...generateMissionThumbnailUrl(mission),
+                    // fields: the winning maps
+                }]);
+
+                await MissionModel.findByIdAndUpdate(mission.id, { closingAnnounced: true });
+            } else {
+                devWebhookPost([{
+                    title: `mission deadline met`,
+                    color: webhookColors.black,
+                    description: `mission [**${mission.name}**](https://mappersguild.com/missions) needs winners selected`,
+                }]);
+            }
+        }
+    }
+}, {
+    scheduled: false,
+});
+
 /* validate ranked beatmaps for accurate ranked_date/current_nominators/hit_length. limited to 100 beatmaps daily because it takes too long otherwise, and it doesn't need to be done that frequently */
 const validateRankedBeatmaps = cron.schedule('0 4 * * *', async () => { /* 9:00 PM PST */
     const threeMonthsAgo = new Date();
@@ -515,4 +569,4 @@ const updatePoints = cron.schedule('0 0 21 * *', async () => { /* 21st of each m
     scheduled: false,
 });
 
-export default { sendActionNotifications, setQualified, setRanked, publishQuests, completeQuests, rankUsers, updatePoints, processDailyArtists, validateRankedBeatmaps, dropOverdueQuests };
+export default { sendActionNotifications, setQualified, setRanked, publishQuests, completeQuests, rankUsers, updatePoints, processDailyArtists, validateRankedBeatmaps, dropOverdueQuests, closeMissions };

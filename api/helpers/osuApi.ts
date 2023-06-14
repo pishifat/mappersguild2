@@ -30,16 +30,46 @@ export interface OsuApiV2UserResponse {
     username: string,
 }
 
+export interface OsuKudosu {
+    total: number;
+    available: number;
+}
+
+export interface OsuBadges {
+    awarded_at: Date;
+    description: string;
+    image_url: string;
+    url: string;
+}
+
+export interface OsuStatistics {
+    global_rank: number;
+    play_count: number;
+    hit_accuracy: number;
+    play_time: number;
+    level: OsuLevel;
+}
+
+export interface OsuLevel {
+    current: number;
+    progress: number;
+}
+
 export interface OsuAuthResponse {
     id: number;
     username: string;
     is_nat: boolean;
     is_bng: boolean;
+    ranked_and_approved_beatmapset_count: number;
+    guest_beatmapset_count: number;
+    /** not used (yet) */
+    kudosu: OsuKudosu;
+    badges: OsuBadges;
+    statistics: OsuStatistics;
     /** in seconds */
     expires_in: number;
     access_token: string;
     refresh_token: string;
-    ranked_and_approved_beatmapset_count: number;
 }
 
 export function isOsuResponseError(errorResponse: OsuAuthResponse | OsuBeatmapsetV2Response | OsuBeatmapsetDiscussionV2Response | OsuBeatmapsetSearchV2Response | OsuApiV2UserResponse | ErrorResponse): errorResponse is ErrorResponse {

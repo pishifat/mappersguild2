@@ -1,7 +1,6 @@
 import express from 'express';
 import { isLoggedIn, isAdmin, isSuperAdmin } from '../../helpers/middlewares';
 import { MissionModel } from '../../models/mission';
-import { Mission } from '../../../interfaces/mission';
 
 const adminMissionsRouter = express.Router();
 
@@ -21,14 +20,21 @@ adminMissionsRouter.get('/load', async (req, res) => {
 
 /* POST add quest */
 adminMissionsRouter.post('/create', async (req, res) => {
-    const { deadline, name, tier, artists, objective } = req.body;
+    const { deadline, name, tier, artists, objective, winCondition, userMaximumRankedBeatmapsCount, userMaximumGlobalRank } = req.body;
+    console.log(name);
     const mission = new MissionModel;
     mission.deadline = deadline;
     mission.tier = tier;
     mission.name = name;
     mission.artists = artists.map(a => a._id);
     mission.objective = objective;
-    mission.status = 'open';
+    mission.status = 'hidden';
+    mission.winCondition = winCondition;
+    mission.openingAnnounced = false;
+    mission.closingAnnounced = false;
+    mission.userMaximumRankedBeatmapsCount = userMaximumRankedBeatmapsCount;
+    mission.userMaximumGlobalRank = userMaximumGlobalRank;
+
     await mission.save();
 
     res.json(mission);
@@ -53,6 +59,34 @@ adminMissionsRouter.post('/:id/updateObjective', async (req, res) => {
     await MissionModel.findByIdAndUpdate(req.params.id, { objective: req.body.objective }).orFail();
 
     res.json(req.body.objective);
+});
+
+/* POST update mission status */
+adminMissionsRouter.post('/:id/updateStatus', async (req, res) => {
+    await MissionModel.findByIdAndUpdate(req.params.id, { status: req.body.status }).orFail();
+
+    res.json(req.body.status);
+});
+
+/* POST update mission win condition */
+adminMissionsRouter.post('/:id/updateWinCondition', async (req, res) => {
+    await MissionModel.findByIdAndUpdate(req.params.id, { winCondition: req.body.winCondition }).orFail();
+
+    res.json(req.body.winCondition);
+});
+
+/* POST update mission maximum ranked maps count */
+adminMissionsRouter.post('/:id/updateUserMaximumRankedBeatmapsCount', async (req, res) => {
+    await MissionModel.findByIdAndUpdate(req.params.id, { userMaximumRankedBeatmapsCount: req.body.userMaximumRankedBeatmapsCount }).orFail();
+
+    res.json(req.body.userMaximumRankedBeatmapsCount);
+});
+
+/* POST update mission maximum global rank */
+adminMissionsRouter.post('/:id/updateUserMaximumGlobalRank', async (req, res) => {
+    await MissionModel.findByIdAndUpdate(req.params.id, { userMaximumGlobalRank: req.body.userMaximumGlobalRank }).orFail();
+
+    res.json(req.body.userMaximumGlobalRank);
 });
 
 export default adminMissionsRouter;

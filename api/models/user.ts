@@ -41,6 +41,8 @@ const UserSchema = new Schema<User>({
     maniaPoints: { type: Number, default: 0 },
     spentPoints: { type: Number, default: 0 },
     completedQuests: [{ type: 'ObjectId', ref: 'Quest' }],
+    rankedBeatmapsCount: { type: Number },
+    globalRank: { type: Number },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 UserSchema.virtual('totalPoints').get(function(this: User) {

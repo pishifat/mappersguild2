@@ -9,6 +9,7 @@ import { isLoggedIn, isValidUrl } from '../../helpers/middlewares';
 import { isBeatmapHost, isValidBeatmap } from './middlewares';
 import { UserModel } from '../../models/user';
 import { QuestModel } from '../../models/quest';
+import { MissionModel } from '../../models/mission';
 
 const beatmapsHostRouter = express.Router();
 
@@ -90,7 +91,7 @@ beatmapsHostRouter.post('/:id/setStatus', isValidBeatmap, isBeatmapHost, async (
 /* POST save a party/quest to a map */
 beatmapsHostRouter.post('/:id/linkQuest', isValidBeatmap, isBeatmapHost, async (req, res) => {
     let beatmap: Beatmap = res.locals.beatmap;
-    const questId = req.body.questId;
+    const questId = req.body.questOrMissionId;
 
     if (questId) {
         const quest = await QuestModel
@@ -118,8 +119,10 @@ beatmapsHostRouter.post('/:id/linkQuest', isValidBeatmap, isBeatmapHost, async (
         }
 
         beatmap.quest = quest;
+        beatmap.mission = undefined;
     } else {
         beatmap.quest = undefined;
+        beatmap.mission = undefined;
     }
 
     await beatmap.save();
@@ -133,7 +136,55 @@ beatmapsHostRouter.post('/:id/linkQuest', isValidBeatmap, isBeatmapHost, async (
 
     LogModel.generate(
         req.session?.mongoId,
-        `${req.body.questId.length ? 'linked quest to' : 'unlinked quest from'} "${beatmap.song.artist} - ${beatmap.song.title}"`,
+        `${questId && questId.length ? 'linked quest to' : 'unlinked quest/mission from'} "${beatmap.song.artist} - ${beatmap.song.title}"`,
+        LogCategory.Beatmap
+    );
+});
+
+/* POST save a mission to a map */
+beatmapsHostRouter.post('/:id/linkMission', isValidBeatmap, isBeatmapHost, async (req, res) => {
+    let beatmap: Beatmap = res.locals.beatmap;
+    const missionId = req.body.questOrMissionId;
+
+    if (missionId) {
+        const mission = await MissionModel
+            .findById(missionId)
+            .defaultPopulate()
+            .orFail();
+
+        const user = await UserModel.findById(req.session.mongoId).orFail();
+
+        if (mission.userMaximumRankedBeatmapsCount && mission.userMaximumRankedBeatmapsCount !== 0) {
+            if (user.rankedBeatmapsCount > mission.userMaximumRankedBeatmapsCount) {
+                return res.json({ error: 'You have too many ranked maps to do this quest. Give the newer mappers a chance :)' });
+            }
+        }
+
+        if (mission.userMaximumGlobalRank) {
+            if (user.globalRank < mission.userMaximumGlobalRank) {
+                return res.json({ error: `You're too high-ranked to accept this quest. Give worse players a chance :)` });
+            }
+        }
+
+        beatmap.quest = undefined;
+        beatmap.mission = mission;
+        await beatmap.save();
+    } else {
+        beatmap.quest = undefined;
+        beatmap.mission = undefined;
+        await beatmap.save();
+    }
+
+    beatmap = await BeatmapModel
+        .findById(req.params.id)
+        .defaultPopulate()
+        .orFail();
+
+    res.json(beatmap);
+
+    LogModel.generate(
+        req.session?.mongoId,
+        `${missionId && missionId.length ? 'linked mission to' : 'unlinked quest/mission from'} "${beatmap.song.artist} - ${beatmap.song.title}"`,
         LogCategory.Beatmap
     );
 });

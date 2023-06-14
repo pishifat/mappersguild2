@@ -25,7 +25,7 @@
                                 {{ shortDate(log.createdAt) }}
                             </td>
                             <td scope="row">
-                                {{ log.user.username }}
+                                {{ log.user ? log.user.username : `MG Automation` }}
                             </td>
                             <td scope="row">
                                 {{ shortAction(log.action) }}

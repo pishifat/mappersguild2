@@ -8,28 +8,29 @@
                         id="editLink"
                         v-bs-tooltip:right="'connect mapset with a quest'"
                         href="#"
-                        :class="showQuestInput ? 'text-danger' : ''"
+                        :class="showInput ? 'text-danger' : ''"
                         class="text-success small ms-1"
-                        @click.prevent="showQuestInput = !showQuestInput"
+                        @click.prevent="showInput = !showInput"
                     >
                         <i class="fas fa-edit" />
                     </a>
                 </div>
                 <div class="small ms-3 text-white-50">
-                    <span v-if="beatmap.quest">{{ beatmap.quest.name }}</span>
+                    <a v-if="beatmap.quest" :href="`/quests?id=${beatmap.quest.id}`">{{ beatmap.quest.name }}</a>
+                    <a v-else-if="beatmap.mission" :href="`/missions`" target="_blank">{{ beatmap.mission.name }}</a>
                     <i v-else>none</i>
                 </div>
             </div>
         </div>
 
         <div
-            v-if="showQuestInput"
+            v-if="showInput"
             class="row mb-2"
         >
             <div class="col">
                 <div class="input-group input-group-sm">
                     <select
-                        v-model="dropdownQuestId"
+                        v-model="dropdownId"
                         class="form-select"
                     >
                         <option value="">
@@ -65,7 +66,7 @@
                     <button
                         v-bs-tooltip="'link beatmap to quest'"
                         class="btn btn-outline-info"
-                        @click="linkQuest($event)"
+                        @click="linkQuestOrMission($event)"
                     >
                         Save
                     </button>
@@ -83,7 +84,7 @@ import { Mission } from '@interfaces/mission';
 import { mapState } from 'vuex';
 
 export default defineComponent({
-    name: 'QuestChoice',
+    name: 'QuestOrMissionChoice',
     props: {
         beatmap: {
             type: Object as () => Beatmap,
@@ -94,8 +95,8 @@ export default defineComponent({
         return {
             userQuests: [] as Quest[],
             openMissions: [] as Mission[],
-            showQuestInput: false,
-            dropdownQuestId: '',
+            showInput: false,
+            dropdownId: '',
         };
     },
     computed: mapState([
@@ -103,8 +104,8 @@ export default defineComponent({
     ]),
     watch: {
         beatmap (): void {
-            this.showQuestInput = false;
-            this.dropdownQuestId = this.beatmap.quest?.id || '';
+            this.showInput = false;
+            this.dropdownId = this.beatmap.quest?.id || this.beatmap.mission?.id || '';
         },
     },
     async created() {
@@ -120,10 +121,13 @@ export default defineComponent({
         }
     },
     methods: {
-        async linkQuest(e): Promise<void> {
+        async linkQuestOrMission(e): Promise<void> {
+            const isQuest = this.userQuests.find(q => q.id == this.dropdownId);
             const bm = await this.$http.executePost<Beatmap>(
-                `/beatmaps/${this.beatmap.id}/linkQuest`,
-                { questId: this.dropdownQuestId },
+                `/beatmaps/${this.beatmap.id}/${isQuest ? 'linkQuest' : 'linkMission'}`,
+                {
+                    questOrMissionId: this.dropdownId,
+                },
                 e
             );
 

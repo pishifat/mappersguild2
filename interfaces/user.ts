@@ -63,4 +63,6 @@ export interface User extends Document {
     mainMode: Omit<BeatmapMode, BeatmapMode.Hybrid>;
     createdAt: Date;
     mentees: User[];
+    rankedBeatmapsCount: number;
+    globalRank: number;
 }

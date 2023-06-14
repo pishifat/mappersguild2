@@ -25,6 +25,7 @@ const BeatmapSchema = new Schema<Beatmap>({
     modders: [{ type: 'ObjectId', ref: 'User' }],
     bns: [{ type: 'ObjectId', ref: 'User' }],
     quest: { type: 'ObjectId', ref: 'Quest' },
+    mission: { type: 'ObjectId', ref: 'Mission' },
     url: { type: String },
     mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania', 'hybrid'], default: 'osu' },
     length: { type: Number },
@@ -44,6 +45,7 @@ const queryHelpers = {
             { path: 'bns', select: '_id osuId username' },
             { path: 'modders', select: '_id osuId username' },
             { path: 'quest', select: '_id name art modes deadline isMbc status' },
+            { path: 'mission', select: '_id name tier' },
             { path: 'song', select: 'artist title' },
             {
                 path: 'tasks',

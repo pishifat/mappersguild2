@@ -1,6 +1,8 @@
 <template>
     <modal-dialog id="submitMission" title="Submit mission">
         <div class="container">
+            <!-- general -->
+            <h5>General</h5>
             <!-- artist -->
             <div class="row">
                 <form-select
@@ -59,11 +61,31 @@
             <!-- objective -->
             <form-textarea v-model="objective" label="Objective" />
 
+            <!-- win condition -->
+            <form-textarea v-model="winCondition" label="Win condition" />
+
             <!-- deadline -->
             <form-input
                 v-model="deadline"
                 label="Deadline"
                 type="date"
+            />
+
+            <!-- user requirements -->
+            <hr />
+            <h5>User requirements</h5>
+            <!-- maximum ranked beatmaps count -->
+            <form-input
+                v-model.number="userMaximumRankedBeatmapsCount"
+                label="Max ranked maps"
+                type="number"
+            />
+
+            <!-- maximum global rank -->
+            <form-input
+                v-model.number="userMaximumGlobalRank"
+                label="Max global rank"
+                type="number"
             />
 
             <button
@@ -105,6 +127,9 @@ export default defineComponent({
             deadline: '',
             objective: '',
             name: '',
+            winCondition: '',
+            userMaximumRankedBeatmapsCount: null,
+            userMaximumGlobalRank: null,
         };
     },
     computed: {
@@ -142,16 +167,29 @@ export default defineComponent({
             this.selectedArtists.splice(i, 1);
         },
         async addMission(e): Promise<void> {
+            if (typeof this.name == 'number') {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `Choose a name that doesn't start with a number`, // i don't know why this happens and it's not worth troubleshooting
+                    type: 'danger',
+                });
+
+                return;
+            }
+
             const mission = await this.$http.executePost('/admin/missions/create', {
                 artists: this.selectedArtists,
                 tier: this.tier,
                 name: this.name,
                 deadline: this.deadline,
                 objective: this.objective,
+                winCondition: this.winCondition,
+                userMaximumRankedBeatmapsCount: this.userMaximumRankedBeatmapsCount,
+                userMaximumGlobalRank: this.userMaximumGlobalRank,
             }, e);
 
             if (!this.$http.isError(mission)) {
                 this.$store.commit('addMission', mission);
+                this.$bs.hideModal('submitMission');
             }
         },
     },

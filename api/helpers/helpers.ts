@@ -1,5 +1,6 @@
 import { Party } from '../../interfaces/party';
 import { Quest } from '../../interfaces/quest';
+import { Mission } from '../../interfaces/mission';
 import { User } from '../../interfaces/user';
 import { OsuAuthResponse } from './osuApi';
 import { webhookPost, webhookColors } from './discordApi';
@@ -223,6 +224,35 @@ export function generateLists (modes: Party['modes'], members: User[]): { modeLi
 export function generateThumbnailUrl (quest: Quest) {
     let url = `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`;
     if (quest.isMbc) url = 'https://mappersguild.com/images/mbc-icon.png';
+
+    return {
+        thumbnail: {
+            url,
+        },
+    };
+}
+
+/** Get ideal webhook thumbnail (mission) */
+export function generateMissionThumbnailUrl (mission: Mission) {
+    let url = '';
+
+    switch (mission.tier) {
+        case 1:
+            url = '/images/bronze.png';
+            break;
+        case 2:
+            url = '/images/silver.png';
+            break;
+        case 3:
+            url = '/images/gold.png';
+            break;
+        case 4:
+            url = '/images/platinum.png';
+            break;
+        default:
+            url = '/images/bronze.png';
+            break;
+    }
 
     return {
         thumbnail: {
