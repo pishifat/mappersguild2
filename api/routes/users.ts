@@ -12,8 +12,6 @@ import { PartyModel } from '../models/party';
 
 const usersRouter = express.Router();
 
-usersRouter.use(isLoggedIn);
-
 const questPopulate = { path: 'parties', populate: { path: 'members pendingMembers leader' } };
 const userPopulate = [
     { path: 'completedQuests', select: 'name completed' },

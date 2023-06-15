@@ -446,8 +446,8 @@ export default defineComponent({
     async created () {
         const [artists, quest, mission] = await Promise.all<any>([
             this.$http.executeGet<FeaturedArtist[]>('/home/' + this.limit),
-            this.$http.executeGet<Quest>('/quests/example'),
-            this.$http.executeGet<Mission>('/missions/example'),
+            this.$http.executeGet<Quest>('/exampleQuest'),
+            this.$http.executeGet<Mission>('/exampleMission'),
         ]);
 
         if (!this.$http.isError(artists)) {

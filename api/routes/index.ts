@@ -2,8 +2,8 @@ import express from 'express';
 import config from '../../config.json';
 import crypto from 'crypto';
 import { UserModel } from '../models/user';
-import { LogModel } from '../models/log';
-import { LogCategory } from '../../interfaces/log';
+import { MissionModel } from '../models/mission';
+import { QuestModel } from '../models/quest';
 import { isLoggedIn } from '../helpers/middlewares';
 import { getToken, getUserInfo, isOsuResponseError } from '../helpers/osuApi';
 import { UserGroup } from '../../interfaces/user';
@@ -199,6 +199,24 @@ indexRouter.post('/toggleIsContestHelper', async (req, res) => {
     const user = await UserModel.findByIdAndUpdate(req.session?.mongoId, { isContestHelper: req.body.value } );
 
     res.json(user);
+});
+
+/* GET example mission */
+indexRouter.get('/exampleMission', async (req, res) => {
+    res.json(
+        await MissionModel
+            .findOne({
+                artists: { $size: 1 },
+                openingAnnounced: true,
+            })
+            .defaultPopulate()
+            .orFail()
+    );
+});
+
+/* GET example quest */
+indexRouter.get('/exampleQuest', async (req, res) => {
+    res.json(await QuestModel.findById('62d0799b1cfaf430df14eae3').defaultPopulate());
 });
 
 export default indexRouter;

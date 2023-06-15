@@ -352,6 +352,96 @@ const sendActionNotifications = cron.schedule('0 23 * * *', async () => { /* 4:0
     scheduled: false,
 });
 
+/* open/close announcements and mark missions as inactive */
+const processMissions = cron.schedule('0 0 * * *', async () => { /* 5:00 PM PST */
+    const today = new Date();
+
+    const missions = await MissionModel
+        .find({
+            $or: [
+                { status: MissionStatus.Open },
+                { status: MissionStatus.Closed, openingAnnounced: true, closingAnnounced: false },
+            ],
+        })
+        .defaultPopulate();
+
+    for (const mission of missions) {
+        if (mission.status == MissionStatus.Open && !mission.openingAnnounced) {
+            // logs
+            LogModel.generate(null, `"${mission.name}" opened`, LogCategory.Mission );
+
+            // webhook
+            const fields = [
+                {
+                    name: 'Objective',
+                    value: mission.objective,
+                },
+                {
+                    name: 'Win condition',
+                    value: mission.winCondition,
+                },
+            ];
+
+            if (mission.userMaximumGlobalRank) {
+                fields.push({
+                    name: 'Global rank requirement',
+                    value: `Your global rank must be worse than **${mission.userMaximumGlobalRank}**`,
+                });
+            }
+
+            if (mission.userMaximumRankedBeatmapsCount) {
+                fields.push({
+                    name: 'Max ranked beatmaps requirement',
+                    value: `You cannot have more than **${mission.userMaximumRankedBeatmapsCount} ranked maps**`,
+                });
+            }
+
+            await webhookPost([{
+                ...await generateBotAuthorWebhook(),
+                color: webhookColors.lightBlue,
+                title: `New priority quest`,
+                description: generateMissionDetails(mission),
+                ...generateMissionThumbnailUrl(mission),
+            }]);
+
+            await MissionModel.findByIdAndUpdate(mission.id, { openingAnnounced: true });
+        } else if (mission.status == MissionStatus.Closed && !mission.closingAnnounced && mission.winningBeatmaps && mission.winningBeatmaps.length) {
+            await webhookPost([{
+                ...await generateBotAuthorWebhook(),
+                color: webhookColors.lightOrange,
+                description: generateMissionClosedDetails(mission),
+            }]);
+
+            await MissionModel.findByIdAndUpdate(mission.id, { closingAnnounced: true });
+        } else if (mission.status == MissionStatus.Open && mission.openingAnnounced) {
+            let closeTrigger = false;
+
+            const deadline = new Date(mission.deadline);
+
+            // trigger if past deadline
+            if (today > deadline) {
+                closeTrigger = true;
+            }
+
+            if (closeTrigger) {
+                await MissionModel.findByIdAndUpdate(mission.id, { status: MissionStatus.Closed });
+
+                //logs
+                LogModel.generate(null, `"${mission.name}" closed (past deadline)`, LogCategory.Mission );
+
+                // dev webhook
+                devWebhookPost([{
+                    title: `mission deadline met`,
+                    color: webhookColors.black,
+                    description: `mission [**${mission.name}**](https://mappersguild.com/missions?id=${mission.id}) needs winners selected`,
+                }]);
+            }
+        }
+    }
+}, {
+    scheduled: false,
+});
+
 /* if MG Qualified beatmap is osu Ranked and already checked, post webhook */
 const setRanked = cron.schedule('0 1 * * *', async () => { /* 6:00 PM PST */
     const qualifiedBeatmaps = await BeatmapModel
@@ -514,96 +604,6 @@ const dropOverdueQuests = cron.schedule('2 3 * * *', async () => { /* 8:02 PM PS
                     value: memberList,
                 }],
             }]);
-        }
-    }
-}, {
-    scheduled: false,
-});
-
-/* open/close announcements and mark missions as inactive */
-const processMissions = cron.schedule('41 * * * * *', async () => { /* 9:00 PM PST */
-    const today = new Date();
-
-    const missions = await MissionModel
-        .find({
-            $or: [
-                { status: MissionStatus.Open },
-                { status: MissionStatus.Closed, openingAnnounced: true, closingAnnounced: false },
-            ],
-        })
-        .defaultPopulate();
-
-    for (const mission of missions) {
-        if (mission.status == MissionStatus.Open && !mission.openingAnnounced) {
-            // logs
-            LogModel.generate(null, `"${mission.name}" opened`, LogCategory.Mission );
-
-            // webhook
-            const fields = [
-                {
-                    name: 'Objective',
-                    value: mission.objective,
-                },
-                {
-                    name: 'Win condition',
-                    value: mission.winCondition,
-                },
-            ];
-
-            if (mission.userMaximumGlobalRank) {
-                fields.push({
-                    name: 'Global rank requirement',
-                    value: `Your global rank must be worse than **${mission.userMaximumGlobalRank}**`,
-                });
-            }
-
-            if (mission.userMaximumRankedBeatmapsCount) {
-                fields.push({
-                    name: 'Max ranked beatmaps requirement',
-                    value: `You cannot have more than **${mission.userMaximumRankedBeatmapsCount} ranked maps**`,
-                });
-            }
-
-            await webhookPost([{
-                ...await generateBotAuthorWebhook(),
-                color: webhookColors.lightBlue,
-                title: `New priority quest`,
-                description: generateMissionDetails(mission),
-                ...generateMissionThumbnailUrl(mission),
-            }]);
-
-            await MissionModel.findByIdAndUpdate(mission.id, { openingAnnounced: true });
-        } else if (mission.status == MissionStatus.Closed && !mission.closingAnnounced && mission.winningBeatmaps && mission.winningBeatmaps.length) {
-            await webhookPost([{
-                ...await generateBotAuthorWebhook(),
-                color: webhookColors.lightOrange,
-                description: generateMissionClosedDetails(mission),
-            }]);
-
-            await MissionModel.findByIdAndUpdate(mission.id, { closingAnnounced: true });
-        } else if (mission.status == MissionStatus.Open && mission.openingAnnounced) {
-            let closeTrigger = false;
-
-            const deadline = new Date(mission.deadline);
-
-            // trigger if past deadline
-            if (today > deadline) {
-                closeTrigger = true;
-            }
-
-            if (closeTrigger) {
-                await MissionModel.findByIdAndUpdate(mission.id, { status: MissionStatus.Closed });
-
-                //logs
-                LogModel.generate(null, `"${mission.name}" closed (past deadline)`, LogCategory.Mission );
-
-                // dev webhook
-                devWebhookPost([{
-                    title: `mission deadline met`,
-                    color: webhookColors.black,
-                    description: `mission [**${mission.name}**](https://mappersguild.com/missions?id=${mission.id}) needs winners selected`,
-                }]);
-            }
         }
     }
 }, {

@@ -77,7 +77,7 @@ export default defineComponent({
 
         this.$store.commit('quests/setFirstLoadDone');
 
-        const quest = await this.$http.executeGet<Quest>('/quests/example');
+        const quest = await this.$http.executeGet<Quest>('/exampleQuest');
 
         if (!this.$http.isError(quest)) {
             this.$store.commit('quests/setExampleQuest', quest);

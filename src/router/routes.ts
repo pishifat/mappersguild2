@@ -32,17 +32,17 @@ const Showcase = () => import('../pages/ShowcasePage.vue');
 const Mentorship = () => import('../pages/MentorshipPage.vue');
 
 const routes = [
-    // Public
-    { path: '/', component: Home, alias: '/home' },
-    { path: '/faq', component: Faq, meta: { title: 'FAQ' } },
-    { path: '/beatmaps', component: Beatmaps, meta: { title: 'Beatmaps' } },
-    { path: '/quests', component: Quests, meta: { title: 'Normal Quests' } },
-    { path: '/missions', component: Missions, meta: { title: 'Priority Quests' } },
-    { path: '/users', component: Users, meta: { title: 'Users' } },
-    { path: '/error', component: Error, meta: { title: 'Oops' } },
+    // Information
+    { path: '/', component: Home, alias: '/home', meta: { isPublic: true } },
+    { path: '/faq', component: Faq, meta: { title: 'FAQ', isPublic: true } },
+    { path: '/users', component: Users, meta: { title: 'Users', isPublic: true } },
+    { path: '/error', component: Error, meta: { title: 'Oops', isPublic: true } },
+    { path: '/logs', component: Logs, meta: { title: 'Logs', isPublic: true } },
 
-    // Logs
-    { path: '/logs', component: Logs, meta: { title: 'Logs' } },
+    // Mapping
+    { path: '/beatmaps', component: Beatmaps, meta: { title: 'Beatmaps' } },
+    { path: '/quests', component: Quests, meta: { title: 'Quests' } },
+    { path: '/missions', component: Missions, meta: { title: 'Priority Quests' } },
 
     // Contests
     { path: '/contests/listing', component: Listing, meta: { title: 'Contest Listing' } },
@@ -64,7 +64,7 @@ const routes = [
     { path: '/mentorship', component: Mentorship, meta: { title: 'Mentorship' } },
 
     // Fallback
-    { path: '/:pathMatch(.*)*', component: NotFound, meta: { title: 'Oops' } },
+    { path: '/:pathMatch(.*)*', component: NotFound, meta: { title: 'Oops', public: true } },
 ];
 
 export default routes;

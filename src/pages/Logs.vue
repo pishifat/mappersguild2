@@ -25,7 +25,10 @@
                                 {{ shortDate(log.createdAt) }}
                             </td>
                             <td scope="row">
-                                {{ log.user ? log.user.username : `MG Automation` }}
+                                <a v-if="log.user" :href="`https://osu.ppy.sh/users/${log.user.osuId}`" target="_blank">
+                                    {{ log.user.username }}
+                                </a>
+                                <span v-else>MG Automation</span>
                             </td>
                             <td scope="row">
                                 {{ shortAction(log.action) }}

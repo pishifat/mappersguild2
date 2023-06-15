@@ -89,7 +89,7 @@ export default defineComponent({
             }
         }
 
-        const mission = await this.$http.executeGet<Mission>('/missions/example');
+        const mission = await this.$http.executeGet<Mission>('/exampleMission');
 
         if (!this.$http.isError(mission)) {
             this.$store.commit('missions/setExampleMission', mission);
