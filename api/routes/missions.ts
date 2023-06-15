@@ -91,6 +91,19 @@ missionsRouter.get('/open/:mode', async (req, res) => {
     res.json(filteredMissions);
 });
 
+/* GET example mission */
+missionsRouter.get('/example', async (req, res) => {
+    res.json(
+        await MissionModel
+            .findOne({
+                artists: { $size: 1 },
+                openingAnnounced: true,
+            })
+            .defaultPopulate()
+            .orFail()
+    );
+});
+
 /* POST add beatmap to mission */
 missionsRouter.post('/:missionId/:mapId/addBeatmapToMission', isEditable, isValidBeatmap, isBeatmapHost, async (req, res) => {
     const mission: Mission = res.locals.mission;

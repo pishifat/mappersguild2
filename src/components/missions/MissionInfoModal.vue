@@ -9,6 +9,14 @@
 
         <template #default>
             <div class="container">
+                <div class="text-center">
+                    <img :src="findTierImage" class="info-mission-tier" />
+                    <div class="fs-4">
+                        <b>{{ selectedMission.name }}</b>
+                    </div>
+                    <div><b>Tier {{ selectedMission.tier }}</b> priority quest</div>
+                    <hr />
+                </div>
                 <mission-details
                     :meets-requirements="meetsRequirements"
                     :mission="selectedMission"
@@ -18,7 +26,7 @@
 
                 <div>
                     <add-beatmap-to-mission
-                        v-if="meetsRequirements"
+                        v-if="meetsRequirements && selectedMission.status == 'open'"
                         :mission-id="selectedMission.id"
                     />
                     <associated-beatmaps
@@ -108,10 +116,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.card-mission-tier {
-    position: absolute;
-    top: calc(50% - 50px);
-    left: -30px;
+.info-mission-tier {
     max-width: 100px;
     max-height: 100px;
     object-fit: cover;

@@ -38,7 +38,7 @@ function generateMissionDetails(mission) {
     text += `\n- **Win condition:** ${mission.winCondition}`;
 
     if (mission.userMaximumGlobalRank || mission.userMaximumRankedBeatmapsCount || mission.userMaximumRankedBeatmapsCount === 0) {
-        text += `\nTo participate in this quest, you must meet these requirements:`;
+        text += `\n\nTo participate in this quest, you must meet these requirements:`;
 
         if (mission.userMaximumRankedBeatmapsCount || mission.userMaximumRankedBeatmapsCount === 0) {
             text += `\n- You **cannot** have more than **${mission.userMaximumRankedBeatmapsCount} ranked maps**`;

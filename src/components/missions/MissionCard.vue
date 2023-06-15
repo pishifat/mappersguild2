@@ -25,7 +25,7 @@
 
                 <div class="col-sm-6">
                     <add-beatmap-to-mission
-                        v-if="meetsRequirements"
+                        v-if="meetsRequirements && mission.status == 'open'"
                         :mission-id="mission.id"
                         @click.stop
                     />

@@ -45,7 +45,7 @@ const queryHelpers = {
             { path: 'bns', select: '_id osuId username' },
             { path: 'modders', select: '_id osuId username' },
             { path: 'quest', select: '_id name art modes deadline isMbc status' },
-            { path: 'mission', select: '_id name tier' },
+            { path: 'mission', select: '_id name tier status closingAnnounced' },
             { path: 'song', select: 'artist title' },
             {
                 path: 'tasks',

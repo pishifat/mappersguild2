@@ -4,7 +4,7 @@
         <mission-information />
         <div class="radial-divisor" />
         <div class="container card card-body my-2">
-            <h4>Active missions</h4>
+            <h4>Active priority quests</h4>
             <mission-card
                 v-for="mission in openMissions"
                 :key="mission.id"
@@ -14,7 +14,7 @@
         <div class="container card card-body my-4">
             <h4>
                 <a href="#closedMissions" data-bs-toggle="collapse" @click.prevent>
-                    Inactive missions
+                    Inactive priority quests
                     <i class="fas fa-angle-down" />
                 </a>
             </h4>
@@ -87,6 +87,12 @@ export default defineComponent({
                     this.$bs.showModal('editMission');
                 }
             }
+        }
+
+        const mission = await this.$http.executeGet<Mission>('/missions/example');
+
+        if (!this.$http.isError(mission)) {
+            this.$store.commit('missions/setExampleMission', mission);
         }
     },
 });

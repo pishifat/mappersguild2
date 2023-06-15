@@ -1185,7 +1185,6 @@ listingRouter.post('/:id/manuallyAddSubmission', isContestCreator, isEditable, a
         .orFail();
 
     const newSubmission = contest.submissions.find(s => s.id == submission.id);
-    console.log(newSubmission);
 
     res.json(newSubmission);
 });

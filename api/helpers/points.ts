@@ -191,6 +191,21 @@ export async function getUserRank(userId: any, tasksPoints: TasksPoints, modPoin
     };
 }
 
+const taskPointsPopulate = [
+    { path: 'host', select: '_id osuId username' },
+    { path: 'modders', select: '_id osuId username' },
+    { path: 'quest', select: '_id name status price completed deadline' },
+    {
+        path: 'mission',
+        select: '_id name status tier winningBeatmaps closingAnnounced',
+        populate: {
+            path: 'winningBeatmaps',
+            select: '_id id',
+        },
+    },
+    { path: 'tasks', populate: { path: 'mappers' } },
+];
+
 export async function calculateTasksPoints(userId: any): Promise<TasksPoints> {
     const ownTasks = await TaskModel.find({ mappers: userId }).select('_id');
 
@@ -201,19 +216,7 @@ export async function calculateTasksPoints(userId: any): Promise<TasksPoints> {
             tasks: {
                 $in: ownTasks,
             },
-        }).populate([
-            { path: 'host', select: '_id osuId username' },
-            { path: 'modders', select: '_id osuId username' },
-            { path: 'quest', select: '_id name status price completed deadline' },
-            {
-                path: 'mission',
-                select: '_id name status tier winningBeatmaps closingAnnounced',
-                populate: {
-                    path: 'winningBeatmaps',
-                },
-            },
-            { path: 'tasks', populate: { path: 'mappers' } },
-        ]);
+        }).populate(taskPointsPopulate);
 
     const pointsObject: TasksPoints = {
         Easy: 0,
@@ -250,7 +253,6 @@ export async function calculateTasksPoints(userId: any): Promise<TasksPoints> {
                     questParticipation = true;
                     bonus = getQuestBonus(beatmap.quest.deadline, beatmap.rankedDate, task.mappers.length);
                 } else if (beatmap.mission?.status === MissionStatus.Closed && beatmap.mission?.closingAnnounced) {
-                    console.log('in');
                     missionParticipation = true;
                     bonus = getMissionBonus(beatmap.mission.winningBeatmaps, beatmap.id, task.mappers.length);
                 } else if (beatmap.isShowcase) {
@@ -282,10 +284,31 @@ export async function calculateTasksPoints(userId: any): Promise<TasksPoints> {
             pointsObject.QuestReward += findQuestPoints(beatmap.quest.deadline, beatmap.quest.completed, beatmap.rankedDate); // 7 points per quest if not over deadline
         }
 
-        // quest reward points and completed quests list
+        // mission reward points and completed missions list
         if (missionParticipation &&
             beatmap.mission &&
-            !pointsObject.Missions.includes(beatmap.mission._id)
+            !pointsObject.Missions.includes(beatmap.mission._id) &&
+            beatmap.mission.winningBeatmaps.some(b => b.id == beatmap.id)
+        ) {
+            pointsObject.Missions.push(beatmap.mission._id);
+            pointsObject.MissionReward += findMissionPoints(beatmap.mission.tier); // depends on mission tier
+        }
+    }
+
+    // process unranked mission beatmaps for extra points
+    const unrankedMissionBeatmaps = await BeatmapModel
+        .find({
+            status: { $ne: BeatmapStatus.Ranked },
+            tasks: {
+                $in: ownTasks,
+            },
+            mission: { $exists: true },
+        }).populate(taskPointsPopulate);
+
+    for (const beatmap of unrankedMissionBeatmaps) {
+        if (beatmap.mission &&
+            !pointsObject.Missions.includes(beatmap.mission._id) &&
+            beatmap.mission.winningBeatmaps.some(b => b.id == beatmap.id)
         ) {
             pointsObject.Missions.push(beatmap.mission._id);
             pointsObject.MissionReward += findMissionPoints(beatmap.mission.tier); // depends on mission tier

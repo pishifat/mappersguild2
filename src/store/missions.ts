@@ -12,6 +12,7 @@ export interface MissionsState {
     userBeatmaps: Beatmap[];
     isLoadingMissions: boolean;
     isFirstLoadDone: boolean;
+    exampleMission: Mission | null;
 }
 
 const store: Module<MissionsState, MainState> = {
@@ -24,6 +25,7 @@ const store: Module<MissionsState, MainState> = {
         userBeatmaps: [] as Beatmap[],
         isLoadingMissions: true,
         isFirstLoadDone: false,
+        exampleMission: null,
     },
     mutations: {
         setFirstLoadDone (state): void {
@@ -37,6 +39,9 @@ const store: Module<MissionsState, MainState> = {
         },
         setFilterValue (state, value: string): void {
             state.filterValue = value;
+        },
+        setExampleMission (state, value: Mission): void {
+            state.exampleMission = value;
         },
         setFilterMode (state, value: string): void {
             state.filterMode = value;

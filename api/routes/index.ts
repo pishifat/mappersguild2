@@ -145,7 +145,7 @@ indexRouter.get('/callback', async (req, res) => {
 
         req.session.mongoId = user._id;
 
-        LogModel.generate(req.session.mongoId, `joined the Mappers' Guild`, LogCategory.User);
+        // LogModel.generate(req.session.mongoId, `joined the Mappers' Guild`, LogCategory.User);
     } else {
         let saveTrigger = false;
 
@@ -158,8 +158,6 @@ indexRouter.get('/callback', async (req, res) => {
             user.rankedBeatmapsCount = rankedBeatmapsCount;
             saveTrigger = true;
         }
-
-        console.log(globalRank);
 
         if (user.globalRank != globalRank) {
             user.globalRank = globalRank;

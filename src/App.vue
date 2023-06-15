@@ -143,7 +143,7 @@
                                         </li>
                                         <li>
                                             <router-link class="dropdown-item" to="/admin/missions">
-                                                Missions
+                                                Priority Quests (Missions)
                                             </router-link>
                                         </li>
                                         <li>

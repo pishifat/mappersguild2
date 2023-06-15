@@ -236,9 +236,6 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
             .orFail(),
     ]);
 
-    console.log(b.length);
-    console.log(q.length);
-
     const users: UserSummary[] = [];
 
     for (const user of u as UserCounts[]) {

@@ -23,15 +23,15 @@ export default defineComponent({
             if (this.beatmap.mission) {
                 switch (this.beatmap.mission.tier) {
                     case 1:
-                        return '/images/bronze.png';
+                        return '/images/dark-bronze.png';
                     case 2:
-                        return '/images/silver.png';
+                        return '/images/dark-silver.png';
                     case 3:
-                        return '/images/gold.png';
+                        return '/images/dark-gold.png';
                     case 4:
-                        return '/images/platinum.png';
+                        return '/images/dark-platinum.png';
                     default:
-                        return '/images/bronze.png';
+                        return '/images/dark-bronze.png';
                 }
             }
 
