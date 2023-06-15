@@ -204,14 +204,6 @@
                     </template>
 
                     <template v-else-if="initialized">
-                        <ul class="navbar-nav me-auto">
-                            <li class="nav-item">
-                                <router-link class="nav-link" to="/faq">
-                                    FAQ
-                                </router-link>
-                            </li>
-                        </ul>
-
                         <form
                             class="ms-auto me-3"
                             action="/api/login"
