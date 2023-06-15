@@ -4,7 +4,7 @@
         v-if="quest"
         :key="quest.id"
         :quest="quest"
-        style="pointer-events: none;"
+        class="pe-none"
     />
     <div v-if="quest" class="text-secondary small">
         <ul>

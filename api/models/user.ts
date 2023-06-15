@@ -28,6 +28,7 @@ const UserSchema = new Schema<User>({
     expertPoints: { type: Number, default: 0 },
     storyboardPoints: { type: Number, default: 0 },
     questPoints: { type: Number, default: 0 },
+    missionPoints: { type: Number, default: 0 },
     modPoints: { type: Number, default: 0 },
     hostPoints: { type: Number, default: 0 },
     contestCreatorPoints: { type: Number, default: 0 },
@@ -41,6 +42,7 @@ const UserSchema = new Schema<User>({
     maniaPoints: { type: Number, default: 0 },
     spentPoints: { type: Number, default: 0 },
     completedQuests: [{ type: 'ObjectId', ref: 'Quest' }],
+    completedMissions: [{ type: 'ObjectId', ref: 'Mission' }],
     rankedBeatmapsCount: { type: Number },
     globalRank: { type: Number },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });

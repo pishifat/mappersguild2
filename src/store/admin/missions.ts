@@ -56,6 +56,41 @@ const store: Module<MissionState, MainState> = {
                 mission.winCondition = payload.winCondition;
             }
         },
+        updateOpeningAnnounced (state, payload): void {
+            const mission = state.missions.find(m => m.id == payload.missionId);
+
+            if (mission) {
+                mission.openingAnnounced = payload.openingAnnounced;
+            }
+        },
+        updateClosingAnnounced (state, payload): void {
+            const mission = state.missions.find(m => m.id == payload.missionId);
+
+            if (mission) {
+                mission.closingAnnounced = payload.closingAnnounced;
+            }
+        },
+        updateWinningBeatmaps (state, payload): void {
+            const mission = state.missions.find(m => m.id == payload.missionId);
+
+            if (mission) {
+                mission.winningBeatmaps = payload.winningBeatmaps;
+            }
+        },
+        updateAssociatedMaps (state, payload): void {
+            const mission = state.missions.find(m => m.id == payload.missionId);
+
+            if (mission) {
+                mission.associatedMaps = payload.associatedMaps;
+            }
+        },
+        updateModes (state, payload): void {
+            const mission = state.missions.find(m => m.id == payload.missionId);
+
+            if (mission) {
+                mission.modes = payload.modes;
+            }
+        },
     },
 };
 

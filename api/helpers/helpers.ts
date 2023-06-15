@@ -238,19 +238,19 @@ export function generateMissionThumbnailUrl (mission: Mission) {
 
     switch (mission.tier) {
         case 1:
-            url = '/images/bronze.png';
+            url = 'https://mappersguild.com/images/bronze.png';
             break;
         case 2:
-            url = '/images/silver.png';
+            url = 'https://mappersguild.com/images/silver.png';
             break;
         case 3:
-            url = '/images/gold.png';
+            url = 'https://mappersguild.com/images/gold.png';
             break;
         case 4:
-            url = '/images/platinum.png';
+            url = 'https://mappersguild.com/images/platinum.png';
             break;
         default:
-            url = '/images/bronze.png';
+            url = 'https://mappersguild.com/images/bronze.png';
             break;
     }
 
@@ -268,6 +268,19 @@ export function generateAuthorWebhook(user: User) {
             name: `${user.username}'s party`,
             url: `https://osu.ppy.sh/users/${user.osuId}`,
             icon_url: `https://a.ppy.sh/${user.osuId}`,
+        },
+    };
+}
+
+/** Get mg bot user's osu url and avatar */
+export async function generateBotAuthorWebhook() {
+    const mg = await UserModel.findOne({ osuId: 23648635 }).orFail();
+
+    return {
+        author: {
+            name: `${mg.username}`,
+            url: `https://osu.ppy.sh/users/${mg.osuId}`,
+            icon_url: `https://a.ppy.sh/${mg.osuId}`,
         },
     };
 }

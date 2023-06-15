@@ -10,7 +10,7 @@
                     <data-table
                         v-slot="{ obj: mission }"
                         :data="missions"
-                        :headers="['name', 'tier', 'status']"
+                        :headers="['name', 'tier', 'status', 'announce']"
                         :custom-data-target="'#editMission'"
                         @update:selected-id="selectedMissionId = $event"
                     >
@@ -18,10 +18,13 @@
                             {{ mission.name }}
                         </td>
                         <td>
-                            {{ mission.tier }}
+                            <img :src="findTierImage(mission.tier)" class="table-mission-tier" />
                         </td>
                         <td>
                             {{ mission.status }}
+                        </td>
+                        <td>
+                            <span :class="mission.openingAnnounced ? 'text-success' : 'text-danger'">open</span>/<span :class="mission.closingAnnounced ? 'text-success' : 'text-danger'">close</span>
                         </td>
                     </data-table>
                 </div>
@@ -91,6 +94,28 @@ export default defineComponent({
                 this.missions[i] = m;
             }
         },
+        findTierImage(tier): string {
+            switch (tier) {
+                case 1:
+                    return '/images/bronze.png';
+                case 2:
+                    return '/images/silver.png';
+                case 3:
+                    return '/images/gold.png';
+                case 4:
+                    return '/images/platinum.png';
+                default:
+                    return '/images/bronze.png';
+            }
+        },
     },
 });
 </script>
+
+<style scoped>
+.table-mission-tier {
+    max-width: 20px;
+    max-height: 20px;
+    object-fit: cover;
+}
+</style>

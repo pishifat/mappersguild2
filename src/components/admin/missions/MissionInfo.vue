@@ -6,7 +6,7 @@
 
         <div class="container">
             <!-- name -->
-            <p class="row">
+            <div class="row mt-2">
                 <input
                     v-model="name"
                     class="form-control form-control-sm mx-2 w-50"
@@ -17,9 +17,9 @@
                 <button class="btn btn-sm btn-outline-info w-25" @click="updateName($event)">
                     Rename mission
                 </button>
-            </p>
+            </div>
             <!-- tier -->
-            <p class="row">
+            <div class="row mt-2">
                 <input
                     v-model="tier"
                     class="form-control form-control-sm mx-2 w-50"
@@ -30,9 +30,9 @@
                 <button class="btn btn-sm btn-outline-info w-25" @click="updateTier($event)">
                     Update tier
                 </button>
-            </p>
+            </div>
             <!-- objective -->
-            <p class="row">
+            <div class="row mt-2">
                 <textarea
                     v-model="objective"
                     class="form-control form-control-sm mx-2 mt-2 w-50"
@@ -43,9 +43,9 @@
                 <button class="btn btn-sm btn-outline-info w-25 mt-2" @click="updateObjective($event)">
                     Update objective
                 </button>
-            </p>
+            </div>
             <!-- win condition -->
-            <p class="row">
+            <div class="row mt-2">
                 <textarea
                     v-model="winCondition"
                     class="form-control form-control-sm mx-2 mt-2 w-50"
@@ -56,10 +56,10 @@
                 <button class="btn btn-sm btn-outline-info w-25 mt-2" @click="updateWinCondition($event)">
                     Update win condition
                 </button>
-            </p>
+            </div>
 
             <!-- status -->
-            <p class="row">
+            <div class="row">
                 <select
                     v-model="status"
                     class="form-select form-select-sm mx-2 mt-2 w-50"
@@ -80,14 +80,54 @@
                 <button class="btn btn-sm btn-outline-info mt-2 w-25" @click="updateStatus($event)">
                     Update status
                 </button>
-            </p>
+            </div>
+
+            <!-- modes -->
+            <div class="row">
+                <select
+                    v-model="mode"
+                    class="form-select form-select-sm mx-2 mt-2 w-25"
+                >
+                    <option value="" disabled>
+                        Select a mode
+                    </option>
+                    <option v-for="aMode in availableModes" :key="aMode">
+                        {{ aMode }}
+                    </option>
+                </select>
+                <div class="w-25 mt-2">
+                    {{ mission.modes }}
+                </div>
+                <button class="btn btn-sm btn-outline-info mt-2 w-25" @click="toggleMode($event)">
+                    Toggle mode
+                </button>
+            </div>
+
+            <!-- openingAnnounced -->
+            <div class="row">
+                <div class="col-sm-6 mt-2">
+                    Opening announced: <span :class="mission.openingAnnounced ? 'text-success' : 'text-danger'">{{ mission.openingAnnounced }}</span>
+                </div>
+                <button class="btn btn-sm btn-outline-info mt-2 ms-3 w-25" @click="toggleOpeningAnnounced($event)">
+                    Toggle openingAnnounced
+                </button>
+            </div>
+            <!-- closingAnnounced -->
+            <div class="row">
+                <div class="col-sm-6 mt-2">
+                    Closing announced: <span :class="mission.closingAnnounced ? 'text-success' : 'text-danger'">{{ mission.closingAnnounced }}</span>
+                </div>
+                <button class="btn btn-sm btn-outline-info mt-2 ms-3 w-25" @click="toggleClosingAnnounced($event)">
+                    Toggle closingAnnounced
+                </button>
+            </div>
 
             <!-- user reqiurements -->
             <hr />
             <h5>User requirements</h5>
 
             <!-- max ranked maps -->
-            <p class="row">
+            <div class="row">
                 <input
                     v-model="userMaximumRankedBeatmapsCount"
                     class="form-control form-control-sm mx-2 w-50"
@@ -98,9 +138,9 @@
                 <button class="btn btn-sm btn-outline-info w-25" @click="updateUserMaximumRankedBeatmapsCount($event)">
                     Update user max ranked maps count
                 </button>
-            </p>
+            </div>
             <!-- max global rank -->
-            <p class="row">
+            <div class="row mt-2">
                 <input
                     v-model="userMaximumGlobalRank"
                     class="form-control form-control-sm mx-2 w-50"
@@ -111,15 +151,14 @@
                 <button class="btn btn-sm btn-outline-info w-25" @click="updateUserMaximumGlobalRank($event)">
                     Update user max global rank
                 </button>
-            </p>
+            </div>
 
             <!-- associated beatmaps -->
             <associated-beatmaps
                 v-if="mission.associatedMaps && mission.associatedMaps.length"
-                class="mb-4"
-                :associated-maps="mission.associatedMaps"
-                :mission-id="mission.id"
-                :mission-status="mission.status"
+                class="my-4"
+                :mission="mission"
+                :is-admin-page="true"
             />
         </div>
     </modal-dialog>
@@ -129,7 +168,7 @@
 import { defineComponent } from 'vue';
 import ModalDialog from '@components/ModalDialog.vue';
 import AssociatedBeatmaps from '@components/missions/AssociatedBeatmaps.vue';
-import { Mission } from '@interfaces/mission';
+import { Mission, MissionMode } from '@interfaces/mission';
 
 export default defineComponent({
     name: 'MissionInfo',
@@ -145,11 +184,13 @@ export default defineComponent({
     },
     data() {
         return {
+            availableModes: MissionMode,
             name: this.mission.name,
             tier: this.mission.tier,
             objective: this.mission.objective,
             winCondition: this.mission.winCondition,
             status: this.mission.status,
+            mode: '',
             userMaximumRankedBeatmapsCount: this.mission.userMaximumRankedBeatmapsCount,
             userMaximumGlobalRank: this.mission.userMaximumGlobalRank,
         };
@@ -161,6 +202,7 @@ export default defineComponent({
             this.objective = this.mission.objective;
             this.winCondition = this.mission.winCondition;
             this.status = this.mission.status;
+            this.mode = '';
             this.userMaximumRankedBeatmapsCount = this.mission.userMaximumRankedBeatmapsCount;
             this.userMaximumGlobalRank = this.mission.userMaximumGlobalRank;
         },
@@ -261,6 +303,48 @@ export default defineComponent({
                 this.$store.commit('updateWinCondition', {
                     missionId: this.mission.id,
                     winCondition,
+                });
+            }
+        },
+        async toggleOpeningAnnounced(e): Promise<void> {
+            const openingAnnounced = await this.$http.executePost(`/admin/missions/${this.mission.id}/toggleOpeningAnnounced/`, { openingAnnounced: !this.mission.openingAnnounced }, e);
+
+            if (!this.$http.isError(openingAnnounced)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `toggled openingAnnounced`,
+                    type: 'info',
+                });
+                this.$store.commit('updateOpeningAnnounced', {
+                    missionId: this.mission.id,
+                    openingAnnounced,
+                });
+            }
+        },
+        async toggleClosingAnnounced(e): Promise<void> {
+            const closingAnnounced = await this.$http.executePost(`/admin/missions/${this.mission.id}/toggleClosingAnnounced/`, { closingAnnounced: !this.mission.closingAnnounced }, e);
+
+            if (!this.$http.isError(closingAnnounced)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `toggled closingAnnounced`,
+                    type: 'info',
+                });
+                this.$store.commit('updateClosingAnnounced', {
+                    missionId: this.mission.id,
+                    closingAnnounced,
+                });
+            }
+        },
+        async toggleMode(e): Promise<void> {
+            const modes = await this.$http.executePost(`/admin/missions/${this.mission.id}/toggleMode/`, { mode: this.mode }, e);
+
+            if (!this.$http.isError(modes)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `toggled mode`,
+                    type: 'info',
+                });
+                this.$store.commit('updateModes', {
+                    missionId: this.mission.id,
+                    modes,
                 });
             }
         },

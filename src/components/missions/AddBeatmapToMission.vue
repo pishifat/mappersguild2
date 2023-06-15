@@ -6,6 +6,16 @@
                 class="form-select"
             >
                 <option
+                    value=""
+                    disabled
+                    selected
+                >
+                    Select a beatmap
+                </option>
+                <option value="-" disabled>
+                    ---
+                </option>
+                <option
                     v-for="beatmap in validBeatmaps"
                     :key="beatmap.id"
                     :value="beatmap.id"
@@ -27,8 +37,8 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
-import { Mission } from '../../../interfaces/mission';
-import { Beatmap } from '../../../interfaces/beatmap/beatmap';
+import { Mission } from '@interfaces/mission';
+import { Beatmap } from '@interfaces/beatmap/beatmap';
 
 export default defineComponent({
     name: 'AddBeatmapToMission',
@@ -40,7 +50,7 @@ export default defineComponent({
     },
     data () {
         return {
-            selectedBeatmapId: null,
+            selectedBeatmapId: '',
         };
     },
     computed: {
@@ -53,6 +63,15 @@ export default defineComponent({
     },
     methods: {
         async addBeatmapToMission(e): Promise<void> {
+            if (!this.selectedBeatmapId) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `Select a beatmap`,
+                    type: 'danger',
+                });
+
+                return;
+            }
+
             const mission = await this.$http.executePost<Mission>(`/missions/${this.missionId}/${this.selectedBeatmapId}/addBeatmapToMission`, {}, e);
 
             if (!this.$http.isError(mission)) {

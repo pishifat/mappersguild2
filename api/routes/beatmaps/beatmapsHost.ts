@@ -10,6 +10,7 @@ import { isBeatmapHost, isValidBeatmap } from './middlewares';
 import { UserModel } from '../../models/user';
 import { QuestModel } from '../../models/quest';
 import { MissionModel } from '../../models/mission';
+import { MissionMode } from '../../../interfaces/mission';
 
 const beatmapsHostRouter = express.Router();
 
@@ -164,6 +165,10 @@ beatmapsHostRouter.post('/:id/linkMission', isValidBeatmap, isBeatmapHost, async
             if (user.globalRank < mission.userMaximumGlobalRank) {
                 return res.json({ error: `You're too high-ranked to accept this quest. Give worse players a chance :)` });
             }
+        }
+
+        if (!mission.modes.includes(beatmap.mode as unknown as MissionMode) && beatmap.mode !== BeatmapMode.Hybrid) {
+            return res.json({ error: 'Mode not allowed for this quest' });
         }
 
         beatmap.quest = undefined;

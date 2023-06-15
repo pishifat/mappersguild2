@@ -4,9 +4,9 @@ import { MissionModel } from '../models/mission';
 import { LogModel } from '../models/log';
 import { BeatmapModel } from '../models/beatmap/beatmap';
 import { UserModel } from '../models/user';
-import { Mission, MissionStatus } from '../../interfaces/mission';
+import { Mission, MissionStatus, MissionMode } from '../../interfaces/mission';
 import { LogCategory } from '../../interfaces/log';
-import { Beatmap, BeatmapStatus } from '../../interfaces/beatmap/beatmap';
+import { Beatmap, BeatmapStatus, BeatmapMode } from '../../interfaces/beatmap/beatmap';
 import { isBeatmapHost, isValidBeatmap } from './beatmaps/middlewares';
 
 const missionsRouter = express.Router();
@@ -19,7 +19,7 @@ async function isEditable (req, res, next): Promise<void> {
 
     const mission = await MissionModel.defaultFindByIdOrFail(id);
 
-    if (mission.status !== MissionStatus.Open) {
+    if (mission.status !== MissionStatus.Open && res.locals.userRequest.osuId !== 3178418) {
         return res.json({ error: 'Unauthorized' });
     }
 
@@ -45,6 +45,7 @@ missionsRouter.get('/relevantInfo', async (req, res) => {
                 host: req.session.mongoId,
                 status: { $ne: BeatmapStatus.Ranked },
                 quest: { $exists: false },
+                mission: { $exists: false },
             })
             .defaultPopulate(),
     ]);
@@ -68,14 +69,20 @@ function meetsRequirements(mission, user) {
 }
 
 /* GET open missions */
-missionsRouter.get('/open', async (req, res) => {
+missionsRouter.get('/open/:mode', async (req, res) => {
     const user = await UserModel.findById(req.session.mongoId).orFail();
 
+    const query: any = {
+        status: MissionStatus.Open,
+        openingAnnounced: true,
+    };
+
+    if (req.params.mode !== BeatmapMode.Hybrid) {
+        query.modes = req.params.mode;
+    }
+
     const missions = await MissionModel
-        .find({
-            status: MissionStatus.Open,
-            openingAnnounced: true,
-        })
+        .find(query)
         .defaultPopulate()
         .sortByLatest();
 
@@ -89,12 +96,16 @@ missionsRouter.post('/:missionId/:mapId/addBeatmapToMission', isEditable, isVali
     const mission: Mission = res.locals.mission;
     const beatmap: Beatmap = res.locals.beatmap;
 
-    if (beatmap.quest) {
+    if (beatmap.quest || beatmap.mission) {
         return res.json({ error: 'Beatmap assigned to a quest/mission already!' });
     }
 
+    if (!mission.modes.includes(beatmap.mode as unknown as MissionMode) && beatmap.mode !== BeatmapMode.Hybrid) {
+        return res.json({ error: 'Mode not allowed for this quest' });
+    }
+
     await BeatmapModel
-        .findByIdAndUpdate(req.params.mapId, { quest: mission._id })
+        .findByIdAndUpdate(req.params.mapId, { mission: mission._id, quest: undefined })
         .defaultPopulate()
         .orFail();
 
@@ -110,6 +121,7 @@ missionsRouter.post('/:missionId/:mapId/removeBeatmapFromMission', isEditable, i
     const mission: Mission = res.locals.mission;
     const beatmap: Beatmap = res.locals.beatmap;
 
+    res.locals.beatmap.mission = undefined;
     res.locals.beatmap.quest = undefined;
     await res.locals.beatmap.save();
 

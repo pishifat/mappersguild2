@@ -26,6 +26,8 @@
                 />
             </div>
         </div>
+
+        <mission-info-modal />
     </div>
 </template>
 
@@ -34,6 +36,7 @@ import { defineComponent } from 'vue';
 import { mapGetters, mapState } from 'vuex';
 import missionsModule from '@store/missions';
 import MissionCard from '@components/missions/MissionCard.vue';
+import MissionInfoModal from '@components/missions/MissionInfoModal.vue';
 import MissionInformation from '@components/missions/MissionInformation.vue';
 import MissionPageFilters from './MissionPageFilters.vue';
 import { Mission } from '../../../interfaces/mission';
@@ -45,8 +48,12 @@ export default defineComponent({
         MissionCard,
         MissionInformation,
         MissionPageFilters,
+        MissionInfoModal,
     },
     computed: {
+        ...mapState([
+            'loggedInUser',
+        ]),
         ...mapState('missions', [
             'isFirstLoadDone',
             'isLoadingMissions',
@@ -54,6 +61,7 @@ export default defineComponent({
         ...mapGetters('missions', [
             'openMissions',
             'closedMissions',
+            'selectedMission',
         ]),
     },
     beforeCreate () {
@@ -62,12 +70,23 @@ export default defineComponent({
         }
     },
     async created () {
-        const res = await this.$http.initialRequest<{ missions: Mission[], beatmaps: Beatmap[] }>('/missions/relevantInfo');
+        const id = this.$route.query.id;
+        let url = `/missions/relevantInfo`;
+
+        const res = await this.$http.initialRequest<{ missions: Mission[], beatmaps: Beatmap[] }>(url);
 
         if (!this.$http.isError(res)) {
             this.$store.commit('missions/setMissions', res.missions);
             this.$store.commit('missions/setUserBeatmaps', res.beatmaps);
+            this.$store.commit('missions/setFilterMode', this.loggedInUser.mainMode);
             this.$store.commit('missions/setFirstLoadDone');
+
+            if (id) { // this process will need to change when all missions aren't loaded
+                if (res.missions.some(m => m.id == id)) {
+                    this.$store.commit('missions/setSelectedMissionId', id);
+                    this.$bs.showModal('editMission');
+                }
+            }
         }
     },
 });

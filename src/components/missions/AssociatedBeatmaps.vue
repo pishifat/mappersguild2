@@ -2,9 +2,9 @@
     <div>
         <b>Associated maps:</b>
 
-        <ul v-if="associatedMaps && associatedMaps.length" class="ps-3 mb-0 list-unstyled">
+        <ul v-if="mission.associatedMaps && mission.associatedMaps.length" class="ps-3 mb-0 list-unstyled">
             <li
-                v-for="map in associatedMaps"
+                v-for="map in mission.associatedMaps"
                 :key="map.id"
                 class="text-secondary"
             >
@@ -19,7 +19,8 @@
                 <span v-else>{{ map.song.artist }} - {{ map.song.title }}</span>
                 by
                 <user-link :user="map.host" />
-                <span v-if="loggedInUser.id == map.host.id && missionStatus == 'open'" class="small">
+                <!-- delete map from list -->
+                <span v-if="(loggedInUser.id == map.host.id && mission.status == 'open') || isAdminPage" class="small">
                     <a
                         v-if="confirmDelete != map.id"
                         href="#"
@@ -30,22 +31,44 @@
                     </a>
                     <a
                         v-else
-                        :class="processingDelete ? 'opacity-50' : 'text-danger'"
-                        :style="processingDelete ? 'pointer-events: none;' : ''"
+                        :class="processing ? 'opacity-50 pe-none' : 'text-danger'"
                         href="#"
                         @click.prevent="removeBeatmapFromMission(map.id, $event)"
                     >
                         confirm
                     </a>
                 </span>
+                <!-- mark map as winner -->
+                <span v-if="loggedInUser.group == 'admin' && isAdminPage && mission.status == 'closed'" class="small ms-1">
+                    <a
+                        v-if="confirmWin != map.id"
+                        href="#"
+                        class="text-success"
+                        @click.prevent="confirmWin = map.id"
+                    >
+                        {{ isWinningBeatmap(map.id) ? 'un-set as winner' : 'set as winner' }}
+                    </a>
+                    <a
+                        v-else
+                        :class="processing ? 'opacity-50 pe-none' : 'text-success'"
+                        href="#"
+                        @click.prevent="toggleWinningBeatmap(map.id, $event)"
+                    >
+                        confirm
+                    </a>
+                </span>
+                <!-- publicly display as winner -->
+                <span v-if="!isAdminPage && mission.status == 'closed' && isWinningBeatmap(map.id)" class="text-success">
+                    (prize winner)
+                </span>
             </li>
-            <div class="small text-white-50 ms-3 mt-2">
-                If you create a map for this, add it above!
+            <div v-if="mission.status == 'open'" class="small text-white-50 ms-3 mt-2">
+                If you create a map for this quest, add it above!
             </div>
         </ul>
 
         <div v-else class="small text-white-50 ms-3">
-            No associated maps. If you create a map for this, add it above!
+            No associated maps. If you create a map for this quest, add it above!
         </div>
     </div>
 </template>
@@ -54,28 +77,25 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
-import { Beatmap, BeatmapStatus } from '@interfaces/beatmap/beatmap';
+import { BeatmapStatus } from '@interfaces/beatmap/beatmap';
 import { Mission } from '@interfaces/mission';
 
 export default defineComponent({
     props: {
-        associatedMaps: {
-            type: Array as () => Beatmap[],
+        mission: {
+            type: Object as () => Mission,
             required: true,
         },
-        missionId: {
-            type: String,
-            required: true,
-        },
-        missionStatus: {
-            type: String,
-            required: true,
+        isAdminPage: {
+            type: Boolean,
+            default: false,
         },
     },
     data () {
         return {
             confirmDelete: '',
-            processingDelete: false,
+            confirmWin: '',
+            processing: false,
         };
     },
     computed: {
@@ -97,19 +117,51 @@ export default defineComponent({
 
             return '';
         },
+        isWinningBeatmap(beatmapId): boolean {
+            const winningBeatmapIds = this.mission.winningBeatmaps.map(b => b.id);
+
+            return winningBeatmapIds.includes(beatmapId);
+        },
         async removeBeatmapFromMission(beatmapId, e): Promise<void> {
-            this.processingDelete = true;
-            const mission = await this.$http.executePost<Mission>(`/missions/${this.missionId}/${beatmapId}/removeBeatmapFromMission`, {}, e);
+            this.processing = true;
+            const mission = await this.$http.executePost<Mission>(`/missions/${this.mission.id}/${beatmapId}/removeBeatmapFromMission`, {}, e);
 
             if (!this.$http.isError(mission)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `Removed beatmap from mission`,
                     type: 'info',
                 });
-                this.$store.commit('missions/updateMission', mission);
+
+                if (this.isAdminPage) {
+                    this.$store.commit('updateAssociatedMaps', {
+                        missionId: this.mission.id,
+                        associatedMaps: mission.associatedMaps,
+                    });
+                } else {
+                    this.$store.commit('missions/updateMission', mission);
+                }
             }
 
-            this.processingDelete = false;
+            this.processing = false;
+            this.confirmDelete = '';
+        },
+        async toggleWinningBeatmap(beatmapId, e): Promise<void> {
+            this.processing = true;
+            const winningBeatmaps = await this.$http.executePost<Mission>(`/admin/missions/${this.mission.id}/${beatmapId}/toggleWinningBeatmap`, {}, e);
+
+            if (!this.$http.isError(winningBeatmaps)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `toggled winning beatmap for mission`,
+                    type: 'info',
+                });
+                this.$store.commit('updateWinningBeatmaps', {
+                    missionId: this.mission.id,
+                    winningBeatmaps,
+                });
+            }
+
+            this.processing = false;
+            this.confirmWin = '';
         },
     },
 });

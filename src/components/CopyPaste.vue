@@ -4,8 +4,7 @@
     </div>
 </template>
 
-<script>
-
+<script lang="ts">
 export default {
     name: 'CopyPaste',
     props: {
@@ -16,7 +15,7 @@ export default {
     },
     methods: {
         copy () {
-            const el = document.querySelector(`#copyText${this.distinct}`);
+            const el: any = document.querySelector(`#copyText${this.distinct}`);
             el.classList.add('animate-flicker');
             this.$store.dispatch('updateToastMessages', {
                 message: 'Copied',
@@ -28,7 +27,10 @@ export default {
             const html = el.innerHTML.replace(/<br>/gi, '\r\n');
             const fakeEl = document.createElement('div');
             fakeEl.innerHTML = html;
-            navigator.clipboard.writeText(fakeEl.textContent.trim());
+
+            if (fakeEl.textContent) {
+                navigator.clipboard.writeText(fakeEl.textContent.trim());
+            }
         },
     },
 };

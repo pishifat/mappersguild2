@@ -14,7 +14,10 @@ const usersRouter = express.Router();
 usersRouter.use(isLoggedIn);
 
 const questPopulate = { path: 'parties', populate: { path: 'members pendingMembers leader' } };
-const userPopulate = { path: 'completedQuests', select: 'name completed' };
+const userPopulate = [
+    { path: 'completedQuests', select: 'name completed' },
+    { path: 'completedMissions', select: 'name deadline' },
+];
 
 /* GET users listing. */
 usersRouter.get('/query', async (req, res) => {

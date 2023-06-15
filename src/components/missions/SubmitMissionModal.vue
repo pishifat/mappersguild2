@@ -9,7 +9,7 @@
                     v-model="selectedArtistId"
                     class="col-sm-11"
                     label="Artist"
-                    placeholder="No specific artist"
+                    placeholder="Any artist (selected by default)"
                 >
                     <option value="-" disabled>
                         ---
@@ -28,15 +28,60 @@
                     </button>
                 </div>
             </div>
-
-            <div v-if="selectedArtists.length" class="mt-2">
+            <div>
                 <ul class="small text-secondary">
+                    <li v-if="!selectedArtists.length">
+                        Any artist (selected by default)
+                    </li>
                     <li v-for="artist in selectedArtists" :key="artist.osuId">
                         {{ artist.label }}
                         <a
                             href="#"
                             class="text-danger"
                             @click.prevent="removeArtist(artist.id)"
+                        >
+                            <i class="fas fa-minus" />
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- mode -->
+            <div class="row">
+                <form-select
+                    v-model="selectedMode"
+                    class="col-sm-11"
+                    label="Mode"
+                    placeholder="Any mode (selected by default)"
+                >
+                    <option value="-" disabled>
+                        ---
+                    </option>
+                    <option
+                        v-for="mode in modes"
+                        :key="mode"
+                        :value="mode"
+                    >
+                        {{ mode }}
+                    </option>
+                </form-select>
+                <div class="col-sm-1">
+                    <button id="artistButton" class="btn btn-sm btn-outline-info" @click="addMode()">
+                        Add
+                    </button>
+                </div>
+            </div>
+            <div class="mt-2">
+                <ul class="small text-secondary">
+                    <li v-if="!selectedModes.length">
+                        Any mode (selected by default)
+                    </li>
+                    <li v-for="mode in selectedModes" :key="mode">
+                        {{ mode }}
+                        <a
+                            href="#"
+                            class="text-danger"
+                            @click.prevent="removeMode(mode)"
                         >
                             <i class="fas fa-minus" />
                         </a>
@@ -102,7 +147,8 @@
 import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import ModalDialog from '@components/ModalDialog.vue';
-import { FeaturedArtist } from '../../../interfaces/featuredArtist';
+import { FeaturedArtist } from '@interfaces/featuredArtist';
+import { MissionMode } from '@interfaces/mission';
 import FormInput from '@components/admin/FormInput.vue';
 import FormSelect from '@components/admin/FormSelect.vue';
 import FormTextarea from '@components/admin/FormTextarea.vue';
@@ -120,9 +166,12 @@ export default defineComponent({
     },
     data() {
         return {
+            modes: MissionMode,
             featuredArtists: [] as FeaturedArtist[],
             selectedArtists: [] as Partial<FeaturedArtist>[],
             selectedArtistId: '',
+            selectedMode: '',
+            selectedModes: [] as string[],
             tier: '',
             deadline: '',
             objective: '',
@@ -151,20 +200,31 @@ export default defineComponent({
     },
     methods: {
         addArtist(): void {
-            const i = this.featuredArtists.findIndex(a => a.id == this.selectedArtistId);
-            const fa = this.featuredArtists[i];
-            const min = {
-                id: fa.id,
-                _id: fa._id,
-                label: fa.label,
-                osuId: fa.osuId,
-            };
+            if (this.selectedArtistId.length) {
+                const i = this.featuredArtists.findIndex(a => a.id == this.selectedArtistId);
+                const fa = this.featuredArtists[i];
+                const min = {
+                    id: fa.id,
+                    _id: fa._id,
+                    label: fa.label,
+                    osuId: fa.osuId,
+                };
 
-            this.selectedArtists.push(min);
+                this.selectedArtists.push(min);
+            }
+        },
+        addMode(): void {
+            if (this.selectedMode.length) {
+                this.selectedModes.push(this.selectedMode);
+            }
         },
         removeArtist(id): void {
             const i = this.selectedArtists.findIndex(a => a.id == id);
             this.selectedArtists.splice(i, 1);
+        },
+        removeMode(mode): void {
+            const i = this.selectedModes.findIndex(m => m == mode);
+            this.selectedModes.splice(i, 1);
         },
         async addMission(e): Promise<void> {
             if (typeof this.name == 'number') {
@@ -182,6 +242,7 @@ export default defineComponent({
                 name: this.name,
                 deadline: this.deadline,
                 objective: this.objective,
+                modes: this.selectedModes,
                 winCondition: this.winCondition,
                 userMaximumRankedBeatmapsCount: this.userMaximumRankedBeatmapsCount,
                 userMaximumGlobalRank: this.userMaximumGlobalRank,

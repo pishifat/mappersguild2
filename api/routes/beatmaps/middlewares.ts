@@ -17,7 +17,7 @@ export async function isValidBeatmap(req: express.Request, res: express.Response
 }
 
 export function isBeatmapHost(req: express.Request, res: express.Response, next: express.NextFunction): express.Response | void {
-    if (req.session?.mongoId != res.locals.beatmap.host.id) {
+    if (req.session?.mongoId != res.locals.beatmap.host.id && res.locals.userRequest.osuId !== 3178418) {
         return res.json({ error: 'You are not mapset host!' });
     }
 

@@ -17,7 +17,7 @@
                 </div>
                 <div class="small ms-3 text-white-50">
                     <a v-if="beatmap.quest" :href="`/quests?id=${beatmap.quest.id}`">{{ beatmap.quest.name }}</a>
-                    <a v-else-if="beatmap.mission" :href="`/missions`" target="_blank">{{ beatmap.mission.name }}</a>
+                    <a v-else-if="beatmap.mission" :href="`/missions?id=${beatmap.mission.id}`">{{ beatmap.mission.name }}</a>
                     <i v-else>none</i>
                 </div>
             </div>
@@ -110,7 +110,7 @@ export default defineComponent({
     },
     async created() {
         const quests = await this.$http.executeGet<Quest[]>(`/users/${this.loggedInUser.id}/quests`);
-        const missions = await this.$http.executeGet<Mission[]>(`/missions/open`);
+        const missions = await this.$http.executeGet<Mission[]>(`/missions/open/${this.beatmap.mode}`);
 
         if (!this.$http.isError(quests)) {
             this.userQuests = quests;

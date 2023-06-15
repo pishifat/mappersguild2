@@ -63,7 +63,13 @@
                                 v-if="selectedUser.questPoints"
                                 :points="selectedUser.questPoints"
                                 :display="'completing quests'"
-                                :tooltip-title="'5 bonus points for completing quests on time'"
+                                :tooltip-title="'7 bonus points for completing quests on time'"
+                            />
+                            <user-points-row
+                                v-if="selectedUser.missionPoints"
+                                :points="selectedUser.missionPoints"
+                                :display="'completing missions'"
+                                :tooltip-title="'5-24 bonus points for completing priority quests'"
                             />
                             <user-points-row
                                 v-if="selectedUser.modPoints"
@@ -195,20 +201,38 @@
                         </li>
                     </ul>
 
-                    <div v-if="selectedUser.completedQuests.length" class="small">
-                        Completed quests:
-                    </div>
-                    <ul class="p-0 mb-2 ms-4">
-                        <li
-                            v-for="quest in selectedUser.completedQuests"
-                            :key="quest.id"
-                            class="small text-white-50"
-                        >
-                            <a :href="'/quests?id=' + quest.id" target="_blank">
-                                {{ quest.name.length > 40 ? quest.name.slice(0,40) + "..." : quest.name }}
-                            </a>
-                        </li>
-                    </ul>
+                    <template v-if="selectedUser.completedQuests && selectedUser.completedQuests.length">
+                        <div class="small">
+                            Completed quests:
+                        </div>
+                        <ul class="p-0 mb-2 ms-4">
+                            <li
+                                v-for="quest in selectedUser.completedQuests"
+                                :key="quest.id"
+                                class="small text-white-50"
+                            >
+                                <a :href="'/quests?id=' + quest.id" target="_blank">
+                                    {{ quest.name.length > 40 ? quest.name.slice(0,40) + "..." : quest.name }}
+                                </a>
+                            </li>
+                        </ul>
+                    </template>
+                    <template v-if="selectedUser.completedMissions && selectedUser.completedMissions.length">
+                        <div class="small">
+                            Completed missions:
+                        </div>
+                        <ul class="p-0 mb-2 ms-4">
+                            <li
+                                v-for="mission in selectedUser.completedMissions"
+                                :key="mission.id"
+                                class="small text-white-50"
+                            >
+                                <a :href="'/missions?id=' + mission.id" target="_blank">
+                                    {{ mission.name.length > 40 ? mission.name.slice(0,40) + "..." : mission.name }}
+                                </a>
+                            </li>
+                        </ul>
+                    </template>
                 </div>
             </div>
 

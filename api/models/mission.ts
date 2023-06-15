@@ -18,6 +18,7 @@ const missionSchema = new Schema<Mission, MissionStatics>({
     openingAnnounced: { type: Boolean, default: false },
     closingAnnounced: { type: Boolean, default: false },
     winningBeatmaps: [{ type: 'ObjectId', ref: 'Beatmap' }],
+    modes: [{ type: String, required: true }],
     /* user requirements. optional and growing */
     userMaximumRankedBeatmapsCount: { type: Number },
     userMaximumGlobalRank: { type: Number },
@@ -26,7 +27,7 @@ const missionSchema = new Schema<Mission, MissionStatics>({
 missionSchema.virtual('associatedMaps', {
     ref: 'Beatmap',
     localField: '_id',
-    foreignField: 'quest',
+    foreignField: 'mission',
 });
 
 const queryHelpers = {
@@ -38,6 +39,15 @@ const queryHelpers = {
             { path: 'artists', select: 'label osuId' },
             {
                 path: 'associatedMaps',
+                populate: {
+                    path: 'song host tasks',
+                    populate: {
+                        path: 'mappers',
+                    },
+                },
+            },
+            {
+                path: 'winningBeatmaps',
                 populate: {
                     path: 'song host tasks',
                     populate: {

@@ -8,6 +8,13 @@ export enum MissionStatus {
     Hidden = 'hidden',
 }
 
+export enum MissionMode {
+    Osu = 'osu',
+    Taiko = 'taiko',
+    Catch = 'catch',
+    Mania = 'mania',
+}
+
 export interface Mission extends Document {
     _id: any;
     id: string;
@@ -19,6 +26,7 @@ export interface Mission extends Document {
     status: string;
     winCondition: string;
     winningBeatmaps: Beatmap[];
+    modes: MissionMode[]
     /* for webhooks */
     openingAnnounced: boolean;
     closingAnnounced: boolean;

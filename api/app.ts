@@ -144,7 +144,7 @@ app.listen(port, () => {
     automation.processDailyArtists.start();
     automation.validateRankedBeatmaps.start();
     automation.dropOverdueQuests.start();
-    automation.closeMissions.start();
+    automation.processMissions.start();
 });
 
 export default app;

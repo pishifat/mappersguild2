@@ -21,12 +21,12 @@
                     <div class="col-sm-12 text-center">
                         <span v-if="selectedQuest.art">
                             <a :href="'https://osu.ppy.sh/beatmaps/artists/' + selectedQuest.art" target="_blank">
-                                <img :src="'https://assets.ppy.sh/artists/' + selectedQuest.art + '/cover.jpg'" class="card-avatar-img-modal">
+                                <img :src="'https://assets.ppy.sh/artists/' + selectedQuest.art + '/cover.jpg'" class="card-avatar-img-modal" />
                             </a>
                         </span>
 
                         <span v-else>
-                            <img :src="selectedQuest.isMbc ? '/images/mbc-icon.png' : '/images/no-art-icon.png'" class="card-avatar-img-modal">
+                            <img :src="selectedQuest.isMbc ? '/images/mbc-icon.png' : '/images/no-art-icon.png'" class="card-avatar-img-modal" />
                         </span>
                     </div>
                 </div>
