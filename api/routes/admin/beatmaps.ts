@@ -2,12 +2,11 @@ import express from 'express';
 import { isLoggedIn, isAdmin, isSuperAdmin } from '../../helpers/middlewares';
 import { BeatmapModel } from '../../models/beatmap/beatmap';
 import { BeatmapStatus } from '../../../interfaces/beatmap/beatmap';
-import { QuestModel } from '../../models/quest';
 import { findBeatmapsetId, setBeatmapStatusRanked, sleep } from '../../helpers/helpers';
 import { TaskModel } from '../../models/beatmap/task';
 import { isOsuResponseError, getClientCredentialsGrant, getBeatmapsetV2Info } from '../../helpers/osuApi';
 import { TaskName, TaskStatus, TaskMode } from '../../../interfaces/beatmap/task';
-import { User, UserGroup } from '../../../interfaces/user';
+import { User } from '../../../interfaces/user';
 import { UserModel } from '../../models/user';
 import { sendAnnouncement } from '../../helpers/osuBot';
 
@@ -202,39 +201,31 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
 
     const date = new Date(req.params.date);
 
-    const [b, q, u] = await Promise.all([
-        BeatmapModel
-            .find({
-                rankedDate: { $gte: date },
-                status: BeatmapStatus.Ranked,
-            })
-            .defaultPopulate()
-            .sort({ mode: 1, createdAt: -1 })
-            .orFail(),
+    const b = await BeatmapModel
+        .find({
+            rankedDate: { $gte: date },
+            status: BeatmapStatus.Ranked,
+        })
+        .defaultPopulate()
+        .sort({ mode: 1, createdAt: -1 })
+        .orFail();
 
-        QuestModel
-            .find({ completed: { $gte: date } })
-            .defaultPopulate()
-            .sort({ requiredMapsets: -1 })
-            .orFail(),
-
-        UserModel
-            .find({
-                $or:
-                    [
-                        { osuPoints: { $gt: 0 } },
-                        { taikoPoints: { $gt: 0 } },
-                        { catchPoints: { $gt: 0 } },
-                        { maniaPoints: { $gt: 0 } },
-                        { storyboardPoints: { $gt: 0 } },
-                        { modPoints: { $gt: 0 } },
-                        { contestParticipantPoints: { $gt: 0 } },
-                        { contestJudgePoints: { $gt: 0 } },
-                        { contestScreenerPoints: { $gt: 0 } },
-                    ],
-            })
-            .orFail(),
-    ]);
+    const u = await UserModel
+        .find({
+            $or:
+                [
+                    { osuPoints: { $gt: 0 } },
+                    { taikoPoints: { $gt: 0 } },
+                    { catchPoints: { $gt: 0 } },
+                    { maniaPoints: { $gt: 0 } },
+                    { storyboardPoints: { $gt: 0 } },
+                    { modPoints: { $gt: 0 } },
+                    { contestParticipantPoints: { $gt: 0 } },
+                    { contestJudgePoints: { $gt: 0 } },
+                    { contestScreenerPoints: { $gt: 0 } },
+                ],
+        })
+        .orFail();
 
     const users: UserSummary[] = [];
 
@@ -256,7 +247,7 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
             if (beatmap.host.id == user.id) user.hostCount++;
         }
 
-        if (user.taskCount >= 30 || user.hostCount >= 5) {
+        if (user.taskCount >= 10 || user.hostCount >= 5) {
             users.push({ username: user.username, osuId: user.osuId, taskCount: user.taskCount, hostCount: user.hostCount, modes: [...new Set(modes)] });
         }
     }
@@ -268,7 +259,7 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
         return 0;
     });
 
-    res.json({ beatmaps: b, quests: q, users });
+    res.json({ users });
 });
 
 /* GET bundled beatmaps */

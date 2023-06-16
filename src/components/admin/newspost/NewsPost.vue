@@ -10,101 +10,8 @@
                 type="text"
                 autocomplete="off"
                 placeholder="YYYY-MM-DD"
-            >
+            />
         </p>
-
-        <p v-if="quests">
-            Quest data:
-        </p>
-
-        <copy-paste v-if="quests" :distinct="'quests'">
-            <div v-for="quest in quests" :key="quest.id">
-                <div v-if="quest.requiredMapsets > 2">
-                    <p>
-                        {{ quest.art && quest.associatedMaps.length ?
-                            '![' + quest.associatedMaps[0].song.artist + ' header](https://assets.ppy.sh/artists/' + quest.art + '/header.jpg)' :
-                            '![Mystery header](/wiki/shared/news/banners/mappersguild-mystery.jpg)' }}
-                    </p>
-                    <p>
-                        For the **{{ quest.name + ' (' + questModes(quest.modes) + ')' }}** quest, the mapper{{ quest.currentParty.members.length == 1 ? '' : 's' }} had to {{ quest.descriptionMain.substring(0,1).toLowerCase() + quest.descriptionMain.substring(1) }}
-                    </p>
-                    <p>
-                        This quest was completed by
-                        <span v-for="(member, i) in quest.currentParty.members" :key="member.id">
-                            **[{{ member.username }}]({{ 'https://osu.ppy.sh/users/' + member.osuId }})**{{ separateUsername(i, quest.currentParty.members.length) }}
-                        </span>
-                    </p>
-                    <div v-for="beatmap in quest.associatedMaps" :key="beatmap.id">
-                        - [{{ beatmap.song.artist }} - {{ beatmap.song.title }}]({{ beatmap.url }})
-                        {{ hasMultipleMappers(beatmap.tasks) ? 'hosted by' : 'by' }}
-                        [{{ beatmap.host.username }}]({{ 'https://osu.ppy.sh/users/' + beatmap.host.osuId }})
-                        <span v-if="quest.modes.length > 1">
-                            ({{ beatmap.mode == 'osu' ? 'osu!' : beatmap.mode == 'hybrid' ? 'hybrid' : 'osu!' + beatmap.mode }})
-                        </span>
-                    </div>
-                    <br>
-                </div>
-                <div v-else>
-                    - **{{ quest.name + ' (' + questModes(quest.modes) + ')' }}**:
-                    <span v-for="(beatmap, i) in quest.associatedMaps" :key="beatmap.id">
-                        [{{ beatmap.song.artist }} - {{ beatmap.song.title }}]({{ beatmap.url }})
-                        {{ hasMultipleMappers(beatmap.tasks) ? 'hosted by' : 'by' }}
-                        [{{ beatmap.host.username }}]({{ 'https://osu.ppy.sh/users/' + beatmap.host.osuId }}){{ separateUsername(i, quest.associatedMaps.length) }}
-                    </span>
-                    <br>
-                </div>
-            </div>
-        </copy-paste>
-
-        <p v-if="beatmaps">
-            Other beatmap data:
-        </p>
-
-        <copy-paste v-if="beatmaps" :distinct="'beatmaps'">
-            <div>[**osu!**](#osu)</div>
-            <div>[**osu!taiko**](#taiko)</div>
-            <div>[**osu!catch**](#catch)</div>
-            <div>[**osu!mania**](#mania)</div>
-            <div>[*Multiple mode mapsets**](#hybrid)</div>
-            <br>
-            <beatmap-list
-                :beatmaps="osuBeatmaps"
-                :display-mode="'osu!'"
-                :raw-mode="'osu'"
-            />
-            <beatmap-list
-                :beatmaps="taikoBeatmaps"
-                :display-mode="'osu!taiko'"
-                :raw-mode="'taiko'"
-            />
-            <beatmap-list
-                :beatmaps="catchBeatmaps"
-                :display-mode="'osu!catch'"
-                :raw-mode="'catch'"
-            />
-            <beatmap-list
-                :beatmaps="maniaBeatmaps"
-                :display-mode="'osu!mania'"
-                :raw-mode="'mania'"
-            />
-            <beatmap-list
-                :beatmaps="hybridBeatmaps"
-                :display-mode="'multiple modes'"
-                :raw-mode="'hybrid'"
-            />
-        </copy-paste>
-
-        <p v-if="externalBeatmaps">
-            External beatmaps (sort these manually):
-        </p>
-
-        <copy-paste v-if="externalBeatmaps" :distinct="'external'">
-            <div v-for="beatmap in externalBeatmaps" :key="beatmap.osuId">
-                - [{{ beatmap.artist }} - {{ beatmap.title }}]({{ 'https://osu.ppy.sh/beatmapsets/' + beatmap.osuId }})
-                hosted by
-                [{{ beatmap.creator }}]({{ 'https://osu.ppy.sh/users/' + beatmap.creatorOsuId }})
-            </div>
-        </copy-paste>
 
         <p v-if="users">
             Users with ranked maps/tasks:
@@ -126,82 +33,28 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
-import { Quest } from '../../../../interfaces/quest';
-import BeatmapList from './BeatmapList.vue';
 import CopyPaste from '../../CopyPaste.vue';
 import ModalDialog from '@components/ModalDialog.vue';
 
 export default defineComponent({
     name: 'NewsPost',
     components: {
-        BeatmapList,
         CopyPaste,
         ModalDialog,
     },
     data() {
         return {
-            date: '2020-11-20',
-            beatmaps: [] as Beatmap[],
-            quests: [] as Quest[],
+            date: '2022-07-24',
             externalBeatmaps: [] as any,
             users: [] as any,
         };
-    },
-    computed: {
-        osuBeatmaps(): Beatmap[] {
-            return this.beatmaps.filter(b => b.mode == 'osu');
-        },
-        taikoBeatmaps(): Beatmap[] {
-            return this.beatmaps.filter(b => b.mode == 'taiko');
-        },
-        catchBeatmaps(): Beatmap[] {
-            return this.beatmaps.filter(b => b.mode == 'catch');
-        },
-        maniaBeatmaps(): Beatmap[] {
-            return this.beatmaps.filter(b => b.mode == 'mania');
-        },
-        hybridBeatmaps(): Beatmap[] {
-            return this.beatmaps.filter(b => b.mode == 'hybrid');
-        },
     },
     methods: {
         async loadNewsInfo(e): Promise<void> {
             const res: any = await this.$http.executeGet('/admin/beatmaps/loadNewsInfo/' + this.date, e);
 
             if (res) {
-                this.beatmaps = res.beatmaps;
-                this.quests = res.quests;
-                this.externalBeatmaps = res.externalBeatmaps;
                 this.users = res.users;
-            }
-        },
-        questModes(modes): string {
-            let text = '';
-
-            for (let i = 0; i < modes.length; i++) {
-                const mode = modes[i];
-
-                if (mode == 'osu') {
-                    text += 'osu!';
-                } else {
-                    text += 'osu!' + mode;
-                }
-
-                if (i < modes.length - 1) {
-                    text += ', ';
-                }
-            }
-
-            return text;
-        },
-        separateUsername(i, length): string {
-            if (i < length - 2) {
-                return ', ';
-            } else if (i < length - 1) {
-                return ' and';
-            } else {
-                return '';
             }
         },
         separateCommas(i, length): string {
@@ -210,18 +63,6 @@ export default defineComponent({
             } else {
                 return '';
             }
-        },
-        hasMultipleMappers(tasks): boolean {
-            const mappers: string[] = [];
-            tasks.forEach(task => {
-                task.mappers.forEach(mapper => {
-                    if (!mappers.includes(mapper)) {
-                        mappers.push(mapper);
-                    }
-                });
-            });
-            if (mappers.length > 1) return true;
-            else return false;
         },
     },
 });
