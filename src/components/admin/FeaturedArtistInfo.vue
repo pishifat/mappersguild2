@@ -52,6 +52,9 @@
                         <option value="showcase">
                             Showcase
                         </option>
+                        <option value="playlist">
+                            Playlist
+                        </option>
                     </select>
                     <button class="btn btn-sm btn-outline-info w-25" @click="updateStatus($event)">
                         Save status

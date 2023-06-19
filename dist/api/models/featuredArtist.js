@@ -24,7 +24,7 @@ const mongoose_1 = __importStar(require("mongoose"));
 const featuredArtistSchema = new mongoose_1.Schema({
     label: { type: String, required: true },
     osuId: { type: Number },
-    status: { type: String, enum: ['public', 'private', 'showcase'], default: 'private' },
+    status: { type: String, enum: ['public', 'private', 'showcase', 'playlist'], default: 'private' },
     songs: [{ type: 'ObjectId', ref: 'FeaturedSong' }],
     lastContacted: { type: Date },
     notes: { type: String },
