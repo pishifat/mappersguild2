@@ -42,7 +42,8 @@ const contestSchema = new mongoose_1.Schema({
     mode: { type: String },
     bannerUrl: { type: String },
     isFeaturedArtistContest: { type: Boolean, default: false },
-    isEligibleForPoints: { type: Boolean, default: true }, // for multi-part contests that use FA
+    isEligibleForPoints: { type: Boolean, default: true },
+    isTempFormat: { type: Boolean },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 const ContestModel = mongoose_1.default.model('Contest', contestSchema);
 exports.ContestModel = ContestModel;
