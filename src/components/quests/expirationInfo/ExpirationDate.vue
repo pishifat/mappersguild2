@@ -1,7 +1,7 @@
 <template>
     <div class="small">
         Quest {{ isExpired ? 'expired' : 'expires' }}:
-        <span class="text-white-50">
+        <span class="text-secondary">
             {{ expiration.toLocaleDateString() }}
         </span>
     </div>

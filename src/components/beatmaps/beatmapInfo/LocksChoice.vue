@@ -5,8 +5,10 @@
                 <div>
                     Locks
                     <a
-                        v-if="beatmap.tasksLocked.length != 6"
+                        v-if="beatmap.tasksLocked.length < 6"
+                        v-bs-tooltip:right="'edit locks'"
                         class="text-success small ms-1"
+                        :class="{ 'text-danger': showLocksInput }"
                         href="#"
                         @click.prevent="showLocksInput = !showLocksInput"
                     >
@@ -24,11 +26,12 @@
                                 v-bs-tooltip:left="'unlock'"
                                 href="#"
                                 class="text-danger"
+                                :class="phaseEdit ? 'fake-button-disable' : ''"
                                 @click.prevent="unlockTask(task, $event)"
                             >
                                 <i class="fas fa-minus" />
                             </a>
-                            <span class="text-white-50 mx-1">
+                            <span class="text-secondary mx-1">
                                 {{ task }}
                             </span>
                         </div>
@@ -81,11 +84,16 @@ export default defineComponent({
             type: Object as () => Beatmap,
             required: true,
         },
+        beatmapId: {
+            type: String,
+            required: true,
+        },
     },
     data () {
         return {
             lockTaskSelection: '',
             showLocksInput: false,
+            phaseEdit: false,
         };
     },
     computed: {
@@ -103,8 +111,13 @@ export default defineComponent({
         },
     },
     watch: {
-        beatmap (): void {
+        beatmapId (): void {
             this.showLocksInput = false;
+        },
+        beatmap (): void {
+            if (this.beatmap.tasksLocked.length >= 6) {
+                this.showLocksInput = false;
+            }
         },
     },
     methods: {

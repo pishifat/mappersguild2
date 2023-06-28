@@ -4,14 +4,6 @@
             Load contest helper users
         </button>
 
-        <!--<bot-chat-message
-            v-if="uniqueUsers.length"
-            :messages="messages"
-            :message-type="'showcase'"
-            :mongo-id="''"
-            :users="uniqueUsers"
-        />-->
-
         <div v-if="osuUsers && taikoUsers && catchUsers && maniaUsers" class="row">
             <div v-if="osuUsers.length" class="col-sm-3">
                 osu!
@@ -53,13 +45,11 @@
 import { defineComponent } from 'vue';
 import { User } from '../../../interfaces/user';
 import CopyPaste from '../CopyPaste.vue';
-//import BotChatMessage from './BotChatMessage.vue';
 
 export default defineComponent({
     name: 'ShowcaseUserList',
     components: {
         CopyPaste,
-        //BotChatMessage,
     },
     data() {
         return {

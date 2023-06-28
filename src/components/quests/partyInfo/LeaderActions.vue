@@ -1,22 +1,22 @@
 <template>
     <div class="row row-cols-md-auto g-2 align-items-center mb-3">
-        <!-- INVITE -->
+        <!-- ADD USER -->
         <div class="col-12">
             <div class=" input-group input-group-sm">
                 <input
-                    v-model="inviteUsername"
+                    v-model="addUsername"
                     class="form-control"
                     type="text"
                     placeholder="username..."
                     maxlength="18"
-                    @keyup.enter="inviteToParty($event)"
-                >
+                    @keyup.enter="addToParty($event)"
+                />
                 <button
-                    v-bs-tooltip="'invite user to party'"
+                    v-bs-tooltip="'add user to party'"
                     class="btn btn-outline-info"
-                    @click="inviteToParty($event)"
+                    @click="addToParty($event)"
                 >
-                    Invite
+                    Add
                 </button>
             </div>
         </div>
@@ -74,20 +74,8 @@
             </div>
         </template>
 
-        <!-- EXTEND DEADLINE -->
+        <!-- DROP QUEST -->
         <template v-if="status === 'wip'">
-            <div class="col-12">
-                <button
-                    v-bs-tooltip="'each party member spends 10 points to extend quest deadline'"
-                    class="btn btn-sm btn-outline-danger w-100"
-                    @click.prevent="extendDeadline($event)"
-                >
-                    Extend deadline for 10 points
-                    <i class="fas fa-coins fa-xs" />
-                </button>
-            </div>
-
-            <!-- DROP QUEST -->
             <div class="col-12">
                 <button
                     class="btn btn-sm btn-outline-danger w-100"
@@ -149,7 +137,7 @@ export default defineComponent({
     },
     data () {
         return {
-            inviteUsername: '',
+            addUsername: '',
             dropdownUserId: '',
         };
     },
@@ -158,12 +146,16 @@ export default defineComponent({
             'loggedInUser',
         ]),
         enoughPoints(): boolean {
-            let valid = true;
+            let invalids = 0;
             this.party.members.forEach(member => {
-                if (member.availablePoints < this.price) valid = false;
+                if (member.availablePoints < this.price) invalids++;
             });
 
-            return valid;
+            if (invalids && this.loggedInUser.availablePoints < (this.price*invalids)) {
+                return false;
+            }
+
+            return true;
         },
     },
     methods: {
@@ -174,12 +166,13 @@ export default defineComponent({
                 this.$store.dispatch('quests/updateParty', party);
             }
         },
-        async inviteToParty(e): Promise<void> {
-            const res = await this.$http.executePost<{ success: string }>(`/parties/${this.party.id}/invite`, { username: this.inviteUsername }, e);
+        async addToParty(e): Promise<void> {
+            const party = await this.$http.executePost<{ success: string }>(`/parties/${this.party.id}/add`, { user: this.addUsername }, e);
 
-            if (!this.$http.isError(res)) {
+            if (!this.$http.isError(party)) {
+                this.$store.dispatch('quests/updateParty', party);
                 this.$store.dispatch('updateToastMessages', {
-                    message: res.success,
+                    message: 'Added',
                     type: 'success',
                 });
             }
@@ -263,7 +256,7 @@ export default defineComponent({
                 }
             }
 
-            if (confirm(`Are you sure?\n\nThis quest will only allow beatmaps of these modes: ${modesText}\n\nAll members of your party will spend ${this.price} points.\n\nYou have ${this.loggedInUser.availablePoints} points available.`)) {
+            if (confirm(`Are you sure?\n\nThis quest will only allow beatmaps of these modes: ${modesText}\n\nAll members of your party will spend ${this.price} points. If any members of your party don't have enough points, your available points will be subtracted instead.\n\nYou have ${this.loggedInUser.availablePoints} points available.`)) {
                 const res = await this.$http.executePost<PointsRefreshResponse>(`/quests/${this.quest.id}/accept`, {}, e);
 
                 if (!this.$http.isError(res)) {

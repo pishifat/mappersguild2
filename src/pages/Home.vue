@@ -13,7 +13,7 @@
 
                 <div v-if="!loggedInUser" class="col-12 text-center">
                     <a href="/api/login" class="btn btn-primary">
-                        connect your osu! account
+                        log in with your osu! account
                         <i class="fas fa-external-link-alt" />
                     </a>
                 </div>
@@ -26,13 +26,17 @@
                 <a href="https://osu.ppy.sh/wiki/Community/Mappers_Guild" target="_blank">The Mappers' Guild</a> is a hub for beatmaps associated with <a href="https://osu.ppy.sh/beatmaps/artists" target="_blank">osu!'s Featured Artists</a>!
             </div>
             <hr />
-            <div>For the latest info about Featured Artist mapping, check out the channels below on the <a href="https://discord.gg/ppy" target="_blank">osu!dev Discord server</a>.</div>
+            <div>For the latest info about Featured Artist mapping, check out the channels below on the <a href="https://discord.gg/ppy" target="_blank">osu! Discord server</a>.</div>
             <ul>
                 <li>
                     <code>#featured-artists</code>
                     <ul>
-                        <li>Discussion and events related to Featured Artists, such as creating <a href="https://discord.com/channels/188630481301012481/1094639474941636819/1094685118603481129" target="_blank">playlists for osu!(lazer) with new Featured Artist beatmaps!</a></li>
-                        <li>Quick feedback from the mapping community on your Featured Artist maps</li>
+                        <li>
+                            Discussion and events related to Featured Artists
+                        </li>
+                        <li>
+                            Quick feedback from the mapping community on your Featured Artist maps
+                        </li>
                     </ul>
                 </li>
                 <li>
@@ -79,7 +83,7 @@
                     </div>
                 </div>
             </div>
-            <h5>Points</h5>
+            <h5 id="points">Points</h5>
             <div class="text-secondary small">
                 Each reward is associated with a "points" value. You can earn points with any of the following contributions:
             </div>
@@ -150,7 +154,7 @@
                                     Modding mapset
                                 </td>
                                 <td scope="row">
-                                    1
+                                    1<sup><a href="#" @click.prevent="highlight = 'mod'">mod</a></sup>
                                 </td>
                             </tr>
                             <tr>
@@ -158,17 +162,17 @@
                                     Creating storyboard
                                 </td>
                                 <td scope="row">
-                                    2.5, 7, or 10<sup><a href="#" @click.prevent="highlight = 'storyboard'">storyboard</a></sup>
+                                    2, 7, or 10<sup><a href="#" @click.prevent="highlight = 'storyboard'">storyboard</a></sup>
                                 </td>
                             </tr>
-                            <tr>
+                            <!--<tr>
                                 <td scope="row">
-                                    Completing a bounty
+                                    Completing a priority quest
                                 </td>
                                 <td scope="row">
-                                    variable<sup><a href="#" @click.prevent="highlight = 'bounty'">bounty</a></sup>
+                                    5, 8, 15, or 24<sup><a href="#" @click.prevent="highlight = 'priority'">priority</a></sup>
                                 </td>
-                            </tr>
+                            </tr>-->
                             <tr>
                                 <td scope="row">
                                     Completing a quest
@@ -234,6 +238,15 @@
                                         <li>0.5 points for 40+ days late </li>
                                     </ul>
                                 </li>
+                                <!--<li>Beatmaps created for a priority quest earn +3 (for winning) or +1 bonus points per difficulty (also scaling according to length)</li>-->
+                            </ul>
+                        </li>
+                        <li :class="highlight == 'mod' ? 'text-success' : ''">
+                            <b>Modding:</b>
+                            <ul>
+                                <li>
+                                    If a Beatmap Nominator nominates a Mappers' Guild map, this value scales according to the song's length
+                                </li>
                             </ul>
                         </li>
                         <li :class="highlight == 'storyboard' ? 'text-success' : ''">
@@ -249,13 +262,14 @@
                                 </li>
                             </ul>
                         </li>
-                        <li :class="highlight == 'bounty' ? 'text-success' : ''">
-                            <b>Bounty:</b>
+                        <!--<li :class="highlight == 'priority' ? 'text-success' : ''">
+                            <b>Priority quest:</b>
                             <ul>
-                                <li>Each bounty has its own associated reward. See the <b>bounties listing</b> for the list of currently running bounties.</li>
-                                <li>Bounties don't exist yet :) Expect to see them in March 2023</li>
+                                <li>Unlike normal quests, priority quests do not need to be claimed. Anyone can participate so long as they meet the labeled criteria.</li>
+                                <li>Win conditions for each priority quest are highly variable. Higher tier priority quests are generally more difficult.</li>
+                                <li>See the <a href="/missions">priority quest listing</a> for a full list of prizes. There are a lot.</li>
                             </ul>
-                        </li>
+                        </li>-->
                         <li :class="highlight == 'quest' ? 'text-success' : ''">
                             <b>Quest:</b>
                             <ul>
@@ -274,68 +288,30 @@
                 </div>
             </div>
             <hr />
+            <!--<h5>Priority quests</h5>
+            <div class="text-secondary small">
+                <b>Priority quests</b> are a new addition to the Mappers' Guild. While normal quests focus on simply ranking maps, priority quests have different objectives to encourge creative mapping ventures (oh, and they feature cool custom prizes). Here's an example:
+            </div>
+            <example-mission
+                    :mission="exampleMission"
+                />
+            <div class="text-secondary small">
+                See the <a href="/quests">priority quest listing</a> to see what quests are available and what prizes you can earn!
+            </div>
+            <hr />-->
             <h5>Quests</h5>
             <div class="text-secondary small">
                 You can earn extra points by mapping songs by specific osu! Featured Artists through <a href="/quests">Quests</a>. Here's an example:
             </div>
-            <quest-card
-                v-if="exampleQuest"
-                :key="exampleQuest.id"
+
+            <example-quest
                 :quest="exampleQuest"
-                style="pointer-events: none;"
             />
-            <div class="text-secondary small">
-                <ul>
-                    <li><b>Quest name:</b> {{ exampleQuest.name }}</li>
-                    <li><b>Quest objective:</b> {{ exampleQuest.descriptionMain }}</li>
-                    <li>
-                        <b>Quest size:</b> <quest-size
-                            :quest="exampleQuest"
-                        />
-                        (Quest requires a party of at least {{ exampleQuest.minParty }} users and may have up to {{ exampleQuest.maxParty }} users)
-                    </li>
-                    <li>
-                        <b>Quest price:</b> <quest-price
-                            :quest="exampleQuest"
-                        />
-                        (Quest requires {{ exampleQuest.price }} points from each party member to participate)
-                    </li>
-                    <li>
-                        <b>Quest deadline:</b> <quest-time
-                            :timeframe="exampleQuest.timeframe"
-                        />
-                        (Quest must be completed in {{ Math.round(exampleQuest.timeframe / (1000*60*60*24)) }} days to earn maximum points)
-                    </li>
-                    <li>
-                        <b>Quest modes:</b> <quest-modes
-                            :status="exampleQuest.status"
-                            :modes="exampleQuest.modes"
-                        />
-                        (Quest is available for these modes)
-                    </li>
-                </ul>
-            </div>
+
             <div class="text-secondary small">
                 Quests are created weekly for every new osu! Featured Artist. See the <a href="/quests">quest listing</a> and explore what quests are available!
             </div>
             <hr />
-            <!--<h5>Bounties</h5>
-            <div class="text-secondary small">
-                <b>Bounties</b> are an upcoming addition to the Mappers' Guild (likely in March 2023). Here's an outline of how they will (probably) work:
-                <ul>
-                    <li>Bounties are similar to quests (both require maps to meet certain criteria), but they <i>cannot</i> be reserved by a party.</li>
-                    <li>Only <b>3 bounties</b> can be running at any given time.</li>
-                    <li>
-                        Bounties can be completed under any of these conditions (specified per bounty):
-                        <ul>
-                            <li><b>Complete: </b>The bounty's requirement is completed.</li>
-                            <li><b>Time limit: </b>The bounty's time limit is reached.</li>
-                        </ul>
-                    </li>
-                    <li>A bounty's reward is specified per bounty. Due to the volatility and rarity of bounties, they yield higher rewards than quests.</li>
-                </ul>
-            </div>
-            <hr />-->
             <h5>Contests</h5>
             <div class="text-secondary small">
                 The <a href="/contests/listing">Mappers' Guild contest listing</a> serves as a central location for beatmap contest management. It includes:
@@ -400,8 +376,6 @@
                                 <template
                                     v-for="beatmap in song.beatmaps"
                                     :key="beatmap.id"
-                                    :href="beatmap.url"
-                                    target="_blank"
                                 >
                                     <a
                                         v-if="beatmap.url"
@@ -442,7 +416,7 @@
                 position: fixed;
                 z-index: 1060;
                 right: 20px;"
-            :style="loggedInUser ? 'bottom: 80px;' : 'bottom: 20px;'"
+            :style="loggedInUser ? 'bottom: 20px;' : 'bottom: 20px;'"
         >
             visit BN/NAT site
         </a>
@@ -451,22 +425,17 @@
 
 <script lang="ts">
 import { FeaturedArtist } from '@interfaces/featuredArtist';
-import { Quest } from '@interfaces/quest';
 import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
-import QuestCard from '@components/quests/QuestCard.vue';
-import QuestSize from '@components/quests/QuestSize.vue';
-import QuestPrice from '@components/quests/QuestPrice.vue';
-import QuestTime from '@components/quests/QuestTime.vue';
-import QuestModes from '@components/quests/QuestModes.vue';
+import { Quest } from '@interfaces/quest';
+import { Mission } from '@interfaces/mission';
+import ExampleQuest from '@components/quests/ExampleQuest.vue';
+import ExampleMission from '@components/missions/ExampleMission.vue';
 
 export default defineComponent({
     components: {
-        QuestCard,
-        QuestSize,
-        QuestPrice,
-        QuestTime,
-        QuestModes,
+        ExampleQuest,
+        ExampleMission,
     },
     data () {
         return {
@@ -478,19 +447,29 @@ export default defineComponent({
             'loggedInUser',
             'homeArtists',
             'exampleQuest',
+            'exampleMission',
             'limit',
         ]),
     },
     async created () {
-        const data = await this.$http.executeGet<{ artists: FeaturedArtist[], quest: Quest }>('/home/' + this.limit);
+        const [artists, quest, mission] = await Promise.all<any>([
+            this.$http.executeGet<FeaturedArtist[]>('/home/' + this.limit),
+            this.$http.executeGet<Quest>('/exampleQuest'),
+            this.$http.executeGet<Mission>('/exampleMission'),
+        ]);
 
-        if (!this.$http.isError(data)) {
-            this.$store.commit('setHomeArtists', data.artists);
+        if (!this.$http.isError(artists)) {
+            this.$store.commit('setHomeArtists', artists);
             this.$store.commit('setLimit', this.limit + 6);
-            this.$store.commit('setExampleQuest', data.quest);
         }
 
-        console.log(this.exampleQuest);
+        if (!this.$http.isError(quest)) {
+            this.$store.commit('setExampleQuest', quest);
+        }
+
+        if (!this.$http.isError(mission)) {
+            this.$store.commit('setExampleMission', mission);
+        }
     },
     methods: {
         fallbackImg (e) {

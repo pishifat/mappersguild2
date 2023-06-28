@@ -2,7 +2,7 @@
     <div v-if="beatmap" class="container">
         <div class="row">
             <!-- LEFT SIDE -->
-            <div :class="(isHost && !isRanked && !isQualified) ? 'col-lg-7' : 'col-sm-12'">
+            <div :class="(isHost && !isRanked) ? 'col-lg-7' : 'col-sm-12'">
                 <div class="row mb-2">
                     <div class="col-sm-6">
                         <modders-list
@@ -36,37 +36,39 @@
 
             <!-- RIGHT SIDE -->
             <!-- host options -->
-            <div v-if="isHost && !isRanked && !isQualified" class="col-lg-5 bm-col-separator-left">
-                <div class="row mb-2">
-                    <div class="col-sm">
-                        <mode-choice
-                            v-if="beatmap.status == 'WIP' || beatmap.status == 'Secret'"
-                            :beatmap="beatmap"
-                        />
-                    </div>
-                </div>
-
-                <div class="row mb-2">
+            <div v-if="isHost && !isRanked" class="col-lg-5 bm-col-separator-left">
+                <div v-if="!isQualified" class="row">
                     <div class="col-sm">
                         <status-choice
-                            v-if="beatmap.status !== 'Secret'"
+                            :beatmap="beatmap"
+                        />
+                        <hr />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm">
+                        <mode-choice
+                            v-if="beatmap.status == 'WIP'"
+                            class="mb-2"
                             :beatmap="beatmap"
                         />
                     </div>
                 </div>
 
-                <quest-choice
-                    v-if="beatmap.status !== 'Secret'"
+                <quest-or-mission-choice
                     :beatmap="beatmap"
                 />
 
                 <beatmap-link
+                    v-if="!isQualified"
                     :beatmap="beatmap"
                 />
 
                 <locks-choice
-                    v-if="beatmap.status == 'WIP' || beatmap.status == 'Secret'"
+                    v-if="beatmap.status == 'WIP'"
                     :beatmap="beatmap"
+                    :beatmap-id="beatmap.id"
                 />
             </div>
         </div>
@@ -81,7 +83,7 @@
             />
 
             <div class="col-sm-4 text-end">
-                <span class="small text-white-50">
+                <span class="small text-secondary">
                     Created: {{ beatmap.createdAt.toString().slice(0, 10) }}
                 </span>
                 <button
@@ -103,7 +105,7 @@ import { mapState } from 'vuex';
 import ModeChoice from './ModeChoice.vue';
 import StatusChoice from './StatusChoice.vue';
 import TasksChoice from './TasksChoice.vue';
-import QuestChoice from './QuestChoice.vue';
+import QuestOrMissionChoice from './QuestOrMissionChoice.vue';
 import ModdersList from './ModdersList.vue';
 import NominatorsList from './NominatorsList.vue';
 import BeatmapLink from './BeatmapLink.vue';
@@ -117,7 +119,7 @@ export default defineComponent({
         ModeChoice,
         StatusChoice,
         TasksChoice,
-        QuestChoice,
+        QuestOrMissionChoice,
         ModdersList,
         NominatorsList,
         BeatmapLink,
@@ -178,10 +180,5 @@ export default defineComponent({
     .bm-col-separator-left {
         border-left: 3px solid rgba(100, 88, 88, 0.42);
     }
-}
-
-.fake-button-disable {
-    pointer-events: none;
-    opacity: 0.6;
 }
 </style>

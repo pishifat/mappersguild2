@@ -43,7 +43,7 @@ export default defineComponent({
     },
     data () {
         return {
-            newSubmissionUrl: this.ok,
+            newSubmissionUrl: '',
         };
     },
     computed: {
@@ -61,7 +61,7 @@ export default defineComponent({
     },
     methods: {
         async createSubmission(e): Promise<void> {
-            const submissions = await this.$http.executePost(`/contests/listing/${this.contestId}/createSubmission`, { submissionUrl: this.newSubmissionUrl }, e);
+            const submissions = await this.$http.executePost(`/contests/listing/${this.contestId}/createSubmission`, { url: this.newSubmissionUrl }, e);
 
             if (!this.$http.isError(submissions)) {
                 this.$store.dispatch('updateToastMessages', {

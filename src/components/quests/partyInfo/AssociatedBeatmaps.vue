@@ -4,7 +4,7 @@
             Associated maps
         </h5>
 
-        <ul v-if="associatedMaps.length" class="ps-3 mb-0 list-unstyled">
+        <ul v-if="associatedMaps && associatedMaps.length" class="ps-3 mb-0 list-unstyled">
             <li
                 v-for="map in associatedMaps"
                 :key="map.id"
@@ -24,7 +24,7 @@
             </li>
         </ul>
 
-        <div v-else class="small text-white-50 ms-3">
+        <div v-else class="small text-secondary ms-3">
             No associated maps...
         </div>
     </div>

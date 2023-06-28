@@ -2,6 +2,8 @@
     <div>
         <quest-page-filters />
 
+        <quest-information />
+
         <status-quests
             status="Open"
             :quests="openQuests"
@@ -21,11 +23,6 @@
             :quests="completeQuests"
         />
 
-        <status-quests
-            status="Expired"
-            :quests="expiredQuests"
-        />
-
         <submit-quest-modal />
 
         <quest-info-modal />
@@ -39,7 +36,9 @@ import QuestPageFilters from '@pages/quests/QuestPageFilters.vue';
 import StatusQuests from '@pages/quests/StatusQuests.vue';
 import SubmitQuestModal from '@components/quests/SubmitQuestModal.vue';
 import QuestInfoModal from '@components/quests/QuestInfoModal.vue';
+import QuestInformation from '@components/quests/QuestInformation.vue';
 import questsModule from '@store/modules/quests/index';
+import { Quest } from '@interfaces/quest';
 
 export default defineComponent({
     name: 'QuestPage',
@@ -48,10 +47,13 @@ export default defineComponent({
         StatusQuests,
         SubmitQuestModal,
         QuestInfoModal,
+        QuestInformation,
     },
     computed: {
         ...mapState('quests', [
             'isFirstLoadDone',
+            'isLoadingQuests',
+            'exampleQuest',
         ]),
         ...mapGetters('quests', [
             'openQuests',
@@ -73,8 +75,13 @@ export default defineComponent({
             this.$bs.showModal('editQuest');
         }
 
-        await this.$store.dispatch('quests/searchQuests');
         this.$store.commit('quests/setFirstLoadDone');
+
+        const quest = await this.$http.executeGet<Quest>('/exampleQuest');
+
+        if (!this.$http.isError(quest)) {
+            this.$store.commit('quests/setExampleQuest', quest);
+        }
     },
 });
 </script>

@@ -7,7 +7,7 @@
 }
 
 .radial-divisor {
-    height:3px; 
+    height: 3px; 
     width: 50%; 
     background-image: radial-gradient(var(--guild), transparent);
     margin: 1.5rem auto;
@@ -71,6 +71,11 @@
 
 .loading-data {
     opacity: 0.3;
+}
+
+.fake-button-disable {
+    pointer-events: none;
+    opacity: 0.6;
 }
 
 .filter-title {

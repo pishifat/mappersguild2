@@ -63,7 +63,13 @@
                                 v-if="selectedUser.questPoints"
                                 :points="selectedUser.questPoints"
                                 :display="'completing quests'"
-                                :tooltip-title="'5 bonus points for completing quests on time'"
+                                :tooltip-title="'7 bonus points for completing quests on time'"
+                            />
+                            <user-points-row
+                                v-if="selectedUser.missionPoints"
+                                :points="selectedUser.missionPoints"
+                                :display="'completing priority quests'"
+                                :tooltip-title="'5-24 bonus points for completing priority quests'"
                             />
                             <user-points-row
                                 v-if="selectedUser.modPoints"
@@ -162,10 +168,25 @@
                             class="fas fa-crown"
                             :class="'text-rank-' + selectedUser.rank"
                         />
-                        <span v-else class="text-white-50">
+                        <span v-else class="text-secondary">
                             None
                         </span>
                     </p>
+
+                    <div v-if="currentMissions.length" class="small">
+                        Current missions:
+                    </div>
+                    <ul class="p-0 mb-2 ms-4">
+                        <li
+                            v-for="mission in currentMissions"
+                            :key="mission.id"
+                            class="small text-secondary"
+                        >
+                            <a :href="'/missions?id=' + mission.id" target="_blank">
+                                {{ mission.name.length > 40 ? mission.name.slice(0,40) + "..." : mission.name }}
+                            </a>
+                        </li>
+                    </ul>
 
                     <div v-if="currentQuests.length" class="small">
                         Current quests:
@@ -174,39 +195,55 @@
                         <li
                             v-for="quest in currentQuests"
                             :key="quest.id"
-                            class="small text-white-50"
+                            class="small text-secondary"
                         >
                             <a :href="'/quests?id=' + quest.id" target="_blank">
                                 {{ quest.name.length > 40 ? quest.name.slice(0,40) + "..." : quest.name }}
                             </a>
                         </li>
                     </ul>
-
-                    <div v-if="currentQuests.length" class="small">
+                    <template v-if="selectedUser.completedMissions && selectedUser.completedMissions.length">
+                        <div class="small">
+                            Completed priority quests:
+                        </div>
+                        <ul class="p-0 mb-2 ms-4">
+                            <li
+                                v-for="mission in selectedUser.completedMissions"
+                                :key="mission.id"
+                                class="small text-secondary"
+                            >
+                                <a :href="'/missions?id=' + mission.id" target="_blank">
+                                    {{ mission.name.length > 40 ? mission.name.slice(0,40) + "..." : mission.name }}
+                                </a>
+                            </li>
+                        </ul>
+                    </template>
+                    <template v-if="selectedUser.completedQuests && selectedUser.completedQuests.length">
+                        <div class="small">
+                            Completed quests:
+                        </div>
+                        <ul class="p-0 mb-2 ms-4">
+                            <li
+                                v-for="quest in selectedUser.completedQuests"
+                                :key="quest.id"
+                                class="small text-secondary"
+                            >
+                                <a :href="'/quests?id=' + quest.id" target="_blank">
+                                    {{ quest.name.length > 40 ? quest.name.slice(0,40) + "..." : quest.name }}
+                                </a>
+                            </li>
+                        </ul>
+                    </template>
+                    <div v-if="createdQuestNames.length" class="small">
                         Created quests:
                     </div>
                     <ul class="p-0 mb-2 ms-4">
                         <li
                             v-for="name in createdQuestNames"
                             :key="name"
-                            class="small text-white-50"
+                            class="small text-secondary"
                         >
                             {{ name.length > 40 ? name.slice(0,40) + "..." : name }}
-                        </li>
-                    </ul>
-
-                    <div v-if="selectedUser.completedQuests.length" class="small">
-                        Completed quests:
-                    </div>
-                    <ul class="p-0 mb-2 ms-4">
-                        <li
-                            v-for="quest in selectedUser.completedQuests"
-                            :key="quest.id"
-                            class="small text-white-50"
-                        >
-                            <a :href="'/quests?id=' + quest.id" target="_blank">
-                                {{ quest.name.length > 40 ? quest.name.slice(0,40) + "..." : quest.name }}
-                            </a>
                         </li>
                     </ul>
                 </div>
@@ -260,10 +297,10 @@
                                 <td scope="row">
                                     <user-link :user="map.host" />
                                 </td>
-                                <td scope="row" class="text-white-50">
+                                <td scope="row" class="text-secondary">
                                     {{ userTasks(map) }}
                                 </td>
-                                <td scope="row" class="text-white-50">
+                                <td scope="row" class="text-secondary">
                                     <a v-if="map.url" :href="map.url" target="_blank">
                                         <i class="fas fa-link" />
                                     </a>
@@ -300,13 +337,13 @@
                                 </td>
                             </tr>
                             <tr v-for="spentPointsEvent in spentPoints" :key="spentPointsEvent.id">
-                                <td scope="row" class="text-white-50">
+                                <td scope="row" class="text-secondary">
                                     {{ findSpentPointsAction (spentPointsEvent.category) }}
                                     <a :href="'/quests/?id=' + spentPointsEvent.quest.id" target="_blank">
                                         {{ spentPointsEvent.quest.name }}
                                     </a>
                                 </td>
-                                <td scope="row" class="text-white-50">
+                                <td scope="row" class="text-secondary">
                                     {{ findSpentPointsValue(spentPointsEvent.category, spentPointsEvent.quest) }} <i class="fas fa-coins" />
                                 </td>
                             </tr>
@@ -328,12 +365,13 @@
 import { defineComponent } from 'vue';
 import { mapState, mapGetters } from 'vuex';
 import ModalDialog from '@components/ModalDialog.vue';
-import { Quest } from '../../../interfaces/quest';
-import { SpentPoints } from '../../../interfaces/spentPoints';
-import { Beatmap } from '../../../interfaces/beatmap/beatmap';
+import { Quest } from '@interfaces/quest';
+import { Mission } from '@interfaces/mission';
+import { SpentPoints } from '@interfaces/spentPoints';
+import { Beatmap } from '@interfaces/beatmap/beatmap';
 import UserPointsRow from './UserPointsRow.vue';
-import { TaskName } from '../../../interfaces/beatmap/task';
-import { BeatmapStatus } from '../../../interfaces/beatmap/beatmap';
+import { TaskName } from '@interfaces/beatmap/task';
+import { BeatmapStatus } from '@interfaces/beatmap/beatmap';
 import ModesIcons from '@components/ModesIcons.vue';
 
 export default defineComponent({
@@ -346,6 +384,7 @@ export default defineComponent({
     data () {
         return {
             currentQuests: [] as Quest[],
+            currentMissions: [] as Mission[],
             createdQuestNames: [] as Quest['name'][],
             spentPoints: [] as SpentPoints[],
             userBeatmaps: [] as Beatmap[],
@@ -362,17 +401,27 @@ export default defineComponent({
     },
     watch: {
         async selectedUser(): Promise<void> {
-            if (!this.selectedUser || this.selectedUser.id === this.$route.query.id) return;
+            await this.loadEverything();
+        },
+    },
+    async created (): Promise<void> {
+        await this.loadEverything();
+    },
+    methods: {
+        async loadEverything(): Promise<void> {
+            if (!this.selectedUser) return;
 
             this.$router.push(`/users?id=${this.selectedUser.id}`);
 
             this.currentQuests = [];
+            this.currentMissions = [];
             this.createdQuestNames = [];
             this.spentPoints = [];
             this.userBeatmaps = [];
 
-            const [currentQuests, createdQuestNames, points, beatmaps] = await Promise.all([
+            const [currentQuests, currentMissions, createdQuestNames, points, beatmaps] = await Promise.all([
                 this.$http.executeGet<Quest[]>(`/users/${this.selectedUser.id}/quests`),
+                this.$http.executeGet<Mission[]>(`/users/${this.selectedUser.id}/missions`),
                 this.$http.executeGet<Quest['name'][]>(`/users/findCreatedQuests/${this.selectedUser.id}`),
                 this.$http.executeGet<SpentPoints[]>(`/users/findSpentPoints/${this.selectedUser.id}`),
                 this.$http.executeGet<Beatmap[]>(`/users/findUserBeatmaps/${this.selectedUser.id}`),
@@ -380,6 +429,10 @@ export default defineComponent({
 
             if (!this.$http.isError(currentQuests)) {
                 this.currentQuests = currentQuests;
+            }
+
+            if (!this.$http.isError(currentMissions)) {
+                this.currentMissions = currentMissions;
             }
 
             if (!this.$http.isError(createdQuestNames)) {
@@ -398,8 +451,6 @@ export default defineComponent({
                 });
             }
         },
-    },
-    methods: {
         findIcon(status): string {
             if (status == BeatmapStatus.WIP) {
                 return 'fa-ellipsis-h';

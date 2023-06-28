@@ -62,7 +62,7 @@ export default defineComponent({
         let urlBeatmap;
 
         if (id) {
-            [data, urlBeatmap] = await Promise.all<any, any>([
+            [data, urlBeatmap] = await Promise.all<any>([
                 this.$http.initialRequest('/beatmaps/relevantInfo'),
                 this.$http.executeGet('/beatmaps/searchOnLoad/' + id),
             ]);

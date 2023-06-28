@@ -1,18 +1,278 @@
 import cron from 'node-cron';
-import { findBeatmapsetId, sleep, findBeatmapsetStatus, setBeatmapStatusRanked, generateAuthorWebhook, generateThumbnailUrl, generateLists } from './helpers';
-import { beatmapsetInfo, isOsuResponseError, getClientCredentialsGrant, getBeatmapsetV2Info, getDiscussions, getBeatmapsSearch } from './osuApi';
+import { findBeatmapsetId, sleep, findBeatmapsetStatus, setBeatmapStatusRanked, generateAuthorWebhook, generateThumbnailUrl, generateMissionThumbnailUrl, generateBotAuthorWebhook, generateLists, setNominators, getLongestBeatmapLength } from './helpers';
+import { isOsuResponseError, getClientCredentialsGrant, getBeatmapsetV2Info, getDiscussions, getBeatmapsSearch } from './osuApi';
 import { devWebhookPost, webhookPost, webhookColors } from './discordApi';
 import { BeatmapModel } from '../models/beatmap/beatmap';
+import { LogModel } from '../models/log';
 import { BeatmapStatus } from '../../interfaces/beatmap/beatmap';
 import { QuestModel } from '../models/quest';
+import { MissionModel } from '../models/mission';
 import { ContestModel } from '../models/contest/contest';
 import { ContestStatus } from '../../interfaces/contest/contest';
 import { QuestStatus } from '../../interfaces/quest';
+import { MissionStatus } from '../../interfaces/mission';
+import { LogCategory } from '../../interfaces/log';
 import { UserModel } from '../models/user';
 import { FeaturedArtistModel } from '../models/featuredArtist';
 import { updateUserPoints } from './points';
-import { UserGroup } from '../../interfaces/user';
-import { TaskName } from '../../interfaces/beatmap/task';
+import { sendAnnouncement } from './osuBot';
+
+/* generate description for quest webhook */
+function generateQuestDetails(quest) {
+    let text = '';
+
+    text += `\n[**${quest.name}**](https://mappersguild.com/quests?id=${quest.id})`;
+    text += `\n- **Objective:** ${quest.descriptionMain}`;
+    text += `\n- **Members:** ${quest.minParty == quest.maxParty ? quest.maxParty : quest.minParty + '-' + quest.maxParty} member${quest.maxParty == 1 ? '' : 's'}`;
+    text += `\n- **Price:** ${quest.price} points from each member`;
+    text += `\n`;
+
+    return text;
+}
+
+/* generate description for mission webhook */
+function generateMissionDetails(mission) {
+    let text = '';
+
+    text += `\n[**${mission.name}**](https://mappersguild.com/missions?id=${mission.id})`;
+    text += `\n- **Objective:** ${mission.objective}`;
+    text += `\n- **Win condition:** ${mission.winCondition}`;
+
+    if (mission.userMaximumGlobalRank || mission.userMaximumRankedBeatmapsCount || mission.userMaximumRankedBeatmapsCount === 0) {
+        text += `\n\nTo participate in this quest, you must meet these requirements:`;
+
+        if (mission.userMaximumRankedBeatmapsCount || mission.userMaximumRankedBeatmapsCount === 0) {
+            text += `\n- You **cannot** have more than **${mission.userMaximumRankedBeatmapsCount} ranked maps**`;
+        }
+
+        if (mission.userMaximumGlobalRank) {
+            text += `\n- Your global rank must be **worse than ${mission.userMaximumGlobalRank}**`;
+        }
+    } else {
+        text += `\nAnyone can participate in this quest.`;
+    }
+
+    text += `\n\nRead more about [**priority quests** and their rewards](https://mappersguild.com/missions)!`; // replace with wiki probably
+
+    return text;
+}
+
+/* generate description for closing mission webhook */
+function generateMissionClosedDetails(mission) {
+    let text = '';
+
+    text += `Closed priority quest: [**${mission.name}**](https://mappersguild.com/missions?id=${mission.id})`;
+    text += `\n\n**Winning beatmap${mission.winningBeatmaps.length > 1 ? 's' : ''}:**`;
+
+    for (const beatmap of mission.winningBeatmaps) {
+        const modes: any = [];
+
+        // fill empty variables with data
+        for (const task of beatmap.tasks) {
+            if (task.mode != 'sb') {
+                if (!modes.includes(task.mode)) {
+                    modes.push(task.mode);
+                }
+            }
+        }
+
+        text += `\n- [**${beatmap.song.artist} - ${beatmap.song.title}**](${beatmap.url}) [**${modes.join(', ')}**] hosted by [**${beatmap.host.username}**](https://osu.ppy.sh/users/${beatmap.host.osuId})`;
+    }
+
+    return text;
+}
+
+/* compare beatmap status MG vs. osu and update */
+const setQualified = cron.schedule('0 16 * * *', async () => { /* 9:00 AM PST */
+    const statusQuery = [
+        { status: { $ne: BeatmapStatus.Ranked } },
+        { status: { $ne: BeatmapStatus.WIP } },
+    ];
+
+    const allBeatmaps = await BeatmapModel
+        .find({
+            url: { $exists: true },
+            $and: statusQuery,
+        });
+
+    const response = await getClientCredentialsGrant();
+
+    if (!isOsuResponseError(response)) {
+        const token = response.access_token;
+
+        for (const bm of allBeatmaps) {
+            if (bm.url.indexOf('osu.ppy.sh/beatmapsets/') > -1) {
+                const osuId = findBeatmapsetId(bm.url);
+                const bmInfo = await getBeatmapsetV2Info(token, osuId);
+                await sleep(500);
+
+                if (!isOsuResponseError(bmInfo)) {
+                    const status = findBeatmapsetStatus(bmInfo.ranked_date);
+
+                    /*  osu:    Qualified/Ranked
+                        MG:     Pending
+                        save:   Qualified on MG */
+                    if ((status == BeatmapStatus.Qualified || status == BeatmapStatus.Ranked) && bm.status == BeatmapStatus.Done) {
+                        bm.status = BeatmapStatus.Qualified;
+                        await bm.save();
+
+                        // remove modders who didn't post anything
+                        for (const modder of bm.modders) {
+                            const currentBeatmap = await BeatmapModel
+                                .findById(bm._id)
+                                .defaultPopulate()
+                                .orFail();
+
+                            const discussionInfo = await getDiscussions(token, `?beatmapset_id=${osuId}&message_types%5B%5D=suggestion&message_types%5B%5D=problem&user=${modder.osuId}`);
+                            await sleep(500);
+
+                            if (!isOsuResponseError(discussionInfo) && discussionInfo.discussions && !discussionInfo.discussions.length) {
+                                const i = currentBeatmap.modders.findIndex(m => m.id == modder.id);
+
+                                if (i !== -1) {
+                                    currentBeatmap.modders.splice(i, 1);
+                                    await currentBeatmap.save();
+                                }
+                            }
+                        }
+                    }
+
+                    /*  osu:    Pending
+                        MG:     Qualified
+                        save:   Pending on MG + un-queue for rank */
+                    if (status == BeatmapStatus.Done && bm.status == BeatmapStatus.Qualified) {
+                        bm.status = BeatmapStatus.Done;
+                        bm.queuedForRank = false;
+                        await bm.save();
+                    }
+                }
+            }
+        }
+    }
+}, {
+    scheduled: false,
+});
+
+/* create FeaturedArtist for every artist that doesn't already exist based on the last 50 maps ranked per day */
+const processDailyArtists = cron.schedule('0 18 * * *', async () => { /* 11:00 AM PST */
+    const response = await getClientCredentialsGrant();
+    let token;
+    if (!isOsuResponseError(response)) token = response.access_token;
+
+    const searchResults: any = await getBeatmapsSearch(token, ``);
+
+    if (searchResults.beatmapsets && searchResults.beatmapsets.length) {
+        for (const beatmapset of searchResults.beatmapsets) {
+            const fa = await FeaturedArtistModel.findOne({ label: beatmapset.artist });
+
+            if (!fa) {
+                const artistSearchResults: any = await getBeatmapsSearch(token, `?q=artist%3D"${beatmapset.artist}"&s=any&sort=plays_desc`);
+
+                if (artistSearchResults.beatmapsets && artistSearchResults.beatmapsets.length) {
+                    let playcount = 0;
+
+                    for (const beatmapset of artistSearchResults.beatmapsets) {
+                        playcount += beatmapset.play_count;
+                    }
+
+                    if (playcount > 5000) {
+                        const a = new FeaturedArtistModel();
+                        a.label = beatmapset.artist;
+                        await a.save();
+                    }
+                }
+            }
+        }
+    }
+}, {
+    scheduled: false,
+});
+
+/* publish new quests */
+const publishQuests = cron.schedule('0 22 * * *', async () => { /* 3:00 PM PST */
+    const scheduledQuests = await QuestModel
+        .find({
+            status: QuestStatus.Scheduled,
+        })
+        .defaultPopulate();
+
+    const webhooks: any = [];
+
+    for (const quest of scheduledQuests) {
+        const i = webhooks.findIndex(w => w.artist && w.artist == quest.art);
+
+        if (i !== -1) {
+            webhooks[i].quests.push(quest);
+        } else {
+            webhooks.push({
+                creator: quest.creator,
+                artist: quest.art,
+                isMbc: quest.isMbc,
+                url: quest.isMbc ? 'https://mappersguild.com/images/mbc-icon.png' : quest.art ? `https://assets.ppy.sh/artists/${quest.art}/cover.jpg` : 'https://mappersguild.com/images/no-art-icon.png',
+                quests: [quest],
+            });
+        }
+
+        quest.status = QuestStatus.Open;
+        await quest.save();
+    }
+
+    for (const webhook of webhooks) {
+        // new fa quests
+        if (webhook.creator.osuId == 3178418) {
+            let title = 'New ';
+
+            if (webhook.artist && !webhook.isMbc) {
+                const artist = await FeaturedArtistModel.findOne({ osuId: webhook.artist }).orFail();
+                title += `${artist.label} `;
+            }
+
+            title += webhook.quests.length > 1 ? `quests:\n` : `quest:\n`;
+
+            let description = '';
+
+            for (const quest of webhook.quests) {
+                description += generateQuestDetails(quest);
+            }
+
+            await webhookPost([{
+                ...await generateBotAuthorWebhook(),
+                color: webhookColors.orange,
+                title,
+                description,
+                thumbnail: {
+                    url: webhook.url,
+                },
+            }]);
+
+        // user-submitted quests
+        } else {
+            let description = '';
+
+            for (const quest of webhook.quests) {
+                description += generateQuestDetails(quest);
+            }
+
+            await webhookPost([{
+                author: {
+                    name: `${webhook.creator.username}`,
+                    url: `https://osu.ppy.sh/users/${webhook.creator.osuId}`,
+                    icon_url: `https://a.ppy.sh/${webhook.creator.osuId}`,
+                },
+                color: webhookColors.yellow,
+                title: 'New custom quest:',
+                description,
+                thumbnail: {
+                    url: webhook.url,
+                },
+            }]);
+        }
+
+        await sleep(1000);
+    }
+}, {
+    scheduled: false,
+});
 
 /* dev notification for actions */
 const sendActionNotifications = cron.schedule('0 23 * * *', async () => { /* 4:00 PM PST */
@@ -93,165 +353,88 @@ const sendActionNotifications = cron.schedule('0 23 * * *', async () => { /* 4:0
     scheduled: false,
 });
 
-/* compare beatmap status MG vs. osu and update */
-const setQualified = cron.schedule('0 18 * * *', async () => { /* 10:00 AM PST */
-    const statusQuery = [
-        { status: { $ne: BeatmapStatus.Ranked } },
-        { status: { $ne: BeatmapStatus.WIP } },
-    ];
+/* open/close announcements and mark missions as inactive */
+const processMissions = cron.schedule('0 0 * * *', async () => { /* 5:00 PM PST */
+    const today = new Date();
 
-    const allBeatmaps = await BeatmapModel
+    const missions = await MissionModel
         .find({
-            url: { $exists: true },
-            $and: statusQuery,
-        });
-
-    const response = await getClientCredentialsGrant();
-    let token;
-    if (!isOsuResponseError(response)) token = response.access_token;
-
-    for (const bm of allBeatmaps) {
-        if (bm.url.indexOf('osu.ppy.sh/beatmapsets/') > -1) {
-            const osuId = findBeatmapsetId(bm.url);
-            const bmInfo = await beatmapsetInfo(osuId);
-            await sleep(500);
-
-            if (!isOsuResponseError(bmInfo)) {
-                const status = findBeatmapsetStatus(bmInfo.approved);
-
-                /*  osu:    Qualified/Ranked
-                    MG:     Pending
-                    save:   Qualified on MG */
-                if ((status == BeatmapStatus.Qualified || status == BeatmapStatus.Ranked) && bm.status == BeatmapStatus.Done) {
-                    bm.status = BeatmapStatus.Qualified;
-                    await bm.save();
-
-                    // remove modders who didn't post anything
-                    for (const modder of bm.modders) {
-                        const currentBeatmap = await BeatmapModel
-                            .findById(bm._id)
-                            .defaultPopulate()
-                            .orFail();
-
-                        const discussionInfo = await getDiscussions(token, `?beatmapset_id=${osuId}&message_types%5B%5D=suggestion&message_types%5B%5D=problem&user=${modder.osuId}`);
-                        await sleep(500);
-
-                        if (!isOsuResponseError(discussionInfo) && discussionInfo.discussions && !discussionInfo.discussions.length) {
-                            const i = currentBeatmap.modders.findIndex(m => m.id == modder.id);
-
-                            if (i !== -1) {
-                                currentBeatmap.modders.splice(i, 1);
-                                await currentBeatmap.save();
-                            }
-                        }
-                    }
-                }
-
-                /*  osu:    Pending
-                    MG:     Qualified
-                    save:   Pending on MG + un-queue for rank */
-                if (status == BeatmapStatus.Done && bm.status == BeatmapStatus.Qualified) {
-                    bm.status = BeatmapStatus.Done;
-                    bm.queuedForRank = false;
-                    await bm.save();
-                }
-            }
-        }
-    }
-}, {
-    scheduled: false,
-});
-
-/* check */
-const qualifiedMapChecks = cron.schedule('30 18 * * *', async () => { /* 10:30 AM PST */
-    const qualifiedBeatmaps = await BeatmapModel
-        .find({
-            status: BeatmapStatus.Qualified,
-            queuedForRank: { $ne: true },
+            $or: [
+                { status: MissionStatus.Open },
+                { status: MissionStatus.Closed, openingAnnounced: true, closingAnnounced: false },
+            ],
         })
         .defaultPopulate();
 
-    const response = await getClientCredentialsGrant();
+    for (const mission of missions) {
+        if (mission.status == MissionStatus.Open && !mission.openingAnnounced) {
+            // logs
+            LogModel.generate(null, `"${mission.name}" opened`, LogCategory.Mission );
 
-    if (!isOsuResponseError(response)) {
-        const token = response.access_token;
+            // webhook
+            const fields = [
+                {
+                    name: 'Objective',
+                    value: mission.objective,
+                },
+                {
+                    name: 'Win condition',
+                    value: mission.winCondition,
+                },
+            ];
 
-        for (const beatmap of qualifiedBeatmaps) {
-            const osuId = findBeatmapsetId(beatmap.url);
-            const bmInfo = await getBeatmapsetV2Info(token, osuId);
-            await sleep(500);
-
-            const messages = [`hello! your beatmap on mappersguild https://mappersguild.com/beatmaps?id=${beatmap.id} isn't eligible to earn points for the following reason(s):`];
-
-            if (!isOsuResponseError(bmInfo)) {
-                // check if host matches
-                if (beatmap.host.osuId !== bmInfo.user_id) {
-                    messages.push(`you are not the host of this mapset`);
-                }
-
-                // check if # of difficulties match
-                const difficultyTasks = [...beatmap.tasks].filter(t => t.name !== TaskName.Storyboard);
-
-                if (difficultyTasks.length !== bmInfo.beatmaps.length) {
-                    messages.push(`difficulty count does not match. difficulties on https://mappersguild.com/beatmaps?id=${beatmap.id} must match difficulties on ${beatmap.url}`);
-                }
-
-                // check if GD assignments are somewhat accurate. it won't ever be correct because web assignments aren't correct, but this will ensure some amount of credibility (especially in cases where a host assigns a GD to themselves on MG)
-                const osuMapperIds: number[] = [];
-                const mgMapperIds: number[] = [];
-
-                for (const bm of bmInfo.beatmaps) {
-                    if (!osuMapperIds.includes(bm['user_id'])) {
-                        const userId = parseInt(bm['user_id']);
-                        osuMapperIds.push(userId);
-                    }
-                }
-
-                for (const task of difficultyTasks) {
-                    for (const mapper of task.mappers) {
-                        if (!mgMapperIds.includes(mapper.osuId)) {
-                            mgMapperIds.push(mapper.osuId);
-                        }
-                    }
-                }
-
-                let gdTrigger = false;
-
-                for (const osuId of osuMapperIds) {
-                    if (!mgMapperIds.includes(osuId)) {
-                        gdTrigger = true;
-                    }
-                }
-
-                if (gdTrigger) {
-                    messages.push(`guest difficulty missing or incorrectly assigned. difficulties on https://mappersguild.com/beatmaps?id=${beatmap.id} must match difficulties on ${beatmap.url}`);
-                }
-
-                // check if ranked date is older than 1y
-                const osuRankedDate = new Date(bmInfo.ranked_date);
-                const oneYearAgo = new Date();
-                oneYearAgo.setDate(oneYearAgo.getDate() - 365);
-
-                if (oneYearAgo > osuRankedDate) {
-                    messages.push(`map is over a year old (and probably not eligible anymore)`);
-                }
+            if (mission.userMaximumGlobalRank) {
+                fields.push({
+                    name: 'Global rank requirement',
+                    value: `Your global rank must be worse than **${mission.userMaximumGlobalRank}**`,
+                });
             }
 
-            if (messages.length > 1) {
-                // send to user
-                //await sendMessages(3178418, messages);
+            if (mission.userMaximumRankedBeatmapsCount) {
+                fields.push({
+                    name: 'Max ranked beatmaps requirement',
+                    value: `You cannot have more than **${mission.userMaximumRankedBeatmapsCount} ranked maps**`,
+                });
+            }
 
-                // change beatmap status
-                //beatmap.status = BeatmapStatus.WIP;
-                //beatmap.queuedForRank = false;
-                //await beatmap.save();
+            await webhookPost([{
+                ...await generateBotAuthorWebhook(),
+                color: webhookColors.lightBlue,
+                title: `New priority quest`,
+                description: generateMissionDetails(mission),
+                ...generateMissionThumbnailUrl(mission),
+            }]);
 
-                // send to me (ensure that nothing went wrong)
-                // this is the only active one while i see if it actually works as intended
+            await MissionModel.findByIdAndUpdate(mission.id, { openingAnnounced: true });
+        } else if (mission.status == MissionStatus.Closed && !mission.closingAnnounced && mission.winningBeatmaps && mission.winningBeatmaps.length) {
+            await webhookPost([{
+                ...await generateBotAuthorWebhook(),
+                color: webhookColors.lightOrange,
+                description: generateMissionClosedDetails(mission),
+            }]);
+
+            await MissionModel.findByIdAndUpdate(mission.id, { closingAnnounced: true });
+        } else if (mission.status == MissionStatus.Open && mission.openingAnnounced) {
+            let closeTrigger = false;
+
+            const deadline = new Date(mission.deadline);
+
+            // trigger if past deadline
+            if (today > deadline) {
+                closeTrigger = true;
+            }
+
+            if (closeTrigger) {
+                await MissionModel.findByIdAndUpdate(mission.id, { status: MissionStatus.Closed });
+
+                //logs
+                LogModel.generate(null, `"${mission.name}" closed (past deadline)`, LogCategory.Mission );
+
+                // dev webhook
                 devWebhookPost([{
-                    title: `actionBeatmap rejected`,
-                    color: webhookColors.lightRed,
-                    description: messages.join('\n'),
+                    title: `mission deadline met`,
+                    color: webhookColors.black,
+                    description: `mission [**${mission.name}**](https://mappersguild.com/missions?id=${mission.id}) needs winners selected`,
                 }]);
             }
         }
@@ -261,7 +444,7 @@ const qualifiedMapChecks = cron.schedule('30 18 * * *', async () => { /* 10:30 A
 });
 
 /* if MG Qualified beatmap is osu Ranked and already checked, post webhook */
-const setRanked = cron.schedule('0 1 * * *', async () => { /* 5:00 PM PST */
+const setRanked = cron.schedule('0 1 * * *', async () => { /* 6:00 PM PST */
     const qualifiedBeatmaps = await BeatmapModel
         .find({
             status: BeatmapStatus.Qualified,
@@ -272,14 +455,20 @@ const setRanked = cron.schedule('0 1 * * *', async () => { /* 5:00 PM PST */
     for (const bm of qualifiedBeatmaps) {
         if (bm.url.indexOf('osu.ppy.sh/beatmapsets/') > -1) {
             const osuId = findBeatmapsetId(bm.url);
-            const bmInfo = await beatmapsetInfo(osuId);
+            const response = await getClientCredentialsGrant();
             await sleep(500);
 
-            if (!isOsuResponseError(bmInfo)) {
-                const status = findBeatmapsetStatus(bmInfo.approved);
+            if (!isOsuResponseError(response)) {
+                const token = response.access_token;
+                const bmInfo: any = await getBeatmapsetV2Info(token, osuId);
+                await sleep(500);
 
-                if (status == BeatmapStatus.Ranked) {
-                    await setBeatmapStatusRanked(bm.id, bmInfo);
+                if (!isOsuResponseError(bmInfo)) {
+                    const status = findBeatmapsetStatus(bmInfo.ranked);
+
+                    if (status == BeatmapStatus.Ranked) {
+                        await setBeatmapStatusRanked(bm.id, bmInfo);
+                    }
                 }
             }
         }
@@ -288,106 +477,8 @@ const setRanked = cron.schedule('0 1 * * *', async () => { /* 5:00 PM PST */
     scheduled: false,
 });
 
-/* generate description for quest webhook */
-function generateQuestDetails(quest) {
-    let text = '';
-
-    text += `\n[**${quest.name}**](https://mappersguild.com/quests?id=${quest.id})`;
-    text += `\n- **Objective:** ${quest.descriptionMain}`;
-    text += `\n- **Members:** ${quest.minParty == quest.maxParty ? quest.maxParty : quest.minParty + '-' + quest.maxParty} member${quest.maxParty == 1 ? '' : 's'}`;
-    text += `\n- **Price:** ${quest.price} points from each member`;
-    text += `\n`;
-
-    return text;
-}
-
-/* publish new quests */
-const publishQuests = cron.schedule('0 22 * * *', async () => { /* 1:00 PM PST */
-    const scheduledQuests = await QuestModel
-        .find({
-            status: QuestStatus.Scheduled,
-        })
-        .defaultPopulate();
-
-    const webhooks: any = [];
-
-    for (const quest of scheduledQuests) {
-        const i = webhooks.findIndex(w => w.artist && w.artist == quest.art);
-
-        if (i !== -1) {
-            webhooks[i].quests.push(quest);
-        } else {
-            webhooks.push({
-                creator: quest.creator,
-                artist: quest.art,
-                isMbc: quest.isMbc,
-                url: quest.isMbc ? 'https://mappersguild.com/images/mbc-icon.png' : quest.art ? `https://assets.ppy.sh/artists/${quest.art}/cover.jpg` : 'https://mappersguild.com/images/no-art-icon.png',
-                quests: [quest],
-            });
-        }
-
-        quest.status = QuestStatus.Open;
-        await quest.save();
-    }
-
-    for (const webhook of webhooks) {
-        // new fa quests
-        if (webhook.creator.osuId == 3178418) {
-            let title = 'New ';
-
-            if (webhook.artist && !webhook.isMbc) {
-                const artist = await FeaturedArtistModel.findOne({ osuId: webhook.artist }).orFail();
-                title += `${artist.label} `;
-            }
-
-            title += webhook.quests.length > 1 ? `quests:\n` : `quest:\n`;
-
-            let description = '';
-
-            for (const quest of webhook.quests) {
-                description += generateQuestDetails(quest);
-            }
-
-            await webhookPost([{
-                color: webhookColors.orange,
-                title,
-                description,
-                thumbnail: {
-                    url: webhook.url,
-                },
-            }]);
-
-        // user-submitted quests
-        } else {
-            let description = '';
-
-            for (const quest of webhook.quests) {
-                description += generateQuestDetails(quest);
-            }
-
-            await webhookPost([{
-                author: {
-                    name: `${webhook.creator.username}`,
-                    url: `https://osu.ppy.sh/users/${webhook.creator.osuId}`,
-                    icon_url: `https://a.ppy.sh/${webhook.creator.osuId}`,
-                },
-                color: webhookColors.yellow,
-                title: 'New custom quest:',
-                description,
-                thumbnail: {
-                    url: webhook.url,
-                },
-            }]);
-        }
-
-        await sleep(1000);
-    }
-}, {
-    scheduled: false,
-});
-
 /* publish completed quest webhooks */
-const completeQuests = cron.schedule('0 3 * * *', async () => { /* 7:00 PM PST */
+const completeQuests = cron.schedule('0 3 * * *', async () => { /* 8:00 PM PST */
     const scheduledQuests = await QuestModel
         .find({
             queuedForCompletion: true,
@@ -427,7 +518,7 @@ const completeQuests = cron.schedule('0 3 * * *', async () => { /* 7:00 PM PST *
 });
 
 /* publish webhooks for users who rank up */
-const rankUsers = cron.schedule('1 3 * * *', async () => { /* 7:01 PM PST */
+const rankUsers = cron.schedule('1 3 * * *', async () => { /* 8:01 PM PST */
     const rankedUsers = await UserModel.find({ rank: { $gte: 1 } });
 
     for (let i = 0; i < rankedUsers.length; i++) {
@@ -470,9 +561,115 @@ const rankUsers = cron.schedule('1 3 * * *', async () => { /* 7:01 PM PST */
     scheduled: false,
 });
 
-/* update points for all users once every month (21st) */
-const updatePoints = cron.schedule('0 0 21 * *', async () => {
-    const users = await UserModel.find({ group: { $ne: UserGroup.Spectator } });
+/* drop quests that have been inactive for >1 year */
+const dropOverdueQuests = cron.schedule('2 3 * * *', async () => { /* 8:02 PM PST */
+    const oneYearAgo = new Date();
+    oneYearAgo.setDate(oneYearAgo.getDate() - 365);
+
+    const quests = await QuestModel
+        .find({
+            status: QuestStatus.WIP,
+            updatedAt: { $lt: oneYearAgo },
+            deadline: { $lt: oneYearAgo },
+        })
+        .defaultPopulate();
+
+    for (const quest of quests) {
+        let recentlyUpdatedMap = false;
+
+        for (const beatmap of quest.associatedMaps) {
+            const lastUpdated = new Date(beatmap.updatedAt);
+
+            if (lastUpdated > oneYearAgo && !recentlyUpdatedMap) {
+                recentlyUpdatedMap = true;
+            }
+        }
+
+        if (!recentlyUpdatedMap) {
+            const members = quest.currentParty.members;
+            const leader = quest.currentParty.leader;
+            await quest.drop();
+
+            // logs
+            const { modeList, memberList } = generateLists(quest.modes, members);
+            LogModel.generate(null, `party dropped quest "${quest.name}" for mode${quest.modes.length > 1 ? 's' : ''} "${modeList}"`, LogCategory.Quest );
+
+            // webhook
+            const openQuest = await QuestModel
+                .findOne({
+                    status: QuestStatus.Open,
+                    name: quest.name,
+                });
+
+            await webhookPost([{
+                ...generateAuthorWebhook(leader),
+                color: webhookColors.red,
+                description: `Automatically dropped quest due to inactivity: [**${quest.name}**](https://mappersguild.com/quests?id=${openQuest ? openQuest.id : quest.id}) [**${modeList}**]`,
+                ...generateThumbnailUrl(quest),
+                fields: [{
+                    name: 'Party members',
+                    value: memberList,
+                }],
+            }]);
+
+            // announcement to party leader
+            const channel = {
+                name: `MG - Quest dropped`,
+                description: `Automatic quest drop due to inactivity`,
+            };
+
+            const message = `the [**${quest.name}**](https://mappersguild.com/quests?id=${openQuest ? openQuest.id : quest.id}) quest has been automatically dropped due to being inactive for 1 year.`;
+
+            await sendAnnouncement([leader.osuId], channel, message);
+        }
+    }
+}, {
+    scheduled: false,
+});
+
+/* validate ranked beatmaps for accurate ranked_date/current_nominators/hit_length. limited to 100 beatmaps daily because it takes too long otherwise, and it doesn't need to be done that frequently */
+const validateRankedBeatmaps = cron.schedule('0 4 * * *', async () => { /* 9:00 PM PST */
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setDate(threeMonthsAgo.getDate() - 100); // this will be a problem after reaching 10,000 ranked maps in the database. so i don't need to worry about it probably
+
+    const [beatmaps, response] = await Promise.all([
+        BeatmapModel
+            .find({
+                status: BeatmapStatus.Ranked,
+                updatedAt: { $lt: threeMonthsAgo },
+            })
+            .defaultPopulate()
+            .limit(100)
+            .orFail(),
+        getClientCredentialsGrant(),
+    ]);
+
+    await sleep(250);
+
+    if (!isOsuResponseError(response)) {
+        const token = response.access_token;
+
+        for (const beatmap of beatmaps) {
+            console.log(beatmap.id);
+            const osuId = findBeatmapsetId(beatmap.url);
+            const bmInfo: any = await getBeatmapsetV2Info(token, osuId);
+            await sleep(250);
+
+            if (!isOsuResponseError(bmInfo)) {
+                await setNominators(beatmap, bmInfo);
+                beatmap.length = getLongestBeatmapLength(bmInfo.beatmaps);
+                beatmap.rankedDate = bmInfo.ranked_date;
+                await beatmap.save();
+            }
+        }
+    }
+}, {
+    scheduled: false,
+});
+
+/* update points for all users once every month */
+const updatePoints = cron.schedule('0 0 21 * *', async () => { /* 21st of each month */
+    const users = await UserModel.find({});
 
     for (const user of users) {
         updateUserPoints(user.id);
@@ -481,39 +678,4 @@ const updatePoints = cron.schedule('0 0 21 * *', async () => {
     scheduled: false,
 });
 
-/* create FeaturedArtist for every artist that doesn't already exist based on the last 50 maps ranked per day */
-const processDailyArtists = cron.schedule('0 19 * * *', async () => {
-    const response = await getClientCredentialsGrant();
-    let token;
-    if (!isOsuResponseError(response)) token = response.access_token;
-
-    const searchResults: any = await getBeatmapsSearch(token, ``);
-
-    if (searchResults.beatmapsets && searchResults.beatmapsets.length) {
-        for (const beatmapset of searchResults.beatmapsets) {
-            const fa = await FeaturedArtistModel.findOne({ label: beatmapset.artist });
-
-            if (!fa) {
-                const artistSearchResults: any = await getBeatmapsSearch(token, `?q=artist%3D"${beatmapset.artist}"&s=any&sort=plays_desc`);
-
-                if (artistSearchResults.beatmapsets && artistSearchResults.beatmapsets.length) {
-                    let playcount = 0;
-
-                    for (const beatmapset of artistSearchResults.beatmapsets) {
-                        playcount += beatmapset.play_count;
-                    }
-
-                    if (playcount > 5000) {
-                        const a = new FeaturedArtistModel();
-                        a.label = beatmapset.artist;
-                        await a.save();
-                    }
-                }
-            }
-        }
-    }
-}, {
-    scheduled: false,
-});
-
-export default { sendActionNotifications, setQualified, qualifiedMapChecks, setRanked, publishQuests, completeQuests, rankUsers, updatePoints, processDailyArtists };
+export default { sendActionNotifications, setQualified, setRanked, publishQuests, completeQuests, rankUsers, updatePoints, processDailyArtists, validateRankedBeatmaps, dropOverdueQuests, processMissions };

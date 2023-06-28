@@ -1,6 +1,5 @@
 import mongoose, { Document, Schema, DocumentQuery, Model } from 'mongoose';
 import { TaskMode, TaskName } from '../../../interfaces/beatmap/task';
-import { ActionType } from '../../../interfaces/invite';
 import { User } from '../../../interfaces/user';
 import { Beatmap as IBeatmap, BeatmapStatus } from '../../../interfaces/beatmap/beatmap';
 
@@ -13,9 +12,8 @@ export interface Beatmap extends IBeatmap, Document {
 
     /**
      * checks whether the beatmap can accept new tasks/collabs or not, depending on beatmap state and quest-user relation
-     * @param acceptingTaskId passed when accepting an invite
      */
-    checkTaskAvailability (user: User, taskName: TaskName, taskMode: TaskMode, inviteType?: ActionType, acceptingTaskId?: string): Promise<boolean>;
+    checkTaskAvailability (user: User, taskName: TaskName, taskMode: TaskMode): Promise<boolean>;
 }
 
 const BeatmapSchema = new Schema<Beatmap>({
@@ -27,6 +25,7 @@ const BeatmapSchema = new Schema<Beatmap>({
     modders: [{ type: 'ObjectId', ref: 'User' }],
     bns: [{ type: 'ObjectId', ref: 'User' }],
     quest: { type: 'ObjectId', ref: 'Quest' },
+    mission: { type: 'ObjectId', ref: 'Mission' },
     url: { type: String },
     mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania', 'hybrid'], default: 'osu' },
     length: { type: Number },
@@ -37,7 +36,7 @@ const BeatmapSchema = new Schema<Beatmap>({
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const queryHelpers = {
-    sortByLastest<Q extends DocumentQuery<any, Beatmap>>(this: Q) {
+    sortByLatest<Q extends DocumentQuery<any, Beatmap>>(this: Q) {
         return this.sort({ updatedAt: -1 });
     },
     defaultPopulate<Q extends DocumentQuery<any, Beatmap>>(this: Q) {
@@ -46,7 +45,8 @@ const queryHelpers = {
             { path: 'bns', select: '_id osuId username' },
             { path: 'modders', select: '_id osuId username' },
             { path: 'quest', select: '_id name art modes deadline isMbc status' },
-            { path: 'song',select: 'artist title' },
+            { path: 'mission', select: '_id name tier status closingAnnounced' },
+            { path: 'song', select: 'artist title' },
             {
                 path: 'tasks',
                 populate: {
@@ -66,7 +66,7 @@ BeatmapSchema.methods.participated = function (this: Beatmap, userId: any) {
     return this.tasks.some(t => t.mappers.some(m => m.id == userId));
 };
 
-BeatmapSchema.methods.checkTaskAvailability = async function (this: Beatmap, user: User, taskName: TaskName, taskMode: TaskMode, inviteType?: ActionType, acceptingTaskId?: string) {
+BeatmapSchema.methods.checkTaskAvailability = async function (this: Beatmap, user: User, taskName: TaskName, taskMode: TaskMode) {
     if (this.status == BeatmapStatus.Ranked || this.status == BeatmapStatus.Qualified || this.status == BeatmapStatus.Done) {
         throw new Error(`Mapset already marked as ${this.status.toLowerCase()}`);
     }
@@ -89,43 +89,24 @@ BeatmapSchema.methods.checkTaskAvailability = async function (this: Beatmap, use
         }
     }
 
-    if (this.bns.some(bn => bn.id == user.id)) {
-        throw new Error(`Cannot create a difficulty while in BN list!`);
-    }
-
-    if (this.tasks.length > 20 && inviteType !== ActionType.Collab) {
+    if (this.tasks.length > 50) {
         throw new Error('This mapset has too many difficulties!');
     }
 
-    // Only collabs invites should bypass this
     if (
-        (!inviteType || inviteType === ActionType.Create) &&
         taskName == TaskName.Storyboard &&
         this.tasks.some(t => t.name === TaskName.Storyboard)
     ) {
         throw new Error('There can only be one storyboard on a mapset!');
     }
 
-    // host and invites can bypass this
+    // host can bypass this
     if (
         this.host.id != user.id &&
-        !inviteType &&
         this.tasksLocked &&
         this.tasksLocked.some(t => t === taskName)
     ) {
         throw new Error('This task is locked by the mapset host!');
-    }
-
-    if (acceptingTaskId && inviteType === ActionType.Collab) {
-        const task = this.tasks.find(t => t.id == acceptingTaskId);
-
-        if (!task) {
-            throw new Error(`Task doesn't exist anymore!`);
-        }
-
-        if (task.mappers.some(m => m.id == user.id)) {
-            throw new Error(`You're already a mapper on this task!`);
-        }
     }
 
     return true;

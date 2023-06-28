@@ -275,7 +275,6 @@ export default defineComponent({
             }
         },
         async updateCycleStartDate(e): Promise<void> {
-            console.log(this.cycleStartDateInput);
             const cycle: any = await this.$http.executePost(`/mentorship/updateCycleStartDate`, { cycleId: this.selectedCycle.id, startDate: this.cycleStartDateInput }, e);
 
             if (!this.$http.isError(cycle)) {

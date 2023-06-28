@@ -1,11 +1,8 @@
 import express from 'express';
-import { isLoggedIn } from '../helpers/middlewares';
 import { LogModel } from '../models/log';
 import { LogCategory } from '../../interfaces/log';
 
 const logsRouter = express.Router();
-
-logsRouter.use(isLoggedIn);
 
 /* GET logs */
 logsRouter.get('/query', async (req, res) => {
@@ -19,7 +16,7 @@ logsRouter.get('/query', async (req, res) => {
 
     const logs = await query
         .limit(100)
-        .populate({ path: 'user', select: 'username' });
+        .populate({ path: 'user', select: 'username osuId' });
 
     res.json({
         logs,

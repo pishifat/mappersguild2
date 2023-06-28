@@ -28,6 +28,28 @@
                                     Quests
                                 </router-link>
                             </li>
+                            <!--<li class="nav-item dropdown">
+                                    <a
+                                        id="questDropdown"
+                                        class="nav-link dropdown-toggle"
+                                        data-bs-toggle="dropdown"
+                                        href="#"
+                                    >
+                                        Quests
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <router-link class="dropdown-item" to="/missions">
+                                                Priority quests
+                                            </router-link>
+                                        </li>
+                                        <li>
+                                            <router-link class="dropdown-item" to="/quests">
+                                                Normal quests
+                                            </router-link>
+                                        </li>
+                                    </ul>
+                                </li>-->
                             <li class="nav-item">
                                 <router-link class="nav-link" to="/users">
                                     Users
@@ -36,11 +58,6 @@
                             <li class="nav-item">
                                 <router-link class="nav-link" to="/logs">
                                     Logs
-                                </router-link>
-                            </li>
-                            <li class="nav-item">
-                                <router-link class="nav-link" to="/faq">
-                                    FAQ
                                 </router-link>
                             </li>
                             <li class="nav-item dropdown">
@@ -125,6 +142,11 @@
                                             </router-link>
                                         </li>
                                         <li>
+                                            <router-link class="dropdown-item" to="/admin/missions">
+                                                Priority Quests (Missions)
+                                            </router-link>
+                                        </li>
+                                        <li>
                                             <router-link class="dropdown-item" to="/admin/users">
                                                 Users
                                             </router-link>
@@ -155,7 +177,7 @@
                                 <span class="dropdown-item small disabled">Modding points: <span class="float-end">{{ loggedInUser.pointsInfo.modding }}</span></span>
                                 <span class="dropdown-item small disabled">Other points: <span class="float-end">{{ loggedInUser.pointsInfo.other }}</span></span>
                                 <div class="dropdown-divider" />
-                                <span class="ms-3 small text-white-50">
+                                <span class="ms-3 small text-secondary">
                                     <span v-bs-tooltip:left="'create maps for upcoming Featured Artist announcements'">
                                         <a href="https://osu.ppy.sh/wiki/Featured_Artists/Featured_Artist_Showcase_Beatmaps" target="_blank" @click.stop>
                                             FA showcase
@@ -165,7 +187,7 @@
                                         <i class="fas" :class="loggedInUser.isShowcaseMapper ? 'text-done fa-check' : 'text-danger fa-times'" />
                                     </a>
                                 </span>
-                                <span class="ms-3 small text-white-50">
+                                <span class="ms-3 small text-secondary">
                                     <span v-bs-tooltip:left="'be a screener/judge for official mapping contests'">Contest helper:</span>
                                     <a class="float-end me-3" href="#" @click.stop.prevent="toggleIsContestHelper()">
                                         <i class="fas" :class="loggedInUser.isContestHelper ? 'text-done fa-check' : 'text-danger fa-times'" />
@@ -184,12 +206,80 @@
                     <template v-else-if="initialized">
                         <ul class="navbar-nav me-auto">
                             <li class="nav-item">
-                                <router-link class="nav-link" to="/faq">
-                                    FAQ
+                                <router-link class="nav-link" to="/beatmaps">
+                                    Beatmaps
                                 </router-link>
                             </li>
+                            <li class="nav-item">
+                                <router-link class="nav-link" to="/quests">
+                                    Quests
+                                </router-link>
+                            </li>
+                            <!--<li class="nav-item dropdown">
+                                    <a
+                                        id="questDropdown"
+                                        class="nav-link dropdown-toggle"
+                                        data-bs-toggle="dropdown"
+                                        href="#"
+                                    >
+                                        Quests
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <router-link class="dropdown-item" to="/missions">
+                                                Priority quests
+                                            </router-link>
+                                        </li>
+                                        <li>
+                                            <router-link class="dropdown-item" to="/quests">
+                                                Normal quests
+                                            </router-link>
+                                        </li>
+                                    </ul>
+                                </li>-->
+                            <li class="nav-item">
+                                <router-link class="nav-link" to="/users">
+                                    Users
+                                </router-link>
+                            </li>
+                            <li class="nav-item">
+                                <router-link class="nav-link" to="/logs">
+                                    Logs
+                                </router-link>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a
+                                    id="contestDropdown"
+                                    class="nav-link dropdown-toggle"
+                                    data-bs-toggle="dropdown"
+                                    href="#"
+                                >
+                                    Contests
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <router-link class="dropdown-item" to="/contests/listing">
+                                            Listing
+                                        </router-link>
+                                    </li>
+                                    <li>
+                                        <router-link class="dropdown-item" to="/contests/results">
+                                            Results
+                                        </router-link>
+                                    </li>
+                                    <li>
+                                        <router-link class="dropdown-item" to="/contests/screening">
+                                            Screening
+                                        </router-link>
+                                    </li>
+                                    <li>
+                                        <router-link class="dropdown-item" to="/contests/judging">
+                                            Judging
+                                        </router-link>
+                                    </li>
+                                </ul>
+                            </li>
                         </ul>
-
                         <form
                             class="ms-auto me-3"
                             action="/api/login"
@@ -205,7 +295,7 @@
         </nav>
 
         <div class="container" style="min-height: 85vh">
-            <div v-if="$route.path !== '/'" class="row justify-content-center my-2 py-3 page-content-header">
+            <div v-if="(initialized && loggedInUser || publicPage) && $route.path !== '/'" class="row justify-content-center my-2 py-3 page-content-header">
                 <div class="col text-end pe-0">
                     <img
                         class="mx-3"
@@ -221,11 +311,47 @@
             </div>
 
             <loading-page>
-                <router-view v-slot="{ Component }">
-                    <transition name="route-transition" mode="out-in">
-                        <component :is="Component" />
-                    </transition>
-                </router-view>
+                <section v-if="initialized && !loggedInUser && !publicPage" key="login" class="card card-body">
+                    <div class="row">
+                        <div class="col-lg-5">
+                            <div class="text-center landing">
+                                <img
+                                    class="mb-1"
+                                    src="/images/mg-logo.png"
+                                    style="width: 150px; min-width: 150px;"
+                                />
+                                <div class="fs-4">Mappers' Guild</div>
+                            </div>
+
+                            <hr />
+
+                            <div class="text-danger text-center mb-2"><b>Log in to view this page!</b></div>
+
+                            <div class="text-center">
+                                <a href="/api/login" class="btn btn-primary">
+                                    authorize your osu! account
+                                    <i class="fas fa-external-link-alt" />
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-lg-7 d-flex flex-column justify-content-center">
+                            <p>"Authorizing" will identify you through your osu! account.</p>
+                            <p>You can do any of these after authorization:</p>
+                            <ul>
+                                <li>View "Beatmaps", "Quests", and "Contests" pages</li>
+                                <li>Participate to earn <a href="https://osu.ppy.sh/wiki/Community/Mappers_Guild#rewards">Mappers' Guild rewards on osu!</a>.</li>
+                                <li>...a bunch of other mapping-related stuff</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+                <template v-if="publicPage || loggedInUser">
+                    <router-view v-slot="{ Component }">
+                        <transition name="route-transition" mode="out-in">
+                            <component :is="Component" />
+                        </transition>
+                    </router-view>
+                </template>
             </loading-page>
         </div>
 
@@ -237,7 +363,6 @@
         </footer>
 
         <toast-messages />
-        <notifications-access v-if="loggedInUser" />
     </div>
 </template>
 
@@ -246,13 +371,11 @@ import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import LoadingPage from '@components/LoadingPage.vue';
 import ToastMessages from '@components/ToastMessages.vue';
-import NotificationsAccess from '@components/NotificationsAccess.vue';
 
 export default defineComponent({
     components: {
         LoadingPage,
         ToastMessages,
-        NotificationsAccess,
     },
     computed: {
         ...mapState([
@@ -261,6 +384,9 @@ export default defineComponent({
         ]),
         title () {
             return this.$route.meta.title;
+        },
+        publicPage () {
+            return this.$route.meta.isPublic;
         },
     },
     methods: {

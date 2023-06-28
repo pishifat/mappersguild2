@@ -45,6 +45,23 @@ export async function isLoggedIn(req, res, next): Promise<void> {
     next();
 }
 
+export async function isValidUser(req, res, next): Promise<void> {
+    if (!req.body.user) {
+        next();
+    } else {
+        const u = await UserModel
+            .findOne()
+            .byUsernameOrOsuId(req.body.user);
+
+        if (!u) {
+            return res.json({ error: 'Cannot find user!' });
+        }
+
+        res.locals.user = u;
+        next();
+    }
+}
+
 export function isAdmin(req, res, next): void {
     if (res.locals.userRequest.group == UserGroup.Admin) {
         next();
@@ -66,14 +83,6 @@ export function isSuperAdmin(req, res, next): void {
         next();
     } else {
         unauthorize(req, res);
-    }
-}
-
-export function isNotSpectator(req, res, next): void {
-    if (res.locals.userRequest.group != UserGroup.Spectator) {
-        next();
-    } else {
-        return res.json({ error: 'You need 3+ ranked maps to do this! You can only join parties/beatmaps through invites.' });
     }
 }
 
@@ -109,4 +118,18 @@ export async function canEditArtist(req, res, next): Promise<void> {
     } else {
         unauthorize(req, res);
     }
+}
+
+export function isValidUrl(req, res, next): void {
+    if (!req.body.url?.length) {
+        req.body.url = null;
+    }
+
+    const regexp = /^(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/;
+
+    if (!regexp.test(req.body.url) && req.body.url) {
+        return res.json({ error: 'Not a valid URL' });
+    }
+
+    next();
 }

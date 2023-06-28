@@ -16,10 +16,16 @@
                     </a>
                 </div>
                 <div class="small ms-3">
-                    <a v-if="beatmap.url" :href="beatmap.url" target="_blank">
+                    <a
+                        v-if="beatmap.url"
+                        :href="beatmap.url"
+                        target="_blank"
+                        class="text-truncate"
+                        style="display: block;"
+                    >
                         {{ beatmap.url }}
                     </a>
-                    <i v-else class="text-white-50">none</i>
+                    <i v-else class="text-secondary">none</i>
                 </div>
             </div>
         </div>
@@ -35,10 +41,9 @@
                         type="text"
                         placeholder="URL"
                         @keyup.enter="saveLink($event)"
-                    >
+                    />
                     <button
                         id="addLinkButton"
-                        v-bs-tooltip:right="'use new osu!web link for card image'"
                         class="btn btn-outline-info"
                         type="submit"
                         @click="saveLink($event)"

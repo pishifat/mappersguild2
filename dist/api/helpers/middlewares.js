@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.canEditArtist = exports.isBn = exports.isNotSpectator = exports.isSuperAdmin = exports.isMentorshipAdmin = exports.isAdmin = exports.isLoggedIn = exports.unauthorize = void 0;
+exports.isValidUrl = exports.canEditArtist = exports.isBn = exports.isSuperAdmin = exports.isMentorshipAdmin = exports.isAdmin = exports.isValidUser = exports.isLoggedIn = exports.unauthorize = void 0;
 const user_1 = require("../models/user");
 const user_2 = require("../../interfaces/user");
 const osuApi_1 = require("./osuApi");
@@ -41,6 +41,22 @@ async function isLoggedIn(req, res, next) {
     next();
 }
 exports.isLoggedIn = isLoggedIn;
+async function isValidUser(req, res, next) {
+    if (!req.body.user) {
+        next();
+    }
+    else {
+        const u = await user_1.UserModel
+            .findOne()
+            .byUsernameOrOsuId(req.body.user);
+        if (!u) {
+            return res.json({ error: 'Cannot find user!' });
+        }
+        res.locals.user = u;
+        next();
+    }
+}
+exports.isValidUser = isValidUser;
 function isAdmin(req, res, next) {
     if (res.locals.userRequest.group == user_2.UserGroup.Admin) {
         next();
@@ -68,15 +84,6 @@ function isSuperAdmin(req, res, next) {
     }
 }
 exports.isSuperAdmin = isSuperAdmin;
-function isNotSpectator(req, res, next) {
-    if (res.locals.userRequest.group != user_2.UserGroup.Spectator) {
-        next();
-    }
-    else {
-        return res.json({ error: 'You need 3+ ranked maps to do this! You can only join parties/beatmaps through invites.' });
-    }
-}
-exports.isNotSpectator = isNotSpectator;
 async function isBn(accessToken) {
     if (accessToken) {
         const res = await osuApi_1.getUserInfo(accessToken);
@@ -106,3 +113,14 @@ async function canEditArtist(req, res, next) {
     }
 }
 exports.canEditArtist = canEditArtist;
+function isValidUrl(req, res, next) {
+    if (!req.body.url?.length) {
+        req.body.url = null;
+    }
+    const regexp = /^(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/;
+    if (!regexp.test(req.body.url) && req.body.url) {
+        return res.json({ error: 'Not a valid URL' });
+    }
+    next();
+}
+exports.isValidUrl = isValidUrl;

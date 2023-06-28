@@ -110,12 +110,12 @@ questSchema.methods.drop = async function () {
     return openQuest || this;
 };
 const queryHelpers = {
-    sortByLastest() {
+    sortByLatest() {
         return this.sort({ createdAt: -1 });
     },
     defaultPopulate() {
         return this.populate([
-            { path: 'parties', populate: { path: 'members leader' } },
+            { path: 'parties', populate: { path: 'members pendingMembers leader' } },
             {
                 path: 'associatedMaps',
                 populate: {
@@ -130,11 +130,14 @@ const queryHelpers = {
     },
 };
 questSchema.query = queryHelpers;
-questSchema.statics.findAll = function () {
+questSchema.statics.findAll = function (limit) {
+    if (!limit)
+        limit = 10000;
     return this
         .find({})
         .defaultPopulate()
-        .sortByLastest();
+        .sortByLatest()
+        .limit(limit);
 };
 questSchema.statics.defaultFindByIdOrFail = function (id) {
     return this

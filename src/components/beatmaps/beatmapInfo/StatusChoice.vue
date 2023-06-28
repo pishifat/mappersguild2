@@ -1,8 +1,18 @@
 <template>
-    <div id="mapsetStatus" class="mb-3">
+    <div id="mapsetStatus">
         <div class="d-inline-block me-2">
             Status
         </div>
+
+        <button
+            v-bs-tooltip:bottom="'mark mapset as work-in-progress'"
+            class="btn btn-sm me-1"
+            :class="beatmap.status == 'WIP' ? 'btn-warning' : 'btn-outline-warning'"
+            :disabled="beatmap.status == 'WIP'"
+            @click="setStatus('WIP', $event)"
+        >
+            WIP
+        </button>
 
         <button
             v-bs-tooltip:bottom="'mark mapset and all diffs as done'"
@@ -14,15 +24,12 @@
             Done
         </button>
 
-        <button
-            v-bs-tooltip:bottom="'mark mapset as work-in-progress'"
-            class="btn btn-sm me-1"
-            :class="beatmap.status == 'WIP' ? 'btn-warning' : 'btn-outline-warning'"
-            :disabled="beatmap.status == 'WIP'"
-            @click="setStatus('WIP', $event)"
-        >
-            WIP
-        </button>
+        <span class="small text-secondary">(currently "{{ beatmap.status }}")</span>
+        <div class="small text-secondary mt-1">
+            <div class="small">
+                Maps marked as "Done" will be processed for points when they reach the Ranked category on osu!.
+            </div>
+        </div>
     </div>
 </template>
 

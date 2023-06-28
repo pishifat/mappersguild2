@@ -81,15 +81,23 @@
                 </tr>
             </tbody>
         </table>
+        <manual-submission
+            v-if="submissions.length"
+            :contest-id="contestId"
+        />
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { Submission } from '../../../../interfaces/contest/submission';
+import ManualSubmission from './ManualSubmission.vue';
 
 export default defineComponent({
     name: 'SubmissionsInfo',
+    components: {
+        ManualSubmission,
+    },
     props: {
         contestId: {
             type: String,

@@ -11,7 +11,7 @@
                 :src="processUrl(beatmap.url)"
                 style="opacity: 0.2;"
                 @error="fallbackImage($event)"
-            >
+            />
             <div class="card-img-overlay" style="padding: 0.50rem 0.50rem 0 0.50rem">
                 <p
                     class="card-title mb-1"

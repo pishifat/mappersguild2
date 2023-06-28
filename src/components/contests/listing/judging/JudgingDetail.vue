@@ -41,11 +41,11 @@
                             :id="`judgingToCriteria${judgingScore.id}`"
                             class="text-light ms-4 collapse"
                         >
-                            <span class="small text-white-50" style="white-space: pre-line;">{{ judgingScore.comment }}</span>
+                            <span class="small text-secondary" style="white-space: pre-line;">{{ judgingScore.comment }}</span>
                         </p>
                     </div>
 
-                    <hr v-if="i < submission.judgings.length - 1">
+                    <hr v-if="i < submission.judgings.length - 1" />
                 </div>
             </div>
         </template>

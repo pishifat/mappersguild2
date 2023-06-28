@@ -13,7 +13,7 @@
             class="collapse"
         >
             <div :class="{ 'loading-data' : isLoadingOtherBeatmaps }">
-                <p v-if="!otherBeatmaps.length && !isLoadingOtherBeatmaps" class="ms-5 text-white-50">
+                <p v-if="!otherBeatmaps.length && !isLoadingOtherBeatmaps" class="ms-5 text-secondary">
                     None...
                 </p>
 

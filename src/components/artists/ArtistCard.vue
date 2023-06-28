@@ -15,7 +15,7 @@
                         </a>
                     </span>
                     <span class="small col-sm-8">
-                        <span v-if="artist.isUpToDate" class="text-white-50">up to date</span>
+                        <span v-if="artist.isUpToDate" class="text-secondary">up to date</span>
                         <span v-else>
                             <span v-if="artist.projectedRelease" class="text-done me-1">{{ new Date(artist.projectedRelease).toString().slice(4,15) }}</span>
 
@@ -32,11 +32,11 @@
                                 </span>
                             </span>
 
-                            <span v-else class="text-white-50">
+                            <span v-else class="text-secondary">
                                 <span v-if="artist.isRejected">{{ artist.isResponded ? 'stopped responding/rejected ' : 'no response ' }}</span>
                             </span>
 
-                            <span class="text-white-50">
+                            <span class="text-secondary">
                                 <span v-if="!artist.hasRankedMaps" class="me-1 text-danger">[showcase]</span>
                             </span>
                         </span>
@@ -61,7 +61,7 @@
                         </a>
 
                         <!--contacted-->
-                        <span class="text-center font-8 text-white-50 float-end me-2">
+                        <span class="text-center font-8 text-secondary float-end me-2">
                             <span v-if="artist.lastContacted">
                                 {{ `${daysAgo} ${daysAgo == 1 ? 'day ago' : 'days ago'}` }}
                             </span>
@@ -81,7 +81,7 @@
                                 style="border-radius: 5px 5px 5px 5px; "
                                 maxlength="10"
                                 @keyup.enter="updateLastContacted()"
-                            >
+                            />
                             <a href="#" @click.stop.prevent="contactedToday()">mark as today</a>
                         </span>
                     </span>
@@ -162,7 +162,7 @@
                                 style="border-radius: 5px 5px 5px 5px; "
                                 maxlength="10"
                                 @keyup.enter="updateProjectedRelease()"
-                            >
+                            />
                         </p>
                         <div class="small ms-2">
                             Songs received:
@@ -209,7 +209,7 @@
                         <a href="#" class="me-1" @click.prevent="updateNotes(null)">
                             <i class="fas fa-edit" />
                         </a>
-                        <span v-if="!showNotesInput" class="small text-white-50" v-html="filterLinks(artist.notes)" />
+                        <span v-if="!showNotesInput" class="small text-secondary" v-html="filterLinks(artist.notes)" />
                         <input
                             v-if="showNotesInput"
                             v-model="notes"
@@ -227,7 +227,7 @@
                         <a href="#" class="me-1" @click.prevent="updateShowcaseMappers(null)">
                             <i class="fas fa-edit" />
                         </a>
-                        <span v-if="!showShowcaseMappersInput" class="small text-white-50">
+                        <span v-if="!showShowcaseMappersInput" class="small text-secondary">
                             <span v-if="!artist.showcaseMappers || !artist.showcaseMappers.length">...</span>
                             <user-link-list v-else :users="artist.showcaseMappers" />
                         </span>
@@ -241,7 +241,7 @@
                             style="border-radius: 5px 5px 5px 5px;"
                             @keyup.enter="updateShowcaseMappers($event)"
                             @change="updateShowcaseMappers($event)"
-                        >
+                        />
                     </div>
                 </div>
             </div>

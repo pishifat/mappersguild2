@@ -1,5 +1,5 @@
 <template>
-    <tr class="text-white-50">
+    <tr class="text-secondary">
         <td
             v-bs-tooltip:left="tooltipTitle"
             scope="row"

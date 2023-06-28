@@ -13,7 +13,7 @@
                             v-model="selectedArtist"
                             class="form-select"
                         >
-                            <option value="" disabled>
+                            <option value="">
                                 Select an artist
                             </option>
                             <option value="-" disabled>
@@ -27,6 +27,13 @@
                                 {{ featuredArtist.label }}
                             </option>
                         </select>
+                        <input
+                            v-model="artistInput"
+                            type="text"
+                            class="form-control"
+                            placeholder="or input the artist's name..."
+                            @keyup.enter="setArtist($event)"
+                        />
                         <button id="artistButton" class="btn btn-outline-info" @click="setArtist($event)">
                             Load songs
                         </button>
@@ -57,6 +64,8 @@
                 </div>
             </div>
 
+            <hr />
+
             <p>
                 Game-mode:
             </p>
@@ -78,38 +87,158 @@
                             {{ mode.name }}
                         </label>
                     </div>
-                    <br /><small class="text-white-50">If you want a hybrid mapset, change this later.</small>
+                    <br />
                 </div>
             </div>
 
-            <p>
-                Select one or more difficulties <i>you plan on mapping</i>. These can be changed later:
-            </p>
-            <div class="mb-3 row">
-                <div class="col-sm-10">
-                    <div
-                        v-for="task in tasks"
-                        :key="task"
-                        class="form-check"
+            <hr />
+
+            <div class="mb-2">
+                Set your mapset's difficulties
+                <div class="small text-secondary">
+                    These can be changed later.
+                </div>
+            </div>
+
+            <table v-if="tempTasks.length" class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Difficulty</th>
+                        <th>Mapper(s)</th>
+                        <th>Status</th>
+                        <th />
+                    </tr>
+                </thead>
+                <transition-group tag="tbody" name="list">
+                    <tr v-for="task in tempTasks" :key="task.random">
+                        <!-- difficulty -->
+                        <td
+                            class="text-secondary"
+                        >
+                            {{ task.name }}
+                            <template v-if="selectedMode == 'hybrid'">
+                                <modes-icons :modes="[task.mode]" />
+                            </template>
+                        </td>
+
+                        <!-- mappers -->
+                        <td>
+                            <user-link-list
+                                :users="task.mappers"
+                            />
+                        </td>
+
+                        <!-- status -->
+                        <td :class="task.status == 'WIP' ? 'text-wip' : 'text-success'">
+                            {{ task.status }}
+                        </td>
+                        <!-- actions -->
+                        <td>
+                            <a
+                                v-bs-tooltip="'delete'"
+                                href="#"
+                                class="text-danger"
+                                @click="removeTempTask(task.random)"
+                            >
+                                <i class="fas fa-times" />
+                            </a>
+                        </td>
+                    </tr>
+                </transition-group>
+            </table>
+
+            <div class="col-sm-12">
+                <div class="input-group input-group-sm mx-auto">
+                    <select
+                        v-model="newTaskName"
+                        class="form-select"
                     >
-                        <input
-                            :id="task"
-                            v-model="checkedTasks"
-                            class="form-check-input"
-                            type="checkbox"
+                        <option
+                            value=""
+                            disabled
+                            selected
+                        >
+                            Select a task
+                        </option>
+                        <option
+                            v-for="task in tasks"
+                            :key="task"
                             :value="task"
-                        />
-                        <label class="form-check-label" :for="task">
+                        >
                             {{ task }}
-                        </label>
-                    </div>
+                        </option>
+                    </select>
+
+                    <select
+                        v-if="selectedMode == 'hybrid'"
+                        v-model="selectedTaskMode"
+                        class="form-select"
+                    >
+                        <option value="osu">
+                            osu!
+                        </option>
+                        <option value="taiko">
+                            osu!taiko
+                        </option>
+                        <option value="catch">
+                            osu!catch
+                        </option>
+                        <option value="mania">
+                            osu!mania
+                        </option>
+                    </select>
+
+                    <select
+                        v-model="selectedTaskStatus"
+                        class="form-select"
+                    >
+                        <option
+                            value=""
+                            disabled
+                            selected
+                        >
+                            Select a status
+                        </option>
+                        <option value="WIP">
+                            Work-in-progress
+                        </option>
+                        <option value="Done">
+                            Done
+                        </option>
+                    </select>
+
+                    <input
+                        v-model="newTaskMapper"
+                        class="form-control"
+                        type="text"
+                        placeholder="mapper name or osu! ID..."
+                        @keyup.enter="addTempTask($event)"
+                    />
+
+                    <button
+                        v-bs-tooltip="'add difficulty'"
+                        class="btn btn-outline-info"
+                        @click="addTempTask($event)"
+                    >
+                        <i class="fas fa-plus" />
+                    </button>
+                </div>
+                <div class="text-secondary small mt-1">
+                    <ul class="small">
+                        <li>You can leave the "mapper" field empty for your own difficulties.</li>
+                        <li>Use comma separation for collabs, like "mapper1, mapper2"</li>
+                    </ul>
                 </div>
             </div>
 
-            <p>
-                Select one or more difficulties <i>you don't want anyone else to claim</i>. These can be changed later: <br />
-                <small class="text-white-50">For example, if you don't want any guest difficulties, you should mark everything.</small>
-            </p>
+            <hr />
+
+            <div class="mb-2">
+                Set any difficulties that nobody else is allowed to claim.
+                <div class="small text-secondary">
+                    For example, if you don't want any guest difficulties, you should select all. These can be changed later.
+                </div>
+            </div>
             <div class="mb-3 row">
                 <div class="col-sm-10">
                     <div
@@ -132,45 +261,98 @@
             </div>
         </div>
 
-        <div class="radial-divisor" />
-
         <button type="submit" class="btn btn-outline-success w-100" @click="saveNewMap($event)">
-            Save
+            Create beatmap
         </button>
 
-        <small class="text-white-50">Check the <a :href="'/faq#rewards'" target="_blank">FAQ</a> to ensure your beatmap is elligible for points.</small>
+        <div class="radial-divisor" />
+
+        <div class="small text-secondary mt-2">
+            <div class="small">
+                Note that you can only earn points for beatmaps that fit these requirements:
+                <ul>
+                    <li>Your beatmap was ranked <i>after</i> you joined the Mappers' Guild (<code>{{ loggedInUser.createdAt }}</code>)</li>
+                    <li>Your beatmap was ranked <i>after</i> the Featured Artist was announced, excluding maps created for the announcement</li>
+                    <li>Difficulties match between Mappers' Guild and osu! website (including difficulty levels and mappers)</li>
+                </ul>
+            </div>
+        </div>
     </modal-dialog>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { mapState } from 'vuex';
+import { Task } from '@interfaces/beatmap/task';
+import { User } from '@interfaces/user';
 import { FeaturedSong } from '@interfaces/featuredSong';
 import { FeaturedArtist } from '@interfaces/featuredArtist';
 import { Beatmap, BeatmapStatus } from '@interfaces/beatmap/beatmap';
 import ModalDialog from '@components/ModalDialog.vue';
+import ModesIcons from '@components/ModesIcons.vue';
+import UserLinkList from '@components/UserLinkList.vue';
 
 export default defineComponent({
     name: 'CreateBeatmapModal',
     components: {
         ModalDialog,
+        UserLinkList,
+        ModesIcons,
     },
     data () {
         return {
             featuredArtists: [] as FeaturedArtist[],
             featuredSongs: [] as FeaturedSong[],
             selectedArtist: '',
+            artistInput: '',
             selectedSong: '',
             selectedMode: 'osu',
-            checkedTasks: [],
+            selectedTaskStatus: '',
+            previousSelectedMode: '',
+            selectedTaskMode: 'osu',
             checkedLocks: [],
             modes: [
                 { value: 'osu', name: 'osu!' },
                 { value: 'taiko', name: 'osu!taiko' },
                 { value: 'catch', name: 'osu!catch' },
                 { value: 'mania', name: 'osu!mania' },
+                { value: 'hybrid', name: 'Multiple modes' },
             ],
-            tasks: ['Easy', 'Normal', 'Hard', 'Insane', 'Expert'],
+            tasks: ['Easy', 'Normal', 'Hard', 'Insane', 'Expert', 'Storyboard'],
+            newTaskName: '',
+            newTaskMapper: '',
+            tempTasks: [] as any,
         };
+    },
+    computed: {
+        ...mapState([
+            'loggedInUser',
+        ]),
+        sortedTasks(): Task[] {
+            const difficultyOrder = ['Easy', 'Normal', 'Hard', 'Insane', 'Expert', 'Storyboard'];
+            const modeOrder = ['osu', 'taiko', 'catch', 'mania', 'sb'];
+
+            const newTasks: any = [...this.tempTasks].sort(function(a, b) {
+                return difficultyOrder.indexOf(a.name) - difficultyOrder.indexOf(b.name);
+            });
+
+            return newTasks.sort(function(a, b) {
+                return modeOrder.indexOf(a.mode) - modeOrder.indexOf(b.mode);
+            });
+        },
+    },
+    watch: {
+        selectedMode() {
+            if (this.selectedMode == 'hybrid') {
+                this.tempTasks = [];
+            }
+
+            if (this.previousSelectedMode == 'hybrid') {
+                this.tempTasks = [];
+            }
+
+            this.previousSelectedMode = this.selectedMode;
+        },
     },
     async created () {
         const res: any = await this.$http.executeGet<FeaturedArtist[]>(`/featuredArtists`);
@@ -186,16 +368,34 @@ export default defineComponent({
     },
     methods: {
         async setArtist(e): Promise<void> {
+            if (!this.selectedArtist && !this.artistInput) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: 'Select or type an artist!',
+                    type: 'danger',
+                });
+
+                return;
+            }
+
+            if (this.artistInput) {
+                const artist = this.featuredArtists.find(a => a.label.toLowerCase().includes(this.artistInput.toLowerCase()));
+
+                if (artist) {
+                    this.selectedArtist = artist.id;
+                }
+            }
+
             if (!this.selectedArtist) {
                 this.$store.dispatch('updateToastMessages', {
-                    message: 'Select an artist!',
-                    type: 'info',
+                    message: `Couldn't find artist! Check your typing or select one from the list.`,
+                    type: 'danger',
                 });
 
                 return;
             }
 
             e.target.disabled = true;
+
             const res: any = await this.$http.executeGet<FeaturedSong[]>(`/featuredArtists/${this.selectedArtist}/songs`);
 
             if (res) {
@@ -209,6 +409,32 @@ export default defineComponent({
 
             e.target.disabled = false;
         },
+        async addTempTask(e): Promise<void> {
+            if (!this.newTaskName.length || !this.selectedTaskStatus.length) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: 'Missing task or status',
+                    type: 'danger',
+                });
+
+                return;
+            }
+
+            const finalUsers: any = await this.$http.executeGet<User[]>(`/beatmaps/validateUsers/${this.newTaskMapper.length ? this.newTaskMapper : this.loggedInUser.username}`, e);
+
+            if (finalUsers && finalUsers.length) {
+                this.tempTasks.push({
+                    name: this.newTaskName,
+                    mappers: finalUsers,
+                    mode: this.selectedTaskMode,
+                    status: this.selectedTaskStatus,
+                    random: Math.random().toString(),
+                });
+            }
+        },
+        removeTempTask(random): void {
+            const i = this.tempTasks.findIndex(t => t.random == random);
+            this.tempTasks.splice(i, 1);
+        },
         async saveNewMap (e): Promise<void> {
             if (!this.selectedSong) {
                 this.$store.dispatch('updateToastMessages', {
@@ -221,10 +447,9 @@ export default defineComponent({
 
             const beatmap = await this.$http.executePost<Beatmap>('/beatmaps/create/', {
                 song: this.selectedSong,
-                tasks: this.checkedTasks,
+                tasks: this.tempTasks,
                 tasksLocked: this.checkedLocks,
                 mode: this.selectedMode,
-                status: BeatmapStatus.WIP,
             }, e);
 
             if (!this.$http.isError(beatmap)) {
@@ -235,3 +460,10 @@ export default defineComponent({
     },
 });
 </script>
+
+<style scoped>
+.fake-button-disable {
+    pointer-events: none;
+    opacity: 0.6;
+}
+</style>

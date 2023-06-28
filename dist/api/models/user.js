@@ -25,10 +25,9 @@ const helpers_1 = require("../helpers/helpers");
 const UserSchema = new mongoose_1.Schema({
     osuId: { type: Number, required: true, unique: true },
     username: { type: String, required: true },
-    group: { type: String, enum: ['user', 'admin', 'spectator', 'secret'], default: 'user' },
+    group: { type: String, enum: ['user', 'admin', 'secret'], default: 'user' },
     badge: { type: Number, default: 0 },
     queuedBadge: { type: Number, default: 0 },
-    bypassLogin: { type: Boolean },
     discordId: { type: String },
     isShowcaseMapper: { type: Boolean },
     isContestHelper: { type: Boolean },
@@ -49,6 +48,7 @@ const UserSchema = new mongoose_1.Schema({
     expertPoints: { type: Number, default: 0 },
     storyboardPoints: { type: Number, default: 0 },
     questPoints: { type: Number, default: 0 },
+    missionPoints: { type: Number, default: 0 },
     modPoints: { type: Number, default: 0 },
     hostPoints: { type: Number, default: 0 },
     contestCreatorPoints: { type: Number, default: 0 },
@@ -62,6 +62,9 @@ const UserSchema = new mongoose_1.Schema({
     maniaPoints: { type: Number, default: 0 },
     spentPoints: { type: Number, default: 0 },
     completedQuests: [{ type: 'ObjectId', ref: 'Quest' }],
+    completedMissions: [{ type: 'ObjectId', ref: 'Mission' }],
+    rankedBeatmapsCount: { type: Number },
+    globalRank: { type: Number },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 UserSchema.virtual('totalPoints').get(function () {
     return Math.round((this.easyPoints + this.normalPoints + this.hardPoints + this.insanePoints + this.expertPoints +

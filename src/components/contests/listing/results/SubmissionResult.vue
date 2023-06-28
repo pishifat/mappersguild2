@@ -48,7 +48,7 @@
                                     class="fas fa-check text-done"
                                 />
                             </div>
-                            <div class="ms-4 mb-2 small text-white-50" style="word-break: break-word;">
+                            <div class="ms-4 mb-2 small text-secondary" style="word-break: break-word;">
                                 {{ screening.comment ? screening.comment : '[no comment]' }}
                             </div>
                         </div>
@@ -58,7 +58,7 @@
                             <div class="ms-3">
                                 User {{ submission.screenings.length + i }}
                             </div>
-                            <div class="ms-4 mb-2 small text-white-50" style="word-break: break-word;">
+                            <div class="ms-4 mb-2 small text-secondary" style="word-break: break-word;">
                                 [no comment]
                             </div>
                         </div>
@@ -116,7 +116,7 @@
                                 </div>
                                 <div class="col-sm-7 small">
                                     Comment:
-                                    <span class="text-white-50" style="white-space: pre-line;">
+                                    <span class="text-secondary" style="white-space: pre-line;">
                                         {{ findJudgeComment (judging.judgingScores) }}
                                     </span>
                                 </div>

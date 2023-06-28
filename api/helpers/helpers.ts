@@ -1,5 +1,6 @@
 import { Party } from '../../interfaces/party';
 import { Quest } from '../../interfaces/quest';
+import { Mission } from '../../interfaces/mission';
 import { User } from '../../interfaces/user';
 import { OsuAuthResponse } from './osuApi';
 import { webhookPost, webhookColors } from './discordApi';
@@ -8,6 +9,7 @@ import { BeatmapModel } from '../models/beatmap/beatmap';
 import { updateUserPoints } from './points';
 import { FeaturedArtistModel } from '../models/featuredArtist';
 import { FeaturedSong } from '../../interfaces/featuredSong';
+import { UserModel } from '../models/user';
 
 export function findBeatmapsetId(url: string): number {
     const indexStart = url.indexOf('beatmapsets/') + 'beatmapsets/'.length;
@@ -47,19 +49,64 @@ export function findBeatmapsetStatus(osuStatus): string {
     return status;
 }
 
+export async function setNominators(beatmap, bmInfo): Promise<void> {
+    const modderIds = beatmap.modders.map(m => m.id);
+    const bnsIds = beatmap.bns.map(b => b.id);
+    beatmap.bns = [];
+
+    if (bmInfo.current_nominations && bmInfo.current_nominations.length) {
+        for (const nom of bmInfo.current_nominations) {
+            const nomModder = await UserModel.findOne({ osuId: nom.user_id });
+
+            if (nomModder) {
+                if (!modderIds.includes(nomModder.id)) {
+                    beatmap.modders.push(nomModder._id);
+                    await beatmap.save();
+                }
+
+                if (!bnsIds.includes(nomModder.id)) {
+                    beatmap.bns.push(nomModder._id);
+                    await beatmap.save();
+                }
+            }
+        }
+    }
+}
+
+export function getLongestBeatmapLength(beatmaps): number {
+    let longestBeatmap = beatmaps[0];
+
+    for (const beatmap of beatmaps) {
+        if (parseInt(beatmap.hit_length) > parseInt(longestBeatmap.hit_length)) {
+            longestBeatmap = beatmap;
+        }
+    }
+
+    return longestBeatmap.hit_length;
+}
+
 export async function setBeatmapStatusRanked(id, bmInfo): Promise<void> {
     // update status (only helpful for automated calls)
     await BeatmapModel.findByIdAndUpdate(id, { status: BeatmapStatus.Ranked });
 
     // query for populated beatmap
-    const beatmap = await BeatmapModel
+    let beatmap = await BeatmapModel
+        .findById(id)
+        .defaultPopulate()
+        .orFail();
+
+    // assign bns to bns field (synced with osu-web)
+    await setNominators(beatmap, bmInfo);
+
+    // re-query to include nominators in modders pool
+    beatmap = await BeatmapModel
         .findById(id)
         .defaultPopulate()
         .orFail();
 
     // set length (for task points calculation) and ranked date (for quest points calculation) according to osu! db
-    beatmap.length = bmInfo.hit_length;
-    beatmap.rankedDate = bmInfo.approved_date;
+    beatmap.length = getLongestBeatmapLength(bmInfo.beatmaps);
+    beatmap.rankedDate = bmInfo.ranked_date;
     await beatmap.save();
 
     // calculate points for modders
@@ -143,7 +190,7 @@ export async function setBeatmapStatusRanked(id, bmInfo): Promise<void> {
         color: webhookColors.blue,
         description,
         thumbnail: {
-            url: `https://assets.ppy.sh/beatmaps/${bmInfo.beatmapset_id}/covers/list.jpg`,
+            url: `https://assets.ppy.sh/beatmaps/${bmInfo.id}/covers/list.jpg`,
         },
     }]);
 
@@ -185,6 +232,35 @@ export function generateThumbnailUrl (quest: Quest) {
     };
 }
 
+/** Get ideal webhook thumbnail (mission) */
+export function generateMissionThumbnailUrl (mission: Mission) {
+    let url = '';
+
+    switch (mission.tier) {
+        case 1:
+            url = 'https://mappersguild.com/images/bronze.png';
+            break;
+        case 2:
+            url = 'https://mappersguild.com/images/silver.png';
+            break;
+        case 3:
+            url = 'https://mappersguild.com/images/gold.png';
+            break;
+        case 4:
+            url = 'https://mappersguild.com/images/platinum.png';
+            break;
+        default:
+            url = 'https://mappersguild.com/images/bronze.png';
+            break;
+    }
+
+    return {
+        thumbnail: {
+            url,
+        },
+    };
+}
+
 /** Get user's osu url and avatar */
 export function generateAuthorWebhook(user: User) {
     return {
@@ -192,6 +268,19 @@ export function generateAuthorWebhook(user: User) {
             name: `${user.username}'s party`,
             url: `https://osu.ppy.sh/users/${user.osuId}`,
             icon_url: `https://a.ppy.sh/${user.osuId}`,
+        },
+    };
+}
+
+/** Get mg bot user's osu url and avatar */
+export async function generateBotAuthorWebhook() {
+    const mg = await UserModel.findOne({ osuId: 23648635 }).orFail();
+
+    return {
+        author: {
+            name: `${mg.username}`,
+            url: `https://osu.ppy.sh/users/${mg.osuId}`,
+            icon_url: `https://a.ppy.sh/${mg.osuId}`,
         },
     };
 }

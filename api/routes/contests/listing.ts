@@ -1,12 +1,12 @@
 import express from 'express';
-import { isLoggedIn } from '../../helpers/middlewares';
+import { isLoggedIn, isValidUrl } from '../../helpers/middlewares';
 import { devWebhookPost, webhookColors } from '../../helpers/discordApi';
 import { isContestCreator, isEditable } from './middlewares';
 import { Contest, ContestModel } from '../../models/contest/contest';
 import { UserModel } from '../../models/user';
 import { User, UserGroup } from '../../../interfaces/user';
 import { SubmissionModel } from '../../models/contest/submission';
-import { sendMessages } from '../../helpers/osuBot';
+import { sendAnnouncement } from '../../helpers/osuBot';
 import { CriteriaModel } from '../../models/contest/criteria';
 import { ContestStatus } from '../../../interfaces/contest/contest';
 import { UserScore, JudgeCorrel } from '../../../interfaces/contest/judging';
@@ -378,13 +378,30 @@ listingRouter.post('/:id/updateStatus', isContestCreator, isEditable, async (req
     }
 
     contest.status = req.body.status;
-    await contest.save();
+    // await contest.save();
 
     if (req.body.status == ContestStatus.Beatmapping) {
         devWebhookPost([{
             color: webhookColors.lightBlue,
             description: `**${contest.name}** pending approval\n\nlisting: https://mappersguild.com/contests/listing?contest=${contest.id}\nadmin: https://mappersguild.com/admin/summary`,
         }]);
+    }
+
+    if (req.body.status == ContestStatus.Complete) {
+        const participantIds = contest.submissions.map(s => s.creator.osuId);
+        const judgeIds = contest.judges.map(j => j.osuId);
+        const screenerIds = contest.screeners.map(s => s.osuId);
+
+        const osuIds = participantIds.concat(judgeIds, screenerIds);
+
+        const channel = {
+            name: `Results - ${contest.name}`,
+            description: `A beatmapping contest you participated in is completed!`,
+        };
+
+        const message = `hello! thank you for participating in **${contest.name}**!\n\nview results for this contest below:\n- [**results announcement**](${contest.resultsUrl})\n- [screening/judging details](https://mappersguild.com/contests/results?contest=${contest.id})`;
+
+        await sendAnnouncement(osuIds, channel, message);
     }
 
     res.json(contest.status);
@@ -978,7 +995,7 @@ listingRouter.get('/:id/judgingResults', isContestCreator, async (req, res) => {
 });
 
 /* POST create submission */
-listingRouter.post('/:id/createSubmission', isEditable, async (req, res) => {
+listingRouter.post('/:id/createSubmission', isEditable, isValidUrl, async (req, res) => {
     const contest = await ContestModel
         .findById(req.params.id)
         .populate(defaultContestPopulate)
@@ -994,19 +1011,12 @@ listingRouter.post('/:id/createSubmission', isEditable, async (req, res) => {
         return res.json({ error: `This contest is no longer accepting new submissions.` });
     }
 
-    const url = req.body.submissionUrl;
-
     if (contest.status !== ContestStatus.Beatmapping) {
         return res.json({ error: 'Contest is not accepting new submissions!' });
     }
 
-    const regexp = /^(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/;
-
-    if (!regexp.test(url) && url) {
-        return res.json({ error: 'Not a valid URL' });
-    }
-
     const userSubmission = contest.submissions.find(s => s.creator.id == req.session.mongoId);
+    const url = req.body.url;
 
     if (!userSubmission) {
         const submission = new SubmissionModel();
@@ -1088,7 +1098,7 @@ listingRouter.post('/:id/submissions/addSubmissionsFromCsv', isContestCreator, i
             user = new UserModel();
             user.username = line[0];
             user.osuId = parseInt(line[1]);
-            user.group = UserGroup.Spectator;
+            user.group = UserGroup.User;
 
             await user.save();
         }
@@ -1151,82 +1161,32 @@ listingRouter.post('/:id/updateCreators', isContestCreator, isEditable, async (r
     res.json(updatedContest.creators);
 });
 
+/* POST manually add submission */
+listingRouter.post('/:id/manuallyAddSubmission', isContestCreator, isEditable, async (req, res) => {
+    const { username, anonymizedName, url } = req.body;
 
+    const user = await UserModel
+        .findOne()
+        .byUsernameOrOsuId(username);
 
+    if (!user) {
+        return res.json({ error: `User doesn't exist. Make sure they've logged into this website at least once! If you still run into problems, contact pishifat.` });
+    }
 
+    const submission = new SubmissionModel();
+    submission.name = anonymizedName;
+    submission.creator = user._id;
+    submission.url = url;
+    await submission.save();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* POST send messages */
-listingRouter.post('/:id/sendMessages', async (req, res) => {
     const contest = await ContestModel
-        .findById(req.params.id)
+        .findByIdAndUpdate(req.params.id, { $push: { submissions: submission._id } })
         .populate(defaultContestPopulate)
         .orFail();
 
-    if (contest.status !== ContestStatus.Complete) {
-        return res.json({ error: 'Contest must be set as complete!' });
-    }
+    const newSubmission = contest.submissions.find(s => s.id == submission.id);
 
-    let messages;
-
-    req.body.users.push({ osuId: req.session.osuId });
-
-    for (const user of req.body.users) {
-        messages = await sendMessages(user.osuId, req.body.messages);
-    }
-
-    if (messages !== true) {
-        return res.json({ error: `Messages were not sent.` });
-    }
-
-    res.json({ success: 'Messages sent!' });
-});
-
-/* POST send all results messages to contest's participants */
-listingRouter.post('/:id/sendAllMessages', async (req, res) => {
-    const contest = await ContestModel
-        .findById(req.params.id)
-        .populate(defaultContestPopulate)
-        .orFail();
-
-    if (contest.status !== ContestStatus.Complete) {
-        return res.json({ error: 'Contest must be set as complete!' });
-    }
-
-    for (const submission of contest.submissions) {
-        const messages: string[] = [];
-
-        messages.push(`hello! thank you for participating in ${contest.name}!`);
-        messages.push(`screening/judging details for your submission can be found here: https://mappersguild.com/contests/results?submission=${submission.id}`);
-        messages.push(`a news post including the full results will be published soon!`);
-
-        await sendMessages(submission.creator.osuId, messages);
-    }
-
-    res.json({ success: 'Messages sent! A copy was sent to you for confirmation' });
+    res.json(newSubmission);
 });
 
 export default listingRouter;

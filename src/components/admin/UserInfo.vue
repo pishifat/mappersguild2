@@ -21,9 +21,6 @@
                         <option value="secret">
                             Secret
                         </option>
-                        <option value="spectator">
-                            Spectator
-                        </option>
                     </select>
                     <button class="btn btn-sm btn-outline-info w-25" @click="updateGroup($event)">
                         Save group
@@ -54,11 +51,6 @@
                 <p>
                     <button class="btn btn-sm btn-outline-info w-100" @click="calculateUserPoints($event)">
                         Calculate user points
-                    </button>
-                </p>
-                <p>
-                    <button class="btn btn-sm btn-outline-info w-100" @click="toggleBypassLogin($event)">
-                        {{ user.bypassLogin ? 'Enable' : 'Disable' }} ranked maps login requirement
                     </button>
                 </p>
                 <p>
@@ -169,22 +161,6 @@ export default defineComponent({
                     type: 'info',
                 });
             }
-        },
-        async toggleBypassLogin(e): Promise<void> {
-            const res: any = await this.$http.executePost(`/admin/users/${this.user.id}/toggleBypassLogin`, { bypassLogin: !this.user.bypassLogin }, e);
-
-            if (res) {
-                this.$store.dispatch('updateToastMessages', {
-                    message: `set bypassLogin to ${res.bypassLogin}`,
-                    type: 'info',
-                });
-                this.$store.commit('updateBypassLogin', {
-                    userId: this.user.id,
-                    group: res.group,
-                    bypassLogin: res.bypassLogin,
-                });
-            }
-
         },
         async toggleIsShowcaseMapper(e): Promise<void> {
             const res: any = await this.$http.executePost(`/admin/users/${this.user.id}/toggleIsShowcaseMapper`, { isShowcaseMapper: !this.user.isShowcaseMapper }, e);

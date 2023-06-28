@@ -1,7 +1,9 @@
 <template>
     <div>
         <div class="container card card-body">
-            <h4 class="mt-2">Groups</h4>
+            <h4 class="mt-2">
+                Groups
+            </h4>
             <admin-user-table
                 :grouped-users="admins"
                 :group="'admin'"
@@ -13,10 +15,6 @@
             <admin-user-table
                 :grouped-users="normalUsers"
                 :group="'user'"
-            />
-            <admin-user-table
-                :grouped-users="spectators"
-                :group="'spectator'"
             />
         </div>
 
@@ -55,9 +53,6 @@ export default defineComponent({
         }),
         selectedUser(): undefined | User {
             return this.users.find(u => u.id === this.selectedUserId);
-        },
-        spectators(): User[] {
-            return this.users.filter(u => u.group == UserGroup.Spectator);
         },
         normalUsers(): User[] {
             return this.users.filter(u => u.group == UserGroup.User);

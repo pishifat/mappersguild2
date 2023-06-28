@@ -18,7 +18,7 @@
                         </a>
                         <span
                             v-if="actionBeatmapsLoading"
-                            class="ms-2 small text-white-50"
+                            class="ms-2 small text-secondary"
                             >loading...</span>
                     </h5>
                     <div id="actionBeatmaps" class="show">
@@ -46,7 +46,7 @@
                                 <tr
                                     v-for="beatmap in actionBeatmaps"
                                     :key="beatmap.id"
-                                    class="text-white-50"
+                                    class="text-secondary"
                                 >
                                     <td scope="row">
                                         <modes-icons :modes="[beatmap.mode]" />
@@ -87,7 +87,7 @@
                         </table>
                         <span
                             v-else-if="!actionBeatmapsLoading"
-                            class="text-white-50 ms-5"
+                            class="text-secondary ms-5"
                             >None...</span>
                     </div>
                 </div>
@@ -112,7 +112,7 @@
                         </a>
                         <span
                             v-if="actionQuestsLoading"
-                            class="ms-2 small text-white-50"
+                            class="ms-2 small text-secondary"
                             >loading...</span>
                     </h5>
                     <div id="actionQuests" class="show">
@@ -146,7 +146,7 @@
                                 <tr
                                     v-for="quest in actionQuests"
                                     :key="quest.id"
-                                    class="text-white-50"
+                                    class="text-secondary"
                                 >
                                     <td scope="row">
                                         {{ quest.name }}
@@ -187,7 +187,7 @@
                         </table>
                         <span
                             v-else-if="!actionQuestsLoading"
-                            class="text-white-50 ms-5"
+                            class="text-secondary ms-5"
                             >None...</span>
                     </div>
                 </div>
@@ -212,7 +212,7 @@
                         </a>
                         <span
                             v-if="actionUsersLoading"
-                            class="ms-2 small text-white-50"
+                            class="ms-2 small text-secondary"
                             >loading...</span>
                     </h5>
                     <div v-if="actionUsers" id="actionUsers" class="show">
@@ -240,7 +240,7 @@
                                 <tr
                                     v-for="user in actionUsers"
                                     :key="user.id"
-                                    class="text-white-50"
+                                    class="text-secondary"
                                 >
                                     <td scope="row">
                                         <user-link :user="user" />
@@ -308,7 +308,7 @@
                         </table>
                         <span
                             v-else-if="!actionUsersLoading"
-                            class="text-white-50 ms-5"
+                            class="text-secondary ms-5"
                             >None...</span>
                     </div>
                 </div>
@@ -333,7 +333,7 @@
                         </a>
                         <span
                             v-if="actionContestsLoading"
-                            class="ms-2 small text-white-50"
+                            class="ms-2 small text-secondary"
                             >loading...</span>
                     </h5>
                     <div v-if="actionContests" id="actionContests" class="show">
@@ -358,7 +358,7 @@
                                 <tr
                                     v-for="contest in actionContests"
                                     :key="contest.id"
-                                    class="text-white-50"
+                                    class="text-secondary"
                                 >
                                     <td scope="row">
                                         <a
@@ -391,7 +391,7 @@
                         </table>
                         <span
                             v-else-if="!actionContestsLoading"
-                            class="text-white-50 ms-5"
+                            class="text-secondary ms-5"
                             >None...
                         </span>
                     </div>
@@ -417,7 +417,7 @@
                         </a>
                         <span
                             v-if="actionArtistsLoading"
-                            class="ms-2 small text-white-50"
+                            class="ms-2 small text-secondary"
                             >loading...</span>
                     </h5>
                     <div v-if="actionArtists" id="actionArtists" class="show">
@@ -442,7 +442,7 @@
                                 <tr
                                     v-for="artist in actionArtists"
                                     :key="artist.id"
-                                    class="text-white-50"
+                                    class="text-secondary"
                                 >
                                     <td scope="row">
                                         <a
@@ -484,7 +484,7 @@
                         </table>
                         <span
                             v-else-if="!actionArtistsLoading"
-                            class="text-white-50 ms-5"
+                            class="text-secondary ms-5"
                             >None...
                         </span>
                     </div>

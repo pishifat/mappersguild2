@@ -8,7 +8,7 @@
             <i class="fas fa-edit" />
         </a>
 
-        <span v-if="!showCommentInput" class="small text-white-50">{{ newComment || '...' }}</span>
+        <span v-if="!showCommentInput" class="small text-secondary">{{ newComment || '...' }}</span>
 
         <template v-else>
             <textarea

@@ -17,7 +17,7 @@
                     >
                         <!-- Difficulty -->
                         <td
-                            class="text-white-50"
+                            class="text-secondary"
                             :class="`card-status-${task.status.toLowerCase()}`"
                         >
                             {{ task.name }}
@@ -38,13 +38,13 @@
                                         v-bs-tooltip="'cancel'"
                                         href="#"
                                         class="text-danger"
-                                        @click.prevent="taskToAddCollaborator = null"
+                                        @click.prevent="taskToAddCollaborator = undefined"
                                     >
                                         <i class="fas fa-times" />
                                     </a>
                                     <a
                                         v-else
-                                        v-bs-tooltip="'invite new collaborator'"
+                                        v-bs-tooltip="'add new collaborator'"
                                         href="#"
                                         class="text-success"
                                         @click.prevent="taskToAddCollaborator = task"
@@ -122,9 +122,9 @@
 import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import NewTask from './NewTask.vue';
-import { User } from '../../../../interfaces/user';
-import { Task } from '../../../../interfaces/beatmap/task';
-import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
+import { User } from '@interfaces/user';
+import { Task } from '@interfaces/beatmap/task';
+import { Beatmap } from '@interfaces/beatmap/beatmap';
 import ModesIcons from '@components/ModesIcons.vue';
 
 export default defineComponent({
@@ -144,7 +144,7 @@ export default defineComponent({
     },
     data () {
         return {
-            taskToAddCollaborator: null as null | Task,
+            taskToAddCollaborator: undefined as undefined | Task,
         };
     },
     computed: {
@@ -201,7 +201,7 @@ export default defineComponent({
             return (task.status != 'Done' &&
                 !this.isQualified &&
                 this.beatmap.status != 'Done' &&
-                this.isOwner(task.mappers));
+                this.canEditTask(task));
         },
         async removeCollab(id, user, e): Promise<void> {
             e.target.classList.add('fake-button-disable');
@@ -220,3 +220,10 @@ export default defineComponent({
     },
 });
 </script>
+
+<style scoped>
+.fake-button-disable {
+    pointer-events: none;
+    opacity: 0.6;
+}
+</style>

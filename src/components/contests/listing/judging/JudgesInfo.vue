@@ -45,7 +45,7 @@
             </li>
         </ul>
 
-        <div v-else class="text-white-50 m-4">
+        <div v-else class="text-secondary m-4">
             None...
         </div>
     </div>

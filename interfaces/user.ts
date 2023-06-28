@@ -1,12 +1,12 @@
 import { BeatmapMode } from './beatmap/beatmap';
 import { Quest } from './quest';
+import { Mission } from './mission';
 import { MentorshipCycle } from './mentorshipCycle';
 import { Document } from 'mongoose';
 
 export enum UserGroup {
     User = 'user',
     Admin = 'admin',
-    Spectator = 'spectator',
     Secret = 'secret',
 }
 
@@ -27,7 +27,7 @@ export interface User extends Document {
     badge: number;
     queuedBadge: number;
     completedQuests: Quest[];
-    bypassLogin: boolean;
+    completedMissions: Mission[];
     discordId: string; // js doesnt support 18 digit numbers...
     isShowcaseMapper: boolean;
     isContestHelper: boolean;
@@ -47,6 +47,7 @@ export interface User extends Document {
     expertPoints: number;
     storyboardPoints: number;
     questPoints: number;
+    missionPoints: number;
     modPoints: number;
     hostPoints: number;
     contestCreatorPoints: number;
@@ -65,4 +66,6 @@ export interface User extends Document {
     mainMode: Omit<BeatmapMode, BeatmapMode.Hybrid>;
     createdAt: Date;
     mentees: User[];
+    rankedBeatmapsCount: number;
+    globalRank: number;
 }

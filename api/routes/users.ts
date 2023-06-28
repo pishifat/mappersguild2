@@ -6,28 +6,67 @@ import { QuestModel } from '../models/quest';
 import { SpentPointsModel } from '../models/spentPoints';
 import { TaskModel } from '../models/beatmap/task';
 import { Quest, QuestStatus } from '../../interfaces/quest';
-import { User } from '../../interfaces/user';
-import { UserGroup } from '../../interfaces/user';
+import { User, UserGroup } from '../../interfaces/user';
+import { Mission, MissionStatus } from '../../interfaces/mission';
 import { PartyModel } from '../models/party';
 
 const usersRouter = express.Router();
 
-usersRouter.use(isLoggedIn);
-
-const questPopulate = { path: 'parties', populate: { path: 'members leader' } };
-const userPopulate = { path: 'completedQuests', select: 'name completed' };
+const questPopulate = { path: 'parties', populate: { path: 'members pendingMembers leader' } };
+const userPopulate = [
+    { path: 'completedQuests', select: 'name completed' },
+    { path: 'completedMissions', select: 'name deadline' },
+];
 
 /* GET users listing. */
 usersRouter.get('/query', async (req, res) => {
     const users = await UserModel
         .find({
-            group: { $ne: UserGroup.Spectator },
+            $or: [
+                { _id: req.session.mongoId },
+                { $or: [
+                    { osuPoints: { $gt: 0 } },
+                    { taikoPoints: { $gt: 0 } },
+                    { catchPoints: { $gt: 0 } },
+                    { maniaPoints: { $gt: 0 } },
+                    { storyboardPoints: { $gt: 0 } },
+                    { modPoints: { $gt: 0 } },
+                    { contestParticipantPoints: { $gt: 0 } },
+                    { contestJudgePoints: { $gt: 0 } },
+                    { contestScreenerPoints: { $gt: 0 } },
+                ] },
+            ],
         })
         .populate(userPopulate);
 
     res.json({
         users,
     });
+});
+
+/* GET users with sorting. */
+usersRouter.get('/:sort', async (req, res) => {
+    res.json(
+        await UserModel
+            .find({
+                $or: [
+                    { _id: req.session.mongoId },
+                    { $or: [
+                        { osuPoints: { $gt: 0 } },
+                        { taikoPoints: { $gt: 0 } },
+                        { catchPoints: { $gt: 0 } },
+                        { maniaPoints: { $gt: 0 } },
+                        { storyboardPoints: { $gt: 0 } },
+                        { modPoints: { $gt: 0 } },
+                        { contestParticipantPoints: { $gt: 0 } },
+                        { contestJudgePoints: { $gt: 0 } },
+                        { contestScreenerPoints: { $gt: 0 } },
+                    ] },
+                ],
+            })
+            .populate(userPopulate)
+            .sort(req.params.sort)
+    );
 });
 
 /* GET user's current quests */
@@ -44,6 +83,28 @@ usersRouter.get('/:id/quests', async (req, res) => {
     const quests = parties.filter(p => p.quest).map(p => p.quest);
 
     res.json(quests);
+});
+
+/* GET user's current missions */
+usersRouter.get('/:id/missions', async (req, res) => {
+    const missionBeatmaps = await BeatmapModel
+        .find({
+            host: req.params.id as User['_id'],
+            mission: { $exists: true },
+        })
+        .defaultPopulate();
+
+    const missionIds: string[] = [];
+    const missions: Mission[] = [];
+
+    for (const beatmap of missionBeatmaps) {
+        if (beatmap.mission && !missionIds.includes(beatmap.mission.id) && beatmap.mission.status == MissionStatus.Open) {
+            missionIds.push(beatmap.mission.id);
+            missions.push(beatmap.mission);
+        }
+    }
+
+    res.json(missions);
 });
 
 /* GET user's created quests */
@@ -93,19 +154,9 @@ usersRouter.get('/findUserBeatmaps/:id', async (req, res) => {
             ],
         })
         .defaultPopulate()
-        .sortByLastest();
+        .sortByLatest();
 
     res.json(userBeatmaps);
-});
-
-/* GET users with sorting. */
-usersRouter.get('/:sort', async (req, res) => {
-    res.json(
-        await UserModel
-            .find({ group: { $ne: UserGroup.Spectator } })
-            .populate(userPopulate)
-            .sort(req.params.sort)
-    );
 });
 
 export default usersRouter;

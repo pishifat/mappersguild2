@@ -34,27 +34,28 @@ export async function getBotToken () {
     }
 }
 
-/**
- * @param {number} userId
- * @param {string} message
- * @returns {Promise<boolean | {error: string}>}
- */
-export async function sendMessage(userId, message) {
+export async function sendAnnouncement(userIds, channel, message) {
     const token = await getBotToken();
 
-    await sleep(500); // prevent rate limiting
+    await sleep(500);
 
     if (typeof token !== 'string') {
         return { error: token.error };
     }
 
     try {
-        await axios.post('https://osu.ppy.sh/api/v2/chat/new', {
-            target_id: userId,
+        await axios.post('https://osu.ppy.sh/api/v2/chat/channels/', {
+            channel: {
+                name: channel.name,
+                description: channel.description,
+            },
             message,
-            is_action: false,
-        }, {
+            target_ids: userIds,
+            type: 'ANNOUNCE',
+        },
+        {
             headers: {
+                Accept: 'application/json',
                 Authorization: `Bearer ${token}`,
             },
         });
@@ -63,21 +64,4 @@ export async function sendMessage(userId, message) {
     } catch (error) {
         return { error };
     }
-}
-
-/**
- * @param {number} userId
- * @param {string[]} messages
- * @returns {Promise<boolean | {error: string}>}
- */
-export async function sendMessages(userId, messages) {
-    for (const message of messages) {
-        const res = await sendMessage(userId, message);
-
-        if (typeof res !== 'boolean') {
-            return {  error: res.error };
-        }
-    }
-
-    return true;
 }

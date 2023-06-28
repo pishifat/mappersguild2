@@ -261,13 +261,6 @@ const store: Module<AdminState, MainState> = {
                 user.discordId = payload.discordId;
             }
         },
-        updateBypassLogin (state, payload): void {
-            const user = state.actionUsers.find(u => u.id == payload.userId);
-
-            if (user) {
-                user.bypassLogin = payload.bypassLogin;
-            }
-        },
 
         // contests
         updateIsApproved (state, payload): void {

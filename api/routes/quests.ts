@@ -1,20 +1,20 @@
 import express from 'express';
-import { isLoggedIn, isNotSpectator } from '../helpers/middlewares';
-import { extendQuestPrice, findCreateQuestPointsSpent } from '../helpers/points';
+import { isLoggedIn } from '../helpers/middlewares';
+import { findCreateQuestPointsSpent } from '../helpers/points';
 import { generateLists, generateThumbnailUrl, generateAuthorWebhook } from '../helpers/helpers';
 import { BeatmapMode } from '../../interfaces/beatmap/beatmap';
 import { Quest, QuestStatus } from '../../interfaces/quest';
 import { LogCategory } from '../../interfaces/log';
 import { webhookPost, webhookColors } from '../helpers/discordApi';
 import { SpentPointsCategory } from '../../interfaces/spentPoints';
+import { SpentPointsModel } from '../models/spentPoints';
 import { updateUserPoints } from '../helpers/points';
 import { QuestModel } from '../models/quest';
 import { LogModel } from '../models/log';
-import { SpentPointsModel } from '../models/spentPoints';
 import { FeaturedArtistModel } from '../models/featuredArtist';
 import { User } from '../../interfaces/user';
 import { FilterMode } from '../../interfaces/extras';
-import { ExtendDeadlineResponse, PointsRefreshResponse } from '../../interfaces/api/quests';
+import { PointsRefreshResponse } from '../../interfaces/api/quests';
 import { UserModel } from '../models/user';
 
 async function isPartyLeader (req, res, next): Promise<void> {
@@ -34,42 +34,45 @@ const questsRouter = express.Router();
 
 questsRouter.use(isLoggedIn);
 
-/* GET on load quests info */
+/* GET quests */
 questsRouter.get('/search', async (req, res) => {
     let query: Record<string, any> = {};
 
     const mode = req.query.mode?.toString();
-    const status = req.query.status?.toString();
+    const limit = req.query.limit!.toString();
+    const artist = req.query.artist?.toString();
     const id = req.query.id?.toString();
 
     if (mode !== FilterMode.any) query.modes = mode;
 
-    if (status === QuestStatus.Open) {
-        query.status = QuestStatus.Open;
-        query.expiration = { $gt: new Date() };
-    } else {
-        query.status = { $ne: QuestStatus.Hidden };
+    query.status = { $ne: QuestStatus.Hidden };
+
+    if (artist) {
+        if (artist == 'user') {
+            const pishifat = await UserModel.findOne({ osuId: 3178418 }).orFail();
+            query = { creator: { $ne: pishifat._id } };
+        } else if (artist == 'none') {
+            query.art = null;
+        } else {
+            query.art = artist;
+        }
     }
 
     if (id) {
-        query = {
-            $or: [
-                query,
-                { _id: id },
-            ],
-        };
+        query = { _id: id };
     }
 
     const quests = await QuestModel
         .find(query)
         .defaultPopulate()
-        .sortByLastest();
+        .sortByLatest()
+        .limit(parseInt(limit));
 
     res.json(quests);
 });
 
 /* POST accepts quest. */
-questsRouter.post('/:id/accept', isNotSpectator, async (req, res) => {
+questsRouter.post('/:id/accept', async (req, res) => {
     let quest = await QuestModel
         .findById(req.params.id)
         .where('status', QuestStatus.Open)
@@ -81,11 +84,6 @@ questsRouter.post('/:id/accept', isNotSpectator, async (req, res) => {
 
     if (!party.modes.length) {
         return res.json({ error: 'Your party has no modes selected!' });
-    }
-
-    // check if all party members can afford quest
-    if (party.members.some(m => m.availablePoints < quest.price)) {
-        return res.json({ error: 'Someone in your party does not have enough points to accept the quest!' });
     }
 
     // check if quest is valid to accept
@@ -158,6 +156,7 @@ questsRouter.post('/:id/accept', isNotSpectator, async (req, res) => {
         await quest.save();
 
         party.quest = newQuest;
+        party.pendingMembers = [];
         await party.save();
 
         quest = newQuest;
@@ -165,14 +164,22 @@ questsRouter.post('/:id/accept', isNotSpectator, async (req, res) => {
 
     // spend points
     for (const member of party.members) {
-        await SpentPointsModel.generate(SpentPointsCategory.AcceptQuest, member._id, quest._id);
-        await updateUserPoints(member.id);
+        if (member.availablePoints > quest.price) { // if user can afford it, suck their points
+            await SpentPointsModel.generate(SpentPointsCategory.AcceptQuest, member._id, quest._id);
+            await updateUserPoints(member.id);
+        } else {                                    // if user can't afford it, suck party leader's points (even if that goes negative i don't care. if someone bypasses the front-end lock for this they deserve to do the quest)
+            await SpentPointsModel.generate(SpentPointsCategory.AcceptQuest, party.leader._id, quest._id);
+            await updateUserPoints(party.leader.id);
+        }
     }
 
-    const allQuests = await QuestModel.findAll();
+    quest = await QuestModel
+        .findById(quest.id)
+        .defaultPopulate()
+        .orFail();
 
     res.json({
-        quests: allQuests,
+        quests: [quest],
         availablePoints: res.locals.userRequest.availablePoints - quest.price,
     } as PointsRefreshResponse);
 
@@ -208,7 +215,7 @@ questsRouter.post('/:id/drop', isPartyLeader, async (req, res) => {
     const leader = quest.currentParty.leader;
     await quest.drop();
 
-    const allQuests = await QuestModel.findAll();
+    const allQuests = await QuestModel.findAll(100);
 
     res.json(allQuests);
 
@@ -229,41 +236,11 @@ questsRouter.post('/:id/drop', isPartyLeader, async (req, res) => {
     }]);
 });
 
-/* POST extend deadline */
-questsRouter.post('/:id/extendDeadline', isPartyLeader, async (req, res) => {
-    const quest: Quest = res.locals.quest;
-
-    if (quest.currentParty.members.some(m => m.availablePoints < extendQuestPrice)) {
-        return res.json({ error: 'One or more of your party members do not have enough points to extend the deadline!' });
-    }
-
-    for (const member of quest.currentParty.members) {
-        SpentPointsModel.generate(SpentPointsCategory.ExtendDeadline, member.id, quest.id);
-        updateUserPoints(member.id);
-    }
-
-    if (!quest.deadline) throw new Error();
-
-    const deadline = new Date(quest.deadline);
-    deadline.setDate(deadline.getDate() + 30);
-    quest.deadline = deadline;
-    await quest.save();
-
-    const user = await UserModel.findById(req.session?.mongoId).orFail();
-
-    res.json({
-        quest,
-        availablePoints: user.availablePoints,
-    } as ExtendDeadlineResponse);
-
-    LogModel.generate(req.session?.mongoId, `extended deadline for ${quest.name}`, LogCategory.Party);
-});
-
 /* POST reopen expired quest. */
-questsRouter.post('/:id/reopen', isNotSpectator, async (req, res) => {
+questsRouter.post('/:id/reopen', async (req, res) => {
     const questId = req.params.id;
     const user: User = res.locals.userRequest;
-    const quest = await QuestModel
+    let quest = await QuestModel
         .findById(questId)
         .defaultPopulate()
         .orFail();
@@ -275,16 +252,17 @@ questsRouter.post('/:id/reopen', isNotSpectator, async (req, res) => {
     const newExpiration = new Date();
     newExpiration.setDate(newExpiration.getDate() + 90);
 
-    await QuestModel.findByIdAndUpdate(questId, {
-        expiration: newExpiration,
-    });
+    quest = await QuestModel
+        .findByIdAndUpdate(questId, {
+            expiration: newExpiration,
+        })
+        .defaultPopulate()
+        .orFail();
 
     SpentPointsModel.generate(SpentPointsCategory.ReopenQuest, req.session?.mongoId, quest._id);
     updateUserPoints(req.session?.mongoId);
 
-    const allQuests = await QuestModel.findAll();
-
-    res.json({ quests: allQuests, availablePoints: user.availablePoints } as PointsRefreshResponse);
+    res.json({ quests: [quest], availablePoints: user.availablePoints } as PointsRefreshResponse);
 
     LogModel.generate(req.session?.mongoId, `re-opened quest "${quest.name}"`, LogCategory.Quest );
 
@@ -302,7 +280,7 @@ questsRouter.post('/:id/reopen', isNotSpectator, async (req, res) => {
 });
 
 /* POST add quest */
-questsRouter.post('/submit', isNotSpectator, async (req, res) => {
+questsRouter.post('/submit', async (req, res) => {
     //quest creation
     const user: User = res.locals.userRequest;
     const artist = await FeaturedArtistModel.findOne({ osuId: req.body.art });

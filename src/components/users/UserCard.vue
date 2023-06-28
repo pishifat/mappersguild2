@@ -6,7 +6,7 @@
             data-bs-toggle="modal"
             data-bs-target="#extendedInfo"
         >
-            <img :src="'https://a.ppy.sh/' + user.osuId" class="card-avatar-img">
+            <img :src="'https://a.ppy.sh/' + user.osuId" class="card-avatar-img" />
 
             <div class="mb-2">
                 <user-link :user="user" />

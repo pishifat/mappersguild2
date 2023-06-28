@@ -4,14 +4,6 @@
             Load FA showcase users
         </button>
 
-        <bot-chat-message
-            v-if="uniqueUsers.length"
-            :messages="messages"
-            :message-type="'showcase'"
-            :mongo-id="''"
-            :users="uniqueUsers"
-        />
-
         <div v-if="osuUsers.length && taikoUsers.length && catchUsers.length && maniaUsers.length" class="row">
             <div v-if="osuUsers.length" class="col-sm-3">
                 osu!
@@ -19,11 +11,6 @@
                     <div v-for="user in osuUsers" :key="user.id">
                         <user-link
                             :user="user"
-                        />
-                        <button
-                            v-bs-tooltip="'send messages'"
-                            class="btn tiny-button btn-outline-info ms-1"
-                            @click="sendMessages(user, $event)"
                         />
                     </div>
                 </copy-paste>
@@ -35,11 +22,6 @@
                         <user-link
                             :user="user"
                         />
-                        <button
-                            v-bs-tooltip="'send messages'"
-                            class="btn tiny-button btn-outline-info ms-1"
-                            @click="sendMessages(user, $event)"
-                        />
                     </div>
                 </copy-paste>
             </div>
@@ -50,11 +32,6 @@
                         <user-link
                             :user="user"
                         />
-                        <button
-                            v-bs-tooltip="'send messages'"
-                            class="btn tiny-button btn-outline-info ms-1"
-                            @click="sendMessages(user, $event)"
-                        />
                     </div>
                 </copy-paste>
             </div>
@@ -64,11 +41,6 @@
                     <div v-for="user in maniaUsers" :key="user.id">
                         <user-link
                             :user="user"
-                        />
-                        <button
-                            v-bs-tooltip="'send messages'"
-                            class="btn tiny-button btn-outline-info ms-1"
-                            @click="sendMessages(user, $event)"
                         />
                     </div>
                 </copy-paste>
@@ -81,13 +53,11 @@
 import { defineComponent } from 'vue';
 import { User } from '../../../interfaces/user';
 import CopyPaste from '../CopyPaste.vue';
-import BotChatMessage from './BotChatMessage.vue';
 
 export default defineComponent({
     name: 'ShowcaseUserList',
     components: {
         CopyPaste,
-        BotChatMessage,
     },
     data() {
         return {
@@ -131,20 +101,6 @@ export default defineComponent({
                 this.taikoUsers = res.taikoUsers;
                 this.catchUsers = res.catchUsers;
                 this.maniaUsers = res.maniaUsers;
-            }
-        },
-        async sendMessages (user, e) {
-            const result = confirm(`Are you sure you want to send messages to the user?`);
-
-            if (result) {
-                const res = await this.$http.executePost('/admin/users/sendMessages', { users: [user], messages: this.messages }, e);
-
-                if (!this.$http.isError(res)) {
-                    this.$store.dispatch('updateToastMessages', {
-                        message: `sent`,
-                        type: 'info',
-                    });
-                }
             }
         },
     },

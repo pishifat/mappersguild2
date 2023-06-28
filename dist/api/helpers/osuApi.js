@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getBeatmapsSearch = exports.getMaps = exports.getDiscussions = exports.getBeatmapsetV2Info = exports.beatmapsetInfo = exports.getUserInfoFromId = exports.getUserInfo = exports.refreshToken = exports.getClientCredentialsGrant = exports.getToken = exports.isOsuResponseError = void 0;
+exports.getBeatmapsSearch = exports.getDiscussions = exports.getBeatmapsetV2Info = exports.getUserInfoFromId = exports.getUserInfo = exports.refreshToken = exports.getClientCredentialsGrant = exports.getToken = exports.isOsuResponseError = void 0;
 const axios_1 = __importDefault(require("axios"));
 const querystring_1 = __importDefault(require("querystring"));
 const helpers_1 = require("./helpers");
@@ -90,33 +90,18 @@ async function getUserInfo(token) {
     return await executeRequest(options);
 }
 exports.getUserInfo = getUserInfo;
-async function getUserInfoFromId(id) {
-    const url = `https://osu.ppy.sh/api/get_user?k=${config_json_1.default.v1token}&u=${id}`;
-    const res = await axios_1.default.get(url);
-    return res.data[0];
-}
-exports.getUserInfoFromId = getUserInfoFromId;
-async function beatmapsetInfo(setId) {
-    const url = `https://osu.ppy.sh/api/get_beatmaps?k=${config_json_1.default.v1token}&s=${setId}`;
+async function getUserInfoFromId(token, id) {
+    const options = {
+        method: 'GET',
+        url: `https://osu.ppy.sh/api/v2/users/${id}`,
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    };
     try {
-        const res = await axios_1.default.get(url);
-        if (res?.data?.length > 0) {
-            const beatmaps = res.data;
-            let longestBeatmap = res.data[0];
-            for (const beatmap of beatmaps) {
-                if (parseInt(beatmap.total_length) > parseInt(longestBeatmap.total_length)) {
-                    longestBeatmap = beatmap;
-                }
-            }
-            longestBeatmap.approved = parseInt(longestBeatmap.approved, 10);
-            longestBeatmap.beatmap_id = parseInt(longestBeatmap.beatmap_id, 10);
-            longestBeatmap.beatmapset_id = parseInt(longestBeatmap.beatmapset_id, 10);
-            longestBeatmap.creator_id = parseInt(longestBeatmap.creator_id, 10);
-            longestBeatmap.hit_length = parseInt(longestBeatmap.hit_length, 10);
-            longestBeatmap.total_length = parseInt(longestBeatmap.total_length, 10);
-            longestBeatmap.mode = parseInt(longestBeatmap.mode, 10);
-            longestBeatmap.approved_date = new Date(longestBeatmap.approved_date);
-            return longestBeatmap;
+        const res = await axios_1.default(options);
+        if (res?.data) {
+            return res.data;
         }
         return helpers_1.defaultErrorMessage;
     }
@@ -124,7 +109,7 @@ async function beatmapsetInfo(setId) {
         return helpers_1.defaultErrorMessage;
     }
 }
-exports.beatmapsetInfo = beatmapsetInfo;
+exports.getUserInfoFromId = getUserInfoFromId;
 async function getBeatmapsetV2Info(token, setId) {
     const options = {
         method: 'GET',
@@ -166,29 +151,6 @@ async function getDiscussions(token, params) {
     }
 }
 exports.getDiscussions = getDiscussions;
-async function getMaps(date) {
-    let beatmaps = [];
-    const today = new Date();
-    try {
-        while (date < new Date(today.setDate(today.getDate() - 7))) {
-            const url = `https://osu.ppy.sh/api/get_beatmaps?k=${config_json_1.default.v1token}&since=${date.toISOString()}`;
-            const res = await axios_1.default.get(url);
-            if (res.data.length) {
-                date = new Date(res.data[res.data.length - 1].approved_date);
-                beatmaps = beatmaps.concat(res.data);
-                await helpers_1.sleep(2000);
-            }
-        }
-        if (beatmaps.length > 0) {
-            return beatmaps;
-        }
-        return helpers_1.defaultErrorMessage;
-    }
-    catch (error) {
-        return helpers_1.defaultErrorMessage;
-    }
-}
-exports.getMaps = getMaps;
 async function getBeatmapsSearch(token, params) {
     const url = `https://osu.ppy.sh/api/v2/beatmapsets/search/${params}`;
     const options = {

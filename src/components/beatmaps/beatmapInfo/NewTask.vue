@@ -1,6 +1,6 @@
 <template>
     <div
-        v-if="(beatmap.status == 'WIP' || beatmap.status == 'Secret') && remainingTasks.length"
+        v-if="beatmap.status == 'WIP' && remainingTasks.length"
         class="row mt-2 mb-3"
     >
         <div class="col-sm-12">
@@ -40,18 +40,18 @@
 
                 <input
                     v-if="isHost || taskToAddCollaborator"
-                    v-model="requestTaskUsername"
+                    v-model="addTaskUsername"
                     class="form-control"
                     type="text"
-                    placeholder="request to... (optional)"
+                    placeholder="add user to task..."
                     maxlength="18"
-                    @keyup.enter="taskToAddCollaborator ? addCollab($event) : requestTask(beatmap.id, $event)"
-                >
+                    @keyup.enter="taskToAddCollaborator ? addCollab($event) : addTask($event)"
+                />
 
                 <button
                     v-bs-tooltip="'add difficulty'"
                     class="btn btn-outline-info"
-                    @click="taskToAddCollaborator ? addCollab($event) : addTask(beatmap.id, $event)"
+                    @click="taskToAddCollaborator ? addCollab($event) : addTask($event)"
                 >
                     <i class="fas fa-plus" />
                 </button>
@@ -97,7 +97,7 @@ export default defineComponent({
         return {
             selectedTask: TaskName.Easy,
             selectedMode: BeatmapMode.Osu,
-            requestTaskUsername: '',
+            addTaskUsername: '',
         };
     },
     computed: {
@@ -115,13 +115,7 @@ export default defineComponent({
         },
     },
     methods: {
-        async addTask(id, e): Promise<void> {
-            if (this.requestTaskUsername && this.requestTaskUsername.length) {
-                this.requestTask(id, e);
-
-                return;
-            }
-
+        async addTask(e): Promise<void> {
             let mode: BeatmapMode;
 
             if (this.beatmap.mode == BeatmapMode.Hybrid) {
@@ -130,36 +124,15 @@ export default defineComponent({
                 mode = this.beatmap.mode;
             }
 
-            const bm = await this.$http.executePost<Beatmap>('/beatmaps/addTask/' + id, {
+            const bm = await this.$http.executePost<Beatmap>('/beatmaps/addTask/' + this.beatmap.id, {
+                user: this.addTaskUsername,
                 taskName: this.selectedTask,
+                username: this.addTaskUsername,
                 mode,
             }, e);
 
             if (!this.$http.isError(bm)) {
                 this.$store.dispatch('beatmaps/updateBeatmap', bm);
-            }
-        },
-        async requestTask(id, e): Promise<void> {
-            let mode;
-
-            if (this.beatmap.mode == BeatmapMode.Hybrid) {
-                mode = this.selectedMode;
-            } else {
-                mode = this.beatmap.mode;
-            }
-
-            const bm = await this.$http.executePost<Beatmap>('/beatmaps/requestTask/' + id, {
-                taskName: this.selectedTask,
-                user: this.requestTaskUsername,
-                mode,
-            }, e);
-
-            if (!this.$http.isError(bm)) {
-                this.$store.dispatch('beatmaps/updateBeatmap', bm);
-                this.$store.dispatch('updateToastMessages', {
-                    message: 'Difficulty request sent!',
-                    type: 'success',
-                });
             }
         },
         async addCollab(e): Promise<void> {
@@ -171,16 +144,17 @@ export default defineComponent({
                 mode = this.beatmap.mode;
             }
 
-            const bm = await this.$http.executePost<Beatmap>('/beatmaps/task/' + this.taskToAddCollaborator.id + '/addCollab', {
-                user: this.requestTaskUsername,
-                taskName: this.taskToAddCollaborator.name,
+            // this doesn't exist anymore
+            const bm = await this.$http.executePost<Beatmap>('/beatmaps/addCollab/' + this.beatmap.id, {
+                user: this.addTaskUsername,
+                task: this.taskToAddCollaborator,
                 mode,
             }, e);
 
             if (!this.$http.isError(bm)) {
                 this.$store.dispatch('beatmaps/updateBeatmap', bm);
                 this.$store.dispatch('updateToastMessages', {
-                    message: 'Collab invite sent!',
+                    message: 'Added',
                     type: 'success',
                 });
             }

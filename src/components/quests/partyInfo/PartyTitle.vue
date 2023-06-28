@@ -68,10 +68,14 @@ export default defineComponent({
     },
     methods: {
         async joinParty(e): Promise<void> {
-            const party = await this.$http.executePost<Party>(`/parties/${this.party.id}/join`, {}, e);
+            const party = await this.$http.executePost<Party>(`/parties/${this.party.id}/add`, {}, e);
 
             if (!this.$http.isError(party)) {
                 this.$store.dispatch('quests/updateParty', party);
+                this.$store.dispatch('updateToastMessages', {
+                    message: 'Joined party',
+                    type: 'success',
+                });
             }
         },
         async leaveParty(e): Promise<void> {

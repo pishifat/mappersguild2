@@ -7,13 +7,11 @@ const express_1 = __importDefault(require("express"));
 const middlewares_1 = require("../../helpers/middlewares");
 const beatmap_1 = require("../../models/beatmap/beatmap");
 const beatmap_2 = require("../../../interfaces/beatmap/beatmap");
-const quest_1 = require("../../models/quest");
 const helpers_1 = require("../../helpers/helpers");
 const task_1 = require("../../models/beatmap/task");
 const osuApi_1 = require("../../helpers/osuApi");
 const task_2 = require("../../../interfaces/beatmap/task");
-const user_1 = require("../../../interfaces/user");
-const user_2 = require("../../models/user");
+const user_1 = require("../../models/user");
 const osuBot_1 = require("../../helpers/osuBot");
 const adminBeatmapsRouter = express_1.default.Router();
 adminBeatmapsRouter.use(middlewares_1.isLoggedIn);
@@ -44,11 +42,16 @@ adminBeatmapsRouter.post('/:id/updateStatus', middlewares_1.isSuperAdmin, async 
     if (req.body.status == beatmap_2.BeatmapStatus.Ranked) {
         // fetch osu api's beatmap data
         const osuId = helpers_1.findBeatmapsetId(b.url);
-        const bmInfo = await osuApi_1.beatmapsetInfo(osuId);
-        if (osuApi_1.isOsuResponseError(bmInfo)) {
-            return res.json(helpers_1.defaultErrorMessage);
+        const response = await osuApi_1.getClientCredentialsGrant();
+        await helpers_1.sleep(500);
+        if (!osuApi_1.isOsuResponseError(response)) {
+            const token = response.access_token;
+            const bmInfo = await osuApi_1.getBeatmapsetV2Info(token, osuId);
+            await helpers_1.sleep(500);
+            if (!osuApi_1.isOsuResponseError(bmInfo)) {
+                await helpers_1.setBeatmapStatusRanked(b.id, bmInfo);
+            }
         }
-        await helpers_1.setBeatmapStatusRanked(b.id, bmInfo);
     }
     else {
         b.queuedForRank = false;
@@ -123,21 +126,22 @@ adminBeatmapsRouter.post('/:id/rejectMapset', async (req, res) => {
         .findByIdAndUpdate(req.params.id, { status: beatmap_2.BeatmapStatus.WIP })
         .defaultPopulate()
         .orFail();
+    const channel = {
+        name: `MG - Mapset error`,
+        description: `One of your Mappers' Guild beatmaps encountered a problem with points processing. You may need to make adjustments before points can be earned.`,
+    };
+    let message = `hello! your beatmap of [${beatmap.song.artist} - ${beatmap.song.title}](https://mappersguild.com/beatmaps?id=${beatmap.id}) isn't eligible to earn points for the following reason:\n\n- `;
     const inputMessages = req.body.messages.trim();
-    const splitMessages = inputMessages.split('\n');
-    const messages = [`hello! your beatmap on mappersguild https://mappersguild.com/beatmaps?id=${beatmap.id} isn't eligible to earn points for the following reason:`];
-    for (const message of splitMessages) {
-        messages.push(message.trim());
-    }
+    message += inputMessages;
     if (req.body.isResolvable) {
-        messages.push(`when the issue is resolved, mark the mapset as "Done" to re-attempt points processing!`);
-        messages.push(`thank you!!`);
+        message += `\n\nwhen the issue is resolved, mark the mapset as \`Done\` to re-attempt points processing!`;
+        message += `\n\nthank you!!`;
     }
     else {
-        messages.push(`sorry :(`);
+        message += `\n\nsorry :(`;
     }
-    const finalMessages = await osuBot_1.sendMessages(beatmap.host.osuId, messages);
-    if (finalMessages !== true) {
+    const announcement = await osuBot_1.sendAnnouncement([beatmap.host.id], channel, message);
+    if (announcement !== true) {
         return res.json({ error: `Messages were not sent.` });
     }
     res.json(beatmap.status);
@@ -148,60 +152,29 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
         return res.json({ error: 'Invalid date' });
     }
     const date = new Date(req.params.date);
-    const [b, q, u] = await Promise.all([
-        beatmap_1.BeatmapModel
-            .find({
-            rankedDate: { $gte: date },
-            status: beatmap_2.BeatmapStatus.Ranked,
-        })
-            .defaultPopulate()
-            .sort({ mode: 1, createdAt: -1 })
-            .orFail(),
-        quest_1.QuestModel
-            .find({ completed: { $gte: date } })
-            .defaultPopulate()
-            .sort({ requiredMapsets: -1 })
-            .orFail(),
-        user_2.UserModel
-            .find({ group: { $ne: user_1.UserGroup.Spectator } })
-            .orFail(),
-    ]);
-    console.log(b.length);
-    console.log(q.length);
-    /*const maps: any = await getMaps(date);
-    const externalBeatmaps: any = [];
-
-    const osuIds: any = [];
-
-    b.forEach(map => {
-        if (map.url) {
-            const osuId = findBeatmapsetId(map.url);
-
-            if (!osuIds.includes(osuId)) {
-                osuIds.push(osuId);
-            }
-        }
-    });
-
-    if (!isOsuResponseError(maps)) {
-        maps.forEach(map => {
-            map.beatmapset_id = parseInt(map.beatmapset_id, 10);
-
-            if (!osuIds.includes(map.beatmapset_id)) {
-                osuIds.push(map.beatmapset_id);
-                map.tags = map.tags.split(' ');
-
-                if ((map.tags.includes('featured') && map.tags.includes('artist')) || map.tags.includes('fa')) {
-                    externalBeatmaps.push({
-                        osuId: map.beatmapset_id,
-                        artist: map.artist,
-                        title: map.title,
-                        creator: map.creator,
-                        creatorOsuId: map.creator_id });
-                }
-            }
-        });
-    }*/
+    const b = await beatmap_1.BeatmapModel
+        .find({
+        rankedDate: { $gte: date },
+        status: beatmap_2.BeatmapStatus.Ranked,
+    })
+        .defaultPopulate()
+        .sort({ mode: 1, createdAt: -1 })
+        .orFail();
+    const u = await user_1.UserModel
+        .find({
+        $or: [
+            { osuPoints: { $gt: 0 } },
+            { taikoPoints: { $gt: 0 } },
+            { catchPoints: { $gt: 0 } },
+            { maniaPoints: { $gt: 0 } },
+            { storyboardPoints: { $gt: 0 } },
+            { modPoints: { $gt: 0 } },
+            { contestParticipantPoints: { $gt: 0 } },
+            { contestJudgePoints: { $gt: 0 } },
+            { contestScreenerPoints: { $gt: 0 } },
+        ],
+    })
+        .orFail();
     const users = [];
     for (const user of u) {
         user.hostCount = 0;
@@ -219,7 +192,7 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
             if (beatmap.host.id == user.id)
                 user.hostCount++;
         }
-        if (user.taskCount >= 30 || user.hostCount >= 5) {
+        if (user.taskCount >= 10 || user.hostCount >= 5) {
             users.push({ username: user.username, osuId: user.osuId, taskCount: user.taskCount, hostCount: user.hostCount, modes: [...new Set(modes)] });
         }
     }
@@ -230,7 +203,7 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
             return -1;
         return 0;
     });
-    res.json({ beatmaps: b, quests: q, users });
+    res.json({ users });
 });
 /* GET bundled beatmaps */
 adminBeatmapsRouter.get('/findBundledBeatmaps', async (req, res) => {
@@ -246,7 +219,7 @@ adminBeatmapsRouter.get('/findBundledBeatmaps', async (req, res) => {
         status: beatmap_2.BeatmapStatus.Ranked,
     })
         .defaultPopulate()
-        .sortByLastest();
+        .sortByLatest();
     res.json(easyBeatmaps);
 });
 exports.default = adminBeatmapsRouter;

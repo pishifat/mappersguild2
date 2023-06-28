@@ -21,8 +21,13 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PartyModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
+const quest_1 = require("../../interfaces/quest");
+const spentPoints_1 = require("../../interfaces/spentPoints");
+const spentPoints_2 = require("../models/spentPoints");
+const points_1 = require("../helpers/points");
 const partySchema = new mongoose_1.Schema({
     leader: { type: 'ObjectId', ref: 'User' },
+    pendingMembers: [{ type: 'ObjectId', ref: 'User' }],
     members: [{ type: 'ObjectId', ref: 'User' }],
     lock: { type: Boolean, default: false },
     rank: { type: Number, default: 0 },
@@ -33,6 +38,7 @@ const queryHelpers = {
     defaultPopulate() {
         return this.populate([
             { path: 'members' },
+            { path: 'pendingMembers' },
             { path: 'leader' },
             { path: 'quest' },
         ]);
@@ -50,27 +56,54 @@ partySchema.methods.setPartyRank = function () {
     const rankSum = this.members.reduce((acc, m) => acc + m.rank, 0);
     this.rank = Math.round(rankSum / this.members.length);
 };
-partySchema.methods.addUser = async function (user) {
+partySchema.methods.addUser = async function (user, isNotSelf, isLeader) {
     if (!this.quest) {
         throw new Error(`Couldn't find quest`);
     }
     await this.quest.populate({
         path: 'parties',
         populate: {
-            path: 'members',
+            path: 'members pendingMembers',
             select: 'id',
         },
     }).execPopulate();
+    if (!isLeader && this.lock && !this.pendingMembers.some(m => m.id == user.id)) {
+        throw new Error('Party is locked');
+    }
+    if (!isLeader && isNotSelf && this.quest.status != quest_1.QuestStatus.Open && !this.pendingMembers.some(m => m.id == user.id)) {
+        throw new Error('Cannot join in-progress quests without approval from party leader');
+    }
     if (this.quest.parties.some(p => p.members.some(m => m.id == user.id))) {
         throw new Error('Already in a party for this quest');
     }
-    if (user.availablePoints < this.quest.price) {
-        throw new Error('You do not have enough points available to accept this quest!');
+    if (this.pendingMembers.some(m => m.id == user.id)) {
+        throw new Error('Already pending in this party');
+    }
+    if (user.availablePoints < this.quest.price && this.leader.availablePoints < this.quest.price * 2) {
+        throw new Error('Not enough points available to accept this quest');
     }
     if (this.members.length >= this.quest.maxParty) {
         throw new Error('Party has too many members!');
     }
-    this.members.push(user);
+    if (isNotSelf) {
+        this.pendingMembers.push(user);
+    }
+    else {
+        this.members.push(user);
+        const i = this.pendingMembers.findIndex(m => m.id == user.id);
+        if (i !== -1)
+            this.pendingMembers.splice(i, 1);
+        if (this.quest.status == quest_1.QuestStatus.WIP) {
+            if (user.availablePoints > this.quest.price) {
+                await spentPoints_2.SpentPointsModel.generate(spentPoints_1.SpentPointsCategory.AcceptQuest, user.id, this.quest.id);
+                await points_1.updateUserPoints(user.id);
+            }
+            else {
+                await spentPoints_2.SpentPointsModel.generate(spentPoints_1.SpentPointsCategory.AcceptQuest, this.leader.id, this.quest.id);
+                await points_1.updateUserPoints(this.leader.id);
+            }
+        }
+    }
     this.setPartyRank();
     await this.save();
 };

@@ -17,7 +17,12 @@
             <template #filters>
                 <mode-filters
                     :filter-mode="filterMode"
-                    @update:filterMode="searchQuests($event)"
+                    @update:filterMode="filterByMode($event)"
+                />
+
+                <artist-filters
+                    :filter-artist="filterArtist"
+                    @update:filterArtist="filterByArtist($event)"
                 />
             </template>
         </filter-box>
@@ -29,11 +34,13 @@ import { defineComponent } from 'vue';
 import { mapActions, mapState } from 'vuex';
 import FilterBox from '@components/FilterBox.vue';
 import ModeFilters from '@components/ModeFilters.vue';
+import ArtistFilters from '@components/ArtistFilters.vue';
 
 export default defineComponent({
     components: {
         FilterBox,
         ModeFilters,
+        ArtistFilters,
     },
     computed: {
         ...mapState([
@@ -41,14 +48,27 @@ export default defineComponent({
         ]),
         ...mapState('quests', [
             'filterMode',
+            'filterArtist',
         ]),
         validRank(): boolean {
             return this.loggedInUser.rank >= 1;
         },
     },
-    methods: mapActions('quests', [
-        'updateFilterValue',
-        'searchQuests',
-    ]),
+    methods: {
+        ...mapActions('quests', [
+            'updateFilterValue',
+            'updateFilterMode',
+            'updateFilterArtist',
+            'searchQuests',
+        ]),
+        filterByMode(e) {
+            this.updateFilterMode(e);
+            this.searchQuests();
+        },
+        filterByArtist(e) {
+            this.updateFilterArtist(e);
+            this.searchQuests();
+        },
+    },
 });
 </script>

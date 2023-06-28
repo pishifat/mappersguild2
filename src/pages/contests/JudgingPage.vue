@@ -61,7 +61,7 @@
                                         </a>
                                     </th>
                                     <th
-                                        v-for="criteria in selectedContest.criterias"
+                                        v-for="criteria in sortedCriteria"
                                         :key="criteria.id"
                                     >
                                         <a
@@ -108,7 +108,7 @@
                                         {{ submission.name }}
                                     </td>
                                     <td
-                                        v-for="criteria in selectedContest.criterias"
+                                        v-for="criteria in sortedCriteria"
                                         :key="criteria.id"
                                         class="text-start"
                                     >
@@ -279,6 +279,19 @@ export default defineComponent({
             }
 
             return submissions;
+        },
+
+        sortedCriteria(): Criteria[] {
+            const criterias = [...this.selectedContest.criterias];
+
+            criterias.sort((a, b) => {
+                if (a.maxScore < b.maxScore) return 1;
+                if (a.maxScore > b.maxScore) return -1;
+
+                return 0;
+            });
+
+            return criterias;
         },
 
         maxPossibleScore(): number {

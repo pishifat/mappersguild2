@@ -23,9 +23,9 @@
                         />
                     </div>
                     <div class="col-sm-3 small">
-                        <span class="text-white-50 me-1">Hosted by</span>
+                        <span class="text-secondary me-1">Hosted by</span>
                         <user-link class="me-1" :user="beatmap.host" />
-                        <span v-if="beatmap.mode !== 'osu'" class="text-white-50">
+                        <span v-if="beatmap.mode !== 'osu'" class="text-secondary">
                             <modes-icons :modes="[beatmap.mode]" />
                         </span>
                     </div>

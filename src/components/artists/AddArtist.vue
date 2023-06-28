@@ -73,7 +73,6 @@ export default defineComponent({
             const artist = await this.$http.executePost('/artists/create', { name: this.name, comment: this.comment, isContacted: this.isContacted, isResponded: this.isResponded }, e);
 
             if (!this.$http.isError(artist)) {
-                console.log(artist);
                 this.$store.commit('addArtist', artist);
                 this.$bs.hideModal('addArtist');
 

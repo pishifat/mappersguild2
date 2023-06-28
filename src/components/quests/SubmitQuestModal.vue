@@ -10,6 +10,12 @@
                 <option value="-" disabled>
                     ---
                 </option>
+                <option value="-" disabled>
+                    Jump to an artist by typing their name!
+                </option>
+                <option value="-" disabled>
+                    ---
+                </option>
                 <option
                     v-for="featuredArtist in featuredArtists"
                     :key="featuredArtist.id"

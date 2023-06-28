@@ -93,9 +93,6 @@ export default defineComponent({
         selectedUser(): undefined | User {
             return this.users.find(u => u.id === this.selectedUserId);
         },
-        spectators(): User[] {
-            return this.users.filter(u => u.group == UserGroup.Spectator);
-        },
     },
 });
 </script>

@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendMessages = exports.sendMessage = exports.getBotToken = void 0;
+exports.sendAnnouncement = exports.getBotToken = void 0;
 const config_json_1 = __importDefault(require("../../config.json"));
 const axios_1 = __importDefault(require("axios"));
 const helpers_1 = require("./helpers");
@@ -36,24 +36,24 @@ async function getBotToken() {
     }
 }
 exports.getBotToken = getBotToken;
-/**
- * @param {number} userId
- * @param {string} message
- * @returns {Promise<boolean | {error: string}>}
- */
-async function sendMessage(userId, message) {
+async function sendAnnouncement(userIds, channel, message) {
     const token = await getBotToken();
-    await helpers_1.sleep(500); // prevent rate limiting
+    await helpers_1.sleep(500);
     if (typeof token !== 'string') {
         return { error: token.error };
     }
     try {
-        await axios_1.default.post('https://osu.ppy.sh/api/v2/chat/new', {
-            target_id: userId,
+        await axios_1.default.post('https://osu.ppy.sh/api/v2/chat/channels/', {
+            channel: {
+                name: channel.name,
+                description: channel.description,
+            },
             message,
-            is_action: false,
+            target_ids: userIds,
+            type: 'ANNOUNCE',
         }, {
             headers: {
+                Accept: 'application/json',
                 Authorization: `Bearer ${token}`,
             },
         });
@@ -63,19 +63,4 @@ async function sendMessage(userId, message) {
         return { error };
     }
 }
-exports.sendMessage = sendMessage;
-/**
- * @param {number} userId
- * @param {string[]} messages
- * @returns {Promise<boolean | {error: string}>}
- */
-async function sendMessages(userId, messages) {
-    for (const message of messages) {
-        const res = await sendMessage(userId, message);
-        if (typeof res !== 'boolean') {
-            return { error: res.error };
-        }
-    }
-    return true;
-}
-exports.sendMessages = sendMessages;
+exports.sendAnnouncement = sendAnnouncement;

@@ -32,6 +32,14 @@
             :price="quest.price"
             :status="quest.status"
         />
+
+        <pending-members-detail
+            v-if="party.pendingMembers && party.pendingMembers.length && !isDone"
+            :members="party.pendingMembers"
+            :price="quest.price"
+            :party-id="party.id"
+            :leader-id="party.leader.id"
+        />
     </div>
 </template>
 
@@ -41,6 +49,7 @@ import LeaderActions from './LeaderActions.vue';
 import PartyTitle from './PartyTitle.vue';
 import QuestTiming from './QuestTiming.vue';
 import MembersDetail from './MembersDetail.vue';
+import PendingMembersDetail from './PendingMembersDetail.vue';
 import ModeDetail from './ModeDetail.vue';
 import { mapState } from 'vuex';
 import { Party } from '../../../../interfaces/party';
@@ -53,6 +62,7 @@ export default defineComponent({
         PartyTitle,
         QuestTiming,
         MembersDetail,
+        PendingMembersDetail,
         ModeDetail,
     },
     mixins: [ partyInfoMixin ],

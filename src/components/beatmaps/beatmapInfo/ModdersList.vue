@@ -18,7 +18,7 @@
                 </small>
             </div>
             <div class="small ms-3">
-                <i v-if="beatmap.modders.length == 0" class="text-white-50">
+                <i v-if="beatmap.modders.length == 0" class="text-secondary">
                     none
                 </i>
                 <user-link-list v-else :users="beatmap.modders" />

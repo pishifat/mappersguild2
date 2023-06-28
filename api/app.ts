@@ -23,7 +23,6 @@ import beatmapsHostRouter from './routes/beatmaps/beatmapsHost';
 import tasksRouter from './routes/beatmaps/tasks';
 import featuredArtistsRouter from './routes/beatmaps/featuredArtists';
 import questsRouter from './routes/quests';
-import notificationsRouter from './routes/notifications';
 import usersRouter from './routes/users';
 import logsRouter from './routes/logs';
 import adminRouter from './routes/admin/index';
@@ -32,6 +31,7 @@ import adminContestsRouter from './routes/admin/contests';
 import adminBeatmapsRouter from './routes/admin/beatmaps';
 import adminFeaturedArtistsRouter from './routes/admin/featuredArtists';
 import adminQuestsRouter from './routes/admin/quests';
+import adminMissionsRouter from './routes/admin/missions';
 import artistsRouter from './routes/artists';
 import screeningRouter from './routes/contests/screening';
 import contestsListingRouter from './routes/contests/listing';
@@ -39,8 +39,8 @@ import judgingRouter from './routes/contests/judging';
 import resultsRouter from './routes/contests/results';
 import showcaseRouter from './routes/showcase';
 import partiesRouter from './routes/parties';
-import invitesRouter from './routes/invites';
 import mentorshipRouter from './routes/mentorship';
+import missionsRouter from './routes/missions';
 
 const app = express();
 const MongoStore = MongoStoreSession(session);
@@ -90,10 +90,9 @@ app.use('/users', usersRouter);
 app.use('/quests', questsRouter);
 app.use('/parties', partiesRouter);
 app.use('/logs', logsRouter);
-app.use('/notifications', notificationsRouter);
-app.use('/invites', invitesRouter);
 app.use('/showcase', showcaseRouter);
 app.use('/mentorship', mentorshipRouter);
+app.use('/missions', missionsRouter);
 
 app.use('/contests/listing', contestsListingRouter);
 app.use('/contests/results', resultsRouter);
@@ -107,6 +106,7 @@ app.use('/admin/contests', adminContestsRouter);
 app.use('/admin/beatmaps', adminBeatmapsRouter);
 app.use('/admin/featuredArtists', adminFeaturedArtistsRouter);
 app.use('/admin/quests', adminQuestsRouter);
+app.use('/admin/missions', adminMissionsRouter);
 
 // catch 404
 app.use((req, res) => {
@@ -136,13 +136,15 @@ app.listen(port, () => {
     console.log('Listening on ' + port);
     automation.sendActionNotifications.start();
     automation.setQualified.start();
-    automation.qualifiedMapChecks.start();
     automation.setRanked.start();
     automation.publishQuests.start();
     automation.completeQuests.start();
     automation.rankUsers.start();
     automation.updatePoints.start();
     automation.processDailyArtists.start();
+    automation.validateRankedBeatmaps.start();
+    //automation.dropOverdueQuests.start();
+    automation.processMissions.start();
 });
 
 export default app;

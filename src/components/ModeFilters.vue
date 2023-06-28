@@ -14,7 +14,7 @@
             >
                 {{ modeText }}
             </a>
-            <span v-if="isLoading" class="small text-white-50">loading...</span>
+            <span v-if="isLoading" class="small text-secondary">loading...</span>
         </div>
     </div>
 </template>
