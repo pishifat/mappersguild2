@@ -531,16 +531,14 @@ const dropOverdueQuests = node_cron_1.default.schedule('2 3 * * *', async () => 
 });
 /* validate ranked beatmaps for accurate ranked_date/current_nominators/hit_length. limited to 100 beatmaps daily because it takes too long otherwise, and it doesn't need to be done that frequently */
 const validateRankedBeatmaps = node_cron_1.default.schedule('0 4 * * *', async () => {
-    const threeMonthsAgo = new Date();
-    threeMonthsAgo.setDate(threeMonthsAgo.getDate() - 100); // this will be a problem after reaching 10,000 ranked maps in the database. so i don't need to worry about it probably
     const [beatmaps, response] = await Promise.all([
         beatmap_1.BeatmapModel
             .find({
             status: beatmap_2.BeatmapStatus.Ranked,
-            updatedAt: { $lt: threeMonthsAgo },
         })
             .defaultPopulate()
             .limit(100)
+            .sort({ updatedAt: 1 })
             .orFail(),
         osuApi_1.getClientCredentialsGrant(),
     ]);
@@ -553,6 +551,7 @@ const validateRankedBeatmaps = node_cron_1.default.schedule('0 4 * * *', async (
             const bmInfo = await osuApi_1.getBeatmapsetV2Info(token, osuId);
             await helpers_1.sleep(250);
             if (!osuApi_1.isOsuResponseError(bmInfo)) {
+                beatmap.bns = [];
                 await helpers_1.setNominators(beatmap, bmInfo);
                 beatmap.length = helpers_1.getLongestBeatmapLength(bmInfo.beatmaps);
                 beatmap.rankedDate = bmInfo.ranked_date;

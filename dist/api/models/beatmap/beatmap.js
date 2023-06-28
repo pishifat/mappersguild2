@@ -43,7 +43,7 @@ const BeatmapSchema = new mongoose_1.Schema({
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 const queryHelpers = {
     sortByLatest() {
-        return this.sort({ updatedAt: -1 });
+        return this.sort({ createdAt: -1 });
     },
     defaultPopulate() {
         return this.populate([
