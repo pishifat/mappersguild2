@@ -5,7 +5,6 @@
                 v-for="submission in sortedSubmissions"
                 :key="submission.id"
             >
-                <!-- correct format
                 <div class="d-flex justify-content-between">
                     <a
                         :class="submission.total >= judgingThreshold ? 'pass-threshold' : ''"
@@ -15,14 +14,6 @@
                         {{ submission.creator.username }}
                         ({{ submission.total }} <i class="fa-star fas small" />)
                         <i class="fas fa-angle-down" />
-                    </a>
-                </div>
-                -->
-
-                <!-- temp format -->
-                <div class="d-flex justify-content-between">
-                    <a :href="submission.url">
-                        {{ submission.name }} ({{ submission.total }} <i class="fa-star fas small" />)
                     </a>
                 </div>
 
