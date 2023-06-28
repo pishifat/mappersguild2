@@ -14,10 +14,11 @@ const middlewares_1 = require("../../helpers/middlewares");
 const middlewares_2 = require("./middlewares");
 const user_1 = require("../../models/user");
 const quest_1 = require("../../models/quest");
+const mission_1 = require("../../models/mission");
 const beatmapsHostRouter = express_1.default.Router();
 beatmapsHostRouter.use(middlewares_1.isLoggedIn);
 /* POST set game mode. */
-beatmapsHostRouter.post('/:id/setMode', middlewares_2.isValidBeatmap, middlewares_2.isBeatmapHost, middlewares_1.isNotSpectator, async (req, res) => {
+beatmapsHostRouter.post('/:id/setMode', middlewares_2.isValidBeatmap, middlewares_2.isBeatmapHost, async (req, res) => {
     let b = res.locals.beatmap;
     if (req.body.mode != beatmap_2.BeatmapMode.Hybrid) {
         if (b.quest && !b.quest.modes.includes(req.body.mode)) {
@@ -39,7 +40,7 @@ beatmapsHostRouter.post('/:id/setMode', middlewares_2.isValidBeatmap, middleware
     log_1.LogModel.generate(req.session?.mongoId, `changed mode of "${b.song.artist} - ${b.song.title}" to "${req.body.mode}"`, log_2.LogCategory.Beatmap);
 });
 /* POST set status of the beatmapset from extended view. */
-beatmapsHostRouter.post('/:id/setStatus', middlewares_2.isValidBeatmap, middlewares_2.isBeatmapHost, middlewares_1.isNotSpectator, async (req, res) => {
+beatmapsHostRouter.post('/:id/setStatus', middlewares_2.isValidBeatmap, middlewares_2.isBeatmapHost, async (req, res) => {
     const validBeatmap = res.locals.beatmap;
     if (req.body.status == beatmap_2.BeatmapStatus.Done) {
         if (validBeatmap.tasks.length == 0) {
@@ -66,34 +67,36 @@ beatmapsHostRouter.post('/:id/setStatus', middlewares_2.isValidBeatmap, middlewa
     log_1.LogModel.generate(req.session?.mongoId, `changed status of "${updatedBeatmap.song.artist} - ${updatedBeatmap.song.title}"`, log_2.LogCategory.Beatmap);
 });
 /* POST save a party/quest to a map */
-beatmapsHostRouter.post('/:id/linkQuest', middlewares_2.isValidBeatmap, middlewares_2.isBeatmapHost, middlewares_1.isNotSpectator, async (req, res) => {
+beatmapsHostRouter.post('/:id/linkQuest', middlewares_2.isValidBeatmap, middlewares_2.isBeatmapHost, async (req, res) => {
     let beatmap = res.locals.beatmap;
-    const questId = req.body.questId;
+    const questId = req.body.questOrMissionId;
     if (questId) {
         const quest = await quest_1.QuestModel
             .findById(questId)
             .populate({
             path: 'parties',
-            populate: { path: 'members' },
+            populate: { path: 'members pendingMembers' },
         })
             .orFail();
         for (const task of beatmap.tasks) {
             if (!quest.modes.includes(task.mode) && task.mode !== 'sb') {
-                return res.json({ error: `Some of this mapset's difficulties are not the correct mode for this quest!` });
+                return res.json({ error: `Some of this mapset's difficulties are not the correct mode for the selected quest!` });
             }
             for (const mapper of task.mappers) {
                 const user = await user_1.UserModel
                     .findById(mapper._id)
                     .orFail();
                 if (!quest.currentParty?.members.some(m => m.id == user.id)) {
-                    return res.json({ error: `Some of this mapset's mappers are not assigned to your quest!` });
+                    return res.json({ error: `Some of this mapset's mappers are not assigned to the selected quest!` });
                 }
             }
         }
         beatmap.quest = quest;
+        beatmap.mission = undefined;
     }
     else {
         beatmap.quest = undefined;
+        beatmap.mission = undefined;
     }
     await beatmap.save();
     beatmap = await beatmap_1.BeatmapModel
@@ -101,18 +104,50 @@ beatmapsHostRouter.post('/:id/linkQuest', middlewares_2.isValidBeatmap, middlewa
         .defaultPopulate()
         .orFail();
     res.json(beatmap);
-    log_1.LogModel.generate(req.session?.mongoId, `${req.body.questId.length ? 'linked quest to' : 'unlinked quest from'} "${beatmap.song.artist} - ${beatmap.song.title}"`, log_2.LogCategory.Beatmap);
+    log_1.LogModel.generate(req.session?.mongoId, `${questId && questId.length ? 'linked quest to' : 'unlinked quest/mission from'} "${beatmap.song.artist} - ${beatmap.song.title}"`, log_2.LogCategory.Beatmap);
+});
+/* POST save a mission to a map */
+beatmapsHostRouter.post('/:id/linkMission', middlewares_2.isValidBeatmap, middlewares_2.isBeatmapHost, async (req, res) => {
+    let beatmap = res.locals.beatmap;
+    const missionId = req.body.questOrMissionId;
+    if (missionId) {
+        const mission = await mission_1.MissionModel
+            .findById(missionId)
+            .defaultPopulate()
+            .orFail();
+        const user = await user_1.UserModel.findById(req.session.mongoId).orFail();
+        if (mission.userMaximumRankedBeatmapsCount && mission.userMaximumRankedBeatmapsCount !== 0) {
+            if (user.rankedBeatmapsCount > mission.userMaximumRankedBeatmapsCount) {
+                return res.json({ error: 'You have too many ranked maps to do this quest. Give the newer mappers a chance :)' });
+            }
+        }
+        if (mission.userMaximumGlobalRank) {
+            if (user.globalRank < mission.userMaximumGlobalRank) {
+                return res.json({ error: `You're too high-ranked to accept this quest. Give worse players a chance :)` });
+            }
+        }
+        if (!mission.modes.includes(beatmap.mode) && beatmap.mode !== beatmap_2.BeatmapMode.Hybrid) {
+            return res.json({ error: 'Mode not allowed for this quest' });
+        }
+        beatmap.quest = undefined;
+        beatmap.mission = mission;
+        await beatmap.save();
+    }
+    else {
+        beatmap.quest = undefined;
+        beatmap.mission = undefined;
+        await beatmap.save();
+    }
+    beatmap = await beatmap_1.BeatmapModel
+        .findById(req.params.id)
+        .defaultPopulate()
+        .orFail();
+    res.json(beatmap);
+    log_1.LogModel.generate(req.session?.mongoId, `${missionId && missionId.length ? 'linked mission to' : 'unlinked quest/mission from'} "${beatmap.song.artist} - ${beatmap.song.title}"`, log_2.LogCategory.Beatmap);
 });
 /* POST edit link from extended view. */
-beatmapsHostRouter.post('/:id/setLink', middlewares_2.isValidBeatmap, middlewares_2.isBeatmapHost, middlewares_1.isNotSpectator, async (req, res) => {
-    let url = req.body.url;
-    if (!url?.length) {
-        url = null;
-    }
-    const regexp = /^(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/;
-    if (!regexp.test(url) && url) {
-        return res.json({ error: 'Not a valid URL' });
-    }
+beatmapsHostRouter.post('/:id/setLink', middlewares_2.isValidBeatmap, middlewares_2.isBeatmapHost, middlewares_1.isValidUrl, async (req, res) => {
+    const url = req.body.url;
     let b = res.locals.beatmap;
     b.url = url;
     await b.save();
@@ -124,7 +159,7 @@ beatmapsHostRouter.post('/:id/setLink', middlewares_2.isValidBeatmap, middleware
     log_1.LogModel.generate(req.session?.mongoId, `edited link on "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
 });
 /* POST locks task from extended view. */
-beatmapsHostRouter.post('/:id/lockTask', middlewares_2.isValidBeatmap, middlewares_2.isBeatmapHost, middlewares_1.isNotSpectator, async (req, res) => {
+beatmapsHostRouter.post('/:id/lockTask', middlewares_2.isValidBeatmap, middlewares_2.isBeatmapHost, async (req, res) => {
     if (!req.body.task) {
         return res.json({ error: 'Not a valid task' });
     }
@@ -139,7 +174,7 @@ beatmapsHostRouter.post('/:id/lockTask', middlewares_2.isValidBeatmap, middlewar
     log_1.LogModel.generate(req.session?.mongoId, `locked claims for "${req.body.task}" on "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
 });
 /* POST unlocks task from extended view. */
-beatmapsHostRouter.post('/:id/unlockTask', middlewares_2.isValidBeatmap, middlewares_2.isBeatmapHost, middlewares_1.isNotSpectator, async (req, res) => {
+beatmapsHostRouter.post('/:id/unlockTask', middlewares_2.isValidBeatmap, middlewares_2.isBeatmapHost, async (req, res) => {
     await beatmap_1.BeatmapModel.findByIdAndUpdate(req.params.id, {
         $pull: { tasksLocked: req.body.task },
     });
@@ -151,7 +186,7 @@ beatmapsHostRouter.post('/:id/unlockTask', middlewares_2.isValidBeatmap, middlew
     log_1.LogModel.generate(req.session?.mongoId, `unlocked claims for "${req.body.task}" on "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
 });
 /* POST delete map */
-beatmapsHostRouter.post('/:id/delete', middlewares_2.isValidBeatmap, middlewares_2.isBeatmapHost, middlewares_1.isNotSpectator, async (req, res) => {
+beatmapsHostRouter.post('/:id/delete', middlewares_2.isValidBeatmap, middlewares_2.isBeatmapHost, async (req, res) => {
     const b = res.locals.beatmap;
     for (let i = 0; i < b.tasks.length; i++) {
         await task_1.TaskModel.findByIdAndRemove(b.tasks[i]);

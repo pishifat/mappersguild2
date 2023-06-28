@@ -1,11 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.defaultErrorMessage = exports.setSession = exports.generateAuthorWebhook = exports.generateThumbnailUrl = exports.generateLists = exports.escapeUsername = exports.sleep = exports.setBeatmapStatusRanked = exports.findBeatmapsetStatus = exports.findBeatmapsetId = void 0;
+exports.defaultErrorMessage = exports.setSession = exports.generateBotAuthorWebhook = exports.generateAuthorWebhook = exports.generateMissionThumbnailUrl = exports.generateThumbnailUrl = exports.generateLists = exports.escapeUsername = exports.sleep = exports.setBeatmapStatusRanked = exports.getLongestBeatmapLength = exports.setNominators = exports.findBeatmapsetStatus = exports.findBeatmapsetId = void 0;
 const discordApi_1 = require("./discordApi");
 const beatmap_1 = require("../../interfaces/beatmap/beatmap");
 const beatmap_2 = require("../models/beatmap/beatmap");
 const points_1 = require("./points");
 const featuredArtist_1 = require("../models/featuredArtist");
+const user_1 = require("../models/user");
 function findBeatmapsetId(url) {
     const indexStart = url.indexOf('beatmapsets/') + 'beatmapsets/'.length;
     const indexEnd = url.indexOf('#');
@@ -41,17 +42,55 @@ function findBeatmapsetStatus(osuStatus) {
     return status;
 }
 exports.findBeatmapsetStatus = findBeatmapsetStatus;
+async function setNominators(beatmap, bmInfo) {
+    const modderIds = beatmap.modders.map(m => m.id);
+    const bnsIds = beatmap.bns.map(b => b.id);
+    beatmap.bns = [];
+    if (bmInfo.current_nominations && bmInfo.current_nominations.length) {
+        for (const nom of bmInfo.current_nominations) {
+            const nomModder = await user_1.UserModel.findOne({ osuId: nom.user_id });
+            if (nomModder) {
+                if (!modderIds.includes(nomModder.id)) {
+                    beatmap.modders.push(nomModder._id);
+                    await beatmap.save();
+                }
+                if (!bnsIds.includes(nomModder.id)) {
+                    beatmap.bns.push(nomModder._id);
+                    await beatmap.save();
+                }
+            }
+        }
+    }
+}
+exports.setNominators = setNominators;
+function getLongestBeatmapLength(beatmaps) {
+    let longestBeatmap = beatmaps[0];
+    for (const beatmap of beatmaps) {
+        if (parseInt(beatmap.hit_length) > parseInt(longestBeatmap.hit_length)) {
+            longestBeatmap = beatmap;
+        }
+    }
+    return longestBeatmap.hit_length;
+}
+exports.getLongestBeatmapLength = getLongestBeatmapLength;
 async function setBeatmapStatusRanked(id, bmInfo) {
     // update status (only helpful for automated calls)
     await beatmap_2.BeatmapModel.findByIdAndUpdate(id, { status: beatmap_1.BeatmapStatus.Ranked });
     // query for populated beatmap
-    const beatmap = await beatmap_2.BeatmapModel
+    let beatmap = await beatmap_2.BeatmapModel
+        .findById(id)
+        .defaultPopulate()
+        .orFail();
+    // assign bns to bns field (synced with osu-web)
+    await setNominators(beatmap, bmInfo);
+    // re-query to include nominators in modders pool
+    beatmap = await beatmap_2.BeatmapModel
         .findById(id)
         .defaultPopulate()
         .orFail();
     // set length (for task points calculation) and ranked date (for quest points calculation) according to osu! db
-    beatmap.length = bmInfo.hit_length;
-    beatmap.rankedDate = bmInfo.approved_date;
+    beatmap.length = getLongestBeatmapLength(bmInfo.beatmaps);
+    beatmap.rankedDate = bmInfo.ranked_date;
     await beatmap.save();
     // calculate points for modders
     for (const modder of beatmap.modders) {
@@ -123,7 +162,7 @@ async function setBeatmapStatusRanked(id, bmInfo) {
             color: discordApi_1.webhookColors.blue,
             description,
             thumbnail: {
-                url: `https://assets.ppy.sh/beatmaps/${bmInfo.beatmapset_id}/covers/list.jpg`,
+                url: `https://assets.ppy.sh/beatmaps/${bmInfo.id}/covers/list.jpg`,
             },
         }]);
     // pause to not exceed rate limit
@@ -162,6 +201,33 @@ function generateThumbnailUrl(quest) {
     };
 }
 exports.generateThumbnailUrl = generateThumbnailUrl;
+/** Get ideal webhook thumbnail (mission) */
+function generateMissionThumbnailUrl(mission) {
+    let url = '';
+    switch (mission.tier) {
+        case 1:
+            url = 'https://mappersguild.com/images/bronze.png';
+            break;
+        case 2:
+            url = 'https://mappersguild.com/images/silver.png';
+            break;
+        case 3:
+            url = 'https://mappersguild.com/images/gold.png';
+            break;
+        case 4:
+            url = 'https://mappersguild.com/images/platinum.png';
+            break;
+        default:
+            url = 'https://mappersguild.com/images/bronze.png';
+            break;
+    }
+    return {
+        thumbnail: {
+            url,
+        },
+    };
+}
+exports.generateMissionThumbnailUrl = generateMissionThumbnailUrl;
 /** Get user's osu url and avatar */
 function generateAuthorWebhook(user) {
     return {
@@ -173,6 +239,18 @@ function generateAuthorWebhook(user) {
     };
 }
 exports.generateAuthorWebhook = generateAuthorWebhook;
+/** Get mg bot user's osu url and avatar */
+async function generateBotAuthorWebhook() {
+    const mg = await user_1.UserModel.findOne({ osuId: 23648635 }).orFail();
+    return {
+        author: {
+            name: `${mg.username}`,
+            url: `https://osu.ppy.sh/users/${mg.osuId}`,
+            icon_url: `https://a.ppy.sh/${mg.osuId}`,
+        },
+    };
+}
+exports.generateBotAuthorWebhook = generateBotAuthorWebhook;
 /**
  * Set tokens and session age
  */

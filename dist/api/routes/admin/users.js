@@ -7,7 +7,6 @@ const express_1 = __importDefault(require("express"));
 const middlewares_1 = require("../../helpers/middlewares");
 const user_1 = require("../../models/user");
 const points_1 = require("../../helpers/points");
-const osuBot_1 = require("../../helpers/osuBot");
 const user_2 = require("../../../interfaces/user");
 const adminUsersRouter = express_1.default.Router();
 adminUsersRouter.use(middlewares_1.isLoggedIn);
@@ -43,13 +42,6 @@ adminUsersRouter.post('/:id/updateDiscordId', async (req, res) => {
 adminUsersRouter.post('/:id/calculateUserPoints', async (req, res) => {
     const points = await points_1.updateUserPoints(req.params.id);
     res.json(points);
-});
-/* POST toggle bypassLogin */
-adminUsersRouter.post('/:id/toggleBypassLogin', async (req, res) => {
-    const bypassLogin = req.body.bypassLogin;
-    const group = bypassLogin ? user_2.UserGroup.User : user_2.UserGroup.Spectator;
-    await user_1.UserModel.findByIdAndUpdate(req.params.id, { bypassLogin, group }).orFail();
-    res.json({ bypassLogin, group });
 });
 /* POST toggle isShowcaseMapper */
 adminUsersRouter.post('/:id/toggleIsShowcaseMapper', async (req, res) => {
@@ -101,16 +93,5 @@ adminUsersRouter.post('/findInputUsers', async (req, res) => {
         users.push(user);
     }
     res.json({ users });
-});
-/* POST send messages */
-adminUsersRouter.post('/sendMessages', async (req, res) => {
-    let messages;
-    for (const user of req.body.users) {
-        messages = await osuBot_1.sendMessages(user.osuId, req.body.messages);
-    }
-    if (messages !== true) {
-        return res.json({ error: `Messages were not sent.` });
-    }
-    res.json({ success: 'Messages sent!' });
 });
 exports.default = adminUsersRouter;

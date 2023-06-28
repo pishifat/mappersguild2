@@ -22,7 +22,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BeatmapModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 const task_1 = require("../../../interfaces/beatmap/task");
-const invite_1 = require("../../../interfaces/invite");
 const beatmap_1 = require("../../../interfaces/beatmap/beatmap");
 const BeatmapSchema = new mongoose_1.Schema({
     song: { type: 'ObjectId', ref: 'FeaturedSong' },
@@ -33,6 +32,7 @@ const BeatmapSchema = new mongoose_1.Schema({
     modders: [{ type: 'ObjectId', ref: 'User' }],
     bns: [{ type: 'ObjectId', ref: 'User' }],
     quest: { type: 'ObjectId', ref: 'Quest' },
+    mission: { type: 'ObjectId', ref: 'Mission' },
     url: { type: String },
     mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania', 'hybrid'], default: 'osu' },
     length: { type: Number },
@@ -42,7 +42,7 @@ const BeatmapSchema = new mongoose_1.Schema({
     queuedForRank: { type: Boolean }, // used for automation of status changes
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 const queryHelpers = {
-    sortByLastest() {
+    sortByLatest() {
         return this.sort({ updatedAt: -1 });
     },
     defaultPopulate() {
@@ -51,6 +51,7 @@ const queryHelpers = {
             { path: 'bns', select: '_id osuId username' },
             { path: 'modders', select: '_id osuId username' },
             { path: 'quest', select: '_id name art modes deadline isMbc status' },
+            { path: 'mission', select: '_id name tier status closingAnnounced' },
             { path: 'song', select: 'artist title' },
             {
                 path: 'tasks',
@@ -68,7 +69,7 @@ BeatmapSchema.methods.participated = function (userId) {
         return false;
     return this.tasks.some(t => t.mappers.some(m => m.id == userId));
 };
-BeatmapSchema.methods.checkTaskAvailability = async function (user, taskName, taskMode, inviteType, acceptingTaskId) {
+BeatmapSchema.methods.checkTaskAvailability = async function (user, taskName, taskMode) {
     if (this.status == beatmap_1.BeatmapStatus.Ranked || this.status == beatmap_1.BeatmapStatus.Qualified || this.status == beatmap_1.BeatmapStatus.Done) {
         throw new Error(`Mapset already marked as ${this.status.toLowerCase()}`);
     }
@@ -87,33 +88,18 @@ BeatmapSchema.methods.checkTaskAvailability = async function (user, taskName, ta
             throw new Error(`The selected quest doesn't support beatmaps of this mode!`);
         }
     }
-    if (this.bns.some(bn => bn.id == user.id)) {
-        throw new Error(`Cannot create a difficulty while in BN list!`);
-    }
-    if (this.tasks.length > 20 && inviteType !== invite_1.ActionType.Collab) {
+    if (this.tasks.length > 50) {
         throw new Error('This mapset has too many difficulties!');
     }
-    // Only collabs invites should bypass this
-    if ((!inviteType || inviteType === invite_1.ActionType.Create) &&
-        taskName == task_1.TaskName.Storyboard &&
+    if (taskName == task_1.TaskName.Storyboard &&
         this.tasks.some(t => t.name === task_1.TaskName.Storyboard)) {
         throw new Error('There can only be one storyboard on a mapset!');
     }
-    // host and invites can bypass this
+    // host can bypass this
     if (this.host.id != user.id &&
-        !inviteType &&
         this.tasksLocked &&
         this.tasksLocked.some(t => t === taskName)) {
         throw new Error('This task is locked by the mapset host!');
-    }
-    if (acceptingTaskId && inviteType === invite_1.ActionType.Collab) {
-        const task = this.tasks.find(t => t.id == acceptingTaskId);
-        if (!task) {
-            throw new Error(`Task doesn't exist anymore!`);
-        }
-        if (task.mappers.some(m => m.id == user.id)) {
-            throw new Error(`You're already a mapper on this task!`);
-        }
     }
     return true;
 };

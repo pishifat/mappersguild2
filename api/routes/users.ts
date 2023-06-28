@@ -6,7 +6,7 @@ import { QuestModel } from '../models/quest';
 import { SpentPointsModel } from '../models/spentPoints';
 import { TaskModel } from '../models/beatmap/task';
 import { Quest, QuestStatus } from '../../interfaces/quest';
-import { User } from '../../interfaces/user';
+import { User, UserGroup } from '../../interfaces/user';
 import { Mission, MissionStatus } from '../../interfaces/mission';
 import { PartyModel } from '../models/party';
 

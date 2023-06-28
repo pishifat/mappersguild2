@@ -104,5 +104,5 @@ exports.webhookColors = {
     white: 15724527,
     brown: 7554849,
     gray: 11186352,
-    black: 2564903,
+    black: 2564903, // dev
 };

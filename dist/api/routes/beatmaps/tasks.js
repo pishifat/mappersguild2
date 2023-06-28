@@ -11,19 +11,14 @@ const task_2 = require("../../../interfaces/beatmap/task");
 const user_1 = require("../../models/user");
 const middlewares_1 = require("../../helpers/middlewares");
 const middlewares_2 = require("./middlewares");
-const invite_1 = require("../../models/invite");
-const invite_2 = require("../../../interfaces/invite");
-const notification_1 = require("../../models/notification");
 const log_1 = require("../../models/log");
 const log_2 = require("../../../interfaces/log");
 const tasksRouter = express_1.default.Router();
 tasksRouter.use(middlewares_1.isLoggedIn);
-const inviteError = 'Invite not sent: ';
-/* POST create task from extended view. */
-tasksRouter.post('/addTask/:mapId', middlewares_1.isNotSpectator, middlewares_2.isValidBeatmap, async (req, res) => {
+/* POST create task */
+tasksRouter.post('/addTask/:mapId', middlewares_2.isValidBeatmap, middlewares_1.isValidUser, async (req, res) => {
     let beatmap = res.locals.beatmap;
-    const user = res.locals.userRequest;
-    const isHost = beatmap.host.id == user.id;
+    const user = req.body.user && req.body.user.length ? res.locals.user : res.locals.userRequest;
     const taskName = req.body.taskName;
     let taskMode = req.body.mode || beatmap.mode;
     if (taskName == task_2.TaskName.Storyboard) {
@@ -43,11 +38,8 @@ tasksRouter.post('/addTask/:mapId', middlewares_1.isNotSpectator, middlewares_2.
         .orFail();
     res.json(beatmap);
     log_1.LogModel.generate(req.session?.mongoId, `added "${taskName}" difficulty to "${beatmap.song.artist} - ${beatmap.song.title}"`, log_2.LogCategory.Beatmap);
-    if (!isHost) {
-        notification_1.NotificationModel.generate(beatmap._id, `added "${taskName}" difficulty to your mapset`, beatmap.host._id, req.session?.mongoId, beatmap._id);
-    }
 });
-/* POST delete task from extended view. */
+/* POST delete task */
 tasksRouter.post('/removeTask/:id', async (req, res) => {
     const [b, t] = await Promise.all([
         beatmap_1.BeatmapModel
@@ -71,42 +63,27 @@ tasksRouter.post('/removeTask/:id', async (req, res) => {
         .orFail();
     res.json(updatedBeatmap);
     log_1.LogModel.generate(req.session?.mongoId, `removed "${t.name}" from "${updatedBeatmap.song.artist} - ${updatedBeatmap.song.title}"`, log_2.LogCategory.Beatmap);
-    if (updatedBeatmap.host.id != req.session?.mongoId) {
-        notification_1.NotificationModel.generate(updatedBeatmap._id, `removed task "${t.name}" from your mapset`, updatedBeatmap.host._id, req.session?.mongoId, updatedBeatmap._id);
-    }
 });
-/* POST invite collab user to task. */
-tasksRouter.post('/task/:taskId/addCollab', middlewares_2.isValidUser, async (req, res) => {
-    const user = res.locals.userRequest;
-    const userToRequest = res.locals.user;
-    const taskId = req.params.taskId;
-    const [task, beatmap] = await Promise.all([
-        task_1.TaskModel
-            .findOne({
-            _id: taskId,
-            mappers: user._id,
-        })
-            .orFail(),
-        beatmap_1.BeatmapModel
-            .findOne({
-            tasks: taskId,
-            status: { $ne: beatmap_2.BeatmapStatus.Ranked },
-        })
-            .defaultPopulate()
-            .orFail(),
-    ]);
-    const taskMode = req.body.mode || beatmap.mode;
-    if (task.mappers.some(m => m.id == userToRequest.id)) {
-        throw new Error(inviteError + 'User is already a collaborator');
+/* POST add mapper to task */
+tasksRouter.post('/addCollab/:mapId', middlewares_2.isValidBeatmap, middlewares_1.isValidUser, async (req, res) => {
+    let beatmap = res.locals.beatmap;
+    const user = req.body.user && req.body.user.length ? res.locals.user : res.locals.userRequest;
+    const task = await task_1.TaskModel
+        .findById(req.body.task._id)
+        .populate('mappers')
+        .orFail();
+    if (task.mappers.some(m => m.id == user.id)) {
+        return res.json({ error: 'User is already a mapper for this difficulty!' });
     }
-    await beatmap.checkTaskAvailability(userToRequest, task.name, taskMode, invite_2.ActionType.Collab);
-    const newInvite = await invite_1.InviteModel.generateMapInvite(userToRequest._id, user._id, req.params.taskId, `wants to collaborate with you on the "${task.name}" difficulty of`, invite_2.ActionType.Collab, beatmap._id, task.name, taskMode);
-    if (!newInvite) {
-        return res.json({ error: inviteError + 'Invite generation failed!' });
-    }
+    await task_1.TaskModel.findByIdAndUpdate(task.id, { $push: { mappers: user._id } });
+    beatmap = await beatmap_1.BeatmapModel
+        .findById(req.params.mapId)
+        .defaultPopulate()
+        .orFail();
     res.json(beatmap);
+    log_1.LogModel.generate(req.session?.mongoId, `added collab mapper to "${task.name}" difficulty to "${beatmap.song.artist} - ${beatmap.song.title}"`, log_2.LogCategory.Beatmap);
 });
-/* POST remove collab user from task. */
+/* POST remove collab user from task */
 tasksRouter.post('/task/:taskId/removeCollab', async (req, res) => {
     const taskId = req.params.taskId;
     const [u, b, t] = await Promise.all([
@@ -118,23 +95,29 @@ tasksRouter.post('/task/:taskId/removeCollab', async (req, res) => {
             tasks: taskId,
             status: { $ne: beatmap_2.BeatmapStatus.Ranked },
         })
+            .populate('host')
             .orFail(),
         task_1.TaskModel
             .findOne({
             _id: req.params.taskId,
-            mappers: req.session?.mongoId,
         })
+            .populate('mappers')
             .orFail(),
     ]);
+    const isMapper = t.mappers.some(m => m.id == req.session?.mongoId);
+    const isHost = b.host.id == req.session?.mongoId;
+    if (!isMapper && !isHost) {
+        return res.json({ error: 'Not allowed to edit' });
+    }
     const updatedTask = await task_1.TaskModel
         .findByIdAndUpdate(t._id, { $pull: { mappers: u._id } })
         .orFail();
-    const updatedB = await beatmap_1.BeatmapModel
+    const updatedBeatmap = await beatmap_1.BeatmapModel
         .findById(b._id)
         .defaultPopulate()
         .orFail();
-    res.json(updatedB);
-    log_1.LogModel.generate(req.session?.mongoId, `removed "${u.username}" from collab mapper of "${updatedTask.name}" on "${updatedB.song.artist} - ${updatedB.song.title}"`, log_2.LogCategory.Beatmap);
+    res.json(updatedBeatmap);
+    log_1.LogModel.generate(req.session?.mongoId, `removed "${u.username}" from collab mapper of "${updatedTask.name}" on "${updatedBeatmap.song.artist} - ${updatedBeatmap.song.title}"`, log_2.LogCategory.Beatmap);
 });
 /* POST set status of the task selected from extended view. */
 tasksRouter.post('/setTaskStatus/:taskId', async (req, res) => {
@@ -159,16 +142,5 @@ tasksRouter.post('/setTaskStatus/:taskId', async (req, res) => {
         .orFail();
     res.json(b);
     log_1.LogModel.generate(req.session?.mongoId, `changed status of "${t.name}" on "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
-    if (b.host.id != req.session?.mongoId) {
-        notification_1.NotificationModel.generate(b._id, `changed status of "${t.name}" on your mapset`, b.host._id, req.session?.mongoId, b._id);
-    }
-});
-/* POST request added task*/
-tasksRouter.post('/requestTask/:mapId', middlewares_1.isNotSpectator, middlewares_2.isValidUser, middlewares_2.isValidBeatmap, middlewares_2.isBeatmapHost, async (req, res) => {
-    const user = res.locals.user;
-    const beatmap = res.locals.beatmap;
-    await beatmap.checkTaskAvailability(user, req.body.taskName, req.body.mode, invite_2.ActionType.Create);
-    res.json(beatmap);
-    invite_1.InviteModel.generateMapInvite(user._id, req.session?.mongoId, beatmap._id, `wants you to create the ${req.body.taskName != task_2.TaskName.Storyboard ? req.body.mode + ' difficulty' : 'task'} ${req.body.taskName} for their mapset of`, invite_2.ActionType.Create, beatmap._id, req.body.taskName, req.body.mode);
 });
 exports.default = tasksRouter;

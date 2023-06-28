@@ -12,10 +12,10 @@ const quest_1 = require("../../interfaces/quest");
 const log_1 = require("../../interfaces/log");
 const discordApi_1 = require("../helpers/discordApi");
 const spentPoints_1 = require("../../interfaces/spentPoints");
+const spentPoints_2 = require("../models/spentPoints");
 const points_2 = require("../helpers/points");
 const quest_2 = require("../models/quest");
 const log_2 = require("../models/log");
-const spentPoints_2 = require("../models/spentPoints");
 const featuredArtist_1 = require("../models/featuredArtist");
 const extras_1 = require("../../interfaces/extras");
 const user_1 = require("../models/user");
@@ -31,37 +31,40 @@ async function isPartyLeader(req, res, next) {
 }
 const questsRouter = express_1.default.Router();
 questsRouter.use(middlewares_1.isLoggedIn);
-/* GET on load quests info */
+/* GET quests */
 questsRouter.get('/search', async (req, res) => {
     let query = {};
     const mode = req.query.mode?.toString();
-    const status = req.query.status?.toString();
+    const limit = req.query.limit.toString();
+    const artist = req.query.artist?.toString();
     const id = req.query.id?.toString();
     if (mode !== extras_1.FilterMode.any)
         query.modes = mode;
-    if (status === quest_1.QuestStatus.Open) {
-        query.status = quest_1.QuestStatus.Open;
-        query.expiration = { $gt: new Date() };
-    }
-    else {
-        query.status = { $ne: quest_1.QuestStatus.Hidden };
+    query.status = { $ne: quest_1.QuestStatus.Hidden };
+    if (artist) {
+        if (artist == 'user') {
+            const pishifat = await user_1.UserModel.findOne({ osuId: 3178418 }).orFail();
+            query = { creator: { $ne: pishifat._id } };
+        }
+        else if (artist == 'none') {
+            query.art = null;
+        }
+        else {
+            query.art = artist;
+        }
     }
     if (id) {
-        query = {
-            $or: [
-                query,
-                { _id: id },
-            ],
-        };
+        query = { _id: id };
     }
     const quests = await quest_2.QuestModel
         .find(query)
         .defaultPopulate()
-        .sortByLastest();
+        .sortByLatest()
+        .limit(parseInt(limit));
     res.json(quests);
 });
 /* POST accepts quest. */
-questsRouter.post('/:id/accept', middlewares_1.isNotSpectator, async (req, res) => {
+questsRouter.post('/:id/accept', async (req, res) => {
     let quest = await quest_2.QuestModel
         .findById(req.params.id)
         .where('status', quest_1.QuestStatus.Open)
@@ -72,10 +75,6 @@ questsRouter.post('/:id/accept', middlewares_1.isNotSpectator, async (req, res) 
         throw new Error('Party not found');
     if (!party.modes.length) {
         return res.json({ error: 'Your party has no modes selected!' });
-    }
-    // check if all party members can afford quest
-    if (party.members.some(m => m.availablePoints < quest.price)) {
-        return res.json({ error: 'Someone in your party does not have enough points to accept the quest!' });
     }
     // check if quest is valid to accept
     if (party.members.length < quest.minParty
@@ -136,17 +135,27 @@ questsRouter.post('/:id/accept', middlewares_1.isNotSpectator, async (req, res) 
         quest.modes = remainingModes;
         await quest.save();
         party.quest = newQuest;
+        party.pendingMembers = [];
         await party.save();
         quest = newQuest;
     }
     // spend points
     for (const member of party.members) {
-        await spentPoints_2.SpentPointsModel.generate(spentPoints_1.SpentPointsCategory.AcceptQuest, member._id, quest._id);
-        await points_2.updateUserPoints(member.id);
+        if (member.availablePoints > quest.price) { // if user can afford it, suck their points
+            await spentPoints_2.SpentPointsModel.generate(spentPoints_1.SpentPointsCategory.AcceptQuest, member._id, quest._id);
+            await points_2.updateUserPoints(member.id);
+        }
+        else { // if user can't afford it, suck party leader's points (even if that goes negative i don't care. if someone bypasses the front-end lock for this they deserve to do the quest)
+            await spentPoints_2.SpentPointsModel.generate(spentPoints_1.SpentPointsCategory.AcceptQuest, party.leader._id, quest._id);
+            await points_2.updateUserPoints(party.leader.id);
+        }
     }
-    const allQuests = await quest_2.QuestModel.findAll();
+    quest = await quest_2.QuestModel
+        .findById(quest.id)
+        .defaultPopulate()
+        .orFail();
     res.json({
-        quests: allQuests,
+        quests: [quest],
         availablePoints: res.locals.userRequest.availablePoints - quest.price,
     });
     //logs
@@ -176,7 +185,7 @@ questsRouter.post('/:id/drop', isPartyLeader, async (req, res) => {
     const members = quest.currentParty.members;
     const leader = quest.currentParty.leader;
     await quest.drop();
-    const allQuests = await quest_2.QuestModel.findAll();
+    const allQuests = await quest_2.QuestModel.findAll(100);
     res.json(allQuests);
     //logs
     const { modeList, memberList } = helpers_1.generateLists(quest.modes, members);
@@ -193,34 +202,11 @@ questsRouter.post('/:id/drop', isPartyLeader, async (req, res) => {
                 }],
         }]);
 });
-/* POST extend deadline */
-questsRouter.post('/:id/extendDeadline', isPartyLeader, async (req, res) => {
-    const quest = res.locals.quest;
-    if (quest.currentParty.members.some(m => m.availablePoints < points_1.extendQuestPrice)) {
-        return res.json({ error: 'One or more of your party members do not have enough points to extend the deadline!' });
-    }
-    for (const member of quest.currentParty.members) {
-        spentPoints_2.SpentPointsModel.generate(spentPoints_1.SpentPointsCategory.ExtendDeadline, member.id, quest.id);
-        points_2.updateUserPoints(member.id);
-    }
-    if (!quest.deadline)
-        throw new Error();
-    const deadline = new Date(quest.deadline);
-    deadline.setDate(deadline.getDate() + 30);
-    quest.deadline = deadline;
-    await quest.save();
-    const user = await user_1.UserModel.findById(req.session?.mongoId).orFail();
-    res.json({
-        quest,
-        availablePoints: user.availablePoints,
-    });
-    log_2.LogModel.generate(req.session?.mongoId, `extended deadline for ${quest.name}`, log_1.LogCategory.Party);
-});
 /* POST reopen expired quest. */
-questsRouter.post('/:id/reopen', middlewares_1.isNotSpectator, async (req, res) => {
+questsRouter.post('/:id/reopen', async (req, res) => {
     const questId = req.params.id;
     const user = res.locals.userRequest;
-    const quest = await quest_2.QuestModel
+    let quest = await quest_2.QuestModel
         .findById(questId)
         .defaultPopulate()
         .orFail();
@@ -229,13 +215,15 @@ questsRouter.post('/:id/reopen', middlewares_1.isNotSpectator, async (req, res) 
     }
     const newExpiration = new Date();
     newExpiration.setDate(newExpiration.getDate() + 90);
-    await quest_2.QuestModel.findByIdAndUpdate(questId, {
+    quest = await quest_2.QuestModel
+        .findByIdAndUpdate(questId, {
         expiration: newExpiration,
-    });
+    })
+        .defaultPopulate()
+        .orFail();
     spentPoints_2.SpentPointsModel.generate(spentPoints_1.SpentPointsCategory.ReopenQuest, req.session?.mongoId, quest._id);
     points_2.updateUserPoints(req.session?.mongoId);
-    const allQuests = await quest_2.QuestModel.findAll();
-    res.json({ quests: allQuests, availablePoints: user.availablePoints });
+    res.json({ quests: [quest], availablePoints: user.availablePoints });
     log_2.LogModel.generate(req.session?.mongoId, `re-opened quest "${quest.name}"`, log_1.LogCategory.Quest);
     // webhook
     discordApi_1.webhookPost([{
@@ -250,7 +238,7 @@ questsRouter.post('/:id/reopen', middlewares_1.isNotSpectator, async (req, res) 
         }]);
 });
 /* POST add quest */
-questsRouter.post('/submit', middlewares_1.isNotSpectator, async (req, res) => {
+questsRouter.post('/submit', async (req, res) => {
     //quest creation
     const user = res.locals.userRequest;
     const artist = await featuredArtist_1.FeaturedArtistModel.findOne({ osuId: req.body.art });

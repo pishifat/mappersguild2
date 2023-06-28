@@ -18,21 +18,6 @@ adminFeaturedArtistsRouter.get('/load', async (req, res) => {
         .find({})
         .defaultPopulateWithSongs()
         .sort({ osuId: 1, label: 1 });
-    /* log artists who haven't had a ranked map in x timeframe. convert to more user friendly system
-    for (let i = 0; i < featuredArtists.length; i++) {
-        const fa = featuredArtists[i];
-        // console.log(fa.songs);
-
-        const songs = fa.songs.map(s => s.id);
-
-        const date = new Date('12-31-2019');
-
-        if (fa.status == FeaturedArtistStatus.Public) {
-            const bm = await BeatmapModel.find({ song: songs, status: BeatmapStatus.Ranked, rankedDate: { $gt: date } });
-
-            if (!bm.length) console.log(fa.label);
-        }
-    } */
     res.json(featuredArtists);
 });
 /* POST update artist osuId */

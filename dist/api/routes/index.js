@@ -7,16 +7,15 @@ const express_1 = __importDefault(require("express"));
 const config_json_1 = __importDefault(require("../../config.json"));
 const crypto_1 = __importDefault(require("crypto"));
 const user_1 = require("../models/user");
-const log_1 = require("../models/log");
-const log_2 = require("../../interfaces/log");
+const mission_1 = require("../models/mission");
+const quest_1 = require("../models/quest");
 const middlewares_1 = require("../helpers/middlewares");
 const osuApi_1 = require("../helpers/osuApi");
 const user_2 = require("../../interfaces/user");
-const discordApi_1 = require("../helpers/discordApi");
 const featuredArtist_1 = require("../models/featuredArtist");
 const featuredArtist_2 = require("../../interfaces/featuredArtist");
 const helpers_1 = require("../helpers/helpers");
-const quest_1 = require("../models/quest");
+const mission_2 = require("../../interfaces/mission");
 const indexRouter = express_1.default.Router();
 /* GET loggedInUser */
 indexRouter.get('/me', async (req, res) => {
@@ -71,11 +70,7 @@ indexRouter.get('/home/:limit', async (req, res) => {
         'songs.beatmaps_count': { $gt: 0 },
     })
         .limit(limit);
-    const quest = await quest_1.QuestModel.findById('62d0799b1cfaf430df14eae3').defaultPopulate();
-    res.json({
-        artists,
-        quest,
-    });
+    res.json(artists);
 });
 /* GET user's code to login */
 indexRouter.get('/login', (req, res) => {
@@ -118,50 +113,37 @@ indexRouter.get('/callback', async (req, res) => {
     }
     const osuId = response.id;
     const username = response.username;
-    const group = response.ranked_and_approved_beatmapset_count >= 3 ? user_2.UserGroup.User : user_2.UserGroup.Spectator;
+    const group = user_2.UserGroup.User;
+    const rankedBeatmapsCount = response.ranked_and_approved_beatmapset_count;
+    const globalRank = response.statistics.global_rank;
     let user = await user_1.UserModel.findOne({ osuId });
     if (!user) {
         user = new user_1.UserModel();
         user.osuId = osuId;
         user.username = username;
         user.group = group;
+        user.rankedBeatmapsCount = rankedBeatmapsCount;
+        user.globalRank = globalRank;
         await user.save();
         req.session.mongoId = user._id;
-        if (user.group == user_2.UserGroup.User) {
-            discordApi_1.webhookPost([{
-                    author: {
-                        name: user.username,
-                        icon_url: `https://a.ppy.sh/${user.osuId}`,
-                        url: `https://osu.ppy.sh/u/${user.osuId}`,
-                    },
-                    color: discordApi_1.webhookColors.lightRed,
-                    description: `Joined the Mappers' Guild!`,
-                }]);
-            log_1.LogModel.generate(req.session.mongoId, `joined the Mappers' Guild`, log_2.LogCategory.User);
-        }
-        else {
-            log_1.LogModel.generate(req.session.mongoId, `verified their account for the first time`, log_2.LogCategory.User);
-        }
+        // LogModel.generate(req.session.mongoId, `joined the Mappers' Guild`, LogCategory.User);
     }
     else {
+        let saveTrigger = false;
         if (user.username != username) {
             user.username = username;
-            await user.save();
+            saveTrigger = true;
         }
-        // User got 3 ranked maps from his last login
-        if (user.group === user_2.UserGroup.Spectator && group === user_2.UserGroup.User && !user.bypassLogin) {
-            user.group = group;
+        if (user.rankedBeatmapsCount != rankedBeatmapsCount) {
+            user.rankedBeatmapsCount = rankedBeatmapsCount;
+            saveTrigger = true;
+        }
+        if (user.globalRank != globalRank) {
+            user.globalRank = globalRank;
+            saveTrigger = true;
+        }
+        if (saveTrigger) {
             await user.save();
-            discordApi_1.webhookPost([{
-                    author: {
-                        name: user.username,
-                        icon_url: `https://a.ppy.sh/${user.osuId}`,
-                        url: `https://osu.ppy.sh/u/${user.osuId}`,
-                    },
-                    color: discordApi_1.webhookColors.lightRed,
-                    description: `Joined the Mappers' Guild!`,
-                }]);
-            log_1.LogModel.generate(user._id, `joined the Mappers' Guild`, log_2.LogCategory.User);
         }
         req.session.mongoId = user._id;
     }
@@ -187,5 +169,20 @@ indexRouter.post('/toggleIsShowcaseMapper', async (req, res) => {
 indexRouter.post('/toggleIsContestHelper', async (req, res) => {
     const user = await user_1.UserModel.findByIdAndUpdate(req.session?.mongoId, { isContestHelper: req.body.value });
     res.json(user);
+});
+/* GET example mission */
+indexRouter.get('/exampleMission', async (req, res) => {
+    res.json(await mission_1.MissionModel
+        .findOne({
+        artists: { $size: 1 },
+        openingAnnounced: true,
+        status: mission_2.MissionStatus.Hidden,
+    })
+        .defaultPopulate()
+        .orFail());
+});
+/* GET example quest */
+indexRouter.get('/exampleQuest', async (req, res) => {
+    res.json(await quest_1.QuestModel.findById('62d0799b1cfaf430df14eae3').defaultPopulate());
 });
 exports.default = indexRouter;

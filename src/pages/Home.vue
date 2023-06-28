@@ -165,14 +165,14 @@
                                     2, 7, or 10<sup><a href="#" @click.prevent="highlight = 'storyboard'">storyboard</a></sup>
                                 </td>
                             </tr>
-                            <tr>
+                            <!--<tr>
                                 <td scope="row">
                                     Completing a priority quest
                                 </td>
                                 <td scope="row">
                                     5, 8, 15, or 24<sup><a href="#" @click.prevent="highlight = 'priority'">priority</a></sup>
                                 </td>
-                            </tr>
+                            </tr>-->
                             <tr>
                                 <td scope="row">
                                     Completing a quest
@@ -238,7 +238,7 @@
                                         <li>0.5 points for 40+ days late </li>
                                     </ul>
                                 </li>
-                                <li>Beatmaps created for a priority quest earn +3 (for winning) or +1 bonus points per difficulty (also scaling according to length)</li>
+                                <!--<li>Beatmaps created for a priority quest earn +3 (for winning) or +1 bonus points per difficulty (also scaling according to length)</li>-->
                             </ul>
                         </li>
                         <li :class="highlight == 'mod' ? 'text-success' : ''">

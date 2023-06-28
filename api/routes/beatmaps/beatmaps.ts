@@ -6,6 +6,7 @@ import { TaskName } from '../../../interfaces/beatmap/task';
 import { LogModel } from '../../models/log';
 import { UserModel } from '../../models/user';
 import { LogCategory } from '../../../interfaces/log';
+import { User } from '../../../interfaces/user';
 import { isLoggedIn, isBn } from '../../helpers/middlewares';
 import { findDifficultyPoints, getLengthNerf, getQuestBonus, findStoryboardPoints } from '../../helpers/points';
 import { defaultErrorMessage, findBeatmapsetId, getLongestBeatmapLength } from '../../helpers/helpers';
@@ -189,7 +190,7 @@ beatmapsRouter.get('/validateUsers/:userInput', async (req, res) => {
         return res.json({ error: 'No mapper input' });
     }
 
-    const finalUsers = [];
+    const finalUsers: User[] = [];
 
     for (const user of usersSplit) {
         const validUser = await UserModel

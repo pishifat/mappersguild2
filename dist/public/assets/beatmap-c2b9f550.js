@@ -1,1 +1,0 @@
-var r=(i=>(i.WIP="WIP",i.Done="Done",i.Qualified="Qualified",i.Ranked="Ranked",i))(r||{}),n=(i=>(i.Osu="osu",i.Taiko="taiko",i.Catch="catch",i.Mania="mania",i.Hybrid="hybrid",i))(n||{});export{r as B,n as a};

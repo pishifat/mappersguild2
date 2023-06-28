@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateUserPoints = exports.calculateContestPoints = exports.calculateSpentPoints = exports.calculateModPoints = exports.calculateHostPoints = exports.calculateTasksPoints = exports.getUserRank = exports.findCreateQuestPointsSpent = exports.getReopenQuestPoints = exports.findStoryboardPoints = exports.getQuestBonus = exports.findQuestPoints = exports.findDifficultyPoints = exports.getLengthNerf = exports.extendQuestPrice = void 0;
+exports.updateUserPoints = exports.calculateContestPoints = exports.calculateSpentPoints = exports.calculateModPoints = exports.calculateHostPoints = exports.calculateTasksPoints = exports.getUserRank = exports.findCreateQuestPointsSpent = exports.getReopenQuestPoints = exports.findStoryboardPoints = exports.getMissionBonus = exports.getQuestBonus = exports.findMissionPoints = exports.findQuestPoints = exports.findDifficultyPoints = exports.getLengthNerf = exports.extendQuestPrice = void 0;
 const beatmap_1 = require("../../interfaces/beatmap/beatmap");
 const beatmap_2 = require("../models/beatmap/beatmap");
 const task_1 = require("../../interfaces/beatmap/task");
@@ -11,6 +11,7 @@ const spentPoints_1 = require("../models/spentPoints");
 const user_1 = require("../models/user");
 const spentPoints_2 = require("../../interfaces/spentPoints");
 const quest_1 = require("../../interfaces/quest");
+const mission_1 = require("../../interfaces/mission");
 const contest_2 = require("../../interfaces/contest/contest");
 exports.extendQuestPrice = 10;
 function getLengthNerf(length) {
@@ -47,7 +48,7 @@ function findDifficultyPoints(taskName, totalMappers) {
 exports.findDifficultyPoints = findDifficultyPoints;
 function findQuestPoints(deadline, questCompletedDate, rankedDate) {
     const lateness = +deadline - +questCompletedDate;
-    if (lateness > 0 && +rankedDate > +new Date('2019-03-01')) { //2019-03-01 is when mappers' guild website launched
+    if (lateness > 0 && +rankedDate > +new Date('2019-03-01')) { // 2019-03-01 is when mappers' guild website launched
         return 7;
     }
     else {
@@ -55,6 +56,19 @@ function findQuestPoints(deadline, questCompletedDate, rankedDate) {
     }
 }
 exports.findQuestPoints = findQuestPoints;
+function findMissionPoints(tier) {
+    if (tier == 1)
+        tier = 1.45;
+    /*
+        1 -> 5
+        2 -> 8
+        3 -> 15
+        4 -> 24
+        (this formula is arbitrary. 1 and 2 being close is intentional. 3 and 4 are supposed to be *special*)
+    */
+    return tier * (tier + 2);
+}
+exports.findMissionPoints = findMissionPoints;
 function getQuestBonus(deadline, rankedDate, totalMappers) {
     let questBonus = 0;
     const lateness = (+deadline - +rankedDate) / (24 * 3600 * 1000);
@@ -73,6 +87,14 @@ function getQuestBonus(deadline, rankedDate, totalMappers) {
     return questBonus / totalMappers;
 }
 exports.getQuestBonus = getQuestBonus;
+function getMissionBonus(winningBeatmaps, beatmapId, totalMappers) {
+    let missionBonus = 1;
+    if (winningBeatmaps.some(b => b.id == beatmapId)) {
+        missionBonus = 4;
+    }
+    return missionBonus / totalMappers;
+}
+exports.getMissionBonus = getMissionBonus;
 function findStoryboardPoints(storyboardQuality) {
     if (!storyboardQuality) {
         return 0;
@@ -144,6 +166,20 @@ async function getUserRank(userId, tasksPoints, modPoints, hostPoints, contestPo
     };
 }
 exports.getUserRank = getUserRank;
+const taskPointsPopulate = [
+    { path: 'host', select: '_id osuId username' },
+    { path: 'modders', select: '_id osuId username' },
+    { path: 'quest', select: '_id name status price completed deadline' },
+    {
+        path: 'mission',
+        select: '_id name status tier winningBeatmaps closingAnnounced',
+        populate: {
+            path: 'winningBeatmaps',
+            select: '_id id',
+        },
+    },
+    { path: 'tasks', populate: { path: 'mappers' } },
+];
 async function calculateTasksPoints(userId) {
     const ownTasks = await task_2.TaskModel.find({ mappers: userId }).select('_id');
     // find any Ranked beatmap the user is involved in
@@ -153,12 +189,7 @@ async function calculateTasksPoints(userId) {
         tasks: {
             $in: ownTasks,
         },
-    }).populate([
-        { path: 'host', select: '_id osuId username' },
-        { path: 'modders', select: '_id osuId username' },
-        { path: 'quest', select: '_id name status price completed deadline' },
-        { path: 'tasks', populate: { path: 'mappers' } },
-    ]);
+    }).populate(taskPointsPopulate);
     const pointsObject = {
         Easy: 0,
         Normal: 0,
@@ -172,36 +203,42 @@ async function calculateTasksPoints(userId) {
         mania: 0,
         Quests: [],
         QuestReward: 0,
+        Missions: [],
+        MissionReward: 0,
     };
     // process all beatmaps
     for (const beatmap of userBeatmaps) {
         let questParticipation = false; // each map has no quest bonus unless marked later
+        let missionParticipation = false;
         const lengthNerf = getLengthNerf(beatmap.length); // how much beatmap length will affect points earned from tasks
         // task points
         for (const task of beatmap.tasks) {
             if (task.mappers.some(m => m.id == userId)) {
-                if (task.name != task_1.TaskName.Storyboard) {
-                    let questBonus = 0;
-                    // define quest-related parameters
-                    if (beatmap.quest?.status === quest_1.QuestStatus.Done) {
-                        questParticipation = true; // SB'ng doesn't get extra quest bonus
-                        questBonus = getQuestBonus(beatmap.quest.deadline, beatmap.rankedDate, task.mappers.length);
-                    }
-                    else if (beatmap.isShowcase) {
-                        questBonus = 2; // featured artist showcase maps automatically earn full quest bonus
-                    }
-                    // difficulty-specific points
-                    const taskPoints = findDifficultyPoints(task.name, task.mappers.length);
-                    // finalize task points and add to base
-                    const finalPoints = ((taskPoints + questBonus) * lengthNerf);
-                    pointsObject[task.name] += finalPoints;
-                    pointsObject[task.mode] += finalPoints;
+                // quest/mission/showcase bonuses
+                let bonus = 0;
+                if (beatmap.quest?.status === quest_1.QuestStatus.Done) {
+                    questParticipation = true;
+                    bonus = getQuestBonus(beatmap.quest.deadline, beatmap.rankedDate, task.mappers.length);
+                }
+                else if (beatmap.mission?.status === mission_1.MissionStatus.Closed && beatmap.mission?.closingAnnounced) {
+                    missionParticipation = true;
+                    bonus = getMissionBonus(beatmap.mission.winningBeatmaps, beatmap.id, task.mappers.length);
+                }
+                else if (beatmap.isShowcase) {
+                    bonus = 2; // featured artist showcase maps automatically earn full quest bonus
+                }
+                // calculate raw task points
+                let taskPoints;
+                if (task.name === task_1.TaskName.Storyboard) {
+                    taskPoints = findStoryboardPoints(task.sbQuality);
                 }
                 else {
-                    // finalize SB-specific points and add to base
-                    const taskPoints = findStoryboardPoints(task.sbQuality);
-                    pointsObject[task.name] += taskPoints;
+                    taskPoints = findDifficultyPoints(task.name, task.mappers.length);
                 }
+                // finalize task points and add to base
+                const finalPoints = ((taskPoints + bonus) * lengthNerf);
+                pointsObject[task.name] += finalPoints;
+                pointsObject[task.mode] += finalPoints;
             }
         }
         // quest reward points and completed quests list
@@ -210,6 +247,31 @@ async function calculateTasksPoints(userId) {
             !pointsObject.Quests.includes(beatmap.quest._id)) {
             pointsObject.Quests.push(beatmap.quest._id);
             pointsObject.QuestReward += findQuestPoints(beatmap.quest.deadline, beatmap.quest.completed, beatmap.rankedDate); // 7 points per quest if not over deadline
+        }
+        // mission reward points and completed missions list
+        if (missionParticipation &&
+            beatmap.mission &&
+            !pointsObject.Missions.includes(beatmap.mission._id) &&
+            beatmap.mission.winningBeatmaps.some(b => b.id == beatmap.id)) {
+            pointsObject.Missions.push(beatmap.mission._id);
+            pointsObject.MissionReward += findMissionPoints(beatmap.mission.tier); // depends on mission tier
+        }
+    }
+    // process unranked mission beatmaps for extra points
+    const unrankedMissionBeatmaps = await beatmap_2.BeatmapModel
+        .find({
+        status: { $ne: beatmap_1.BeatmapStatus.Ranked },
+        tasks: {
+            $in: ownTasks,
+        },
+        mission: { $exists: true },
+    }).populate(taskPointsPopulate);
+    for (const beatmap of unrankedMissionBeatmaps) {
+        if (beatmap.mission &&
+            !pointsObject.Missions.includes(beatmap.mission._id) &&
+            beatmap.mission.winningBeatmaps.some(b => b.id == beatmap.id)) {
+            pointsObject.Missions.push(beatmap.mission._id);
+            pointsObject.MissionReward += findMissionPoints(beatmap.mission.tier); // depends on mission tier
         }
     }
     return pointsObject;
@@ -226,11 +288,21 @@ async function calculateHostPoints(userId) {
 exports.calculateHostPoints = calculateHostPoints;
 /** 1 point per mod */
 async function calculateModPoints(userId) {
-    const moddedBeatmaps = await beatmap_2.BeatmapModel.countDocuments({
-        status: beatmap_1.BeatmapStatus.Ranked,
-        modders: userId,
-    });
-    return moddedBeatmaps;
+    const [modderPoints, nominatorBeatmaps] = await Promise.all([
+        beatmap_2.BeatmapModel.countDocuments({
+            status: beatmap_1.BeatmapStatus.Ranked,
+            modders: userId,
+            bns: { $ne: userId },
+        }),
+        beatmap_2.BeatmapModel
+            .find({
+            status: beatmap_1.BeatmapStatus.Ranked,
+            bns: userId,
+        })
+            .defaultPopulate(),
+    ]);
+    const nominatorPoints = nominatorBeatmaps.map(b => getLengthNerf(b.length)).reduce((a, b) => a + b, 0);
+    return modderPoints + nominatorPoints;
 }
 exports.calculateModPoints = calculateModPoints;
 async function calculateSpentPoints(userId) {
@@ -246,7 +318,7 @@ async function calculateSpentPoints(userId) {
             total += spentPoints.quest.price; // price of quest on listing
         }
         else if (spentPoints.category == spentPoints_2.SpentPointsCategory.ExtendDeadline) {
-            total += exports.extendQuestPrice; // 10 points to extend deadline
+            total += exports.extendQuestPrice; // 10 points to extend deadline. no longer used
         }
         else if (spentPoints.category == spentPoints_2.SpentPointsCategory.ReopenQuest) {
             total += getReopenQuestPoints(spentPoints.quest.price);
@@ -302,7 +374,7 @@ async function calculateContestPoints(userId) {
     };
 }
 exports.calculateContestPoints = calculateContestPoints;
-function demicalRound(value) {
+function decimalRound(value) {
     return Math.round(value * 1000) / 1000;
 }
 /**
@@ -319,27 +391,29 @@ async function updateUserPoints(userId) {
     const { rank, totalPoints } = await getUserRank(userId, taskPoints, modPoints, hostPoints, contestPoints);
     await user_1.UserModel.findByIdAndUpdate(userId, {
         // Tasks
-        easyPoints: demicalRound(taskPoints['Easy']),
-        normalPoints: demicalRound(taskPoints['Normal']),
-        hardPoints: demicalRound(taskPoints['Hard']),
-        insanePoints: demicalRound(taskPoints['Insane']),
-        expertPoints: demicalRound(taskPoints['Expert']),
-        storyboardPoints: demicalRound(taskPoints['Storyboard']),
+        easyPoints: decimalRound(taskPoints['Easy']),
+        normalPoints: decimalRound(taskPoints['Normal']),
+        hardPoints: decimalRound(taskPoints['Hard']),
+        insanePoints: decimalRound(taskPoints['Insane']),
+        expertPoints: decimalRound(taskPoints['Expert']),
+        storyboardPoints: decimalRound(taskPoints['Storyboard']),
         // Total per mode
-        osuPoints: demicalRound(taskPoints['osu']),
-        taikoPoints: demicalRound(taskPoints['taiko']),
-        catchPoints: demicalRound(taskPoints['catch']),
-        maniaPoints: demicalRound(taskPoints['mania']),
-        // Quests
+        osuPoints: decimalRound(taskPoints['osu']),
+        taikoPoints: decimalRound(taskPoints['taiko']),
+        catchPoints: decimalRound(taskPoints['catch']),
+        maniaPoints: decimalRound(taskPoints['mania']),
+        // Quests + Missions
         questPoints: taskPoints['QuestReward'],
         completedQuests: taskPoints['Quests'],
+        missionPoints: taskPoints['MissionReward'],
+        completedMissions: taskPoints['Missions'],
         // FA Contests
         contestCreatorPoints: contestPoints.ContestCreator,
         contestParticipantPoints: contestPoints.ContestParticipant,
         contestScreenerPoints: contestPoints.ContestScreener,
         contestJudgePoints: contestPoints.ContestJudge,
         // Rest
-        modPoints,
+        modPoints: decimalRound(modPoints),
         hostPoints,
         spentPoints,
         rank,

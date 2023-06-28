@@ -9,4 +9,5 @@ var LogCategory;
     LogCategory["User"] = "user";
     LogCategory["Artist"] = "artist";
     LogCategory["Error"] = "error";
+    LogCategory["Mission"] = "mission";
 })(LogCategory = exports.LogCategory || (exports.LogCategory = {}));
