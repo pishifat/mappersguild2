@@ -6,6 +6,16 @@
         </a>
         <div id="questInformation" class="collapse ms-4">
             <div class="small text-secondary">
+                Quests reward mappers for following certain requirements when creating their Featured Artist maps. Most quests involve creating and ranking a certain number of beatmaps for a specific Featured Artist, and new quests are added weekly.
+            </div>
+            <hr />
+            <div class="small text-secondary mt-2">
+                To begin a quest, a party must claim it. Only one party can run a quest per mode.
+            </div>
+            <div class="small text-secondary mt-2">
+                If a quest is not claimed within 90 days, it expires. To re-open an expired quest, a user must spend some of their available points.
+            </div>
+            <div class="small text-secondary mt-2">
                 Here's a breakdown of this example quest:
             </div>
             <example-quest
