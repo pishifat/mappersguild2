@@ -85,7 +85,7 @@ partySchema.methods.addUser = async function (user, isNotSelf, isLeader) {
     if (this.members.length >= this.quest.maxParty) {
         throw new Error('Party has too many members!');
     }
-    if (isNotSelf) {
+    if (isNotSelf && this.id !== '649c33f84fa25e6f7d9a104a') {
         this.pendingMembers.push(user);
     }
     else {

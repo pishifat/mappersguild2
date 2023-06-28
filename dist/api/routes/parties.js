@@ -57,7 +57,7 @@ partiesRouter.post('/create', async (req, res) => {
 partiesRouter.post('/:id/add', middlewares_1.isValidUser, async (req, res) => {
     const party = await party_1.PartyModel.defaultFindByIdOrFail(req.params.id);
     const isNotSelf = req.body.user && req.body.user.length;
-    const isLeader = party.leader.id == res.locals.userRequest.id || res.locals.userRequest.osuId !== 3178418;
+    const isLeader = party.leader.id == res.locals.userRequest.id || res.locals.userRequest.osuId == 3178418;
     const user = isNotSelf ? res.locals.user : res.locals.userRequest;
     await party.addUser(user, isNotSelf, isLeader);
     res.json(party);
