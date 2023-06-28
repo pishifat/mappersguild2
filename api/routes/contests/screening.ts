@@ -7,7 +7,7 @@ import { ContestStatus } from '../../../interfaces/contest/contest';
 
 const defaultContestPopulate = {
     path: 'submissions',
-    select: '_id name screenings url', // url is for isTempFormat
+    select: '_id name screenings',
     populate: {
         path: 'screenings',
         populate: {
@@ -30,14 +30,9 @@ const screeningRouter = express.Router();
 async function isScreener(req, res, next): Promise<void> {
     const contest = await ContestModel
         .findOne({
-            $or: [
-                {
-                    status: ContestStatus.Screening,
-                    screeners: res.locals.userRequest._id,
-                    submissions: req.params.submissionId,
-                },
-                { isTempFormat: true },
-            ],
+            status: ContestStatus.Screening,
+            screeners: res.locals.userRequest._id,
+            submissions: req.params.submissionId,
         });
 
     if (contest) {
@@ -53,16 +48,11 @@ screeningRouter.use(isLoggedIn);
 screeningRouter.get('/relevantInfo', async (req, res) => {
     const contests = await ContestModel
         .find({
-            $or: [
-                {
-                    status: ContestStatus.Screening,
-                    screeners: res.locals.userRequest._id,
-                },
-                { isTempFormat: true },
-            ],
+            status: ContestStatus.Screening,
+            screeners: res.locals.userRequest._id,
         })
         .populate(defaultContestPopulate)
-        .select('_id name submissions screeners download status url screeningVoteCount isTempFormat');
+        .select('_id name submissions screeners download status url screeningVoteCount');
 
     res.json(contests);
 });
@@ -71,16 +61,12 @@ screeningRouter.get('/relevantInfo', async (req, res) => {
 screeningRouter.get('/searchContest/:contestId', async (req, res) => {
     const contest = await ContestModel
         .findOne({
-            $or: [
-                {
-                    status: ContestStatus.Screening,
-                    screeners: res.locals.userRequest._id,
-                },
-                { isTempFormat: true },
-            ],
+            status: ContestStatus.Screening,
+            screeners: res.locals.userRequest._id,
+            _id: req.params.contestId,
         })
         .populate(defaultContestPopulate)
-        .select('_id name submissions screeners download status url screeningVoteCount isTempFormat');
+        .select('_id name submissions screeners download status url screeningVoteCount');
 
     res.json(contest);
 });

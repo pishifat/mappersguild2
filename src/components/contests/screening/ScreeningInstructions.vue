@@ -9,9 +9,9 @@
                 />
                 indicate the order of your top 5. The star on the <b>left is the lowest score</b>, while the star on the <b>right is the highest score</b>.
             </li>
-            <li v-if="!isTempFormat">Comments will be seen by the map creator. Your name will be anonymous.</li>
-            <li v-if="!isTempFormat">DO NOT discuss your choices with other screeners or outsiders until after the contest is concluded.</li>
-            <li v-if="!isTempFormat">The overall highest scoring submissions will be included in the judging phase!</li>
+            <li>Comments will be seen by the map creator. Your name will be anonymous.</li>
+            <li>DO NOT discuss your choices with other screeners or outsiders until after the contest is concluded.</li>
+            <li>The overall highest scoring submissions will be included in the judging phase!</li>
         </ul>
     </div>
 </template>
@@ -21,11 +21,5 @@ import { defineComponent } from 'vue';
 
 export default defineComponent({
     name: 'ScreeningInstructions',
-    props: {
-        isTempFormat: {
-            type: Boolean,
-            default: false,
-        },
-    },
 });
 </script>

@@ -42,5 +42,4 @@ export interface Contest {
     bannerUrl: string;
     isFeaturedArtistContest: boolean;
     isEligibleForPoints: boolean;
-    isTempFormat: boolean;
 }

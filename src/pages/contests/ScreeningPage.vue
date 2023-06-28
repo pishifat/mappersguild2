@@ -37,7 +37,6 @@
                 <screening-instructions
                     id="screeningInstructions"
                     class="collapse"
-                    :is-temp-format="selectedContest.isTempFormat"
                 />
 
                 <transition-group
@@ -51,7 +50,6 @@
                         :key="submission.id"
                         :submission="submission"
                         :screening-vote-count="selectedContest.screeningVoteCount"
-                        :is-temp-format="selectedContest.isTempFormat"
                     />
                 </transition-group>
 
