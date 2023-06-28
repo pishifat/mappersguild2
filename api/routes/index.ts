@@ -31,7 +31,7 @@ indexRouter.get('/home/:limit', async (req, res) => {
 
     const artists = await FeaturedArtistModel
         .aggregate()
-        .match({ status: FeaturedArtistStatus.Public })
+        .match({ $or: [ { status: FeaturedArtistStatus.Public }, { status: FeaturedArtistStatus.Playlist } ] })
         .match({ isUpToDate: true })
         .match({ osuId: { $ne: 727 } })
         .sort({ osuId: -1 })

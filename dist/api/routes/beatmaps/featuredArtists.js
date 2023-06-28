@@ -11,13 +11,13 @@ const featuredArtistsRouter = express_1.default.Router();
 featuredArtistsRouter.use(middlewares_1.isLoggedIn);
 /* GET artists for new map entry */
 featuredArtistsRouter.get('/', async (req, res) => {
-    const featuredArtists = await featuredArtist_1.FeaturedArtistModel.find({ status: featuredArtist_2.FeaturedArtistStatus.Public });
+    const featuredArtists = await featuredArtist_1.FeaturedArtistModel.find({ $or: [{ status: featuredArtist_2.FeaturedArtistStatus.Public }, { status: featuredArtist_2.FeaturedArtistStatus.Playlist }] });
     res.json(featuredArtists);
 });
 /* GET songs for new map entry */
 featuredArtistsRouter.get('/:id/songs', async (req, res) => {
     const fa = await featuredArtist_1.FeaturedArtistModel
-        .findOne({ _id: req.params.id, status: featuredArtist_2.FeaturedArtistStatus.Public })
+        .findOne({ _id: req.params.id, $or: [{ status: featuredArtist_2.FeaturedArtistStatus.Public }, { status: featuredArtist_2.FeaturedArtistStatus.Playlist }] })
         .populate({ path: 'songs', select: 'artist title' })
         .sort({ label: -1 })
         .orFail();

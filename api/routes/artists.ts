@@ -18,7 +18,7 @@ const defaultOsuBeatmapPopulate = [
 
 artistsRouter.get('/relevantInfo', async (req, res) => {
     const a = await FeaturedArtistModel
-        .find({ permanentlyDismiss: { $ne: true } })
+        .find({})
         .defaultPopulate()
         .sort({ label: 1 });
 
@@ -155,9 +155,7 @@ artistsRouter.post('/toggleIsUpToDate/:id', async (req, res) => {
         ppySigned: false,
         songsReceived: false,
         songsTimed: false,
-        hasRankedMaps: false,
         projectedRelease: undefined,
-        showcaseMappers: [],
     });
 
     a = await FeaturedArtistModel.findById(req.params.id).defaultPopulate();
