@@ -154,7 +154,7 @@
                                     Modding mapset
                                 </td>
                                 <td scope="row">
-                                    1
+                                    1<sup><a href="#" @click.prevent="highlight = 'mod'">mod</a></sup>
                                 </td>
                             </tr>
                             <tr>
@@ -162,7 +162,7 @@
                                     Creating storyboard
                                 </td>
                                 <td scope="row">
-                                    2.5, 7, or 10<sup><a href="#" @click.prevent="highlight = 'storyboard'">storyboard</a></sup>
+                                    2, 7, or 10<sup><a href="#" @click.prevent="highlight = 'storyboard'">storyboard</a></sup>
                                 </td>
                             </tr>
                             <tr>
@@ -239,6 +239,14 @@
                                     </ul>
                                 </li>
                                 <li>Beatmaps created for a priority quest earn +3 (for winning) or +1 bonus points per difficulty (also scaling according to length)</li>
+                            </ul>
+                        </li>
+                        <li :class="highlight == 'mod' ? 'text-success' : ''">
+                            <b>Modding:</b>
+                            <ul>
+                                <li>
+                                    If a Beatmap Nominator nominates a Mappers' Guild map, this value scales according to the song's length
+                                </li>
                             </ul>
                         </li>
                         <li :class="highlight == 'storyboard' ? 'text-success' : ''">
