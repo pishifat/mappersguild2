@@ -595,10 +595,16 @@ const dropOverdueQuests = cron.schedule('2 3 * * *', async () => { /* 8:02 PM PS
             LogModel.generate(null, `party dropped quest "${quest.name}" for mode${quest.modes.length > 1 ? 's' : ''} "${modeList}"`, LogCategory.Quest );
 
             // webhook
+            const openQuest = await QuestModel
+                .findOne({
+                    status: QuestStatus.Open,
+                    name: quest.name,
+                });
+
             await webhookPost([{
                 ...generateAuthorWebhook(leader),
                 color: webhookColors.red,
-                description: `Automatically dropped quest due to inactivity: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id}) [**${modeList}**]`,
+                description: `Automatically dropped quest due to inactivity: [**${quest.name}**](https://mappersguild.com/quests?id=${openQuest ? openQuest.id : quest.id}) [**${modeList}**]`,
                 ...generateThumbnailUrl(quest),
                 fields: [{
                     name: 'Party members',
@@ -612,7 +618,7 @@ const dropOverdueQuests = cron.schedule('2 3 * * *', async () => { /* 8:02 PM PS
                 description: `Automatic quest drop due to inactivity`,
             };
 
-            const message = `the [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id}) quest has been automatically dropped due to being inactive for 1 year.`;
+            const message = `the [**${quest.name}**](https://mappersguild.com/quests?id=${openQuest ? openQuest.id : quest.id}) quest has been automatically dropped due to being inactive for 1 year.`;
 
             await sendAnnouncement([leader.osuId], channel, message);
         }
@@ -644,6 +650,7 @@ const validateRankedBeatmaps = cron.schedule('0 4 * * *', async () => { /* 9:00 
         const token = response.access_token;
 
         for (const beatmap of beatmaps) {
+            console.log(beatmap.id);
             const osuId = findBeatmapsetId(beatmap.url);
             const bmInfo: any = await getBeatmapsetV2Info(token, osuId);
             await sleep(250);

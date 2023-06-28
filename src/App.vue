@@ -23,7 +23,12 @@
                                     Beatmaps
                                 </router-link>
                             </li>
-                            <li class="nav-item dropdown">
+                            <li class="nav-item">
+                                <router-link class="nav-link" to="/quests">
+                                    Quests
+                                </router-link>
+                            </li>
+                            <!--<li class="nav-item dropdown">
                                     <a
                                         id="questDropdown"
                                         class="nav-link dropdown-toggle"
@@ -44,7 +49,7 @@
                                             </router-link>
                                         </li>
                                     </ul>
-                                </li>
+                                </li>-->
                             <li class="nav-item">
                                 <router-link class="nav-link" to="/users">
                                     Users
@@ -205,7 +210,12 @@
                                     Beatmaps
                                 </router-link>
                             </li>
-                            <li class="nav-item dropdown">
+                            <li class="nav-item">
+                                <router-link class="nav-link" to="/quests">
+                                    Quests
+                                </router-link>
+                            </li>
+                            <!--<li class="nav-item dropdown">
                                     <a
                                         id="questDropdown"
                                         class="nav-link dropdown-toggle"
@@ -226,7 +236,7 @@
                                             </router-link>
                                         </li>
                                     </ul>
-                                </li>
+                                </li>-->
                             <li class="nav-item">
                                 <router-link class="nav-link" to="/users">
                                     Users

@@ -262,14 +262,14 @@
                                 </li>
                             </ul>
                         </li>
-                        <li :class="highlight == 'priority' ? 'text-success' : ''">
+                        <!--<li :class="highlight == 'priority' ? 'text-success' : ''">
                             <b>Priority quest:</b>
                             <ul>
                                 <li>Unlike normal quests, priority quests do not need to be claimed. Anyone can participate so long as they meet the labeled criteria.</li>
                                 <li>Win conditions for each priority quest are highly variable. Higher tier priority quests are generally more difficult.</li>
                                 <li>See the <a href="/missions">priority quest listing</a> for a full list of prizes. There are a lot.</li>
                             </ul>
-                        </li>
+                        </li>-->
                         <li :class="highlight == 'quest' ? 'text-success' : ''">
                             <b>Quest:</b>
                             <ul>
@@ -288,7 +288,7 @@
                 </div>
             </div>
             <hr />
-            <h5>Priority quests</h5>
+            <!--<h5>Priority quests</h5>
             <div class="text-secondary small">
                 <b>Priority quests</b> are a new addition to the Mappers' Guild. While normal quests focus on simply ranking maps, priority quests have different objectives to encourge creative mapping ventures (oh, and they feature cool custom prizes). Here's an example:
             </div>
@@ -298,7 +298,7 @@
             <div class="text-secondary small">
                 See the <a href="/quests">priority quest listing</a> to see what quests are available and what prizes you can earn!
             </div>
-            <hr />
+            <hr />-->
             <h5>Quests</h5>
             <div class="text-secondary small">
                 You can earn extra points by mapping songs by specific osu! Featured Artists through <a href="/quests">Quests</a>. Here's an example:
