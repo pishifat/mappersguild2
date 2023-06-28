@@ -10,6 +10,7 @@ import { UserGroup } from '../../interfaces/user';
 import { FeaturedArtistModel } from '../models/featuredArtist';
 import { FeaturedArtistStatus } from '../../interfaces/featuredArtist';
 import { setSession } from '../helpers/helpers';
+import { MissionStatus } from '../../interfaces/mission';
 
 const indexRouter = express.Router();
 
@@ -208,6 +209,7 @@ indexRouter.get('/exampleMission', async (req, res) => {
             .findOne({
                 artists: { $size: 1 },
                 openingAnnounced: true,
+                status: MissionStatus.Hidden,
             })
             .defaultPopulate()
             .orFail()
