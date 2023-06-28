@@ -26,7 +26,7 @@ indexRouter.get('/home/:limit', async (req, res) => {
     let limit = parseInt(req.params.limit);
 
     if (isNaN(limit)) {
-        limit = 6;
+        limit = 12;
     }
 
     const artists = await FeaturedArtistModel

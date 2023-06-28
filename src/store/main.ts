@@ -26,7 +26,7 @@ export const store = createStore<MainState>({
         homeArtists: [],
         exampleQuest: null,
         exampleMission: null,
-        limit: 6,
+        limit: 12,
     },
     mutations: {
         setInitialData (state, user: User | null) {

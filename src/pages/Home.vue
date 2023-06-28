@@ -460,7 +460,7 @@ export default defineComponent({
 
         if (!this.$http.isError(artists)) {
             this.$store.commit('setHomeArtists', artists);
-            this.$store.commit('setLimit', this.limit + 6);
+            this.$store.commit('setLimit', this.limit + 12);
         }
 
         if (!this.$http.isError(quest)) {
@@ -476,11 +476,11 @@ export default defineComponent({
             e.target.src = '/images/no-art-icon.png';
         },
         async showMore (e) {
-            const data = await this.$http.executeGet<{ artists: FeaturedArtist[] }>('/home/' + this.limit, e);
+            const artists = await this.$http.executeGet<{ artists: FeaturedArtist[] }>('/home/' + this.limit, e);
 
-            if (!this.$http.isError(data)) {
-                this.$store.commit('setHomeArtists', data.artists);
-                this.$store.commit('setLimit', this.limit + 6);
+            if (!this.$http.isError(artists)) {
+                this.$store.commit('setHomeArtists', artists);
+                this.$store.commit('setLimit', this.limit + 12);
             }
         },
     },
