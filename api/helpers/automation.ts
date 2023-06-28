@@ -629,17 +629,14 @@ const dropOverdueQuests = cron.schedule('2 3 * * *', async () => { /* 8:02 PM PS
 
 /* validate ranked beatmaps for accurate ranked_date/current_nominators/hit_length. limited to 100 beatmaps daily because it takes too long otherwise, and it doesn't need to be done that frequently */
 const validateRankedBeatmaps = cron.schedule('0 4 * * *', async () => { /* 9:00 PM PST */
-    const threeMonthsAgo = new Date();
-    threeMonthsAgo.setDate(threeMonthsAgo.getDate() - 100); // this will be a problem after reaching 10,000 ranked maps in the database. so i don't need to worry about it probably
-
     const [beatmaps, response] = await Promise.all([
         BeatmapModel
             .find({
                 status: BeatmapStatus.Ranked,
-                updatedAt: { $lt: threeMonthsAgo },
             })
             .defaultPopulate()
             .limit(100)
+            .sort({ updatedAt: 1 })
             .orFail(),
         getClientCredentialsGrant(),
     ]);
@@ -656,6 +653,7 @@ const validateRankedBeatmaps = cron.schedule('0 4 * * *', async () => { /* 9:00 
             await sleep(250);
 
             if (!isOsuResponseError(bmInfo)) {
+                beatmap.bns = [];
                 await setNominators(beatmap, bmInfo);
                 beatmap.length = getLongestBeatmapLength(bmInfo.beatmaps);
                 beatmap.rankedDate = bmInfo.ranked_date;

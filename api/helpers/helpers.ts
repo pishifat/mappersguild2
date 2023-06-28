@@ -52,7 +52,6 @@ export function findBeatmapsetStatus(osuStatus): string {
 export async function setNominators(beatmap, bmInfo): Promise<void> {
     const modderIds = beatmap.modders.map(m => m.id);
     const bnsIds = beatmap.bns.map(b => b.id);
-    beatmap.bns = [];
 
     if (bmInfo.current_nominations && bmInfo.current_nominations.length) {
         for (const nom of bmInfo.current_nominations) {
@@ -61,13 +60,13 @@ export async function setNominators(beatmap, bmInfo): Promise<void> {
             if (nomModder) {
                 if (!modderIds.includes(nomModder.id)) {
                     beatmap.modders.push(nomModder._id);
-                    await beatmap.save();
                 }
 
                 if (!bnsIds.includes(nomModder.id)) {
                     beatmap.bns.push(nomModder._id);
-                    await beatmap.save();
                 }
+
+                await beatmap.save();
             }
         }
     }
@@ -96,6 +95,7 @@ export async function setBeatmapStatusRanked(id, bmInfo): Promise<void> {
         .orFail();
 
     // assign bns to bns field (synced with osu-web)
+    beatmap.bns = [];
     await setNominators(beatmap, bmInfo);
 
     // re-query to include nominators in modders pool
