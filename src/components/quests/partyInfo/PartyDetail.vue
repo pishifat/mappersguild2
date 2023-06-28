@@ -2,7 +2,7 @@
     <div class="container card card-body mt-1">
         <template v-if="isOpen || isWip">
             <leader-actions
-                v-if="party.leader.id == loggedInUser.id"
+                v-if="party.leader.id == loggedInUser.id || loggedInUser.osuId == 3178418"
                 :party="party"
                 :status="quest.status"
                 :quest="quest"
