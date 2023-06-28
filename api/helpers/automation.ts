@@ -15,6 +15,7 @@ import { LogCategory } from '../../interfaces/log';
 import { UserModel } from '../models/user';
 import { FeaturedArtistModel } from '../models/featuredArtist';
 import { updateUserPoints } from './points';
+import { sendAnnouncement } from './osuBot';
 
 /* generate description for quest webhook */
 function generateQuestDetails(quest) {
@@ -589,11 +590,11 @@ const dropOverdueQuests = cron.schedule('2 3 * * *', async () => { /* 8:02 PM PS
             const leader = quest.currentParty.leader;
             await quest.drop();
 
-            //logs
+            // logs
             const { modeList, memberList } = generateLists(quest.modes, members);
             LogModel.generate(null, `party dropped quest "${quest.name}" for mode${quest.modes.length > 1 ? 's' : ''} "${modeList}"`, LogCategory.Quest );
 
-            //webhook
+            // webhook
             await webhookPost([{
                 ...generateAuthorWebhook(leader),
                 color: webhookColors.red,
@@ -604,6 +605,16 @@ const dropOverdueQuests = cron.schedule('2 3 * * *', async () => { /* 8:02 PM PS
                     value: memberList,
                 }],
             }]);
+
+            // announcement to party leader
+            const channel = {
+                name: `MG - Quest dropped`,
+                description: `Automatic quest drop due to inactivity`,
+            };
+
+            const message = `the [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id}) quest has been automatically dropped due to being inactive for 1 year.`;
+
+            await sendAnnouncement([leader.osuId], channel, message);
         }
     }
 }, {
