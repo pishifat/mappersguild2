@@ -16,7 +16,7 @@
                     @update:selectedBeatmap="setSelectedBeatmap($event)"
                 />
             </transition-group>
-            <p v-if="!hostedBeatmaps.length" class="ms-5 text-white-50">
+            <p v-if="!hostedBeatmaps.length" class="ms-5 text-secondary">
                 None...
             </p>
         </div>

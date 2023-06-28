@@ -35,7 +35,7 @@
                     <div class="col-sm-12">
                         <h5>{{ selectedQuest.name }}</h5>
                     </div>
-                    <div class="col-sm-12 text-white-50">
+                    <div class="col-sm-12 text-secondary">
                         {{ selectedQuest.descriptionMain }}
                     </div>
                 </div>

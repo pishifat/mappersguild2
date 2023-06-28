@@ -168,7 +168,7 @@
                             class="fas fa-crown"
                             :class="'text-rank-' + selectedUser.rank"
                         />
-                        <span v-else class="text-white-50">
+                        <span v-else class="text-secondary">
                             None
                         </span>
                     </p>
@@ -180,7 +180,7 @@
                         <li
                             v-for="mission in currentMissions"
                             :key="mission.id"
-                            class="small text-white-50"
+                            class="small text-secondary"
                         >
                             <a :href="'/missions?id=' + mission.id" target="_blank">
                                 {{ mission.name.length > 40 ? mission.name.slice(0,40) + "..." : mission.name }}
@@ -195,7 +195,7 @@
                         <li
                             v-for="quest in currentQuests"
                             :key="quest.id"
-                            class="small text-white-50"
+                            class="small text-secondary"
                         >
                             <a :href="'/quests?id=' + quest.id" target="_blank">
                                 {{ quest.name.length > 40 ? quest.name.slice(0,40) + "..." : quest.name }}
@@ -210,7 +210,7 @@
                             <li
                                 v-for="mission in selectedUser.completedMissions"
                                 :key="mission.id"
-                                class="small text-white-50"
+                                class="small text-secondary"
                             >
                                 <a :href="'/missions?id=' + mission.id" target="_blank">
                                     {{ mission.name.length > 40 ? mission.name.slice(0,40) + "..." : mission.name }}
@@ -226,7 +226,7 @@
                             <li
                                 v-for="quest in selectedUser.completedQuests"
                                 :key="quest.id"
-                                class="small text-white-50"
+                                class="small text-secondary"
                             >
                                 <a :href="'/quests?id=' + quest.id" target="_blank">
                                     {{ quest.name.length > 40 ? quest.name.slice(0,40) + "..." : quest.name }}
@@ -241,7 +241,7 @@
                         <li
                             v-for="name in createdQuestNames"
                             :key="name"
-                            class="small text-white-50"
+                            class="small text-secondary"
                         >
                             {{ name.length > 40 ? name.slice(0,40) + "..." : name }}
                         </li>
@@ -297,10 +297,10 @@
                                 <td scope="row">
                                     <user-link :user="map.host" />
                                 </td>
-                                <td scope="row" class="text-white-50">
+                                <td scope="row" class="text-secondary">
                                     {{ userTasks(map) }}
                                 </td>
-                                <td scope="row" class="text-white-50">
+                                <td scope="row" class="text-secondary">
                                     <a v-if="map.url" :href="map.url" target="_blank">
                                         <i class="fas fa-link" />
                                     </a>
@@ -337,13 +337,13 @@
                                 </td>
                             </tr>
                             <tr v-for="spentPointsEvent in spentPoints" :key="spentPointsEvent.id">
-                                <td scope="row" class="text-white-50">
+                                <td scope="row" class="text-secondary">
                                     {{ findSpentPointsAction (spentPointsEvent.category) }}
                                     <a :href="'/quests/?id=' + spentPointsEvent.quest.id" target="_blank">
                                         {{ spentPointsEvent.quest.name }}
                                     </a>
                                 </td>
-                                <td scope="row" class="text-white-50">
+                                <td scope="row" class="text-secondary">
                                     {{ findSpentPointsValue(spentPointsEvent.category, spentPointsEvent.quest) }} <i class="fas fa-coins" />
                                 </td>
                             </tr>

@@ -4,28 +4,28 @@
             <i
                 v-bs-tooltip="'toggle osu!'"
                 class="fas fa-circle"
-                :class="modes.includes('osu') ? '' : 'text-white-50'"
+                :class="modes.includes('osu') ? '' : 'text-secondary'"
             />
         </a>
         <a class="mode-margin" href="#" @click.prevent="$emit('toggle', 'taiko')">
             <i
                 v-bs-tooltip="'toggle osu!taiko'"
                 class="fas fa-drum"
-                :class="modes.includes('taiko') ? '' : 'text-white-50'"
+                :class="modes.includes('taiko') ? '' : 'text-secondary'"
             />
         </a>
         <a class="mode-margin" href="#" @click.prevent="$emit('toggle', 'catch')">
             <i
                 v-bs-tooltip="'toggle osu!catch'"
                 class="fas fa-apple-alt"
-                :class="modes.includes('catch') ? '' : 'text-white-50'"
+                :class="modes.includes('catch') ? '' : 'text-secondary'"
             />
         </a>
         <a class="mode-margin" href="#" @click.prevent="$emit('toggle', 'mania')">
             <i
                 v-bs-tooltip="'toggle osu!'"
                 class="fas fa-stream"
-                :class="modes.includes('mania') ? '' : 'text-white-50'"
+                :class="modes.includes('mania') ? '' : 'text-secondary'"
             />
         </a>
     </template>

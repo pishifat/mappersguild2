@@ -27,7 +27,7 @@
         </div>
 
         <div class="small ms-3">
-            <i v-if="beatmap.bns.length == 0" class="text-white-50">none</i>
+            <i v-if="beatmap.bns.length == 0" class="text-secondary">none</i>
             <user-link-list v-else :users="beatmap.bns" />
         </div>
     </div>

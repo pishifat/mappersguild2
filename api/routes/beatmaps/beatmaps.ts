@@ -4,6 +4,7 @@ import { BeatmapMode, BeatmapStatus } from '../../../interfaces/beatmap/beatmap'
 import { TaskModel, Task } from '../../models/beatmap/task';
 import { TaskName } from '../../../interfaces/beatmap/task';
 import { LogModel } from '../../models/log';
+import { UserModel } from '../../models/user';
 import { LogCategory } from '../../../interfaces/log';
 import { isLoggedIn, isBn } from '../../helpers/middlewares';
 import { findDifficultyPoints, getLengthNerf, getQuestBonus, findStoryboardPoints } from '../../helpers/points';
@@ -123,6 +124,7 @@ beatmapsRouter.get('/search', async (req, res) => {
 
 /* POST create new map */
 beatmapsRouter.post('/create', async (req, res) => {
+    // quick validation
     if (!req.body.song) {
         return res.json({ error: 'Missing song!' });
     }
@@ -131,14 +133,15 @@ beatmapsRouter.post('/create', async (req, res) => {
         return res.json({ error: 'Select at least one difficulty to map!' });
     }
 
-    const tasks: TaskName[] = req.body.tasks;
+    const tasks: any[] = req.body.tasks;
     const createdTasks: Task['_id'][] = [];
 
-    for (let i = 0; i < tasks.length; i++) {
+    for (const task of tasks) {
         const t = new TaskModel();
-        t.name = tasks[i];
-        t.mappers = req.session?.mongoId;
-        t.mode = req.body.mode;
+        t.name = task.name;
+        t.mappers = task.mappers.map(u => u.id);
+        t.mode = task.name == 'Storyboard' ? 'sb' : task.mode ? task.mode : req.body.mode;
+        t.status = task.status;
         await t.save();
 
         createdTasks.push(t._id);
@@ -146,7 +149,7 @@ beatmapsRouter.post('/create', async (req, res) => {
 
     let locks: TaskName[] = [];
 
-    if (req.body.tasksLocked) {
+    if (req.body.tasksLocked && req.body.tasksLocked.length) {
         locks = req.body.tasksLocked;
     }
 
@@ -156,7 +159,7 @@ beatmapsRouter.post('/create', async (req, res) => {
     newBeatmap.tasksLocked = locks;
     newBeatmap.song = req.body.song;
     newBeatmap.mode = req.body.mode;
-    newBeatmap.status = req.body.status;
+    newBeatmap.status = BeatmapStatus.WIP;
     await newBeatmap.save();
 
     if (!newBeatmap) {
@@ -170,13 +173,37 @@ beatmapsRouter.post('/create', async (req, res) => {
 
     res.json(b);
 
-    if (newBeatmap.status == BeatmapStatus.WIP) {
-        LogModel.generate(
-            req.session?.mongoId,
-            `created new map "${b.song.artist} - ${b.song.title}"`,
-            LogCategory.Beatmap
-        );
+    LogModel.generate(
+        req.session?.mongoId,
+        `created new map "${b.song.artist} - ${b.song.title}"`,
+        LogCategory.Beatmap
+    );
+});
+
+/* POST validate users from user input */
+beatmapsRouter.get('/validateUsers/:userInput', async (req, res) => {
+    const userInput = req.params.userInput;
+    const usersSplit = userInput.split(',');
+
+    if (!usersSplit.length) {
+        return res.json({ error: 'No mapper input' });
     }
+
+    const finalUsers = [];
+
+    for (const user of usersSplit) {
+        const validUser = await UserModel
+            .findOne()
+            .byUsernameOrOsuId(user);
+
+        if (!validUser) {
+            return res.json({ error: `"${user}" doesn't match an existing user.` });
+        }
+
+        finalUsers.push(validUser);
+    }
+
+    res.json(finalUsers);
 });
 
 /* POST modder from extended view, returns new modders list. */

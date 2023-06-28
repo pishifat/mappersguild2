@@ -62,12 +62,12 @@
                     (prize winner)
                 </span>
             </li>
-            <div v-if="mission.status == 'open'" class="small text-white-50 ms-3 mt-2">
+            <div v-if="mission.status == 'open'" class="small text-secondary ms-3 mt-2">
                 If you create a map for this quest, add it above!
             </div>
         </ul>
 
-        <div v-else class="small text-white-50 ms-3">
+        <div v-else class="small text-secondary ms-3">
             No associated maps. If you create a map for this quest, add it above!
         </div>
     </div>

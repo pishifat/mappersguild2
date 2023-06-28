@@ -53,7 +53,7 @@
                     </div>
 
                     <div class="row no-gutters">
-                        <div class="col-sm small text-white-50">
+                        <div class="col-sm small text-secondary">
                             {{ quest.descriptionMain }}
                         </div>
                     </div>

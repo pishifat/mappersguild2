@@ -10,7 +10,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="obj in data" :key="obj.id" class="text-white-50">
+                <tr v-for="obj in data" :key="obj.id" class="text-secondary">
                     <slot :obj="obj" />
                     <td>
                         <a
@@ -26,7 +26,7 @@
             </tbody>
         </table>
 
-        <span v-else-if="!isLoading" class="text-white-50">None...</span>
+        <span v-else-if="!isLoading" class="text-secondary">None...</span>
     </div>
 </template>
 

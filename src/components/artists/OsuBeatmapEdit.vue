@@ -139,19 +139,19 @@
                         type="text"
                         autocomplete="off"
                         placeholder="custom comment..."
-                    >
+                    />
                     <button class="btn btn-sm btn-outline-info w-25" @click="updateCustomComment($event)">
                         Save custom comment
                     </button>
                 </p>
-                <p class="text-white-50 small">
+                <p class="text-secondary small">
                     {{ beatmap.comment }}
                 </p>
 
-                <hr>
+                <hr />
 
                 <p>
-                    <span class="text-small text-white-50">
+                    <span class="text-small text-secondary">
                         Last checked: {{ beatmap.lastChecked ? new Date(beatmap.lastChecked).toLocaleString() : '...' }}
                     </span>
                     <a href="#" class="ms-1" @click.prevent="showLastCheckedInput = !showLastCheckedInput">
@@ -166,12 +166,12 @@
                             style="border-radius: 5px 5px 5px 5px; "
                             maxlength="10"
                             @keyup.enter="updateLastChecked()"
-                        >
+                        />
                         <a href="#" class="small" @click.stop.prevent="contactedToday()">mark as today</a>
                     </span>
                 </p>
 
-                <p class="text-small text-white-50">
+                <p class="text-small text-secondary">
                     Updated: {{ new Date(beatmap.updatedAt).toLocaleString() }}
                 </p>
             </div>

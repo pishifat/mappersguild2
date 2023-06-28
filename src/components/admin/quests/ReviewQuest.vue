@@ -10,7 +10,7 @@
 
         <template #default>
             <div class="container">
-                <div class="small text-white-50">
+                <div class="small text-secondary">
                     Artist
                     <a href="#" @click.prevent="showArtistInput = !showArtistInput">
                         <i class="fas fa-edit" />
@@ -24,17 +24,17 @@
                         autocomplete="off"
                         placeholder="artist ID..."
                         @change="updateArt($event)"
-                    >
+                    />
                 </p>
                 <p v-else-if="quest.art" class="ms-2">
                     <a :href="'https://osu.ppy.sh/beatmaps/artists/' + quest.art" target="_blank">
-                        <img :src="'https://assets.ppy.sh/artists/' + quest.art + '/cover.jpg'" class="card-avatar-img">
+                        <img :src="'https://assets.ppy.sh/artists/' + quest.art + '/cover.jpg'" class="card-avatar-img" />
                     </a>
                 </p>
                 <p v-else class="ms-2">
                     None
                 </p>
-                <div class="small text-white-50">
+                <div class="small text-secondary">
                     Name
                     <a href="#" @click.prevent="showNameInput = !showNameInput">
                         <i class="fas fa-edit" />
@@ -48,12 +48,12 @@
                         autocomplete="off"
                         placeholder="name..."
                         @change="renameQuest($event)"
-                    >
+                    />
                 </p>
                 <p v-else class="ms-2">
                     {{ quest.name }}
                 </p>
-                <div class="small text-white-50">
+                <div class="small text-secondary">
                     Objective
                     <a href="#" @click.prevent="showObjectiveInput = !showObjectiveInput">
                         <i class="fas fa-edit" />
@@ -73,7 +73,7 @@
                 <p v-else class="ms-2">
                     {{ quest.descriptionMain }}
                 </p>
-                <div class="small text-white-50">
+                <div class="small text-secondary">
                     Required mapsets
                     <a href="#" @click.prevent="showRequiredMapsetsInput = !showRequiredMapsetsInput">
                         <i class="fas fa-edit" />
@@ -87,12 +87,12 @@
                         autocomplete="off"
                         placeholder="required mapsets..."
                         @change="updateRequiredMapsets($event)"
-                    >
+                    />
                 </p>
                 <p v-else class="ms-2">
                     {{ quest.requiredMapsets }}
                 </p>
-                <div class="small text-white-50">
+                <div class="small text-secondary">
                     Price
                     <a href="#" @click.prevent="showPriceInput = !showPriceInput">
                         <i class="fas fa-edit" />
@@ -106,12 +106,12 @@
                         autocomplete="off"
                         placeholder="price per party member..."
                         @change="updatePrice($event)"
-                    >
+                    />
                 </p>
                 <p v-else class="ms-2">
                     {{ quest.price }} points per user
                 </p>
-                <div class="small text-white-50">
+                <div class="small text-secondary">
                     Timeframe
                     <a href="#" @click.prevent="showTimeframeInput = !showTimeframeInput">
                         <i class="fas fa-edit" />
@@ -125,12 +125,12 @@
                         autocomplete="off"
                         placeholder="days..."
                         @change="updateTimeframe($event)"
-                    >
+                    />
                 </p>
                 <p v-else class="ms-2">
                     {{ quest.timeframe / (24*3600*1000) }} days
                 </p>
-                <div class="small text-white-50">
+                <div class="small text-secondary">
                     Party size
                     <a href="#" @click.prevent="showPartySizeInput = !showPartySizeInput">
                         <i class="fas fa-edit" />
@@ -144,7 +144,7 @@
                         autocomplete="off"
                         placeholder="minimum"
                         @change="updateMinParty($event)"
-                    >
+                    />
                     <input
                         v-model.number="maxPartyInput"
                         class="form-control form-control-sm w-100"
@@ -152,18 +152,18 @@
                         autocomplete="off"
                         placeholder="maximum"
                         @change="updateMaxParty($event)"
-                    >
+                    />
                 </p>
                 <p v-else class="ms-2">
                     {{ quest.minParty }}-{{ quest.maxParty }} members
                 </p>
-                <div class="small text-white-50">
+                <div class="small text-secondary">
                     Party rank
                 </div>
                 <p class="ms-2">
                     {{ quest.minRank }} rank required
                 </p>
-                <div class="small text-white-50">
+                <div class="small text-secondary">
                     MBC
                 </div>
                 <p class="ms-2">

@@ -15,7 +15,7 @@
                         <i class="fas fa-edit" />
                     </a>
                 </div>
-                <div class="small ms-3 text-white-50">
+                <div class="small ms-3 text-secondary">
                     <a v-if="beatmap.quest" :href="`/quests?id=${beatmap.quest.id}`">{{ beatmap.quest.name }}</a>
                     <a v-else-if="beatmap.mission" :href="`/missions?id=${beatmap.mission.id}`">{{ beatmap.mission.name }}</a>
                     <i v-else>none</i>

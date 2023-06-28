@@ -17,7 +17,7 @@
                     >
                         <!-- Difficulty -->
                         <td
-                            class="text-white-50"
+                            class="text-secondary"
                             :class="`card-status-${task.status.toLowerCase()}`"
                         >
                             {{ task.name }}
@@ -122,9 +122,9 @@
 import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import NewTask from './NewTask.vue';
-import { User } from '../../../../interfaces/user';
-import { Task } from '../../../../interfaces/beatmap/task';
-import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
+import { User } from '@interfaces/user';
+import { Task } from '@interfaces/beatmap/task';
+import { Beatmap } from '@interfaces/beatmap/beatmap';
 import ModesIcons from '@components/ModesIcons.vue';
 
 export default defineComponent({

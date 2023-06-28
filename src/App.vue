@@ -172,7 +172,7 @@
                                 <span class="dropdown-item small disabled">Modding points: <span class="float-end">{{ loggedInUser.pointsInfo.modding }}</span></span>
                                 <span class="dropdown-item small disabled">Other points: <span class="float-end">{{ loggedInUser.pointsInfo.other }}</span></span>
                                 <div class="dropdown-divider" />
-                                <span class="ms-3 small text-white-50">
+                                <span class="ms-3 small text-secondary">
                                     <span v-bs-tooltip:left="'create maps for upcoming Featured Artist announcements'">
                                         <a href="https://osu.ppy.sh/wiki/Featured_Artists/Featured_Artist_Showcase_Beatmaps" target="_blank" @click.stop>
                                             FA showcase
@@ -182,7 +182,7 @@
                                         <i class="fas" :class="loggedInUser.isShowcaseMapper ? 'text-done fa-check' : 'text-danger fa-times'" />
                                     </a>
                                 </span>
-                                <span class="ms-3 small text-white-50">
+                                <span class="ms-3 small text-secondary">
                                     <span v-bs-tooltip:left="'be a screener/judge for official mapping contests'">Contest helper:</span>
                                     <a class="float-end me-3" href="#" @click.stop.prevent="toggleIsContestHelper()">
                                         <i class="fas" :class="loggedInUser.isContestHelper ? 'text-done fa-check' : 'text-danger fa-times'" />

@@ -13,7 +13,7 @@
             class="collapse"
             :class="{ 'loading-data' : isLoadingGuestBeatmaps }"
         >
-            <p v-if="!guestDifficultyBeatmaps.length && !isLoadingGuestBeatmaps" class="ms-5 text-white-50">
+            <p v-if="!guestDifficultyBeatmaps.length && !isLoadingGuestBeatmaps" class="ms-5 text-secondary">
                 None...
             </p>
 

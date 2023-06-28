@@ -13,7 +13,7 @@
             <i
                 v-for="i in quest.maxParty - quest.minParty"
                 :key="i+100"
-                class="fas text-white-50 fa-user user-icon"
+                class="fas text-secondary fa-user user-icon"
             />
         </span>
 

@@ -24,7 +24,7 @@
             </li>
         </ul>
 
-        <div v-else class="small text-white-50 ms-3">
+        <div v-else class="small text-secondary ms-3">
             No associated maps...
         </div>
     </div>

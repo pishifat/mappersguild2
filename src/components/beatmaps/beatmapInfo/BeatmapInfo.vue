@@ -37,18 +37,20 @@
             <!-- RIGHT SIDE -->
             <!-- host options -->
             <div v-if="isHost && !isRanked" class="col-lg-5 bm-col-separator-left">
-                <div class="row mb-2">
+                <div v-if="!isQualified" class="row">
                     <div class="col-sm">
-                        <mode-choice
-                            v-if="beatmap.status == 'WIP'"
+                        <status-choice
                             :beatmap="beatmap"
                         />
+                        <hr />
                     </div>
                 </div>
 
-                <div v-if="!isQualified" class="row mb-2">
+                <div class="row">
                     <div class="col-sm">
-                        <status-choice
+                        <mode-choice
+                            v-if="beatmap.status == 'WIP'"
+                            class="mb-2"
                             :beatmap="beatmap"
                         />
                     </div>
@@ -81,7 +83,7 @@
             />
 
             <div class="col-sm-4 text-end">
-                <span class="small text-white-50">
+                <span class="small text-secondary">
                     Created: {{ beatmap.createdAt.toString().slice(0, 10) }}
                 </span>
                 <button

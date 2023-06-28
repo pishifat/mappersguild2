@@ -10,29 +10,29 @@
                 >
                     Calculate points
                 </button>
-                <span v-if="isLoading" class="small text-white-50 ms-2">
+                <span v-if="isLoading" class="small text-secondary ms-2">
                     calculating...
                 </span>
-                <span v-else-if="pointsInfo" class="small text-white-50 ms-2">
+                <span v-else-if="pointsInfo" class="small text-secondary ms-2">
                     {{ pointsInfo }}
                 </span>
             </div>
             <div v-if="tasksPointsArray" class="col-sm-6">
-                <ul class="small text-white-50">
+                <ul class="small text-secondary">
                     <li v-for="(value, i) in tasksPointsArray" :key="i">
                         {{ value }}
                     </li>
                 </ul>
             </div>
             <div class="col-sm-6">
-                <ul v-if="usersPointsArrays" class="small text-white-50">
+                <ul v-if="usersPointsArrays" class="small text-secondary">
                     <li v-for="(value, i) in usersPointsArrays" :key="i">
                         {{ usersPointsArrays[i][0] }}: {{ usersPointsArrays[i][1] }}
                     </li>
                 </ul>
             </div>
             <div v-if="totalPoints" class="col-sm-12">
-                <span class="small text-white-50 ms-2">
+                <span class="small text-secondary ms-2">
                     total: {{ Math.round(totalPoints*10)/10 }}
                 </span>
             </div>

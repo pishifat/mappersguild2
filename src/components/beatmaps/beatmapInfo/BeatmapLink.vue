@@ -25,7 +25,7 @@
                     >
                         {{ beatmap.url }}
                     </a>
-                    <i v-else class="text-white-50">none</i>
+                    <i v-else class="text-secondary">none</i>
                 </div>
             </div>
         </div>

@@ -1,59 +1,60 @@
 <template>
-    <div id="mode" class="mb-3">
-        <div class="d-inline-block me-2">
-            Mode
+    <div id="mode">
+        <div class="row mb-2">
+            <div class="col">
+                <div>
+                    Mode
+                    <a
+                        id="editMode"
+                        v-bs-tooltip:right="'edit mode'"
+                        href="#"
+                        :class="showInput ? 'text-danger' : ''"
+                        class="text-success small ms-1"
+                        @click.prevent="showInput = !showInput"
+                    >
+                        <i class="fas fa-edit" />
+                    </a>
+                </div>
+                <div class="small ms-3 text-secondary">
+                    {{ beatmap.mode == 'hybrid' ? 'Multiple modes' : beatmap.mode == 'osu' ? 'osu!' : 'osu!' + beatmap.mode }}
+                </div>
+            </div>
         </div>
-        <button
-            v-bs-tooltip="'osu!'"
-            class="btn btn-sm rounded-100 me-1"
-            :class="beatmap.mode == 'osu' ? 'btn-info' : 'btn-outline-info'"
-            :disabled="beatmap.mode == 'osu'"
-            @click="setMode(beatmap.id, 'osu', $event)"
+
+        <div
+            v-if="showInput"
+            class="row mb-2"
         >
-            <i class="far fa-circle" />
-        </button>
-        <button
-            v-bs-tooltip="'osu!taiko'"
-            class="btn btn-sm rounded-100 me-1"
-            :class="beatmap.mode == 'taiko' ? 'btn-info' : 'btn-outline-info'"
-            :disabled="beatmap.mode == 'taiko'"
-            @click="setMode(beatmap.id, 'taiko', $event)"
-        >
-            <i class="fas fa-drum" />
-        </button>
-        <button
-            v-bs-tooltip="'osu!catch'"
-            class="btn btn-sm rounded-100 me-1"
-            :class="beatmap.mode == 'catch' ? 'btn-info' : 'btn-outline-info'"
-            :disabled="beatmap.mode == 'catch'"
-            @click="setMode(beatmap.id, 'catch', $event)"
-        >
-            <i class="fas fa-apple-alt" />
-        </button>
-        <button
-            v-bs-tooltip="'osu!mania'"
-            class="btn btn-sm rounded-100 me-1"
-            :class="beatmap.mode == 'mania' ? 'btn-info' : 'btn-outline-info'"
-            :disabled="beatmap.mode == 'mania'"
-            @click="setMode(beatmap.id, 'mania', $event)"
-        >
-            <i class="fas fa-stream" />
-        </button>
-        <button
-            v-bs-tooltip="'multiple modes'"
-            class="btn btn-sm rounded-100 me-1"
-            :class="beatmap.mode == 'hybrid' ? 'btn-info' : 'btn-outline-info'"
-            :disabled="beatmap.mode == 'hybrid'"
-            @click="setMode(beatmap.id, 'hybrid', $event)"
-        >
-            <i class="fas fa-check-double" />
-        </button>
+            <div class="col">
+                <div class="input-group input-group-sm">
+                    <select
+                        v-model="selectedMode"
+                        class="form-select"
+                    >
+                        <option
+                            v-for="mode in modes"
+                            :key="mode.value"
+                            :value="mode.value"
+                        >
+                            {{ mode.name }}
+                        </option>
+                    </select>
+                    <button
+                        v-bs-tooltip="'link beatmap to quest'"
+                        class="btn btn-outline-info"
+                        @click="setMode($event)"
+                    >
+                        Save
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
+import { Beatmap } from '@interfaces/beatmap/beatmap';
 
 export default defineComponent({
     name: 'ModeChoice',
@@ -63,22 +64,29 @@ export default defineComponent({
             required: true,
         },
     },
+    data () {
+        return {
+            selectedMode: this.beatmap.mode,
+            showInput: false,
+            modes: [
+                { value: 'osu', name: 'osu!' },
+                { value: 'taiko', name: 'osu!taiko' },
+                { value: 'catch', name: 'osu!catch' },
+                { value: 'mania', name: 'osu!mania' },
+                { value: 'hybrid', name: 'Multiple modes' },
+            ],
+        };
+    },
     methods: {
-        async setMode(id: Beatmap['id'], mode, e): Promise<void> {
-            const beatmap = await this.$http.executePost<Beatmap>(`/beatmaps/${id}/setMode`, { mode }, e);
+        async setMode(e): Promise<void> {
+            const beatmap = await this.$http.executePost<Beatmap>(`/beatmaps/${this.beatmap.id}/setMode`, { mode: this.selectedMode }, e);
 
             if (!this.$http.isError(beatmap)) {
                 this.$store.dispatch('beatmaps/updateBeatmap', beatmap);
             }
+
+            this.showInput = false;
         },
     },
 });
 </script>
-
-<style scoped>
-
-.rounded-100 {
-    border-radius: 100%!important;
-}
-
-</style>

@@ -31,7 +31,7 @@
                             >
                                 <i class="fas fa-minus" />
                             </a>
-                            <span class="text-white-50 mx-1">
+                            <span class="text-secondary mx-1">
                                 {{ task }}
                             </span>
                         </div>
@@ -113,6 +113,11 @@ export default defineComponent({
     watch: {
         beatmapId (): void {
             this.showLocksInput = false;
+        },
+        beatmap (): void {
+            if (this.beatmap.tasksLocked.length >= 6) {
+                this.showLocksInput = false;
+            }
         },
     },
     methods: {
