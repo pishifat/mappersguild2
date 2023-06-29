@@ -201,6 +201,20 @@
                                 <i class="fas" :class="artist.hasRankedMaps ? 'text-done fa-check' : 'text-danger fa-times'" />
                             </a>
                         </div>
+
+                        <div class="small ms-2">
+                            Is commission:
+                            <a href="#" @click.stop.prevent="toggleIsCommission()">
+                                <i class="fas" :class="artist.isCommission ? 'text-done fa-check' : 'text-danger fa-times'" />
+                            </a>
+                        </div>
+
+                        <div class="small ms-2">
+                            Has new songs:
+                            <a href="#" @click.stop.prevent="toggleHasNewSongs()">
+                                <i class="fas" :class="artist.hasNewSongs ? 'text-done fa-check' : 'text-danger fa-times'" />
+                            </a>
+                        </div>
                     </div>
                 </div>
                 <!--notes-->
@@ -421,6 +435,20 @@ export default defineComponent({
         },
         async toggleHasRankedMaps (): Promise<void> {
             const artist = await this.$http.executePost('/artists/toggleHasRankedMaps/' + this.artist.id, { value: !this.artist.hasRankedMaps });
+
+            if (artist) {
+                this.$store.commit('updateArtist', artist);
+            }
+        },
+        async toggleIsCommission (): Promise<void> {
+            const artist = await this.$http.executePost('/artists/toggleIsCommission/' + this.artist.id, { value: !this.artist.isCommission });
+
+            if (artist) {
+                this.$store.commit('updateArtist', artist);
+            }
+        },
+        async toggleHasNewSongs (): Promise<void> {
+            const artist = await this.$http.executePost('/artists/toggleHasNewSongs/' + this.artist.id, { value: !this.artist.hasNewSongs });
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);
