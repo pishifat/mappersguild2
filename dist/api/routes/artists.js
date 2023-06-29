@@ -111,6 +111,18 @@ artistsRouter.post('/toggleHasRankedMaps/:id', async (req, res) => {
     a = await featuredArtist_1.FeaturedArtistModel.findById(req.params.id).defaultPopulate();
     res.json(a);
 });
+/* POST toggle isCommission */
+artistsRouter.post('/toggleIsCommission/:id', async (req, res) => {
+    let a = await featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { isCommission: req.body.value });
+    a = await featuredArtist_1.FeaturedArtistModel.findById(req.params.id).defaultPopulate();
+    res.json(a);
+});
+/* POST toggle hasNewSongs */
+artistsRouter.post('/toggleHasNewSongs/:id', async (req, res) => {
+    let a = await featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { hasNewSongs: req.body.value });
+    a = await featuredArtist_1.FeaturedArtistModel.findById(req.params.id).defaultPopulate();
+    res.json(a);
+});
 /* POST toggle isUpToDate */
 artistsRouter.post('/toggleIsUpToDate/:id', async (req, res) => {
     let a = await featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, {
