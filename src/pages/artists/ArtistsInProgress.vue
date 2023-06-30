@@ -81,7 +81,7 @@
                     </a>
                 </h5>
 
-                <div id="commissionSongs" class="collapse">
+                <div id="commissionSongs" :class="loggedInUser.osuId == 3178418 ? 'show' : 'collapse'">
                     <transition-group name="list" tag="div" class="row">
                         <artist-card
                             v-for="artist in commissionPendingArtists"
@@ -98,19 +98,24 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import ArtistCard from '@components/artists/ArtistCard.vue';
-import { mapGetters } from 'vuex';
+import { mapState, mapGetters } from 'vuex';
 
 export default defineComponent({
     name: 'ArtistsInProgress',
     components: {
         ArtistCard,
     },
-    computed: mapGetters([
-        'readyArtists',
-        'discussionArtists',
-        'contractArtists',
-        'updateAvailableArtists',
-        'commissionPendingArtists',
-    ]),
+    computed: {
+        ...mapState([
+            'loggedInUser',
+        ]),
+        ...mapGetters([
+            'readyArtists',
+            'discussionArtists',
+            'contractArtists',
+            'updateAvailableArtists',
+            'commissionPendingArtists',
+        ]),
+    }
 });
 </script>

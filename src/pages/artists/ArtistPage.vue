@@ -18,7 +18,7 @@
 
         <artist-search class="mb-2 card card-body" />
 
-        <mail-generator v-if="loggedInUser.osuId == 3178418" />
+        <mail-generator v-if="loggedInUser.osuId == 1893718" />
 
         <add-artist />
     </div>
