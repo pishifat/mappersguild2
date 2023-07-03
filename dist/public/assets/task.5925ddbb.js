@@ -1,0 +1,1 @@
+var a,o,r,e,s,n,t,i;(o=a||(a={})).Easy="Easy",o.Normal="Normal",o.Hard="Hard",o.Insane="Insane",o.Expert="Expert",o.Storyboard="Storyboard",(e=r||(r={})).Osu="osu",e.Taiko="taiko",e.Catch="catch",e.Mania="mania",e.SB="sb",(n=s||(s={})).WIP="WIP",n.Done="Done",(i=t||(t={}))[i.Meh=1]="Meh",i[i.Ok=2]="Ok",i[i.Nice=3]="Nice";export{s as T,a};

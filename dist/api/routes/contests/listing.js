@@ -335,7 +335,7 @@ listingRouter.post('/:id/updateStatus', middlewares_2.isContestCreator, middlewa
         return res.json({ error: `Missing requirements: ${completeStatusRequirements.join(', ')}!` });
     }
     contest.status = req.body.status;
-    // await contest.save();
+    await contest.save();
     if (req.body.status == contest_2.ContestStatus.Beatmapping) {
         discordApi_1.devWebhookPost([{
                 color: discordApi_1.webhookColors.lightBlue,

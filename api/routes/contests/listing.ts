@@ -378,7 +378,7 @@ listingRouter.post('/:id/updateStatus', isContestCreator, isEditable, async (req
     }
 
     contest.status = req.body.status;
-    // await contest.save();
+    await contest.save();
 
     if (req.body.status == ContestStatus.Beatmapping) {
         devWebhookPost([{
