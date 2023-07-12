@@ -76,9 +76,6 @@ partySchema.methods.addUser = async function (user, isNotSelf, isLeader) {
     if (this.quest.parties.some(p => p.members.some(m => m.id == user.id))) {
         throw new Error('Already in a party for this quest');
     }
-    if (!isNotSelf && this.pendingMembers.some(m => m.id == user.id)) {
-        throw new Error('Already pending in this party');
-    }
     if (user.availablePoints < this.quest.price && this.leader.availablePoints < this.quest.price * 2) {
         throw new Error('Not enough points available to accept this quest');
     }
