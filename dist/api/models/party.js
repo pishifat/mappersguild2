@@ -76,7 +76,7 @@ partySchema.methods.addUser = async function (user, isNotSelf, isLeader) {
     if (this.quest.parties.some(p => p.members.some(m => m.id == user.id))) {
         throw new Error('Already in a party for this quest');
     }
-    if (this.pendingMembers.some(m => m.id == user.id)) {
+    if (!isNotSelf && this.pendingMembers.some(m => m.id == user.id)) {
         throw new Error('Already pending in this party');
     }
     if (user.availablePoints < this.quest.price && this.leader.availablePoints < this.quest.price * 2) {
@@ -85,7 +85,7 @@ partySchema.methods.addUser = async function (user, isNotSelf, isLeader) {
     if (this.members.length >= this.quest.maxParty) {
         throw new Error('Party has too many members!');
     }
-    if (isNotSelf && this.id !== '649c33f84fa25e6f7d9a104a') {
+    if (isNotSelf && this.id !== '649c33f84fa25e6f7d9a104a') { // akira complex mega quest. delete later
         this.pendingMembers.push(user);
     }
     else {
