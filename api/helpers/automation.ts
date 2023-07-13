@@ -107,7 +107,7 @@ const setQualified = cron.schedule('0 16 * * *', async () => { /* 9:00 AM PST */
                 await sleep(500);
 
                 if (!isOsuResponseError(bmInfo)) {
-                    const status = findBeatmapsetStatus(bmInfo.ranked_date);
+                    const status = findBeatmapsetStatus(bmInfo.ranked);
 
                     /*  osu:    Qualified/Ranked
                         MG:     Pending
