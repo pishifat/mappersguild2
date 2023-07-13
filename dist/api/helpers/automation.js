@@ -91,7 +91,7 @@ const setQualified = node_cron_1.default.schedule('0 16 * * *', async () => {
                 const bmInfo = await osuApi_1.getBeatmapsetV2Info(token, osuId);
                 await helpers_1.sleep(500);
                 if (!osuApi_1.isOsuResponseError(bmInfo)) {
-                    const status = helpers_1.findBeatmapsetStatus(bmInfo.ranked_date);
+                    const status = helpers_1.findBeatmapsetStatus(bmInfo.ranked);
                     /*  osu:    Qualified/Ranked
                         MG:     Pending
                         save:   Qualified on MG */
