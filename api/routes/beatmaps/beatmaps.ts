@@ -427,7 +427,7 @@ beatmapsRouter.get('/:id/findPoints', async (req, res) => {
     }
 
     // calculate bn points
-    let bnPoints = getLengthNerf((beatmap.length*beatmap.tasks.length)/1.5);
+    let bnPoints = getLengthNerf((length*beatmap.tasks.length)/1.5);
 
     if (bnPoints < 1) {
         bnPoints = 1;

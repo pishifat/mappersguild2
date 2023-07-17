@@ -75,7 +75,7 @@
                                 v-if="selectedUser.modPoints"
                                 :points="selectedUser.modPoints"
                                 :display="'modding mapsets'"
-                                :tooltip-title="'1 point per mod'"
+                                :tooltip-title="'~1 point per mod'"
                             />
                             <user-points-row
                                 v-if="selectedUser.hostPoints"
