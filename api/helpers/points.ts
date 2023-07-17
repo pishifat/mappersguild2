@@ -344,9 +344,17 @@ export async function calculateModPoints(userId: any): Promise<number> {
             .defaultPopulate(),
     ]);
 
-    const nominatorPoints = nominatorBeatmaps.map(b => getLengthNerf(b.length)).reduce((a, b) => a + b, 0);
+    let totalNominatorPoints = 0;
 
-    return modderPoints + nominatorPoints;
+    for (const beatmap of nominatorBeatmaps) {
+        const bonus = getLengthNerf(beatmap.length*beatmap.tasks.length);
+        console.log(bonus);
+
+        if (bonus < 1) totalNominatorPoints++;
+        else totalNominatorPoints += bonus;
+    }
+
+    return modderPoints + Math.ceil(totalNominatorPoints);
 }
 
 export async function calculateSpentPoints(userId: any): Promise<number> {
