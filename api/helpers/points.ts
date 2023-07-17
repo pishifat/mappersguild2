@@ -347,8 +347,7 @@ export async function calculateModPoints(userId: any): Promise<number> {
     let totalNominatorPoints = 0;
 
     for (const beatmap of nominatorBeatmaps) {
-        const bonus = getLengthNerf(beatmap.length*beatmap.tasks.length);
-        console.log(bonus);
+        const bonus = getLengthNerf((beatmap.length*beatmap.tasks.length)/1.5);
 
         if (bonus < 1) totalNominatorPoints++;
         else totalNominatorPoints += bonus;

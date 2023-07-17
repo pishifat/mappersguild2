@@ -22,6 +22,7 @@
                     <li v-for="(value, i) in tasksPointsArray" :key="i">
                         {{ value }}
                     </li>
+                    <li>BN mod/nomination: {{ bnPoints }}</li>
                 </ul>
             </div>
             <div class="col-sm-6">
@@ -58,6 +59,7 @@ export default defineComponent({
             usersPointsArrays: null,
             pointsInfo: null,
             totalPoints: null,
+            bnPoints: null,
             isLoading: false,
         };
     },
@@ -67,6 +69,7 @@ export default defineComponent({
             this.usersPointsArrays = null;
             this.pointsInfo = null;
             this.totalPoints = null;
+            this.bnPoints = null;
             this.isLoading = false;
         },
     },
@@ -80,6 +83,7 @@ export default defineComponent({
                 this.usersPointsArrays = res.usersPointsArrays;
                 this.pointsInfo = res.pointsInfo;
                 this.totalPoints = res.totalPoints;
+                this.bnPoints = res.bnPoints;
             }
 
             this.isLoading = false;

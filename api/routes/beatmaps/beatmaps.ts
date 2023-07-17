@@ -358,7 +358,7 @@ beatmapsRouter.get('/:id/findPoints', async (req, res) => {
     const minutes = (length - seconds) / 60;
     const lengthDisplay = `${minutes}m${seconds}s`;
 
-    let pointsInfo = `based on ${lengthDisplay} length`;
+    let pointsInfo = `based on ${lengthDisplay} length and ${beatmap.tasks.length} difficulties`;
 
     const rankedDate = beatmap.status != 'Ranked' ? new Date() : bmInfo.ranked_date;
 
@@ -426,7 +426,14 @@ beatmapsRouter.get('/:id/findPoints', async (req, res) => {
         pointsInfo += ` + includes ${questBonus == 1 ? questBonus + ' quest bonus point' : questBonus + ' quest bonus points'} per difficulty`;
     }
 
-    res.json({ tasksPointsArray, usersPointsArrays, pointsInfo, totalPoints });
+    // calculate bn points
+    let bnPoints = getLengthNerf((beatmap.length*beatmap.tasks.length)/1.5);
+
+    if (bnPoints < 1) {
+        bnPoints = 1;
+    }
+
+    res.json({ tasksPointsArray, usersPointsArrays, pointsInfo, totalPoints, bnPoints });
 });
 
 export default beatmapsRouter;
