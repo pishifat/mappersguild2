@@ -301,8 +301,15 @@ async function calculateModPoints(userId) {
         })
             .defaultPopulate(),
     ]);
-    const nominatorPoints = nominatorBeatmaps.map(b => getLengthNerf(b.length)).reduce((a, b) => a + b, 0);
-    return modderPoints + nominatorPoints;
+    let totalNominatorPoints = 0;
+    for (const beatmap of nominatorBeatmaps) {
+        const bonus = getLengthNerf((beatmap.length * beatmap.tasks.length) / 1.5);
+        if (bonus < 1)
+            totalNominatorPoints++;
+        else
+            totalNominatorPoints += bonus;
+    }
+    return modderPoints + Math.ceil(totalNominatorPoints);
 }
 exports.calculateModPoints = calculateModPoints;
 async function calculateSpentPoints(userId) {

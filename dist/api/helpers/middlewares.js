@@ -87,7 +87,7 @@ exports.isSuperAdmin = isSuperAdmin;
 async function isBn(accessToken) {
     if (accessToken) {
         const res = await osuApi_1.getUserInfo(accessToken);
-        if (!osuApi_1.isOsuResponseError(res) && (res.is_nat || res.is_bng)) {
+        if (!osuApi_1.isOsuResponseError(res) && (res.groups.some(g => g.id == 7 || g.id == 28 || g.id == 32))) {
             return true;
         }
     }

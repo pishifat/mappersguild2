@@ -55,6 +55,10 @@ export interface OsuLevel {
     progress: number;
 }
 
+export interface OsuGroups {
+    id: number;
+}
+
 export interface OsuAuthResponse {
     id: number;
     username: string;
@@ -70,6 +74,7 @@ export interface OsuAuthResponse {
     expires_in: number;
     access_token: string;
     refresh_token: string;
+    groups: OsuGroups[];
 }
 
 export function isOsuResponseError(errorResponse: OsuAuthResponse | OsuBeatmapsetV2Response | OsuBeatmapsetDiscussionV2Response | OsuBeatmapsetSearchV2Response | OsuApiV2UserResponse | ErrorResponse): errorResponse is ErrorResponse {
