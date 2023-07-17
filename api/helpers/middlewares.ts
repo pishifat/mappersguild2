@@ -90,7 +90,7 @@ export async function isBn(accessToken): Promise<boolean> {
     if (accessToken) {
         const res = await getUserInfo(accessToken);
 
-        if (!isOsuResponseError(res) && (res.is_nat || res.is_bng)) {
+        if (!isOsuResponseError(res) && (res.groups.some(g => g.id == 7 || g.id == 28 || g.id == 32))) {
             return true;
         }
     }
