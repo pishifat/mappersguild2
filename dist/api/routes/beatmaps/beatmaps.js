@@ -123,7 +123,7 @@ beatmapsRouter.post('/create', async (req, res) => {
         const t = new task_1.TaskModel();
         t.name = task.name;
         t.mappers = task.mappers.map(u => u.id);
-        t.mode = task.name == 'Storyboard' ? 'sb' : task.mode ? task.mode : req.body.mode;
+        t.mode = task.name == 'Storyboard' ? 'sb' : req.body.mode == 'hybrid' && task.mode ? task.mode : req.body.mode;
         t.status = task.status;
         await t.save();
         createdTasks.push(t._id);
