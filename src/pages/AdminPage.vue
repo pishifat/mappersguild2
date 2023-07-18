@@ -232,6 +232,9 @@
                                         BADGE
                                     </th>
                                     <th scope="col">
+                                        COMMAND
+                                    </th>
+                                    <th scope="col">
                                         EDIT
                                     </th>
                                 </tr>
@@ -287,6 +290,11 @@
                                             class="fas fa-crown"
                                             :class="'text-rank-' + user.badge"
                                         />
+                                    </td>
+                                    <td
+                                        scope="row"
+                                    >
+                                        <code class="small">{{ command(user) }}</code>
                                     </td>
                                     <td scope="row">
                                         <a
@@ -547,23 +555,25 @@ export default defineComponent({
             artistInput: '',
         };
     },
-    computed: mapState({
-        actionBeatmaps: (state: any) => state.admin.actionBeatmaps,
-        actionBeatmapsLoading: (state: any) => state.admin.actionBeatmapsLoading,
-        actionQuests: (state: any) => state.admin.actionQuests,
-        actionQuestsLoading: (state: any) => state.admin.actionQuestsLoading,
-        actionUsers: (state: any) => state.admin.actionUsers,
-        actionUsersLoading: (state: any) => state.admin.actionUsersLoading,
-        actionContests: (state: any) => state.admin.actionContests,
-        actionContestsLoading: (state: any) => state.admin.actionContestsLoading,
-        actionArtists: (state: any) => state.admin.actionArtists,
-        actionArtistsLoading: (state: any) => state.admin.actionArtistsLoading,
-        selectedBeatmap: (state: any) => state.admin.selectedBeatmap,
-        selectedQuest: (state: any) => state.admin.selectedQuest,
-        selectedUser: (state: any) => state.admin.selectedUser,
-        selectedContest: (state: any) => state.admin.selectedContest,
-        selectedArtist: (state: any) => state.admin.selectedArtist,
-    }),
+    computed: {
+        ...mapState({
+            actionBeatmaps: (state: any) => state.admin.actionBeatmaps,
+            actionBeatmapsLoading: (state: any) => state.admin.actionBeatmapsLoading,
+            actionQuests: (state: any) => state.admin.actionQuests,
+            actionQuestsLoading: (state: any) => state.admin.actionQuestsLoading,
+            actionUsers: (state: any) => state.admin.actionUsers,
+            actionUsersLoading: (state: any) => state.admin.actionUsersLoading,
+            actionContests: (state: any) => state.admin.actionContests,
+            actionContestsLoading: (state: any) => state.admin.actionContestsLoading,
+            actionArtists: (state: any) => state.admin.actionArtists,
+            actionArtistsLoading: (state: any) => state.admin.actionArtistsLoading,
+            selectedBeatmap: (state: any) => state.admin.selectedBeatmap,
+            selectedQuest: (state: any) => state.admin.selectedQuest,
+            selectedUser: (state: any) => state.admin.selectedUser,
+            selectedContest: (state: any) => state.admin.selectedContest,
+            selectedArtist: (state: any) => state.admin.selectedArtist,
+        }),
+    },
     beforeCreate() {
         if (!this.$store.hasModule('admin')) {
             this.$store.registerModule('admin', adminModule);
@@ -575,6 +585,34 @@ export default defineComponent({
         }
     },
     methods: {
+        command(user): string {
+            const url = 'https://osu.ppy.sh/wiki/en/Community/Mappers_Guild';
+            let placement;
+
+            switch (user.rank) {
+                case 1:
+                    placement = 'first';
+                    break;
+                case 2:
+                    placement = 'second';
+                    break;
+                case 3:
+                    placement = 'third';
+                    break;
+                case 4:
+                    placement = 'fourth';
+                    break;
+            }
+
+            switch (user.rank) {
+                case 0:
+                    return '';
+                case 1:
+                    return `.add-badge ${user.osuId} mg2018-${user.rank}star.png "Mappers' Guild ${placement} level contributor"`;
+                default:
+                    return `.add-badge ${user.osuId} mg2018-${user.rank}star.png "Mappers' Guild ${placement} level contributor" --replace mg2018-${user.rank-1}star.png`;
+            }
+        },
         generateMetadata(song): string {
             let metadata = song.artist + ' - ';
 
