@@ -140,7 +140,7 @@ adminBeatmapsRouter.post('/:id/rejectMapset', async (req, res) => {
     else {
         message += `\n\nsorry :(`;
     }
-    const announcement = await osuBot_1.sendAnnouncement([beatmap.host.id], channel, message);
+    const announcement = await osuBot_1.sendAnnouncement([beatmap.host.osuId], channel, message);
     if (announcement !== true) {
         return res.json({ error: `Messages were not sent.` });
     }
