@@ -6,10 +6,8 @@
         >
             <button
                 class="btn btn-primary"
-                :disabled="!validRank"
-                :data-bs-toggle="validRank ? 'modal' : 'tooltip'"
-                :title="!validRank ? 'designing custom quests is available to tier 1+ users only' : ''"
-                :data-bs-target="validRank ? '#submitQuest' : ''"
+                data-bs-toggle="modal"
+                data-bs-target="#submitQuest"
             >
                 Submit quest for approval <i class="fas fa-plus fa-xs" />
             </button>
@@ -50,9 +48,6 @@ export default defineComponent({
             'filterMode',
             'filterArtist',
         ]),
-        validRank(): boolean {
-            return this.loggedInUser.rank >= 1;
-        },
     },
     methods: {
         ...mapActions('quests', [
