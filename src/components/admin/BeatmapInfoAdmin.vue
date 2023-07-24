@@ -325,7 +325,7 @@ export default defineComponent({
             }
         },
         async rejectMapset(e, isResolvable): Promise<void> {
-            const result = confirm(`Are you sure? THIS ONLY WORKS LOCALLY I DON'T KNOW WHY`);
+            const result = confirm(`Are you sure?`);
 
             if (result) {
                 const status = await this.$http.executePost(`/admin/beatmaps/${this.beatmap.id}/rejectMapset`, { messages: this.rejectionInput, isResolvable }, e);
