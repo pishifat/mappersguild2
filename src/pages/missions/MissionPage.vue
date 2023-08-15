@@ -11,7 +11,7 @@
                 :mission="mission"
             />
         </div>
-        <div class="container card card-body my-4">
+        <div v-if="closedMissions && closedMissions.length" class="container card card-body my-4">
             <h4>
                 <a href="#closedMissions" data-bs-toggle="collapse" @click.prevent>
                     Inactive priority quests

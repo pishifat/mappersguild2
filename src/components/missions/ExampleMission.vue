@@ -23,10 +23,10 @@
             </ul>
             <li><b>Priority quest modes:</b> {{ cleanModes.join(', ') }} {{ mission.modes.length == 4 ? `(if unlabeled, any mode is acceptable)` : ''}}</li>
             <li><b>Priority quest objective:</b> What you'll need to create to participate in the quest.</li>
-            <li><b>Priority quest win condition:</b> What it takes to earn the quest's prize. Usually this is explained in the objective as well, but it depends on the quest.</li>
-            <li><b>Deadline:</b> When the quest no longer accepts beatmap submissions. The quest will close, then winner(s) will be selected within the next day or so.</li>
+            <li><b>Priority quest completion condition:</b> How to complete the quest.</li>
+            <li><b>Deadline:</b> When beatmaps cannot be linked to the quest anymore.</li>
             <li><b>Applicable Featured Artists:</b> Artists whose songs are allowed in the quest.</li>
-            <li><b>Associated maps:</b> Maps submitted to the quest. The prize winner is labeled on finished quests.</li>
+            <li><b>Associated maps:</b> Maps linked to the quest.</li>
         </ul>
     </div>
 </div>

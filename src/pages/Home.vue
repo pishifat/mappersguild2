@@ -170,7 +170,7 @@
                                     Completing a priority quest
                                 </td>
                                 <td scope="row">
-                                    5, 8, 15, or 24<sup><a href="#" @click.prevent="highlight = 'priority'">priority</a></sup>
+                                    7, 10, 13, or 20<sup><a href="#" @click.prevent="highlight = 'priority'">priority</a></sup>
                                 </td>
                             </tr>
                             <tr>
@@ -266,8 +266,38 @@
                             <b>Priority quest:</b>
                             <ul>
                                 <li>Unlike normal quests, priority quests do not need to be claimed. Anyone can participate so long as they meet the labeled criteria.</li>
-                                <li>Win conditions for each priority quest are highly variable. Higher tier priority quests are generally more difficult.</li>
-                                <li>See the <a href="/missions">priority quest listing</a> for a full list of prizes. There are a lot.</li>
+                                <li>Win conditions for each priority quest are highly variable. Higher tier priority quests are generally more difficult, but yield more points:</li>
+                                    <ul>
+                                        <li>
+                                            <img
+                                                class="tier-example me-1"
+                                                :src="'/images/bronze.png'"
+                                            />
+                                            <b>Tier 1:</b> 7 points
+                                        </li>
+                                        <li>
+                                            <img
+                                                class="tier-example me-1"
+                                                :src="'/images/silver.png'"
+                                            />
+                                            <b>Tier 2:</b> 10 points
+                                        </li>
+                                        <li>
+                                            <img
+                                                class="tier-example me-1"
+                                                :src="'/images/gold.png'"
+                                            />
+                                            <b>Tier 3:</b> 13 points
+                                        </li>
+                                        <li>
+                                            <img
+                                                class="tier-example me-1"
+                                                :src="'/images/platinum.png'"
+                                            />
+                                            <b>Tier 4:</b> 20 points
+                                        </li>
+                                    </ul>
+                                <li>See the <a href="/missions">priority quest listing</a> for additional badge + physical prizes.</li>
                             </ul>
                         </li>
                         <li :class="highlight == 'quest' ? 'text-success' : ''">
@@ -296,7 +326,15 @@
                     :mission="exampleMission"
                 />
             <div class="text-secondary small">
-                See the <a href="/quests">priority quest listing</a> to see what quests are available and what prizes you can earn!
+                See the <a href="/missions">priority quest listing</a> to see what quests are available and what prizes you can earn!
+                <div>
+                    <a href="/missions">
+                        <img
+                            class="text-center w-25 ms-4 rounded"
+                            :src="'/images/keychain.jpg'"
+                        />
+                    </a>
+                </div>
             </div>
             <hr />
             <h5>Quests</h5>
@@ -486,3 +524,11 @@ export default defineComponent({
     },
 });
 </script>
+
+<style scoped>
+.tier-example {
+    max-width: 15px;
+    max-height: 15px;
+    object-fit: cover;
+}
+</style>
