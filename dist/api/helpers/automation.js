@@ -20,7 +20,6 @@ const log_2 = require("../../interfaces/log");
 const user_1 = require("../models/user");
 const featuredArtist_1 = require("../models/featuredArtist");
 const points_1 = require("./points");
-const osuBot_1 = require("./osuBot");
 /* generate description for quest webhook */
 function generateQuestDetails(quest) {
     let text = '';
@@ -517,13 +516,15 @@ const dropOverdueQuests = node_cron_1.default.schedule('2 3 * * *', async () => 
                             value: memberList,
                         }],
                 }]);
-            // announcement to party leader
-            const channel = {
+            // announcement to party leader. not sending because it'd just make people sad
+            /*const channel = {
                 name: `MG - Quest dropped`,
                 description: `Automatic quest drop due to inactivity`,
             };
+
             const message = `the [**${quest.name}**](https://mappersguild.com/quests?id=${openQuest ? openQuest.id : quest.id}) quest has been automatically dropped due to being inactive for 1 year.`;
-            await osuBot_1.sendAnnouncement([leader.osuId], channel, message);
+
+            await sendAnnouncement([leader.osuId], channel, message);*/
         }
     }
 }, {
