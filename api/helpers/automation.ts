@@ -612,15 +612,15 @@ const dropOverdueQuests = cron.schedule('2 3 * * *', async () => { /* 8:02 PM PS
                 }],
             }]);
 
-            // announcement to party leader
-            const channel = {
+            // announcement to party leader. not sending because it'd just make people sad
+            /*const channel = {
                 name: `MG - Quest dropped`,
                 description: `Automatic quest drop due to inactivity`,
             };
 
             const message = `the [**${quest.name}**](https://mappersguild.com/quests?id=${openQuest ? openQuest.id : quest.id}) quest has been automatically dropped due to being inactive for 1 year.`;
 
-            await sendAnnouncement([leader.osuId], channel, message);
+            await sendAnnouncement([leader.osuId], channel, message);*/
         }
     }
 }, {
