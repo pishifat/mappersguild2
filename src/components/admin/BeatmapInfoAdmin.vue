@@ -11,6 +11,8 @@
 
             <span v-else>{{ beatmap.song.artist }} - {{ beatmap.song.title }}</span>
 
+            | <a :href="`/beatmaps?id=${beatmap.id}`" target="_blank">MG url</a>
+
             | <user-link class="me-1" :user="beatmap.host" />
 
             <modes-icons :modes="[beatmap.mode]" />
