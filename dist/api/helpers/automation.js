@@ -48,7 +48,6 @@ function generateMissionDetails(mission) {
     else {
         text += `\nAnyone can participate in this quest.`;
     }
-    text += `\n\nRead more about [**priority quests** and their rewards](https://mappersguild.com/missions)!`; // replace with wiki probably
     return text;
 }
 /* generate description for closing mission webhook */
