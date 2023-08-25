@@ -4,7 +4,7 @@ import { BeatmapModel } from '../../models/beatmap/beatmap';
 import { BeatmapStatus } from '../../../interfaces/beatmap/beatmap';
 import { findBeatmapsetId, setBeatmapStatusRanked, sleep } from '../../helpers/helpers';
 import { TaskModel } from '../../models/beatmap/task';
-import { isOsuResponseError, getClientCredentialsGrant, getBeatmapsetV2Info } from '../../helpers/osuApi';
+import { isOsuResponseError, getClientCredentialsGrant, getBeatmapsetV2Info, getUserInfoFromId } from '../../helpers/osuApi';
 import { TaskName, TaskStatus, TaskMode } from '../../../interfaces/beatmap/task';
 import { User } from '../../../interfaces/user';
 import { UserModel } from '../../models/user';
@@ -201,6 +201,9 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
 
     const date = new Date(req.params.date);
 
+    const response = await getClientCredentialsGrant();
+    const token = response.access_token;
+
     const b = await BeatmapModel
         .find({
             rankedDate: { $gte: date },
@@ -248,7 +251,10 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
         }
 
         if (user.taskCount >= 10 || user.hostCount >= 5) {
-            users.push({ username: user.username, osuId: user.osuId, taskCount: user.taskCount, hostCount: user.hostCount, modes: [...new Set(modes)] });
+            const userInfo = await getUserInfoFromId(token, user.osuId);
+            console.log(userInfo.username);
+            await sleep(250);
+            users.push({ username: user.username, flag: `::{ flag=${userInfo.country_code} }::`, osuId: user.osuId, taskCount: user.taskCount, hostCount: user.hostCount, modes: [...new Set(modes)] });
         }
     }
 
