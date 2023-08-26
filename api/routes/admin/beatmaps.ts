@@ -118,6 +118,7 @@ interface UserSummary {
     hostCount: number;
     taskCount: number;
     modes: TaskMode[];
+    flag: string;
 }
 
 /* POST update sb quality */
@@ -202,70 +203,76 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
     const date = new Date(req.params.date);
 
     const response = await getClientCredentialsGrant();
-    const token = response.access_token;
 
-    const b = await BeatmapModel
-        .find({
-            rankedDate: { $gte: date },
-            status: BeatmapStatus.Ranked,
-        })
-        .defaultPopulate()
-        .sort({ mode: 1, createdAt: -1 })
-        .orFail();
+    if (!isOsuResponseError(response)) {
+        const token = response.access_token;
 
-    const u = await UserModel
-        .find({
-            $or:
-                [
-                    { osuPoints: { $gt: 0 } },
-                    { taikoPoints: { $gt: 0 } },
-                    { catchPoints: { $gt: 0 } },
-                    { maniaPoints: { $gt: 0 } },
-                    { storyboardPoints: { $gt: 0 } },
-                    { modPoints: { $gt: 0 } },
-                    { contestParticipantPoints: { $gt: 0 } },
-                    { contestJudgePoints: { $gt: 0 } },
-                    { contestScreenerPoints: { $gt: 0 } },
-                ],
-        })
-        .orFail();
+        const b = await BeatmapModel
+            .find({
+                rankedDate: { $gte: date },
+                status: BeatmapStatus.Ranked,
+            })
+            .defaultPopulate()
+            .sort({ mode: 1, createdAt: -1 })
+            .orFail();
 
-    const users: UserSummary[] = [];
+        const u = await UserModel
+            .find({
+                $or:
+                    [
+                        { osuPoints: { $gt: 0 } },
+                        { taikoPoints: { $gt: 0 } },
+                        { catchPoints: { $gt: 0 } },
+                        { maniaPoints: { $gt: 0 } },
+                        { storyboardPoints: { $gt: 0 } },
+                        { modPoints: { $gt: 0 } },
+                        { contestParticipantPoints: { $gt: 0 } },
+                        { contestJudgePoints: { $gt: 0 } },
+                        { contestScreenerPoints: { $gt: 0 } },
+                    ],
+            })
+            .orFail();
 
-    for (const user of u as UserCounts[]) {
-        user.hostCount = 0;
-        user.taskCount = 0;
-        const modes: TaskMode[] = [];
+        const users: UserSummary[] = [];
 
-        for (const beatmap of b) {
-            for (const task of beatmap.tasks) {
-                for (const mapper of task.mappers) {
-                    if (mapper.id == user.id) {
-                        user.taskCount++;
-                        modes.push(task.mode);
+        for (const user of u as UserCounts[]) {
+            user.hostCount = 0;
+            user.taskCount = 0;
+            const modes: TaskMode[] = [];
+
+            for (const beatmap of b) {
+                for (const task of beatmap.tasks) {
+                    for (const mapper of task.mappers) {
+                        if (mapper.id == user.id) {
+                            user.taskCount++;
+                            modes.push(task.mode);
+                        }
                     }
                 }
+
+                if (beatmap.host.id == user.id) user.hostCount++;
             }
 
-            if (beatmap.host.id == user.id) user.hostCount++;
+            if (user.taskCount >= 10 || user.hostCount >= 5) {
+                const userInfo = await getUserInfoFromId(token, user.osuId);
+
+                if (!isOsuResponseError(userInfo)) {
+                    console.log(userInfo.username);
+                    await sleep(250);
+                    users.push({ username: user.username, flag: `::{ flag=${userInfo.country_code} }::`, osuId: user.osuId, taskCount: user.taskCount, hostCount: user.hostCount, modes: [...new Set(modes)] });
+                }
+            }
         }
 
-        if (user.taskCount >= 10 || user.hostCount >= 5) {
-            const userInfo = await getUserInfoFromId(token, user.osuId);
-            console.log(userInfo.username);
-            await sleep(250);
-            users.push({ username: user.username, flag: `::{ flag=${userInfo.country_code} }::`, osuId: user.osuId, taskCount: user.taskCount, hostCount: user.hostCount, modes: [...new Set(modes)] });
-        }
+        users.sort(function(a,b) {
+            if (a.taskCount < b.taskCount) return 1;
+            if (a.taskCount > b.taskCount) return -1;
+
+            return 0;
+        });
+
+        res.json({ users });
     }
-
-    users.sort(function(a,b) {
-        if (a.taskCount < b.taskCount) return 1;
-        if (a.taskCount > b.taskCount) return -1;
-
-        return 0;
-    });
-
-    res.json({ users });
 });
 
 /* GET bundled beatmaps */

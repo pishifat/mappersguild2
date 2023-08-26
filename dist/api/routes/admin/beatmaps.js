@@ -152,58 +152,67 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
         return res.json({ error: 'Invalid date' });
     }
     const date = new Date(req.params.date);
-    const b = await beatmap_1.BeatmapModel
-        .find({
-        rankedDate: { $gte: date },
-        status: beatmap_2.BeatmapStatus.Ranked,
-    })
-        .defaultPopulate()
-        .sort({ mode: 1, createdAt: -1 })
-        .orFail();
-    const u = await user_1.UserModel
-        .find({
-        $or: [
-            { osuPoints: { $gt: 0 } },
-            { taikoPoints: { $gt: 0 } },
-            { catchPoints: { $gt: 0 } },
-            { maniaPoints: { $gt: 0 } },
-            { storyboardPoints: { $gt: 0 } },
-            { modPoints: { $gt: 0 } },
-            { contestParticipantPoints: { $gt: 0 } },
-            { contestJudgePoints: { $gt: 0 } },
-            { contestScreenerPoints: { $gt: 0 } },
-        ],
-    })
-        .orFail();
-    const users = [];
-    for (const user of u) {
-        user.hostCount = 0;
-        user.taskCount = 0;
-        const modes = [];
-        for (const beatmap of b) {
-            for (const task of beatmap.tasks) {
-                for (const mapper of task.mappers) {
-                    if (mapper.id == user.id) {
-                        user.taskCount++;
-                        modes.push(task.mode);
+    const response = await osuApi_1.getClientCredentialsGrant();
+    if (!osuApi_1.isOsuResponseError(response)) {
+        const token = response.access_token;
+        const b = await beatmap_1.BeatmapModel
+            .find({
+            rankedDate: { $gte: date },
+            status: beatmap_2.BeatmapStatus.Ranked,
+        })
+            .defaultPopulate()
+            .sort({ mode: 1, createdAt: -1 })
+            .orFail();
+        const u = await user_1.UserModel
+            .find({
+            $or: [
+                { osuPoints: { $gt: 0 } },
+                { taikoPoints: { $gt: 0 } },
+                { catchPoints: { $gt: 0 } },
+                { maniaPoints: { $gt: 0 } },
+                { storyboardPoints: { $gt: 0 } },
+                { modPoints: { $gt: 0 } },
+                { contestParticipantPoints: { $gt: 0 } },
+                { contestJudgePoints: { $gt: 0 } },
+                { contestScreenerPoints: { $gt: 0 } },
+            ],
+        })
+            .orFail();
+        const users = [];
+        for (const user of u) {
+            user.hostCount = 0;
+            user.taskCount = 0;
+            const modes = [];
+            for (const beatmap of b) {
+                for (const task of beatmap.tasks) {
+                    for (const mapper of task.mappers) {
+                        if (mapper.id == user.id) {
+                            user.taskCount++;
+                            modes.push(task.mode);
+                        }
                     }
                 }
+                if (beatmap.host.id == user.id)
+                    user.hostCount++;
             }
-            if (beatmap.host.id == user.id)
-                user.hostCount++;
+            if (user.taskCount >= 10 || user.hostCount >= 5) {
+                const userInfo = await osuApi_1.getUserInfoFromId(token, user.osuId);
+                if (!osuApi_1.isOsuResponseError(userInfo)) {
+                    console.log(userInfo.username);
+                    await helpers_1.sleep(250);
+                    users.push({ username: user.username, flag: `::{ flag=${userInfo.country_code} }::`, osuId: user.osuId, taskCount: user.taskCount, hostCount: user.hostCount, modes: [...new Set(modes)] });
+                }
+            }
         }
-        if (user.taskCount >= 10 || user.hostCount >= 5) {
-            users.push({ username: user.username, osuId: user.osuId, taskCount: user.taskCount, hostCount: user.hostCount, modes: [...new Set(modes)] });
-        }
+        users.sort(function (a, b) {
+            if (a.taskCount < b.taskCount)
+                return 1;
+            if (a.taskCount > b.taskCount)
+                return -1;
+            return 0;
+        });
+        res.json({ users });
     }
-    users.sort(function (a, b) {
-        if (a.taskCount < b.taskCount)
-            return 1;
-        if (a.taskCount > b.taskCount)
-            return -1;
-        return 0;
-    });
-    res.json({ users });
 });
 /* GET bundled beatmaps */
 adminBeatmapsRouter.get('/findBundledBeatmaps', async (req, res) => {

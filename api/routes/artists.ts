@@ -17,14 +17,8 @@ const defaultOsuBeatmapPopulate = [
 ];
 
 artistsRouter.get('/relevantInfo', async (req, res) => {
-    let query = {};
-
-    if (res.locals.userRequest.osuId == 1893718) {
-        query = { isCommission: true };
-    }
-
     const a = await FeaturedArtistModel
-        .find(query)
+        .find({})
         .defaultPopulate()
         .sort({ label: 1 });
 

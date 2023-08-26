@@ -28,6 +28,7 @@ export interface OsuBeatmapV2 {
 export interface OsuApiV2UserResponse {
     id: number,
     username: string,
+    country_code: string;
 }
 
 export interface OsuKudosu {
