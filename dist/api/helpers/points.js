@@ -57,16 +57,18 @@ function findQuestPoints(deadline, questCompletedDate, rankedDate) {
 }
 exports.findQuestPoints = findQuestPoints;
 function findMissionPoints(tier) {
-    if (tier == 1)
-        tier = 1.45;
-    /*
-        1 -> 5
-        2 -> 8
-        3 -> 15
-        4 -> 24
-        (this formula is arbitrary. 1 and 2 being close is intentional. 3 and 4 are supposed to be *special*)
-    */
-    return tier * (tier + 2);
+    switch (tier) {
+        case 1:
+            return 7;
+        case 2:
+            return 10;
+        case 3:
+            return 13;
+        case 4:
+            return 20;
+        default:
+            return 7;
+    }
 }
 exports.findMissionPoints = findMissionPoints;
 function getQuestBonus(deadline, rankedDate, totalMappers) {
@@ -90,7 +92,7 @@ exports.getQuestBonus = getQuestBonus;
 function getMissionBonus(winningBeatmaps, beatmapId, totalMappers) {
     let missionBonus = 1;
     if (winningBeatmaps.some(b => b.id == beatmapId)) {
-        missionBonus = 4;
+        missionBonus = 2;
     }
     return missionBonus / totalMappers;
 }

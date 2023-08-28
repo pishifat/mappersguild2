@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const middlewares_1 = require("../../helpers/middlewares");
 const mission_1 = require("../../models/mission");
 const mission_2 = require("../../../interfaces/mission");
+const featuredArtist_1 = require("../../models/featuredArtist");
 const adminMissionsRouter = express_1.default.Router();
 adminMissionsRouter.use(middlewares_1.isLoggedIn);
 adminMissionsRouter.use(middlewares_1.isAdmin);
@@ -106,6 +107,25 @@ adminMissionsRouter.post('/:id/toggleMode', async (req, res) => {
     }
     const updatedMission = await mission_1.MissionModel.findById(req.params.id).defaultPopulate().orFail();
     res.json(updatedMission.modes);
+});
+/* POST toggle artist */
+adminMissionsRouter.post('/:id/toggleArtist', async (req, res) => {
+    const mission = await mission_1.MissionModel.findById(req.params.id).defaultPopulate().orFail();
+    const artist = await featuredArtist_1.FeaturedArtistModel.findOne({ label: req.body.artistLabel }).orFail();
+    await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { $pull: { artists: null } });
+    let artistIds = [];
+    if (mission.artists && mission.artists.length) {
+        artistIds = mission.artists.map(a => a.id);
+    }
+    console.log(mission.artists);
+    if (artistIds.includes(artist.id)) {
+        await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { $pull: { artists: artist.id } });
+    }
+    else {
+        await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { $push: { artists: artist.id } });
+    }
+    const updatedMission = await mission_1.MissionModel.findById(req.params.id).defaultPopulate().orFail();
+    res.json(updatedMission.artists);
 });
 /* POST update mission maximum ranked maps count */
 adminMissionsRouter.post('/:id/updateUserMaximumRankedBeatmapsCount', async (req, res) => {

@@ -306,6 +306,7 @@ const processMissions = node_cron_1.default.schedule('0 0 * * *', async () => {
     })
         .defaultPopulate();
     for (const mission of missions) {
+        await helpers_1.sleep(500);
         if (mission.status == mission_2.MissionStatus.Open && !mission.openingAnnounced) {
             // logs
             log_1.LogModel.generate(null, `"${mission.name}" opened`, log_2.LogCategory.Mission);

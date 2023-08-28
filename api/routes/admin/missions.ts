@@ -138,7 +138,7 @@ adminMissionsRouter.post('/:id/toggleArtist', async (req, res) => {
     const artist = await FeaturedArtistModel.findOne({ label: req.body.artistLabel }).orFail();
     await MissionModel.findByIdAndUpdate(req.params.id, { $pull: { artists: null } });
 
-    let artistIds = [];
+    let artistIds = [] as string[];
 
     if (mission.artists && mission.artists.length) {
         artistIds = mission.artists.map(a => a.id);
