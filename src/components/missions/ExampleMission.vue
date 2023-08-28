@@ -23,7 +23,7 @@
             </ul>
             <li><b>Priority quest modes:</b> {{ cleanModes.join(', ') }} {{ mission.modes.length == 4 ? `(if unlabeled, any mode is acceptable)` : ''}}</li>
             <li><b>Priority quest objective:</b> What you'll need to create to participate in the quest.</li>
-            <li><b>Priority quest completion condition:</b> How to complete the quest.</li>
+            <li><b>Priority quest win condition:</b> How to complete the quest.</li>
             <li><b>Deadline:</b> When beatmaps cannot be linked to the quest anymore.</li>
             <li><b>Applicable Featured Artists:</b> Artists whose songs are allowed in the quest.</li>
             <li><b>Associated maps:</b> Maps linked to the quest.</li>

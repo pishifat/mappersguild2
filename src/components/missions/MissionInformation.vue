@@ -10,7 +10,7 @@
                 <ol>
                     <li><b>You don't need to claim a priority quest to participate.</b> You only need to make a map and connect it to the quest!</li>
                     <li><b>Some priority quests have user-specific requirements.</b> These generally aim to give newer mappers an opportunity to get involved, like only allowing users without ranked maps to participate.</li>
-                    <li><b>Multiple users can complete the same quest.</b> This depends on the quest's completion condition, which varies per quest.</li>
+                    <li><b>Multiple users can complete the same quest.</b> This depends on the quest's win condition.</li>
                 </ol>
                 Here's a breakdown of this example priority quest:
             </div>

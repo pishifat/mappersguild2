@@ -103,6 +103,27 @@
                 </button>
             </div>
 
+            <!-- artists -->
+            <div v-if="availableArtists" class="row">
+                <select
+                    v-model="selectedArtist"
+                    class="form-select form-select-sm mx-2 mt-2 w-25"
+                >
+                    <option :value="{}" disabled>
+                        Select an artist
+                    </option>
+                    <option v-for="artist in availableArtists" :key="artist.id">
+                        {{ artist.label }}
+                    </option>
+                </select>
+                <div v-if="mission.artists && mission.artists.length" class="w-25 mt-2">
+                    {{ mission.artists.map(a => a.label) }}
+                </div>
+                <button class="btn btn-sm btn-outline-info mt-2 w-25" @click="toggleArtist($event)">
+                    Toggle artist
+                </button>
+            </div>
+
             <!-- openingAnnounced -->
             <div class="row">
                 <div class="col-sm-6 mt-2">
@@ -168,6 +189,7 @@
 import { defineComponent } from 'vue';
 import ModalDialog from '@components/ModalDialog.vue';
 import AssociatedBeatmaps from '@components/missions/AssociatedBeatmaps.vue';
+import { FeaturedArtist } from '@interfaces/featuredArtist';
 import { Mission, MissionMode } from '@interfaces/mission';
 
 export default defineComponent({
@@ -184,6 +206,7 @@ export default defineComponent({
     },
     data() {
         return {
+            availableArtists: [] as FeaturedArtist[],
             availableModes: MissionMode,
             name: this.mission.name,
             tier: this.mission.tier,
@@ -191,6 +214,8 @@ export default defineComponent({
             winCondition: this.mission.winCondition,
             status: this.mission.status,
             mode: '',
+            selectedArtist: {} as FeaturedArtist,
+            artists: this.mission.artists,
             userMaximumRankedBeatmapsCount: this.mission.userMaximumRankedBeatmapsCount,
             userMaximumGlobalRank: this.mission.userMaximumGlobalRank,
         };
@@ -199,6 +224,7 @@ export default defineComponent({
         mission(): void {
             this.name = this.mission.name;
             this.tier = this.mission.tier;
+            this.artists = this.mission.artists;
             this.objective = this.mission.objective;
             this.winCondition = this.mission.winCondition;
             this.status = this.mission.status;
@@ -206,6 +232,18 @@ export default defineComponent({
             this.userMaximumRankedBeatmapsCount = this.mission.userMaximumRankedBeatmapsCount;
             this.userMaximumGlobalRank = this.mission.userMaximumGlobalRank;
         },
+    },
+    async created () {
+        const res: any = await this.$http.executeGet<FeaturedArtist[]>(`/featuredArtists`);
+
+        if (res) {
+            this.availableArtists = res.sort((a, b) => {
+                if (a.label.toLowerCase() > b.label.toLowerCase()) return 1;
+                if (b.label.toLowerCase() > a.label.toLowerCase()) return -1;
+
+                return 0;
+            });
+        }
     },
     methods: {
         async updateName(e): Promise<void> {
@@ -345,6 +383,20 @@ export default defineComponent({
                 this.$store.commit('updateModes', {
                     missionId: this.mission.id,
                     modes,
+                });
+            }
+        },
+        async toggleArtist(e): Promise<void> {
+            const artists = await this.$http.executePost(`/admin/missions/${this.mission.id}/toggleArtist/`, { artistLabel: this.selectedArtist }, e);
+
+            if (!this.$http.isError(artists)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `toggled artist`,
+                    type: 'info',
+                });
+                this.$store.commit('updateArtists', {
+                    missionId: this.mission.id,
+                    artists,
                 });
             }
         },

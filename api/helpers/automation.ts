@@ -52,8 +52,6 @@ function generateMissionDetails(mission) {
         text += `\nAnyone can participate in this quest.`;
     }
 
-    text += `\n\nRead more about [**priority quests** and their rewards](https://mappersguild.com/missions)!`; // replace with wiki probably
-
     return text;
 }
 
@@ -367,6 +365,8 @@ const processMissions = cron.schedule('0 0 * * *', async () => { /* 5:00 PM PST 
         .defaultPopulate();
 
     for (const mission of missions) {
+        await sleep(500);
+
         if (mission.status == MissionStatus.Open && !mission.openingAnnounced) {
             // logs
             LogModel.generate(null, `"${mission.name}" opened`, LogCategory.Mission );
