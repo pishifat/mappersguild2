@@ -4,7 +4,7 @@ import Faq from '../pages/Faq.vue';
 // Public
 const Beatmaps = () => import('../pages/beatmaps/BeatmapPage.vue');
 const Quests = () => import('../pages/quests/QuestPage.vue');
-//const Missions = () => import('../pages/missions/MissionPage.vue');
+const Missions = () => import('../pages/missions/MissionPage.vue');
 const Users = () => import('../pages/users/UserPage.vue');
 const Error = () => import('../pages/Error.vue');
 const NotFound = () => import('../pages/NotFound.vue');
@@ -42,7 +42,7 @@ const routes = [
     // Mapping
     { path: '/beatmaps', component: Beatmaps, meta: { title: 'Beatmaps' } },
     { path: '/quests', component: Quests, meta: { title: 'Quests' } },
-    //{ path: '/missions', component: Missions, meta: { title: 'Priority Quests' } },
+    { path: '/missions', component: Missions, meta: { title: 'Priority Quests' } },
 
     // Contests
     { path: '/contests/listing', component: Listing, meta: { title: 'Contest Listing' } },

@@ -365,6 +365,8 @@ const processMissions = cron.schedule('0 0 * * *', async () => { /* 5:00 PM PST 
         .defaultPopulate();
 
     for (const mission of missions) {
+        await sleep(500);
+
         if (mission.status == MissionStatus.Open && !mission.openingAnnounced) {
             // logs
             LogModel.generate(null, `"${mission.name}" opened`, LogCategory.Mission );

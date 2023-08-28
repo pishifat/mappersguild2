@@ -59,7 +59,7 @@
                 </span>
                 <!-- publicly display as winner -->
                 <span v-if="!isAdminPage && mission.status == 'closed' && isWinningBeatmap(map.id)" class="text-success">
-                    (prize winner)
+                    (winner)
                 </span>
             </li>
             <div v-if="mission.status == 'open'" class="small text-secondary ms-3 mt-2">

@@ -91,6 +91,13 @@ const store: Module<MissionState, MainState> = {
                 mission.modes = payload.modes;
             }
         },
+        updateArtists (state, payload): void {
+            const mission = state.missions.find(m => m.id == payload.missionId);
+
+            if (mission) {
+                mission.artists = payload.artists;
+            }
+        },
     },
 };
 
