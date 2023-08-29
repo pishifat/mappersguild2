@@ -43,7 +43,10 @@ missionsRouter.get('/relevantInfo', async (req, res) => {
             .find({
             host: req.session.mongoId,
             status: { $ne: beatmap_2.BeatmapStatus.Ranked },
-            quest: { $exists: false },
+            $or: [
+                { quest: { $exists: false } },
+                { quest: undefined },
+            ],
             mission: { $exists: false },
         })
             .defaultPopulate(),

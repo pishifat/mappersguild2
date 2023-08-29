@@ -46,7 +46,7 @@ missionsRouter.get('/relevantInfo', async (req, res) => {
                 status: { $ne: BeatmapStatus.Ranked },
                 $or: [
                     { quest: { $exists: false } },
-                    { quest: null },
+                    { quest: undefined },
                 ],
                 mission: { $exists: false },
             })
