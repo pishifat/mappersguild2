@@ -318,7 +318,7 @@
                             <div class="text-danger text-center mb-2"><b>Log in to view this page!</b></div>
 
                             <div class="text-center">
-                                <a href="/api/login" class="btn btn-primary">
+                                <a href="/api/login" class="btn btn-primary mb-2">
                                     authorize your osu! account
                                     <i class="fas fa-external-link-alt" />
                                 </a>

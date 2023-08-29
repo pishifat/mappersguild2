@@ -36,6 +36,7 @@ export interface Beatmap {
     length: number;
     packId: number;
     rankedDate: Date;
+    submittedDate: Date;
     updatedAt: Date;
     createdAt: Date;
     isShowcase: boolean;
