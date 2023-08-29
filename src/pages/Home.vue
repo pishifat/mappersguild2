@@ -310,7 +310,7 @@
                         <li :class="highlight == 'contest' ? 'text-success' : ''">
                             <b>Contest:</b>
                             <ul>
-                                <li>Beatmapping contests can be hosted trough the <a href="/contests/listing">Mappers' Guild contest listing</a>.</li>
+                                <li>Beatmapping contests can be hosted through the <a href="/contests/listing">Mappers' Guild contest listing</a>.</li>
                                 <li>Points earned through contest-related contributions only apply to contests that <b>exclusively use Featured Artist content</b>.</li>
                             </ul>
                         </li>
