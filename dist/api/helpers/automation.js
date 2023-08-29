@@ -42,7 +42,7 @@ function generateMissionDetails(mission) {
             text += `\n- You **cannot** have more than **${mission.userMaximumRankedBeatmapsCount} ranked maps**`;
         }
         if (mission.userMaximumGlobalRank) {
-            text += `\n- Your global rank must be **worse than ${mission.userMaximumGlobalRank}**`;
+            text += `\n- Your global rank must be **no higher than ${mission.userMaximumGlobalRank}**`;
         }
     }
     else {
@@ -324,7 +324,7 @@ const processMissions = node_cron_1.default.schedule('0 0 * * *', async () => {
             if (mission.userMaximumGlobalRank) {
                 fields.push({
                     name: 'Global rank requirement',
-                    value: `Your global rank must be worse than **${mission.userMaximumGlobalRank}**`,
+                    value: `Your global rank must be no higher than **${mission.userMaximumGlobalRank}**`,
                 });
             }
             if (mission.userMaximumRankedBeatmapsCount) {
