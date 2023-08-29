@@ -76,6 +76,7 @@ export interface OsuAuthResponse {
     access_token: string;
     refresh_token: string;
     groups: OsuGroups[];
+    statistics_rulesets: any;
 }
 
 export function isOsuResponseError(errorResponse: OsuAuthResponse | OsuBeatmapsetV2Response | OsuBeatmapsetDiscussionV2Response | OsuBeatmapsetSearchV2Response | OsuApiV2UserResponse | ErrorResponse): errorResponse is ErrorResponse {

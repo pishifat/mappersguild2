@@ -22,7 +22,7 @@ adminMissionsRouter.get('/load', async (req, res) => {
 });
 /* POST add quest */
 adminMissionsRouter.post('/create', async (req, res) => {
-    const { deadline, name, tier, artists, objective, winCondition, userMaximumRankedBeatmapsCount, userMaximumGlobalRank, modes } = req.body;
+    const { deadline, name, tier, artists, objective, winCondition, userMaximumRankedBeatmapsCount, userMaximumGlobalRank, userMaximumPp, modes } = req.body;
     const validModes = [];
     for (const mode of modes) {
         switch (mode) {
@@ -58,6 +58,7 @@ adminMissionsRouter.post('/create', async (req, res) => {
     mission.closingAnnounced = false;
     mission.userMaximumRankedBeatmapsCount = userMaximumRankedBeatmapsCount;
     mission.userMaximumGlobalRank = userMaximumGlobalRank;
+    mission.userMaximumPp = userMaximumPp;
     await mission.save();
     res.json(mission);
 });
@@ -136,6 +137,11 @@ adminMissionsRouter.post('/:id/updateUserMaximumRankedBeatmapsCount', async (req
 adminMissionsRouter.post('/:id/updateUserMaximumGlobalRank', async (req, res) => {
     await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { userMaximumGlobalRank: req.body.userMaximumGlobalRank }).orFail();
     res.json(req.body.userMaximumGlobalRank);
+});
+/* POST update mission maximum pp */
+adminMissionsRouter.post('/:id/updateUserMaximumPp', async (req, res) => {
+    await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { userMaximumPp: req.body.userMaximumPp }).orFail();
+    res.json(req.body.userMaximumPp);
 });
 /* POST toggle winning beatmap for mission */
 adminMissionsRouter.post('/:missionId/:beatmapId/toggleWinningBeatmap', async (req, res) => {

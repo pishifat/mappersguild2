@@ -136,7 +136,7 @@ indexRouter.get('/callback', async (req, res) => {
     let globalRank = 0;
     let pp = 0;
 
-    const modesStats = Object.entries(response.statistics_rulesets);
+    const modesStats: any = Object.entries(response.statistics_rulesets);
 
     for (let i = 0; i < modesStats.length; i++) {
         const modeInfo = modesStats[i][1];

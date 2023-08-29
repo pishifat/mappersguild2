@@ -36,13 +36,16 @@ function generateMissionDetails(mission) {
     text += `\n[**${mission.name}**](https://mappersguild.com/missions?id=${mission.id})`;
     text += `\n- **Objective:** ${mission.objective}`;
     text += `\n- **Win condition:** ${mission.winCondition}`;
-    if (mission.userMaximumGlobalRank || mission.userMaximumRankedBeatmapsCount || mission.userMaximumRankedBeatmapsCount === 0) {
+    if (mission.userMaximumGlobalRank || mission.userMaximumRankedBeatmapsCount || mission.userMaximumPp || mission.userMaximumRankedBeatmapsCount === 0) {
         text += `\n\nTo participate in this quest, you must meet these requirements:`;
         if (mission.userMaximumRankedBeatmapsCount || mission.userMaximumRankedBeatmapsCount === 0) {
             text += `\n- You **cannot** have more than **${mission.userMaximumRankedBeatmapsCount} ranked maps**`;
         }
         if (mission.userMaximumGlobalRank) {
             text += `\n- Your global rank must be **no higher than ${mission.userMaximumGlobalRank}**`;
+        }
+        if (mission.userMaximumPp) {
+            text += `\n- Your total performance points must be **no higher than ${mission.userMaximumPp}**`;
         }
     }
     else {
@@ -331,6 +334,12 @@ const processMissions = node_cron_1.default.schedule('0 0 * * *', async () => {
                 fields.push({
                     name: 'Max ranked beatmaps requirement',
                     value: `You cannot have more than **${mission.userMaximumRankedBeatmapsCount} ranked maps**`,
+                });
+            }
+            if (mission.userMaximumPp) {
+                fields.push({
+                    name: 'Max performance points requirement',
+                    value: `You total performance points must be no higher than **${mission.userMaximumPp}**`,
                 });
             }
             await discordApi_1.webhookPost([{
