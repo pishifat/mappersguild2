@@ -11,7 +11,7 @@
 
             <div class="ms-3 row my-1">
                 <h5 class="col-sm-12">
-                    {{ mission.name }}
+                    {{ mission.name.trim() }}
                     <span v-if="mission.modes && mission.modes.length && mission.modes.length < 4" class="text-secondary small">({{ cleanModes.join(', ') + ' only' }})</span>
                     <span :id="`copy${mission.id}`" class="text-secondary opacity-0 ms-2 small pe-none">(copied link)</span>
                 </h5>

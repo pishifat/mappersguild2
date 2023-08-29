@@ -12,7 +12,7 @@
                 <div class="text-center">
                     <img :src="findTierImage" class="info-mission-tier" />
                     <div class="fs-4">
-                        <b>{{ selectedMission.name }}</b>
+                        <b>{{ selectedMission.name.trim() }}</b>
                     </div>
                     <div><b>Tier {{ selectedMission.tier }}</b> priority quest</div>
                     <hr />

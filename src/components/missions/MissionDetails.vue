@@ -2,11 +2,11 @@
     <div class="row">
         <div class="col-sm-12 mb-2">
             <b>Objective:</b>
-            <span class="text-secondary ms-1">{{ mission.objective }}</span>
+            <div class="text-secondary mt-1" v-html="$md.render(mission.objective.trim())" />
         </div>
         <div class="col-sm-12 mb-2">
             <b>Win condition:</b>
-            <span class="text-secondary ms-1">{{ mission.winCondition }}</span>
+            <div class="text-secondary mt-1" v-html="$md.render(mission.winCondition.trim())" />
         </div>
         <div v-if="userRequirements.length" class="col-sm-12 mb-2">
             <b>Requirements:</b> <span class="text-danger small">{{ meetsRequirements ? '' : `(you can't participate for one or more of these reasons)` }}</span>
