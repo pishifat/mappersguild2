@@ -46,7 +46,7 @@ function generateMissionDetails(mission) {
         }
 
         if (mission.userMaximumGlobalRank) {
-            text += `\n- Your global rank must be **worse than ${mission.userMaximumGlobalRank}**`;
+            text += `\n- Your global rank must be **no higher than ${mission.userMaximumGlobalRank}**`;
         }
     } else {
         text += `\nAnyone can participate in this quest.`;
@@ -386,7 +386,7 @@ const processMissions = cron.schedule('0 0 * * *', async () => { /* 5:00 PM PST 
             if (mission.userMaximumGlobalRank) {
                 fields.push({
                     name: 'Global rank requirement',
-                    value: `Your global rank must be worse than **${mission.userMaximumGlobalRank}**`,
+                    value: `Your global rank must be no higher than **${mission.userMaximumGlobalRank}**`,
                 });
             }
 

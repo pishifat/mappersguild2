@@ -84,7 +84,7 @@ export default defineComponent({
 
             if (this.mission.userMaximumGlobalRank) {
                 requirements.push({
-                    text: `You must be worse than `,
+                    text: `You must be no higher than `,
                     bold: `${this.mission.userMaximumGlobalRank} global rank`,
                 });
             }
