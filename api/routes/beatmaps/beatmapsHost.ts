@@ -167,6 +167,12 @@ beatmapsHostRouter.post('/:id/linkMission', isValidBeatmap, isBeatmapHost, async
             }
         }
 
+        if (mission.userMaximumPp) {
+            if (user.pp > mission.userMaximumPp) {
+                return res.json({ error: `You're too high-ranked to accept this quest. Give worse players a chance :)` });
+            }
+        }
+
         if (!mission.modes.includes(beatmap.mode as unknown as MissionMode) && beatmap.mode !== BeatmapMode.Hybrid) {
             return res.json({ error: 'Mode not allowed for this quest' });
         }

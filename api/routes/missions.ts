@@ -60,11 +60,15 @@ missionsRouter.get('/relevantInfo', async (req, res) => {
 });
 
 function meetsRequirements(mission, user) {
-    if (mission.userMaximumRankedBeatmapsCount && user.rankedBeatmapsCount > mission.userMaximumRankedBeatmapsCount) {
+    if ((mission.userMaximumRankedBeatmapsCount || mission.userMaximumRankedBeatmapsCount == 0) && (user.rankedBeatmapsCount > mission.userMaximumRankedBeatmapsCount)) {
         return false;
     }
 
-    if (mission.userMaximumGlobalRank && user.globalRank < mission.userMaximumGlobalRank) {
+    if (mission.userMaximumGlobalRank && (user.globalRank < mission.userMaximumGlobalRank)) {
+        return false;
+    }
+
+    if (mission.userMaximumPp && (user.pp > mission.userMaximumPp)) {
         return false;
     }
 

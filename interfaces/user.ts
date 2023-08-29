@@ -68,4 +68,5 @@ export interface User extends Document {
     mentees: User[];
     rankedBeatmapsCount: number;
     globalRank: number;
+    pp: number;
 }

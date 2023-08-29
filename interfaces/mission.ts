@@ -33,6 +33,7 @@ export interface Mission extends Document {
     /* user requirements. optional and growing */
     userMaximumRankedBeatmapsCount: number;
     userMaximumGlobalRank: number;
+    userMaximumPp: number;
     /** virtual field to populate */
     associatedMaps: Beatmap[];
 }

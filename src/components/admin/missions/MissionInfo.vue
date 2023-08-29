@@ -173,6 +173,19 @@
                     Update user max global rank
                 </button>
             </div>
+            <!-- max pp -->
+            <div class="row mt-2">
+                <input
+                    v-model="userMaximumPp"
+                    class="form-control form-control-sm mx-2 w-50"
+                    type="number"
+                    autocomplete="off"
+                    placeholder="maximum pp allowed..."
+                />
+                <button class="btn btn-sm btn-outline-info w-25" @click="updateUserMaximumPp($event)">
+                    Update user max pp
+                </button>
+            </div>
 
             <!-- associated beatmaps -->
             <associated-beatmaps
@@ -218,6 +231,7 @@ export default defineComponent({
             artists: this.mission.artists,
             userMaximumRankedBeatmapsCount: this.mission.userMaximumRankedBeatmapsCount,
             userMaximumGlobalRank: this.mission.userMaximumGlobalRank,
+            userMaximumPp: this.mission.userMaximumPp,
         };
     },
     watch: {
@@ -231,6 +245,7 @@ export default defineComponent({
             this.mode = '';
             this.userMaximumRankedBeatmapsCount = this.mission.userMaximumRankedBeatmapsCount;
             this.userMaximumGlobalRank = this.mission.userMaximumGlobalRank;
+            this.userMaximumPp = this.mission.userMaximumPp;
         },
     },
     async created () {
@@ -327,6 +342,20 @@ export default defineComponent({
                 this.$store.commit('updateUserMaximumGlobalRank', {
                     missionId: this.mission.id,
                     userMaximumGlobalRank,
+                });
+            }
+        },
+        async updateUserMaximumPp(e): Promise<void> {
+            const userMaximumPp = await this.$http.executePost(`/admin/missions/${this.mission.id}/updateUserMaximumPp/`, { userMaximumPp: this.userMaximumPp }, e);
+
+            if (!this.$http.isError(userMaximumPp)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated user max pp for mission`,
+                    type: 'info',
+                });
+                this.$store.commit('updateUserMaximumPp', {
+                    missionId: this.mission.id,
+                    userMaximumPp,
                 });
             }
         },

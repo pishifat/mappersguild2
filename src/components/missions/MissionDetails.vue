@@ -89,6 +89,13 @@ export default defineComponent({
                 });
             }
 
+            if (this.mission.userMaximumPp) {
+                requirements.push({
+                    text: `Your total performance points must be no higher than `,
+                    bold: `${this.mission.userMaximumPp}`,
+                });
+            }
+
             return requirements;
         },
     },

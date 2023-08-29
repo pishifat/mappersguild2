@@ -133,6 +133,13 @@
                 type="number"
             />
 
+            <!-- maximum pp -->
+            <form-input
+                v-model.number="userMaximumPp"
+                label="Max pp"
+                type="number"
+            />
+
             <button
                 class="btn btn-outline-success w-100"
                 @click="addMission($event)"
@@ -179,6 +186,7 @@ export default defineComponent({
             winCondition: '',
             userMaximumRankedBeatmapsCount: null,
             userMaximumGlobalRank: null,
+            userMaximumPp: null,
         };
     },
     computed: {
@@ -246,6 +254,7 @@ export default defineComponent({
                 winCondition: this.winCondition,
                 userMaximumRankedBeatmapsCount: this.userMaximumRankedBeatmapsCount,
                 userMaximumGlobalRank: this.userMaximumGlobalRank,
+                userMaximumPp: this.userMaximumPp,
             }, e);
 
             if (!this.$http.isError(mission)) {

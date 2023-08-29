@@ -77,11 +77,15 @@ export default defineComponent({
             }
         },
         meetsRequirements(): boolean {
-            if (this.selectedMission.userMaximumRankedBeatmapsCount && this.loggedInUser.rankedBeatmapsCount > this.selectedMission.userMaximumRankedBeatmapsCount) {
+            if ((this.selectedMission.userMaximumRankedBeatmapsCount || this.selectedMission.userMaximumRankedBeatmapsCount == 0) && (this.loggedInUser.rankedBeatmapsCount > this.selectedMission.userMaximumRankedBeatmapsCount)) {
                 return false;
             }
 
             if (this.selectedMission.userMaximumGlobalRank && this.loggedInUser.globalRank < this.selectedMission.userMaximumGlobalRank) {
+                return false;
+            }
+
+            if (this.selectedMission.userMaximumPp && (this.loggedInUser.pp > this.selectedMission.userMaximumPp)) {
                 return false;
             }
 

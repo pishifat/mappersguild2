@@ -22,6 +22,7 @@ const missionSchema = new Schema<Mission, MissionStatics>({
     /* user requirements. optional and growing */
     userMaximumRankedBeatmapsCount: { type: Number },
     userMaximumGlobalRank: { type: Number },
+    userMaximumPp: { type: Number },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 missionSchema.virtual('associatedMaps', {

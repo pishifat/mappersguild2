@@ -45,6 +45,7 @@ const UserSchema = new Schema<User>({
     completedMissions: [{ type: 'ObjectId', ref: 'Mission' }],
     rankedBeatmapsCount: { type: Number },
     globalRank: { type: Number },
+    pp: { type: Number },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 UserSchema.virtual('totalPoints').get(function(this: User) {

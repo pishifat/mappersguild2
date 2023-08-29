@@ -87,6 +87,10 @@ export default defineComponent({
                 return false;
             }
 
+            if (this.mission.userMaximumPp && (this.loggedInUser.pp > this.mission.userMaximumPp)) {
+                return false;
+            }
+
             return true;
         },
         cleanModes(): string[] {

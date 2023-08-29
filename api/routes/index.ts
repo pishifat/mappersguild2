@@ -132,7 +132,24 @@ indexRouter.get('/callback', async (req, res) => {
     const username = response.username;
     const group = UserGroup.User;
     const rankedBeatmapsCount = response.ranked_and_approved_beatmapset_count;
-    const globalRank = response.statistics.global_rank;
+
+    let globalRank = 0;
+    let pp = 0;
+
+    const modesStats = Object.entries(response.statistics_rulesets);
+
+    for (let i = 0; i < modesStats.length; i++) {
+        const modeInfo = modesStats[i][1];
+
+        if (modeInfo.pp > pp) {
+            pp = modeInfo.pp;
+        }
+
+        if (modeInfo.global_rank > globalRank) {
+            globalRank = modeInfo.global_rank;
+        }
+    }
+
     let user = await UserModel.findOne({ osuId });
 
     if (!user) {
@@ -142,6 +159,7 @@ indexRouter.get('/callback', async (req, res) => {
         user.group = group;
         user.rankedBeatmapsCount = rankedBeatmapsCount;
         user.globalRank = globalRank;
+        user.pp = pp;
         await user.save();
 
         req.session.mongoId = user._id;
@@ -162,6 +180,11 @@ indexRouter.get('/callback', async (req, res) => {
 
         if (user.globalRank != globalRank) {
             user.globalRank = globalRank;
+            saveTrigger = true;
+        }
+
+        if (user.pp != pp) {
+            user.pp = pp;
             saveTrigger = true;
         }
 
