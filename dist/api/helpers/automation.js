@@ -45,7 +45,7 @@ function generateMissionDetails(mission) {
             text += `\n- Your global rank must be **no higher than ${mission.userMaximumGlobalRank}**`;
         }
         if (mission.userMaximumPp) {
-            text += `\n- Your total performance points must be **no higher than ${mission.userMaximumPp}**`;
+            text += `\n- Your total performance points must be **no higher than ${mission.userMaximumPp}** in the relevant mode`;
         }
     }
     else {
@@ -339,7 +339,7 @@ const processMissions = node_cron_1.default.schedule('0 0 * * *', async () => {
             if (mission.userMaximumPp) {
                 fields.push({
                     name: 'Max performance points requirement',
-                    value: `You total performance points must be no higher than **${mission.userMaximumPp}**`,
+                    value: `You total performance points must be no higher than **${mission.userMaximumPp}** in the relevant mode`,
                 });
             }
             await discordApi_1.webhookPost([{

@@ -66,6 +66,10 @@ const UserSchema = new mongoose_1.Schema({
     rankedBeatmapsCount: { type: Number },
     globalRank: { type: Number },
     pp: { type: Number },
+    ppOsu: { type: Number },
+    ppTaiko: { type: Number },
+    ppCatch: { type: Number },
+    ppMania: { type: Number },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 UserSchema.virtual('totalPoints').get(function () {
     return Math.round((this.easyPoints + this.normalPoints + this.hardPoints + this.insanePoints + this.expertPoints +

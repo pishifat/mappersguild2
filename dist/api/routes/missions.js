@@ -56,14 +56,29 @@ missionsRouter.get('/relevantInfo', async (req, res) => {
         beatmaps,
     });
 });
-function meetsRequirements(mission, user) {
+function meetsRequirements(mission, user, mode) {
     if ((mission.userMaximumRankedBeatmapsCount || mission.userMaximumRankedBeatmapsCount == 0) && (user.rankedBeatmapsCount > mission.userMaximumRankedBeatmapsCount)) {
         return false;
     }
     if (mission.userMaximumGlobalRank && (user.globalRank < mission.userMaximumGlobalRank)) {
         return false;
     }
-    if (mission.userMaximumPp && (user.pp > mission.userMaximumPp)) {
+    let modePp = 0;
+    switch (mode) {
+        case 'osu':
+            modePp = user.ppOsu;
+            break;
+        case 'taiko':
+            modePp = user.ppTaiko;
+            break;
+        case 'catch':
+            modePp = user.ppCatch;
+            break;
+        case 'mania':
+            modePp = user.ppMania;
+            break;
+    }
+    if (mission.userMaximumPp && (modePp > mission.userMaximumPp)) {
         return false;
     }
     return true;
@@ -82,7 +97,7 @@ missionsRouter.get('/open/:mode', async (req, res) => {
         .find(query)
         .defaultPopulate()
         .sortByLatest();
-    const filteredMissions = missions.filter(m => meetsRequirements(m, user));
+    const filteredMissions = missions.filter(m => meetsRequirements(m, user, req.params.mode));
     res.json(filteredMissions);
 });
 /* POST add beatmap to mission */

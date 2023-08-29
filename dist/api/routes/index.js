@@ -117,9 +117,27 @@ indexRouter.get('/callback', async (req, res) => {
     const rankedBeatmapsCount = response.ranked_and_approved_beatmapset_count;
     let globalRank = 0;
     let pp = 0;
+    let ppOsu = 0;
+    let ppTaiko = 0;
+    let ppCatch = 0;
+    let ppMania = 0;
     const modesStats = Object.entries(response.statistics_rulesets);
     for (let i = 0; i < modesStats.length; i++) {
         const modeInfo = modesStats[i][1];
+        switch (i) {
+            case 0:
+                ppOsu = modeInfo.pp;
+                break;
+            case 1:
+                ppTaiko = modeInfo.pp;
+                break;
+            case 2:
+                ppCatch = modeInfo.pp;
+                break;
+            case 3:
+                ppMania = modeInfo.pp;
+                break;
+        }
         if (modeInfo.pp > pp) {
             pp = modeInfo.pp;
         }
@@ -136,6 +154,10 @@ indexRouter.get('/callback', async (req, res) => {
         user.rankedBeatmapsCount = rankedBeatmapsCount;
         user.globalRank = globalRank;
         user.pp = pp;
+        user.ppOsu = ppOsu;
+        user.ppTaiko = ppTaiko;
+        user.ppCatch = ppCatch;
+        user.ppMania = ppMania;
         await user.save();
         req.session.mongoId = user._id;
         // LogModel.generate(req.session.mongoId, `joined the Mappers' Guild`, LogCategory.User);
@@ -156,6 +178,22 @@ indexRouter.get('/callback', async (req, res) => {
         }
         if (user.pp != pp) {
             user.pp = pp;
+            saveTrigger = true;
+        }
+        if (user.ppOsu != ppOsu) {
+            user.ppOsu = ppOsu;
+            saveTrigger = true;
+        }
+        if (user.ppTaiko != ppTaiko) {
+            user.ppTaiko = ppTaiko;
+            saveTrigger = true;
+        }
+        if (user.ppCatch != ppCatch) {
+            user.ppCatch = ppCatch;
+            saveTrigger = true;
+        }
+        if (user.ppMania != ppMania) {
+            user.ppMania = ppMania;
             saveTrigger = true;
         }
         if (saveTrigger) {
