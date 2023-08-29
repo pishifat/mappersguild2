@@ -18,7 +18,6 @@
                     <hr />
                 </div>
                 <mission-details
-                    :meets-requirements="meetsRequirements"
                     :mission="selectedMission"
                 />
 
@@ -26,8 +25,8 @@
 
                 <div>
                     <add-beatmap-to-mission
-                        v-if="meetsRequirements && selectedMission.status == 'open'"
-                        :mission-id="selectedMission.id"
+                        v-if="selectedMission.status == 'open'"
+                        :mission="selectedMission"
                     />
                     <associated-beatmaps
                         :mission="selectedMission"
@@ -75,21 +74,6 @@ export default defineComponent({
                 default:
                     return '/images/bronze.png';
             }
-        },
-        meetsRequirements(): boolean {
-            if ((this.selectedMission.userMaximumRankedBeatmapsCount || this.selectedMission.userMaximumRankedBeatmapsCount == 0) && (this.loggedInUser.rankedBeatmapsCount > this.selectedMission.userMaximumRankedBeatmapsCount)) {
-                return false;
-            }
-
-            if (this.selectedMission.userMaximumGlobalRank && this.loggedInUser.globalRank < this.selectedMission.userMaximumGlobalRank) {
-                return false;
-            }
-
-            if (this.selectedMission.userMaximumPp && (this.loggedInUser.pp > this.selectedMission.userMaximumPp)) {
-                return false;
-            }
-
-            return true;
         },
         cleanModes(): string[] {
             const cleanModes: string[] = [];

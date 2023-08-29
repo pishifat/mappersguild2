@@ -9,8 +9,8 @@
             <div class="text-secondary mt-1" v-html="$md.render(mission.winCondition.trim())" />
         </div>
         <div v-if="userRequirements.length" class="col-sm-12 mb-2">
-            <b>Requirements:</b> <span class="text-danger small">{{ meetsRequirements ? '' : `(you can't participate for one or more of these reasons)` }}</span>
-            <ul :class="meetsRequirements ? 'text-secondary' : 'text-danger'">
+            <b>Requirements:</b>
+            <ul class="text-danger">
                 <li v-for="requirement in userRequirements" :key="requirement">
                     {{ requirement.text }} <b>{{ requirement.bold }}</b>
                 </li>
@@ -63,10 +63,6 @@ export default defineComponent({
             type: Object as () => Mission,
             required: true,
         },
-        meetsRequirements: {
-            type: Boolean,
-            required: true,
-        },
     },
     computed: {
         ...mapState([
@@ -85,14 +81,14 @@ export default defineComponent({
             if (this.mission.userMaximumGlobalRank) {
                 requirements.push({
                     text: `You must be no higher than `,
-                    bold: `${this.mission.userMaximumGlobalRank} global rank`,
+                    bold: `${this.mission.userMaximumGlobalRank.toLocaleString()} global rank`,
                 });
             }
 
             if (this.mission.userMaximumPp) {
                 requirements.push({
-                    text: `Your total performance points must be no higher than `,
-                    bold: `${this.mission.userMaximumPp}`,
+                    text: `Your performance points in the relevant mode must be no higher than `,
+                    bold: `${this.mission.userMaximumPp.toLocaleString()}`,
                 });
             }
 

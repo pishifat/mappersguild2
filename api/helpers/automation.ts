@@ -50,7 +50,7 @@ function generateMissionDetails(mission) {
         }
 
         if (mission.userMaximumPp) {
-            text += `\n- Your total performance points must be **no higher than ${mission.userMaximumPp}**`;
+            text += `\n- Your total performance points must be **no higher than ${mission.userMaximumPp}** in the relevant mode`;
         }
     } else {
         text += `\nAnyone can participate in this quest.`;
@@ -404,7 +404,7 @@ const processMissions = cron.schedule('0 0 * * *', async () => { /* 5:00 PM PST 
             if (mission.userMaximumPp) {
                 fields.push({
                     name: 'Max performance points requirement',
-                    value: `You total performance points must be no higher than **${mission.userMaximumPp}**`,
+                    value: `You total performance points must be no higher than **${mission.userMaximumPp}** in the relevant mode`,
                 });
             }
 

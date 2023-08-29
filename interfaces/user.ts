@@ -69,4 +69,8 @@ export interface User extends Document {
     rankedBeatmapsCount: number;
     globalRank: number;
     pp: number;
+    ppOsu: number;
+    ppTaiko: number;
+    ppCatch: number;
+    ppMania: number;
 }

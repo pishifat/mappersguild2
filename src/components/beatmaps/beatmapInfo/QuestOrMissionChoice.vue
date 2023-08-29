@@ -103,9 +103,14 @@ export default defineComponent({
         'loggedInUser',
     ]),
     watch: {
-        beatmap (): void {
+        async beatmap (): Promise<void> {
             this.showInput = false;
             this.dropdownId = this.beatmap.quest?.id || this.beatmap.mission?.id || '';
+            const missions = await this.$http.executeGet<Mission[]>(`/missions/open/${this.beatmap.mode}`);
+
+            if (!this.$http.isError(missions)) {
+                this.openMissions = missions;
+            }
         },
     },
     async created() {

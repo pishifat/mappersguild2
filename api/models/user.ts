@@ -46,6 +46,10 @@ const UserSchema = new Schema<User>({
     rankedBeatmapsCount: { type: Number },
     globalRank: { type: Number },
     pp: { type: Number },
+    ppOsu: { type: Number },
+    ppTaiko: { type: Number },
+    ppCatch: { type: Number },
+    ppMania: { type: Number },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 UserSchema.virtual('totalPoints').get(function(this: User) {

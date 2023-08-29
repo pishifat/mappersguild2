@@ -22,6 +22,13 @@
                 >
                     {{ beatmap.song.artist }} - {{ beatmap.song.title }}
                 </option>
+                <option
+                    v-if="!validBeatmaps.length"
+                    value="."
+                    disabled
+                >
+                    No valid beatmaps for this quest
+                </option>
             </select>
             <button
                 class="btn btn-outline-info"
@@ -43,8 +50,8 @@ import { Beatmap } from '@interfaces/beatmap/beatmap';
 export default defineComponent({
     name: 'AddBeatmapToMission',
     props: {
-        missionId: {
-            type: String,
+        mission: {
+            type: Object as () => Mission,
             required: true,
         },
     },
@@ -57,8 +64,45 @@ export default defineComponent({
         ...mapState('missions', [
             'userBeatmaps',
         ]),
+        ...mapState([
+            'loggedInUser',
+        ]),
         validBeatmaps (): Beatmap[] {
-            return this.userBeatmaps;
+            const filteredBeatmaps = [...this.userBeatmaps].filter(b => {
+                console.log(b);
+                if ((this.mission.userMaximumRankedBeatmapsCount || this.mission.userMaximumRankedBeatmapsCount == 0) && (this.loggedInUser.rankedBeatmapsCount > this.mission.userMaximumRankedBeatmapsCount)) {
+                    return false;
+                }
+
+                if (this.mission.userMaximumGlobalRank && (this.loggedInUser.globalRank < this.mission.userMaximumGlobalRank)) {
+                    return false;
+                }
+
+                let modePp = 0;
+
+                switch (b.mode) {
+                    case 'osu':
+                        modePp = this.loggedInUser.ppOsu;
+                        break;
+                    case 'taiko':
+                        modePp = this.loggedInUser.ppTaiko;
+                        break;
+                    case 'catch':
+                        modePp = this.loggedInUser.ppCatch;
+                        break;
+                    case 'mania':
+                        modePp = this.loggedInUser.ppMania;
+                        break;
+                }
+
+                if (this.mission.userMaximumPp && (modePp > this.mission.userMaximumPp)) {
+                    return false;
+                }
+
+                return true;
+            });
+
+            return filteredBeatmaps;
         },
     },
     methods: {
@@ -72,7 +116,7 @@ export default defineComponent({
                 return;
             }
 
-            const mission = await this.$http.executePost<Mission>(`/missions/${this.missionId}/${this.selectedBeatmapId}/addBeatmapToMission`, {}, e);
+            const mission = await this.$http.executePost<Mission>(`/missions/${this.mission.id}/${this.selectedBeatmapId}/addBeatmapToMission`, {}, e);
 
             if (!this.$http.isError(mission)) {
                 this.$store.dispatch('updateToastMessages', {
