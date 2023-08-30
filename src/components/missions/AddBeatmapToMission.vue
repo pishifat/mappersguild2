@@ -69,7 +69,14 @@ export default defineComponent({
         ]),
         validBeatmaps (): Beatmap[] {
             const filteredBeatmaps = [...this.userBeatmaps].filter(b => {
-                console.log(b);
+                if (this.mission.beatmapEarliestSubmissionDate && (new Date(b.submissionDate) < new Date(this.mission.beatmapEarliestSubmissionDate))) {
+                    return false;
+                }
+
+                if (this.mission.beatmapLatestSubmissionDate && (new Date(b.submissionDate) > new Date(this.mission.beatmapLatestSubmissionDate))) {
+                    return false;
+                }
+
                 if ((this.mission.userMaximumRankedBeatmapsCount || this.mission.userMaximumRankedBeatmapsCount == 0) && (this.loggedInUser.rankedBeatmapsCount > this.mission.userMaximumRankedBeatmapsCount)) {
                     return false;
                 }

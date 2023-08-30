@@ -38,7 +38,7 @@ function generateMissionDetails(mission) {
     text += `\n- **Objective:** ${mission.objective}`;
     text += `\n- **Win condition:** ${mission.winCondition}`;
 
-    if (mission.userMaximumGlobalRank || mission.userMaximumRankedBeatmapsCount || mission.userMaximumPp || mission.userMaximumRankedBeatmapsCount === 0) {
+    if (mission.userMaximumGlobalRank || mission.userMaximumRankedBeatmapsCount || mission.userMaximumPp || mission.userMaximumRankedBeatmapsCount === 0 || mission.beatmapEarliestSubmissionDate || mission.beatmapLatestSubmissionDate) {
         text += `\n\nTo participate in this quest, you must meet these requirements:`;
 
         if (mission.userMaximumRankedBeatmapsCount || mission.userMaximumRankedBeatmapsCount === 0) {
@@ -51,6 +51,14 @@ function generateMissionDetails(mission) {
 
         if (mission.userMaximumPp) {
             text += `\n- Your total performance points must be **no higher than ${mission.userMaximumPp}** in the relevant mode`;
+        }
+
+        if (mission.beatmapEarliestSubmissionDate) {
+            text += `\n- Your beatmap must be submitted to the osu! website after **${mission.beatmapEarliestSubmissionDate}**`;
+        }
+
+        if (mission.beatmapLatestSubmissionDate) {
+            text += `\n- Your beatmap must be submitted to the osu! website before **${mission.beatmapLatestSubmissionDate}**`;
         }
     } else {
         text += `\nAnyone can participate in this quest.`;
@@ -404,7 +412,21 @@ const processMissions = cron.schedule('0 0 * * *', async () => { /* 5:00 PM PST 
             if (mission.userMaximumPp) {
                 fields.push({
                     name: 'Max performance points requirement',
-                    value: `You total performance points must be no higher than **${mission.userMaximumPp}** in the relevant mode`,
+                    value: `Your total performance points must be no higher than **${mission.userMaximumPp}** in the relevant mode`,
+                });
+            }
+
+            if (mission.beatmapEarliestSubmissionDate) {
+                fields.push({
+                    name: 'Beatmap submission date requirement',
+                    value: `Your beatmap must be submitted to the osu! website after **${mission.beatmapEarliestSubmissionDate}**`,
+                });
+            }
+
+            if (mission.beatmapLatestSubmissionDate) {
+                fields.push({
+                    name: 'Beatmap submission date requirement',
+                    value: `Your beatmap must be submitted to the osu! website before **${mission.beatmapLatestSubmissionDate}**`,
                 });
             }
 

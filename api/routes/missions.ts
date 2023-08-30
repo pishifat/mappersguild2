@@ -59,7 +59,15 @@ missionsRouter.get('/relevantInfo', async (req, res) => {
     });
 });
 
-function meetsRequirements(mission, user, mode) {
+function meetsRequirements(mission, user, mode, submissionDate) {
+    if (submissionDate && mission.beatmapEarliestSubmissionDate && (new Date(submissionDate) < new Date(mission.beatmapEarliestSubmissionDate))) {
+        return false;
+    }
+
+    if (submissionDate && mission.beatmapLatestSubmissionDate && (new Date(submissionDate) > new Date(mission.beatmapLatestSubmissionDate))) {
+        return false;
+    }
+
     if ((mission.userMaximumRankedBeatmapsCount || mission.userMaximumRankedBeatmapsCount == 0) && (user.rankedBeatmapsCount > mission.userMaximumRankedBeatmapsCount)) {
         return false;
     }
@@ -93,7 +101,7 @@ function meetsRequirements(mission, user, mode) {
 }
 
 /* GET open missions */
-missionsRouter.get('/open/:mode', async (req, res) => {
+missionsRouter.get('/open/:mode/:id', async (req, res) => {
     const user = await UserModel.findById(req.session.mongoId).orFail();
 
     const query: any = {
@@ -105,12 +113,17 @@ missionsRouter.get('/open/:mode', async (req, res) => {
         query.modes = req.params.mode;
     }
 
-    const missions = await MissionModel
-        .find(query)
-        .defaultPopulate()
-        .sortByLatest();
+    const [missions, beatmap] = await Promise.all([
+        MissionModel
+            .find(query)
+            .defaultPopulate()
+            .sortByLatest(),
+        BeatmapModel
+            .findById(req.params.id)
+            .orFail(),
+    ]);
 
-    const filteredMissions = missions.filter(m => meetsRequirements(m, user, req.params.mode));
+    const filteredMissions = missions.filter(m => meetsRequirements(m, user, req.params.mode, beatmap.submissionDate));
 
     res.json(filteredMissions);
 });
@@ -144,6 +157,13 @@ missionsRouter.post('/:missionId/:mapId/addBeatmapToMission', isEditable, isVali
 missionsRouter.post('/:missionId/:mapId/removeBeatmapFromMission', isEditable, isValidBeatmap, isBeatmapHost, async (req, res) => {
     const mission: Mission = res.locals.mission;
     const beatmap: Beatmap = res.locals.beatmap;
+
+    const invalidBeatmapIds = mission.invalidBeatmaps.map(b => b.id);
+    const alreadyInvalid = invalidBeatmapIds.includes(req.params.mapId);
+
+    if (alreadyInvalid) {
+        await MissionModel.findByIdAndUpdate(req.params.missionId, { $pull: { invalidBeatmaps: req.params.mapId } });
+    }
 
     res.locals.beatmap.mission = undefined;
     res.locals.beatmap.quest = undefined;

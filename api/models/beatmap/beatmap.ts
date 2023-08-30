@@ -31,7 +31,7 @@ const BeatmapSchema = new Schema<Beatmap>({
     length: { type: Number },
     packId: { type: Number },
     rankedDate: { type: Date },
-    submittedDate: { type: Date },
+    submissionDate: { type: Date },
     isShowcase: { type: Boolean }, // showcase beatmaps are created for fa news post announcements and receive quest bonus points
     queuedForRank: { type: Boolean }, // used for automation of status changes
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });

@@ -8,6 +8,7 @@ export interface OsuBeatmapsetV2Response {
     beatmaps: [];
     user_id: number;
     ranked_date: string;
+    submitted_date: string;
     current_nominations: [];
     ranked: number;
 }

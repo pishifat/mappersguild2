@@ -186,6 +186,34 @@
                     Update user max pp
                 </button>
             </div>
+            <!-- earliest submission date -->
+            <div class="row mt-2">
+                <input
+                    v-model="beatmapEarliestSubmissionDate"
+                    class="form-control form-control-sm mx-2 w-50"
+                    type="date"
+                    autocomplete="off"
+                    placeholder="earliest submission date allowed..."
+                />
+                <button class="btn btn-sm btn-outline-info w-25" @click="updateBeatmapEarliestSubmissionDate($event)">
+                    Update beatmap earliest submission date
+                </button>
+                <span class="small">current: <b>{{ mission.beatmapEarliestSubmissionDate }}</b></span>
+            </div>
+            <!-- latest submission date -->
+            <div class="row mt-2">
+                <input
+                    v-model="beatmapLatestSubmissionDate"
+                    class="form-control form-control-sm mx-2 w-50"
+                    type="date"
+                    autocomplete="off"
+                    placeholder="latest submission date allowed..."
+                />
+                <button class="btn btn-sm btn-outline-info w-25" @click="updateBeatmapLatestSubmissionDate($event)">
+                    Update beatmap latest submission date
+                </button>
+                <span class="small">current: <b>{{ mission.beatmapLatestSubmissionDate }}</b></span>
+            </div>
 
             <!-- associated beatmaps -->
             <associated-beatmaps
@@ -232,6 +260,8 @@ export default defineComponent({
             userMaximumRankedBeatmapsCount: this.mission.userMaximumRankedBeatmapsCount,
             userMaximumGlobalRank: this.mission.userMaximumGlobalRank,
             userMaximumPp: this.mission.userMaximumPp,
+            beatmapEarliestSubmissionDate: new Date(this.mission.beatmapEarliestSubmissionDate),
+            beatmapLatestSubmissionDate: new Date(this.mission.beatmapLatestSubmissionDate),
         };
     },
     watch: {
@@ -246,6 +276,8 @@ export default defineComponent({
             this.userMaximumRankedBeatmapsCount = this.mission.userMaximumRankedBeatmapsCount;
             this.userMaximumGlobalRank = this.mission.userMaximumGlobalRank;
             this.userMaximumPp = this.mission.userMaximumPp;
+            this.beatmapEarliestSubmissionDate = new Date(this.mission.beatmapEarliestSubmissionDate);
+            this.beatmapLatestSubmissionDate = new Date(this.mission.beatmapLatestSubmissionDate);
         },
     },
     async created () {
@@ -356,6 +388,34 @@ export default defineComponent({
                 this.$store.commit('updateUserMaximumPp', {
                     missionId: this.mission.id,
                     userMaximumPp,
+                });
+            }
+        },
+        async updateBeatmapEarliestSubmissionDate(e): Promise<void> {
+            const beatmapEarliestSubmissionDate = await this.$http.executePost(`/admin/missions/${this.mission.id}/updateBeatmapEarliestSubmissionDate/`, { beatmapEarliestSubmissionDate: this.beatmapEarliestSubmissionDate }, e);
+
+            if (!this.$http.isError(beatmapEarliestSubmissionDate)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated beatmap earliest submission date`,
+                    type: 'info',
+                });
+                this.$store.commit('updateBeatmapEarliestSubmissionDate', {
+                    missionId: this.mission.id,
+                    beatmapEarliestSubmissionDate,
+                });
+            }
+        },
+        async updateBeatmapLatestSubmissionDate(e): Promise<void> {
+            const beatmapLatestSubmissionDate = await this.$http.executePost(`/admin/missions/${this.mission.id}/updateBeatmapLatestSubmissionDate/`, { beatmapLatestSubmissionDate: this.beatmapLatestSubmissionDate }, e);
+
+            if (!this.$http.isError(beatmapLatestSubmissionDate)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated beatmap latest submission date`,
+                    type: 'info',
+                });
+                this.$store.commit('updateBeatmapLatestSubmissionDate', {
+                    missionId: this.mission.id,
+                    beatmapLatestSubmissionDate,
                 });
             }
         },

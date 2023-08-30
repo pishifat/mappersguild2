@@ -39,7 +39,7 @@
                     </a>
                 </span>
                 <!-- mark map as winner -->
-                <span v-if="loggedInUser.group == 'admin' && isAdminPage && mission.status == 'closed'" class="small ms-1">
+                <span v-if="loggedInUser.group == 'admin' && isAdminPage" class="small ms-1">
                     <a
                         v-if="confirmWin != map.id"
                         href="#"
@@ -57,9 +57,31 @@
                         confirm
                     </a>
                 </span>
+                <!-- mark map as invalid -->
+                <span v-if="loggedInUser.group == 'admin' && isAdminPage" class="small ms-1">
+                    <a
+                        v-if="confirmInvalid != map.id"
+                        href="#"
+                        class="text-warning"
+                        @click.prevent="confirmInvalid = map.id"
+                    >
+                        {{ isInvalidBeatmap(map.id) ? 'un-set as invalid' : 'set as invalid' }}
+                    </a>
+                    <a
+                        v-else
+                        :class="processing ? 'opacity-50 pe-none' : 'text-warning'"
+                        href="#"
+                        @click.prevent="toggleInvalidBeatmap(map.id, $event)"
+                    >
+                        confirm
+                    </a>
+                </span>
                 <!-- publicly display as winner -->
                 <span v-if="!isAdminPage && mission.status == 'closed' && isWinningBeatmap(map.id)" class="text-success">
                     (winner)
+                </span>
+                <span v-if="!isAdminPage && isInvalidBeatmap(map.id)" class="text-danger small">
+                    (invalid)
                 </span>
             </li>
             <div v-if="mission.status == 'open'" class="small text-secondary ms-3 mt-2">
@@ -95,6 +117,7 @@ export default defineComponent({
         return {
             confirmDelete: '',
             confirmWin: '',
+            confirmInvalid: '',
             processing: false,
         };
     },
@@ -121,6 +144,11 @@ export default defineComponent({
             const winningBeatmapIds = this.mission.winningBeatmaps.map(b => b.id);
 
             return winningBeatmapIds.includes(beatmapId);
+        },
+        isInvalidBeatmap(beatmapId): boolean {
+            const invalidBeatmapIds = this.mission.invalidBeatmaps.map(b => b.id);
+
+            return invalidBeatmapIds.includes(beatmapId);
         },
         async removeBeatmapFromMission(beatmapId, e): Promise<void> {
             this.processing = true;
@@ -157,6 +185,24 @@ export default defineComponent({
                 this.$store.commit('updateWinningBeatmaps', {
                     missionId: this.mission.id,
                     winningBeatmaps,
+                });
+            }
+
+            this.processing = false;
+            this.confirmWin = '';
+        },
+        async toggleInvalidBeatmap(beatmapId, e): Promise<void> {
+            this.processing = true;
+            const invalidBeatmaps = await this.$http.executePost<Mission>(`/admin/missions/${this.mission.id}/${beatmapId}/toggleInvalidBeatmap`, {}, e);
+
+            if (!this.$http.isError(invalidBeatmaps)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `toggled invalid beatmap for mission`,
+                    type: 'info',
+                });
+                this.$store.commit('updateInvalidBeatmaps', {
+                    missionId: this.mission.id,
+                    invalidBeatmaps,
                 });
             }
 

@@ -106,7 +106,7 @@ export default defineComponent({
         async beatmap (): Promise<void> {
             this.showInput = false;
             this.dropdownId = this.beatmap.quest?.id || this.beatmap.mission?.id || '';
-            const missions = await this.$http.executeGet<Mission[]>(`/missions/open/${this.beatmap.mode}`);
+            const missions = await this.$http.executeGet<Mission[]>(`/missions/open/${this.beatmap.mode}/${this.beatmap.id}`);
 
             if (!this.$http.isError(missions)) {
                 this.openMissions = missions;
@@ -115,7 +115,7 @@ export default defineComponent({
     },
     async created() {
         const quests = await this.$http.executeGet<Quest[]>(`/users/${this.loggedInUser.id}/quests`);
-        const missions = await this.$http.executeGet<Mission[]>(`/missions/open/${this.beatmap.mode}`);
+        const missions = await this.$http.executeGet<Mission[]>(`/missions/open/${this.beatmap.mode}/${this.beatmap.id}`);
 
         if (!this.$http.isError(quests)) {
             this.userQuests = quests;

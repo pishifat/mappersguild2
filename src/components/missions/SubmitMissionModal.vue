@@ -140,6 +140,20 @@
                 type="number"
             />
 
+            <!-- earliest submission date -->
+            <form-input
+                v-model.number="beatmapEarliestSubmissionDate"
+                label="Earliest submission date"
+                type="date"
+            />
+
+            <!-- latest submission date -->
+            <form-input
+                v-model.number="beatmapLatestSubmissionDate"
+                label="Latest submission date"
+                type="date"
+            />
+
             <button
                 class="btn btn-outline-success w-100"
                 @click="addMission($event)"
@@ -187,6 +201,8 @@ export default defineComponent({
             userMaximumRankedBeatmapsCount: null,
             userMaximumGlobalRank: null,
             userMaximumPp: null,
+            beatmapEarliestSubmissionDate: null,
+            beatmapLatestSubmissionDate: null,
         };
     },
     computed: {
@@ -255,6 +271,8 @@ export default defineComponent({
                 userMaximumRankedBeatmapsCount: this.userMaximumRankedBeatmapsCount,
                 userMaximumGlobalRank: this.userMaximumGlobalRank,
                 userMaximumPp: this.userMaximumPp,
+                beatmapEarliestSubmissionDate: this.beatmapEarliestSubmissionDate,
+                beatmapLatestSubmissionDate: this.beatmapLatestSubmissionDate,
             }, e);
 
             if (!this.$http.isError(mission)) {

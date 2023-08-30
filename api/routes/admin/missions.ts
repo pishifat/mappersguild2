@@ -22,7 +22,7 @@ adminMissionsRouter.get('/load', async (req, res) => {
 
 /* POST add quest */
 adminMissionsRouter.post('/create', async (req, res) => {
-    const { deadline, name, tier, artists, objective, winCondition, userMaximumRankedBeatmapsCount, userMaximumGlobalRank, userMaximumPp, modes } = req.body;
+    const { deadline, name, tier, artists, objective, winCondition, userMaximumRankedBeatmapsCount, userMaximumGlobalRank, userMaximumPp, beatmapEarliestSubmissionDate, beatmapLatestSubmissionDate, modes } = req.body;
 
     const validModes: MissionMode[] = [];
 
@@ -63,6 +63,8 @@ adminMissionsRouter.post('/create', async (req, res) => {
     mission.userMaximumRankedBeatmapsCount = userMaximumRankedBeatmapsCount;
     mission.userMaximumGlobalRank = userMaximumGlobalRank;
     mission.userMaximumPp = userMaximumPp;
+    mission.beatmapEarliestSubmissionDate = new Date(beatmapEarliestSubmissionDate);
+    mission.beatmapLatestSubmissionDate = new Date(beatmapLatestSubmissionDate);
 
     await mission.save();
 
@@ -179,6 +181,21 @@ adminMissionsRouter.post('/:id/updateUserMaximumPp', async (req, res) => {
     res.json(req.body.userMaximumPp);
 });
 
+/* POST update mission earliest beatmap submission date */
+adminMissionsRouter.post('/:id/updateBeatmapEarliestSubmissionDate', async (req, res) => {
+    console.log(req.body.beatmapEarliestSubmissionDate);
+    await MissionModel.findByIdAndUpdate(req.params.id, { beatmapEarliestSubmissionDate: new Date(req.body.beatmapEarliestSubmissionDate) }).orFail();
+
+    res.json(req.body.beatmapEarliestSubmissionDate);
+});
+
+/* POST update mission latest beatmap submission date */
+adminMissionsRouter.post('/:id/updateBeatmapLatestSubmissionDate', async (req, res) => {
+    await MissionModel.findByIdAndUpdate(req.params.id, { beatmapLatestSubmissionDate: new Date(req.body.beatmapLatestSubmissionDate) }).orFail();
+
+    res.json(req.body.beatmapLatestSubmissionDate);
+});
+
 /* POST toggle winning beatmap for mission */
 adminMissionsRouter.post('/:missionId/:beatmapId/toggleWinningBeatmap', async (req, res) => {
     const mission = await MissionModel.findById(req.params.missionId).defaultPopulate().orFail();
@@ -195,6 +212,26 @@ adminMissionsRouter.post('/:missionId/:beatmapId/toggleWinningBeatmap', async (r
     const updatedMission = await MissionModel.findById(req.params.missionId).defaultPopulate().orFail();
 
     res.json(updatedMission.winningBeatmaps);
+});
+
+/* POST toggle invalid beatmap for mission */
+adminMissionsRouter.post('/:missionId/:beatmapId/toggleInvalidBeatmap', async (req, res) => {
+    const mission = await MissionModel.findById(req.params.missionId).defaultPopulate().orFail();
+
+    const invalidBeatmapIds = mission.invalidBeatmaps.map(b => b.id);
+    const alreadyInvalid = invalidBeatmapIds.includes(req.params.beatmapId);
+
+    if (alreadyInvalid) {
+        await MissionModel.findByIdAndUpdate(req.params.missionId, { $pull: { invalidBeatmaps: req.params.beatmapId } });
+    } else {
+        await MissionModel.findByIdAndUpdate(req.params.missionId, { $push: { invalidBeatmaps: req.params.beatmapId } });
+    }
+
+    const updatedMission = await MissionModel.findById(req.params.missionId).defaultPopulate().orFail();
+
+    console.log(updatedMission.invalidBeatmaps);
+
+    res.json(updatedMission.invalidBeatmaps);
 });
 
 export default adminMissionsRouter;

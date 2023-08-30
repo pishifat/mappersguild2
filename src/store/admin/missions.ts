@@ -77,6 +77,13 @@ const store: Module<MissionState, MainState> = {
                 mission.winningBeatmaps = payload.winningBeatmaps;
             }
         },
+        updateInvalidBeatmaps (state, payload): void {
+            const mission = state.missions.find(m => m.id == payload.missionId);
+
+            if (mission) {
+                mission.invalidBeatmaps = payload.invalidBeatmaps;
+            }
+        },
         updateAssociatedMaps (state, payload): void {
             const mission = state.missions.find(m => m.id == payload.missionId);
 
@@ -96,6 +103,41 @@ const store: Module<MissionState, MainState> = {
 
             if (mission) {
                 mission.artists = payload.artists;
+            }
+        },
+        updateUserMaximumRankedBeatmapsCount (state, payload): void {
+            const mission = state.missions.find(m => m.id == payload.missionId);
+
+            if (mission) {
+                mission.userMaximumRankedBeatmapsCount = payload.userMaximumRankedBeatmapsCount;
+            }
+        },
+        updateUserMaximumGlobalRank (state, payload): void {
+            const mission = state.missions.find(m => m.id == payload.missionId);
+
+            if (mission) {
+                mission.userMaximumGlobalRank = payload.userMaximumGlobalRank;
+            }
+        },
+        updateUserMaximumPp (state, payload): void {
+            const mission = state.missions.find(m => m.id == payload.missionId);
+
+            if (mission) {
+                mission.userMaximumPp = payload.userMaximumPp;
+            }
+        },
+        updateBeatmapEarliestSubmissionDate (state, payload): void {
+            const mission = state.missions.find(m => m.id == payload.missionId);
+
+            if (mission) {
+                mission.beatmapEarliestSubmissionDate = payload.beatmapEarliestSubmissionDate;
+            }
+        },
+        updateBeatmapLatestSubmissionDate (state, payload): void {
+            const mission = state.missions.find(m => m.id == payload.missionId);
+
+            if (mission) {
+                mission.beatmapLatestSubmissionDate = payload.beatmapLatestSubmissionDate;
             }
         },
     },

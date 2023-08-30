@@ -6,6 +6,8 @@ import { TaskName, TaskStatus } from '../../../interfaces/beatmap/task';
 import { LogModel } from '../../models/log';
 import { LogCategory } from '../../../interfaces/log';
 import { isLoggedIn, isValidUrl } from '../../helpers/middlewares';
+import { findBeatmapsetId } from '../../helpers/helpers';
+import { getBeatmapsetV2Info, getClientCredentialsGrant, isOsuResponseError } from '../../helpers/osuApi';
 import { isBeatmapHost, isValidBeatmap } from './middlewares';
 import { UserModel } from '../../models/user';
 import { QuestModel } from '../../models/quest';
@@ -155,24 +157,6 @@ beatmapsHostRouter.post('/:id/linkMission', isValidBeatmap, isBeatmapHost, async
 
         const user = await UserModel.findById(req.session.mongoId).orFail();
 
-        if (mission.userMaximumRankedBeatmapsCount && mission.userMaximumRankedBeatmapsCount !== 0) {
-            if (user.rankedBeatmapsCount > mission.userMaximumRankedBeatmapsCount) {
-                return res.json({ error: 'You have too many ranked maps to do this quest. Give the newer mappers a chance :)' });
-            }
-        }
-
-        if (mission.userMaximumGlobalRank) {
-            if (user.globalRank < mission.userMaximumGlobalRank) {
-                return res.json({ error: `You're too high-ranked to accept this quest. Give worse players a chance :)` });
-            }
-        }
-
-        if (mission.userMaximumPp) {
-            if (user.pp > mission.userMaximumPp) {
-                return res.json({ error: `You're too high-ranked to accept this quest. Give worse players a chance :)` });
-            }
-        }
-
         if (!mission.modes.includes(beatmap.mode as unknown as MissionMode) && beatmap.mode !== BeatmapMode.Hybrid) {
             return res.json({ error: 'Mode not allowed for this quest' });
         }
@@ -220,6 +204,20 @@ beatmapsHostRouter.post('/:id/setLink', isValidBeatmap, isBeatmapHost, isValidUr
         `edited link on "${b.song.artist} - ${b.song.title}"`,
         LogCategory.Beatmap
     );
+
+    // set submissionDate (not needed on beatmaps page and it takes extra time, so it's done after return)
+    const response = await getClientCredentialsGrant();
+
+    if (!isOsuResponseError(response)) {
+        const token = response.access_token;
+
+        if (url.indexOf('osu.ppy.sh/beatmapsets/') > -1) {
+            const osuId = findBeatmapsetId(url);
+            const bmInfo = await getBeatmapsetV2Info(token, osuId);
+            b.submissionDate = bmInfo.submitted_date;
+            await b.save();
+        }
+    }
 });
 
 /* POST locks task from extended view. */

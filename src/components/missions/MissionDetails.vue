@@ -8,10 +8,10 @@
             <b>Win condition:</b>
             <div class="text-secondary mt-1" v-html="$md.render(mission.winCondition.trim())" />
         </div>
-        <div v-if="userRequirements.length" class="col-sm-12 mb-2">
+        <div v-if="requirements.length" class="col-sm-12 mb-2">
             <b>Requirements:</b>
             <ul class="text-danger">
-                <li v-for="requirement in userRequirements" :key="requirement">
+                <li v-for="requirement in requirements" :key="requirement">
                     {{ requirement.text }} <b>{{ requirement.bold }}</b>
                 </li>
             </ul>
@@ -68,7 +68,7 @@ export default defineComponent({
         ...mapState([
             'loggedInUser',
         ]),
-        userRequirements(): any[] {
+        requirements(): any[] {
             let requirements: any = [];
 
             if (this.mission.userMaximumRankedBeatmapsCount || this.mission.userMaximumRankedBeatmapsCount === 0) {
@@ -89,6 +89,20 @@ export default defineComponent({
                 requirements.push({
                     text: `Your performance points in the relevant mode must be no higher than `,
                     bold: `${this.mission.userMaximumPp.toLocaleString()}`,
+                });
+            }
+
+            if (this.mission.beatmapEarliestSubmissionDate) {
+                requirements.push({
+                    text: `Your beatmap must be submitted to the osu! website after `,
+                    bold: `${new Date(this.mission.beatmapEarliestSubmissionDate).toLocaleString()}`,
+                });
+            }
+
+            if (this.mission.beatmapLatestSubmissionDate) {
+                requirements.push({
+                    text: `Your beatmap must be submitted to the osu! website before `,
+                    bold: `${new Date(this.mission.beatmapLatestSubmissionDate).toLocaleString()}`,
                 });
             }
 

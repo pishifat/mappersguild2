@@ -26,6 +26,7 @@ export interface Mission extends Document {
     status: string;
     winCondition: string;
     winningBeatmaps: Beatmap[];
+    invalidBeatmaps: Beatmap[];
     modes: MissionMode[]
     /* for webhooks */
     openingAnnounced: boolean;
@@ -34,6 +35,9 @@ export interface Mission extends Document {
     userMaximumRankedBeatmapsCount: number;
     userMaximumGlobalRank: number;
     userMaximumPp: number;
+    /* beatmap requirements. optional and growing */
+    beatmapEarliestSubmissionDate: Date;
+    beatmapLatestSubmissionDate: Date;
     /** virtual field to populate */
     associatedMaps: Beatmap[];
 }
