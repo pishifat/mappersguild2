@@ -56,7 +56,13 @@ missionsRouter.get('/relevantInfo', async (req, res) => {
         beatmaps,
     });
 });
-function meetsRequirements(mission, user, mode) {
+function meetsRequirements(mission, user, mode, submissionDate) {
+    if (submissionDate && mission.beatmapEarliestSubmissionDate && (new Date(submissionDate) < new Date(mission.beatmapEarliestSubmissionDate))) {
+        return false;
+    }
+    if (submissionDate && mission.beatmapLatestSubmissionDate && (new Date(submissionDate) > new Date(mission.beatmapLatestSubmissionDate))) {
+        return false;
+    }
     if ((mission.userMaximumRankedBeatmapsCount || mission.userMaximumRankedBeatmapsCount == 0) && (user.rankedBeatmapsCount > mission.userMaximumRankedBeatmapsCount)) {
         return false;
     }
@@ -84,7 +90,7 @@ function meetsRequirements(mission, user, mode) {
     return true;
 }
 /* GET open missions */
-missionsRouter.get('/open/:mode', async (req, res) => {
+missionsRouter.get('/open/:mode/:id', async (req, res) => {
     const user = await user_1.UserModel.findById(req.session.mongoId).orFail();
     const query = {
         status: mission_2.MissionStatus.Open,
@@ -93,11 +99,16 @@ missionsRouter.get('/open/:mode', async (req, res) => {
     if (req.params.mode !== beatmap_2.BeatmapMode.Hybrid) {
         query.modes = req.params.mode;
     }
-    const missions = await mission_1.MissionModel
-        .find(query)
-        .defaultPopulate()
-        .sortByLatest();
-    const filteredMissions = missions.filter(m => meetsRequirements(m, user, req.params.mode));
+    const [missions, beatmap] = await Promise.all([
+        mission_1.MissionModel
+            .find(query)
+            .defaultPopulate()
+            .sortByLatest(),
+        beatmap_1.BeatmapModel
+            .findById(req.params.id)
+            .orFail(),
+    ]);
+    const filteredMissions = missions.filter(m => meetsRequirements(m, user, req.params.mode, beatmap.submissionDate));
     res.json(filteredMissions);
 });
 /* POST add beatmap to mission */
@@ -122,6 +133,11 @@ missionsRouter.post('/:missionId/:mapId/addBeatmapToMission', isEditable, middle
 missionsRouter.post('/:missionId/:mapId/removeBeatmapFromMission', isEditable, middlewares_2.isValidBeatmap, middlewares_2.isBeatmapHost, async (req, res) => {
     const mission = res.locals.mission;
     const beatmap = res.locals.beatmap;
+    const invalidBeatmapIds = mission.invalidBeatmaps.map(b => b.id);
+    const alreadyInvalid = invalidBeatmapIds.includes(req.params.mapId);
+    if (alreadyInvalid) {
+        await mission_1.MissionModel.findByIdAndUpdate(req.params.missionId, { $pull: { invalidBeatmaps: req.params.mapId } });
+    }
     res.locals.beatmap.mission = undefined;
     res.locals.beatmap.quest = undefined;
     await res.locals.beatmap.save();

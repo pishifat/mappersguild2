@@ -38,7 +38,7 @@ const BeatmapSchema = new mongoose_1.Schema({
     length: { type: Number },
     packId: { type: Number },
     rankedDate: { type: Date },
-    submittedDate: { type: Date },
+    submissionDate: { type: Date },
     isShowcase: { type: Boolean },
     queuedForRank: { type: Boolean }, // used for automation of status changes
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });

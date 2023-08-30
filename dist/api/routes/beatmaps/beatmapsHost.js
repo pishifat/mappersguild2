@@ -11,6 +11,8 @@ const task_2 = require("../../../interfaces/beatmap/task");
 const log_1 = require("../../models/log");
 const log_2 = require("../../../interfaces/log");
 const middlewares_1 = require("../../helpers/middlewares");
+const helpers_1 = require("../../helpers/helpers");
+const osuApi_1 = require("../../helpers/osuApi");
 const middlewares_2 = require("./middlewares");
 const user_1 = require("../../models/user");
 const quest_1 = require("../../models/quest");
@@ -116,21 +118,6 @@ beatmapsHostRouter.post('/:id/linkMission', middlewares_2.isValidBeatmap, middle
             .defaultPopulate()
             .orFail();
         const user = await user_1.UserModel.findById(req.session.mongoId).orFail();
-        if (mission.userMaximumRankedBeatmapsCount && mission.userMaximumRankedBeatmapsCount !== 0) {
-            if (user.rankedBeatmapsCount > mission.userMaximumRankedBeatmapsCount) {
-                return res.json({ error: 'You have too many ranked maps to do this quest. Give the newer mappers a chance :)' });
-            }
-        }
-        if (mission.userMaximumGlobalRank) {
-            if (user.globalRank < mission.userMaximumGlobalRank) {
-                return res.json({ error: `You're too high-ranked to accept this quest. Give worse players a chance :)` });
-            }
-        }
-        if (mission.userMaximumPp) {
-            if (user.pp > mission.userMaximumPp) {
-                return res.json({ error: `You're too high-ranked to accept this quest. Give worse players a chance :)` });
-            }
-        }
         if (!mission.modes.includes(beatmap.mode) && beatmap.mode !== beatmap_2.BeatmapMode.Hybrid) {
             return res.json({ error: 'Mode not allowed for this quest' });
         }
@@ -162,6 +149,19 @@ beatmapsHostRouter.post('/:id/setLink', middlewares_2.isValidBeatmap, middleware
         .orFail();
     res.json(b);
     log_1.LogModel.generate(req.session?.mongoId, `edited link on "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
+    // set submissionDate (not needed on beatmaps page and it takes extra time, so it's done after return)
+    const response = await osuApi_1.getClientCredentialsGrant();
+    if (!osuApi_1.isOsuResponseError(response)) {
+        const token = response.access_token;
+        if (url.indexOf('osu.ppy.sh/beatmapsets/') > -1) {
+            const osuId = helpers_1.findBeatmapsetId(url);
+            const bmInfo = await osuApi_1.getBeatmapsetV2Info(token, osuId);
+            if (!osuApi_1.isOsuResponseError(bmInfo)) {
+                b.submissionDate = new Date(bmInfo.submitted_date);
+                await b.save();
+            }
+        }
+    }
 });
 /* POST locks task from extended view. */
 beatmapsHostRouter.post('/:id/lockTask', middlewares_2.isValidBeatmap, middlewares_2.isBeatmapHost, async (req, res) => {

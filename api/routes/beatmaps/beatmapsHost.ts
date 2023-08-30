@@ -214,8 +214,11 @@ beatmapsHostRouter.post('/:id/setLink', isValidBeatmap, isBeatmapHost, isValidUr
         if (url.indexOf('osu.ppy.sh/beatmapsets/') > -1) {
             const osuId = findBeatmapsetId(url);
             const bmInfo = await getBeatmapsetV2Info(token, osuId);
-            b.submissionDate = bmInfo.submitted_date;
-            await b.save();
+
+            if (!isOsuResponseError(bmInfo)) {
+                b.submissionDate = new Date(bmInfo.submitted_date);
+                await b.save();
+            }
         }
     }
 });

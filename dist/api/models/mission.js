@@ -33,11 +33,14 @@ const missionSchema = new mongoose_1.Schema({
     openingAnnounced: { type: Boolean, default: false },
     closingAnnounced: { type: Boolean, default: false },
     winningBeatmaps: [{ type: 'ObjectId', ref: 'Beatmap' }],
+    invalidBeatmaps: [{ type: 'ObjectId', ref: 'Beatmap' }],
     modes: [{ type: String, required: true }],
     /* user requirements. optional and growing */
     userMaximumRankedBeatmapsCount: { type: Number },
     userMaximumGlobalRank: { type: Number },
     userMaximumPp: { type: Number },
+    beatmapEarliestSubmissionDate: { type: Date },
+    beatmapLatestSubmissionDate: { type: Date },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 missionSchema.virtual('associatedMaps', {
     ref: 'Beatmap',
@@ -68,6 +71,10 @@ const queryHelpers = {
                         path: 'mappers',
                     },
                 },
+            },
+            {
+                path: 'invalidBeatmaps',
+                select: 'id',
             },
         ]);
     },
