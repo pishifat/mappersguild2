@@ -23,7 +23,7 @@
         </a>
         <a class="mode-margin" href="#" @click.prevent="$emit('toggle', 'mania')">
             <i
-                v-bs-tooltip="'toggle osu!'"
+                v-bs-tooltip="'toggle osu!mania'"
                 class="fas fa-stream"
                 :class="modes.includes('mania') ? '' : 'text-secondary'"
             />
