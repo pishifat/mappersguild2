@@ -141,7 +141,7 @@ indexRouter.get('/callback', async (req, res) => {
         if (modeInfo.pp > pp) {
             pp = modeInfo.pp;
         }
-        if (modeInfo.global_rank > globalRank) {
+        if (modeInfo.global_rank < globalRank) {
             globalRank = modeInfo.global_rank;
         }
     }
