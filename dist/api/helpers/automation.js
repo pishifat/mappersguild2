@@ -34,8 +34,8 @@ function generateQuestDetails(quest) {
 function generateMissionDetails(mission) {
     let text = '';
     text += `\n[**${mission.name}**](https://mappersguild.com/missions?id=${mission.id})`;
-    text += `\n- **Objective:** ${mission.objective}`;
-    text += `\n- **Win condition:** ${mission.winCondition}`;
+    text += `\n**Objective:** ${mission.objective}`;
+    text += `\n**Win condition:** ${mission.winCondition}`;
     if (mission.userMaximumGlobalRank || mission.userMaximumRankedBeatmapsCount || mission.userMaximumPp || mission.userMaximumRankedBeatmapsCount === 0 || mission.beatmapEarliestSubmissionDate || mission.beatmapLatestSubmissionDate) {
         text += `\n\nTo participate in this quest, you must meet these requirements:`;
         if (mission.userMaximumRankedBeatmapsCount || mission.userMaximumRankedBeatmapsCount === 0) {

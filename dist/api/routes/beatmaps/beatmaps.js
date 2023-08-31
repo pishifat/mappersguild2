@@ -340,7 +340,7 @@ beatmapsRouter.get('/:id/findPoints', async (req, res) => {
         pointsInfo += ` + includes ${questBonus == 1 ? questBonus + ' quest bonus point' : questBonus + ' quest bonus points'} per difficulty`;
     }
     // calculate bn points
-    let bnPoints = points_1.getLengthNerf((length * beatmap.tasks.length) / 1.5);
+    let bnPoints = Math.round(points_1.getLengthNerf((length * beatmap.tasks.length) / 1.5) * 10) / 10;
     if (bnPoints < 1) {
         bnPoints = 1;
     }
