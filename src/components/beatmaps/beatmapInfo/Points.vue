@@ -10,12 +10,12 @@
                 >
                     Calculate points
                 </button>
-                <span v-if="isLoading" class="small text-secondary ms-2">
+                <div v-if="isLoading" class="small text-secondary ms-2">
                     calculating...
-                </span>
-                <span v-else-if="pointsInfo" class="small text-secondary ms-2">
+                </div>
+                <div v-else-if="pointsInfo" class="small text-secondary ms-2">
                     {{ pointsInfo }}
-                </span>
+                </div>
             </div>
             <div v-if="tasksPointsArray" class="col-sm-6">
                 <ul class="small text-secondary">
@@ -23,18 +23,19 @@
                         {{ value }}
                     </li>
                     <li>BN mod/nomination: {{ bnPoints }}</li>
+                    <li>Map host: 5</li>
                 </ul>
             </div>
             <div class="col-sm-6">
                 <ul v-if="usersPointsArrays" class="small text-secondary">
                     <li v-for="(value, i) in usersPointsArrays" :key="i">
-                        {{ usersPointsArrays[i][0] }}: {{ usersPointsArrays[i][1] }}
+                        {{ usersPointsArrays[i][0] }}: {{ usersPointsArrays[i][0] == beatmap.host.username ? usersPointsArrays[i][1] + 5 : usersPointsArrays[i][1] }}
                     </li>
                 </ul>
             </div>
             <div v-if="totalPoints" class="col-sm-12">
                 <span class="small text-secondary ms-2">
-                    total: {{ Math.round(totalPoints*10)/10 }}
+                    total: {{ Math.round(totalPoints*10)/10 + 5 }}
                 </span>
             </div>
         </div>
