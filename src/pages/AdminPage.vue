@@ -470,7 +470,9 @@
                                         </a>
                                     </td>
                                     <td scope="row" class="small">
-                                        <div v-if="artist.notes && artist.notes.length">{{ artist.notes }}</div>
+                                        <div v-if="artist.notes && artist.notes.length">
+                                            {{ artist.notes }}
+                                        </div>
                                     </td>
                                     <td scope="row">
                                         <a
@@ -608,9 +610,9 @@ export default defineComponent({
                 case 0:
                     return '';
                 case 1:
-                    return `.add-badge ${user.osuId} mg2018-${user.rank}star.png "Mappers' Guild ${placement} level contributor"`;
+                    return `.add-badge ${user.osuId} mg2018-${user.rank}star.png "Mappers' Guild ${placement} level contributor" https://osu.ppy.sh/wiki/Community/Mappers_Guild`;
                 default:
-                    return `.add-badge ${user.osuId} mg2018-${user.rank}star.png "Mappers' Guild ${placement} level contributor" --replace mg2018-${user.rank-1}star.png`;
+                    return `.add-badge ${user.osuId} mg2018-${user.rank}star.png "Mappers' Guild ${placement} level contributor" https://osu.ppy.sh/wiki/Community/Mappers_Guild --replace mg2018-${user.rank-1}star.png`;
             }
         },
         generateMetadata(song): string {
