@@ -88,7 +88,8 @@ const setQualified = node_cron_1.default.schedule('0 16 * * *', async () => {
         .find({
         url: { $exists: true },
         $and: statusQuery,
-    });
+    })
+        .defaultPopulate();
     const response = await osuApi_1.getClientCredentialsGrant();
     if (!osuApi_1.isOsuResponseError(response)) {
         const token = response.access_token;
@@ -121,6 +122,8 @@ const setQualified = node_cron_1.default.schedule('0 16 * * *', async () => {
                                 }
                             }
                         }
+                        // add bns to modders (after above, in case a bn didn't post anything)
+                        await helpers_1.setNominators(bm, bmInfo);
                     }
                     /*  osu:    Pending
                         MG:     Qualified
@@ -574,7 +577,6 @@ const validateRankedBeatmaps = node_cron_1.default.schedule('0 4 * * *', async (
     if (!osuApi_1.isOsuResponseError(response)) {
         const token = response.access_token;
         for (const beatmap of beatmaps) {
-            console.log(beatmap.id);
             const osuId = helpers_1.findBeatmapsetId(beatmap.url);
             const bmInfo = await osuApi_1.getBeatmapsetV2Info(token, osuId);
             await helpers_1.sleep(250);
