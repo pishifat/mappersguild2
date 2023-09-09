@@ -103,7 +103,8 @@ const setQualified = cron.schedule('0 16 * * *', async () => { /* 9:00 AM PST */
         .find({
             url: { $exists: true },
             $and: statusQuery,
-        });
+        })
+        .defaultPopulate();
 
     const response = await getClientCredentialsGrant();
 
@@ -145,6 +146,9 @@ const setQualified = cron.schedule('0 16 * * *', async () => { /* 9:00 AM PST */
                                 }
                             }
                         }
+
+                        // add bns to modders (after above, in case a bn didn't post anything)
+                        await setNominators(bm, bmInfo);
                     }
 
                     /*  osu:    Pending
@@ -680,7 +684,6 @@ const validateRankedBeatmaps = cron.schedule('0 4 * * *', async () => { /* 9:00 
         const token = response.access_token;
 
         for (const beatmap of beatmaps) {
-            console.log(beatmap.id);
             const osuId = findBeatmapsetId(beatmap.url);
             const bmInfo: any = await getBeatmapsetV2Info(token, osuId);
             await sleep(250);
