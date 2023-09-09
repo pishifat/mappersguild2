@@ -77,9 +77,9 @@ export default defineComponent({
                     return false;
                 }
 
-                if ((this.mission.userMaximumRankedBeatmapsCount || this.mission.userMaximumRankedBeatmapsCount == 0) && (this.loggedInUser.rankedBeatmapsCount > this.mission.userMaximumRankedBeatmapsCount)) {
+                /*if ((this.mission.userMaximumRankedBeatmapsCount || this.mission.userMaximumRankedBeatmapsCount == 0) && (this.loggedInUser.rankedBeatmapsCount > this.mission.userMaximumRankedBeatmapsCount)) {
                     return false;
-                }
+                }*/
 
                 if (this.mission.userMaximumGlobalRank && (this.loggedInUser.globalRank < this.mission.userMaximumGlobalRank)) {
                     return false;
