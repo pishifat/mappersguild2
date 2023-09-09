@@ -5,9 +5,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const middlewares_1 = require("../../helpers/middlewares");
+const osuApi_1 = require("../../helpers/osuApi");
 const user_1 = require("../../models/user");
 const points_1 = require("../../helpers/points");
 const user_2 = require("../../../interfaces/user");
+const helpers_1 = require("../../helpers/helpers");
 const adminUsersRouter = express_1.default.Router();
 adminUsersRouter.use(middlewares_1.isLoggedIn);
 adminUsersRouter.use(middlewares_1.isAdmin);
@@ -93,5 +95,22 @@ adminUsersRouter.post('/findInputUsers', async (req, res) => {
         users.push(user);
     }
     res.json({ users });
+});
+/* POST search user through osu api */
+adminUsersRouter.post('/searchUser', async (req, res) => {
+    const osuId = parseInt(req.body.osuId);
+    if (isNaN(osuId)) {
+        return res.json({ error: 'invalid osu id' });
+    }
+    const response = await osuApi_1.getClientCredentialsGrant();
+    if (osuApi_1.isOsuResponseError(response)) {
+        return res.json(helpers_1.defaultErrorMessage);
+    }
+    const token = response.access_token;
+    const userInfo = await osuApi_1.getUserInfoFromId(token, osuId);
+    if (osuApi_1.isOsuResponseError(userInfo)) {
+        return res.json(helpers_1.defaultErrorMessage);
+    }
+    res.json(userInfo);
 });
 exports.default = adminUsersRouter;

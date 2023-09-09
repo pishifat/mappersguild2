@@ -4,6 +4,7 @@ import { getUserInfoFromId, getClientCredentialsGrant, isOsuResponseError } from
 import { UserModel } from '../../models/user';
 import { updateUserPoints } from '../../helpers/points';
 import { UserGroup, User } from '../../../interfaces/user';
+import { defaultErrorMessage } from '../../helpers/helpers';
 
 const adminUsersRouter = express.Router();
 
