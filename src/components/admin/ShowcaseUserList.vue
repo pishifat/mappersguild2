@@ -1,7 +1,10 @@
 <template>
-    <div class="container card card-body py-1 my-2">
+    <div class="container card card-body py-1">
+        <h5 class="mt-2">
+            FA showcase users by mode
+        </h5>
         <button class="btn btn-sm w-100 btn-outline-info mb-3" @click="findShowcaseUsers($event)">
-            Load FA showcase users
+            Load users
         </button>
 
         <div v-if="osuUsers.length && taikoUsers.length && catchUsers.length && maniaUsers.length" class="row">

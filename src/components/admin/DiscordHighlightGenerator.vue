@@ -1,13 +1,16 @@
 <template>
-    <div class="container card card-body py-1 mb-4">
+    <div class="container card card-body py-1">
+        <h5 class="mt-2">
+            Generate Discord highlights
+        </h5>
         <textarea
             v-model="inputUsers"
-            class="form-control form-control-sm mx-2 mt-2 w-100"
+            class="form-control form-control-sm mx-2 mb-2 w-100"
             type="text"
             autocomplete="off"
             placeholder="usernames separated by newlines..."
         />
-        <button class="btn btn-sm w-100 btn-outline-info" @click="generateDiscordHighlights($event)">
+        <button class="btn btn-sm w-100 btn-outline-info mb-2" @click="generateDiscordHighlights($event)">
             Generate Discord highlights
         </button>
         <div v-if="users.length">

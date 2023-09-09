@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="container card card-body py-3">
+        <div class="container card card-body py-3 mt-2">
             <h5>Add restricted user</h5>
             <div class="text-secondary">
                 This adds a user to the Mappers' Guild database manually. Ensure name and osu ID are correct. If they're not, there will be problems if the user is unrestricted.

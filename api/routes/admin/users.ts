@@ -1,5 +1,6 @@
 import express from 'express';
 import { isLoggedIn, isAdmin, isSuperAdmin } from '../../helpers/middlewares';
+import { getUserInfoFromId, getClientCredentialsGrant, isOsuResponseError } from '../../helpers/osuApi';
 import { UserModel } from '../../models/user';
 import { updateUserPoints } from '../../helpers/points';
 import { UserGroup, User } from '../../../interfaces/user';
@@ -113,6 +114,30 @@ adminUsersRouter.post('/findInputUsers', async (req, res) => {
     }
 
     res.json({ users });
+});
+
+/* POST search user through osu api */
+adminUsersRouter.post('/searchUser', async (req, res) => {
+    const osuId = parseInt(req.body.osuId);
+
+    if (isNaN(osuId)) {
+        return res.json({ error: 'invalid osu id' });
+    }
+
+    const response = await getClientCredentialsGrant();
+
+    if (isOsuResponseError(response)) {
+        return res.json(defaultErrorMessage);
+    }
+
+    const token = response.access_token;
+    const userInfo = await getUserInfoFromId(token, osuId);
+
+    if (isOsuResponseError(userInfo)) {
+        return res.json(defaultErrorMessage);
+    }
+
+    res.json(userInfo);
 });
 
 export default adminUsersRouter;

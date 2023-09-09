@@ -1,27 +1,47 @@
 <template>
     <div>
         <div class="container card card-body">
-            <h4 class="mt-2">
-                Groups
+            <h4>
+                All users by group
             </h4>
-            <admin-user-table
-                :grouped-users="admins"
-                :group="'admin'"
-            />
-            <admin-user-table
-                :grouped-users="showcaseUsers"
-                :group="'secret'"
-            />
-            <admin-user-table
-                :grouped-users="normalUsers"
-                :group="'user'"
-            />
+            <button class="btn btn-sm w-100 btn-outline-info" @click="loadUsers($event)">
+                Load users
+            </button>
+
+            <div v-if="users.length">
+                <admin-user-table
+                    :grouped-users="admins"
+                    :group="'admin'"
+                />
+                <admin-user-table
+                    :grouped-users="showcaseUsers"
+                    :group="'secret'"
+                />
+                <admin-user-table
+                    :grouped-users="normalUsers"
+                    :group="'user'"
+                />
+            </div>
         </div>
 
-        <showcase-user-list />
-        <contest-helper-user-list />
+        <hr />
 
-        <discord-highlight-generator />
+        <osu-api-user-search
+            class="mb-2"
+        />
+        <add-restricted-user
+            class="mb-2"
+        />
+        <hr />
+        <showcase-user-list
+            class="mb-2"
+        />
+        <contest-helper-user-list
+            class="mb-2"
+        />
+        <discord-highlight-generator
+            class="mb-2"
+        />
     </div>
 </template>
 
@@ -31,9 +51,11 @@ import AdminUserTable from './AdminUserTable.vue';
 import ShowcaseUserList from '../../components/admin/ShowcaseUserList.vue';
 import ContestHelperUserList from '../../components/admin/ContestHelperUserList.vue';
 import DiscordHighlightGenerator from '../../components/admin/DiscordHighlightGenerator.vue';
+import OsuApiUserSearch from '../../components/admin/OsuApiUserSearch.vue';
 import { User, UserGroup } from '../../../interfaces/user';
 import { mapState } from 'vuex';
 import usersAdminModule from '@store/admin/users';
+import AddRestrictedUser from '@components/mentorship/AddRestrictedUser.vue';
 
 export default defineComponent({
     components: {
@@ -41,6 +63,8 @@ export default defineComponent({
         ShowcaseUserList,
         ContestHelperUserList,
         DiscordHighlightGenerator,
+        OsuApiUserSearch,
+        AddRestrictedUser,
     },
     data () {
         return {
@@ -74,12 +98,14 @@ export default defineComponent({
             this.$store.unregisterModule('usersAdmin');
         }
     },
-    async created() {
-        const users = await this.$http.initialRequest<User[]>('/admin/users/load');
+    methods: {
+        async loadUsers(e) {
+            const users = await this.$http.executeGet<User[]>('/admin/users/load', e);
 
-        if (!this.$http.isError(users)) {
-            this.$store.commit('setUsers', users);
-        }
+            if (!this.$http.isError(users)) {
+                this.$store.commit('setUsers', users);
+            }
+        },
     },
 });
 </script>
