@@ -77,7 +77,7 @@
                     </a>
                 </span>
                 <!-- publicly display as winner -->
-                <span v-if="!isAdminPage && mission.status == 'closed' && isWinningBeatmap(map.id)" class="text-success">
+                <span v-if="!isAdminPage && isWinningBeatmap(map.id)" class="text-success">
                     (winner)
                 </span>
                 <span v-if="!isAdminPage && isInvalidBeatmap(map.id)" class="text-danger small">
