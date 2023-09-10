@@ -124,7 +124,7 @@ artistsRouter.post('/toggleHasNewSongs/:id', async (req, res) => {
 
 /* POST toggle isUpToDate */
 artistsRouter.post('/toggleIsUpToDate/:id', async (req, res) => {
-    let a = await FeaturedArtistModel.findById(req.params.id);
+    let a = await FeaturedArtistModel.findById(req.params.id).orFail();
 
     if (!req.body.value && !a.isCommission && !a?.hasNewSongs) {
         return res.json({ error: `Can't be not-up-to-date without commission or pending songs!` });
@@ -140,7 +140,9 @@ artistsRouter.post('/toggleIsUpToDate/:id', async (req, res) => {
             songsReceived: false,
             songsTimed: false,
             projectedRelease: undefined,
-        }).defaultPopulate();
+        })
+        .defaultPopulate()
+        .orFail();
 
     res.json(a);
 });
