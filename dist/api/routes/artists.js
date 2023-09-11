@@ -16,12 +16,27 @@ artistsRouter.use(middlewares_1.isAdmin);
 const defaultOsuBeatmapPopulate = [
     { path: 'featuredArtists', select: 'label osuId' },
 ];
-artistsRouter.get('/relevantInfo', async (req, res) => {
-    const a = await featuredArtist_1.FeaturedArtistModel
-        .find({})
-        .defaultPopulate()
-        .sort({ label: 1 });
-    res.json({ artists: a });
+/* GET mostly relevant artists */
+artistsRouter.get('/loadArtists', async (req, res) => {
+    res.json(await featuredArtist_1.FeaturedArtistModel
+        .find({
+        isContacted: true,
+        isResponded: true,
+        isRejected: { $ne: true },
+    })
+        .defaultPopulate());
+});
+/* GET the rest of them */
+artistsRouter.get('/loadOtherArtists', async (req, res) => {
+    res.json(await featuredArtist_1.FeaturedArtistModel
+        .find({
+        $or: [
+            { isContacted: { $ne: true } },
+            { isResponded: { $ne: true } },
+            { isRejected: true },
+        ],
+    })
+        .defaultPopulate());
 });
 /* POST new artist. */
 artistsRouter.post('/create', async (req, res) => {
@@ -106,6 +121,7 @@ artistsRouter.post('/toggleIsUpToDate/:id', async (req, res) => {
     a = await featuredArtist_1.FeaturedArtistModel
         .findByIdAndUpdate(req.params.id, {
         isUpToDate: req.body.value,
+        isResponded: false,
         contractSent: false,
         artistSigned: false,
         ppyPaid: false,
@@ -196,8 +212,7 @@ artistsRouter.post('/setAllAsRejected/', async (req, res) => {
     }
     const a = await featuredArtist_1.FeaturedArtistModel
         .find({})
-        .defaultPopulate()
-        .sort({ updatedAt: -1 });
+        .defaultPopulate();
     res.json(a);
 });
 /* POST generate OsuBeatmaps from csv file */
