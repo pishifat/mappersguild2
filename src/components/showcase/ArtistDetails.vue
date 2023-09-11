@@ -45,7 +45,7 @@
                 <div v-if="artist.projectedRelease">
                     {{ month }} (deadline estimate)
                 </div>
-                <div v-else>
+                <div v-else-if="!artist.osuId">
                     Deadline hasn't been set yet.
                 </div>
                 <div v-if="artist.offeredUsers && artist.offeredUsers.length && loggedInUser.group == 'admin'">

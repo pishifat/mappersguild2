@@ -65,10 +65,16 @@ export default defineComponent({
         }
     },
     async created () {
-        const res: any = await this.$http.initialRequest('/artists/relevantInfo');
+        const res: any = await this.$http.initialRequest('/artists/loadArtists');
 
         if (res) {
-            this.$store.commit('setArtists', res.artists);
+            this.$store.commit('setArtists', res);
+        }
+
+        const res2: any = await this.$http.executeGet('/artists/loadOtherArtists');
+
+        if (res2) {
+            this.$store.commit('addArtists', res2);
         }
     },
 });

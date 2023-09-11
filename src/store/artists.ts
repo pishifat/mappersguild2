@@ -9,6 +9,9 @@ export default {
         setArtists (state, artists: FeaturedArtist[]): void {
             state.artists = artists;
         },
+        addArtists (state, artists: FeaturedArtist[]): void {
+            state.artists = state.artists.concat(artists);
+        },
         setFilterValue (state, value: string): void {
             state.filterValue = value;
         },
