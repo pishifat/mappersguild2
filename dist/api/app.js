@@ -44,6 +44,7 @@ const showcase_1 = __importDefault(require("./routes/showcase"));
 const parties_1 = __importDefault(require("./routes/parties"));
 const mentorship_1 = __importDefault(require("./routes/mentorship"));
 const missions_2 = __importDefault(require("./routes/missions"));
+const interOp_1 = __importDefault(require("./routes/interOp"));
 const app = express_1.default();
 const MongoStore = connect_mongo_1.default(express_session_1.default);
 // settings/middlewares
@@ -100,6 +101,7 @@ app.use('/admin/beatmaps', beatmaps_2.default);
 app.use('/admin/featuredArtists', featuredArtists_2.default);
 app.use('/admin/quests', quests_2.default);
 app.use('/admin/missions', missions_1.default);
+app.use('/interOp', interOp_1.default);
 // catch 404
 app.use((req, res) => {
     res.status(404);

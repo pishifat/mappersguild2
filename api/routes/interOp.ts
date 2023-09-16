@@ -1,14 +1,14 @@
 import express from 'express';
 import config from '../../config.json';
 import { UserModel } from '../models/user';
+import { UserGroup } from '../../interfaces/user';
 
-const router = express.Router();
+const interOpRouter = express.Router();
 
 /* AUTHENTICATION */
-router.use((req, res, next) => {
+interOpRouter.use((req, res, next) => {
     const secret = req.header('secret');
     const username = req.header('username');
-    console.log('ee');
 
     if (!secret || !username || config.interOpAccess[username].secret !== secret) {
         return res.status(401).send('Invalid key');
@@ -18,9 +18,9 @@ router.use((req, res, next) => {
 });
 
 /* GET users */
-router.get('/users', async (_, res) => {
+interOpRouter.get('/users', async (_, res) => {
     console.log('here');
-    res.json(await UserModel.find({ group: 'admin' }));
+    res.json(await UserModel.find({ group: UserGroup.Admin }));
 });
 
-module.exports = router;
+export default interOpRouter;
