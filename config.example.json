@@ -28,5 +28,11 @@
     "rianaWebhook": {
         "id": "",
         "token": ""
+    },
+    "interOpAccess": {
+        "USERNAME": {
+            "mongoId": "",
+            "secret": ""
+        }
     }
 }

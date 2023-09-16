@@ -41,6 +41,7 @@ import showcaseRouter from './routes/showcase';
 import partiesRouter from './routes/parties';
 import mentorshipRouter from './routes/mentorship';
 import missionsRouter from './routes/missions';
+import interOpRouter from './routes/interOp';
 
 const app = express();
 const MongoStore = MongoStoreSession(session);
@@ -107,6 +108,7 @@ app.use('/admin/beatmaps', adminBeatmapsRouter);
 app.use('/admin/featuredArtists', adminFeaturedArtistsRouter);
 app.use('/admin/quests', adminQuestsRouter);
 app.use('/admin/missions', adminMissionsRouter);
+app.use('/interOp', interOpRouter);
 
 // catch 404
 app.use((req, res) => {
