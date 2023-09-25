@@ -307,7 +307,7 @@ const sendActionNotifications = node_cron_1.default.schedule('0 23 * * *', async
     scheduled: false,
 });
 /* open/close announcements and mark missions as inactive */
-const processMissions = node_cron_1.default.schedule('0 0 * * *', async () => {
+const processMissions = node_cron_1.default.schedule('0 19 * * *', async () => {
     const today = new Date();
     const missions = await mission_1.MissionModel
         .find({
@@ -373,6 +373,17 @@ const processMissions = node_cron_1.default.schedule('0 0 * * *', async () => {
             await mission_1.MissionModel.findByIdAndUpdate(mission.id, { openingAnnounced: true });
         }
         else if (mission.status == mission_2.MissionStatus.Closed && !mission.closingAnnounced && mission.winningBeatmaps && mission.winningBeatmaps.length) {
+            const processedIds = [];
+            for (const beatmap of mission.winningBeatmaps) {
+                for (const task of beatmap.tasks) {
+                    for (const mapper of task.mappers) {
+                        if (!processedIds.includes(mapper.id)) {
+                            processedIds.push(mapper.id);
+                            points_1.updateUserPoints(mapper.id);
+                        }
+                    }
+                }
+            }
             await discordApi_1.webhookPost([{
                     ...await helpers_1.generateBotAuthorWebhook(),
                     color: discordApi_1.webhookColors.lightOrange,

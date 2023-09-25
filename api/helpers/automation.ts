@@ -444,7 +444,7 @@ const processMissions = cron.schedule('0 19 * * *', async () => { /* 5:00 PM PST
 
             await MissionModel.findByIdAndUpdate(mission.id, { openingAnnounced: true });
         } else if (mission.status == MissionStatus.Closed && !mission.closingAnnounced && mission.winningBeatmaps && mission.winningBeatmaps.length) {
-            const processedIds = [];
+            const processedIds: string[] = [];
 
             for (const beatmap of mission.winningBeatmaps) {
                 for (const task of beatmap.tasks) {
