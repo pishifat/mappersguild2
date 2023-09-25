@@ -368,7 +368,7 @@ const sendActionNotifications = cron.schedule('0 23 * * *', async () => { /* 4:0
 });
 
 /* open/close announcements and mark missions as inactive */
-const processMissions = cron.schedule('0 19 * * *', async () => { /* 5:00 PM PST */
+const processMissions = cron.schedule('0 20 * * *', async () => { /* 5:00 PM PST */
     const today = new Date();
 
     const missions = await MissionModel
