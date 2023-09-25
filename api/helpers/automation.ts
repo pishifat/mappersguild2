@@ -368,7 +368,7 @@ const sendActionNotifications = cron.schedule('0 23 * * *', async () => { /* 4:0
 });
 
 /* open/close announcements and mark missions as inactive */
-const processMissions = cron.schedule('0 0 * * *', async () => { /* 5:00 PM PST */
+const processMissions = cron.schedule('0 19 * * *', async () => { /* 5:00 PM PST */
     const today = new Date();
 
     const missions = await MissionModel
@@ -444,6 +444,19 @@ const processMissions = cron.schedule('0 0 * * *', async () => { /* 5:00 PM PST 
 
             await MissionModel.findByIdAndUpdate(mission.id, { openingAnnounced: true });
         } else if (mission.status == MissionStatus.Closed && !mission.closingAnnounced && mission.winningBeatmaps && mission.winningBeatmaps.length) {
+            const processedIds = [];
+
+            for (const beatmap of mission.winningBeatmaps) {
+                for (const task of beatmap.tasks) {
+                    for (const mapper of task.mappers) {
+                        if (!processedIds.includes(mapper.id)) {
+                            processedIds.push(mapper.id);
+                            updateUserPoints(mapper.id);
+                        }
+                    }
+                }
+            }
+
             await webhookPost([{
                 ...await generateBotAuthorWebhook(),
                 color: webhookColors.lightOrange,
