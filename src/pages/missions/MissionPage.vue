@@ -4,12 +4,19 @@
         <mission-information />
         <div class="radial-divisor" />
         <div class="container card card-body my-2">
-            <h4>Active priority quests</h4>
-            <mission-card
-                v-for="mission in openMissions"
-                :key="mission.id"
-                :mission="mission"
-            />
+            <h4>
+                <a href="#openMissions" data-bs-toggle="collapse" @click.prevent>
+                    Active priority quests
+                    <i class="fas fa-angle-down" />
+                </a>
+            </h4>
+            <div id="openMissions" class="collapse show">
+                <mission-card
+                    v-for="mission in openMissions"
+                    :key="mission.id"
+                    :mission="mission"
+                />
+            </div>
         </div>
         <div v-if="closedMissions && closedMissions.length" class="container card card-body my-4">
             <h4>
