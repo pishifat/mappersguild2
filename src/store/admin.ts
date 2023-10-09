@@ -284,6 +284,13 @@ const store: Module<AdminState, MainState> = {
                 contest.isFeaturedArtistContest = payload.isFeaturedArtistContest;
             }
         },
+        updateSkipWebhook (state, payload): void {
+            const contest = state.actionContests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                contest.skipWebhook = payload.skipWebhook;
+            }
+        },
 
         // artists
         updateNotes (state, payload): void {

@@ -29,6 +29,7 @@ const contestSchema = new Schema<Contest>({
     isFeaturedArtistContest: { type: Boolean, default: false },
     isEligibleForPoints: { type: Boolean, default: true }, // for multi-part contests that use FA
     useRawScoring: { type: Boolean },
+    skipWebhook: { type: Boolean },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const ContestModel = mongoose.model<Contest>('Contest', contestSchema);

@@ -33,6 +33,18 @@ adminContestsRouter.post('/:id/toggleIsEligibleForPoints', async (req, res) => {
     res.json({ isEligibleForPoints });
 });
 
+/* POST toggle skipWebhook */
+adminContestsRouter.post('/:id/toggleSkipWebhook', async (req, res) => {
+    const skipWebhook = req.body.skipWebhook;
+
+    await ContestModel
+        .findByIdAndUpdate(req.params.id, { skipWebhook })
+        .populate({ path: 'creators' })
+        .orFail();
+
+    res.json({ skipWebhook });
+});
+
 /* POST update contest isApproved */
 adminContestsRouter.post('/:id/toggleIsApproved', async (req, res) => {
     const isApproved = req.body.isApproved;
@@ -44,42 +56,44 @@ adminContestsRouter.post('/:id/toggleIsApproved', async (req, res) => {
 
     res.json({ isApproved });
 
-    webhookPost([{
-        title: `New ${contest.mode == 'osu' ? 'osu!' : 'osu!' + contest.mode} beatmapping contest`,
-        author: {
-            name: `${contest.creators[0].username}`,
-            url: `https://osu.ppy.sh/users/${contest.creators[0].osuId}`,
-            icon_url: `https://a.ppy.sh/${contest.creators[0].osuId}`,
-        },
-        color: webhookColors.pink,
-        description: `**[${contest.name}](${contest.url})**\n[Mappers' Guild listing](http://mappersguild.com/contests/listing?contest=${contest.id})\n\n` + `${contest.description.length > 250 ? contest.description.slice(0,250) + '... *(truncated)*' : contest.description}`,
-    }]);
+    if (!contest.skipWebhook) {
+        webhookPost([{
+            title: `New ${contest.mode == 'osu' ? 'osu!' : 'osu!' + contest.mode} beatmapping contest`,
+            author: {
+                name: `${contest.creators[0].username}`,
+                url: `https://osu.ppy.sh/users/${contest.creators[0].osuId}`,
+                icon_url: `https://a.ppy.sh/${contest.creators[0].osuId}`,
+            },
+            color: webhookColors.pink,
+            description: `**[${contest.name}](${contest.url})**\n[Mappers' Guild listing](http://mappersguild.com/contests/listing?contest=${contest.id})\n\n` + `${contest.description.length > 250 ? contest.description.slice(0,250) + '... *(truncated)*' : contest.description}`,
+        }]);
 
-    // Regraz webhook
-    externalWebhookPost([{
-        title: `New ${contest.mode == 'osu' ? 'osu!' : 'osu!' + contest.mode} beatmapping contest`,
-        author: {
-            name: `${contest.creators[0].username}`,
-            url: `https://osu.ppy.sh/users/${contest.creators[0].osuId}`,
-            icon_url: `https://a.ppy.sh/${contest.creators[0].osuId}`,
-        },
-        color: webhookColors.pink,
-        description: `**[${contest.name}](${contest.url})**\n[Mappers' Guild listing](http://mappersguild.com/contests/listing?contest=${contest.id})\n\n` + `${contest.description.length > 250 ? contest.description.slice(0,250) + '... *(truncated)*' : contest.description}`,
-    }],
-    'regraz');
+        // Regraz webhook
+        externalWebhookPost([{
+            title: `New ${contest.mode == 'osu' ? 'osu!' : 'osu!' + contest.mode} beatmapping contest`,
+            author: {
+                name: `${contest.creators[0].username}`,
+                url: `https://osu.ppy.sh/users/${contest.creators[0].osuId}`,
+                icon_url: `https://a.ppy.sh/${contest.creators[0].osuId}`,
+            },
+            color: webhookColors.pink,
+            description: `**[${contest.name}](${contest.url})**\n[Mappers' Guild listing](http://mappersguild.com/contests/listing?contest=${contest.id})\n\n` + `${contest.description.length > 250 ? contest.description.slice(0,250) + '... *(truncated)*' : contest.description}`,
+        }],
+        'regraz');
 
-    // Riana webhook
-    externalWebhookPost([{
-        title: `New ${contest.mode == 'osu' ? 'osu!' : 'osu!' + contest.mode} beatmapping contest`,
-        author: {
-            name: `${contest.creators[0].username}`,
-            url: `https://osu.ppy.sh/users/${contest.creators[0].osuId}`,
-            icon_url: `https://a.ppy.sh/${contest.creators[0].osuId}`,
-        },
-        color: webhookColors.pink,
-        description: `**[${contest.name}](${contest.url})**\n[Mappers' Guild listing](http://mappersguild.com/contests/listing?contest=${contest.id})\n\n` + `${contest.description.length > 250 ? contest.description.slice(0,250) + '... *(truncated)*' : contest.description}`,
-    }],
-    'riana');
+        // Riana webhook
+        externalWebhookPost([{
+            title: `New ${contest.mode == 'osu' ? 'osu!' : 'osu!' + contest.mode} beatmapping contest`,
+            author: {
+                name: `${contest.creators[0].username}`,
+                url: `https://osu.ppy.sh/users/${contest.creators[0].osuId}`,
+                icon_url: `https://a.ppy.sh/${contest.creators[0].osuId}`,
+            },
+            color: webhookColors.pink,
+            description: `**[${contest.name}](${contest.url})**\n[Mappers' Guild listing](http://mappersguild.com/contests/listing?contest=${contest.id})\n\n` + `${contest.description.length > 250 ? contest.description.slice(0,250) + '... *(truncated)*' : contest.description}`,
+        }],
+        'riana');
+    }
 });
 
 export default adminContestsRouter;

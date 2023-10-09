@@ -24,6 +24,15 @@
                         Toggle
                     </button>
                 </p>
+                <p class="row">
+                    <span class="col-sm-6">
+                        Skip webhook:
+                        <span class="text-danger me-2">{{ contest.skipWebhook ? 'true' : 'false' }}</span>
+                    </span>
+                    <button class="btn btn-sm btn-outline-info ms-3 w-25" @click="toggleSkipWebhook($event)">
+                        Toggle
+                    </button>
+                </p>
                 <hr />
                 <p class="row">
                     <span class="col-sm-6">
@@ -107,6 +116,24 @@ export default defineComponent({
                 this.$store.commit('updateIsEligibleForPoints', {
                     contestId: this.contest.id,
                     isEligibleForPoints: res.isEligibleForPoints,
+                });
+            }
+        },
+        async toggleSkipWebhook(e): Promise<void> {
+            const res: any = await this.$http.executePost(
+                `/admin/contests/${this.contest.id}/toggleSkipWebhook`,
+                { skipWebhook: !this.contest.skipWebhook },
+                e
+            );
+
+            if (res) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `set skipWebhook to ${res.skipWebhook}`,
+                    type: 'info',
+                });
+                this.$store.commit('updateSkipWebhook', {
+                    contestId: this.contest.id,
+                    skipWebhook: res.skipWebhook,
                 });
             }
         },

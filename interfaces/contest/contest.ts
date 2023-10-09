@@ -43,4 +43,5 @@ export interface Contest {
     isFeaturedArtistContest: boolean;
     isEligibleForPoints: boolean;
     useRawScoring: boolean;
+    skipWebhook: boolean;
 }
