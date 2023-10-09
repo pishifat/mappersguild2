@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isEditable = exports.isContestCreator = void 0;
+exports.isComplete = exports.isEditable = exports.isContestCreator = void 0;
 const contest_1 = require("../../../interfaces/contest/contest");
 const contest_2 = require("../../models/contest/contest");
 async function isContestCreator(req, res, next) {
@@ -29,3 +29,14 @@ async function isEditable(req, res, next) {
     next();
 }
 exports.isEditable = isEditable;
+async function isComplete(req, res, next) {
+    const id = req.params.id;
+    const contest = await contest_2.ContestModel
+        .findById(id)
+        .orFail();
+    if (contest.status !== contest_1.ContestStatus.Complete) {
+        return res.json({ error: 'Cannot load this on incomplete contests' });
+    }
+    next();
+}
+exports.isComplete = isComplete;

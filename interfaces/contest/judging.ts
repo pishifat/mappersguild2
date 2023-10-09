@@ -4,6 +4,7 @@ import { JudgingScore } from './judgingScore';
 import { Document } from 'mongoose';
 
 export interface UserScore {
+    submissionId: string;
     creator: User;
     criteriaSum: {
         criteriaId: string;
