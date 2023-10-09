@@ -39,6 +39,12 @@
                 :is-featured-artist-contest="contest.isFeaturedArtistContest"
             />
 
+            <use-raw-scoring-toggle
+                class="mb-2"
+                :contest-id="contest.id"
+                :use-raw-scoring="contest.useRawScoring"
+            />
+
             <date-info
                 class="mb-2"
                 :contest-id="contest.id"
@@ -287,6 +293,7 @@ import ScreeningVoteCount from './screening/ScreeningVoteCount.vue';
 import CriteriaSelection from './judging/CriteriaSelection.vue';
 import JudgingResults from './judging/JudgingResults.vue';
 import FeaturedArtistContestToggle from './FeaturedArtistContestToggle.vue';
+import UseRawScoringToggle from './UseRawScoringToggle.vue';
 
 export default defineComponent({
     name: 'ContestInfo',
@@ -312,6 +319,7 @@ export default defineComponent({
         CriteriaSelection,
         JudgingResults,
         FeaturedArtistContestToggle,
+        UseRawScoringToggle,
     },
     props: {
         contest: {

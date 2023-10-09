@@ -42,4 +42,5 @@ export interface Contest {
     bannerUrl: string;
     isFeaturedArtistContest: boolean;
     isEligibleForPoints: boolean;
+    useRawScoring: boolean;
 }

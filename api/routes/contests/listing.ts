@@ -1,7 +1,7 @@
 import express from 'express';
 import { isLoggedIn, isValidUrl } from '../../helpers/middlewares';
 import { devWebhookPost, webhookColors } from '../../helpers/discordApi';
-import { isContestCreator, isEditable } from './middlewares';
+import { isContestCreator, isEditable, isComplete } from './middlewares';
 import { Contest, ContestModel } from '../../models/contest/contest';
 import { UserModel } from '../../models/user';
 import { User, UserGroup } from '../../../interfaces/user';
@@ -247,6 +247,18 @@ listingRouter.post('/:id/toggleIsFeaturedArtistContest', isContestCreator, isEdi
     await contest.save();
 
     res.json(contest.isFeaturedArtistContest);
+});
+
+/* POST toggle isFeaturedArtistContest */
+listingRouter.post('/:id/toggleUseRawScoring', isContestCreator, isEditable, async (req, res) => {
+    const contest = await ContestModel
+        .findById(req.params.id)
+        .orFail();
+
+    contest.useRawScoring = !contest.useRawScoring;
+    await contest.save();
+
+    res.json(contest.useRawScoring);
 });
 
 /* POST update contest status */
@@ -827,41 +839,44 @@ export function calculateContestScores(contest?: Contest): { usersScores: UserSc
     }
 
     for (const submission of submissions) {
-        const userScore: UserScore = {
-            creator: submission.creator,
-            criteriaSum: [],
-            judgingSum: [],
-            rawFinalScore: 0,
-            standardizedFinalScore: 0,
-        };
+        if (submission.judgings && submission.judgings.length) {
+            const userScore: UserScore = {
+                submissionId: submission.id,
+                creator: submission.creator,
+                criteriaSum: [],
+                judgingSum: [],
+                rawFinalScore: 0,
+                standardizedFinalScore: 0,
+            };
 
-        for (const judging of submission.judgings) {
-            let judgeSum = 0;
+            for (const judging of submission.judgings) {
+                let judgeSum = 0;
 
-            for (const judgingScore of judging.judgingScores) {
-                judgeSum += judgingScore.score;
-                const i = userScore.criteriaSum.findIndex(j => j.criteriaId === judgingScore.criteria.id);
+                for (const judgingScore of judging.judgingScores) {
+                    judgeSum += judgingScore.score;
+                    const i = userScore.criteriaSum.findIndex(j => j.criteriaId === judgingScore.criteria.id);
 
-                if (i !== -1) {
-                    userScore.criteriaSum[i].sum += judgingScore.score;
-                } else {
-                    userScore.criteriaSum.push({
-                        criteriaId: judgingScore.criteria.id,
-                        sum: judgingScore.score,
-                        name: judgingScore.criteria.name,
-                    });
+                    if (i !== -1) {
+                        userScore.criteriaSum[i].sum += judgingScore.score;
+                    } else {
+                        userScore.criteriaSum.push({
+                            criteriaId: judgingScore.criteria.id,
+                            sum: judgingScore.score,
+                            name: judgingScore.criteria.name,
+                        });
+                    }
                 }
+
+                userScore.judgingSum.push({
+                    judgeId: judging.judge.id,
+                    sum: judgeSum,
+                    standardized: 0,
+                });
             }
 
-            userScore.judgingSum.push({
-                judgeId: judging.judge.id,
-                sum: judgeSum,
-                standardized: 0,
-            });
+            userScore.rawFinalScore = userScore.criteriaSum.reduce((acc, c) => acc + c.sum, 0);
+            usersScores.push(userScore);
         }
-
-        userScore.rawFinalScore = userScore.criteriaSum.reduce((acc, c) => acc + c.sum, 0);
-        usersScores.push(userScore);
     }
 
     if (usersScores.length) {
@@ -1187,6 +1202,33 @@ listingRouter.post('/:id/manuallyAddSubmission', isContestCreator, isEditable, a
     const newSubmission = contest.submissions.find(s => s.id == submission.id);
 
     res.json(newSubmission);
+});
+
+/* GET usersScores for standardized scores on results page*/
+listingRouter.get('/:id/getUsersScores', isComplete, async (req, res) => {
+    const contest = await ContestModel
+        .findById(req.params.id)
+        .populate([
+            {
+                path: 'submissions',
+                populate: {
+                    path: 'judgings creator screenings',
+                    populate: {
+                        path: 'judgingScores judge',
+                        populate: {
+                            path: 'criteria',
+                        },
+                    },
+                },
+            },
+            { path: 'judges' },
+            { path: 'criterias' },
+        ])
+        .orFail();
+
+    const { usersScores } = calculateContestScores(contest);
+
+    res.json({ usersScores });
 });
 
 export default listingRouter;

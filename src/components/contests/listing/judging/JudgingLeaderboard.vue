@@ -147,11 +147,11 @@
             <div>
                 #,User,<span v-if="displayMode === 'criterias'">
                     <span v-for="criteria in scoredCriteria" :key="criteria.id">
-                        {{ criteria.name + ',' }}
+                        <span class="text-capitalize">{{ criteria.name + ',' }}</span>
                     </span>
                 </span><span v-else><span v-for="judge in judges" :key="judge.id">
                         {{ judge.username + ',' }}
-                    </span></span>Final Score (raw),Final Score (standardized),
+                    </span></span>Final Score<span v-if="!contest.useRawScoring"> (raw),Final Score (standardized)</span>,
             </div>
             <div v-for="(score, i) in usersScores" :key="i">
                 {{ i+1 }},{{ score.creator.username }},<span v-if="displayMode === 'criterias'">
@@ -161,7 +161,7 @@
                 </span><span v-else>
                     <span v-for="judge in judges" :key="judge.id">
                         {{ getJudgeScore(score, judge.id, displayMode === 'detail') + ',' }}
-                    </span></span>{{ score.rawFinalScore }},{{ getFinalScore(score.standardizedFinalScore) }},
+                    </span></span>{{ score.rawFinalScore }}<span v-if="!contest.useRawScoring">,{{ getFinalScore(score.standardizedFinalScore) }}</span>,
             </div>
         </copy-paste>
 
@@ -174,7 +174,7 @@
             | Rank | User
             <span v-if="displayMode === 'criterias'">
                 <span v-for="criteria in scoredCriteria" :key="criteria.id">
-                    | {{ criteria.name }}
+                    | <span class="text-capitalize">{{ criteria.name }}</span>
                 </span>
             </span>
             <span v-else>
@@ -182,7 +182,7 @@
                     | {{ judge.username }}
                 </span>
             </span>
-            | Final Score (raw) | Final Score (standardized) |
+            | Final Score<span v-if="!contest.useRawScoring"> (raw) | **Final Score (standardized)**</span> |
         </div>
         <div>
             | :-- | :--
@@ -210,7 +210,7 @@
                     | {{ getJudgeScore(score, judge.id, displayMode === 'detail') }}
                 </span>
             </span>
-            | {{ score.rawFinalScore }} | {{ getFinalScore(score.standardizedFinalScore) }} |
+            | {{ score.rawFinalScore }}<span v-if="!contest.useRawScoring"> | **{{ getFinalScore(score.standardizedFinalScore) }}**</span> |
         </div>
     </copy-paste>
     </div>

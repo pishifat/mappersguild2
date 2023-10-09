@@ -7,12 +7,15 @@
                 v-for="submission in submissions"
                 :key="submission.id"
                 class="col-sm-4 my-2"
-                @click="setSubmission(submission)"
             >
-                <div class="card card-hover card-level-2 card-body">
-                    <p>{{ submission.contest.name }}</p>
-                    <a href="#" class="text-secondary small text-end" @click.prevent>
-                        details
+                <div class="card card-level-2 card-body">
+                    <p>
+                        <a :href="`/contests/results?contest=${submission.contest.id}`">
+                            {{ submission.contest.name }}
+                        </a>
+                    </p>
+                    <a :href="`/contests/results?submission=${submission.id}`" class="small text-end">
+                        view submission details
                     </a>
                 </div>
             </div>

@@ -21,11 +21,14 @@
                         <th scope="col">
                             Creator
                         </th>
-                        <th v-bs-tooltip="'screeners sort entries in their ordered top 5. #1 adds 5 points, #2 adds 4 points, etc.'" scope="col">
+                        <th v-if="contest.judgingThreshold" v-bs-tooltip="'screeners sort entries in their ordered top 5. #1 adds 5 points, #2 adds 4 points, etc.'" scope="col">
                             Screener votes ({{ contest.screeners.length * 5 }})
                         </th>
-                        <th v-bs-tooltip="'see results news/forum post for cases where standardized scores affect outcome'" scope="col">
-                            Judge scores ({{ maxScore }})
+                        <th scope="col">
+                            Raw scores ({{ maxScore }})
+                        </th>
+                        <th v-if="!contest.useRawScoring" v-bs-tooltip="`judge X's final score = (judge X's raw score - judge X's average raw score) / judge X's standard deviation`" scope="col">
+                            Standardized scores
                         </th>
                     </tr>
                 </thead>
@@ -47,12 +50,15 @@
                                 ({{ voteCount(submission.screenings, true) }})
                             </span>
                         </td>
-                        <td v-else>
-                            N/A
-                        </td>
                         <td>
+                            <span :class="contest.useRawScoring && judgeScore (submission.judgings) > 0 ? 'text-done' : ''">
+                                {{ judgeScore (submission.judgings) || 'N/A' }}
+                            </span>
+                        </td>
+                        <td v-if="!contest.useRawScoring">
                             <span :class="judgeScore (submission.judgings) > 0 ? 'text-done' : ''">
-                                {{ judgeScore (submission.judgings) }}
+                                <div v-if="!usersScores.length">calculating...</div>
+                                <div v-else>{{ getFinalScore (submission.id) || 'N/A' }}</div>
                             </span>
                         </td>
                     </tr>
@@ -70,6 +76,11 @@ import { Submission } from '@interfaces/contest/submission';
 
 export default defineComponent({
     name: 'ContestResults',
+    data () {
+        return {
+            usersScores: [] as any,
+        };
+    },
     computed: {
         ...mapState({
             contest: (state: any) => state.contestResults.contest as Contest,
@@ -84,14 +95,34 @@ export default defineComponent({
             return count * this.contest.judges.length;
         },
         sortedSubmissions (): Submission[] {
-            return [...this.contest.submissions].sort((a, b) => {
-                const aValue = this.judgeScore(a.judgings);
-                const bValue = this.judgeScore(b.judgings);
+            if (this.contest.useRawScoring) {
+                return [...this.contest.submissions].sort((a, b) => {
+                    const aValue = this.judgeScore(a.judgings);
+                    const bValue = this.judgeScore(b.judgings);
 
-                return bValue - aValue;
-            });
+                    return bValue - aValue;
+                });
+            } else {
+                const judgedSubmissions = [...this.contest.submissions.filter(s => s.judgings && s.judgings.length)].sort((a, b) => {
+                    const aValue = this.getFinalScore(a.id);
+                    const bValue = this.getFinalScore(b.id);
+
+                    return bValue - aValue;
+                });
+
+                const allSubmissions = judgedSubmissions.concat([...this.contest.submissions.filter(s => !s.judgings || (s.judgings && !s.judgings.length))]);
+
+                return allSubmissions;
+            }
 
         },
+    },
+    async created () {
+        const data: any = await this.$http.executeGet(`/contests/listing/${this.contest.id}/getUsersScores`);
+
+        if (!this.$http.isError(data)) {
+            this.usersScores = data.usersScores;
+        }
     },
     methods: {
         voteCount (screenings, accuracy): number {
@@ -106,7 +137,7 @@ export default defineComponent({
 
             return count;
         },
-        judgeScore (judgings): number | string {
+        judgeScore (judgings): number {
             let count = 0;
 
             for (const judging of judgings) {
@@ -115,7 +146,16 @@ export default defineComponent({
                 }
             }
 
-            return count == 0 ? 'N/A' : count;
+            return count;
+        },
+        getFinalScore (id: string): number {
+            const score = this.usersScores.find(s => s.submissionId == id);
+
+            if (score) {
+                return isNaN(score.standardizedFinalScore) ? 0 : parseFloat(score.standardizedFinalScore.toFixed(4));
+            }
+
+            return 0;
         },
     },
 });
