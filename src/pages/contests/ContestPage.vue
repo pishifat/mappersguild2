@@ -156,7 +156,42 @@
             </div>
             <div class="col-sm-9 container card card-body">
                 <div v-if="!selectedContestId">
-                    No contest selected! Choose one on the left.
+                    <h5>View a contest</h5>
+                    <div class="mb-2">Select a contest on the left.
+                        <a
+                            href="#"
+                            :class="loadingCategory ? 'pe-none opacity-50' : ''"
+                            @click.prevent="displayMode = 'activeContests'"
+                        >
+                            <span :class="displayMode === 'activeContests' ? 'border-bottom border-secondary' : ''">
+                                Active
+                            </span>
+                        </a>
+                        contests are displayed by default, and previous contests can be viewed by loading the
+                        <a
+                            href="#"
+                            :class="loadingCategory ? 'pe-none opacity-50' : ''"
+                            @click.prevent="displayMode = 'completedContests'"
+                        >
+                            <span :class="displayMode === 'completedContests' ? 'border-bottom border-secondary' : ''">
+                                Completed
+                            </span>
+                        </a>
+                        category.
+                    </div>
+                    <div class="mb-3">Narrow down results to any mode with the <i>Contest mode</i> filter.</div>
+                    <h5>Create a contest</h5>
+                    Aiming to start your own contest? Filter to the
+                    <a
+                        href="#"
+                        :class="loadingCategory ? 'pe-none opacity-50' : ''"
+                        @click.prevent="displayMode = 'myContests'"
+                    >
+                        <span :class="displayMode === 'myContests' ? 'border-bottom border-secondary' : ''">
+                            My contests
+                        </span>
+                    </a>
+                    category and add one from the left-side menu!
                 </div>
                 <limited-contest-info
                     v-else-if="displayMode !== 'myContests'"
