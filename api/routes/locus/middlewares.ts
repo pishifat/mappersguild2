@@ -5,7 +5,7 @@ export async function isValidUser(req: express.Request, res: express.Response, n
     const id = req.params.id;
     const locusInfo = await LocusInfoModel
         .findById(id)
-        .defaultPopulate()
+        .populate({ path: 'user', select: 'username osuId' })
         .orFail();
 
     if (req.session.mongoId !== locusInfo.user.id) {

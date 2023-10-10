@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isValidUrl = exports.canEditArtist = exports.isBn = exports.isSuperAdmin = exports.isMentorshipAdmin = exports.isAdmin = exports.isValidUser = exports.isLoggedIn = exports.unauthorize = void 0;
+exports.isValidUrl = exports.canEditArtist = exports.isBn = exports.isSuperAdmin = exports.isLocusAdmin = exports.isMentorshipAdmin = exports.isAdmin = exports.isValidUser = exports.isLoggedIn = exports.unauthorize = void 0;
 const user_1 = require("../models/user");
 const user_2 = require("../../interfaces/user");
 const osuApi_1 = require("./osuApi");
@@ -75,6 +75,16 @@ function isMentorshipAdmin(req, res, next) {
     }
 }
 exports.isMentorshipAdmin = isMentorshipAdmin;
+function isLocusAdmin(req, res, next) {
+    const osuIds = [1893718, 18983, 7671790, 5052899]; // mangomizer, Doomsday, Komm, Matrix
+    if (osuIds.includes(res.locals.userRequest.osuId) || res.locals.userRequest.group == user_2.UserGroup.Admin) {
+        next();
+    }
+    else {
+        unauthorize(req, res);
+    }
+}
+exports.isLocusAdmin = isLocusAdmin;
 function isSuperAdmin(req, res, next) {
     if (res.locals.userRequest.osuId == 3178418 || res.locals.userRequest.osuId == 1052994) {
         next();

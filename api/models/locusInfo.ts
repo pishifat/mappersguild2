@@ -13,16 +13,6 @@ const locusInfoSchema = new Schema<LocusInfo>({
     isPublic: { type: Boolean, default: false },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
-const queryHelpers = {
-    defaultPopulate<Q extends DocumentQuery<any, LocusInfo>>(this: Q) {
-        return this.populate([
-            { path: 'user', select: 'username osuId' },
-        ]);
-    },
-};
-
-locusInfoSchema.query = queryHelpers;
-
 const LocusInfoModel = mongoose.model<LocusInfo>('LocusInfo', locusInfoSchema);
 
 export { LocusInfoModel };
