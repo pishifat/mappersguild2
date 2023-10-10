@@ -289,7 +289,7 @@
                 <div class="col text-end pe-0">
                     <img
                         class="mx-3"
-                        src="/images/mg-logo-text.png"
+                        :src="$route.path == '/locus' ? '/images/locus.png' : '/images/mg-logo-text.png'"
                         width="100"
                         height="100"
                     />

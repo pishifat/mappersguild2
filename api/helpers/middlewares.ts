@@ -78,6 +78,16 @@ export function isMentorshipAdmin(req, res, next): void {
     }
 }
 
+export function isLocusAdmin(req, res, next): void {
+    const osuIds = [1893718, 18983, 7671790, 5052899]; // mangomizer, Doomsday, Komm, Matrix
+
+    if (osuIds.includes(res.locals.userRequest.osuId) || res.locals.userRequest.group == UserGroup.Admin) {
+        next();
+    } else {
+        unauthorize(req, res);
+    }
+}
+
 export function isSuperAdmin(req, res, next): void {
     if (res.locals.userRequest.osuId == 3178418 || res.locals.userRequest.osuId == 1052994) {
         next();
