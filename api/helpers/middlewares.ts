@@ -88,6 +88,16 @@ export function isLocusAdmin(req, res, next): void {
     }
 }
 
+export function hasMerchAccess(req, res, next): void {
+    const osuIds = [3178418];
+
+    if (osuIds.includes(res.locals.userRequest.osuId)) {
+        next();
+    } else {
+        unauthorize(req, res);
+    }
+}
+
 export function isSuperAdmin(req, res, next): void {
     if (res.locals.userRequest.osuId == 3178418 || res.locals.userRequest.osuId == 1052994) {
         next();

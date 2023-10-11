@@ -42,6 +42,7 @@ import partiesRouter from './routes/parties';
 import mentorshipRouter from './routes/mentorship';
 import missionsRouter from './routes/missions';
 import locusRouter from './routes/locus/locus';
+import merchRouter from './routes/merch';
 import interOpRouter from './routes/interOp';
 
 const app = express();
@@ -96,6 +97,7 @@ app.use('/showcase', showcaseRouter);
 app.use('/mentorship', mentorshipRouter);
 app.use('/missions', missionsRouter);
 app.use('/locus', locusRouter);
+app.use('/merch', merchRouter);
 
 app.use('/contests/listing', contestsListingRouter);
 app.use('/contests/results', resultsRouter);
