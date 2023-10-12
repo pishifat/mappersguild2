@@ -223,7 +223,7 @@ export default defineComponent({
         isPhaseParticipant(user, phaseNum, mentorId): boolean {
             const cycle = user.mentorships.find(m => m.cycle.toString() == this.selectedCycle.id && m.mode == this.mode && (m.mentor ? m.mentor.toString() == mentorId : mentorId == user.id));
 
-            if (cycle.phases.includes(phaseNum)) {
+            if (cycle && cycle.phases.includes(phaseNum)) {
                 return true;
             }
 
