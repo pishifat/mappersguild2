@@ -247,6 +247,7 @@ indexRouter.get('/merchAuth', (req, res) => {
     const state = crypto_1.default.randomBytes(48).toString('hex');
     res.cookie('_state', state, { httpOnly: true });
     const hashedState = Buffer.from(state).toString('base64');
+    console.log(config_json_1.default.merchAuth);
     res.redirect(`https://osu.ppy.sh/oauth/authorize?response_type=code&client_id=${config_json_1.default.merchAuth.id}&redirect_uri=${encodeURIComponent(config_json_1.default.merchAuth.redirect)}&state=${hashedState}&scope=identify`);
 });
 /* GET user's token and user's info for merch access */
