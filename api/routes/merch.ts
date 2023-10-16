@@ -16,11 +16,11 @@ merchRouter.get('/query', async (req, res) => {
         storefrontAccessToken: config.shopify.storeFrontToken,
     });
 
-    const productHandles = config.shopify.productHandles;
+    const productIds = config.shopify.secretProductIds;
     const merch: any = [];
 
-    for (const handle of productHandles) {
-        const product = await client.product.fetchByHandle(handle);
+    for (const gid of productIds) {
+        const product = await client.product.fetch(gid);
         merch.push(product);
     }
 
