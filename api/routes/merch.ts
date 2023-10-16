@@ -1,6 +1,5 @@
 import express from 'express';
 import Client from 'shopify-buy';
-import fetch from 'node-fetch';
 import config from '../../config.json';
 import { hasMerchAccess, isLoggedIn } from '../helpers/middlewares';
 import { UserModel } from '../models/user';
