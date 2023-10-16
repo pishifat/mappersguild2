@@ -19,7 +19,7 @@ locusRouter.get('/query', async (req, res) => {
             .sort({ updatedAt: -1 }),
         locusInfo_1.LocusInfoModel
             .findOne({ user: req.session.mongoId })
-            .populate({ path: 'user', select: 'username osuId' })
+            .populate({ path: 'user', select: 'username osuId' }),
     ]);
     let selfLocusInfo = self;
     if (!selfLocusInfo) {

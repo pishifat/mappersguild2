@@ -100,7 +100,7 @@ indexRouter.get('/callback', async (req, res) => {
     if (decodedState !== savedState) {
         return res.status(403).redirect('/error');
     }
-    let response = await osuApi_1.getToken(req.query.code.toString());
+    let response = await osuApi_1.getToken(req.query.code.toString(), false);
     if (osuApi_1.isOsuResponseError(response)) {
         return res.status(500).redirect('/error');
     }
@@ -209,7 +209,7 @@ indexRouter.get('/callback', async (req, res) => {
             lastPage = '/artists';
         }
         else {
-            lastPage = '/faq';
+            lastPage = '/';
         }
     }
     res.redirect(lastPage);
@@ -238,5 +238,53 @@ indexRouter.get('/exampleMission', async (req, res) => {
 /* GET example quest */
 indexRouter.get('/exampleQuest', async (req, res) => {
     res.json(await quest_1.QuestModel.findById('62d0799b1cfaf430df14eae3').defaultPopulate());
+});
+/* GET user's code to login for merch */
+indexRouter.get('/merchAuth', (req, res) => {
+    if (req.session.mongoId) {
+        return res.redirect('/merch');
+    }
+    const state = crypto_1.default.randomBytes(48).toString('hex');
+    res.cookie('_state', state, { httpOnly: true });
+    const hashedState = Buffer.from(state).toString('base64');
+    res.redirect(`https://osu.ppy.sh/oauth/authorize?response_type=code&client_id=${config_json_1.default.merchAuth.id}&redirect_uri=${encodeURIComponent(config_json_1.default.merchAuth.redirect)}&state=${hashedState}&scope=identify`);
+});
+/* GET user's token and user's info for merch access */
+indexRouter.get('/merchCallback', async (req, res) => {
+    if (!req.query.code || req.query.error || !req.query.state) {
+        return res.status(500).redirect('/error');
+    }
+    const decodedState = Buffer.from(req.query.state.toString(), 'base64').toString('ascii');
+    const savedState = req.cookies._state;
+    res.clearCookie('_state');
+    if (decodedState !== savedState) {
+        return res.status(403).redirect('/error');
+    }
+    let response = await osuApi_1.getToken(req.query.code.toString(), true);
+    console.log(response);
+    if (osuApi_1.isOsuResponseError(response)) {
+        return res.status(500).redirect('/error');
+    }
+    helpers_1.setSession(req.session, response);
+    response = await osuApi_1.getUserInfo(req.session.accessToken);
+    if (osuApi_1.isOsuResponseError(response)) {
+        return req.session.destroy(() => {
+            res.status(500).redirect('/error');
+        });
+    }
+    const osuId = response.id;
+    const username = response.username;
+    const group = user_2.UserGroup.User;
+    let user = await user_1.UserModel.findOne({ osuId });
+    if (!user) {
+        user = new user_1.UserModel();
+        user.osuId = osuId;
+        user.username = username;
+        user.group = group;
+        await user.save();
+    }
+    req.session.mongoId = user._id;
+    req.session.osuId = osuId;
+    res.redirect('/merch');
 });
 exports.default = indexRouter;

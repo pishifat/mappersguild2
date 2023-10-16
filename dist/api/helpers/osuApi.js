@@ -24,13 +24,13 @@ async function executeRequest(options) {
         return helpers_1.defaultErrorMessage;
     }
 }
-async function getToken(code) {
+async function getToken(code, isMerch) {
     const postData = querystring_1.default.stringify({
         grant_type: 'authorization_code',
         code,
-        redirect_uri: config_json_1.default.redirect,
-        client_id: config_json_1.default.id,
-        client_secret: config_json_1.default.secret,
+        redirect_uri: !isMerch ? config_json_1.default.redirect : config_json_1.default.merchAuth.redirect,
+        client_id: !isMerch ? config_json_1.default.id : config_json_1.default.merchAuth.id,
+        client_secret: !isMerch ? config_json_1.default.secret : config_json_1.default.merchAuth.secret,
     });
     const options = {
         url: 'https://osu.ppy.sh/oauth/token',

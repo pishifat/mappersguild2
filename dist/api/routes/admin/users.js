@@ -57,6 +57,12 @@ adminUsersRouter.post('/:id/toggleIsMentorshipAdmin', async (req, res) => {
     await user_1.UserModel.findByIdAndUpdate(req.params.id, { isMentorshipAdmin }).orFail();
     res.json({ isMentorshipAdmin });
 });
+/* POST toggle hasMerchAccess */
+adminUsersRouter.post('/:id/toggleHasMerchAccess', async (req, res) => {
+    const hasMerchAccess = req.body.hasMerchAccess;
+    await user_1.UserModel.findByIdAndUpdate(req.params.id, { hasMerchAccess }).orFail();
+    res.json({ hasMerchAccess });
+});
 /* GET find FA showcase users */
 adminUsersRouter.get('/findShowcaseUsers', async (req, res) => {
     const [osuUsers, taikoUsers, catchUsers, maniaUsers] = await Promise.all([

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isValidUrl = exports.canEditArtist = exports.isBn = exports.isSuperAdmin = exports.isLocusAdmin = exports.isMentorshipAdmin = exports.isAdmin = exports.isValidUser = exports.isLoggedIn = exports.unauthorize = void 0;
+exports.isValidUrl = exports.canEditArtist = exports.isBn = exports.isSuperAdmin = exports.hasMerchAccess = exports.isLocusAdmin = exports.isMentorshipAdmin = exports.isAdmin = exports.isValidUser = exports.isLoggedIn = exports.unauthorize = void 0;
 const user_1 = require("../models/user");
 const user_2 = require("../../interfaces/user");
 const osuApi_1 = require("./osuApi");
@@ -28,7 +28,9 @@ async function isLoggedIn(req, res, next) {
     if (new Date() > new Date(req.session.expireDate - (10 * 3600 * 1000))) {
         const response = await osuApi_1.refreshToken(req.session.refreshToken);
         if (!response || osuApi_1.isOsuResponseError(response)) {
-            req.session.destroy();
+            req.session.destroy((error) => {
+                console.log(error);
+            });
             return res.redirect('/');
         }
         // *1000 because maxAge is miliseconds, oauth is seconds
@@ -85,6 +87,15 @@ function isLocusAdmin(req, res, next) {
     }
 }
 exports.isLocusAdmin = isLocusAdmin;
+function hasMerchAccess(req, res, next) {
+    if (res.locals.userRequest.hasMerchAccess) {
+        next();
+    }
+    else {
+        unauthorize(req, res);
+    }
+}
+exports.hasMerchAccess = hasMerchAccess;
 function isSuperAdmin(req, res, next) {
     if (res.locals.userRequest.osuId == 3178418 || res.locals.userRequest.osuId == 1052994) {
         next();

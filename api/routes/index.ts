@@ -113,7 +113,7 @@ indexRouter.get('/callback', async (req, res) => {
         return res.status(403).redirect('/error');
     }
 
-    let response = await getToken(req.query.code.toString());
+    let response = await getToken(req.query.code.toString(), false);
 
     if (isOsuResponseError(response)) {
         return res.status(500).redirect('/error');

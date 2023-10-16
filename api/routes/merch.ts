@@ -17,7 +17,7 @@ merchRouter.get('/query', async (req, res) => {
     });
 
     const productIds = config.shopify.secretProductIds;
-    const merch = [];
+    const merch: any = [];
 
     for (const gid of productIds) {
         const product = await client.product.fetch(gid);
@@ -55,7 +55,9 @@ merchRouter.post('/checkout', async (req, res) => {
 
     res.json(checkout);
 
-    req.session.destroy();
+    req.session.destroy((error) => {
+        console.log(error);
+    });
 });
 
 export default merchRouter;

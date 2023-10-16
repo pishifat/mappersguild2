@@ -29,7 +29,9 @@ export async function isLoggedIn(req, res, next): Promise<void> {
         const response = await refreshToken(req.session.refreshToken);
 
         if (!response || isOsuResponseError(response)) {
-            req.session.destroy();
+            req.session.destroy((error) => {
+                console.log(error);
+            });
 
             return res.redirect('/');
         }
