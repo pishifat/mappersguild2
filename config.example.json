@@ -34,5 +34,17 @@
             "mongoId": "",
             "secret": ""
         }
+    },
+    "shopify": {
+        "domain": "",
+        "storeFrontToken": "",
+        "webhookKey": "",
+        "discountCode": "",
+        "secretProductIds": [""]
+    },
+    "merchAuth": {
+        "id": "",
+        "secret": "",
+        "redirect": ""
     }
 }

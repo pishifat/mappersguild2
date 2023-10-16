@@ -15,7 +15,6 @@ import { LogCategory } from '../../interfaces/log';
 import { UserModel } from '../models/user';
 import { FeaturedArtistModel } from '../models/featuredArtist';
 import { updateUserPoints } from './points';
-import { sendAnnouncement } from './osuBot';
 
 /* generate description for quest webhook */
 function generateQuestDetails(quest) {

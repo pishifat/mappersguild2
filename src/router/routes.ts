@@ -31,6 +31,7 @@ const Artists = () => import('../pages/artists/ArtistPage.vue');
 const Showcase = () => import('../pages/ShowcasePage.vue');
 const Mentorship = () => import('../pages/MentorshipPage.vue');
 const Locus = () => import('../pages/locus/LocusPage.vue');
+const Merch = () => import('../pages/MerchPage.vue');
 
 const routes = [
     // Information
@@ -64,6 +65,7 @@ const routes = [
     { path: '/showcase', component: Showcase, meta: { title: 'FA Showcase Beatmaps' } },
     { path: '/mentorship', component: Mentorship, meta: { title: 'Mentorship' } },
     { path: '/locus', component: Locus, meta: { title: 'Locus' } },
+    { path: '/merch', component: Merch, meta: { title: 'Merch' } },
 
     // Fallback
     { path: '/:pathMatch(.*)*', component: NotFound, meta: { title: 'Oops', public: true } },
