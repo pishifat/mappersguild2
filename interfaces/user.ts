@@ -73,4 +73,5 @@ export interface User extends Document {
     ppTaiko: number;
     ppCatch: number;
     ppMania: number;
+    hasMerchAccess: boolean;
 }

@@ -7,7 +7,7 @@
             <img
                 src="/images/small.png"
                 style="max-height: 160px"
-            >
+            />
         </div>
         <div
             class="opacity-transition"

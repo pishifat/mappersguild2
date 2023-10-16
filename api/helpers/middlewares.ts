@@ -89,9 +89,7 @@ export function isLocusAdmin(req, res, next): void {
 }
 
 export function hasMerchAccess(req, res, next): void {
-    const osuIds = [3178418];
-
-    if (osuIds.includes(res.locals.userRequest.osuId)) {
+    if (res.locals.userRequest.hasMerchAccess) {
         next();
     } else {
         unauthorize(req, res);

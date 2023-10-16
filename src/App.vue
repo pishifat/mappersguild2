@@ -1,341 +1,21 @@
 <template>
     <div v-cloak id="app">
-        <nav id="top" class="navbar navbar-expand-md navbar-dark bg-dark">
-            <div class="container-fluid">
-                <router-link class="navbar-brand" to="/">
-                    <img src="/images/mg-icon.png" alt="" />
-                </router-link>
+        <navigation-main v-if="!isMerchPage" />
 
-                <button
-                    class="navbar-toggler"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#navbar"
-                >
-                    <span class="navbar-toggler-icon" />
-                </button>
-
-                <div id="navbar" class="collapse navbar-collapse">
-                    <template v-if="loggedInUser">
-                        <ul class="navbar-nav me-auto">
-                            <li class="nav-item">
-                                <router-link class="nav-link" to="/beatmaps">
-                                    Beatmaps
-                                </router-link>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a
-                                    id="questDropdown"
-                                    class="nav-link dropdown-toggle"
-                                    data-bs-toggle="dropdown"
-                                    href="#"
-                                >
-                                    Quests
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li>
-                                        <router-link class="dropdown-item" to="/missions">
-                                            Priority quests
-                                        </router-link>
-                                    </li>
-                                    <li>
-                                        <router-link class="dropdown-item" to="/quests">
-                                            Normal quests
-                                        </router-link>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li class="nav-item">
-                                <router-link class="nav-link" to="/users">
-                                    Users
-                                </router-link>
-                            </li>
-                            <li class="nav-item">
-                                <router-link class="nav-link" to="/logs">
-                                    Logs
-                                </router-link>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a
-                                    id="contestDropdown"
-                                    class="nav-link dropdown-toggle"
-                                    data-bs-toggle="dropdown"
-                                    href="#"
-                                >
-                                    Contests
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li>
-                                        <router-link class="dropdown-item" to="/contests/listing">
-                                            Listing
-                                        </router-link>
-                                    </li>
-                                    <li>
-                                        <router-link class="dropdown-item" to="/contests/results">
-                                            Results
-                                        </router-link>
-                                    </li>
-                                    <li>
-                                        <router-link class="dropdown-item" to="/contests/screening">
-                                            Screening
-                                        </router-link>
-                                    </li>
-                                    <li>
-                                        <router-link class="dropdown-item" to="/contests/judging">
-                                            Judging
-                                        </router-link>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li v-if="loggedInUser.isMentorshipAdmin || loggedInUser.group == 'secret' || loggedInUser.group == 'admin'" class="nav-item mx-2" style="opacity: 0%; pointer-events: none;">
-                                |
-                            </li>
-                            <li v-if="loggedInUser.isMentorshipAdmin || loggedInUser.group == 'admin'" class="nav-item">
-                                <router-link class="nav-link" to="/mentorship">
-                                    Mentorship
-                                </router-link>
-                            </li>
-                            <li v-if="loggedInUser.group == 'secret' || loggedInUser.group == 'admin'" class="nav-item">
-                                <router-link class="nav-link" to="/showcase">
-                                    FA Showcase
-                                </router-link>
-                            </li>
-                            <li v-if="loggedInUser.osuId === 3178418" class="nav-item">
-                                <router-link class="nav-link" to="/artists">
-                                    FA Schedule
-                                </router-link>
-                            </li>
-                            <template v-if="loggedInUser.group === 'admin'">
-                                <li class="nav-item dropdown">
-                                    <a
-                                        id="adminDropdown"
-                                        class="nav-link dropdown-toggle"
-                                        data-bs-toggle="dropdown"
-                                        href="#"
-                                    >
-                                        Admin
-                                    </a>
-                                    <ul class="dropdown-menu">
-                                        <li>
-                                            <router-link class="dropdown-item" to="/admin/summary">
-                                                Summary
-                                            </router-link>
-                                        </li>
-                                        <li>
-                                            <router-link class="dropdown-item" to="/admin/beatmaps">
-                                                Beatmaps
-                                            </router-link>
-                                        </li>
-                                        <li>
-                                            <router-link class="dropdown-item" to="/admin/featuredArtists">
-                                                Featured Artists
-                                            </router-link>
-                                        </li>
-                                        <li>
-                                            <router-link class="dropdown-item" to="/admin/quests">
-                                                Quests
-                                            </router-link>
-                                        </li>
-                                        <li>
-                                            <router-link class="dropdown-item" to="/admin/missions">
-                                                Priority Quests (Missions)
-                                            </router-link>
-                                        </li>
-                                        <li>
-                                            <router-link class="dropdown-item" to="/admin/users">
-                                                Users
-                                            </router-link>
-                                        </li>
-                                    </ul>
-                                </li>
-                            </template>
-                        </ul>
-
-                        <div class="dropdown nav-avatar-menu">
-                            <a
-                                id="userInfo"
-                                class="dropdown-toggle"
-                                href="#"
-                                data-bs-toggle="dropdown"
-                            >
-                                <img :src="`https://a.ppy.sh/${loggedInUser.osuId}`" class="rounded-circle nav-avatar ms-2" />
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-end">
-                                <router-link :to="`/users?id=${loggedInUser.id}`" class="dropdown-item">
-                                    View full points breakdown
-                                </router-link>
-                                <hr class="my-2" />
-                                <span class="dropdown-item disabled">Total points: <span class="float-end">{{ loggedInUser.pointsInfo.total }}</span></span>
-                                <span class="dropdown-item disabled">Available points: <span class="float-end">{{ loggedInUser.pointsInfo.available }} <i class="fas fa-coins" /></span></span>
-                                <hr class="my-2" />
-                                <span class="dropdown-item small disabled">Mapping points: <span class="float-end">{{ loggedInUser.pointsInfo.mapping }}</span></span>
-                                <span class="dropdown-item small disabled">Modding points: <span class="float-end">{{ loggedInUser.pointsInfo.modding }}</span></span>
-                                <span class="dropdown-item small disabled">Other points: <span class="float-end">{{ loggedInUser.pointsInfo.other }}</span></span>
-                                <div class="dropdown-divider" />
-                                <div class="ms-3 small text-secondary">
-                                    <span v-bs-tooltip:left="'create maps for upcoming Featured Artist announcements'">
-                                        <a href="https://osu.ppy.sh/wiki/Featured_Artists/Featured_Artist_Showcase_Beatmaps" target="_blank" @click.stop>
-                                            FA showcase
-                                        </a>
-                                        mapper:</span>
-                                    <a class="float-end me-3" href="#" @click.stop.prevent="toggleIsShowcaseMapper()">
-                                        <i class="fas" :class="loggedInUser.isShowcaseMapper ? 'text-done fa-check' : 'text-danger fa-times'" />
-                                    </a>
-                                </div>
-                                <div class="ms-3 small text-secondary">
-                                    <span v-bs-tooltip:left="'be a screener/judge for official mapping contests'">Contest helper:</span>
-                                    <a class="float-end me-3" href="#" @click.stop.prevent="toggleIsContestHelper()">
-                                        <i class="fas" :class="loggedInUser.isContestHelper ? 'text-done fa-check' : 'text-danger fa-times'" />
-                                    </a>
-                                </div>
-                                <div class="dropdown-divider" />
-                                <form action="/api/logout" method="GET">
-                                    <button class="btn btn-sm btn-outline-danger float-end me-2" type="submit">
-                                        Log Out
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </template>
-
-                    <template v-else-if="initialized">
-                        <ul class="navbar-nav me-auto">
-                            <li class="nav-item">
-                                <router-link class="nav-link" to="/beatmaps">
-                                    Beatmaps
-                                </router-link>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a
-                                    id="questDropdown"
-                                    class="nav-link dropdown-toggle"
-                                    data-bs-toggle="dropdown"
-                                    href="#"
-                                >
-                                    Quests
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li>
-                                        <router-link class="dropdown-item" to="/missions">
-                                            Priority quests
-                                        </router-link>
-                                    </li>
-                                    <li>
-                                        <router-link class="dropdown-item" to="/quests">
-                                            Normal quests
-                                        </router-link>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li class="nav-item">
-                                <router-link class="nav-link" to="/users">
-                                    Users
-                                </router-link>
-                            </li>
-                            <li class="nav-item">
-                                <router-link class="nav-link" to="/logs">
-                                    Logs
-                                </router-link>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a
-                                    id="contestDropdown"
-                                    class="nav-link dropdown-toggle"
-                                    data-bs-toggle="dropdown"
-                                    href="#"
-                                >
-                                    Contests
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li>
-                                        <router-link class="dropdown-item" to="/contests/listing">
-                                            Listing
-                                        </router-link>
-                                    </li>
-                                    <li>
-                                        <router-link class="dropdown-item" to="/contests/results">
-                                            Results
-                                        </router-link>
-                                    </li>
-                                    <li>
-                                        <router-link class="dropdown-item" to="/contests/screening">
-                                            Screening
-                                        </router-link>
-                                    </li>
-                                    <li>
-                                        <router-link class="dropdown-item" to="/contests/judging">
-                                            Judging
-                                        </router-link>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                        <form
-                            class="ms-auto me-3"
-                            action="/api/login"
-                            method="GET"
-                        >
-                            <button class="btn btn-sm btn-info" type="submit">
-                                Log in
-                            </button>
-                        </form>
-                    </template>
-                </div>
-            </div>
-        </nav>
-
+        <!-- style ensures footer doesnt appear weirdly high up. fixed position looks even more awkward. don't worry about it -->
         <div class="container" style="min-height: 85vh">
-            <div v-if="(initialized && loggedInUser || publicPage) && $route.path !== '/'" class="row justify-content-center my-2 py-3 page-content-header">
-                <div class="col text-end pe-0">
-                    <img
-                        class="mx-3"
-                        :src="$route.path == '/locus' ? '/images/locus.png' : '/images/mg-logo-text.png'"
-                        width="100"
-                        height="100"
-                    />
-                </div>
-                <div class="col ps-0 my-auto">
-                    <h1>{{ title }}</h1>
-                    <div class="linear-divisor mb-1" />
-                </div>
-            </div>
+            <page-header
+                v-if="(initialized && (loggedInUser || isPublicPage)) && !isHome && !isMerchPage"
+            />
 
             <loading-page>
-                <section v-if="initialized && !loggedInUser && !publicPage" key="login" class="card card-body">
-                    <div class="row">
-                        <div class="col-lg-5">
-                            <div class="text-center landing">
-                                <img
-                                    class="mb-1"
-                                    src="/images/mg-logo.png"
-                                    style="width: 150px; min-width: 150px;"
-                                />
-                                <div class="fs-4">Mappers' Guild</div>
-                            </div>
-
-                            <hr />
-
-                            <div class="text-danger text-center mb-2"><b>Log in to view this page!</b></div>
-
-                            <div class="text-center">
-                                <a href="/api/login" class="btn btn-primary mb-2">
-                                    authorize your osu! account
-                                    <i class="fas fa-external-link-alt" />
-                                </a>
-                            </div>
-                        </div>
-                        <div class="col-lg-7 d-flex flex-column justify-content-center">
-                            <p>"Authorizing" will identify you through your osu! account.</p>
-                            <p>You can do any of these after authorization:</p>
-                            <ul>
-                                <li>View "Beatmaps", "Quests", and "Contests" pages</li>
-                                <li>Participate to earn <a href="https://osu.ppy.sh/wiki/Community/Mappers_Guild#rewards">Mappers' Guild rewards on osu!</a>.</li>
-                                <li>...a bunch of other mapping-related stuff</li>
-                            </ul>
-                        </div>
-                    </div>
-                </section>
-                <template v-if="publicPage || loggedInUser">
+                <authorize
+                    v-if="initialized && !loggedInUser && !isPublicPage && !isMerchPage"
+                />
+                <authorize-merch
+                    v-else-if="initialized && !loggedInUser && !isPublicPage && isMerchPage"
+                />
+                <template v-else-if="isPublicPage || loggedInUser">
                     <router-view v-slot="{ Component }">
                         <transition name="route-transition" mode="out-in">
                             <component :is="Component" />
@@ -345,12 +25,7 @@
             </loading-page>
         </div>
 
-        <footer class="text-center mt-1">
-            <div class="my-3">
-                Mappers' Guild
-            </div>
-            <div class="footer-bar" />
-        </footer>
+        <page-footer v-if="!isMerchPage" />
 
         <toast-messages />
     </div>
@@ -361,38 +36,35 @@ import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import LoadingPage from '@components/LoadingPage.vue';
 import ToastMessages from '@components/ToastMessages.vue';
+import NavigationMain from '@components/app/NavigationMain.vue';
+import PageFooter from '@components/app/PageFooter.vue';
+import PageHeader from '@components/app/PageHeader.vue';
+import Authorize from '@components/app/Authorize.vue';
+import AuthorizeMerch from '@components/app/AuthorizeMerch.vue';
 
 export default defineComponent({
     components: {
         LoadingPage,
         ToastMessages,
+        NavigationMain,
+        PageFooter,
+        PageHeader,
+        Authorize,
+        AuthorizeMerch,
     },
     computed: {
         ...mapState([
             'loggedInUser',
             'initialized',
         ]),
-        title () {
-            return this.$route.meta.title;
-        },
-        publicPage () {
+        isPublicPage () {
             return this.$route.meta.isPublic;
         },
-    },
-    methods: {
-        async toggleIsShowcaseMapper() {
-            const user = await this.$http.executePost('/toggleIsShowcaseMapper', { value: !this.loggedInUser.isShowcaseMapper });
-
-            if (user) {
-                this.$store.commit('updateLoggedInUser', user);
-            }
+        isMerchPage () {
+            return this.$route.path == '/merch';
         },
-        async toggleIsContestHelper() {
-            const user = await this.$http.executePost('/toggleIsContestHelper', { value: !this.loggedInUser.isContestHelper });
-
-            if (user) {
-                this.$store.commit('updateLoggedInUser', user);
-            }
+        isHome () {
+            return this.$route.path == '/';
         },
     },
 });

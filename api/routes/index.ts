@@ -247,7 +247,7 @@ indexRouter.get('/callback', async (req, res) => {
         if (user.group === UserGroup.Admin) {
             lastPage = '/artists';
         } else {
-            lastPage = '/faq';
+            lastPage = '/';
         }
     }
 
@@ -285,6 +285,72 @@ indexRouter.get('/exampleMission', async (req, res) => {
 /* GET example quest */
 indexRouter.get('/exampleQuest', async (req, res) => {
     res.json(await QuestModel.findById('62d0799b1cfaf430df14eae3').defaultPopulate());
+});
+
+/* GET user's code to login for merch */
+indexRouter.get('/merchAuth', (req, res) => {
+    if (req.session.mongoId) {
+        return res.redirect('/merch');
+    }
+
+    const state = crypto.randomBytes(48).toString('hex');
+    res.cookie('_state', state, { httpOnly: true });
+    const hashedState = Buffer.from(state).toString('base64');
+
+    res.redirect(
+        `https://osu.ppy.sh/oauth/authorize?response_type=code&client_id=${config.merchAuth.id}&redirect_uri=${encodeURIComponent(config.merchAuth.redirect)}&state=${hashedState}&scope=identify`
+    );
+});
+
+/* GET user's token and user's info for merch access */
+indexRouter.get('/merchCallback', async (req, res) => {
+    if (!req.query.code || req.query.error || !req.query.state) {
+        return res.status(500).redirect('/error');
+    }
+
+    const decodedState = Buffer.from(req.query.state.toString(), 'base64').toString('ascii');
+    const savedState = req.cookies._state;
+    res.clearCookie('_state');
+
+    if (decodedState !== savedState) {
+        return res.status(403).redirect('/error');
+    }
+
+    let response = await getToken(req.query.code.toString(), true);
+
+    console.log(response);
+
+    if (isOsuResponseError(response)) {
+        return res.status(500).redirect('/error');
+    }
+
+    setSession(req.session, response);
+    response = await getUserInfo(req.session.accessToken!);
+
+    if (isOsuResponseError(response)) {
+        return req.session.destroy(() => {
+            res.status(500).redirect('/error');
+        });
+    }
+
+    const osuId = response.id;
+    const username = response.username;
+    const group = UserGroup.User;
+
+    let user = await UserModel.findOne({ osuId });
+
+    if (!user) {
+        user = new UserModel();
+        user.osuId = osuId;
+        user.username = username;
+        user.group = group;
+        await user.save();
+    }
+
+    req.session.mongoId = user._id;
+    req.session.osuId = osuId;
+
+    res.redirect('/merch');
 });
 
 export default indexRouter;

@@ -157,7 +157,8 @@
             <div class="col-sm-9 container card card-body">
                 <div v-if="!selectedContestId">
                     <h5>View a contest</h5>
-                    <div class="mb-2">Select a contest on the left.
+                    <div class="mb-2">
+                        Select a contest on the left.
                         <a
                             href="#"
                             :class="loadingCategory ? 'pe-none opacity-50' : ''"
@@ -179,7 +180,9 @@
                         </a>
                         category.
                     </div>
-                    <div class="mb-3">Narrow down results to any mode with the <i>Contest mode</i> filter.</div>
+                    <div class="mb-3">
+                        Narrow down results to any mode with the <i>Contest mode</i> filter.
+                    </div>
                     <h5>Create a contest</h5>
                     Aiming to start your own contest? Filter to the
                     <a

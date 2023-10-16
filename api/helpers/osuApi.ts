@@ -98,13 +98,13 @@ async function executeRequest(options: AxiosRequestConfig): Promise<OsuAuthRespo
     }
 }
 
-export async function getToken(code: string): Promise<OsuAuthResponse | ErrorResponse> {
+export async function getToken(code: string, isMerch: boolean): Promise<OsuAuthResponse | ErrorResponse> {
     const postData = querystring.stringify({
         grant_type: 'authorization_code',
         code,
-        redirect_uri: config.redirect,
-        client_id: config.id,
-        client_secret: config.secret,
+        redirect_uri: !isMerch ? config.redirect : config.merchAuth.redirect,
+        client_id: !isMerch ? config.id : config.merchAuth.id,
+        client_secret: !isMerch ? config.secret : config.merchAuth.secret,
     });
 
     const options: AxiosRequestConfig = {

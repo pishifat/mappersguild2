@@ -55,12 +55,17 @@
                 </p>
                 <p>
                     <button class="btn btn-sm btn-outline-info w-100" @click="toggleIsShowcaseMapper($event)">
-                        {{ user.isShowcaseMapper ? 'Disable' : 'Enable' }} showcase mapper
+                        {{ user.isShowcaseMapper ? 'Disable' : 'Enable' }} isShowcaseMapper
                     </button>
                 </p>
                 <p>
                     <button class="btn btn-sm btn-outline-info w-100" @click="toggleIsMentorshipAdmin($event)">
-                        {{ user.isMentorshipAdmin ? 'Disable' : 'Enable' }} mentorship admin
+                        {{ user.isMentorshipAdmin ? 'Disable' : 'Enable' }} isMentorshipAdmin
+                    </button>
+                </p>
+                <p>
+                    <button class="btn btn-sm btn-outline-info w-100" @click="toggleHasMerchAccess($event)">
+                        {{ user.isMentorshipAdmin ? 'Disable' : 'Enable' }} hasMerchAccess
                     </button>
                 </p>
             </div>
@@ -187,6 +192,20 @@ export default defineComponent({
                 this.$store.commit('updateIsMentorshipAdmin', {
                     userId: this.user.id,
                     isMentorshipAdmin: res.isMentorshipAdmin,
+                });
+            }
+        },
+        async toggleHasMerchAccess(e): Promise<void> {
+            const res: any = await this.$http.executePost(`/admin/users/${this.user.id}/toggleHasMerchAccess`, { hasMerchAccess: !this.user.hasMerchAccess }, e);
+
+            if (res) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `set hasMerchAccess ${res.hasMerchAccess}`,
+                    type: 'info',
+                });
+                this.$store.commit('updateHasMerchAccess', {
+                    userId: this.user.id,
+                    hasMerchAccess: res.hasMerchAccess,
                 });
             }
         },
