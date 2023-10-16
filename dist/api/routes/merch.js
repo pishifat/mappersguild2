@@ -17,10 +17,10 @@ merchRouter.get('/query', async (req, res) => {
         domain: config_json_1.default.shopify.domain,
         storefrontAccessToken: config_json_1.default.shopify.storeFrontToken,
     });
-    const productIds = config_json_1.default.shopify.secretProductIds;
+    const productHandles = config_json_1.default.shopify.productHandles;
     const merch = [];
-    for (const gid of productIds) {
-        const product = await client.product.fetch(gid);
+    for (const handle of productHandles) {
+        const product = await client.product.fetchByHandle(handle);
         merch.push(product);
     }
     res.json({
