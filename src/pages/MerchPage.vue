@@ -28,7 +28,7 @@
                     :key="merch.id"
                     class="card card-level-2 card-body my-2 ps-4"
                 >
-                    <h4>{{ merch.title }}</h4>
+                    <h4 class="text-lowercase">{{ merch.title }}</h4>
                     <div class="d-inline">
                         <img
                             v-for="image in merch.images"
