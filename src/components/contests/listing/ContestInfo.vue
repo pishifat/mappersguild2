@@ -185,6 +185,12 @@
                     </div>
                 </div>
 
+                <screening-bonus-toggle
+                    class="mb-2"
+                    :contest-id="contest.id"
+                    :screening-bonus="contest.screeningBonus"
+                />
+
                 <div class="ms-2 mb-2">
                     <a href="#screeningResults" data-bs-toggle="collapse" @click.prevent>
                         See screening results
@@ -199,6 +205,8 @@
                     :contest-name="contest.name"
                     :submissions="contest.submissions"
                     :judging-threshold="contest.judgingThreshold"
+                    :screening-vote-count="contest.screeningVoteCount"
+                    :screening-bonus="contest.screeningBonus"
                     :screeners="contest.screeners"
                 />
 
@@ -294,6 +302,7 @@ import CriteriaSelection from './judging/CriteriaSelection.vue';
 import JudgingResults from './judging/JudgingResults.vue';
 import FeaturedArtistContestToggle from './FeaturedArtistContestToggle.vue';
 import UseRawScoringToggle from './UseRawScoringToggle.vue';
+import ScreeningBonusToggle from './ScreeningBonusToggle.vue';
 
 export default defineComponent({
     name: 'ContestInfo',
@@ -320,6 +329,7 @@ export default defineComponent({
         JudgingResults,
         FeaturedArtistContestToggle,
         UseRawScoringToggle,
+        ScreeningBonusToggle,
     },
     props: {
         contest: {

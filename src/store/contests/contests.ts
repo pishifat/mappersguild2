@@ -61,6 +61,13 @@ const store: Module<ContestState, MainState> = {
                 contest.isFeaturedArtistContest = payload.isFeaturedArtistContest;
             }
         },
+        updateScreeningBonus (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                contest.screeningBonus = payload.screeningBonus;
+            }
+        },
         updateUrl (state, payload): void {
             const contest = state.contests.find(c => c.id == payload.contestId);
 

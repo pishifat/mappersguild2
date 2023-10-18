@@ -34,6 +34,7 @@ export interface Contest {
     screeners: User[];
     judges: User[];
     judgingThreshold: number;
+    screeningBonus: boolean;
     screeningVoteCount: number;
     criterias: Criteria[] | Criteria['_id'];
     download: string;

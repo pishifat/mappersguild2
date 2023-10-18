@@ -8,7 +8,7 @@
                 type="number"
                 placeholder="judging threshold"
                 @keyup.enter="updateJudgingThreshold($event)"
-            >
+            />
             <div class="input-group-append">
                 <button
                     class="btn btn-primary"

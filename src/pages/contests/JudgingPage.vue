@@ -163,6 +163,9 @@
                 </div>
             </div>
         </div>
+        <div v-if="!contests.length" class="text-center my-4">
+            You're not a judge for any ongoing contests! Return to the <a href="/contests/listing">contests listing</a>.
+        </div>
         <editing-criteria-modal />
     </div>
 </template>
@@ -208,7 +211,11 @@ export default defineComponent({
                 const submission = this.selectedContest.submissions[i];
                 const total = submission.screenings.reduce((acc, e) => {
                     if (e.vote) {
-                        return acc + e.vote;
+                        if (this.selectedContest.screeningBonus) {
+                            return acc + e.vote + 1;
+                        } else {
+                            return acc + e.vote;
+                        }
                     }
 
                     return acc;

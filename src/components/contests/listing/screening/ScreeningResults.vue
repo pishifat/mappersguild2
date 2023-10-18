@@ -11,8 +11,8 @@
                         data-bs-toggle="collapse"
                         :href="`#collapse-${submission.id}`"
                     >
-                        {{ submission.creator.username }}
-                        ({{ submission.total }} <i class="fa-star fas small" />)
+                        <span class="text-warning">{{ submission.total }} <i class="fa-star fas small" /></span>
+                        - {{ submission.creator.username }} ({{ submission.name }})
                         <i class="fas fa-angle-down" />
                     </a>
                 </div>
@@ -54,6 +54,10 @@ export default defineComponent({
             type: Number,
             default: 0,
         },
+        screeningBonus: {
+            type: Boolean,
+            default: false,
+        },
         submissions: {
             type: Array as PropType<Submission[]>,
             required: true,
@@ -79,7 +83,11 @@ export default defineComponent({
                 const submission = sortedSubmissions[i];
                 const total = submission.screenings.reduce((acc, e) => {
                     if (e.vote) {
-                        return acc + e.vote;
+                        if (this.screeningBonus) {
+                            return acc + e.vote + 1;
+                        } else {
+                            return acc + e.vote;
+                        }
                     }
 
                     return acc;

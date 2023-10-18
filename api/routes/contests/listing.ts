@@ -17,7 +17,7 @@ const listingRouter = express.Router();
 
 listingRouter.use(isLoggedIn);
 
-const limitedContestSelect = '-screeners -judges -judgingThreshold -criterias -download';
+const limitedContestSelect = '-screeners -judges -judgingThreshold -screeningBonus -criterias -download';
 
 const defaultContestPopulate = [
     {
@@ -992,6 +992,7 @@ listingRouter.get('/:id/judgingResults', isContestCreator, async (req, res) => {
 
         submission.screenings.forEach(e => {
             total += e.vote;
+            if (e.vote && contest.screeningBonus) total++;
         });
 
         return total >= contest.judgingThreshold;
@@ -1229,6 +1230,18 @@ listingRouter.get('/:id/getUsersScores', isComplete, async (req, res) => {
     const { usersScores } = calculateContestScores(contest);
 
     res.json({ usersScores });
+});
+
+/* POST toggle screeningBonus */
+listingRouter.post('/:id/toggleScreeningBonus', isContestCreator, isEditable, async (req, res) => {
+    const contest = await ContestModel
+        .findById(req.params.id)
+        .orFail();
+
+    contest.screeningBonus = !contest.screeningBonus;
+    await contest.save();
+
+    res.json(contest.screeningBonus);
 });
 
 export default listingRouter;
