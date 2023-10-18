@@ -65,7 +65,7 @@
                 </p>
                 <p>
                     <button class="btn btn-sm btn-outline-info w-100" @click="toggleHasMerchAccess($event)">
-                        {{ user.isMentorshipAdmin ? 'Disable' : 'Enable' }} hasMerchAccess
+                        {{ user.hasMerchAccess ? 'Disable' : 'Enable' }} hasMerchAccess
                     </button>
                 </p>
             </div>
