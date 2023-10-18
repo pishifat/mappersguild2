@@ -8,7 +8,7 @@
                 <h5 class="mt-2">
                     info
                 </h5>
-                <p>all products listed here have a 100% discount, and the prices you see on shopify checkout are lower than the actual product values. (we'd mark them as free if we could!)</p>
+                <p>all products listed here have a 100% discount. the prices you see on shopify checkout are lower than the actual product values to reduce import fees.</p>
                 <p>to ensure nobody snags multiple free products, you can only begin the checkout process <b>once</b>! this requires...</p>
                 <ul>
                     <li>contact email <span class="text-secondary small">(must match your osu! account's email address)</span></li>
