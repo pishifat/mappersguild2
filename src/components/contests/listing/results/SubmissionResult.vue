@@ -36,7 +36,7 @@
                 </h5>
                 <div v-if="submission.screenings && submission.screenings.length">
                     <p class="ms-3">
-                        Comments are usually each screener's initial thoughts. They're not intended to be constructive feedback and many screeners use comments as notes for determining their top 5.
+                        Comments are usually each screener's initial thoughts. They're not intended to be constructive feedback and many screeners use comments as notes for determining their top picks.
                     </p>
                     <div v-for="(screening, i) in randomizedScreening" :key="screening.id">
                         <div>
@@ -44,7 +44,7 @@
                                 User {{ i+1 }}
                                 <i
                                     v-if="screening.vote"
-                                    v-bs-tooltip="'user placed in top 5'"
+                                    v-bs-tooltip="'user placed in top picks'"
                                     class="fas fa-check text-done"
                                 />
                             </div>
