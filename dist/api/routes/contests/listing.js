@@ -19,7 +19,7 @@ const screening_1 = require("../../models/contest/screening");
 const judging_1 = require("../../models/contest/judging");
 const listingRouter = express_1.default.Router();
 listingRouter.use(middlewares_1.isLoggedIn);
-const limitedContestSelect = '-screeners -judges -judgingThreshold -criterias -download';
+const limitedContestSelect = '-screeners -judges -judgingThreshold -screeningBonus -criterias -download';
 const defaultContestPopulate = [
     {
         path: 'submissions',
@@ -825,6 +825,8 @@ listingRouter.get('/:id/judgingResults', middlewares_2.isContestCreator, async (
         let total = 0;
         submission.screenings.forEach(e => {
             total += e.vote;
+            if (e.vote && contest.screeningBonus)
+                total++;
         });
         return total >= contest.judgingThreshold;
     });
@@ -1010,5 +1012,14 @@ listingRouter.get('/:id/getUsersScores', middlewares_2.isComplete, async (req, r
         .orFail();
     const { usersScores } = calculateContestScores(contest);
     res.json({ usersScores });
+});
+/* POST toggle screeningBonus */
+listingRouter.post('/:id/toggleScreeningBonus', middlewares_2.isContestCreator, middlewares_2.isEditable, async (req, res) => {
+    const contest = await contest_1.ContestModel
+        .findById(req.params.id)
+        .orFail();
+    contest.screeningBonus = !contest.screeningBonus;
+    await contest.save();
+    res.json(contest.screeningBonus);
 });
 exports.default = listingRouter;

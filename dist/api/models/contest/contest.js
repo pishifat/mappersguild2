@@ -36,6 +36,7 @@ const contestSchema = new mongoose_1.Schema({
     screeningVoteCount: { type: Number, default: 5 },
     judges: [{ type: 'ObjectId', ref: 'User' }],
     judgingThreshold: { type: Number, default: 0 },
+    screeningBonus: { type: Boolean },
     criterias: [{ type: 'ObjectId', ref: 'Criteria' }],
     download: { type: String },
     description: { type: String },

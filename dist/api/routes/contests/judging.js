@@ -54,7 +54,7 @@ judgingRouter.get('/relevantInfo', async (req, res) => {
         judges: res.locals.userRequest._id,
     })
         .populate(defaultContestPopulate)
-        .select('_id name submissions judges download status url judgingThreshold');
+        .select('_id name submissions judges download status url judgingThreshold screeningBonus screeningVoteCount');
     const judgingDone = await judging_1.JudgingModel
         .find({
         judge: req.session?.mongoId,
