@@ -13,7 +13,7 @@ export interface Beatmap extends IBeatmap, Document {
     /**
      * checks whether the beatmap can accept new tasks/collabs or not, depending on beatmap state and quest-user relation
      */
-    checkTaskAvailability (user: User, taskName: TaskName, taskMode: TaskMode): Promise<boolean>;
+    checkTaskAvailability (user: User, taskName: TaskName, taskMode: TaskMode, isAdmin: boolean): Promise<boolean>;
 }
 
 const BeatmapSchema = new Schema<Beatmap>({

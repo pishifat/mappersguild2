@@ -70,7 +70,10 @@ BeatmapSchema.methods.participated = function (userId) {
         return false;
     return this.tasks.some(t => t.mappers.some(m => m.id == userId));
 };
-BeatmapSchema.methods.checkTaskAvailability = async function (user, taskName, taskMode) {
+BeatmapSchema.methods.checkTaskAvailability = async function (user, taskName, taskMode, isAdmin) {
+    if (isAdmin) {
+        return true;
+    }
     if (this.status == beatmap_1.BeatmapStatus.Ranked || this.status == beatmap_1.BeatmapStatus.Qualified || this.status == beatmap_1.BeatmapStatus.Done) {
         throw new Error(`Mapset already marked as ${this.status.toLowerCase()}`);
     }

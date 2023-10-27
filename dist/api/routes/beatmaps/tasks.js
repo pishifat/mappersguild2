@@ -13,6 +13,7 @@ const middlewares_1 = require("../../helpers/middlewares");
 const middlewares_2 = require("./middlewares");
 const log_1 = require("../../models/log");
 const log_2 = require("../../../interfaces/log");
+const user_2 = require("../../../interfaces/user");
 const tasksRouter = express_1.default.Router();
 tasksRouter.use(middlewares_1.isLoggedIn);
 /* POST create task */
@@ -24,7 +25,7 @@ tasksRouter.post('/addTask/:mapId', middlewares_2.isValidBeatmap, middlewares_1.
     if (taskName == task_2.TaskName.Storyboard) {
         taskMode = task_2.TaskMode.SB;
     }
-    await beatmap.checkTaskAvailability(user, taskName, taskMode);
+    await beatmap.checkTaskAvailability(user, taskName, taskMode, res.locals.userRequest.group == user_2.UserGroup.Admin);
     const t = new task_1.TaskModel();
     t.name = taskName;
     t.mappers = [user];
@@ -53,7 +54,9 @@ tasksRouter.post('/removeTask/:id', async (req, res) => {
             .orFail(),
     ]);
     if (t.mappers.indexOf(req.session?.mongoId) < 0 && b.host != req.session?.mongoId) {
-        return res.json({ error: 'Not mapper' });
+        if (res.locals.userRequest.group !== user_2.UserGroup.Admin) {
+            return res.json({ error: 'Not mapper' });
+        }
     }
     await beatmap_1.BeatmapModel.findByIdAndUpdate(req.body.beatmapId, { $pull: { tasks: t._id } });
     await task_1.TaskModel.findByIdAndRemove(req.params.id);
@@ -132,7 +135,9 @@ tasksRouter.post('/setTaskStatus/:taskId', async (req, res) => {
         .defaultPopulate()
         .orFail();
     if (t.mappers.indexOf(req.session?.mongoId) < 0 && req.session?.mongoId != b.host.id) {
-        return res.json({ error: 'Not mapper' });
+        if (res.locals.userRequest.group !== user_2.UserGroup.Admin) {
+            return res.json({ error: 'Not mapper' });
+        }
     }
     t.status = req.body.status;
     await t.save();
