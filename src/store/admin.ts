@@ -90,6 +90,14 @@ const store: Module<AdminState, MainState> = {
         },
 
         // beatmaps
+        updateBeatmap (state, beatmap: Beatmap): void {
+            const i = state.actionBeatmaps.findIndex(b => b.id === beatmap.id);
+
+            if (i !== -1) {
+                state.actionBeatmaps[i] = beatmap;
+                state.selectedBeatmap = beatmap;
+            }
+        },
         updateBeatmapStatus (state, payload): void {
             const beatmap = state.actionBeatmaps.find(b => b.id == payload.beatmapId);
 

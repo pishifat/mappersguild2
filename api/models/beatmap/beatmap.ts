@@ -67,7 +67,11 @@ BeatmapSchema.methods.participated = function (this: Beatmap, userId: any) {
     return this.tasks.some(t => t.mappers.some(m => m.id == userId));
 };
 
-BeatmapSchema.methods.checkTaskAvailability = async function (this: Beatmap, user: User, taskName: TaskName, taskMode: TaskMode) {
+BeatmapSchema.methods.checkTaskAvailability = async function (this: Beatmap, user: User, taskName: TaskName, taskMode: TaskMode, isAdmin: boolean) {
+    if (isAdmin) {
+        return true;
+    }
+
     if (this.status == BeatmapStatus.Ranked || this.status == BeatmapStatus.Qualified || this.status == BeatmapStatus.Done) {
         throw new Error(`Mapset already marked as ${this.status.toLowerCase()}`);
     }

@@ -20,6 +20,26 @@
 
         <template #default>
             <div class="container">
+                <div class="row">
+                    <tasks-choice
+                        :beatmap="beatmap"
+                        :is-host="true"
+                        :is-qualified="false"
+                        :is-ranked="false"
+                        :is-admin="true"
+                    />
+                </div>
+                <p class="row">
+                    <select v-model="taskId" class="form-select form-select-sm w-50 mx-2">
+                        <option v-for="task in sortedTasks" :key="task.id" :value="task.id">
+                            {{ findTaskInfo(task) }}
+                        </option>
+                    </select>
+                    <button class="btn btn-sm btn-outline-danger w-25" @click="deleteTask($event)">
+                        Remove difficulty
+                    </button>
+                </p>
+                <hr />
                 <p class="row">
                     <select v-model="status" class="form-select form-select-sm w-50 mx-2">
                         <option value="WIP">
@@ -37,16 +57,6 @@
                     </select>
                     <button class="btn btn-sm btn-outline-info w-25" @click="updateBeatmapStatus($event)">
                         Save status
-                    </button>
-                </p>
-                <p class="row">
-                    <select v-model="taskId" class="form-select form-select-sm w-50 mx-2">
-                        <option v-for="task in sortedTasks" :key="task.id" :value="task.id">
-                            {{ findTaskInfo(task) }}
-                        </option>
-                    </select>
-                    <button class="btn btn-sm btn-outline-danger w-25" @click="deleteTask($event)">
-                        Remove difficulty
                     </button>
                 </p>
                 <p class="row">
@@ -145,12 +155,14 @@ import ModalDialog from '@components/ModalDialog.vue';
 import { Beatmap } from '../../../interfaces/beatmap/beatmap';
 import { SBQuality, Task } from '../../../interfaces/beatmap/task';
 import ModesIcons from '@components/ModesIcons.vue';
+import TasksChoice from '../beatmaps/beatmapInfo/TasksChoice.vue';
 
 export default defineComponent({
     name: 'BeatmapInfoAdmin',
     components: {
         ModalDialog,
         ModesIcons,
+        TasksChoice,
     },
     props: {
         beatmap: {

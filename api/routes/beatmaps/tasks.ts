@@ -8,7 +8,7 @@ import { isLoggedIn, isValidUser } from '../../helpers/middlewares';
 import { isValidBeatmap } from './middlewares';
 import { LogModel } from '../../models/log';
 import { LogCategory } from '../../../interfaces/log';
-import { User } from '../../../interfaces/user';
+import { User, UserGroup } from '../../../interfaces/user';
 
 const tasksRouter = express.Router();
 
@@ -25,7 +25,7 @@ tasksRouter.post('/addTask/:mapId', isValidBeatmap, isValidUser, async (req, res
         taskMode = TaskMode.SB;
     }
 
-    await beatmap.checkTaskAvailability(user, taskName, taskMode);
+    await beatmap.checkTaskAvailability(user, taskName, taskMode, res.locals.userRequest.group == UserGroup.Admin);
 
     const t = new TaskModel();
     t.name = taskName;
@@ -66,7 +66,9 @@ tasksRouter.post('/removeTask/:id', async (req, res) => {
     ]);
 
     if (t.mappers.indexOf(req.session?.mongoId) < 0 && b.host != req.session?.mongoId) {
-        return res.json({ error: 'Not mapper' });
+        if (res.locals.userRequest.group !== UserGroup.Admin) {
+            return res.json({ error: 'Not mapper' });
+        }
     }
 
     await BeatmapModel.findByIdAndUpdate(req.body.beatmapId, { $pull: { tasks: t._id } });
@@ -181,7 +183,9 @@ tasksRouter.post('/setTaskStatus/:taskId', async (req, res) => {
         .orFail();
 
     if (t.mappers.indexOf(req.session?.mongoId) < 0 && req.session?.mongoId != b.host.id) {
-        return res.json({ error: 'Not mapper' });
+        if (res.locals.userRequest.group !== UserGroup.Admin) {
+            return res.json({ error: 'Not mapper' });
+        }
     }
 
     t.status = req.body.status;

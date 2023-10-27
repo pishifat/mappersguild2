@@ -112,6 +112,7 @@
                     v-model:task-to-add-collaborator="taskToAddCollaborator"
                     :beatmap="beatmap"
                     :is-host="isHost"
+                    :is-admin="isAdmin"
                 />
             </div>
         </template>
@@ -141,6 +142,7 @@ export default defineComponent({
         isHost: Boolean,
         isRanked: Boolean,
         isQualified: Boolean,
+        isAdmin: Boolean,
     },
     data () {
         return {
@@ -177,7 +179,11 @@ export default defineComponent({
             const bm = await this.$http.executePost('/beatmaps/setTaskStatus/' + id, { status });
 
             if (!this.$http.isError(bm)) {
-                this.$store.dispatch('beatmaps/updateBeatmap', bm);
+                if (this.isAdmin) {
+                    this.$store.commit('updateBeatmap', bm);
+                } else {
+                    this.$store.dispatch('beatmaps/updateBeatmap', bm);
+                }
             }
 
             e.target.classList.remove('fake-button-disable');
@@ -189,7 +195,9 @@ export default defineComponent({
                 beatmapId: this.beatmap.id,
             });
 
-            if (!this.$http.isError(bm)) {
+            if (this.isAdmin) {
+                this.$store.commit('updateBeatmap', bm);
+            } else {
                 this.$store.dispatch('beatmaps/updateBeatmap', bm);
             }
 
@@ -208,7 +216,9 @@ export default defineComponent({
 
             const bm = await this.$http.executePost('/beatmaps/task/' + id + '/removeCollab', { user });
 
-            if (!this.$http.isError(bm)) {
+            if (this.isAdmin) {
+                this.$store.commit('updateBeatmap', bm);
+            } else {
                 this.$store.dispatch('beatmaps/updateBeatmap', bm);
             }
 

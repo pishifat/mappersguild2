@@ -1,6 +1,6 @@
 <template>
     <div
-        v-if="beatmap.status == 'WIP' && remainingTasks.length"
+        v-if="(beatmap.status == 'WIP' && remainingTasks.length) || isAdmin"
         class="row mt-2 mb-3"
     >
         <div class="col-sm-12">
@@ -89,6 +89,7 @@ export default defineComponent({
             type: Object as () => Beatmap,
             required: true,
         },
+        isAdmin: Boolean,
     },
     emits: [
         'update:taskToAddCollaborator',
@@ -131,7 +132,9 @@ export default defineComponent({
                 mode,
             }, e);
 
-            if (!this.$http.isError(bm)) {
+            if (this.isAdmin) {
+                this.$store.commit('updateBeatmap', bm);
+            } else {
                 this.$store.dispatch('beatmaps/updateBeatmap', bm);
             }
         },
@@ -152,11 +155,15 @@ export default defineComponent({
             }, e);
 
             if (!this.$http.isError(bm)) {
-                this.$store.dispatch('beatmaps/updateBeatmap', bm);
-                this.$store.dispatch('updateToastMessages', {
-                    message: 'Added',
-                    type: 'success',
-                });
+                if (this.isAdmin) {
+                    this.$store.commit('updateBeatmap', bm);
+                } else {
+                    this.$store.dispatch('beatmaps/updateBeatmap', bm);
+                    this.$store.dispatch('updateToastMessages', {
+                        message: 'Added',
+                        type: 'success',
+                    });
+                }
             }
         },
     },
