@@ -2,7 +2,7 @@
     <div class="mx-4">
         Submissions must be anonymized locally, then transferred to Mappers' Guild. You have 3 options:
         <ol>
-            <li>Follow instructions on the <a href="https://github.com/pishifat/contest-anonymization#readme" target="_blank">contest anonymization GitHub repository</a>.</li>
+            <li>Follow instructions on the <a href="https://github.com/pishifat/contest-anonymization#readme" target="_blank">contest anonymization GitHub repository</a>. Use <a href="https://github.com/ikin5050/osuAnonmap#osuanonmap" target="_blank">this</a> if you prefer Python.</li>
             <li>Ask <a href="https://osu.ppy.sh/users/3178418" target="_blank">pishifat</a> to do option 1 for you.</li>
             <li>Manually anonymize entries (please don't waste your time with this).</li>
         </ol>
