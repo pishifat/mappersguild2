@@ -40,7 +40,7 @@
                                     v-for="criteria in scoredCriteria"
                                     :key="criteria.id"
                                 >
-                                    {{ criteria.name }}
+                                    {{ findCriteriaName(criteria.name, criteria.maxScore) }}
                                 </th>
                             </template>
                             <template v-else>
@@ -147,7 +147,7 @@
             <div>
                 #,User,<span v-if="displayMode === 'criterias'">
                     <span v-for="criteria in scoredCriteria" :key="criteria.id">
-                        <span class="text-capitalize">{{ criteria.name + ',' }}</span>
+                        <span class="text-capitalize">{{ findCriteriaName(criteria.name, criteria.maxScore) + ',' }}</span>
                     </span>
                 </span><span v-else><span v-for="judge in judges" :key="judge.id">
                         {{ judge.username + ',' }}
@@ -174,7 +174,7 @@
             | Rank | User
             <span v-if="displayMode === 'criterias'">
                 <span v-for="criteria in scoredCriteria" :key="criteria.id">
-                    | <span class="text-capitalize">{{ criteria.name }}</span>
+                    | <span class="text-capitalize">{{ findCriteriaName(criteria.name, criteria.maxScore) }}</span>
                 </span>
             </span>
             <span v-else>
@@ -182,7 +182,8 @@
                     | {{ judge.username }}
                 </span>
             </span>
-            | Final Score<span v-if="!contest.useRawScoring"> (raw) | **Final Score (standardized)**</span> |
+            <span v-if="contest.useRawScoring"> | **Final Score** |</span>
+            <span v-else-if="!contest.useRawScoring"> | [**Final Score**](/wiki/Contests/Monthly_Beatmapping_Contest#judging) |</span>
         </div>
         <div>
             | :-- | :--
@@ -196,10 +197,10 @@
                     | :--
                 </span>
             </span>
-            | :-- | :-- |
+            | :-- |
         </div>
         <div v-for="(score, i) in usersScores" :key="i">
-            | {{ i+1 }} | {{ '[' + score.creator.username + '](' + score.creator.osuId + ')' }}
+            | {{ i+1 }} | {{ '[' + score.creator.username + '](https://osu.ppy.sh/users/' + score.creator.osuId + ')' }}
             <span v-if="displayMode === 'criterias'">
                 <span v-for="criteria in scoredCriteria" :key="criteria.id">
                     | {{ getCriteriaScore(score, criteria.id) }}
@@ -210,7 +211,8 @@
                     | {{ getJudgeScore(score, judge.id, displayMode === 'detail') }}
                 </span>
             </span>
-            | {{ score.rawFinalScore }}<span v-if="!contest.useRawScoring"> | **{{ getFinalScore(score.standardizedFinalScore) }}**</span> |
+            <span v-if="contest.useRawScoring"> | **{{ score.rawFinalScore }}**</span>
+            <span v-else-if="!contest.useRawScoring"> | **{{ getFinalScore(score.standardizedFinalScore) }}**</span> |
         </div>
     </copy-paste>
     </div>
@@ -324,6 +326,14 @@ export default defineComponent({
             this.$store.commit('sortByStdScore', {
                 sortDesc: this.sortDesc,
             });
+        },
+        findCriteriaName (name, maxScore): string {
+            switch (name) {
+                case 'musical representation':
+                    return `Musical rep. (${maxScore*this.contest.judges.length})`;
+                default:
+                    return `${name} (${maxScore*this.contest.judges.length})`;
+            }
         },
     },
 });
