@@ -21,8 +21,8 @@
                         <th scope="col">
                             Creator
                         </th>
-                        <th v-if="contest.judgingThreshold" v-bs-tooltip="`screeners sort entries in their ordered top ${contest.screeningVoteCount}. #1 adds 5 points, #2 adds 4 points, etc.`" scope="col">
-                            Screener votes ({{ contest.screeners.length * 5 }})
+                        <th v-if="contest.judgingThreshold" v-bs-tooltip="`screeners sort entries in their ordered top ${contest.screeningVoteCount}. #1 adds ${contest.screeningVoteCount} points, #2 adds ${contest.screeningVoteCount-1} points, #3 adds ${contest.screeningVoteCount-2}, etc.`" scope="col">
+                            Screener votes ({{ contest.screeners.length * contest.screeningVoteCount }})
                         </th>
                         <th scope="col">
                             Raw scores ({{ maxScore }})
