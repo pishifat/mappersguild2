@@ -64,6 +64,20 @@
             <h5>Results</h5>
             <div><a :href="contest.resultsUrl" target="_blank">View contest results here!</a></div>
             <div><a :href="'/contests/results?contest=' + contest.id" target="_blank">View Mappers' Guild judging scores here!</a></div>
+            <hr />
+            <h5>Contributions</h5>
+            <div v-if="contest.screeners && contest.screeners.length" class="mt-2">
+                Thanks to these users for <a href="https://osu.ppy.sh/wiki/en/Contests/Monthly_Beatmapping_Contest#screening" target="_blank">screening</a> this contest's submissions:
+                <user-link-list
+                    :users="contest.screeners"
+                />
+            </div>
+            <div v-if="contest.judges && contest.judges.length" class="mt-2">
+                {{ !contest.screeners || !contest.screeners.length ? 'Thanks ' : 'And thanks ' }} to these users for <a href="https://osu.ppy.sh/wiki/en/Contests/Monthly_Beatmapping_Contest#judging" target="_blank">judging</a> this contest's submissions:
+                <user-link-list
+                    :users="contest.judges"
+                />
+            </div>
         </div>
     </div>
 </template>
@@ -74,6 +88,7 @@ import { Contest } from '@interfaces/contest/contest';
 import ContestHeader from './ContestHeader.vue';
 import ContestBanner from './ContestBanner.vue';
 import MapSubmissionForm from './MapSubmissionForm.vue';
+import UserLinkList from '@components/UserLinkList.vue';
 
 export default defineComponent({
     name: 'LimitedContestInfo',
@@ -81,6 +96,7 @@ export default defineComponent({
         ContestHeader,
         ContestBanner,
         MapSubmissionForm,
+        UserLinkList,
     },
     props: {
         contest: {
