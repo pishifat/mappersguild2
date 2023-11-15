@@ -111,8 +111,6 @@ const setQualified = cron.schedule('0 16 * * *', async () => { /* 9:00 AM PST */
         const token = response.access_token;
 
         for (const bm of allBeatmaps) {
-            console.log('in');
-
             if (bm.url && bm.url.length && bm.url.indexOf('osu.ppy.sh/beatmapsets/') > -1) {
                 const osuId = findBeatmapsetId(bm.url);
                 const bmInfo = await getBeatmapsetV2Info(token, osuId);
