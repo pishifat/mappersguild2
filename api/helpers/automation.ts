@@ -100,7 +100,7 @@ const setQualified = cron.schedule('0 16 * * *', async () => { /* 9:00 AM PST */
 
     const allBeatmaps = await BeatmapModel
         .find({
-            url: { $exists: true, $ne: null },
+            url: { $exists: true },
             $and: statusQuery,
         })
         .defaultPopulate();

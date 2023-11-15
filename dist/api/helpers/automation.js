@@ -94,7 +94,7 @@ const setQualified = node_cron_1.default.schedule('0 16 * * *', async () => {
     if (!osuApi_1.isOsuResponseError(response)) {
         const token = response.access_token;
         for (const bm of allBeatmaps) {
-            if (bm.url.indexOf('osu.ppy.sh/beatmapsets/') > -1) {
+            if (bm.url && bm.url.length && bm.url.indexOf('osu.ppy.sh/beatmapsets/') > -1) {
                 const osuId = helpers_1.findBeatmapsetId(bm.url);
                 const bmInfo = await osuApi_1.getBeatmapsetV2Info(token, osuId);
                 await helpers_1.sleep(500);

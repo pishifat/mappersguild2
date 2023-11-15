@@ -19,7 +19,7 @@ const screening_1 = require("../../models/contest/screening");
 const judging_1 = require("../../models/contest/judging");
 const listingRouter = express_1.default.Router();
 listingRouter.use(middlewares_1.isLoggedIn);
-const limitedContestSelect = '-screeners -judges -judgingThreshold -screeningBonus -criterias -download';
+const limitedContestSelect = '-judgingThreshold -screeningBonus -criterias -download';
 const defaultContestPopulate = [
     {
         path: 'submissions',
@@ -83,7 +83,7 @@ function getQuerySelectPopulate(mongoId, contestType, showFullData, bypass) {
     else if (contestType == 'completedContests') {
         query = { status: contest_2.ContestStatus.Complete, isApproved: true };
         select = limitedContestSelect;
-        populate = [{ path: 'creators', select: 'username osuId' }];
+        populate = [{ path: 'creators screeners judges', select: 'username osuId' }];
     }
     else if (showFullData) {
         if (bypass)
