@@ -139,6 +139,9 @@ adminBeatmapsRouter.post('/:id/rejectMapset', async (req, res) => {
     }
     else {
         message += `\n\nsorry :(`;
+        beatmap.invalidForPoints = true;
+        beatmap.invalidReason = inputMessages;
+        await beatmap.save();
     }
     const announcement = await osuBot_1.sendAnnouncement([beatmap.host.osuId], channel, message);
     if (announcement !== true) {

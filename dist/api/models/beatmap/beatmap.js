@@ -40,7 +40,9 @@ const BeatmapSchema = new mongoose_1.Schema({
     rankedDate: { type: Date },
     submissionDate: { type: Date },
     isShowcase: { type: Boolean },
-    queuedForRank: { type: Boolean }, // used for automation of status changes
+    queuedForRank: { type: Boolean },
+    invalidForPoints: { type: Boolean },
+    invalidReason: { type: String },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 const queryHelpers = {
     sortByLatest() {
