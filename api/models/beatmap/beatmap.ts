@@ -34,6 +34,8 @@ const BeatmapSchema = new Schema<Beatmap>({
     submissionDate: { type: Date },
     isShowcase: { type: Boolean }, // showcase beatmaps are created for fa news post announcements and receive quest bonus points
     queuedForRank: { type: Boolean }, // used for automation of status changes
+    invalidForPoints: { type: Boolean },
+    invalidReason: { type: String },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const queryHelpers = {

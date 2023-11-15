@@ -183,6 +183,9 @@ adminBeatmapsRouter.post('/:id/rejectMapset', async (req, res) => {
         message += `\n\nthank you!!`;
     } else {
         message += `\n\nsorry :(`;
+        beatmap.invalidForPoints = true;
+        beatmap.invalidReason = inputMessages;
+        await beatmap.save();
     }
 
     const announcement = await sendAnnouncement([beatmap.host.osuId], channel, message);

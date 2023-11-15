@@ -41,4 +41,6 @@ export interface Beatmap {
     createdAt: Date;
     isShowcase: boolean;
     queuedForRank: boolean;
+    invalidForPoints: boolean;
+    invalidReason: string;
 }

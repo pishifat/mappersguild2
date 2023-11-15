@@ -3,13 +3,17 @@
         <div class="row">
             <div class="col-sm-12">
                 <button
-                    v-if="!tasksPointsArray"
+                    v-if="!tasksPointsArray && !beatmap.invalidForPoints"
                     v-bs-tooltip="'calculate points for all difficulties'"
                     class="btn btn-sm btn-outline-info ms-1"
                     @click="findPoints($event)"
                 >
                     Calculate points
                 </button>
+                <div v-if="beatmap.invalidForPoints" class="small text-danger">
+                    This beatmap is ineligible for points
+                    <span v-if="beatmap.invalidReason"> for the following reason: <i>{{ beatmap.invalidReason }}</i></span>
+                </div>
                 <div v-if="isLoading" class="small text-secondary ms-2">
                     calculating...
                 </div>
