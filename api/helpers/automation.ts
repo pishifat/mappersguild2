@@ -100,7 +100,7 @@ const setQualified = cron.schedule('0 16 * * *', async () => { /* 9:00 AM PST */
 
     const allBeatmaps = await BeatmapModel
         .find({
-            url: { $exists: true },
+            url: { $exists: true, $ne: null },
             $and: statusQuery,
         })
         .defaultPopulate();
@@ -111,7 +111,9 @@ const setQualified = cron.schedule('0 16 * * *', async () => { /* 9:00 AM PST */
         const token = response.access_token;
 
         for (const bm of allBeatmaps) {
-            if (bm.url.indexOf('osu.ppy.sh/beatmapsets/') > -1) {
+            console.log('in');
+
+            if (bm.url && bm.url.length && bm.url.indexOf('osu.ppy.sh/beatmapsets/') > -1) {
                 const osuId = findBeatmapsetId(bm.url);
                 const bmInfo = await getBeatmapsetV2Info(token, osuId);
                 await sleep(500);
