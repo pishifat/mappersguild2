@@ -30,40 +30,41 @@
         </a>
         <div :id="artist.label.replace(/\s|[0-9]/g, '') + 'Artist'" class="collapse">
             <div class="small ms-2">
-                <div v-if="artist.referenceUrl">
-                    <a v-if="artist.referenceUrl" :href="artist.referenceUrl" target="_blank">{{ artist.referenceUrl }}</a>
-                </div>
-                <div v-if="!artist.songs.length">
-                    Songs haven't been added yet. @pishifat
-                </div>
-                <div v-else-if="artist.oszTemplatesUrl">
-                    <a :href="artist.oszTemplatesUrl" target="_blank">.osz templates</a>
-                </div>
-                <div v-else>
-                    .osz templates aren't available yet. :(
-                </div>
-                <div v-if="artist.projectedRelease">
-                    {{ month }} (deadline estimate)
-                </div>
-                <div v-else-if="!artist.osuId">
-                    Deadline hasn't been set yet.
-                </div>
-                <div v-if="artist.offeredUsers && artist.offeredUsers.length && loggedInUser.group == 'admin'">
-                    offered to
+                <li v-if="artist.referenceUrl">
+                    <b>Listen: </b><a v-if="artist.referenceUrl" :href="artist.referenceUrl" target="_blank">{{ artist.referenceUrl }}</a>
+                </li>
+                <li>
+                    <b>.osz templates: </b>
+                    <a v-if="artist.oszTemplatesUrl" :href="artist.oszTemplatesUrl" target="_blank">download</a>
+                    <span v-else>Not added yet. Yell at pishifat please.</span>
+                </li>
+                <li>
+                    <b>Deadline: </b>
+                    <span v-if="artist.projectedRelease">{{ month }} (deadline estimate)</span>
+                    <span v-else-if="!artist.osuId">Deadline hasn't been set yet.</span>
+                    <span v-else>Already released</span>
+                </li>
+                <li>
+                    <b>Songs: </b>
+                    <span v-if="!artist.songs.length">Not added yet. Yell at pishifat please.</span>
+                    <ul v-else>
+                        <li v-for="song in artist.songs" :key="song.id" class="text-secondary">
+                            <song-details
+                                :song="song"
+                                :is-showcase-mapper="isShowcaseMapper"
+                                :artist-id="artist.id"
+                            />
+                        </li>
+                    </ul>
+                </li>
+                <hr />
+                <li v-if="artist.offeredUsers && artist.offeredUsers.length && loggedInUser.group == 'admin'" class="small">
+                    <b>Offered to: </b>
                     <user-link-list
                         :users="artist.offeredUsers"
                     />
-                </div>
-            </div>
-            <ul>
-                <li v-for="song in artist.songs" :key="song.id" class="small text-secondary">
-                    <song-details
-                        :song="song"
-                        :is-showcase-mapper="isShowcaseMapper"
-                        :artist-id="artist.id"
-                    />
                 </li>
-            </ul>
+            </div>
         </div>
     </div>
 </template>
