@@ -1,6 +1,7 @@
 <template>
     <img
         v-if="beatmap.quest || beatmap.mission || beatmap.isShowcase"
+        :key="$route.query.id"
         v-bs-tooltip="(beatmap.quest && beatmap.quest.name) || (beatmap.mission && beatmap.mission.name) || 'FA showcase'"
         class="rounded-circle me-1 quest-icon"
         :src="url"
