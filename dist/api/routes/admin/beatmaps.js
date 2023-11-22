@@ -174,6 +174,7 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
                 { catchPoints: { $gt: 0 } },
                 { maniaPoints: { $gt: 0 } },
                 { storyboardPoints: { $gt: 0 } },
+                { hitsoundPoints: { $gt: 0 } },
                 { modPoints: { $gt: 0 } },
                 { contestParticipantPoints: { $gt: 0 } },
                 { contestJudgePoints: { $gt: 0 } },
@@ -201,7 +202,6 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
             if (user.taskCount >= 10 || user.hostCount >= 5) {
                 const userInfo = await osuApi_1.getUserInfoFromId(token, user.osuId);
                 if (!osuApi_1.isOsuResponseError(userInfo)) {
-                    console.log(userInfo.username);
                     await helpers_1.sleep(250);
                     users.push({ username: user.username, flag: `::{ flag=${userInfo.country_code} }::`, osuId: user.osuId, taskCount: user.taskCount, hostCount: user.hostCount, modes: [...new Set(modes)] });
                 }

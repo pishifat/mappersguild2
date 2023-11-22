@@ -22,6 +22,12 @@ beatmapsHostRouter.use(middlewares_1.isLoggedIn);
 /* POST set game mode. */
 beatmapsHostRouter.post('/:id/setMode', middlewares_2.isValidBeatmap, middlewares_2.isBeatmapHost, async (req, res) => {
     let b = res.locals.beatmap;
+    if (req.body.mode == beatmap_2.BeatmapMode.Taiko) {
+        const hitsoundTask = b.tasks.find(t => t.name == 'Hitsounds');
+        if (hitsoundTask && req.body.mode == 'taiko') {
+            return res.json({ error: '"Hitsounds" are not applicable to osu!taiko' });
+        }
+    }
     if (req.body.mode != beatmap_2.BeatmapMode.Hybrid) {
         if (b.quest && !b.quest.modes.includes(req.body.mode)) {
             return res.json({ error: `The selected quest doesn't support beatmaps of this mode!` });
@@ -48,7 +54,14 @@ beatmapsHostRouter.post('/:id/setStatus', middlewares_2.isValidBeatmap, middlewa
         if (validBeatmap.tasks.length == 0) {
             return res.json({ error: `You can't mark an empty mapset as complete!` });
         }
-        if (validBeatmap.tasks.length == 1 && validBeatmap.tasks[0].name == task_2.TaskName.Storyboard) {
+        const difficulties = ['Easy', 'Normal', 'Hard', 'Insane', 'Expert'];
+        let hasNoDifficulties = true;
+        for (const task of validBeatmap.tasks) {
+            if (difficulties.includes(task.name)) {
+                hasNoDifficulties = false;
+            }
+        }
+        if (hasNoDifficulties) {
             return res.json({ error: `You can't mark a mapset without difficulties as complete!` });
         }
         for (let i = 0; i < validBeatmap.tasks.length; i++) {
@@ -81,7 +94,7 @@ beatmapsHostRouter.post('/:id/linkQuest', middlewares_2.isValidBeatmap, middlewa
         })
             .orFail();
         for (const task of beatmap.tasks) {
-            if (!quest.modes.includes(task.mode) && task.mode !== 'sb') {
+            if (!quest.modes.includes(task.mode) && task.mode != 'sb' && task.mode != 'hs') {
                 return res.json({ error: `Some of this mapset's difficulties are not the correct mode for the selected quest!` });
             }
             for (const mapper of task.mappers) {

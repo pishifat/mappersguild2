@@ -21,9 +21,10 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TaskModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
+const task_1 = require("../../../interfaces/beatmap/task");
 const taskSchema = new mongoose_1.Schema({
-    name: { type: String, enum: ['Easy', 'Normal', 'Hard', 'Insane', 'Expert', 'Storyboard'], required: true },
-    mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania', 'sb'], default: 'osu' },
+    name: { type: String, enum: task_1.SortedTasks, required: true },
+    mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania', 'sb', 'hs'], default: 'osu' },
     mappers: [{ type: 'ObjectId', ref: 'User', required: true }],
     status: { type: String, enum: ['WIP', 'Done'], default: 'WIP' },
     sbQuality: { type: Number, enum: [1, 2, 3] }, //used to calculate points for sb

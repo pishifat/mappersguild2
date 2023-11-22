@@ -42,6 +42,7 @@ function findDifficultyPoints(taskName, totalMappers) {
         Hard: 7,
         Insane: 8,
         Expert: 8,
+        Hitsounds: 2,
     };
     return difficultyPointsObject[taskName] / totalMappers;
 }
@@ -198,6 +199,7 @@ async function calculateTasksPoints(userId) {
         Hard: 0,
         Insane: 0,
         Expert: 0,
+        Hitsounds: 0,
         Storyboard: 0,
         osu: 0,
         taiko: 0,
@@ -238,9 +240,20 @@ async function calculateTasksPoints(userId) {
                     taskPoints = findDifficultyPoints(task.name, task.mappers.length);
                 }
                 // finalize task points and add to base
-                const finalPoints = ((taskPoints + bonus) * lengthNerf);
+                let finalPoints = 0;
+                if (task.name === task_1.TaskName.Storyboard) {
+                    finalPoints = taskPoints;
+                }
+                else if (task.name === task_1.TaskName.Hitsounds) {
+                    finalPoints = taskPoints * lengthNerf;
+                }
+                else {
+                    finalPoints = ((taskPoints + bonus) * lengthNerf);
+                }
                 pointsObject[task.name] += finalPoints;
-                pointsObject[task.mode] += finalPoints;
+                if (task.name !== task_1.TaskName.Storyboard && task.name !== task_1.TaskName.Hitsounds) {
+                    pointsObject[task.mode] += finalPoints;
+                }
             }
         }
         // quest reward points and completed quests list
@@ -279,13 +292,13 @@ async function calculateTasksPoints(userId) {
     return pointsObject;
 }
 exports.calculateTasksPoints = calculateTasksPoints;
-/** 5 points per mapset */
+/** 3 points per mapset */
 async function calculateHostPoints(userId) {
     const hostedBeatmaps = await beatmap_2.BeatmapModel.countDocuments({
         status: beatmap_1.BeatmapStatus.Ranked,
         host: userId,
     });
-    return hostedBeatmaps * 5;
+    return hostedBeatmaps * 3;
 }
 exports.calculateHostPoints = calculateHostPoints;
 /** 1 point per mod */
@@ -406,6 +419,7 @@ async function updateUserPoints(userId) {
         insanePoints: decimalRound(taskPoints['Insane']),
         expertPoints: decimalRound(taskPoints['Expert']),
         storyboardPoints: decimalRound(taskPoints['Storyboard']),
+        hitsoundPoints: decimalRound(taskPoints['Hitsounds']),
         // Total per mode
         osuPoints: decimalRound(taskPoints['osu']),
         taikoPoints: decimalRound(taskPoints['taiko']),

@@ -12,6 +12,7 @@ export interface Points {
     Hard: number;
     Insane: number;
     Expert: number;
+    Hitsounds: number;
     Storyboard: number;
     Mod: number;
     Host: number;

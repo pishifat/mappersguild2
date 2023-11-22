@@ -1,6 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SBQuality = exports.TaskStatus = exports.TaskMode = exports.TaskName = void 0;
+exports.SBQuality = exports.TaskStatus = exports.TaskMode = exports.TaskName = exports.SortedTasks = void 0;
+exports.SortedTasks = [
+    'Easy',
+    'Normal',
+    'Hard',
+    'Insane',
+    'Expert',
+    'Hitsounds',
+    'Storyboard',
+];
 var TaskName;
 (function (TaskName) {
     TaskName["Easy"] = "Easy";
@@ -8,6 +17,7 @@ var TaskName;
     TaskName["Hard"] = "Hard";
     TaskName["Insane"] = "Insane";
     TaskName["Expert"] = "Expert";
+    TaskName["Hitsounds"] = "Hitsounds";
     TaskName["Storyboard"] = "Storyboard";
 })(TaskName = exports.TaskName || (exports.TaskName = {}));
 var TaskMode;
@@ -17,6 +27,7 @@ var TaskMode;
     TaskMode["Catch"] = "catch";
     TaskMode["Mania"] = "mania";
     TaskMode["SB"] = "sb";
+    TaskMode["HS"] = "hs";
 })(TaskMode = exports.TaskMode || (exports.TaskMode = {}));
 var TaskStatus;
 (function (TaskStatus) {

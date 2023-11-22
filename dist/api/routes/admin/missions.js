@@ -120,7 +120,6 @@ adminMissionsRouter.post('/:id/toggleArtist', async (req, res) => {
     if (mission.artists && mission.artists.length) {
         artistIds = mission.artists.map(a => a.id);
     }
-    console.log(mission.artists);
     if (artistIds.includes(artist.id)) {
         await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { $pull: { artists: artist.id } });
     }
@@ -147,7 +146,6 @@ adminMissionsRouter.post('/:id/updateUserMaximumPp', async (req, res) => {
 });
 /* POST update mission earliest beatmap submission date */
 adminMissionsRouter.post('/:id/updateBeatmapEarliestSubmissionDate', async (req, res) => {
-    console.log(req.body.beatmapEarliestSubmissionDate);
     await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { beatmapEarliestSubmissionDate: new Date(req.body.beatmapEarliestSubmissionDate) }).orFail();
     res.json(req.body.beatmapEarliestSubmissionDate);
 });
@@ -182,7 +180,6 @@ adminMissionsRouter.post('/:missionId/:beatmapId/toggleInvalidBeatmap', async (r
         await mission_1.MissionModel.findByIdAndUpdate(req.params.missionId, { $push: { invalidBeatmaps: req.params.beatmapId } });
     }
     const updatedMission = await mission_1.MissionModel.findById(req.params.missionId).defaultPopulate().orFail();
-    console.log(updatedMission.invalidBeatmaps);
     res.json(updatedMission.invalidBeatmaps);
 });
 exports.default = adminMissionsRouter;

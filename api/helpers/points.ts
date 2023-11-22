@@ -137,6 +137,7 @@ interface TasksPoints {
     Hard: number;
     Insane: number;
     Expert: number;
+    Hitsounds: number;
     Storyboard: number;
 
     osu: number;

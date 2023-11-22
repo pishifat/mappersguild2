@@ -24,6 +24,17 @@ tasksRouter.post('/addTask/:mapId', middlewares_2.isValidBeatmap, middlewares_1.
     let taskMode = req.body.mode || beatmap.mode;
     if (taskName == task_2.TaskName.Storyboard) {
         taskMode = task_2.TaskMode.SB;
+        const existingStoryboardTask = beatmap.tasks.find(t => t.name == task_2.TaskName.Storyboard);
+        if (existingStoryboardTask) {
+            return res.json({ error: 'Only one "Storyboard" task is allowed' });
+        }
+    }
+    if (taskName == task_2.TaskName.Hitsounds) {
+        taskMode = task_2.TaskMode.HS;
+        const existingHitsoundsTask = beatmap.tasks.find(t => t.name == task_2.TaskName.Hitsounds);
+        if (existingHitsoundsTask) {
+            return res.json({ error: 'Only one "Hitsounds" task is allowed' });
+        }
     }
     await beatmap.checkTaskAvailability(user, taskName, taskMode, res.locals.userRequest.group == user_2.UserGroup.Admin);
     const t = new task_1.TaskModel();
