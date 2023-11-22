@@ -1,12 +1,23 @@
 import { Document } from 'mongoose';
 import { User } from '../user';
 
+export const SortedTasks = [
+    'Easy',
+    'Normal',
+    'Hard',
+    'Insane',
+    'Expert',
+    'Hitsounds',
+    'Storyboard',
+];
+
 export enum TaskName {
     Easy = 'Easy',
     Normal = 'Normal',
     Hard = 'Hard',
     Insane = 'Insane',
     Expert = 'Expert',
+    Hitsounds = 'Hitsounds',
     Storyboard = 'Storyboard',
 }
 
@@ -16,6 +27,7 @@ export enum TaskMode {
     Catch = 'catch',
     Mania = 'mania',
     SB = 'sb',
+    HS = 'hs',
 }
 
 export enum TaskStatus {

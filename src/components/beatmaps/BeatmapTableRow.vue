@@ -9,6 +9,7 @@
                             href="#"
                             data-bs-toggle="collapse"
                             :data-bs-target="'#details' + beatmap.id"
+                            class="text-truncate"
                             @click="selectBeatmap()"
                         >
                             {{ formatMetadata() }}
@@ -75,13 +76,7 @@ export default defineComponent({
             }
         },
         formatMetadata(): string {
-            const str = this.beatmap.song.artist + ' - ' + this.beatmap.song.title;
-
-            if (str.length > 70) {
-                return str.slice(0, 70) + '...';
-            } else {
-                return str;
-            }
+            return this.beatmap.song.artist + ' - ' + this.beatmap.song.title;
         },
         statusBorder(): string {
             if (this.beatmap.status) {

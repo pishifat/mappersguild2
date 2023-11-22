@@ -125,8 +125,6 @@ adminFeaturedArtistsRouter.get('/findRecentlyLicensedSongs', async (req, res) =>
 
     const songs = await FeaturedSongModel.find({ createdAt: { $gt: startDate, $lt: endDate } }).sort({ createdAt: -1 });
 
-    console.log(songs.length);
-
     res.json({ songs });
 });
 

@@ -127,7 +127,7 @@ export async function setBeatmapStatusRanked(id, bmInfo): Promise<void> {
     for (const task of beatmap.tasks) {
         if (task.mode == 'sb' && task.mappers[0].id != beatmap.host.id) {
             storyboard = task;
-        } else if (task.mode != 'sb') {
+        } else if (task.mode != 'sb' && task.mode != 'hs') {
             task.mappers.forEach(mapper => {
                 if (!gdUsernames.includes(mapper.username) && mapper.username != beatmap.host.username) {
                     gdUsernames.push(mapper.username);

@@ -161,7 +161,7 @@
                             Select a task
                         </option>
                         <option
-                            v-for="task in tasks"
+                            v-for="task in filteredTasks"
                             :key="task"
                             :value="task"
                         >
@@ -226,7 +226,11 @@
                 <div class="text-secondary small mt-1">
                     <ul class="small">
                         <li>You can leave the "mapper" field empty for your own difficulties.</li>
-                        <li>Use comma separation for collabs, like "mapper1, mapper2"</li>
+                        <li>Use comma separation for collabs, like "mapper1, mapper2".</li>
+                        <li>There can only be one entry for "Storyboard" and "Hitsounds".</li>
+                        <li v-if="selectedMode == 'taiko'">
+                            "Hitsounds" cannot be added to osu!taiko.
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -242,7 +246,7 @@
             <div class="mb-3 row">
                 <div class="col-sm-10">
                     <div
-                        v-for="task in tasks"
+                        v-for="task in filteredTasks"
                         :key="task"
                         class="form-check"
                     >
@@ -284,11 +288,11 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
-import { Task } from '@interfaces/beatmap/task';
+import { Task, SortedTasks, TaskName } from '@interfaces/beatmap/task';
 import { User } from '@interfaces/user';
 import { FeaturedSong } from '@interfaces/featuredSong';
 import { FeaturedArtist } from '@interfaces/featuredArtist';
-import { Beatmap, BeatmapStatus } from '@interfaces/beatmap/beatmap';
+import { Beatmap, BeatmapMode } from '@interfaces/beatmap/beatmap';
 import ModalDialog from '@components/ModalDialog.vue';
 import ModesIcons from '@components/ModesIcons.vue';
 import UserLinkList from '@components/UserLinkList.vue';
@@ -319,7 +323,7 @@ export default defineComponent({
                 { value: 'mania', name: 'osu!mania' },
                 { value: 'hybrid', name: 'Multiple modes' },
             ],
-            tasks: ['Easy', 'Normal', 'Hard', 'Insane', 'Expert', 'Storyboard'],
+            tasks: SortedTasks,
             newTaskName: '',
             newTaskMapper: '',
             tempTasks: [] as any,
@@ -329,12 +333,19 @@ export default defineComponent({
         ...mapState([
             'loggedInUser',
         ]),
+        filteredTasks(): string[] {
+            if (this.selectedMode == 'taiko') {
+                return [...SortedTasks].filter(t => t != TaskName.Hitsounds);
+            } else {
+                return SortedTasks;
+            }
+        },
         sortedTasks(): Task[] {
-            const difficultyOrder = ['Easy', 'Normal', 'Hard', 'Insane', 'Expert', 'Storyboard'];
-            const modeOrder = ['osu', 'taiko', 'catch', 'mania', 'sb'];
+            const taskOrder = SortedTasks;
+            const modeOrder = ['osu', 'taiko', 'catch', 'mania', 'hs', 'sb'];
 
             const newTasks: any = [...this.tempTasks].sort(function(a, b) {
-                return difficultyOrder.indexOf(a.name) - difficultyOrder.indexOf(b.name);
+                return taskOrder.indexOf(a.name) - taskOrder.indexOf(b.name);
             });
 
             return newTasks.sort(function(a, b) {
@@ -344,11 +355,20 @@ export default defineComponent({
     },
     watch: {
         selectedMode() {
-            if (this.selectedMode == 'hybrid') {
+            if (this.selectedMode == BeatmapMode.Taiko) {
+                const i = this.tempTasks.findIndex(t => t.name == TaskName.Hitsounds);
+
+                if (i >= 0) {
+                    this.tempTasks.splice(i,1);
+                    this.newTaskName = '';
+                }
+            }
+
+            if (this.selectedMode == BeatmapMode.Hybrid) {
                 this.tempTasks = [];
             }
 
-            if (this.previousSelectedMode == 'hybrid') {
+            if (this.previousSelectedMode == BeatmapMode.Hybrid) {
                 this.tempTasks = [];
             }
 
@@ -414,6 +434,27 @@ export default defineComponent({
             if (!this.newTaskName.length || !this.selectedTaskStatus.length) {
                 this.$store.dispatch('updateToastMessages', {
                     message: 'Missing task or status',
+                    type: 'danger',
+                });
+
+                return;
+            }
+
+            const hitsoundTask = this.tempTasks.find(t => t.name == TaskName.Hitsounds);
+            const storyboardTask = this.tempTasks.find(t => t.name == TaskName.Storyboard);
+
+            if (hitsoundTask && this.newTaskName == TaskName.Hitsounds) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: 'Only one "Hitsounds" task allowed',
+                    type: 'danger',
+                });
+
+                return;
+            }
+
+            if (storyboardTask && this.newTaskName == TaskName.Storyboard) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: 'Only one "Storyboard" task allowed',
                     type: 'danger',
                 });
 

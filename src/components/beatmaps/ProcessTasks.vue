@@ -51,7 +51,8 @@ export default defineComponent({
     },
     render () {
         const possibleTasks: PossibleTask[] = [
-            { name: 'Storyboard', short: 'SB', locked: false, status: [] },
+            //{ name: 'Storyboard', short: 'SB', locked: false, status: [] },
+            //{ name: 'Hitsounds', short: 'HS', locked: false, status: [] },
             { name: 'Easy', short: 'E', locked: false, status: [] },
             { name: 'Normal', short: 'N', locked: false, status: [] },
             { name: 'Hard', short: 'H', locked: false, status: [] },

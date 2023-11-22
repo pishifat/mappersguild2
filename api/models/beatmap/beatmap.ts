@@ -1,5 +1,5 @@
 import mongoose, { Document, Schema, DocumentQuery, Model } from 'mongoose';
-import { TaskMode, TaskName } from '../../../interfaces/beatmap/task';
+import { TaskMode, TaskName, SortedTasks } from '../../../interfaces/beatmap/task';
 import { User } from '../../../interfaces/user';
 import { Beatmap as IBeatmap, BeatmapStatus } from '../../../interfaces/beatmap/beatmap';
 
@@ -21,7 +21,7 @@ const BeatmapSchema = new Schema<Beatmap>({
     host: { type: 'ObjectId', ref: 'User', required: true },
     status: { type: String, enum: ['WIP', 'Done', 'Qualified', 'Ranked'], default: 'WIP' },
     tasks: [{ type: 'ObjectId', ref: 'Task' }],
-    tasksLocked: [{ type: String, enum: ['Easy', 'Normal', 'Hard', 'Insane', 'Expert', 'Storyboard'] }],
+    tasksLocked: [{ type: String, enum: SortedTasks }],
     modders: [{ type: 'ObjectId', ref: 'User' }],
     bns: [{ type: 'ObjectId', ref: 'User' }],
     quest: { type: 'ObjectId', ref: 'Quest' },
@@ -78,7 +78,7 @@ BeatmapSchema.methods.checkTaskAvailability = async function (this: Beatmap, use
         throw new Error(`Mapset already marked as ${this.status.toLowerCase()}`);
     }
 
-    if (this.quest && taskName != TaskName.Storyboard) {
+    if (this.quest && taskName != TaskName.Storyboard && taskName != TaskName.Hitsounds) {
         await this.quest.populate({
             path: 'parties',
             populate: {
@@ -105,6 +105,13 @@ BeatmapSchema.methods.checkTaskAvailability = async function (this: Beatmap, use
         this.tasks.some(t => t.name === TaskName.Storyboard)
     ) {
         throw new Error('There can only be one storyboard on a mapset!');
+    }
+
+    if (
+        taskName == TaskName.Hitsounds &&
+        this.tasks.some(t => t.name === TaskName.Hitsounds)
+    ) {
+        throw new Error('There can only be one set of hitsounds on a mapset!');
     }
 
     // host can bypass this

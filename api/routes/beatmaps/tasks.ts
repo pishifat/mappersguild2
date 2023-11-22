@@ -23,6 +23,22 @@ tasksRouter.post('/addTask/:mapId', isValidBeatmap, isValidUser, async (req, res
 
     if (taskName == TaskName.Storyboard) {
         taskMode = TaskMode.SB;
+
+        const existingStoryboardTask = beatmap.tasks.find(t => t.name == TaskName.Storyboard);
+
+        if (existingStoryboardTask) {
+            return res.json({ error: 'Only one "Storyboard" task is allowed' });
+        }
+    }
+
+    if (taskName == TaskName.Hitsounds) {
+        taskMode = TaskMode.HS;
+
+        const existingHitsoundsTask = beatmap.tasks.find(t => t.name == TaskName.Hitsounds);
+
+        if (existingHitsoundsTask) {
+            return res.json({ error: 'Only one "Hitsounds" task is allowed' });
+        }
     }
 
     await beatmap.checkTaskAvailability(user, taskName, taskMode, res.locals.userRequest.group == UserGroup.Admin);

@@ -54,6 +54,12 @@
                                 :tooltip-title="'~8 points per difficulty. +2 if quest mapset'"
                             />
                             <user-points-row
+                                v-if="selectedUser.hitsoundPoints"
+                                :points="selectedUser.hitsoundPoints"
+                                :display="'hitsounding'"
+                                :tooltip-title="'~2 points per mapset'"
+                            />
+                            <user-points-row
                                 v-if="selectedUser.storyboardPoints"
                                 :points="selectedUser.storyboardPoints"
                                 :display="'creating storyboards'"
@@ -81,7 +87,7 @@
                                 v-if="selectedUser.hostPoints"
                                 :points="selectedUser.hostPoints"
                                 :display="'hosting mapsets'"
-                                :tooltip-title="'5 points per mapset hosted'"
+                                :tooltip-title="'3 points per mapset hosted'"
                             />
                             <user-points-row
                                 v-if="selectedUser.contestCreatorPoints"
