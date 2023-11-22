@@ -41,6 +41,7 @@ export function findDifficultyPoints(taskName: string, totalMappers: number): nu
         Hard: 7,
         Insane: 8,
         Expert: 8,
+        Hitsounds: 2,
     };
 
     return difficultyPointsObject[taskName] / totalMappers;
@@ -226,6 +227,7 @@ export async function calculateTasksPoints(userId: any): Promise<TasksPoints> {
         Hard: 0,
         Insane: 0,
         Expert: 0,
+        Hitsounds: 0,
         Storyboard: 0,
 
         osu: 0,
@@ -271,9 +273,21 @@ export async function calculateTasksPoints(userId: any): Promise<TasksPoints> {
                 }
 
                 // finalize task points and add to base
-                const finalPoints = ((taskPoints + bonus) * lengthNerf);
+                let finalPoints = 0;
+
+                if (task.name === TaskName.Storyboard) {
+                    finalPoints = taskPoints;
+                } else if (task.name === TaskName.Hitsounds) {
+                    finalPoints = taskPoints * lengthNerf;
+                } else {
+                    finalPoints = ((taskPoints + bonus) * lengthNerf);
+                }
+
                 pointsObject[task.name] += finalPoints;
-                pointsObject[task.mode] += finalPoints;
+
+                if (task.name !== TaskName.Storyboard && task.name !== TaskName.Hitsounds) {
+                    pointsObject[task.mode] += finalPoints;
+                }
             }
         }
 
@@ -320,14 +334,14 @@ export async function calculateTasksPoints(userId: any): Promise<TasksPoints> {
     return pointsObject;
 }
 
-/** 5 points per mapset */
+/** 3 points per mapset */
 export async function calculateHostPoints(userId: any): Promise<number> {
     const hostedBeatmaps = await BeatmapModel.countDocuments({
         status: BeatmapStatus.Ranked,
         host: userId,
     });
 
-    return hostedBeatmaps * 5;
+    return hostedBeatmaps * 3;
 }
 
 /** 1 point per mod */
@@ -456,6 +470,7 @@ export async function updateUserPoints(userId: any): Promise<number | ErrorRespo
         insanePoints: decimalRound(taskPoints['Insane']),
         expertPoints: decimalRound(taskPoints['Expert']),
         storyboardPoints: decimalRound(taskPoints['Storyboard']),
+        hitsoundPoints: decimalRound(taskPoints['Hitsounds']),
 
         // Total per mode
         osuPoints: decimalRound(taskPoints['osu']),

@@ -143,10 +143,18 @@
                             </tr>
                             <tr>
                                 <td scope="row">
+                                    <span class="expert">Hitsounding</span> a mapset
+                                </td>
+                                <td scope="row">
+                                    2<sup><a href="#" @click.prevent="highlight = 'hitsounds'">hitsounds</a></sup>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td scope="row">
                                     Hosting mapset
                                 </td>
                                 <td scope="row">
-                                    5
+                                    3
                                 </td>
                             </tr>
                             <tr>
@@ -239,6 +247,13 @@
                                     </ul>
                                 </li>
                                 <li>Beatmaps created for a priority quest earn +3 (for winning) or +1 bonus points per difficulty (also scaling according to length)</li>
+                            </ul>
+                        </li>
+                        <li :class="highlight == 'hitsounds' ? 'text-success' : ''">
+                            <b>Hitsounds:</b>
+                            <ul>
+                                <li>This assumes a mapset uses one set of hitsounds for all difficulties. If different difficulties use different hitsounds, points can't be allocated accordingly.</li>
+                                <li>Points scale according to song's length.</li>
                             </ul>
                         </li>
                         <li :class="highlight == 'mod' ? 'text-success' : ''">

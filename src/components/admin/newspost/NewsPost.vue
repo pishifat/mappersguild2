@@ -25,7 +25,7 @@
                 | :-- | :-- | :-- | :-- |
             </div>
             <div v-for="user in users" :key="user.id">
-                | {{ user.flag }} [{{ user.username }}]({{ 'https://osu.ppy.sh/users/' + user.osuId }}) | <span v-for="(mode, i) in user.modes" :key="mode">{{ mode == 'osu' ? 'osu!' : mode == 'sb' ? 'Storyboarder' : 'osu!' + mode }}{{ separateCommas(i, user.modes.length) }}</span> | {{ user.hostCount }} | {{ user.taskCount }} |
+                | {{ user.flag }} [{{ user.username }}]({{ 'https://osu.ppy.sh/users/' + user.osuId }}) | <span v-for="(mode, i) in user.modes" :key="mode">{{ mode == 'osu' ? 'osu!' : mode == 'sb' ? 'Storyboarder' : mode == 'hs' ? 'Hitsounder' : 'osu!' + mode }}{{ separateCommas(i, user.modes.length) }}</span> | {{ user.hostCount }} | {{ user.taskCount }} |
             </div>
         </copy-paste>
     </modal-dialog>

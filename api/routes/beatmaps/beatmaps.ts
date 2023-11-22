@@ -134,6 +134,26 @@ beatmapsRouter.post('/create', async (req, res) => {
         return res.json({ error: 'Select at least one difficulty to map!' });
     }
 
+    const difficulties = ['Easy', 'Normal', 'Hard', 'Insane', 'Expert'];
+    let hasNoDifficulties = true;
+
+    for (const task of req.body.tasks) {
+        if (difficulties.includes(task.name)) {
+            hasNoDifficulties = false;
+        }
+    }
+
+    if (hasNoDifficulties) {
+        return res.json({ error: 'Select at least one difficulty to map!' });
+    }
+
+    const hitsoundTask = req.body.tasks.find(t => t.name == 'Hitsounds');
+
+    if (hitsoundTask && req.body.mode == 'taiko') {
+        return res.json({ error: '"Hitsounds" are not applicable to osu!taiko' });
+    }
+    // validation done
+
     const tasks: any[] = req.body.tasks;
     const createdTasks: Task['_id'][] = [];
 
@@ -141,7 +161,7 @@ beatmapsRouter.post('/create', async (req, res) => {
         const t = new TaskModel();
         t.name = task.name;
         t.mappers = task.mappers.map(u => u.id);
-        t.mode = task.name == 'Storyboard' ? 'sb' : req.body. mode == 'hybrid' && task.mode ? task.mode : req.body.mode;
+        t.mode = task.name == 'Storyboard' ? 'sb' : task.name == 'Hitsounds' ? 'hs' : req.body.mode == 'hybrid' && task.mode ? task.mode : req.body.mode;
         t.status = task.status;
         await t.save();
 

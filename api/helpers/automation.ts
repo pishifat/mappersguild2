@@ -78,7 +78,7 @@ function generateMissionClosedDetails(mission) {
 
         // fill empty variables with data
         for (const task of beatmap.tasks) {
-            if (task.mode != 'sb') {
+            if (task.mode != 'sb' && task.mode != 'hs') {
                 if (!modes.includes(task.mode)) {
                     modes.push(task.mode);
                 }

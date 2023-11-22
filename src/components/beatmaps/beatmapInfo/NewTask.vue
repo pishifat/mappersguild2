@@ -75,7 +75,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { Beatmap, BeatmapMode } from '../../../../interfaces/beatmap/beatmap';
-import { Task, TaskName } from '../../../../interfaces/beatmap/task';
+import { Task, TaskName, SortedTasks } from '../../../../interfaces/beatmap/task';
 
 export default defineComponent({
     name: 'NewTask',
@@ -103,14 +103,15 @@ export default defineComponent({
     },
     computed: {
         remainingTasks(): string[] {
-            let possibleTasks = Object.values(TaskName);
+            let possibleTasks = SortedTasks;
 
             if (this.beatmap.tasksLocked && this.beatmap.tasksLocked.length && !this.isHost) {
-                possibleTasks = possibleTasks.filter(t => !this.beatmap.tasksLocked.includes(t));
+                possibleTasks = SortedTasks.filter(t => !this.beatmap.tasksLocked.includes(t as Task['name']));
             }
 
-            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-            this.selectedTask = possibleTasks[0] || '';
+            if (this.beatmap.mode == BeatmapMode.Taiko) {
+                possibleTasks = possibleTasks.filter(t => t !== TaskName.Hitsounds);
+            }
 
             return possibleTasks;
         },

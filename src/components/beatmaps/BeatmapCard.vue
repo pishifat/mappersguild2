@@ -14,7 +14,7 @@
             />
             <div class="card-img-overlay" style="padding: 0.50rem 0.50rem 0 0.50rem">
                 <p
-                    class="card-title mb-1"
+                    class="card-title mb-1 text-truncate"
                 >
                     {{ formatMetadata(beatmap.song.artist, beatmap.song.title) }}
                 </p>
@@ -79,13 +79,7 @@ export default defineComponent({
             e.target.src = this.defaultUrl;
         },
         formatMetadata(artist, title): string {
-            const str = artist + ' - ' + title;
-
-            if (str.length > 34) {
-                return str.slice(0, 34) + '...';
-            } else {
-                return str;
-            }
+            return artist + ' - ' + title;
         },
         processUrl(beatmapUrl): string {
             if (beatmapUrl && beatmapUrl.indexOf('osu.ppy.sh/beatmapsets/') !== -1) {

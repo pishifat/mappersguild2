@@ -1,12 +1,11 @@
 import express from 'express';
-import { isLoggedIn } from '../helpers/middlewares';
 import { UserModel } from '../models/user';
 import { BeatmapModel } from '../models/beatmap/beatmap';
 import { QuestModel } from '../models/quest';
 import { SpentPointsModel } from '../models/spentPoints';
 import { TaskModel } from '../models/beatmap/task';
 import { Quest, QuestStatus } from '../../interfaces/quest';
-import { User, UserGroup } from '../../interfaces/user';
+import { User } from '../../interfaces/user';
 import { Mission, MissionStatus } from '../../interfaces/mission';
 import { PartyModel } from '../models/party';
 
@@ -30,6 +29,7 @@ usersRouter.get('/query', async (req, res) => {
                     { catchPoints: { $gt: 0 } },
                     { maniaPoints: { $gt: 0 } },
                     { storyboardPoints: { $gt: 0 } },
+                    { hitsoundPoints: { $gt: 0 } },
                     { modPoints: { $gt: 0 } },
                     { contestParticipantPoints: { $gt: 0 } },
                     { contestJudgePoints: { $gt: 0 } },
@@ -57,6 +57,7 @@ usersRouter.get('/:sort', async (req, res) => {
                         { catchPoints: { $gt: 0 } },
                         { maniaPoints: { $gt: 0 } },
                         { storyboardPoints: { $gt: 0 } },
+                        { hitsoundPoints: { $gt: 0 } },
                         { modPoints: { $gt: 0 } },
                         { contestParticipantPoints: { $gt: 0 } },
                         { contestJudgePoints: { $gt: 0 } },

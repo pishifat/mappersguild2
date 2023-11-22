@@ -153,7 +153,7 @@
 import { defineComponent } from 'vue';
 import ModalDialog from '@components/ModalDialog.vue';
 import { Beatmap } from '../../../interfaces/beatmap/beatmap';
-import { SBQuality, Task } from '../../../interfaces/beatmap/task';
+import { SBQuality, Task, SortedTasks } from '../../../interfaces/beatmap/task';
 import ModesIcons from '@components/ModesIcons.vue';
 import TasksChoice from '../beatmaps/beatmapInfo/TasksChoice.vue';
 
@@ -184,7 +184,7 @@ export default defineComponent({
     },
     computed: {
         sortedTasks(): Task[] {
-            const sortOrder = ['Easy', 'Normal', 'Hard', 'Insane', 'Expert', 'Storyboard'];
+            const sortOrder = SortedTasks;
 
             return [...this.beatmap.tasks].sort(function(a, b) {
                 return sortOrder.indexOf(a.name) - sortOrder.indexOf(b.name);

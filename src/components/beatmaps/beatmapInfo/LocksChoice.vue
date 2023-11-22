@@ -5,7 +5,7 @@
                 <div>
                     Locks
                     <a
-                        v-if="beatmap.tasksLocked.length < 6"
+                        v-if="beatmap.mode == 'taiko' ? beatmap.tasksLocked.length < 6 : beatmap.tasksLocked.length < 7"
                         v-bs-tooltip:right="'edit locks'"
                         class="text-success small ms-1"
                         :class="{ 'text-danger': showLocksInput }"
@@ -74,8 +74,8 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
-import { TaskName } from '../../../../interfaces/beatmap/task';
+import { Beatmap, BeatmapMode } from '../../../../interfaces/beatmap/beatmap';
+import { Task, SortedTasks, TaskName } from '../../../../interfaces/beatmap/task';
 
 export default defineComponent({
     name: 'LocksChoice',
@@ -98,14 +98,15 @@ export default defineComponent({
     },
     computed: {
         remainingTasks(): string[] {
-            let possibleTasks: TaskName[] = Object.values(TaskName);
+            let possibleTasks = SortedTasks;
 
             if (this.beatmap?.tasksLocked?.length) {
-                possibleTasks = possibleTasks.filter(t => !this.beatmap.tasksLocked.includes(t));
+                possibleTasks = possibleTasks.filter(t => !this.beatmap.tasksLocked.includes(t as Task['name']));
             }
 
-            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-            this.lockTaskSelection = possibleTasks[0] || '';
+            if (this.beatmap.mode == BeatmapMode.Taiko) {
+                possibleTasks = possibleTasks.filter(t => t !== TaskName.Hitsounds);
+            }
 
             return possibleTasks;
         },

@@ -124,7 +124,7 @@ import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import NewTask from './NewTask.vue';
 import { User } from '@interfaces/user';
-import { Task } from '@interfaces/beatmap/task';
+import { Task, SortedTasks } from '@interfaces/beatmap/task';
 import { Beatmap } from '@interfaces/beatmap/beatmap';
 import ModesIcons from '@components/ModesIcons.vue';
 
@@ -154,8 +154,8 @@ export default defineComponent({
             'loggedInUser',
         ]),
         sortedTasks(): Task[] {
-            const difficultyOrder = ['Easy', 'Normal', 'Hard', 'Insane', 'Expert', 'Storyboard'];
-            const modeOrder = ['osu', 'taiko', 'catch', 'mania', 'sb'];
+            const difficultyOrder = SortedTasks;
+            const modeOrder = ['osu', 'taiko', 'catch', 'mania', 'hs', 'sb'];
 
             const newTasks = [...this.beatmap.tasks].sort(function(a, b) {
                 return difficultyOrder.indexOf(a.name) - difficultyOrder.indexOf(b.name);

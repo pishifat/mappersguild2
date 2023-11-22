@@ -9,6 +9,7 @@ import { TaskName, TaskStatus, TaskMode } from '../../../interfaces/beatmap/task
 import { User } from '../../../interfaces/user';
 import { UserModel } from '../../models/user';
 import { sendAnnouncement } from '../../helpers/osuBot';
+import { updateUserPoints } from '../../helpers/points';
 
 const adminBeatmapsRouter = express.Router();
 
@@ -228,6 +229,7 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
                         { catchPoints: { $gt: 0 } },
                         { maniaPoints: { $gt: 0 } },
                         { storyboardPoints: { $gt: 0 } },
+                        { hitsoundPoints: { $gt: 0 } },
                         { modPoints: { $gt: 0 } },
                         { contestParticipantPoints: { $gt: 0 } },
                         { contestJudgePoints: { $gt: 0 } },
@@ -260,7 +262,6 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
                 const userInfo = await getUserInfoFromId(token, user.osuId);
 
                 if (!isOsuResponseError(userInfo)) {
-                    console.log(userInfo.username);
                     await sleep(250);
                     users.push({ username: user.username, flag: `::{ flag=${userInfo.country_code} }::`, osuId: user.osuId, taskCount: user.taskCount, hostCount: user.hostCount, modes: [...new Set(modes)] });
                 }
