@@ -169,6 +169,13 @@ const store: Module<AdminState, MainState> = {
                 beatmap.queuedForRank = payload.queuedForRank;
             }
         },
+        updateSkipBeatmapWebhook (state, payload): void {
+            const beatmap = state.actionBeatmaps.find(b => b.id == payload.beatmapId);
+
+            if (beatmap) {
+                beatmap.skipWebhook = payload.skipWebhook;
+            }
+        },
 
         // quests
         updateArt (state, payload): void {

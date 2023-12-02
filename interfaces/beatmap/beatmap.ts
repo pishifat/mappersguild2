@@ -43,4 +43,5 @@ export interface Beatmap {
     queuedForRank: boolean;
     invalidForPoints: boolean;
     invalidReason: string;
+    skipWebhook: boolean;
 }

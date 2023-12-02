@@ -129,6 +129,15 @@
                         </button>
                     </p>
                     <p class="row">
+                        <span class="col-sm-6">
+                            Skip webhook:
+                            <span class="text-danger me-2">{{ beatmap.skipWebhook ? 'true' : 'false' }}</span>
+                        </span>
+                        <button class="btn btn-sm btn-outline-info ms-3 w-25" @click="updateSkipWebhook($event)">
+                            Toggle
+                        </button>
+                    </p>
+                    <p class="row">
                         <textarea
                             v-model="rejectionInput"
                             class="form-control form-control-sm w-25"
@@ -335,6 +344,20 @@ export default defineComponent({
                 this.$store.commit('updateQueuedForRank', {
                     beatmapId: this.beatmap.id,
                     queuedForRank,
+                });
+            }
+        },
+        async updateSkipWebhook(e): Promise<void> {
+            const skipWebhook = await this.$http.executePost(`/admin/beatmaps/${this.beatmap.id}/updateSkipWebhook`, { skipWebhook: !this.beatmap.skipWebhook }, e);
+
+            if (!this.$http.isError(skipWebhook)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated skipWebhook: ${skipWebhook}`,
+                    type: 'info',
+                });
+                this.$store.commit('updateSkipBeatmapWebhook', {
+                    beatmapId: this.beatmap.id,
+                    skipWebhook,
                 });
             }
         },

@@ -493,7 +493,7 @@ const processMissions = cron.schedule('0 20 * * *', async () => { /* 5:00 PM PST
 });
 
 /* if MG Qualified beatmap is osu Ranked and already checked, post webhook */
-const setRanked = cron.schedule('0 1 * * *', async () => { /* 6:00 PM PST */
+const setRanked = cron.schedule('10 * * * * *', async () => { /* 6:00 PM PST */
     const qualifiedBeatmaps = await BeatmapModel
         .find({
             status: BeatmapStatus.Qualified,

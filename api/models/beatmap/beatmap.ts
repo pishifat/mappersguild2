@@ -36,6 +36,7 @@ const BeatmapSchema = new Schema<Beatmap>({
     queuedForRank: { type: Boolean }, // used for automation of status changes
     invalidForPoints: { type: Boolean },
     invalidReason: { type: String },
+    skipWebhook: { type: Boolean },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const queryHelpers = {
