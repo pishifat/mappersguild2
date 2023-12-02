@@ -120,6 +120,13 @@ adminBeatmapsRouter.post('/:id/updateQueuedForRank', async (req, res) => {
         .orFail();
     res.json(req.body.queuedForRank);
 });
+/* POST update skipWebhook */
+adminBeatmapsRouter.post('/:id/updateSkipWebhook', async (req, res) => {
+    await beatmap_1.BeatmapModel
+        .findByIdAndUpdate(req.params.id, { skipWebhook: req.body.skipWebhook })
+        .orFail();
+    res.json(req.body.skipWebhook);
+});
 /* POST reject mapset from earning points */
 adminBeatmapsRouter.post('/:id/rejectMapset', async (req, res) => {
     const beatmap = await beatmap_1.BeatmapModel

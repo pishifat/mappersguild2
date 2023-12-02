@@ -97,73 +97,76 @@ async function setBeatmapStatusRanked(id, bmInfo) {
     }
     // calculate points for host
     points_1.updateUserPoints(beatmap.host.id);
-    // establish empty variables
-    const gdUsernames = [];
-    const gdUsers = [];
-    const modes = [];
-    let storyboard;
-    // fill empty variables with data
-    for (const task of beatmap.tasks) {
-        if (task.mode == 'sb' && task.mappers[0].id != beatmap.host.id) {
-            storyboard = task;
-        }
-        else if (task.mode != 'sb' && task.mode != 'hs') {
-            task.mappers.forEach(mapper => {
-                if (!gdUsernames.includes(mapper.username) && mapper.username != beatmap.host.username) {
-                    gdUsernames.push(mapper.username);
-                    gdUsers.push(mapper);
+    // webhook
+    if (!beatmap.skipWebhook) {
+        // establish empty variables
+        const gdUsernames = [];
+        const gdUsers = [];
+        const modes = [];
+        let storyboard;
+        // fill empty variables with data
+        for (const task of beatmap.tasks) {
+            if (task.mode == 'sb' && task.mappers[0].id != beatmap.host.id) {
+                storyboard = task;
+            }
+            else if (task.mode != 'sb' && task.mode != 'hs') {
+                task.mappers.forEach(mapper => {
+                    if (!gdUsernames.includes(mapper.username) && mapper.username != beatmap.host.username) {
+                        gdUsernames.push(mapper.username);
+                        gdUsers.push(mapper);
+                    }
+                });
+                if (!modes.includes(task.mode)) {
+                    modes.push(task.mode);
                 }
-            });
-            if (!modes.includes(task.mode)) {
-                modes.push(task.mode);
             }
         }
-    }
-    // create template for webhook descriptiuon
-    let gdText = '';
-    if (!gdUsers.length) {
-        gdText = '\nNo guest difficulties';
-    }
-    else if (gdUsers.length > 1) {
-        gdText = '\nGuest difficulties by ';
-    }
-    else if (gdUsers.length == 1) {
-        gdText = '\nGuest difficulty by ';
-    }
-    // add users to webhook description
-    if (gdUsers.length) {
-        for (let i = 0; i < gdUsers.length; i++) {
-            const user = gdUsers[i];
-            gdText += `[**${user.username}**](https://osu.ppy.sh/users/${user.osuId})`;
-            if (i + 1 < gdUsers.length) {
-                gdText += ', ';
-            }
-            // update points for all guest difficulty creators
-            points_1.updateUserPoints(user.id);
+        // create template for webhook descriptiuon
+        let gdText = '';
+        if (!gdUsers.length) {
+            gdText = '\nNo guest difficulties';
         }
+        else if (gdUsers.length > 1) {
+            gdText = '\nGuest difficulties by ';
+        }
+        else if (gdUsers.length == 1) {
+            gdText = '\nGuest difficulty by ';
+        }
+        // add users to webhook description
+        if (gdUsers.length) {
+            for (let i = 0; i < gdUsers.length; i++) {
+                const user = gdUsers[i];
+                gdText += `[**${user.username}**](https://osu.ppy.sh/users/${user.osuId})`;
+                if (i + 1 < gdUsers.length) {
+                    gdText += ', ';
+                }
+                // update points for all guest difficulty creators
+                points_1.updateUserPoints(user.id);
+            }
+        }
+        let storyboardText = '';
+        // add storyboarder to webhook and update points for storyboarder
+        if (storyboard) {
+            const storyboarder = storyboard.mappers[0];
+            storyboardText = `\nStoryboard by [**${storyboarder.username}**](https://osu.ppy.sh/users/${storyboarder.osuId})`;
+            points_1.updateUserPoints(storyboarder.id);
+        }
+        let showcaseText = '';
+        if (beatmap.isShowcase) {
+            const artist = await featuredArtist_1.FeaturedArtistModel.findOne({ songs: beatmap.song._id });
+            if (artist)
+                showcaseText = `\n\nThis beatmap was created for [${beatmap.song.artist}](https://osu.ppy.sh/beatmaps/artists/${artist.osuId})'s Featured Artist announcement!`;
+        }
+        const description = `💖 [**${beatmap.song.artist} - ${beatmap.song.title}**](${beatmap.url}) [**${modes.join(', ')}**] has been ranked\n\nHosted by [**${beatmap.host.username}**](https://osu.ppy.sh/users/${beatmap.host.osuId})${gdText}${storyboardText}${showcaseText}`;
+        // publish webhook
+        await discordApi_1.webhookPost([{
+                color: discordApi_1.webhookColors.blue,
+                description,
+                thumbnail: {
+                    url: `https://assets.ppy.sh/beatmaps/${bmInfo.id}/covers/list.jpg`,
+                },
+            }]);
     }
-    let storyboardText = '';
-    // add storyboarder to webhook and update points for storyboarder
-    if (storyboard) {
-        const storyboarder = storyboard.mappers[0];
-        storyboardText = `\nStoryboard by [**${storyboarder.username}**](https://osu.ppy.sh/users/${storyboarder.osuId})`;
-        points_1.updateUserPoints(storyboarder.id);
-    }
-    let showcaseText = '';
-    if (beatmap.isShowcase) {
-        const artist = await featuredArtist_1.FeaturedArtistModel.findOne({ songs: beatmap.song._id });
-        if (artist)
-            showcaseText = `\n\nThis beatmap was created for [${beatmap.song.artist}](https://osu.ppy.sh/beatmaps/artists/${artist.osuId})'s Featured Artist announcement!`;
-    }
-    const description = `💖 [**${beatmap.song.artist} - ${beatmap.song.title}**](${beatmap.url}) [**${modes.join(', ')}**] has been ranked\n\nHosted by [**${beatmap.host.username}**](https://osu.ppy.sh/users/${beatmap.host.osuId})${gdText}${storyboardText}${showcaseText}`;
-    // publish webhook
-    await discordApi_1.webhookPost([{
-            color: discordApi_1.webhookColors.blue,
-            description,
-            thumbnail: {
-                url: `https://assets.ppy.sh/beatmaps/${bmInfo.id}/covers/list.jpg`,
-            },
-        }]);
     // pause to not exceed rate limit
     await sleep(500);
 }

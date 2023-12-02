@@ -43,6 +43,7 @@ const BeatmapSchema = new mongoose_1.Schema({
     queuedForRank: { type: Boolean },
     invalidForPoints: { type: Boolean },
     invalidReason: { type: String },
+    skipWebhook: { type: Boolean },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 const queryHelpers = {
     sortByLatest() {
