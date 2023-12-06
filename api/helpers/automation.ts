@@ -336,7 +336,7 @@ const sendActionNotifications = cron.schedule('0 23 * * *', async () => { /* 4:0
     const allUsers = await UserModel.find({
         osuId: { $nin: invalids },
     });
-    const actionUsers = allUsers.filter(u => u.badge !== u.rank);
+    const actionUsers = allUsers.filter(u => u.badge < u.rank);
 
     if (actionUsers.length) {
         devWebhookPost([{
