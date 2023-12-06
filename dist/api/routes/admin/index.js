@@ -48,7 +48,7 @@ adminRouter.get('/loadActionUsers/', async (req, res) => {
     const allUsers = await user_1.UserModel.find({
         osuId: { $nin: invalids },
     });
-    const actionUsers = allUsers.filter(u => u.badge !== u.rank);
+    const actionUsers = allUsers.filter(u => u.badge < u.rank);
     res.json(actionUsers);
 });
 /* GET contests in need of action */

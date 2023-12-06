@@ -281,7 +281,7 @@ const sendActionNotifications = node_cron_1.default.schedule('0 23 * * *', async
     const allUsers = await user_1.UserModel.find({
         osuId: { $nin: invalids },
     });
-    const actionUsers = allUsers.filter(u => u.badge !== u.rank);
+    const actionUsers = allUsers.filter(u => u.badge < u.rank);
     if (actionUsers.length) {
         discordApi_1.devWebhookPost([{
                 title: `users`,
