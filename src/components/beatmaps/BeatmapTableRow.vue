@@ -27,7 +27,10 @@
                         <span class="text-secondary me-1">Hosted by</span>
                         <user-link class="me-1" :user="beatmap.host" />
                         <span v-if="beatmap.mode !== 'osu'" class="text-secondary">
-                            <modes-icons :modes="[beatmap.mode]" />
+                            <modes-icons
+                                :modes="[beatmap.mode]"
+                                color="secondary"
+                            />
                         </span>
                     </div>
                     <div v-if="beatmap.url" class="col-sm-1 d-flex justify-content-end align-items-center">

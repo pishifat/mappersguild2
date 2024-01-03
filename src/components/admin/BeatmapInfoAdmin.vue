@@ -15,7 +15,10 @@
 
             | <user-link class="me-1" :user="beatmap.host" />
 
-            <modes-icons :modes="[beatmap.mode]" />
+            <modes-icons
+                :modes="[beatmap.mode]"
+                color="dark"
+            />
         </template>
 
         <template #default>

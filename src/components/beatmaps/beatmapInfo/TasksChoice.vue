@@ -22,7 +22,10 @@
                         >
                             {{ task.name }}
                             <template v-if="beatmap.mode == 'hybrid'">
-                                <modes-icons :modes="[task.mode]" />
+                                <modes-icons
+                                    :modes="[task.mode]"
+                                    color="secondary"
+                                />
                             </template>
                         </td>
 

@@ -117,7 +117,10 @@
                         >
                             {{ task.name }}
                             <template v-if="selectedMode == 'hybrid'">
-                                <modes-icons :modes="[task.mode]" />
+                                <modes-icons
+                                    :modes="[task.mode]"
+                                    color="secondary"
+                                />
                             </template>
                         </td>
 

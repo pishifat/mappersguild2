@@ -298,7 +298,11 @@
                                     <a :href="'/beatmaps?id=' + map.id" target="_blank" class="me-1">
                                         {{ map.song.artist }} - {{ map.song.title }}
                                     </a>
-                                    <modes-icons v-if="map.mode !== 'osu'" :modes="[map.mode]" />
+                                    <modes-icons
+                                        v-if="map.mode !== 'osu'"
+                                        :modes="[map.mode]"
+                                        color="secondary"
+                                    />
                                 </td>
                                 <td scope="row">
                                     <user-link :user="map.host" />

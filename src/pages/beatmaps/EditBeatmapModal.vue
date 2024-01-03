@@ -21,7 +21,10 @@
 
             |<user-link class="mx-1" :user="selectedBeatmap.host" />
 
-            <modes-icons :modes="[selectedBeatmap.mode]" />
+            <modes-icons
+                :modes="[selectedBeatmap.mode]"
+                color="dark"
+            />
         </template>
 
         <template #default>

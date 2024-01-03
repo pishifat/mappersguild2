@@ -4,10 +4,13 @@
             class="card card-hover card-level-2 card-body"
         >
             <div class="mb-2">
-                <span class="me-1"><modes-icons
-                    v-if="contest.mode"
-                    :modes="[contest.mode]"
-                /></span>
+                <span class="me-1">
+                    <modes-icons
+                        v-if="contest.mode"
+                        :modes="[contest.mode]"
+                        color="secondary"
+                    />
+            </span>
                 <a v-if="contest.url && contest.url.length" :href="contest.url" target="_blank">
                     {{ contest.name }}
                 </a>

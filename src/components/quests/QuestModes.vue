@@ -1,7 +1,10 @@
 <template>
     <small>
         Modes:
-        <modes-icons :modes="modes" />
+        <modes-icons
+            :modes="modes"
+            color="secondary"
+        />
     </small>
 </template>
 
