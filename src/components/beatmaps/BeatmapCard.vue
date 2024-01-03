@@ -24,7 +24,10 @@
                     Hosted by
                     <user-link class="me-1" :user="beatmap.host" />
 
-                    <modes-icons v-if="beatmap.mode !== 'osu'" :modes="[beatmap.mode]" />
+                    <modes-icons
+                        v-if="beatmap.mode !== 'osu'"
+                        :modes="[beatmap.mode]"
+                    />
                     <process-tasks
                         class="float-end pt-1"
                         :tasks="beatmap.tasks"

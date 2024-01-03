@@ -90,6 +90,8 @@ export default defineComponent({
             switch (this.color) {
                 case 'secondary':
                     return 'DAC9C9';
+                case 'dark':
+                    return '292b2c';
                 default:
                     return 'FFFFFF';
             }
