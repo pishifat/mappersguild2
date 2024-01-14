@@ -149,6 +149,11 @@ adminMissionsRouter.post('/:id/updateBeatmapEarliestSubmissionDate', async (req,
     await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { beatmapEarliestSubmissionDate: new Date(req.body.beatmapEarliestSubmissionDate) }).orFail();
     res.json(req.body.beatmapEarliestSubmissionDate);
 });
+/* POST update mission deadline */
+adminMissionsRouter.post('/:id/updateDeadline', async (req, res) => {
+    await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { deadline: new Date(req.body.deadline) }).orFail();
+    res.json(req.body.deadline);
+});
 /* POST update mission latest beatmap submission date */
 adminMissionsRouter.post('/:id/updateBeatmapLatestSubmissionDate', async (req, res) => {
     await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { beatmapLatestSubmissionDate: new Date(req.body.beatmapLatestSubmissionDate) }).orFail();
