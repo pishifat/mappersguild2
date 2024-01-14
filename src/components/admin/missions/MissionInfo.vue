@@ -124,6 +124,21 @@
                 </button>
             </div>
 
+            <!-- deadline -->
+            <div class="row mt-2">
+                <input
+                    v-model="deadline"
+                    class="form-control form-control-sm mx-2 w-50"
+                    type="date"
+                    autocomplete="off"
+                    placeholder="deadline..."
+                />
+                <button class="btn btn-sm btn-outline-info w-25" @click="updateDeadline($event)">
+                    Update deadline
+                </button>
+                <span class="small">current: <b>{{ mission.deadline }}</b></span>
+            </div>
+
             <!-- openingAnnounced -->
             <div class="row">
                 <div class="col-sm-6 mt-2">
@@ -262,6 +277,7 @@ export default defineComponent({
             userMaximumPp: this.mission.userMaximumPp,
             beatmapEarliestSubmissionDate: new Date(this.mission.beatmapEarliestSubmissionDate),
             beatmapLatestSubmissionDate: new Date(this.mission.beatmapLatestSubmissionDate),
+            deadline: new Date(this.mission.deadline),
         };
     },
     watch: {
@@ -278,6 +294,7 @@ export default defineComponent({
             this.userMaximumPp = this.mission.userMaximumPp;
             this.beatmapEarliestSubmissionDate = new Date(this.mission.beatmapEarliestSubmissionDate);
             this.beatmapLatestSubmissionDate = new Date(this.mission.beatmapLatestSubmissionDate);
+            this.deadline = new Date(this.mission.deadline);
         },
     },
     async created () {
@@ -416,6 +433,20 @@ export default defineComponent({
                 this.$store.commit('updateBeatmapLatestSubmissionDate', {
                     missionId: this.mission.id,
                     beatmapLatestSubmissionDate,
+                });
+            }
+        },
+        async updateDeadline(e): Promise<void> {
+            const deadline = await this.$http.executePost(`/admin/missions/${this.mission.id}/updateDeadline/`, { deadline: this.deadline }, e);
+
+            if (!this.$http.isError(deadline)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated deadline`,
+                    type: 'info',
+                });
+                this.$store.commit('updateDeadline', {
+                    missionId: this.mission.id,
+                    deadline,
                 });
             }
         },

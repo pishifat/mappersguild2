@@ -140,6 +140,13 @@ const store: Module<MissionState, MainState> = {
                 mission.beatmapLatestSubmissionDate = payload.beatmapLatestSubmissionDate;
             }
         },
+        updateDeadline (state, payload): void {
+            const mission = state.missions.find(m => m.id == payload.missionId);
+
+            if (mission) {
+                mission.deadline = payload.deadline;
+            }
+        },
     },
 };
 
