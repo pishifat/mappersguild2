@@ -1,5 +1,6 @@
 <template>
-    <span
+    <modal-dialog
+        :key="quest.id"
         v-bs-tooltip="'Party size: ' +
             (
                 quest.minParty == quest.maxParty ? `${quest.minParty} user${quest.maxParty == 1 ? '' : 's'}` :
@@ -20,7 +21,7 @@
         <span v-else-if="quest.status == 'wip' || quest.status == 'done'">
             <i v-for="member in quest.currentParty.members" :key="member.id" class="fas fa-user user-icon" />
         </span>
-    </span>
+    </modal-dialog>
 </template>
 
 <script lang="ts">
