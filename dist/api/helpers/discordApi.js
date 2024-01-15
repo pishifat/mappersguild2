@@ -8,19 +8,24 @@ const helpers_1 = require("./helpers");
 const config_json_1 = __importDefault(require("../../config.json"));
 const axios_1 = __importDefault(require("axios"));
 async function webhookPost(message) {
-    const url = `https://discordapp.com/api/webhooks/${config_json_1.default.webhook.id}/${config_json_1.default.webhook.token}`;
-    try {
-        const res = await axios_1.default.post(url, {
-            embeds: message,
-        });
-        if (res?.data) {
-            return { success: 'ok' };
+    // webhook: #mappers-guild
+    // nikWebhook: something on nik's server
+    const webhooks = [config_json_1.default.webhook, config_json_1.default.nikWebhook];
+    for (const webhook of webhooks) {
+        const url = `https://discordapp.com/api/webhooks/${webhook.id}/${webhook.token}`;
+        try {
+            const res = await axios_1.default.post(url, {
+                embeds: message,
+            });
+            if (res?.data) {
+                return { success: 'ok' };
+            }
         }
-        return helpers_1.defaultErrorMessage;
+        catch (error) {
+            return helpers_1.defaultErrorMessage;
+        }
     }
-    catch (error) {
-        return helpers_1.defaultErrorMessage;
-    }
+    return helpers_1.defaultErrorMessage;
 }
 exports.webhookPost = webhookPost;
 async function devWebhookPost(message) {
