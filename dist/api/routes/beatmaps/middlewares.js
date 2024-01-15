@@ -5,12 +5,21 @@ const beatmap_1 = require("../../models/beatmap/beatmap");
 const beatmap_2 = require("../../../interfaces/beatmap/beatmap");
 async function isValidBeatmap(req, res, next) {
     const id = req.params.id || req.params.mapId;
-    const beatmap = await beatmap_1.BeatmapModel
-        .findById(id)
-        .where('status')
-        .ne(beatmap_2.BeatmapStatus.Ranked)
-        .defaultPopulate()
-        .orFail();
+    let beatmap;
+    if (req.session?.osuId == 3178418) { // pishifat can edit ranked maps
+        beatmap = await beatmap_1.BeatmapModel
+            .findById(id)
+            .defaultPopulate()
+            .orFail();
+    }
+    else { // normal user can only edit unranked maps
+        beatmap = await beatmap_1.BeatmapModel
+            .findById(id)
+            .where('status')
+            .ne(beatmap_2.BeatmapStatus.Ranked)
+            .defaultPopulate()
+            .orFail();
+    }
     res.locals.beatmap = beatmap;
     next();
 }

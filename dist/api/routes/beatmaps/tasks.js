@@ -52,27 +52,20 @@ tasksRouter.post('/addTask/:mapId', middlewares_2.isValidBeatmap, middlewares_1.
     log_1.LogModel.generate(req.session?.mongoId, `added "${taskName}" difficulty to "${beatmap.song.artist} - ${beatmap.song.title}"`, log_2.LogCategory.Beatmap);
 });
 /* POST delete task */
-tasksRouter.post('/removeTask/:id', async (req, res) => {
-    const [b, t] = await Promise.all([
-        beatmap_1.BeatmapModel
-            .findOne({
-            _id: req.body.beatmapId,
-            status: { $ne: beatmap_2.BeatmapStatus.Ranked },
-        })
-            .orFail(),
-        task_1.TaskModel
-            .findById(req.params.id)
-            .orFail(),
-    ]);
+tasksRouter.post('/removeTask/:taskId/:mapId', middlewares_2.isValidBeatmap, middlewares_1.isValidUser, async (req, res) => {
+    const t = await task_1.TaskModel
+        .findById(req.params.taskId)
+        .orFail();
+    const b = res.locals.beatmap;
     if (t.mappers.indexOf(req.session?.mongoId) < 0 && b.host != req.session?.mongoId) {
         if (res.locals.userRequest.group !== user_2.UserGroup.Admin) {
             return res.json({ error: 'Not mapper' });
         }
     }
-    await beatmap_1.BeatmapModel.findByIdAndUpdate(req.body.beatmapId, { $pull: { tasks: t._id } });
-    await task_1.TaskModel.findByIdAndRemove(req.params.id);
+    await beatmap_1.BeatmapModel.findByIdAndUpdate(req.params.mapId, { $pull: { tasks: t._id } });
+    await task_1.TaskModel.findByIdAndRemove(req.params.taskId);
     const updatedBeatmap = await beatmap_1.BeatmapModel
-        .findById(req.body.beatmapId)
+        .findById(req.params.mapId)
         .defaultPopulate()
         .orFail();
     res.json(updatedBeatmap);
@@ -141,7 +134,7 @@ tasksRouter.post('/setTaskStatus/:taskId', async (req, res) => {
     let b = await beatmap_1.BeatmapModel
         .findOne({
         tasks: t._id,
-        status: { $ne: beatmap_2.BeatmapStatus.Ranked },
+        status: req.session.osuId == 3178418 ? { $exists: true } : { $ne: beatmap_2.BeatmapStatus.Ranked },
     })
         .defaultPopulate()
         .orFail();
