@@ -9,6 +9,7 @@ interface UsersState {
     filterValue: string;
     filterMode: FilterMode;
     sortBy: 'username' | 'rank' | 'createdAt';
+    displayAs: 'list' | 'cards';
     sortDesc: boolean;
     pagination: {
         page: number,
@@ -25,6 +26,7 @@ const store: Module<UsersState, MainState> = {
         filterValue: '',
         filterMode: FilterMode.any,
         sortBy: 'rank',
+        displayAs: 'list',
         sortDesc: true,
         pagination: {
             page: 1,
@@ -54,6 +56,9 @@ const store: Module<UsersState, MainState> = {
         },
         setSortDesc (state, value: boolean): void {
             state.sortDesc = value;
+        },
+        setDisplayAs (state, displayAs: 'cards' | 'list'): void {
+            state.displayAs = displayAs;
         },
         increasePaginationPage (state): void {
             state.pagination.page += 1;
@@ -158,6 +163,12 @@ const store: Module<UsersState, MainState> = {
             }
 
             commit('setSortBy', sortBy);
+        },
+        updateDisplay ({ commit, state }, displayAs): void {
+            if (state.displayAs !== displayAs) {
+                commit('setDisplayAs', displayAs);
+                console.log(displayAs);
+            }
         },
     },
 };

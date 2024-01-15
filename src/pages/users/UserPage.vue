@@ -2,7 +2,7 @@
     <div>
         <user-page-filters />
 
-        <div class="container card card-body py-3">
+        <div v-if="displayAs == 'cards'" class="container card card-body py-3">
             <button
                 :disabled="pagination.page == 1"
                 class="btn btn-sm btn-primary mx-auto my-2 d-block"
@@ -37,6 +37,16 @@
             </div>
         </div>
 
+        <div v-else-if="displayAs == 'list'" class="container card card-body py-3">
+            <transition-group name="list" tag="div" class="row px-3">
+                <user-list-element
+                    v-for="user in filteredUsers"
+                    :key="user.id"
+                    :user="user"
+                />
+            </transition-group>
+        </div>
+
         <user-info />
     </div>
 </template>
@@ -45,6 +55,7 @@
 import { defineComponent } from 'vue';
 import { mapGetters, mapState } from 'vuex';
 import UserCard from '@components/users/UserCard.vue';
+import UserListElement from '@components/users/UserListElement.vue';
 import UserInfo from '@components/users/UserInfo.vue';
 import UserPageFilters from '@pages/users/UserPageFilters.vue';
 import usersModule from '@store/users';
@@ -56,14 +67,17 @@ export default defineComponent({
         UserCard,
         UserInfo,
         UserPageFilters,
+        UserListElement,
     },
     computed: {
         ...mapState('users', [
             'pagination',
+            'displayAs',
         ]),
         ...mapGetters('users', [
             'paginatedUsers',
             'allUsers',
+            'filteredUsers',
         ]),
     },
     watch: {

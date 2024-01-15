@@ -49,7 +49,7 @@ export default defineComponent({
             required: true,
         },
     },
-    computed: mapState(['filterMode']),
+    computed: mapState('users', ['filterMode']),
     methods: {
         selectUser(): void {
             this.$store.commit('users/setSelectedUserId', this.user.id);
