@@ -67,19 +67,12 @@ tasksRouter.post('/addTask/:mapId', isValidBeatmap, isValidUser, async (req, res
 });
 
 /* POST delete task */
-tasksRouter.post('/removeTask/:id', async (req, res) => {
-    const [b, t] = await Promise.all([
-        BeatmapModel
-            .findOne({
-                _id: req.body.beatmapId,
-                status: { $ne: BeatmapStatus.Ranked },
-            })
-            .orFail(),
+tasksRouter.post('/removeTask/:taskId/:mapId', isValidBeatmap, isValidUser, async (req, res) => {
+    const t = await TaskModel
+        .findById(req.params.taskId)
+        .orFail();
 
-        TaskModel
-            .findById(req.params.id)
-            .orFail(),
-    ]);
+    const b = res.locals.beatmap;
 
     if (t.mappers.indexOf(req.session?.mongoId) < 0 && b.host != req.session?.mongoId) {
         if (res.locals.userRequest.group !== UserGroup.Admin) {
@@ -87,10 +80,10 @@ tasksRouter.post('/removeTask/:id', async (req, res) => {
         }
     }
 
-    await BeatmapModel.findByIdAndUpdate(req.body.beatmapId, { $pull: { tasks: t._id } });
-    await TaskModel.findByIdAndRemove(req.params.id);
+    await BeatmapModel.findByIdAndUpdate(req.params.mapId, { $pull: { tasks: t._id } });
+    await TaskModel.findByIdAndRemove(req.params.taskId);
     const updatedBeatmap = await BeatmapModel
-        .findById(req.body.beatmapId)
+        .findById(req.params.mapId)
         .defaultPopulate()
         .orFail();
 
@@ -193,7 +186,7 @@ tasksRouter.post('/setTaskStatus/:taskId', async (req, res) => {
     let b = await BeatmapModel
         .findOne({
             tasks: t._id,
-            status: { $ne: BeatmapStatus.Ranked },
+            status: req.session.osuId == 3178418 ? { $exists: true } : { $ne: BeatmapStatus.Ranked },
         })
         .defaultPopulate()
         .orFail();

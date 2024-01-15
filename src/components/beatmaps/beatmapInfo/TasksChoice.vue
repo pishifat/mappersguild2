@@ -194,9 +194,7 @@ export default defineComponent({
         async removeTask(id, e): Promise<void> {
             e.target.classList.add('fake-button-disable');
 
-            const bm = await this.$http.executePost('/beatmaps/removeTask/' + id, {
-                beatmapId: this.beatmap.id,
-            });
+            const bm = await this.$http.executePost(`/beatmaps/removeTask/${id}/${this.beatmap.id}`);
 
             if (this.isAdmin) {
                 this.$store.commit('updateBeatmap', bm);
