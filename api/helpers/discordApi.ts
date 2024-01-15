@@ -25,21 +25,27 @@ interface DiscordWebhookMessage {
 }
 
 export async function webhookPost(message: DiscordWebhookMessage[]): Promise<{ success: 'ok' } | typeof defaultErrorMessage > {
-    const url = `https://discordapp.com/api/webhooks/${config.webhook.id}/${config.webhook.token}`;
+    // webhook: #mappers-guild
+    // nikWebhook: something on nik's server
+    const webhooks = [config.webhook, config.nikWebhook];
 
-    try {
-        const res = await Axios.post(url, {
-            embeds: message,
-        });
+    for (const webhook of webhooks) {
+        const url = `https://discordapp.com/api/webhooks/${webhook.id}/${webhook.token}`;
 
-        if (res?.data) {
-            return { success: 'ok' };
+        try {
+            const res = await Axios.post(url, {
+                embeds: message,
+            });
+
+            if (res?.data) {
+                return { success: 'ok' };
+            }
+        } catch (error) {
+            return defaultErrorMessage;
         }
-
-        return defaultErrorMessage;
-    } catch (error) {
-        return defaultErrorMessage;
     }
+
+    return defaultErrorMessage;
 }
 
 export async function devWebhookPost(message: DiscordWebhookMessage[]): Promise<{ success: 'ok' } | typeof defaultErrorMessage > {

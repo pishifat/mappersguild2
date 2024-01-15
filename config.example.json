@@ -29,6 +29,10 @@
         "id": "",
         "token": ""
     },
+    "nikWebhook": {
+        "id": "",
+        "token": ""
+    },
     "interOpAccess": {
         "USERNAME": {
             "mongoId": "",
