@@ -85,12 +85,12 @@
                 </span>
             </li>
             <div v-if="mission.status == 'open'" class="small text-secondary ms-3 mt-2">
-                If you create a map for this quest, add it above!
+                If you create a map for this quest, add it from the <a href="/beatmaps">Beatmaps</a> page, then return here!
             </div>
         </ul>
 
         <div v-else class="small text-secondary ms-3">
-            No associated maps. If you create a map for this quest, add it above!
+            No associated maps. If you create a map for this quest, add it on the <a href="/beatmaps">Beatmaps</a> page, then return here!
         </div>
     </div>
 </template>
