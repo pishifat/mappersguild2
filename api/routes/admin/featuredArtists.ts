@@ -3,7 +3,9 @@ import { isLoggedIn, isAdmin, isSuperAdmin } from '../../helpers/middlewares';
 import { FeaturedArtistModel } from '../../models/featuredArtist';
 import { FeaturedSongModel } from '../../models/featuredSong';
 import { UserModel } from '../../models/user';
+import { BeatmapModel } from '../../models/beatmap/beatmap';
 import { User } from '../../../interfaces/user';
+import { BeatmapStatus } from '../../../interfaces/beatmap/beatmap';
 
 const adminFeaturedArtistsRouter = express.Router();
 
@@ -118,7 +120,7 @@ adminFeaturedArtistsRouter.post('/:id/songs/:songId/delete', async (req, res) =>
     res.json({ success: 'ok' });
 });
 
-/* POST remove song from artist */
+/* GET find recently licensed songs */
 adminFeaturedArtistsRouter.get('/findRecentlyLicensedSongs', async (req, res) => {
     const startDate = new Date('2022-01-01');
     const endDate = new Date('2022-07-27');
@@ -126,6 +128,40 @@ adminFeaturedArtistsRouter.get('/findRecentlyLicensedSongs', async (req, res) =>
     const songs = await FeaturedSongModel.find({ createdAt: { $gt: startDate, $lt: endDate } }).sort({ createdAt: -1 });
 
     res.json({ songs });
+});
+
+/* POST load artists without ranked maps since relevant date */
+adminFeaturedArtistsRouter.post('/loadArtistsWithoutRankedMaps', async (req, res) => {
+    const { date, threshold } = req.body;
+
+    const allArtists = await FeaturedArtistModel.find({ osuId: { $exists: true } }).defaultPopulate();
+    const allRankedBeatmaps = await BeatmapModel.find({ status: BeatmapStatus.Ranked, rankedDate: { $gt: date } }).defaultPopulate();
+
+    const outputArtists = [];
+
+    for (const artist of allArtists) {
+        let rankedMapCount = 0;
+
+        for (const song of artist.songs) {
+            const rankedMap = allRankedBeatmaps.find(b => b.song.id == song.id);
+
+
+            if (rankedMap) {
+                rankedMapCount ++;
+            }
+        }
+
+
+        if (rankedMapCount < threshold) {
+            outputArtists.push({
+                name: artist.label,
+                osuId: artist.osuId,
+                rankedMaps: rankedMapCount,
+            });
+        }
+    }
+
+    res.json({ artists: outputArtists });
 });
 
 /* POST update review comment */

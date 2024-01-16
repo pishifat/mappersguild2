@@ -22,7 +22,7 @@ import CopyPaste from '../CopyPaste.vue';
 import { FeaturedSong } from '../../../interfaces/featuredSong';
 
 export default defineComponent({
-    name: 'ShowcaseUserList',
+    name: 'RecentLicensedSongs',
     components: {
         CopyPaste,
     },
