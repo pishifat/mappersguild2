@@ -94,15 +94,15 @@ export default defineComponent({
 
             if (this.mission.beatmapEarliestSubmissionDate) {
                 requirements.push({
-                    text: `Your beatmap must be submitted to the osu! website after `,
-                    bold: `${new Date(this.mission.beatmapEarliestSubmissionDate).toLocaleString()}`,
+                    text: `Your beatmap must be submitted to the osu! website `,
+                    bold: `after ${new Date(this.mission.beatmapEarliestSubmissionDate).toLocaleString()}`,
                 });
             }
 
             if (this.mission.beatmapLatestSubmissionDate) {
                 requirements.push({
-                    text: `Your beatmap must be submitted to the osu! website before `,
-                    bold: `${new Date(this.mission.beatmapLatestSubmissionDate).toLocaleString()}`,
+                    text: `Your beatmap must be submitted to the osu! website `,
+                    bold: `before ${new Date(this.mission.beatmapLatestSubmissionDate).toLocaleString()}`,
                 });
             }
 
