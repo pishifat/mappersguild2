@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const middlewares_1 = require("../../helpers/middlewares");
 const mission_1 = require("../../models/mission");
+const user_1 = require("../../models/user");
 const mission_2 = require("../../../interfaces/mission");
 const featuredArtist_1 = require("../../models/featuredArtist");
 const adminMissionsRouter = express_1.default.Router();
@@ -186,5 +187,12 @@ adminMissionsRouter.post('/:missionId/:beatmapId/toggleInvalidBeatmap', async (r
     }
     const updatedMission = await mission_1.MissionModel.findById(req.params.missionId).defaultPopulate().orFail();
     res.json(updatedMission.invalidBeatmaps);
+});
+/* POST toggle isQuestTrailblazer for a user */
+adminMissionsRouter.post('/toggleIsQuestTrailblazer', async (req, res) => {
+    const userOsuId = req.body.userOsuId;
+    const user = await user_1.UserModel.findOne({ osuId: userOsuId }).orFail();
+    await user_1.UserModel.findByIdAndUpdate(user._id, { isQuestTrailblazer: true });
+    res.json(true);
 });
 exports.default = adminMissionsRouter;
