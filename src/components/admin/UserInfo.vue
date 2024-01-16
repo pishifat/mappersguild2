@@ -28,13 +28,24 @@
                 </p>
                 <p class="row">
                     <input
+                        v-model="queuedBadge"
+                        class="form-control form-control-sm mx-2 w-50"
+                        type="text"
+                        autocomplete="off"
+                    />
+                    <button class="btn btn-sm btn-outline-info w-25" @click="updateQueuedBadge($event)">
+                        Queue badge
+                    </button>
+                </p>
+                <p class="row">
+                    <input
                         v-model="badge"
                         class="form-control form-control-sm mx-2 w-50"
                         type="text"
                         autocomplete="off"
                     />
                     <button class="btn btn-sm btn-outline-info w-25" @click="updateBadge($event)">
-                        Queue badge
+                        Update actual badge
                     </button>
                 </p>
                 <p class="row">
@@ -96,6 +107,7 @@ export default defineComponent({
     data() {
         return {
             badge: 0,
+            queuedBadge: 0,
             discordId: '',
             group: '',
         };
@@ -103,6 +115,7 @@ export default defineComponent({
     watch: {
         user(): void {
             this.badge = this.user.badge || 0;
+            this.queuedBadge = this.user.queuedBadge || 0;
             this.discordId = this.user.discordId || '';
             this.group = this.user.group || '';
         },
@@ -110,6 +123,7 @@ export default defineComponent({
     created() {
         if (this.user) {
             this.badge = this.user.badge || 0;
+            this.queuedBadge = this.user.badge || 0;
             this.discordId = this.user.discordId || '';
             this.group = this.user.group || '';
         }
@@ -129,12 +143,26 @@ export default defineComponent({
                 });
             }
         },
+        async updateQueuedBadge(e): Promise<void> {
+            const badge = await this.$http.executePost(`/admin/users/${this.user.id}/updateQueuedBadge`, { badge: this.badge }, e);
+
+            if (badge) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `set queued badge to ${badge}`,
+                    type: 'info',
+                });
+                this.$store.commit('updateQueuedBadge', {
+                    userId: this.user.id,
+                    badge,
+                });
+            }
+        },
         async updateBadge(e): Promise<void> {
             const badge = await this.$http.executePost(`/admin/users/${this.user.id}/updateBadge`, { badge: this.badge }, e);
 
             if (badge) {
                 this.$store.dispatch('updateToastMessages', {
-                    message: `set queued badge to ${badge}`,
+                    message: `set actual badge to ${badge}`,
                     type: 'info',
                 });
                 this.$store.commit('updateBadge', {

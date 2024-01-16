@@ -166,6 +166,7 @@ export async function getUserRank(userId: any, tasksPoints: TasksPoints, modPoin
         tasksPoints.Insane +
         tasksPoints.Expert +
         tasksPoints.Storyboard +
+        tasksPoints.Hitsounds +
         tasksPoints.QuestReward +
         modPoints +
         hostPoints +

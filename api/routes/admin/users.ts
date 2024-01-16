@@ -20,7 +20,7 @@ adminUsersRouter.get('/load', async (req, res) => {
 });
 
 /* POST update user queuedBadge */
-adminUsersRouter.post('/:id/updateBadge', async (req, res) => {
+adminUsersRouter.post('/:id/updateQueuedBadge', async (req, res) => {
     const badge = parseInt(req.body.badge, 10);
 
     if (badge == 0) {
@@ -28,6 +28,15 @@ adminUsersRouter.post('/:id/updateBadge', async (req, res) => {
     } else {
         await UserModel.findByIdAndUpdate(req.params.id, { queuedBadge: badge }).orFail();
     }
+
+    res.json(badge);
+});
+
+/* POST update user badge */
+adminUsersRouter.post('/:id/updateBadge', async (req, res) => {
+    const badge = parseInt(req.body.badge, 10);
+
+    await UserModel.findByIdAndUpdate(req.params.id, { badge }).orFail();
 
     res.json(badge);
 });
