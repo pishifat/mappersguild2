@@ -75,4 +75,5 @@ export interface User extends Document {
     ppCatch: number;
     ppMania: number;
     hasMerchAccess: boolean;
+    isQuestTrailblazer: boolean;
 }

@@ -1,6 +1,7 @@
 import express from 'express';
 import { isLoggedIn, isAdmin, isSuperAdmin } from '../../helpers/middlewares';
 import { MissionModel } from '../../models/mission';
+import { UserModel } from '../../models/user';
 import { MissionMode, MissionStatus } from '../../../interfaces/mission';
 import { FeaturedArtistModel } from '../../models/featuredArtist';
 
@@ -234,6 +235,15 @@ adminMissionsRouter.post('/:missionId/:beatmapId/toggleInvalidBeatmap', async (r
     const updatedMission = await MissionModel.findById(req.params.missionId).defaultPopulate().orFail();
 
     res.json(updatedMission.invalidBeatmaps);
+});
+
+/* POST toggle isQuestTrailblazer for a user */
+adminMissionsRouter.post('/toggleIsQuestTrailblazer', async (req, res) => {
+    const userOsuId = req.body.userOsuId;
+    const user = await UserModel.findOne({ osuId: userOsuId }).orFail();
+    await UserModel.findByIdAndUpdate(user._id, { isQuestTrailblazer: true });
+
+    res.json(true);
 });
 
 export default adminMissionsRouter;

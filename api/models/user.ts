@@ -52,6 +52,7 @@ const UserSchema = new Schema<User>({
     ppCatch: { type: Number },
     ppMania: { type: Number },
     hasMerchAccess: { type: Boolean },
+    isQuestTrailblazer: { type: Boolean },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 UserSchema.virtual('totalPoints').get(function(this: User) {

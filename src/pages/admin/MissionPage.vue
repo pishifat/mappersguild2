@@ -31,6 +31,8 @@
             </div>
         </div>
 
+        <mission-winners />
+
         <submit-mission-modal />
 
         <mission-info
@@ -49,12 +51,14 @@ import DataTable from '../../components/admin/DataTable.vue';
 import { Mission } from '../../../interfaces/mission';
 import missionsAdminModule from '@store/admin/missions';
 import MissionInfo from '../../components/admin/missions/MissionInfo.vue';
+import MissionWinners from '../../components/admin/missions/MissionWinners.vue';
 
 export default defineComponent({
     components: {
         DataTable,
         SubmitMissionModal,
         MissionInfo,
+        MissionWinners,
     },
     data () {
         return {
