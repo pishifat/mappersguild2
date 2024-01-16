@@ -314,7 +314,7 @@ const sendActionNotifications = node_cron_1.default.schedule('0 23 * * *', async
     scheduled: false,
 });
 /* open/close announcements and mark missions as inactive */
-const processMissions = node_cron_1.default.schedule('0 19 * * *', async () => {
+const processMissions = node_cron_1.default.schedule('3 21 * * *', async () => {
     console.log('start');
     const today = new Date();
     const missions = await mission_1.MissionModel
