@@ -8,6 +8,8 @@ const middlewares_1 = require("../../helpers/middlewares");
 const featuredArtist_1 = require("../../models/featuredArtist");
 const featuredSong_1 = require("../../models/featuredSong");
 const user_1 = require("../../models/user");
+const beatmap_1 = require("../../models/beatmap/beatmap");
+const beatmap_2 = require("../../../interfaces/beatmap/beatmap");
 const adminFeaturedArtistsRouter = express_1.default.Router();
 adminFeaturedArtistsRouter.use(middlewares_1.isLoggedIn);
 adminFeaturedArtistsRouter.use(middlewares_1.isAdmin);
@@ -96,12 +98,36 @@ adminFeaturedArtistsRouter.post('/:id/songs/:songId/delete', async (req, res) =>
     await featuredSong_1.FeaturedSongModel.findByIdAndRemove(req.params.songId).orFail();
     res.json({ success: 'ok' });
 });
-/* POST remove song from artist */
+/* GET find recently licensed songs */
 adminFeaturedArtistsRouter.get('/findRecentlyLicensedSongs', async (req, res) => {
     const startDate = new Date('2022-01-01');
     const endDate = new Date('2022-07-27');
     const songs = await featuredSong_1.FeaturedSongModel.find({ createdAt: { $gt: startDate, $lt: endDate } }).sort({ createdAt: -1 });
     res.json({ songs });
+});
+/* POST load artists without ranked maps since relevant date */
+adminFeaturedArtistsRouter.post('/loadArtistsWithoutRankedMaps', async (req, res) => {
+    const { date, threshold } = req.body;
+    const allArtists = await featuredArtist_1.FeaturedArtistModel.find({ osuId: { $exists: true } }).defaultPopulate();
+    const allRankedBeatmaps = await beatmap_1.BeatmapModel.find({ status: beatmap_2.BeatmapStatus.Ranked, rankedDate: { $gt: date } }).defaultPopulate();
+    const outputArtists = [];
+    for (const artist of allArtists) {
+        let rankedMapCount = 0;
+        for (const song of artist.songs) {
+            const rankedMap = allRankedBeatmaps.find(b => b.song.id == song.id);
+            if (rankedMap) {
+                rankedMapCount++;
+            }
+        }
+        if (rankedMapCount < threshold) {
+            outputArtists.push({
+                name: artist.label,
+                osuId: artist.osuId,
+                rankedMaps: rankedMapCount,
+            });
+        }
+    }
+    res.json({ artists: outputArtists });
 });
 /* POST update review comment */
 adminFeaturedArtistsRouter.post('/:id/updateNotes', async (req, res) => {

@@ -137,7 +137,7 @@ adminFeaturedArtistsRouter.post('/loadArtistsWithoutRankedMaps', async (req, res
     const allArtists = await FeaturedArtistModel.find({ osuId: { $exists: true } }).defaultPopulate();
     const allRankedBeatmaps = await BeatmapModel.find({ status: BeatmapStatus.Ranked, rankedDate: { $gt: date } }).defaultPopulate();
 
-    const outputArtists = [];
+    const outputArtists: any = [];
 
     for (const artist of allArtists) {
         let rankedMapCount = 0;
