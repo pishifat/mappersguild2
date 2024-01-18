@@ -22,6 +22,9 @@ interface DiscordWebhookMessage {
     thumbnail?: {
         url: string;
     };
+    image?: {
+        url: string;
+    };
 }
 
 export async function webhookPost(message: DiscordWebhookMessage[]): Promise<{ success: 'ok' } | typeof defaultErrorMessage > {
