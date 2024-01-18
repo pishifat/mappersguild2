@@ -57,7 +57,7 @@ tasksRouter.post('/removeTask/:taskId/:mapId', middlewares_2.isValidBeatmap, mid
         .findById(req.params.taskId)
         .orFail();
     const b = res.locals.beatmap;
-    if (t.mappers.indexOf(req.session?.mongoId) < 0 && b.host != req.session?.mongoId) {
+    if (t.mappers.indexOf(req.session?.mongoId) < 0 && b.host.id != req.session?.mongoId) {
         if (res.locals.userRequest.group !== user_2.UserGroup.Admin) {
             return res.json({ error: 'Not mapper' });
         }
