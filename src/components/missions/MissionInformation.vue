@@ -92,10 +92,6 @@
                     </li>
                 </ul>
             </ul>
-            Anyone who participates in a map linked to a priority questearns:
-            <ul>
-                <li><b>+1 bonus point per difficulty (also scaling with length) on a ranked beatmap</b></li>
-            </ul>
         </div>
     </div>
 </template>

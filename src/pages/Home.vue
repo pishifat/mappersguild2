@@ -246,7 +246,7 @@
                                         <li>0.5 points for 40+ days late </li>
                                     </ul>
                                 </li>
-                                <li>Beatmaps created for a priority quest earn +3 (for winning) or +1 bonus points per difficulty (also scaling according to length)</li>
+                                <li>Beatmaps created for a priority quest earn +2 for winning (also scaling according to length)</li>
                             </ul>
                         </li>
                         <li :class="highlight == 'hitsounds' ? 'text-success' : ''">
