@@ -27,7 +27,7 @@
                         {{ value }}
                     </li>
                     <li>BN mod/nomination: {{ bnPoints }}</li>
-                    <li>Map host: 5</li>
+                    <li>Map host: 3</li>
                 </ul>
             </div>
             <div class="col-sm-6">
