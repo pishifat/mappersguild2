@@ -131,6 +131,7 @@
                 <modes-icons
                     :modes="quest.modes"
                     :toggler="true"
+                    color="secondary"
                     @toggle="toggleQuestMode($event)"
                 />
             </p>

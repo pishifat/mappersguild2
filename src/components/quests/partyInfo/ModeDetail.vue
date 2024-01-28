@@ -3,6 +3,7 @@
         <b class="me-1">Modes:</b>
         <modes-icons
             :modes="party.modes"
+            color="secondary"
             :toggler="party.leader.id == $store.state.loggedInUser?.id"
             @toggle="togglePartyMode($event)"
         />
