@@ -56,13 +56,22 @@ beatmapsHostRouter.post('/:id/setStatus', middlewares_2.isValidBeatmap, middlewa
         }
         const difficulties = ['Easy', 'Normal', 'Hard', 'Insane', 'Expert'];
         let hasNoDifficulties = true;
+        let hasHitsounds = false;
         for (const task of validBeatmap.tasks) {
             if (difficulties.includes(task.name)) {
                 hasNoDifficulties = false;
             }
+            if (task.name == task_2.TaskName.Hitsounds) {
+                hasHitsounds = true;
+            }
         }
         if (hasNoDifficulties) {
             return res.json({ error: `You can't mark a mapset without difficulties as complete!` });
+        }
+        if (validBeatmap.mode == 'osu' || validBeatmap.mode == 'catch') {
+            if (!hasHitsounds) {
+                return res.json({ error: `Your mapset needs hitsounds!` });
+            }
         }
         for (let i = 0; i < validBeatmap.tasks.length; i++) {
             const task = validBeatmap.tasks[i];
