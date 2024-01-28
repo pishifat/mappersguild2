@@ -144,7 +144,7 @@ export default defineComponent({
             }
         },
         async updateQueuedBadge(e): Promise<void> {
-            const badge = await this.$http.executePost(`/admin/users/${this.user.id}/updateQueuedBadge`, { badge: this.badge }, e);
+            const badge = await this.$http.executePost(`/admin/users/${this.user.id}/updateQueuedBadge`, { badge: this.queuedBadge }, e);
 
             if (badge) {
                 this.$store.dispatch('updateToastMessages', {
