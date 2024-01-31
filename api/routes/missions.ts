@@ -185,6 +185,10 @@ missionsRouter.post('/:missionId/findShowcaseMissionSong', isEditable, async (re
     const mission: Mission = res.locals.mission;
     const user: User = await UserModel.findById(req.session.mongoId).orFail();
 
+    if (!user.rank || user.rank === 0) {
+        return res.json({ error: `Song not loaded. Your MG rank is too low for this quest.` });
+    }
+
     const missionWithSongs: Mission = await MissionModel
         .findById(req.params.missionId)
         .populate(
