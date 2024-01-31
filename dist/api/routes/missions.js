@@ -151,6 +151,9 @@ missionsRouter.post('/:missionId/:mapId/removeBeatmapFromMission', isEditable, m
 missionsRouter.post('/:missionId/findShowcaseMissionSong', isEditable, async (req, res) => {
     const mission = res.locals.mission;
     const user = await user_1.UserModel.findById(req.session.mongoId).orFail();
+    if (!user.rank || user.rank === 0) {
+        return res.json({ error: `Song not loaded. Your MG rank is too low for this quest.` });
+    }
     const missionWithSongs = await mission_1.MissionModel
         .findById(req.params.missionId)
         .populate({
