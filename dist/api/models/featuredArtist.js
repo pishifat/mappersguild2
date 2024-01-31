@@ -59,13 +59,13 @@ const featuredArtistSchema = new mongoose_1.Schema({
 const queryHelpers = {
     defaultPopulate() {
         return this.populate([
-            { path: 'songs', select: 'artist title' },
+            { path: 'songs', select: 'artist title oszUrl' },
             { path: 'showcaseMappers', select: 'username osuId' },
         ]);
     },
     defaultPopulateWithSongs() {
         return this.populate([
-            { path: 'songs', select: 'artist title' },
+            { path: 'songs', select: 'artist title oszUrl' },
             { path: 'showcaseMappers', select: 'username osuId' },
             { path: 'offeredUsers', select: 'username osuId' },
             {

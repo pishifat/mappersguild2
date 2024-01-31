@@ -33,7 +33,7 @@ export interface Mission extends Document {
     isShowcaseMission: boolean;
     showcaseMissionSongs: {
         song: FeaturedSong;
-        mentor: User;
+        user: User;
     }[];
     /* for webhooks */
     openingAnnounced: boolean;

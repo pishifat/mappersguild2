@@ -5,6 +5,8 @@ import { LogModel } from '../models/log';
 import { BeatmapModel } from '../models/beatmap/beatmap';
 import { UserModel } from '../models/user';
 import { Mission, MissionStatus, MissionMode } from '../../interfaces/mission';
+import { FeaturedArtist } from '../../interfaces/featuredArtist';
+import { User } from '../../interfaces/user';
 import { LogCategory } from '../../interfaces/log';
 import { Beatmap, BeatmapStatus, BeatmapMode } from '../../interfaces/beatmap/beatmap';
 import { isBeatmapHost, isValidBeatmap } from './beatmaps/middlewares';
@@ -181,7 +183,7 @@ missionsRouter.post('/:missionId/:mapId/removeBeatmapFromMission', isEditable, i
 /* POST findShowcaseMissionSong */
 missionsRouter.post('/:missionId/findShowcaseMissionSong', isEditable, async (req, res) => {
     const mission: Mission = res.locals.mission;
-    const user: User = await UserModel.findById(req.session.mongoId);
+    const user: User = await UserModel.findById(req.session.mongoId).orFail();
 
     const missionWithSongs: Mission = await MissionModel
         .findById(req.params.missionId)
@@ -192,12 +194,13 @@ missionsRouter.post('/:missionId/findShowcaseMissionSong', isEditable, async (re
                     path: 'song user',
                 },
             }
-        );
+        )
+        .orFail();
 
     const userExists = missionWithSongs.showcaseMissionSongs.some(s => s.user.id == user.id);
 
     if (userExists) {
-        //return res.json({ error: `Song already selected!` });
+        return res.json({ error: `Song already selected!` });
     }
 
     const artists: FeaturedArtist[] = await FeaturedArtistModel
@@ -263,7 +266,8 @@ missionsRouter.get('/:missionId/findSelectedShowcaseMissionSong', async (req, re
                     path: 'song user',
                 },
             }
-        );
+        )
+        .orFail();
 
     const song = mission.showcaseMissionSongs.find(s => s.user.id == req.session.mongoId);
 
