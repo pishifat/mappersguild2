@@ -8,6 +8,8 @@ import { Mission, MissionStatus, MissionMode } from '../../interfaces/mission';
 import { LogCategory } from '../../interfaces/log';
 import { Beatmap, BeatmapStatus, BeatmapMode } from '../../interfaces/beatmap/beatmap';
 import { isBeatmapHost, isValidBeatmap } from './beatmaps/middlewares';
+import { FeaturedArtistModel } from '../models/featuredArtist';
+import { devWebhookPost, webhookColors } from '../helpers/discordApi';
 
 const missionsRouter = express.Router();
 
@@ -174,6 +176,98 @@ missionsRouter.post('/:missionId/:mapId/removeBeatmapFromMission', isEditable, i
     res.json(updatedMission);
 
     LogModel.generate(req.session?.mongoId, `removed "${beatmap.song.artist} - ${beatmap.song.title}" from mission "${mission.name}"`, LogCategory.Mission );
+});
+
+/* POST findShowcaseMissionSong */
+missionsRouter.post('/:missionId/findShowcaseMissionSong', isEditable, async (req, res) => {
+    const mission: Mission = res.locals.mission;
+    const user: User = await UserModel.findById(req.session.mongoId);
+
+    const missionWithSongs: Mission = await MissionModel
+        .findById(req.params.missionId)
+        .populate(
+            {
+                path: 'showcaseMissionSongs',
+                populate: {
+                    path: 'song user',
+                },
+            }
+        );
+
+    const userExists = missionWithSongs.showcaseMissionSongs.some(s => s.user.id == user.id);
+
+    if (userExists) {
+        //return res.json({ error: `Song already selected!` });
+    }
+
+    const artists: FeaturedArtist[] = await FeaturedArtistModel
+        .find({
+            $or: [
+                { osuId: 0 },
+                { osuId: { $exists: false } },
+            ],
+            songsTimed: true,
+            hasRankedMaps: { $ne: true },
+            songs: { $exists: true, $ne: [] },
+        })
+        .defaultPopulateWithSongs();
+
+    let finalSong;
+    let count = 0;
+
+    while (!finalSong) {
+        const artistIndex = Math.floor(Math.random() * (artists.length));
+        const artist = artists[artistIndex];
+        const songIndex = Math.floor(Math.random() * (artist.songs.length));
+        const song = artist.songs[songIndex];
+
+        const songSelected = missionWithSongs.showcaseMissionSongs.some(s => s.song.id == song.id);
+
+        if (!songSelected || count > 400) { // if there's no songs left, it'll choose a duplicate song. this probably won't matter
+            finalSong = song;
+
+            await FeaturedArtistModel.findByIdAndUpdate(artist.id, { $push: { showcaseMappers: user._id } });
+        }
+
+        count++;
+    }
+
+    mission.showcaseMissionSongs.push({
+        user: req.session.mongoId,
+        song: finalSong.id,
+    });
+
+    await mission.save();
+
+    const updatedMission = await MissionModel.findById(req.params.missionId).defaultPopulate().orFail();
+
+    res.json(updatedMission);
+
+    await devWebhookPost([{
+        title: `showcase mission song selected`,
+        color: webhookColors.lightOrange,
+        description: `[**${user.username}**](https://osu.ppy.sh/users/${user.osuId}) selected **${finalSong.artist} - ${finalSong.title}** for **${mission.name}** priority quest`,
+    }]);
+
+    LogModel.generate(req.session?.mongoId, `found showcase mission song`, LogCategory.Mission );
+});
+
+/* GET findShowcaseMissionSong */
+missionsRouter.get('/:missionId/findSelectedShowcaseMissionSong', async (req, res) => {
+    const mission: Mission = await MissionModel
+        .findById(req.params.missionId)
+        .populate(
+            {
+                path: 'showcaseMissionSongs',
+                populate: {
+                    path: 'song user',
+                },
+            }
+        );
+
+    const song = mission.showcaseMissionSongs.find(s => s.user.id == req.session.mongoId);
+
+    res.json(song);
 });
 
 export default missionsRouter;

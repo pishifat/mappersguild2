@@ -4,6 +4,11 @@
             <b>Objective:</b>
             <div class="text-secondary mt-1" v-html="$md.render(mission.objective.trim())" />
         </div>
+        <div v-if="mission.isShowcaseMission" class="col-sm-12 mb-4">
+            <song-selection
+                :mission="mission"
+            />
+        </div>
         <div class="col-sm-12 mb-2">
             <b>Win condition:</b>
             <div class="text-secondary mt-1" v-html="$md.render(mission.winCondition.trim())" />
@@ -52,11 +57,13 @@ import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import { Mission } from '@interfaces/mission';
 import ArtistLinkList from '@components/ArtistLinkList.vue';
+import SongSelection from './SongSelection.vue';
 
 export default defineComponent({
     name: 'MissionCard',
     components: {
         ArtistLinkList,
+        SongSelection,
     },
     props: {
         mission: {
@@ -92,17 +99,43 @@ export default defineComponent({
                 });
             }
 
-            if (this.mission.beatmapEarliestSubmissionDate) {
+            if (this.mission.beatmapEarliestSubmissionDate && (new Date(this.mission.beatmapEarliestSubmissionDate) > new Date('2007-09-17'))) {
                 requirements.push({
                     text: `Your beatmap must be submitted to the osu! website `,
                     bold: `after ${new Date(this.mission.beatmapEarliestSubmissionDate).toLocaleString()}`,
                 });
             }
 
-            if (this.mission.beatmapLatestSubmissionDate) {
+            if (this.mission.beatmapLatestSubmissionDate && (new Date(this.mission.beatmapLatestSubmissionDate) < new Date('2050-01-01'))) {
                 requirements.push({
                     text: `Your beatmap must be submitted to the osu! website `,
                     bold: `before ${new Date(this.mission.beatmapLatestSubmissionDate).toLocaleString()}`,
+                });
+            }
+
+            if (this.mission.userMinimumRank) {
+                let points = 0;
+
+                switch (this.mission.userMinimumRank) {
+                    case 1:
+                        points = 100;
+                        break;
+                    case 2:
+                        points = 250;
+                        break;
+                    case 3:
+                        points = 500;
+                        break;
+                    case 4:
+                        points = 1000;
+                        break;
+                    default:
+                        break;
+                }
+
+                requirements.push({
+                    text: `Your Mappers' Guild rank must be at least `,
+                    bold: `${this.mission.userMinimumRank} (${points} total points)`,
                 });
             }
 

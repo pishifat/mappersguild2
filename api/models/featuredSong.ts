@@ -10,6 +10,7 @@ const featuredSongSchema = new Schema<FeaturedSong>({
     artist: { type: String, required: true },
     title: { type: String },
     songShowcaseMappers: [{ type: 'ObjectId', ref: 'User' }],
+    oszUrl: { type: String },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const queryHelpers = {

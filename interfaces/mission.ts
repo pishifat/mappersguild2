@@ -1,6 +1,8 @@
 import { Document } from 'mongoose';
 import { Beatmap } from './beatmap/beatmap';
 import { FeaturedArtist } from './featuredArtist';
+import { User } from './user';
+import { FeaturedSong } from './featuredSong';
 
 export enum MissionStatus {
     Open = 'open',
@@ -27,7 +29,12 @@ export interface Mission extends Document {
     winCondition: string;
     winningBeatmaps: Beatmap[];
     invalidBeatmaps: Beatmap[];
-    modes: MissionMode[]
+    modes: MissionMode[];
+    isShowcaseMission: boolean;
+    showcaseMissionSongs: {
+        song: FeaturedSong;
+        mentor: User;
+    }[];
     /* for webhooks */
     openingAnnounced: boolean;
     closingAnnounced: boolean;
@@ -35,6 +42,7 @@ export interface Mission extends Document {
     userMaximumRankedBeatmapsCount: number;
     userMaximumGlobalRank: number;
     userMaximumPp: number;
+    userMinimumRank: number;
     /* beatmap requirements. optional and growing */
     beatmapEarliestSubmissionDate: Date;
     beatmapLatestSubmissionDate: Date;

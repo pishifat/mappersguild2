@@ -56,6 +56,13 @@ const store: Module<MissionState, MainState> = {
                 mission.winCondition = payload.winCondition;
             }
         },
+        updateIsShowcaseMission (state, payload): void {
+            const mission = state.missions.find(m => m.id == payload.missionId);
+
+            if (mission) {
+                mission.isShowcaseMission = payload.isShowcaseMission;
+            }
+        },
         updateOpeningAnnounced (state, payload): void {
             const mission = state.missions.find(m => m.id == payload.missionId);
 
@@ -124,6 +131,13 @@ const store: Module<MissionState, MainState> = {
 
             if (mission) {
                 mission.userMaximumPp = payload.userMaximumPp;
+            }
+        },
+        updateUserMinimumRank (state, payload): void {
+            const mission = state.missions.find(m => m.id == payload.missionId);
+
+            if (mission) {
+                mission.userMinimumRank = payload.userMinimumRank;
             }
         },
         updateBeatmapEarliestSubmissionDate (state, payload): void {

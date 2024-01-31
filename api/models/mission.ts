@@ -20,10 +20,18 @@ const missionSchema = new Schema<Mission, MissionStatics>({
     winningBeatmaps: [{ type: 'ObjectId', ref: 'Beatmap' }],
     invalidBeatmaps: [{ type: 'ObjectId', ref: 'Beatmap' }],
     modes: [{ type: String, required: true }],
+    isShowcaseMission: { type: Boolean },
+    showcaseMissionSongs: [{
+        _id: false,
+        song: { type: 'ObjectId', ref: 'FeaturedSong', required: true },
+        user: { type: 'ObjectId', ref: 'User', required: true },
+    }],
     /* user requirements. optional and growing */
     userMaximumRankedBeatmapsCount: { type: Number },
     userMaximumGlobalRank: { type: Number },
     userMaximumPp: { type: Number },
+    userMinimumRank: { type: Number },
+    /* beatmap requirements. optional and growing */
     beatmapEarliestSubmissionDate: { type: Date },
     beatmapLatestSubmissionDate: { type: Date },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });

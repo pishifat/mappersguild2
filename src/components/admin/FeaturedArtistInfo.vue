@@ -140,6 +140,15 @@
                         placeholder="title..."
                     />
                 </div>
+                <div class="row mb-2 mx-2">
+                    <input
+                        v-model="oszUrl"
+                        class="form-control form-control-sm w-75"
+                        type="text"
+                        autocomplete="off"
+                        placeholder="osz template download link"
+                    />
+                </div>
                 <div class="mx-1">
                     <button class="btn btn-sm btn-outline-info mx-1" @click="addSong($event)">
                         Add song
@@ -219,6 +228,7 @@ export default defineComponent({
             selectedSong: null as null | FeaturedSong,
             artist: '',
             title: '',
+            oszUrl: '',
             notes: '',
         };
     },
@@ -246,6 +256,7 @@ export default defineComponent({
             if (this.selectedSong) {
                 this.artist = this.selectedSong.artist;
                 this.title = this.selectedSong.title;
+                this.oszUrl = this.selectedSong.oszUrl;
             }
         },
     },
@@ -349,7 +360,7 @@ export default defineComponent({
             }
         },
         async addSong(e): Promise<void> {
-            const song = await this.$http.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/songs/create`, { artist: this.artist, title: this.title }, e);
+            const song = await this.$http.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/songs/create`, { artist: this.artist, title: this.title, oszUrl: this.oszUrl }, e);
 
             if (!this.$http.isError(song)) {
                 this.$store.dispatch('updateToastMessages', {
@@ -369,7 +380,7 @@ export default defineComponent({
                 return;
             }
 
-            const song = await this.$http.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/songs/${this.selectedSong.id}/update`, { artist: this.artist, title: this.title }, e);
+            const song = await this.$http.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/songs/${this.selectedSong.id}/update`, { artist: this.artist, title: this.title, oszUrl: this.oszUrl }, e);
 
             if (!this.$http.isError(song)) {
                 this.$store.dispatch('updateToastMessages', {

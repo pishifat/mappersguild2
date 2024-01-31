@@ -109,6 +109,14 @@
             <!-- win condition -->
             <form-textarea v-model="winCondition" label="Win condition" />
 
+            <!-- isShowcaseMission -->
+            <form-input
+                v-model.number="isShowcaseMission"
+                label="isShowcaseMission"
+                description="0 = false, 1 = true"
+                type="number"
+            />
+
             <!-- deadline -->
             <form-input
                 v-model="deadline"
@@ -137,6 +145,13 @@
             <form-input
                 v-model.number="userMaximumPp"
                 label="Max pp"
+                type="number"
+            />
+
+            <!-- minimum mg rank -->
+            <form-input
+                v-model.number="userMinimumRank"
+                label="Minimum mg rank"
                 type="number"
             />
 
@@ -198,11 +213,13 @@ export default defineComponent({
             objective: '',
             name: '',
             winCondition: '',
+            isShowcaseMission: 0,
             userMaximumRankedBeatmapsCount: null,
             userMaximumGlobalRank: null,
             userMaximumPp: null,
-            beatmapEarliestSubmissionDate: null,
-            beatmapLatestSubmissionDate: null,
+            userMinimumRank: null,
+            beatmapEarliestSubmissionDate: '2007-01-01',
+            beatmapLatestSubmissionDate: '2100-01-01',
         };
     },
     computed: {
@@ -268,9 +285,11 @@ export default defineComponent({
                 objective: this.objective,
                 modes: this.selectedModes,
                 winCondition: this.winCondition,
+                isShowcaseMission: new Boolean(this.isShowcaseMission),
                 userMaximumRankedBeatmapsCount: this.userMaximumRankedBeatmapsCount,
                 userMaximumGlobalRank: this.userMaximumGlobalRank,
                 userMaximumPp: this.userMaximumPp,
+                userMinimumRank: this.userMinimumRank,
                 beatmapEarliestSubmissionDate: this.beatmapEarliestSubmissionDate,
                 beatmapLatestSubmissionDate: this.beatmapLatestSubmissionDate,
             }, e);

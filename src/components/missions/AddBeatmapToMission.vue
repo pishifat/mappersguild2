@@ -85,6 +85,10 @@ export default defineComponent({
                     return false;
                 }
 
+                if (this.mission.userMinimumRank && (this.loggedInUser.rank < this.mission.userMinimumRank)) {
+                    return false;
+                }
+
                 let modePp = 0;
 
                 switch (b.mode) {

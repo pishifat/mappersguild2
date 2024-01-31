@@ -6,4 +6,5 @@ export interface FeaturedSong {
     artist: string;
     title: string;
     songShowcaseMappers: User[];
+    oszUrl: string;
 }

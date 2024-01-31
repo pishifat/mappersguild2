@@ -51,13 +51,13 @@ const featuredArtistSchema = new Schema<FeaturedArtist>({
 const queryHelpers = {
     defaultPopulate<Q extends DocumentQuery<any, FeaturedArtist>>(this: Q) {
         return this.populate([
-            { path: 'songs', select: 'artist title' },
+            { path: 'songs', select: 'artist title oszUrl' },
             { path: 'showcaseMappers', select: 'username osuId' },
         ]);
     },
     defaultPopulateWithSongs<Q extends DocumentQuery<any, FeaturedArtist>>(this: Q) {
         return this.populate([
-            { path: 'songs', select: 'artist title' },
+            { path: 'songs', select: 'artist title oszUrl' },
             { path: 'showcaseMappers', select: 'username osuId' },
             { path: 'offeredUsers', select: 'username osuId' },
             {

@@ -139,6 +139,15 @@
                 <span class="small">current: <b>{{ mission.deadline }}</b></span>
             </div>
 
+            <!-- isShowcaseMission -->
+            <div class="row">
+                <div class="col-sm-6 mt-2">
+                    isShowcaseMission: <span :class="mission.isShowcaseMission ? 'text-success' : 'text-danger'">{{ mission.isShowcaseMission }}</span>
+                </div>
+                <button class="btn btn-sm btn-outline-info mt-2 ms-3 w-25" @click="toggleIsShowcaseMission($event)">
+                    Toggle isShowcaseMission
+                </button>
+            </div>
             <!-- openingAnnounced -->
             <div class="row">
                 <div class="col-sm-6 mt-2">
@@ -199,6 +208,19 @@
                 />
                 <button class="btn btn-sm btn-outline-info w-25" @click="updateUserMaximumPp($event)">
                     Update user max pp
+                </button>
+            </div>
+            <!-- min mg rank -->
+            <div class="row mt-2">
+                <input
+                    v-model="userMinimumRank"
+                    class="form-control form-control-sm mx-2 w-50"
+                    type="number"
+                    autocomplete="off"
+                    placeholder="minimum mg rank allowed..."
+                />
+                <button class="btn btn-sm btn-outline-info w-25" @click="updateUserMinimumRank($event)">
+                    Update user min rank
                 </button>
             </div>
             <!-- earliest submission date -->
@@ -275,6 +297,7 @@ export default defineComponent({
             userMaximumRankedBeatmapsCount: this.mission.userMaximumRankedBeatmapsCount,
             userMaximumGlobalRank: this.mission.userMaximumGlobalRank,
             userMaximumPp: this.mission.userMaximumPp,
+            userMinimumRank: this.mission.userMinimumRank,
             beatmapEarliestSubmissionDate: new Date(this.mission.beatmapEarliestSubmissionDate),
             beatmapLatestSubmissionDate: new Date(this.mission.beatmapLatestSubmissionDate),
             deadline: new Date(this.mission.deadline),
@@ -292,6 +315,7 @@ export default defineComponent({
             this.userMaximumRankedBeatmapsCount = this.mission.userMaximumRankedBeatmapsCount;
             this.userMaximumGlobalRank = this.mission.userMaximumGlobalRank;
             this.userMaximumPp = this.mission.userMaximumPp;
+            this.userMinimumRank = this.mission.userMinimumRank;
             this.beatmapEarliestSubmissionDate = new Date(this.mission.beatmapEarliestSubmissionDate);
             this.beatmapLatestSubmissionDate = new Date(this.mission.beatmapLatestSubmissionDate);
             this.deadline = new Date(this.mission.deadline);
@@ -408,6 +432,20 @@ export default defineComponent({
                 });
             }
         },
+        async updateUserMinimumRank(e): Promise<void> {
+            const userMinimumRank = await this.$http.executePost(`/admin/missions/${this.mission.id}/updateUserMinimumRank/`, { userMinimumRank: this.userMinimumRank }, e);
+
+            if (!this.$http.isError(userMinimumRank)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated user min mg rank for mission`,
+                    type: 'info',
+                });
+                this.$store.commit('updateUserMinimumRank', {
+                    missionId: this.mission.id,
+                    userMinimumRank,
+                });
+            }
+        },
         async updateBeatmapEarliestSubmissionDate(e): Promise<void> {
             const beatmapEarliestSubmissionDate = await this.$http.executePost(`/admin/missions/${this.mission.id}/updateBeatmapEarliestSubmissionDate/`, { beatmapEarliestSubmissionDate: this.beatmapEarliestSubmissionDate }, e);
 
@@ -461,6 +499,20 @@ export default defineComponent({
                 this.$store.commit('updateWinCondition', {
                     missionId: this.mission.id,
                     winCondition,
+                });
+            }
+        },
+        async toggleIsShowcaseMission(e): Promise<void> {
+            const isShowcaseMission = await this.$http.executePost(`/admin/missions/${this.mission.id}/toggleIsShowcaseMission/`, { isShowcaseMission: !this.mission.isShowcaseMission }, e);
+
+            if (!this.$http.isError(isShowcaseMission)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `toggled isShowcaseMission`,
+                    type: 'info',
+                });
+                this.$store.commit('updateIsShowcaseMission', {
+                    missionId: this.mission.id,
+                    isShowcaseMission,
                 });
             }
         },
