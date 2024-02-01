@@ -1,6 +1,10 @@
 <template>
     <div>
-        <b>Song:</b>
+        <b v-if="!songInfo">Song:</b>
+        <a href="#song" data-bs-toggle="collapse" @click.prevent>
+            View song
+            <i class="fas fa-angle-down" />
+        </a>
         <span v-if="!songInfoLoaded" class="text-secondary ms-1">...</span>
         <button
             v-else-if="!songInfo"
@@ -9,31 +13,36 @@
         >
             Load song
         </button>
-        <span v-else>
-            <a
-                v-if="songInfo.song.oszUrl"
-                :href="songInfo.song.oszUrl"
-                target="_blank"
-                class="mx-1"
-            >
-                {{ songInfo.song.artist }} - {{ songInfo.song.title }}
-            </a>
-            <span v-else class="text-secondary ms-1">
-                <b>{{ songInfo.song.artist }} - {{ songInfo.song.title }}</b>
-                <span class="small ms-1">(ask <a href="https://osu.ppy.sh/users/3178418" target="_blank">pishifat</a> for the .osz)</span>
-            </span>
-            <button
-                v-bs-tooltip="`this only affects your 'Available Points'`"
-                class="btn btn-sm btn-outline-info"
-                @click="findShowcaseMissionSong($event)"
-            >
-                Re-select song for 100 points <i class="fas fa-coins" />
-            </button>
+        <div v-else id="song" class="collapse">
+            <ul>
+                <li>
+                    <a
+                        v-if="songInfo.song.oszUrl"
+                        :href="songInfo.song.oszUrl"
+                        target="_blank"
+                        class="me-1"
+                    >
+                        {{ songInfo.song.artist }} - {{ songInfo.song.title }}
+                    </a>
+                    <span v-else class="text-secondary ms-1">
+                        <b>{{ songInfo.song.artist }} - {{ songInfo.song.title }}</b>
+                        <span class="small ms-1">(ask <a href="https://osu.ppy.sh/users/3178418" target="_blank">pishifat</a> for the .osz)</span>
+                    </span>
+                    <button
+                        v-bs-tooltip="`this only affects your 'Available Points'`"
+                        class="btn btn-sm btn-outline-info"
+                        @click="findShowcaseMissionSong($event)"
+                    >
+                        Re-select song for 100 points <i class="fas fa-coins" />
+                    </button>
+                </li>
+            </ul>
+
             <div class="text-secondary">
                 <div>Only <i>you</i> can see the song above. Treat it like confidential information. Do NOT tell anyone that it's related to Featured Artists or this quest!</div>
                 <div class="mt-2">Talk to <a href="https://osu.ppy.sh/users/3178418" target="_blank">pishifat</a> if you have any questions.</div>
             </div>
-        </span>
+        </div>
     </div>
 </template>
 
