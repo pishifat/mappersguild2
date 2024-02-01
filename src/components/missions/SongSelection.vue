@@ -1,7 +1,7 @@
 <template>
     <div>
         <b v-if="!songInfo">Song:</b>
-        <a href="#song" data-bs-toggle="collapse" @click.prevent>
+        <a v-if="songInfo" href="#song" data-bs-toggle="collapse" @click.prevent>
             View song
             <i class="fas fa-angle-down" />
         </a>
