@@ -349,8 +349,11 @@
                             <tr v-for="spentPointsEvent in spentPoints" :key="spentPointsEvent.id">
                                 <td scope="row" class="text-secondary">
                                     {{ findSpentPointsAction (spentPointsEvent.category) }}
-                                    <a :href="'/quests/?id=' + spentPointsEvent.quest.id" target="_blank">
+                                    <a v-if="spentPointsEvent.quest" :href="'/quests/?id=' + spentPointsEvent.quest.id" target="_blank">
                                         {{ spentPointsEvent.quest.name }}
+                                    </a>
+                                    <a v-else-if="spentPointsEvent.mission" :href="'/missions/?id=' + spentPointsEvent.mission.id" target="_blank">
+                                        {{ spentPointsEvent.mission.name }}
                                     </a>
                                 </td>
                                 <td scope="row" class="text-secondary">
@@ -520,6 +523,8 @@ export default defineComponent({
                     return 'Extended quest deadline:';
                 case 'createQuest':
                     return 'Created quest:';
+                case 'rerollShowcaseMissionSong':
+                    return 'Rerolled priority quest song:';
                 default:
                     return 'undefined action';
             }
@@ -534,6 +539,8 @@ export default defineComponent({
                     return 10;
                 case 'createQuest':
                     return this.calculatePoints(quest);
+                case 'rerollShowcaseMissionSong':
+                    return 100;
                 default:
                     return 0;
             }

@@ -3,6 +3,8 @@ import { isLoggedIn } from '../helpers/middlewares';
 import { MissionModel } from '../models/mission';
 import { LogModel } from '../models/log';
 import { BeatmapModel } from '../models/beatmap/beatmap';
+import { SpentPointsModel } from '../models/spentPoints';
+import { SpentPointsCategory } from '../../interfaces/spentPoints';
 import { UserModel } from '../models/user';
 import { Mission, MissionStatus, MissionMode } from '../../interfaces/mission';
 import { FeaturedArtist } from '../../interfaces/featuredArtist';
@@ -12,6 +14,7 @@ import { Beatmap, BeatmapStatus, BeatmapMode } from '../../interfaces/beatmap/be
 import { isBeatmapHost, isValidBeatmap } from './beatmaps/middlewares';
 import { FeaturedArtistModel } from '../models/featuredArtist';
 import { devWebhookPost, webhookColors } from '../helpers/discordApi';
+import { updateUserPoints } from '../helpers/points';
 
 const missionsRouter = express.Router();
 
@@ -201,10 +204,16 @@ missionsRouter.post('/:missionId/findShowcaseMissionSong', isEditable, async (re
         )
         .orFail();
 
-    const userExists = missionWithSongs.showcaseMissionSongs.some(s => s.user.id == user.id);
+    const userExists = missionWithSongs.showcaseMissionSongs.find(s => s.user.id == user.id);
 
     if (userExists) {
-        return res.json({ error: `Song already selected!` });
+        await SpentPointsModel.generate(SpentPointsCategory.RerollShowcaseMissionSong, req.session.mongoId, null, mission.id);
+        await updateUserPoints(req.session.mongoId);
+
+        const previousArtist = await FeaturedArtistModel.findOne({ songs: userExists.song });
+        await FeaturedArtistModel.findByIdAndUpdate(previousArtist.id, { $pull: { showcaseMappers: user._id } });
+
+        //return res.json({ error: `Song already selected!` });
     }
 
     const artists: FeaturedArtist[] = await FeaturedArtistModel
@@ -239,24 +248,32 @@ missionsRouter.post('/:missionId/findShowcaseMissionSong', isEditable, async (re
         count++;
     }
 
-    mission.showcaseMissionSongs.push({
-        user: req.session.mongoId,
-        song: finalSong.id,
-    });
+    if (userExists) {
+        const i = missionWithSongs.showcaseMissionSongs.findIndex(s => s.user.id == user.id); // guaranteed to exist
 
-    await mission.save();
+        missionWithSongs.showcaseMissionSongs[i].song = finalSong;
+
+        await missionWithSongs.save();
+    } else {
+        mission.showcaseMissionSongs.push({
+            user: req.session.mongoId,
+            song: finalSong.id,
+        });
+
+        await mission.save();
+    }
 
     const updatedMission = await MissionModel.findById(req.params.missionId).defaultPopulate().orFail();
 
     res.json(updatedMission);
 
     await devWebhookPost([{
-        title: `showcase mission song selected`,
-        color: webhookColors.lightOrange,
+        title: `showcase mission song ${userExists ? 'rerolled' : 'selected'}`,
+        color: userExists ? webhookColors.lightGreen : webhookColors.lightOrange,
         description: `[**${user.username}**](https://osu.ppy.sh/users/${user.osuId}) selected **${finalSong.artist} - ${finalSong.title}** for **${mission.name}** priority quest`,
     }]);
 
-    LogModel.generate(req.session?.mongoId, `found showcase mission song`, LogCategory.Mission );
+    LogModel.generate(req.session?.mongoId, `${userExists ? 'rerolled' : 'found'} showcase mission song`, LogCategory.Mission );
 });
 
 /* GET findShowcaseMissionSong */

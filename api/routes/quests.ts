@@ -165,10 +165,10 @@ questsRouter.post('/:id/accept', async (req, res) => {
     // spend points
     for (const member of party.members) {
         if (member.availablePoints > quest.price) { // if user can afford it, suck their points
-            await SpentPointsModel.generate(SpentPointsCategory.AcceptQuest, member._id, quest._id);
+            await SpentPointsModel.generate(SpentPointsCategory.AcceptQuest, member._id, quest._id, null);
             await updateUserPoints(member.id);
         } else {                                    // if user can't afford it, suck party leader's points (even if that goes negative i don't care. if someone bypasses the front-end lock for this they deserve to do the quest)
-            await SpentPointsModel.generate(SpentPointsCategory.AcceptQuest, party.leader._id, quest._id);
+            await SpentPointsModel.generate(SpentPointsCategory.AcceptQuest, party.leader._id, quest._id, null);
             await updateUserPoints(party.leader.id);
         }
     }
@@ -259,7 +259,7 @@ questsRouter.post('/:id/reopen', async (req, res) => {
         .defaultPopulate()
         .orFail();
 
-    SpentPointsModel.generate(SpentPointsCategory.ReopenQuest, req.session?.mongoId, quest._id);
+    SpentPointsModel.generate(SpentPointsCategory.ReopenQuest, req.session?.mongoId, quest._id, null);
     updateUserPoints(req.session?.mongoId);
 
     res.json({ quests: [quest], availablePoints: user.availablePoints } as PointsRefreshResponse);
@@ -309,7 +309,7 @@ questsRouter.post('/submit', async (req, res) => {
 
     res.json({ success: 'Quest submitted for approval' });
 
-    SpentPointsModel.generate(SpentPointsCategory.CreateQuest, user._id, quest._id);
+    SpentPointsModel.generate(SpentPointsCategory.CreateQuest, user._id, quest._id, null);
     updateUserPoints(user._id);
     LogModel.generate(user._id, `submitted quest for approval`, LogCategory.Quest);
 });

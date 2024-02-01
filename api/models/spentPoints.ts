@@ -6,14 +6,16 @@ interface SpentPointsStatics extends Model<SpentPoints> {
     generate: (
         category: SpentPointsCategory,
         userId: any,
-        questId: any
+        questId: any,
+        missionId: any,
     ) => Promise<SpentPoints>;
 }
 
 const spentPointsSchema = new Schema<SpentPoints, SpentPointsStatics>({
-    category: { type: String, enum: ['extendDeadline', 'acceptQuest', 'createQuest', 'reopenQuest'], required: true },
+    category: { type: String, enum: ['extendDeadline', 'acceptQuest', 'createQuest', 'reopenQuest', 'rerollShowcaseMissionSong'], required: true },
     user: { type: 'ObjectId', ref: 'User', required: true },
-    quest: { type: 'ObjectId', ref: 'Quest', required: true },
+    quest: { type: 'ObjectId', ref: 'Quest' },
+    mission: { type: 'ObjectId', ref: 'Mission' },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 class SpentPointsService
@@ -21,12 +23,14 @@ class SpentPointsService
     static generate (
         category: SpentPointsCategory,
         userId: any,
-        questId: any
+        questId: any,
+        missionId: any
     ): Promise<SpentPoints> {
         const spentPoints = new SpentPointsModel();
         spentPoints.category = category,
         spentPoints.user = userId;
         spentPoints.quest = questId;
+        spentPoints.mission = missionId;
 
         return spentPoints.save();
     }
