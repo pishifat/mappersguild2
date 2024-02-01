@@ -14,7 +14,7 @@ const quest_1 = require("../../interfaces/quest");
 const mission_1 = require("../../interfaces/mission");
 const contest_2 = require("../../interfaces/contest/contest");
 exports.extendQuestPrice = 10;
-exports.rerollShowcaseMissionSongPrice = 100;
+exports.rerollShowcaseMissionSongPrice = 50;
 function getLengthNerf(length) {
     const lengthNerf = 125;
     let newLength;
@@ -351,7 +351,7 @@ async function calculateSpentPoints(userId) {
             total += findCreateQuestPointsSpent(spentPoints.quest.art, spentPoints.quest.requiredMapsets);
         }
         else if (spentPoints.category == spentPoints_2.SpentPointsCategory.RerollShowcaseMissionSong) {
-            total += exports.rerollShowcaseMissionSongPrice; // 100 points to reroll song
+            total += exports.rerollShowcaseMissionSongPrice; // 50 points to reroll song
         }
     }
     return total;
