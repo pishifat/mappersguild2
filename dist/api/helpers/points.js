@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateUserPoints = exports.calculateContestPoints = exports.calculateSpentPoints = exports.calculateModPoints = exports.calculateHostPoints = exports.calculateTasksPoints = exports.getUserRank = exports.findCreateQuestPointsSpent = exports.getReopenQuestPoints = exports.findStoryboardPoints = exports.getMissionBonus = exports.getQuestBonus = exports.findMissionPoints = exports.findQuestPoints = exports.findDifficultyPoints = exports.getLengthNerf = exports.extendQuestPrice = void 0;
+exports.updateUserPoints = exports.calculateContestPoints = exports.calculateSpentPoints = exports.calculateModPoints = exports.calculateHostPoints = exports.calculateTasksPoints = exports.getUserRank = exports.findCreateQuestPointsSpent = exports.getReopenQuestPoints = exports.findStoryboardPoints = exports.getMissionBonus = exports.getQuestBonus = exports.findMissionPoints = exports.findQuestPoints = exports.findDifficultyPoints = exports.getLengthNerf = exports.rerollShowcaseMissionSongPrice = exports.extendQuestPrice = void 0;
 const beatmap_1 = require("../../interfaces/beatmap/beatmap");
 const beatmap_2 = require("../models/beatmap/beatmap");
 const task_1 = require("../../interfaces/beatmap/task");
@@ -14,6 +14,7 @@ const quest_1 = require("../../interfaces/quest");
 const mission_1 = require("../../interfaces/mission");
 const contest_2 = require("../../interfaces/contest/contest");
 exports.extendQuestPrice = 10;
+exports.rerollShowcaseMissionSongPrice = 100;
 function getLengthNerf(length) {
     const lengthNerf = 125;
     let newLength;
@@ -348,6 +349,9 @@ async function calculateSpentPoints(userId) {
         }
         else if (spentPoints.category == spentPoints_2.SpentPointsCategory.CreateQuest) {
             total += findCreateQuestPointsSpent(spentPoints.quest.art, spentPoints.quest.requiredMapsets);
+        }
+        else if (spentPoints.category == spentPoints_2.SpentPointsCategory.RerollShowcaseMissionSong) {
+            total += exports.rerollShowcaseMissionSongPrice; // 100 points to reroll song
         }
     }
     return total;

@@ -92,11 +92,11 @@ partySchema.methods.addUser = async function (user, isNotSelf, isLeader) {
             this.pendingMembers.splice(i, 1);
         if (this.quest.status == quest_1.QuestStatus.WIP) {
             if (user.availablePoints > this.quest.price) {
-                await spentPoints_2.SpentPointsModel.generate(spentPoints_1.SpentPointsCategory.AcceptQuest, user.id, this.quest.id);
+                await spentPoints_2.SpentPointsModel.generate(spentPoints_1.SpentPointsCategory.AcceptQuest, user.id, this.quest.id, null);
                 await points_1.updateUserPoints(user.id);
             }
             else {
-                await spentPoints_2.SpentPointsModel.generate(spentPoints_1.SpentPointsCategory.AcceptQuest, this.leader.id, this.quest.id);
+                await spentPoints_2.SpentPointsModel.generate(spentPoints_1.SpentPointsCategory.AcceptQuest, this.leader.id, this.quest.id, null);
                 await points_1.updateUserPoints(this.leader.id);
             }
         }

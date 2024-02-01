@@ -210,7 +210,7 @@ missionsRouter.post('/:missionId/findShowcaseMissionSong', isEditable, async (re
         await SpentPointsModel.generate(SpentPointsCategory.RerollShowcaseMissionSong, req.session.mongoId, null, mission.id);
         await updateUserPoints(req.session.mongoId);
 
-        const previousArtist = await FeaturedArtistModel.findOne({ songs: userExists.song });
+        const previousArtist = await FeaturedArtistModel.findOne({ songs: userExists.song }).orFail();
         await FeaturedArtistModel.findByIdAndUpdate(previousArtist.id, { $pull: { showcaseMappers: user._id } });
 
         //return res.json({ error: `Song already selected!` });

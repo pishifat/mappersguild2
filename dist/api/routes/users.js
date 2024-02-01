@@ -113,9 +113,10 @@ usersRouter.get('/findCreatedQuests/:id', async (req, res) => {
 });
 /* GET user's spent points */
 usersRouter.get('/findSpentPoints/:id', async (req, res) => {
+    const all = await spentPoints_1.SpentPointsModel.find({ mission: { $exists: false } });
     const spentPoints = await spentPoints_1.SpentPointsModel
         .find({ user: req.params.id })
-        .populate({ path: 'quest', select: 'price art requiredMapsets name' })
+        .populate({ path: 'quest mission', select: 'price art requiredMapsets name' })
         .sort({ createdAt: -1 });
     res.json(spentPoints);
 });

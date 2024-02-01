@@ -1,1 +1,0 @@
-import{d as e,_ as o,o as t,e as n}from"./index-adda5c77.js";const s=e({name:"NotFound"}),c={class:"text-center"};function a(r,_,d,p,f,u){return t(),n("h3",c," Not found :( ")}const m=o(s,[["render",a]]);export{m as default};

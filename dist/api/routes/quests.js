@@ -142,11 +142,11 @@ questsRouter.post('/:id/accept', async (req, res) => {
     // spend points
     for (const member of party.members) {
         if (member.availablePoints > quest.price) { // if user can afford it, suck their points
-            await spentPoints_2.SpentPointsModel.generate(spentPoints_1.SpentPointsCategory.AcceptQuest, member._id, quest._id);
+            await spentPoints_2.SpentPointsModel.generate(spentPoints_1.SpentPointsCategory.AcceptQuest, member._id, quest._id, null);
             await points_2.updateUserPoints(member.id);
         }
         else { // if user can't afford it, suck party leader's points (even if that goes negative i don't care. if someone bypasses the front-end lock for this they deserve to do the quest)
-            await spentPoints_2.SpentPointsModel.generate(spentPoints_1.SpentPointsCategory.AcceptQuest, party.leader._id, quest._id);
+            await spentPoints_2.SpentPointsModel.generate(spentPoints_1.SpentPointsCategory.AcceptQuest, party.leader._id, quest._id, null);
             await points_2.updateUserPoints(party.leader.id);
         }
     }
@@ -221,7 +221,7 @@ questsRouter.post('/:id/reopen', async (req, res) => {
     })
         .defaultPopulate()
         .orFail();
-    spentPoints_2.SpentPointsModel.generate(spentPoints_1.SpentPointsCategory.ReopenQuest, req.session?.mongoId, quest._id);
+    spentPoints_2.SpentPointsModel.generate(spentPoints_1.SpentPointsCategory.ReopenQuest, req.session?.mongoId, quest._id, null);
     points_2.updateUserPoints(req.session?.mongoId);
     res.json({ quests: [quest], availablePoints: user.availablePoints });
     log_2.LogModel.generate(req.session?.mongoId, `re-opened quest "${quest.name}"`, log_1.LogCategory.Quest);
@@ -262,7 +262,7 @@ questsRouter.post('/submit', async (req, res) => {
     }
     await quest.save();
     res.json({ success: 'Quest submitted for approval' });
-    spentPoints_2.SpentPointsModel.generate(spentPoints_1.SpentPointsCategory.CreateQuest, user._id, quest._id);
+    spentPoints_2.SpentPointsModel.generate(spentPoints_1.SpentPointsCategory.CreateQuest, user._id, quest._id, null);
     points_2.updateUserPoints(user._id);
     log_2.LogModel.generate(user._id, `submitted quest for approval`, log_1.LogCategory.Quest);
 });
