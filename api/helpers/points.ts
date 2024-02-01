@@ -14,7 +14,7 @@ import { Mission, MissionStatus } from '../../interfaces/mission';
 import { ContestStatus } from '../../interfaces/contest/contest';
 
 export const extendQuestPrice = 10;
-export const rerollShowcaseMissionSongPrice = 100;
+export const rerollShowcaseMissionSongPrice = 50;
 
 export function getLengthNerf(length: number): number {
     const lengthNerf = 125;
@@ -395,7 +395,7 @@ export async function calculateSpentPoints(userId: any): Promise<number> {
         } else if (spentPoints.category == SpentPointsCategory.CreateQuest) {
             total += findCreateQuestPointsSpent(spentPoints.quest.art, spentPoints.quest.requiredMapsets);
         } else if (spentPoints.category == SpentPointsCategory.RerollShowcaseMissionSong) {
-            total += rerollShowcaseMissionSongPrice; // 100 points to reroll song
+            total += rerollShowcaseMissionSongPrice; // 50 points to reroll song
         }
     }
 

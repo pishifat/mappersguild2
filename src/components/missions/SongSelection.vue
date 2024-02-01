@@ -33,7 +33,7 @@
                         class="btn btn-sm btn-outline-info"
                         @click="findShowcaseMissionSong($event)"
                     >
-                        Re-select song for 100 points <i class="fas fa-coins" />
+                        Re-select song for 50 points <i class="fas fa-coins" />
                     </button>
                 </li>
             </ul>
