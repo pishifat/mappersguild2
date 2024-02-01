@@ -540,7 +540,7 @@ export default defineComponent({
                 case 'createQuest':
                     return this.calculatePoints(quest);
                 case 'rerollShowcaseMissionSong':
-                    return 100;
+                    return 50;
                 default:
                     return 0;
             }
