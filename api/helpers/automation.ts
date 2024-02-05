@@ -128,6 +128,11 @@ const setQualified = cron.schedule('0 16 * * *', async () => { /* 9:00 AM PST */
                         save:   Qualified on MG */
                     if ((status == BeatmapStatus.Qualified || status == BeatmapStatus.Ranked) && bm.status == BeatmapStatus.Done) {
                         bm.status = BeatmapStatus.Qualified;
+
+                        if (status == BeatmapStatus.Ranked) {
+                            bm.rankedDate = new Date(bmInfo.ranked_date);
+                        }
+
                         await bm.save();
 
                         // remove modders who didn't post anything

@@ -47,6 +47,7 @@
                                     v-for="beatmap in actionBeatmaps"
                                     :key="beatmap.id"
                                     class="text-secondary"
+                                    :class="beatmap.rankedDate ? 'bg-warning' : ''"
                                 >
                                     <td scope="row">
                                         <modes-icons :modes="[beatmap.mode]" />

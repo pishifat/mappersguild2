@@ -94,7 +94,13 @@ adminFeaturedArtistsRouter.post('/:id/songs/create', async (req, res) => {
     const song = new FeaturedSongModel();
     song.artist = req.body.artist.trim();
     song.title = req.body.title.trim();
-    song.oszUrl = req.body.oszUrl.trim();
+
+    if (song.oszUrl && song.oszUrl.length) {
+        song.oszUrl = req.body.oszUrl.trim();
+    } else {
+        song.oszUrl = null;
+    }
+
     await song.save();
     await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { $push: { songs: song } }).orFail();
 
@@ -103,11 +109,17 @@ adminFeaturedArtistsRouter.post('/:id/songs/create', async (req, res) => {
 
 /* POST edit metadata */
 adminFeaturedArtistsRouter.post('/:id/songs/:songId/update', async (req, res) => {
+    let oszUrl = null;
+
+    if (req.body.oszUrl && req.body.oszUrl.length) {
+        oszUrl = req.body.oszUrl.trim();
+    }
+
     const song = await FeaturedSongModel
         .findByIdAndUpdate(req.params.songId, {
             artist: req.body.artist.trim(),
             title: req.body.title.trim(),
-            oszUrl: req.body.oszUrl.trim(),
+            oszUrl,
         })
         .orFail();
 
