@@ -278,7 +278,7 @@
             <div class="small">
                 Note that you can only earn points for beatmaps that fit these requirements:
                 <ul>
-                    <li>Your beatmap was ranked <i>after</i> you joined the Mappers' Guild (<code>{{ loggedInUser.createdAt }}</code>)</li>
+                    <li>Your beatmap was ranked <i>after</i> you joined the Mappers' Guild (<code>{{ loggedInUser.createdAt }}</code>) and after your guest difficulty creators joined</li>
                     <li>Your beatmap was ranked <i>after</i> the Featured Artist was announced, excluding maps created for the announcement</li>
                     <li>Difficulties match between Mappers' Guild and osu! website (including difficulty levels and mappers)</li>
                     <li><b>Try to get permission for your map's background.</b> It's unrealistic (and annoying to mappers) to police all background usage, but if you support the goal of the Mappers' Guild, please use appropriately permitted backgrounds. At minimum, your background should not contain content from other media franchises (like Mikasa from Attack on Titan), excluding creative commons content (like Hatsune Miku) or content permitted by franchise owners (like Touhou).</li>
