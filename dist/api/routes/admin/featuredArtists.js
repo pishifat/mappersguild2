@@ -78,18 +78,27 @@ adminFeaturedArtistsRouter.post('/:id/songs/create', async (req, res) => {
     const song = new featuredSong_1.FeaturedSongModel();
     song.artist = req.body.artist.trim();
     song.title = req.body.title.trim();
-    song.oszUrl = req.body.oszUrl.trim();
+    if (song.oszUrl && song.oszUrl.length) {
+        song.oszUrl = req.body.oszUrl.trim();
+    }
+    else {
+        song.oszUrl = null;
+    }
     await song.save();
     await featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { $push: { songs: song } }).orFail();
     res.json(song);
 });
 /* POST edit metadata */
 adminFeaturedArtistsRouter.post('/:id/songs/:songId/update', async (req, res) => {
+    let oszUrl = null;
+    if (req.body.oszUrl && req.body.oszUrl.length) {
+        oszUrl = req.body.oszUrl.trim();
+    }
     const song = await featuredSong_1.FeaturedSongModel
         .findByIdAndUpdate(req.params.songId, {
         artist: req.body.artist.trim(),
         title: req.body.title.trim(),
-        oszUrl: req.body.oszUrl.trim(),
+        oszUrl,
     })
         .orFail();
     res.json(song);

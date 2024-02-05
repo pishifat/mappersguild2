@@ -112,6 +112,9 @@ const setQualified = node_cron_1.default.schedule('0 16 * * *', async () => {
                         save:   Qualified on MG */
                     if ((status == beatmap_2.BeatmapStatus.Qualified || status == beatmap_2.BeatmapStatus.Ranked) && bm.status == beatmap_2.BeatmapStatus.Done) {
                         bm.status = beatmap_2.BeatmapStatus.Qualified;
+                        if (status == beatmap_2.BeatmapStatus.Ranked) {
+                            bm.rankedDate = new Date(bmInfo.ranked_date);
+                        }
                         await bm.save();
                         // remove modders who didn't post anything
                         for (const modder of bm.modders) {
