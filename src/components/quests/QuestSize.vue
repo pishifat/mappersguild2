@@ -12,7 +12,7 @@
         <span v-if="quest.status == 'open'">
             <span v-if="quest.maxParty > 13">
                 <span v-if="quest.minParty == quest.maxParty">
-                    <i class="fas fa-users user-icon" /> <b>{{ quest.minParty }}</b>
+                    <i class="fas fa-users user-icon" /> {{ quest.minParty }}
                 </span>
                 <span v-else>
                     <i class="fas fa-users user-icon" /> {{ quest.minParty }} ~
