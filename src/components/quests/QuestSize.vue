@@ -10,16 +10,32 @@
         class="small pe-2"
     >
         <span v-if="quest.status == 'open'">
-            <i v-for="i in quest.minParty" :key="i" class="fas fa-user user-icon" />
-            <i
-                v-for="i in quest.maxParty - quest.minParty"
-                :key="i+100"
-                class="fas text-secondary fa-user user-icon"
-            />
+            <span v-if="quest.maxParty > 13">
+                <span v-if="quest.minParty == quest.maxParty">
+                    <i class="fas fa-users user-icon" /> <b>{{ quest.minParty }}</b>
+                </span>
+                <span v-else>
+                    <i class="fas fa-users user-icon" /> {{ quest.minParty }} ~
+                    <i class="fas text-secondary fa-users user-icon" /> <span class="text-secondary">{{ quest.maxParty }}</span>
+                </span>
+            </span>
+            <span v-else>
+                <i v-for="i in quest.minParty" :key="i" class="fas fa-user user-icon" />
+                <i
+                    v-for="i in quest.maxParty - quest.minParty"
+                    :key="i + 100"
+                    class="fas text-secondary fa-user user-icon"
+                />
+            </span>
         </span>
 
         <span v-else-if="quest.status == 'wip' || quest.status == 'done'">
-            <i v-for="member in quest.currentParty.members" :key="member.id" class="fas fa-user user-icon" />
+            <span v-if="quest.currentParty.members.length > 13">
+                <i class="fas fa-users user-icon" /> {{ quest.currentParty.members.length }}
+            </span>
+            <span v-else>
+                <i v-for="member in quest.currentParty.members" :key="member.id" class="fas fa-user user-icon" />
+            </span>
         </span>
     </modal-dialog>
 </template>
