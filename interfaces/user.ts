@@ -3,6 +3,7 @@ import { Quest } from './quest';
 import { Mission } from './mission';
 import { MentorshipCycle } from './mentorshipCycle';
 import { Document } from 'mongoose';
+import { OsuCover } from '../api/helpers/osuApi';
 
 export enum UserGroup {
     User = 'user',
@@ -76,4 +77,5 @@ export interface User extends Document {
     ppMania: number;
     hasMerchAccess: boolean;
     isQuestTrailblazer: boolean;
+    cover: OsuCover;
 }
