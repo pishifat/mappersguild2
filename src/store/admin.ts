@@ -262,11 +262,18 @@ const store: Module<AdminState, MainState> = {
                 user.group = payload.group;
             }
         },
-        updateBadge (state, payload): void {
+        updateQueuedBadge (state, payload): void {
             const user = state.actionUsers.find(u => u.id == payload.userId);
 
             if (user) {
                 user.queuedBadge = payload.badge;
+            }
+        },
+        updateBadge (state, payload): void {
+            const user = state.actionUsers.find(u => u.id == payload.userId);
+
+            if (user) {
+                user.badge = payload.badge;
             }
         },
         updateDiscordId (state, payload): void {
