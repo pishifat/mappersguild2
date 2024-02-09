@@ -132,6 +132,7 @@ indexRouter.get('/callback', async (req, res) => {
     const username = response.username;
     const group = UserGroup.User;
     const rankedBeatmapsCount = response.ranked_and_approved_beatmapset_count;
+    const cover = response.cover;
 
     let globalRank = 0;
     let pp = 0;
@@ -183,6 +184,7 @@ indexRouter.get('/callback', async (req, res) => {
         user.ppTaiko = ppTaiko;
         user.ppCatch = ppCatch;
         user.ppMania = ppMania;
+        user.cover = cover;
         await user.save();
 
         req.session.mongoId = user._id;
@@ -228,6 +230,11 @@ indexRouter.get('/callback', async (req, res) => {
 
         if (user.ppMania != ppMania) {
             user.ppMania = ppMania;
+            saveTrigger = true;
+        }
+
+        if (!user.cover || user.cover.url != cover.url) {
+            user.cover = cover;
             saveTrigger = true;
         }
 

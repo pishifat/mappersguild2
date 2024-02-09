@@ -61,6 +61,12 @@ export interface OsuGroups {
     id: number;
 }
 
+export interface OsuCover {
+    custom_url: string;
+    url: string;
+    id: number;
+}
+
 export interface OsuAuthResponse {
     id: number;
     username: string;
@@ -72,6 +78,7 @@ export interface OsuAuthResponse {
     kudosu: OsuKudosu;
     badges: OsuBadges;
     statistics: OsuStatistics;
+    cover: OsuCover;
     /** in seconds */
     expires_in: number;
     access_token: string;
