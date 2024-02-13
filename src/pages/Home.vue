@@ -58,28 +58,34 @@
                 Earn any of these profile badges (displayed on your osu! profile) by participating in the Mappers' Guild:
             </div>
             <div class="row text-center mb-3">
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <img src="/images/rank1.png" class="osu-badge" />
                     <div class="text-secondary small">
                         Bronze (100 points)
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <img src="/images/rank2.png" class="osu-badge" />
                     <div class="text-secondary small">
                         Silver (250 points)
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <img src="/images/rank3.png" class="osu-badge" />
                     <div class="text-secondary small">
                         Gold (500 points)
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <img src="/images/rank4.png" class="osu-badge" />
                     <div class="text-secondary small">
                         Platinum (1000 points)
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <img src="/images/rank5.png" class="osu-badge" />
+                    <div class="text-secondary small">
+                        Unreal (2500 points)
                     </div>
                 </div>
             </div>

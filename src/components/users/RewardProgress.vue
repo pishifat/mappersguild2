@@ -8,7 +8,7 @@
             class="osu-badge badge-small"
         />
         <img
-            v-if="selectedUser.rank < 4"
+            v-if="selectedUser.rank < 5"
             :key="$route.query.id"
             v-bs-tooltip="`${selectedUser.username}'s next MG rank`"
             :src="`/images/rank${selectedUser.rank+1}.png`"
@@ -134,6 +134,9 @@ export default defineComponent({
                     maxPoints = 1000;
                     break;
                 case 4:
+                    maxPoints = 2500;
+                    break;
+                case 5:
                     maxPoints = this.selectedUser.totalPoints;
                     break;
             }

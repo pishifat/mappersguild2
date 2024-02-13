@@ -599,6 +599,8 @@ const rankUsers = cron.schedule('1 3 * * *', async () => { /* 8:01 PM PST */
                 rankColor = webhookColors.lightYellow;
             } else if (badge == 4) {
                 rankColor = webhookColors.lightBlue;
+            } else if (badge == 5) {
+                rankColor = webhookColors.darkRed;
             }
 
             const description = `**Reached rank ${badge}** with ${user.totalPoints} total points`;

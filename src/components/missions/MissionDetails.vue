@@ -129,6 +129,9 @@ export default defineComponent({
                     case 4:
                         points = 1000;
                         break;
+                    case 5:
+                        points = 2500;
+                        break;
                     default:
                         break;
                 }

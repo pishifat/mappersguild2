@@ -54,6 +54,9 @@ export default defineComponent({
                     maxPoints = 1000;
                     break;
                 case 4:
+                    maxPoints = 2500;
+                    break;
+                case 5:
                     maxPoints = this.selectedUser.totalPoints;
                     break;
             }

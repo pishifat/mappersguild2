@@ -5,11 +5,13 @@
     --rank-2: silver;
     --rank-3: gold;
     --rank-4: #7b88ff;
+    --rank-5: #c03030;
     --rank-0-bg: rgb(238, 238, 238);
     --rank-1-bg: rgb(187, 159, 139);
     --rank-2-bg: rgb(200, 222, 236);
     --rank-3-bg: rgb(255, 219, 102);
     --rank-4-bg: rgb(153, 168, 255);
+    --rank-5-bg: rgb(255, 130, 130);
 }
 
 $second-bg: rgba(66, 64, 61, 0.7);
@@ -153,6 +155,10 @@ footer {
     background-color: var(--rank-4-bg);
 }
 
+.bg-rank-5 {
+    background-color: var(--rank-5-bg);
+}
+
 .bg-easy {
     background-color: var(--easy);
 }
@@ -193,6 +199,10 @@ footer {
     color: var(--rank-4-bg);
 }
 
+.text-rank-5 {
+    color: var(--rank-5-bg);
+}
+
 .border-rank-0 {
     border-top: 5px solid var(--rank-0);
 }
@@ -213,6 +223,10 @@ footer {
     border-top: 5px solid var(--rank-4);
 }
 
+.border-rank-5 {
+    border-top: 5px solid var(--rank-5);
+}
+
 .left-border-rank-0 {
     border-left: 5px solid var(--rank-0);
 }
@@ -231,4 +245,8 @@ footer {
 
 .left-border-rank-4 {
     border-left: 5px solid var(--rank-4);
+}
+
+.left-border-rank-5 {
+    border-left: 5px solid var(--rank-5);
 }
