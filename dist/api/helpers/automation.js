@@ -510,6 +510,9 @@ const rankUsers = node_cron_1.default.schedule('1 3 * * *', async () => {
             else if (badge == 4) {
                 rankColor = discordApi_1.webhookColors.lightBlue;
             }
+            else if (badge == 5) {
+                rankColor = discordApi_1.webhookColors.darkRed;
+            }
             const description = `**Reached rank ${badge}** with ${user.totalPoints} total points`;
             discordApi_1.webhookPost([{
                     author: {

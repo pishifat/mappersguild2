@@ -162,8 +162,11 @@ async function getUserRank(userId, tasksPoints, modPoints, hostPoints, contestPo
     else if (totalPoints < 1000) {
         rank = 3;
     }
-    else {
+    else if (totalPoints < 2500) {
         rank = 4;
+    }
+    else {
+        rank = 5;
     }
     return {
         rank,
