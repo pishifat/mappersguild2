@@ -9,9 +9,11 @@
         </template>
 
         <template #default>
+            <reward-progress />
+            <div class="radial-divisor" />
             <div class="row">
                 <div class="col-md-6">
-                    <table class="table table-sm">
+                    <table class="table table-sm small">
                         <thead>
                             <tr>
                                 <th scope="col">
@@ -170,6 +172,7 @@
                         Rank:
                         <i
                             v-if="selectedUser.rank > 0"
+                            :key="$route.query.id"
                             v-bs-tooltip="`rank ${selectedUser.rank} user`"
                             class="fas fa-crown"
                             :class="'text-rank-' + selectedUser.rank"
@@ -386,6 +389,7 @@ import UserPointsRow from './UserPointsRow.vue';
 import { TaskName } from '@interfaces/beatmap/task';
 import { BeatmapStatus } from '@interfaces/beatmap/beatmap';
 import ModesIcons from '@components/ModesIcons.vue';
+import RewardProgress from './RewardProgress.vue';
 
 export default defineComponent({
     name: 'UserInfo',
@@ -393,6 +397,7 @@ export default defineComponent({
         UserPointsRow,
         ModalDialog,
         ModesIcons,
+        RewardProgress,
     },
     data () {
         return {

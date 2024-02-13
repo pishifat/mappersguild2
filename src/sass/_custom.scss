@@ -153,6 +153,26 @@ footer {
     background-color: var(--rank-4-bg);
 }
 
+.bg-easy {
+    background-color: var(--easy);
+}
+
+.bg-normal {
+    background-color: var(--normal);
+}
+
+.bg-hard {
+    background-color: var(--hard);
+}
+
+.bg-insane {
+    background-color: var(--insane);
+}
+
+.bg-expert {
+    background-color: var(--expert);
+}
+
 .text-rank-0 {
     color: var(--rank-0-bg);
 }
