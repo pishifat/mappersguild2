@@ -8,7 +8,7 @@ import { UserModel } from '../../models/user';
 import { LogCategory } from '../../../interfaces/log';
 import { User } from '../../../interfaces/user';
 import { isLoggedIn, isBn } from '../../helpers/middlewares';
-import { findDifficultyPoints, getLengthNerf, getQuestBonus, findStoryboardPoints } from '../../helpers/points';
+import { findDifficultyPoints, getLengthNerf, getQuestBonus, getMissionBonus, findStoryboardPoints } from '../../helpers/points';
 import { defaultErrorMessage, findBeatmapsetId, getLongestBeatmapLength } from '../../helpers/helpers';
 import { getClientCredentialsGrant, getBeatmapsetV2Info, isOsuResponseError } from '../../helpers/osuApi';
 import { isValidBeatmap } from './middlewares';
@@ -413,8 +413,7 @@ beatmapsRouter.get('/:id/findPoints', async (req, res) => {
                 bonus = getQuestBonus(beatmap.quest.deadline, new Date(rankedDate), 1);
                 validBonus = true;
             } else if (beatmap.mission) {
-                missionParticipation = true;
-                bonus = getMissionBonus(beatmap.mission.winningBeatmaps, beatmap.id, task.mappers.length);
+                bonus = 2;
                 validBonus = true;
             } else if (beatmap.isShowcase) {
                 bonus = 2;
