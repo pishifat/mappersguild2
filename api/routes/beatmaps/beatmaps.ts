@@ -382,8 +382,8 @@ beatmapsRouter.get('/:id/findPoints', async (req, res) => {
 
     const rankedDate = beatmap.status != 'Ranked' ? new Date() : bmInfo.ranked_date;
 
-    let validQuest = false;
-    let questBonus = 0;
+    let validBonus = true;
+    let bonus = 0;
 
     let totalPoints = 0;
 
@@ -410,11 +410,18 @@ beatmapsRouter.get('/:id/findPoints', async (req, res) => {
             const taskPoints = findDifficultyPoints(task.name, 1);
 
             if (beatmap.quest) {
-                questBonus = getQuestBonus(beatmap.quest.deadline, new Date(rankedDate), 1);
-                validQuest = true;
+                bonus = getQuestBonus(beatmap.quest.deadline, new Date(rankedDate), 1);
+                validBonus = true;
+            } else if (beatmap.mission) {
+                missionParticipation = true;
+                bonus = getMissionBonus(beatmap.mission.winningBeatmaps, beatmap.id, task.mappers.length);
+                validBonus = true;
+            } else if (beatmap.isShowcase) {
+                bonus = 2;
+                validBonus = true;
             }
 
-            const finalPoints = ((taskPoints + questBonus)*lengthNerf);
+            const finalPoints = ((taskPoints + bonus)*lengthNerf);
 
             totalPoints += finalPoints;
             tasksPointsArray.push(`${task.name}: ${finalPoints.toFixed(1)}`);
@@ -435,15 +442,15 @@ beatmapsRouter.get('/:id/findPoints', async (req, res) => {
                     if (task.name == TaskName.Storyboard) {
                         userArray[1] += Math.round((userTaskPoints/task.mappers.length)*10)/10;
                     } else {
-                        userArray[1] += Math.round(((userTaskPoints + (questBonus/task.mappers.length))*lengthNerf)*10)/10;
+                        userArray[1] += Math.round(((userTaskPoints + (bonus/task.mappers.length))*lengthNerf)*10)/10;
                     }
                 }
             });
         });
     });
 
-    if (validQuest) {
-        pointsInfo += ` + includes ${questBonus == 1 ? questBonus + ' quest bonus point' : questBonus + ' quest bonus points'} per difficulty`;
+    if (validBonus) {
+        pointsInfo += ` + includes ${bonus == 1 ? bonus + ' quest bonus point' : bonus + ' quest bonus points'} per difficulty`;
     }
 
     // calculate bn points
