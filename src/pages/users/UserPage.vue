@@ -40,6 +40,11 @@
         <div v-else-if="displayAs == 'list'" class="container card card-body py-3">
             <transition-group name="list" tag="div" class="row px-3">
                 <user-list-element
+                    :key="loggedInUser.id"
+                    :user="loggedInUser"
+                />
+                <div class="radial-divisor" />
+                <user-list-element
                     v-for="user in filteredUsers"
                     :key="user.id"
                     :user="user"
@@ -70,6 +75,9 @@ export default defineComponent({
         UserListElement,
     },
     computed: {
+        ...mapState([
+            'loggedInUser',
+        ]),
         ...mapState('users', [
             'pagination',
             'displayAs',
