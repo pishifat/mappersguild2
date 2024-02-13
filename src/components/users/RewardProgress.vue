@@ -152,6 +152,7 @@ export default defineComponent({
     display: block;
     width: 100%;
     height: 30px;
+    background-color: black;
 }
 
 .segment {
