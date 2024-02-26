@@ -6,18 +6,15 @@
             class="ms-1"
             @click.prevent
         >
-            <h5>
+            <h6>
                 {{ group }}
                 <i class="fas fa-angle-down" />
-            </h5>
+            </h6>
         </a>
-        <div v-if="!groupedUsers.length">
-            (still loading)
-        </div>
         <data-table
             :id="group"
             v-slot="{ obj: user }"
-            class="collapse"
+            :class="groupedUsers.length > 30 ? 'collapse' : 'show'"
             :data="groupedUsers"
             :headers="['USERNAME', 'RANK', 'QUEUED BADGE', 'BADGE']"
             :custom-data-target="`#editUser${group}`"

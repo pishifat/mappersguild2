@@ -19,6 +19,15 @@ adminUsersRouter.get('/load', async (req, res) => {
     res.json(users);
 });
 
+/* GET search for one user */
+adminUsersRouter.get('/searchUser/:userInput', async (req, res) => {
+    const user = await UserModel
+        .findOne()
+        .byUsernameOrOsuId(req.params.userInput);
+
+    res.json(user);
+});
+
 /* POST update user queuedBadge */
 adminUsersRouter.post('/:id/updateQueuedBadge', async (req, res) => {
     const badge = parseInt(req.body.badge, 10);

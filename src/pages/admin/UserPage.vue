@@ -2,10 +2,29 @@
     <div>
         <div class="container card card-body">
             <h4>
-                All users by group
-            </h4>
-            <button class="btn btn-sm w-100 btn-outline-info" @click="loadUsers($event)">
                 Load users
+            </h4>
+            <h5 class="mt-2">
+                Single user
+            </h5>
+            <input
+                v-model="userInput"
+                class="form-control form-control-sm mb-2"
+                type="text"
+                maxlength="18"
+                autocomplete="off"
+                placeholder="enter to search..."
+                @keyup.enter="searchUser($event)"
+            />
+            <button class="btn btn-sm w-100 btn-outline-info mb-2" @click="searchUser($event)">
+                Load user
+            </button>
+
+            <h5 class="mt-2">
+                All users
+            </h5>
+            <button class="btn btn-sm w-100 btn-outline-info" @click="loadAllUsers($event)">
+                Load all users
             </button>
 
             <div v-if="users.length">
@@ -69,6 +88,7 @@ export default defineComponent({
     data () {
         return {
             selectedUserId: '',
+            userInput: '',
         };
     },
     computed: {
@@ -99,11 +119,18 @@ export default defineComponent({
         }
     },
     methods: {
-        async loadUsers(e) {
+        async loadAllUsers(e) {
             const users = await this.$http.executeGet<User[]>('/admin/users/load', e);
 
             if (!this.$http.isError(users)) {
                 this.$store.commit('setUsers', users);
+            }
+        },
+        async searchUser(e) {
+            const user = await this.$http.executeGet<User[]>(`/admin/users/searchUser/${this.userInput}`, e);
+
+            if (!this.$http.isError(user)) {
+                this.$store.commit('setUsers', [user]);
             }
         },
     },
