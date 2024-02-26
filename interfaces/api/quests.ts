@@ -1,5 +1,6 @@
 import { Quest } from '../quest';
 import { ErrorResponse } from './shared';
+import { BeatmapMode } from '../beatmap/beatmap';
 
 export interface SubmitQuestData {
     name: string;
@@ -10,6 +11,7 @@ export interface SubmitQuestData {
     maxParty: number;
     art: string;
     requiredMapsets: number;
+    modes: BeatmapMode[];
 }
 
 export interface ScheduleQuestsData {

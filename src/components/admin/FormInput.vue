@@ -10,7 +10,7 @@
             class="form-control form-control-sm"
             autocomplete="off"
             @input="$emit('update:modelValue', $event.target.value)"
-        >
+        />
     </form-field-base>
 </template>
 

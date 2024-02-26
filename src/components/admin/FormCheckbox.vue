@@ -7,7 +7,7 @@
                 type="checkbox"
                 :checked="modelValue"
                 @change="$emit('update:modelValue', $event.target.checked)"
-            >
+            />
             <label class="form-check-label" :for="id">
                 {{ info }}
             </label>

@@ -32,12 +32,6 @@ adminQuestsRouter.post('/create', async (req, res) => {
     const newQuests: Quest[] = [];
 
     for (const quest of req.body.quests) {
-        if (quest.isMbc) {
-            quest.modes = [ BeatmapMode.Osu ];
-        } else {
-            quest.modes = [ BeatmapMode.Osu, BeatmapMode.Taiko, BeatmapMode.Catch, BeatmapMode.Mania ];
-        }
-
         quest.expiration = new Date();
         quest.expiration.setDate(quest.expiration.getDate() + 90);
         quest.creator = req?.session?.mongoId;

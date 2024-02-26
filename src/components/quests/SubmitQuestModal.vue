@@ -70,6 +70,19 @@
                 description="...days to complete quest"
             />
 
+            <!-- modes -->
+            <form-field-base
+                label="Modes"
+                description="quest modes"
+            >
+                <modes-icons
+                    :modes="modes"
+                    :toggler="true"
+                    color="secondary"
+                    @toggle="toggleQuestMode($event)"
+                />
+            </form-field-base>
+
             <!-- party size -->
             <form-input
                 v-model.number="minParty"
@@ -172,6 +185,9 @@ import FormTextarea from '@components/admin/FormTextarea.vue';
 import FormSelect from '@components/admin/FormSelect.vue';
 import FormCheckbox from '@components/admin/FormCheckbox.vue';
 import { BasicResponse } from '@interfaces/api/shared';
+import ModesIcons from '@components/ModesIcons.vue';
+import { BeatmapMode } from '@interfaces/beatmap/beatmap';
+import FormFieldBase from '@components/admin/FormFieldBase.vue';
 
 export default defineComponent({
     name: 'SubmitQuestModal',
@@ -181,6 +197,8 @@ export default defineComponent({
         FormTextarea,
         FormSelect,
         FormCheckbox,
+        ModesIcons,
+        FormFieldBase,
     },
     props: {
         isAdmin: Boolean,
@@ -197,6 +215,7 @@ export default defineComponent({
             minParty: 0,
             maxParty: 0,
             minRank: 0,
+            modes: [ BeatmapMode.Osu, BeatmapMode.Taiko, BeatmapMode.Catch, BeatmapMode.Mania ],
             isMbc: false,
             queuedQuests: [] as Partial<Quest>[],
         };
@@ -319,6 +338,15 @@ export default defineComponent({
         findTimeframe(): number {
             return this.mapsetCount*10 + 70;
         },
+        toggleQuestMode(mode): void {
+            const i = this.modes.findIndex(m => m == mode);
+
+            if (i > -1) {
+                this.modes.splice(i, 1);
+            } else {
+                this.modes.push(mode);
+            }
+        },
         resetQuestDetails(): void {
             this.selectedArtist = '';
             this.mapsetCount = 6;
@@ -340,6 +368,7 @@ export default defineComponent({
                 minParty: this.minParty,
                 maxParty: this.maxParty,
                 minRank: this.minRank,
+                modes: this.modes,
                 isMbc: this.isMbc,
                 art: parseInt(this.selectedArtistOsuId),
                 requiredMapsets: this.mapsetCount,
@@ -351,22 +380,30 @@ export default defineComponent({
             this.queuedQuests = this.queuedQuests.filter(q => q.name != name);
         },
         async submitQuest(e): Promise<void> { // for normal users
-            const data: SubmitQuestData = {
-                name: this.name,
-                price: this.price,
-                descriptionMain: this.objective,
-                timeframe: this.timeframe * (24*3600*1000),
-                minParty: this.minParty,
-                maxParty: this.maxParty,
-                art: this.selectedArtistOsuId,
-                requiredMapsets: this.mapsetCount,
-            };
+            if (!this.modes.length) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: 'Select at least one mode!',
+                    type: 'danger',
+                });
+            } else {
+                const data: SubmitQuestData = {
+                    name: this.name,
+                    price: this.price,
+                    descriptionMain: this.objective,
+                    timeframe: this.timeframe * (24*3600*1000),
+                    minParty: this.minParty,
+                    maxParty: this.maxParty,
+                    art: this.selectedArtistOsuId,
+                    requiredMapsets: this.mapsetCount,
+                    modes: this.modes,
+                };
 
-            const res = await this.$http.executePost<BasicResponse>('/quests/submit', data, e);
+                const res = await this.$http.executePost<BasicResponse>('/quests/submit', data, e);
 
-            if (!this.$http.isError(res)) {
-                this.$bs.hideModal('submitQuest');
-                this.resetQuestDetails();
+                if (!this.$http.isError(res)) {
+                    this.$bs.hideModal('submitQuest');
+                    this.resetQuestDetails();
+                }
             }
         },
         async scheduleQuests(e): Promise<void> { // for pishifat
