@@ -618,7 +618,7 @@ const validateRankedBeatmaps = node_cron_1.default.schedule('0 4 * * *', async (
     scheduled: false,
 });
 /* update points for all users once every month */
-const updatePoints = node_cron_1.default.schedule('0 0 21 * *', async () => {
+const updatePoints = node_cron_1.default.schedule('0 0 27 * *', async () => {
     const users = await user_1.UserModel.find({});
     for (const user of users) {
         points_1.updateUserPoints(user.id);

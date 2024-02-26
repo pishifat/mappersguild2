@@ -8,7 +8,6 @@ const middlewares_1 = require("../../helpers/middlewares");
 const points_1 = require("../../helpers/points");
 const quest_1 = require("../../models/quest");
 const quest_2 = require("../../../interfaces/quest");
-const beatmap_1 = require("../../../interfaces/beatmap/beatmap");
 const log_1 = require("../../models/log");
 const log_2 = require("../../../interfaces/log");
 const discordApi_1 = require("../../helpers/discordApi");
@@ -31,12 +30,6 @@ adminQuestsRouter.get('/load', async (req, res) => {
 adminQuestsRouter.post('/create', async (req, res) => {
     const newQuests = [];
     for (const quest of req.body.quests) {
-        if (quest.isMbc) {
-            quest.modes = [beatmap_1.BeatmapMode.Osu];
-        }
-        else {
-            quest.modes = [beatmap_1.BeatmapMode.Osu, beatmap_1.BeatmapMode.Taiko, beatmap_1.BeatmapMode.Catch, beatmap_1.BeatmapMode.Mania];
-        }
         quest.expiration = new Date();
         quest.expiration.setDate(quest.expiration.getDate() + 90);
         quest.creator = req?.session?.mongoId;

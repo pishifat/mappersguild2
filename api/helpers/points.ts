@@ -284,7 +284,7 @@ export async function calculateTasksPoints(userId: any): Promise<TasksPoints> {
                     finalPoints = taskPoints;
                 } else if (task.name === TaskName.Hitsounds) {
                     // check how many times a user does hitsounds for the same song (almost always 1)
-                    const repeats = userBeatmaps.filter(b => b.song.toString() == beatmap.song.toString() && b.tasks.includes(b.tasks.find(t => t.name == TaskName.Hitsounds && task.mappers.some(m => m.id == userId))));
+                    const repeats = userBeatmaps.filter(b => b.song.toString() == beatmap.song.toString() && b.tasks.some(t => t.name == TaskName.Hitsounds && t.mappers.some(m => m.id == userId)));
 
                     finalPoints = (taskPoints * lengthNerf) / repeats.length; // dividing by "repeats" stops users from earning extra points when their hitsounds are copied to another mapset
                 } else {
