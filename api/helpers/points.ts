@@ -438,7 +438,7 @@ export async function calculateContestPoints(userId: any): Promise<ContestPoints
     let relevantSubmissionCount = 0;
 
     for (const submission of submissions) {
-        if (submission.contest.isFeaturedArtistContest && submission.contest.isEligibleForPoints) {
+        if (submission.contest && submission.contest.isFeaturedArtistContest && submission.contest.isEligibleForPoints) {
             relevantSubmissionCount++;
         }
     }
