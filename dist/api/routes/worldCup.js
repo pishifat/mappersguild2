@@ -24,12 +24,16 @@ worldCupRouter.get('/query', async (req, res) => {
     ]);
     res.json({ beatmaps, notes });
 });
-/* POST add mentee */
+/* POST update note */
 worldCupRouter.post('/updateNote/:mode', async (req, res) => {
-    let note = await note_1.NoteModel.findOne({ name: req.body.mode });
+    let note = await note_1.NoteModel.findOne({ name: req.params.mode });
     if (!note) {
         note = new note_1.NoteModel;
         note.name = req.params.mode;
+        note.content = req.body.note;
+        await note.save();
+    }
+    else {
         note.content = req.body.note;
         await note.save();
     }
