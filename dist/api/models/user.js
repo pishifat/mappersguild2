@@ -32,6 +32,7 @@ const UserSchema = new mongoose_1.Schema({
     isShowcaseMapper: { type: Boolean },
     isContestHelper: { type: Boolean },
     isMentorshipAdmin: { type: Boolean },
+    isWorldCupHelper: { type: Boolean },
     mentorships: [{
             _id: false,
             cycle: { type: 'ObjectId', ref: 'MentorshipCycle', required: true },

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isValidUrl = exports.canEditArtist = exports.isBn = exports.isSuperAdmin = exports.hasMerchAccess = exports.isLocusAdmin = exports.isMentorshipAdmin = exports.isAdmin = exports.isValidUser = exports.isLoggedIn = exports.unauthorize = void 0;
+exports.isValidUrl = exports.canEditArtist = exports.isBn = exports.isSuperAdmin = exports.hasMerchAccess = exports.isLocusAdmin = exports.isWorldCupHelper = exports.isMentorshipAdmin = exports.isAdmin = exports.isValidUser = exports.isLoggedIn = exports.unauthorize = void 0;
 const user_1 = require("../models/user");
 const user_2 = require("../../interfaces/user");
 const osuApi_1 = require("./osuApi");
@@ -77,6 +77,15 @@ function isMentorshipAdmin(req, res, next) {
     }
 }
 exports.isMentorshipAdmin = isMentorshipAdmin;
+function isWorldCupHelper(req, res, next) {
+    if (res.locals.userRequest.isWorldCupHelper || res.locals.userRequest.group == user_2.UserGroup.Admin) {
+        next();
+    }
+    else {
+        unauthorize(req, res);
+    }
+}
+exports.isWorldCupHelper = isWorldCupHelper;
 function isLocusAdmin(req, res, next) {
     const osuIds = [1893718, 18983, 7671790, 5052899]; // mangomizer, Doomsday, Komm, Matrix
     if (osuIds.includes(res.locals.userRequest.osuId) || res.locals.userRequest.group == user_2.UserGroup.Admin) {

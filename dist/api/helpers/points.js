@@ -252,7 +252,6 @@ async function calculateTasksPoints(userId) {
                 else if (task.name === task_1.TaskName.Hitsounds) {
                     // check how many times a user does hitsounds for the same song (almost always 1)
                     const repeats = userBeatmaps.filter(b => b.song.toString() == beatmap.song.toString() && b.tasks.some(t => t.name == task_1.TaskName.Hitsounds && t.mappers.some(m => m.id == userId)));
-                    console.log(repeats.length);
                     finalPoints = (taskPoints * lengthNerf) / repeats.length; // dividing by "repeats" stops users from earning extra points when their hitsounds are copied to another mapset
                 }
                 else {

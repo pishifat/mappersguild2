@@ -150,7 +150,7 @@ showcaseRouter.post('/addSongShowcaseMapper/:artistId/:songId', middlewares_1.ca
             description: `Added interest in **song:** [**${song.artist} - ${song.title}**](https://mappersguild.com/artists)`,
         }]);
 });
-/* POST add song showcase mapper */
+/* POST remove song showcase mapper */
 showcaseRouter.post('/removeSongShowcaseMapper/:artistId/:songId', middlewares_1.canEditArtist, async (req, res) => {
     const song = await featuredSong_1.FeaturedSongModel
         .findById(req.params.songId)

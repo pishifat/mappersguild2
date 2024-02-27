@@ -44,6 +44,7 @@ const BeatmapSchema = new mongoose_1.Schema({
     invalidForPoints: { type: Boolean },
     invalidReason: { type: String },
     skipWebhook: { type: Boolean },
+    isWorldCup: { type: Boolean },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 const queryHelpers = {
     sortByLatest() {
