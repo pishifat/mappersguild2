@@ -75,6 +75,11 @@
                     </button>
                 </p>
                 <p>
+                    <button class="btn btn-sm btn-outline-info w-100" @click="toggleIsWorldCupHelper($event)">
+                        {{ user.isWorldCupHelper ? 'Disable' : 'Enable' }} isWorldCupHelper
+                    </button>
+                </p>
+                <p>
                     <button class="btn btn-sm btn-outline-info w-100" @click="toggleHasMerchAccess($event)">
                         {{ user.hasMerchAccess ? 'Disable' : 'Enable' }} hasMerchAccess
                     </button>
@@ -220,6 +225,20 @@ export default defineComponent({
                 this.$store.commit('updateIsMentorshipAdmin', {
                     userId: this.user.id,
                     isMentorshipAdmin: res.isMentorshipAdmin,
+                });
+            }
+        },
+        async toggleIsWorldCupHelper(e): Promise<void> {
+            const res: any = await this.$http.executePost(`/admin/users/${this.user.id}/toggleIsWorldCupHelper`, { isWorldCupHelper: !this.user.isWorldCupHelper }, e);
+
+            if (res) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `set isWorldCupHelper ${res.isWorldCupHelper}`,
+                    type: 'info',
+                });
+                this.$store.commit('updateIsWorldCupHelper', {
+                    userId: this.user.id,
+                    isWorldCupHelper: res.isWorldCupHelper,
                 });
             }
         },

@@ -33,6 +33,7 @@ export interface User extends Document {
     isShowcaseMapper: boolean;
     isContestHelper: boolean;
     isMentorshipAdmin: boolean;
+    isWorldCupHelper: boolean;
     mentorships: {
         cycle: MentorshipCycle;
         mode: string;

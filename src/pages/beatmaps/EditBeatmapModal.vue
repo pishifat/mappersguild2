@@ -58,7 +58,7 @@ export default defineComponent({
     },
     watch: {
         selectedBeatmap(): void {
-            if (this.selectedBeatmap && this.$route.query.id !== this.selectedBeatmap.id) {
+            if (this.selectedBeatmap && this.$route.query.id !== this.selectedBeatmap.id && this.$route.path.includes('beatmaps')) {
                 this.$router.replace(`/beatmaps?id=${this.selectedBeatmap.id}`);
             }
         },

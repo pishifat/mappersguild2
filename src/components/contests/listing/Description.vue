@@ -20,7 +20,7 @@
                 <div class="small bg-dark pt-3 pb-1 px-3 mb-2 rounded" v-html="$md.render(newDescription.trim())" />
             </div>
         </template>
-</div>
+    </div>
 </template>
 
 <script lang="ts">

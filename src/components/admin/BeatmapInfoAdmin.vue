@@ -121,6 +121,15 @@
                         Toggle
                     </button>
                 </p>
+                <p class="row">
+                    <span class="col-sm-6">
+                        World cup original:
+                        <span class="text-danger me-2">{{ beatmap.isWorldCup ? 'true' : 'false' }}</span>
+                    </span>
+                    <button class="btn btn-sm btn-outline-info ms-3 w-25" @click="updateIsWorldCup($event)">
+                        Toggle
+                    </button>
+                </p>
                 <span v-if="beatmap.status == 'Qualified'">
                     <p class="row">
                         <span class="col-sm-6">
@@ -333,6 +342,20 @@ export default defineComponent({
                 this.$store.commit('updateIsShowcase', {
                     beatmapId: this.beatmap.id,
                     isShowcase,
+                });
+            }
+        },
+        async updateIsWorldCup(e): Promise<void> {
+            const isWorldCup = await this.$http.executePost(`/admin/beatmaps/${this.beatmap.id}/updateIsWorldCup`, { isWorldCup: !this.beatmap.isWorldCup }, e);
+
+            if (!this.$http.isError(isWorldCup)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated isWorldCup: ${isWorldCup}`,
+                    type: 'info',
+                });
+                this.$store.commit('updateIsWorldCup', {
+                    beatmapId: this.beatmap.id,
+                    isWorldCup,
                 });
             }
         },

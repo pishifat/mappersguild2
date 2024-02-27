@@ -51,6 +51,11 @@
                     Mentorship
                 </router-link>
             </li>
+            <li v-if="isWorldCupHelper || isAdmin" class="nav-item">
+                <router-link class="nav-link" to="/worldCup">
+                    World Cup
+                </router-link>
+            </li>
             <li v-if="isSecret || isAdmin" class="nav-item">
                 <router-link class="nav-link" to="/showcase">
                     FA Showcase
@@ -88,6 +93,9 @@ export default defineComponent({
         },
         isMentorshipAdmin () {
             return this.loggedInUser.isMentorshipAdmin;
+        },
+        isWorldCupHelper () {
+            return this.loggedInUser.isWorldCupHelper;
         },
         isPishifat () {
             return this.loggedInUser.osuId === 3178418;

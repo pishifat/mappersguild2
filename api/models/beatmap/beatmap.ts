@@ -37,6 +37,7 @@ const BeatmapSchema = new Schema<Beatmap>({
     invalidForPoints: { type: Boolean },
     invalidReason: { type: String },
     skipWebhook: { type: Boolean },
+    isWorldCup: { type: Boolean },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const queryHelpers = {

@@ -3,7 +3,7 @@
         <div class="row">
             <!-- LEFT SIDE -->
             <div :class="(isHost && !isRanked) ? 'col-lg-7' : 'col-sm-12'">
-                <div class="row mb-2">
+                <div v-if="!$route.path.includes('worldcup')" class="row mb-2">
                     <div class="col-sm-6">
                         <modders-list
                             :beatmap="beatmap"
@@ -17,6 +17,9 @@
                             :can-edit="!isHost && !isRanked"
                         />
                     </div>
+                </div>
+                <div v-else>
+                    <code>https://mappersguild.com/beatmaps?id={{ beatmap.id }}</code>
                 </div>
 
                 <hr />

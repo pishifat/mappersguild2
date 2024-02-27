@@ -12,6 +12,7 @@ const UserSchema = new Schema<User>({
     isShowcaseMapper: { type: Boolean },
     isContestHelper: { type: Boolean },
     isMentorshipAdmin: { type: Boolean },
+    isWorldCupHelper: { type: Boolean },
     mentorships: [{
         _id: false,
         cycle: { type: 'ObjectId', ref: 'MentorshipCycle', required: true },
