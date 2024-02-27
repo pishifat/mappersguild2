@@ -179,7 +179,7 @@ showcaseRouter.post('/addSongShowcaseMapper/:artistId/:songId', canEditArtist, a
     }]);
 });
 
-/* POST add song showcase mapper */
+/* POST remove song showcase mapper */
 showcaseRouter.post('/removeSongShowcaseMapper/:artistId/:songId', canEditArtist, async (req, res) => {
     const song = await FeaturedSongModel
         .findById(req.params.songId)
