@@ -327,8 +327,6 @@ indexRouter.get('/merchCallback', async (req, res) => {
 
     let response = await getToken(req.query.code.toString(), true);
 
-    console.log(response);
-
     if (isOsuResponseError(response)) {
         return res.status(500).redirect('/error');
     }

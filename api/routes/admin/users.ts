@@ -107,6 +107,22 @@ adminUsersRouter.post('/:id/toggleHasMerchAccess', async (req, res) => {
     res.json({ hasMerchAccess });
 });
 
+/* POST reset hasMerchAccess */
+adminUsersRouter.post('/resetHasMerchAccess', async (req, res) => {
+    const osuIdInput = req.body.osuIdInput;
+    const osuIdsSeparated = osuIdInput.split(',');
+    const osuIds = osuIdsSeparated.map(id => id.trim());
+
+    const users = await UserModel.find({ hasMerchAccess: true, osuId: { $nin: osuIds } });
+
+    for (const user of users) {
+        user.hasMerchAccess = false;
+        await user.save();
+    }
+
+    res.json({ success: 'ok' });
+});
+
 /* GET find FA showcase users */
 adminUsersRouter.get('/findShowcaseUsers', async (req, res) => {
     const [osuUsers, taikoUsers, catchUsers, maniaUsers] = await Promise.all([
