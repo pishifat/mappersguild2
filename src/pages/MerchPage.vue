@@ -8,21 +8,29 @@
                 <h5 class="mt-2">
                     info
                 </h5>
-                <p>all products listed here have a 100% discount. the prices you see on shopify checkout are lower than the actual product values to reduce import fees.</p>
-                <p>to ensure nobody snags multiple free products, you can only begin the checkout process <b>once</b>! this requires...</p>
+                <p>all products listed here have a 100% discount. prices are still listed on the checkout page for tax reasons</p>
+                <p>you can only begin the checkout process <b>once</b>! this requires...</p>
                 <ul>
-                    <li>contact email <span class="text-secondary small">(must match your osu! account's email address)</span></li>
+                    <li>contact email</li>
                     <li>shipping address</li>
                     <li>billing address <span class="text-secondary small">(can be the same as your shipping address)</span></li>
                 </ul>
-                <p>when you've gathered this info, checkout any product below :)</p>
+                <p>when you've gathered this info, checkout below :)</p>
             </div>
             <div v-else class="double-center text-center">
                 <p>request expired</p>
                 <p>if you think something went wrong, <a href="https://osu.ppy.sh/community/chat?sendto=3178418" target="_blank">talk to pishifat</a>.</p>
             </div>
             <hr v-if="loggedInUser.hasMerchAccess" />
-            <div>
+            <div v-if="loggedInUser.hasSpecificMerchOrder">
+                <button
+                    class="btn btn-sm btn-outline-info mt-2 d-grid gap-2 col-12 mx-auto"
+                    @click="checkoutSpecific($event)"
+                >
+                    your order has already been selected. proceed to checkout
+                </button>
+            </div>
+            <div v-else>
                 <div
                     v-for="merch in allMerch"
                     :key="merch.id"
@@ -102,6 +110,15 @@ export default defineComponent({
         async checkout(gid, vid, e): Promise<void> {
             this.clicked = true;
             const checkout: any = await this.$http.executePost(`/merch/checkout`, { gid, vid }, e);
+
+            if (!this.$http.isError(checkout)) {
+                this.checkoutOutput = checkout;
+                window.location.replace(checkout.webUrl);
+            }
+        },
+        async checkoutSpecific(e): Promise<void> {
+            this.clicked = true;
+            const checkout: any = await this.$http.executePost(`/merch/checkout`, {}, e);
 
             if (!this.$http.isError(checkout)) {
                 this.checkoutOutput = checkout;

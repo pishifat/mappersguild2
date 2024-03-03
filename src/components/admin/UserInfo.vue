@@ -84,6 +84,23 @@
                         {{ user.hasMerchAccess ? 'Disable' : 'Enable' }} hasMerchAccess
                     </button>
                 </p>
+                <p>
+                    <button class="btn btn-sm btn-outline-info w-100" @click="toggleHasSpecificMerchOrder($event)">
+                        {{ user.hasSpecificMerchOrder ? 'Disable' : 'Enable' }} hasSpecificMerchOrder
+                    </button>
+                </p>
+            </div>
+            <div class="ms-2 mb-2">
+                <a href="#debug" data-bs-toggle="collapse" @click.prevent>
+                    Debug
+                    <i class="fas fa-angle-down" />
+                </a>
+            </div>
+
+            <div id="debug" class="collapse">
+                <copy-paste>
+                    <pre>{{ user }}</pre>
+                </copy-paste>
             </div>
         </template>
     </modal-dialog>
@@ -93,11 +110,13 @@
 import ModalDialog from '@components/ModalDialog.vue';
 import { defineComponent } from 'vue';
 import { User } from '../../../interfaces/user';
+import CopyPaste from '@components/CopyPaste.vue';
 
 export default defineComponent({
     name: 'UserInfo',
     components: {
         ModalDialog,
+        CopyPaste,
     },
     props: {
         user: {
@@ -253,6 +272,20 @@ export default defineComponent({
                 this.$store.commit('updateHasMerchAccess', {
                     userId: this.user.id,
                     hasMerchAccess: res.hasMerchAccess,
+                });
+            }
+        },
+        async toggleHasSpecificMerchOrder(e): Promise<void> {
+            const res: any = await this.$http.executePost(`/admin/users/${this.user.id}/toggleHasSpecificMerchOrder`, { hasSpecificMerchOrder: !this.user.hasSpecificMerchOrder }, e);
+
+            if (res) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `set hasSpecificMerchOrder ${res.hasSpecificMerchOrder}`,
+                    type: 'info',
+                });
+                this.$store.commit('updateHasSpecificMerchOrder', {
+                    userId: this.user.id,
+                    hasSpecificMerchOrder: res.hasSpecificMerchOrder,
                 });
             }
         },

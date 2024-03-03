@@ -56,6 +56,13 @@ const store: Module<UserState, MainState> = {
                 user.hasMerchAccess = payload.hasMerchAccess;
             }
         },
+        updateHasSpecificMerchOrder (state, payload): void {
+            const user = state.users.find(u => u.id == payload.userId);
+
+            if (user) {
+                user.hasSpecificMerchOrder = payload.hasSpecificMerchOrder;
+            }
+        },
     },
 };
 

@@ -58,7 +58,7 @@
         <contest-helper-user-list
             class="mb-2"
         />
-        <reset-has-merch-access
+        <reset-merch
             class="mb-2"
         />
         <discord-highlight-generator
@@ -72,7 +72,7 @@ import { defineComponent } from 'vue';
 import AdminUserTable from './AdminUserTable.vue';
 import ShowcaseUserList from '../../components/admin/ShowcaseUserList.vue';
 import ContestHelperUserList from '../../components/admin/ContestHelperUserList.vue';
-import ResetHasMerchAccess from '../../components/admin/ResetHasMerchAccess.vue';
+import ResetMerch from '../../components/admin/ResetMerch.vue';
 import DiscordHighlightGenerator from '../../components/admin/DiscordHighlightGenerator.vue';
 import OsuApiUserSearch from '../../components/admin/OsuApiUserSearch.vue';
 import { User, UserGroup } from '../../../interfaces/user';
@@ -85,7 +85,7 @@ export default defineComponent({
         AdminUserTable,
         ShowcaseUserList,
         ContestHelperUserList,
-        ResetHasMerchAccess,
+        ResetMerch,
         DiscordHighlightGenerator,
         OsuApiUserSearch,
         AddRestrictedUser,
