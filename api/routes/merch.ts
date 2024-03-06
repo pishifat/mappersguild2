@@ -39,7 +39,7 @@ merchRouter.post('/checkout', async (req, res) => {
     });
 
     let checkout;
-    const lineItems = [];
+    const lineItems: any = [];
 
     if (user.hasSpecificMerchOrder) {
         for (const item of config.specificMerchOrder) {

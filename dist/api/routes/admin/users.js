@@ -82,6 +82,36 @@ adminUsersRouter.post('/:id/toggleHasMerchAccess', async (req, res) => {
     await user_1.UserModel.findByIdAndUpdate(req.params.id, { hasMerchAccess }).orFail();
     res.json({ hasMerchAccess });
 });
+/* POST toggle hasSpecificMerchOrder */
+adminUsersRouter.post('/:id/toggleHasSpecificMerchOrder', async (req, res) => {
+    const hasSpecificMerchOrder = req.body.hasSpecificMerchOrder;
+    await user_1.UserModel.findByIdAndUpdate(req.params.id, { hasSpecificMerchOrder }).orFail();
+    res.json({ hasSpecificMerchOrder });
+});
+/* POST reset hasMerchAccess */
+adminUsersRouter.post('/resetHasMerchAccess', async (req, res) => {
+    const osuIdInput = req.body.osuIdInput;
+    const osuIdsSeparated = osuIdInput.split(',');
+    const osuIds = osuIdsSeparated.map(id => id.trim());
+    const users = await user_1.UserModel.find({ hasMerchAccess: true, osuId: { $nin: osuIds } });
+    for (const user of users) {
+        user.hasMerchAccess = false;
+        await user.save();
+    }
+    res.json({ success: 'ok' });
+});
+/* POST reset hasSpecificMerchOrder */
+adminUsersRouter.post('/resetHasSpecificMerchOrder', async (req, res) => {
+    const osuIdInput = req.body.osuIdInput;
+    const osuIdsSeparated = osuIdInput.split(',');
+    const osuIds = osuIdsSeparated.map(id => id.trim());
+    const users = await user_1.UserModel.find({ hasSpecificMerchOrder: true, osuId: { $nin: osuIds } });
+    for (const user of users) {
+        user.hasSpecificMerchOrder = false;
+        await user.save();
+    }
+    res.json({ success: 'ok' });
+});
 /* GET find FA showcase users */
 adminUsersRouter.get('/findShowcaseUsers', async (req, res) => {
     const [osuUsers, taikoUsers, catchUsers, maniaUsers] = await Promise.all([

@@ -73,6 +73,7 @@ const UserSchema = new mongoose_1.Schema({
     ppCatch: { type: Number },
     ppMania: { type: Number },
     hasMerchAccess: { type: Boolean },
+    hasSpecificMerchOrder: { type: Boolean },
     isQuestTrailblazer: { type: Boolean },
     cover: { type: Object },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
