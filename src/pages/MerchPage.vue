@@ -21,50 +21,53 @@
                 <p>request expired</p>
                 <p>if you think something went wrong, <a href="https://osu.ppy.sh/community/chat?sendto=3178418" target="_blank">talk to pishifat</a>.</p>
             </div>
-            <hr v-if="loggedInUser.hasMerchAccess" />
-            <div v-if="loggedInUser.hasSpecificMerchOrder">
-                <button
-                    class="btn btn-sm btn-outline-info mt-2 d-grid gap-2 col-12 mx-auto"
-                    @click="checkoutSpecific($event)"
-                >
-                    your order has already been selected. proceed to checkout
-                </button>
-            </div>
-            <div v-else>
-                <div
-                    v-for="merch in allMerch"
-                    :key="merch.id"
-                    class="card card-level-2 card-body my-2 ps-4"
-                >
-                    <h4 class="text-lowercase">{{ merch.title }}</h4>
-                    <div class="d-inline">
-                        <img
-                            v-for="image in merch.images"
-                            :key="image.id"
-                            :src="image.src"
-                            class="merch-img me-2 mb-2"
-                        />
-                    </div>
 
-                    <div class="small text-secondary">
-                        {{ merch.description }}
-                    </div>
-                    <div
-                        v-for="variant in merch.variants"
-                        :key="variant.id"
+            <div v-if="loggedInUser.hasMerchAccess">
+                <hr />
+                <div v-if="loggedInUser.hasSpecificMerchOrder">
+                    <button
+                        class="btn btn-sm btn-outline-info mt-2 d-grid gap-2 col-12 mx-auto"
+                        @click="checkoutSpecific($event)"
                     >
-                        <button
-                            class="btn btn-sm btn-outline-info mt-2 d-grid gap-2 col-12 mx-auto"
-                            @click="checkout(merch.id, variant.id, $event)"
+                        your order has already been selected. proceed to checkout
+                    </button>
+                </div>
+                <div v-else>
+                    <div
+                        v-for="merch in allMerch"
+                        :key="merch.id"
+                        class="card card-level-2 card-body my-2 ps-4"
+                    >
+                        <h4 class="text-lowercase">{{ merch.title }}</h4>
+                        <div class="d-inline">
+                            <img
+                                v-for="image in merch.images"
+                                :key="image.id"
+                                :src="image.src"
+                                class="merch-img me-2 mb-2"
+                            />
+                        </div>
+
+                        <div class="small text-secondary">
+                            {{ merch.description }}
+                        </div>
+                        <div
+                            v-for="variant in merch.variants"
+                            :key="variant.id"
                         >
-                            proceed to shopify checkout <span v-if="variant.title !== 'Default Title'">({{ variant.selectedOptions[0].name }}: {{ variant.selectedOptions[0].value }})</span>
-                        </button>
+                            <button
+                                class="btn btn-sm btn-outline-info mt-2 d-grid gap-2 col-12 mx-auto"
+                                @click="checkout(merch.id, variant.id, $event)"
+                            >
+                                proceed to shopify checkout <span v-if="variant.title !== 'Default Title'">({{ variant.selectedOptions[0].name }}: {{ variant.selectedOptions[0].value }})</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
+                <p class="opacity-0">
+                    .
+                </p>
             </div>
-            <p class="opacity-0">
-                .
-            </p>
         </div>
         <div v-else class="double-center">
             redirecting to shopify checkout...

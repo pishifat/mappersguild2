@@ -38,18 +38,43 @@ merchRouter.post('/checkout', async (req, res) => {
         storefrontAccessToken: config.shopify.storeFrontToken,
     });
 
-    const vid = req.body.vid;
-    let checkout = await client.checkout.create({
-        lineItems: [{
+    let checkout;
+    const lineItems = [];
+
+    if (user.hasSpecificMerchOrder) {
+        for (const item of config.specificMerchOrder) {
+            const product = await client.product.fetch(item.productId);
+            let variantId;
+
+            if (product.variants.length > 1) {
+                variantId = item.variantId;
+            } else {
+                variantId = product.variants[0].id;
+            }
+
+            lineItems.push({
+                variantId,
+                quantity: item.quantity,
+            });
+        }
+    } else {
+        const vid = req.body.vid;
+
+        lineItems.push({
             variantId: vid,
             quantity: 1,
-        }],
+        });
+    }
+
+    checkout = await client.checkout.create({
+        lineItems,
     });
 
     checkout = await client.checkout.addDiscount(checkout.id, config.shopify.discountCode);
 
     if (user) {
         user.hasMerchAccess = false;
+        user.hasSpecificMerchOrder = false;
         await user.save();
     }
 
