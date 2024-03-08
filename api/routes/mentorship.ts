@@ -40,6 +40,69 @@ mentorshipRouter.get('/query', async (req, res) => {
     });
 });
 
+/* GET badge users */
+mentorshipRouter.get('/loadTenureBadges', async (req, res) => {
+    const users = await UserModel
+        .find({
+            mentorships: {
+                $exists: true,
+                $ne: [],
+            },
+        })
+        .populate(userCyclePopulate);
+
+    const relevantUsers = [];
+
+    for (const user of users) {
+        if (!user.mentorshipBadge && user.mentorshipBadge !== 0) {
+            user.mentorshipBadge = 0;
+            await user.save();
+        }
+
+        const mentorships = user.mentorships.filter(m => {
+            if (m.group == 'mentor') {
+                return true;
+            }
+        });
+
+        if (mentorships.length) {
+            const uniqueCycles = mentorships.reduce((unique, b) => {
+                if (!unique.some(a => a.cycle.id === b.cycle.id)) {
+                    unique.push(b);
+                }
+
+                return unique;
+            },[]);
+
+            console.log(uniqueCycles.length);
+
+            let duration = 0;
+
+            for (const mentorship of uniqueCycles) {
+                if (new Date() > new Date(mentorship.cycle.endDate)) {
+                    const difference = new Date(mentorship.cycle.endDate).getTime() - new Date(mentorship.cycle.startDate).getTime();
+                    const days = Math.round((difference*(mentorship.phases.length/3)) / (1000*60*60*24));
+                    duration += days;
+                }
+            }
+
+            const years = Math.floor(duration / 365);
+
+            if (user.mentorshipBadge != years) {
+                relevantUsers.push({
+                    _id: user._id,
+                    username: user.username,
+                    osuId: user.osuId,
+                    mentorshipBadge: user.mentorshipBadge,
+                    actualTenure: years,
+                });
+            }
+        }
+    }
+
+    res.json({ users: relevantUsers });
+});
+
 /* GET user */
 mentorshipRouter.get('/searchUser/:input', async (req, res) => {
     const input = req.params.input;
@@ -641,6 +704,23 @@ mentorshipRouter.post('/togglePhase', async (req, res) => {
     }).execPopulate();
 
     res.json(cycle);
+});
+
+/* POST add restricted user */
+mentorshipRouter.post('/editBadgeValue', async (req, res) => {
+    const { userId, value } = req.body;
+
+    const user = await UserModel.findById(userId).orFail();
+
+    if (value) {
+        user.mentorshipBadge++;
+    } else {
+        user.mentorshipBadge--;
+    }
+
+    await user.save();
+
+    res.json({ success: 'updated' });
 });
 
 export default mentorshipRouter;

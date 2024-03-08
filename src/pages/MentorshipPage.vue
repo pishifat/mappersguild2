@@ -6,6 +6,7 @@
         <cycles />
         <administrators />
         <add-restricted-user />
+        <tenure-badges />
     </div>
 </template>
 
@@ -20,6 +21,7 @@ import Cycles from '@components/mentorship/Cycles.vue';
 import Participants from '@components/mentorship/Participants.vue';
 import UserDetails from '@components/mentorship/UserDetails.vue';
 import AddRestrictedUser from '@components/mentorship/AddRestrictedUser.vue';
+import TenureBadges from '@components/mentorship/TenureBadges.vue';
 
 export default defineComponent({
     name: 'MentorshipPage',
@@ -29,6 +31,7 @@ export default defineComponent({
         Participants,
         UserDetails,
         AddRestrictedUser,
+        TenureBadges,
     },
     data () {
         return {

@@ -79,5 +79,6 @@ export interface User extends Document {
     hasMerchAccess: boolean;
     hasSpecificMerchOrder: boolean;
     isQuestTrailblazer: boolean;
+    mentorshipBadge: number;
     cover: OsuCover;
 }

@@ -9,6 +9,7 @@ interface UsersState {
     selectedCycleId: string | null;
     selectedUser: User | null;
     showPhases: boolean;
+    badgeUsers: any[];
 }
 
 const store: Module<UsersState, MainState> = {
@@ -19,10 +20,14 @@ const store: Module<UsersState, MainState> = {
         selectedCycleId: null,
         selectedUser: null,
         showPhases: false,
+        badgeUsers: [],
     },
     mutations: {
         setAdmins (state, admins: User[]): void {
             state.admins = admins;
+        },
+        setBadgeUsers (state, badgeUsers: any[]): void {
+            state.badgeUsers = badgeUsers;
         },
         setCycles (state, cycles: MentorshipCycle[]): void {
             state.cycles = cycles;
@@ -51,6 +56,9 @@ const store: Module<UsersState, MainState> = {
     getters: {
         allAdmins: (state): User[] => {
             return state.admins;
+        },
+        badgeUsers: (state): any[] => {
+            return state.badgeUsers;
         },
         allCycles: (state): MentorshipCycle[] => {
             return state.cycles;
