@@ -75,6 +75,7 @@ const UserSchema = new mongoose_1.Schema({
     hasMerchAccess: { type: Boolean },
     hasSpecificMerchOrder: { type: Boolean },
     isQuestTrailblazer: { type: Boolean },
+    mentorshipBadge: { type: Number },
     cover: { type: Object },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 UserSchema.virtual('totalPoints').get(function () {

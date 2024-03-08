@@ -2,6 +2,7 @@ import express from 'express';
 import { isLoggedIn, isMentorshipAdmin } from '../helpers/middlewares';
 import { UserModel } from '../models/user';
 import { UserGroup } from '../../interfaces/user';
+import { MentorshipCycle } from '../../interfaces/mentorshipCycle';
 import { MentorshipCycleModel } from '../models/mentorshipCycle';
 import { getUserInfoFromId, isOsuResponseError, getClientCredentialsGrant } from '../helpers/osuApi';
 import { defaultErrorMessage } from '../helpers/helpers';
@@ -51,7 +52,7 @@ mentorshipRouter.get('/loadTenureBadges', async (req, res) => {
         })
         .populate(userCyclePopulate);
 
-    const relevantUsers = [];
+    const relevantUsers: any[] = [];
 
     for (const user of users) {
         if (!user.mentorshipBadge && user.mentorshipBadge !== 0) {
@@ -59,14 +60,14 @@ mentorshipRouter.get('/loadTenureBadges', async (req, res) => {
             await user.save();
         }
 
-        const mentorships = user.mentorships.filter(m => {
+        const mentorships: any = user.mentorships.filter(m => {
             if (m.group == 'mentor') {
                 return true;
             }
         });
 
         if (mentorships.length) {
-            const uniqueCycles = mentorships.reduce((unique, b) => {
+            const uniqueCycles: any = mentorships.reduce((unique, b) => {
                 if (!unique.some(a => a.cycle.id === b.cycle.id)) {
                     unique.push(b);
                 }
