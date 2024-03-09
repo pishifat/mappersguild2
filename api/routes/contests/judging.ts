@@ -58,7 +58,7 @@ judgingRouter.get('/relevantInfo', async (req, res) => {
             judges: res.locals.userRequest._id,
         })
         .populate(defaultContestPopulate)
-        .select('_id name submissions judges download status url judgingThreshold screeningBonus screeningVoteCount');
+        .select('_id id name submissions judges download status url judgingThreshold screeningBonus screeningVoteCount');
 
     const judgingDone = await JudgingModel
         .find({
@@ -81,7 +81,7 @@ judgingRouter.get('/searchContest/:contestId', async (req, res) => {
             _id: req.params.contestId,
         })
         .populate(defaultContestPopulate)
-        .select('_id name submissions judges download status url judgingThreshold');
+        .select('_id id name submissions judges download status url judgingThreshold screeningBonus screeningVoteCount');
 
     const judgingDone = await JudgingModel
         .find({
