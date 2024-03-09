@@ -75,19 +75,16 @@ mentorshipRouter.get('/loadTenureBadges', async (req, res) => {
                 return unique;
             },[]);
 
-            console.log(uniqueCycles.length);
-
-            let duration = 0;
+            let phases = 0;
 
             for (const mentorship of uniqueCycles) {
                 if (new Date() > new Date(mentorship.cycle.endDate)) {
-                    const difference = new Date(mentorship.cycle.endDate).getTime() - new Date(mentorship.cycle.startDate).getTime();
-                    const days = Math.round((difference*(mentorship.phases.length/3)) / (1000*60*60*24));
-                    duration += days;
+                    phases += mentorship.phases.length;
                 }
             }
 
-            const years = Math.floor(duration / 365);
+            const fullCycles = phases / 3;
+            const years = Math.floor(fullCycles / 4);
 
             if (user.mentorshipBadge != years) {
                 relevantUsers.push({
