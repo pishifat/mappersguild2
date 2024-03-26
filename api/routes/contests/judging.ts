@@ -120,7 +120,7 @@ judgingRouter.post('/save', isJudge, async (req, res) => {
         return res.json({ error: 'Invalid criteria' });
     }
 
-    if (score > criteria.maxScore) {
+    if (score > criteria.maxScore && (!comment || !comment.length)) {
         return res.json({ error: 'Score is higher than expected' });
     }
 
