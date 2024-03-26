@@ -365,12 +365,12 @@ export default defineComponent({
             criteriaId: string
         ): JudgingScore | null {
             const judging = this.judgingDone.find(
-                (j) => j.submission.id === submissionId
+                (j) => j.submission && j.submission.id === submissionId
             );
             if (!judging) return null;
 
             const judgingScore = judging.judgingScores.find(
-                (q) => q.criteria.id === criteriaId
+                (q) => q.criteria && q.criteria.id === criteriaId
             );
             if (!judgingScore) return null;
 
@@ -387,7 +387,7 @@ export default defineComponent({
         },
         getTotalScore(submissionId: string): number {
             const judging = this.judgingDone.find(
-                (j) => j.submission.id === submissionId
+                (j) => j.submission && j.submission.id === submissionId
             );
 
             if (!judging) return 0;
@@ -396,7 +396,7 @@ export default defineComponent({
         },
         isCompleted(submissionId: string): boolean {
             const judging = this.judgingDone.find(
-                (j) => j.submission.id === submissionId
+                (j) => j.submission && j.submission.id === submissionId
             );
             if (!judging) return false;
 
@@ -418,7 +418,7 @@ export default defineComponent({
         },
         getComment(submissionId: string): string {
             const judging = this.judgingDone.find(
-                (j) => j.submission.id === submissionId
+                (j) => j.submission && j.submission.id === submissionId
             );
             if (!judging) return '...';
 
