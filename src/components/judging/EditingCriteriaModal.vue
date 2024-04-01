@@ -109,11 +109,11 @@ export default defineComponent({
             }
         },
         getJudgingToCriterias(submissionId: string, criteriaId: string): JudgingScore | null {
-            const judging = this.judgingDone.find(j => j.submission.id === submissionId);
+            const judging = this.judgingDone.find(j => j.submission.id && j.submission.id === submissionId);
             if (!judging)
                 return null;
 
-            const judgingScore = judging.judgingScores.find((q) => q.criteria.id === criteriaId);
+            const judgingScore = judging.judgingScores.find((q) => q.criteria.id && q.criteria.id === criteriaId);
             if (!judgingScore)
                 return null;
 
