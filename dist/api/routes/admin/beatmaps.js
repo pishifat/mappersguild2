@@ -233,19 +233,36 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
 });
 /* GET bundled beatmaps */
 adminBeatmapsRouter.get('/findBundledBeatmaps', async (req, res) => {
-    const easyTasks = await task_1.TaskModel
-        .find({ name: task_2.TaskName.Easy })
-        .select('_id')
-        .orFail();
-    const easyBeatmaps = await beatmap_1.BeatmapModel
+    const [easyTasks, normalTasks, hardTasks, insaneTasks] = await Promise.all([
+        task_1.TaskModel
+            .find({ name: task_2.TaskName.Easy })
+            .select('_id')
+            .orFail(),
+        task_1.TaskModel
+            .find({ name: task_2.TaskName.Normal })
+            .select('_id')
+            .orFail(),
+        task_1.TaskModel
+            .find({ name: task_2.TaskName.Hard })
+            .select('_id')
+            .orFail(),
+        task_1.TaskModel
+            .find({ name: task_2.TaskName.Insane })
+            .select('_id')
+            .orFail(),
+    ]);
+    const spreadBeatmaps = await beatmap_1.BeatmapModel
         .find({
-        tasks: {
-            $in: easyTasks,
-        },
+        $and: [
+            { tasks: { $in: easyTasks } },
+            { tasks: { $in: normalTasks } },
+            { tasks: { $in: hardTasks } },
+            { tasks: { $in: insaneTasks } },
+        ],
         status: beatmap_2.BeatmapStatus.Ranked,
     })
         .defaultPopulate()
         .sortByLatest();
-    res.json(easyBeatmaps);
+    res.json(spreadBeatmaps);
 });
 exports.default = adminBeatmapsRouter;

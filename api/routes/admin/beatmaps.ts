@@ -320,12 +320,12 @@ adminBeatmapsRouter.get('/findBundledBeatmaps', async (req, res) => {
 
     const spreadBeatmaps = await BeatmapModel
         .find({
-            tasks: {
-                $in: easyTasks,
-                $in: normalTasks,
-                $in: hardTasks,
-                $in: insaneTasks,
-            },
+            $and: [
+                { tasks: { $in: easyTasks } },
+                { tasks: { $in: normalTasks } },
+                { tasks: { $in: hardTasks } },
+                { tasks: { $in: insaneTasks } },
+            ],
             status: BeatmapStatus.Ranked,
         })
         .defaultPopulate()
