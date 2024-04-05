@@ -7,27 +7,27 @@
             <p>osu</p>
             <copy-paste :distinct="'osu'">
                 <div v-for="beatmap in osuBeatmaps" :key="beatmap.id">
-                    {{ findOsuId(beatmap.url) }}
+                    <a :href="beatmap.url" target="_blank">{{ findOsuId(beatmap.url) }}</a>
                 </div>
             </copy-paste>
 
             <p>taiko</p>
             <copy-paste :distinct="'taiko'">
                 <div v-for="beatmap in taikoBeatmaps" :key="beatmap.id">
-                    {{ findOsuId(beatmap.url) }}
+                    <a :href="beatmap.url" target="_blank">{{ findOsuId(beatmap.url) }}</a>
                 </div>
             </copy-paste>
 
             <p>catch</p>
             <copy-paste :distinct="'catch'">
                 <div v-for="beatmap in catchBeatmaps" :key="beatmap.id">
-                    {{ findOsuId(beatmap.url) }}
+                    <a :href="beatmap.url" target="_blank">{{ findOsuId(beatmap.url) }}</a>
                 </div>
             </copy-paste>
             <p>mania</p>
             <copy-paste :distinct="'mania'">
                 <div v-for="beatmap in maniaBeatmaps" :key="beatmap.id">
-                    {{ findOsuId(beatmap.url) }}
+                    <a :href="beatmap.url" target="_blank">{{ findOsuId(beatmap.url) }}</a>
                 </div>
             </copy-paste>
         </div>
