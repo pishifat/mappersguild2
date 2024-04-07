@@ -507,5 +507,5 @@ export async function updateUserPoints(userId: any): Promise<number | ErrorRespo
         rank,
     });
 
-    return totalPoints;
+    return Math.round(totalPoints * 10) / 10;
 }
