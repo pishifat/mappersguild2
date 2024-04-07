@@ -10,6 +10,7 @@ import { updateUserPoints } from './points';
 import { FeaturedArtistModel } from '../models/featuredArtist';
 import { FeaturedSong } from '../../interfaces/featuredSong';
 import { UserModel } from '../models/user';
+import { Task } from '../../interfaces/beatmap/task';
 
 export function findBeatmapsetId(url: string): number {
     const indexStart = url.indexOf('beatmapsets/') + 'beatmapsets/'.length;
@@ -47,6 +48,24 @@ export function findBeatmapsetStatus(osuStatus): string {
     }
 
     return status;
+}
+
+const ranks = [
+    { rank: 0, value: 0, name: 'N/A' },
+    { rank: 1, value: 100, name: '🟤 Bronze' },
+    { rank: 2, value: 250, name: '⚪ Silver' },
+    { rank: 3, value: 500, name: '🟡 Gold' },
+    { rank: 4, value: 1000, name: '🔵 Platinum' },
+    { rank: 5, value: 2500, name: '🔴 Unreal' }
+    ];
+
+export function getRankFromPoints(points: number) {
+    if (points < 100) return ranks[0];
+    else if (points < 250) return ranks[1];
+    else if (points < 500) return ranks[2];
+    else if (points < 1000) return ranks[3];
+    else if (points < 2500) return ranks[4];
+    else return ranks[5];
 }
 
 export async function setNominators(beatmap, bmInfo): Promise<void> {
@@ -114,8 +133,14 @@ export async function setBeatmapStatusRanked(id, bmInfo): Promise<void> {
         updateUserPoints(modder.id);
     }
 
+    // get host so we can get their total points
+    const host = await UserModel.findById(beatmap.host).orFail();
+    
+    // get host's old points
+    const oldPoints = host.totalPoints;
+ 
     // calculate points for host
-    updateUserPoints(beatmap.host.id);
+    const newPoints = await updateUserPoints(beatmap.host.id);
 
     // webhook
     if (!beatmap.skipWebhook) {
@@ -123,7 +148,7 @@ export async function setBeatmapStatusRanked(id, bmInfo): Promise<void> {
         const gdUsernames: string[] = [];
         const gdUsers: User[] = [];
         const modes: string[] = [];
-        let storyboard;
+        let storyboard: Task | null = null;
 
         // fill empty variables with data
         for (const task of beatmap.tasks) {
@@ -185,7 +210,17 @@ export async function setBeatmapStatusRanked(id, bmInfo): Promise<void> {
             if (artist) showcaseText = `\n\nThis beatmap was created for [${beatmap.song.artist}](https://osu.ppy.sh/beatmaps/artists/${artist.osuId})'s Featured Artist announcement!`;
         }
 
-        const description = `💖 [**${beatmap.song.artist} - ${beatmap.song.title}**](${beatmap.url}) [**${modes.join(', ')}**] has been ranked\n\nHosted by [**${beatmap.host.username}**](https://osu.ppy.sh/users/${beatmap.host.osuId})${gdText}${storyboardText}${showcaseText}`;
+        // user stats text
+        let statsText = '';
+
+        if (typeof newPoints === 'number') {
+            statsText += `\n\n${oldPoints} pts >> **${newPoints} pts** (+${Math.round((newPoints - oldPoints) * 10) / 10} pts)`;
+
+            if (newPoints < 2500)
+                statsText += `\n${ranks[getRankFromPoints(newPoints).rank + 1].value - newPoints} points until **${ranks[getRankFromPoints(newPoints).rank + 1].name}** rank`; 
+        }
+
+        const description = `💖 [**${beatmap.song.artist} - ${beatmap.song.title}**](${beatmap.url}) [**${modes.join(', ')}**] has been ranked\n\nHosted by [**${beatmap.host.username}**](https://osu.ppy.sh/users/${beatmap.host.osuId})${gdText}${storyboardText}${showcaseText}${statsText}`;
 
         // publish webhook
         await webhookPost([{
