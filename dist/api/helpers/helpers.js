@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.defaultErrorMessage = exports.setSession = exports.generateBotAuthorWebhook = exports.generateAuthorWebhook = exports.generateMissionThumbnailUrl = exports.generateThumbnailUrl = exports.generateLists = exports.escapeUsername = exports.sleep = exports.setBeatmapStatusRanked = exports.getLongestBeatmapLength = exports.setNominators = exports.findBeatmapsetStatus = exports.findBeatmapsetId = void 0;
+exports.defaultErrorMessage = exports.setSession = exports.generateBotAuthorWebhook = exports.generateAuthorWebhook = exports.generateMissionThumbnailUrl = exports.generateThumbnailUrl = exports.generateLists = exports.escapeUsername = exports.sleep = exports.setBeatmapStatusRanked = exports.getLongestBeatmapLength = exports.setNominators = exports.truncateText = exports.getRankFromPoints = exports.findBeatmapsetStatus = exports.findBeatmapsetId = void 0;
 const discordApi_1 = require("./discordApi");
 const beatmap_1 = require("../../interfaces/beatmap/beatmap");
 const beatmap_2 = require("../models/beatmap/beatmap");
@@ -42,6 +42,33 @@ function findBeatmapsetStatus(osuStatus) {
     return status;
 }
 exports.findBeatmapsetStatus = findBeatmapsetStatus;
+const ranks = [
+    { rank: 0, value: 0, name: 'N/A' },
+    { rank: 1, value: 100, name: '🟤 Bronze' },
+    { rank: 2, value: 250, name: '⚪ Silver' },
+    { rank: 3, value: 500, name: '🟡 Gold' },
+    { rank: 4, value: 1000, name: '🔵 Platinum' },
+    { rank: 5, value: 2500, name: '🔴 Unreal' }
+];
+function getRankFromPoints(points) {
+    if (points < 100)
+        return ranks[0];
+    else if (points < 250)
+        return ranks[1];
+    else if (points < 500)
+        return ranks[2];
+    else if (points < 1000)
+        return ranks[3];
+    else if (points < 2500)
+        return ranks[4];
+    else
+        return ranks[5];
+}
+exports.getRankFromPoints = getRankFromPoints;
+function truncateText(text, length) {
+    return text.length > length ? text.slice(0, length) + '... *(truncated)*' : text;
+}
+exports.truncateText = truncateText;
 async function setNominators(beatmap, bmInfo) {
     const modderIds = beatmap.modders.map(m => m.id);
     const bnsIds = beatmap.bns.map(b => b.id);
@@ -95,15 +122,19 @@ async function setBeatmapStatusRanked(id, bmInfo) {
     for (const modder of beatmap.modders) {
         points_1.updateUserPoints(modder.id);
     }
+    // get host so we can get their total points
+    const host = await user_1.UserModel.findById(beatmap.host).orFail();
+    // get host's old points
+    const oldPoints = host.totalPoints;
     // calculate points for host
-    points_1.updateUserPoints(beatmap.host.id);
+    const newPoints = await points_1.updateUserPoints(beatmap.host.id);
     // webhook
     if (!beatmap.skipWebhook) {
         // establish empty variables
         const gdUsernames = [];
         const gdUsers = [];
         const modes = [];
-        let storyboard;
+        let storyboard = null;
         // fill empty variables with data
         for (const task of beatmap.tasks) {
             if (task.mode == 'sb' && task.mappers[0].id != beatmap.host.id) {
@@ -121,8 +152,9 @@ async function setBeatmapStatusRanked(id, bmInfo) {
                 }
             }
         }
-        // create template for webhook descriptiuon
+        // set up guest mappers info
         let gdText = '';
+        let gderInfo = [];
         if (!gdUsers.length) {
             gdText = '\nNo guest difficulties';
         }
@@ -140,8 +172,21 @@ async function setBeatmapStatusRanked(id, bmInfo) {
                 if (i + 1 < gdUsers.length) {
                     gdText += ', ';
                 }
+                // get full guest user so we can get their total points
+                const guest = await user_1.UserModel.findById(user.id).orFail();
+                // console.log(guest);
+                const oldPoints = guest.totalPoints;
                 // update points for all guest difficulty creators
-                points_1.updateUserPoints(user.id);
+                const newPoints = await points_1.updateUserPoints(user.id);
+                // store gder points info for webhook use
+                if (typeof newPoints === 'number') {
+                    gderInfo.push({
+                        username: guest.username,
+                        osuId: guest.osuId,
+                        oldPoints,
+                        newPoints,
+                    });
+                }
             }
         }
         let storyboardText = '';
@@ -157,11 +202,26 @@ async function setBeatmapStatusRanked(id, bmInfo) {
             if (artist)
                 showcaseText = `\n\nThis beatmap was created for [${beatmap.song.artist}](https://osu.ppy.sh/beatmaps/artists/${artist.osuId})'s Featured Artist announcement!`;
         }
-        const description = `💖 [**${beatmap.song.artist} - ${beatmap.song.title}**](${beatmap.url}) [**${modes.join(', ')}**] has been ranked\n\nHosted by [**${beatmap.host.username}**](https://osu.ppy.sh/users/${beatmap.host.osuId})${gdText}${storyboardText}${showcaseText}`;
+        // user stats text
+        let statsText = '';
+        if (typeof newPoints === 'number') {
+            statsText += `\n\n${gdUsers.length ? `- [**${beatmap.host.username}**](https://osu.ppy.sh/users/${beatmap.host.osuId}): ` : ''}${oldPoints} pts → **${newPoints} pts** (+${newPoints - oldPoints} pts)`;
+            if (newPoints < 2500) {
+                const pointsLeft = Math.round((ranks[getRankFromPoints(newPoints).rank + 1].value - newPoints) * 10) / 10;
+                statsText += `\n${pointsLeft} points until **${ranks[getRankFromPoints(newPoints).rank + 1].name}** rank`;
+            }
+            if (gdUsers.length) {
+                statsText += '\n';
+                for (const gder of gderInfo) {
+                    statsText += `\n- [**${gder.username}**](https://osu.ppy.sh/users/${gder.osuId}): ${gder.oldPoints} pts → **${gder.newPoints} pts** (+${gder.newPoints - gder.oldPoints} pts)`;
+                }
+            }
+        }
+        const description = `💖 [**${beatmap.song.artist} - ${beatmap.song.title}**](${beatmap.url}) [**${modes.join(', ')}**] has been ranked\n\nHosted by [**${beatmap.host.username}**](https://osu.ppy.sh/users/${beatmap.host.osuId})${gdText}${storyboardText}${showcaseText}${statsText}`;
         // publish webhook
         await discordApi_1.webhookPost([{
                 color: discordApi_1.webhookColors.blue,
-                description,
+                description: description.length > 1500 ? truncateText(description, 1500) : description,
                 thumbnail: {
                     url: `https://assets.ppy.sh/beatmaps/${bmInfo.id}/covers/list.jpg`,
                 },

@@ -451,6 +451,6 @@ async function updateUserPoints(userId) {
         spentPoints,
         rank,
     });
-    return totalPoints;
+    return Math.round(totalPoints * 10) / 10;
 }
 exports.updateUserPoints = updateUserPoints;

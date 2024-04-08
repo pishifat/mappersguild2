@@ -258,11 +258,17 @@ adminBeatmapsRouter.get('/findBundledBeatmaps', async (req, res) => {
             { tasks: { $in: normalTasks } },
             { tasks: { $in: hardTasks } },
             { tasks: { $in: insaneTasks } },
+            { length: { $gt: 90 } },
+            { length: { $lt: 240 } },
         ],
         status: beatmap_2.BeatmapStatus.Ranked,
     })
         .defaultPopulate()
         .sortByLatest();
     res.json(spreadBeatmaps);
+});
+/* POST toggle isBundled */
+adminBeatmapsRouter.post('/:id/toggleIsBundled', async (req, res) => {
+    res.json(await beatmap_1.BeatmapModel.findByIdAndUpdate(req.params.id, { isBundled: !req.body.isBundled }).defaultPopulate().orFail());
 });
 exports.default = adminBeatmapsRouter;
