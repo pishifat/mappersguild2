@@ -168,8 +168,10 @@ export async function setBeatmapStatusRanked(id, bmInfo): Promise<void> {
             }
         }
 
-        // create template for webhook descriptiuon
+        // set up guest mappers info
         let gdText = '';
+
+        let gderInfo: { username: string, osuId: number, oldPoints: number, newPoints: number }[] = [];
 
         if (!gdUsers.length) {
             gdText = '\nNo guest difficulties';
@@ -189,8 +191,25 @@ export async function setBeatmapStatusRanked(id, bmInfo): Promise<void> {
                     gdText += ', ';
                 }
 
+                // get full guest user so we can get their total points
+                const guest = await UserModel.findById(user.id).orFail();
+
+                // console.log(guest);
+
+                const oldPoints = guest.totalPoints;
+
                 // update points for all guest difficulty creators
-                updateUserPoints(user.id);
+                const newPoints = await updateUserPoints(user.id);
+
+                // store gder points info for webhook use
+                if (typeof newPoints === 'number') {
+                    gderInfo.push({ 
+                        username: guest.username,
+                        osuId: guest.osuId,
+                        oldPoints,
+                        newPoints,
+                    });
+                }
             }
         }
 
@@ -214,10 +233,18 @@ export async function setBeatmapStatusRanked(id, bmInfo): Promise<void> {
         let statsText = '';
 
         if (typeof newPoints === 'number') {
-            statsText += `\n\n${oldPoints} pts >> **${newPoints} pts** (+${Math.round((newPoints - oldPoints) * 10) / 10} pts)`;
+            statsText += `\n\n${gdUsers.length ? `- [**${beatmap.host.username}**](https://osu.ppy.sh/users/${beatmap.host.osuId}): ` : ''}${oldPoints} pts >> **${newPoints} pts** (+${newPoints - oldPoints} pts)`;
 
-            if (newPoints < 2500)
-                statsText += `\n${ranks[getRankFromPoints(newPoints).rank + 1].value - newPoints} points until **${ranks[getRankFromPoints(newPoints).rank + 1].name}** rank`; 
+            if (newPoints < 2500) {
+                const pointsLeft = Math.round((ranks[getRankFromPoints(newPoints).rank + 1].value - newPoints) * 10) / 10; 
+                statsText += `\n${pointsLeft} points until **${ranks[getRankFromPoints(newPoints).rank + 1].name}** rank`;
+            }
+            if (gdUsers.length) {
+                statsText += '\n';
+                for (const gder of gderInfo) {
+                    statsText += `\n- [**${gder.username}**](https://osu.ppy.sh/users/${gder.osuId}): ${gder.oldPoints} pts >> **${gder.newPoints} pts** (+${gder.newPoints - gder.oldPoints} pts)`;
+                }
+            }
         }
 
         const description = `💖 [**${beatmap.song.artist} - ${beatmap.song.title}**](${beatmap.url}) [**${modes.join(', ')}**] has been ranked\n\nHosted by [**${beatmap.host.username}**](https://osu.ppy.sh/users/${beatmap.host.osuId})${gdText}${storyboardText}${showcaseText}${statsText}`;
