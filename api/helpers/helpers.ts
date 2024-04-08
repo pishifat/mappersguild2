@@ -68,6 +68,10 @@ export function getRankFromPoints(points: number) {
     else return ranks[5];
 }
 
+export function truncateText(text: string, length: number): string {
+    return text.length > length ? text.slice(0, length) + '... *(truncated)*' : text;
+}
+
 export async function setNominators(beatmap, bmInfo): Promise<void> {
     const modderIds = beatmap.modders.map(m => m.id);
     const bnsIds = beatmap.bns.map(b => b.id);
@@ -252,7 +256,7 @@ export async function setBeatmapStatusRanked(id, bmInfo): Promise<void> {
         // publish webhook
         await webhookPost([{
             color: webhookColors.blue,
-            description,
+            description: description.length > 1500 ? truncateText(description, 1500) : description,
             thumbnail: {
                 url: `https://assets.ppy.sh/beatmaps/${bmInfo.id}/covers/list.jpg`,
             },
