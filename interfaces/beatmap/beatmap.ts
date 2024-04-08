@@ -45,4 +45,5 @@ export interface Beatmap {
     invalidReason: string;
     skipWebhook: boolean;
     isWorldCup: boolean;
+    isBundled: boolean;
 }

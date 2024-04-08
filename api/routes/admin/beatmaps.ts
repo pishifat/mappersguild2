@@ -9,7 +9,6 @@ import { TaskName, TaskStatus, TaskMode } from '../../../interfaces/beatmap/task
 import { User } from '../../../interfaces/user';
 import { UserModel } from '../../models/user';
 import { sendAnnouncement } from '../../helpers/osuBot';
-import { updateUserPoints } from '../../helpers/points';
 
 const adminBeatmapsRouter = express.Router();
 
@@ -325,6 +324,8 @@ adminBeatmapsRouter.get('/findBundledBeatmaps', async (req, res) => {
                 { tasks: { $in: normalTasks } },
                 { tasks: { $in: hardTasks } },
                 { tasks: { $in: insaneTasks } },
+                { length: { $gt: 90 } },
+                { length: { $lt: 240 } },
             ],
             status: BeatmapStatus.Ranked,
         })
@@ -332,6 +333,11 @@ adminBeatmapsRouter.get('/findBundledBeatmaps', async (req, res) => {
         .sortByLatest();
 
     res.json(spreadBeatmaps);
+});
+
+/* POST toggle isBundled */
+adminBeatmapsRouter.post('/:id/toggleIsBundled', async (req, res) => {
+    res.json(await BeatmapModel.findByIdAndUpdate(req.params.id, { isBundled: !req.body.isBundled }).defaultPopulate().orFail());
 });
 
 export default adminBeatmapsRouter;

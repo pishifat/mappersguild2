@@ -1,5 +1,5 @@
 <template>
-    <div :id="'copyText' + distinct" class="copy-text small text-secondary font-monospace">
+    <div :id="'copyText' + distinct" class="copy-text small text-secondary font-monospace" style="white-space: pre-line;">
         <slot />
     </div>
 </template>

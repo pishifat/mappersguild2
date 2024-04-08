@@ -1,37 +1,38 @@
 <template>
     <div>
-        <div class="container card card-body py-1">
-            <div class="row">
-                <div class="col-sm">
-                    <button class="btn btn-sm btn-info w-100" data-bs-toggle="modal" data-bs-target="#newsPost">
-                        Create news post
-                    </button>
-                    <data-table
-                        v-slot="{ obj: beatmap }"
-                        :data="beatmaps"
-                        :headers="['METADATA', 'PACK ID', 'CREATOR', 'STATUS']"
-                        :custom-data-target="'#editBeatmap'"
-                        @update:selected-id="selectedBeatmapId = $event"
-                    >
-                        <td class="text-truncate">
-                            <modes-icons :modes="[beatmap.mode]" />
-                            <a v-if="beatmap.url" :href="beatmap.url" class="ms-1">
-                                {{ formatMetadata(beatmap.song) }}
-                            </a>
-                            <span v-else class="ms-1">{{ formatMetadata(beatmap.song) }}</span>
-                        </td>
-                        <td>
-                            {{ beatmap.packId }}
-                        </td>
-                        <td>
-                            <user-link :user="beatmap.host" />
-                        </td>
-                        <td>
-                            {{ beatmap.status }}
-                        </td>
-                    </data-table>
-                </div>
-            </div>
+        <div class="container card card-body py-2">
+            <h5>Beatmaps list</h5>
+            <button class="btn btn-sm btn-info w-100" @click="loadBeatmaps($event)">
+                Load all beatmaps
+            </button>
+
+            <data-table
+                v-slot="{ obj: beatmap }"
+                :data="beatmaps"
+                :headers="['METADATA', 'PACK ID', 'CREATOR', 'STATUS']"
+                :custom-data-target="'#editBeatmap'"
+                @update:selected-id="selectedBeatmapId = $event"
+            >
+                <td class="text-truncate">
+                    <modes-icons :modes="[beatmap.mode]" />
+                    <a v-if="beatmap.url" :href="beatmap.url" class="ms-1">
+                        {{ formatMetadata(beatmap.song) }}
+                    </a>
+                    <span v-else class="ms-1">{{ formatMetadata(beatmap.song) }}</span>
+                </td>
+                <td>
+                    {{ beatmap.packId }}
+                </td>
+                <td>
+                    <user-link
+                        v-if="beatmap.host"
+                        :user="beatmap.host"
+                    />
+                </td>
+                <td>
+                    {{ beatmap.status }}
+                </td>
+            </data-table>
         </div>
 
         <beatmap-info-admin
@@ -40,21 +41,21 @@
             @update-beatmap="updateBeatmap($event)"
         />
 
-        <news-post />
+        <contributor-stats />
 
         <bundled-beatmaps-list />
 
-        <beatmap-pack-id-list-generator />
+        <beatmap-id-list-generator />
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
-import NewsPost from '../../components/admin/newspost/NewsPost.vue';
+import ContributorStats from '../../components/admin/ContributorStats.vue';
 import BeatmapInfoAdmin from '../../components/admin/BeatmapInfoAdmin.vue';
 import BundledBeatmapsList from '../../components/admin/BundledBeatmapsList.vue';
-import BeatmapPackIdListGenerator from '../../components/admin/BeatmapPackIdListGenerator.vue';
+import BeatmapIdListGenerator from '../../components/admin/BeatmapIdListGenerator.vue';
 import DataTable from '../../components/admin/DataTable.vue';
 import { Beatmap } from '../../../interfaces/beatmap/beatmap';
 import beatmapsAdminModule from '@store/admin/beatmaps';
@@ -62,11 +63,11 @@ import ModesIcons from '@components/ModesIcons.vue';
 
 export default defineComponent({
     components: {
-        NewsPost,
+        ContributorStats,
         DataTable,
         BeatmapInfoAdmin,
         BundledBeatmapsList,
-        BeatmapPackIdListGenerator,
+        BeatmapIdListGenerator,
         ModesIcons,
     },
     data () {
@@ -92,14 +93,14 @@ export default defineComponent({
             this.$store.unregisterModule('beatmapsAdmin');
         }
     },
-    async created() {
-        const beatmaps = await this.$http.initialRequest<Beatmap[]>('/admin/beatmaps/load');
-
-        if (!this.$http.isError(beatmaps)) {
-            this.$store.commit('setBeatmaps', beatmaps);
-        }
-    },
     methods: {
+        async loadBeatmaps(e): Promise<void> {
+            const beatmaps = await this.$http.executeGet<Beatmap[]>('/admin/beatmaps/load', e);
+
+            if (!this.$http.isError(beatmaps)) {
+                this.$store.commit('setBeatmaps', beatmaps);
+            }
+        },
         updateBeatmap(b): void {
             const i = this.beatmaps.findIndex(beatmap => beatmap.id == b.id);
 

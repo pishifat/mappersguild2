@@ -1,35 +1,101 @@
 <template>
-    <div class="container card card-body py-1 mb-4">
-        <button class="btn btn-sm w-100 btn-outline-info" @click="findBundledBeatmaps($event)">
-            Load bundled beatmaps
+    <div class="container card card-body py-2 mt-2">
+        <h5>Bundled beatmap list generator</h5>
+        <button class="btn btn-sm w-100 btn-info" @click="findBundledBeatmaps($event)">
+            Load beatmaps with ENHI+ spreads
         </button>
-        <div v-if="bundledBeatmaps.length">
-            <p>osu</p>
-            <copy-paste :distinct="'osu'">
-                <div v-for="beatmap in osuBeatmaps" :key="beatmap.id">
-                    <a :href="beatmap.url" target="_blank">{{ findOsuId(beatmap.url) }}</a>
+        <div v-if="bundledBeatmaps.length" class="row mt-3 small">
+            <div class="col-sm-6">
+                osu ({{ osuBeatmaps.length }})
+                <copy-paste :distinct="'osu'">
+                    <div v-for="beatmap in osuBeatmaps" :key="beatmap.id">
+                        <a href="#" class="me-1" @click.stop.prevent="toggleIsBundled(beatmap.id, beatmap.isBundled)">
+                            <i class="fas" :class="beatmap.isBundled ? 'text-done fa-check' : 'text-danger fa-times'" />
+                        </a>
+                        <a :href="beatmap.url" target="_blank">{{ beatmap.song.artist + ' - ' + beatmap.song.title }} ({{ findOsuId(beatmap.url) }})</a>
+                    </div>
+                </copy-paste>
+            </div>
+            <div class="col-sm-6">
+                taiko ({{ taikoBeatmaps.length }})
+                <copy-paste :distinct="'taiko'">
+                    <div v-for="beatmap in taikoBeatmaps" :key="beatmap.id">
+                        <a href="#" class="me-1" @click.stop.prevent="toggleIsBundled(beatmap.id, beatmap.isBundled)">
+                            <i class="fas" :class="beatmap.isBundled ? 'text-done fa-check' : 'text-danger fa-times'" />
+                        </a>
+                        <a :href="beatmap.url" target="_blank">{{ beatmap.song.artist + ' - ' + beatmap.song.title }} ({{ findOsuId(beatmap.url) }})</a>
+                    </div>
+                </copy-paste>
+            </div>
+            <div class="col-sm-6">
+                catch ({{ catchBeatmaps.length }})
+                <copy-paste :distinct="'catch'">
+                    <div v-for="beatmap in catchBeatmaps" :key="beatmap.id">
+                        <a href="#" class="me-1" @click.stop.prevent="toggleIsBundled(beatmap.id, beatmap.isBundled)">
+                            <i class="fas" :class="beatmap.isBundled ? 'text-done fa-check' : 'text-danger fa-times'" />
+                        </a>
+                        <a :href="beatmap.url" target="_blank">{{ beatmap.song.artist + ' - ' + beatmap.song.title }} ({{ findOsuId(beatmap.url) }})</a>
+                    </div>
+                </copy-paste>
+            </div>
+            <div class="col-sm-6">
+                mania ({{ maniaBeatmaps.length }})
+                <copy-paste :distinct="'mania'">
+                    <div v-for="beatmap in maniaBeatmaps" :key="beatmap.id">
+                        <a href="#" class="me-1" @click.stop.prevent="toggleIsBundled(beatmap.id, beatmap.isBundled)">
+                            <i class="fas" :class="beatmap.isBundled ? 'text-done fa-check' : 'text-danger fa-times'" />
+                        </a>
+                        <a :href="beatmap.url" target="_blank">{{ beatmap.song.artist + ' - ' + beatmap.song.title }} ({{ findOsuId(beatmap.url) }})</a>
+                    </div>
+                </copy-paste>
+            </div>
+            <p>final lists</p>
+            <div class="row">
+                <div class="col-sm-3">
+                    osu ({{ osuFinalBeatmaps.length }})
+                    <copy-paste :distinct="'osufinal'">
+                        <div v-for="beatmap in osuFinalBeatmaps" :key="beatmap.id">
+                            <a :href="beatmap.url" target="_blank" class="me-1">{{ findOsuId(beatmap.url) }}</a>
+                            <a href="#" @click.stop.prevent="toggleIsBundled(beatmap.id, beatmap.isBundled)">
+                                <i class="fas" :class="beatmap.isBundled ? 'text-done fa-check' : 'text-danger fa-times'" />
+                            </a>
+                        </div>
+                    </copy-paste>
                 </div>
-            </copy-paste>
-
-            <p>taiko</p>
-            <copy-paste :distinct="'taiko'">
-                <div v-for="beatmap in taikoBeatmaps" :key="beatmap.id">
-                    <a :href="beatmap.url" target="_blank">{{ findOsuId(beatmap.url) }}</a>
+                <div class="col-sm-3">
+                    taiko ({{ taikoFinalBeatmaps.length }})
+                    <copy-paste :distinct="'taiko'">
+                        <div v-for="beatmap in taikoFinalBeatmaps" :key="beatmap.id">
+                            <a :href="beatmap.url" target="_blank" class="me-1">{{ findOsuId(beatmap.url) }}</a>
+                            <a href="#" @click.stop.prevent="toggleIsBundled(beatmap.id, beatmap.isBundled)">
+                                <i class="fas" :class="beatmap.isBundled ? 'text-done fa-check' : 'text-danger fa-times'" />
+                            </a>
+                        </div>
+                    </copy-paste>
                 </div>
-            </copy-paste>
-
-            <p>catch</p>
-            <copy-paste :distinct="'catch'">
-                <div v-for="beatmap in catchBeatmaps" :key="beatmap.id">
-                    <a :href="beatmap.url" target="_blank">{{ findOsuId(beatmap.url) }}</a>
+                <div class="col-sm-3">
+                    catch ({{ catchFinalBeatmaps.length }})
+                    <copy-paste :distinct="'catch'">
+                        <div v-for="beatmap in catchFinalBeatmaps" :key="beatmap.id">
+                            <a :href="beatmap.url" target="_blank" class="me-1">{{ findOsuId(beatmap.url) }}</a>
+                            <a href="#" @click.stop.prevent="toggleIsBundled(beatmap.id, beatmap.isBundled)">
+                                <i class="fas" :class="beatmap.isBundled ? 'text-done fa-check' : 'text-danger fa-times'" />
+                            </a>
+                        </div>
+                    </copy-paste>
                 </div>
-            </copy-paste>
-            <p>mania</p>
-            <copy-paste :distinct="'mania'">
-                <div v-for="beatmap in maniaBeatmaps" :key="beatmap.id">
-                    <a :href="beatmap.url" target="_blank">{{ findOsuId(beatmap.url) }}</a>
+                <div class="col-sm-3">
+                    mania ({{ maniaFinalBeatmaps.length }})
+                    <copy-paste :distinct="'mania'">
+                        <div v-for="beatmap in maniaFinalBeatmaps" :key="beatmap.id">
+                            <a :href="beatmap.url" target="_blank" class="me-1">{{ findOsuId(beatmap.url) }}</a>
+                            <a href="#" @click.stop.prevent="toggleIsBundled(beatmap.id, beatmap.isBundled)">
+                                <i class="fas" :class="beatmap.isBundled ? 'text-done fa-check' : 'text-danger fa-times'" />
+                            </a>
+                        </div>
+                    </copy-paste>
                 </div>
-            </copy-paste>
+            </div>
         </div>
     </div>
 </template>
@@ -46,7 +112,7 @@ export default defineComponent({
     },
     data() {
         return {
-            bundledBeatmaps: [] as Beatmap[],
+            bundledBeatmaps: [] as any[],
         };
     },
     computed: {
@@ -62,6 +128,18 @@ export default defineComponent({
         maniaBeatmaps(): Beatmap[] {
             return this.bundledBeatmaps.filter(b => b.mode == 'mania');
         },
+        osuFinalBeatmaps(): Beatmap[] {
+            return this.bundledBeatmaps.filter(b => b.mode == 'osu' && b.isBundled);
+        },
+        taikoFinalBeatmaps(): Beatmap[] {
+            return this.bundledBeatmaps.filter(b => b.mode == 'taiko' && b.isBundled);
+        },
+        catchFinalBeatmaps(): Beatmap[] {
+            return this.bundledBeatmaps.filter(b => b.mode == 'catch' && b.isBundled);
+        },
+        maniaFinalBeatmaps(): Beatmap[] {
+            return this.bundledBeatmaps.filter(b => b.mode == 'mania' && b.isBundled);
+        },
     },
     methods: {
         async findBundledBeatmaps(e): Promise<void> {
@@ -69,6 +147,21 @@ export default defineComponent({
 
             if (res && !res.error) {
                 this.bundledBeatmaps = res;
+            }
+        },
+        async toggleIsBundled (id: string, isBundled: boolean): Promise<void> {
+            const newBeatmap = await this.$http.executePost<{ id }>('/admin/beatmaps/' + id + '/toggleIsBundled', {
+                isBundled,
+            });
+
+            if (!this.$http.isError(newBeatmap)) {
+                const newBundledBeatmaps: any = [...this.bundledBeatmaps];
+
+                const i = newBundledBeatmaps.findIndex(b => b.id == id);
+
+                newBundledBeatmaps[i] = newBeatmap;
+
+                this.bundledBeatmaps = newBundledBeatmaps;
             }
         },
         findOsuId(url): number {
