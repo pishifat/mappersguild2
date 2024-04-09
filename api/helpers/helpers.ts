@@ -237,7 +237,8 @@ export async function setBeatmapStatusRanked(id, bmInfo): Promise<void> {
         let statsText = '';
 
         if (typeof newPoints === 'number') {
-            statsText += `\n\n${gdUsers.length ? `- [**${beatmap.host.username}**](https://osu.ppy.sh/users/${beatmap.host.osuId}): ` : ''}${oldPoints} pts → **${newPoints} pts** (+${newPoints - oldPoints} pts)`;
+            const pointsDifference = Math.round((newPoints - oldPoints) * 10) / 10;
+            statsText += `\n\n${gdUsers.length ? `- [**${beatmap.host.username}**](https://osu.ppy.sh/users/${beatmap.host.osuId}): ` : ''}${oldPoints} pts → **${newPoints} pts** (+${pointsDifference} pts)`;
 
             if (newPoints < 2500) {
                 const pointsLeft = Math.round((ranks[getRankFromPoints(newPoints).rank + 1].value - newPoints) * 10) / 10; 
@@ -245,8 +246,10 @@ export async function setBeatmapStatusRanked(id, bmInfo): Promise<void> {
             }
             if (gdUsers.length) {
                 statsText += '\n';
+                
                 for (const gder of gderInfo) {
-                    statsText += `\n- [**${gder.username}**](https://osu.ppy.sh/users/${gder.osuId}): ${gder.oldPoints} pts → **${gder.newPoints} pts** (+${gder.newPoints - gder.oldPoints} pts)`;
+                    const gderPointsDifference = Math.round((gder.newPoints - gder.oldPoints) * 10) / 10;
+                    statsText += `\n- [**${gder.username}**](https://osu.ppy.sh/users/${gder.osuId}): ${gder.oldPoints} pts → **${gder.newPoints} pts** (+${gderPointsDifference} pts)`;
                 }
             }
         }
