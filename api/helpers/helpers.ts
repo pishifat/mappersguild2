@@ -56,8 +56,8 @@ const ranks = [
     { rank: 2, value: 250, name: '⚪ Silver' },
     { rank: 3, value: 500, name: '🟡 Gold' },
     { rank: 4, value: 1000, name: '🔵 Platinum' },
-    { rank: 5, value: 2500, name: '🔴 Unreal' }
-    ];
+    { rank: 5, value: 2500, name: '🔴 Unreal' },
+];
 
 export function getRankFromPoints(points: number) {
     if (points < 100) return ranks[0];
@@ -139,10 +139,10 @@ export async function setBeatmapStatusRanked(id, bmInfo): Promise<void> {
 
     // get host so we can get their total points
     const host = await UserModel.findById(beatmap.host).orFail();
-    
+
     // get host's old points
     const oldPoints = host.totalPoints;
- 
+
     // calculate points for host
     const newPoints = await updateUserPoints(beatmap.host.id);
 
@@ -175,7 +175,7 @@ export async function setBeatmapStatusRanked(id, bmInfo): Promise<void> {
         // set up guest mappers info
         let gdText = '';
 
-        let gderInfo: { username: string, osuId: number, oldPoints: number, newPoints: number }[] = [];
+        const gderInfo: { username: string, osuId: number, oldPoints: number, newPoints: number }[] = [];
 
         if (!gdUsers.length) {
             gdText = '\nNo guest difficulties';
@@ -207,7 +207,7 @@ export async function setBeatmapStatusRanked(id, bmInfo): Promise<void> {
 
                 // store gder points info for webhook use
                 if (typeof newPoints === 'number') {
-                    gderInfo.push({ 
+                    gderInfo.push({
                         username: guest.username,
                         osuId: guest.osuId,
                         oldPoints,
@@ -240,13 +240,23 @@ export async function setBeatmapStatusRanked(id, bmInfo): Promise<void> {
             const pointsDifference = Math.round((newPoints - oldPoints) * 10) / 10;
             statsText += `\n\n${gdUsers.length ? `- [**${beatmap.host.username}**](https://osu.ppy.sh/users/${beatmap.host.osuId}): ` : ''}${oldPoints} pts → **${newPoints} pts** (+${pointsDifference} pts)`;
 
+            // check if newPoints gets into a new rank threshold
+            for (const rankMilestone of ranks) {
+                if (oldPoints < rankMilestone.value && newPoints >= rankMilestone.value) {
+                    statsText += `\n**${ranks[rankMilestone.rank].name}** rank achieved! 🎉`;
+                    break;
+                }
+            }
+
+            // TODO: update threshold when Hinsvar somehow reaches 5000 points
             if (newPoints < 2500) {
-                const pointsLeft = Math.round((ranks[getRankFromPoints(newPoints).rank + 1].value - newPoints) * 10) / 10; 
+                const pointsLeft = Math.round((ranks[getRankFromPoints(newPoints).rank + 1].value - newPoints) * 10) / 10;
                 statsText += `\n${pointsLeft} points until **${ranks[getRankFromPoints(newPoints).rank + 1].name}** rank`;
             }
+
             if (gdUsers.length) {
                 statsText += '\n';
-                
+
                 for (const gder of gderInfo) {
                     const gderPointsDifference = Math.round((gder.newPoints - gder.oldPoints) * 10) / 10;
                     statsText += `\n- [**${gder.username}**](https://osu.ppy.sh/users/${gder.osuId}): ${gder.oldPoints} pts → **${gder.newPoints} pts** (+${gderPointsDifference} pts)`;
