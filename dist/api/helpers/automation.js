@@ -318,7 +318,6 @@ const sendActionNotifications = node_cron_1.default.schedule('0 23 * * *', async
 });
 /* open/close announcements and mark missions as inactive */
 const processMissions = node_cron_1.default.schedule('46 22 * * *', async () => {
-    console.log('start');
     const today = new Date();
     const missions = await mission_1.MissionModel
         .find({
