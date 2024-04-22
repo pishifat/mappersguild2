@@ -9,7 +9,13 @@
         </template>
 
         <template #default>
-            <reward-progress />
+            <reward-progress
+                :badge="'main'"
+            />
+            <reward-progress
+                v-if="selectedUser.completedMissions && selectedUser.completedMissions.length"
+                :badge="'mission'"
+            />
             <div class="radial-divisor" />
             <div class="row">
                 <div class="col-md-6">

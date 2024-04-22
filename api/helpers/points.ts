@@ -312,10 +312,21 @@ export async function calculateTasksPoints(userId: any): Promise<TasksPoints> {
         if (missionParticipation &&
             beatmap.mission &&
             !pointsObject.Missions.includes(beatmap.mission._id) &&
-            beatmap.mission.winningBeatmaps.some(b => b.id == beatmap.id)
+            beatmap.mission.winningBeatmaps.some(b => b.id == beatmap.id) &&
+            (beatmap.host.id == userId || (beatmap.mission.id == '65a3376e48f36f2622ef2f44')) // both mappers for True Cooperation "win"
         ) {
-            pointsObject.Missions.push(beatmap.mission._id);
-            pointsObject.MissionReward += findMissionPoints(beatmap.mission.tier); // depends on mission tier
+            let isValidMissionParticipation;
+
+            for (const task of beatmap.tasks) {
+                if (task.mappers.some(m => m.id == userId) && task.name !== TaskName.Hitsounds && task.name !== TaskName.Storyboard) {
+                    isValidMissionParticipation = true;
+                }
+            }
+
+            if (isValidMissionParticipation) {
+                pointsObject.Missions.push(beatmap.mission._id);
+                pointsObject.MissionReward += findMissionPoints(beatmap.mission.tier); // depends on mission tier
+            }
         }
     }
 

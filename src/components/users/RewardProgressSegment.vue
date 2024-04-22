@@ -1,12 +1,12 @@
 <template>
     <div
         :key="$route.query.id"
-        v-bs-tooltip="`${tooltipText} (${Math.round(points)} points)`"
+        v-bs-tooltip="generateTooltipText()"
         class="segment"
         :class="bgClass"
         :style="generateWidth(points)"
     >
-        <span class="segment-text">{{ displayText }} ({{ Math.round(points) }}pts)</span>
+        <span class="segment-text">{{ generateDisplayText() }}</span>
     </div>
 </template>
 
@@ -32,12 +32,24 @@ export default defineComponent({
             type: String,
             required: true,
         },
+        badge: {
+            type: String,
+            default: 'main',
+        },
     },
     computed: {
         ...mapGetters('users', [
             'selectedUser',
         ]),
         maxPoints () {
+            if (this.badge == 'mission') {
+                if (this.selectedUser.completedMissions.length > 3) {
+                    return this.selectedUser.completedMissions.length;
+                } else {
+                    return 3;
+                }
+            }
+
             let maxPoints;
 
             switch (this.selectedUser.rank) {
@@ -68,9 +80,21 @@ export default defineComponent({
         generateWidth (value) {
             const width = value/(this.maxPoints/100);
 
-            console.log(width);
-
             return `width: ${width}%;`;
+        },
+        generateTooltipText () {
+            if (this.badge == 'main') {
+                return `${this.tooltipText} (${Math.round(this.points)} points)`;
+            } else {
+                return this.tooltipText;
+            }
+        },
+        generateDisplayText () {
+            if (this.badge == 'main') {
+                return `${this.displayText} (${Math.round(this.points)} points)`;
+            } else {
+                return this.displayText;
+            }
         },
     },
 });
