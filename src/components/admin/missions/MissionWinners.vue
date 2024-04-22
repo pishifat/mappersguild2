@@ -23,6 +23,7 @@
 import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import { MissionStatus } from '@interfaces/mission';
+import { TaskName } from '@interfaces/beatmap/task';
 
 
 export default defineComponent({
@@ -46,7 +47,29 @@ export default defineComponent({
             const hosts = winningBeatmaps.map(b => b.host);
             const hostUsernames = hosts.map(h => h.username);
 
-            let count = hostUsernames.reduce(function (a: any, b: any) {
+            // exception for the "True Cooperation" mission, which gives the set's second mapper credit towards badge too
+            let trueCooperationUsers: any[] = [];
+            let trueCooperationUsernames: string[] = [];
+
+            for (const beatmap of winningBeatmaps) {
+                if (beatmap.mission.toString() == '65a3376e48f36f2622ef2f44') {
+                    for (const task of beatmap.tasks) {
+                        if (task.name !== TaskName.Hitsounds && task.name !== TaskName.Storyboard) {
+                            for (const mapper of task.mappers) {
+                                if (!trueCooperationUsernames.includes(mapper.username) && beatmap.host.id !== mapper.id) {
+                                    trueCooperationUsers.push(mapper);
+                                    trueCooperationUsernames.push(mapper.username);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            const winningUsers = hosts.concat(trueCooperationUsers);
+            const winningUsernames = hostUsernames.concat(trueCooperationUsernames);
+
+            let count = winningUsernames.reduce(function (a: any, b: any) {
                 return (
                     a[b] ? ++a[b] :(a[b] = 1),
                     a
@@ -56,14 +79,14 @@ export default defineComponent({
             const users: any[] = [];
             const userOsuIds: number[] = [];
 
-            for (const host of hosts) {
-                if (!userOsuIds.includes(host.osuId)) {
-                    userOsuIds.push(host.osuId);
+            for (const user of winningUsers) {
+                if (!userOsuIds.includes(user.osuId)) {
+                    userOsuIds.push(user.osuId);
                     users.push({
-                        username: host.username,
-                        osuId: host.osuId,
-                        total: count[host.username],
-                        isQuestTrailblazer: host.isQuestTrailblazer,
+                        username: user.username,
+                        osuId: user.osuId,
+                        total: count[user.username],
+                        isQuestTrailblazer: user.isQuestTrailblazer,
                     });
                 }
             }
