@@ -472,7 +472,7 @@ const processMissions = cron.schedule('46 22 * * *', async () => { /* 3:00 PM PS
             }]);
 
             await MissionModel.findByIdAndUpdate(mission.id, { closingAnnounced: true });
-        } else if (mission.status == MissionStatus.Open && mission.openingAnnounced) {
+        } else if (mission.status == MissionStatus.Open && mission.openingAnnounced && !mission.isShowcaseMission) {
             let closeTrigger = false;
 
             const deadline = new Date(mission.deadline);
