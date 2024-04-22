@@ -401,7 +401,7 @@ const processMissions = node_cron_1.default.schedule('46 22 * * *', async () => 
                 }]);
             await mission_1.MissionModel.findByIdAndUpdate(mission.id, { closingAnnounced: true });
         }
-        else if (mission.status == mission_2.MissionStatus.Open && mission.openingAnnounced) {
+        else if (mission.status == mission_2.MissionStatus.Open && mission.openingAnnounced && !mission.isShowcaseMission) {
             let closeTrigger = false;
             const deadline = new Date(mission.deadline);
             // trigger if past deadline
