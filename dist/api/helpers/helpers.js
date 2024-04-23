@@ -48,7 +48,7 @@ const ranks = [
     { rank: 2, value: 250, name: '⚪ Silver' },
     { rank: 3, value: 500, name: '🟡 Gold' },
     { rank: 4, value: 1000, name: '🔵 Platinum' },
-    { rank: 5, value: 2500, name: '🔴 Unreal' }
+    { rank: 5, value: 2500, name: '🔴 Unreal' },
 ];
 function getRankFromPoints(points) {
     if (points < 100)
@@ -154,7 +154,7 @@ async function setBeatmapStatusRanked(id, bmInfo) {
         }
         // set up guest mappers info
         let gdText = '';
-        let gderInfo = [];
+        const gderInfo = [];
         if (!gdUsers.length) {
             gdText = '\nNo guest difficulties';
         }
@@ -207,6 +207,14 @@ async function setBeatmapStatusRanked(id, bmInfo) {
         if (typeof newPoints === 'number') {
             const pointsDifference = Math.round((newPoints - oldPoints) * 10) / 10;
             statsText += `\n\n${gdUsers.length ? `- [**${beatmap.host.username}**](https://osu.ppy.sh/users/${beatmap.host.osuId}): ` : ''}${oldPoints} pts → **${newPoints} pts** (+${pointsDifference} pts)`;
+            // check if newPoints gets into a new rank threshold
+            for (const rankMilestone of ranks) {
+                if (oldPoints < rankMilestone.value && newPoints >= rankMilestone.value) {
+                    statsText += `\n**${ranks[rankMilestone.rank].name}** rank achieved! 🎉`;
+                    break;
+                }
+            }
+            // TODO: update threshold when Hinsvar somehow reaches 5000 points
             if (newPoints < 2500) {
                 const pointsLeft = Math.round((ranks[getRankFromPoints(newPoints).rank + 1].value - newPoints) * 10) / 10;
                 statsText += `\n${pointsLeft} points until **${ranks[getRankFromPoints(newPoints).rank + 1].name}** rank`;
