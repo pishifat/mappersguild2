@@ -1,7 +1,11 @@
 <template>
     <div
-        class="card card-body card-level-2 p-1"
+        class="card card-body card-level-2 p-2"
         :class="'left-border-rank-' + user.rank"
+        :style="{
+            background: `linear-gradient(90deg, #3c3b39 15%, rgba(0, 0, 0, 0.82) 140%), ${getCover()} center no-repeat`,
+            backgroundSize: 'cover',
+        }"
         data-bs-toggle="modal"
         data-bs-target="#extendedInfo"
         @click="selectUser()"
@@ -66,6 +70,12 @@ export default defineComponent({
         selectUser(): void {
             this.$store.commit('users/setSelectedUserId', this.user.id);
         },
+        getCover() {
+            if (this.user)
+                return this.user.cover ? `url(${this.user.cover?.url})` : `url(https://a.ppy.sh/${this.user.osuId})`;
+
+            return '';
+        },
     },
 });
 </script>
@@ -82,6 +92,7 @@ export default defineComponent({
 
 .card-body {
     padding: 0.5rem 1rem 0.5rem 3.5rem;
+    cursor: pointer;
 }
 
 .card-header {
