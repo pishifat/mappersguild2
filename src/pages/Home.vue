@@ -57,7 +57,7 @@
             <div class="text-secondary small mb-2">
                 Earn any of these profile badges (displayed on your osu! profile) by participating in the Mappers' Guild:
             </div>
-            <div class="d-flex justify-content-between flex-wrap text-center my-3">
+            <div class="d-flex justify-content-around flex-wrap text-center my-3">
                 <div class="p-2">
                     <img src="/images/rank1.png" class="osu-badge" />
                     <div class="text-secondary small">
