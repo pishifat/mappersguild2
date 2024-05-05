@@ -142,7 +142,7 @@ adminUsersRouter.post('/:id/toggleWorldCupMerchActive', async (req, res) => {
 /* POST save worldCupMerch */
 adminUsersRouter.post('/:id/saveWorldCupMerch', async (req, res) => {
     const worldCupMerch = req.body.worldCupMerch;
-    const finalCoins: number = [];
+    const finalCoins: number[] = [];
 
     if (worldCupMerch.coins.length) {
         const coinsSplit = worldCupMerch.coins.split(',');

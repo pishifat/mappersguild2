@@ -43,7 +43,7 @@ merchRouter.post('/checkout', async (req, res) => {
     const lineItems: any = [];
 
     if (user.hasSpecificMerchOrder) {   // order based on config specificMerchOrder
-        for (const item of config.specificMerchOrder) {
+        for (const item of config.shopify.specificMerchOrder) {
             const product = await client.product.fetch(item.productId);
             let variantId;
 
