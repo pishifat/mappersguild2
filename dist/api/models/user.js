@@ -77,6 +77,14 @@ const UserSchema = new mongoose_1.Schema({
     isQuestTrailblazer: { type: Boolean },
     mentorshipBadge: { type: Number },
     cover: { type: Object },
+    worldCupMerch: {
+        _id: false,
+        active: { type: Boolean },
+        coins: [{ type: Number }],
+        pin: { type: Boolean },
+        sweater: { type: Number },
+        additionalItems: { type: Number },
+    },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 UserSchema.virtual('totalPoints').get(function () {
     return Math.round((this.easyPoints + this.normalPoints + this.hardPoints + this.insanePoints + this.expertPoints +

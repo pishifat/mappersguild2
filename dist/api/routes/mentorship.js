@@ -464,8 +464,8 @@ mentorshipRouter.post('/updateCycleEndDate', async (req, res) => {
     }).execPopulate();
     res.json(cycle);
 });
-/* POST add restricted user */
-mentorshipRouter.post('/addRestrictedUser', async (req, res) => {
+/* POST add user manually */
+mentorshipRouter.post('/addUserManually', async (req, res) => {
     const { usernameInput, osuIdInput } = req.body;
     const osuId = parseInt(osuIdInput, 10);
     const username = usernameInput.trim();
@@ -572,7 +572,7 @@ mentorshipRouter.post('/togglePhase', async (req, res) => {
     }).execPopulate();
     res.json(cycle);
 });
-/* POST add restricted user */
+/* POST edit badge value */
 mentorshipRouter.post('/editBadgeValue', async (req, res) => {
     const { userId, value } = req.body;
     const user = await user_1.UserModel.findById(userId).orFail();
