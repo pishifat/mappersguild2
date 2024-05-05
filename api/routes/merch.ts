@@ -132,9 +132,9 @@ merchRouter.post('/checkout', async (req, res) => {
     checkout = await client.checkout.addDiscount(checkout.id, config.shopify.discountCode);
 
     if (user) {
-        //user.hasMerchAccess = false;
+        user.hasMerchAccess = false;
         user.hasSpecificMerchOrder = false;
-        //user.worldCupMerch.active = false;
+        user.worldCupMerch.active = false;
         await user.save();
     }
 
