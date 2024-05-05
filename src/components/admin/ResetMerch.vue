@@ -40,9 +40,11 @@
                 Reset
             </button>
             <copy-paste v-if="users.length" class="col-sm-6">
-                <div v-for="user in users" :key="user.id">
-                    {{ user.username }}
-                </div>
+                <ol>
+                    <li v-for="user in users" :key="user.id">
+                        {{ user.username }}
+                    </li>
+                </ol>
             </copy-paste>
         </div>
     </div>
