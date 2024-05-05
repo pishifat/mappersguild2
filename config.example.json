@@ -44,7 +44,15 @@
         "storeFrontToken": "",
         "webhookKey": "",
         "discountCode": "",
-        "secretProductIds": [""]
+        "secretProductIds": [""],
+        "worldCupPrizes": [""],
+        "specificMerchOrder": [
+            {
+                "productId": "",
+                "variantId": "",
+                "quantity": 0
+            }
+        ]
     },
     "merchAuth": {
         "id": "",

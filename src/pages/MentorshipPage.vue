@@ -5,7 +5,7 @@
         <hr />
         <cycles />
         <administrators />
-        <add-restricted-user />
+        <add-user-manually />
         <tenure-badges />
     </div>
 </template>
@@ -20,7 +20,7 @@ import Administrators from '@components/mentorship/Administrators.vue';
 import Cycles from '@components/mentorship/Cycles.vue';
 import Participants from '@components/mentorship/Participants.vue';
 import UserDetails from '@components/mentorship/UserDetails.vue';
-import AddRestrictedUser from '@components/mentorship/AddRestrictedUser.vue';
+import AddUserManually from '@components/mentorship/AddUserManually.vue';
 import TenureBadges from '@components/mentorship/TenureBadges.vue';
 
 export default defineComponent({
@@ -30,7 +30,7 @@ export default defineComponent({
         Cycles,
         Participants,
         UserDetails,
-        AddRestrictedUser,
+        AddUserManually,
         TenureBadges,
     },
     data () {

@@ -8,30 +8,85 @@
                 <h5 class="mt-2">
                     info
                 </h5>
-                <p>all products listed here have a 100% discount. prices are still listed on the checkout page for tax reasons</p>
-                <p>you can only begin the checkout process <b>once</b>! this requires...</p>
+                <div class="mb-2">all products listed here have a 100% discount. prices are still listed on the checkout page for tax/customs reasons. they are lower than retail prices.</div>
+                <div>you can only begin the checkout process <b>once</b>! this requires...</div>
                 <ul>
-                    <li>contact email</li>
+                    <li>contact email <span class="text-secondary small">(this must be the same as your osu! account's email)</span></li>
                     <li>shipping address</li>
                     <li>billing address <span class="text-secondary small">(can be the same as your shipping address)</span></li>
                 </ul>
-                <p>when you've gathered this info, checkout below :)</p>
+                <div>when you've gathered this info, checkout below :)</div>
             </div>
             <div v-else class="double-center text-center">
                 <p>request expired</p>
-                <p>if you think something went wrong, <a href="https://osu.ppy.sh/community/chat?sendto=3178418" target="_blank">talk to pishifat</a>.</p>
+                <p>if you think something went wrong, <a href="https://osu.ppy.sh/community/chat?sendto=3178418" target="_blank">talk to pishifat</a></p>
             </div>
 
             <div v-if="loggedInUser.hasMerchAccess">
                 <hr />
+                <!-- specific merch order -->
                 <div v-if="loggedInUser.hasSpecificMerchOrder">
                     <button
                         class="btn btn-sm btn-outline-info mt-2 d-grid gap-2 col-12 mx-auto"
-                        @click="checkoutSpecific($event)"
+                        @click="checkout(null, $event)"
                     >
-                        your order has already been selected. proceed to checkout
+                        your order has already been selected! proceed to checkout
                     </button>
                 </div>
+                <!-- world cup merch -->
+                <div v-else-if="loggedInUser.worldCupMerch.active">
+                    <div
+                        class="card card-body my-2 ps-4"
+                    >
+                        <div>
+                            based on your world cup placement(s), you'll receive these prizes:
+                        </div>
+                        <ul>
+                            <li>{{ loggedInUser.worldCupMerch.sweater }} world cup sweater <span v-if="loggedInUser.worldCupMerch.additionalItems" class="text-secondary small">(for shipping reasons, we can only send one sweater)</span></li>
+                            <li v-if="loggedInUser.worldCupMerch.additionalItems">{{ loggedInUser.worldCupMerch.additionalItems }} additional item(s) <span class="small text-secondary">(instead of the extra sweater above^)</span></li>
+                            <li v-if="loggedInUser.worldCupMerch.pin">world cup pin</li>
+                            <li>world cup sticker</li>
+                            <span v-if="loggedInUser.worldCupMerch.coins.length">
+                                <li v-for="coin in loggedInUser.worldCupMerch.coins" :key="coin">{{ coin }} challenge coin</li>
+                            </span>
+                        </ul>
+                    choose a sweater size:
+                    <select v-model="worldCupSweaterSize" class="form-select form-select-sm mb-2">
+                        <option
+                            disabled
+                            value=""
+                        >
+                            Select a size
+                        </option>
+                        <option value="S">
+                            Small
+                        </option>
+                        <option value="M">
+                            Medium
+                        </option>
+                        <option value="L">
+                            Large
+                        </option>
+                        <option value="XL">
+                            XL
+                        </option>
+                        <option value="2XL">
+                            2XL
+                        </option>
+                        <option value="3XL">
+                            3xL
+                        </option>
+                    </select>
+                    <button
+                        class="btn btn-sm btn-outline-info mt-2 d-grid gap-2 col-12 mx-auto"
+                        :disabled="!worldCupSweaterSize"
+                        @click="checkout(null, $event)"
+                    >
+                        proceed to shopify checkout
+                    </button>
+                    </div>
+                </div>
+                <!-- general merch order -->
                 <div v-else>
                     <div
                         v-for="merch in allMerch"
@@ -57,7 +112,7 @@
                         >
                             <button
                                 class="btn btn-sm btn-outline-info mt-2 d-grid gap-2 col-12 mx-auto"
-                                @click="checkout(merch.id, variant.id, $event)"
+                                @click="checkout(variant.id, $event)"
                             >
                                 proceed to shopify checkout <span v-if="variant.title !== 'Default Title'">({{ variant.selectedOptions[0].name }}: {{ variant.selectedOptions[0].value }})</span>
                             </button>
@@ -87,6 +142,7 @@ export default defineComponent({
         return {
             checkoutOutput: {},
             clicked: false,
+            worldCupSweaterSize: '',
         };
     },
     computed: {
@@ -110,18 +166,11 @@ export default defineComponent({
         }
     },
     methods: {
-        async checkout(gid, vid, e): Promise<void> {
+        async checkout(vid, e): Promise<void> {
             this.clicked = true;
-            const checkout: any = await this.$http.executePost(`/merch/checkout`, { gid, vid }, e);
+            const checkout: any = await this.$http.executePost(`/merch/checkout`, { vid, size: this.worldCupSweaterSize }, e);
 
-            if (!this.$http.isError(checkout)) {
-                this.checkoutOutput = checkout;
-                window.location.replace(checkout.webUrl);
-            }
-        },
-        async checkoutSpecific(e): Promise<void> {
-            this.clicked = true;
-            const checkout: any = await this.$http.executePost(`/merch/checkout`, {}, e);
+            console.log(checkout);
 
             if (!this.$http.isError(checkout)) {
                 this.checkoutOutput = checkout;

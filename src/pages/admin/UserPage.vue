@@ -42,23 +42,21 @@
                 />
             </div>
         </div>
-
         <hr />
-
         <osu-api-user-search
             class="mb-2"
         />
-        <add-restricted-user
+        <add-user-manually
             class="mb-2"
         />
         <hr />
+        <reset-merch
+            class="mb-2"
+        />
         <showcase-user-list
             class="mb-2"
         />
         <contest-helper-user-list
-            class="mb-2"
-        />
-        <reset-merch
             class="mb-2"
         />
         <discord-highlight-generator
@@ -78,7 +76,7 @@ import OsuApiUserSearch from '../../components/admin/OsuApiUserSearch.vue';
 import { User, UserGroup } from '../../../interfaces/user';
 import { mapState } from 'vuex';
 import usersAdminModule from '@store/admin/users';
-import AddRestrictedUser from '@components/mentorship/AddRestrictedUser.vue';
+import AddUserManually from '@components/mentorship/AddUserManually.vue';
 
 export default defineComponent({
     components: {
@@ -88,7 +86,7 @@ export default defineComponent({
         ResetMerch,
         DiscordHighlightGenerator,
         OsuApiUserSearch,
-        AddRestrictedUser,
+        AddUserManually,
     },
     data () {
         return {

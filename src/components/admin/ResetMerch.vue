@@ -3,48 +3,91 @@
         <h5 class="mt-2">
             Reset Merch
         </h5>
-        <input
-            v-model="osuIdInput"
-            class="form-control form-control-sm mb-2"
-            autocomplete="off"
-            placeholder="osuIds comma separated..."
-        />
-        <button class="btn btn-sm w-100 btn-outline-info mb-3" @click="resetHasMerchAccess($event)">
-            Reset hasMerchAccess for all users, excluding the osuIds above
-        </button>
-        <button class="btn btn-sm w-100 btn-outline-info mb-3" @click="resetHasSpecificMerchOrder($event)">
-            Reset hasSpecificMerchOrder for all users, excluding the osuIds above
-        </button>
+        <div class="mb-2">
+            <div class="row">
+                <div class="col-sm-6">
+                    <select v-model="field" class="form-select form-select-sm mb-2">
+                        <option
+                            disabled
+                            value=""
+                        >
+                            Select a field
+                        </option>
+                        <option value="HasMerchAccess">
+                            hasMerchAccess
+                        </option>
+                        <option value="HasSpecificMerchOrder">
+                            hasSpecificMerchOrder
+                        </option>
+                        <option value="WorldCupMerch">
+                            worldCupMerch
+                        </option>
+                    </select>
+                </div>
+                <div class="col-sm-6">
+                    <input
+                        v-model="osuIdInput"
+                        class="form-control form-control-sm mb-2"
+                        autocomplete="off"
+                        placeholder="exclude osuIds (comma separated) from reset..."
+                    />
+                </div>
+            </div>
+            <button :disabled="!field.length" class="btn btn-sm btn-outline-info w-25 me-2" @click="loadUsers($event)">
+                Load users
+            </button>
+            <button :disabled="!field.length" class="btn btn-sm btn-outline-danger w-25" @click="reset($event)">
+                Reset
+            </button>
+            <copy-paste v-if="users.length" class="col-sm-6">
+                <div v-for="user in users" :key="user.id">
+                    {{ user.username }}
+                </div>
+            </copy-paste>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import CopyPaste from '@components/CopyPaste.vue';
 
 export default defineComponent({
     name: 'ResetHasMerchAccess',
+    components: {
+        CopyPaste,
+    },
     data() {
         return {
             osuIdInput: '',
+            field: '',
+            users: [],
         };
     },
     methods: {
-        async resetHasMerchAccess(e): Promise<void> {
-            const res: any = await this.$http.executePost('/admin/users/resetHasMerchAccess', { osuIdInput: this.osuIdInput }, e);
+        async reset(e): Promise<void> {
+            const result = confirm('Are you sure?');
 
-            if (res && !res.error) {
-                this.$store.dispatch('updateToastMessages', {
-                    message: `reset successfully`,
-                    type: 'success',
-                });
+            if (result) {
+                const res: any = await this.$http.executePost(`/admin/users/resetMerchUsers`, { osuIdInput: this.osuIdInput, field: this.field }, e);
+
+                if (res && !res.error) {
+                    this.$store.dispatch('updateToastMessages', {
+                        message: `reset ${res} users`,
+                        type: 'success',
+                    });
+                }
+
+                this.users = [];
             }
         },
-        async resetHasSpecificMerchOrder(e): Promise<void> {
-            const res: any = await this.$http.executePost('/admin/users/resetHasSpecificMerchOrder', { osuIdInput: this.osuIdInput }, e);
+        async loadUsers(e): Promise<void> {
+            const users: any = await this.$http.executePost(`/admin/users/loadMerchUsers`, { field: this.field }, e);
 
-            if (res && !res.error) {
+            if (users && !users.error) {
+                this.users = users;
                 this.$store.dispatch('updateToastMessages', {
-                    message: `reset successfully`,
+                    message: `loaded ${users.length} users`,
                     type: 'success',
                 });
             }

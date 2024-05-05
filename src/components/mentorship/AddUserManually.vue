@@ -1,9 +1,9 @@
 <template>
     <div>
         <div class="container card card-body py-3 mt-2">
-            <h5>Add restricted user</h5>
+            <h5>Add user manually</h5>
             <div class="text-secondary">
-                This adds a user to the Mappers' Guild database manually. Ensure name and osu ID are correct. If they're not, there will be problems if the user is unrestricted.
+                This adds a user to the Mappers' Guild database given a username and osu ID.
             </div>
             <div class="input-group w-50">
                 <input
@@ -22,7 +22,7 @@
                     <button
                         class="btn btn-primary"
                         href="#"
-                        @click.prevent="addRestrictedUser($event)"
+                        @click.prevent="addUserManually($event)"
                     >
                         <i class="fas fa-plus fa-xs" />
                     </button>
@@ -38,7 +38,7 @@ import { mapState } from 'vuex';
 import mentorshipModule from '@store/mentorship';
 
 export default defineComponent({
-    name: 'AddRestrictedUser',
+    name: 'AddUserManually',
     components: {
     },
     data () {
@@ -58,8 +58,8 @@ export default defineComponent({
         }
     },
     methods: {
-        async addRestrictedUser(e): Promise<void> {
-            const user: any = await this.$http.executePost(`/mentorship/addRestrictedUser`, { usernameInput: this.usernameInput, osuIdInput: this.osuIdInput }, e);
+        async addUserManually(e): Promise<void> {
+            const user: any = await this.$http.executePost(`/mentorship/addUserManually`, { usernameInput: this.usernameInput, osuIdInput: this.osuIdInput }, e);
 
             if (!this.$http.isError(user)) {
                 this.$store.dispatch('updateToastMessages', {

@@ -16,6 +16,7 @@ merchRouter.get('/query', async (req, res) => {
         storefrontAccessToken: config.shopify.storeFrontToken,
     });
 
+    // prioritize world cup prizes if relevant
     const productIds = config.shopify.secretProductIds;
     const merch: any = [];
 
@@ -41,7 +42,7 @@ merchRouter.post('/checkout', async (req, res) => {
     let checkout;
     const lineItems: any = [];
 
-    if (user.hasSpecificMerchOrder) {
+    if (user.hasSpecificMerchOrder) {   // order based on config specificMerchOrder
         for (const item of config.specificMerchOrder) {
             const product = await client.product.fetch(item.productId);
             let variantId;
@@ -57,7 +58,65 @@ merchRouter.post('/checkout', async (req, res) => {
                 quantity: item.quantity,
             });
         }
-    } else {
+    } else if (user.worldCupMerch.active) {     // order config worldCupMerch based on world cup placements and user input sweater size
+        const productIds = config.shopify.worldCupPrizes;
+        const merch: any = [];
+        let sweaterSelected = false;
+
+        for (const gid of productIds) {
+            const product = await client.product.fetch(gid);
+            merch.push(product);
+
+            if (product.title.includes('sticker')) {
+                lineItems.push({
+                    variantId: product.variants[0].id,
+                    quantity: 1,
+                });
+            } else if (product.title.includes('sweater')) {
+                const size = req.body.size;
+
+                for (const variant of product.variants) {
+                    if (variant.title.includes(size) && variant.title.includes(user.worldCupMerch.sweater.toString()) && !sweaterSelected) {
+                        sweaterSelected = true;
+                        lineItems.push({
+                            variantId: variant.id,
+                            quantity: 1,
+                        });
+                    }
+                }
+            } else if (product.title.includes('pin')) {
+                if (user.worldCupMerch.pin) {
+                    lineItems.push({
+                        variantId: product.variants[0].id,
+                        quantity: 1,
+                    });
+                }
+            } else if (product.title.includes('coin')) {
+                for (const variant of product.variants) {
+                    if (user.worldCupMerch.coins.includes(parseInt(variant.title))) {
+                        lineItems.push({
+                            variantId: variant.id,
+                            quantity: 1,
+                        });
+                    }
+                }
+            } else if (product.title.includes('neck')) {
+                if (user.worldCupMerch.additionalItems >= 1) {
+                    lineItems.push({
+                        variantId: product.variants[0].id,
+                        quantity: 1,
+                    });
+                }
+            } else if (product.title.includes('desk')) {
+                if (user.worldCupMerch.additionalItems == 2) {
+                    lineItems.push({
+                        variantId: product.variants[0].id,
+                        quantity: 1,
+                    });
+                }
+            }
+        }
+    } else {    // order single item from selection (previously used for plushies)
         const vid = req.body.vid;
 
         lineItems.push({
@@ -73,8 +132,9 @@ merchRouter.post('/checkout', async (req, res) => {
     checkout = await client.checkout.addDiscount(checkout.id, config.shopify.discountCode);
 
     if (user) {
-        user.hasMerchAccess = false;
+        //user.hasMerchAccess = false;
         user.hasSpecificMerchOrder = false;
+        //user.worldCupMerch.active = false;
         await user.save();
     }
 

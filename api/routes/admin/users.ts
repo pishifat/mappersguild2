@@ -1,5 +1,5 @@
 import express from 'express';
-import { isLoggedIn, isAdmin, isSuperAdmin } from '../../helpers/middlewares';
+import { isLoggedIn, isAdmin, isSuperAdmin, hasMerchAccess } from '../../helpers/middlewares';
 import { getUserInfoFromId, getClientCredentialsGrant, isOsuResponseError } from '../../helpers/osuApi';
 import { UserModel } from '../../models/user';
 import { updateUserPoints } from '../../helpers/points';
@@ -116,36 +116,128 @@ adminUsersRouter.post('/:id/toggleHasSpecificMerchOrder', async (req, res) => {
     res.json({ hasSpecificMerchOrder });
 });
 
-/* POST reset hasMerchAccess */
-adminUsersRouter.post('/resetHasMerchAccess', async (req, res) => {
-    const osuIdInput = req.body.osuIdInput;
-    const osuIdsSeparated = osuIdInput.split(',');
-    const osuIds = osuIdsSeparated.map(id => id.trim());
+/* POST toggle worldCupMerch.active */
+adminUsersRouter.post('/:id/toggleWorldCupMerchActive', async (req, res) => {
+    const active = req.body.active;
 
-    const users = await UserModel.find({ hasMerchAccess: true, osuId: { $nin: osuIds } });
+    const user = await UserModel.findById(req.params.id).orFail();
 
-    for (const user of users) {
-        user.hasMerchAccess = false;
-        await user.save();
+    if (!user.worldCupMerch.active) {
+        user.worldCupMerch = {
+            active,
+            coins: [],
+            pin: false,
+            sweater: 0,
+            additionalItems: 0,
+        };
+    } else {
+        user.worldCupMerch.active = active;
     }
 
-    res.json({ success: 'ok' });
+    await user.save();
+
+    res.json(user);
 });
 
-/* POST reset hasSpecificMerchOrder */
-adminUsersRouter.post('/resetHasSpecificMerchOrder', async (req, res) => {
+/* POST save worldCupMerch */
+adminUsersRouter.post('/:id/saveWorldCupMerch', async (req, res) => {
+    const worldCupMerch = req.body.worldCupMerch;
+    const finalCoins: number = [];
+
+    if (worldCupMerch.coins.length) {
+        const coinsSplit = worldCupMerch.coins.split(',');
+
+        for (const coin of coinsSplit) {
+            finalCoins.push(parseInt(coin.trim()));
+        }
+    }
+
+    const user = await UserModel.findById(req.params.id).orFail();
+
+    user.worldCupMerch = {
+        active: true,
+        coins: finalCoins,
+        pin: Boolean(worldCupMerch.pin),
+        sweater: parseInt(worldCupMerch.sweater),
+        additionalItems: parseInt(worldCupMerch.additionalItems),
+    },
+
+    await user.save();
+
+    res.json(user);
+});
+
+/* POST reset hasMerchAccess */
+adminUsersRouter.post('/resetMerchUsers', async (req, res) => {
     const osuIdInput = req.body.osuIdInput;
     const osuIdsSeparated = osuIdInput.split(',');
     const osuIds = osuIdsSeparated.map(id => id.trim());
+    let query = {};
 
-    const users = await UserModel.find({ hasSpecificMerchOrder: true, osuId: { $nin: osuIds } });
+    switch (req.body.field) {
+        case 'HasMerchAccess':
+            query = { hasMerchAccess: true, osuId: { $nin: osuIds } };
+            break;
+        case 'HasSpecificMerchOrder':
+            query = { hasSpecificMerchOrder: true, osuId: { $nin: osuIds } };
+            break;
+        case 'WorldCupMerch':
+            query = { 'worldCupMerch.active': true, osuId: { $nin: osuIds } };
+            break;
+        default:
+            return res.json({ error: 'no field' });
+    }
+
+    const users = await UserModel.find(query);
 
     for (const user of users) {
-        user.hasSpecificMerchOrder = false;
+        switch (req.body.field) {
+            case 'HasMerchAccess':
+                user.hasMerchAccess = false;
+                break;
+            case 'HasSpecificMerchOrder':
+                user.hasSpecificMerchOrder = false;
+                break;
+            case 'WorldCupMerch':
+                user.worldCupMerch = {
+                    active: false,
+                    coins: [],
+                    pin: false,
+                    sweater: 0,
+                    additionalItems: 0,
+                };
+                break;
+            default:
+                return res.json({ error: 'no field' });
+        }
+
         await user.save();
     }
 
-    res.json({ success: 'ok' });
+    res.json(users.length);
+});
+
+/* POST loadMerchUsers */
+adminUsersRouter.post('/loadMerchUsers', async (req, res) => {
+    let query = {};
+
+    switch (req.body.field) {
+        case 'HasMerchAccess':
+            query = { hasMerchAccess: true };
+            break;
+        case 'HasSpecificMerchOrder':
+            query = { hasSpecificMerchOrder: true };
+            break;
+        case 'WorldCupMerch':
+            query = { 'worldCupMerch.active': true };
+            break;
+        default:
+            return res.json({ error: 'no field' });
+    }
+
+    const users = await UserModel.find(query);
+
+    res.json(users);
 });
 
 /* GET find FA showcase users */
