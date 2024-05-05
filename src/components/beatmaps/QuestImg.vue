@@ -1,9 +1,10 @@
 <template>
     <img
         v-if="beatmap.quest || beatmap.mission || beatmap.isShowcase"
-        :key="$route.query.id"
+        :key="$route.query.id?.toString()"
         v-bs-tooltip="(beatmap.quest && beatmap.quest.name) || (beatmap.mission && beatmap.mission.name) || 'FA showcase'"
-        class="rounded-circle me-1 quest-icon"
+        class="rounded-circle me-1"
+        :class="bigIcon ? 'quest-icon-big' : 'quest-icon'"
         :src="url"
     />
 </template>
@@ -17,6 +18,10 @@ export default defineComponent({
         beatmap: {
             type: Object as PropType<Beatmap>,
             required: true,
+        },
+        bigIcon: {
+            type: Boolean,
+            default: false,
         },
     },
     computed: {
@@ -52,4 +57,16 @@ export default defineComponent({
     height: 24px;
 }
 
+.quest-icon-big {
+    top: calc(70% - 40px);
+    left: -12px;
+    width: 50px;
+    height: 50px;
+    max-width: 70px;
+    max-height: 70px;
+    object-fit: cover;
+    border-radius: 100%;
+    box-shadow: 0 1px 1rem rgba(10, 10, 25, .9);
+    background-color: var(--gray-dark);
+}
 </style>

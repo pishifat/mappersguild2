@@ -2,29 +2,38 @@
     <modal-dialog
         id="editBeatmap"
         :loaded="Boolean(selectedBeatmap)"
-        :header-class="selectedBeatmap ? 'bg-' + selectedBeatmap.status.toLowerCase() : ''"
+        :header-style="{
+            background: `linear-gradient(0deg, ${beatmapStatusColor} -250%, rgba(0, 0, 0, 0.65) 130%), ${beatmapBackgroundUrl} center no-repeat`,
+            borderBottom: `4px solid ${beatmapStatusColor}`,
+            backgroundSize: 'cover',
+            objectFit: 'fill',
+            height: '85px',
+        }"
     >
-        <template #header class="d-flex align-items-center">
-            <quest-img :beatmap="selectedBeatmap" />
+        <template #header class="d-flex flex-row align-items-center gap-3">
+            <quest-img :beatmap="selectedBeatmap" :big-icon="true" />
 
-            <a
-                v-if="selectedBeatmap.url"
-                :href="selectedBeatmap.url"
-                target="_blank"
-            >
-                <i class="fas fa-link" />
-                {{ selectedBeatmap.song.artist }} - {{ selectedBeatmap.song.title }}
-            </a>
-            <span v-else>
-                {{ selectedBeatmap.song.artist }} - {{ selectedBeatmap.song.title }}
+            <span class="text-white mx-3">
+                <a
+                    v-if="selectedBeatmap.url"
+                    class="text-white"
+                    :href="selectedBeatmap.url"
+                    target="_blank"
+                >
+                    <i class="fas fa-link" />
+                    {{ selectedBeatmap.song.artist }} - {{ selectedBeatmap.song.title }}
+                </a>
+                <span v-else>
+                    {{ selectedBeatmap.song.artist }} - {{ selectedBeatmap.song.title }}
+                </span>
+
+                |<user-link class="mx-1 text-white" :user="selectedBeatmap.host" />
+
+                <modes-icons
+                    :modes="[selectedBeatmap.mode]"
+                    color="white"
+                />
             </span>
-
-            |<user-link class="mx-1" :user="selectedBeatmap.host" />
-
-            <modes-icons
-                :modes="[selectedBeatmap.mode]"
-                color="dark"
-            />
         </template>
 
         <template #default>
@@ -53,7 +62,34 @@ export default defineComponent({
     props: {
         selectedBeatmap: {
             type: Object as PropType<Beatmap>,
-            default: () => ({}),
+            default: null,
+        },
+    },
+    computed: {
+        beatmapStatusColor() {
+            if (this.selectedBeatmap)
+                return this.selectedBeatmap.status ? (`var(--beatmap-${this.selectedBeatmap.status.toLowerCase()})`) : 'var(--beatmap-secret)';
+
+            return 'var(--beatmap-secret)';
+        },
+        beatmapBackgroundUrl() {
+            const beatmapUrl = this.selectedBeatmap?.url || '';
+
+            if (beatmapUrl && beatmapUrl.indexOf('osu.ppy.sh/beatmapsets/') !== -1) {
+                const indexStart = beatmapUrl.indexOf('beatmapsets/') + 'beatmapsets/'.length;
+                const indexEnd = beatmapUrl.indexOf('#');
+                let idUrl: string;
+
+                if (indexEnd !== -1) {
+                    idUrl = beatmapUrl.slice(indexStart, indexEnd);
+                } else {
+                    idUrl = beatmapUrl.slice(indexStart);
+                }
+
+                return `url(https://assets.ppy.sh/beatmaps/${idUrl}/covers/cover.jpg)`;
+            } else {
+                return 'url(https://osu.ppy.sh/images/layout/beatmaps/default-bg.png)';
+            }
         },
     },
     watch: {

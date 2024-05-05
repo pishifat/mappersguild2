@@ -379,7 +379,7 @@ export default defineComponent({
         },
     },
     async created () {
-        const res: any = await this.$http.executeGet<FeaturedArtist[]>(`/featuredArtists`);
+        const res = await this.$http.executeGet<FeaturedArtist[]>(`/featuredArtists`) as FeaturedArtist[];
 
         if (res) {
             this.featuredArtists = res.sort((a, b) => {

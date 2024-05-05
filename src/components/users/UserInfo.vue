@@ -2,10 +2,18 @@
     <modal-dialog
         id="extendedInfo"
         :loaded="Boolean(selectedUser)"
-        :header-class="selectedUser ? ('bg-rank-' + selectedUser.rank) : ''"
+        :header-style="{
+            background: `linear-gradient(0deg, ${userRankColor} -250%, rgba(0, 0, 0, 0.65) 130%), url(${userCoverUrl}) center no-repeat`,
+            borderBottom: `4px solid ${userRankColor}`,
+            backgroundSize: 'cover',
+            objectFit: 'fill',
+        }"
     >
         <template #header>
-            <user-link class="text-dark" :user="selectedUser" />
+            <div class="d-flex flex-row align-items-center gap-3">
+                <img :src="'https://a.ppy.sh/' + selectedUser.osuId" class="avatar-img" />
+                <user-link class="text-white ml-3" :user="selectedUser" />
+            </div>
         </template>
 
         <template #default>
@@ -178,7 +186,7 @@
                         Rank:
                         <i
                             v-if="selectedUser.rank > 0"
-                            :key="$route.query.id"
+                            :key="$route.query.id?.toString()"
                             v-bs-tooltip="`rank ${selectedUser.rank} user`"
                             class="fas fa-crown"
                             :class="'text-rank-' + selectedUser.rank"
@@ -422,6 +430,15 @@ export default defineComponent({
         ...mapGetters('users', [
             'selectedUser',
         ]),
+        userCoverUrl() {
+            if (this.selectedUser)
+                return this.selectedUser.cover ? this.selectedUser.cover?.url : `https://a.ppy.sh/${this.selectedUser.osuId}`;
+
+            return '';
+        },
+        userRankColor() {
+            return this.selectedUser ? (`var(--rank-${this.selectedUser.rank}-bg)`) : 'var(--rank-0-bg)';
+        },
     },
     watch: {
         async selectedUser(): Promise<void> {
@@ -559,3 +576,18 @@ export default defineComponent({
     },
 });
 </script>
+
+<style scoped>
+.avatar-img {
+    top: calc(70% - 40px);
+    left: -12px;
+    width: 70px;
+    height: 70px;
+    max-width: 120px;
+    max-height: 120px;
+    object-fit: cover;
+    border-radius: 100%;
+    box-shadow: 0 1px 1rem rgba(10, 10, 25, .9);
+    background-color: var(--gray-dark);
+}
+</style>
