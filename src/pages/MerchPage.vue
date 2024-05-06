@@ -58,7 +58,7 @@
                         >
                             Select a size
                         </option>
-                        <option value="S">
+                        <option :disabled="loggedInUser.worldCupMerch.sweater == 2023" value="S">
                             Small
                         </option>
                         <option value="M">
@@ -70,7 +70,7 @@
                         <option value="XL">
                             XL
                         </option>
-                        <option value="2XL">
+                        <option :disabled="loggedInUser.worldCupMerch.sweater == 2023" value="2XL">
                             2XL
                         </option>
                         <option value="3XL">
