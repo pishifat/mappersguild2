@@ -106,7 +106,8 @@ function hasMerchAccess(req, res, next) {
 }
 exports.hasMerchAccess = hasMerchAccess;
 function isSuperAdmin(req, res, next) {
-    if (res.locals.userRequest.osuId == 3178418 || res.locals.userRequest.osuId == 1052994) {
+    const osuIds = [3178418, 1052994, 2];
+    if (osuIds.includes(res.locals.userRequest.osuId)) {
         next();
     }
     else {

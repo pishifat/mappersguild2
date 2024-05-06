@@ -12,6 +12,7 @@ const fs_1 = __importDefault(require("fs"));
 const artistsRouter = express_1.default.Router();
 artistsRouter.use(middlewares_1.isLoggedIn);
 artistsRouter.use(middlewares_1.isAdmin);
+artistsRouter.use(middlewares_1.isSuperAdmin);
 // population
 const defaultOsuBeatmapPopulate = [
     { path: 'featuredArtists', select: 'label osuId' },

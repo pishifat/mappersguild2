@@ -12,6 +12,8 @@ const discordApi_1 = require("../helpers/discordApi");
 const featuredSong_1 = require("../models/featuredSong");
 const showcaseRouter = express_1.default.Router();
 showcaseRouter.use(middlewares_1.isLoggedIn);
+showcaseRouter.use(middlewares_1.isAdmin);
+showcaseRouter.use(middlewares_1.isSuperAdmin); // no longer used, so restricting access for now
 /* GET info for page load */
 showcaseRouter.get('/relevantInfo', async (req, res) => {
     let query = { status: featuredArtist_2.FeaturedArtistStatus.Showcase };
