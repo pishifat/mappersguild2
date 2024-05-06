@@ -3,7 +3,6 @@ import { isLoggedIn, isAdmin, isSuperAdmin } from '../../helpers/middlewares';
 import { updateUserPoints } from '../../helpers/points';
 import { QuestModel } from '../../models/quest';
 import { Quest, QuestStatus } from '../../../interfaces/quest';
-import { BeatmapMode } from '../../../interfaces/beatmap/beatmap';
 import { LogModel } from '../../models/log';
 import { LogCategory } from '../../../interfaces/log';
 import { webhookPost, webhookColors } from '../../helpers/discordApi';

@@ -1,5 +1,5 @@
 import express from 'express';
-import { isLoggedIn, isAdmin, isSuperAdmin, hasMerchAccess } from '../../helpers/middlewares';
+import { isLoggedIn, isAdmin, isSuperAdmin } from '../../helpers/middlewares';
 import { getUserInfoFromId, getClientCredentialsGrant, isOsuResponseError } from '../../helpers/osuApi';
 import { UserModel } from '../../models/user';
 import { updateUserPoints } from '../../helpers/points';

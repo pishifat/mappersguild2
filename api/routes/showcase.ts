@@ -2,13 +2,15 @@ import express from 'express';
 import { FeaturedArtistModel } from '../models/featuredArtist';
 import { FeaturedArtistStatus } from '../../interfaces/featuredArtist';
 import { UserGroup } from '../../interfaces/user';
-import { isLoggedIn, canEditArtist } from '../helpers/middlewares';
+import { isLoggedIn, canEditArtist, isAdmin, isSuperAdmin } from '../helpers/middlewares';
 import { showcaseWebhookPost, webhookColors } from '../helpers/discordApi';
 import { FeaturedSongModel } from '../models/featuredSong';
 
 const showcaseRouter = express.Router();
 
 showcaseRouter.use(isLoggedIn);
+showcaseRouter.use(isAdmin);
+showcaseRouter.use(isSuperAdmin); // no longer used, so restricting access for now
 
 /* GET info for page load */
 showcaseRouter.get('/relevantInfo', async (req, res) => {

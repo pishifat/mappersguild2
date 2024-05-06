@@ -101,12 +101,6 @@ adminBeatmapsRouter.post('/:id/updateUrl', isSuperAdmin, async (req, res) => {
     res.json(req.body.url);
 });
 
-
-
-// ---------------------
-// NOT SUPERADMIN ROUTES
-// ---------------------
-
 interface UserCounts extends User {
     hostCount: number;
     taskCount: number;
@@ -122,7 +116,7 @@ interface UserSummary {
 }
 
 /* POST update sb quality */
-adminBeatmapsRouter.post('/:id/updateStoryboardQuality', async (req, res) => {
+adminBeatmapsRouter.post('/:id/updateStoryboardQuality', isSuperAdmin, async (req, res) => {
     const task = await TaskModel
         .findByIdAndUpdate(req.body.taskId, { sbQuality: req.body.storyboardQuality })
         .orFail();
@@ -135,7 +129,7 @@ adminBeatmapsRouter.post('/:id/updateStoryboardQuality', async (req, res) => {
 });
 
 /* POST update osu beatmap pack ID */
-adminBeatmapsRouter.post('/:id/updatePackId', async (req, res) => {
+adminBeatmapsRouter.post('/:id/updatePackId', isSuperAdmin, async (req, res) => {
     await BeatmapModel
         .findByIdAndUpdate(req.params.id, { packId: req.body.packId })
         .orFail();
@@ -144,7 +138,7 @@ adminBeatmapsRouter.post('/:id/updatePackId', async (req, res) => {
 });
 
 /* POST update isShowcase */
-adminBeatmapsRouter.post('/:id/updateIsShowcase', async (req, res) => {
+adminBeatmapsRouter.post('/:id/updateIsShowcase', isSuperAdmin, async (req, res) => {
     await BeatmapModel
         .findByIdAndUpdate(req.params.id, { isShowcase: req.body.isShowcase })
         .orFail();
@@ -153,7 +147,7 @@ adminBeatmapsRouter.post('/:id/updateIsShowcase', async (req, res) => {
 });
 
 /* POST update isWorldCup */
-adminBeatmapsRouter.post('/:id/updateIsWorldCup', async (req, res) => {
+adminBeatmapsRouter.post('/:id/updateIsWorldCup', isSuperAdmin, async (req, res) => {
     await BeatmapModel
         .findByIdAndUpdate(req.params.id, { isWorldCup: req.body.isWorldCup })
         .orFail();
@@ -162,7 +156,7 @@ adminBeatmapsRouter.post('/:id/updateIsWorldCup', async (req, res) => {
 });
 
 /* POST update queuedForRank */
-adminBeatmapsRouter.post('/:id/updateQueuedForRank', async (req, res) => {
+adminBeatmapsRouter.post('/:id/updateQueuedForRank', isSuperAdmin, async (req, res) => {
     await BeatmapModel
         .findByIdAndUpdate(req.params.id, { queuedForRank: req.body.queuedForRank })
         .orFail();
@@ -171,7 +165,7 @@ adminBeatmapsRouter.post('/:id/updateQueuedForRank', async (req, res) => {
 });
 
 /* POST update skipWebhook */
-adminBeatmapsRouter.post('/:id/updateSkipWebhook', async (req, res) => {
+adminBeatmapsRouter.post('/:id/updateSkipWebhook', isSuperAdmin, async (req, res) => {
     await BeatmapModel
         .findByIdAndUpdate(req.params.id, { skipWebhook: req.body.skipWebhook })
         .orFail();
@@ -180,7 +174,7 @@ adminBeatmapsRouter.post('/:id/updateSkipWebhook', async (req, res) => {
 });
 
 /* POST reject mapset from earning points */
-adminBeatmapsRouter.post('/:id/rejectMapset', async (req, res) => {
+adminBeatmapsRouter.post('/:id/rejectMapset', isSuperAdmin, async (req, res) => {
     const beatmap = await BeatmapModel
         .findByIdAndUpdate(req.params.id, { status: BeatmapStatus.WIP })
         .defaultPopulate()

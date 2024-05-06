@@ -1,5 +1,5 @@
 import express from 'express';
-import { isAdmin, isLoggedIn } from '../helpers/middlewares';
+import { isAdmin, isLoggedIn, isSuperAdmin } from '../helpers/middlewares';
 import { FeaturedArtistModel } from '../models/featuredArtist';
 import { OsuBeatmapModel } from '../models/osuBeatmap';
 import { UserModel } from '../models/user';
@@ -10,6 +10,8 @@ const artistsRouter = express.Router();
 
 artistsRouter.use(isLoggedIn);
 artistsRouter.use(isAdmin);
+artistsRouter.use(isSuperAdmin);
+
 
 // population
 const defaultOsuBeatmapPopulate = [

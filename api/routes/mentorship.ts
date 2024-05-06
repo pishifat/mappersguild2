@@ -2,7 +2,6 @@ import express from 'express';
 import { isLoggedIn, isMentorshipAdmin } from '../helpers/middlewares';
 import { UserModel } from '../models/user';
 import { UserGroup } from '../../interfaces/user';
-import { MentorshipCycle } from '../../interfaces/mentorshipCycle';
 import { MentorshipCycleModel } from '../models/mentorshipCycle';
 import { getUserInfoFromId, isOsuResponseError, getClientCredentialsGrant } from '../helpers/osuApi';
 import { defaultErrorMessage } from '../helpers/helpers';
