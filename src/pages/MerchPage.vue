@@ -73,7 +73,7 @@
                         <option :disabled="loggedInUser.worldCupMerch.sweater == 2023" value="2XL">
                             2XL
                         </option>
-                        <option value="3XL">
+                        <option :disabled="loggedInUser.worldCupMerch.sweater == 2023" value="3XL">
                             3xL
                         </option>
                     </select>
