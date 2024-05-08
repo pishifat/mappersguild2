@@ -33,16 +33,3 @@ export async function isEditable(req: express.Request, res: express.Response, ne
 
     next();
 }
-
-export async function isComplete(req: express.Request, res: express.Response, next: express.NextFunction): Promise<express.Response | void> {
-    const id = req.params.id;
-    const contest = await ContestModel
-        .findById(id)
-        .orFail();
-
-    if (contest.status !== ContestStatus.Complete) {
-        return res.json({ error: 'Cannot load this on incomplete contests' });
-    }
-
-    next();
-}

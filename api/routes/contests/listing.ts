@@ -1206,7 +1206,7 @@ listingRouter.post('/:id/manuallyAddSubmission', isContestCreator, isEditable, a
 });
 
 /* GET usersScores for standardized scores on results page*/
-listingRouter.get('/:id/getUsersScores', isComplete, async (req, res) => {
+listingRouter.get('/:id/getUsersScores', async (req, res) => {
     const contest = await ContestModel
         .findById(req.params.id)
         .populate([

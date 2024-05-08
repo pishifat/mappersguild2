@@ -9,7 +9,7 @@ const resultsRouter = express.Router();
 const submissionPopulate = [
     {
         path: 'contest',
-        select: 'name screeners status download id',
+        select: 'name screeners status download id creators',
     },
     {
         path: 'screenings',
@@ -59,6 +59,10 @@ const contestPopulate = [
         path: 'criterias',
         select: 'maxScore',
     },
+    {
+        path: 'creators',
+        select: 'username osuId',
+    },
 ];
 
 /* GET participated submissions */
@@ -81,6 +85,12 @@ resultsRouter.get('/searchSubmission/:id', async (req, res) => {
             .findById(req.params.id)
             .populate(submissionPopulate);
 
+    const creatorIds = submission?.contest.creators.map(c => c.toString());
+
+    if (creatorIds.includes(req.session.mongoId)) {
+        return res.json(submission);
+    }
+
     if (submission?.contest.status !== ContestStatus.Complete) {
         return res.json(null);
     }
@@ -95,7 +105,13 @@ resultsRouter.get('/searchContest/:id', async (req, res) => {
             .findById(req.params.id)
             .populate(contestPopulate);
 
-    if (contest?.status !== ContestStatus.Complete || !contest.download) { // add .download prereq
+    const creatorIds = contest?.creators.map(c => c.id);
+
+    if (creatorIds.includes(req.session.mongoId)) {
+        return res.json(contest);
+    }
+
+    if (contest?.status !== ContestStatus.Complete || !contest.download) {
         return res.json(null);
     }
 
