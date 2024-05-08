@@ -58,7 +58,7 @@
                         >
                             Select a size
                         </option>
-                        <option :disabled="loggedInUser.worldCupMerch.sweater == 2023 && loggedInUser.username != 'aknzx'" value="S">
+                        <option :disabled="loggedInUser.worldCupMerch.sweater == 2023 && loggedInUser.username != 'mrekk'" value="S">
                             Small
                         </option>
                         <option value="M">
