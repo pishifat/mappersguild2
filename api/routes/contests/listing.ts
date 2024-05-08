@@ -1,7 +1,7 @@
 import express from 'express';
 import { isLoggedIn, isValidUrl } from '../../helpers/middlewares';
 import { devWebhookPost, webhookColors } from '../../helpers/discordApi';
-import { isContestCreator, isEditable, isComplete } from './middlewares';
+import { isContestCreator, isEditable } from './middlewares';
 import { Contest, ContestModel } from '../../models/contest/contest';
 import { UserModel } from '../../models/user';
 import { User, UserGroup } from '../../../interfaces/user';

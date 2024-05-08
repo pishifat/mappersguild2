@@ -85,9 +85,9 @@ resultsRouter.get('/searchSubmission/:id', async (req, res) => {
             .findById(req.params.id)
             .populate(submissionPopulate);
 
-    const creatorIds = submission?.contest.creators.map(c => c.toString());
+    const creatorIds: string[] | undefined = submission?.contest.creators.map(c => c.toString());
 
-    if (creatorIds.includes(req.session.mongoId)) {
+    if (creatorIds?.includes(req.session.mongoId)) {
         return res.json(submission);
     }
 
@@ -105,9 +105,9 @@ resultsRouter.get('/searchContest/:id', async (req, res) => {
             .findById(req.params.id)
             .populate(contestPopulate);
 
-    const creatorIds = contest?.creators.map(c => c.id);
+    const creatorIds: string[] | undefined = contest?.creators.map(c => c.id);
 
-    if (creatorIds.includes(req.session.mongoId)) {
+    if (creatorIds?.includes(req.session.mongoId)) {
         return res.json(contest);
     }
 
