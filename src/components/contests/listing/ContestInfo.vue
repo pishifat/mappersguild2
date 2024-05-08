@@ -267,6 +267,8 @@
                     :contest-id="contest.id"
                 />
 
+                <code>https://mappersguild.com/contests/results?contest={{ contest.id }}</code>
+
                 <hr />
 
                 <button v-if="contest.status == 'hidden' && !contest.submissions.length" class="btn btn-sm btn-outline-danger w-100" @click="deleteContest($event)">
