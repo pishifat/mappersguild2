@@ -148,6 +148,22 @@ missionsRouter.post('/:missionId/:mapId/addBeatmapToMission', isEditable, isVali
         return res.json({ error: 'Mode not allowed for this quest' });
     }
 
+    if (mission.artists && mission.artists.length) {
+        const artistIds = mission.artists.map(a => a._id);
+        const artists = await FeaturedArtistModel.find({ _id: { $in: artistIds } }).populate('songs').orFail();
+        const songIds: string[] = [];
+
+        for (const artist of artists) {
+            for (const song of artist.songs) {
+                songIds.push(song.id);
+            }
+        }
+
+        if (!songIds.includes(beatmap.song.id)) {
+            return res.json({ error: 'Song not applicable to this quest!' });
+        }
+    }
+
     await BeatmapModel
         .findByIdAndUpdate(req.params.mapId, { mission: mission._id, quest: undefined })
         .defaultPopulate()
