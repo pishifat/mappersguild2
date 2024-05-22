@@ -113,7 +113,7 @@ const store: Module<BeatmapsState, MainState> = {
                     .filter(t => t.length);
 
                 beatmaps = beatmaps.filter(b => {
-                    let searchableTags = b.song.artist + ' ' + b.song.title + ' ' + b.host.username;
+                    let searchableTags = b.song.artist + ' ' + b.song.title + ' ' + b.host.username + ' ' + b.url;
                     b.tasks.forEach(task => {
                         task.mappers.forEach(mapper => {
                             searchableTags += ' ' + mapper.username;
