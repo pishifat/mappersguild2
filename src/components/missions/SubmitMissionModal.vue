@@ -1,5 +1,5 @@
 <template>
-    <modal-dialog id="submitMission" title="Submit mission">
+    <modal-dialog id="submitMission" title="Submit mission" modal-size="xl">
         <div class="container">
             <!-- general -->
             <h5>General</h5>
@@ -155,10 +155,15 @@
                 type="number"
             />
 
+            <!-- beatmap requirements -->
+            <hr />
+            <h5>Beatmap requirements</h5>
+
             <!-- earliest submission date -->
             <form-input
                 v-model.number="beatmapEarliestSubmissionDate"
                 label="Earliest submission date"
+                description="has label and validation if >2007"
                 type="date"
             />
 
@@ -166,9 +171,43 @@
             <form-input
                 v-model.number="beatmapLatestSubmissionDate"
                 label="Latest submission date"
+                description="has label and validation if <2050"
                 type="date"
             />
 
+            <!-- minimum favorites -->
+            <form-input
+                v-model.number="beatmapMinimumFavorites"
+                label="Minimum favorites"
+                description="has label and validation if set. paired with minimum playcount (min fav or min playcount)"
+                type="number"
+            />
+
+            <!-- minimum playcount -->
+            <form-input
+                v-model.number="beatmapMinimumPlayCount"
+                label="Minimum playcount"
+                description="has label and validation if set. paired with minimum favorites (min fav or min playcount)"
+                type="number"
+            />
+
+            <!-- minimum playcount -->
+            <form-input
+                v-model.number="beatmapMinimumLength"
+                label="Minimum length"
+                description="in seconds. only label (no validation)"
+                type="number"
+            />
+
+            <!-- isUniqueToRanked -->
+            <form-input
+                v-model.number="isUniqueToRanked"
+                label="isUniqueToRanked"
+                description="0 = false, 1 = true. only label (no validation)"
+                type="number"
+            />
+
+            <!-- add mission -->
             <button
                 class="btn btn-outline-success w-100"
                 @click="addMission($event)"
@@ -220,6 +259,10 @@ export default defineComponent({
             userMinimumRank: null,
             beatmapEarliestSubmissionDate: '2007-01-01',
             beatmapLatestSubmissionDate: '2100-01-01',
+            beatmapMinimumFavorites: null,
+            beatmapMinimumPlayCount: null,
+            beatmapMinimumLength: null,
+            isUniqueToRanked: 0,
         };
     },
     computed: {
@@ -292,6 +335,10 @@ export default defineComponent({
                 userMinimumRank: this.userMinimumRank,
                 beatmapEarliestSubmissionDate: this.beatmapEarliestSubmissionDate,
                 beatmapLatestSubmissionDate: this.beatmapLatestSubmissionDate,
+                beatmapMinimumFavorites: this.beatmapMinimumFavorites,
+                beatmapMinimumPlayCount: this.beatmapMinimumPlayCount,
+                beatmapMinimumLength: this.beatmapMinimumLength,
+                isUniqueToRanked: new Boolean(this.isUniqueToRanked),
             }, e);
 
             if (!this.$http.isError(mission)) {

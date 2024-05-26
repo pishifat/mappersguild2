@@ -41,6 +41,8 @@
             @update-beatmap="updateBeatmap($event)"
         />
 
+        <osu-api-beatmap-search class="mt-2" />
+
         <contributor-stats />
 
         <bundled-beatmaps-list />
@@ -54,6 +56,7 @@ import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import ContributorStats from '../../components/admin/ContributorStats.vue';
 import BeatmapInfoAdmin from '../../components/admin/BeatmapInfoAdmin.vue';
+import OsuApiBeatmapSearch from '../../components/admin/OsuApiBeatmapSearch.vue';
 import BundledBeatmapsList from '../../components/admin/BundledBeatmapsList.vue';
 import BeatmapIdListGenerator from '../../components/admin/BeatmapIdListGenerator.vue';
 import DataTable from '../../components/admin/DataTable.vue';
@@ -66,6 +69,7 @@ export default defineComponent({
         ContributorStats,
         DataTable,
         BeatmapInfoAdmin,
+        OsuApiBeatmapSearch,
         BundledBeatmapsList,
         BeatmapIdListGenerator,
         ModesIcons,

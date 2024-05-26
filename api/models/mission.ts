@@ -34,6 +34,10 @@ const missionSchema = new Schema<Mission, MissionStatics>({
     /* beatmap requirements. optional and growing */
     beatmapEarliestSubmissionDate: { type: Date },
     beatmapLatestSubmissionDate: { type: Date },
+    beatmapMinimumFavorites: { type: Number },
+    beatmapMinimumPlayCount: { type: Number },
+    beatmapMinimumLength: { type: Number }, // only requirement label, no validation
+    isUniqueToRanked: { type: Boolean }, // only requirement label, no validation
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 missionSchema.virtual('associatedMaps', {

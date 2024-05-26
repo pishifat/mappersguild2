@@ -46,6 +46,10 @@ export interface Mission extends Document {
     /* beatmap requirements. optional and growing */
     beatmapEarliestSubmissionDate: Date;
     beatmapLatestSubmissionDate: Date;
+    beatmapMinimumFavorites: number;
+    beatmapMinimumPlayCount: number;
+    beatmapMinimumLength: number;
+    isUniqueToRanked: boolean;
     /** virtual field to populate */
     associatedMaps: Beatmap[];
 }

@@ -1,4 +1,5 @@
 import express from 'express';
+import { findBeatmapsetId, sleep } from '../helpers/helpers';
 import { isLoggedIn } from '../helpers/middlewares';
 import { MissionModel } from '../models/mission';
 import { LogModel } from '../models/log';
@@ -15,6 +16,7 @@ import { isBeatmapHost, isValidBeatmap } from './beatmaps/middlewares';
 import { FeaturedArtistModel } from '../models/featuredArtist';
 import { devWebhookPost, webhookColors } from '../helpers/discordApi';
 import { updateUserPoints } from '../helpers/points';
+import { getClientCredentialsGrant, isOsuResponseError, getBeatmapsetV2Info } from '../helpers/osuApi';
 
 const missionsRouter = express.Router();
 
@@ -66,15 +68,8 @@ missionsRouter.get('/relevantInfo', async (req, res) => {
     });
 });
 
-function meetsRequirements(mission, user, mode, submissionDate) {
-    if (submissionDate && mission.beatmapEarliestSubmissionDate && (new Date(submissionDate) < new Date(mission.beatmapEarliestSubmissionDate))) {
-        return false;
-    }
-
-    if (submissionDate && mission.beatmapLatestSubmissionDate && (new Date(submissionDate) > new Date(mission.beatmapLatestSubmissionDate))) {
-        return false;
-    }
-
+function meetsRequirements(mission, user, beatmap, mode) {
+    /* user requirements */
     if ((mission.userMaximumRankedBeatmapsCount || mission.userMaximumRankedBeatmapsCount == 0) && (user.rankedBeatmapsCount > mission.userMaximumRankedBeatmapsCount)) {
         return false;
     }
@@ -104,6 +99,27 @@ function meetsRequirements(mission, user, mode, submissionDate) {
         return false;
     }
 
+    /* beatmap requirements */
+    const submissionDate = beatmap.submissionDate;
+    const favorites = beatmap.favorites;
+    const playCount = beatmap.playCount;
+
+    if (submissionDate && mission.beatmapEarliestSubmissionDate && (new Date(submissionDate) < new Date(mission.beatmapEarliestSubmissionDate))) {
+        return false;
+    }
+
+    if (submissionDate && mission.beatmapLatestSubmissionDate && (new Date(submissionDate) > new Date(mission.beatmapLatestSubmissionDate))) {
+        return false;
+    }
+
+
+    console.log(favorites);
+    console.log(playCount);
+
+    if (favorites && playCount && mission.beatmapMinimumFavorites && mission.beatmapMinimumPlayCount && favorites < mission.beatmapMinimumFavorites && playCount < mission.beatmapMinimumPlayCount) {
+        return false;
+    }
+
     return true;
 }
 
@@ -130,7 +146,7 @@ missionsRouter.get('/open/:mode/:id', async (req, res) => {
             .orFail(),
     ]);
 
-    const filteredMissions = missions.filter(m => meetsRequirements(m, user, req.params.mode, beatmap.submissionDate));
+    const filteredMissions = missions.filter(m => meetsRequirements(m, user, beatmap, req.params.mode));
 
     res.json(filteredMissions);
 });
@@ -142,6 +158,12 @@ missionsRouter.post('/:missionId/:mapId/addBeatmapToMission', isEditable, isVali
 
     if (beatmap.quest || beatmap.mission) {
         return res.json({ error: 'Beatmap assigned to a quest/mission already!' });
+    }
+
+    const beatmapValidated = meetsRequirements(mission, res.locals.userRequest, beatmap, req.params.mode);
+
+    if (!beatmapValidated) {
+        return res.json({ error: 'Beatmap does not meet quest requirements' });
     }
 
     if (!mission.modes.includes(beatmap.mode as unknown as MissionMode) && beatmap.mode !== BeatmapMode.Hybrid) {
@@ -232,8 +254,6 @@ missionsRouter.post('/:missionId/findShowcaseMissionSong', isEditable, async (re
 
         const previousArtist = await FeaturedArtistModel.findOne({ songs: userExists.song }).orFail();
         await FeaturedArtistModel.findByIdAndUpdate(previousArtist.id, { $pull: { showcaseMappers: user._id } });
-
-        //return res.json({ error: `Song already selected!` });
     }
 
     const artists: FeaturedArtist[] = await FeaturedArtistModel

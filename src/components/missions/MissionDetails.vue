@@ -142,6 +142,27 @@ export default defineComponent({
                 });
             }
 
+            if (this.mission.beatmapMinimumFavorites && this.mission.beatmapMinimumPlayCount) {
+                requirements.push({
+                    text: `Your beatmap must have `,
+                    bold: `${this.mission.beatmapMinimumFavorites} favorites or ${this.mission.beatmapMinimumPlayCount} plays`,
+                });
+            }
+
+            if (this.mission.beatmapMinimumLength) {
+                requirements.push({
+                    text: `Your beatmap's length must be at least `,
+                    bold: `${this.mission.beatmapMinimumLength} seconds`,
+                });
+            }
+
+            if (this.mission.isUniqueToRanked) {
+                requirements.push({
+                    text: `Your beatmap's song must be `,
+                    bold: `unique to the Ranked section in your map's mode`,
+                });
+            }
+
             return requirements;
         },
     },

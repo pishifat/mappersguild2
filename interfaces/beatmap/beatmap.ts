@@ -33,10 +33,7 @@ export interface Beatmap {
     mission: Mission | undefined;
     url: string;
     mode: BeatmapMode;
-    length: number;
     packId: number;
-    rankedDate: Date;
-    submissionDate: Date;
     updatedAt: Date;
     createdAt: Date;
     isShowcase: boolean;
@@ -46,4 +43,10 @@ export interface Beatmap {
     skipWebhook: boolean;
     isWorldCup: boolean;
     isBundled: boolean;
+    /* from osu! API */
+    length: number;
+    rankedDate: Date;
+    submissionDate: Date;
+    favorites: number;
+    playCount: number;
 }

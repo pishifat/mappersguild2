@@ -84,7 +84,7 @@
                     (invalid)
                 </span>
             </li>
-            <div v-if="mission.status == 'open'" class="small text-secondary ms-3 mt-2">
+            <div v-if="mission.status == 'open' && !isAdminPage" class="small text-secondary ms-3 mt-2">
                 If you create a map for this quest, add it from the <a href="/beatmaps">Beatmaps</a> page, then return here!
                 <div v-if="mission.isShowcaseMission" class="mt-2">
                     If your song doesn't exist on the Mappers' Guild yet, wait until the artist is announced to add it.
@@ -92,7 +92,7 @@
             </div>
         </ul>
 
-        <div v-else class="small text-secondary ms-3">
+        <div v-else-if="!isAdminPage" class="small text-secondary ms-3">
             <div>
                 No associated maps. If you create a map for this quest, add it on the <a href="/beatmaps">Beatmaps</a> page, then return here!
             </div>

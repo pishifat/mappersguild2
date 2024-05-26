@@ -334,4 +334,28 @@ adminBeatmapsRouter.post('/:id/toggleIsBundled', async (req, res) => {
     res.json(await BeatmapModel.findByIdAndUpdate(req.params.id, { isBundled: !req.body.isBundled }).defaultPopulate().orFail());
 });
 
+/* POST search beatmap through osu api */
+adminBeatmapsRouter.post('/searchBeatmap', async (req, res) => {
+    const osuId = parseInt(req.body.osuId);
+
+    if (isNaN(osuId)) {
+        return res.json({ error: 'invalid osu id' });
+    }
+
+    const response = await getClientCredentialsGrant();
+
+    if (isOsuResponseError(response)) {
+        return res.json(defaultErrorMessage);
+    }
+
+    const token = response.access_token;
+    const userInfo = await getBeatmapsetV2Info(token, osuId);
+
+    if (isOsuResponseError(userInfo)) {
+        return res.json(defaultErrorMessage);
+    }
+
+    res.json(userInfo);
+});
+
 export default adminBeatmapsRouter;

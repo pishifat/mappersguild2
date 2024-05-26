@@ -154,6 +154,34 @@ const store: Module<MissionState, MainState> = {
                 mission.beatmapLatestSubmissionDate = payload.beatmapLatestSubmissionDate;
             }
         },
+        updateBeatmapMinimumFavorites (state, payload): void {
+            const mission = state.missions.find(m => m.id == payload.missionId);
+
+            if (mission) {
+                mission.beatmapMinimumFavorites = payload.beatmapMinimumFavorites;
+            }
+        },
+        updateBeatmapMinimumPlayCount (state, payload): void {
+            const mission = state.missions.find(m => m.id == payload.missionId);
+
+            if (mission) {
+                mission.beatmapMinimumPlayCount = payload.beatmapMinimumPlayCount;
+            }
+        },
+        updateBeatmapMinimumLength (state, payload): void {
+            const mission = state.missions.find(m => m.id == payload.missionId);
+
+            if (mission) {
+                mission.beatmapMinimumLength = payload.beatmapMinimumLength;
+            }
+        },
+        updateIsUniqueToRanked (state, payload): void {
+            const mission = state.missions.find(m => m.id == payload.missionId);
+
+            if (mission) {
+                mission.isUniqueToRanked = payload.isUniqueToRanked;
+            }
+        },
         updateDeadline (state, payload): void {
             const mission = state.missions.find(m => m.id == payload.missionId);
 

@@ -1,170 +1,247 @@
 <template>
-    <modal-dialog id="editMission">
+    <modal-dialog id="editMission" modal-size="xl">
         <template #header>
             {{ mission.name }}
         </template>
 
-        <div class="container">
+        <div class="container ">
             <!-- name -->
-            <div class="row mt-2">
-                <input
-                    v-model="name"
-                    class="form-control form-control-sm mx-2 w-50"
-                    type="text"
-                    autocomplete="off"
-                    placeholder="mission name..."
-                />
-                <button class="btn btn-sm btn-outline-info w-25" @click="updateName($event)">
-                    Rename mission
-                </button>
+            <div class="row mt-2 d-flex align-items-center">
+                <div class="col-sm-2">
+                    Name
+                </div>
+                <div class="col-sm-6">
+                    <input
+                        v-model="name"
+                        class="form-control form-control-sm"
+                        type="text"
+                        autocomplete="off"
+                        placeholder="mission name..."
+                    />
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-sm btn-outline-info w-100" @click="updateName($event)">
+                        Rename
+                    </button>
+                </div>
             </div>
             <!-- tier -->
-            <div class="row mt-2">
-                <input
-                    v-model="tier"
-                    class="form-control form-control-sm mx-2 w-50"
-                    type="text"
-                    autocomplete="off"
-                    placeholder="tier..."
-                />
-                <button class="btn btn-sm btn-outline-info w-25" @click="updateTier($event)">
-                    Update tier
-                </button>
+            <div class="row mt-2 d-flex align-items-center">
+                <div class="col-sm-2">
+                    Tier
+                </div>
+                <div class="col-sm-6">
+                    <input
+                        v-model="tier"
+                        class="form-control form-control-sm"
+                        type="text"
+                        autocomplete="off"
+                        placeholder="tier..."
+                    />
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-sm btn-outline-info w-100" @click="updateTier($event)">
+                        Update tier
+                    </button>
+                </div>
             </div>
             <!-- objective -->
-            <div class="row mt-2">
-                <textarea
-                    v-model="objective"
-                    class="form-control form-control-sm mx-2 mt-2 w-50"
-                    type="text"
-                    autocomplete="off"
-                    placeholder="mission objective..."
-                />
-                <button class="btn btn-sm btn-outline-info w-25 mt-2" @click="updateObjective($event)">
-                    Update objective
-                </button>
+            <div class="row mt-2 d-flex align-items-center">
+                <div class="col-sm-2">
+                    Objective
+                </div>
+                <div class="col-sm-6">
+                    <textarea
+                        v-model="objective"
+                        class="form-control form-control-sm"
+                        type="text"
+                        autocomplete="off"
+                        placeholder="mission objective..."
+                    />
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-sm btn-outline-info w-100" @click="updateObjective($event)">
+                        Update objective
+                    </button>
+                </div>
             </div>
             <!-- win condition -->
-            <div class="row mt-2">
-                <textarea
-                    v-model="winCondition"
-                    class="form-control form-control-sm mx-2 mt-2 w-50"
-                    type="text"
-                    autocomplete="off"
-                    placeholder="mission win condition..."
-                />
-                <button class="btn btn-sm btn-outline-info w-25 mt-2" @click="updateWinCondition($event)">
-                    Update win condition
-                </button>
+            <div class="row mt-2 d-flex align-items-center">
+                <div class="col-sm-2">
+                    Win condition
+                </div>
+                <div class="col-sm-6">
+                    <textarea
+                        v-model="winCondition"
+                        class="form-control form-control-sm"
+                        type="text"
+                        autocomplete="off"
+                        placeholder="mission win condition..."
+                    />
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-sm btn-outline-info w-100" @click="updateWinCondition($event)">
+                        Update win condition
+                    </button>
+                </div>
             </div>
 
             <!-- status -->
-            <div class="row">
-                <select
-                    v-model="status"
-                    class="form-select form-select-sm mx-2 mt-2 w-50"
-                >
-                    <option value="" disabled>
-                        Select a status
-                    </option>
-                    <option value="hidden">
-                        Hidden
-                    </option>
-                    <option value="open">
-                        Open
-                    </option>
-                    <option value="closed">
-                        Closed
-                    </option>
-                </select>
-                <button class="btn btn-sm btn-outline-info mt-2 w-25" @click="updateStatus($event)">
-                    Update status
-                </button>
+            <div class="row mt-2 d-flex align-items-center">
+                <div class="col-sm-2">
+                    Status
+                </div>
+                <div class="col-sm-6">
+                    <select
+                        v-model="status"
+                        class="form-select form-select-sm"
+                    >
+                        <option value="" disabled>
+                            Select a status
+                        </option>
+                        <option value="hidden">
+                            Hidden
+                        </option>
+                        <option value="open">
+                            Open
+                        </option>
+                        <option value="closed">
+                            Closed
+                        </option>
+                    </select>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-sm btn-outline-info w-100" @click="updateStatus($event)">
+                        Update status
+                    </button>
+                </div>
             </div>
 
             <!-- modes -->
-            <div class="row">
-                <select
-                    v-model="mode"
-                    class="form-select form-select-sm mx-2 mt-2 w-25"
-                >
-                    <option value="" disabled>
-                        Select a mode
-                    </option>
-                    <option v-for="aMode in availableModes" :key="aMode">
-                        {{ aMode }}
-                    </option>
-                </select>
-                <div class="w-25 mt-2">
-                    {{ mission.modes }}
+            <div class="row mt-2 d-flex align-items-center">
+                <div class="col-sm-2">
+                    Mode
                 </div>
-                <button class="btn btn-sm btn-outline-info mt-2 w-25" @click="toggleMode($event)">
-                    Toggle mode
-                </button>
+                <div class="col-sm-2">
+                    <select
+                        v-model="mode"
+                        class="form-select form-select-sm"
+                    >
+                        <option value="" disabled>
+                            Select a mode
+                        </option>
+                        <option v-for="aMode in availableModes" :key="aMode">
+                            {{ aMode }}
+                        </option>
+                    </select>
+                </div>
+                <div class="col-sm-4">
+                    <div class="small text-secondary">
+                        Current: <b>{{ mission.modes }}</b>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-sm btn-outline-info w-100" @click="toggleMode($event)">
+                        Toggle mode
+                    </button>
+                </div>
             </div>
 
             <!-- artists -->
-            <div v-if="availableArtists" class="row">
-                <select
-                    v-model="selectedArtist"
-                    class="form-select form-select-sm mx-2 mt-2 w-25"
-                >
-                    <option :value="{}" disabled>
-                        Select an artist
-                    </option>
-                    <option v-for="artist in availableArtists" :key="artist.id">
-                        {{ artist.label }}
-                    </option>
-                </select>
-                <div v-if="mission.artists && mission.artists.length" class="w-25 mt-2">
-                    {{ mission.artists.map(a => a.label) }}
+            <div v-if="availableArtists" class="row mt-2 d-flex align-items-center">
+                <div class="col-sm-2">
+                    Artists
                 </div>
-                <button class="btn btn-sm btn-outline-info mt-2 w-25" @click="toggleArtist($event)">
-                    Toggle artist
-                </button>
+                <div class="col-sm-2">
+                    <select
+                        v-model="selectedArtist"
+                        class="form-select form-select-sm"
+                    >
+                        <option :value="{}" disabled>
+                            Select an artist
+                        </option>
+                        <option v-for="artist in availableArtists" :key="artist.id">
+                            {{ artist.label }}
+                        </option>
+                    </select>
+                </div>
+                <div class="col-sm-4">
+                    <div class="small text-secondary">
+                        Current: <b>{{ mission.artists.map(a => a.label) }}</b>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-sm btn-outline-info w-100" @click="toggleArtist($event)">
+                        Toggle artist
+                    </button>
+                </div>
             </div>
 
             <!-- deadline -->
-            <div class="row mt-2">
-                <input
-                    v-model="deadline"
-                    class="form-control form-control-sm mx-2 w-50"
-                    type="date"
-                    autocomplete="off"
-                    placeholder="deadline..."
-                />
-                <button class="btn btn-sm btn-outline-info w-25" @click="updateDeadline($event)">
-                    Update deadline
-                </button>
-                <span class="small">current: <b>{{ mission.deadline }}</b></span>
+            <div class="row mt-2 d-flex align-items-center">
+                <div class="col-sm-2">
+                    Deadline
+                </div>
+                <div class="col-sm-2">
+                    <input
+                        v-model="deadline"
+                        class="form-control form-control-sm"
+                        type="date"
+                        autocomplete="off"
+                        placeholder="deadline..."
+                    />
+                </div>
+                <div class="col-sm-4 small text-secondary">
+                    Current: <b>{{ mission.deadline }}</b>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-sm btn-outline-info w-100" @click="updateDeadline($event)">
+                        Update deadline
+                    </button>
+                </div>
             </div>
 
             <!-- isShowcaseMission -->
-            <div class="row">
-                <div class="col-sm-6 mt-2">
-                    isShowcaseMission: <span :class="mission.isShowcaseMission ? 'text-success' : 'text-danger'">{{ mission.isShowcaseMission }}</span>
+            <div class="row d-flex mt-2 align-items-center">
+                <div class="col-sm-4">
+                    isShowcaseMission
                 </div>
-                <button class="btn btn-sm btn-outline-info mt-2 ms-3 w-25" @click="toggleIsShowcaseMission($event)">
-                    Toggle isShowcaseMission
-                </button>
+                <div class="col-sm-4 small text-secondary">
+                    Current: <b :class="mission.isShowcaseMission ? 'text-success' : 'text-danger'">{{ mission.isShowcaseMission ? mission.isShowcaseMission : 'false' }}</b>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-sm btn-outline-info w-100" @click="toggleIsShowcaseMission($event)">
+                        Toggle isShowcaseMission
+                    </button>
+                </div>
             </div>
             <!-- openingAnnounced -->
-            <div class="row">
-                <div class="col-sm-6 mt-2">
-                    Opening announced: <span :class="mission.openingAnnounced ? 'text-success' : 'text-danger'">{{ mission.openingAnnounced }}</span>
+            <div class="row d-flex mt-2 align-items-center">
+                <div class="col-sm-4">
+                    Opening announced
                 </div>
-                <button class="btn btn-sm btn-outline-info mt-2 ms-3 w-25" @click="toggleOpeningAnnounced($event)">
-                    Toggle openingAnnounced
-                </button>
+                <div class="col-sm-4 small text-secondary">
+                    Current: <b :class="mission.openingAnnounced ? 'text-success' : 'text-danger'">{{ mission.openingAnnounced }}</b>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-sm btn-outline-info w-100" @click="toggleOpeningAnnounced($event)">
+                        Toggle openingAnnounced
+                    </button>
+                </div>
             </div>
             <!-- closingAnnounced -->
-            <div class="row">
-                <div class="col-sm-6 mt-2">
-                    Closing announced: <span :class="mission.closingAnnounced ? 'text-success' : 'text-danger'">{{ mission.closingAnnounced }}</span>
+            <div class="row d-flex mt-2 align-items-center">
+                <div class="col-sm-4">
+                    Closing announced
                 </div>
-                <button class="btn btn-sm btn-outline-info mt-2 ms-3 w-25" @click="toggleClosingAnnounced($event)">
-                    Toggle closingAnnounced
-                </button>
+                <div class="col-sm-4 small text-secondary">
+                    Current: <b :class="mission.closingAnnounced ? 'text-success' : 'text-danger'">{{ mission.closingAnnounced }}</b>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-sm btn-outline-info w-100" @click="toggleClosingAnnounced($event)">
+                        Toggle closingAnnounced
+                    </button>
+                </div>
             </div>
 
             <!-- user reqiurements -->
@@ -172,86 +249,235 @@
             <h5>User requirements</h5>
 
             <!-- max ranked maps -->
-            <div class="row">
-                <input
-                    v-model="userMaximumRankedBeatmapsCount"
-                    class="form-control form-control-sm mx-2 w-50"
-                    type="text"
-                    autocomplete="off"
-                    placeholder="maximum ranked maps allowed..."
-                />
-                <button class="btn btn-sm btn-outline-info w-25" @click="updateUserMaximumRankedBeatmapsCount($event)">
-                    Update user max ranked maps count
-                </button>
+            <div class="row d-flex mt-2 align-items-center">
+                <div class="col-sm-2">
+                    Max. ranked maps
+                </div>
+                <div class="col-sm-2">
+                    <input
+                        v-model="userMaximumRankedBeatmapsCount"
+                        class="form-control form-control-sm"
+                        type="text"
+                        autocomplete="off"
+                        placeholder="max ranked maps..."
+                    />
+                </div>
+                <div class="col-sm-4 small text-secondary">
+                    Includes: <b>label, validation</b>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-sm btn-outline-info w-100" @click="updateUserMaximumRankedBeatmapsCount($event)">
+                        Update user max ranked maps count
+                    </button>
+                </div>
             </div>
             <!-- max global rank -->
-            <div class="row mt-2">
-                <input
-                    v-model="userMaximumGlobalRank"
-                    class="form-control form-control-sm mx-2 w-50"
-                    type="number"
-                    autocomplete="off"
-                    placeholder="maximum global rank allowed..."
-                />
-                <button class="btn btn-sm btn-outline-info w-25" @click="updateUserMaximumGlobalRank($event)">
-                    Update user max global rank
-                </button>
+            <div class="row d-flex mt-2 align-items-center">
+                <div class="col-sm-2">
+                    Max. global rank
+                </div>
+                <div class="col-sm-2">
+                    <input
+                        v-model="userMaximumGlobalRank"
+                        class="form-control form-control-sm"
+                        type="number"
+                        autocomplete="off"
+                        placeholder="max global rank..."
+                    />
+                </div>
+                <div class="col-sm-4 small text-secondary">
+                    Includes: <b>label, validation</b>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-sm btn-outline-info w-100" @click="updateUserMaximumGlobalRank($event)">
+                        Update user max global rank
+                    </button>
+                </div>
             </div>
             <!-- max pp -->
-            <div class="row mt-2">
-                <input
-                    v-model="userMaximumPp"
-                    class="form-control form-control-sm mx-2 w-50"
-                    type="number"
-                    autocomplete="off"
-                    placeholder="maximum pp allowed..."
-                />
-                <button class="btn btn-sm btn-outline-info w-25" @click="updateUserMaximumPp($event)">
-                    Update user max pp
-                </button>
+            <div class="row d-flex mt-2 align-items-center">
+                <div class="col-sm-2">
+                    Max. pp
+                </div>
+                <div class="col-sm-2">
+                    <input
+                        v-model="userMaximumPp"
+                        class="form-control form-control-sm"
+                        type="number"
+                        autocomplete="off"
+                        placeholder="max pp..."
+                    />
+                </div>
+                <div class="col-sm-4 small text-secondary">
+                    Includes: <b>label, validation</b>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-sm btn-outline-info w-100" @click="updateUserMaximumPp($event)">
+                        Update user max pp
+                    </button>
+                </div>
             </div>
             <!-- min mg rank -->
-            <div class="row mt-2">
-                <input
-                    v-model="userMinimumRank"
-                    class="form-control form-control-sm mx-2 w-50"
-                    type="number"
-                    autocomplete="off"
-                    placeholder="minimum mg rank allowed..."
-                />
-                <button class="btn btn-sm btn-outline-info w-25" @click="updateUserMinimumRank($event)">
-                    Update user min rank
-                </button>
+            <div class="row d-flex mt-2 align-items-center">
+                <div class="col-sm-2">
+                    Min. MG rank
+                </div>
+                <div class="col-sm-2">
+                    <input
+                        v-model="userMinimumRank"
+                        class="form-control form-control-sm"
+                        type="number"
+                        autocomplete="off"
+                        placeholder="min mg rank..."
+                    />
+                </div>
+                <div class="col-sm-4 small text-secondary">
+                    Includes: <b>label, validation</b>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-sm btn-outline-info w-100" @click="updateUserMinimumRank($event)">
+                        Update user min rank
+                    </button>
+                </div>
             </div>
+            <!-- beatmap reqiurements -->
+            <hr />
+            <h5>Beatmap requirements</h5>
             <!-- earliest submission date -->
-            <div class="row mt-2">
-                <input
-                    v-model="beatmapEarliestSubmissionDate"
-                    class="form-control form-control-sm mx-2 w-50"
-                    type="date"
-                    autocomplete="off"
-                    placeholder="earliest submission date allowed..."
-                />
-                <button class="btn btn-sm btn-outline-info w-25" @click="updateBeatmapEarliestSubmissionDate($event)">
-                    Update beatmap earliest submission date
-                </button>
-                <span class="small">current: <b>{{ mission.beatmapEarliestSubmissionDate }}</b></span>
+            <div class="row d-flex mt-2 align-items-center">
+                <div class="col-sm-2">
+                    Earliest submission date
+                </div>
+                <div class="col-sm-2">
+                    <input
+                        v-model="beatmapEarliestSubmissionDate"
+                        class="form-control form-control-sm"
+                        type="date"
+                        autocomplete="off"
+                        placeholder="earliest submission date allowed..."
+                    />
+                </div>
+                <div class="col-sm-4 small text-secondary">
+                    <div>Includes: <b>label, validation</b> (if &gt;2007)</div>
+                    <div>Current: <b>{{ mission.beatmapEarliestSubmissionDate }}</b></div>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-sm btn-outline-info w-100" @click="updateBeatmapEarliestSubmissionDate($event)">
+                        Update beatmap earliest submission date
+                    </button>
+                </div>
             </div>
             <!-- latest submission date -->
-            <div class="row mt-2">
-                <input
-                    v-model="beatmapLatestSubmissionDate"
-                    class="form-control form-control-sm mx-2 w-50"
-                    type="date"
-                    autocomplete="off"
-                    placeholder="latest submission date allowed..."
-                />
-                <button class="btn btn-sm btn-outline-info w-25" @click="updateBeatmapLatestSubmissionDate($event)">
-                    Update beatmap latest submission date
-                </button>
-                <span class="small">current: <b>{{ mission.beatmapLatestSubmissionDate }}</b></span>
+            <div class="row d-flex mt-2 align-items-center">
+                <div class="col-sm-2">
+                    Latest submission date
+                </div>
+                <div class="col-sm-2">
+                    <input
+                        v-model="beatmapLatestSubmissionDate"
+                        class="form-control form-control-sm"
+                        type="date"
+                        autocomplete="off"
+                        placeholder="latest submission date allowed..."
+                    />
+                </div>
+                <div class="col-sm-4 small text-secondary">
+                    <div>Includes: <b>label, validation</b> (if &lt;2050)</div>
+                    <div>Current: <b>{{ mission.beatmapLatestSubmissionDate }}</b></div>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-sm btn-outline-info w-100" @click="updateBeatmapLatestSubmissionDate($event)">
+                        Update beatmap latest submission date
+                    </button>
+                </div>
             </div>
-
+            <!-- min favorites -->
+            <div class="row d-flex mt-2 align-items-center">
+                <div class="col-sm-2">
+                    Min. favorites
+                </div>
+                <div class="col-sm-2">
+                    <input
+                        v-model="beatmapMinimumFavorites"
+                        class="form-control form-control-sm"
+                        type="number"
+                        autocomplete="off"
+                        placeholder="min favorites..."
+                    />
+                </div>
+                <div class="col-sm-4 small text-secondary">
+                    <div>Includes: <b>label, validation</b> (if min. playcount exists)</div>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-sm btn-outline-info w-100" @click="updateBeatmapMinimumFavorites($event)">
+                        Update beatmap minimum favorites
+                    </button>
+                </div>
+            </div>
+            <!-- min playcount -->
+            <div class="row d-flex mt-2 align-items-center">
+                <div class="col-sm-2">
+                    Min. playcount
+                </div>
+                <div class="col-sm-2">
+                    <input
+                        v-model="beatmapMinimumPlayCount"
+                        class="form-control form-control-sm"
+                        type="number"
+                        autocomplete="off"
+                        placeholder="min playcount..."
+                    />
+                </div>
+                <div class="col-sm-4 small text-secondary">
+                    <div>Includes: <b>label, validation</b> (if min. favorites exists)</div>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-sm btn-outline-info w-100" @click="updateBeatmapMinimumPlayCount($event)">
+                        Update beatmap minimum playcount
+                    </button>
+                </div>
+            </div>
+            <!-- min length -->
+            <div class="row d-flex mt-2 align-items-center">
+                <div class="col-sm-2">
+                    Min. length
+                </div>
+                <div class="col-sm-2">
+                    <input
+                        v-model="beatmapMinimumLength"
+                        class="form-control form-control-sm"
+                        type="number"
+                        autocomplete="off"
+                        placeholder="min length..."
+                    />
+                </div>
+                <div class="col-sm-4 small text-secondary">
+                    <div>Includes: <b>label</b></div>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-sm btn-outline-info w-100" @click="updateBeatmapMinimumLength($event)">
+                        Update beatmap minimum length
+                    </button>
+                </div>
+            </div>
+            <!-- isUniqueToRanked -->
+            <div class="row d-flex mt-2 align-items-center">
+                <div class="col-sm-4">
+                    isUniqueToRanked
+                </div>
+                <div class="col-sm-4 small text-secondary">
+                    <div>Includes: <b>label</b></div>
+                    <div>
+                        Current: <b :class="mission.isUniqueToRanked ? 'text-success' : 'text-danger'">{{ mission.isUniqueToRanked ? mission.isUniqueToRanked : 'false' }}</b>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-sm btn-outline-info w-100" @click="toggleIsUniqueToRanked($event)">
+                        Toggle isUniqueToRanked
+                    </button>
+                </div>
+            </div>
+            <hr />
             <!-- associated beatmaps -->
             <associated-beatmaps
                 v-if="mission.associatedMaps && mission.associatedMaps.length"
@@ -286,39 +512,47 @@ export default defineComponent({
         return {
             availableArtists: [] as FeaturedArtist[],
             availableModes: MissionMode,
+            selectedArtist: {} as FeaturedArtist,
             name: this.mission.name,
             tier: this.mission.tier,
             objective: this.mission.objective,
             winCondition: this.mission.winCondition,
             status: this.mission.status,
             mode: '',
-            selectedArtist: {} as FeaturedArtist,
             artists: this.mission.artists,
+            deadline: new Date(this.mission.deadline),
             userMaximumRankedBeatmapsCount: this.mission.userMaximumRankedBeatmapsCount,
             userMaximumGlobalRank: this.mission.userMaximumGlobalRank,
             userMaximumPp: this.mission.userMaximumPp,
             userMinimumRank: this.mission.userMinimumRank,
             beatmapEarliestSubmissionDate: new Date(this.mission.beatmapEarliestSubmissionDate),
             beatmapLatestSubmissionDate: new Date(this.mission.beatmapLatestSubmissionDate),
-            deadline: new Date(this.mission.deadline),
+            beatmapMinimumFavorites: this.mission.beatmapMinimumFavorites,
+            beatmapMinimumPlayCount: this.mission.beatmapMinimumPlayCount,
+            beatmapMinimumLength: this.mission.beatmapMinimumLength,
+            isUniqueToRanked: this.mission.isUniqueToRanked,
         };
     },
     watch: {
         mission(): void {
             this.name = this.mission.name;
             this.tier = this.mission.tier;
-            this.artists = this.mission.artists;
             this.objective = this.mission.objective;
             this.winCondition = this.mission.winCondition;
             this.status = this.mission.status;
             this.mode = '';
+            this.artists = this.mission.artists;
+            this.deadline = new Date(this.mission.deadline);
             this.userMaximumRankedBeatmapsCount = this.mission.userMaximumRankedBeatmapsCount;
             this.userMaximumGlobalRank = this.mission.userMaximumGlobalRank;
             this.userMaximumPp = this.mission.userMaximumPp;
             this.userMinimumRank = this.mission.userMinimumRank;
             this.beatmapEarliestSubmissionDate = new Date(this.mission.beatmapEarliestSubmissionDate);
             this.beatmapLatestSubmissionDate = new Date(this.mission.beatmapLatestSubmissionDate);
-            this.deadline = new Date(this.mission.deadline);
+            this.beatmapMinimumFavorites = this.mission.beatmapMinimumFavorites;
+            this.beatmapMinimumPlayCount = this.mission.beatmapMinimumPlayCount;
+            this.beatmapMinimumLength = this.mission.beatmapMinimumLength;
+            this.isUniqueToRanked = this.mission.isUniqueToRanked;
         },
     },
     async created () {
@@ -376,6 +610,20 @@ export default defineComponent({
                 });
             }
         },
+        async updateWinCondition(e): Promise<void> {
+            const winCondition = await this.$http.executePost(`/admin/missions/${this.mission.id}/updateWinCondition/`, { winCondition: this.winCondition }, e);
+
+            if (!this.$http.isError(winCondition)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated win condition`,
+                    type: 'info',
+                });
+                this.$store.commit('updateWinCondition', {
+                    missionId: this.mission.id,
+                    winCondition,
+                });
+            }
+        },
         async updateStatus(e): Promise<void> {
             const status = await this.$http.executePost(`/admin/missions/${this.mission.id}/updateStatus/`, { status: this.status }, e);
 
@@ -387,6 +635,90 @@ export default defineComponent({
                 this.$store.commit('updateStatus', {
                     missionId: this.mission.id,
                     status,
+                });
+            }
+        },
+        async toggleMode(e): Promise<void> {
+            const modes = await this.$http.executePost(`/admin/missions/${this.mission.id}/toggleMode/`, { mode: this.mode }, e);
+
+            if (!this.$http.isError(modes)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `toggled mode`,
+                    type: 'info',
+                });
+                this.$store.commit('updateModes', {
+                    missionId: this.mission.id,
+                    modes,
+                });
+            }
+        },
+        async toggleArtist(e): Promise<void> {
+            const artists = await this.$http.executePost(`/admin/missions/${this.mission.id}/toggleArtist/`, { artistLabel: this.selectedArtist }, e);
+
+            if (!this.$http.isError(artists)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `toggled artist`,
+                    type: 'info',
+                });
+                this.$store.commit('updateArtists', {
+                    missionId: this.mission.id,
+                    artists,
+                });
+            }
+        },
+        async updateDeadline(e): Promise<void> {
+            const deadline = await this.$http.executePost(`/admin/missions/${this.mission.id}/updateDeadline/`, { deadline: this.deadline }, e);
+
+            if (!this.$http.isError(deadline)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated deadline`,
+                    type: 'info',
+                });
+                this.$store.commit('updateDeadline', {
+                    missionId: this.mission.id,
+                    deadline,
+                });
+            }
+        },
+        async toggleIsShowcaseMission(e): Promise<void> {
+            const isShowcaseMission = await this.$http.executePost(`/admin/missions/${this.mission.id}/toggleIsShowcaseMission/`, { isShowcaseMission: !this.mission.isShowcaseMission }, e);
+
+            if (!this.$http.isError(isShowcaseMission)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `toggled isShowcaseMission`,
+                    type: 'info',
+                });
+                this.$store.commit('updateIsShowcaseMission', {
+                    missionId: this.mission.id,
+                    isShowcaseMission,
+                });
+            }
+        },
+        async toggleOpeningAnnounced(e): Promise<void> {
+            const openingAnnounced = await this.$http.executePost(`/admin/missions/${this.mission.id}/toggleOpeningAnnounced/`, { openingAnnounced: !this.mission.openingAnnounced }, e);
+
+            if (!this.$http.isError(openingAnnounced)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `toggled openingAnnounced`,
+                    type: 'info',
+                });
+                this.$store.commit('updateOpeningAnnounced', {
+                    missionId: this.mission.id,
+                    openingAnnounced,
+                });
+            }
+        },
+        async toggleClosingAnnounced(e): Promise<void> {
+            const closingAnnounced = await this.$http.executePost(`/admin/missions/${this.mission.id}/toggleClosingAnnounced/`, { closingAnnounced: !this.mission.closingAnnounced }, e);
+
+            if (!this.$http.isError(closingAnnounced)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `toggled closingAnnounced`,
+                    type: 'info',
+                });
+                this.$store.commit('updateClosingAnnounced', {
+                    missionId: this.mission.id,
+                    closingAnnounced,
                 });
             }
         },
@@ -474,101 +806,59 @@ export default defineComponent({
                 });
             }
         },
-        async updateDeadline(e): Promise<void> {
-            const deadline = await this.$http.executePost(`/admin/missions/${this.mission.id}/updateDeadline/`, { deadline: this.deadline }, e);
+        async updateBeatmapMinimumFavorites(e): Promise<void> {
+            const beatmapMinimumFavorites = await this.$http.executePost(`/admin/missions/${this.mission.id}/updateBeatmapMinimumFavorites/`, { beatmapMinimumFavorites: this.beatmapMinimumFavorites }, e);
 
-            if (!this.$http.isError(deadline)) {
+            if (!this.$http.isError(beatmapMinimumFavorites)) {
                 this.$store.dispatch('updateToastMessages', {
-                    message: `updated deadline`,
+                    message: `updated beatmap minimum favorites`,
                     type: 'info',
                 });
-                this.$store.commit('updateDeadline', {
+                this.$store.commit('updateBeatmapMinimumFavorites', {
                     missionId: this.mission.id,
-                    deadline,
+                    beatmapMinimumFavorites,
                 });
             }
         },
-        async updateWinCondition(e): Promise<void> {
-            const winCondition = await this.$http.executePost(`/admin/missions/${this.mission.id}/updateWinCondition/`, { winCondition: this.winCondition }, e);
+        async updateBeatmapMinimumPlayCount(e): Promise<void> {
+            const beatmapMinimumPlayCount = await this.$http.executePost(`/admin/missions/${this.mission.id}/updateBeatmapMinimumPlayCount/`, { beatmapMinimumPlayCount: this.beatmapMinimumPlayCount }, e);
 
-            if (!this.$http.isError(winCondition)) {
+            if (!this.$http.isError(beatmapMinimumPlayCount)) {
                 this.$store.dispatch('updateToastMessages', {
-                    message: `updated win condition`,
+                    message: `updated beatmap minimum playcount`,
                     type: 'info',
                 });
-                this.$store.commit('updateWinCondition', {
+                this.$store.commit('updateBeatmapMinimumPlayCount', {
                     missionId: this.mission.id,
-                    winCondition,
+                    beatmapMinimumPlayCount,
                 });
             }
         },
-        async toggleIsShowcaseMission(e): Promise<void> {
-            const isShowcaseMission = await this.$http.executePost(`/admin/missions/${this.mission.id}/toggleIsShowcaseMission/`, { isShowcaseMission: !this.mission.isShowcaseMission }, e);
+        async updateBeatmapMinimumLength(e): Promise<void> {
+            const beatmapMinimumLength = await this.$http.executePost(`/admin/missions/${this.mission.id}/updateBeatmapMinimumLength/`, { beatmapMinimumLength: this.beatmapMinimumLength }, e);
 
-            if (!this.$http.isError(isShowcaseMission)) {
+            if (!this.$http.isError(beatmapMinimumLength)) {
                 this.$store.dispatch('updateToastMessages', {
-                    message: `toggled isShowcaseMission`,
+                    message: `updated beatmap minimum length`,
                     type: 'info',
                 });
-                this.$store.commit('updateIsShowcaseMission', {
+                this.$store.commit('updateBeatmapMinimumLength', {
                     missionId: this.mission.id,
-                    isShowcaseMission,
+                    beatmapMinimumLength,
                 });
             }
         },
-        async toggleOpeningAnnounced(e): Promise<void> {
-            const openingAnnounced = await this.$http.executePost(`/admin/missions/${this.mission.id}/toggleOpeningAnnounced/`, { openingAnnounced: !this.mission.openingAnnounced }, e);
+        async toggleIsUniqueToRanked(e): Promise<void> {
+            const isUniqueToRanked = await this.$http.executePost(`/admin/missions/${this.mission.id}/toggleIsUniqueToRanked/`, { isUniqueToRanked: !this.mission.isUniqueToRanked }, e);
 
-            if (!this.$http.isError(openingAnnounced)) {
+            if (!this.$http.isError(isUniqueToRanked)) {
                 this.$store.dispatch('updateToastMessages', {
-                    message: `toggled openingAnnounced`,
+                    message: `toggled isUniqueToRanked`,
                     type: 'info',
                 });
-                this.$store.commit('updateOpeningAnnounced', {
+                this.$store.commit('updateIsUniqueToRanked', {
                     missionId: this.mission.id,
-                    openingAnnounced,
-                });
-            }
-        },
-        async toggleClosingAnnounced(e): Promise<void> {
-            const closingAnnounced = await this.$http.executePost(`/admin/missions/${this.mission.id}/toggleClosingAnnounced/`, { closingAnnounced: !this.mission.closingAnnounced }, e);
-
-            if (!this.$http.isError(closingAnnounced)) {
-                this.$store.dispatch('updateToastMessages', {
-                    message: `toggled closingAnnounced`,
-                    type: 'info',
-                });
-                this.$store.commit('updateClosingAnnounced', {
-                    missionId: this.mission.id,
-                    closingAnnounced,
-                });
-            }
-        },
-        async toggleMode(e): Promise<void> {
-            const modes = await this.$http.executePost(`/admin/missions/${this.mission.id}/toggleMode/`, { mode: this.mode }, e);
-
-            if (!this.$http.isError(modes)) {
-                this.$store.dispatch('updateToastMessages', {
-                    message: `toggled mode`,
-                    type: 'info',
-                });
-                this.$store.commit('updateModes', {
-                    missionId: this.mission.id,
-                    modes,
-                });
-            }
-        },
-        async toggleArtist(e): Promise<void> {
-            const artists = await this.$http.executePost(`/admin/missions/${this.mission.id}/toggleArtist/`, { artistLabel: this.selectedArtist }, e);
-
-            if (!this.$http.isError(artists)) {
-                this.$store.dispatch('updateToastMessages', {
-                    message: `toggled artist`,
-                    type: 'info',
-                });
-                this.$store.commit('updateArtists', {
-                    missionId: this.mission.id,
-                    artists,
+                    isUniqueToRanked,
                 });
             }
         },

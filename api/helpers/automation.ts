@@ -724,6 +724,50 @@ const validateRankedBeatmaps = cron.schedule('0 4 * * *', async () => { /* 9:00 
     scheduled: false,
 });
 
+/* update favorites/playcount for pending maps (used for priority quests with this as a requirement). limited to 1000 daily */
+const updateFavoritesAndPlayCount = cron.schedule('5 4 * * *', async () => { /* 9:05 PM PST */
+    const [beatmaps, response] = await Promise.all([
+        BeatmapModel
+            .find({
+                $or: [
+                    { status: BeatmapStatus.Done },
+                    { status: BeatmapStatus.WIP },
+                ],
+                url: { $exists: true },
+            })
+            .defaultPopulate()
+            .limit(1000)
+            .sort({ updatedAt: 1 })
+            .orFail(),
+        getClientCredentialsGrant(),
+    ]);
+
+    await sleep(250);
+
+    if (!isOsuResponseError(response)) {
+        const token = response.access_token;
+
+        for (const beatmap of beatmaps) {
+            if (beatmap.url && beatmap.url.length) {
+                const osuId = findBeatmapsetId(beatmap.url);
+                const bmInfo: any = await getBeatmapsetV2Info(token, osuId);
+                await sleep(50);
+
+                if (!isOsuResponseError(bmInfo)) {
+                    beatmap.favorites = bmInfo.favourite_count;
+                    beatmap.playCount = bmInfo.play_count;
+                    await beatmap.save();
+                }
+            } else {
+                beatmap.favorites = 0;
+                beatmap.playCount = 0;
+            }
+        }
+    }
+}, {
+    scheduled: false,
+});
+
 /* update points for all users once every month */
 const updatePoints = cron.schedule('0 0 27 * *', async () => { /* 27th of each month */
     const users = await UserModel.find({});
@@ -735,4 +779,4 @@ const updatePoints = cron.schedule('0 0 27 * *', async () => { /* 27th of each m
     scheduled: false,
 });
 
-export default { sendActionNotifications, setQualified, setRanked, publishQuests, completeQuests, rankUsers, updatePoints, processDailyArtists, validateRankedBeatmaps, dropOverdueQuests, processMissions };
+export default { sendActionNotifications, setQualified, setRanked, publishQuests, completeQuests, rankUsers, updatePoints, processDailyArtists, validateRankedBeatmaps, dropOverdueQuests, processMissions, updateFavoritesAndPlayCount };

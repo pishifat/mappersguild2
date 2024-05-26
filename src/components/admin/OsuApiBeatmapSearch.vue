@@ -1,7 +1,7 @@
 <template>
     <div class="container card card-body py-1">
         <h5 class="mt-2">
-            Search user in osu! API
+            Search beatmap in osu! API
         </h5>
         <input
             v-model="osuId"
@@ -10,10 +10,10 @@
             maxlength="18"
             autocomplete="off"
             placeholder="search by osuID..."
-            @keyup.enter="searchUser($event)"
+            @keyup.enter="searchBeatmap($event)"
         />
-        <button class="btn btn-sm w-100 btn-outline-info mb-2" @click="searchUser($event)">
-            Load user
+        <button class="btn btn-sm w-100 btn-info mb-2" @click="searchBeatmap($event)">
+            Load beatmap
         </button>
         <div v-if="output">
             <copy-paste>
@@ -28,7 +28,7 @@ import { defineComponent } from 'vue';
 import CopyPaste from '../CopyPaste.vue';
 
 export default defineComponent({
-    name: 'OsuApiUserSearch',
+    name: 'OsuApiBeatmapSearch',
     components: {
         CopyPaste,
     },
@@ -39,8 +39,8 @@ export default defineComponent({
         };
     },
     methods: {
-        async searchUser(e): Promise<void> {
-            const res: any = await this.$http.executePost('/admin/users/searchUser', { osuId: this.osuId }, e);
+        async searchBeatmap(e): Promise<void> {
+            const res: any = await this.$http.executePost('/admin/beatmaps/searchBeatmap', { osuId: this.osuId }, e);
 
             if (res && !res.error) {
                 this.output = res;

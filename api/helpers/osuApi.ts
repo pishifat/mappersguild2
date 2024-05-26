@@ -11,6 +11,8 @@ export interface OsuBeatmapsetV2Response {
     submitted_date: string;
     current_nominations: [];
     ranked: number;
+    favourite_count: number;
+    play_count: number;
 }
 
 export interface OsuBeatmapsetDiscussionV2Response {

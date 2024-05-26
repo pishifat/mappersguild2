@@ -245,6 +245,8 @@ beatmapsHostRouter.post('/:id/setLink', isValidBeatmap, isBeatmapHost, isValidUr
 
             if (!isOsuResponseError(bmInfo)) {
                 b.submissionDate = new Date(bmInfo.submitted_date);
+                b.favorites = bmInfo.favourite_count;
+                b.playCount = bmInfo.play_count;
                 await b.save();
             }
         }

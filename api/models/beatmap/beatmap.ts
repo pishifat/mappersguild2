@@ -28,10 +28,7 @@ const BeatmapSchema = new Schema<Beatmap>({
     mission: { type: 'ObjectId', ref: 'Mission' },
     url: { type: String },
     mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania', 'hybrid'], default: 'osu' },
-    length: { type: Number },
     packId: { type: Number },
-    rankedDate: { type: Date },
-    submissionDate: { type: Date },
     isShowcase: { type: Boolean }, // showcase beatmaps are created for fa news post announcements and receive quest bonus points
     queuedForRank: { type: Boolean }, // used for automation of status changes
     invalidForPoints: { type: Boolean },
@@ -39,6 +36,12 @@ const BeatmapSchema = new Schema<Beatmap>({
     skipWebhook: { type: Boolean },
     isWorldCup: { type: Boolean },
     isBundled: { type: Boolean },
+    /* from osu! API */
+    length: { type: Number },
+    rankedDate: { type: Date },
+    submissionDate: { type: Date },
+    favorites: { type: Number },
+    playCount: { type: Number },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const queryHelpers = {
