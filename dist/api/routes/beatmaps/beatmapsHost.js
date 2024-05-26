@@ -180,6 +180,8 @@ beatmapsHostRouter.post('/:id/setLink', middlewares_2.isValidBeatmap, middleware
             const bmInfo = await osuApi_1.getBeatmapsetV2Info(token, osuId);
             if (!osuApi_1.isOsuResponseError(bmInfo)) {
                 b.submissionDate = new Date(bmInfo.submitted_date);
+                b.favorites = bmInfo.favourite_count;
+                b.playCount = bmInfo.play_count;
                 await b.save();
             }
         }

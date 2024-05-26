@@ -13,6 +13,7 @@ const osuApi_1 = require("../../helpers/osuApi");
 const task_2 = require("../../../interfaces/beatmap/task");
 const user_1 = require("../../models/user");
 const osuBot_1 = require("../../helpers/osuBot");
+const helpers_2 = require("../../helpers/helpers");
 const adminBeatmapsRouter = express_1.default.Router();
 adminBeatmapsRouter.use(middlewares_1.isLoggedIn);
 adminBeatmapsRouter.use(middlewares_1.isAdmin);
@@ -270,5 +271,22 @@ adminBeatmapsRouter.get('/findBundledBeatmaps', async (req, res) => {
 /* POST toggle isBundled */
 adminBeatmapsRouter.post('/:id/toggleIsBundled', async (req, res) => {
     res.json(await beatmap_1.BeatmapModel.findByIdAndUpdate(req.params.id, { isBundled: !req.body.isBundled }).defaultPopulate().orFail());
+});
+/* POST search beatmap through osu api */
+adminBeatmapsRouter.post('/searchBeatmap', async (req, res) => {
+    const osuId = parseInt(req.body.osuId);
+    if (isNaN(osuId)) {
+        return res.json({ error: 'invalid osu id' });
+    }
+    const response = await osuApi_1.getClientCredentialsGrant();
+    if (osuApi_1.isOsuResponseError(response)) {
+        return res.json(helpers_2.defaultErrorMessage);
+    }
+    const token = response.access_token;
+    const userInfo = await osuApi_1.getBeatmapsetV2Info(token, osuId);
+    if (osuApi_1.isOsuResponseError(userInfo)) {
+        return res.json(helpers_2.defaultErrorMessage);
+    }
+    res.json(userInfo);
 });
 exports.default = adminBeatmapsRouter;

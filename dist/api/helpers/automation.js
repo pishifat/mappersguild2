@@ -616,6 +616,46 @@ const validateRankedBeatmaps = node_cron_1.default.schedule('0 4 * * *', async (
 }, {
     scheduled: false,
 });
+/* update favorites/playcount for pending maps (used for priority quests with this as a requirement). limited to 1000 daily */
+const updateFavoritesAndPlayCount = node_cron_1.default.schedule('5 4 * * *', async () => {
+    const [beatmaps, response] = await Promise.all([
+        beatmap_1.BeatmapModel
+            .find({
+            $or: [
+                { status: beatmap_2.BeatmapStatus.Done },
+                { status: beatmap_2.BeatmapStatus.WIP },
+            ],
+            url: { $exists: true },
+        })
+            .defaultPopulate()
+            .limit(1000)
+            .sort({ updatedAt: 1 })
+            .orFail(),
+        osuApi_1.getClientCredentialsGrant(),
+    ]);
+    await helpers_1.sleep(250);
+    if (!osuApi_1.isOsuResponseError(response)) {
+        const token = response.access_token;
+        for (const beatmap of beatmaps) {
+            if (beatmap.url && beatmap.url.length) {
+                const osuId = helpers_1.findBeatmapsetId(beatmap.url);
+                const bmInfo = await osuApi_1.getBeatmapsetV2Info(token, osuId);
+                await helpers_1.sleep(50);
+                if (!osuApi_1.isOsuResponseError(bmInfo)) {
+                    beatmap.favorites = bmInfo.favourite_count;
+                    beatmap.playCount = bmInfo.play_count;
+                    await beatmap.save();
+                }
+            }
+            else {
+                beatmap.favorites = 0;
+                beatmap.playCount = 0;
+            }
+        }
+    }
+}, {
+    scheduled: false,
+});
 /* update points for all users once every month */
 const updatePoints = node_cron_1.default.schedule('0 0 27 * *', async () => {
     const users = await user_1.UserModel.find({});
@@ -625,4 +665,4 @@ const updatePoints = node_cron_1.default.schedule('0 0 27 * *', async () => {
 }, {
     scheduled: false,
 });
-exports.default = { sendActionNotifications, setQualified, setRanked, publishQuests, completeQuests, rankUsers, updatePoints, processDailyArtists, validateRankedBeatmaps, dropOverdueQuests, processMissions };
+exports.default = { sendActionNotifications, setQualified, setRanked, publishQuests, completeQuests, rankUsers, updatePoints, processDailyArtists, validateRankedBeatmaps, dropOverdueQuests, processMissions, updateFavoritesAndPlayCount };

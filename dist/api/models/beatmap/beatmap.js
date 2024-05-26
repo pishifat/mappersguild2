@@ -35,10 +35,7 @@ const BeatmapSchema = new mongoose_1.Schema({
     mission: { type: 'ObjectId', ref: 'Mission' },
     url: { type: String },
     mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania', 'hybrid'], default: 'osu' },
-    length: { type: Number },
     packId: { type: Number },
-    rankedDate: { type: Date },
-    submissionDate: { type: Date },
     isShowcase: { type: Boolean },
     queuedForRank: { type: Boolean },
     invalidForPoints: { type: Boolean },
@@ -46,6 +43,12 @@ const BeatmapSchema = new mongoose_1.Schema({
     skipWebhook: { type: Boolean },
     isWorldCup: { type: Boolean },
     isBundled: { type: Boolean },
+    /* from osu! API */
+    length: { type: Number },
+    rankedDate: { type: Date },
+    submissionDate: { type: Date },
+    favorites: { type: Number },
+    playCount: { type: Number },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 const queryHelpers = {
     sortByLatest() {

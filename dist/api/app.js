@@ -143,5 +143,6 @@ app.listen(port, () => {
     automation_1.default.validateRankedBeatmaps.start();
     automation_1.default.dropOverdueQuests.start();
     automation_1.default.processMissions.start();
+    automation_1.default.updateFavoritesAndPlayCount.start();
 });
 exports.default = app;

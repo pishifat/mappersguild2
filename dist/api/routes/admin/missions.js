@@ -18,12 +18,12 @@ adminMissionsRouter.get('/load', async (req, res) => {
     const m = await mission_1.MissionModel
         .find({})
         .defaultPopulate()
-        .sort({ status: -1, name: 1 });
+        .sort({ createdAt: -1, status: -1, name: 1 });
     res.json(m);
 });
 /* POST add quest */
 adminMissionsRouter.post('/create', async (req, res) => {
-    const { deadline, name, tier, artists, objective, winCondition, isShowcaseMission, userMaximumRankedBeatmapsCount, userMaximumGlobalRank, userMaximumPp, userMinimumRank, beatmapEarliestSubmissionDate, beatmapLatestSubmissionDate, modes } = req.body;
+    const { deadline, name, tier, artists, objective, winCondition, isShowcaseMission, userMaximumRankedBeatmapsCount, userMaximumGlobalRank, userMaximumPp, userMinimumRank, beatmapEarliestSubmissionDate, beatmapLatestSubmissionDate, beatmapMinimumFavorites, beatmapMinimumPlayCount, beatmapMinimumLength, isUniqueToRanked, modes } = req.body;
     const validModes = [];
     for (const mode of modes) {
         switch (mode) {
@@ -64,6 +64,10 @@ adminMissionsRouter.post('/create', async (req, res) => {
     mission.userMinimumRank = userMinimumRank;
     mission.beatmapEarliestSubmissionDate = new Date(beatmapEarliestSubmissionDate);
     mission.beatmapLatestSubmissionDate = new Date(beatmapLatestSubmissionDate);
+    mission.beatmapMinimumFavorites = beatmapMinimumFavorites;
+    mission.beatmapMinimumPlayCount = beatmapMinimumPlayCount;
+    mission.beatmapMinimumLength = beatmapMinimumLength;
+    mission.isUniqueToRanked = isUniqueToRanked;
     await mission.save();
     res.json(mission);
 });
@@ -82,25 +86,15 @@ adminMissionsRouter.post('/:id/updateObjective', async (req, res) => {
     await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { objective: req.body.objective }).orFail();
     res.json(req.body.objective);
 });
-/* POST update mission status */
-adminMissionsRouter.post('/:id/updateStatus', async (req, res) => {
-    await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { status: req.body.status }).orFail();
-    res.json(req.body.status);
-});
 /* POST update mission win condition */
 adminMissionsRouter.post('/:id/updateWinCondition', async (req, res) => {
     await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { winCondition: req.body.winCondition }).orFail();
     res.json(req.body.winCondition);
 });
-/* POST toggle openingAnnounced */
-adminMissionsRouter.post('/:id/toggleOpeningAnnounced', async (req, res) => {
-    await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { openingAnnounced: req.body.openingAnnounced }).orFail();
-    res.json(req.body.openingAnnounced);
-});
-/* POST toggle closingAnnounced */
-adminMissionsRouter.post('/:id/toggleClosingAnnounced', async (req, res) => {
-    await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { closingAnnounced: req.body.closingAnnounced }).orFail();
-    res.json(req.body.closingAnnounced);
+/* POST update mission status */
+adminMissionsRouter.post('/:id/updateStatus', async (req, res) => {
+    await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { status: req.body.status }).orFail();
+    res.json(req.body.status);
 });
 /* POST toggle mode */
 adminMissionsRouter.post('/:id/toggleMode', async (req, res) => {
@@ -132,40 +126,75 @@ adminMissionsRouter.post('/:id/toggleArtist', async (req, res) => {
     const updatedMission = await mission_1.MissionModel.findById(req.params.id).defaultPopulate().orFail();
     res.json(updatedMission.artists);
 });
-/* POST update mission maximum ranked maps count */
-adminMissionsRouter.post('/:id/updateUserMaximumRankedBeatmapsCount', async (req, res) => {
-    await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { userMaximumRankedBeatmapsCount: req.body.userMaximumRankedBeatmapsCount }).orFail();
-    res.json(req.body.userMaximumRankedBeatmapsCount);
-});
-/* POST update mission maximum global rank */
-adminMissionsRouter.post('/:id/updateUserMaximumGlobalRank', async (req, res) => {
-    await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { userMaximumGlobalRank: req.body.userMaximumGlobalRank }).orFail();
-    res.json(req.body.userMaximumGlobalRank);
-});
-/* POST update mission maximum pp */
-adminMissionsRouter.post('/:id/updateUserMaximumPp', async (req, res) => {
-    await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { userMaximumPp: req.body.userMaximumPp }).orFail();
-    res.json(req.body.userMaximumPp);
-});
-/* POST update mission minimum mg rank */
-adminMissionsRouter.post('/:id/updateUserMaximumPp', async (req, res) => {
-    await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { userMaximumPp: req.body.userMaximumPp }).orFail();
-    res.json(req.body.userMaximumPp);
-});
-/* POST update mission earliest beatmap submission date */
-adminMissionsRouter.post('/:id/updateBeatmapEarliestSubmissionDate', async (req, res) => {
-    await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { beatmapEarliestSubmissionDate: new Date(req.body.beatmapEarliestSubmissionDate) }).orFail();
-    res.json(req.body.beatmapEarliestSubmissionDate);
-});
 /* POST update mission deadline */
 adminMissionsRouter.post('/:id/updateDeadline', async (req, res) => {
     await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { deadline: new Date(req.body.deadline) }).orFail();
     res.json(req.body.deadline);
 });
-/* POST update mission latest beatmap submission date */
+/* POST toggle isShowcaseMission */
+adminMissionsRouter.post('/:id/toggleIsShowcaseMission', async (req, res) => {
+    await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { isShowcaseMission: req.body.isShowcaseMission }).orFail();
+    res.json(req.body.isShowcaseMission);
+});
+/* POST toggle openingAnnounced */
+adminMissionsRouter.post('/:id/toggleOpeningAnnounced', async (req, res) => {
+    await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { openingAnnounced: req.body.openingAnnounced }).orFail();
+    res.json(req.body.openingAnnounced);
+});
+/* POST toggle closingAnnounced */
+adminMissionsRouter.post('/:id/toggleClosingAnnounced', async (req, res) => {
+    await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { closingAnnounced: req.body.closingAnnounced }).orFail();
+    res.json(req.body.closingAnnounced);
+});
+/* POST update mission requirement for maximum ranked maps count */
+adminMissionsRouter.post('/:id/updateUserMaximumRankedBeatmapsCount', async (req, res) => {
+    await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { userMaximumRankedBeatmapsCount: req.body.userMaximumRankedBeatmapsCount }).orFail();
+    res.json(req.body.userMaximumRankedBeatmapsCount);
+});
+/* POST update mission requirement for maximum global rank */
+adminMissionsRouter.post('/:id/updateUserMaximumGlobalRank', async (req, res) => {
+    await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { userMaximumGlobalRank: req.body.userMaximumGlobalRank }).orFail();
+    res.json(req.body.userMaximumGlobalRank);
+});
+/* POST update mission requirement for maximum pp */
+adminMissionsRouter.post('/:id/updateUserMaximumPp', async (req, res) => {
+    await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { userMaximumPp: req.body.userMaximumPp }).orFail();
+    res.json(req.body.userMaximumPp);
+});
+/* POST update mission requirement for minimum mg rank */
+adminMissionsRouter.post('/:id/updateUserMaximumPp', async (req, res) => {
+    await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { userMaximumPp: req.body.userMaximumPp }).orFail();
+    res.json(req.body.userMaximumPp);
+});
+/* POST update mission requirement for earliest beatmap submission date */
+adminMissionsRouter.post('/:id/updateBeatmapEarliestSubmissionDate', async (req, res) => {
+    await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { beatmapEarliestSubmissionDate: new Date(req.body.beatmapEarliestSubmissionDate) }).orFail();
+    res.json(req.body.beatmapEarliestSubmissionDate);
+});
+/* POST update mission requirement for latest beatmap submission date */
 adminMissionsRouter.post('/:id/updateBeatmapLatestSubmissionDate', async (req, res) => {
     await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { beatmapLatestSubmissionDate: new Date(req.body.beatmapLatestSubmissionDate) }).orFail();
     res.json(req.body.beatmapLatestSubmissionDate);
+});
+/* POST update mission requirement for beatmap minimum favorites */
+adminMissionsRouter.post('/:id/updateBeatmapMinimumFavorites', async (req, res) => {
+    await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { beatmapMinimumFavorites: req.body.beatmapMinimumFavorites }).orFail();
+    res.json(req.body.beatmapMinimumFavorites);
+});
+/* POST update mission requirement for beatmap minimum playcount */
+adminMissionsRouter.post('/:id/updateBeatmapMinimumPlayCount', async (req, res) => {
+    await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { beatmapMinimumPlayCount: req.body.beatmapMinimumPlayCount }).orFail();
+    res.json(req.body.beatmapMinimumPlayCount);
+});
+/* POST update mission requirement for beatmap minimum length */
+adminMissionsRouter.post('/:id/updateBeatmapMinimumLength', async (req, res) => {
+    await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { beatmapMinimumLength: req.body.beatmapMinimumLength }).orFail();
+    res.json(req.body.beatmapMinimumLength);
+});
+/* POST update mission requirement for is unique to ranked */
+adminMissionsRouter.post('/:id/toggleIsUniqueToRanked', async (req, res) => {
+    await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { isUniqueToRanked: req.body.isUniqueToRanked }).orFail();
+    res.json(req.body.isUniqueToRanked);
 });
 /* POST toggle winning beatmap for mission */
 adminMissionsRouter.post('/:missionId/:beatmapId/toggleWinningBeatmap', async (req, res) => {
