@@ -270,24 +270,4 @@ adminQuestsRouter.post('/:id/delete', async (req, res) => {
     LogModel.generate(req.session?.mongoId, `deleted quest "${quest.name}"`, LogCategory.Quest);
 });
 
-/* POST remove duplicate party members from all parties */
-adminQuestsRouter.post('/removeDuplicatePartyMembers', async (req, res) => {
-    const parties = await PartyModel
-        .find({})
-        .orFail();
-
-    for (const party of parties) {
-        const members = party.members.sort();
-
-        for (let i = 1; i < members.length; i++) {
-            if (members[i].toString() == members[i-1].toString()) {
-                await PartyModel.findByIdAndUpdate(party.id, { $pull: { members: members[i] } }); // removes all
-                await PartyModel.findByIdAndUpdate(party.id, { $push: { members: members[i] } }); // adds 1
-            }
-        }
-    }
-
-    res.json(true);
-});
-
 export default adminQuestsRouter;

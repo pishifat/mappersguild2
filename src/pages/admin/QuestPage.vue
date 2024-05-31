@@ -7,10 +7,6 @@
                         Add quest
                     </button>
 
-                    <button class="btn btn-sm btn-info w-100 mb-1" @click="removeDuplicatePartyMembers($event)">
-                        Remove duplicate party members
-                    </button>
-
                     <data-table
                         v-slot="{ obj: quest }"
                         :data="quests"
@@ -108,16 +104,6 @@ export default defineComponent({
 
             if (i !== -1) {
                 this.quests[i] = q;
-            }
-        },
-        async removeDuplicatePartyMembers(e): Promise<void> {
-            const success = await this.$http.executePost('/admin/quests/removeDuplicatePartyMembers', {}, e);
-
-            if (success) {
-                this.$store.dispatch('updateToastMessages', {
-                    message: `removed duplicate party members`,
-                    type: 'success',
-                });
             }
         },
     },
