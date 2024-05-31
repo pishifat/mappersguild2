@@ -43,7 +43,7 @@ missionsRouter.get('/relevantInfo', async (req, res) => {
             openingAnnounced: true,
         })
             .defaultPopulate()
-            .sort({ tier: 1 }),
+            .sort({ tier: 1, createdAt: -1 }),
         beatmap_1.BeatmapModel
             .find({
             host: req.session.mongoId,
@@ -85,6 +85,9 @@ function meetsRequirements(mission, user, beatmap, mode) {
             break;
     }
     if (mission.userMaximumPp && (modePp > mission.userMaximumPp)) {
+        return false;
+    }
+    if (mission.userMinimumPp && (modePp < mission.userMinimumPp)) {
         return false;
     }
     /* beatmap requirements */
