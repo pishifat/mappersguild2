@@ -1,37 +1,41 @@
 <template>
     <div>
-        <div class="container card card-body py-1">
-            <div class="row">
-                <div class="col">
-                    <button class="btn btn-sm btn-info w-100 mb-1" data-bs-toggle="modal" data-bs-target="#submitQuest">
-                        Add quest
-                    </button>
+        <div class="container card card-body py-2">
+            <h5>Quests list</h5>
+            <button class="btn btn-sm btn-info w-100" @click="loadQuests($event)">
+                Load all quests
+            </button>
+            <data-table
+                v-if="quests.length"
+                v-slot="{ obj: quest }"
+                :data="quests"
+                :headers="['name', 'creator', 'modes', 'status', 'mapsets']"
+                :custom-data-target="'#editQuest'"
+                @update:selected-id="selectedQuestId = $event"
+            >
+                <td>
+                    {{ quest.name }}
+                </td>
+                <td>
+                    {{ quest.creator.username }}
+                </td>
+                <td>
+                    <modes-icons :modes="quest.modes" />
+                </td>
+                <td>
+                    {{ quest.status }}
+                </td>
+                <td>
+                    {{ quest.requiredMapsets }}
+                </td>
+            </data-table>
+        </div>
 
-                    <data-table
-                        v-slot="{ obj: quest }"
-                        :data="quests"
-                        :headers="['name', 'creator', 'modes', 'status', 'mapsets']"
-                        :custom-data-target="'#editQuest'"
-                        @update:selected-id="selectedQuestId = $event"
-                    >
-                        <td>
-                            {{ quest.name }}
-                        </td>
-                        <td>
-                            {{ quest.creator.username }}
-                        </td>
-                        <td>
-                            <modes-icons :modes="quest.modes" />
-                        </td>
-                        <td>
-                            {{ quest.status }}
-                        </td>
-                        <td>
-                            {{ quest.requiredMapsets }}
-                        </td>
-                    </data-table>
-                </div>
-            </div>
+        <div class="container card card-body py-2 mt-2">
+            <h5>Create quest</h5>
+            <button class="btn btn-sm btn-info w-100 mb-1" data-bs-toggle="modal" data-bs-target="#submitQuest">
+                Add quest
+            </button>
         </div>
 
         <submit-quest-modal
@@ -87,14 +91,14 @@ export default defineComponent({
             this.$store.unregisterModule('questsAdmin');
         }
     },
-    async created() {
-        const quests = await this.$http.initialRequest<Quest[]>('/admin/quests/load');
-
-        if (!this.$http.isError(quests)) {
-            this.$store.commit('setQuests', quests);
-        }
-    },
     methods: {
+        async loadQuests(e): Promise<void> {
+            const quests = await this.$http.executeGet<Quest[]>('/admin/beatmaps/load', e);
+
+            if (!this.$http.isError(quests)) {
+                this.$store.commit('setQuests', quests);
+            }
+        },
         deleteQuest(q): void {
             const i = this.quests.findIndex(quest => quest.id == q.id);
             this.quests.splice(i, 1);

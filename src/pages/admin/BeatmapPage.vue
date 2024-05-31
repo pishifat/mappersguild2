@@ -7,6 +7,7 @@
             </button>
 
             <data-table
+                v-if="beatmaps.length"
                 v-slot="{ obj: beatmap }"
                 :data="beatmaps"
                 :headers="['METADATA', 'PACK ID', 'CREATOR', 'STATUS']"
