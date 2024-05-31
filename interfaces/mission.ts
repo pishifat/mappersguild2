@@ -20,6 +20,7 @@ export enum MissionMode {
 export interface Mission extends Document {
     _id: any;
     id: string;
+    createdAt: Date;
     name: string;
     tier: number;
     deadline: Date;
@@ -42,6 +43,7 @@ export interface Mission extends Document {
     userMaximumRankedBeatmapsCount: number;
     userMaximumGlobalRank: number;
     userMaximumPp: number;
+    userMinimumPp: number;
     userMinimumRank: number;
     /* beatmap requirements. optional and growing */
     beatmapEarliestSubmissionDate: Date;

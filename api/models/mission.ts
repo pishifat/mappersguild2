@@ -14,7 +14,7 @@ const missionSchema = new Schema<Mission, MissionStatics>({
     tier: { type: Number, required: true },
     objective: { type: String, required: true },
     deadline: { type: Date, required: true },
-    winCondition: { type: String, required: true },
+    winCondition: { type: String },
     openingAnnounced: { type: Boolean, default: false },
     closingAnnounced: { type: Boolean, default: false },
     winningBeatmaps: [{ type: 'ObjectId', ref: 'Beatmap' }],
@@ -30,6 +30,7 @@ const missionSchema = new Schema<Mission, MissionStatics>({
     userMaximumRankedBeatmapsCount: { type: Number },
     userMaximumGlobalRank: { type: Number },
     userMaximumPp: { type: Number },
+    userMinimumPp: { type: Number },
     userMinimumRank: { type: Number },
     /* beatmap requirements. optional and growing */
     beatmapEarliestSubmissionDate: { type: Date },

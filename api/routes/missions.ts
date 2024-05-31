@@ -1,5 +1,4 @@
 import express from 'express';
-import { findBeatmapsetId, sleep } from '../helpers/helpers';
 import { isLoggedIn } from '../helpers/middlewares';
 import { MissionModel } from '../models/mission';
 import { LogModel } from '../models/log';
@@ -16,7 +15,6 @@ import { isBeatmapHost, isValidBeatmap } from './beatmaps/middlewares';
 import { FeaturedArtistModel } from '../models/featuredArtist';
 import { devWebhookPost, webhookColors } from '../helpers/discordApi';
 import { updateUserPoints } from '../helpers/points';
-import { getClientCredentialsGrant, isOsuResponseError, getBeatmapsetV2Info } from '../helpers/osuApi';
 
 const missionsRouter = express.Router();
 
@@ -48,7 +46,7 @@ missionsRouter.get('/relevantInfo', async (req, res) => {
                 openingAnnounced: true,
             })
             .defaultPopulate()
-            .sort({ tier: 1 }),
+            .sort({ tier: 1, createdAt: -1 }),
         BeatmapModel
             .find({
                 host: req.session.mongoId,
@@ -96,6 +94,10 @@ function meetsRequirements(mission, user, beatmap, mode) {
     }
 
     if (mission.userMaximumPp && (modePp > mission.userMaximumPp)) {
+        return false;
+    }
+
+    if (mission.userMinimumPp && (modePp < mission.userMinimumPp)) {
         return false;
     }
 

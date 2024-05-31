@@ -23,7 +23,7 @@ adminMissionsRouter.get('/load', async (req, res) => {
 
 /* POST add quest */
 adminMissionsRouter.post('/create', async (req, res) => {
-    const { deadline, name, tier, artists, objective, winCondition, isShowcaseMission, userMaximumRankedBeatmapsCount, userMaximumGlobalRank, userMaximumPp, userMinimumRank, beatmapEarliestSubmissionDate, beatmapLatestSubmissionDate, beatmapMinimumFavorites, beatmapMinimumPlayCount, beatmapMinimumLength, isUniqueToRanked, modes } = req.body;
+    const { deadline, name, tier, artists, objective, winCondition, isShowcaseMission, userMaximumRankedBeatmapsCount, userMaximumGlobalRank, userMaximumPp, userMinimumPp, userMinimumRank, beatmapEarliestSubmissionDate, beatmapLatestSubmissionDate, beatmapMinimumFavorites, beatmapMinimumPlayCount, beatmapMinimumLength, isUniqueToRanked, modes } = req.body;
 
     const validModes: MissionMode[] = [];
 
@@ -65,6 +65,7 @@ adminMissionsRouter.post('/create', async (req, res) => {
     mission.userMaximumRankedBeatmapsCount = userMaximumRankedBeatmapsCount;
     mission.userMaximumGlobalRank = userMaximumGlobalRank;
     mission.userMaximumPp = userMaximumPp;
+    mission.userMinimumPp = userMinimumPp;
     mission.userMinimumRank = userMinimumRank;
     mission.beatmapEarliestSubmissionDate = new Date(beatmapEarliestSubmissionDate);
     mission.beatmapLatestSubmissionDate = new Date(beatmapLatestSubmissionDate);
@@ -200,11 +201,18 @@ adminMissionsRouter.post('/:id/updateUserMaximumPp', async (req, res) => {
     res.json(req.body.userMaximumPp);
 });
 
-/* POST update mission requirement for minimum mg rank */
-adminMissionsRouter.post('/:id/updateUserMaximumPp', async (req, res) => {
-    await MissionModel.findByIdAndUpdate(req.params.id, { userMaximumPp: req.body.userMaximumPp }).orFail();
+/* POST update mission requirement for minimum pp */
+adminMissionsRouter.post('/:id/updateUserMinimumPp', async (req, res) => {
+    await MissionModel.findByIdAndUpdate(req.params.id, { userMinimumPp: req.body.userMinimumPp }).orFail();
 
-    res.json(req.body.userMaximumPp);
+    res.json(req.body.userMinimumPp);
+});
+
+/* POST update mission requirement for minimum mg rank */
+adminMissionsRouter.post('/:id/updateUserMinimumRank', async (req, res) => {
+    await MissionModel.findByIdAndUpdate(req.params.id, { userMinimumRank: req.body.userMinimumRank }).orFail();
+
+    res.json(req.body.userMinimumRank);
 });
 
 /* POST update mission requirement for earliest beatmap submission date */

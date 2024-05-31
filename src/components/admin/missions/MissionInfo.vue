@@ -317,6 +317,29 @@
                     </button>
                 </div>
             </div>
+            <!-- min pp -->
+            <div class="row d-flex mt-2 align-items-center">
+                <div class="col-sm-2">
+                    Min. pp
+                </div>
+                <div class="col-sm-2">
+                    <input
+                        v-model="userMinimumPp"
+                        class="form-control form-control-sm"
+                        type="number"
+                        autocomplete="off"
+                        placeholder="min pp..."
+                    />
+                </div>
+                <div class="col-sm-4 small text-secondary">
+                    Includes: <b>label, validation</b>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-sm btn-outline-info w-100" @click="updateUserMinimumPp($event)">
+                        Update user min pp
+                    </button>
+                </div>
+            </div>
             <!-- min mg rank -->
             <div class="row d-flex mt-2 align-items-center">
                 <div class="col-sm-2">
@@ -524,6 +547,7 @@ export default defineComponent({
             userMaximumRankedBeatmapsCount: this.mission.userMaximumRankedBeatmapsCount,
             userMaximumGlobalRank: this.mission.userMaximumGlobalRank,
             userMaximumPp: this.mission.userMaximumPp,
+            userMinimumPp: this.mission.userMinimumPp,
             userMinimumRank: this.mission.userMinimumRank,
             beatmapEarliestSubmissionDate: new Date(this.mission.beatmapEarliestSubmissionDate),
             beatmapLatestSubmissionDate: new Date(this.mission.beatmapLatestSubmissionDate),
@@ -546,6 +570,7 @@ export default defineComponent({
             this.userMaximumRankedBeatmapsCount = this.mission.userMaximumRankedBeatmapsCount;
             this.userMaximumGlobalRank = this.mission.userMaximumGlobalRank;
             this.userMaximumPp = this.mission.userMaximumPp;
+            this.userMinimumPp = this.mission.userMinimumPp;
             this.userMinimumRank = this.mission.userMinimumRank;
             this.beatmapEarliestSubmissionDate = new Date(this.mission.beatmapEarliestSubmissionDate);
             this.beatmapLatestSubmissionDate = new Date(this.mission.beatmapLatestSubmissionDate);
@@ -761,6 +786,20 @@ export default defineComponent({
                 this.$store.commit('updateUserMaximumPp', {
                     missionId: this.mission.id,
                     userMaximumPp,
+                });
+            }
+        },
+        async updateUserMinimumPp(e): Promise<void> {
+            const userMinimumPp = await this.$http.executePost(`/admin/missions/${this.mission.id}/updateUserMinimumPp/`, { userMinimumPp: this.userMinimumPp }, e);
+
+            if (!this.$http.isError(userMinimumPp)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated user min pp for mission`,
+                    type: 'info',
+                });
+                this.$store.commit('updateUserMinimumPp', {
+                    missionId: this.mission.id,
+                    userMinimumPp,
                 });
             }
         },

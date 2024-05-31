@@ -96,9 +96,9 @@ export default defineComponent({
             return sortedUsers;
         },
         async toggleIsQuestTrailblazer(userOsuId, e): Promise<void> {
-            const winCondition = await this.$http.executePost(`/admin/missions/toggleIsQuestTrailblazer/`, { userOsuId }, e);
+            const isQuestTrailblazer = await this.$http.executePost(`/admin/missions/toggleIsQuestTrailblazer/`, { userOsuId }, e);
 
-            if (!this.$http.isError(winCondition)) {
+            if (!this.$http.isError(isQuestTrailblazer)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `toggled isQuestTrailblazer, refresh to see changes`,
                     type: 'info',

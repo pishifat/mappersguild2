@@ -35,37 +35,15 @@ function generateMissionDetails(mission) {
 
     text += `\n[**${mission.name}**](https://mappersguild.com/missions?id=${mission.id})\n`;
     text += `\n**Objective:** ${mission.objective}\n`;
-    text += `\n**Win condition:** ${mission.winCondition}`;
+    //text += `\n**Win condition:** ${mission.winCondition}`;
 
     if (mission.userMaximumRankedBeatmapsCount || mission.userMaximumRankedBeatmapsCount === 0) {
         text += `\n\nTo participate in this quest, you must meet you **cannot** have more than **${mission.userMaximumRankedBeatmapsCount} ranked maps**`;
     }
 
-    /*if (mission.userMaximumGlobalRank || mission.userMaximumRankedBeatmapsCount || mission.userMaximumPp || mission.userMaximumRankedBeatmapsCount === 0 || mission.beatmapEarliestSubmissionDate || mission.beatmapLatestSubmissionDate) {
-        text += `\n\nTo participate in this quest, you must meet these requirements:`;
-
-        if (mission.userMaximumRankedBeatmapsCount || mission.userMaximumRankedBeatmapsCount === 0) {
-            text += `\n- You **cannot** have more than **${mission.userMaximumRankedBeatmapsCount} ranked maps**`;
-        }
-
-        if (mission.userMaximumGlobalRank) {
-            text += `\n- Your global rank must be **no higher than ${mission.userMaximumGlobalRank}**`;
-        }
-
-        if (mission.userMaximumPp) {
-            text += `\n- Your total performance points must be **no higher than ${mission.userMaximumPp}** in the relevant mode`;
-        }
-
-        if (mission.beatmapEarliestSubmissionDate) {
-            text += `\n- Your beatmap must be submitted to the osu! website after **${mission.beatmapEarliestSubmissionDate}**`;
-        }
-
-        if (mission.beatmapLatestSubmissionDate) {
-            text += `\n- Your beatmap must be submitted to the osu! website before **${mission.beatmapLatestSubmissionDate}**`;
-        }
-    } else {
-        text += `\nAnyone can participate in this quest.`;
-    }*/
+    if (mission.userMinimumPp) {
+        text += `\n\nTo participate in this quest, you must have **${mission.userMinimumPp} pp** in your map's game mode.`;
+    }
 
     return text;
 }
@@ -376,7 +354,7 @@ const sendActionNotifications = cron.schedule('0 23 * * *', async () => { /* 4:0
 });
 
 /* open/close announcements and mark missions as inactive */
-const processMissions = cron.schedule('46 22 * * *', async () => { /* 3:00 PM PST */
+const processMissions = cron.schedule('11 * * * * *', async () => { /* 3:00 PM PST */
     const today = new Date();
 
     const missions = await MissionModel
@@ -396,52 +374,6 @@ const processMissions = cron.schedule('46 22 * * *', async () => { /* 3:00 PM PS
             LogModel.generate(null, `"${mission.name}" opened`, LogCategory.Mission );
 
             // webhook
-            const fields = [
-                {
-                    name: 'Objective',
-                    value: mission.objective,
-                },
-                {
-                    name: 'Win condition',
-                    value: mission.winCondition,
-                },
-            ];
-
-            if (mission.userMaximumGlobalRank) {
-                fields.push({
-                    name: 'Global rank requirement',
-                    value: `Your global rank must be no higher than **${mission.userMaximumGlobalRank}**`,
-                });
-            }
-
-            if (mission.userMaximumRankedBeatmapsCount) {
-                fields.push({
-                    name: 'Max ranked beatmaps requirement',
-                    value: `You cannot have more than **${mission.userMaximumRankedBeatmapsCount} ranked maps**`,
-                });
-            }
-
-            if (mission.userMaximumPp) {
-                fields.push({
-                    name: 'Max performance points requirement',
-                    value: `Your total performance points must be no higher than **${mission.userMaximumPp}** in the relevant mode`,
-                });
-            }
-
-            if (mission.beatmapEarliestSubmissionDate) {
-                fields.push({
-                    name: 'Beatmap submission date requirement',
-                    value: `Your beatmap must be submitted to the osu! website after **${mission.beatmapEarliestSubmissionDate}**`,
-                });
-            }
-
-            if (mission.beatmapLatestSubmissionDate) {
-                fields.push({
-                    name: 'Beatmap submission date requirement',
-                    value: `Your beatmap must be submitted to the osu! website before **${mission.beatmapLatestSubmissionDate}**`,
-                });
-            }
-
             await webhookPost([{
                 ...await generateBotAuthorWebhook(),
                 color: webhookColors.lightBlue,

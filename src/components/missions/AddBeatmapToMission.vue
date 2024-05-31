@@ -110,6 +110,10 @@ export default defineComponent({
                     return false;
                 }
 
+                if (this.mission.userMinimumPp && (modePp < this.mission.userMinimumPp)) {
+                    return false;
+                }
+
                 return true;
             });
 

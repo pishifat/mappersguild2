@@ -148,6 +148,13 @@
                 type="number"
             />
 
+            <!-- minimum pp -->
+            <form-input
+                v-model.number="userMinimumPp"
+                label="Min pp"
+                type="number"
+            />
+
             <!-- minimum mg rank -->
             <form-input
                 v-model.number="userMinimumRank"
@@ -256,6 +263,7 @@ export default defineComponent({
             userMaximumRankedBeatmapsCount: null,
             userMaximumGlobalRank: null,
             userMaximumPp: null,
+            userMinimumPp: null,
             userMinimumRank: null,
             beatmapEarliestSubmissionDate: '2007-01-01',
             beatmapLatestSubmissionDate: '2100-01-01',
@@ -332,6 +340,7 @@ export default defineComponent({
                 userMaximumRankedBeatmapsCount: this.userMaximumRankedBeatmapsCount,
                 userMaximumGlobalRank: this.userMaximumGlobalRank,
                 userMaximumPp: this.userMaximumPp,
+                userMinimumPp: this.userMinimumPp,
                 userMinimumRank: this.userMinimumRank,
                 beatmapEarliestSubmissionDate: this.beatmapEarliestSubmissionDate,
                 beatmapLatestSubmissionDate: this.beatmapLatestSubmissionDate,

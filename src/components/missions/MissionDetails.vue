@@ -9,7 +9,7 @@
                 :mission="mission"
             />
         </div>
-        <div class="col-sm-12 mb-2">
+        <div v-if="mission.winCondition && mission.winCondition.length" class="col-sm-12 mb-2">
             <b>Win condition:</b>
             <div class="text-secondary mt-1" v-html="$md.render(mission.winCondition.trim())" />
         </div>
@@ -24,9 +24,9 @@
         <hr />
         <div class="col-sm-12 small">
             <b>Deadline:</b>
-            <span class="text-secondary ms-1">{{ new Date(mission.deadline).toLocaleString() }}</span>
+            <span class="text-secondary ms-1">{{ new Date(mission.deadline).toLocaleDateString() }}</span>
         </div>
-        <div class="col-sm-12 small">
+        <div v-if="!mission.isShowcaseMission" class="col-sm-12 small">
             <b>Applicable Featured Artists:</b>
             <span v-if="mission.artists && mission.artists.length" class="text-secondary ms-1">
                 <artist-link-list
@@ -94,22 +94,29 @@ export default defineComponent({
 
             if (this.mission.userMaximumPp) {
                 requirements.push({
-                    text: `Your performance points in the relevant mode must be no higher than `,
+                    text: `Your performance points in your map's mode must be no higher than `,
                     bold: `${this.mission.userMaximumPp.toLocaleString()}`,
+                });
+            }
+
+            if (this.mission.userMinimumPp) {
+                requirements.push({
+                    text: `Your performance points in your map's mode must be higher than `,
+                    bold: `${this.mission.userMinimumPp.toLocaleString()}`,
                 });
             }
 
             if (this.mission.beatmapEarliestSubmissionDate && (new Date(this.mission.beatmapEarliestSubmissionDate) > new Date('2007-09-17'))) {
                 requirements.push({
                     text: `Your beatmap must be submitted to the osu! website `,
-                    bold: `after ${new Date(this.mission.beatmapEarliestSubmissionDate).toLocaleString()}`,
+                    bold: `after ${new Date(this.mission.beatmapEarliestSubmissionDate).toLocaleDateString()}`,
                 });
             }
 
             if (this.mission.beatmapLatestSubmissionDate && (new Date(this.mission.beatmapLatestSubmissionDate) < new Date('2050-01-01'))) {
                 requirements.push({
                     text: `Your beatmap must be submitted to the osu! website `,
-                    bold: `before ${new Date(this.mission.beatmapLatestSubmissionDate).toLocaleString()}`,
+                    bold: `before ${new Date(this.mission.beatmapLatestSubmissionDate).toLocaleDateString()}`,
                 });
             }
 
@@ -159,7 +166,7 @@ export default defineComponent({
             if (this.mission.isUniqueToRanked) {
                 requirements.push({
                     text: `Your beatmap's song must be `,
-                    bold: `unique to the Ranked section in your map's mode`,
+                    bold: `unique to the Ranked section in your map's mode as of ${new Date(this.mission.createdAt).toLocaleDateString()}`,
                 });
             }
 

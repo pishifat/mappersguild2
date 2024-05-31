@@ -133,6 +133,13 @@ const store: Module<MissionState, MainState> = {
                 mission.userMaximumPp = payload.userMaximumPp;
             }
         },
+        updateUserMinimumPp (state, payload): void {
+            const mission = state.missions.find(m => m.id == payload.missionId);
+
+            if (mission) {
+                mission.userMinimumPp = payload.userMinimumPp;
+            }
+        },
         updateUserMinimumRank (state, payload): void {
             const mission = state.missions.find(m => m.id == payload.missionId);
 
