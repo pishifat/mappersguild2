@@ -11,7 +11,6 @@ const quest_2 = require("../../../interfaces/quest");
 const log_1 = require("../../models/log");
 const log_2 = require("../../../interfaces/log");
 const discordApi_1 = require("../../helpers/discordApi");
-const party_1 = require("../../models/party");
 const spentPoints_1 = require("../../models/spentPoints");
 const helpers_1 = require("../../helpers/helpers");
 const adminQuestsRouter = express_1.default.Router();
@@ -205,21 +204,5 @@ adminQuestsRouter.post('/:id/delete', async (req, res) => {
     await quest.remove();
     res.json({ success: 'ok' });
     log_1.LogModel.generate(req.session?.mongoId, `deleted quest "${quest.name}"`, log_2.LogCategory.Quest);
-});
-/* POST remove duplicate party members from all parties */
-adminQuestsRouter.post('/removeDuplicatePartyMembers', async (req, res) => {
-    const parties = await party_1.PartyModel
-        .find({})
-        .orFail();
-    for (const party of parties) {
-        const members = party.members.sort();
-        for (let i = 1; i < members.length; i++) {
-            if (members[i].toString() == members[i - 1].toString()) {
-                await party_1.PartyModel.findByIdAndUpdate(party.id, { $pull: { members: members[i] } }); // removes all
-                await party_1.PartyModel.findByIdAndUpdate(party.id, { $push: { members: members[i] } }); // adds 1
-            }
-        }
-    }
-    res.json(true);
 });
 exports.default = adminQuestsRouter;
