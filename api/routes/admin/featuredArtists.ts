@@ -95,7 +95,7 @@ adminFeaturedArtistsRouter.post('/:id/songs/create', async (req, res) => {
     song.artist = req.body.artist.trim();
     song.title = req.body.title.trim();
 
-    if (song.oszUrl && song.oszUrl.length) {
+    if (req.body.oszUrl && req.body.oszUrl.length) {
         song.oszUrl = req.body.oszUrl.trim();
     } else {
         song.oszUrl = null;
