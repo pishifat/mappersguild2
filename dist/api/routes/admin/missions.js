@@ -237,4 +237,14 @@ adminMissionsRouter.post('/toggleIsQuestTrailblazer', async (req, res) => {
     await user_1.UserModel.findByIdAndUpdate(user._id, { isQuestTrailblazer: true });
     res.json(true);
 });
+/* POST load recent mission winners */
+adminMissionsRouter.post('/loadRecentMissionWinners', async (req, res) => {
+    const date = new Date(req.body.date);
+    const missions = await mission_1.MissionModel.find({ createdAt: { $gt: date } });
+    for (const mission of missions) {
+        console.log(mission);
+    }
+    return res.json({ error: 'fuck' });
+    res.json(true);
+});
 exports.default = adminMissionsRouter;

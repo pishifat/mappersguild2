@@ -32,7 +32,7 @@ adminRouter.get('/loadActionBeatmaps/', async (req, res) => {
 /* GET quests in need of action */
 adminRouter.get('/loadActionQuests/', async (req, res) => {
     let quests = await quest_1.QuestModel
-        .find({ status: quest_2.QuestStatus.WIP })
+        .find({ status: quest_2.QuestStatus.WIP, queuedForCompletion: { $ne: true } })
         .defaultPopulate();
     quests = quests.filter(q => q.associatedMaps.length >= q.requiredMapsets &&
         q.associatedMaps.every(b => b.status === beatmap_2.BeatmapStatus.Ranked));
