@@ -1,13 +1,13 @@
 <template>
-    <div class="container card card-body py-1">
-        <h5 class="mt-2">
+    <div class="container card card-body py-3 mb-2">
+        <h5>
             FA showcase users by mode
         </h5>
-        <button class="btn btn-sm w-100 btn-outline-info mb-3" @click="findShowcaseUsers($event)">
+        <button class="btn btn-sm w-100 btn-info" @click="findShowcaseUsers($event)">
             Load users
         </button>
 
-        <div v-if="osuUsers.length && taikoUsers.length && catchUsers.length && maniaUsers.length" class="row">
+        <div v-if="osuUsers.length && taikoUsers.length && catchUsers.length && maniaUsers.length" class="row mt-3">
             <div v-if="osuUsers.length" class="col-sm-3">
                 osu!
                 <copy-paste :distinct="'osu'">

@@ -1,20 +1,48 @@
 <template>
-    <div class="container card card-body py-1 my-2">
-        <div v-for="user in loadWinners()" :key="user.osuId">
-            <user-link
-                :user="user"
+    <div>
+        <a href="#missionWinners" data-bs-toggle="collapse" @click.prevent>
+            <h5>Mission winners <i class="fas fa-angle-down" /></h5>
+        </a>
+        <div id="missionWinners" class="collapse ms-2">
+            <div>Date threshold:</div>
+            <input
+                v-model="date"
+                class="form-control form-control-sm w-25 mb-2"
+                type="date"
+                autocomplete="off"
+                placeholder="how far back to check"
             />
-            -
-            {{ user.total }}
-            <code v-if="user.total >= 3 && !user.isQuestTrailblazer">.add-badge {{ user.osuId }} questtrailblazer.png "Completed 3+ priority quests in the Mappers' Guild" https://osu.ppy.sh/wiki/en/Community/Mappers_Guild#additional-rewards</code>
-            <button
-                v-if="user.total >= 3 && !user.isQuestTrailblazer"
-                class="btn btn-outline-info btn-sm ms-2"
-                href="#"
-                @click.prevent="toggleIsQuestTrailblazer(user.osuId, $event)"
-            >
-                click this after giving user badge
-            </button>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div
+                        v-for="user in loadWinners()"
+                        :key="user.osuId"
+                        class="ms-4"
+                    >
+                        <user-link
+                            :user="user"
+                        />
+                        -
+                        {{ user.total }}
+                        <code v-if="user.total >= 3 && !user.isQuestTrailblazer">.add-badge {{ user.osuId }} questtrailblazer.png "Completed 3+ priority quests in the Mappers' Guild" https://osu.ppy.sh/wiki/en/Community/Mappers_Guild#additional-rewards</code>
+                        <button
+                            v-if="user.total >= 3 && !user.isQuestTrailblazer"
+                            class="btn btn-outline-info btn-sm"
+                            href="#"
+                            @click.prevent="toggleIsQuestTrailblazer(user.osuId, $event)"
+                        >
+                            click this after giving user badge
+                        </button>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <copy-paste>
+                        <div v-for="user in loadWinners()" :key="user.id">
+                            {{ user.username }}
+                        </div>
+                    </copy-paste>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -24,23 +52,40 @@ import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import { MissionStatus } from '@interfaces/mission';
 import { TaskName } from '@interfaces/beatmap/task';
+import CopyPaste from '@components/CopyPaste.vue';
 
 
 export default defineComponent({
     name: 'MissionWinners',
+    components: {
+        CopyPaste,
+    },
+    data () {
+        return {
+            date: '2024-01-01',
+        };
+    },
     computed: {
         ...mapState({
             missions: (state: any) => state.missionsAdmin.missions,
         }),
-        closedMissions () {
-            return this.missions.filter(m => m.status == MissionStatus.Closed);
+        filteredMissions () {
+            return this.missions.filter(m => {
+                if (m.status == MissionStatus.Closed) {
+                    const date = new Date(this.date);
+
+                    if (date < new Date(m.createdAt)) {
+                        return true;
+                    }
+                }
+            });
         },
     },
     methods: {
         loadWinners () {
             let winningBeatmaps: any[] = [];
 
-            for (const mission of this.closedMissions) {
+            for (const mission of this.filteredMissions) {
                 winningBeatmaps = winningBeatmaps.concat(mission.winningBeatmaps);
             }
 

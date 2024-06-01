@@ -1,13 +1,13 @@
 <template>
-    <div class="container card card-body py-1">
-        <h5 class="mt-2">
+    <div class="container card card-body py-3 mb-2">
+        <h5>
             Contest helper users by mode
         </h5>
-        <button class="btn btn-sm w-100 btn-outline-info mb-3" @click="findContestHelperUsers($event)">
+        <button class="btn btn-sm w-100 btn-info" @click="findContestHelperUsers($event)">
             Load users
         </button>
 
-        <div v-if="osuUsers && taikoUsers && catchUsers && maniaUsers" class="row">
+        <div v-if="osuUsers && taikoUsers && catchUsers && maniaUsers" class="row mt-3">
             <div v-if="osuUsers.length" class="col-sm-3">
                 osu!
                 <copy-paste :distinct="'osu'">

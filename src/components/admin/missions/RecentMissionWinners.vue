@@ -1,8 +1,8 @@
 <template>
     <div class="container card card-body py-3 my-2">
-        <h5>Recently Ranked maps</h5>
+        <h5>Recent mission winners</h5>
         <div class="mb-2">
-            Load artists who've had less than x maps Ranked in specific timeframe
+            Load winners of missions created after given date
         </div>
         <div class="row mb-2 mx-1">
             <input
@@ -12,49 +12,41 @@
                 autocomplete="off"
                 placeholder="how far back to check"
             />
-            <input
-                v-model="threshold"
-                class="form-control form-control-sm mx-2 w-25"
-                type="number"
-                autocomplete="off"
-                placeholder="how many maps"
-            />
-            <button class="btn btn-sm btn-info w-25" @click="loadArtists($event)">
-                Load artists
+            <button class="btn btn-sm btn-info w-25" @click="loadRecentMissionWinners($event)">
+                Load recent mission winners
             </button>
         </div>
-        <div v-if="artists.length">
+        <!--<div v-if="artists.length">
             <copy-paste :distinct="'artists'">
                 <div v-for="(artist, i) in artists" :key="i">
                     {{ artist.rankedMaps }} - <a :href="`https://osu.ppy.sh/beatmaps/artists/${artist.osuId}`">{{ artist.name }}</a>
                 </div>
             </copy-paste>
-        </div>
+        </div>-->
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import CopyPaste from '../CopyPaste.vue';
+import CopyPaste from '../../CopyPaste.vue';
 
 export default defineComponent({
-    name: 'ArtistRankedMaps',
+    name: 'RecentMissionWinners',
     components: {
         CopyPaste,
     },
     data() {
         return {
-            artists: [] as any[],
+            missions: [] as any[],
             date: '2024-01-01',
-            threshold: 0,
         };
     },
     methods: {
-        async loadArtists (e): Promise<void> {
-            const res: any = await this.$http.executePost('/admin/featuredArtists/loadArtistsWithoutRankedMaps', { date: this.date, threshold: this.threshold }, e);
+        async loadRecentMissionWinners (e): Promise<void> {
+            const res: any = await this.$http.executePost('/admin/missions/loadRecentMissionWinners', { date: this.date }, e);
 
             if (res && !res.error) {
-                this.artists = res.artists;
+                this.missions = res.missions;
             }
         },
     },

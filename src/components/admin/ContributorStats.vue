@@ -1,5 +1,5 @@
 <template>
-    <div class="container card card-body py-2 mt-2">
+    <div class="container card card-body py-3 mt-2">
         <h5>Mappers' Guild contributor stats</h5>
         <div class="form-inline">
             <div class="form-group">

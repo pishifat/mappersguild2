@@ -1,37 +1,46 @@
 <template>
     <div>
-        <div class="container card card-body py-1">
-            <div class="row">
-                <div class="col">
-                    <button class="btn btn-sm btn-info w-100 mb-1" data-bs-toggle="modal" data-bs-target="#submitMission">
-                        Add mission
-                    </button>
-
-                    <data-table
-                        v-slot="{ obj: mission }"
-                        :data="missions"
-                        :headers="['name', 'tier', 'status', 'announce']"
-                        :custom-data-target="'#editMission'"
-                        @update:selected-id="selectedMissionId = $event"
-                    >
-                        <td>
-                            {{ mission.name }}
-                        </td>
-                        <td>
-                            <img :src="findTierImage(mission.tier)" class="table-mission-tier" />
-                        </td>
-                        <td>
-                            {{ mission.status }}
-                        </td>
-                        <td>
-                            <span :class="mission.openingAnnounced ? 'text-success' : 'text-danger'">open</span>/<span :class="mission.closingAnnounced ? 'text-success' : 'text-danger'">close</span>
-                        </td>
-                    </data-table>
-                </div>
-            </div>
+        <div class="container card card-body py-3 mb-2">
+            <h5>Create mission</h5>
+            <button class="btn btn-sm btn-info w-100 mb-1" data-bs-toggle="modal" data-bs-target="#submitMission">
+                Add mission
+            </button>
         </div>
 
-        <mission-winners />
+        <div class="container card card-body py-3 mb-2">
+            <h5>Missions list</h5>
+            <button class="btn btn-sm btn-info w-100 mb-2" @click="loadMissions($event)">
+                Load missions and winners
+            </button>
+
+            <data-table
+                v-if="missions.length"
+                v-slot="{ obj: mission }"
+                :data="missions"
+                :headers="['name', 'tier', 'status', 'announce']"
+                :custom-data-target="'#editMission'"
+                @update:selected-id="selectedMissionId = $event"
+            >
+                <td>
+                    {{ mission.name }}
+                </td>
+                <td>
+                    <img :src="findTierImage(mission.tier)" class="table-mission-tier" />
+                </td>
+                <td>
+                    {{ mission.status }}
+                </td>
+                <td>
+                    <span :class="mission.openingAnnounced ? 'text-success' : 'text-danger'">open</span>/<span :class="mission.closingAnnounced ? 'text-success' : 'text-danger'">close</span>
+                </td>
+            </data-table>
+
+            <mission-winners
+                v-if="missions.length"
+            />
+        </div>
+
+        <recent-mission-winners />
 
         <submit-mission-modal />
 
@@ -52,6 +61,7 @@ import { Mission } from '../../../interfaces/mission';
 import missionsAdminModule from '@store/admin/missions';
 import MissionInfo from '../../components/admin/missions/MissionInfo.vue';
 import MissionWinners from '../../components/admin/missions/MissionWinners.vue';
+import RecentMissionWinners from '../../components/admin/missions/RecentMissionWinners.vue';
 
 export default defineComponent({
     components: {
@@ -59,6 +69,7 @@ export default defineComponent({
         SubmitMissionModal,
         MissionInfo,
         MissionWinners,
+        RecentMissionWinners,
     },
     data () {
         return {
@@ -83,14 +94,14 @@ export default defineComponent({
             this.$store.unregisterModule('missionsAdmin');
         }
     },
-    async created() {
-        const missions = await this.$http.initialRequest<Mission[]>('/admin/missions/load');
-
-        if (!this.$http.isError(missions)) {
-            this.$store.commit('setMissions', missions);
-        }
-    },
     methods: {
+        async loadMissions(e): Promise<void> {
+            const missions = await this.$http.executeGet<Mission[]>('/admin/missions/load', e);
+
+            if (!this.$http.isError(missions)) {
+                this.$store.commit('setMissions', missions);
+            }
+        },
         updateMission(m): void {
             const i = this.missions.findIndex(mission => mission.id == m.id);
 

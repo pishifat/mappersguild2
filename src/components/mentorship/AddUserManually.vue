@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="container card card-body py-3 mt-2">
+        <div class="container card card-body py-3">
             <h5>Add user manually</h5>
             <div class="text-secondary">
                 This adds a user to the Mappers' Guild database given a username and osu ID.

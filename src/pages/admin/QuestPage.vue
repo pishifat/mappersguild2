@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="container card card-body py-2">
+        <div class="container card card-body py-3">
             <h5>Quests list</h5>
             <button class="btn btn-sm btn-info w-100" @click="loadQuests($event)">
                 Load all quests
@@ -31,7 +31,7 @@
             </data-table>
         </div>
 
-        <div class="container card card-body py-2 mt-2">
+        <div class="container card card-body py-3 mt-2">
             <h5>Create quest</h5>
             <button class="btn btn-sm btn-info w-100 mb-1" data-bs-toggle="modal" data-bs-target="#submitQuest">
                 Add quest

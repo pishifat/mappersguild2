@@ -1,6 +1,6 @@
 <template>
-    <div class="container card card-body py-1">
-        <h5 class="mt-2">
+    <div class="container card card-body py-3 mb-2">
+        <h5>
             Search user in osu! API
         </h5>
         <input
@@ -12,7 +12,7 @@
             placeholder="search by osuID..."
             @keyup.enter="searchUser($event)"
         />
-        <button class="btn btn-sm w-100 btn-outline-info mb-2" @click="searchUser($event)">
+        <button class="btn btn-sm w-100 btn-info mb-2" @click="searchUser($event)">
             Load user
         </button>
         <div v-if="output">

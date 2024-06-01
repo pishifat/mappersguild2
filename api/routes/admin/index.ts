@@ -33,7 +33,7 @@ adminRouter.get('/loadActionBeatmaps/', async (req, res) => {
 /* GET quests in need of action */
 adminRouter.get('/loadActionQuests/', async (req, res) => {
     let quests = await QuestModel
-        .find({ status: QuestStatus.WIP })
+        .find({ status: QuestStatus.WIP, queuedForCompletion: { $ne: true } })
         .defaultPopulate();
 
     quests = quests.filter(q =>

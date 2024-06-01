@@ -1,6 +1,7 @@
 <template>
-    <div class="container card card-body py-1 my-2">
-        <button class="btn btn-sm w-50 btn-outline-info mb-3" @click="findRecentlyLicensedSongs($event)">
+    <div class="container card card-body py-3 my-2">
+        <h5>Recently licensed songs</h5>
+        <button class="btn btn-sm w-100 btn-info" @click="findRecentlyLicensedSongs($event)">
             Load recently licensed songs
         </button>
 

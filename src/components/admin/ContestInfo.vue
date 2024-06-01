@@ -1,7 +1,7 @@
 <template>
     <modal-dialog id="editContest" :loaded="Boolean(contest)">
         <template #header>
-            {{ contest.name }}
+            <a :href="`/contests/listing?contest=${contest.id}`" target="_blank">{{ contest.name }}</a>
         </template>
 
         <template #default>

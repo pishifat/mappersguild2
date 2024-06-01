@@ -1,5 +1,5 @@
 <template>
-    <div class="container card card-body py-2 mt-2">
+    <div class="container card card-body py-3 mt-2">
         <h5>Bundled beatmap list generator</h5>
         <button class="btn btn-sm w-100 btn-info" @click="findBundledBeatmaps($event)">
             Load beatmaps with ENHI+ spreads

@@ -1,32 +1,35 @@
 <template>
     <div>
-        <div class="container card card-body py-1">
-            <div class="row">
-                <div class="col-sm">
-                    <data-table
-                        v-slot="{ obj: featuredArtist }"
-                        :data="featuredArtists"
-                        :headers="['ARTIST']"
-                        :custom-data-target="'#editFeaturedArtist'"
-                        @update:selected-id="selectedFeaturedArtistId = $event"
+        <div class="container card card-body py-3">
+            <h5>Featured Artists list</h5>
+            <button class="btn btn-sm btn-info w-100" @click="loadFeaturedArtists($event)">
+                Load Featured Artists
+            </button>
+            <data-table
+                v-if="featuredArtists.length"
+                class="mt-2"
+                v-slot="{ obj: featuredArtist }"
+                :data="featuredArtists"
+                :headers="['ARTIST']"
+                :custom-data-target="'#editFeaturedArtist'"
+                @update:selected-id="selectedFeaturedArtistId = $event"
+            >
+                <td>
+                    <a
+                        v-if="featuredArtist.osuId"
+                        :href="'https://osu.ppy.sh/beatmaps/artists/' + featuredArtist.osuId"
+                        target="_blank"
                     >
-                        <td>
-                            <a
-                                v-if="featuredArtist.osuId"
-                                :href="'https://osu.ppy.sh/beatmaps/artists/' + featuredArtist.osuId"
-                                target="_blank"
-                            >
-                                {{ featuredArtist.label }}
-                            </a>
+                        {{ featuredArtist.label }}
+                    </a>
 
-                            <span v-else>{{ featuredArtist.label }}</span>
-                        </td>
-                    </data-table>
-                </div>
-            </div>
+                    <span v-else>{{ featuredArtist.label }}</span>
+                </td>
+            </data-table>
         </div>
 
         <recent-licensed-songs />
+
         <artist-ranked-maps />
 
         <featured-artist-info
@@ -75,12 +78,14 @@ export default defineComponent({
             this.$store.unregisterModule('artistsAdmin');
         }
     },
-    async created() {
-        const featuredArtists = await this.$http.initialRequest<FeaturedArtist[]>('/admin/featuredArtists/load');
+    methods: {
+        async loadFeaturedArtists(e): Promise<void> {
+            const featuredArtists = await this.$http.executeGet<FeaturedArtist[]>('/admin/featuredArtists/load', e);
 
-        if (!this.$http.isError(featuredArtists)) {
-            this.$store.commit('setFeaturedArtists', featuredArtists);
-        }
+            if (!this.$http.isError(featuredArtists)) {
+                this.$store.commit('setFeaturedArtists', featuredArtists);
+            }
+        },
     },
 });
 </script>

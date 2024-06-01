@@ -136,8 +136,8 @@ adminFeaturedArtistsRouter.post('/:id/songs/:songId/delete', async (req, res) =>
 
 /* GET find recently licensed songs */
 adminFeaturedArtistsRouter.get('/findRecentlyLicensedSongs', async (req, res) => {
-    const startDate = new Date('2022-01-01');
-    const endDate = new Date('2022-07-27');
+    const startDate = new Date('2019-01-01');
+    const endDate = new Date();
 
     const songs = await FeaturedSongModel.find({ createdAt: { $gt: startDate, $lt: endDate } }).sort({ createdAt: -1 });
 

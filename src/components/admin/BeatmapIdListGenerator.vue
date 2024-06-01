@@ -1,5 +1,5 @@
 <template>
-    <div class="container card card-body py-2 mt-2">
+    <div class="container card card-body py-3 mt-2">
         <h5>Beatmap pack ID list generator</h5>
         <textarea
             v-model="inputUrls"

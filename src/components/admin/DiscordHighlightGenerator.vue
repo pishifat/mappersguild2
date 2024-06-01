@@ -1,6 +1,6 @@
 <template>
-    <div class="container card card-body py-1">
-        <h5 class="mt-2">
+    <div class="container card card-body py-3 mb-2">
+        <h5>
             Generate Discord highlights
         </h5>
         <textarea
@@ -10,7 +10,7 @@
             autocomplete="off"
             placeholder="usernames separated by newlines..."
         />
-        <button class="btn btn-sm w-100 btn-outline-info mb-2" @click="generateDiscordHighlights($event)">
+        <button class="btn btn-sm w-100 btn-info" @click="generateDiscordHighlights($event)">
             Generate Discord highlights
         </button>
         <div v-if="users.length">

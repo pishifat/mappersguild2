@@ -16,14 +16,14 @@
                 placeholder="enter to search..."
                 @keyup.enter="searchUser($event)"
             />
-            <button class="btn btn-sm w-100 btn-outline-info mb-2" @click="searchUser($event)">
+            <button class="btn btn-sm w-100 btn-info mb-2" @click="searchUser($event)">
                 Load user
             </button>
 
             <h5 class="mt-2">
                 All users
             </h5>
-            <button class="btn btn-sm w-100 btn-outline-info" @click="loadAllUsers($event)">
+            <button class="btn btn-sm w-100 btn-info" @click="loadAllUsers($event)">
                 Load all users
             </button>
 
@@ -43,25 +43,13 @@
             </div>
         </div>
         <hr />
-        <osu-api-user-search
-            class="mb-2"
-        />
-        <add-user-manually
-            class="mb-2"
-        />
+        <osu-api-user-search />
+        <add-user-manually />
         <hr />
-        <reset-merch
-            class="mb-2"
-        />
-        <showcase-user-list
-            class="mb-2"
-        />
-        <contest-helper-user-list
-            class="mb-2"
-        />
-        <discord-highlight-generator
-            class="mb-2"
-        />
+        <reset-merch />
+        <showcase-user-list />
+        <contest-helper-user-list />
+        <discord-highlight-generator />
     </div>
 </template>
 

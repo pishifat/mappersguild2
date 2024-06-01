@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="container card card-body py-2">
+        <div class="container card card-body py-3">
             <h5>Beatmaps list</h5>
             <button class="btn btn-sm btn-info w-100" @click="loadBeatmaps($event)">
                 Load all beatmaps
