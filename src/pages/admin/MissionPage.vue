@@ -40,8 +40,6 @@
             />
         </div>
 
-        <recent-mission-winners />
-
         <submit-mission-modal />
 
         <mission-info
@@ -61,7 +59,6 @@ import { Mission } from '../../../interfaces/mission';
 import missionsAdminModule from '@store/admin/missions';
 import MissionInfo from '../../components/admin/missions/MissionInfo.vue';
 import MissionWinners from '../../components/admin/missions/MissionWinners.vue';
-import RecentMissionWinners from '../../components/admin/missions/RecentMissionWinners.vue';
 
 export default defineComponent({
     components: {
@@ -69,7 +66,6 @@ export default defineComponent({
         SubmitMissionModal,
         MissionInfo,
         MissionWinners,
-        RecentMissionWinners,
     },
     data () {
         return {
