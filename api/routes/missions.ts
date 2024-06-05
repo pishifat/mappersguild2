@@ -230,10 +230,6 @@ missionsRouter.post('/:missionId/findShowcaseMissionSong', isEditable, async (re
         return res.json({ error: `Song not loaded. Your MG rank is too low for this quest.` });
     }
 
-    if (user.availablePoints < 50) { // rerolling costs 50
-        return res.json({ error: 'Not enough available points!' });
-    }
-
     const missionWithSongs: Mission = await MissionModel
         .findById(req.params.missionId)
         .populate(
@@ -249,6 +245,10 @@ missionsRouter.post('/:missionId/findShowcaseMissionSong', isEditable, async (re
     const userExists = missionWithSongs.showcaseMissionSongs.find(s => s.user.id == user.id);
 
     if (userExists) {
+        if (user.availablePoints < 50) { // rerolling costs 50
+            return res.json({ error: 'Not enough available points!' });
+        }
+
         await SpentPointsModel.generate(SpentPointsCategory.RerollShowcaseMissionSong, req.session.mongoId, null, mission.id);
         await updateUserPoints(req.session.mongoId);
 
