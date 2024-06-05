@@ -66,7 +66,7 @@ missionsRouter.get('/relevantInfo', async (req, res) => {
     });
 });
 
-function meetsRequirements(mission, user, beatmap, mode) {
+function meetsRequirements(mission, user, beatmap) {
     /* user requirements */
     if ((mission.userMaximumRankedBeatmapsCount || mission.userMaximumRankedBeatmapsCount == 0) && (user.rankedBeatmapsCount > mission.userMaximumRankedBeatmapsCount)) {
         return false;
@@ -78,7 +78,7 @@ function meetsRequirements(mission, user, beatmap, mode) {
 
     let modePp = 0;
 
-    switch (mode) {
+    switch (beatmap.mode) {
         case 'osu':
             modePp = user.ppOsu;
             break;
@@ -91,6 +91,8 @@ function meetsRequirements(mission, user, beatmap, mode) {
         case 'mania':
             modePp = user.ppMania;
             break;
+        default:
+            modePp = user.pp;
     }
 
     if (mission.userMaximumPp && (modePp > mission.userMaximumPp)) {
@@ -113,10 +115,6 @@ function meetsRequirements(mission, user, beatmap, mode) {
     if (submissionDate && mission.beatmapLatestSubmissionDate && (new Date(submissionDate) > new Date(mission.beatmapLatestSubmissionDate))) {
         return false;
     }
-
-
-    console.log(favorites);
-    console.log(playCount);
 
     if (favorites && playCount && mission.beatmapMinimumFavorites && mission.beatmapMinimumPlayCount && favorites < mission.beatmapMinimumFavorites && playCount < mission.beatmapMinimumPlayCount) {
         return false;
@@ -148,7 +146,7 @@ missionsRouter.get('/open/:mode/:id', async (req, res) => {
             .orFail(),
     ]);
 
-    const filteredMissions = missions.filter(m => meetsRequirements(m, user, beatmap, req.params.mode));
+    const filteredMissions = missions.filter(m => meetsRequirements(m, user, beatmap));
 
     res.json(filteredMissions);
 });
@@ -162,7 +160,7 @@ missionsRouter.post('/:missionId/:mapId/addBeatmapToMission', isEditable, isVali
         return res.json({ error: 'Beatmap assigned to a quest/mission already!' });
     }
 
-    const beatmapValidated = meetsRequirements(mission, res.locals.userRequest, beatmap, req.params.mode);
+    const beatmapValidated = meetsRequirements(mission, res.locals.userRequest, beatmap);
 
     if (!beatmapValidated) {
         return res.json({ error: 'Beatmap does not meet quest requirements' });
