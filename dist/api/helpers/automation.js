@@ -304,7 +304,7 @@ const processMissions = node_cron_1.default.schedule('5 22 * * *', async () => {
             { status: mission_2.MissionStatus.Closed, openingAnnounced: true, closingAnnounced: false },
         ],
     })
-        .defaultPopulate();
+        .extendedDefaultPopulate();
     for (const mission of missions) {
         await helpers_1.sleep(500);
         if (mission.status == mission_2.MissionStatus.Open && !mission.openingAnnounced) {

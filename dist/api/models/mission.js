@@ -70,6 +70,27 @@ const queryHelpers = {
             {
                 path: 'associatedMaps',
                 populate: {
+                    path: 'song host',
+                },
+            },
+            {
+                path: 'winningBeatmaps',
+                populate: {
+                    path: 'song host',
+                },
+            },
+            {
+                path: 'invalidBeatmaps',
+                select: 'id',
+            },
+        ]);
+    },
+    extendedDefaultPopulate() {
+        return this.populate([
+            { path: 'artists', select: 'label osuId' },
+            {
+                path: 'associatedMaps',
+                populate: {
                     path: 'song host tasks',
                     populate: {
                         path: 'mappers',
