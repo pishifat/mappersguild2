@@ -364,7 +364,7 @@ const processMissions = cron.schedule('5 22 * * *', async () => { /* 3:00 PM PST
                 { status: MissionStatus.Closed, openingAnnounced: true, closingAnnounced: false },
             ],
         })
-        .defaultPopulate();
+        .extendedDefaultPopulate();
 
     for (const mission of missions) {
         await sleep(500);

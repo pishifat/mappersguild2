@@ -15,7 +15,7 @@ adminMissionsRouter.use(isSuperAdmin);
 adminMissionsRouter.get('/load', async (req, res) => {
     const m = await MissionModel
         .find({})
-        .defaultPopulate()
+        .extendedDefaultPopulate()
         .sort({ createdAt: -1, status: -1, name: 1 });
 
     res.json(m);
@@ -124,14 +124,14 @@ adminMissionsRouter.post('/:id/toggleMode', async (req, res) => {
         await MissionModel.findByIdAndUpdate(req.params.id, { $push: { modes: req.body.mode } });
     }
 
-    const updatedMission = await MissionModel.findById(req.params.id).defaultPopulate().orFail();
+    const updatedMission = await MissionModel.findById(req.params.id).extendedDefaultPopulate().orFail();
 
     res.json(updatedMission.modes);
 });
 
 /* POST toggle artist */
 adminMissionsRouter.post('/:id/toggleArtist', async (req, res) => {
-    const mission = await MissionModel.findById(req.params.id).defaultPopulate().orFail();
+    const mission = await MissionModel.findById(req.params.id).extendedDefaultPopulate().orFail();
     const artist = await FeaturedArtistModel.findOne({ label: req.body.artistLabel }).orFail();
     await MissionModel.findByIdAndUpdate(req.params.id, { $pull: { artists: null } });
 
@@ -147,14 +147,14 @@ adminMissionsRouter.post('/:id/toggleArtist', async (req, res) => {
         await MissionModel.findByIdAndUpdate(req.params.id, { $push: { artists: artist.id } });
     }
 
-    const updatedMission = await MissionModel.findById(req.params.id).defaultPopulate().orFail();
+    const updatedMission = await MissionModel.findById(req.params.id).extendedDefaultPopulate().orFail();
 
     res.json(updatedMission.artists);
 });
 
 /* POST update mission deadline */
 adminMissionsRouter.post('/:id/updateDeadline', async (req, res) => {
-    await MissionModel.findByIdAndUpdate(req.params.id, { deadline: new Date(req.body.deadline) }).orFail();
+    await MissionModel.findByIdAndUpdate(req.params.id, { deadline: new Date(req.body.deadline) }).extendedDefaultPopulate().orFail();
 
     res.json(req.body.deadline);
 });
@@ -259,7 +259,7 @@ adminMissionsRouter.post('/:id/toggleIsUniqueToRanked', async (req, res) => {
 
 /* POST toggle winning beatmap for mission */
 adminMissionsRouter.post('/:missionId/:beatmapId/toggleWinningBeatmap', async (req, res) => {
-    const mission = await MissionModel.findById(req.params.missionId).defaultPopulate().orFail();
+    const mission = await MissionModel.findById(req.params.missionId).extendedDefaultPopulate().orFail();
 
     const winningBeatmapIds = mission.winningBeatmaps.map(b => b.id);
     const alreadyWinner = winningBeatmapIds.includes(req.params.beatmapId);
@@ -270,14 +270,14 @@ adminMissionsRouter.post('/:missionId/:beatmapId/toggleWinningBeatmap', async (r
         await MissionModel.findByIdAndUpdate(req.params.missionId, { $push: { winningBeatmaps: req.params.beatmapId } });
     }
 
-    const updatedMission = await MissionModel.findById(req.params.missionId).defaultPopulate().orFail();
+    const updatedMission = await MissionModel.findById(req.params.missionId).extendedDefaultPopulate().orFail();
 
     res.json(updatedMission.winningBeatmaps);
 });
 
 /* POST toggle invalid beatmap for mission */
 adminMissionsRouter.post('/:missionId/:beatmapId/toggleInvalidBeatmap', async (req, res) => {
-    const mission = await MissionModel.findById(req.params.missionId).defaultPopulate().orFail();
+    const mission = await MissionModel.findById(req.params.missionId).extendedDefaultPopulate().orFail();
 
     const invalidBeatmapIds = mission.invalidBeatmaps.map(b => b.id);
     const alreadyInvalid = invalidBeatmapIds.includes(req.params.beatmapId);
@@ -288,7 +288,7 @@ adminMissionsRouter.post('/:missionId/:beatmapId/toggleInvalidBeatmap', async (r
         await MissionModel.findByIdAndUpdate(req.params.missionId, { $push: { invalidBeatmaps: req.params.beatmapId } });
     }
 
-    const updatedMission = await MissionModel.findById(req.params.missionId).defaultPopulate().orFail();
+    const updatedMission = await MissionModel.findById(req.params.missionId).extendedDefaultPopulate().orFail();
 
     res.json(updatedMission.invalidBeatmaps);
 });
