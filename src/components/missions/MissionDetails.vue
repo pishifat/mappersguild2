@@ -26,7 +26,7 @@
             <b>Deadline:</b>
             <span class="text-secondary ms-1">{{ new Date(mission.deadline).toLocaleDateString() }}</span>
         </div>
-        <div v-if="!mission.isShowcaseMission" class="col-sm-12 small">
+        <div v-if="!mission.isShowcaseMission || (mission.isShowcaseMission && mission.artists && mission.artists.length)" class="col-sm-12 small">
             <b>Applicable Featured Artists:</b>
             <span v-if="mission.artists && mission.artists.length" class="text-secondary ms-1">
                 <artist-link-list
