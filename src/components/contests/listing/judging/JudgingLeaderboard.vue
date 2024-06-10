@@ -78,7 +78,7 @@
                             @click="selectedScore = score"
                         >
                             <td>{{ i + 1 }}</td>
-                            <td><user-link :user="score.creator" /></td>
+                            <td><user-link :user="score.creator" /> <span class="small">({{ getAnonymousName(score.creator) }})</span></td>
                             <template v-if="displayMode === 'criterias'">
                                 <td v-for="criteria in scoredCriteria" :key="criteria.id">
                                     {{ getCriteriaScore(score, criteria.id) }}
@@ -334,6 +334,11 @@ export default defineComponent({
                 default:
                     return `${name} (${maxScore*this.contest.judges.length})`;
             }
+        },
+        getAnonymousName (user): string {
+            const submission = this.contest.submissions.find(s => s.creator.id == user.id);
+
+            return submission?.name || 'none';
         },
     },
 });
