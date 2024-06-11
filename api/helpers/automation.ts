@@ -318,19 +318,23 @@ const sendActionNotifications = cron.schedule('0 23 * * *', async () => { /* 4:0
     }
 
     // users
-    const invalids = [5226970, 7496029]; // user IDs for people who specifically asked not to earn badges
+    const day = date.getDate();
 
-    const allUsers = await UserModel.find({
-        osuId: { $nin: invalids },
-    });
-    const actionUsers = allUsers.filter(u => u.badge < u.rank);
+    if (day % 10 === 0) {
+        const invalids = [5226970, 7496029]; // user IDs for people who specifically asked not to earn badges
 
-    if (actionUsers.length) {
-        devWebhookPost([{
-            title: `users`,
-            color: webhookColors.lightRed,
-            description: `**${actionUsers.length}** pending user badges\n\nadmin: https://mappersguild.com/admin/summary`,
-        }]);
+        const allUsers = await UserModel.find({
+            osuId: { $nin: invalids },
+        });
+        const actionUsers = allUsers.filter(u => u.badge < u.rank);
+
+        if (actionUsers.length) {
+            devWebhookPost([{
+                title: `users`,
+                color: webhookColors.lightRed,
+                description: `**${actionUsers.length}** pending user badges\n\nadmin: https://mappersguild.com/admin/summary`,
+            }]);
+        }
     }
 
     // contests
