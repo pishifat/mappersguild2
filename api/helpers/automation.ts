@@ -318,7 +318,7 @@ const sendActionNotifications = cron.schedule('0 23 * * *', async () => { /* 4:0
     }
 
     // users
-    const day = date.getDate();
+    const day = new Date().getDate();
 
     if (day % 10 === 0) {
         const invalids = [5226970, 7496029]; // user IDs for people who specifically asked not to earn badges

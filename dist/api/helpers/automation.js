@@ -265,17 +265,20 @@ const sendActionNotifications = node_cron_1.default.schedule('0 23 * * *', async
             }]);
     }
     // users
-    const invalids = [5226970, 7496029]; // user IDs for people who specifically asked not to earn badges
-    const allUsers = await user_1.UserModel.find({
-        osuId: { $nin: invalids },
-    });
-    const actionUsers = allUsers.filter(u => u.badge < u.rank);
-    if (actionUsers.length) {
-        discordApi_1.devWebhookPost([{
-                title: `users`,
-                color: discordApi_1.webhookColors.lightRed,
-                description: `**${actionUsers.length}** pending user badges\n\nadmin: https://mappersguild.com/admin/summary`,
-            }]);
+    const day = new Date().getDate();
+    if (day % 10 === 0) {
+        const invalids = [5226970, 7496029]; // user IDs for people who specifically asked not to earn badges
+        const allUsers = await user_1.UserModel.find({
+            osuId: { $nin: invalids },
+        });
+        const actionUsers = allUsers.filter(u => u.badge < u.rank);
+        if (actionUsers.length) {
+            discordApi_1.devWebhookPost([{
+                    title: `users`,
+                    color: discordApi_1.webhookColors.lightRed,
+                    description: `**${actionUsers.length}** pending user badges\n\nadmin: https://mappersguild.com/admin/summary`,
+                }]);
+        }
     }
     // contests
     const actionContests = await contest_1.ContestModel
