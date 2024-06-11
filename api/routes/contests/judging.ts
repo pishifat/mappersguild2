@@ -110,6 +110,10 @@ judgingRouter.post('/save', isJudge, async (req, res) => {
 
     const parsedScore = parseInt(score, 10);
 
+    if (parsedScore < 0) {
+        return res.json({ error: 'Must be positive number or 0' });
+    }
+
     if (submission.contest.id != res.locals.contest.id) {
         return res.json({ error: 'Invalid contest' });
     }
