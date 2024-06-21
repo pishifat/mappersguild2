@@ -295,7 +295,7 @@ const sendActionNotifications = cron.schedule('0 23 * * *', async () => { /* 4:0
 
     // quests
     let quests = await QuestModel
-        .find({ status: QuestStatus.WIP })
+        .find({ status: QuestStatus.WIP, queuedForCompletion: { $ne: true } })
         .defaultPopulate();
 
     quests = quests.filter(q =>
