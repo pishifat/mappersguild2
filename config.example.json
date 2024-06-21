@@ -46,6 +46,7 @@
         "discountCode": "",
         "secretProductIds": [""],
         "worldCupPrizes": [""],
+        "worldCupDiscountCode": "",
         "specificMerchOrder": [
             {
                 "productId": "",
