@@ -239,7 +239,7 @@ export default defineComponent({
             filterValue: '',
             firstLoadComplete: false,
             loadedSpecificContest: false,
-            limit: 200,
+            limit: 20,
             skip: 0,
             total: 0,
             moreContestsAvailable: true,

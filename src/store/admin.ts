@@ -310,7 +310,7 @@ const store: Module<AdminState, MainState> = {
             const contest = state.actionContests.find(c => c.id == payload.contestId);
 
             if (contest) {
-                contest.isFeaturedArtistContest = payload.isFeaturedArtistContest;
+                contest.isEligibleForPoints = payload.isEligibleForPoints;
             }
         },
         updateSkipWebhook (state, payload): void {
