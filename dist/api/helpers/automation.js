@@ -249,7 +249,7 @@ const sendActionNotifications = node_cron_1.default.schedule('0 23 * * *', async
     }
     // quests
     let quests = await quest_1.QuestModel
-        .find({ status: quest_2.QuestStatus.WIP })
+        .find({ status: quest_2.QuestStatus.WIP, queuedForCompletion: { $ne: true } })
         .defaultPopulate();
     quests = quests.filter(q => q.associatedMaps.length >= q.requiredMapsets &&
         q.associatedMaps.every(b => b.status === beatmap_2.BeatmapStatus.Ranked));
