@@ -33,13 +33,13 @@
             <div class="col-sm-6">
                 <ul v-if="usersPointsArrays" class="small text-secondary">
                     <li v-for="(value, i) in usersPointsArrays" :key="i">
-                        {{ usersPointsArrays[i][0] }}: {{ usersPointsArrays[i][0] == beatmap.host.username ? usersPointsArrays[i][1] + 5 : usersPointsArrays[i][1] }}
+                        {{ usersPointsArrays[i][0] }}: {{ usersPointsArrays[i][0] == beatmap.host.username ? usersPointsArrays[i][1] + 3 : usersPointsArrays[i][1] }}
                     </li>
                 </ul>
             </div>
             <div v-if="totalPoints" class="col-sm-12">
                 <span class="small text-secondary ms-2">
-                    total: {{ Math.round(totalPoints*10)/10 + 5 }}
+                    total: {{ Math.round(totalPoints*10)/10 + 3 }}
                 </span>
             </div>
         </div>
