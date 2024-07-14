@@ -97,7 +97,14 @@ judgingRouter.post('/save', isJudge, async (req, res) => {
         })
             .orFail(),
     ]);
-    const parsedScore = parseInt(score, 10);
+    const isComment = criteria.name == 'comments';
+    let parsedScore;
+    if (isComment) {
+        parsedScore = 0;
+    }
+    else {
+        parsedScore = parseInt(score, 10);
+    }
     if (parsedScore < 0) {
         return res.json({ error: 'Must be positive number or 0' });
     }
@@ -108,7 +115,7 @@ judgingRouter.post('/save', isJudge, async (req, res) => {
     if (!contestCriteriaIds.includes(criteriaId)) {
         return res.json({ error: 'Invalid criteria' });
     }
-    if (score > criteria.maxScore && (!comment || !comment.length)) {
+    if (parsedScore > criteria.maxScore) {
         return res.json({ error: 'Score is higher than expected' });
     }
     let judging = await judging_1.JudgingModel
