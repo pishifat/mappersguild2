@@ -162,12 +162,12 @@
                             v-model="lastCheckedInput"
                             class="small w-25 form-control form-control-sm mx-2"
                             type="text"
-                            placeholder="mm-dd-yyyy"
+                            placeholder="yyyy-mm-dd"
                             style="border-radius: 5px 5px 5px 5px; "
                             maxlength="10"
                             @keyup.enter="updateLastChecked()"
                         />
-                        <a href="#" class="small" @click.stop.prevent="contactedToday()">mark as today</a>
+                        <a href="#" class="small" @click.stop.prevent="updateLastChecked(true)">mark as today</a>
                     </span>
                 </p>
 
@@ -274,33 +274,17 @@ export default defineComponent({
             const osuBeatmap = await this.$http.executePost(`/artists/osuBeatmaps/removeAdministratorFromOsuBeatmap/${this.beatmap.id}`, { administrator });
             this.updateBeatmap(osuBeatmap);
         },
-        async updateLastChecked(): Promise<void> {
-            const dateSplit = this.lastCheckedInput.split('-');
-            const date = new Date(
-                parseInt(dateSplit[2], 10),
-                parseInt(dateSplit[0], 10) - 1,
-                parseInt(dateSplit[1], 10)
-            );
+        async updateLastChecked(today): Promise<void> {
+            let date;
+
+            if (today) {
+                date = new Date();
+            } else {
+                date = new Date(this.lastCheckedInput.trim());
+            }
+
             const osuBeatmap = await this.$http.executePost(`/artists/osuBeatmaps/updateLastChecked/${this.beatmap.id}`, { date });
             this.updateBeatmap(osuBeatmap);
-        },
-        contactedToday(): void {
-            const date = new Date();
-            let month = (date.getMonth() + 1).toString();
-
-            if (month.length == 1) {
-                month = '0' + month;
-            }
-
-            let day = date.getDate().toString();
-
-            if (day.length == 1) {
-                day = '0' + day;
-            }
-
-            const year = date.getFullYear();
-            this.lastCheckedInput = month + '-' + day + '-' + year;
-            this.updateLastChecked();
         },
     },
 });

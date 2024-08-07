@@ -77,12 +77,12 @@
                                 v-model="contactedInput"
                                 class="small w-50"
                                 type="text"
-                                placeholder="mm-dd-yyyy"
+                                placeholder="yyyy-mm-dd"
                                 style="border-radius: 5px 5px 5px 5px; "
                                 maxlength="10"
                                 @keyup.enter="updateLastContacted()"
                             />
-                            <a href="#" @click.stop.prevent="contactedToday()">mark as today</a>
+                            <a href="#" @click.stop.prevent="updateLastContacted(true)">mark as today</a>
                         </span>
                     </span>
                 </div>
@@ -345,24 +345,6 @@ export default defineComponent({
                 return text.slice(0, text.length - 2);
             }
         },
-        contactedToday(): void {
-            const date = new Date();
-            let month = (date.getMonth() + 1).toString();
-
-            if (month.length == 1) {
-                month = '0' + month;
-            }
-
-            let day = date.getDate().toString();
-
-            if (day.length == 1) {
-                day = '0' + day;
-            }
-
-            const year = date.getFullYear();
-            this.contactedInput = month + '-' + day + '-' + year;
-            this.updateLastContacted();
-        },
         async toggleIsContacted (): Promise<void> {
             const artist = await this.$http.executePost('/artists/toggleIsContacted/' + this.artist.id, { value: !this.artist.isContacted });
 
@@ -475,13 +457,15 @@ export default defineComponent({
                 this.showDateInput = false;
             }
         },
-        async updateLastContacted (): Promise<void> {
-            const dateSplit = this.contactedInput.split('-');
-            const date = new Date(
-                parseInt(dateSplit[2], 10),
-                parseInt(dateSplit[0], 10) - 1,
-                parseInt(dateSplit[1], 10)
-            );
+        async updateLastContacted (today): Promise<void> {
+            let date;
+
+            if (today) {
+                date = new Date();
+            } else {
+                date = new Date(this.contactedInput.trim());
+            }
+
             const artist = await this.$http.executePost('/artists/updateLastContacted/' + this.artist.id, { date });
 
             if (artist) {
