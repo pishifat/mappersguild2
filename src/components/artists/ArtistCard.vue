@@ -158,7 +158,7 @@
                                 v-model="dateInput"
                                 class="small w-50"
                                 type="text"
-                                placeholder="mm-dd-yyyy"
+                                placeholder="yyyy-mm-dd"
                                 style="border-radius: 5px 5px 5px 5px; "
                                 maxlength="10"
                                 @keyup.enter="updateProjectedRelease()"
@@ -444,12 +444,7 @@ export default defineComponent({
             }
         },
         async updateProjectedRelease (): Promise<void> {
-            const dateSplit = this.dateInput.split('-');
-            const date = new Date(
-                parseInt(dateSplit[2], 10),
-                parseInt(dateSplit[0], 10) - 1,
-                parseInt(dateSplit[1], 10)
-            );
+            const date = new Date(this.dateInput.trim());
             const artist = await this.$http.executePost('/artists/updateProjectedRelease/' + this.artist.id, { date });
 
             if (artist) {
