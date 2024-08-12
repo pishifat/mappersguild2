@@ -108,6 +108,20 @@
     border-left: 4px solid var(--bs-ranked);
 }
 
+pre {
+    background-color: $body-bg;
+    color: $link-color;
+    padding: 1rem;
+    border-radius: 0.25rem;
+}
+
+code {
+    background-color: $body-bg;
+    color: $link-color;
+    padding: 0.25rem;
+    border-radius: 0.25rem;
+}
+
 // Transitions
 
 .list-enter-active,
