@@ -360,6 +360,7 @@ const sendActionNotifications = cron.schedule('0 23 * * *', async () => { /* 4:0
 /* open/close announcements and mark missions as inactive */
 const processMissions = cron.schedule('5 22 * * *', async () => { /* 3:00 PM PST */
     const today = new Date();
+    const ids: string[] = [];
 
     const missions = await MissionModel
         .find({
@@ -388,14 +389,11 @@ const processMissions = cron.schedule('5 22 * * *', async () => { /* 3:00 PM PST
 
             await MissionModel.findByIdAndUpdate(mission.id, { openingAnnounced: true });
         } else if (mission.status == MissionStatus.Closed && !mission.closingAnnounced && mission.winningBeatmaps && mission.winningBeatmaps.length) {
-            const processedIds: string[] = [];
-
             for (const beatmap of mission.winningBeatmaps) {
                 for (const task of beatmap.tasks) {
                     for (const mapper of task.mappers) {
-                        if (!processedIds.includes(mapper.id)) {
-                            processedIds.push(mapper.id);
-                            updateUserPoints(mapper.id);
+                        if (!ids.includes(mapper.id)) {
+                            ids.push(mapper.id);
                         }
                     }
                 }
@@ -432,6 +430,10 @@ const processMissions = cron.schedule('5 22 * * *', async () => { /* 3:00 PM PST
                 }]);
             }
         }
+    }
+
+    for (const id of ids) {
+        await updateUserPoints(id);
     }
 }, {
     scheduled: false,
