@@ -380,7 +380,8 @@ async function calculateContestPoints(userId) {
      * FA contests they judged
      */
     const [createdContests, submissions, screenedContests, judgedContests] = await Promise.all([
-        contest_1.ContestModel.countDocuments({
+        contest_1.ContestModel
+            .countDocuments({
             creators: userId,
             isFeaturedArtistContest: true,
             isEligibleForPoints: true,
@@ -389,17 +390,25 @@ async function calculateContestPoints(userId) {
         submission_1.SubmissionModel
             .find({ creator: userId })
             .populate({ path: 'contest', select: 'isFeaturedArtistContest isEligibleForPoints' }),
-        contest_1.ContestModel.countDocuments({
+        contest_1.ContestModel
+            .countDocuments({
             screeners: userId,
             isFeaturedArtistContest: true,
             isEligibleForPoints: true,
             status: contest_2.ContestStatus.Complete,
         }),
-        contest_1.ContestModel.countDocuments({
+        contest_1.ContestModel
+            .find({
             judges: userId,
             isFeaturedArtistContest: true,
             isEligibleForPoints: true,
             status: contest_2.ContestStatus.Complete,
+        })
+            .populate({
+            path: 'submissions',
+            populate: {
+                path: 'screenings',
+            },
         }),
     ]);
     let relevantSubmissionCount = 0;
@@ -408,11 +417,40 @@ async function calculateContestPoints(userId) {
             relevantSubmissionCount++;
         }
     }
+    let judgePoints = 0;
+    for (const contest of judgedContests) {
+        if (contest.submissions.length > 15) {
+            if (contest.judgingThreshold > 0) {
+                let passingThresholdSubmissionsCount = 0;
+                for (const submission of contest.submissions) {
+                    let screeningTotal = 0;
+                    for (const screening of submission.screenings) {
+                        screeningTotal += screening.vote;
+                    }
+                    if (screeningTotal > contest.judgingThreshold) {
+                        passingThresholdSubmissionsCount++;
+                    }
+                }
+                if (passingThresholdSubmissionsCount > 15) {
+                    judgePoints += 1 + Math.log(passingThresholdSubmissionsCount / 15);
+                }
+                else {
+                    judgePoints++;
+                }
+            }
+            else {
+                judgePoints += 1 + Math.log(contest.submissions.length / 15);
+            }
+        }
+        else {
+            judgePoints++;
+        }
+    }
     return {
         ContestCreator: createdContests * 5,
         ContestParticipant: relevantSubmissionCount * 3,
         ContestScreener: screenedContests,
-        ContestJudge: judgedContests, // 1 point per judging
+        ContestJudge: judgePoints, // 1 point per judging, scaling with # of submissions past 15
     };
 }
 exports.calculateContestPoints = calculateContestPoints;
