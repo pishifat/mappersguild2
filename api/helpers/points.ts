@@ -426,27 +426,36 @@ export async function calculateContestPoints(userId: any): Promise<ContestPoints
      * FA contests they judged
      */
     const [createdContests, submissions, screenedContests, judgedContests] = await Promise.all([
-        ContestModel.countDocuments({
-            creators: userId,
-            isFeaturedArtistContest: true,
-            isEligibleForPoints: true,
-            status: ContestStatus.Complete,
-        }),
+        ContestModel
+            .countDocuments({
+                creators: userId,
+                isFeaturedArtistContest: true,
+                isEligibleForPoints: true,
+                status: ContestStatus.Complete,
+            }),
         SubmissionModel
             .find({ creator: userId })
             .populate({ path: 'contest', select: 'isFeaturedArtistContest isEligibleForPoints' }),
-        ContestModel.countDocuments({
-            screeners: userId,
-            isFeaturedArtistContest: true,
-            isEligibleForPoints: true,
-            status: ContestStatus.Complete,
-        }),
-        ContestModel.countDocuments({
-            judges: userId,
-            isFeaturedArtistContest: true,
-            isEligibleForPoints: true,
-            status: ContestStatus.Complete,
-        }),
+        ContestModel
+            .countDocuments({
+                screeners: userId,
+                isFeaturedArtistContest: true,
+                isEligibleForPoints: true,
+                status: ContestStatus.Complete,
+            }),
+        ContestModel
+            .find({
+                judges: userId,
+                isFeaturedArtistContest: true,
+                isEligibleForPoints: true,
+                status: ContestStatus.Complete,
+            })
+            .populate({
+                path: 'submissions',
+                populate: {
+                    path: 'screenings',
+                },
+            }),
     ]);
 
     let relevantSubmissionCount = 0;
@@ -457,11 +466,44 @@ export async function calculateContestPoints(userId: any): Promise<ContestPoints
         }
     }
 
+    let judgePoints = 0;
+
+    for (const contest of judgedContests) {
+        if (contest.submissions.length > 15) {
+            if (contest.judgingThreshold > 0) {
+                let passingThresholdSubmissionsCount = 0;
+
+                for (const submission of contest.submissions) {
+                    let screeningTotal = 0;
+
+                    for (const screening of submission.screenings) {
+                        screeningTotal += screening.vote;
+                    }
+
+                    if (screeningTotal > contest.judgingThreshold) {
+                        passingThresholdSubmissionsCount++;
+                    }
+                }
+
+                if (passingThresholdSubmissionsCount > 15) {
+                    judgePoints += 1 + Math.log(passingThresholdSubmissionsCount / 15);
+                } else {
+                    judgePoints++;
+                }
+            } else {
+                judgePoints += 1 + Math.log(contest.submissions.length / 15);
+            }
+
+        } else {
+            judgePoints++;
+        }
+    }
+
     return {
         ContestCreator: createdContests * 5, // 5 points per contest hosted
         ContestParticipant: relevantSubmissionCount * 3, // 3 points per entry
         ContestScreener: screenedContests, // 1 point per screening
-        ContestJudge: judgedContests, // 1 point per judging
+        ContestJudge: judgePoints, // 1 point per judging, scaling with # of submissions past 15
     };
 }
 
