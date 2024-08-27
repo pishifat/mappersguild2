@@ -470,6 +470,10 @@ listingRouter.post('/:id/updateUrl', isContestCreator, isEditable, async (req, r
 
 /* POST update contest osu! contest listing URL */
 listingRouter.post('/:id/updateOsuContestListingUrl', isContestCreator, isEditable, async (req, res) => {
+    if (!req.body.url.includes('https://osu.ppy.sh/community/contests/')) {
+        return res.json({ error: `Invalid contest listing URL. If your contest isn't hosted officially on osu!, don't use this section.` });
+    }
+
     const contest = await ContestModel
         .findByIdAndUpdate(req.params.id, { osuContestListingUrl: req.body.url })
         .populate(defaultContestPopulate)
