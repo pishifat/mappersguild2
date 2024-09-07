@@ -71,7 +71,7 @@ UserSchema.virtual('totalPoints').get(function(this: User) {
     return Math.round((this.easyPoints + this.normalPoints + this.hardPoints + this.insanePoints + this.expertPoints +
         this.storyboardPoints + this.hitsoundPoints + this.questPoints + this.modPoints + this.hostPoints +
         this.contestCreatorPoints + this.contestParticipantPoints + this.contestScreenerPoints + this.contestJudgePoints +
-        this.legacyPoints)*10)/10;
+        this.missionPoints + this.legacyPoints)*10)/10;
 });
 
 UserSchema.virtual('availablePoints').get(function(this: User) {
