@@ -38,6 +38,9 @@ const store: Module<UsersState, MainState> = {
         setUsers (state, users: User[]): void {
             state.users = users;
         },
+        addSpecificUser (state, user: User): void {
+            state.users.push(user);
+        },
         setFilterValue (state, value: string): void {
             state.filterValue = value;
         },

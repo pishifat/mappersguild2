@@ -2,10 +2,10 @@
     <div
         class="card card-body card-level-2 p-2"
         :class="'left-border-rank-' + user.rank"
-        :style="{
+        :style="user.rank >= 3 ? {
             background: `linear-gradient(90deg, #3c3b39 15%, rgba(0, 0, 0, 0.82) 140%), ${getCover()} center no-repeat`,
             backgroundSize: 'cover',
-        }"
+        } : ''"
         data-bs-toggle="modal"
         data-bs-target="#extendedInfo"
         @click="selectUser()"
@@ -65,7 +65,11 @@ export default defineComponent({
             required: true,
         },
     },
-    computed: mapState('users', ['filterMode']),
+    computed: {
+        ...mapState('users', [
+            'filterMode',
+        ]),
+    },
     methods: {
         selectUser(): void {
             this.$store.commit('users/setSelectedUserId', this.user.id);

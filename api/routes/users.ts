@@ -17,8 +17,24 @@ const userPopulate = [
     { path: 'completedMissions', select: 'name deadline' },
 ];
 
-/* GET users listing. */
-usersRouter.get('/query', async (req, res) => {
+/* GET users (with rank) */
+usersRouter.get('/queryRanked', async (req, res) => {
+    const users = await UserModel
+        .find({
+            $or: [
+                { _id: req.session.mongoId },
+                { rank: { $gte: 1 } },
+            ],
+        })
+        .populate(userPopulate);
+
+    res.json({
+        users,
+    });
+});
+
+/* GET all users (with points) */
+usersRouter.get('/queryAll', async (req, res) => {
     const users = await UserModel
         .find({
             $or: [
@@ -44,30 +60,13 @@ usersRouter.get('/query', async (req, res) => {
     });
 });
 
-/* GET users with sorting. */
-usersRouter.get('/:sort', async (req, res) => {
-    res.json(
-        await UserModel
-            .find({
-                $or: [
-                    { _id: req.session.mongoId },
-                    { $or: [
-                        { osuPoints: { $gt: 0 } },
-                        { taikoPoints: { $gt: 0 } },
-                        { catchPoints: { $gt: 0 } },
-                        { maniaPoints: { $gt: 0 } },
-                        { storyboardPoints: { $gt: 0 } },
-                        { hitsoundPoints: { $gt: 0 } },
-                        { modPoints: { $gt: 0 } },
-                        { contestParticipantPoints: { $gt: 0 } },
-                        { contestJudgePoints: { $gt: 0 } },
-                        { contestScreenerPoints: { $gt: 0 } },
-                    ] },
-                ],
-            })
-            .populate(userPopulate)
-            .sort(req.params.sort)
-    );
+/* GET specific user */
+usersRouter.get('/queryUser/:id', async (req, res) => {
+    const user = await UserModel
+        .findById(req.params.id)
+        .populate(userPopulate);
+
+    res.json(user);
 });
 
 /* GET user's current quests */

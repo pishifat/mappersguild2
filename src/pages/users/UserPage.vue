@@ -50,6 +50,17 @@
                     :user="user"
                 />
             </transition-group>
+
+            <div class="text-center mt-2">
+                <button
+                    v-bs-tooltip="'this will take a couple seconds...'"
+                    class="btn btn-sm btn-primary"
+                    type="button"
+                    @click="showAll($event)"
+                >
+                    <i class="fas fa-angle-down me-1" /> show all users <i class="fas fa-angle-down ms-1" />
+                </button>
+            </div>
         </div>
 
         <user-info />
@@ -73,6 +84,11 @@ export default defineComponent({
         UserInfo,
         UserPageFilters,
         UserListElement,
+    },
+    data () {
+        return {
+            queriedAll: false,
+        };
     },
     computed: {
         ...mapState([
@@ -99,14 +115,23 @@ export default defineComponent({
         }
     },
     async created () {
-        const res = await this.$http.initialRequest<{ users: User[] }>('/users/query');
+        const [res, specificUser] = await Promise.all([
+            this.$http.initialRequest<{ users: User[] }>('/users/queryRanked'),
+            this.$http.executeGet<{ user: User | null }>(`/users/queryUser/${this.$route.query.id}`),
+        ]);
 
         if (!this.$http.isError(res)) {
             this.$store.commit('users/setUsers', res.users);
             const id = this.$route.query.id;
 
             if (id) {
-                const i = this.allUsers.findIndex(u => u.id == id);
+                let i = this.allUsers.findIndex(u => u.id == id);
+
+                if (i < 0) {
+                    this.$store.commit('users/addSpecificUser', specificUser);
+
+                    i = this.allUsers.findIndex(u => u.id == id);
+                }
 
                 if (i >= 0) {
                     this.$store.commit('users/setSelectedUserId', id);
@@ -121,6 +146,13 @@ export default defineComponent({
         },
         showNewer(): void {
             this.$store.commit('users/decreasePaginationPage');
+        },
+        async showAll (e) {
+            const res = await this.$http.executeGet<{ users: User[] }>(`/users/queryAll`, e);
+
+            if (!this.$http.isError(res)) {
+                this.$store.commit('users/setUsers', res.users);
+            }
         },
     },
 });
