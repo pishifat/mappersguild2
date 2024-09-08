@@ -115,10 +115,7 @@ export default defineComponent({
         }
     },
     async created () {
-        const [res, specificUser] = await Promise.all([
-            this.$http.initialRequest<{ users: User[] }>('/users/queryRanked'),
-            this.$http.executeGet<{ user: User | null }>(`/users/queryUser/${this.$route.query.id}`),
-        ]);
+        const res = await this.$http.initialRequest<{ users: User[] }>('/users/queryRanked');
 
         if (!this.$http.isError(res)) {
             this.$store.commit('users/setUsers', res.users);
@@ -128,6 +125,7 @@ export default defineComponent({
                 let i = this.allUsers.findIndex(u => u.id == id);
 
                 if (i < 0) {
+                    const specificUser = await this.$http.executeGet<{ user: User | null }>(`/users/queryUser/${id}`);
                     this.$store.commit('users/addSpecificUser', specificUser);
 
                     i = this.allUsers.findIndex(u => u.id == id);

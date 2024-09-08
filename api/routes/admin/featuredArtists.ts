@@ -14,7 +14,17 @@ adminFeaturedArtistsRouter.use(isAdmin);
 adminFeaturedArtistsRouter.use(isSuperAdmin);
 
 /* GET featured artists */
-adminFeaturedArtistsRouter.get('/load', async (req, res) => {
+adminFeaturedArtistsRouter.get('/loadRelevant', async (req, res) => {
+    const featuredArtists = await FeaturedArtistModel
+        .find({ isContacted: true })
+        .defaultPopulateWithSongs()
+        .sort({ osuId: 1, label: 1 });
+
+    res.json(featuredArtists);
+});
+
+/* GET featured artists (including ones that haven't been contacted) */
+adminFeaturedArtistsRouter.get('/loadAll', async (req, res) => {
     const featuredArtists = await FeaturedArtistModel
         .find({})
         .defaultPopulateWithSongs()

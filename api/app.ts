@@ -151,7 +151,7 @@ app.listen(port, () => {
     automation.completeQuests.start();
     automation.rankUsers.start();
     automation.updatePoints.start();
-    automation.processDailyArtists.start();
+    // automation.processDailyArtists.start();
     automation.validateRankedBeatmaps.start();
     automation.dropOverdueQuests.start();
     automation.processMissions.start();

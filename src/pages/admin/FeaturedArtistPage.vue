@@ -2,8 +2,11 @@
     <div>
         <div class="container card card-body py-3">
             <h5>Featured Artists list</h5>
-            <button class="btn btn-sm btn-info w-100" @click="loadFeaturedArtists($event)">
-                Load Featured Artists
+            <button class="btn btn-sm btn-info w-100" @click="loadRelevantFeaturedArtists($event)">
+                Load (relevant) Featured Artists
+            </button>
+            <button class="btn btn-sm btn-info w-100 mt-2" @click="loadAllFeaturedArtists($event)">
+                Load (all) Featured Artists
             </button>
             <data-table
                 v-if="featuredArtists.length"
@@ -79,8 +82,15 @@ export default defineComponent({
         }
     },
     methods: {
-        async loadFeaturedArtists(e): Promise<void> {
-            const featuredArtists = await this.$http.executeGet<FeaturedArtist[]>('/admin/featuredArtists/load', e);
+        async loadRelevantFeaturedArtists(e): Promise<void> {
+            const featuredArtists = await this.$http.executeGet<FeaturedArtist[]>('/admin/featuredArtists/loadRelevant', e);
+
+            if (!this.$http.isError(featuredArtists)) {
+                this.$store.commit('setFeaturedArtists', featuredArtists);
+            }
+        },
+        async loadAllFeaturedArtists(e): Promise<void> {
+            const featuredArtists = await this.$http.executeGet<FeaturedArtist[]>('/admin/featuredArtists/loadAll', e);
 
             if (!this.$http.isError(featuredArtists)) {
                 this.$store.commit('setFeaturedArtists', featuredArtists);
