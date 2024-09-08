@@ -116,19 +116,6 @@ interface UserSummary {
     flag: string;
 }
 
-/* POST update sb quality */
-adminBeatmapsRouter.post('/:id/updateStoryboardQuality', isSuperAdmin, async (req, res) => {
-    const task = await TaskModel
-        .findByIdAndUpdate(req.body.taskId, { sbQuality: req.body.storyboardQuality })
-        .orFail();
-
-    await task.populate({
-        path: 'mappers',
-    }).execPopulate();
-
-    res.json(task);
-});
-
 /* POST update osu beatmap pack ID */
 adminBeatmapsRouter.post('/:id/updatePackId', isSuperAdmin, async (req, res) => {
     await BeatmapModel

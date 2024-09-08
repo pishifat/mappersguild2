@@ -79,7 +79,7 @@
                                 v-if="selectedUser.storyboardPoints"
                                 :points="selectedUser.storyboardPoints"
                                 :display="'creating storyboards'"
-                                :tooltip-title="'2, 7.5, or 10 points per storyboard'"
+                                :tooltip-title="'10 points per storyboard'"
                             />
                             <user-points-row
                                 v-if="selectedUser.questPoints"

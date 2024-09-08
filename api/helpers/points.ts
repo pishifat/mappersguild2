@@ -1,7 +1,7 @@
 import { Points } from '../../interfaces/extras';
 import { Beatmap, BeatmapStatus } from '../../interfaces/beatmap/beatmap';
 import { BeatmapModel } from '../models/beatmap/beatmap';
-import { Task, TaskName } from '../../interfaces/beatmap/task';
+import { TaskName } from '../../interfaces/beatmap/task';
 import { TaskModel } from '../models/beatmap/task';
 import { ContestModel } from '../models/contest/contest';
 import { SubmissionModel } from '../models/contest/submission';
@@ -43,6 +43,7 @@ export function findDifficultyPoints(taskName: string, totalMappers: number): nu
         Insane: 8,
         Expert: 8,
         Hitsounds: 2,
+        Storyboard: 10,
     };
 
     return difficultyPointsObject[taskName] / totalMappers;
@@ -98,16 +99,6 @@ export function getMissionBonus(winningBeatmaps: Beatmap[], beatmapId: Beatmap['
     }
 
     return missionBonus/totalMappers;
-}
-
-export function findStoryboardPoints(storyboardQuality: Task['sbQuality']): number {
-    if (!storyboardQuality) {
-        return 0;
-    } else if (storyboardQuality == 2) {
-        return 7.5;
-    } else {
-        return (storyboardQuality * storyboardQuality + 1); //sb worth 2 or 10
-    }
 }
 
 export function getReopenQuestPoints(price: number): number {
@@ -269,13 +260,7 @@ export async function calculateTasksPoints(userId: any): Promise<TasksPoints> {
                 }
 
                 // calculate raw task points
-                let taskPoints;
-
-                if (task.name === TaskName.Storyboard) {
-                    taskPoints = findStoryboardPoints(task.sbQuality);
-                } else {
-                    taskPoints = findDifficultyPoints(task.name, task.mappers.length);
-                }
+                const taskPoints = findDifficultyPoints(task.name, task.mappers.length);
 
                 // finalize task points and add to base
                 let finalPoints = 0;

@@ -13,7 +13,9 @@
         <div class="col-sm-6">
             <div class="form-inline w-100">
                 osu! contest listing URL:
-                <div v-if="!newOsuContestListingUrl.includes('https://osu.ppy.sh/community/contests/')" class="small text-danger">Not saved. Only use this if your contest is <a href="https://osu.ppy.sh/community/contests/" target="_blank">hosted officially on osu!</a>.</div>
+                <div v-if="newOsuContestListingUrl && !newOsuContestListingUrl.includes('https://osu.ppy.sh/community/contests/')" class="small text-danger">
+                    Not saved. Only use this if your contest is <a href="https://osu.ppy.sh/community/contests/" target="_blank">hosted officially on osu!</a>.
+                </div>
                 <input
                     v-model="newOsuContestListingUrl"
                     class="ml-1 form-control"

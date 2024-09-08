@@ -8,7 +8,7 @@ import { UserModel } from '../../models/user';
 import { LogCategory } from '../../../interfaces/log';
 import { User } from '../../../interfaces/user';
 import { isLoggedIn, isBn } from '../../helpers/middlewares';
-import { findDifficultyPoints, getLengthNerf, getQuestBonus, getMissionBonus, findStoryboardPoints } from '../../helpers/points';
+import { findDifficultyPoints, getLengthNerf, getQuestBonus } from '../../helpers/points';
 import { defaultErrorMessage, findBeatmapsetId, getLongestBeatmapLength } from '../../helpers/helpers';
 import { getClientCredentialsGrant, getBeatmapsetV2Info, isOsuResponseError } from '../../helpers/osuApi';
 import { isValidBeatmap } from './middlewares';
@@ -405,39 +405,28 @@ beatmapsRouter.get('/:id/findPoints', async (req, res) => {
 
     // calculate points
     beatmap.tasks.forEach(task => {
-        if (task.name == TaskName.Storyboard) {
-            const taskPoints = findStoryboardPoints(task.sbQuality);
-            tasksPointsArray.push(`${task.name}: ${taskPoints == 0 ? 'TBD' : taskPoints}`);
-        } else {
-            // difficulty-specific points
-            const taskPoints = findDifficultyPoints(task.name, 1);
+        // difficulty-specific points
+        const taskPoints = findDifficultyPoints(task.name, 1);
 
-            if (beatmap.quest) {
-                bonus = getQuestBonus(beatmap.quest.deadline, new Date(rankedDate), 1);
-                validBonus = true;
-            } else if (beatmap.mission) {
-                bonus = 2;
-                validBonus = true;
-            } else if (beatmap.isShowcase) {
-                bonus = 2;
-                validBonus = true;
-            }
-
-            const finalPoints = ((taskPoints + bonus)*lengthNerf);
-
-            totalPoints += finalPoints;
-            tasksPointsArray.push(`${task.name}: ${finalPoints.toFixed(1)}`);
+        if (beatmap.quest) {
+            bonus = getQuestBonus(beatmap.quest.deadline, new Date(rankedDate), 1);
+            validBonus = true;
+        } else if (beatmap.mission) {
+            bonus = 2;
+            validBonus = true;
+        } else if (beatmap.isShowcase) {
+            bonus = 2;
+            validBonus = true;
         }
+
+        const finalPoints = ((taskPoints + bonus)*lengthNerf);
+
+        totalPoints += finalPoints;
+        tasksPointsArray.push(`${task.name}: ${finalPoints.toFixed(1)}`);
 
         // user-specific points
         task.mappers.forEach(mapper => {
-            let userTaskPoints;
-
-            if (task.name == TaskName.Storyboard) {
-                userTaskPoints = findStoryboardPoints(task.sbQuality);
-            } else {
-                userTaskPoints = findDifficultyPoints(task.name, task.mappers.length);
-            }
+            const userTaskPoints = findDifficultyPoints(task.name, task.mappers.length);
 
             usersPointsArrays.forEach(userArray => {
                 if (userArray[0] == mapper.username) {

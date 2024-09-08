@@ -56,15 +56,6 @@ const store: Module<BeatmapState, MainState> = {
                 beatmap.url = payload.url;
             }
         },
-        updateStoryboardQuality (state, payload): void {
-            const beatmap = state.beatmaps.find(b => b.id == payload.beatmapId);
-
-            if (beatmap) {
-                const i = beatmap.tasks.findIndex(t => t.id == payload.taskId);
-
-                if (i !== -1) beatmap.tasks[i] = payload.task;
-            }
-        },
         updatePackId (state, payload): void {
             const beatmap = state.beatmaps.find(b => b.id == payload.beatmapId);
 

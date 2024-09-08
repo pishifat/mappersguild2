@@ -84,22 +84,6 @@
                         Save URL
                     </button>
                 </p>
-                <p v-if="storyboardTaskId" class="row">
-                    <select v-model="storyboardQuality" class="form-select form-select-sm w-50 mx-2">
-                        <option value="1">
-                            1
-                        </option>
-                        <option value="2">
-                            2
-                        </option>
-                        <option value="3">
-                            3
-                        </option>
-                    </select>
-                    <button class="btn btn-sm btn-outline-info w-25" @click="updateStoryboardQuality($event)">
-                        Save Storyboard Quality
-                    </button>
-                </p>
                 <p class="row">
                     <input
                         v-model="packId"
@@ -174,7 +158,7 @@
 import { defineComponent } from 'vue';
 import ModalDialog from '@components/ModalDialog.vue';
 import { Beatmap } from '../../../interfaces/beatmap/beatmap';
-import { SBQuality, Task, SortedTasks } from '../../../interfaces/beatmap/task';
+import { Task, SortedTasks } from '../../../interfaces/beatmap/task';
 import ModesIcons from '@components/ModesIcons.vue';
 import TasksChoice from '../beatmaps/beatmapInfo/TasksChoice.vue';
 
@@ -197,8 +181,6 @@ export default defineComponent({
             taskId: null,
             modderId: null,
             beatmapUrl: this.beatmap.url,
-            storyboardQuality: null as null | SBQuality,
-            storyboardTaskId: null as null | string,
             packId: this.beatmap.packId,
             rejectionInput: '',
         };
@@ -226,23 +208,13 @@ export default defineComponent({
             this.taskId = null;
             this.modderId = null;
             this.beatmapUrl = this.beatmap.url;
-            this.storyboardQuality = null;
-            this.storyboardTaskId = null;
             this.packId = this.beatmap.packId;
-            this.beatmap.tasks.forEach(task => {
-                if (task.name == 'Storyboard') {
-                    if (task.sbQuality) this.storyboardQuality = task.sbQuality;
-                    this.storyboardTaskId = task.id;
-                }
-            });
             this.rejectionInput = '';
         },
         findTaskInfo(task): string {
             let text = `${task.name} --- `;
             const mappers = task.mappers.map(m => m.username);
             text += mappers.join(', ');
-
-            if (task.name == 'Storyboard') text += ` --- ${task.sbQuality}`;
 
             return text;
         },
@@ -299,21 +271,6 @@ export default defineComponent({
                 this.$store.commit('updateUrl', {
                     beatmapId: this.beatmap.id,
                     url,
-                });
-            }
-        },
-        async updateStoryboardQuality(e): Promise<void> {
-            const task = await this.$http.executePost(`/admin/beatmaps/${this.beatmap.id}/updateStoryboardQuality`, { storyboardQuality: this.storyboardQuality, taskId: this.storyboardTaskId }, e);
-
-            if (!this.$http.isError(task)) {
-                this.$store.dispatch('updateToastMessages', {
-                    message: `updated storyboard quality`,
-                    type: 'info',
-                });
-                this.$store.commit('updateStoryboardQuality', {
-                    beatmapId: this.beatmap.id,
-                    taskId: this.storyboardTaskId,
-                    task,
                 });
             }
         },

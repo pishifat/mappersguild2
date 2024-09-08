@@ -35,12 +35,6 @@ export enum TaskStatus {
     Done = 'Done',
 }
 
-export enum SBQuality {
-    Meh = 1,
-    Ok = 2,
-    Nice = 3,
-}
-
 export interface Task extends Document {
     _id: any;
     id: string;
@@ -48,5 +42,4 @@ export interface Task extends Document {
     mode: TaskMode;
     mappers: User[];
     status: TaskStatus;
-    sbQuality: SBQuality;
 }

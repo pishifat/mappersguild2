@@ -178,7 +178,7 @@
                                     Creating storyboard
                                 </td>
                                 <td scope="row">
-                                    2, 7, or 10<sup><a href="#" @click.prevent="highlight = 'storyboard'">storyboard</a></sup>
+                                    10
                                 </td>
                             </tr>
                             <tr>
@@ -269,19 +269,6 @@
                             <ul>
                                 <li>
                                     If a Beatmap Nominator nominates a Mappers' Guild map, this value scales according to the song's length
-                                </li>
-                            </ul>
-                        </li>
-                        <li :class="highlight == 'storyboard' ? 'text-success' : ''">
-                            <b>Storyboard:</b>
-                            <ul>
-                                <li>
-                                    Points are determined based storyboard content:
-                                    <ul>
-                                        <li>2 points for minimalist storyboard</li>
-                                        <li>7.5 points for typical storyboard</li>
-                                        <li>10 points for extraordinary storyboard</li>
-                                    </ul>
                                 </li>
                             </ul>
                         </li>
