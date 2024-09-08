@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SBQuality = exports.TaskStatus = exports.TaskMode = exports.TaskName = exports.SortedTasks = void 0;
+exports.TaskStatus = exports.TaskMode = exports.TaskName = exports.SortedTasks = void 0;
 exports.SortedTasks = [
     'Easy',
     'Normal',
@@ -34,9 +34,3 @@ var TaskStatus;
     TaskStatus["WIP"] = "WIP";
     TaskStatus["Done"] = "Done";
 })(TaskStatus = exports.TaskStatus || (exports.TaskStatus = {}));
-var SBQuality;
-(function (SBQuality) {
-    SBQuality[SBQuality["Meh"] = 1] = "Meh";
-    SBQuality[SBQuality["Ok"] = 2] = "Ok";
-    SBQuality[SBQuality["Nice"] = 3] = "Nice";
-})(SBQuality = exports.SBQuality || (exports.SBQuality = {}));

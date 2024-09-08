@@ -139,7 +139,7 @@ app.listen(port, () => {
     automation_1.default.completeQuests.start();
     automation_1.default.rankUsers.start();
     automation_1.default.updatePoints.start();
-    automation_1.default.processDailyArtists.start();
+    // automation.processDailyArtists.start();
     automation_1.default.validateRankedBeatmaps.start();
     automation_1.default.dropOverdueQuests.start();
     automation_1.default.processMissions.start();

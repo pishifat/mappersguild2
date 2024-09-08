@@ -18,8 +18,22 @@ const userPopulate = [
     { path: 'completedQuests', select: 'name completed' },
     { path: 'completedMissions', select: 'name deadline' },
 ];
-/* GET users listing. */
-usersRouter.get('/query', async (req, res) => {
+/* GET users (with rank) */
+usersRouter.get('/queryRanked', async (req, res) => {
+    const users = await user_1.UserModel
+        .find({
+        $or: [
+            { _id: req.session.mongoId },
+            { rank: { $gte: 1 } },
+        ],
+    })
+        .populate(userPopulate);
+    res.json({
+        users,
+    });
+});
+/* GET all users (with points) */
+usersRouter.get('/queryAll', async (req, res) => {
     const users = await user_1.UserModel
         .find({
         $or: [
@@ -43,28 +57,12 @@ usersRouter.get('/query', async (req, res) => {
         users,
     });
 });
-/* GET users with sorting. */
-usersRouter.get('/:sort', async (req, res) => {
-    res.json(await user_1.UserModel
-        .find({
-        $or: [
-            { _id: req.session.mongoId },
-            { $or: [
-                    { osuPoints: { $gt: 0 } },
-                    { taikoPoints: { $gt: 0 } },
-                    { catchPoints: { $gt: 0 } },
-                    { maniaPoints: { $gt: 0 } },
-                    { storyboardPoints: { $gt: 0 } },
-                    { hitsoundPoints: { $gt: 0 } },
-                    { modPoints: { $gt: 0 } },
-                    { contestParticipantPoints: { $gt: 0 } },
-                    { contestJudgePoints: { $gt: 0 } },
-                    { contestScreenerPoints: { $gt: 0 } },
-                ] },
-        ],
-    })
-        .populate(userPopulate)
-        .sort(req.params.sort));
+/* GET specific user */
+usersRouter.get('/queryUser/:id', async (req, res) => {
+    const user = await user_1.UserModel
+        .findById(req.params.id)
+        .populate(userPopulate);
+    res.json(user);
 });
 /* GET user's current quests */
 usersRouter.get('/:id/quests', async (req, res) => {
@@ -113,7 +111,6 @@ usersRouter.get('/findCreatedQuests/:id', async (req, res) => {
 });
 /* GET user's spent points */
 usersRouter.get('/findSpentPoints/:id', async (req, res) => {
-    const all = await spentPoints_1.SpentPointsModel.find({ mission: { $exists: false } });
     const spentPoints = await spentPoints_1.SpentPointsModel
         .find({ user: req.params.id })
         .populate({ path: 'quest mission', select: 'price art requiredMapsets name' })

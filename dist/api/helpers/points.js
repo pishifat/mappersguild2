@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateUserPoints = exports.calculateContestPoints = exports.calculateSpentPoints = exports.calculateModPoints = exports.calculateHostPoints = exports.calculateTasksPoints = exports.getUserRank = exports.findCreateQuestPointsSpent = exports.getReopenQuestPoints = exports.findStoryboardPoints = exports.getMissionBonus = exports.getQuestBonus = exports.findMissionPoints = exports.findQuestPoints = exports.findDifficultyPoints = exports.getLengthNerf = exports.rerollShowcaseMissionSongPrice = exports.extendQuestPrice = void 0;
+exports.updateUserPoints = exports.calculateContestPoints = exports.calculateSpentPoints = exports.calculateModPoints = exports.calculateHostPoints = exports.calculateTasksPoints = exports.getUserRank = exports.findCreateQuestPointsSpent = exports.getReopenQuestPoints = exports.getMissionBonus = exports.getQuestBonus = exports.findMissionPoints = exports.findQuestPoints = exports.findDifficultyPoints = exports.getLengthNerf = exports.rerollShowcaseMissionSongPrice = exports.extendQuestPrice = void 0;
 const beatmap_1 = require("../../interfaces/beatmap/beatmap");
 const beatmap_2 = require("../models/beatmap/beatmap");
 const task_1 = require("../../interfaces/beatmap/task");
@@ -44,6 +44,7 @@ function findDifficultyPoints(taskName, totalMappers) {
         Insane: 8,
         Expert: 8,
         Hitsounds: 2,
+        Storyboard: 10,
     };
     return difficultyPointsObject[taskName] / totalMappers;
 }
@@ -99,18 +100,6 @@ function getMissionBonus(winningBeatmaps, beatmapId, totalMappers) {
     return missionBonus / totalMappers;
 }
 exports.getMissionBonus = getMissionBonus;
-function findStoryboardPoints(storyboardQuality) {
-    if (!storyboardQuality) {
-        return 0;
-    }
-    else if (storyboardQuality == 2) {
-        return 7.5;
-    }
-    else {
-        return (storyboardQuality * storyboardQuality + 1); //sb worth 2 or 10
-    }
-}
-exports.findStoryboardPoints = findStoryboardPoints;
 function getReopenQuestPoints(price) {
     return price * 0.5 + 25;
 }
@@ -237,13 +226,7 @@ async function calculateTasksPoints(userId) {
                     bonus = 2; // featured artist showcase maps automatically earn full quest bonus
                 }
                 // calculate raw task points
-                let taskPoints;
-                if (task.name === task_1.TaskName.Storyboard) {
-                    taskPoints = findStoryboardPoints(task.sbQuality);
-                }
-                else {
-                    taskPoints = findDifficultyPoints(task.name, task.mappers.length);
-                }
+                const taskPoints = findDifficultyPoints(task.name, task.mappers.length);
                 // finalize task points and add to base
                 let finalPoints = 0;
                 if (task.name === task_1.TaskName.Storyboard) {

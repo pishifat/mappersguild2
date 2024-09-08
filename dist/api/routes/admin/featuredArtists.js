@@ -15,7 +15,15 @@ adminFeaturedArtistsRouter.use(middlewares_1.isLoggedIn);
 adminFeaturedArtistsRouter.use(middlewares_1.isAdmin);
 adminFeaturedArtistsRouter.use(middlewares_1.isSuperAdmin);
 /* GET featured artists */
-adminFeaturedArtistsRouter.get('/load', async (req, res) => {
+adminFeaturedArtistsRouter.get('/loadRelevant', async (req, res) => {
+    const featuredArtists = await featuredArtist_1.FeaturedArtistModel
+        .find({ isContacted: true })
+        .defaultPopulateWithSongs()
+        .sort({ osuId: 1, label: 1 });
+    res.json(featuredArtists);
+});
+/* GET featured artists (including ones that haven't been contacted) */
+adminFeaturedArtistsRouter.get('/loadAll', async (req, res) => {
     const featuredArtists = await featuredArtist_1.FeaturedArtistModel
         .find({})
         .defaultPopulateWithSongs()

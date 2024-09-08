@@ -318,38 +318,26 @@ beatmapsRouter.get('/:id/findPoints', async (req, res) => {
     });
     // calculate points
     beatmap.tasks.forEach(task => {
-        if (task.name == task_2.TaskName.Storyboard) {
-            const taskPoints = points_1.findStoryboardPoints(task.sbQuality);
-            tasksPointsArray.push(`${task.name}: ${taskPoints == 0 ? 'TBD' : taskPoints}`);
+        // difficulty-specific points
+        const taskPoints = points_1.findDifficultyPoints(task.name, 1);
+        if (beatmap.quest) {
+            bonus = points_1.getQuestBonus(beatmap.quest.deadline, new Date(rankedDate), 1);
+            validBonus = true;
         }
-        else {
-            // difficulty-specific points
-            const taskPoints = points_1.findDifficultyPoints(task.name, 1);
-            if (beatmap.quest) {
-                bonus = points_1.getQuestBonus(beatmap.quest.deadline, new Date(rankedDate), 1);
-                validBonus = true;
-            }
-            else if (beatmap.mission) {
-                bonus = 2;
-                validBonus = true;
-            }
-            else if (beatmap.isShowcase) {
-                bonus = 2;
-                validBonus = true;
-            }
-            const finalPoints = ((taskPoints + bonus) * lengthNerf);
-            totalPoints += finalPoints;
-            tasksPointsArray.push(`${task.name}: ${finalPoints.toFixed(1)}`);
+        else if (beatmap.mission) {
+            bonus = 2;
+            validBonus = true;
         }
+        else if (beatmap.isShowcase) {
+            bonus = 2;
+            validBonus = true;
+        }
+        const finalPoints = ((taskPoints + bonus) * lengthNerf);
+        totalPoints += finalPoints;
+        tasksPointsArray.push(`${task.name}: ${finalPoints.toFixed(1)}`);
         // user-specific points
         task.mappers.forEach(mapper => {
-            let userTaskPoints;
-            if (task.name == task_2.TaskName.Storyboard) {
-                userTaskPoints = points_1.findStoryboardPoints(task.sbQuality);
-            }
-            else {
-                userTaskPoints = points_1.findDifficultyPoints(task.name, task.mappers.length);
-            }
+            const userTaskPoints = points_1.findDifficultyPoints(task.name, task.mappers.length);
             usersPointsArrays.forEach(userArray => {
                 if (userArray[0] == mapper.username) {
                     if (task.name == task_2.TaskName.Storyboard) {
