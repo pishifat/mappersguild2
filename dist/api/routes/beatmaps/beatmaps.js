@@ -23,7 +23,10 @@ beatmapsRouter.get('/relevantInfo', async (req, res) => {
     const hostBeatmaps = await beatmap_1.BeatmapModel
         .find({
         host: req.session?.mongoId,
-        mode: res.locals.userRequest.mainMode,
+        $or: [
+            { mode: res.locals.userRequest.mainMode },
+            { mode: 'hybrid' },
+        ],
     })
         .defaultPopulate()
         .sortByLatest();

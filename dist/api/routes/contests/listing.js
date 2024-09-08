@@ -405,6 +405,9 @@ listingRouter.post('/:id/updateUrl', middlewares_2.isContestCreator, middlewares
 });
 /* POST update contest osu! contest listing URL */
 listingRouter.post('/:id/updateOsuContestListingUrl', middlewares_2.isContestCreator, middlewares_2.isEditable, async (req, res) => {
+    if (!req.body.url.includes('https://osu.ppy.sh/community/contests/')) {
+        return res.json({ error: `Invalid contest listing URL. If your contest isn't hosted officially on osu!, don't use this section.` });
+    }
     const contest = await contest_1.ContestModel
         .findByIdAndUpdate(req.params.id, { osuContestListingUrl: req.body.url })
         .populate(defaultContestPopulate)
