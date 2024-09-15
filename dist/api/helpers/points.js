@@ -258,12 +258,15 @@ async function calculateTasksPoints(userId) {
             beatmap.mission &&
             !pointsObject.Missions.includes(beatmap.mission._id) &&
             beatmap.mission.winningBeatmaps.some(b => b.id == beatmap.id) &&
-            (beatmap.host.id == userId || (beatmap.mission.id == '65a3376e48f36f2622ef2f44')) // both mappers for True Cooperation "win"
+            (beatmap.host.id == userId || beatmap.mission.id == '65a3376e48f36f2622ef2f44' || beatmap.mission.id == '665bbcc1ff4c38cea1113337') // both mappers for True Cooperation & Multi-mode enthusiasts "win"
         ) {
             let isValidMissionParticipation;
             for (const task of beatmap.tasks) {
                 if (task.mappers.some(m => m.id == userId) && task.name !== task_1.TaskName.Hitsounds && task.name !== task_1.TaskName.Storyboard) {
                     isValidMissionParticipation = true;
+                    if (['63035eff1e8b9e4fa900836f', '62e3dedd9a268823d2e436b8', '6401d31e517b1f1d40ca78e2'].includes(userId) && beatmap.mission.id == '665bbcc1ff4c38cea1113337') { // skipping rewards for people who tried to circumvent the rules (or the spirit of the rules) for easy mission progress/points. i want to give the host pity points at least. relevant maps: https://osu.ppy.sh/beatmapsets/2202586#taiko/4719311 and https://osu.ppy.sh/beatmapsets/1670325#osu/4767848
+                        isValidMissionParticipation = false;
+                    }
                 }
             }
             if (isValidMissionParticipation) {
