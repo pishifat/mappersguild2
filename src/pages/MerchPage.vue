@@ -8,7 +8,7 @@
                 <h5 class="mt-2">
                     info
                 </h5>
-                <div class="mb-2">all products listed here have a 100% discount. prices are still listed on the checkout page for tax/customs reasons. depending on the product, they may be lower than store prices</div>
+                <!--<div class="mb-2">all products listed here have a 100% discount. prices are still listed on the checkout page for tax/customs reasons. depending on the product, they may be lower than store prices</div>-->
                 <div>you can only begin the checkout process <b>once</b>! this requires...</div>
                 <ul>
                     <li>contact email <span class="text-secondary small">(this must be the same as your osu! account's email)</span></li>
