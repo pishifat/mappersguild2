@@ -92,18 +92,23 @@ export default defineComponent({
             const hosts = winningBeatmaps.map(b => b.host);
             const hostUsernames = hosts.map(h => h.username);
 
-            // exception for the "True Cooperation" mission, which gives the set's second mapper credit towards badge too
-            let trueCooperationUsers: any[] = [];
-            let trueCooperationUsernames: string[] = [];
+            // exception for the "True Cooperation" and "Multi-mode enthusiasts" missions, which give the set's second mapper credit towards badge too
+            let collaborationUsers: any[] = [];
+            let collaborationUsernames: string[] = [];
 
             for (const beatmap of winningBeatmaps) {
-                if (beatmap.mission.toString() == '65a3376e48f36f2622ef2f44') {
+                console.log(beatmap.id);
+                console.log(beatmap.mission);
+
+                if (beatmap.mission.toString() == '65a3376e48f36f2622ef2f44' || beatmap.mission.toString() == '665bbcc1ff4c38cea1113337') {
                     for (const task of beatmap.tasks) {
                         if (task.name !== TaskName.Hitsounds && task.name !== TaskName.Storyboard) {
                             for (const mapper of task.mappers) {
-                                if (!trueCooperationUsernames.includes(mapper.username) && beatmap.host.id !== mapper.id) {
-                                    trueCooperationUsers.push(mapper);
-                                    trueCooperationUsernames.push(mapper.username);
+                                if (!collaborationUsernames.includes(mapper.username) && beatmap.host.id !== mapper.id) {
+                                    if (['63035eff1e8b9e4fa900836f', '62e3dedd9a268823d2e436b8', '6401d31e517b1f1d40ca78e2'].includes(mapper.id) && beatmap.mission.toString() == '665bbcc1ff4c38cea1113337') { // skipping rewards for people who tried to circumvent the rules (or the spirit of the rules) for easy mission progress/points. i want to give the host pity points at least. relevant maps: https://osu.ppy.sh/beatmapsets/2202586#taiko/4719311 and https://osu.ppy.sh/beatmapsets/1670325#osu/4767848
+                                        collaborationUsers.push(mapper);
+                                        collaborationUsernames.push(mapper.username);
+                                    }
                                 }
                             }
                         }
@@ -111,8 +116,8 @@ export default defineComponent({
                 }
             }
 
-            const winningUsers = hosts.concat(trueCooperationUsers);
-            const winningUsernames = hostUsernames.concat(trueCooperationUsernames);
+            const winningUsers = hosts.concat(collaborationUsers);
+            const winningUsernames = hostUsernames.concat(collaborationUsernames);
 
             let count = winningUsernames.reduce(function (a: any, b: any) {
                 return (
