@@ -63,7 +63,9 @@
         <div v-else>
             <h5>Results</h5>
             <div><a :href="contest.resultsUrl" target="_blank">View contest results here!</a></div>
-            <div><a :href="'/contests/results?contest=' + contest.id" target="_blank">View Mappers' Guild judging scores here!</a></div>
+            <div v-if="contest.submissions && contest.submissions.length">
+                <a :href="'/contests/results?contest=' + contest.id" target="_blank">View Mappers' Guild judging scores here!</a>
+            </div>
             <hr />
             <h5>Contributions</h5>
             <div v-if="contest.screeners && contest.screeners.length" class="mt-2">
