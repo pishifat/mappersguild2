@@ -111,6 +111,12 @@ export default defineComponent({
         if (!this.$http.isError(mission)) {
             this.$store.commit('missions/setExampleMission', mission);
         }
+
+        const res2 = await this.$http.executeGet<{ missions: Mission[] }>(`/missions/loadInactiveMissions`);
+
+        if (!this.$http.isError(res2)) {
+            this.$store.commit('missions/addMissions', res2.missions);
+        }
     },
 });
 </script>

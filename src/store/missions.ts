@@ -34,6 +34,9 @@ const store: Module<MissionsState, MainState> = {
         setMissions (state, missions: Mission[]): void {
             state.missions = missions;
         },
+        addMissions (state, missions: Mission[]): void {
+            state.missions = state.missions.concat(missions);
+        },
         setUserBeatmaps (state, beatmaps: Beatmap[]): void {
             state.userBeatmaps = beatmaps;
         },
@@ -56,11 +59,13 @@ const store: Module<MissionsState, MainState> = {
     },
     getters: {
         filteredMissions: (state): Mission[] => {
-            let missions = state.missions;
+            let missions = [...state.missions];
+
+            console.log(missions);
 
             if (state.filterMode !== FilterMode.any) {
                 const mode: any = state.filterMode;
-                missions = missions.filter(m => m.modes.includes(mode));
+                missions = missions.filter(m => m.modes && m.modes.includes(mode));
             }
 
             if (state.filterValue.length > 2) {

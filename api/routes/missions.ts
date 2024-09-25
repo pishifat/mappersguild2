@@ -39,10 +39,7 @@ missionsRouter.get('/relevantInfo', async (req, res) => {
     const [missions, beatmaps] = await Promise.all([
         MissionModel
             .find({
-                $or: [
-                    { status: MissionStatus.Open },
-                    { status: MissionStatus.Closed },
-                ],
+                status: MissionStatus.Open,
                 openingAnnounced: true,
             })
             .defaultPopulate()
@@ -64,6 +61,19 @@ missionsRouter.get('/relevantInfo', async (req, res) => {
         missions,
         beatmaps,
     });
+});
+
+/* GET inactive missions */
+missionsRouter.get('/loadInactiveMissions', async (req, res) => {
+    const missions = await MissionModel
+        .find({
+            status: MissionStatus.Closed,
+            openingAnnounced: true,
+        })
+        .defaultPopulate()
+        .sort({ tier: 1, createdAt: -1 });
+
+    res.json({ missions });
 });
 
 function meetsRequirements(mission, user, beatmap) {
