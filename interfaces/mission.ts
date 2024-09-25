@@ -32,6 +32,7 @@ export interface Mission extends Document {
     invalidBeatmaps: Beatmap[];
     modes: MissionMode[];
     isShowcaseMission: boolean;
+    isSeparate: boolean;
     showcaseMissionSongs: {
         song: FeaturedSong;
         user: User;

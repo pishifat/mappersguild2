@@ -215,6 +215,20 @@
                     </button>
                 </div>
             </div>
+            <!-- isSeparate -->
+            <div class="row d-flex mt-2 align-items-center">
+                <div class="col-sm-4">
+                    isSeparate
+                </div>
+                <div class="col-sm-4 small text-secondary">
+                    Current: <b :class="mission.isSeparate ? 'text-success' : 'text-danger'">{{ mission.isSeparate ? mission.isSeparate : 'false' }}</b>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-sm btn-outline-info w-100" @click="toggleIsSeparate($event)">
+                        Toggle isSeparate
+                    </button>
+                </div>
+            </div>
             <!-- openingAnnounced -->
             <div class="row d-flex mt-2 align-items-center">
                 <div class="col-sm-4">
@@ -716,6 +730,20 @@ export default defineComponent({
                 this.$store.commit('updateIsShowcaseMission', {
                     missionId: this.mission.id,
                     isShowcaseMission,
+                });
+            }
+        },
+        async toggleIsSeparate(e): Promise<void> {
+            const isSeparate = await this.$http.executePost(`/admin/missions/${this.mission.id}/toggleIsSeparate/`, { isSeparate: !this.mission.isSeparate }, e);
+
+            if (!this.$http.isError(isSeparate)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `toggled isSeparate`,
+                    type: 'info',
+                });
+                this.$store.commit('updateIsSeparate', {
+                    missionId: this.mission.id,
+                    isSeparate,
                 });
             }
         },

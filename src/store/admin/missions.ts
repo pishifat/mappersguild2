@@ -63,6 +63,13 @@ const store: Module<MissionState, MainState> = {
                 mission.isShowcaseMission = payload.isShowcaseMission;
             }
         },
+        updateIsSeparate (state, payload): void {
+            const mission = state.missions.find(m => m.id == payload.missionId);
+
+            if (mission) {
+                mission.isSeparate = payload.isSeparate;
+            }
+        },
         updateOpeningAnnounced (state, payload): void {
             const mission = state.missions.find(m => m.id == payload.missionId);
 

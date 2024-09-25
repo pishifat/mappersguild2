@@ -97,9 +97,6 @@ export default defineComponent({
             let collaborationUsernames: string[] = [];
 
             for (const beatmap of winningBeatmaps) {
-                console.log(beatmap.id);
-                console.log(beatmap.mission);
-
                 if (beatmap.mission.toString() == '65a3376e48f36f2622ef2f44' || beatmap.mission.toString() == '665bbcc1ff4c38cea1113337') {
                     for (const task of beatmap.tasks) {
                         if (task.name !== TaskName.Hitsounds && task.name !== TaskName.Storyboard) {

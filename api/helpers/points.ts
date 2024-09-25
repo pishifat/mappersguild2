@@ -14,7 +14,7 @@ import { Mission, MissionStatus } from '../../interfaces/mission';
 import { ContestStatus } from '../../interfaces/contest/contest';
 
 export const extendQuestPrice = 10;
-export const rerollShowcaseMissionSongPrice = 50;
+export const rerollShowcaseMissionSongPrice = 35;
 
 export function getLengthNerf(length: number): number {
     const lengthNerf = 125;

@@ -245,7 +245,7 @@ missionsRouter.post('/:missionId/findShowcaseMissionSong', isEditable, async (re
     const userExists = missionWithSongs.showcaseMissionSongs.find(s => s.user.id == user.id);
 
     if (userExists) {
-        if (user.availablePoints < 50) { // rerolling costs 50
+        if (user.availablePoints < 35) { // rerolling costs 35
             return res.json({ error: 'Not enough available points!' });
         }
 
@@ -316,7 +316,7 @@ missionsRouter.post('/:missionId/findShowcaseMissionSong', isEditable, async (re
     LogModel.generate(req.session?.mongoId, `${userExists ? 'rerolled' : 'found'} showcase mission song`, LogCategory.Mission );
 });
 
-/* GET findShowcaseMissionSong */
+/* GET findSelectedShowcaseMissionSong */
 missionsRouter.get('/:missionId/findSelectedShowcaseMissionSong', async (req, res) => {
     const mission: Mission = await MissionModel
         .findById(req.params.missionId)

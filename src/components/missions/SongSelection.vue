@@ -14,10 +14,6 @@
         </div>
         <div v-else>
             <b v-if="!songInfo">Song:</b>
-            <a v-if="songInfo" href="#song" data-bs-toggle="collapse" @click.prevent>
-                View song
-                <i class="fas fa-angle-down" />
-            </a>
             <span v-if="!songInfoLoaded" class="text-secondary ms-1">...</span>
             <button
                 v-else-if="!songInfo"
@@ -26,7 +22,7 @@
             >
                 Load song
             </button>
-            <div v-else id="song" class="collapse">
+            <div v-else>
                 <ul>
                     <li>
                         <a
@@ -46,7 +42,7 @@
                             class="btn btn-sm btn-outline-info"
                             @click="findShowcaseMissionSong($event)"
                         >
-                            Re-select song for 50 points <i class="fas fa-coins" />
+                            Re-select song for 35 points <i class="fas fa-coins" />
                         </button>
                     </li>
                 </ul>

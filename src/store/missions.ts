@@ -72,7 +72,10 @@ const store: Module<MissionsState, MainState> = {
             return missions;
         },
         openMissions: (state, getters): Mission[] => {
-            return getters.filteredMissions.filter(m => m.status == MissionStatus.Open);
+            return getters.filteredMissions.filter(m => m.status == MissionStatus.Open && !m.isSeparate);
+        },
+        separateMissions: (state, getters): Mission[] => {
+            return getters.filteredMissions.filter(m => m.status == MissionStatus.Open && m.isSeparate);
         },
         closedMissions: (state, getters): Mission[] => {
             return getters.filteredMissions.filter(m => m.status == MissionStatus.Closed);

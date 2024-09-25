@@ -16,6 +16,15 @@
                     :key="mission.id"
                     :mission="mission"
                 />
+                <hr />
+                <div v-if="separateMissions && separateMissions.length">
+                    <h6>Quests below are only accessible if you selected a song before the deadline</h6>
+                    <mission-card
+                        v-for="mission in separateMissions"
+                        :key="mission.id"
+                        :mission="mission"
+                    />
+                </div>
             </div>
         </div>
         <div v-if="closedMissions && closedMissions.length" class="container card card-body my-4">
@@ -69,6 +78,7 @@ export default defineComponent({
             'openMissions',
             'closedMissions',
             'selectedMission',
+            'separateMissions',
         ]),
     },
     beforeCreate () {

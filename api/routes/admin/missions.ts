@@ -60,6 +60,7 @@ adminMissionsRouter.post('/create', async (req, res) => {
     mission.winCondition = winCondition;
     mission.modes = validModes;
     mission.isShowcaseMission = isShowcaseMission;
+    mission.isSeparate = false;
     mission.openingAnnounced = false;
     mission.closingAnnounced = false;
     mission.userMaximumRankedBeatmapsCount = userMaximumRankedBeatmapsCount;
@@ -164,6 +165,13 @@ adminMissionsRouter.post('/:id/toggleIsShowcaseMission', async (req, res) => {
     await MissionModel.findByIdAndUpdate(req.params.id, { isShowcaseMission: req.body.isShowcaseMission }).orFail();
 
     res.json(req.body.isShowcaseMission);
+});
+
+/* POST toggle isSeparate */
+adminMissionsRouter.post('/:id/toggleIsSeparate', async (req, res) => {
+    await MissionModel.findByIdAndUpdate(req.params.id, { isSeparate: req.body.isSeparate }).orFail();
+
+    res.json(req.body.isSeparate);
 });
 
 /* POST toggle openingAnnounced */
