@@ -36,10 +36,7 @@ missionsRouter.get('/relevantInfo', async (req, res) => {
     const [missions, beatmaps] = await Promise.all([
         mission_1.MissionModel
             .find({
-            $or: [
-                { status: mission_2.MissionStatus.Open },
-                { status: mission_2.MissionStatus.Closed },
-            ],
+            status: mission_2.MissionStatus.Open,
             openingAnnounced: true,
         })
             .defaultPopulate()
@@ -60,6 +57,17 @@ missionsRouter.get('/relevantInfo', async (req, res) => {
         missions,
         beatmaps,
     });
+});
+/* GET inactive missions */
+missionsRouter.get('/loadInactiveMissions', async (req, res) => {
+    const missions = await mission_1.MissionModel
+        .find({
+        status: mission_2.MissionStatus.Closed,
+        openingAnnounced: true,
+    })
+        .defaultPopulate()
+        .sort({ tier: 1, createdAt: -1 });
+    res.json({ missions });
 });
 function meetsRequirements(mission, user, beatmap) {
     /* user requirements */
@@ -198,7 +206,7 @@ missionsRouter.post('/:missionId/findShowcaseMissionSong', isEditable, async (re
         .orFail();
     const userExists = missionWithSongs.showcaseMissionSongs.find(s => s.user.id == user.id);
     if (userExists) {
-        if (user.availablePoints < 50) { // rerolling costs 50
+        if (user.availablePoints < 35) { // rerolling costs 35
             return res.json({ error: 'Not enough available points!' });
         }
         await spentPoints_1.SpentPointsModel.generate(spentPoints_2.SpentPointsCategory.RerollShowcaseMissionSong, req.session.mongoId, null, mission.id);
@@ -252,7 +260,7 @@ missionsRouter.post('/:missionId/findShowcaseMissionSong', isEditable, async (re
         }]);
     log_1.LogModel.generate(req.session?.mongoId, `${userExists ? 'rerolled' : 'found'} showcase mission song`, log_2.LogCategory.Mission);
 });
-/* GET findShowcaseMissionSong */
+/* GET findSelectedShowcaseMissionSong */
 missionsRouter.get('/:missionId/findSelectedShowcaseMissionSong', async (req, res) => {
     const mission = await mission_1.MissionModel
         .findById(req.params.missionId)

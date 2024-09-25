@@ -14,7 +14,7 @@ const quest_1 = require("../../interfaces/quest");
 const mission_1 = require("../../interfaces/mission");
 const contest_2 = require("../../interfaces/contest/contest");
 exports.extendQuestPrice = 10;
-exports.rerollShowcaseMissionSongPrice = 50;
+exports.rerollShowcaseMissionSongPrice = 35;
 function getLengthNerf(length) {
     const lengthNerf = 125;
     let newLength;
