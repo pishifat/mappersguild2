@@ -1,7 +1,7 @@
 <template>
     <modal-dialog id="editMission" modal-size="xl">
         <template #header>
-            {{ mission.name }}
+            {{ mission.name }} ({{ mission.id }})
         </template>
 
         <div class="container ">
