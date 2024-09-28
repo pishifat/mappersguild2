@@ -605,15 +605,21 @@ export default defineComponent({
                 case 4:
                     placement = 'fourth';
                     break;
+                case 5:
+                    placement = 'fifth';
+                    break;
+                case 6:
+                    placement = 'sxith';
+                    break;
             }
 
             switch (user.rank) {
                 case 0:
                     return '';
                 case 1:
-                    return `.add-badge ${user.osuId} mg2018-${user.rank}star.png "Mappers' Guild ${placement} level contributor" https://osu.ppy.sh/wiki/Community/Mappers_Guild`;
+                    return `.add-badge ${user.osuId} mg2018-${user.rank}star.png "Mappers' Guild ${placement} level contributor" ${url}`;
                 default:
-                    return `.add-badge ${user.osuId} mg2018-${user.rank}star.png "Mappers' Guild ${placement} level contributor" https://osu.ppy.sh/wiki/Community/Mappers_Guild --replace mg2018-${user.rank-1}star.png`;
+                    return `.add-badge ${user.osuId} mg2018-${user.rank}star.png "Mappers' Guild ${placement} level contributor" ${url} --replace mg2018-${user.rank-1}star.png`;
             }
         },
         generateMetadata(song): string {
