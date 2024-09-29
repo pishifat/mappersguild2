@@ -58,9 +58,9 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import UserInfo from '../../components/admin/UserInfo.vue';
-import DataTable from '../../components/admin/DataTable.vue';
-import { User, UserGroup } from '../../../interfaces/user';
+import UserInfo from './UserInfo.vue';
+import DataTable from './DataTable.vue';
+import { User } from '../../../interfaces/user';
 import { mapState } from 'vuex';
 
 export default defineComponent({

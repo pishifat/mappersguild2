@@ -32,6 +32,7 @@ import adminBeatmapsRouter from './routes/admin/beatmaps';
 import adminFeaturedArtistsRouter from './routes/admin/featuredArtists';
 import adminQuestsRouter from './routes/admin/quests';
 import adminMissionsRouter from './routes/admin/missions';
+import adminMerchRouter from './routes/admin/merch';
 import artistsRouter from './routes/artists';
 import screeningRouter from './routes/contests/screening';
 import contestsListingRouter from './routes/contests/listing';
@@ -116,6 +117,7 @@ app.use('/admin/beatmaps', adminBeatmapsRouter);
 app.use('/admin/featuredArtists', adminFeaturedArtistsRouter);
 app.use('/admin/quests', adminQuestsRouter);
 app.use('/admin/missions', adminMissionsRouter);
+app.use('/admin/merch', adminMerchRouter);
 app.use('/interOp', interOpRouter);
 
 // catch 404

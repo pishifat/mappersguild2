@@ -26,6 +26,7 @@ const AdminFeaturedArtists = () => import('../pages/admin/FeaturedArtistPage.vue
 const AdminQuests = () => import('../pages/admin/QuestPage.vue');
 const AdminMissions = () => import('../pages/admin/MissionPage.vue');
 const AdminUsers = () => import('../pages/admin/UserPage.vue');
+const AdminMerch = () => import('../pages/admin/MerchPage.vue');
 const Artists = () => import('../pages/artists/ArtistPage.vue');
 
 // Other
@@ -62,6 +63,7 @@ const routes = [
     { path: '/admin/quests', component: AdminQuests, meta: { title: 'Admin - Quests' } },
     { path: '/admin/missions', component: AdminMissions, meta: { title: 'Admin - Missions' } },
     { path: '/admin/users', component: AdminUsers, meta: { title: 'Admin - Users' } },
+    { path: '/admin/merch', component: AdminMerch, meta: { title: 'Admin - Merch' } },
     { path: '/artists', component: Artists, meta: { title: 'FA Schedule' } },
 
     // Other

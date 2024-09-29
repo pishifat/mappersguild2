@@ -1,6 +1,6 @@
 import { MainState } from '@store/main';
 import { Module } from 'vuex';
-import { User } from '../../../interfaces/user';
+import { User, UserGroup } from '../../../interfaces/user';
 
 interface UserState {
     users: User[];
@@ -69,6 +69,17 @@ const store: Module<UserState, MainState> = {
             if (user) {
                 user.worldCupMerch = payload.worldCupMerch;
             }
+        },
+    },
+    getters: {
+        normalUsers: (state): Beatmap[] => {
+            return state.users.filter(u => u.group == UserGroup.User);
+        },
+        showcaseUsers: (state): Beatmap[] => {
+            return state.users.filter(u => u.group == UserGroup.Secret);
+        },
+        adminUsers: (state): Beatmap[] => {
+            return state.users.filter(u => u.group == UserGroup.Admin);
         },
     },
 };

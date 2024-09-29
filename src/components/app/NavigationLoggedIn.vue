@@ -43,6 +43,11 @@
                                 Users
                             </router-link>
                         </li>
+                        <li>
+                            <router-link class="dropdown-item" to="/admin/merch">
+                                Merch
+                            </router-link>
+                        </li>
                     </ul>
                 </li>
             </template>
