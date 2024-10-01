@@ -400,7 +400,7 @@ export async function calculateSpentPoints(userId: any): Promise<number> {
         } else if (spentPoints.category == SpentPointsCategory.CreateQuest) {
             total += findCreateQuestPointsSpent(spentPoints.quest.art, spentPoints.quest.requiredMapsets);
         } else if (spentPoints.category == SpentPointsCategory.RerollShowcaseMissionSong) {
-            total += rerollShowcaseMissionSongPrice; // 50 points to reroll song
+            total += rerollShowcaseMissionSongPrice; // 35 points to reroll song
         }
     }
 
