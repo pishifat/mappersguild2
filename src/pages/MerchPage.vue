@@ -170,8 +170,6 @@ export default defineComponent({
             this.clicked = true;
             const checkout: any = await this.$http.executePost(`/merch/checkout`, { vid, size: this.worldCupSweaterSize }, e);
 
-            console.log(checkout);
-
             if (!this.$http.isError(checkout)) {
                 this.checkoutOutput = checkout;
                 window.location.replace(checkout.webUrl);

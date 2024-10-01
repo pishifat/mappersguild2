@@ -61,8 +61,6 @@ const store: Module<MissionsState, MainState> = {
         filteredMissions: (state): Mission[] => {
             let missions = [...state.missions];
 
-            console.log(missions);
-
             if (state.filterMode !== FilterMode.any) {
                 const mode: any = state.filterMode;
                 missions = missions.filter(m => m.modes && m.modes.includes(mode));

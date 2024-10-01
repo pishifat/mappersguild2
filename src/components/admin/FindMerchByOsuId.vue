@@ -40,7 +40,6 @@ export default defineComponent({
 
             if (!this.$http.isError(orderOutput)) {
                 this.orderOutput = orderOutput;
-                console.log(orderOutput);
             }
         },
     },

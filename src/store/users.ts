@@ -170,7 +170,6 @@ const store: Module<UsersState, MainState> = {
         updateDisplay ({ commit, state }, displayAs): void {
             if (state.displayAs !== displayAs) {
                 commit('setDisplayAs', displayAs);
-                console.log(displayAs);
             }
         },
     },

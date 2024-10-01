@@ -66,8 +66,6 @@ export default defineComponent({
                     type: 'info',
                 });
 
-                console.log(res.badgeUsers);
-
                 this.$store.commit('mentorship/setBadgeUsers', res.users);
             }
         },

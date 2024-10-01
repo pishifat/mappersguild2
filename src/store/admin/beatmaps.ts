@@ -17,8 +17,6 @@ const store: Module<BeatmapState, MainState> = {
         updateBeatmap (state, beatmap: Beatmap): void {
             const i = state.beatmaps.findIndex(b => b.id === beatmap.id);
             if (i !== -1) state.beatmaps[i] = beatmap;
-
-            console.log(beatmap);
         },
         updateBeatmapStatus (state, payload): void {
             const beatmap = state.beatmaps.find(b => b.id == payload.beatmapId);

@@ -17,7 +17,6 @@ const store: Module<WorldCupState, MainState> = {
         setBeatmaps (state, beatmaps: Beatmap[]): void {
             state.beatmaps = beatmaps;
             state.selectedBeatmap = beatmaps[0];
-            console.log(beatmaps[0].mode);
         },
         setSelectedBeatmap (state, beatmap: Beatmap): void {
             state.selectedBeatmap = beatmap;

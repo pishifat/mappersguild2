@@ -198,8 +198,6 @@ export async function setBeatmapStatusRanked(id, bmInfo): Promise<void> {
                 // get full guest user so we can get their total points
                 const guest = await UserModel.findById(user.id).orFail();
 
-                // console.log(guest);
-
                 const oldPoints = guest.totalPoints;
 
                 // update points for all guest difficulty creators
