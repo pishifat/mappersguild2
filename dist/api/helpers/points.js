@@ -352,7 +352,7 @@ async function calculateSpentPoints(userId) {
             total += findCreateQuestPointsSpent(spentPoints.quest.art, spentPoints.quest.requiredMapsets);
         }
         else if (spentPoints.category == spentPoints_2.SpentPointsCategory.RerollShowcaseMissionSong) {
-            total += exports.rerollShowcaseMissionSongPrice; // 50 points to reroll song
+            total += exports.rerollShowcaseMissionSongPrice; // 35 points to reroll song
         }
     }
     return total;
