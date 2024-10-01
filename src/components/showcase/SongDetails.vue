@@ -1,6 +1,7 @@
 <template>
     <div>
-        {{ song.artist }} - {{ song.title }}
+        <a v-if="song.oszUrl" :href="song.oszUrl">{{ song.artist }} - {{ song.title }}</a>
+        <span v-else>{{ song.artist }} - {{ song.title }}</span>
         <span v-if="song.songShowcaseMappers && song.songShowcaseMappers.length" class="text-info">
             (mapped by
             <user-link-list
