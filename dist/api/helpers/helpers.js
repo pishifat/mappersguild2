@@ -174,7 +174,6 @@ async function setBeatmapStatusRanked(id, bmInfo) {
                 }
                 // get full guest user so we can get their total points
                 const guest = await user_1.UserModel.findById(user.id).orFail();
-                // console.log(guest);
                 const oldPoints = guest.totalPoints;
                 // update points for all guest difficulty creators
                 const newPoints = await points_1.updateUserPoints(user.id);

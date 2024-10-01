@@ -19,7 +19,6 @@ interOpRouter.use((req, res, next) => {
 });
 /* GET users */
 interOpRouter.get('/users', async (_, res) => {
-    console.log('here');
     res.json(await user_1.UserModel.find({ group: user_2.UserGroup.Admin }));
 });
 exports.default = interOpRouter;
