@@ -10,6 +10,8 @@ const featuredSong_1 = require("../../models/featuredSong");
 const user_1 = require("../../models/user");
 const beatmap_1 = require("../../models/beatmap/beatmap");
 const beatmap_2 = require("../../../interfaces/beatmap/beatmap");
+const mission_1 = require("../../models/mission");
+const mission_2 = require("../../../interfaces/mission");
 const adminFeaturedArtistsRouter = express_1.default.Router();
 adminFeaturedArtistsRouter.use(middlewares_1.isLoggedIn);
 adminFeaturedArtistsRouter.use(middlewares_1.isAdmin);
@@ -163,5 +165,41 @@ adminFeaturedArtistsRouter.post('/:id/togglePermanentlyDismiss', async (req, res
     const artist = await featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id).orFail();
     await featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { permanentlyDismiss: !artist.permanentlyDismiss }).orFail();
     res.json(!artist.permanentlyDismiss);
+});
+/* GET classified status of song */
+adminFeaturedArtistsRouter.get('/:id/findClassifiedStatus', async (req, res) => {
+    const mission = await mission_1.MissionModel
+        .findOne({
+        isShowcaseMission: true,
+        status: mission_2.MissionStatus.Open,
+        isSeparate: false,
+    }).populate([
+        {
+            path: 'showcaseMissionSongs',
+            populate: {
+                path: 'user song',
+                select: '_id osuId username', // this is bad but it works
+            },
+        },
+    ]);
+    if (!mission) {
+        return res.json({ message: 'No active classified quest' });
+    }
+    for (const unit of mission.showcaseMissionSongs) {
+        if (unit.song.id == req.params.id) {
+            return res.json({
+                user: unit.user,
+                message: 'Claimed by',
+            });
+        }
+    }
+    res.json({ message: 'Unclaimed' });
+});
+/* POST toggle isExcludedFromClassified */
+adminFeaturedArtistsRouter.post('/:id/songs/:songId/toggleIsExcludedFromClassified', async (req, res) => {
+    const song = await featuredSong_1.FeaturedSongModel
+        .findByIdAndUpdate(req.params.songId, { isExcludedFromClassified: !req.body.isExcludedFromClassified })
+        .orFail();
+    res.json(song);
 });
 exports.default = adminFeaturedArtistsRouter;
