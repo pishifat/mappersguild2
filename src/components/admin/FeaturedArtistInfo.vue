@@ -160,6 +160,13 @@
                         Delete song
                     </button>
                 </div>
+                <div v-if="classifiedStatus" class="mx-2 mt-2">
+                    <b>Classified status:</b> {{ classifiedStatus }}
+                    <span v-if="classifiedUser"><user-link :user="classifiedUser" /></span>
+                    <button class="btn btn-sm btn-outline-danger mx-1" @click="toggleIsExcludedFromClassified($event)">
+                        {{ selectedSong.isExcludedFromClassified ? 'Add to Classified' : 'Exclude from Classified' }}
+                    </button>
+                </div>
                 <hr />
                 <h5>Notes</h5>
                 <div class="row mb-2 mx-1">
@@ -202,6 +209,7 @@
 import { defineComponent } from 'vue';
 import ModalDialog from '@components/ModalDialog.vue';
 import { FeaturedArtist } from '@interfaces/featuredArtist';
+import { User } from '@interfaces/user';
 import { FeaturedSong } from '@interfaces/featuredSong';
 import UserLinkList from '@components/UserLinkList.vue';
 
@@ -228,8 +236,10 @@ export default defineComponent({
             selectedSong: null as null | FeaturedSong,
             artist: '',
             title: '',
-            oszUrl: '',
+            oszUrl: '' as string | null,
             notes: '',
+            classifiedStatus: '',
+            classifiedUser: null as null | User,
         };
     },
     computed: {
@@ -252,11 +262,20 @@ export default defineComponent({
             this.title = '';
             this.notes = this.featuredArtist.notes;
         },
-        selectedSong(): void {
+        async selectedSong(): Promise<void> {
             if (this.selectedSong) {
+                this.classifiedStatus = '';
+                this.classifiedUser = null;
                 this.artist = this.selectedSong.artist;
                 this.title = this.selectedSong.title;
                 this.oszUrl = this.selectedSong.oszUrl;
+
+                const classifiedStatus: any = await this.$http.executeGet(`/admin/featuredArtists/${this.selectedSong.id}/findClassifiedStatus`);
+
+                if (!this.$http.isError(classifiedStatus)) {
+                    this.classifiedStatus = classifiedStatus.message;
+                    this.classifiedUser = classifiedStatus.user;
+                }
             }
         },
     },
@@ -385,6 +404,28 @@ export default defineComponent({
             if (!this.$http.isError(song)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `updated song`,
+                    type: 'info',
+                });
+                this.$store.commit('updateSong', {
+                    featuredArtistId: this.featuredArtist.id,
+                    song,
+                });
+            }
+        },
+        async toggleIsExcludedFromClassified(e): Promise<void> {
+            if (!this.selectedSong) {
+                this.$store.dispatch('updateToastMessages', { message: 'Select a song' });
+
+                return;
+            }
+
+            const song = await this.$http.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/songs/${this.selectedSong.id}/toggleIsExcludedFromClassified`, { isExcludedFromClassified: this.selectedSong.isExcludedFromClassified }, e);
+
+            if (!this.$http.isError(song)) {
+                this.classifiedStatus = '';
+                this.classifiedUser = null;
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated classified inclusion status`,
                     type: 'info',
                 });
                 this.$store.commit('updateSong', {

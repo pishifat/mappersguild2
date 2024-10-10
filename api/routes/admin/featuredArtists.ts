@@ -6,6 +6,8 @@ import { UserModel } from '../../models/user';
 import { BeatmapModel } from '../../models/beatmap/beatmap';
 import { User } from '../../../interfaces/user';
 import { BeatmapStatus } from '../../../interfaces/beatmap/beatmap';
+import { MissionModel } from '../../models/mission';
+import { MissionStatus } from '../../../interfaces/mission';
 
 const adminFeaturedArtistsRouter = express.Router();
 
@@ -208,6 +210,48 @@ adminFeaturedArtistsRouter.post('/:id/togglePermanentlyDismiss', async (req, res
     await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { permanentlyDismiss: !artist.permanentlyDismiss }).orFail();
 
     res.json(!artist.permanentlyDismiss);
+});
+
+/* GET classified status of song */
+adminFeaturedArtistsRouter.get('/:id/findClassifiedStatus', async (req, res) => {
+    const mission = await MissionModel
+        .findOne({
+            isShowcaseMission: true,
+            status: MissionStatus.Open,
+            isSeparate: false,
+        }).populate([
+            {
+                path: 'showcaseMissionSongs',
+                populate: {
+                    path: 'user song',
+                    select: '_id osuId username', // this is bad but it works
+                },
+            },
+        ]);
+
+    if (!mission) {
+        return res.json({ message: 'No active classified quest' });
+    }
+
+    for (const unit of mission.showcaseMissionSongs) {
+        if (unit.song.id == req.params.id) {
+            return res.json({
+                user: unit.user,
+                message: 'Claimed by',
+            });
+        }
+    }
+
+    res.json({ message: 'Unclaimed' });
+});
+
+/* POST toggle isExcludedFromClassified */
+adminFeaturedArtistsRouter.post('/:id/songs/:songId/toggleIsExcludedFromClassified', async (req, res) => {
+    const song = await FeaturedSongModel
+        .findByIdAndUpdate(req.params.songId, { isExcludedFromClassified: !req.body.isExcludedFromClassified })
+        .orFail();
+
+    res.json(song);
 });
 
 export default adminFeaturedArtistsRouter;

@@ -287,7 +287,7 @@ missionsRouter.post('/:missionId/findShowcaseMissionSong', isEditable, async (re
         const songIndex = Math.floor(Math.random() * (artist.songs.length));
         const song = artist.songs[songIndex];
 
-        const songSelected = missionWithSongs.showcaseMissionSongs.some(s => s.song.id == song.id);
+        const songSelected = missionWithSongs.showcaseMissionSongs.some(s => s.song.id == song.id && !song.isExcludedFromClassified);
 
         if (!songSelected || count > 400) { // if there's no songs left, it'll choose a duplicate song. this probably won't matter
             finalSong = song;

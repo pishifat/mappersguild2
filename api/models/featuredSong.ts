@@ -11,6 +11,7 @@ const featuredSongSchema = new Schema<FeaturedSong>({
     title: { type: String },
     songShowcaseMappers: [{ type: 'ObjectId', ref: 'User' }],
     oszUrl: { type: String },
+    isExcludedFromClassified: { type: Boolean },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const queryHelpers = {

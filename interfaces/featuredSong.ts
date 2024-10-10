@@ -7,4 +7,5 @@ export interface FeaturedSong {
     title: string;
     songShowcaseMappers: User[];
     oszUrl: string | null;
+    isExcludedFromClassified: boolean;
 }
