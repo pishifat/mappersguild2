@@ -159,8 +159,9 @@
                     <button class="btn btn-sm btn-outline-danger mx-1" @click="deleteSong($event)">
                         Delete song
                     </button>
+                    <span v-if="selectedSong" class="small text-secondary">{{ selectedSong.id }}</span>
                 </div>
-                <div v-if="classifiedStatus" class="mx-2 mt-2">
+                <div v-if="selectedSong && classifiedStatus" class="mx-2 mt-2">
                     <b>Classified status:</b> {{ classifiedStatus }}
                     <span v-if="classifiedUser"><user-link :user="classifiedUser" /></span>
                     <button class="btn btn-sm btn-outline-danger mx-1" @click="toggleIsExcludedFromClassified($event)">
