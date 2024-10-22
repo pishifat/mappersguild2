@@ -599,11 +599,23 @@ const updateFavoritesAndPlayCount = node_cron_1.default.schedule('5 4 * * *', as
 }, {
     scheduled: false,
 });
-/* update points for all users once every month */
-const updatePoints = node_cron_1.default.schedule('0 0 27 * *', async () => {
-    const users = await user_1.UserModel.find({});
+/* update points for a random selection of 100 users (who have mapping points) every day. processing everyone is too complicated and i don't care enough to do this efficiently. it's a backup in case something goes wrong with someone's points and they notice months later anyway */
+const updatePoints = node_cron_1.default.schedule('12 34 * * *', async () => {
+    const users = await user_1.UserModel.aggregate([
+        {
+            $match: {
+                $or: [
+                    { osuPoints: { $gt: 0 } },
+                    { taikoPoints: { $gt: 0 } },
+                    { catchPoints: { $gt: 0 } },
+                    { maniaPoints: { $gt: 0 } },
+                ],
+            },
+        },
+        { $sample: { size: 100 } },
+    ]);
     for (const user of users) {
-        points_1.updateUserPoints(user.id);
+        points_1.updateUserPoints(user._id.toString());
     }
 }, {
     scheduled: false,

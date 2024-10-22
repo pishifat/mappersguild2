@@ -131,6 +131,7 @@ async function getUserRank(userId, tasksPoints, modPoints, hostPoints, contestPo
         tasksPoints.Storyboard +
         tasksPoints.Hitsounds +
         tasksPoints.QuestReward +
+        tasksPoints.MissionReward +
         modPoints +
         hostPoints +
         contestPoints.ContestCreator +
