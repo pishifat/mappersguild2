@@ -287,9 +287,9 @@ missionsRouter.post('/:missionId/findShowcaseMissionSong', isEditable, async (re
         const songIndex = Math.floor(Math.random() * (artist.songs.length));
         const song = artist.songs[songIndex];
 
-        const songSelected = missionWithSongs.showcaseMissionSongs.some(s => s.song.id == song.id && !song.isExcludedFromClassified);
+        const songSelected = missionWithSongs.showcaseMissionSongs.some(s => s.song.id == song.id);
 
-        if (!songSelected || count > 400) { // if there's no songs left, it'll choose a duplicate song. this probably won't matter
+        if (!song.isExcludedFromClassified && (!songSelected || count > 400)) { // if there's no songs left, it'll choose a duplicate song. this probably won't matter
             finalSong = song;
 
             await FeaturedArtistModel.findByIdAndUpdate(artist.id, { $push: { showcaseMappers: user._id } });
