@@ -3,6 +3,7 @@
         <template #header>
             {{ submission.creator.username }}
             ({{ submission.name }})
+            ({{ submission.id }})
         </template>
 
         <template #default>
@@ -35,6 +36,7 @@
                             {{ judgingScore.criteria.name }}
                             ({{ judgingScore.score }})
                         </span>
+                        <span v-if="loggedInUser.username == 'pishifat'" class="small text-secondary">{{ judgingScore.id }}</span>
 
 
                         <p
@@ -54,6 +56,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { mapState } from 'vuex';
 import ModalDialog from '@components/ModalDialog.vue';
 
 export default defineComponent({
@@ -71,6 +74,11 @@ export default defineComponent({
         return {
             commentsExpanded: [] as number[],
         };
+    },
+    computed: {
+        ...mapState([
+            'loggedInUser',
+        ]),
     },
     methods: {
         showComment (id: number): void {
