@@ -20,7 +20,7 @@
                     min="0"
                     :max="editingCriteria.maxScore"
                     class="form-control"
-                >
+                />
             </div>
             <div
                 v-else

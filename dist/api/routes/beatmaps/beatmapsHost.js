@@ -110,7 +110,7 @@ beatmapsHostRouter.post('/:id/linkQuest', middlewares_2.isValidBeatmap, middlewa
                 const user = await user_1.UserModel
                     .findById(mapper._id)
                     .orFail();
-                if (!quest.currentParty?.members.some(m => m.id == user.id)) {
+                if (!quest.currentParty?.members.some(m => m.id == user.id) && task.mode != 'sb' && task.mode != 'hs') {
                     return res.json({ error: `Some of this mapset's mappers are not assigned to the selected quest!` });
                 }
             }
