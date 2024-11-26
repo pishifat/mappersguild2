@@ -13,7 +13,7 @@ export interface Beatmap extends IBeatmap, Document {
     /**
      * checks whether the beatmap can accept new tasks/collabs or not, depending on beatmap state and quest-user relation
      */
-    checkTaskAvailability (user: User, taskName: TaskName, taskMode: TaskMode, isAdmin: boolean): Promise<boolean>;
+    checkTaskAvailability (user: User, taskName: TaskName, taskMode: TaskMode, isAdmin: boolean, sessionUserId: string): Promise<boolean>;
 }
 
 const BeatmapSchema = new Schema<Beatmap>({
@@ -75,7 +75,7 @@ BeatmapSchema.methods.participated = function (this: Beatmap, userId: any) {
     return this.tasks.some(t => t.mappers.some(m => m.id == userId));
 };
 
-BeatmapSchema.methods.checkTaskAvailability = async function (this: Beatmap, user: User, taskName: TaskName, taskMode: TaskMode, isAdmin: boolean) {
+BeatmapSchema.methods.checkTaskAvailability = async function (this: Beatmap, user: User, taskName: TaskName, taskMode: TaskMode, isAdmin: boolean, sessionUserId: string) {
     if (isAdmin) {
         return true;
     }
@@ -122,7 +122,7 @@ BeatmapSchema.methods.checkTaskAvailability = async function (this: Beatmap, use
 
     // host can bypass this
     if (
-        this.host.id != user.id &&
+        this.host.id != sessionUserId &&
         this.tasksLocked &&
         this.tasksLocked.some(t => t === taskName)
     ) {

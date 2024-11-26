@@ -41,7 +41,7 @@ tasksRouter.post('/addTask/:mapId', isValidBeatmap, isValidUser, async (req, res
         }
     }
 
-    await beatmap.checkTaskAvailability(user, taskName, taskMode, res.locals.userRequest.group == UserGroup.Admin);
+    await beatmap.checkTaskAvailability(user, taskName, taskMode, res.locals.userRequest.group == UserGroup.Admin, req.session.mongoId);
 
     const t = new TaskModel();
     t.name = taskName;
