@@ -36,7 +36,7 @@ tasksRouter.post('/addTask/:mapId', middlewares_2.isValidBeatmap, middlewares_1.
             return res.json({ error: 'Only one "Hitsounds" task is allowed' });
         }
     }
-    await beatmap.checkTaskAvailability(user, taskName, taskMode, res.locals.userRequest.group == user_2.UserGroup.Admin);
+    await beatmap.checkTaskAvailability(user, taskName, taskMode, res.locals.userRequest.group == user_2.UserGroup.Admin, req.session.mongoId);
     const t = new task_1.TaskModel();
     t.name = taskName;
     t.mappers = [user];

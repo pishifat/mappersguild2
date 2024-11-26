@@ -78,7 +78,7 @@ BeatmapSchema.methods.participated = function (userId) {
         return false;
     return this.tasks.some(t => t.mappers.some(m => m.id == userId));
 };
-BeatmapSchema.methods.checkTaskAvailability = async function (user, taskName, taskMode, isAdmin) {
+BeatmapSchema.methods.checkTaskAvailability = async function (user, taskName, taskMode, isAdmin, sessionUserId) {
     if (isAdmin) {
         return true;
     }
@@ -112,7 +112,7 @@ BeatmapSchema.methods.checkTaskAvailability = async function (user, taskName, ta
         throw new Error('There can only be one set of hitsounds on a mapset!');
     }
     // host can bypass this
-    if (this.host.id != user.id &&
+    if (this.host.id != sessionUserId &&
         this.tasksLocked &&
         this.tasksLocked.some(t => t === taskName)) {
         throw new Error('This task is locked by the mapset host!');
