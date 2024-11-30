@@ -36,7 +36,7 @@
                             {{ judgingScore.criteria.name }}
                             ({{ judgingScore.score }})
                         </span>
-                        <span v-if="loggedInUser.username == 'pishifat'" class="small text-secondary">{{ judgingScore.id }}</span>
+                        <span v-if="loggedInUser.username == 'pishifat'" class="small text-secondary ms-1">{{ judgingScore.id }}</span>
 
 
                         <p
