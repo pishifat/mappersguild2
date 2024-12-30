@@ -20,7 +20,7 @@
                             class="text-secondary"
                             :class="`card-status-${task.status.toLowerCase()}`"
                         >
-                            {{ task.name }}
+                            {{ task.mode == 'taiko' ? findTaikoName(task.name) : task.mode == 'catch' ? findCatchName(task.name) : task.name }}
                             <template v-if="beatmap.mode == 'hybrid'">
                                 <modes-icons
                                     :modes="[task.mode]"
@@ -175,6 +175,38 @@ export default defineComponent({
         },
         canEditTask(task: Task): boolean {
             return this.isOwner(task.mappers) || this.isHost;
+        },
+        findTaikoName(taskName): string {
+            switch (taskName.toLowerCase()) {
+                case 'easy':
+                    return 'Kantan';
+                case 'normal':
+                    return 'Futsuu';
+                case 'hard':
+                    return 'Muzukashii';
+                case 'insane':
+                    return 'Oni';
+                case 'expert':
+                    return 'Inner Oni';
+                default:
+                    return taskName;
+            }
+        },
+        findCatchName(taskName): string {
+            switch (taskName.toLowerCase()) {
+                case 'easy':
+                    return 'Cup';
+                case 'normal':
+                    return 'Salad';
+                case 'hard':
+                    return 'Platter';
+                case 'insane':
+                    return 'Rain';
+                case 'expert':
+                    return 'Overdose';
+                default:
+                    return taskName;
+            }
         },
         async setTaskStatus(id, status, e): Promise<void> {
             e.target.classList.add('fake-button-disable');

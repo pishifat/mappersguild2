@@ -517,12 +517,45 @@ export default defineComponent({
             beatmap.tasks.forEach(task => {
                 task.mappers.forEach(mapper => {
                     if (mapper.id == this.selectedUser.id) {
-                        tasksText += task.name + ', ';
+                        const taskName = task.mode == 'taiko' ? this.findTaikoName(task.name) : task.mode == 'catch' ? this.findCatchName(task.name) : task.name;
+                        tasksText += taskName + ', ';
                     }
                 });
             });
 
             return tasksText.slice(0, -2);
+        },
+        findTaikoName(taskName): string {
+            switch (taskName.toLowerCase()) {
+                case 'easy':
+                    return 'Kantan';
+                case 'normal':
+                    return 'Futsuu';
+                case 'hard':
+                    return 'Muzukashii';
+                case 'insane':
+                    return 'Oni';
+                case 'expert':
+                    return 'Inner Oni';
+                default:
+                    return taskName;
+            }
+        },
+        findCatchName(taskName): string {
+            switch (taskName.toLowerCase()) {
+                case 'easy':
+                    return 'Cup';
+                case 'normal':
+                    return 'Salad';
+                case 'hard':
+                    return 'Platter';
+                case 'insane':
+                    return 'Rain';
+                case 'expert':
+                    return 'Overdose';
+                default:
+                    return taskName;
+            }
         },
         calculatePoints(quest): number {
             let points = 25;
