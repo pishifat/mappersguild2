@@ -445,6 +445,7 @@ export default defineComponent({
         },
         async updateProjectedRelease (): Promise<void> {
             const date = new Date(this.dateInput.trim());
+            date.setHours(date.getHours() + 8); // blame US timezone
             const artist = await this.$http.executePost('/artists/updateProjectedRelease/' + this.artist.id, { date });
 
             if (artist) {
@@ -460,6 +461,8 @@ export default defineComponent({
             } else {
                 date = new Date(this.contactedInput.trim());
             }
+
+            date.setHours(date.getHours() + 8); // blame US timezone
 
             const artist = await this.$http.executePost('/artists/updateLastContacted/' + this.artist.id, { date });
 
