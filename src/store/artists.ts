@@ -85,7 +85,7 @@ export default {
             });
         },
         readyArtists: (state, getters): FeaturedArtist[] => {
-            const artists = getters.filteredArtists.filter(a => !a.osuId && !a.isUpToDate && (a.ppySigned || a.projectedRelease));
+            const artists = getters.filteredArtists.filter(a => (!a.osuId || a.hasNewSongs) && !a.isUpToDate && (a.ppySigned || a.projectedRelease));
             let projectedReleaseArtists = artists.filter(a => a.projectedRelease);
             let unknownReleaseArtists = artists.filter(a => !a.projectedRelease);
 
