@@ -20,6 +20,15 @@
                         Save
                     </button>
                 </div>
+                <!--<div class="col-sm-2">
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-outline-info mt-1 mx-1"
+                        @click="addJudgingsFromCsv($event)"
+                    >
+                        Save judging
+                    </button>
+                </div>-->
             </div>
         </div>
 
@@ -140,6 +149,16 @@ export default defineComponent({
                 this.$store.commit('addSubmissionsFromCsv', {
                     contestId: this.contestId,
                     submissions,
+                });
+            }
+        },
+        async addJudgingsFromCsv(e): Promise<void> {
+            const submissions = await this.$http.executePost(`/contests/listing/${this.contestId}/addJudgingsFromCsv`, { csv: this.csvInput }, e);
+
+            if (!this.$http.isError(submissions)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `Added judgings from .csv data`,
+                    type: 'info',
                 });
             }
         },
