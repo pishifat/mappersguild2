@@ -28,7 +28,7 @@
                 </div>
             </div>
 
-            <hr>
+            <hr />
 
             <div class="mx-2">
                 <h5>
@@ -69,7 +69,7 @@
                 </div>
             </div>
 
-            <hr>
+            <hr />
 
             <div class="mx-2">
                 <h5>
@@ -78,9 +78,14 @@
                 <div v-if="submission.judgings && submission.judgings.length">
                     <div v-for="(judging, i) in randomizedJudging" :key="judging.id">
                         <div>
-                            <p class="ms-3">
+                            <div v-if="submission.contest.hasPublicJudges" class="ms-3">
+                                <user-link
+                                    :user="judging.judge"
+                                />
+                            </div>
+                            <div v-else class="ms-3">
                                 User {{ i+1 }}
-                            </p>
+                            </div>
                             <div class="row ms-3">
                                 <div class="col-sm-5">
                                     <table class="table table-sm table-responsive-sm">
@@ -138,9 +143,13 @@ import { mapState } from 'vuex';
 import { Submission } from '@interfaces/contest/submission';
 import { Judging } from '@interfaces/contest/judging';
 import { Screening } from '@interfaces/contest/screening';
+import UserLink from '@components/UserLink.vue';
 
 export default defineComponent({
     name: 'SubmissionResult',
+    components: {
+        UserLink,
+    },
     computed: {
         ...mapState({
             submission: (state: any) => state.contestResults.submission as Submission,

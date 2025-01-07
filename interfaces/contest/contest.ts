@@ -45,4 +45,5 @@ export interface Contest {
     isEligibleForPoints: boolean;
     useRawScoring: boolean;
     skipWebhook: boolean;
+    hasPublicJudges: boolean;
 }

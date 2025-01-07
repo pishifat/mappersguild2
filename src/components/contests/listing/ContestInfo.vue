@@ -267,6 +267,12 @@
                     :contest-id="contest.id"
                 />
 
+                <public-judges-toggle
+                    class="mb-2"
+                    :contest-id="contest.id"
+                    :has-public-judges="contest.hasPublicJudges"
+                />
+
                 <code>https://mappersguild.com/contests/results?contest={{ contest.id }}</code>
 
                 <hr />
@@ -305,6 +311,7 @@ import JudgingResults from './judging/JudgingResults.vue';
 import FeaturedArtistContestToggle from './FeaturedArtistContestToggle.vue';
 import UseRawScoringToggle from './UseRawScoringToggle.vue';
 import ScreeningBonusToggle from './ScreeningBonusToggle.vue';
+import PublicJudgesToggle from './judging/PublicJudgesToggle.vue';
 
 export default defineComponent({
     name: 'ContestInfo',
@@ -332,6 +339,7 @@ export default defineComponent({
         FeaturedArtistContestToggle,
         UseRawScoringToggle,
         ScreeningBonusToggle,
+        PublicJudgesToggle,
     },
     props: {
         contest: {

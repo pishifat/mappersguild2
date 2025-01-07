@@ -41,7 +41,9 @@ import UserLinkList from '@components/UserLinkList.vue';
 
 export default defineComponent({
     name: 'NominatorsList',
-    components: { UserLinkList },
+    components: {
+        UserLinkList,
+    },
     props: {
         canEdit: Boolean,
         beatmap: {

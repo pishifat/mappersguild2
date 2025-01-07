@@ -60,11 +60,3 @@ export default defineComponent({
     },
 });
 </script>
-
-<style scoped>
-
-.date-input {
-    width: 10%;
-}
-
-</style>

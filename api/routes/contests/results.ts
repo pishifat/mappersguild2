@@ -9,7 +9,7 @@ const resultsRouter = express.Router();
 const submissionPopulate = [
     {
         path: 'contest',
-        select: 'name screeners status download id creators',
+        select: 'name screeners status download id creators hasPublicJudges',
     },
     {
         path: 'screenings',
@@ -28,6 +28,35 @@ const submissionPopulate = [
                 path: 'criteria',
             },
         },
+    },
+];
+
+const submissionPopulateWithJudges = [
+    {
+        path: 'contest',
+        select: 'name screeners status download id creators hasPublicJudges',
+    },
+    {
+        path: 'screenings',
+        select: 'comment vote',
+    },
+    {
+        path: 'creator',
+        select: 'username osuId',
+    },
+    {
+        path: 'judgings',
+        populate: [
+            {
+                path: 'judgingScores',
+                populate: {
+                    path: 'criteria',
+                },
+            },
+            {
+                path: 'judge',
+            },
+        ],
     },
 ];
 
@@ -80,10 +109,16 @@ resultsRouter.get('/participated', async (req, res) => {
 
 /* GET submission */
 resultsRouter.get('/searchSubmission/:id', async (req, res) => {
-    const submission =
+    let submission =
         await SubmissionModel
             .findById(req.params.id)
             .populate(submissionPopulate);
+
+    if (submission?.contest.hasPublicJudges) {
+        submission = await SubmissionModel
+            .findById(req.params.id)
+            .populate(submissionPopulateWithJudges);
+    }
 
     const creatorIds: string[] | undefined = submission?.contest.creators.map(c => c.toString());
 

@@ -270,7 +270,9 @@ import UserLinkList from '@components/UserLinkList.vue';
 
 export default defineComponent({
     name: 'ArtistCard',
-    components: { UserLinkList },
+    components: {
+        UserLinkList,
+    },
     props: {
         artist: {
             type: Object,

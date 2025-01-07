@@ -35,7 +35,9 @@ import { Beatmap } from '../../../../interfaces/beatmap/beatmap';
 
 export default defineComponent({
     name: 'ModdersList',
-    components: { UserLinkList },
+    components: {
+        UserLinkList,
+    },
     props: {
         canEdit: Boolean,
         beatmap: {

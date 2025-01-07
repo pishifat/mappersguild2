@@ -250,7 +250,7 @@ listingRouter.post('/:id/toggleIsFeaturedArtistContest', isContestCreator, isEdi
     res.json(contest.isFeaturedArtistContest);
 });
 
-/* POST toggle isFeaturedArtistContest */
+/* POST toggle useRawScoring */
 listingRouter.post('/:id/toggleUseRawScoring', isContestCreator, isEditable, async (req, res) => {
     const contest = await ContestModel
         .findById(req.params.id)
@@ -260,6 +260,18 @@ listingRouter.post('/:id/toggleUseRawScoring', isContestCreator, isEditable, asy
     await contest.save();
 
     res.json(contest.useRawScoring);
+});
+
+/* POST toggle hasPublicJudges */
+listingRouter.post('/:id/toggleHasPublicJudges', isContestCreator, isEditable, async (req, res) => {
+    const contest = await ContestModel
+        .findById(req.params.id)
+        .orFail();
+
+    contest.hasPublicJudges = !contest.hasPublicJudges;
+    await contest.save();
+
+    res.json(contest.hasPublicJudges);
 });
 
 /* POST update contest status */
