@@ -2,15 +2,15 @@
     <div>
         <locus-page-filters />
         <div class="container card card-body mb-2">
-            <a
-                data-bs-toggle="collapse"
-                :href="`#selfDetails`"
-            >
-                <h5>
+        <h5 class="mt-2">
+                <a
+                    data-bs-toggle="collapse"
+                    :href="`#selfDetails`"
+                >
                     Your details
                     <i class="fas fa-angle-down" />
-                </h5>
-            </a>
+                </a>
+            </h5>
             <self-locus-info
                 id="selfDetails"
                 class="collapse"
@@ -55,6 +55,9 @@ export default defineComponent({
     computed: {
         ...mapState([
             'loggedInUser',
+        ]),
+        ...mapState('locus', [
+            'selfLocusInfo',
         ]),
         ...mapGetters('locus', [
             'filteredLocusInfos',

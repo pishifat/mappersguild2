@@ -1,13 +1,105 @@
 <template>
     <div>
         <div>
-            <div id="selfDetails" class="collapse">
+            <div>
                 <div class="row">
                     <div class="col-sm-6">
                         <div class="mb-2">
                             <div class="small">
+                                Visibility
+                                <div class="small text-secondary mb-1">
+                                    Toggle this for public display. Your listing is currently <i>{{ selfLocusInfo.isPublic ? 'visible' : 'not visible' }}</i>!
+                                </div>
+                                <button class="btn btn-sm btn-outline-info mb-2 w-100" @click="toggleIsPublic($event)">
+                                    {{ selfLocusInfo.isPublic ? 'Hide from public listing' : 'Show on public listing' }}
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <div class="small">
+                                Roles
+                                <div class="small text-secondary">
+                                    What roles best describe you? Feel free to elaborate in "about" section
+                                </div>
+                                <div class="input-group">
+                                    <select
+                                        v-model="newRole"
+                                        class="form-control form-control-sm ml-2"
+                                    >
+                                        <option value="" selected disabled>
+                                            Select a role
+                                        </option>
+                                        <option
+                                            v-for="role in roleOptions"
+                                            :key="role"
+                                            :value="role"
+                                            class="text-capitalize"
+                                        >
+                                            {{ role }}
+                                        </option>
+                                    </select>
+                                    <div class="input-group-append">
+                                        <button
+                                            v-if="!userRoles.includes(newRole)"
+                                            :disabled="userRoles.includes(newRole)"
+                                            class="btn btn-sm btn-outline-success"
+                                            type="button"
+                                            @click="updateRole($event)"
+                                        >
+                                            <i class="fas fa-plus" />
+                                        </button>
+                                    </div>
+                                    <div class="input-group-append">
+                                        <button
+                                            v-if="userRoles.includes(newRole)"
+                                            :disabled="!userRoles.includes(newRole)"
+                                            class="btn btn-sm btn-outline-danger"
+                                            type="button"
+                                            @click="updateRole($event)"
+                                        >
+                                            <i class="fas fa-minus" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="mb-2">
+                            <div class="small">
+                                Discord
+                                <div class="small text-secondary">
+                                    Your Discord ID (if you want to communicate through Discord)
+                                </div>
+                                <input
+                                    v-model="newDiscord"
+                                    class="ml-1 form-control form-control-sm w-100"
+                                    placeholder="discord..."
+                                    maxlength="40"
+                                    @change="updateDiscord($event)"
+                                />
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <div class="small">
+                                Email
+                                <div class="small text-secondary">
+                                    Your email (if you want to communicate through email)
+                                </div>
+                                <input
+                                    v-model="newEmail"
+                                    class="ml-1 form-control form-control-sm w-100"
+                                    placeholder="email..."
+                                    maxlength="100"
+                                    @change="updateEmail($event)"
+                                />
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <div class="small">
                                 Timezone
-                                <div class="small text-secondary">Relative to <a href="https://www.timeanddate.com/time/map/#!cities=1440" target="_blank">UTC</a></div>
+                                <div class="small text-secondary">
+                                    Relative to <a href="https://www.timeanddate.com/time/map/#!cities=1440" target="_blank">UTC</a>
+                                </div>
                                 <select
                                     v-model="newTimezone"
                                     class="form-select form-select-sm w-100 d-inline"
@@ -29,7 +121,9 @@
                         <div class="mb-2">
                             <div class="small">
                                 Availability
-                                <div class="small text-secondary">When you're usually available</div>
+                                <div class="small text-secondary">
+                                    When you're usually available
+                                </div>
                                 <input
                                     v-model="newAvailability"
                                     class="ml-1 form-control form-control-sm w-100"
@@ -42,7 +136,9 @@
                         <div class="mb-2">
                             <div class="small">
                                 Languages
-                                <div class="small text-secondary">Any languages you're comfortable communicating with</div>
+                                <div class="small text-secondary">
+                                    Any languages you're comfortable communicating with (excluding English)
+                                </div>
                                 <div class="input-group">
                                     <select
                                         v-model="newLanguage"
@@ -85,32 +181,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="mb-2">
-                            <div class="small">
-                                Discord
-                                <div class="small text-secondary">Your Discord ID (if you want to communicate through Discord)</div>
-                                <input
-                                    v-model="newDiscord"
-                                    class="ml-1 form-control form-control-sm w-100"
-                                    placeholder="discord..."
-                                    maxlength="40"
-                                    @change="updateDiscord($event)"
-                                />
-                            </div>
-                        </div>
-                        <div class="mb-2">
-                            <div class="small">
-                                Email
-                                <div class="small text-secondary">Your email (if you want to communicate through email)</div>
-                                <input
-                                    v-model="newEmail"
-                                    class="ml-1 form-control form-control-sm w-100"
-                                    placeholder="email..."
-                                    maxlength="100"
-                                    @change="updateEmail($event)"
-                                />
-                            </div>
-                        </div>
+                        <hr />
                         <div class="mb-2">
                             <div class="small">
                                 About
@@ -126,17 +197,6 @@
                                     rows="4"
                                     @change="updateAbout($event)"
                                 />
-                            </div>
-                        </div>
-                        <div v-if="selfLocusInfo" class="mb-2">
-                            <div class="small">
-                                Visibility
-                                <div class="small text-secondary">
-                                    Toggle this for public display.
-                                </div>
-                                <button class="btn btn-sm btn-outline-info mb-2 w-100" @click="toggleIsPublic()">
-                                    {{ selfLocusInfo.isPublic ? 'Hide from public listing' : 'Show on public listing' }}
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -170,9 +230,11 @@ export default defineComponent({
         return {
             timezoneOptions: ['-11', '-10', '-9', '-8', '-7', '-6', '-5', '-4', '-3', '-2', '-1', '+0', '+1', '+2', '+3', '+4', '+5', '+6', '+7', '+8', '+9', '+10', '+11', '+12'],
             languageOptions: ['afrikaans', 'arabic', 'belarusian', 'cantonese', 'catalan', 'chinese', 'danish', 'dutch', 'filipino', 'finnish', 'french', 'galician', 'german', 'indonesian', 'italian', 'japanese', 'korean', 'lithuanian', 'malay', 'polish', 'portuguese', 'romanian', 'russian', 'serbian', 'spanish', 'swedish', 'thai', 'turkish', 'urdu', 'vietnamese'],
+            roleOptions: ['visual designer', 'mapper', 'musician'],
             newTimezone: '',
             newAvailability: '',
             newLanguage: '',
+            newRole: '',
             newDiscord: '',
             newEmail: '',
             newAbout: '',
@@ -188,6 +250,13 @@ export default defineComponent({
         userLanguages() {
             if (this.selfLocusInfo && this.selfLocusInfo.languages && this.selfLocusInfo.languages.length) {
                 return this.selfLocusInfo.languages;
+            }
+
+            return [];
+        },
+        userRoles() {
+            if (this.selfLocusInfo && this.selfLocusInfo.roles && this.selfLocusInfo.roles.length) {
+                return this.selfLocusInfo.roles;
             }
 
             return [];
@@ -234,6 +303,17 @@ export default defineComponent({
                     type: 'info',
                 });
                 this.$store.commit('locus/updateLanguage', language);
+            }
+        },
+        async updateRole(e): Promise<void> {
+            const role = await this.$http.executePost(`/locus/${this.selfLocusInfo.id}/updateRole`, { role: this.newRole }, e);
+
+            if (!this.$http.isError(role)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `Updated role`,
+                    type: 'info',
+                });
+                this.$store.commit('locus/updateRole', role);
             }
         },
         async updateDiscord(e): Promise<void> {

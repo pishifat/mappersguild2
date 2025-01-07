@@ -5,25 +5,27 @@
         >
             <img :src="'https://a.ppy.sh/' + locusInfo.user.osuId" class="card-avatar-img" />
 
-            <div class="mb-2 ms-3">
+            <div class="ms-3 mt-1 mb-1">
                 <user-link class="ms-2" :user="locusInfo.user" />
             </div>
+            <div class="ms-3">
+                <i v-if="locusInfo.roles && locusInfo.roles.length" class="ms-2 text-secondary text-capitalize">{{ locusInfo.roles.join(', ') }}</i>
+                <i v-else class="ms-2 text-secondary">No roles selected</i>
+            </div>
 
-            <div v-if="locusInfo.discord || locusInfo.email" class="ms-3 mb-1 small">
-                <div v-if="locusInfo.discord && locusInfo.discord.length" class="ms-2">
-                    Discord: <span class="text-secondary">{{ locusInfo.discord ? locusInfo.discord : 'Discord ID' }} {{ locusInfo.email ? '/ ' + locusInfo.email : '' }}</span>
+            <hr v-if="locusInfo.timezone || locusInfo.availability || (locusInfo.languages && locusInfo.languages.length)" class="mb-3" />
+
+            <div v-if="locusInfo.discord || locusInfo.email" class="small">
+                <div v-if="locusInfo.discord && locusInfo.discord.length && locusInfo.email && locusInfo.email.length">
+                    Discord: <span class="text-secondary"><i>{{ locusInfo.discord ? locusInfo.discord : 'Discord ID' }} ({{ locusInfo.email }})</i></span>
+                </div>
+                <div v-else-if="locusInfo.discord && locusInfo.discord.length" class="ms-2">
+                    Discord: <span class="text-secondary"><i>{{ locusInfo.discord ? locusInfo.discord : 'Discord ID' }}</i></span>
                 </div>
                 <div v-else-if="!locusInfo.discord && !locusInfo.discord.length && locusInfo.email && locusInfo.email.length" class="ms-2">
-                    Email: {{ locusInfo.email }}
+                    Email: <span class="text-secondary"><i>{{ locusInfo.email }}</i></span>
                 </div>
             </div>
-            <div v-else class="ms-3 mb-1 small">
-                <div class="ms-2">
-                    Contact info
-                </div>
-            </div>
-
-            <hr v-if="locusInfo.timezone || locusInfo.availability || (locusInfo.languages && locusInfo.languages.length)" class="mb-2" />
 
             <div v-if="locusInfo.timezone" class="small">
                 Timezone:
@@ -38,7 +40,7 @@
             </div>
 
             <div v-if="locusInfo.languages && locusInfo.languages.length" class="small">
-                Languages: <i class="text-secondary text-capitalize">{{ locusInfo.languages.join(', ') }}</i>
+                Languages: <i class="text-secondary text-capitalize">English, {{ locusInfo.languages.join(', ') }}</i>
             </div>
 
             <hr v-if="locusInfo.about" />

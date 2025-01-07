@@ -6,6 +6,7 @@ interface LocusState {
     filterValue: string;
     locusInfos: LocusInfo[];
     selfLocusInfo: LocusInfo | null;
+    roleIs: 'any' | 'designer' | 'mapper' | 'musician';
 }
 
 const store: Module<LocusState, MainState> = {
@@ -25,6 +26,9 @@ const store: Module<LocusState, MainState> = {
         setSelfLocusInfo (state, selfLocusInfo: LocusInfo): void {
             state.selfLocusInfo = selfLocusInfo;
         },
+        setRoleIs (state, roleIs: 'any' | 'designer' | 'mapper' | 'musician'): void {
+            state.roleIs = roleIs;
+        },
         updateTimezone (state, timezone: string): void {
             state.selfLocusInfo.timezone = timezone;
         },
@@ -42,6 +46,19 @@ const store: Module<LocusState, MainState> = {
                 }
             } else {
                 state.selfLocusInfo.languages = [language];
+            }
+        },
+        updateRole (state, role: string): void {
+            if (state.selfLocusInfo.roles && state.selfLocusInfo.roles.length) {
+                const i = state.selfLocusInfo.roles.findIndex(r => r == role);
+
+                if (i > -1) {
+                    state.selfLocusInfo.roles.splice(i, 1);
+                } else {
+                    state.selfLocusInfo.roles.push(role);
+                }
+            } else {
+                state.selfLocusInfo.roles = [role];
             }
         },
         updateDiscord (state, discord: string): void {
@@ -68,11 +85,15 @@ const store: Module<LocusState, MainState> = {
                     if (l.user.username.toLowerCase().includes(state.filterValue.toLowerCase())) trigger = true;
                     if (l.user.osuId.toString().includes(state.filterValue)) trigger = true;
                     if (l.languages.includes(state.filterValue.toLowerCase())) trigger = true;
-                    if (l.about.includes(state.filterValue.toLowerCase())) trigger = true;
-                    if (l.timezone.includes(state.filterValue.toLowerCase())) trigger = true;
+                    // if (l.about.includes(state.filterValue.toLowerCase())) trigger = true;
+                    // if (l.timezone.includes(state.filterValue.toLowerCase())) trigger = true;
 
                     return trigger;
                 });
+            }
+
+            if (state.roleIs && state.roleIs !== 'any') {
+                locusInfos = locusInfos.filter(l => l.roles.includes(state.roleIs));
             }
 
             return locusInfos;
@@ -81,6 +102,11 @@ const store: Module<LocusState, MainState> = {
     actions: {
         updateFilterValue ({ commit }, value: string): void {
             commit('setFilterValue', value);
+        },
+        updateRole ({ commit, state }, roleIs): void {
+            if (state.roleIs !== roleIs) {
+                commit('setRoleIs', roleIs);
+            }
         },
     },
 };
