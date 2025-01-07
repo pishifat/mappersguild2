@@ -1279,8 +1279,9 @@ listingRouter.post('/:id/addJudgingsFromCsv', isContestCreator, isEditable, asyn
         const judgeId = '62b1a32becf25121cfe756df';
 
         const judging = new JudgingModel();
+        /** @ts-ignore */
         judging.judge = judgeId;
-        judging.submission = submission._id;
+        judging.submission = submission?._id;
 
         for (let i = 1; i < line.length; i++) {
             const scoreInput = line[i];

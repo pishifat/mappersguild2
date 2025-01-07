@@ -26,6 +26,7 @@ const locusInfoSchema = new mongoose_1.Schema({
     user: { type: 'ObjectId', ref: 'User', required: true },
     timezone: { type: String },
     availability: { type: String },
+    roles: [{ type: String }],
     languages: [{ type: String }],
     discord: { type: String },
     email: { type: String },

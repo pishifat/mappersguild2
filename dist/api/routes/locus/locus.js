@@ -53,7 +53,7 @@ locusRouter.post('/:id/updateAvailability', middlewares_2.isValidUser, async (re
     await locusInfo.save();
     res.json(newAvailability);
 });
-/* POST update availability */
+/* POST update language */
 locusRouter.post('/:id/updateLanguage', middlewares_2.isValidUser, async (req, res) => {
     const newLanguage = req.body.language;
     const locusInfo = res.locals.locusInfo;
@@ -71,6 +71,25 @@ locusRouter.post('/:id/updateLanguage', middlewares_2.isValidUser, async (req, r
     }
     await locusInfo.save();
     res.json(newLanguage);
+});
+/* POST update role */
+locusRouter.post('/:id/updateRole', middlewares_2.isValidUser, async (req, res) => {
+    const newRole = req.body.role;
+    const locusInfo = res.locals.locusInfo;
+    if (locusInfo.roles && locusInfo.roles.length) {
+        const i = locusInfo.roles.findIndex(l => l == newRole);
+        if (i > -1) {
+            locusInfo.roles.splice(i, 1);
+        }
+        else {
+            locusInfo.roles.push(newRole);
+        }
+    }
+    else {
+        locusInfo.roles = [newRole];
+    }
+    await locusInfo.save();
+    res.json(newRole);
 });
 /* POST update discord */
 locusRouter.post('/:id/updateDiscord', middlewares_2.isValidUser, async (req, res) => {

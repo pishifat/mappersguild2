@@ -46,6 +46,7 @@ const contestSchema = new mongoose_1.Schema({
     isEligibleForPoints: { type: Boolean, default: true },
     useRawScoring: { type: Boolean },
     skipWebhook: { type: Boolean },
+    hasPublicJudges: { type: Boolean },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 const ContestModel = mongoose_1.default.model('Contest', contestSchema);
 exports.ContestModel = ContestModel;

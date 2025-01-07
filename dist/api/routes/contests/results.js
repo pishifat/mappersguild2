@@ -12,7 +12,7 @@ const resultsRouter = express_1.default.Router();
 const submissionPopulate = [
     {
         path: 'contest',
-        select: 'name screeners status download id creators',
+        select: 'name screeners status download id creators hasPublicJudges',
     },
     {
         path: 'screenings',
@@ -31,6 +31,34 @@ const submissionPopulate = [
                 path: 'criteria',
             },
         },
+    },
+];
+const submissionPopulateWithJudges = [
+    {
+        path: 'contest',
+        select: 'name screeners status download id creators hasPublicJudges',
+    },
+    {
+        path: 'screenings',
+        select: 'comment vote',
+    },
+    {
+        path: 'creator',
+        select: 'username osuId',
+    },
+    {
+        path: 'judgings',
+        populate: [
+            {
+                path: 'judgingScores',
+                populate: {
+                    path: 'criteria',
+                },
+            },
+            {
+                path: 'judge',
+            },
+        ],
     },
 ];
 const contestPopulate = [
@@ -78,9 +106,14 @@ resultsRouter.get('/participated', async (req, res) => {
 });
 /* GET submission */
 resultsRouter.get('/searchSubmission/:id', async (req, res) => {
-    const submission = await submission_1.SubmissionModel
+    let submission = await submission_1.SubmissionModel
         .findById(req.params.id)
         .populate(submissionPopulate);
+    if (submission?.contest.hasPublicJudges) {
+        submission = await submission_1.SubmissionModel
+            .findById(req.params.id)
+            .populate(submissionPopulateWithJudges);
+    }
     const creatorIds = submission?.contest.creators.map(c => c.toString());
     if (creatorIds?.includes(req.session.mongoId)) {
         return res.json(submission);

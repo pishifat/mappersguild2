@@ -17,6 +17,7 @@ const criteria_1 = require("../../models/contest/criteria");
 const contest_2 = require("../../../interfaces/contest/contest");
 const screening_1 = require("../../models/contest/screening");
 const judging_1 = require("../../models/contest/judging");
+const judgingScore_1 = require("../../models/contest/judgingScore");
 const listingRouter = express_1.default.Router();
 listingRouter.use(middlewares_1.isLoggedIn);
 const limitedContestSelect = '-judgingThreshold -screeningBonus -criterias -download';
@@ -213,7 +214,7 @@ listingRouter.post('/:id/toggleIsFeaturedArtistContest', middlewares_2.isContest
     await contest.save();
     res.json(contest.isFeaturedArtistContest);
 });
-/* POST toggle isFeaturedArtistContest */
+/* POST toggle useRawScoring */
 listingRouter.post('/:id/toggleUseRawScoring', middlewares_2.isContestCreator, middlewares_2.isEditable, async (req, res) => {
     const contest = await contest_1.ContestModel
         .findById(req.params.id)
@@ -221,6 +222,15 @@ listingRouter.post('/:id/toggleUseRawScoring', middlewares_2.isContestCreator, m
     contest.useRawScoring = !contest.useRawScoring;
     await contest.save();
     res.json(contest.useRawScoring);
+});
+/* POST toggle hasPublicJudges */
+listingRouter.post('/:id/toggleHasPublicJudges', middlewares_2.isContestCreator, middlewares_2.isEditable, async (req, res) => {
+    const contest = await contest_1.ContestModel
+        .findById(req.params.id)
+        .orFail();
+    contest.hasPublicJudges = !contest.hasPublicJudges;
+    await contest.save();
+    res.json(contest.hasPublicJudges);
 });
 /* POST update contest status */
 listingRouter.post('/:id/updateStatus', middlewares_2.isContestCreator, middlewares_2.isEditable, async (req, res) => {
@@ -1024,5 +1034,67 @@ listingRouter.post('/:id/toggleScreeningBonus', middlewares_2.isContestCreator, 
     contest.screeningBonus = !contest.screeningBonus;
     await contest.save();
     res.json(contest.screeningBonus);
+});
+/* POST add PDC stuff */
+listingRouter.post('/:id/addJudgingsFromCsv', middlewares_2.isContestCreator, middlewares_2.isEditable, async (req, res) => {
+    const contest = await contest_1.ContestModel
+        .findById(req.params.id)
+        .populate(defaultContestPopulate)
+        .orFail();
+    const csv = req.body.csv.trim();
+    const lines = csv.split('\n');
+    for (const rawLine of lines) {
+        const line = rawLine.split('\t');
+        const submission = contest.submissions.find(s => s.creator.osuId == parseInt(line[0]));
+        console.log(submission?.creator.username);
+        const judgeId = '62b1a32becf25121cfe756df';
+        const judging = new judging_1.JudgingModel();
+        /** @ts-ignore */
+        judging.judge = judgeId;
+        judging.submission = submission?._id;
+        for (let i = 1; i < line.length; i++) {
+            const scoreInput = line[i];
+            console.log(scoreInput);
+            const judgingScore = new judgingScore_1.JudgingScoreModel();
+            let criteriaId;
+            switch (i) {
+                case 1:
+                    criteriaId = '5e2ec4c071f7f84b0a73ca71';
+                    break;
+                case 2:
+                    criteriaId = '62a4ce9decf25121cfe649e2';
+                    break;
+                case 3:
+                    criteriaId = '62a4ceabecf25121cfe649ed';
+                    break;
+                case 4:
+                    criteriaId = '62a4cee7ecf25121cfe649f8';
+                    break;
+                default:
+                    console.log('fucked');
+                    criteriaId = null;
+            }
+            judgingScore.criteria = criteriaId;
+            judging.judgingScores.push(judgingScore);
+            let comment = '';
+            let score = 0;
+            console.log(i);
+            if (i == 1) {
+                const finalScoreInput = scoreInput.replace(/\/\//g, '\n');
+                comment = finalScoreInput;
+            }
+            else {
+                score = parseInt(scoreInput);
+            }
+            judgingScore.score = score;
+            judgingScore.comment = comment;
+            await Promise.all([
+                judgingScore.save(),
+                judging.save(),
+            ]);
+        }
+    }
+    await contest.save();
+    res.json({ success: 'ok' });
 });
 exports.default = listingRouter;
