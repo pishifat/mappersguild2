@@ -19,7 +19,7 @@
                 <div v-if="locusInfo.discord && locusInfo.discord.length && locusInfo.email && locusInfo.email.length">
                     Discord: <span class="text-secondary"><i>{{ locusInfo.discord ? locusInfo.discord : 'Discord ID' }} ({{ locusInfo.email }})</i></span>
                 </div>
-                <div v-else-if="locusInfo.discord && locusInfo.discord.length" class="ms-2">
+                <div v-else-if="locusInfo.discord && locusInfo.discord.length">
                     Discord: <span class="text-secondary"><i>{{ locusInfo.discord ? locusInfo.discord : 'Discord ID' }}</i></span>
                 </div>
                 <div v-else-if="!locusInfo.discord && !locusInfo.discord.length && locusInfo.email && locusInfo.email.length" class="ms-2">
