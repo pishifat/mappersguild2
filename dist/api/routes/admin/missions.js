@@ -143,6 +143,11 @@ adminMissionsRouter.post('/:id/toggleIsSeparate', async (req, res) => {
     await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { isSeparate: req.body.isSeparate }).orFail();
     res.json(req.body.isSeparate);
 });
+/* POST update mission tier */
+adminMissionsRouter.post('/:id/updateRemainingArtists', async (req, res) => {
+    await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { remainingArtists: req.body.remainingArtists }).orFail();
+    res.json(req.body.remainingArtists);
+});
 /* POST toggle openingAnnounced */
 adminMissionsRouter.post('/:id/toggleOpeningAnnounced', async (req, res) => {
     await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { openingAnnounced: req.body.openingAnnounced }).orFail();

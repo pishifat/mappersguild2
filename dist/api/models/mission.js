@@ -37,6 +37,7 @@ const missionSchema = new mongoose_1.Schema({
     modes: [{ type: String, required: true }],
     isShowcaseMission: { type: Boolean },
     isSeparate: { type: Boolean },
+    remainingArtists: { type: Number },
     showcaseMissionSongs: [{
             _id: false,
             song: { type: 'ObjectId', ref: 'FeaturedSong', required: true },
