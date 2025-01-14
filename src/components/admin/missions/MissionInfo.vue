@@ -229,6 +229,29 @@
                     </button>
                 </div>
             </div>
+            <!-- remainingArtists -->
+            <div class="row mt-2 d-flex align-items-center">
+                <div class="col-sm-2">
+                    remainingArtists
+                </div>
+                <div class="col-sm-2">
+                    <input
+                        v-model="remainingArtists"
+                        class="form-control form-control-sm"
+                        type="text"
+                        autocomplete="off"
+                        placeholder="remaining artists..."
+                    />
+                </div>
+                <div class="col-sm-4 small text-secondary">
+                    Current: <b>{{ mission.remainingArtists }}</b>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-sm btn-outline-info w-100" @click="updateRemainingArtists($event)">
+                        Update remainingArtists
+                    </button>
+                </div>
+            </div>
             <!-- openingAnnounced -->
             <div class="row d-flex mt-2 align-items-center">
                 <div class="col-sm-4">
@@ -558,6 +581,7 @@ export default defineComponent({
             mode: '',
             artists: this.mission.artists,
             deadline: new Date(this.mission.deadline),
+            remainingArtists: this.mission.remainingArtists,
             userMaximumRankedBeatmapsCount: this.mission.userMaximumRankedBeatmapsCount,
             userMaximumGlobalRank: this.mission.userMaximumGlobalRank,
             userMaximumPp: this.mission.userMaximumPp,
@@ -581,6 +605,7 @@ export default defineComponent({
             this.mode = '';
             this.artists = this.mission.artists;
             this.deadline = new Date(this.mission.deadline);
+            this.remainingArtists = this.mission.remainingArtists;
             this.userMaximumRankedBeatmapsCount = this.mission.userMaximumRankedBeatmapsCount;
             this.userMaximumGlobalRank = this.mission.userMaximumGlobalRank;
             this.userMaximumPp = this.mission.userMaximumPp;
@@ -744,6 +769,20 @@ export default defineComponent({
                 this.$store.commit('updateIsSeparate', {
                     missionId: this.mission.id,
                     isSeparate,
+                });
+            }
+        },
+        async updateRemainingArtists(e): Promise<void> {
+            const remainingArtists = await this.$http.executePost(`/admin/missions/${this.mission.id}/updateRemainingArtists`, { remainingArtists: this.remainingArtists }, e);
+
+            if (!this.$http.isError(remainingArtists)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated remainingArtists`,
+                    type: 'info',
+                });
+                this.$store.commit('updateRemainingArtists', {
+                    missionId: this.mission.id,
+                    remainingArtists,
                 });
             }
         },

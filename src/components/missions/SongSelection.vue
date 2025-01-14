@@ -11,6 +11,9 @@
                 <span>You're too late to pick a song. Sorry :(</span>
                 <div class="mt-3">Once all artists for this quest are announced, the quest will be closed!</div>
             </span>
+            <div class="mt-3 text-success">
+                Pending artist announcements: <b>{{ mission.remainingArtists }}</b>
+            </div>
         </div>
         <div v-else>
             <b v-if="!songInfo">Song:</b>

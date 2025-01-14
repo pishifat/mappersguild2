@@ -70,6 +70,13 @@ const store: Module<MissionState, MainState> = {
                 mission.isSeparate = payload.isSeparate;
             }
         },
+        updateRemainingArtists (state, payload): void {
+            const mission = state.missions.find(m => m.id == payload.missionId);
+
+            if (mission) {
+                mission.remainingArtists = payload.remainingArtists;
+            }
+        },
         updateOpeningAnnounced (state, payload): void {
             const mission = state.missions.find(m => m.id == payload.missionId);
 

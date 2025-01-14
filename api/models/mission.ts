@@ -22,6 +22,7 @@ const missionSchema = new Schema<Mission, MissionStatics>({
     modes: [{ type: String, required: true }],
     isShowcaseMission: { type: Boolean },
     isSeparate: { type: Boolean },
+    remainingArtists: { type: Number },
     showcaseMissionSongs: [{
         _id: false,
         song: { type: 'ObjectId', ref: 'FeaturedSong', required: true },

@@ -33,6 +33,7 @@ export interface Mission extends Document {
     modes: MissionMode[];
     isShowcaseMission: boolean;
     isSeparate: boolean;
+    remainingArtists: number;
     showcaseMissionSongs: {
         song: FeaturedSong;
         user: User;
