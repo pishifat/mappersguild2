@@ -69,7 +69,7 @@ const routes = [
     // Other
     { path: '/showcase', component: Showcase, meta: { title: 'FA Showcase Beatmaps' } },
     { path: '/mentorship', component: Mentorship, meta: { title: 'Mentorship' } },
-    { path: '/locus', component: Locus, meta: { title: 'Locus' } },
+    { path: '/locus', component: Locus, meta: { title: 'Nexus' } },
     { path: '/merch', component: Merch, meta: { title: 'Merch' } },
     { path: '/worldCup', component: WorldCup, meta: { title: 'World Cup' } },
 
