@@ -295,11 +295,13 @@ export async function calculateTasksPoints(userId: any): Promise<TasksPoints> {
         }
 
         // mission reward points and completed missions list
+        const collabQuestIds = ['65a3376e48f36f2622ef2f44', '665bbcc1ff4c38cea1113337', '66f488cc56f3f894641d4ace']; // both mappers for True Cooperation, Multi-mode enthusiasts, and Spread coordinators win
+
         if (missionParticipation &&
             beatmap.mission &&
             !pointsObject.Missions.includes(beatmap.mission._id) &&
             beatmap.mission.winningBeatmaps.some(b => b.id == beatmap.id) &&
-            (beatmap.host.id == userId || beatmap.mission.id == '65a3376e48f36f2622ef2f44' || beatmap.mission.id == '665bbcc1ff4c38cea1113337') // both mappers for True Cooperation & Multi-mode enthusiasts "win"
+            (beatmap.host.id == userId || collabQuestIds.includes(beatmap.mission.id))
         ) {
             let isValidMissionParticipation;
 

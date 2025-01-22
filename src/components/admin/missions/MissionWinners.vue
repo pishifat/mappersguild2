@@ -92,12 +92,14 @@ export default defineComponent({
             const hosts = winningBeatmaps.map(b => b.host);
             const hostUsernames = hosts.map(h => h.username);
 
-            // exception for the "True Cooperation" and "Multi-mode enthusiasts" missions, which give the set's second mapper credit towards badge too
+            // exception for the "True Cooperation", "Multi-mode enthusiasts", and "Spread coordinators" missions, which give the set's second mapper credit towards badge too
             let collaborationUsers: any[] = [];
             let collaborationUsernames: string[] = [];
 
+            const collabQuestIds = ['65a3376e48f36f2622ef2f44', '665bbcc1ff4c38cea1113337', '66f488cc56f3f894641d4ace'];
+
             for (const beatmap of winningBeatmaps) {
-                if (beatmap.mission.toString() == '65a3376e48f36f2622ef2f44' || beatmap.mission.toString() == '665bbcc1ff4c38cea1113337') {
+                if (collabQuestIds.includes(beatmap.mission.toString())) {
                     for (const task of beatmap.tasks) {
                         if (task.name !== TaskName.Hitsounds && task.name !== TaskName.Storyboard) {
                             for (const mapper of task.mappers) {
