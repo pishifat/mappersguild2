@@ -3,7 +3,7 @@
         <div class="col text-end pe-0">
             <img
                 class="mx-3"
-                :src="isLocus ? '/images/locus.png' : '/images/mg-logo-text.png'"
+                :src="isLocus ? '/images/nexus.png' : '/images/mg-logo-text.png'"
                 width="100"
                 height="100"
             />
