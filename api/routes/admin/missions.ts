@@ -21,6 +21,25 @@ adminMissionsRouter.get('/load', async (req, res) => {
     res.json(m);
 });
 
+/* GET quests */
+adminMissionsRouter.get('/loadClassifiedArtists', async (req, res) => {
+    const artists: FeaturedArtist[] = await FeaturedArtistModel
+        .find({
+            $or: [
+                { osuId: 0 },
+                { osuId: { $exists: false } },
+            ],
+            songsTimed: true,
+            hasRankedMaps: { $ne: true },
+            songs: { $exists: true, $ne: [] },
+        })
+        .collation({ locale: 'en' }) // ignores case sensitivity
+        .sort({ label: 1 })
+        .defaultPopulateWithSongs();
+
+    res.json(artists);
+});
+
 /* POST add quest */
 adminMissionsRouter.post('/create', async (req, res) => {
     const { deadline, name, tier, artists, objective, winCondition, isShowcaseMission, userMaximumRankedBeatmapsCount, userMaximumGlobalRank, userMaximumPp, userMinimumPp, userMinimumRank, beatmapEarliestSubmissionDate, beatmapLatestSubmissionDate, beatmapMinimumFavorites, beatmapMinimumPlayCount, beatmapMinimumLength, isUniqueToRanked, modes } = req.body;

@@ -40,6 +40,21 @@
             />
         </div>
 
+        <div class="container card card-body py-3 mb-2">
+            <h5>Classified quest artists</h5>
+            <button class="btn btn-sm btn-info w-100 mb-2" @click="loadClassifiedArtists($event)">
+                Load artists eligible for Classified quest
+            </button>
+            <div>
+                <ul>
+                    <li v-for="artist in classifiedArtists" :key="artist.id">
+                        {{ artist.label }}
+                        <span class="small text-secondary">{{ countValidSongs(artist.songs) }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
         <submit-mission-modal />
 
         <mission-info
@@ -59,6 +74,7 @@ import { Mission } from '../../../interfaces/mission';
 import missionsAdminModule from '@store/admin/missions';
 import MissionInfo from '../../components/admin/missions/MissionInfo.vue';
 import MissionWinners from '../../components/admin/missions/MissionWinners.vue';
+import { FeaturedSong } from '@interfaces/featuredSong';
 
 export default defineComponent({
     components: {
@@ -70,11 +86,13 @@ export default defineComponent({
     data () {
         return {
             selectedMissionId: '',
+            classifiedArtists: null,
         };
     },
     computed: {
         ...mapState({
             missions: (state: any) => state.missionsAdmin.missions,
+            classifiedArtists: (state: any) => state.classifiedArtists,
         }),
         selectedMission(): undefined | Mission {
             return this.missions.find(m => m.id === this.selectedMissionId);
@@ -98,6 +116,13 @@ export default defineComponent({
                 this.$store.commit('setMissions', missions);
             }
         },
+        async loadClassifiedArtists(e): Promise<void> {
+            const classifiedArtists = await this.$http.executeGet<any[]>('/admin/missions/loadClassifiedArtists', e);
+
+            if (!this.$http.isError(classifiedArtists)) {
+                this.classifiedArtists = classifiedArtists;
+            }
+        },
         updateMission(m): void {
             const i = this.missions.findIndex(mission => mission.id == m.id);
 
@@ -118,6 +143,21 @@ export default defineComponent({
                 default:
                     return '/images/bronze.png';
             }
+        },
+        countValidSongs(songs): string {
+            let invalids: string[] = [];
+
+            for (const song of songs) {
+                if (song.isExcludedFromClassified || !song.oszUrl) {
+                    invalids.push(`${song.artist} - ${song.title}`);
+                }
+            }
+
+            if (invalids.length) {
+                return `(${songs.length - invalids.length} of ${songs.length}) ${invalids.join(', ')}`;
+            }
+
+            return '';
         },
     },
 });
