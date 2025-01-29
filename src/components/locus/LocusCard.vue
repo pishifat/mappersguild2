@@ -20,7 +20,7 @@
                 <i v-else class="ms-2 text-secondary">No roles selected</i>
             </div>
 
-            <hr v-if="locusInfo.timezone || locusInfo.availability || (locusInfo.languages && locusInfo.languages.length)" class="mb-3" />
+            <hr v-if="locusInfo.timezone || locusInfo.availability || (locusInfo.languages && locusInfo.languages.length) || locusInfo.discord" class="mb-3" />
 
             <div v-if="locusInfo.discord || locusInfo.email" class="small">
                 <div v-if="locusInfo.discord && locusInfo.discord.length && locusInfo.email && locusInfo.email.length">
