@@ -10,4 +10,6 @@ export interface LocusInfo extends Document {
     discord: string,
     email: string,
     about: string,
+    isPublic: boolean,
+    isOnTeam: boolean,
 }

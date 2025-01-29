@@ -9,6 +9,7 @@ export enum UserGroup {
     User = 'user',
     Admin = 'admin',
     Secret = 'secret',
+    Locus = 'locus',
 }
 
 export interface PointsInfo {

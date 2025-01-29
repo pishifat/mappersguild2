@@ -1,6 +1,7 @@
 import { Module } from 'vuex';
 import { LocusInfo } from '@interfaces/locusInfo';
 import { MainState } from './main';
+import Vue from 'vue';
 
 interface LocusState {
     filterValue: string;
@@ -31,9 +32,11 @@ const store: Module<LocusState, MainState> = {
         },
         updateTimezone (state, timezone: string): void {
             state.selfLocusInfo.timezone = timezone;
+            this.commit('locus/updateSelfInListing');
         },
         updateAvailability (state, availability: string): void {
             state.selfLocusInfo.availability = availability;
+            this.commit('locus/updateSelfInListing');
         },
         updateLanguage (state, language: string): void {
             if (state.selfLocusInfo.languages && state.selfLocusInfo.languages.length) {
@@ -47,6 +50,8 @@ const store: Module<LocusState, MainState> = {
             } else {
                 state.selfLocusInfo.languages = [language];
             }
+
+            this.commit('locus/updateSelfInListing');
         },
         updateRole (state, role: string): void {
             if (state.selfLocusInfo.roles && state.selfLocusInfo.roles.length) {
@@ -60,18 +65,36 @@ const store: Module<LocusState, MainState> = {
             } else {
                 state.selfLocusInfo.roles = [role];
             }
+
+            this.commit('locus/updateSelfInListing');
         },
         updateDiscord (state, discord: string): void {
             state.selfLocusInfo.discord = discord;
+            this.commit('locus/updateSelfInListing');
         },
         updateEmail (state, email: string): void {
             state.selfLocusInfo.email = email;
+            this.commit('locus/updateSelfInListing');
         },
         updateAbout (state, about: string): void {
             state.selfLocusInfo.about = about;
+            this.commit('locus/updateSelfInListing');
         },
         updateIsPublic (state, isPublic: boolean): void {
             state.selfLocusInfo.isPublic = isPublic;
+            this.commit('locus/updateSelfInListing');
+        },
+        updateIsOnTeam (state, isOnTeam: boolean): void {
+            state.selfLocusInfo.isOnTeam = isOnTeam;
+            this.commit('locus/updateSelfInListing');
+        },
+        adminUpdateIsOnTeam (state, payload: { isOnTeam: boolean, id: string }): void {
+            const i = state.locusInfos.findIndex(l => l.id == payload.id);
+            state.locusInfos[i].isOnTeam = payload.isOnTeam;
+        },
+        updateSelfInListing (state): void {
+            const i = state.locusInfos.findIndex(l => l.id == state.selfLocusInfo.id);
+            state.locusInfos[i] = state.selfLocusInfo;
         },
     },
     getters: {

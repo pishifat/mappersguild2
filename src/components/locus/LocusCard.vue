@@ -1,7 +1,14 @@
 <template>
-    <div v-if="locusInfo">
+    <div v-if="locusInfo" class="position-relative" :class="locusInfo.isOnTeam ? 'on-team opacity-50' : ''">
+        <button v-if="isAdmin" class="btn btn-sm btn-outline-danger top-right-button" @click="adminToggleIsOnTeam($event)">
+            {{ locusInfo.isOnTeam ? 'Mark as "not on a team"' : 'Mark as "on a team"' }}
+        </button>
+        <div v-if="locusInfo.isOnTeam" class="on-team-text fs-1 pointer-events-none">
+            Joined a team
+        </div>
         <div
             class="card card-level-2 card-body my-2"
+            :class="locusInfo.isOnTeam ? 'pointer-events-none' : ''"
         >
             <img :src="'https://a.ppy.sh/' + locusInfo.user.osuId" class="card-avatar-img" />
 
@@ -54,7 +61,9 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { mapState } from 'vuex';
 import { LocusInfo } from '../../../interfaces/locusInfo';
+import { UserGroup } from '../../../interfaces/user';
 
 export default defineComponent({
     name: 'LocusCard',
@@ -62,6 +71,27 @@ export default defineComponent({
         locusInfo: {
             type: Object as () => LocusInfo,
             required: true,
+        },
+    },
+    computed: {
+        ...mapState([
+            'loggedInUser',
+        ]),
+        isAdmin() {
+            return this.loggedInUser.group == UserGroup.Admin || this.loggedInUser.group == UserGroup.Locus;
+        },
+    },
+    methods: {
+        async adminToggleIsOnTeam(e): Promise<void> {
+            const isOnTeam = await this.$http.executePost(`/locus/${this.locusInfo.id}/toggleIsOnTeam`, {}, e);
+
+            if (!this.$http.isError(isOnTeam)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `Updated team status`,
+                    type: 'info',
+                });
+                this.$store.commit('locus/adminUpdateIsOnTeam', { isOnTeam, id: this.locusInfo.id });
+            }
         },
     },
 });
@@ -86,5 +116,28 @@ export default defineComponent({
 
 .card-header {
     padding: 0.5rem 1rem 0.5rem 3.5rem;
+}
+
+.on-team-text {
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    z-index: 10;
+}
+
+.top-right-button {
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    z-index: 10; /* Ensure it's above other content */
+}
+
+.pointer-events-none {
+    pointer-events: none;
 }
 </style>

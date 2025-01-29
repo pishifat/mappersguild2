@@ -17,6 +17,17 @@
                         </div>
                         <div class="mb-2">
                             <div class="small">
+                                Team status
+                                <div class="small text-secondary mb-1">
+                                    Toggle this to show if you're already on a team. You are currently marked as <i>{{ selfLocusInfo.isOnTeam ? 'on a team' : 'not on a team' }}</i>!
+                                </div>
+                                <button class="btn btn-sm btn-outline-info mb-2 w-100" @click="toggleIsOnTeam($event)">
+                                    {{ selfLocusInfo.isOnTeam ? 'Mark as "not on a team"' : 'Mark as "on a team"' }}
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <div class="small">
                                 Roles
                                 <div class="small text-secondary">
                                     What roles best describe you? Feel free to elaborate in "about" section
@@ -358,6 +369,17 @@ export default defineComponent({
                     type: 'info',
                 });
                 this.$store.commit('locus/updateIsPublic', isPublic);
+            }
+        },
+        async toggleIsOnTeam(e): Promise<void> {
+            const isOnTeam = await this.$http.executePost(`/locus/${this.selfLocusInfo.id}/toggleIsOnTeam`, {}, e);
+
+            if (!this.$http.isError(isOnTeam)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `Updated team status`,
+                    type: 'info',
+                });
+                this.$store.commit('locus/updateIsOnTeam', isOnTeam);
             }
         },
     },

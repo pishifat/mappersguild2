@@ -24,6 +24,9 @@
                         <option value="secret">
                             Secret
                         </option>
+                        <option value="locus">
+                            Locus admin
+                        </option>
                     </select>
                     <button class="btn btn-sm btn-outline-info w-25" @click="updateGroup($event)">
                         Save group

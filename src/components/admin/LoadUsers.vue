@@ -39,6 +39,10 @@
                 :grouped-users="normalUsers"
                 :group="'user'"
             />
+            <admin-user-table
+                :grouped-users="locusUsers"
+                :group="'locus'"
+            />
         </div>
     </div>
 </template>
@@ -69,6 +73,7 @@ export default defineComponent({
             'normalUsers',
             'showcaseUsers',
             'adminUsers',
+            'locusUsers',
         ]),
     },
     beforeCreate () {
