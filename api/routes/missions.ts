@@ -335,6 +335,24 @@ missionsRouter.post('/:missionId/findShowcaseMissionArtist', isEditable, async (
         return res.json({ error: `Song not loaded. Your MG rank is too low for this quest.` });
     }
 
+    const missionWithArtists: Mission = await MissionModel
+        .findById(req.params.missionId)
+        .populate(
+            {
+                path: 'showcaseMissionArtists',
+                populate: {
+                    path: 'artist user',
+                },
+            }
+        )
+        .orFail();
+
+    const userExists = missionWithArtists.showcaseMissionArtists.find(a => a.user.id == user.id);
+
+    if (userExists) {
+        return res.json({ error: 'Already selected artist. Try refreshing!' });
+    }
+
     const artists: FeaturedArtist[] = await FeaturedArtistModel
         .find({
             $or: [
@@ -354,7 +372,7 @@ missionsRouter.post('/:missionId/findShowcaseMissionArtist', isEditable, async (
 
     mission.showcaseMissionArtists.push({
         user: req.session.mongoId,
-        artist: artist.id,
+        artist,
     });
 
     await mission.save();

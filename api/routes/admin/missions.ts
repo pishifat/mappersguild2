@@ -4,6 +4,7 @@ import { MissionModel } from '../../models/mission';
 import { UserModel } from '../../models/user';
 import { MissionMode, MissionStatus } from '../../../interfaces/mission';
 import { FeaturedArtistModel } from '../../models/featuredArtist';
+import { FeaturedArtist } from '../../../interfaces/featuredArtist';
 
 const adminMissionsRouter = express.Router();
 

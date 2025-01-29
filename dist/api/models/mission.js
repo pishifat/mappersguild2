@@ -36,11 +36,17 @@ const missionSchema = new mongoose_1.Schema({
     invalidBeatmaps: [{ type: 'ObjectId', ref: 'Beatmap' }],
     modes: [{ type: String, required: true }],
     isShowcaseMission: { type: Boolean },
+    isArtistShowcase: { type: Boolean },
     isSeparate: { type: Boolean },
     remainingArtists: { type: Number },
     showcaseMissionSongs: [{
             _id: false,
             song: { type: 'ObjectId', ref: 'FeaturedSong', required: true },
+            user: { type: 'ObjectId', ref: 'User', required: true },
+        }],
+    showcaseMissionArtists: [{
+            _id: false,
+            artist: { type: 'ObjectId', ref: 'FeaturedArtist', required: true },
             user: { type: 'ObjectId', ref: 'User', required: true },
         }],
     /* user requirements. optional and growing */

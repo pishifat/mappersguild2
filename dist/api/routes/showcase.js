@@ -62,7 +62,7 @@ showcaseRouter.post('/addShowcaseMapper/:id', middlewares_1.canEditArtist, async
         .defaultPopulateWithSongs()
         .orFail();
     res.json(artist);
-    discordApi_1.showcaseWebhookPost([{
+    discordApi_1.devWebhookPost([{
             author: {
                 name: `${res.locals.userRequest.username}`,
                 url: `https://osu.ppy.sh/users/${res.locals.userRequest.osuId}`,
@@ -104,7 +104,7 @@ showcaseRouter.post('/removeShowcaseMapper/:id', middlewares_1.canEditArtist, as
         .defaultPopulateWithSongs()
         .orFail();
     res.json(artist);
-    discordApi_1.showcaseWebhookPost([{
+    discordApi_1.devWebhookPost([{
             author: {
                 name: `${res.locals.userRequest.username}`,
                 url: `https://osu.ppy.sh/users/${res.locals.userRequest.osuId}`,
@@ -132,7 +132,7 @@ showcaseRouter.post('/addSongShowcaseMapper/:artistId/:songId', middlewares_1.ca
     }
     const songShowcaseMapperIds = song.songShowcaseMappers.map(u => u.id);
     if (songShowcaseMapperIds.includes(req.session.mongoId)) {
-        return res.json({ error: 'Already marked for song' });
+        return res.json({ error: 'Already marked for song. Try refreshing!' });
     }
     song.songShowcaseMappers.push(req.session.mongoId);
     await song.save();
@@ -141,9 +141,9 @@ showcaseRouter.post('/addSongShowcaseMapper/:artistId/:songId', middlewares_1.ca
         .defaultPopulateWithSongs()
         .orFail();
     res.json(newArtist);
-    discordApi_1.showcaseWebhookPost([{
+    discordApi_1.devWebhookPost([{
             author: {
-                name: `${res.locals.userRequest.username}`,
+                name: res.locals.userRequest.username,
                 url: `https://osu.ppy.sh/users/${res.locals.userRequest.osuId}`,
                 icon_url: `https://a.ppy.sh/${res.locals.userRequest.osuId}`,
             },
@@ -160,7 +160,7 @@ showcaseRouter.post('/removeSongShowcaseMapper/:artistId/:songId', middlewares_1
     const songShowcaseMapperIds = song.songShowcaseMappers.map(u => u.id);
     const i = songShowcaseMapperIds.indexOf(req.session.mongoId);
     if (i == -1) {
-        return res.json({ error: 'Not marked for song' });
+        return res.json({ error: 'Not marked for song. Try refreshing!' });
     }
     song.songShowcaseMappers.splice(i, 1);
     await song.save();
@@ -169,7 +169,7 @@ showcaseRouter.post('/removeSongShowcaseMapper/:artistId/:songId', middlewares_1
         .defaultPopulateWithSongs()
         .orFail();
     res.json(artist);
-    discordApi_1.showcaseWebhookPost([{
+    discordApi_1.devWebhookPost([{
             author: {
                 name: `${res.locals.userRequest.username}`,
                 url: `https://osu.ppy.sh/users/${res.locals.userRequest.osuId}`,

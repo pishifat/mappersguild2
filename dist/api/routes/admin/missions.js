@@ -21,9 +21,26 @@ adminMissionsRouter.get('/load', async (req, res) => {
         .sort({ createdAt: -1, status: -1, name: 1 });
     res.json(m);
 });
+/* GET quests */
+adminMissionsRouter.get('/loadClassifiedArtists', async (req, res) => {
+    const artists = await featuredArtist_1.FeaturedArtistModel
+        .find({
+        $or: [
+            { osuId: 0 },
+            { osuId: { $exists: false } },
+        ],
+        songsTimed: true,
+        hasRankedMaps: { $ne: true },
+        songs: { $exists: true, $ne: [] },
+    })
+        .collation({ locale: 'en' }) // ignores case sensitivity
+        .sort({ label: 1 })
+        .defaultPopulateWithSongs();
+    res.json(artists);
+});
 /* POST add quest */
 adminMissionsRouter.post('/create', async (req, res) => {
-    const { deadline, name, tier, artists, objective, winCondition, isShowcaseMission, userMaximumRankedBeatmapsCount, userMaximumGlobalRank, userMaximumPp, userMinimumPp, userMinimumRank, beatmapEarliestSubmissionDate, beatmapLatestSubmissionDate, beatmapMinimumFavorites, beatmapMinimumPlayCount, beatmapMinimumLength, isUniqueToRanked, modes } = req.body;
+    const { deadline, name, tier, artists, objective, winCondition, isShowcaseMission, isArtistShowcase, userMaximumRankedBeatmapsCount, userMaximumGlobalRank, userMaximumPp, userMinimumPp, userMinimumRank, beatmapEarliestSubmissionDate, beatmapLatestSubmissionDate, beatmapMinimumFavorites, beatmapMinimumPlayCount, beatmapMinimumLength, isUniqueToRanked, modes } = req.body;
     const validModes = [];
     for (const mode of modes) {
         switch (mode) {
@@ -56,6 +73,7 @@ adminMissionsRouter.post('/create', async (req, res) => {
     mission.winCondition = winCondition;
     mission.modes = validModes;
     mission.isShowcaseMission = isShowcaseMission;
+    mission.isArtistShowcase = isArtistShowcase;
     mission.isSeparate = false;
     mission.openingAnnounced = false;
     mission.closingAnnounced = false;
@@ -137,6 +155,11 @@ adminMissionsRouter.post('/:id/updateDeadline', async (req, res) => {
 adminMissionsRouter.post('/:id/toggleIsShowcaseMission', async (req, res) => {
     await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { isShowcaseMission: req.body.isShowcaseMission }).orFail();
     res.json(req.body.isShowcaseMission);
+});
+/* POST toggle isArtistShowcase */
+adminMissionsRouter.post('/:id/toggleIsArtistShowcase', async (req, res) => {
+    await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { isArtistShowcase: req.body.isArtistShowcase }).orFail();
+    res.json(req.body.isArtistShowcase);
 });
 /* POST toggle isSeparate */
 adminMissionsRouter.post('/:id/toggleIsSeparate', async (req, res) => {
