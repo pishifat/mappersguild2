@@ -32,10 +32,15 @@ export interface Mission extends Document {
     invalidBeatmaps: Beatmap[];
     modes: MissionMode[];
     isShowcaseMission: boolean;
+    isArtistShowcase: boolean;
     isSeparate: boolean;
     remainingArtists: number;
     showcaseMissionSongs: {
         song: FeaturedSong;
+        user: User;
+    }[];
+    showcaseMissionArtists: {
+        artist: FeaturedArtist;
         user: User;
     }[];
     /* for webhooks */

@@ -215,6 +215,20 @@
                     </button>
                 </div>
             </div>
+            <!-- isArtistShowcase -->
+            <div class="row d-flex mt-2 align-items-center">
+                <div class="col-sm-4">
+                    isArtistShowcase
+                </div>
+                <div class="col-sm-4 small text-secondary">
+                    Current: <b :class="mission.isArtistShowcase ? 'text-success' : 'text-danger'">{{ mission.isArtistShowcase ? mission.isArtistShowcase : 'false' }}</b>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-sm btn-outline-info w-100" @click="toggleIsArtistShowcase($event)">
+                        Toggle isArtistShowcase
+                    </button>
+                </div>
+            </div>
             <!-- isSeparate -->
             <div class="row d-flex mt-2 align-items-center">
                 <div class="col-sm-4">
@@ -755,6 +769,20 @@ export default defineComponent({
                 this.$store.commit('updateIsShowcaseMission', {
                     missionId: this.mission.id,
                     isShowcaseMission,
+                });
+            }
+        },
+        async toggleIsArtistShowcase(e): Promise<void> {
+            const isArtistShowcase = await this.$http.executePost(`/admin/missions/${this.mission.id}/toggleIsArtistShowcase/`, { isArtistShowcase: !this.mission.isArtistShowcase }, e);
+
+            if (!this.$http.isError(isArtistShowcase)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `toggled isArtistShowcase`,
+                    type: 'info',
+                });
+                this.$store.commit('updateIsArtistShowcase', {
+                    missionId: this.mission.id,
+                    isArtistShowcase,
                 });
             }
         },

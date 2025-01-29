@@ -109,19 +109,31 @@
             <!-- win condition -->
             <form-textarea v-model="winCondition" label="Win condition" />
 
-            <!-- isShowcaseMission -->
-            <form-input
-                v-model.number="isShowcaseMission"
-                label="isShowcaseMission"
-                description="0 = false, 1 = true"
-                type="number"
-            />
-
             <!-- deadline -->
             <form-input
                 v-model="deadline"
                 label="Deadline"
                 type="date"
+            />
+
+            <!-- user requirements -->
+            <hr />
+            <h5>Classified</h5>
+
+            <!-- isShowcaseMission -->
+            <form-input
+                v-model.number="isShowcaseMission"
+                label="isShowcaseMission"
+                description="indicates if a quest includes unreleased featured artists (0 = false, 1 = true)"
+                type="number"
+            />
+
+            <!-- isArtistShowcase -->
+            <form-input
+                v-model.number="isArtistShowcase"
+                label="isArtistShowcase"
+                description="indicates if a showcase quest is artist-based instead of song-based (0 = false, 1 = true)"
+                type="number"
             />
 
             <!-- user requirements -->
@@ -260,6 +272,7 @@ export default defineComponent({
             name: '',
             winCondition: '',
             isShowcaseMission: 0,
+            isArtistShowcase: 0,
             userMaximumRankedBeatmapsCount: null,
             userMaximumGlobalRank: null,
             userMaximumPp: null,
@@ -337,6 +350,7 @@ export default defineComponent({
                 modes: this.selectedModes,
                 winCondition: this.winCondition,
                 isShowcaseMission: new Boolean(this.isShowcaseMission),
+                isArtistShowcase: new Boolean(this.isArtistShowcase),
                 userMaximumRankedBeatmapsCount: this.userMaximumRankedBeatmapsCount,
                 userMaximumGlobalRank: this.userMaximumGlobalRank,
                 userMaximumPp: this.userMaximumPp,

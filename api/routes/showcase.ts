@@ -3,7 +3,7 @@ import { FeaturedArtistModel } from '../models/featuredArtist';
 import { FeaturedArtistStatus } from '../../interfaces/featuredArtist';
 import { UserGroup } from '../../interfaces/user';
 import { isLoggedIn, canEditArtist, isShowcase } from '../helpers/middlewares';
-import { showcaseWebhookPost, webhookColors } from '../helpers/discordApi';
+import { devWebhookPost, webhookColors } from '../helpers/discordApi';
 import { FeaturedSongModel } from '../models/featuredSong';
 
 const showcaseRouter = express.Router();
@@ -70,7 +70,7 @@ showcaseRouter.post('/addShowcaseMapper/:id', canEditArtist, async (req, res) =>
 
     res.json(artist);
 
-    showcaseWebhookPost([{
+    devWebhookPost([{
         author: {
             name: `${res.locals.userRequest.username}`,
             url: `https://osu.ppy.sh/users/${res.locals.userRequest.osuId}`,
@@ -123,7 +123,7 @@ showcaseRouter.post('/removeShowcaseMapper/:id', canEditArtist, async (req, res)
 
     res.json(artist);
 
-    showcaseWebhookPost([{
+    devWebhookPost([{
         author: {
             name: `${res.locals.userRequest.username}`,
             url: `https://osu.ppy.sh/users/${res.locals.userRequest.osuId}`,
@@ -156,7 +156,7 @@ showcaseRouter.post('/addSongShowcaseMapper/:artistId/:songId', canEditArtist, a
     const songShowcaseMapperIds = song.songShowcaseMappers.map(u => u.id);
 
     if (songShowcaseMapperIds.includes(req.session.mongoId)) {
-        return res.json({ error: 'Already marked for song' });
+        return res.json({ error: 'Already marked for song. Try refreshing!' });
     }
 
     song.songShowcaseMappers.push(req.session.mongoId);
@@ -169,9 +169,9 @@ showcaseRouter.post('/addSongShowcaseMapper/:artistId/:songId', canEditArtist, a
 
     res.json(newArtist);
 
-    showcaseWebhookPost([{
+    devWebhookPost([{
         author: {
-            name: `${res.locals.userRequest.username}`,
+            name: res.locals.userRequest.username,
             url: `https://osu.ppy.sh/users/${res.locals.userRequest.osuId}`,
             icon_url: `https://a.ppy.sh/${res.locals.userRequest.osuId}`,
         },
@@ -191,7 +191,7 @@ showcaseRouter.post('/removeSongShowcaseMapper/:artistId/:songId', canEditArtist
     const i = songShowcaseMapperIds.indexOf(req.session.mongoId);
 
     if (i == -1) {
-        return res.json({ error: 'Not marked for song' });
+        return res.json({ error: 'Not marked for song. Try refreshing!' });
     }
 
     song.songShowcaseMappers.splice(i, 1);
@@ -204,7 +204,7 @@ showcaseRouter.post('/removeSongShowcaseMapper/:artistId/:songId', canEditArtist
 
     res.json(artist);
 
-    showcaseWebhookPost([{
+    devWebhookPost([{
         author: {
             name: `${res.locals.userRequest.username}`,
             url: `https://osu.ppy.sh/users/${res.locals.userRequest.osuId}`,

@@ -236,7 +236,7 @@ missionsRouter.post('/:missionId/findShowcaseMissionSong', isEditable, async (re
     const mission: Mission = res.locals.mission;
     const user: User = await UserModel.findById(req.session.mongoId).orFail();
 
-    if (!user.rank || user.rank === 0) {
+    if (mission.userMinimumRank && user.rank < mission.userMinimumRank) {
         return res.json({ error: `Song not loaded. Your MG rank is too low for this quest.` });
     }
 
@@ -326,6 +326,65 @@ missionsRouter.post('/:missionId/findShowcaseMissionSong', isEditable, async (re
     LogModel.generate(req.session?.mongoId, `${userExists ? 'rerolled' : 'found'} showcase mission song`, LogCategory.Mission );
 });
 
+/* POST findShowcaseMissionArtist */
+missionsRouter.post('/:missionId/findShowcaseMissionArtist', isEditable, async (req, res) => {
+    const mission: Mission = res.locals.mission;
+    const user: User = await UserModel.findById(req.session.mongoId).orFail();
+
+    if (mission.userMinimumRank && user.rank < mission.userMinimumRank) {
+        return res.json({ error: `Song not loaded. Your MG rank is too low for this quest.` });
+    }
+
+    const artists: FeaturedArtist[] = await FeaturedArtistModel
+        .find({
+            $or: [
+                { osuId: 0 },
+                { osuId: { $exists: false } },
+            ],
+            songsTimed: true,
+            hasRankedMaps: { $ne: true },
+            songs: { $exists: true, $ne: [] },
+        })
+        .defaultPopulateWithSongs();
+
+    const artistIndex = Math.floor(Math.random() * (artists.length));
+    const artist = artists[artistIndex];
+
+    await FeaturedArtistModel.findByIdAndUpdate(artist.id, { $push: { showcaseMappers: user._id } });
+
+    mission.showcaseMissionArtists.push({
+        user: req.session.mongoId,
+        artist: artist.id,
+    });
+
+    await mission.save();
+
+    const updatedMission: Mission = await MissionModel
+        .findById(req.params.missionId)
+        .populate(
+            {
+                path: 'showcaseMissionArtists',
+                populate: {
+                    path: 'artist user',
+                    populate: {
+                        path: 'songs',
+                    },
+                },
+            }
+        )
+        .orFail();
+
+    res.json(updatedMission);
+
+    await devWebhookPost([{
+        title: `showcase mission artist selected`,
+        color: webhookColors.lightOrange,
+        description: `[**${user.username}**](https://osu.ppy.sh/users/${user.osuId}) selected **${artist.label}** for **${mission.name}** priority quest`,
+    }]);
+
+    LogModel.generate(req.session?.mongoId, `selected showcase mission artist`, LogCategory.Mission );
+});
+
 /* GET findSelectedShowcaseMissionSong */
 missionsRouter.get('/:missionId/findSelectedShowcaseMissionSong', async (req, res) => {
     const mission: Mission = await MissionModel
@@ -343,6 +402,31 @@ missionsRouter.get('/:missionId/findSelectedShowcaseMissionSong', async (req, re
     const song = mission.showcaseMissionSongs.find(s => s.user.id == req.session.mongoId);
 
     res.json(song);
+});
+
+/* GET findSelectedShowcaseMissionArtist */
+missionsRouter.get('/:missionId/findSelectedShowcaseMissionArtist', async (req, res) => {
+    const mission: Mission = await MissionModel
+        .findById(req.params.missionId)
+        .populate(
+            {
+                path: 'showcaseMissionArtists',
+                populate: {
+                    path: 'artist user',
+                    populate: {
+                        path: 'songs',
+                        populate: {
+                            path: 'songShowcaseMappers',
+                        },
+                    },
+                },
+            }
+        )
+        .orFail();
+
+    const artist = mission.showcaseMissionArtists.find(a => a.user.id == req.session.mongoId);
+
+    res.json(artist);
 });
 
 export default missionsRouter;

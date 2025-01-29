@@ -4,8 +4,13 @@
             <b>Objective:</b>
             <div class="text-secondary mt-1" v-html="$md.render(mission.objective.trim())" />
         </div>
-        <div v-if="mission.isShowcaseMission" class="col-sm-12 mb-4">
+        <div v-if="mission.isShowcaseMission && !mission.isArtistShowcase" class="col-sm-12 mb-4">
             <song-selection
+                :mission="mission"
+            />
+        </div>
+        <div v-else-if="mission.isShowcaseMission && mission.isArtistShowcase" class="col-sm-12 mb-4">
+            <artist-selection
                 :mission="mission"
             />
         </div>
@@ -58,12 +63,14 @@ import { mapState } from 'vuex';
 import { Mission } from '@interfaces/mission';
 import ArtistLinkList from '@components/ArtistLinkList.vue';
 import SongSelection from './SongSelection.vue';
+import ArtistSelection from './ArtistSelection.vue';
 
 export default defineComponent({
     name: 'MissionCard',
     components: {
         ArtistLinkList,
         SongSelection,
+        ArtistSelection,
     },
     props: {
         mission: {

@@ -63,6 +63,13 @@ const store: Module<MissionState, MainState> = {
                 mission.isShowcaseMission = payload.isShowcaseMission;
             }
         },
+        updateIsArtistShowcase (state, payload): void {
+            const mission = state.missions.find(m => m.id == payload.missionId);
+
+            if (mission) {
+                mission.isArtistShowcase = payload.isArtistShowcase;
+            }
+        },
         updateIsSeparate (state, payload): void {
             const mission = state.missions.find(m => m.id == payload.missionId);
 

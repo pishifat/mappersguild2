@@ -1,9 +1,9 @@
 <template>
-    <div>
-        <a v-if="song.oszUrl" :href="song.oszUrl">{{ song.artist }} - {{ song.title }}</a>
+    <div class="small">
+        <a v-if="song.oszUrl" :href="song.oszUrl" target="_blank">{{ song.artist }} - {{ song.title }}</a>
         <span v-else>{{ song.artist }} - {{ song.title }}</span>
-        <span v-if="song.songShowcaseMappers && song.songShowcaseMappers.length" class="text-info">
-            (mapped by
+        <span v-if="song.songShowcaseMappers && song.songShowcaseMappers.length" class="text-secondary small">
+            (potentially mapped by
             <user-link-list
                 :users="song.songShowcaseMappers"
             />)
@@ -15,7 +15,7 @@
                 class="text-danger small"
                 :class="processing ? 'fake-button-disable' : ''"
                 @click.prevent="removeSongShowcaseMapper($event)"
-                >
+            >
                 remove
             </a>
             <a
@@ -24,8 +24,8 @@
                 class="text-success small"
                 :class="processing ? 'fake-button-disable' : ''"
                 @click.prevent="addSongShowcaseMapper($event)"
-                >
-                add
+            >
+                select
             </a>
         </span>
     </div>
@@ -54,7 +54,12 @@ export default defineComponent({
             type: String,
             required: true,
         },
+        route: {
+            type: String,
+            default: 'showcase',
+        },
     },
+    emits: ['updateMission'],
     data() {
         return {
             processing: false,
@@ -76,9 +81,14 @@ export default defineComponent({
             const artist: any = await this.$http.executePost(`/showcase/addSongShowcaseMapper/${this.artistId}/${this.song.id}`, {}, e);
 
             if (artist && !this.$http.isError(artist)) {
-                this.$store.commit('showcase/updateArtist', artist);
+                if (this.route == 'showcase') {
+                    this.$store.commit('showcase/updateArtist', artist);
+                } else if (this.route == 'missions') {
+                    this.$emit('updateMission');
+                }
+
                 this.$store.dispatch('updateToastMessages', {
-                    message: `Added`,
+                    message: `Selected!`,
                     type: 'info',
                 });
             }
@@ -90,9 +100,14 @@ export default defineComponent({
             const artist: any = await this.$http.executePost(`/showcase/removeSongShowcaseMapper/${this.artistId}/${this.song.id}`, {}, e);
 
             if (artist && !this.$http.isError(artist)) {
-                this.$store.commit('showcase/updateArtist', artist);
+                if (this.route == 'showcase') {
+                    this.$store.commit('showcase/updateArtist', artist);
+                } else if (this.route == 'missions') {
+                    this.$emit('updateMission');
+                }
+
                 this.$store.dispatch('updateToastMessages', {
-                    message: `Removed`,
+                    message: `Removed!`,
                     type: 'info',
                 });
             }
