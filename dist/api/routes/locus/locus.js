@@ -16,7 +16,7 @@ locusRouter.get('/query', async (req, res) => {
         locusInfo_1.LocusInfoModel
             .find({ isPublic: true })
             .populate({ path: 'user', select: 'username osuId' })
-            .sort({ updatedAt: -1 }),
+            .sort({ isOnTeam: 1, updatedAt: -1 }),
         locusInfo_1.LocusInfoModel
             .findOne({ user: req.session.mongoId })
             .populate({ path: 'user', select: 'username osuId' }),
@@ -121,5 +121,12 @@ locusRouter.post('/:id/toggleIsPublic', middlewares_2.isValidUser, async (req, r
     locusInfo.isPublic = !locusInfo.isPublic;
     await locusInfo.save();
     res.json(locusInfo.isPublic);
+});
+/* POST toggle isOnTeam */
+locusRouter.post('/:id/toggleIsOnTeam', middlewares_2.isValidUser, async (req, res) => {
+    const locusInfo = res.locals.locusInfo;
+    locusInfo.isOnTeam = !locusInfo.isOnTeam;
+    await locusInfo.save();
+    res.json(locusInfo.isOnTeam);
 });
 exports.default = locusRouter;

@@ -32,6 +32,7 @@ const locusInfoSchema = new mongoose_1.Schema({
     email: { type: String },
     about: { type: String },
     isPublic: { type: Boolean, default: false },
+    isOnTeam: { type: Boolean, default: false },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 const LocusInfoModel = mongoose_1.default.model('LocusInfo', locusInfoSchema);
 exports.LocusInfoModel = LocusInfoModel;

@@ -9,7 +9,9 @@ export async function isValidUser(req: express.Request, res: express.Response, n
         .populate({ path: 'user', select: 'username osuId' })
         .orFail();
 
-    if (req.session.mongoId !== locusInfo.user.id && !res.locals.userRequest.group == UserGroup.Locus) {
+    const isLocusAdmin = res.locals.userRequest.group == UserGroup.Locus || res.locals.userRequest.group == UserGroup.Admin;
+
+    if (req.session.mongoId !== locusInfo.user.id && !isLocusAdmin) {
         return res.json({ error: 'Invalid user' });
     }
 
