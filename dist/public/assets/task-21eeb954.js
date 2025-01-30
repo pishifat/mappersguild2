@@ -1,1 +1,0 @@
-const t=["Easy","Normal","Hard","Insane","Expert","Hitsounds","Storyboard"];var o=(r=>(r.Easy="Easy",r.Normal="Normal",r.Hard="Hard",r.Insane="Insane",r.Expert="Expert",r.Hitsounds="Hitsounds",r.Storyboard="Storyboard",r))(o||{}),n=(r=>(r.WIP="WIP",r.Done="Done",r))(n||{});export{t as S,o as T,n as a};

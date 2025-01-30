@@ -60,8 +60,11 @@ const missionSchema = new mongoose_1.Schema({
     beatmapLatestSubmissionDate: { type: Date },
     beatmapMinimumFavorites: { type: Number },
     beatmapMinimumPlayCount: { type: Number },
+    beatmapDifficulties: [{ type: String, enum: ['Easy', 'Normal', 'Hard', 'Insane', 'Expert'] }],
     beatmapMinimumLength: { type: Number },
-    isUniqueToRanked: { type: Boolean }, // only requirement label, no validation
+    beatmapMaximumLength: { type: Number },
+    isUniqueToRanked: { type: Boolean },
+    additionalRequirement: { type: String }, // only requirement label, no validation
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 missionSchema.virtual('associatedMaps', {
     ref: 'Beatmap',
