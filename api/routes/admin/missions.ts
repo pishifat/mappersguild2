@@ -43,7 +43,7 @@ adminMissionsRouter.get('/loadClassifiedArtists', async (req, res) => {
 
 /* POST add quest */
 adminMissionsRouter.post('/create', async (req, res) => {
-    const { deadline, name, tier, artists, objective, winCondition, isShowcaseMission, isArtistShowcase, userMaximumRankedBeatmapsCount, userMaximumGlobalRank, userMaximumPp, userMinimumPp, userMinimumRank, beatmapEarliestSubmissionDate, beatmapLatestSubmissionDate, beatmapMinimumFavorites, beatmapMinimumPlayCount, beatmapMinimumLength, isUniqueToRanked, modes } = req.body;
+    const { deadline, name, tier, artists, objective, winCondition, isShowcaseMission, isArtistShowcase, userMaximumRankedBeatmapsCount, userMaximumGlobalRank, userMaximumPp, userMinimumPp, userMinimumRank, beatmapEarliestSubmissionDate, beatmapLatestSubmissionDate, beatmapMinimumFavorites, beatmapDifficulties, beatmapMinimumPlayCount, beatmapMinimumLength, beatmapMaximumLength, isUniqueToRanked, modes, additionalRequirement } = req.body;
 
     const validModes: MissionMode[] = [];
 
@@ -93,8 +93,11 @@ adminMissionsRouter.post('/create', async (req, res) => {
     mission.beatmapLatestSubmissionDate = new Date(beatmapLatestSubmissionDate);
     mission.beatmapMinimumFavorites = beatmapMinimumFavorites;
     mission.beatmapMinimumPlayCount = beatmapMinimumPlayCount;
+    mission.beatmapDifficulties = beatmapDifficulties;
     mission.beatmapMinimumLength = beatmapMinimumLength;
+    mission.beatmapMaximumLength = beatmapMaximumLength;
     mission.isUniqueToRanked = isUniqueToRanked;
+    mission.additionalRequirement = additionalRequirement;
 
     await mission.save();
 
@@ -286,6 +289,22 @@ adminMissionsRouter.post('/:id/updateBeatmapMinimumPlayCount', async (req, res) 
     res.json(req.body.beatmapMinimumPlayCount);
 });
 
+/* POST toggle difficulty */
+adminMissionsRouter.post('/:id/toggleDifficulty', async (req, res) => {
+    const mission = await MissionModel.findById(req.params.id).extendedDefaultPopulate().orFail();
+    const difficulty = req.body.difficulty;
+
+    if (mission.beatmapDifficulties.includes(difficulty)) {
+        await MissionModel.findByIdAndUpdate(req.params.id, { $pull: { beatmapDifficulties: difficulty } });
+    } else {
+        await MissionModel.findByIdAndUpdate(req.params.id, { $push: { beatmapDifficulties: difficulty } });
+    }
+
+    const updatedMission = await MissionModel.findById(req.params.id).extendedDefaultPopulate().orFail();
+
+    res.json(updatedMission.beatmapDifficulties);
+});
+
 /* POST update mission requirement for beatmap minimum length */
 adminMissionsRouter.post('/:id/updateBeatmapMinimumLength', async (req, res) => {
     await MissionModel.findByIdAndUpdate(req.params.id, { beatmapMinimumLength: req.body.beatmapMinimumLength }).orFail();
@@ -293,11 +312,25 @@ adminMissionsRouter.post('/:id/updateBeatmapMinimumLength', async (req, res) => 
     res.json(req.body.beatmapMinimumLength);
 });
 
+/* POST update mission requirement for beatmap maximum length */
+adminMissionsRouter.post('/:id/updateBeatmapMaximumLength', async (req, res) => {
+    await MissionModel.findByIdAndUpdate(req.params.id, { beatmapMaximumLength: req.body.beatmapMaximumLength }).orFail();
+
+    res.json(req.body.beatmapMaximumLength);
+});
+
 /* POST update mission requirement for is unique to ranked */
 adminMissionsRouter.post('/:id/toggleIsUniqueToRanked', async (req, res) => {
     await MissionModel.findByIdAndUpdate(req.params.id, { isUniqueToRanked: req.body.isUniqueToRanked }).orFail();
 
     res.json(req.body.isUniqueToRanked);
+});
+
+/* POST update mission additional requirement */
+adminMissionsRouter.post('/:id/updateAdditionalRequirement', async (req, res) => {
+    await MissionModel.findByIdAndUpdate(req.params.id, { additionalRequirement: req.body.additionalRequirement }).orFail();
+
+    res.json(req.body.additionalRequirement);
 });
 
 /* POST toggle winning beatmap for mission */

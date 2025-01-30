@@ -511,6 +511,35 @@
                     </button>
                 </div>
             </div>
+            <!-- difficulties -->
+            <div class="row mt-2 d-flex align-items-center">
+                <div class="col-sm-2">
+                    Difficulties
+                </div>
+                <div class="col-sm-2">
+                    <select
+                        v-model="selectedDifficulty"
+                        class="form-select form-select-sm"
+                    >
+                        <option value="" disabled>
+                            Select a difficulty
+                        </option>
+                        <option v-for="difficulty in difficulties" :key="difficulty">
+                            {{ difficulty }}
+                        </option>
+                    </select>
+                </div>
+                <div class="col-sm-4">
+                    <div class="small text-secondary">
+                        Current: <b>{{ sortedTasks.join(', ') }}</b>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-sm btn-outline-info w-100" @click="toggleDifficulty($event)">
+                        Toggle difficulty
+                    </button>
+                </div>
+            </div>
             <!-- min length -->
             <div class="row d-flex mt-2 align-items-center">
                 <div class="col-sm-2">
@@ -534,6 +563,29 @@
                     </button>
                 </div>
             </div>
+            <!-- max length -->
+            <div class="row d-flex mt-2 align-items-center">
+                <div class="col-sm-2">
+                    Max. length
+                </div>
+                <div class="col-sm-2">
+                    <input
+                        v-model="beatmapMaximumLength"
+                        class="form-control form-control-sm"
+                        type="number"
+                        autocomplete="off"
+                        placeholder="max length..."
+                    />
+                </div>
+                <div class="col-sm-4 small text-secondary">
+                    <div>Includes: <b>label</b></div>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-sm btn-outline-info w-100" @click="updateBeatmapMaximumLength($event)">
+                        Update beatmap maximum length
+                    </button>
+                </div>
+            </div>
             <!-- isUniqueToRanked -->
             <div class="row d-flex mt-2 align-items-center">
                 <div class="col-sm-4">
@@ -548,6 +600,29 @@
                 <div class="col-sm-4">
                     <button class="btn btn-sm btn-outline-info w-100" @click="toggleIsUniqueToRanked($event)">
                         Toggle isUniqueToRanked
+                    </button>
+                </div>
+            </div>
+            <!-- additional requirement -->
+            <div class="row d-flex mt-2 align-items-center">
+                <div class="col-sm-2">
+                    Additional req
+                </div>
+                <div class="col-sm-2">
+                    <input
+                        v-model="additionalRequirement"
+                        class="form-control form-control-sm"
+                        type="text"
+                        autocomplete="off"
+                        placeholder="additional requirement..."
+                    />
+                </div>
+                <div class="col-sm-4 small text-secondary">
+                    <div>Includes: <b>label</b></div>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-sm btn-outline-info w-100" @click="updateAdditionalRequirement($event)">
+                        Update additional requirement
                     </button>
                 </div>
             </div>
@@ -569,6 +644,7 @@ import ModalDialog from '@components/ModalDialog.vue';
 import AssociatedBeatmaps from '@components/missions/AssociatedBeatmaps.vue';
 import { FeaturedArtist } from '@interfaces/featuredArtist';
 import { Mission, MissionMode } from '@interfaces/mission';
+import { SortedTasks } from '@interfaces/beatmap/task';
 
 export default defineComponent({
     name: 'MissionInfo',
@@ -587,6 +663,7 @@ export default defineComponent({
             availableArtists: [] as FeaturedArtist[],
             availableModes: MissionMode,
             selectedArtist: {} as FeaturedArtist,
+            selectedDifficulty: '',
             name: this.mission.name,
             tier: this.mission.tier,
             objective: this.mission.objective,
@@ -606,8 +683,20 @@ export default defineComponent({
             beatmapMinimumFavorites: this.mission.beatmapMinimumFavorites,
             beatmapMinimumPlayCount: this.mission.beatmapMinimumPlayCount,
             beatmapMinimumLength: this.mission.beatmapMinimumLength,
+            beatmapMaximumLength: this.mission.beatmapMaximumLength,
             isUniqueToRanked: this.mission.isUniqueToRanked,
+            additionalRequirement: this.mission.additionalRequirement,
+            difficulties: ['Easy', 'Normal', 'Hard', 'Insane', 'Expert'],
         };
+    },
+    computed: {
+        sortedTasks(): string[] {
+            const sortOrder = SortedTasks;
+
+            return [...this.mission.beatmapDifficulties].sort(function(a, b) {
+                return sortOrder.indexOf(a) - sortOrder.indexOf(b);
+            });
+        },
     },
     watch: {
         mission(): void {
@@ -630,7 +719,9 @@ export default defineComponent({
             this.beatmapMinimumFavorites = this.mission.beatmapMinimumFavorites;
             this.beatmapMinimumPlayCount = this.mission.beatmapMinimumPlayCount;
             this.beatmapMinimumLength = this.mission.beatmapMinimumLength;
+            this.beatmapMaximumLength = this.mission.beatmapMaximumLength;
             this.isUniqueToRanked = this.mission.isUniqueToRanked;
+            this.additionalRequirement = this.mission.additionalRequirement;
         },
     },
     async created () {
@@ -968,6 +1059,20 @@ export default defineComponent({
                 });
             }
         },
+        async toggleDifficulty(e): Promise<void> {
+            const beatmapDifficulties = await this.$http.executePost(`/admin/missions/${this.mission.id}/toggleDifficulty/`, { difficulty: this.selectedDifficulty }, e);
+
+            if (!this.$http.isError(beatmapDifficulties)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `toggled difficulty`,
+                    type: 'info',
+                });
+                this.$store.commit('updateBeatmapDifficulties', {
+                    missionId: this.mission.id,
+                    beatmapDifficulties,
+                });
+            }
+        },
         async updateBeatmapMinimumLength(e): Promise<void> {
             const beatmapMinimumLength = await this.$http.executePost(`/admin/missions/${this.mission.id}/updateBeatmapMinimumLength/`, { beatmapMinimumLength: this.beatmapMinimumLength }, e);
 
@@ -982,6 +1087,20 @@ export default defineComponent({
                 });
             }
         },
+        async updateBeatmapMaximumLength(e): Promise<void> {
+            const beatmapMaximumLength = await this.$http.executePost(`/admin/missions/${this.mission.id}/updateBeatmapMaximumLength/`, { beatmapMaximumLength: this.beatmapMaximumLength }, e);
+
+            if (!this.$http.isError(beatmapMaximumLength)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated beatmap maximum length`,
+                    type: 'info',
+                });
+                this.$store.commit('updateBeatmapMaximumLength', {
+                    missionId: this.mission.id,
+                    beatmapMaximumLength,
+                });
+            }
+        },
         async toggleIsUniqueToRanked(e): Promise<void> {
             const isUniqueToRanked = await this.$http.executePost(`/admin/missions/${this.mission.id}/toggleIsUniqueToRanked/`, { isUniqueToRanked: !this.mission.isUniqueToRanked }, e);
 
@@ -993,6 +1112,20 @@ export default defineComponent({
                 this.$store.commit('updateIsUniqueToRanked', {
                     missionId: this.mission.id,
                     isUniqueToRanked,
+                });
+            }
+        },
+        async updateAdditionalRequirement(e): Promise<void> {
+            const additionalRequirement = await this.$http.executePost(`/admin/missions/${this.mission.id}/updateAdditionalRequirement/`, { additionalRequirement: this.additionalRequirement }, e);
+
+            if (!this.$http.isError(additionalRequirement)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated beatmap additional requirement`,
+                    type: 'info',
+                });
+                this.$store.commit('updateAdditionalRequirement', {
+                    missionId: this.mission.id,
+                    additionalRequirement,
                 });
             }
         },

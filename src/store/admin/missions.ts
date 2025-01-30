@@ -196,11 +196,25 @@ const store: Module<MissionState, MainState> = {
                 mission.beatmapMinimumPlayCount = payload.beatmapMinimumPlayCount;
             }
         },
+        updateBeatmapDifficulties (state, payload): void {
+            const mission = state.missions.find(m => m.id == payload.missionId);
+
+            if (mission) {
+                mission.beatmapDifficulties = payload.beatmapDifficulties;
+            }
+        },
         updateBeatmapMinimumLength (state, payload): void {
             const mission = state.missions.find(m => m.id == payload.missionId);
 
             if (mission) {
                 mission.beatmapMinimumLength = payload.beatmapMinimumLength;
+            }
+        },
+        updateBeatmapMaximumLength (state, payload): void {
+            const mission = state.missions.find(m => m.id == payload.missionId);
+
+            if (mission) {
+                mission.beatmapMaximumLength = payload.beatmapMaximumLength;
             }
         },
         updateIsUniqueToRanked (state, payload): void {
@@ -215,6 +229,13 @@ const store: Module<MissionState, MainState> = {
 
             if (mission) {
                 mission.deadline = payload.deadline;
+            }
+        },
+        updateAdditionalRequirement (state, payload): void {
+            const mission = state.missions.find(m => m.id == payload.missionId);
+
+            if (mission) {
+                mission.additionalRequirement = payload.additionalRequirement;
             }
         },
     },

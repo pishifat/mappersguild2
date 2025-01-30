@@ -45,8 +45,11 @@ const missionSchema = new Schema<Mission, MissionStatics>({
     beatmapLatestSubmissionDate: { type: Date },
     beatmapMinimumFavorites: { type: Number },
     beatmapMinimumPlayCount: { type: Number },
+    beatmapDifficulties: [{ type: String , enum: ['Easy', 'Normal', 'Hard', 'Insane', 'Expert'] }], // only requirement label, no validation
     beatmapMinimumLength: { type: Number }, // only requirement label, no validation
+    beatmapMaximumLength: { type: Number }, // only requirement label, no validation
     isUniqueToRanked: { type: Boolean }, // only requirement label, no validation
+    additionalRequirement: { type: String }, // only requirement label, no validation
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 missionSchema.virtual('associatedMaps', {

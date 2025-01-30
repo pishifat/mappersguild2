@@ -98,7 +98,7 @@
 
             <!-- name -->
             <form-input
-                v-model.number="name"
+                v-model="name"
                 label="Name"
                 type="text"
             />
@@ -210,10 +210,58 @@
                 type="number"
             />
 
-            <!-- minimum playcount -->
+            <!-- difficulties -->
+            <div class="row">
+                <form-select
+                    v-model="selectedDifficulty"
+                    class="col-sm-11"
+                    label="Difficulties"
+                    placeholder="Select a difficulty..."
+                >
+                    <option value="-" disabled>
+                        ---
+                    </option>
+                    <option
+                        v-for="difficulty in ['Easy', 'Normal', 'Hard', 'Insane', 'Expert']"
+                        :key="difficulty"
+                        :value="difficulty"
+                    >
+                        {{ difficulty }}
+                    </option>
+                </form-select>
+                <div class="col-sm-1">
+                    <button id="difficultyButton" class="btn btn-sm btn-outline-info" @click="addDifficulty()">
+                        Add
+                    </button>
+                </div>
+            </div>
+            <div>
+                <ul class="small text-secondary">
+                    <li v-for="difficulty in selectedDifficulties" :key="difficulty">
+                        {{ difficulty }}
+                        <a
+                            href="#"
+                            class="text-danger"
+                            @click.prevent="removeDifficulty(difficulty)"
+                        >
+                            <i class="fas fa-minus" />
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- minimum length -->
             <form-input
                 v-model.number="beatmapMinimumLength"
                 label="Minimum length"
+                description="in seconds. only label (no validation)"
+                type="number"
+            />
+
+            <!-- maximum length -->
+            <form-input
+                v-model.number="beatmapMaximumLength"
+                label="Maximum length"
                 description="in seconds. only label (no validation)"
                 type="number"
             />
@@ -224,6 +272,14 @@
                 label="isUniqueToRanked"
                 description="0 = false, 1 = true. only label (no validation)"
                 type="number"
+            />
+
+            <!-- additional requirement -->
+            <form-input
+                v-model="additionalRequirement"
+                label="Additional requirement"
+                description="only label (no validation)"
+                type="text"
             />
 
             <!-- add mission -->
@@ -264,6 +320,8 @@ export default defineComponent({
             featuredArtists: [] as FeaturedArtist[],
             selectedArtists: [] as Partial<FeaturedArtist>[],
             selectedArtistId: '',
+            selectedDifficulties: [] as string[],
+            selectedDifficulty: '',
             selectedMode: '',
             selectedModes: [] as string[],
             tier: '',
@@ -283,7 +341,9 @@ export default defineComponent({
             beatmapMinimumFavorites: null,
             beatmapMinimumPlayCount: null,
             beatmapMinimumLength: null,
+            beatmapMaximumLength: null,
             isUniqueToRanked: 0,
+            additionalRequirement: '',
         };
     },
     computed: {
@@ -323,6 +383,11 @@ export default defineComponent({
                 this.selectedModes.push(this.selectedMode);
             }
         },
+        addDifficulty(): void {
+            if (this.selectedDifficulty.length) {
+                this.selectedDifficulties.push(this.selectedDifficulty);
+            }
+        },
         removeArtist(id): void {
             const i = this.selectedArtists.findIndex(a => a.id == id);
             this.selectedArtists.splice(i, 1);
@@ -330,6 +395,10 @@ export default defineComponent({
         removeMode(mode): void {
             const i = this.selectedModes.findIndex(m => m == mode);
             this.selectedModes.splice(i, 1);
+        },
+        removeDifficulty(difficulty): void {
+            const i = this.selectedDifficulties.findIndex(d => d == difficulty);
+            this.selectedDifficulties.splice(i, 1);
         },
         async addMission(e): Promise<void> {
             if (typeof this.name == 'number') {
@@ -360,8 +429,11 @@ export default defineComponent({
                 beatmapLatestSubmissionDate: this.beatmapLatestSubmissionDate,
                 beatmapMinimumFavorites: this.beatmapMinimumFavorites,
                 beatmapMinimumPlayCount: this.beatmapMinimumPlayCount,
+                beatmapDifficulties: this.selectedDifficulties,
                 beatmapMinimumLength: this.beatmapMinimumLength,
+                beatmapMaximumLength: this.beatmapMaximumLength,
                 isUniqueToRanked: new Boolean(this.isUniqueToRanked),
+                additionalRequirement: this.additionalRequirement,
             }, e);
 
             if (!this.$http.isError(mission)) {

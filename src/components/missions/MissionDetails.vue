@@ -24,6 +24,9 @@
                 <li v-for="requirement in requirements" :key="requirement">
                     {{ requirement.text }} <b>{{ requirement.bold }}</b>
                 </li>
+                <li v-if="mission.additionalRequirement && mission.additionalRequirement.length">
+                    <b v-html="$md.render(mission.additionalRequirement.trim())" />
+                </li>
             </ul>
         </div>
         <hr />
@@ -64,6 +67,7 @@ import { Mission } from '@interfaces/mission';
 import ArtistLinkList from '@components/ArtistLinkList.vue';
 import SongSelection from './SongSelection.vue';
 import ArtistSelection from './ArtistSelection.vue';
+import { SortedTasks } from '@interfaces/beatmap/task';
 
 export default defineComponent({
     name: 'MissionCard',
@@ -163,10 +167,30 @@ export default defineComponent({
                 });
             }
 
+            if (this.mission.beatmapDifficulties && this.mission.beatmapDifficulties.length) {
+                const sortOrder = SortedTasks;
+
+                const sortedDifficulties = [...this.mission.beatmapDifficulties].sort(function(a, b) {
+                    return sortOrder.indexOf(a) - sortOrder.indexOf(b);
+                });
+
+                requirements.push({
+                    text: `Your beatmap must include difficulties: `,
+                    bold: sortedDifficulties.join(', '),
+                });
+            }
+
             if (this.mission.beatmapMinimumLength) {
                 requirements.push({
                     text: `Your beatmap's length must be at least `,
                     bold: `${this.mission.beatmapMinimumLength} seconds`,
+                });
+            }
+
+            if (this.mission.beatmapMaximumLength) {
+                requirements.push({
+                    text: `Your beatmap's length must be at most `,
+                    bold: `${this.mission.beatmapMaximumLength} seconds`,
                 });
             }
 
