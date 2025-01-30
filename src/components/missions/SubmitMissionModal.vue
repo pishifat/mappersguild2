@@ -274,6 +274,14 @@
                 type="number"
             />
 
+            <!-- isOsuOriginal -->
+            <form-input
+                v-model.number="isOsuOriginal"
+                label="isOsuOriginal"
+                description="0 = false, 1 = true. only label (no validation)"
+                type="number"
+            />
+
             <!-- additional requirement -->
             <form-input
                 v-model="additionalRequirement"
@@ -343,6 +351,7 @@ export default defineComponent({
             beatmapMinimumLength: null,
             beatmapMaximumLength: null,
             isUniqueToRanked: 0,
+            isOsuOriginal: 0,
             additionalRequirement: '',
         };
     },
@@ -433,6 +442,7 @@ export default defineComponent({
                 beatmapMinimumLength: this.beatmapMinimumLength,
                 beatmapMaximumLength: this.beatmapMaximumLength,
                 isUniqueToRanked: new Boolean(this.isUniqueToRanked),
+                isOsuOriginal: new Boolean(this.isOsuOriginal),
                 additionalRequirement: this.additionalRequirement,
             }, e);
 

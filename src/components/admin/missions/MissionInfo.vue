@@ -603,6 +603,23 @@
                     </button>
                 </div>
             </div>
+            <!-- isOsuOriginal -->
+            <div class="row d-flex mt-2 align-items-center">
+                <div class="col-sm-4">
+                    isOsuOriginal
+                </div>
+                <div class="col-sm-4 small text-secondary">
+                    <div>Includes: <b>label</b></div>
+                    <div>
+                        Current: <b :class="mission.isOsuOriginal ? 'text-success' : 'text-danger'">{{ mission.isOsuOriginal ? mission.isOsuOriginal : 'false' }}</b>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-sm btn-outline-info w-100" @click="toggleIsOsuOriginal($event)">
+                        Toggle isOsuOriginal
+                    </button>
+                </div>
+            </div>
             <!-- additional requirement -->
             <div class="row d-flex mt-2 align-items-center">
                 <div class="col-sm-2">
@@ -685,6 +702,7 @@ export default defineComponent({
             beatmapMinimumLength: this.mission.beatmapMinimumLength,
             beatmapMaximumLength: this.mission.beatmapMaximumLength,
             isUniqueToRanked: this.mission.isUniqueToRanked,
+            isOsuOriginal: this.mission.isOsuOriginal,
             additionalRequirement: this.mission.additionalRequirement,
             difficulties: ['Easy', 'Normal', 'Hard', 'Insane', 'Expert'],
         };
@@ -721,6 +739,7 @@ export default defineComponent({
             this.beatmapMinimumLength = this.mission.beatmapMinimumLength;
             this.beatmapMaximumLength = this.mission.beatmapMaximumLength;
             this.isUniqueToRanked = this.mission.isUniqueToRanked;
+            this.isOsuOriginal = this.mission.isOsuOriginal;
             this.additionalRequirement = this.mission.additionalRequirement;
         },
     },
@@ -1112,6 +1131,20 @@ export default defineComponent({
                 this.$store.commit('updateIsUniqueToRanked', {
                     missionId: this.mission.id,
                     isUniqueToRanked,
+                });
+            }
+        },
+        async toggleIsOsuOriginal(e): Promise<void> {
+            const isOsuOriginal = await this.$http.executePost(`/admin/missions/${this.mission.id}/toggleIsOsuOriginal/`, { isOsuOriginal: !this.mission.isOsuOriginal }, e);
+
+            if (!this.$http.isError(isOsuOriginal)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `toggled isOsuOriginal`,
+                    type: 'info',
+                });
+                this.$store.commit('updateIsOsuOriginal', {
+                    missionId: this.mission.id,
+                    isOsuOriginal,
                 });
             }
         },

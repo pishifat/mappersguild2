@@ -49,6 +49,7 @@ const missionSchema = new Schema<Mission, MissionStatics>({
     beatmapMinimumLength: { type: Number }, // only requirement label, no validation
     beatmapMaximumLength: { type: Number }, // only requirement label, no validation
     isUniqueToRanked: { type: Boolean }, // only requirement label, no validation
+    isOsuOriginal: { type: Boolean }, // only requirement label, no validation
     additionalRequirement: { type: String }, // only requirement label, no validation
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 

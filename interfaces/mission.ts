@@ -61,6 +61,7 @@ export interface Mission extends Document {
     beatmapMinimumLength: number;
     beatmapMaximumLength: number;
     isUniqueToRanked: boolean;
+    isOsuOriginal: boolean;
     additionalRequirement: string;
     /** virtual field to populate */
     associatedMaps: Beatmap[];
