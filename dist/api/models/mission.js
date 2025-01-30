@@ -64,6 +64,7 @@ const missionSchema = new mongoose_1.Schema({
     beatmapMinimumLength: { type: Number },
     beatmapMaximumLength: { type: Number },
     isUniqueToRanked: { type: Boolean },
+    isOsuOriginal: { type: Boolean },
     additionalRequirement: { type: String }, // only requirement label, no validation
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 missionSchema.virtual('associatedMaps', {

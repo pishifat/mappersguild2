@@ -40,7 +40,7 @@ adminMissionsRouter.get('/loadClassifiedArtists', async (req, res) => {
 });
 /* POST add quest */
 adminMissionsRouter.post('/create', async (req, res) => {
-    const { deadline, name, tier, artists, objective, winCondition, isShowcaseMission, isArtistShowcase, userMaximumRankedBeatmapsCount, userMaximumGlobalRank, userMaximumPp, userMinimumPp, userMinimumRank, beatmapEarliestSubmissionDate, beatmapLatestSubmissionDate, beatmapMinimumFavorites, beatmapDifficulties, beatmapMinimumPlayCount, beatmapMinimumLength, beatmapMaximumLength, isUniqueToRanked, modes, additionalRequirement } = req.body;
+    const { deadline, name, tier, artists, objective, winCondition, isShowcaseMission, isArtistShowcase, userMaximumRankedBeatmapsCount, userMaximumGlobalRank, userMaximumPp, userMinimumPp, userMinimumRank, beatmapEarliestSubmissionDate, beatmapLatestSubmissionDate, beatmapMinimumFavorites, beatmapDifficulties, beatmapMinimumPlayCount, beatmapMinimumLength, beatmapMaximumLength, isUniqueToRanked, isOsuOriginal, modes, additionalRequirement } = req.body;
     const validModes = [];
     for (const mode of modes) {
         switch (mode) {
@@ -90,6 +90,7 @@ adminMissionsRouter.post('/create', async (req, res) => {
     mission.beatmapMinimumLength = beatmapMinimumLength;
     mission.beatmapMaximumLength = beatmapMaximumLength;
     mission.isUniqueToRanked = isUniqueToRanked;
+    mission.isOsuOriginal = isOsuOriginal;
     mission.additionalRequirement = additionalRequirement;
     await mission.save();
     res.json(mission);
@@ -256,6 +257,11 @@ adminMissionsRouter.post('/:id/updateBeatmapMaximumLength', async (req, res) => 
 adminMissionsRouter.post('/:id/toggleIsUniqueToRanked', async (req, res) => {
     await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { isUniqueToRanked: req.body.isUniqueToRanked }).orFail();
     res.json(req.body.isUniqueToRanked);
+});
+/* POST update mission requirement for is osu original */
+adminMissionsRouter.post('/:id/toggleIsOsuOriginal', async (req, res) => {
+    await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { isOsuOriginal: req.body.isOsuOriginal }).orFail();
+    res.json(req.body.isOsuOriginal);
 });
 /* POST update mission additional requirement */
 adminMissionsRouter.post('/:id/updateAdditionalRequirement', async (req, res) => {
