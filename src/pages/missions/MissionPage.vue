@@ -27,14 +27,17 @@
                 </div>
             </div>
         </div>
-        <div v-if="closedMissions && closedMissions.length" class="container card card-body my-4">
+        <div class="container card card-body my-4">
             <h4>
                 <a href="#closedMissions" data-bs-toggle="collapse" @click.prevent>
                     Inactive priority quests
                     <i class="fas fa-angle-down" />
                 </a>
             </h4>
-            <div id="closedMissions" class="collapse">
+            <button v-if="!closedMissions.length" class="btn btn-sm w-100 btn-outline-info mb-2 pt-3 pb-2" @click="loadInactiveMissions($event)">
+                <h6>Load inactive priority quests</h6>
+            </button>
+            <div id="closedMissions" class="show">
                 <mission-card
                     v-for="mission in closedMissions"
                     :key="mission.id"
@@ -111,12 +114,15 @@ export default defineComponent({
         if (!this.$http.isError(mission)) {
             this.$store.commit('missions/setExampleMission', mission);
         }
+    },
+    methods: {
+        async loadInactiveMissions (e) {
+            const res2 = await this.$http.executeGet<{ missions: Mission[] }>(`/missions/loadInactiveMissions`, e);
 
-        const res2 = await this.$http.executeGet<{ missions: Mission[] }>(`/missions/loadInactiveMissions`);
-
-        if (!this.$http.isError(res2)) {
-            this.$store.commit('missions/addMissions', res2.missions);
-        }
+            if (!this.$http.isError(res2)) {
+                this.$store.commit('missions/addMissions', res2.missions);
+            }
+        },
     },
 });
 </script>
