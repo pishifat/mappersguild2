@@ -7,7 +7,7 @@ interface LocusState {
     filterValue: string;
     locusInfos: LocusInfo[];
     selfLocusInfo: LocusInfo | null;
-    roleIs: 'any' | 'designer' | 'mapper' | 'musician';
+    roleIs: 'any' | 'visual designer' | 'mapper' | 'musician';
 }
 
 const store: Module<LocusState, MainState> = {
@@ -27,7 +27,7 @@ const store: Module<LocusState, MainState> = {
         setSelfLocusInfo (state, selfLocusInfo: LocusInfo): void {
             state.selfLocusInfo = selfLocusInfo;
         },
-        setRoleIs (state, roleIs: 'any' | 'designer' | 'mapper' | 'musician'): void {
+        setRoleIs (state, roleIs: 'any' | 'visual designer' | 'mapper' | 'musician'): void {
             state.roleIs = roleIs;
         },
         updateTimezone (state, timezone: string): void {
@@ -127,6 +127,8 @@ const store: Module<LocusState, MainState> = {
             commit('setFilterValue', value);
         },
         updateRole ({ commit, state }, roleIs): void {
+            if (roleIs == 'designer') roleIs = 'visual designer';
+
             if (state.roleIs !== roleIs) {
                 commit('setRoleIs', roleIs);
             }
