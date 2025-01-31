@@ -123,6 +123,9 @@ locusRouter.post('/:id/updateAbout', middlewares_2.isValidUser, async (req, res)
 /* POST toggle isPublic */
 locusRouter.post('/:id/toggleIsPublic', middlewares_2.isValidUser, async (req, res) => {
     const locusInfo = res.locals.locusInfo;
+    if (!locusInfo.roles || !locusInfo.roles.length) {
+        return res.json({ error: 'Must add at leaset one role!' });
+    }
     locusInfo.isPublic = !locusInfo.isPublic;
     await locusInfo.save();
     res.json(locusInfo.isPublic);
