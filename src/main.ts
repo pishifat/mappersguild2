@@ -20,7 +20,7 @@ app.use(store);
 app.use(router);
 app.component('UserLink', UserLink);
 
-const md = new MarkdownIt();
+const md = new MarkdownIt().disable('image');
 app.config.globalProperties.$md = md;
 
 app.config.globalProperties.$http = http;
