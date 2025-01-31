@@ -30,6 +30,7 @@
                 <p>"Authorizing" will identify you through your osu! account.</p>
                 <p>You can do any of these after authorization:</p>
                 <ul>
+                    <li>Use <a href="https://osu.ppy.sh/home/news/2025-01-31-locus">Locus</a>'s Nexus</li>
                     <li>View "Beatmaps", "Quests", and "Contests" pages</li>
                     <li>Participate to earn <a href="https://osu.ppy.sh/wiki/Community/Mappers_Guild#rewards">Mappers' Guild rewards on osu!</a>.</li>
                     <li>...a bunch of other mapping-related stuff</li>

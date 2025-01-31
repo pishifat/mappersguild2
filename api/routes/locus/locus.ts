@@ -1,12 +1,11 @@
 import express from 'express';
 import { LocusInfoModel } from '../../models/locusInfo';
-import { isLoggedIn, isLocusAdmin } from '../../helpers/middlewares';
+import { isLoggedIn } from '../../helpers/middlewares';
 import { isValidUser } from './middlewares';
 
 const locusRouter = express.Router();
 
 locusRouter.use(isLoggedIn);
-locusRouter.use(isLocusAdmin);
 
 /* GET users listing. */
 locusRouter.get('/query', async (req, res) => {

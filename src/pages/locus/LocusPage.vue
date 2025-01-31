@@ -6,10 +6,10 @@
                 Derived from Latin, a <b>locus</b> can be described as "a particular place or position where something of interest occurs". Locus was conceived as an event that would bring the creative circles in osu! closer together. Beyond simply being a contest, Locus aims to foster positive relationships and champion the communities that shape the very foundation of osu!.
             </div>
             <div class="mt-2">
-                Read the <a href="LINK" target="_blank">news post</a> for an introduction to the contest, and the <a href="LINK" target="_blank">wiki article</a> for the nitty gritty details.
+                Read the <a href="https://osu.ppy.sh/home/news/2025-01-31-locus" target="_blank">news post</a> for an introduction to the contest, and the <a href="https://osu.ppy.sh/wiki/Contests/Locus/2025" target="_blank">wiki article</a> for the nitty gritty details.
             </div>
             <div class="mt-2">
-                To discuss anything about Locus, check out the <code>#locus</code> channel in the <a href="https://discord.gg/ppy" target="_blank">osu! Discord server</a>.
+                To discuss anything about Locus, check out the <code>#osu-locus</code> channel in the <a href="https://discord.gg/ppy" target="_blank">osu! Discord server</a>.
             </div>
             <hr />
             <h5>What is the Nexus?</h5>

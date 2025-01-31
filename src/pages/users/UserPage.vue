@@ -40,6 +40,7 @@
         <div v-else-if="displayAs == 'list'" class="container card card-body py-3">
             <transition-group name="list" tag="div" class="row px-3">
                 <user-list-element
+                    v-if="loggedInUser"
                     :key="loggedInUser.id"
                     :user="loggedInUser"
                 />
