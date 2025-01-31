@@ -62,7 +62,7 @@ export default defineComponent({
     },
     data () {
         return {
-            date: '2024-01-01',
+            date: '2023-01-01',
         };
     },
     computed: {
@@ -104,7 +104,7 @@ export default defineComponent({
                         if (task.name !== TaskName.Hitsounds && task.name !== TaskName.Storyboard) {
                             for (const mapper of task.mappers) {
                                 if (!collaborationUsernames.includes(mapper.username) && beatmap.host.id !== mapper.id) {
-                                    if (['63035eff1e8b9e4fa900836f', '62e3dedd9a268823d2e436b8', '6401d31e517b1f1d40ca78e2'].includes(mapper.id) && beatmap.mission.toString() == '665bbcc1ff4c38cea1113337') { // skipping rewards for people who tried to circumvent the rules (or the spirit of the rules) for easy mission progress/points. i want to give the host pity points at least. relevant maps: https://osu.ppy.sh/beatmapsets/2202586#taiko/4719311 and https://osu.ppy.sh/beatmapsets/1670325#osu/4767848
+                                    if (!(['63035eff1e8b9e4fa900836f', '62e3dedd9a268823d2e436b8', '6401d31e517b1f1d40ca78e2'].includes(mapper.id) && beatmap.mission.toString() == '665bbcc1ff4c38cea1113337')) { // skipping rewards for people who tried to circumvent the rules (or the spirit of the rules) for easy mission progress/points. i want to give the host pity points at least. relevant maps: https://osu.ppy.sh/beatmapsets/2202586#taiko/4719311 and https://osu.ppy.sh/beatmapsets/1670325#osu/4767848
                                         collaborationUsers.push(mapper);
                                         collaborationUsernames.push(mapper.username);
                                     }
