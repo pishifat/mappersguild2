@@ -9,7 +9,6 @@ const middlewares_1 = require("../../helpers/middlewares");
 const middlewares_2 = require("./middlewares");
 const locusRouter = express_1.default.Router();
 locusRouter.use(middlewares_1.isLoggedIn);
-locusRouter.use(middlewares_1.isLocusAdmin);
 /* GET users listing. */
 locusRouter.get('/query', async (req, res) => {
     const [locusInfos, self] = await Promise.all([
