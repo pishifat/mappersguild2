@@ -67,6 +67,10 @@ locusRouter.post('/:id/updateLanguage', isValidUser, async (req, res) => {
     const newLanguage = req.body.language;
     const locusInfo = res.locals.locusInfo;
 
+    if (!newLanguage.length) {
+        return res.json ({ error: 'Must select a language!' });
+    }
+
     if (locusInfo.languages && locusInfo.languages.length) {
         const i = locusInfo.languages.findIndex(l => l == newLanguage);
 
@@ -88,6 +92,10 @@ locusRouter.post('/:id/updateLanguage', isValidUser, async (req, res) => {
 locusRouter.post('/:id/updateRole', isValidUser, async (req, res) => {
     const newRole = req.body.role;
     const locusInfo = res.locals.locusInfo;
+
+    if (!newRole.length) {
+        return res.json ({ error: 'Must select a role!' });
+    }
 
     if (locusInfo.roles && locusInfo.roles.length) {
         const i = locusInfo.roles.findIndex(l => l == newRole);
