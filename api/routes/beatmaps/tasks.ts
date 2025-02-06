@@ -152,8 +152,9 @@ tasksRouter.post('/task/:taskId/removeCollab', async (req, res) => {
 
     const isMapper = t.mappers.some(m => m.id == req.session?.mongoId);
     const isHost = b.host.id == req.session?.mongoId;
+    const isPishifat = req.session?.osuId == 3178418;
 
-    if (!isMapper && !isHost) {
+    if (!isMapper && !isHost && !isPishifat) {
         return res.json({ error: 'Not allowed to edit' });
     }
 
