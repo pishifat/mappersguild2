@@ -24,7 +24,7 @@ const mongoose_1 = __importStar(require("mongoose"));
 const logSchema = new mongoose_1.Schema({
     user: { type: 'ObjectId', ref: 'User' },
     action: { type: String, required: true },
-    category: { type: String, enum: ['beatmap', 'quest', 'party', 'user', 'artist', 'mission', 'error'], required: true },
+    category: { type: String, enum: ['beatmap', 'quest', 'party', 'user', 'artist', 'mission', 'error', 'mentorship'], required: true },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 class LogService {
     static generate(userId, action, category) {

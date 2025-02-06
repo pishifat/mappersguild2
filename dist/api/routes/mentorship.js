@@ -6,6 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const middlewares_1 = require("../helpers/middlewares");
 const user_1 = require("../models/user");
+const log_1 = require("../models/log");
+const log_2 = require("../../interfaces/log");
 const user_2 = require("../../interfaces/user");
 const mentorshipCycle_1 = require("../models/mentorshipCycle");
 const osuApi_1 = require("../helpers/osuApi");
@@ -582,5 +584,6 @@ mentorshipRouter.post('/editBadgeValue', async (req, res) => {
     }
     await user.save();
     res.json({ success: 'updated' });
+    log_1.LogModel.generate(req.session?.mongoId, `adjusted badge value for ${user.username} (${user.mentorshipBadge})`, log_2.LogCategory.Mentorship);
 });
 exports.default = mentorshipRouter;
