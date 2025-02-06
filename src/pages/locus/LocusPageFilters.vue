@@ -13,7 +13,7 @@
                 <a
                     v-for="(roleText, role) in roleOptions"
                     :key="role"
-                    :class="roleIs === role ? 'sorted' : 'unsorted'"
+                    :class="roleIs === role || (roleIs == 'visual designer' && role == 'designer') ? 'sorted' : 'unsorted'"
                     href="#"
                     @click.prevent="updateRole(role)"
                 >
