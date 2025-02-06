@@ -20,7 +20,20 @@ app.use(store);
 app.use(router);
 app.component('UserLink', UserLink);
 
-const md = new MarkdownIt().disable('image');
+function setImageStyle(md) {
+    const defaultRender = md.renderer.rules.image || function(tokens, idx, options, env, self) {
+        return self.renderToken(tokens, idx, options);
+    };
+
+    md.renderer.rules.image = function (tokens, idx, options, env, self) {
+        tokens[idx].attrPush(['style', 'max-width: 350px; max-height: 350px; height: auto; width: auto;']);
+
+        return defaultRender(tokens, idx, options, env, self);
+    };
+}
+
+const md = new MarkdownIt();
+md.use(setImageStyle);
 app.config.globalProperties.$md = md;
 
 app.config.globalProperties.$http = http;

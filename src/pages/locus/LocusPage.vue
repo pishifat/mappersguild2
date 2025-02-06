@@ -49,7 +49,7 @@
                         v-for="locusInfo in filteredLocusInfos"
                         :key="locusInfo.id"
                         :locus-info="locusInfo"
-                        class="col-sm-6"
+                        class="col-lg-6"
                     />
             </div>
         </div>
