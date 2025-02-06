@@ -8,6 +8,7 @@ export enum LogCategory {
     Artist = 'artist',
     Error = 'error',
     Mission = 'mission',
+    Mentorship = 'mentorship',
 }
 
 export interface Log extends Document {

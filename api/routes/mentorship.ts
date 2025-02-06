@@ -1,6 +1,8 @@
 import express from 'express';
 import { isLoggedIn, isMentorshipAdmin } from '../helpers/middlewares';
 import { UserModel } from '../models/user';
+import { LogModel } from '../models/log';
+import { LogCategory } from '../../interfaces/log';
 import { UserGroup } from '../../interfaces/user';
 import { MentorshipCycleModel } from '../models/mentorshipCycle';
 import { getUserInfoFromId, isOsuResponseError, getClientCredentialsGrant } from '../helpers/osuApi';
@@ -716,6 +718,8 @@ mentorshipRouter.post('/editBadgeValue', async (req, res) => {
     await user.save();
 
     res.json({ success: 'updated' });
+
+    LogModel.generate(req.session?.mongoId, `adjusted badge value for ${user.username} (${user.mentorshipBadge})`, LogCategory.Mentorship);
 });
 
 export default mentorshipRouter;
