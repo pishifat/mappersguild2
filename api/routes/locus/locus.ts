@@ -37,7 +37,7 @@ locusRouter.get('/query', async (req, res) => {
 
 /* POST update timezone */
 locusRouter.post('/:id/updateTimezone', isValidUser, async (req, res) => {
-    const timezoneOptions = ['-11', '-10', '-9', '-8', '-7', '-6', '-5', '-4', '-3', '-2', '-1', '+0', '+1', '+2', '+3', '+4', '+5', '+6', '+7', '+8', '+9', '+10', '+11', '+12'];
+    const timezoneOptions = ['-11', '-10', '-9', '-8', '-7', '-6', '-5', '-4', '-3:30', '-3', '-2', '-1', '+0', '+1', '+2', '+3', '+4', '+5', '+6', '+7', '+8', '+9', '+10', '+11', '+12'];
     const newTimezone = req.body.timezone;
     const locusInfo = res.locals.locusInfo;
 
