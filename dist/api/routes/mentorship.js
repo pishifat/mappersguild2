@@ -75,13 +75,15 @@ mentorshipRouter.get('/loadTenureBadges', async (req, res) => {
             }
             const fullCycles = phases / 3;
             const years = Math.floor(fullCycles / 4);
-            relevantUsers.push({
-                _id: user._id,
-                username: user.username,
-                osuId: user.osuId,
-                mentorshipBadge: user.mentorshipBadge,
-                actualTenure: years,
-            });
+            if (user.mentorshipBadge != years) {
+                relevantUsers.push({
+                    _id: user._id,
+                    username: user.username,
+                    osuId: user.osuId,
+                    mentorshipBadge: user.mentorshipBadge,
+                    actualTenure: years,
+                });
+            }
         }
     }
     res.json({ users: relevantUsers });
