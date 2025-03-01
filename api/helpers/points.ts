@@ -345,13 +345,13 @@ export async function calculateTasksPoints(userId: any): Promise<TasksPoints> {
 
     // process legacy missions manually (Midian fa removal)
     if (userId == '6011796a90b4092a9b56a577') { // Irone OSU
-        const mission = await MissionModel.findById('66f4887f56f3f894641d4ac6');
+        const mission = await MissionModel.findById('66f4887f56f3f894641d4ac6').orFail();
         pointsObject.Missions.push(mission.id);
         pointsObject.MissionReward += findMissionPoints(mission.tier);
     }
 
     if (userId == '6310166c1e8b9e4fa901f2ce' || userId == '5f8fb4a5f3939239f54b4a09') { // Ilham + nik
-        const mission = await MissionModel.findById('665bbcd8ff4c38cea1113342');
+        const mission = await MissionModel.findById('665bbcd8ff4c38cea1113342').orFail();
         pointsObject.Missions.push(mission.id);
         pointsObject.MissionReward += findMissionPoints(mission.tier);
     }

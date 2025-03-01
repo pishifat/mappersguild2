@@ -13,6 +13,7 @@ const spentPoints_2 = require("../../interfaces/spentPoints");
 const quest_1 = require("../../interfaces/quest");
 const mission_1 = require("../../interfaces/mission");
 const contest_2 = require("../../interfaces/contest/contest");
+const mission_2 = require("../models/mission");
 exports.extendQuestPrice = 10;
 exports.rerollShowcaseMissionSongPrice = 35;
 function getLengthNerf(length) {
@@ -292,6 +293,17 @@ async function calculateTasksPoints(userId) {
             pointsObject.Missions.push(beatmap.mission._id);
             pointsObject.MissionReward += findMissionPoints(beatmap.mission.tier); // depends on mission tier
         }
+    }
+    // process legacy missions manually (Midian fa removal)
+    if (userId == '6011796a90b4092a9b56a577') { // Irone OSU
+        const mission = await mission_2.MissionModel.findById('66f4887f56f3f894641d4ac6').orFail();
+        pointsObject.Missions.push(mission.id);
+        pointsObject.MissionReward += findMissionPoints(mission.tier);
+    }
+    if (userId == '6310166c1e8b9e4fa901f2ce' || userId == '5f8fb4a5f3939239f54b4a09') { // Ilham + nik
+        const mission = await mission_2.MissionModel.findById('665bbcd8ff4c38cea1113342').orFail();
+        pointsObject.Missions.push(mission.id);
+        pointsObject.MissionReward += findMissionPoints(mission.tier);
     }
     return pointsObject;
 }
