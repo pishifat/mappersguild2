@@ -274,6 +274,13 @@ const store: Module<AdminState, MainState> = {
                 user.badge = payload.badge;
             }
         },
+        updateLegacyPoints (state, payload): void {
+            const user = state.users.find(u => u.id == payload.userId);
+
+            if (user) {
+                user.legacyPoints = payload.legacyPoints;
+            }
+        },
         updateDiscordId (state, payload): void {
             const user = state.actionUsers.find(u => u.id == payload.userId);
 

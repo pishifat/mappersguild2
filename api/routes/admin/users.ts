@@ -50,6 +50,15 @@ adminUsersRouter.post('/:id/updateBadge', async (req, res) => {
     res.json(badge);
 });
 
+/* POST update legacy points */
+adminUsersRouter.post('/:id/updateLegacyPoints', async (req, res) => {
+    const legacyPoints = parseFloat(req.body.legacyPoints);
+
+    await UserModel.findByIdAndUpdate(req.params.id, { legacyPoints }).orFail();
+
+    res.json(legacyPoints);
+});
+
 /* POST update user group */
 adminUsersRouter.post('/:id/updateGroup', async (req, res) => {
     await UserModel.findByIdAndUpdate(req.params.id, { group: req.body.group }).orFail();

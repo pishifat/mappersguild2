@@ -12,6 +12,7 @@ import { SpentPointsCategory } from '../../interfaces/spentPoints';
 import { Quest, QuestStatus } from '../../interfaces/quest';
 import { Mission, MissionStatus } from '../../interfaces/mission';
 import { ContestStatus } from '../../interfaces/contest/contest';
+import { MissionModel } from '../models/mission';
 
 export const extendQuestPrice = 10;
 export const rerollShowcaseMissionSongPrice = 35;
@@ -340,6 +341,19 @@ export async function calculateTasksPoints(userId: any): Promise<TasksPoints> {
             pointsObject.Missions.push(beatmap.mission._id);
             pointsObject.MissionReward += findMissionPoints(beatmap.mission.tier); // depends on mission tier
         }
+    }
+
+    // process legacy missions manually (Midian fa removal)
+    if (userId == '6011796a90b4092a9b56a577') { // Irone OSU
+        const mission = await MissionModel.findById('66f4887f56f3f894641d4ac6');
+        pointsObject.Missions.push(mission.id);
+        pointsObject.MissionReward += findMissionPoints(mission.tier);
+    }
+
+    if (userId == '6310166c1e8b9e4fa901f2ce' || userId == '5f8fb4a5f3939239f54b4a09') { // Ilham + nik
+        const mission = await MissionModel.findById('665bbcd8ff4c38cea1113342');
+        pointsObject.Missions.push(mission.id);
+        pointsObject.MissionReward += findMissionPoints(mission.tier);
     }
 
     return pointsObject;

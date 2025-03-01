@@ -21,6 +21,13 @@ const store: Module<UserState, MainState> = {
                 user.queuedBadge = payload.badge;
             }
         },
+        updateLegacyPoints (state, payload): void {
+            const user = state.users.find(u => u.id == payload.userId);
+
+            if (user) {
+                user.legacyPoints = payload.legacyPoints;
+            }
+        },
         updateDiscordId (state, payload): void {
             const user = state.users.find(u => u.id == payload.userId);
 

@@ -79,6 +79,17 @@
                         Update actual badge
                     </button>
                 </div>
+                <div class="row mb-2">
+                    <input
+                        v-model="legacyPoints"
+                        class="form-control form-control-sm mx-2 w-50"
+                        type="number"
+                        autocomplete="off"
+                    />
+                    <button class="btn btn-sm btn-outline-info w-25" @click="updateLegacyPoints($event)">
+                        Update legacy points
+                    </button>
+                </div>
                 <h6 class="mt-4">
                     Merch
                 </h6>
@@ -223,6 +234,7 @@ export default defineComponent({
             pin: '',
             sweater: '',
             additionalItems: '',
+            legacyPoints: 0,
         };
     },
     watch: {
@@ -231,6 +243,7 @@ export default defineComponent({
             this.queuedBadge = this.user.queuedBadge || 0;
             this.discordId = this.user.discordId || '';
             this.group = this.user.group || '';
+            this.legacyPoints = this.user.legacyPoints || 0;
         },
     },
     created() {
@@ -239,6 +252,7 @@ export default defineComponent({
             this.queuedBadge = this.user.badge || 0;
             this.discordId = this.user.discordId || '';
             this.group = this.user.group || '';
+            this.legacyPoints = this.user.legacyPoints || 0;
         }
     },
     methods: {
@@ -281,6 +295,20 @@ export default defineComponent({
                 this.$store.commit('updateBadge', {
                     userId: this.user.id,
                     badge,
+                });
+            }
+        },
+        async updateLegacyPoints(e): Promise<void> {
+            const legacyPoints = await this.$http.executePost(`/admin/users/${this.user.id}/updateLegacyPoints`, { legacyPoints: this.legacyPoints }, e);
+
+            if (legacyPoints) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `set legacy points to ${legacyPoints}`,
+                    type: 'info',
+                });
+                this.$store.commit('updateLegacyPoints', {
+                    userId: this.user.id,
+                    legacyPoints,
                 });
             }
         },
