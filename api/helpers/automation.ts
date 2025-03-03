@@ -356,7 +356,7 @@ const sendActionNotifications = cron.schedule('0 23 * * *', async () => { /* 4:0
 });
 
 /* open/close announcements and mark missions as inactive */
-const processMissions = cron.schedule('24 21 * * *', async () => { /* 3:00 PM PST */
+const processMissions = cron.schedule('4 20 * * *', async () => { /* 3:00 PM PST */
     const today = new Date();
     const ids: string[] = [];
 
