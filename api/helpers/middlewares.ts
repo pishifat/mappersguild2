@@ -136,28 +136,6 @@ export async function isBn(accessToken): Promise<boolean> {
     return false;
 }
 
-export async function canEditArtist(req, res, next): Promise<void> {
-    if (res.locals.userRequest.group == UserGroup.Admin || res.locals.userRequest.group == UserGroup.Secret) {
-        return next();
-    }
-
-    const id = req.params.id || req.params.artistId;
-
-    const artist = await FeaturedArtistModel
-        .findById(id)
-        .defaultPopulateWithSongs()
-        .orFail();
-
-    const offeredUsersIds = artist.offeredUsers.map(u => u.id);
-    const showcaseMapperIds = artist.showcaseMappers.map(u => u.id);
-
-    if (offeredUsersIds.includes(res.locals.userRequest.id) || showcaseMapperIds.includes(res.locals.userRequest.id)) {
-        next();
-    } else {
-        unauthorize(req, res);
-    }
-}
-
 export function isValidUrl(req, res, next): void {
     if (!req.body.url?.length) {
         req.body.url = null;

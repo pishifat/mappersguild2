@@ -2,17 +2,16 @@ import express from 'express';
 import { FeaturedArtistModel } from '../models/featuredArtist';
 import { FeaturedArtistStatus } from '../../interfaces/featuredArtist';
 import { UserGroup } from '../../interfaces/user';
-import { isLoggedIn, canEditArtist, isShowcase } from '../helpers/middlewares';
+import { isLoggedIn, isShowcase } from '../helpers/middlewares';
 import { devWebhookPost, webhookColors } from '../helpers/discordApi';
 import { FeaturedSongModel } from '../models/featuredSong';
 
 const showcaseRouter = express.Router();
 
 showcaseRouter.use(isLoggedIn);
-showcaseRouter.use(isShowcase);
 
 /* GET info for page load */
-showcaseRouter.get('/relevantInfo', async (req, res) => {
+showcaseRouter.get('/relevantInfo', isShowcase, async (req, res) => {
     let query: any = { status: FeaturedArtistStatus.Showcase };
 
     // show all artists if admin or secret usergroup
@@ -48,7 +47,7 @@ showcaseRouter.get('/relevantInfo', async (req, res) => {
 });
 
 /* POST add showcase mapper */
-showcaseRouter.post('/addShowcaseMapper/:id', canEditArtist, async (req, res) => {
+showcaseRouter.post('/addShowcaseMapper/:id', async (req, res) => {
     let artist = await FeaturedArtistModel
         .findById(req.params.id)
         .defaultPopulateWithSongs()
@@ -82,7 +81,7 @@ showcaseRouter.post('/addShowcaseMapper/:id', canEditArtist, async (req, res) =>
 });
 
 /* POST remove showcase mapper */
-showcaseRouter.post('/removeShowcaseMapper/:id', canEditArtist, async (req, res) => {
+showcaseRouter.post('/removeShowcaseMapper/:id', async (req, res) => {
     let artist = await FeaturedArtistModel
         .findById(req.params.id)
         .defaultPopulateWithSongs()
@@ -135,7 +134,7 @@ showcaseRouter.post('/removeShowcaseMapper/:id', canEditArtist, async (req, res)
 });
 
 /* POST add song showcase mapper */
-showcaseRouter.post('/addSongShowcaseMapper/:artistId/:songId', canEditArtist, async (req, res) => {
+showcaseRouter.post('/addSongShowcaseMapper/:artistId/:songId', async (req, res) => {
     const [artist, song] = await Promise.all([
         FeaturedArtistModel
             .findById(req.params.artistId)
@@ -181,7 +180,7 @@ showcaseRouter.post('/addSongShowcaseMapper/:artistId/:songId', canEditArtist, a
 });
 
 /* POST remove song showcase mapper */
-showcaseRouter.post('/removeSongShowcaseMapper/:artistId/:songId', canEditArtist, async (req, res) => {
+showcaseRouter.post('/removeSongShowcaseMapper/:artistId/:songId', async (req, res) => {
     const song = await FeaturedSongModel
         .findById(req.params.songId)
         .defaultPopulate()
