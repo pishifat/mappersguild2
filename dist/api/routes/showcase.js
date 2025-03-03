@@ -12,9 +12,8 @@ const discordApi_1 = require("../helpers/discordApi");
 const featuredSong_1 = require("../models/featuredSong");
 const showcaseRouter = express_1.default.Router();
 showcaseRouter.use(middlewares_1.isLoggedIn);
-showcaseRouter.use(middlewares_1.isShowcase);
 /* GET info for page load */
-showcaseRouter.get('/relevantInfo', async (req, res) => {
+showcaseRouter.get('/relevantInfo', middlewares_1.isShowcase, async (req, res) => {
     let query = { status: featuredArtist_2.FeaturedArtistStatus.Showcase };
     // show all artists if admin or secret usergroup
     const showAllShowcaseArtists = res.locals.userRequest.group == user_1.UserGroup.Admin || res.locals.userRequest.group == user_1.UserGroup.Secret;
@@ -46,7 +45,7 @@ showcaseRouter.get('/relevantInfo', async (req, res) => {
     });
 });
 /* POST add showcase mapper */
-showcaseRouter.post('/addShowcaseMapper/:id', middlewares_1.canEditArtist, async (req, res) => {
+showcaseRouter.post('/addShowcaseMapper/:id', async (req, res) => {
     let artist = await featuredArtist_1.FeaturedArtistModel
         .findById(req.params.id)
         .defaultPopulateWithSongs()
@@ -73,7 +72,7 @@ showcaseRouter.post('/addShowcaseMapper/:id', middlewares_1.canEditArtist, async
         }]);
 });
 /* POST remove showcase mapper */
-showcaseRouter.post('/removeShowcaseMapper/:id', middlewares_1.canEditArtist, async (req, res) => {
+showcaseRouter.post('/removeShowcaseMapper/:id', async (req, res) => {
     let artist = await featuredArtist_1.FeaturedArtistModel
         .findById(req.params.id)
         .defaultPopulateWithSongs()
@@ -115,7 +114,7 @@ showcaseRouter.post('/removeShowcaseMapper/:id', middlewares_1.canEditArtist, as
         }]);
 });
 /* POST add song showcase mapper */
-showcaseRouter.post('/addSongShowcaseMapper/:artistId/:songId', middlewares_1.canEditArtist, async (req, res) => {
+showcaseRouter.post('/addSongShowcaseMapper/:artistId/:songId', async (req, res) => {
     const [artist, song] = await Promise.all([
         featuredArtist_1.FeaturedArtistModel
             .findById(req.params.artistId)
@@ -152,7 +151,7 @@ showcaseRouter.post('/addSongShowcaseMapper/:artistId/:songId', middlewares_1.ca
         }]);
 });
 /* POST remove song showcase mapper */
-showcaseRouter.post('/removeSongShowcaseMapper/:artistId/:songId', middlewares_1.canEditArtist, async (req, res) => {
+showcaseRouter.post('/removeSongShowcaseMapper/:artistId/:songId', async (req, res) => {
     const song = await featuredSong_1.FeaturedSongModel
         .findById(req.params.songId)
         .defaultPopulate()

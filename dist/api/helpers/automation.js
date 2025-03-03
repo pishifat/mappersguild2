@@ -265,7 +265,6 @@ const sendActionNotifications = node_cron_1.default.schedule('0 23 * * *', async
             }]);
     }
     // users
-    const day = new Date().getDate();
     const invalids = [5226970, 7496029]; // user IDs for people who specifically asked not to earn badges
     const allUsers = await user_1.UserModel.find({
         osuId: { $nin: invalids },

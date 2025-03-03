@@ -1,10 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isValidUrl = exports.canEditArtist = exports.isBn = exports.isSuperAdmin = exports.hasMerchAccess = exports.isLocusAdmin = exports.isWorldCupHelper = exports.isMentorshipAdmin = exports.isShowcase = exports.isAdmin = exports.isValidUser = exports.isLoggedIn = exports.unauthorize = void 0;
+exports.isValidUrl = exports.isBn = exports.isSuperAdmin = exports.hasMerchAccess = exports.isLocusAdmin = exports.isWorldCupHelper = exports.isMentorshipAdmin = exports.isShowcase = exports.isAdmin = exports.isValidUser = exports.isLoggedIn = exports.unauthorize = void 0;
 const user_1 = require("../models/user");
 const user_2 = require("../../interfaces/user");
 const osuApi_1 = require("./osuApi");
-const featuredArtist_1 = require("../models/featuredArtist");
 function unauthorize(req, res) {
     if (req.accepts(['html', 'json']) === 'json') {
         res.json({ error: 'Unauthorized - May need to login first' });
@@ -134,25 +133,6 @@ async function isBn(accessToken) {
     return false;
 }
 exports.isBn = isBn;
-async function canEditArtist(req, res, next) {
-    if (res.locals.userRequest.group == user_2.UserGroup.Admin || res.locals.userRequest.group == user_2.UserGroup.Secret) {
-        return next();
-    }
-    const id = req.params.id || req.params.artistId;
-    const artist = await featuredArtist_1.FeaturedArtistModel
-        .findById(id)
-        .defaultPopulateWithSongs()
-        .orFail();
-    const offeredUsersIds = artist.offeredUsers.map(u => u.id);
-    const showcaseMapperIds = artist.showcaseMappers.map(u => u.id);
-    if (offeredUsersIds.includes(res.locals.userRequest.id) || showcaseMapperIds.includes(res.locals.userRequest.id)) {
-        next();
-    }
-    else {
-        unauthorize(req, res);
-    }
-}
-exports.canEditArtist = canEditArtist;
 function isValidUrl(req, res, next) {
     if (!req.body.url?.length) {
         req.body.url = null;
