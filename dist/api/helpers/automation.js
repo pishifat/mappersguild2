@@ -240,7 +240,7 @@ const sendActionNotifications = node_cron_1.default.schedule('0 23 * * *', async
     })
         .defaultPopulate()
         .sort({ updatedAt: 1 });
-    if (actionBeatmaps.length) {
+    if (actionBeatmaps.length > 5) {
         discordApi_1.devWebhookPost([{
                 title: `beatmaps`,
                 color: discordApi_1.webhookColors.lightRed,
@@ -266,19 +266,17 @@ const sendActionNotifications = node_cron_1.default.schedule('0 23 * * *', async
     }
     // users
     const day = new Date().getDate();
-    if (day % 10 === 0) {
-        const invalids = [5226970, 7496029]; // user IDs for people who specifically asked not to earn badges
-        const allUsers = await user_1.UserModel.find({
-            osuId: { $nin: invalids },
-        });
-        const actionUsers = allUsers.filter(u => u.badge < u.rank);
-        if (actionUsers.length) {
-            discordApi_1.devWebhookPost([{
-                    title: `users`,
-                    color: discordApi_1.webhookColors.lightRed,
-                    description: `**${actionUsers.length}** pending user badges\n\nadmin: https://mappersguild.com/admin/summary`,
-                }]);
-        }
+    const invalids = [5226970, 7496029]; // user IDs for people who specifically asked not to earn badges
+    const allUsers = await user_1.UserModel.find({
+        osuId: { $nin: invalids },
+    });
+    const actionUsers = allUsers.filter(u => u.badge < u.rank);
+    if (actionUsers.length > 5) {
+        discordApi_1.devWebhookPost([{
+                title: `users`,
+                color: discordApi_1.webhookColors.lightRed,
+                description: `**${actionUsers.length}** pending user badges\n\nadmin: https://mappersguild.com/admin/summary`,
+            }]);
     }
     // contests
     const actionContests = await contest_1.ContestModel
@@ -298,7 +296,7 @@ const sendActionNotifications = node_cron_1.default.schedule('0 23 * * *', async
     scheduled: false,
 });
 /* open/close announcements and mark missions as inactive */
-const processMissions = node_cron_1.default.schedule('24 21 * * *', async () => {
+const processMissions = node_cron_1.default.schedule('4 20 * * *', async () => {
     const today = new Date();
     const ids = [];
     const missions = await mission_1.MissionModel
