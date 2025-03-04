@@ -41,7 +41,7 @@
                     :artists="mission.artists"
                 />
             </span>
-            <span v-else-if="mission.isOsuOriginal" class="ms-1">Any <a href="/wiki/Community/Bespoke_music">osu! original</a> (labeled with <img src="https://osu.ppy.sh/wiki/images/shared/link/original-pill.png" style="vertical-align: -3px;" />) in the <a href="https://osu.ppy.sh/beatmaps/artists" target="_blank">Featured Artist listing</a></span>
+            <span v-else-if="mission.isOsuOriginal" class="ms-1">Any <a href="https://osu.ppy.sh/wiki/Community/Bespoke_music">osu! original</a> (labeled with <img src="https://osu.ppy.sh/wiki/images/shared/link/original-pill.png" style="vertical-align: -3px;" />) in the <a href="https://osu.ppy.sh/beatmaps/artists" target="_blank">Featured Artist listing</a></span>
             <span v-else class="text-secondary ms-1">Any. See the <a href="https://osu.ppy.sh/beatmaps/artists" target="_blank">full Featured Artist listing</a>.</span>
             <div v-if="mission.artists && mission.artists.length">
                 <a
