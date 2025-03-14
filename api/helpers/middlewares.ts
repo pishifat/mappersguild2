@@ -115,7 +115,7 @@ export function hasMerchAccess(req, res, next): void {
 }
 
 export function isSuperAdmin(req, res, next): void {
-    const osuIds = [3178418, 1052994, 2];
+    const osuIds = [3178418, 1052994, 2, 1893718];
 
     if (osuIds.includes(res.locals.userRequest.osuId)) {
         next();
