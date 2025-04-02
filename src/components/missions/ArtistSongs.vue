@@ -1,6 +1,7 @@
 <template>
     <div>
-        <b>Artist: <i>{{ artist.label }}</i></b>
+        <div><b>Artist: <i>{{ artist.label }}</i></b></div>
+        <div><b>All <code>.osz</code> files: <i><a :href="artist.oszTemplatesUrl" target="_blank">{{ artist.oszTemplatesUrl ? 'Download here' : 'none. yell at pishifat' }}</a></i></b></div>
         <ul>
             <li v-for="song in artist.songs" :key="song.id" class="text-secondary">
                 <song-details
