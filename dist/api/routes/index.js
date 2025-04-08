@@ -91,17 +91,31 @@ indexRouter.get('/logout', middlewares_1.isLoggedIn, (req, res) => {
 });
 /* GET user's token and user's info to login */
 indexRouter.get('/callback', async (req, res) => {
+    console.log('Callback Query:', req.query);
+    console.log('Callback Cookies:', req.cookies);
     if (!req.query.code || req.query.error || !req.query.state) {
+        console.error('Callback Error: Missing code, state, or error in query');
         return res.status(500).redirect('/error');
     }
     const decodedState = Buffer.from(req.query.state.toString(), 'base64').toString('ascii');
     const savedState = req.cookies._state;
-    res.clearCookie('_state');
+    console.log('Decoded State:', decodedState);
+    console.log('Saved State:', savedState);
     if (decodedState !== savedState) {
+        console.error('Callback Error: State mismatch');
         return res.status(403).redirect('/error');
     }
-    let response = await osuApi_1.getToken(req.query.code.toString(), false);
+    let response;
+    try {
+        response = await osuApi_1.getToken(req.query.code.toString(), false);
+        console.log('Token Response:', response);
+    }
+    catch (error) {
+        console.error('Get Token Failed:', error);
+        return res.status(500).redirect('/error');
+    }
     if (osuApi_1.isOsuResponseError(response)) {
+        console.error('OAuth Response Error:', response);
         return res.status(500).redirect('/error');
     }
     helpers_1.setSession(req.session, response);
