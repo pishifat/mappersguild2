@@ -1,5 +1,7 @@
 import express from 'express';
-import { ContestStatus } from '../../../interfaces/contest/contest';
+import { Contest, ContestStatus } from '../../../interfaces/contest/contest';
+import { Submission } from '../../../interfaces/contest/submission';
+import { User } from '../../../interfaces/user';
 import { SubmissionModel } from '../../models/contest/submission';
 import { ContestModel } from '../../models/contest/contest';
 import { ScreeningModel } from '../../models/contest/screening';
@@ -119,7 +121,7 @@ resultsRouter.get('/userScreening/:contestId/:submissionId/:userId', async (req,
     const screenerIds = contest.screeners.map(s => s.toString());
 
     if (screenerIds.includes(userId)) {
-        const screening = await ScreeningModel.findOne({ submission: submissionId, screener: userId });
+        const screening = await ScreeningModel.findOne({ submission: submissionId as any, screener: userId as any });
 
         if (screening) {
             return res.json(screening.id);

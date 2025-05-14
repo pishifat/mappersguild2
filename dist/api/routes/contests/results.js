@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const contest_1 = require("../../../interfaces/contest/contest");
 const submission_1 = require("../../models/contest/submission");
 const contest_2 = require("../../models/contest/contest");
+const screening_1 = require("../../models/contest/screening");
 const resultsRouter = express_1.default.Router();
 // population
 const submissionPopulate = [
@@ -103,6 +104,21 @@ resultsRouter.get('/participated', async (req, res) => {
         .populate(submissionPopulate);
     submissions = submissions.filter(s => s.contest.status === contest_1.ContestStatus.Complete);
     res.json(submissions);
+});
+/* GET user's screening id on a submission (for submission results page) */
+resultsRouter.get('/userScreening/:contestId/:submissionId/:userId', async (req, res) => {
+    const contestId = req.params.contestId;
+    const submissionId = req.params.submissionId;
+    const userId = req.params.userId;
+    const contest = await contest_2.ContestModel.findById(contestId).orFail();
+    const screenerIds = contest.screeners.map(s => s.toString());
+    if (screenerIds.includes(userId)) {
+        const screening = await screening_1.ScreeningModel.findOne({ submission: submissionId, screener: userId });
+        if (screening) {
+            return res.json(screening.id);
+        }
+    }
+    res.json({});
 });
 /* GET submission */
 resultsRouter.get('/searchSubmission/:id', async (req, res) => {
