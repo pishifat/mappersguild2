@@ -82,7 +82,7 @@
                                 maxlength="10"
                                 @keyup.enter="updateLastContacted()"
                             />
-                            <a href="#" @click.stop.prevent="updateLastContacted(true)">mark as today</a>
+                            <a class="ms-1" href="#" @click.stop.prevent="updateLastContacted(true)">mark as today</a>
                         </span>
                     </span>
                 </div>
@@ -352,6 +352,7 @@ export default defineComponent({
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);
+                this.updateLastContacted(true);
             }
         },
         async toggleIsResponded (): Promise<void> {
@@ -359,6 +360,7 @@ export default defineComponent({
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);
+                this.updateLastContacted(true);
             }
         },
         async toggleIsRejected (): Promise<void> {
@@ -366,6 +368,7 @@ export default defineComponent({
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);
+                this.updateLastContacted(true);
             }
         },
         async toggleContractSent (): Promise<void> {
@@ -373,6 +376,7 @@ export default defineComponent({
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);
+                this.updateLastContacted(true);
             }
         },
         async toggleArtistSigned (): Promise<void> {
@@ -380,6 +384,7 @@ export default defineComponent({
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);
+                this.updateLastContacted(true);
             }
         },
         async togglePpyPaid (): Promise<void> {
@@ -387,6 +392,7 @@ export default defineComponent({
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);
+                this.updateLastContacted(true);
             }
         },
         async togglePpySigned (): Promise<void> {
@@ -394,6 +400,7 @@ export default defineComponent({
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);
+                this.updateLastContacted(true);
             }
         },
         async toggleSongsTimed (): Promise<void> {
@@ -443,6 +450,7 @@ export default defineComponent({
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);
+                this.updateLastContacted(true);
             }
         },
         async updateProjectedRelease (): Promise<void> {
