@@ -41,11 +41,15 @@
                     <div v-for="(screening, i) in randomizedScreening" :key="screening.id">
                         <div>
                             <div class="ms-3">
-                                User {{ i+1 }}
+                                <user-link
+                                    v-if="userScreeningId && userScreeningId == screening.id"
+                                    :user="loggedInUser"
+                                />
+                                <span v-else>User {{ i+1 }}</span>
                                 <i
                                     v-if="screening.vote"
                                     v-bs-tooltip="'user placed in top picks'"
-                                    class="fas fa-check text-done"
+                                    class="fas fa-check text-done ms-1"
                                 />
                             </div>
                             <div class="ms-4 mb-2 small text-secondary" style="word-break: break-word;">
@@ -150,6 +154,11 @@ export default defineComponent({
     components: {
         UserLink,
     },
+    data () {
+        return {
+            userScreeningId: '',
+        };
+    },
     computed: {
         ...mapState({
             submission: (state: any) => state.contestResults.submission as Submission,
@@ -179,6 +188,15 @@ export default defineComponent({
 
             return screenings;
         },
+    },
+    async created () {
+        if (this.loggedInUser) {
+            const userScreeningId = await this.$http.executeGet(`/contests/results/userScreening/${this.submission.contest.id}/${this.submission.id}/${this.loggedInUser.id}`) as string;
+
+            if (!this.$http.isError(userScreeningId)) {
+                this.userScreeningId = userScreeningId;
+            }
+        }
     },
     methods: {
         findTotalJudgingPoints (judgingScores) {

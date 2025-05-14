@@ -2,6 +2,7 @@ import express from 'express';
 import { ContestStatus } from '../../../interfaces/contest/contest';
 import { SubmissionModel } from '../../models/contest/submission';
 import { ContestModel } from '../../models/contest/contest';
+import { ScreeningModel } from '../../models/contest/screening';
 
 const resultsRouter = express.Router();
 
@@ -105,6 +106,27 @@ resultsRouter.get('/participated', async (req, res) => {
     submissions = submissions.filter(s => s.contest.status === ContestStatus.Complete);
 
     res.json(submissions);
+});
+
+/* GET user's screening id on a submission (for submission results page) */
+resultsRouter.get('/userScreening/:contestId/:submissionId/:userId', async (req, res) => {
+    const contestId = req.params.contestId;
+    const submissionId = req.params.submissionId;
+    const userId = req.params.userId;
+
+    const contest = await ContestModel.findById(contestId).orFail();
+
+    const screenerIds = contest.screeners.map(s => s.toString());
+
+    if (screenerIds.includes(userId)) {
+        const screening = await ScreeningModel.findOne({ submission: submissionId, screener: userId });
+
+        if (screening) {
+            return res.json(screening.id);
+        }
+    }
+
+    res.json({});
 });
 
 /* GET submission */
