@@ -23,7 +23,7 @@ async function getBotToken() {
             grant_type: 'client_credentials',
             client_id: config_json_1.default.bot.id,
             client_secret: config_json_1.default.bot.secret,
-            scope: 'delegate chat.write',
+            scope: 'delegate chat.write_manage',
         });
         tokenInfo = {
             expiresAt: new Date(Date.now() + data.expires_in * 1000),
@@ -38,6 +38,7 @@ async function getBotToken() {
 exports.getBotToken = getBotToken;
 async function sendAnnouncement(userIds, channel, message) {
     const token = await getBotToken();
+    console.log(token);
     await helpers_1.sleep(500);
     if (typeof token !== 'string') {
         return { error: token.error };
