@@ -4,7 +4,7 @@
 
         <ul v-if="mission.associatedMaps && mission.associatedMaps.length" class="ps-3 mb-0 list-unstyled">
             <li
-                v-for="map in mission.associatedMaps"
+                v-for="map in (showFullbeatmaps ? fullBeatmaps : partialBeatmaps)"
                 :key="map.id"
                 class="text-secondary"
             >
@@ -84,7 +84,25 @@
                     (invalid)
                 </span>
             </li>
-            <div v-if="mission.status == 'open' && !isAdminPage" class="small text-secondary ms-3 mt-2">
+            <div class="text-center mt-2">
+                <button
+                    v-if="showFullbeatmaps"
+                    class="btn btn-sm btn-primary"
+                    type="button"
+                    @click="showFullbeatmaps = false"
+                >
+                    <i class="fas fa-angle-up me-1" /> show fewer beatmaps <i class="fas fa-angle-up ms-1" />
+                </button>
+                <button
+                    v-else-if="mission.associatedMaps && mission.associatedMaps.length >= 20"
+                    class="btn btn-sm btn-primary"
+                    type="button"
+                    @click="showFullbeatmaps = true"
+                >
+                    <i class="fas fa-angle-down me-1" /> show all beatmaps <i class="fas fa-angle-down ms-1" />
+                </button>
+            </div>
+            <div v-if="mission.status == 'open' && !isAdminPage" class="small text-secondary ms-3 mt-3">
                 If you create a map for this quest, add it from the <a href="/beatmaps">Beatmaps</a> page, then return here!
                 <div v-if="mission.isShowcaseMission" class="mt-2">
                     If your song doesn't exist on the Mappers' Guild yet, wait until the artist is announced to add it.
@@ -127,12 +145,24 @@ export default defineComponent({
             confirmWin: '',
             confirmInvalid: '',
             processing: false,
+            showFullbeatmaps: this.isAdminPage,
         };
     },
     computed: {
         ...mapState([
             'loggedInUser',
         ]),
+        partialBeatmaps () {
+            return [...this.fullBeatmaps].slice(0,20);
+        },
+        fullBeatmaps () {
+            return [...this.mission.associatedMaps].sort((a, b) => {
+                if (new Date(a.createdAt) > new Date(b.createdAt)) return 1;
+                if (new Date(b.createdAt) > new Date(a.createdAt)) return -1;
+
+                return 0;
+            });
+        },
     },
     methods: {
         findIcon(status): string {
