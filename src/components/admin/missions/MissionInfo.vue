@@ -651,6 +651,9 @@
                 :mission="mission"
                 :is-admin-page="true"
             />
+            <keychain-announcement
+                :mission="mission"
+            />
         </div>
     </modal-dialog>
 </template>
@@ -662,12 +665,14 @@ import AssociatedBeatmaps from '@components/missions/AssociatedBeatmaps.vue';
 import { FeaturedArtist } from '@interfaces/featuredArtist';
 import { Mission, MissionMode } from '@interfaces/mission';
 import { SortedTasks } from '@interfaces/beatmap/task';
+import KeychainAnnouncement from '@components/admin/missions/KeychainAnnouncement.vue';
 
 export default defineComponent({
     name: 'MissionInfo',
     components: {
         AssociatedBeatmaps,
         ModalDialog,
+        KeychainAnnouncement,
     },
     props: {
         mission: {

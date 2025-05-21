@@ -1261,6 +1261,27 @@ listingRouter.post('/:id/toggleScreeningBonus', isContestCreator, isEditable, as
     res.json(contest.screeningBonus);
 });
 
+/* POST send announcement */
+listingRouter.post('/:id/sendAnnouncement', isContestCreator, isEditable, async (req, res) => {
+    const contest = await ContestModel
+        .findById(req.params.id)
+        .populate(defaultContestPopulate)
+        .orFail();
+
+    const channel = {
+        name: `Monthly Beatmapping Contest`,
+        description: `info for mbc`,
+    };
+
+    const participantIds = contest.submissions.map(s => s.creator.osuId);
+
+    const userIds = participantIds.concat([3178418]);
+
+    const announcement = await sendAnnouncement(userIds, channel, req.body.text);
+
+    res.json(announcement);
+});
+
 /* POST add PDC stuff */
 listingRouter.post('/:id/addJudgingsFromCsv', isContestCreator, isEditable, async (req, res) => {
     const contest = await ContestModel

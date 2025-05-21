@@ -5,6 +5,7 @@ import { UserModel } from '../../models/user';
 import { MissionMode, MissionStatus } from '../../../interfaces/mission';
 import { FeaturedArtistModel } from '../../models/featuredArtist';
 import { FeaturedArtist } from '../../../interfaces/featuredArtist';
+import { sendAnnouncement } from '../../helpers/osuBot';
 
 const adminMissionsRouter = express.Router();
 
@@ -384,6 +385,26 @@ adminMissionsRouter.post('/toggleIsQuestTrailblazer', async (req, res) => {
     await UserModel.findByIdAndUpdate(user._id, { isQuestTrailblazer: true });
 
     res.json(true);
+});
+
+/* POST send keychain announcement for quest */
+adminMissionsRouter.post('/:id/sendAnnouncement', async (req, res) => {
+    const mission = await MissionModel
+        .findById(req.params.id)
+        .defaultPopulate()
+        .orFail();
+
+    const channel = {
+        name: `Mappers' Guild keychains`,
+        description: `info about mappers' guild keychains`,
+    };
+
+    const mapperIds = mission.winningBeatmaps.map(b => b.host.osuId);
+    const userIds = mapperIds.concat([3178418]);
+
+    const announcement = await sendAnnouncement(userIds, channel, req.body.text);
+
+    res.json(announcement);
 });
 
 export default adminMissionsRouter;

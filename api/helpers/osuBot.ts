@@ -20,7 +20,7 @@ export async function getBotToken () {
             grant_type: 'client_credentials',
             client_id: config.bot.id,
             client_secret: config.bot.secret,
-            scope: 'delegate chat.write',
+            scope: 'delegate chat.write_manage',
         });
 
         tokenInfo = {
@@ -36,6 +36,8 @@ export async function getBotToken () {
 
 export async function sendAnnouncement(userIds, channel, message) {
     const token = await getBotToken();
+
+    console.log(token);
 
     await sleep(500);
 

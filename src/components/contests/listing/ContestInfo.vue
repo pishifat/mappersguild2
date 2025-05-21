@@ -277,6 +277,12 @@
 
                 <hr />
 
+                <contest-announcements
+                    v-if="loggedInUser && loggedInUser.group == usergroupAdmin"
+                    class="mb-2"
+                    :contest="contest"
+                />
+
                 <button v-if="contest.status == 'hidden' && !contest.submissions.length" class="btn btn-sm btn-outline-danger w-100" @click="deleteContest($event)">
                     Delete contest
                 </button>
@@ -287,7 +293,9 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { mapState } from 'vuex';
 import { Contest } from '@interfaces/contest/contest';
+import { UserGroup } from '@interfaces/user';
 import ContestHeader from './ContestHeader.vue';
 import ContestBanner from './ContestBanner.vue';
 import DateInfo from './DateInfo.vue';
@@ -312,6 +320,7 @@ import FeaturedArtistContestToggle from './FeaturedArtistContestToggle.vue';
 import UseRawScoringToggle from './UseRawScoringToggle.vue';
 import ScreeningBonusToggle from './ScreeningBonusToggle.vue';
 import PublicJudgesToggle from './judging/PublicJudgesToggle.vue';
+import ContestAnnouncements from './judging/ContestAnnouncements.vue';
 
 export default defineComponent({
     name: 'ContestInfo',
@@ -340,6 +349,7 @@ export default defineComponent({
         UseRawScoringToggle,
         ScreeningBonusToggle,
         PublicJudgesToggle,
+        ContestAnnouncements,
     },
     props: {
         contest: {
@@ -354,7 +364,14 @@ export default defineComponent({
             screeningResultsVisible: false,
             judgingCriteriaVisible: false,
             judgingResultsVisible: false,
+            usergroupAdmin: UserGroup.Admin,
         };
+    },
+    computed: {
+        ...mapState([
+            'loggedInUser',
+            'initialized',
+        ]),
     },
     methods: {
         async deleteContest(e): Promise<void> {

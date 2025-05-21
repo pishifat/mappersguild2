@@ -7,7 +7,7 @@
                 autocomplete="off"
                 placeholder="new judge username/osuId..."
                 @keyup.enter="addJudge($event)"
-            >
+            />
             <div class="input-group-append">
                 <button
                     class="btn btn-primary"
