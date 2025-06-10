@@ -1297,7 +1297,7 @@ listingRouter.post('/:id/addJudgingsFromCsv', isContestCreator, isEditable, asyn
 
         const submission = contest.submissions.find(s => s.creator.osuId == parseInt(line[0]));
         console.log(submission?.creator.username);
-        const judgeId = '62b1a32becf25121cfe756df';
+        const judgeId = '5c6e6db559d335001922e6df';
 
         const judging = new JudgingModel();
         /** @ts-ignore */
@@ -1316,13 +1316,13 @@ listingRouter.post('/:id/addJudgingsFromCsv', isContestCreator, isEditable, asyn
                     criteriaId = '5e2ec4c071f7f84b0a73ca71';
                     break;
                 case 2:
-                    criteriaId = '62a4ce9decf25121cfe649e2';
+                    criteriaId = '65ffc36af86998bffceec0e5';
                     break;
                 case 3:
-                    criteriaId = '62a4ceabecf25121cfe649ed';
+                    criteriaId = '65ffc374f86998bffceec0f5';
                     break;
                 case 4:
-                    criteriaId = '62a4cee7ecf25121cfe649f8';
+                    criteriaId = '65ffc388f86998bffceec105';
                     break;
                 default:
                     console.log('fucked');
@@ -1337,7 +1337,7 @@ listingRouter.post('/:id/addJudgingsFromCsv', isContestCreator, isEditable, asyn
             console.log(i);
 
             if (i == 1) {
-                const finalScoreInput = scoreInput.replace(/\/\//g, '\n');
+                const finalScoreInput = scoreInput.replace(/\\n\\n/g, '\n\n');
                 comment = finalScoreInput;
             } else {
                 score = parseInt(scoreInput);
