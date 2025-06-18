@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const config_json_1 = __importDefault(require("../../config.json"));
 const user_1 = require("../models/user");
-const user_2 = require("../../interfaces/user");
 const interOpRouter = express_1.default.Router();
 /* AUTHENTICATION */
 interOpRouter.use((req, res, next) => {
@@ -21,18 +20,25 @@ interOpRouter.use((req, res, next) => {
     }
     return next();
 });
-/* GET users */
-interOpRouter.get('/users', async (_, res) => {
-    res.json(await user_1.UserModel.find({ group: user_2.UserGroup.Admin }));
-});
-/* GET user by osuId */
-interOpRouter.get('/user/:id', async (req, res) => {
-    const osuId = parseInt(req.params.id, 10);
-    if (isNaN(osuId)) {
-        return res.status(400).json({ error: 'Invalid osuId provided' });
-    }
+/* GET user mentorships by osuId or username */
+interOpRouter.get('/userMentorships/:id', async (req, res) => {
+    const identifier = req.params.id;
+    const osuId = parseInt(identifier, 10);
     try {
-        const user = await user_1.UserModel.findOne({ osuId });
+        let user;
+        if (isNaN(osuId)) {
+            // Search by username
+            user = await user_1.UserModel.findOne()
+                .byUsername(identifier)
+                .select('osuId username mentorships')
+                .populate('mentorships.cycle', 'name');
+        }
+        else {
+            // Search by osuId
+            user = await user_1.UserModel.findOne({ osuId })
+                .select('osuId username mentorships')
+                .populate('mentorships.cycle', 'name');
+        }
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }

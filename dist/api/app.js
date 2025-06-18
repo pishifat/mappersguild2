@@ -111,7 +111,7 @@ app.use('/admin/featuredArtists', featuredArtists_2.default);
 app.use('/admin/quests', quests_2.default);
 app.use('/admin/missions', missions_1.default);
 app.use('/admin/merch', merch_1.default);
-app.use('/interOp', interOp_1.default);
+app.use('/api/interOp', interOp_1.default);
 // catch 404
 app.use((req, res) => {
     res.status(404);
