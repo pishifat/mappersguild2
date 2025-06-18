@@ -118,7 +118,7 @@ app.use('/admin/featuredArtists', adminFeaturedArtistsRouter);
 app.use('/admin/quests', adminQuestsRouter);
 app.use('/admin/missions', adminMissionsRouter);
 app.use('/admin/merch', adminMerchRouter);
-app.use('/api/interOp', interOpRouter);
+app.use('/interOp', interOpRouter);
 
 // catch 404
 app.use((req, res) => {
