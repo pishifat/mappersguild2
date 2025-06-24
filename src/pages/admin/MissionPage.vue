@@ -45,6 +45,7 @@
             <button class="btn btn-sm btn-info w-100 mb-2" @click="loadClassifiedArtists($event)">
                 Load artists eligible for Classified quest
             </button>
+            <div>This shows unreleased artists who are marked with <code>[showcase]</code>, have <code>[timing]</code> completed, and have songs added to MG database.</div>
             <div>
                 <ul>
                     <li v-for="artist in classifiedArtists" :key="artist.id">
