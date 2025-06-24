@@ -277,23 +277,6 @@ async function calculateTasksPoints(userId) {
             }
         }
     }
-    // process unranked mission beatmaps for extra points
-    const unrankedMissionBeatmaps = await beatmap_2.BeatmapModel
-        .find({
-        status: { $ne: beatmap_1.BeatmapStatus.Ranked },
-        tasks: {
-            $in: ownTasks,
-        },
-        mission: { $exists: true },
-    }).populate(taskPointsPopulate);
-    for (const beatmap of unrankedMissionBeatmaps) {
-        if (beatmap.mission &&
-            !pointsObject.Missions.includes(beatmap.mission._id) &&
-            beatmap.mission.winningBeatmaps.some(b => b.id == beatmap.id)) {
-            pointsObject.Missions.push(beatmap.mission._id);
-            pointsObject.MissionReward += findMissionPoints(beatmap.mission.tier); // depends on mission tier
-        }
-    }
     // process legacy missions manually (Midian fa removal)
     if (userId == '6011796a90b4092a9b56a577') { // Irone OSU
         const mission = await mission_2.MissionModel.findById('66f4887f56f3f894641d4ac6').orFail();
