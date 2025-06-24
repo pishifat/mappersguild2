@@ -255,6 +255,7 @@ export async function calculateTasksPoints(userId: any): Promise<TasksPoints> {
                     questParticipation = true;
                     bonus = getQuestBonus(beatmap.quest.deadline, beatmap.rankedDate, task.mappers.length);
                 } else if (beatmap.mission?.status === MissionStatus.Closed && beatmap.mission?.closingAnnounced) {
+                    console.log(beatmap.mission.name);
                     missionParticipation = true;
                     bonus = getMissionBonus(beatmap.mission.winningBeatmaps, beatmap.id, task.mappers.length);
                 } else if (beatmap.isShowcase) {
@@ -305,6 +306,7 @@ export async function calculateTasksPoints(userId: any): Promise<TasksPoints> {
             (beatmap.host.id == userId || collabQuestIds.includes(beatmap.mission.id))
         ) {
             let isValidMissionParticipation;
+            console.log(beatmap.mission.name);
 
             for (const task of beatmap.tasks) {
                 if (task.mappers.some(m => m.id == userId) && task.name !== TaskName.Hitsounds && task.name !== TaskName.Storyboard) {
@@ -320,26 +322,6 @@ export async function calculateTasksPoints(userId: any): Promise<TasksPoints> {
                 pointsObject.Missions.push(beatmap.mission._id);
                 pointsObject.MissionReward += findMissionPoints(beatmap.mission.tier); // depends on mission tier
             }
-        }
-    }
-
-    // process unranked mission beatmaps for extra points
-    const unrankedMissionBeatmaps = await BeatmapModel
-        .find({
-            status: { $ne: BeatmapStatus.Ranked },
-            tasks: {
-                $in: ownTasks,
-            },
-            mission: { $exists: true },
-        }).populate(taskPointsPopulate);
-
-    for (const beatmap of unrankedMissionBeatmaps) {
-        if (beatmap.mission &&
-            !pointsObject.Missions.includes(beatmap.mission._id) &&
-            beatmap.mission.winningBeatmaps.some(b => b.id == beatmap.id)
-        ) {
-            pointsObject.Missions.push(beatmap.mission._id);
-            pointsObject.MissionReward += findMissionPoints(beatmap.mission.tier); // depends on mission tier
         }
     }
 
