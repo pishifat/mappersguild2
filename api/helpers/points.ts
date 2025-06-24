@@ -255,7 +255,6 @@ export async function calculateTasksPoints(userId: any): Promise<TasksPoints> {
                     questParticipation = true;
                     bonus = getQuestBonus(beatmap.quest.deadline, beatmap.rankedDate, task.mappers.length);
                 } else if (beatmap.mission?.status === MissionStatus.Closed && beatmap.mission?.closingAnnounced) {
-                    console.log(beatmap.mission.name);
                     missionParticipation = true;
                     bonus = getMissionBonus(beatmap.mission.winningBeatmaps, beatmap.id, task.mappers.length);
                 } else if (beatmap.isShowcase) {
@@ -306,7 +305,6 @@ export async function calculateTasksPoints(userId: any): Promise<TasksPoints> {
             (beatmap.host.id == userId || collabQuestIds.includes(beatmap.mission.id))
         ) {
             let isValidMissionParticipation;
-            console.log(beatmap.mission.name);
 
             for (const task of beatmap.tasks) {
                 if (task.mappers.some(m => m.id == userId) && task.name !== TaskName.Hitsounds && task.name !== TaskName.Storyboard) {
