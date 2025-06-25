@@ -76,6 +76,17 @@ missionsRouter.get('/loadInactiveMissions', async (req, res) => {
     res.json({ missions });
 });
 
+/* GET mission load from URL */
+missionsRouter.get('/searchOnLoad/:id', async (req, res) => {
+    const urlMission = await MissionModel.findOne({ _id: req.params.id }).defaultPopulate();
+
+    if (!urlMission) {
+        return res.json({ error: 'Mission ID does not exist!' });
+    }
+
+    res.json(urlMission);
+});
+
 function meetsRequirements(mission, user, beatmap) {
     /* user requirements */
     if ((mission.userMaximumRankedBeatmapsCount || mission.userMaximumRankedBeatmapsCount == 0) && (user.rankedBeatmapsCount > mission.userMaximumRankedBeatmapsCount)) {

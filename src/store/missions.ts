@@ -37,6 +37,12 @@ const store: Module<MissionsState, MainState> = {
         addMissions (state, missions: Mission[]): void {
             state.missions = state.missions.concat(missions);
         },
+        addMissionIfNotExists (state, mission: Mission): void {
+            const exists = state.missions.some(m => m.id === mission.id);
+            if (!exists) {
+                state.missions.push(mission);
+            }
+        },
         setUserBeatmaps (state, beatmaps: Beatmap[]): void {
             state.userBeatmaps = beatmaps;
         },

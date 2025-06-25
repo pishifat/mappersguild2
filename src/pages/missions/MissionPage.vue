@@ -34,9 +34,6 @@
                     <i class="fas fa-angle-down" />
                 </a>
             </h4>
-            <button v-if="!closedMissions.length" class="btn btn-sm w-100 btn-outline-info mb-2 pt-3 pb-2" @click="loadInactiveMissions($event)">
-                <h6>Load inactive priority quests</h6>
-            </button>
             <div id="closedMissions" class="show">
                 <mission-card
                     v-for="mission in closedMissions"
@@ -44,6 +41,9 @@
                     :mission="mission"
                 />
             </div>
+            <button v-if="!closedMissions.length || closedMissions.length == 1" class="btn btn-sm w-100 btn-outline-info mb-2 pt-3 pb-2" @click="loadInactiveMissions($event)">
+                <h6>Load inactive priority quests</h6>
+            </button>
         </div>
 
         <mission-info-modal />
@@ -91,21 +91,28 @@ export default defineComponent({
     },
     async created () {
         const id = this.$route.query.id;
-        let url = `/missions/relevantInfo`;
+        let data;
+        let urlMission;
 
-        const res = await this.$http.initialRequest<{ missions: Mission[], beatmaps: Beatmap[] }>(url);
+        if (id) {
+            [data, urlMission] = await Promise.all<any>([
+                this.$http.initialRequest('/missions/relevantInfo'),
+                this.$http.executeGet('/missions/searchOnLoad/' + id),
+            ]);
+        } else {
+            data = await this.$http.initialRequest('/missions/relevantInfo');
+        }
 
-        if (!this.$http.isError(res)) {
-            this.$store.commit('missions/setMissions', res.missions);
-            this.$store.commit('missions/setUserBeatmaps', res.beatmaps);
+        if (!this.$http.isError(data)) {
+            this.$store.commit('missions/setMissions', data.missions);
+            this.$store.commit('missions/setUserBeatmaps', data.beatmaps);
             this.$store.commit('missions/setFilterMode', this.loggedInUser.mainMode);
             this.$store.commit('missions/setFirstLoadDone');
 
-            if (id) { // this process will need to change when all missions aren't loaded
-                if (res.missions.some(m => m.id == id)) {
-                    this.$store.commit('missions/setSelectedMissionId', id);
-                    this.$bs.showModal('editMission');
-                }
+            if (id && !this.$http.isError(urlMission)) {
+                this.$store.commit('missions/addMissionIfNotExists', urlMission);
+                this.$store.commit('missions/setSelectedMissionId', id);
+                this.$bs.showModal('editMission');
             }
         }
 
