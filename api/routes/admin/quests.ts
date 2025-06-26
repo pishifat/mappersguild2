@@ -6,7 +6,6 @@ import { Quest, QuestStatus } from '../../../interfaces/quest';
 import { LogModel } from '../../models/log';
 import { LogCategory } from '../../../interfaces/log';
 import { webhookPost, webhookColors } from '../../helpers/discordApi';
-import { PartyModel } from '../../models/party';
 import { SpentPointsModel } from '../../models/spentPoints';
 import { generateAuthorWebhook, generateLists, generateThumbnailUrl } from '../../helpers/helpers';
 

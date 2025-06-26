@@ -386,6 +386,7 @@ export async function calculateSpentPoints(userId: any): Promise<number> {
         });
 
     let total = 0;
+    const artistRerollCosts = new Map(); // Track artist reroll costs by mission
 
     for (const spentPoints of ownSpentPoints) {
         if (spentPoints.category == SpentPointsCategory.AcceptQuest) {
@@ -398,6 +399,12 @@ export async function calculateSpentPoints(userId: any): Promise<number> {
             total += findCreateQuestPointsSpent(spentPoints.quest.art, spentPoints.quest.requiredMapsets);
         } else if (spentPoints.category == SpentPointsCategory.RerollShowcaseMissionSong) {
             total += rerollShowcaseMissionSongPrice; // 35 points to reroll song
+        } else if (spentPoints.category == SpentPointsCategory.RerollShowcaseMissionArtist) {
+            const missionId = spentPoints.mission?.toString();
+            const currentCount = artistRerollCosts.get(missionId) || 0;
+            const cost = 10 * Math.pow(2, currentCount);
+            total += cost;
+            artistRerollCosts.set(missionId, currentCount + 1);
         }
     }
 

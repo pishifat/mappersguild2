@@ -374,7 +374,7 @@
                                     </a>
                                 </td>
                                 <td scope="row" class="text-secondary">
-                                    {{ findSpentPointsValue(spentPointsEvent.category, spentPointsEvent.quest) }} <i class="fas fa-coins" />
+                                    {{ findSpentPointsValue(spentPointsEvent.category, spentPointsEvent.quest, spentPointsEvent.mission, spentPointsEvent.id) }} <i class="fas fa-coins" />
                                 </td>
                             </tr>
                         </tbody>
@@ -397,7 +397,7 @@ import { mapState, mapGetters } from 'vuex';
 import ModalDialog from '@components/ModalDialog.vue';
 import { Quest } from '@interfaces/quest';
 import { Mission } from '@interfaces/mission';
-import { SpentPoints } from '@interfaces/spentPoints';
+import { SpentPoints, SpentPointsCategory } from '@interfaces/spentPoints';
 import { Beatmap } from '@interfaces/beatmap/beatmap';
 import UserPointsRow from './UserPointsRow.vue';
 import { TaskName } from '@interfaces/beatmap/task';
@@ -576,35 +576,60 @@ export default defineComponent({
         },
         findSpentPointsAction(category): string {
             switch (category) {
-                case 'acceptQuest':
+                case SpentPointsCategory.AcceptQuest:
                     return 'Accepted quest:';
-                case 'reopenQuest':
+                case SpentPointsCategory.ReopenQuest:
                     return 'Reopened quest:';
-                case 'extendDeadline':
+                case SpentPointsCategory.ExtendDeadline:
                     return 'Extended quest deadline:';
-                case 'createQuest':
+                case SpentPointsCategory.CreateQuest:
                     return 'Created quest:';
-                case 'rerollShowcaseMissionSong':
+                case SpentPointsCategory.RerollShowcaseMissionSong:
                     return 'Rerolled priority quest song:';
+                case SpentPointsCategory.RerollShowcaseMissionArtist:
+                    return 'Rerolled priority quest artist:';
                 default:
                     return 'undefined action';
             }
         },
-        findSpentPointsValue(category, quest): number {
+        findSpentPointsValue(category, quest, mission, currentEventId): number {
             switch (category) {
-                case 'acceptQuest':
+                case SpentPointsCategory.AcceptQuest:
                     return quest.price;
-                case 'reopenQuest':
+                case SpentPointsCategory.ReopenQuest:
                     return quest.reopenPrice;
-                case 'extendDeadline':
+                case SpentPointsCategory.ExtendDeadline:
                     return 10;
-                case 'createQuest':
+                case SpentPointsCategory.CreateQuest:
                     return this.calculatePoints(quest);
-                case 'rerollShowcaseMissionSong':
+                case SpentPointsCategory.RerollShowcaseMissionSong:
                     return 35;
+                case SpentPointsCategory.RerollShowcaseMissionArtist:
+                    return this.calculateArtistRerollCost(mission, currentEventId);
                 default:
                     return 0;
             }
+        },
+        calculateArtistRerollCost(mission, currentEventId): number {
+            if (!mission) return 10; // fallback to first reroll cost
+
+            // Get all artist rerolls for this mission
+            const allArtistRerolls = this.spentPoints.filter(sp =>
+                sp.category === SpentPointsCategory.RerollShowcaseMissionArtist &&
+                sp.mission?.id === mission.id
+            );
+
+            // Sort by creation date to get chronological order (oldest first)
+            const sortedRerolls = allArtistRerolls.sort((a, b) => 
+                new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+            );
+
+            // Find the position of the current event in chronological order
+            const currentEventIndex = sortedRerolls.findIndex(sp => sp.id === currentEventId);
+            
+            // Calculate cost: 10 * 2^(chronological position)
+            // First reroll (index 0) = 10, second (index 1) = 20, etc.
+            return 10 * Math.pow(2, currentEventIndex);
         },
     },
 });

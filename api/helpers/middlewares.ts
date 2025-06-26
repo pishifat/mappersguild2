@@ -1,7 +1,6 @@
 import { UserModel } from '../models/user';
 import { UserGroup } from '../../interfaces/user';
 import { refreshToken, isOsuResponseError, getUserInfo } from './osuApi';
-import { FeaturedArtistModel } from '../models/featuredArtist';
 
 export function unauthorize(req, res) {
     if (req.accepts(['html', 'json']) === 'json') {

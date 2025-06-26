@@ -2,6 +2,7 @@ import { BeatmapMode } from './beatmap/beatmap';
 import { Quest } from './quest';
 import { Mission } from './mission';
 import { MentorshipCycle } from './mentorshipCycle';
+import { FeaturedArtist } from './featuredArtist';
 import { Document } from 'mongoose';
 import { OsuCover } from '../api/helpers/osuApi';
 
@@ -89,4 +90,5 @@ export interface User extends Document {
         sweater: number;
         additionalItems: number;
     };
+    previouslyRolledArtists: FeaturedArtist['_id'][];
 }

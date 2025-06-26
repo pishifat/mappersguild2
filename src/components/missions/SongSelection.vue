@@ -41,11 +41,13 @@
                             <span class="small ms-1">(ask <a href="https://osu.ppy.sh/users/3178418" target="_blank">pishifat</a> for the .osz)</span>
                         </span>
                         <button
-                            v-bs-tooltip="`this only affects your 'Available Points'`"
-                            class="btn btn-sm btn-outline-info"
+                            v-bs-tooltip="canAffordReroll ? `this only affects your 'Available Points'` : `you don't have enough Available Points for this`"
+                            class="btn btn-sm"
+                            :class="canAffordReroll ? 'btn-outline-info' : 'btn-outline-danger'"
+                            :disabled="!canAffordReroll"
                             @click="findShowcaseMissionSong($event)"
                         >
-                            Re-select song for 35 points <i class="fas fa-coins" />
+                            Re-select song for {{ songRerollCost }} points <i class="fas fa-coins" />
                         </button>
                     </li>
                 </ul>
@@ -76,6 +78,7 @@ export default defineComponent({
         return {
             songInfo: null as any,
             songInfoLoaded: false,
+            sessionSpentPoints: 0,
         };
     },
     computed: {
@@ -85,6 +88,15 @@ export default defineComponent({
         deadlineReached() {
             return new Date() > new Date(this.mission.deadline);
         },
+        songRerollCost() {
+            return 35;
+        },
+        effectiveAvailablePoints() {
+            return this.loggedInUser ? this.loggedInUser.availablePoints - this.sessionSpentPoints : 0;
+        },
+        canAffordReroll() {
+            return this.effectiveAvailablePoints >= this.songRerollCost;
+        },
     },
     async mounted(): Promise<void> {
         this.songInfo = await this.$http.executeGet(`/missions/${this.mission.id}/findSelectedShowcaseMissionSong`);
@@ -92,21 +104,31 @@ export default defineComponent({
     },
     methods: {
         async findShowcaseMissionSong(e): Promise<void> {
-            const result = confirm(`You will be randomly assigned a song from an unreleased Featured Artist. This is confidential information, so please do not spread it.\n\nYou are the only person who will have access to this song.\n\nAre you sure you want to continue?`);
+            const isReroll = this.songInfo;
+            const confirmMessage = isReroll
+                ? `You will be randomly assigned a new song from an unreleased Featured Artist for ${this.songRerollCost} points.\n\nThis is confidential information, so please do not spread it.\n\nAre you sure you want to continue?`
+                : `You will be randomly assigned a song from an unreleased Featured Artist. This is confidential information, so please do not spread it.\n\nYou are the only person who will have access to this song.\n\nAre you sure you want to continue?`;
+
+            const result = confirm(confirmMessage);
 
             if (result) {
                 const mission = await this.$http.executePost(`/missions/${this.mission.id}/findShowcaseMissionSong`, {}, e);
 
                 if (!this.$http.isError(mission)) {
+                    if (isReroll) {
+                        this.sessionSpentPoints += this.songRerollCost;
+                    }
+
                     await this.loadSelectedSong();
                     this.$store.dispatch('updateToastMessages', {
-                        message: `Song loaded`,
+                        message: isReroll ? `Song rerolled` : `Song loaded`,
                         type: 'info',
                     });
                 }
             }
         },
         async loadSelectedSong(): Promise<void> {
+            this.songInfoLoaded = false;
             this.songInfo = await this.$http.executeGet(`/missions/${this.mission.id}/findSelectedShowcaseMissionSong`);
             this.songInfoLoaded = true;
         },

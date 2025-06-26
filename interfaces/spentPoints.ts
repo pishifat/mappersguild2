@@ -9,6 +9,7 @@ export enum SpentPointsCategory {
     ReopenQuest = 'reopenQuest',
     CreateQuest = 'createQuest',
     RerollShowcaseMissionSong = 'rerollShowcaseMissionSong',
+    RerollShowcaseMissionArtist = 'rerollShowcaseMissionArtist',
 }
 
 export interface SpentPoints extends Document {

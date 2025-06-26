@@ -26,6 +26,19 @@
                 Load artist
             </button>
             <div v-else>
+                <div class="mb-2">
+                    <b>Artist: {{ artistInfo.artist.label }}</b>
+                    <button
+                        v-bs-tooltip="canAffordReroll ? `this only affects your 'Available Points'` : `you don't have enough Available Points for this`"
+                        class="btn btn-sm ms-2"
+                        :class="canAffordReroll ? 'btn-outline-info' : 'btn-outline-danger'"
+                        :disabled="!canAffordReroll"
+                        @click="findShowcaseMissionArtist($event)"
+                    >
+                        Re-select artist for {{ rerollCost }} points <i class="fas fa-coins" />
+                    </button>
+                </div>
+
                 <artist-songs
                     :artist="artistInfo.artist"
                     @update-mission="loadSelectedArtist()"
@@ -65,6 +78,8 @@ export default defineComponent({
         return {
             artistInfo: null as any,
             artistInfoLoaded: false,
+            artistRerollCount: 0,
+            sessionSpentPoints: 0,
         };
     },
     computed: {
@@ -74,28 +89,54 @@ export default defineComponent({
         deadlineReached() {
             return new Date() > new Date(this.mission.deadline);
         },
+        rerollCost() {
+            return 10 * Math.pow(2, this.artistRerollCount);
+        },
+        effectiveAvailablePoints() {
+            return this.loggedInUser ? this.loggedInUser.availablePoints - this.sessionSpentPoints : 0;
+        },
+        canAffordReroll() {
+            return this.effectiveAvailablePoints >= this.rerollCost;
+        },
     },
     async mounted(): Promise<void> {
-        this.artistInfo = await this.$http.executeGet(`/missions/${this.mission.id}/findSelectedShowcaseMissionArtist`);
+        const [artistInfo, rerollCount] = await Promise.all([
+            this.$http.executeGet(`/missions/${this.mission.id}/findSelectedShowcaseMissionArtist`),
+            this.$http.executeGet(`/missions/${this.mission.id}/getArtistRerollCount`),
+        ]);
+
+        this.artistInfo = artistInfo;
+        this.artistRerollCount = rerollCount || 0;
         this.artistInfoLoaded = true;
     },
     methods: {
         async findShowcaseMissionArtist(e): Promise<void> {
-            const result = confirm(`You will be randomly assigned an unreleased Featured Artist.\n\nThis is confidential information, so please do not spread it.\n\nAre you sure you want to continue?`);
+            const isReroll = this.artistInfo;
+            const confirmMessage = isReroll
+                ? `You will be randomly assigned a new unreleased Featured Artist for ${this.rerollCost} points.\n\nThis is confidential information, so please do not spread it.\n\nAre you sure you want to continue?`
+                : `You will be randomly assigned an unreleased Featured Artist.\n\nThis is confidential information, so please do not spread it.\n\nAre you sure you want to continue?`;
+
+            const result = confirm(confirmMessage);
 
             if (result) {
                 const mission = await this.$http.executePost(`/missions/${this.mission.id}/findShowcaseMissionArtist`, {}, e);
 
                 if (!this.$http.isError(mission)) {
+                    if (isReroll) {
+                        this.sessionSpentPoints += this.rerollCost;
+                        this.artistRerollCount++;
+                    }
+
                     await this.loadSelectedArtist();
                     this.$store.dispatch('updateToastMessages', {
-                        message: `Artist loaded`,
+                        message: isReroll ? `Artist rerolled` : `Artist loaded`,
                         type: 'info',
                     });
                 }
             }
         },
         async loadSelectedArtist(): Promise<void> {
+            this.artistInfoLoaded = false;
             this.artistInfo = await this.$http.executeGet(`/missions/${this.mission.id}/findSelectedShowcaseMissionArtist`);
             this.artistInfoLoaded = true;
         },

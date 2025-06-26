@@ -12,7 +12,7 @@ interface SpentPointsStatics extends Model<SpentPoints> {
 }
 
 const spentPointsSchema = new Schema<SpentPoints, SpentPointsStatics>({
-    category: { type: String, enum: ['extendDeadline', 'acceptQuest', 'createQuest', 'reopenQuest', 'rerollShowcaseMissionSong'], required: true },
+    category: { type: String, enum: ['extendDeadline', 'acceptQuest', 'createQuest', 'reopenQuest', 'rerollShowcaseMissionSong', 'rerollShowcaseMissionArtist'], required: true },
     user: { type: 'ObjectId', ref: 'User', required: true },
     quest: { type: 'ObjectId', ref: 'Quest' },
     mission: { type: 'ObjectId', ref: 'Mission' },

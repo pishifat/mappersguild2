@@ -65,6 +65,7 @@ const UserSchema = new Schema<User>({
         sweater: { type: Number },
         additionalItems: { type: Number },
     },
+    previouslyRolledArtists: [{ type: 'ObjectId', ref: 'FeaturedArtist', default: [] }],
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 UserSchema.virtual('totalPoints').get(function(this: User) {
