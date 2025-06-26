@@ -377,7 +377,7 @@
                 <div>
                     <h5>How do I join the Mappers' Guild?</h5>
                     <p class="text-secondary">
-                        If you have 3 or more ranked maps, you can join the Mappers' Guild by clicking the button below and authenticating through your osu! login. If you don't meet the requirements, you can still view the pages, but you can't interact with them!
+                       Anyone can get involved in the Mappers' Guild by clicking the button below and authenticating through your osu! login.
                     </p>
                     <p class="text-secondary">
                         Additionally, we recommend reading the <a href="/faq">frequently asked questions</a> page to better understand what you may be doing as a member of the Mappers' Guild.

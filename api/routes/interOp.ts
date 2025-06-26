@@ -1,7 +1,6 @@
 import express from 'express';
 import config from '../../config.json';
 import { UserModel } from '../models/user';
-import { UserGroup } from '../../interfaces/user';
 
 const interOpRouter = express.Router();
 
@@ -15,6 +14,7 @@ interOpRouter.use((req, res, next) => {
     }
 
     const userConfig = config.interOpAccess[username];
+
     if (!userConfig || userConfig.secret !== secret) {
         return res.status(401).json({ error: 'Invalid credentials' });
     }
@@ -29,7 +29,7 @@ interOpRouter.get('/userMentorships/:id', async (req, res) => {
 
     try {
         let user;
-        
+
         if (isNaN(osuId)) {
             // Search by username
             user = await UserModel.findOne()
