@@ -273,7 +273,7 @@ missionsRouter.post('/:missionId/findShowcaseMissionArtist', isEditable, async (
     const mission = res.locals.mission;
     const user = await user_1.UserModel.findById(req.session.mongoId).orFail();
     if (mission.userMinimumRank && user.rank < mission.userMinimumRank) {
-        return res.json({ error: `Song not loaded. Your MG rank is too low for this quest.` });
+        return res.json({ error: `Artist not loaded. Your MG rank is too low for this quest.` });
     }
     const missionWithArtists = await mission_1.MissionModel
         .findById(req.params.missionId)
@@ -286,7 +286,20 @@ missionsRouter.post('/:missionId/findShowcaseMissionArtist', isEditable, async (
         .orFail();
     const userExists = missionWithArtists.showcaseMissionArtists.find(a => a.user.id == user.id);
     if (userExists) {
-        return res.json({ error: 'Already selected artist. Try refreshing!' });
+        // This is a reroll - check points and cost
+        const rerollCount = await spentPoints_1.SpentPointsModel.countDocuments({
+            user: user.id,
+            mission: mission.id,
+            category: spentPoints_2.SpentPointsCategory.RerollShowcaseMissionArtist,
+        });
+        const rerollCost = 10 * Math.pow(2, rerollCount);
+        if (user.availablePoints < rerollCost) {
+            return res.json({ error: 'Not enough available points!' });
+        }
+        await spentPoints_1.SpentPointsModel.generate(spentPoints_2.SpentPointsCategory.RerollShowcaseMissionArtist, req.session.mongoId, null, mission.id);
+        await points_1.updateUserPoints(req.session.mongoId);
+        const previousArtist = userExists.artist;
+        await featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(previousArtist.id, { $pull: { showcaseMappers: user._id } });
     }
     const artists = await featuredArtist_1.FeaturedArtistModel
         .find({
@@ -297,16 +310,29 @@ missionsRouter.post('/:missionId/findShowcaseMissionArtist', isEditable, async (
         songsTimed: true,
         hasRankedMaps: { $ne: true },
         songs: { $exists: true, $ne: [] },
+        _id: { $nin: user.previouslyRolledArtists || [] },
     })
         .defaultPopulateWithSongs();
+    if (artists.length === 0) {
+        return res.json({ error: 'No available artists remaining. Talk to pishifat because something probably went wrong.' });
+    }
     const artistIndex = Math.floor(Math.random() * (artists.length));
     const artist = artists[artistIndex];
     await featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(artist.id, { $push: { showcaseMappers: user._id } });
-    mission.showcaseMissionArtists.push({
-        user: req.session.mongoId,
-        artist,
-    });
-    await mission.save();
+    // Add artist to user's previously rolled artists list
+    await user_1.UserModel.findByIdAndUpdate(user.id, { $addToSet: { previouslyRolledArtists: artist._id } });
+    if (userExists) {
+        const i = missionWithArtists.showcaseMissionArtists.findIndex(a => a.user.id == user.id);
+        missionWithArtists.showcaseMissionArtists[i].artist = artist;
+        await missionWithArtists.save();
+    }
+    else {
+        mission.showcaseMissionArtists.push({
+            user: req.session.mongoId,
+            artist,
+        });
+        await mission.save();
+    }
     const updatedMission = await mission_1.MissionModel
         .findById(req.params.missionId)
         .populate({
@@ -321,11 +347,11 @@ missionsRouter.post('/:missionId/findShowcaseMissionArtist', isEditable, async (
         .orFail();
     res.json(updatedMission);
     await discordApi_1.devWebhookPost([{
-            title: `showcase mission artist selected`,
-            color: discordApi_1.webhookColors.lightOrange,
+            title: `showcase mission artist ${userExists ? 'rerolled' : 'selected'}`,
+            color: userExists ? discordApi_1.webhookColors.lightGreen : discordApi_1.webhookColors.lightOrange,
             description: `[**${user.username}**](https://osu.ppy.sh/users/${user.osuId}) selected **${artist.label}** for **${mission.name}** priority quest`,
         }]);
-    log_1.LogModel.generate(req.session?.mongoId, `selected showcase mission artist`, log_2.LogCategory.Mission);
+    log_1.LogModel.generate(req.session?.mongoId, `${userExists ? 'rerolled' : 'selected'} showcase mission artist`, log_2.LogCategory.Mission);
 });
 /* GET findSelectedShowcaseMissionSong */
 missionsRouter.get('/:missionId/findSelectedShowcaseMissionSong', async (req, res) => {
@@ -360,5 +386,14 @@ missionsRouter.get('/:missionId/findSelectedShowcaseMissionArtist', async (req, 
         .orFail();
     const artist = mission.showcaseMissionArtists.find(a => a.user.id == req.session.mongoId);
     res.json(artist);
+});
+/* GET artist reroll count */
+missionsRouter.get('/:missionId/getArtistRerollCount', async (req, res) => {
+    const rerollCount = await spentPoints_1.SpentPointsModel.countDocuments({
+        user: req.session.mongoId,
+        mission: req.params.missionId,
+        category: spentPoints_2.SpentPointsCategory.RerollShowcaseMissionArtist,
+    });
+    res.json(rerollCount);
 });
 exports.default = missionsRouter;

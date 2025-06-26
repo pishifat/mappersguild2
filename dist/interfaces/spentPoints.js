@@ -8,4 +8,5 @@ var SpentPointsCategory;
     SpentPointsCategory["ReopenQuest"] = "reopenQuest";
     SpentPointsCategory["CreateQuest"] = "createQuest";
     SpentPointsCategory["RerollShowcaseMissionSong"] = "rerollShowcaseMissionSong";
+    SpentPointsCategory["RerollShowcaseMissionArtist"] = "rerollShowcaseMissionArtist";
 })(SpentPointsCategory = exports.SpentPointsCategory || (exports.SpentPointsCategory = {}));

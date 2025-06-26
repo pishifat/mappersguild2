@@ -23,7 +23,7 @@ exports.SpentPointsModel = void 0;
 /* eslint-disable @typescript-eslint/no-use-before-define */
 const mongoose_1 = __importStar(require("mongoose"));
 const spentPointsSchema = new mongoose_1.Schema({
-    category: { type: String, enum: ['extendDeadline', 'acceptQuest', 'createQuest', 'reopenQuest', 'rerollShowcaseMissionSong'], required: true },
+    category: { type: String, enum: ['extendDeadline', 'acceptQuest', 'createQuest', 'reopenQuest', 'rerollShowcaseMissionSong', 'rerollShowcaseMissionArtist'], required: true },
     user: { type: 'ObjectId', ref: 'User', required: true },
     quest: { type: 'ObjectId', ref: 'Quest' },
     mission: { type: 'ObjectId', ref: 'Mission' },
