@@ -16,15 +16,22 @@
                     :key="mission.id"
                     :mission="mission"
                 />
-                <hr />
-                <div v-if="separateMissions && separateMissions.length">
-                    <h6>Quests below are only accessible if you selected a song before the deadline</h6>
-                    <mission-card
-                        v-for="mission in separateMissions"
-                        :key="mission.id"
-                        :mission="mission"
-                    />
-                </div>
+            </div>
+        </div>
+        <div v-if="separateMissions && separateMissions.length" class="container card card-body my-4">
+            <h4>
+                <a href="#separateMissions" data-bs-toggle="collapse" @click.prevent>
+                    Pending priority quests
+                    <i class="fas fa-angle-down" />
+                </a>
+            </h4>
+            <div id="separateMissions" class="collapse">
+                <h6>Quests below are only accessible if you selected a song before the deadline</h6>
+                <mission-card
+                    v-for="mission in separateMissions"
+                    :key="mission.id"
+                    :mission="mission"
+                />
             </div>
         </div>
         <div class="container card card-body my-4">
