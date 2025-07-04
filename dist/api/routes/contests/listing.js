@@ -1046,7 +1046,8 @@ listingRouter.post('/:id/sendAnnouncement', middlewares_2.isContestCreator, midd
         description: `info for mbc`,
     };
     const participantIds = contest.submissions.map(s => s.creator.osuId);
-    const userIds = participantIds.concat([3178418]);
+    const creatorIds = contest.creators.map(c => c.osuId);
+    const userIds = participantIds.concat(creatorIds);
     const announcement = await osuBot_1.sendAnnouncement(userIds, channel, req.body.text);
     res.json(announcement);
 });
