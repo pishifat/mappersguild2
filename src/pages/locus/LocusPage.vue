@@ -1,6 +1,11 @@
 <template>
     <div>
         <div class="container card card-body py-4 my-4">
+            <h3 class="text-center">
+                <a href="https://osu.ppy.sh/home/news/2025-01-31-locus" target="_blank">Locus</a>'s Nexus is closed for the year! Check back again in 2026 :)
+            </h3>
+        </div>
+        <!--<div class="container card card-body py-4 my-4">
             <h4>Welcome to Locus!</h4>
             <div>
                 Derived from Latin, a <b>locus</b> can be described as "a particular place or position where something of interest occurs". Locus was conceived as an event that would bring the creative circles in osu! closer together. Beyond simply being a contest, Locus aims to foster positive relationships and champion the communities that shape the very foundation of osu!.
@@ -52,7 +57,7 @@
                         class="col-lg-6"
                     />
             </div>
-        </div>
+        </div>-->
     </div>
 </template>
 

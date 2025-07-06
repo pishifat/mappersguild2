@@ -69,10 +69,10 @@
                 </li>
             </ul>
         </li>
-        <li class="nav-item">
+        <!--<li class="nav-item">
             <router-link class="nav-link" to="/locus">
                 <i>Locus</i>
             </router-link>
-        </li>
+        </li>-->
     </ul>
 </template>
