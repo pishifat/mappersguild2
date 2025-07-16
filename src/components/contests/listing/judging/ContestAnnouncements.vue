@@ -36,7 +36,7 @@ export default defineComponent({
     },
     data () {
         return {
-            uploadBeatmapText: `hello! results for [${this.contest.name}](${this.contest.url}) are finalized, so you can upload your map!\n\nthe winners will be linked in the results news post, and the top submissions will be part of [Featured Artist playlists](https://osu.ppy.sh/wiki/en/People/Featured_Artists/Featured_Artist_playlists) for two weeks.\n- if you want your map in the playlist, **do not update your map after the results are released** (until the playlist is finished)\n- if you *don't* want your map in the playlist, let me know in advance.\n\nthats all :)`,
+            uploadBeatmapText: `hello! results for [${this.contest.name}](${this.contest.url}) are finalized, so you can upload your map! the winners will be linked in the results news post\n\nthats all :)`,
         };
     },
     methods: {
