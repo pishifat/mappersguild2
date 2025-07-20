@@ -4,6 +4,7 @@
             <b>Artist: </b>
             <span v-if="artistInfo" class="text-secondary ms-1">
                 <!-- artist info -->
+                <b>{{ artistInfo.artist.label }}</b>
                 <div>When the artist is announced, add your beatmap to the quest!</div>
                 <div class="mt-3">Once all artists for this quest are announced, the quest will be closed and you'll earn points :)</div>
             </span>
