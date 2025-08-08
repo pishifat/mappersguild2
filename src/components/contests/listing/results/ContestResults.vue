@@ -9,7 +9,7 @@
             </h4>
             <div>
                 <a :href="contest.download" target="_blank">
-                    Download all submissions
+                    Download all submissions ({{ contest.submissions.length }})
                 </a>
             </div>
             <table class="table table-sm">
