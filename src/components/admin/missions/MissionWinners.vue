@@ -115,8 +115,13 @@ export default defineComponent({
                 }
             }
 
-            const winningUsers = hosts.concat(collaborationUsers);
-            const winningUsernames = hostUsernames.concat(collaborationUsernames);
+            // exception for Classified v3 mappers who mapped "Midian"...
+            let fraudUsers: any[] = ['6310166c1e8b9e4fa901f2ce', '5f8fb4a5f3939239f54b4a09'];
+            let fraudUsernames: string[] = ['Ilham', 'nik']; // if either of these change usernames, i might need to change something. it probably won't matter though, so i'll be dumb
+
+            // combine and proceed
+            const winningUsers = hosts.concat(collaborationUsers, fraudUsers);
+            const winningUsernames = hostUsernames.concat(collaborationUsernames, fraudUsernames);
 
             let count = winningUsernames.reduce(function (a: any, b: any) {
                 return (
