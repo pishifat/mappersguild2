@@ -56,7 +56,7 @@ mentorshipRouter.get('/loadTenureBadges', async (req, res) => {
             await user.save();
         }
         const mentorships = user.mentorships.filter(m => {
-            if (m.group == 'mentor') {
+            if (m.group == 'mentor' || m.group == 'extraMentor') {
                 return true;
             }
         });
@@ -113,6 +113,35 @@ mentorshipRouter.get('/searchUser/:input', async (req, res) => {
             .orFail();
     }
     res.json(user);
+});
+/* GET extra mentees in UserDetails */
+mentorshipRouter.get('/findExtraMentees/:cycleId/:userId/:mode', async (req, res) => {
+    const { cycleId, userId, mode } = req.params;
+    const [cycle, user] = await Promise.all([
+        mentorshipCycle_1.MentorshipCycleModel
+            .findById(cycleId)
+            .populate(defaultCyclePopulate)
+            .orFail(),
+        user_1.UserModel
+            .findById(userId)
+            .orFail(),
+    ]);
+    const mentorshipIndex = user.mentorships.findIndex(m => m.cycle.toString() == cycle.id && m.mode == mode && m.group == 'extraMentor');
+    let extraMentees = [];
+    if (mentorshipIndex != -1) {
+        const mainMentor = await user_1.UserModel
+            .findById(user.mentorships[mentorshipIndex].mentor)
+            .populate(userCyclePopulate)
+            .orFail();
+        extraMentees = mainMentor.mentees.filter(m => {
+            for (const mentorship of m.mentorships) {
+                if (mentorship.cycle.toString() == cycle.id && mentorship.group == 'mentee' && mentorship.mode == mode && mentorship.mentor.toString() == mainMentor.id) {
+                    return true;
+                }
+            }
+        });
+    }
+    res.json(extraMentees);
 });
 /* POST toggle mentorship admin */
 mentorshipRouter.post('/toggleIsMentorshipAdmin', async (req, res) => {
@@ -204,7 +233,7 @@ mentorshipRouter.post('/addCycle', async (req, res) => {
 });
 /* POST add mentor */
 mentorshipRouter.post('/addMentor', async (req, res) => {
-    const { cycleId, userInput, mode } = req.body;
+    const { cycleId, userInput, mode, mainMentorId } = req.body;
     const [cycle, response] = await Promise.all([
         mentorshipCycle_1.MentorshipCycleModel
             .findById(cycleId)
@@ -256,12 +285,16 @@ mentorshipRouter.post('/addMentor', async (req, res) => {
     if (exists) {
         return res.json({ error: 'User already mentor for this cycle and mode' });
     }
-    user.mentorships.push({
+    const newMentorship = {
         cycle: cycle._id,
         mode,
-        group: 'mentor',
+        group: mainMentorId ? 'extraMentor' : 'mentor',
         phases: [1, 2, 3],
-    });
+    };
+    if (mainMentorId) {
+        newMentorship.mentor = mainMentorId;
+    }
+    user.mentorships.push(newMentorship);
     await user.save();
     await cycle.populate({
         path: 'participants',

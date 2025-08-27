@@ -147,12 +147,13 @@ mentorshipRouter.get('/findExtraMentees/:cycleId/:userId/:mode', async (req, res
     ]);
 
     const mentorshipIndex = user.mentorships.findIndex(m => m.cycle.toString() == cycle.id && m.mode == mode && m.group == 'extraMentor');
-    let extraMentees = [];
+    let extraMentees: any = [];
 
     if (mentorshipIndex != -1) {
         const mainMentor = await UserModel
             .findById(user.mentorships[mentorshipIndex].mentor)
-            .populate(userCyclePopulate);
+            .populate(userCyclePopulate)
+            .orFail();
 
         extraMentees = mainMentor.mentees.filter(m => {
             for (const mentorship of m.mentorships) {
@@ -339,7 +340,7 @@ mentorshipRouter.post('/addMentor', async (req, res) => {
         return res.json({ error: 'User already mentor for this cycle and mode' });
     }
 
-    const newMentorship = {
+    const newMentorship: any = {
         cycle: cycle._id,
         mode,
         group: mainMentorId ? 'extraMentor' : 'mentor',
