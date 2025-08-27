@@ -3,8 +3,8 @@
         <h5>{{ title }}</h5>
         <ol>
             <li v-for="user in modeMentors" :key="user.id + mode">
-                <user-link
-                    :user="user"
+                <user-link-list
+                    :users="findCombinedMentors(user)"
                 />
                 <span
                     v-if="!involvedInAllPhases(user)"
@@ -31,7 +31,7 @@
                         v-else
                         class="text-danger"
                         href="#"
-                        @click.prevent="removeParticipant($event, user.id)"
+                        @click.prevent="removeParticipant($event, findExtraMentors(user.id).length ? findExtraMentors(user.id)[findExtraMentors(user.id).length - 1].id : user.id)"
                     >
                         confirm
                     </a>
@@ -47,6 +47,24 @@
                         <span :class="isPhaseParticipant(user, i, user.id) ? '' : 'text-danger'" class="ms-1">P{{ i }}</span>
                     </a>
                 </span>
+                <div v-if="editingMentorId == user.id" class="input-group mt-1">
+                    <input
+                        v-model="extraMentorInput"
+                        class="form-control form-control-sm ms-2 mb-1"
+                        autocomplete="off"
+                        placeholder="joint mentor username/osuId..."
+                        @keyup.enter="addMentor($event, user.id)"
+                    />
+                    <div class="input-group-append">
+                        <button
+                            class="btn btn-primary"
+                            href="#"
+                            @click.prevent="addMentor($event, user.id)"
+                        >
+                            <i class="fas fa-plus fa-xs" />
+                        </button>
+                    </div>
+                </div>
                 <ul>
                     <li v-for="mentee in findMentees(user.id)" :key="mentee.id + mode" class="small">
                         <user-link
@@ -112,13 +130,13 @@
                 class="form-control form-control-sm"
                 autocomplete="off"
                 placeholder="new mentor username/osuId..."
-                @keyup.enter="addMentor($event)"
+                @keyup.enter="addMentor($event, null)"
             />
             <div class="input-group-append">
                 <button
                     class="btn btn-primary"
                     href="#"
-                    @click.prevent="addMentor($event)"
+                    @click.prevent="addMentor($event, null)"
                 >
                     <i class="fas fa-plus fa-xs" />
                 </button>
@@ -132,9 +150,13 @@ import { defineComponent } from 'vue';
 import { mapState, mapGetters } from 'vuex';
 import mentorshipModule from '@store/mentorship';
 import { User } from '@interfaces/user';
+import UserLinkList from '@components/UserLinkList.vue';
 
 export default defineComponent({
     name: 'ParticipantList',
+    components: {
+        UserLinkList,
+    },
     props: {
         mode: {
             type: String,
@@ -145,6 +167,7 @@ export default defineComponent({
         return {
             mentorInput: null,
             menteeInput: null,
+            extraMentorInput: null,
             editingMentorId: '',
             confirmDeleteMentor: '',
             confirmDeleteMentee: '',
@@ -193,6 +216,17 @@ export default defineComponent({
                 return 0;
             });
         },
+        modeExtraMentors(): User[] {
+            const users = this.selectedCycle.participants.filter(p => {
+                for (const mentorship of p.mentorships) {
+                    if (mentorship.mode == this.mode && mentorship.group == 'extraMentor' && mentorship.cycle.toString() == this.selectedCycle.id) {
+                        return true;
+                    }
+                }
+            });
+
+            return users;
+        },
         title(): string {
             if (this.mode == 'modding' || this.mode == 'graduation' || this.mode == 'storyboard') {
                 return this.mode;
@@ -220,6 +254,26 @@ export default defineComponent({
 
             return mentees;
         },
+        findExtraMentors(id): User[] {
+            const extraMentors = this.modeExtraMentors.filter(p => {
+                for (const mentorship of p.mentorships) {
+                    if (mentorship.group == 'extraMentor' && mentorship.mentor.toString() == id && mentorship.cycle.toString() == this.selectedCycle.id) {
+                        return true;
+                    }
+                }
+            });
+
+            return extraMentors;
+        },
+        findCombinedMentors(user): User[] {
+            const extraMentors = this.findExtraMentors(user.id);
+
+            if (extraMentors && extraMentors.length) {
+                return [user].concat(extraMentors);
+            }
+
+            return [user];
+        },
         isPhaseParticipant(user, phaseNum, mentorId): boolean {
             const cycle = user.mentorships.find(m => m.cycle.toString() == this.selectedCycle.id && m.mode == this.mode && (m.mentor ? m.mentor.toString() == mentorId : mentorId == user.id));
 
@@ -234,16 +288,17 @@ export default defineComponent({
 
             return cycle.phases.length == 3;
         },
-        async addMentor(e): Promise<void> {
-            const cycle: any = await this.$http.executePost(`/mentorship/addMentor`, { cycleId: this.selectedCycle.id, userInput: this.mentorInput, mode: this.mode }, e);
+        async addMentor(e, mainMentorId): Promise<void> {
+            const cycle: any = await this.$http.executePost(`/mentorship/addMentor`, { cycleId: this.selectedCycle.id, userInput: mainMentorId ? this.extraMentorInput : this.mentorInput, mode: this.mode, mainMentorId }, e);
 
             if (!this.$http.isError(cycle)) {
                 this.$store.dispatch('updateToastMessages', {
-                    message: `Added "${this.mentorInput}"`,
+                    message: `Added "${mainMentorId ? this.extraMentorInput : this.mentorInput}"`,
                     type: 'info',
                 });
                 this.$store.commit('mentorship/updateCycle', cycle);
                 this.mentorInput = null;
+                this.extraMentorInput = null;
             }
         },
         async addMentee(e, mentorId): Promise<void> {

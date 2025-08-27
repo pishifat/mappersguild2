@@ -57,7 +57,7 @@
                         :group="'mentor'"
                     />
                 </div>
-                <div>
+                <div v-if="totalMenteeDuration !== '0 days'">
                     Mentee for <b>{{ totalMenteeDuration }}</b> across all cycles and game modes
                 </div>
                 <div class="row mt-2">
@@ -118,7 +118,7 @@ export default defineComponent({
         ]),
         totalMentorDuration(): string {
             const mentorships = this.selectedUser.mentorships.filter(m => {
-                if (m.group == 'mentor') {
+                if (m.group == 'mentor' || m.group == 'extraMentor') {
                     return true;
                 }
             });

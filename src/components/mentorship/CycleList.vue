@@ -1,5 +1,5 @@
 <template>
-    <div class="col-sm-3">
+    <div v-if="modeMentorships.length" class="col-sm-3">
         <div class="text-center">
             <b :class="modeMentorships.length >= 4 && group == 'mentee' ? 'text-danger' : ''">{{ title }} {{ group }} cycles ({{ mentorshipsToPhases }})</b>
         </div>
@@ -7,7 +7,7 @@
             <li v-for="mentorship in modeMentorships" :key="mentorship.id + mode">
                 <a :href="mentorship.cycle.url" target="_blank">{{ mentorship.cycle.number }}: {{ mentorship.cycle.name }}</a>
                 <span class="small text-secondary"> ({{ calculateDuration([mentorship]) }} days) </span>
-                <ul v-if="mentorship.mentor">
+                <ul v-if="mentorship.mentor && mentorship.group != 'extraMentor'">
                     <li class="small text-secondary">
                         mentored by
                         <user-link
@@ -15,8 +15,8 @@
                         />
                     </li>
                 </ul>
-                <ul v-if="group == 'mentor' && findRelevantMentees(mentorship.cycle.id).length">
-                    <li v-for="mentee in findRelevantMentees(mentorship.cycle.id)" :key="mentee.id + mode + mentorship.cycle.id" class="small text-secondary">
+                <ul v-if="group == 'mentor' && (findRelevantMentees(mentorship).length)">
+                    <li v-for="mentee in findRelevantMentees(mentorship)" :key="mentee.id + mode + mentorship.cycle.id" class="small text-secondary">
                         mentor of
                         <user-link
                             :user="mentee"
@@ -45,6 +45,11 @@ export default defineComponent({
             default: '',
         },
     },
+    data () {
+        return {
+            extraMentees: [] as User[],
+        };
+    },
     computed: {
         ...mapState('mentorship', [
             'selectedUser',
@@ -52,7 +57,13 @@ export default defineComponent({
         modeMentorships(): any {
             if (this.selectedUser.mentorships) {
                 return this.selectedUser.mentorships.filter(m => {
-                    if (m.group == this.group && m.mode == this.mode) {
+                    let group = m.group;
+
+                    if (group == 'extraMentor') {
+                        group = 'mentor';
+                    }
+
+                    if (group == this.group && m.mode == this.mode) {
                         return true;
                     }
                 });
@@ -88,7 +99,34 @@ export default defineComponent({
             }
         },
     },
+    watch: {
+        selectedUser(): void {
+            this.loadExtraMentees();
+        },
+    },
+    mounted() {
+        this.loadExtraMentees();
+    },
     methods: {
+        async loadExtraMentees() {
+            this.extraMentees = [];
+
+            if (this.selectedUser.mentorships) {
+                const modeExtraMentorships = this.selectedUser.mentorships.filter(m => {
+                    if (m.group == 'extraMentor' && m.mode == this.mode) {
+                        return true;
+                    }
+                });
+
+                for (const mentorship of modeExtraMentorships) {
+                    const extraMentees: any = await this.$http.executeGet<{ user: User }>(`/mentorship/findExtraMentees/${mentorship.cycle.id}/${this.selectedUser.id}/${this.mode}`);
+
+                    if (!this.$http.isError(extraMentees)) {
+                        this.extraMentees = extraMentees;
+                    }
+                }
+            }
+        },
         calculateDuration(mentorships): number {
             let duration = 0;
 
@@ -102,14 +140,26 @@ export default defineComponent({
 
             return duration;
         },
-        findRelevantMentees(cycleId): User[] {
-            return this.selectedUser.mentees.filter(m => {
+        findRelevantMentees(argMentorship): User[] {
+            const mentees = this.selectedUser.mentees.filter(m => {
                 for (const mentorship of m.mentorships) {
-                    if (mentorship.cycle.toString() == cycleId && mentorship.group == 'mentee' && mentorship.mode == this.mode && mentorship.mentor.toString() == this.selectedUser.id) {
+                    if (mentorship.cycle.toString() == argMentorship.cycle.id && mentorship.group == 'mentee' && mentorship.mode == this.mode && mentorship.mentor.toString() == this.selectedUser.id) {
                         return true;
                     }
                 }
             });
+
+            if (this.extraMentees && this.extraMentees.length) {
+                for (const mentee of this.extraMentees) {
+                    for (const mentorship of mentee.mentorships) {
+                        if (mentorship.cycle.toString() == argMentorship.cycle.id && mentorship.group == 'mentee' && mentorship.mode == this.mode && mentorship.mentor.toString() == argMentorship.mentor.id) {
+                            mentees.push(mentee);
+                        }
+                    }
+                }
+            }
+
+            return mentees;
         },
     },
 });
