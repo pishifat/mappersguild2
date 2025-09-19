@@ -83,12 +83,5 @@ export interface User extends Document {
     isQuestTrailblazer: boolean;
     mentorshipBadge: number;
     cover: OsuCover;
-    worldCupMerch: {
-        active: boolean;
-        coins: number[];
-        pin: boolean;
-        sweater: number;
-        additionalItems: number;
-    };
     previouslyRolledArtists: FeaturedArtist['_id'][];
 }

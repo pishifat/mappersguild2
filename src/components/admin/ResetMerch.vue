@@ -19,9 +19,6 @@
                         <option value="HasSpecificMerchOrder">
                             hasSpecificMerchOrder
                         </option>
-                        <option value="WorldCupMerch">
-                            worldCupMerch
-                        </option>
                     </select>
                 </div>
                 <div class="col-sm-6">

@@ -70,13 +70,6 @@ const store: Module<UserState, MainState> = {
                 user.hasSpecificMerchOrder = payload.hasSpecificMerchOrder;
             }
         },
-        updateWorldCupMerch (state, payload): void {
-            const user = state.users.find(u => u.id == payload.userId);
-
-            if (user) {
-                user.worldCupMerch = payload.worldCupMerch;
-            }
-        },
     },
     getters: {
         normalUsers: (state): Beatmap[] => {

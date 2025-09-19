@@ -104,71 +104,6 @@
                             hasSpecificMerchOrder: {{ user.hasSpecificMerchOrder }}
                         </button>
                     </div>
-                    <div class="col-sm-4">
-                        <button class="btn btn-sm btn-outline-info w-100" @click="toggleWorldCupMerchActive($event)">
-                            worldCupMerch.active: {{ user.worldCupMerch.active ? 'true' : 'false' }}
-                        </button>
-                    </div>
-                </div>
-                <div v-if="user.worldCupMerch.active">
-                    <div class="row">
-                        <div class="col-sm-6 row mb-2">
-                            <div class="col-sm-5">
-                                coins:
-                            </div>
-                            <div class="col-sm-7">
-                                <input
-                                    v-model="coins"
-                                    class="form-control form-control-sm mx-2 mb-2"
-                                    type="text"
-                                    placeholder="comma separated years"
-                                    autocomplete="off"
-                                />
-                            </div>
-                            <div class="col-sm-5">
-                                pin:
-                            </div>
-                            <div class="col-sm-7">
-                                <input
-                                    v-model="pin"
-                                    class="form-control form-control-sm mx-2 mb-2"
-                                    type="text"
-                                    placeholder="empty for false"
-                                    autocomplete="off"
-                                />
-                            </div>
-                            <div class="col-sm-5">
-                                sweater:
-                            </div>
-                            <div class="col-sm-7">
-                                <input
-                                    v-model="sweater"
-                                    class="form-control form-control-sm mx-2 mb-2"
-                                    type="number"
-                                    placeholder="year"
-                                    autocomplete="off"
-                                />
-                            </div>
-                            <div class="col-sm-5">
-                                additionalItems:
-                            </div>
-                            <div class="col-sm-7">
-                                <input
-                                    v-model="additionalItems"
-                                    class="form-control form-control-sm mx-2 mb-2"
-                                    type="number"
-                                    placeholder="usually 0, possibly 1 or 2"
-                                    autocomplete="off"
-                                />
-                            </div>
-                            <button class="btn btn-sm btn-outline-info" @click="saveWorldCupMerch($event)">
-                                Save worldCupMerch
-                            </button>
-                        </div>
-                        <copy-paste class="col-sm-6">
-                            <pre>{{ user.worldCupMerch }}</pre>
-                        </copy-paste>
-                    </div>
                 </div>
 
                 <h6 class="mt-4">
@@ -403,41 +338,6 @@ export default defineComponent({
                 this.$store.commit('updateHasSpecificMerchOrder', {
                     userId: this.user.id,
                     hasSpecificMerchOrder: res.hasSpecificMerchOrder,
-                });
-            }
-        },
-        async toggleWorldCupMerchActive(e): Promise<void> {
-            const res: any = await this.$http.executePost(`/admin/users/${this.user.id}/toggleWorldCupMerchActive`, { active: !this.user.worldCupMerch.active }, e);
-
-            if (res) {
-                this.$store.dispatch('updateToastMessages', {
-                    message: `set worldCupMerch.active ${res.worldCupMerch.active}`,
-                    type: 'info',
-                });
-                this.$store.commit('updateWorldCupMerch', {
-                    userId: this.user.id,
-                    worldCupMerch: res.worldCupMerch,
-                });
-            }
-        },
-        async saveWorldCupMerch(e): Promise<void> {
-            const res: any = await this.$http.executePost(`/admin/users/${this.user.id}/saveWorldCupMerch`, {
-                worldCupMerch: {
-                    coins: this.coins,
-                    pin: this.pin,
-                    sweater: this.sweater,
-                    additionalItems: this.additionalItems,
-                },
-            }, e);
-
-            if (res) {
-                this.$store.dispatch('updateToastMessages', {
-                    message: `saved worldCupMerch`,
-                    type: 'info',
-                });
-                this.$store.commit('updateWorldCupMerch', {
-                    userId: this.user.id,
-                    worldCupMerch: res.worldCupMerch,
                 });
             }
         },
