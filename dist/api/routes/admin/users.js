@@ -94,46 +94,6 @@ adminUsersRouter.post('/:id/toggleHasSpecificMerchOrder', async (req, res) => {
     await user_1.UserModel.findByIdAndUpdate(req.params.id, { hasSpecificMerchOrder }).orFail();
     res.json({ hasSpecificMerchOrder });
 });
-/* POST toggle worldCupMerch.active */
-adminUsersRouter.post('/:id/toggleWorldCupMerchActive', async (req, res) => {
-    const active = req.body.active;
-    const user = await user_1.UserModel.findById(req.params.id).orFail();
-    if (!user.worldCupMerch.active) {
-        user.worldCupMerch = {
-            active,
-            coins: [],
-            pin: false,
-            sweater: 0,
-            additionalItems: 0,
-        };
-    }
-    else {
-        user.worldCupMerch.active = active;
-    }
-    await user.save();
-    res.json(user);
-});
-/* POST save worldCupMerch */
-adminUsersRouter.post('/:id/saveWorldCupMerch', async (req, res) => {
-    const worldCupMerch = req.body.worldCupMerch;
-    const finalCoins = [];
-    if (worldCupMerch.coins.length) {
-        const coinsSplit = worldCupMerch.coins.split(',');
-        for (const coin of coinsSplit) {
-            finalCoins.push(parseInt(coin.trim()));
-        }
-    }
-    const user = await user_1.UserModel.findById(req.params.id).orFail();
-    user.worldCupMerch = {
-        active: true,
-        coins: finalCoins,
-        pin: Boolean(worldCupMerch.pin),
-        sweater: parseInt(worldCupMerch.sweater),
-        additionalItems: parseInt(worldCupMerch.additionalItems),
-    },
-        await user.save();
-    res.json(user);
-});
 /* POST reset hasMerchAccess */
 adminUsersRouter.post('/resetMerchUsers', async (req, res) => {
     const osuIdInput = req.body.osuIdInput;
@@ -147,9 +107,6 @@ adminUsersRouter.post('/resetMerchUsers', async (req, res) => {
         case 'HasSpecificMerchOrder':
             query = { hasSpecificMerchOrder: true, osuId: { $nin: osuIds } };
             break;
-        case 'WorldCupMerch':
-            query = { 'worldCupMerch.active': true, osuId: { $nin: osuIds } };
-            break;
         default:
             return res.json({ error: 'no field' });
     }
@@ -161,15 +118,6 @@ adminUsersRouter.post('/resetMerchUsers', async (req, res) => {
                 break;
             case 'HasSpecificMerchOrder':
                 user.hasSpecificMerchOrder = false;
-                break;
-            case 'WorldCupMerch':
-                user.worldCupMerch = {
-                    active: false,
-                    coins: [],
-                    pin: false,
-                    sweater: 0,
-                    additionalItems: 0,
-                };
                 break;
             default:
                 return res.json({ error: 'no field' });
@@ -187,9 +135,6 @@ adminUsersRouter.post('/loadMerchUsers', async (req, res) => {
             break;
         case 'HasSpecificMerchOrder':
             query = { hasSpecificMerchOrder: true };
-            break;
-        case 'WorldCupMerch':
-            query = { 'worldCupMerch.active': true };
             break;
         default:
             return res.json({ error: 'no field' });
