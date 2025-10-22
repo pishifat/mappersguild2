@@ -16,14 +16,14 @@
                     :key="mission.id"
                     :mission="mission"
                 />
-                <div v-if="!openMissions || (openMissions && !openMissions.length)">
+                <h6 v-if="!openMissions || (openMissions && !openMissions.length)">
                     None. Check back soon!
-                </div>
+                </h6>
             </div>
         </div>
         <div v-if="separateMissions && separateMissions.length" class="container card card-body my-4">
             <h4>
-                <a href="#separateMissions" data-bs-toggle="collapse" @click.prevent>
+                <a href="#separateMissions" data-bs-toggle="collapse" :class="!openMissions || (openMissions && !openMissions.length) ? 'show' : ''" @click.prevent>
                     Pending priority quests
                     <i class="fas fa-angle-down" />
                 </a>
