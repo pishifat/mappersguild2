@@ -33,7 +33,7 @@ merchRouter.post('/checkout', async (req, res) => {
     }
     else {
         const product = await getProduct(req.body.pid);
-        const variantId = product.variants.edges.length > 1 ? product.variantId : product.variants.edges[0].node.id;
+        const variantId = product.variants.edges.length > 1 ? product.variantId : product.variants.edges[0].node.id; // this probably doesn't work if there are variants, but i'll fix it when it's relevant
         cartLines.push({ merchandiseId: variantId, quantity: 1 });
     }
     const discountCode = config_json_1.default.shopify.discountCode;

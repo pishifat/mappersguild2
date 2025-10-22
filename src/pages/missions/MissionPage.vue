@@ -16,6 +16,9 @@
                     :key="mission.id"
                     :mission="mission"
                 />
+                <div v-if="!openMissions || (openMissions && !openMissions.length)">
+                    None. Check back soon!
+                </div>
             </div>
         </div>
         <div v-if="separateMissions && separateMissions.length" class="container card card-body my-4">
