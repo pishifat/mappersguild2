@@ -129,7 +129,7 @@ export default defineComponent({
 <style scoped>
 .card-mission-tier {
     position: absolute;
-    top: calc(50% - 50px);
+    top: 30px;
     left: -30px;
     max-width: 100px;
     max-height: 100px;
