@@ -40,7 +40,7 @@ missionsRouter.get('/relevantInfo', async (req, res) => {
             openingAnnounced: true,
         })
             .defaultPopulate()
-            .sort({ tier: 1, createdAt: -1 }),
+            .sort({ tier: 1, name: 1, createdAt: -1 }),
         beatmap_1.BeatmapModel
             .find({
             host: req.session.mongoId,
