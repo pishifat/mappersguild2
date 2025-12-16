@@ -12,7 +12,6 @@
                 <ul>
                     <li>contact email <span class="text-secondary small">(this must be the same as your osu! account's email)</span></li>
                     <li>shipping address</li>
-                    <li>billing address <span class="text-secondary small">(can be the same as your shipping address)</span></li>
                 </ul>
                 <div>when you've gathered this info, checkout below :)</div>
             </div>
