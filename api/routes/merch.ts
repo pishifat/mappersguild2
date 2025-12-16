@@ -38,8 +38,8 @@ merchRouter.post('/checkout', async (req, res) => {
         cartLines.push({ merchandiseId: variantId, quantity: 1 });
     }
 
-    const discountCode = config.shopify.discountCode;
-    const cart = await createCart(cartLines, discountCode);
+    const discountCodes = config.shopify.discountCodes;
+    const cart = await createCart(cartLines, discountCodes);
 
     user.hasMerchAccess = false;
     user.hasSpecificMerchOrder = false;

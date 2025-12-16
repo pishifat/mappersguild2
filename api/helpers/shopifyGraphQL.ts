@@ -1,7 +1,7 @@
 import config from '../../config.json';
 import fetch from 'node-fetch';
 
-export async function createCart(cartLines: any[], discountCode?: string) {
+export async function createCart(cartLines: any[], discountCodes?: string[]) {
     // Create cart with simple fetch
     const cartResponse = await fetch(`https://${config.shopify.domain}/api/2025-01/graphql.json`, {
         method: 'POST',
@@ -11,7 +11,7 @@ export async function createCart(cartLines: any[], discountCode?: string) {
         },
         body: JSON.stringify({
             query: `mutation cartCreate($cartInput: CartInput!) { cartCreate(input: $cartInput) { cart { id checkoutUrl } userErrors { message } } }`,
-            variables: { cartInput: { lines: cartLines } }
+            variables: { cartInput: { lines: cartLines } },
         }),
     });
 
@@ -24,7 +24,7 @@ export async function createCart(cartLines: any[], discountCode?: string) {
     const cart = cartResult.data.cartCreate.cart;
 
     // Apply discount if provided
-    if (discountCode && cart) {
+    if (discountCodes && cart) {
         await fetch(`https://${config.shopify.domain}/api/2025-01/graphql.json`, {
             method: 'POST',
             headers: {
@@ -33,7 +33,7 @@ export async function createCart(cartLines: any[], discountCode?: string) {
             },
             body: JSON.stringify({
                 query: `mutation cartDiscountCodesUpdate($cartId: ID!, $discountCodes: [String!]) { cartDiscountCodesUpdate(cartId: $cartId, discountCodes: $discountCodes) { userErrors { message } } }`,
-                variables: { cartId: cart.id, discountCodes: [discountCode] }
+                variables: { cartId: cart.id, discountCodes },
             }),
         });
     }
