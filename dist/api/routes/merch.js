@@ -36,8 +36,8 @@ merchRouter.post('/checkout', async (req, res) => {
         const variantId = product.variants.edges.length > 1 ? product.variantId : product.variants.edges[0].node.id; // this probably doesn't work if there are variants, but i'll fix it when it's relevant
         cartLines.push({ merchandiseId: variantId, quantity: 1 });
     }
-    const discountCode = config_json_1.default.shopify.discountCode;
-    const cart = await shopifyGraphQL_1.createCart(cartLines, discountCode);
+    const discountCodes = config_json_1.default.shopify.discountCodes;
+    const cart = await shopifyGraphQL_1.createCart(cartLines, discountCodes);
     user.hasMerchAccess = false;
     user.hasSpecificMerchOrder = false;
     await user.save();
