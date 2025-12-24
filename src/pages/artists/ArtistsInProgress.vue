@@ -73,23 +73,6 @@
                         />
                     </transition-group>
                 </div>
-
-                <h5 v-if="commissionPendingArtists.length" class="ms-4 mt-2">
-                    <a href="#commissionSongs" data-bs-toggle="collapse">
-                        Commission pending artists ({{ commissionPendingArtists.length }})
-                        <i class="fas fa-angle-down" />
-                    </a>
-                </h5>
-
-                <div id="commissionSongs" :class="loggedInUser.osuId == 3178418 ? 'show' : 'collapse'">
-                    <transition-group name="list" tag="div" class="row">
-                        <artist-card
-                            v-for="artist in commissionPendingArtists"
-                            :key="artist.id"
-                            :artist="artist"
-                        />
-                    </transition-group>
-                </div>
             </div>
         </div>
     </div>

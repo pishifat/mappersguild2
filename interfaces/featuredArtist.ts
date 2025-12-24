@@ -38,7 +38,6 @@ export interface FeaturedArtist {
 
     // other
     hasRankedMaps: boolean;
-    isCommission: boolean;
     hasNewSongs: boolean;
 
     // showcase mappers

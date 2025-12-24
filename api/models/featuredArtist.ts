@@ -34,7 +34,6 @@ const featuredArtistSchema = new Schema<FeaturedArtist>({
 
     // other
     hasRankedMaps: { type: Boolean },
-    isCommission: { type: Boolean },
     hasNewSongs: { type: Boolean },
 
     // showcase mappers

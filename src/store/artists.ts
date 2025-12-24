@@ -74,18 +74,8 @@ export default {
                 return 0;
             });
         },
-        commissionPendingArtists: (state, getters): FeaturedArtist[] => {
-            const artists = getters.filteredArtists.filter(a => a.isCommission);
-
-            return artists.sort((a,b) => {
-                if (a.lastContacted < b.lastContacted) return 1;
-                if (a.lastContacted > b.lastContacted) return -1;
-
-                return 0;
-            });
-        },
         readyArtists: (state, getters): FeaturedArtist[] => {
-            const artists = getters.filteredArtists.filter(a => (!a.osuId || a.hasNewSongs) && !a.isUpToDate && (a.ppySigned || a.projectedRelease));
+            const artists = getters.filteredArtists.filter(a => !a.osuId && (a.ppySigned || a.projectedRelease));
             let projectedReleaseArtists = artists.filter(a => a.projectedRelease);
             let unknownReleaseArtists = artists.filter(a => !a.projectedRelease);
 
