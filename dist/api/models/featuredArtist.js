@@ -45,7 +45,6 @@ const featuredArtistSchema = new mongoose_1.Schema({
     isUpToDate: { type: Boolean },
     // other
     hasRankedMaps: { type: Boolean },
-    isCommission: { type: Boolean },
     hasNewSongs: { type: Boolean },
     // showcase mappers
     referenceUrl: { type: String },

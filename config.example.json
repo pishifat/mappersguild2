@@ -43,7 +43,7 @@
         "domain": "",
         "storeFrontToken": "",
         "webhookKey": "",
-        "discountCode": "",
+        "discountCodes": [""],
         "secretProductIds": [""],
         "specificMerchOrder": [
             {

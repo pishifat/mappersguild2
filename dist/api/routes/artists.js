@@ -15,9 +15,11 @@ artistsRouter.use(middlewares_1.isSuperAdmin);
 artistsRouter.get('/loadArtists', async (req, res) => {
     res.json(await featuredArtist_1.FeaturedArtistModel
         .find({
-        isContacted: true,
-        isResponded: true,
-        isRejected: { $ne: true },
+        $or: [
+            { isContacted: true },
+            { isResponded: true },
+            { hasNewSongs: true },
+        ],
     })
         .defaultPopulate());
 });
@@ -28,7 +30,7 @@ artistsRouter.get('/loadOtherArtists', async (req, res) => {
         $or: [
             { isContacted: { $ne: true } },
             { isResponded: { $ne: true } },
-            { isRejected: true },
+            { hasNewSongs: { $ne: true } },
         ],
     })
         .defaultPopulate());
@@ -99,10 +101,6 @@ artistsRouter.post('/toggleAssetsReceived/:id', async (req, res) => {
 artistsRouter.post('/toggleHasRankedMaps/:id', async (req, res) => {
     res.json(await featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { hasRankedMaps: req.body.value }).defaultPopulate());
 });
-/* POST toggle isCommission */
-artistsRouter.post('/toggleIsCommission/:id', async (req, res) => {
-    res.json(await featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { isCommission: req.body.value }).defaultPopulate());
-});
 /* POST toggle hasNewSongs */
 artistsRouter.post('/toggleHasNewSongs/:id', async (req, res) => {
     res.json(await featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { hasNewSongs: req.body.value }).defaultPopulate());
@@ -110,8 +108,8 @@ artistsRouter.post('/toggleHasNewSongs/:id', async (req, res) => {
 /* POST toggle isUpToDate */
 artistsRouter.post('/toggleIsUpToDate/:id', async (req, res) => {
     let a = await featuredArtist_1.FeaturedArtistModel.findById(req.params.id).orFail();
-    if (!req.body.value && !a.isCommission && !a?.hasNewSongs) {
-        return res.json({ error: `Can't be not-up-to-date without commission or pending songs!` });
+    if (!req.body.value && !a?.hasNewSongs) {
+        return res.json({ error: `Can't be not-up-to-date without pending songs!` });
     }
     a = await featuredArtist_1.FeaturedArtistModel
         .findByIdAndUpdate(req.params.id, {
