@@ -17,8 +17,7 @@ artistsRouter.get('/loadArtists', async (req, res) => {
         .find({
             $or: [
                 { isContacted: true },
-                { isResponded: true },
-                { hasNewSongs: true },
+                { osuId: { $exists: true } },
             ],
         })
         .defaultPopulate()
@@ -31,8 +30,7 @@ artistsRouter.get('/loadOtherArtists', async (req, res) => {
         .find({
             $or: [
                 { isContacted: { $ne: true } },
-                { isResponded: { $ne: true } },
-                { hasNewSongs: { $ne: true } },
+                { osuId: { $ne: true } },
             ],
         })
         .defaultPopulate()
