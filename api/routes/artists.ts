@@ -30,7 +30,7 @@ artistsRouter.get('/loadOtherArtists', async (req, res) => {
         .find({
             $or: [
                 { isContacted: { $ne: true } },
-                { osuId: { $ne: true } },
+                { osuId: { $exists: false } },
             ],
         })
         .defaultPopulate()

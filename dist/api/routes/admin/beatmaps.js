@@ -90,13 +90,6 @@ adminBeatmapsRouter.post('/:id/updateUrl', middlewares_1.isSuperAdmin, async (re
         .orFail();
     res.json(req.body.url);
 });
-/* POST update osu beatmap pack ID */
-adminBeatmapsRouter.post('/:id/updatePackId', middlewares_1.isSuperAdmin, async (req, res) => {
-    await beatmap_1.BeatmapModel
-        .findByIdAndUpdate(req.params.id, { packId: req.body.packId })
-        .orFail();
-    res.json(parseInt(req.body.packId, 10));
-});
 /* POST update isShowcase */
 adminBeatmapsRouter.post('/:id/updateIsShowcase', middlewares_1.isSuperAdmin, async (req, res) => {
     await beatmap_1.BeatmapModel

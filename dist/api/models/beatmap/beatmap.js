@@ -35,7 +35,6 @@ const BeatmapSchema = new mongoose_1.Schema({
     mission: { type: 'ObjectId', ref: 'Mission' },
     url: { type: String },
     mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania', 'hybrid'], default: 'osu' },
-    packId: { type: Number },
     isShowcase: { type: Boolean },
     queuedForRank: { type: Boolean },
     invalidForPoints: { type: Boolean },
@@ -56,7 +55,7 @@ const queryHelpers = {
     },
     defaultPopulate() {
         return this.populate([
-            { path: 'host', select: '_id osuId username' },
+            { path: 'host', select: '_id osuId username createdAt' },
             { path: 'bns', select: '_id osuId username' },
             { path: 'modders', select: '_id osuId username' },
             { path: 'quest', select: '_id name art modes deadline isMbc status' },

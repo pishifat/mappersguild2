@@ -44,8 +44,6 @@
         <contributor-stats />
 
         <bundled-beatmaps-list />
-
-        <beatmap-id-list-generator />
     </div>
 </template>
 
@@ -56,7 +54,6 @@ import ContributorStats from '../../components/admin/ContributorStats.vue';
 import BeatmapInfoAdmin from '../../components/admin/BeatmapInfoAdmin.vue';
 import OsuApiBeatmapSearch from '../../components/admin/OsuApiBeatmapSearch.vue';
 import BundledBeatmapsList from '../../components/admin/BundledBeatmapsList.vue';
-import BeatmapIdListGenerator from '../../components/admin/BeatmapIdListGenerator.vue';
 import DataTable from '../../components/admin/DataTable.vue';
 import { Beatmap } from '../../../interfaces/beatmap/beatmap';
 import beatmapsAdminModule from '@store/admin/beatmaps';
@@ -69,7 +66,6 @@ export default defineComponent({
         BeatmapInfoAdmin,
         OsuApiBeatmapSearch,
         BundledBeatmapsList,
-        BeatmapIdListGenerator,
         ModesIcons,
     },
     data () {
