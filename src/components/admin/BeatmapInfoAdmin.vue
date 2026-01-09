@@ -85,18 +85,6 @@
                     </button>
                 </p>
                 <p class="row">
-                    <input
-                        v-model="packId"
-                        class="form-control form-control-sm mx-2 w-50"
-                        type="text"
-                        autocomplete="off"
-                        placeholder="osu! beatmap pack ID..."
-                    />
-                    <button class="btn btn-sm btn-outline-info w-25" @click="updatePackId($event)">
-                        Save pack ID
-                    </button>
-                </p>
-                <p class="row">
                     <span class="col-sm-6">
                         Featured Artist showcase:
                         <span class="text-danger me-2">{{ beatmap.isShowcase ? 'true' : 'false' }}</span>
@@ -181,7 +169,6 @@ export default defineComponent({
             taskId: null,
             modderId: null,
             beatmapUrl: this.beatmap.url,
-            packId: this.beatmap.packId,
             rejectionInput: '',
         };
     },
@@ -208,7 +195,6 @@ export default defineComponent({
             this.taskId = null;
             this.modderId = null;
             this.beatmapUrl = this.beatmap.url;
-            this.packId = this.beatmap.packId;
             this.rejectionInput = '';
         },
         findTaskInfo(task): string {
@@ -271,20 +257,6 @@ export default defineComponent({
                 this.$store.commit('updateUrl', {
                     beatmapId: this.beatmap.id,
                     url,
-                });
-            }
-        },
-        async updatePackId(e): Promise<void> {
-            const packId = await this.$http.executePost(`/admin/beatmaps/${this.beatmap.id}/updatePackId`, { packId: this.packId }, e);
-
-            if (!this.$http.isError(packId)) {
-                this.$store.dispatch('updateToastMessages', {
-                    message: `updated pack id`,
-                    type: 'info',
-                });
-                this.$store.commit('updatePackId', {
-                    beatmapId: this.beatmap.id,
-                    packId,
                 });
             }
         },

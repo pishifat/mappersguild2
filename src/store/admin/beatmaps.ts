@@ -54,13 +54,6 @@ const store: Module<BeatmapState, MainState> = {
                 beatmap.url = payload.url;
             }
         },
-        updatePackId (state, payload): void {
-            const beatmap = state.beatmaps.find(b => b.id == payload.beatmapId);
-
-            if (beatmap) {
-                beatmap.packId = payload.packId;
-            }
-        },
         updateIsShowcase (state, payload): void {
             const beatmap = state.beatmaps.find(b => b.id == payload.beatmapId);
 

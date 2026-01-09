@@ -10,7 +10,7 @@
                 v-if="beatmaps.length"
                 v-slot="{ obj: beatmap }"
                 :data="beatmaps"
-                :headers="['METADATA', 'PACK ID', 'CREATOR', 'STATUS']"
+                :headers="['METADATA', 'CREATOR', 'STATUS']"
                 :custom-data-target="'#editBeatmap'"
                 @update:selected-id="selectedBeatmapId = $event"
             >
@@ -20,9 +20,6 @@
                         {{ formatMetadata(beatmap.song) }}
                     </a>
                     <span v-else class="ms-1">{{ formatMetadata(beatmap.song) }}</span>
-                </td>
-                <td>
-                    {{ beatmap.packId }}
                 </td>
                 <td>
                     <user-link

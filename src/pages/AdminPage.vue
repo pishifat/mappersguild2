@@ -32,9 +32,6 @@
                                         METADATA
                                     </th>
                                     <th scope="col">
-                                        PACK ID
-                                    </th>
-                                    <th scope="col">
                                         STATUS
                                     </th>
                                     <th scope="col">
@@ -61,9 +58,6 @@
                                         <span v-else class="ms-1">{{
                                             generateMetadata(beatmap.song)
                                         }}</span>
-                                    </td>
-                                    <td scope="row">
-                                        {{ beatmap.packId }}
                                     </td>
                                     <td scope="row">
                                         {{ beatmap.status }}

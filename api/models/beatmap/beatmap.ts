@@ -28,7 +28,6 @@ const BeatmapSchema = new Schema<Beatmap>({
     mission: { type: 'ObjectId', ref: 'Mission' },
     url: { type: String },
     mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania', 'hybrid'], default: 'osu' },
-    packId: { type: Number },
     isShowcase: { type: Boolean }, // showcase beatmaps are created for fa news post announcements and receive quest bonus points
     queuedForRank: { type: Boolean }, // used for automation of status changes
     invalidForPoints: { type: Boolean },

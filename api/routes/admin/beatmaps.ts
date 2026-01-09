@@ -116,15 +116,6 @@ interface UserSummary {
     flag: string;
 }
 
-/* POST update osu beatmap pack ID */
-adminBeatmapsRouter.post('/:id/updatePackId', isSuperAdmin, async (req, res) => {
-    await BeatmapModel
-        .findByIdAndUpdate(req.params.id, { packId: req.body.packId })
-        .orFail();
-
-    res.json(parseInt(req.body.packId, 10));
-});
-
 /* POST update isShowcase */
 adminBeatmapsRouter.post('/:id/updateIsShowcase', isSuperAdmin, async (req, res) => {
     await BeatmapModel

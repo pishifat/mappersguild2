@@ -33,7 +33,6 @@ export interface Beatmap {
     mission: Mission | undefined;
     url: string;
     mode: BeatmapMode;
-    packId: number;
     updatedAt: Date;
     createdAt: Date;
     isShowcase: boolean;
