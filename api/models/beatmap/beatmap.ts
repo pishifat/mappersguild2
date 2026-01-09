@@ -49,7 +49,7 @@ const queryHelpers = {
     },
     defaultPopulate<Q extends DocumentQuery<any, Beatmap>>(this: Q) {
         return this.populate([
-            { path: 'host', select: '_id osuId username' },
+            { path: 'host', select: '_id osuId username createdAt' },
             { path: 'bns', select: '_id osuId username' },
             { path: 'modders', select: '_id osuId username' },
             { path: 'quest', select: '_id name art modes deadline isMbc status' },

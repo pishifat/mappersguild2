@@ -43,7 +43,50 @@
                     </button>
                 </p>
                 <hr />
-                <p class="row">
+                <span v-if="beatmap.status == 'Qualified'">
+                    <div v-if="beatmap.rankedDate" class="mb-2 small">
+                        <ul>
+                            <li>Host join date: <span class="text-secondary">{{ beatmap.host.createdAt }}</span></li>
+                            <li>Ranked: <span class="text-secondary">{{ beatmap.rankedDate }}</span></li>
+                        </ul>
+                    </div>
+                    <div class="row mb-2">
+                        <span class="col-sm-6">
+                            Queued for rank:
+                            <span class="text-danger me-2">{{ beatmap.queuedForRank ? 'true' : 'false' }}</span>
+                        </span>
+                        <button class="btn btn-sm btn-outline-info ms-3 w-25" @click="updateQueuedForRank($event)">
+                            Toggle
+                        </button>
+                    </div>
+                    <div class="row mb-2">
+                        <span class="col-sm-6">
+                            Skip webhook:
+                            <span class="text-danger me-2">{{ beatmap.skipWebhook ? 'true' : 'false' }}</span>
+                        </span>
+                        <button class="btn btn-sm btn-outline-info ms-3 w-25" @click="updateSkipWebhook($event)">
+                            Toggle
+                        </button>
+                    </div>
+                    <p class="row">
+                        <textarea
+                            v-model="rejectionInput"
+                            class="form-control form-control-sm w-25"
+                            type="text"
+                            autocomplete="off"
+                            placeholder="message..."
+                            rows="1"
+                        />
+                        <button class="btn btn-sm btn-outline-info ms-2 w-25" @click="rejectMapset($event, true)">
+                            Reject with resolution
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger ms-2 w-25" @click="rejectMapset($event, false)">
+                            Reject without resolution
+                        </button>
+                    </p>
+                    <hr />
+                </span>
+                <div class="row mb-2">
                     <select v-model="status" class="form-select form-select-sm w-50 mx-2">
                         <option value="WIP">
                             WIP
@@ -61,8 +104,8 @@
                     <button class="btn btn-sm btn-outline-info w-25" @click="updateBeatmapStatus($event)">
                         Save status
                     </button>
-                </p>
-                <p class="row">
+                </div>
+                <div class="row mb-2">
                     <select v-model="modderId" class="form-select form-select-sm w-50 mx-2">
                         <option v-for="modder in beatmap.modders" :key="modder.id" :value="modder.id">
                             {{ modder.username }}
@@ -71,8 +114,8 @@
                     <button class="btn btn-sm btn-outline-danger w-25" @click="deleteModder($event)">
                         Remove modder
                     </button>
-                </p>
-                <p class="row">
+                </div>
+                <div class="row mb-2">
                     <input
                         v-model="beatmapUrl"
                         class="form-control form-control-sm mx-2 w-50"
@@ -83,8 +126,8 @@
                     <button class="btn btn-sm btn-outline-info w-25" @click="updateUrl($event)">
                         Save URL
                     </button>
-                </p>
-                <p class="row">
+                </div>
+                <div class="row mb-2">
                     <span class="col-sm-6">
                         Featured Artist showcase:
                         <span class="text-danger me-2">{{ beatmap.isShowcase ? 'true' : 'false' }}</span>
@@ -92,8 +135,8 @@
                     <button class="btn btn-sm btn-outline-info ms-3 w-25" @click="updateIsShowcase($event)">
                         Toggle
                     </button>
-                </p>
-                <p class="row">
+                </div>
+                <div class="row mb-2">
                     <span class="col-sm-6">
                         World cup original:
                         <span class="text-danger me-2">{{ beatmap.isWorldCup ? 'true' : 'false' }}</span>
@@ -101,42 +144,7 @@
                     <button class="btn btn-sm btn-outline-info ms-3 w-25" @click="updateIsWorldCup($event)">
                         Toggle
                     </button>
-                </p>
-                <span v-if="beatmap.status == 'Qualified'">
-                    <p class="row">
-                        <span class="col-sm-6">
-                            Queued for rank:
-                            <span class="text-danger me-2">{{ beatmap.queuedForRank ? 'true' : 'false' }}</span>
-                        </span>
-                        <button class="btn btn-sm btn-outline-info ms-3 w-25" @click="updateQueuedForRank($event)">
-                            Toggle
-                        </button>
-                    </p>
-                    <p class="row">
-                        <span class="col-sm-6">
-                            Skip webhook:
-                            <span class="text-danger me-2">{{ beatmap.skipWebhook ? 'true' : 'false' }}</span>
-                        </span>
-                        <button class="btn btn-sm btn-outline-info ms-3 w-25" @click="updateSkipWebhook($event)">
-                            Toggle
-                        </button>
-                    </p>
-                    <p class="row">
-                        <textarea
-                            v-model="rejectionInput"
-                            class="form-control form-control-sm w-25"
-                            type="text"
-                            autocomplete="off"
-                            placeholder="messages separated by new lines..."
-                        />
-                        <button class="btn btn-sm btn-outline-info ms-2 w-25" @click="rejectMapset($event, true)">
-                            Reject with resolution option
-                        </button>
-                        <button class="btn btn-sm btn-outline-danger ms-2 w-25" @click="rejectMapset($event, false)">
-                            Reject WITHOUT resolution
-                        </button>
-                    </p>
-                </span>
+                </div>
             </div>
         </template>
     </modal-dialog>
