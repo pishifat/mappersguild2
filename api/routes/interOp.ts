@@ -1,6 +1,8 @@
 import express from 'express';
 import config from '../../config.json';
 import { UserModel } from '../models/user';
+import { ContestModel } from '../models/contest/contest';
+import { ContestStatus } from '../../interfaces/contest/contest';
 
 const interOpRouter = express.Router();
 
@@ -48,6 +50,59 @@ interOpRouter.get('/userMentorships/:id', async (req, res) => {
         }
 
         res.json(user);
+    } catch (error) {
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+/* GET mapping contest results for all public contests, minus comments and judge names */
+interOpRouter.get('/contestResults', async (req, res) => {
+    const contestPopulate = [
+        {
+            path: 'submissions',
+            populate: [
+                {
+                    path: 'screenings',
+                    select: 'comment vote',
+                },
+                {
+                    path: 'judgings',
+                    select: '-judge',
+                    populate: {
+                        path: 'judgingScores',
+                        select: '-comment',
+                        populate: {
+                            path: 'criteria',
+                        },
+                    },
+                },
+                {
+                    path: 'creator',
+                    select: 'osuId username',
+                },
+            ],
+        },
+        {
+            path: 'criterias',
+            select: 'maxScore',
+        },
+        {
+            path: 'creators',
+            select: 'username osuId',
+        },
+    ];
+
+    try {
+        const contests = await ContestModel
+            .find({ status: ContestStatus.Complete })
+            .populate(contestPopulate)
+            .sort({ createdAt: -1 });
+
+        if (!contests) {
+            return res.status(404).json({ error: 'Contests not found' });
+        }
+
+        res.json(contests);
     } catch (error) {
         res.status(500).json({ error: 'Internal server error' });
     }
