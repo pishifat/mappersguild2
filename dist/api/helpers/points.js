@@ -232,7 +232,9 @@ async function calculateTasksPoints(userId) {
                 // finalize task points and add to base
                 let finalPoints = 0;
                 if (task.name === task_1.TaskName.Storyboard) {
-                    finalPoints = taskPoints;
+                    // check how many times a user does a storyboard for the same song (almost always 1)
+                    const repeats = userBeatmaps.filter(b => b.song.toString() == beatmap.song.toString() && b.tasks.some(t => t.name == task_1.TaskName.Storyboard && t.mappers.some(m => m.id == userId)));
+                    finalPoints = taskPoints / repeats.length; // dividing by "repeats" stops users from earning extra points when their storyboards are copied to another mapset
                 }
                 else if (task.name === task_1.TaskName.Hitsounds) {
                     // check how many times a user does hitsounds for the same song (almost always 1)
