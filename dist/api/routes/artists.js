@@ -35,7 +35,7 @@ artistsRouter.get('/loadOtherArtists', async (req, res) => {
 });
 /* POST new artist. */
 artistsRouter.post('/create', async (req, res) => {
-    const { name, comment, isContacted, isResponded } = req.body;
+    const { name, comment, isContacted, isResponded, isAnnounced } = req.body;
     const exists = await featuredArtist_1.FeaturedArtistModel.findOne({ label: name.trim() });
     if (exists) {
         return res.json({ error: 'already exists' });
@@ -51,6 +51,20 @@ artistsRouter.post('/create', async (req, res) => {
     }
     if (isResponded) {
         a.isResponded = true;
+    }
+    if (isAnnounced) {
+        a.isContacted = true;
+        a.lastContacted = new Date();
+        a.isResponded = true;
+        a.contractSent = true;
+        a.artistSigned = true;
+        a.ppyPaid = true;
+        a.ppySigned = true;
+        a.songsTimed = true;
+        a.songsReceived = true;
+        a.assetsReceived = true;
+        a.isUpToDate = true;
+        a.hasRankedMaps = true;
     }
     await a.save();
     res.json(a);
