@@ -31,7 +31,9 @@
 
         <mail-generator v-if="loggedInUser.osuId == 1893718" />
 
-        <add-artist />
+        <add-artist
+            :is-announced="false"
+        />
     </div>
 </template>
 

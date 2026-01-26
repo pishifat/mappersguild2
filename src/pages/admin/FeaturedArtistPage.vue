@@ -1,7 +1,12 @@
 <template>
     <div>
         <div class="container card card-body py-3">
-            <h5>Featured Artists list</h5>
+            <h5>
+                Featured Artists list
+                <button class="btn btn-sm btn-outline-info ms-2" data-bs-toggle="modal" data-bs-target="#addArtist">
+                    Add artist
+                </button>
+            </h5>
             <button class="btn btn-sm btn-info w-100" @click="loadRelevantFeaturedArtists($event)">
                 Load (relevant) Featured Artists
             </button>
@@ -38,6 +43,10 @@
         <featured-artist-info
             :featured-artist="selectedFeaturedArtist"
         />
+
+        <add-artist
+            :is-announced="true"
+        />
     </div>
 </template>
 
@@ -47,6 +56,7 @@ import { mapState } from 'vuex';
 import FeaturedArtistInfo from '../../components/admin/FeaturedArtistInfo.vue';
 import RecentLicensedSongs from '../../components/admin/RecentLicensedSongs.vue';
 import ArtistRankedMaps from '../../components/admin/ArtistRankedMaps.vue';
+import AddArtist from '@components/artists/AddArtist.vue';
 import DataTable from '../../components/admin/DataTable.vue';
 import { FeaturedArtist } from '../../../interfaces/featuredArtist';
 import artistsAdminModule from '@store/admin/featuredArtists';
@@ -57,6 +67,7 @@ export default defineComponent({
         FeaturedArtistInfo,
         RecentLicensedSongs,
         ArtistRankedMaps,
+        AddArtist,
     },
     data () {
         return {

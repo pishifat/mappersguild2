@@ -10,6 +10,7 @@
             </a>
             <span v-else>{{ featuredArtist.label }}</span>
             ({{ featuredArtist.songs.length }})
+            ({{ featuredArtist.id }})
         </template>
 
         <template #default>

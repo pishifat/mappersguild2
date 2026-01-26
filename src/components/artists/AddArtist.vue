@@ -10,6 +10,7 @@
                     type="text"
                     @keyup.enter="createArtist($event)"
                 />
+                <div v-if="!isAnnounced">
                 <input
                     v-model="comment"
                     placeholder="comment"
@@ -18,29 +19,30 @@
                     type="text"
                     @keyup.enter="createArtist($event)"
                 />
-                <div class="form-check mt-2">
-                    <input
-                        id="isContacted"
-                        v-model="isContacted"
-                        :checked="isContacted"
-                        class="form-check-input"
-                        type="checkbox"
-                    />
-                    <label class="form-check-label" for="isContacted">
-                        contacted?
-                    </label>
-                </div>
-                <div class="form-check mt-2">
-                    <input
-                        id="isResponded"
-                        v-model="isResponded"
-                        :checked="isResponded"
-                        class="form-check-input"
-                        type="checkbox"
-                    />
-                    <label class="form-check-label" for="isResponded">
-                        responded?
-                    </label>
+                    <div class="form-check mt-2">
+                        <input
+                            id="isContacted"
+                            v-model="isContacted"
+                            :checked="isContacted"
+                            class="form-check-input"
+                            type="checkbox"
+                        />
+                        <label class="form-check-label" for="isContacted">
+                            contacted?
+                        </label>
+                    </div>
+                    <div class="form-check mt-2">
+                        <input
+                            id="isResponded"
+                            v-model="isResponded"
+                            :checked="isResponded"
+                            class="form-check-input"
+                            type="checkbox"
+                        />
+                        <label class="form-check-label" for="isResponded">
+                            responded?
+                        </label>
+                    </div>
                 </div>
             </div>
 
@@ -60,6 +62,9 @@ export default defineComponent({
     components: {
         ModalDialog,
     },
+    props: {
+        isAnnounced: Boolean,
+    },
     data () {
         return {
             name: '',
@@ -70,7 +75,7 @@ export default defineComponent({
     },
     methods: {
         async createArtist (e): Promise<void> {
-            const artist = await this.$http.executePost('/artists/create', { name: this.name, comment: this.comment, isContacted: this.isContacted, isResponded: this.isResponded }, e);
+            const artist = await this.$http.executePost('/artists/create', { name: this.name, comment: this.comment, isContacted: this.isContacted, isResponded: this.isResponded, isAnnounced: this.isAnnounced }, e);
 
             if (!this.$http.isError(artist)) {
                 this.$store.commit('addArtist', artist);
