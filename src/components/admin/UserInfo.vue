@@ -52,6 +52,9 @@
                 <h6 class="mt-4">
                     Rewards
                 </h6>
+                <div class="mb-2 small text-secondary">
+                    Current points: {{ user.totalPoints }}
+                </div>
                 <div class="mb-2">
                     <button class="btn btn-sm btn-outline-info w-100" @click="calculateUserPoints($event)">
                         Calculate user points
