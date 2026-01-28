@@ -2,7 +2,7 @@ import express from 'express';
 import config from '../../config.json';
 import { UserModel } from '../models/user';
 import { ContestModel } from '../models/contest/contest';
-import { ContestStatus } from '../../interfaces/contest/contest';
+import { ContestMode, ContestStatus } from '../../interfaces/contest/contest';
 import { calculateContestScores } from './contests/listing';
 
 const interOpRouter = express.Router();
@@ -56,13 +56,13 @@ interOpRouter.get('/userMentorships/:id', async (req, res) => {
     }
 });
 
-/* GET mapping contest results for all public contests, minus comments and judge names */
+/* GET mapping contest results for all public contests (only users and final standardized scores) */
 interOpRouter.get('/contestResults/:mode', async (req, res) => {
     const contests = await ContestModel
         .find({
-            useRawScoring: false,
+            useRawScoring: { $ne: true },
             status: ContestStatus.Complete,
-            mode: req.params.mode,
+            mode: req.params.mode as ContestMode,
         })
         .populate([
             {
@@ -81,15 +81,14 @@ interOpRouter.get('/contestResults/:mode', async (req, res) => {
             { path: 'criterias' },
         ])
         .sort({ createdAt: -1 })
-        .limit(2)
         .orFail();
 
-    const response = [];
+    const response: any[] = [];
 
     for (const contest of contests) {
         const { usersScores } = calculateContestScores(contest);
 
-        const results = [];
+        const results: any[] = [];
 
         for (const submission of contest.submissions) {
             const score = usersScores.find(s => s.submissionId == submission.id);

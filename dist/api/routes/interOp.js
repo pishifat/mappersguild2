@@ -8,6 +8,7 @@ const config_json_1 = __importDefault(require("../../config.json"));
 const user_1 = require("../models/user");
 const contest_1 = require("../models/contest/contest");
 const contest_2 = require("../../interfaces/contest/contest");
+const listing_1 = require("./contests/listing");
 const interOpRouter = express_1.default.Router();
 /* AUTHENTICATION */
 interOpRouter.use((req, res, next) => {
@@ -50,54 +51,52 @@ interOpRouter.get('/userMentorships/:id', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
-/* GET mapping contest results for all public contests, minus comments and judge names */
-interOpRouter.get('/contestResults', async (req, res) => {
-    const contestPopulate = [
+/* GET mapping contest results for all public contests (only users and final standardized scores) */
+interOpRouter.get('/contestResults/:mode', async (req, res) => {
+    const contests = await contest_1.ContestModel
+        .find({
+        useRawScoring: { $ne: true },
+        status: contest_2.ContestStatus.Complete,
+        mode: req.params.mode,
+    })
+        .populate([
         {
             path: 'submissions',
-            populate: [
-                {
-                    path: 'screenings',
-                    select: 'comment vote',
-                },
-                {
-                    path: 'judgings',
-                    select: '-judge',
+            populate: {
+                path: 'judgings creator screenings',
+                populate: {
+                    path: 'judgingScores judge',
                     populate: {
-                        path: 'judgingScores',
-                        select: '-comment',
-                        populate: {
-                            path: 'criteria',
-                        },
+                        path: 'criteria',
                     },
                 },
-                {
-                    path: 'creator',
-                    select: 'osuId username',
-                },
-            ],
+            },
         },
-        {
-            path: 'criterias',
-            select: 'maxScore',
-        },
-        {
-            path: 'creators',
-            select: 'username osuId',
-        },
-    ];
-    try {
-        const contests = await contest_1.ContestModel
-            .find({ status: contest_2.ContestStatus.Complete })
-            .populate(contestPopulate)
-            .sort({ createdAt: -1 });
-        if (!contests) {
-            return res.status(404).json({ error: 'Contests not found' });
+        { path: 'judges' },
+        { path: 'criterias' },
+    ])
+        .sort({ createdAt: -1 })
+        .orFail();
+    const response = [];
+    for (const contest of contests) {
+        const { usersScores } = listing_1.calculateContestScores(contest);
+        const results = [];
+        for (const submission of contest.submissions) {
+            const score = usersScores.find(s => s.submissionId == submission.id);
+            if (score) {
+                results.push({
+                    username: submission.creator.username,
+                    osuId: submission.creator.osuId,
+                    finalScore: isNaN(score.standardizedFinalScore) ? 0 : parseFloat(score.standardizedFinalScore.toFixed(4))
+                });
+            }
         }
-        res.json(contests);
+        response.push({
+            contestName: contest.name,
+            contestId: contest.id,
+            contestResults: results,
+        });
     }
-    catch (error) {
-        res.status(500).json({ error: 'Internal server error' });
-    }
+    return res.json(response);
 });
 exports.default = interOpRouter;
