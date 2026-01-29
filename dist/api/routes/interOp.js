@@ -55,7 +55,6 @@ interOpRouter.get('/userMentorships/:id', async (req, res) => {
 interOpRouter.get('/contestResults/:mode', async (req, res) => {
     const contests = await contest_1.ContestModel
         .find({
-        useRawScoring: { $ne: true },
         status: contest_2.ContestStatus.Complete,
         mode: req.params.mode,
     })
