@@ -1,4 +1,6 @@
 {
+    "enableAutomation": false,
+    "enableMessages": false,
     "id": 0,
     "secret": "",
     "redirect": "",

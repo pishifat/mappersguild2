@@ -426,7 +426,11 @@ listingRouter.post('/:id/updateStatus', isContestCreator, isEditable, async (req
 
         const message = `hello! thank you for participating in **${contest.name}**!\n\nview results for this contest below:\n- [**results announcement**](${contest.resultsUrl})\n- [screening/judging details](https://mappersguild.com/contests/results?contest=${contest.id})`;
 
-        await sendAnnouncement(osuIds, channel, message);
+        const announcement = await sendAnnouncement(osuIds, channel, message);
+
+        if (announcement !== true) {
+            return res.json({ error: announcement.error ? announcement.error : `Messages were not sent.` });
+        }
     }
 
     res.json(contest.status);
@@ -1279,6 +1283,10 @@ listingRouter.post('/:id/sendAnnouncement', isContestCreator, isEditable, async 
     const userIds = participantIds.concat(creatorIds);
 
     const announcement = await sendAnnouncement(userIds, channel, req.body.text);
+
+    if (announcement !== true) {
+        return res.json({ error: announcement.error ? announcement.error : `Messages were not sent.` });
+    }
 
     res.json(announcement);
 });

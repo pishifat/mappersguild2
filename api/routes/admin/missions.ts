@@ -404,6 +404,10 @@ adminMissionsRouter.post('/:id/sendAnnouncement', async (req, res) => {
 
     const announcement = await sendAnnouncement(userIds, channel, req.body.text);
 
+    if (announcement !== true) {
+        return res.json({ error: announcement.error ? announcement.error : `Messages were not sent.` });
+    }
+
     res.json(announcement);
 });
 

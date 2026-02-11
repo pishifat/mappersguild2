@@ -182,7 +182,7 @@ adminBeatmapsRouter.post('/:id/rejectMapset', isSuperAdmin, async (req, res) => 
     const announcement = await sendAnnouncement([beatmap.host.osuId], channel, message);
 
     if (announcement !== true) {
-        return res.json({ error: `Messages were not sent.` });
+        return res.json({ error: announcement.error ? announcement.error : `Messages were not sent.` });
     }
 
     res.json(beatmap.status);

@@ -146,17 +146,20 @@ const port = process.env.PORT || '3000';
 app.set('port', port);
 app.listen(port, () => {
     console.log('Listening on ' + port);
-    automation.sendActionNotifications.start();
-    automation.setQualified.start();
-    automation.setRanked.start();
-    automation.publishQuests.start();
-    automation.completeQuests.start();
-    automation.rankUsers.start();
-    // automation.processDailyArtists.start();
-    automation.validateRankedBeatmaps.start();
-    automation.dropOverdueQuests.start();
-    automation.processMissions.start();
-    automation.updateFavoritesAndPlayCount.start();
+
+    if (config.enableAutomation) {
+        automation.sendActionNotifications.start();
+        automation.setQualified.start();
+        automation.setRanked.start();
+        automation.publishQuests.start();
+        automation.completeQuests.start();
+        automation.rankUsers.start();
+        // automation.processDailyArtists.start();
+        automation.validateRankedBeatmaps.start();
+        automation.dropOverdueQuests.start();
+        automation.processMissions.start();
+        automation.updateFavoritesAndPlayCount.start();
+    }
 });
 
 export default app;
