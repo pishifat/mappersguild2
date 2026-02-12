@@ -28,16 +28,11 @@
                     </a>
                 </h5>
                 <div class="mb-2">
-                    <a href="#screeningInstructions" data-bs-toggle="collapse" @click.prevent>
-                        See screening instructions
-                        <i class="fas fa-angle-down" />
-                    </a>
+                    <screening-instructions
+                        id="screeningInstructions"
+                    />
+                    <hr />
                 </div>
-
-                <screening-instructions
-                    id="screeningInstructions"
-                    class="collapse"
-                />
 
                 <transition-group
                     v-if="selectedContest.submissions.length"
@@ -46,7 +41,7 @@
                     class="row"
                 >
                     <submission-card
-                        v-for="submission in selectedContest.submissions"
+                        v-for="submission in sortedSubmissions"
                         :key="submission.id"
                         :submission="submission"
                         :screening-vote-count="selectedContest.screeningVoteCount"
@@ -72,6 +67,7 @@ import SubmissionCard from '@components/contests/screening/SubmissionCard.vue';
 import ScreeningInstructions from '@components/contests/screening/ScreeningInstructions.vue';
 import ContestCard from '@components/contests/ContestCard.vue';
 import screeningModule from '@store/screening';
+import { Submission } from '@interfaces/contest/submission';
 
 export default defineComponent({
     name: 'ScreeningPage',
@@ -89,9 +85,49 @@ export default defineComponent({
         ...mapState({
             contests: (state: any) => state.screening.contests,
         }),
+        ...mapState([
+            'loggedInUser',
+        ]),
         ...mapGetters([
             'selectedContest',
         ]),
+        sortedSubmissions(): Submission[] {
+            const submissions = [...this.selectedContest.submissions];
+
+            submissions.sort((a, b) => {
+                const nameA = a.name;
+                const nameB = b.name;
+
+                if (nameA < nameB) {
+                    return -1;
+                }
+
+                if (nameA > nameB) {
+                    return 1;
+                }
+
+                return 0;
+            });
+
+            submissions.sort((a, b) => {
+                const relatedScreeningA = a.screenings.find(s => s.screener._id === this.loggedInUser.id);
+                const relatedScreeningB = b.screenings.find(s => s.screener._id === this.loggedInUser.id);
+                const voteA = relatedScreeningA && relatedScreeningA.vote ? relatedScreeningA.vote : 0;
+                const voteB = relatedScreeningB && relatedScreeningB.vote ? relatedScreeningB.vote : 0;
+
+                if (voteA < voteB) {
+                    return 1;
+                }
+
+                if (voteA > voteB) {
+                    return -1;
+                }
+
+                return 0;
+            });
+
+            return submissions;
+        },
     },
     beforeCreate () {
         if (!this.$store.hasModule('screening')) {

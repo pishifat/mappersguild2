@@ -1,14 +1,14 @@
 <template>
     <div class="">
         <a
-            v-if="!showCommentInput"
+            v-bs-tooltip:left="'edit comment'"
             href="#"
             @click.prevent="showCommentInput = !showCommentInput"
         >
             <i class="fas fa-edit" />
         </a>
 
-        <span v-if="!showCommentInput" class="small text-secondary">{{ newComment || '...' }}</span>
+        <span v-if="!showCommentInput" class="small text-secondary ms-1">{{ newComment || '...' }}</span>
 
         <template v-else>
             <textarea

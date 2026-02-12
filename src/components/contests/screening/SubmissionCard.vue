@@ -7,7 +7,20 @@
             <div class="card-body p-2">
                 <div class="row">
                     <div class="col-sm-6">
-                        {{ submission.name }}
+                        <a
+                            v-bs-tooltip:left="'strikethrough text'"
+                            :class="disableStrikethrough ? 'fake-button-disable' : ''"
+                            href="#"
+                            @click.prevent="toggleReviewed()"
+                        >
+                            <i class="fa-solid fa-strikethrough" />
+                        </a>
+                        <span
+                            class="ms-1"
+                            :class="relatedScreening && relatedScreening.reviewed ? 'text-decoration-line-through text-secondary' : ''"
+                        >
+                            {{ submission.name }}
+                        </span>
                     </div>
 
                     <div class="col-sm-6 text-end">
@@ -56,12 +69,28 @@ export default defineComponent({
             default: 0,
         },
     },
+    data () {
+        return {
+            disableStrikethrough: false,
+        };
+    },
     computed: {
         ...mapState([
             'loggedInUser',
         ]),
         relatedScreening(): Screening | undefined {
             return this.submission.screenings.find(s => s.screener._id === this.loggedInUser.id);
+        },
+    },
+    methods: {
+        async toggleReviewed(): Promise<void> {
+            this.disableStrikethrough = true;
+            const submission = await this.$http.executePost('/contests/screening/updateSubmission/' + this.submission.id, { toggleReviewed: true });
+
+            if (!this.$http.isError(submission)) {
+                this.$store.commit('updateSubmission', submission);
+                this.disableStrikethrough = false;
+            }
         },
     },
 });

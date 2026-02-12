@@ -17,4 +17,5 @@ export interface Screening {
     submission: Submission;
     comment: string;
     vote: ScreeningPlacement;
+    reviewed: boolean;
 }
