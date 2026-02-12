@@ -25,14 +25,11 @@ const helpers_1 = require("../helpers/helpers");
 const UserSchema = new mongoose_1.Schema({
     osuId: { type: Number, required: true, unique: true },
     username: { type: String, required: true },
-    group: { type: String, enum: ['user', 'admin', 'secret', 'locus'], default: 'user' },
+    group: { type: String, enum: ['user', 'admin', 'locus'], default: 'user' },
     badge: { type: Number, default: 0 },
     queuedBadge: { type: Number, default: 0 },
     discordId: { type: String },
-    isShowcaseMapper: { type: Boolean },
-    isContestHelper: { type: Boolean },
     isMentorshipAdmin: { type: Boolean },
-    isWorldCupHelper: { type: Boolean },
     mentorships: [{
             _id: false,
             cycle: { type: 'ObjectId', ref: 'MentorshipCycle', required: true },

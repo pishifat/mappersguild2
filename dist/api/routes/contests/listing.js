@@ -371,7 +371,10 @@ listingRouter.post('/:id/updateStatus', middlewares_2.isContestCreator, middlewa
             description: `A beatmapping contest you participated in is completed!`,
         };
         const message = `hello! thank you for participating in **${contest.name}**!\n\nview results for this contest below:\n- [**results announcement**](${contest.resultsUrl})\n- [screening/judging details](https://mappersguild.com/contests/results?contest=${contest.id})`;
-        await osuBot_1.sendAnnouncement(osuIds, channel, message);
+        const announcement = await osuBot_1.sendAnnouncement(osuIds, channel, message);
+        if (announcement !== true) {
+            return res.json({ error: announcement.error ? announcement.error : `Messages were not sent.` });
+        }
     }
     res.json(contest.status);
 });
@@ -1049,6 +1052,9 @@ listingRouter.post('/:id/sendAnnouncement', middlewares_2.isContestCreator, midd
     const creatorIds = contest.creators.map(c => c.osuId);
     const userIds = participantIds.concat(creatorIds);
     const announcement = await osuBot_1.sendAnnouncement(userIds, channel, req.body.text);
+    if (announcement !== true) {
+        return res.json({ error: announcement.error ? announcement.error : `Messages were not sent.` });
+    }
     res.json(announcement);
 });
 /* POST add PDC stuff */

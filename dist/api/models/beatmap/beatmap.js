@@ -40,7 +40,6 @@ const BeatmapSchema = new mongoose_1.Schema({
     invalidForPoints: { type: Boolean },
     invalidReason: { type: String },
     skipWebhook: { type: Boolean },
-    isWorldCup: { type: Boolean },
     isBundled: { type: Boolean },
     /* from osu! API */
     length: { type: Number },

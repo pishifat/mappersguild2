@@ -8,7 +8,6 @@ const middlewares_1 = require("../../helpers/middlewares");
 const osuApi_1 = require("../../helpers/osuApi");
 const user_1 = require("../../models/user");
 const points_1 = require("../../helpers/points");
-const user_2 = require("../../../interfaces/user");
 const helpers_1 = require("../../helpers/helpers");
 const adminUsersRouter = express_1.default.Router();
 adminUsersRouter.use(middlewares_1.isLoggedIn);
@@ -64,23 +63,11 @@ adminUsersRouter.post('/:id/calculateUserPoints', async (req, res) => {
     const points = await points_1.updateUserPoints(req.params.id);
     res.json(points);
 });
-/* POST toggle isShowcaseMapper */
-adminUsersRouter.post('/:id/toggleIsShowcaseMapper', async (req, res) => {
-    const isShowcaseMapper = req.body.isShowcaseMapper;
-    await user_1.UserModel.findByIdAndUpdate(req.params.id, { isShowcaseMapper }).orFail();
-    res.json({ isShowcaseMapper });
-});
 /* POST toggle isMentorshipAdmin */
 adminUsersRouter.post('/:id/toggleIsMentorshipAdmin', async (req, res) => {
     const isMentorshipAdmin = req.body.isMentorshipAdmin;
     await user_1.UserModel.findByIdAndUpdate(req.params.id, { isMentorshipAdmin }).orFail();
     res.json({ isMentorshipAdmin });
-});
-/* POST toggle isWorldCupHelper */
-adminUsersRouter.post('/:id/toggleIsWorldCupHelper', async (req, res) => {
-    const isWorldCupHelper = req.body.isWorldCupHelper;
-    await user_1.UserModel.findByIdAndUpdate(req.params.id, { isWorldCupHelper }).orFail();
-    res.json({ isWorldCupHelper });
 });
 /* POST toggle hasMerchAccess */
 adminUsersRouter.post('/:id/toggleHasMerchAccess', async (req, res) => {
@@ -141,34 +128,6 @@ adminUsersRouter.post('/loadMerchUsers', async (req, res) => {
     }
     const users = await user_1.UserModel.find(query);
     res.json(users);
-});
-/* GET find FA showcase users */
-adminUsersRouter.get('/findShowcaseUsers', async (req, res) => {
-    const [osuUsers, taikoUsers, catchUsers, maniaUsers] = await Promise.all([
-        user_1.UserModel
-            .find({ isShowcaseMapper: true, group: { $nin: [user_2.UserGroup.Secret, user_2.UserGroup.Admin] }, osuPoints: { $gte: 1 } })
-            .orFail(),
-        user_1.UserModel
-            .find({ isShowcaseMapper: true, group: { $nin: [user_2.UserGroup.Secret, user_2.UserGroup.Admin] }, taikoPoints: { $gte: 1 } })
-            .orFail(),
-        user_1.UserModel
-            .find({ isShowcaseMapper: true, group: { $nin: [user_2.UserGroup.Secret, user_2.UserGroup.Admin] }, catchPoints: { $gte: 1 } })
-            .orFail(),
-        user_1.UserModel
-            .find({ isShowcaseMapper: true, group: { $nin: [user_2.UserGroup.Secret, user_2.UserGroup.Admin] }, maniaPoints: { $gte: 1 } })
-            .orFail(),
-    ]);
-    res.json({ osuUsers, taikoUsers, catchUsers, maniaUsers });
-});
-/* GET find Contest Helper users */
-adminUsersRouter.get('/findContestHelperUsers', async (req, res) => {
-    const [osuUsers, taikoUsers, catchUsers, maniaUsers] = await Promise.all([
-        user_1.UserModel.find({ isContestHelper: true, osuPoints: { $gte: 1 } }),
-        user_1.UserModel.find({ isContestHelper: true, taikoPoints: { $gte: 1 } }),
-        user_1.UserModel.find({ isContestHelper: true, catchPoints: { $gte: 1 } }),
-        user_1.UserModel.find({ isContestHelper: true, maniaPoints: { $gte: 1 } }),
-    ]);
-    res.json({ osuUsers, taikoUsers, catchUsers, maniaUsers });
 });
 /* POST find input users for DiscordHighlightGenerator */
 adminUsersRouter.post('/findInputUsers', async (req, res) => {

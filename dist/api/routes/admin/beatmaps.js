@@ -97,13 +97,6 @@ adminBeatmapsRouter.post('/:id/updateIsShowcase', middlewares_1.isSuperAdmin, as
         .orFail();
     res.json(req.body.isShowcase);
 });
-/* POST update isWorldCup */
-adminBeatmapsRouter.post('/:id/updateIsWorldCup', middlewares_1.isSuperAdmin, async (req, res) => {
-    await beatmap_1.BeatmapModel
-        .findByIdAndUpdate(req.params.id, { isWorldCup: req.body.isWorldCup })
-        .orFail();
-    res.json(req.body.isWorldCup);
-});
 /* POST update queuedForRank */
 adminBeatmapsRouter.post('/:id/updateQueuedForRank', middlewares_1.isSuperAdmin, async (req, res) => {
     await beatmap_1.BeatmapModel
@@ -143,7 +136,7 @@ adminBeatmapsRouter.post('/:id/rejectMapset', middlewares_1.isSuperAdmin, async 
     }
     const announcement = await osuBot_1.sendAnnouncement([beatmap.host.osuId], channel, message);
     if (announcement !== true) {
-        return res.json({ error: `Messages were not sent.` });
+        return res.json({ error: announcement.error ? announcement.error : `Messages were not sent.` });
     }
     res.json(beatmap.status);
 });

@@ -16,6 +16,7 @@ const log_2 = require("../../interfaces/log");
 const beatmap_2 = require("../../interfaces/beatmap/beatmap");
 const middlewares_2 = require("./beatmaps/middlewares");
 const featuredArtist_1 = require("../models/featuredArtist");
+const featuredSong_1 = require("../models/featuredSong");
 const discordApi_1 = require("../helpers/discordApi");
 const points_1 = require("../helpers/points");
 const missionsRouter = express_1.default.Router();
@@ -395,5 +396,70 @@ missionsRouter.get('/:missionId/getArtistRerollCount', async (req, res) => {
         category: spentPoints_2.SpentPointsCategory.RerollShowcaseMissionArtist,
     });
     res.json(rerollCount);
+});
+/* POST add song showcase mapper */
+missionsRouter.post('/addSongShowcaseMapper/:artistId/:songId', async (req, res) => {
+    const [artist, song] = await Promise.all([
+        featuredArtist_1.FeaturedArtistModel
+            .findById(req.params.artistId)
+            .defaultPopulateWithSongs()
+            .orFail(),
+        featuredSong_1.FeaturedSongModel
+            .findById(req.params.songId)
+            .defaultPopulate()
+            .orFail(),
+    ]);
+    const showcaseMapperIds = artist.showcaseMappers.map(u => u.id);
+    if (!showcaseMapperIds.includes(req.session.mongoId)) {
+        return res.json({ error: 'Not marked as interested in artist' });
+    }
+    const songShowcaseMapperIds = song.songShowcaseMappers.map(u => u.id);
+    if (songShowcaseMapperIds.includes(req.session.mongoId)) {
+        return res.json({ error: 'Already marked for song. Try refreshing!' });
+    }
+    song.songShowcaseMappers.push(req.session.mongoId);
+    await song.save();
+    const newArtist = await featuredArtist_1.FeaturedArtistModel
+        .findById(req.params.artistId)
+        .defaultPopulateWithSongs()
+        .orFail();
+    res.json(newArtist);
+    discordApi_1.devWebhookPost([{
+            author: {
+                name: res.locals.userRequest.username,
+                url: `https://osu.ppy.sh/users/${res.locals.userRequest.osuId}`,
+                icon_url: `https://a.ppy.sh/${res.locals.userRequest.osuId}`,
+            },
+            color: discordApi_1.webhookColors.lightGreen,
+            description: `Added interest in **song:** [**${song.artist} - ${song.title}**](https://mappersguild.com/artists)`,
+        }]);
+});
+/* POST remove song showcase mapper */
+missionsRouter.post('/removeSongShowcaseMapper/:artistId/:songId', async (req, res) => {
+    const song = await featuredSong_1.FeaturedSongModel
+        .findById(req.params.songId)
+        .defaultPopulate()
+        .orFail();
+    const songShowcaseMapperIds = song.songShowcaseMappers.map(u => u.id);
+    const i = songShowcaseMapperIds.indexOf(req.session.mongoId);
+    if (i == -1) {
+        return res.json({ error: 'Not marked for song. Try refreshing!' });
+    }
+    song.songShowcaseMappers.splice(i, 1);
+    await song.save();
+    const artist = await featuredArtist_1.FeaturedArtistModel
+        .findById(req.params.artistId)
+        .defaultPopulateWithSongs()
+        .orFail();
+    res.json(artist);
+    discordApi_1.devWebhookPost([{
+            author: {
+                name: `${res.locals.userRequest.username}`,
+                url: `https://osu.ppy.sh/users/${res.locals.userRequest.osuId}`,
+                icon_url: `https://a.ppy.sh/${res.locals.userRequest.osuId}`,
+            },
+            color: discordApi_1.webhookColors.lightRed,
+            description: `Removed interest in **song:** [**${song.artist} - ${song.title}**](https://mappersguild.com/artists)`,
+        }]);
 });
 exports.default = missionsRouter;

@@ -37,8 +37,10 @@ async function getBotToken() {
 }
 exports.getBotToken = getBotToken;
 async function sendAnnouncement(userIds, channel, message) {
+    if (!config_json_1.default.enableMessages) {
+        return { error: 'Messages disabled in config' };
+    }
     const token = await getBotToken();
-    console.log(token);
     await helpers_1.sleep(500);
     if (typeof token !== 'string') {
         return { error: token.error };

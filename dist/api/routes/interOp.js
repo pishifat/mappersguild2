@@ -86,7 +86,7 @@ interOpRouter.get('/contestResults/:mode', async (req, res) => {
                 results.push({
                     username: submission.creator.username,
                     osuId: submission.creator.osuId,
-                    finalScore: isNaN(score.standardizedFinalScore) ? 0 : parseFloat(score.standardizedFinalScore.toFixed(4))
+                    finalScore: isNaN(score.standardizedFinalScore) ? 0 : parseFloat(score.standardizedFinalScore.toFixed(4)),
                 });
             }
         }

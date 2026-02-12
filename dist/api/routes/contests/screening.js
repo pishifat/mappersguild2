@@ -83,6 +83,7 @@ screeningRouter.post('/updateSubmission/:submissionId', isScreener, async (req, 
         screening.screener = req.session?.mongoId;
         screening.comment = req.body.comment;
         screening.vote = vote;
+        screening.reviewed = req.body.toggleReviewed ? true : false;
         screening.submission = submission._id;
         await screening.save();
     }
@@ -93,6 +94,9 @@ screeningRouter.post('/updateSubmission/:submissionId', isScreener, async (req, 
         }
         if (vote !== undefined) {
             updatedValues.vote = vote;
+        }
+        if (req.body.toggleReviewed) {
+            updatedValues.reviewed = !userScreening.reviewed;
         }
         await screening_1.ScreeningModel.findByIdAndUpdate(userScreening.id, updatedValues);
     }
