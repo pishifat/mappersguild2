@@ -34,18 +34,8 @@
                 </div>
                 <div class="row mb-2">
                     <div class="col-sm-4">
-                        <button class="btn btn-sm btn-outline-info w-100" @click="toggleIsShowcaseMapper($event)">
-                            {{ user.isShowcaseMapper ? 'Disable' : 'Enable' }} isShowcaseMapper
-                        </button>
-                    </div>
-                    <div class="col-sm-4">
                         <button class="btn btn-sm btn-outline-info w-100" @click="toggleIsMentorshipAdmin($event)">
                             {{ user.isMentorshipAdmin ? 'Disable' : 'Enable' }} isMentorshipAdmin
-                        </button>
-                    </div>
-                    <div class="col-sm-4">
-                        <button class="btn btn-sm btn-outline-info w-100" @click="toggleIsWorldCupHelper($event)">
-                            {{ user.isWorldCupHelper ? 'Disable' : 'Enable' }} isWorldCupHelper
                         </button>
                     </div>
                 </div>
@@ -274,20 +264,6 @@ export default defineComponent({
                 });
             }
         },
-        async toggleIsShowcaseMapper(e): Promise<void> {
-            const res: any = await this.$http.executePost(`/admin/users/${this.user.id}/toggleIsShowcaseMapper`, { isShowcaseMapper: !this.user.isShowcaseMapper }, e);
-
-            if (res) {
-                this.$store.dispatch('updateToastMessages', {
-                    message: `set isShowcaseMapper ${res.isShowcaseMapper}`,
-                    type: 'info',
-                });
-                this.$store.commit('updateIsShowcaseMapper', {
-                    userId: this.user.id,
-                    isShowcaseMapper: res.isShowcaseMapper,
-                });
-            }
-        },
         async toggleIsMentorshipAdmin(e): Promise<void> {
             const res: any = await this.$http.executePost(`/admin/users/${this.user.id}/toggleIsMentorshipAdmin`, { isMentorshipAdmin: !this.user.isMentorshipAdmin }, e);
 
@@ -299,20 +275,6 @@ export default defineComponent({
                 this.$store.commit('updateIsMentorshipAdmin', {
                     userId: this.user.id,
                     isMentorshipAdmin: res.isMentorshipAdmin,
-                });
-            }
-        },
-        async toggleIsWorldCupHelper(e): Promise<void> {
-            const res: any = await this.$http.executePost(`/admin/users/${this.user.id}/toggleIsWorldCupHelper`, { isWorldCupHelper: !this.user.isWorldCupHelper }, e);
-
-            if (res) {
-                this.$store.dispatch('updateToastMessages', {
-                    message: `set isWorldCupHelper ${res.isWorldCupHelper}`,
-                    type: 'info',
-                });
-                this.$store.commit('updateIsWorldCupHelper', {
-                    userId: this.user.id,
-                    isWorldCupHelper: res.isWorldCupHelper,
                 });
             }
         },

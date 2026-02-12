@@ -87,14 +87,6 @@ export function isMentorshipAdmin(req, res, next): void {
     }
 }
 
-export function isWorldCupHelper(req, res, next): void {
-    if (res.locals.userRequest.isWorldCupHelper || res.locals.userRequest.group == UserGroup.Admin) {
-        next();
-    } else {
-        unauthorize(req, res);
-    }
-}
-
 export function isLocusAdmin(req, res, next): void {
     const osuIds = [1893718, 18983, 7671790, 5052899]; // mangomizer, Doomsday, Komm, Matrix
 

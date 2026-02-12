@@ -34,7 +34,6 @@ const Showcase = () => import('../pages/ShowcasePage.vue');
 const Mentorship = () => import('../pages/MentorshipPage.vue');
 const Locus = () => import('../pages/locus/LocusPage.vue');
 const Merch = () => import('../pages/MerchPage.vue');
-const WorldCup = () => import('../pages/WorldCupPage.vue');
 
 const routes = [
     // Information
@@ -71,7 +70,6 @@ const routes = [
     { path: '/mentorship', component: Mentorship, meta: { title: 'Mentorship' } },
     { path: '/locus', component: Locus, meta: { title: 'Locus' } },
     { path: '/merch', component: Merch, meta: { title: 'Merch' } },
-    { path: '/worldCup', component: WorldCup, meta: { title: 'World Cup' } },
 
     // Fallback
     { path: '/:pathMatch(.*)*', component: NotFound, meta: { title: 'Oops', public: true } },

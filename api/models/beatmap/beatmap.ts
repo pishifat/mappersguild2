@@ -33,7 +33,6 @@ const BeatmapSchema = new Schema<Beatmap>({
     invalidForPoints: { type: Boolean },
     invalidReason: { type: String },
     skipWebhook: { type: Boolean },
-    isWorldCup: { type: Boolean },
     isBundled: { type: Boolean },
     /* from osu! API */
     length: { type: Number },

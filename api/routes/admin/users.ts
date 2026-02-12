@@ -80,15 +80,6 @@ adminUsersRouter.post('/:id/calculateUserPoints', async (req, res) => {
     res.json(points);
 });
 
-/* POST toggle isShowcaseMapper */
-adminUsersRouter.post('/:id/toggleIsShowcaseMapper', async (req, res) => {
-    const isShowcaseMapper = req.body.isShowcaseMapper;
-
-    await UserModel.findByIdAndUpdate(req.params.id, { isShowcaseMapper }).orFail();
-
-    res.json({ isShowcaseMapper });
-});
-
 /* POST toggle isMentorshipAdmin */
 adminUsersRouter.post('/:id/toggleIsMentorshipAdmin', async (req, res) => {
     const isMentorshipAdmin = req.body.isMentorshipAdmin;
@@ -96,15 +87,6 @@ adminUsersRouter.post('/:id/toggleIsMentorshipAdmin', async (req, res) => {
     await UserModel.findByIdAndUpdate(req.params.id, { isMentorshipAdmin }).orFail();
 
     res.json({ isMentorshipAdmin });
-});
-
-/* POST toggle isWorldCupHelper */
-adminUsersRouter.post('/:id/toggleIsWorldCupHelper', async (req, res) => {
-    const isWorldCupHelper = req.body.isWorldCupHelper;
-
-    await UserModel.findByIdAndUpdate(req.params.id, { isWorldCupHelper }).orFail();
-
-    res.json({ isWorldCupHelper });
 });
 
 /* POST toggle hasMerchAccess */
@@ -181,38 +163,6 @@ adminUsersRouter.post('/loadMerchUsers', async (req, res) => {
     const users = await UserModel.find(query);
 
     res.json(users);
-});
-
-/* GET find FA showcase users */
-adminUsersRouter.get('/findShowcaseUsers', async (req, res) => {
-    const [osuUsers, taikoUsers, catchUsers, maniaUsers] = await Promise.all([
-        UserModel
-            .find({ isShowcaseMapper: true, group: { $nin: [UserGroup.Secret, UserGroup.Admin] }, osuPoints: { $gte: 1 } })
-            .orFail(),
-        UserModel
-            .find({ isShowcaseMapper: true, group: { $nin: [UserGroup.Secret, UserGroup.Admin] }, taikoPoints: { $gte: 1 } })
-            .orFail(),
-        UserModel
-            .find({ isShowcaseMapper: true, group: { $nin: [UserGroup.Secret, UserGroup.Admin] }, catchPoints: { $gte: 1 } })
-            .orFail(),
-        UserModel
-            .find({ isShowcaseMapper: true, group: { $nin: [UserGroup.Secret, UserGroup.Admin] }, maniaPoints: { $gte: 1 } })
-            .orFail(),
-    ]);
-
-    res.json({ osuUsers, taikoUsers, catchUsers, maniaUsers });
-});
-
-/* GET find Contest Helper users */
-adminUsersRouter.get('/findContestHelperUsers', async (req, res) => {
-    const [osuUsers, taikoUsers, catchUsers, maniaUsers] = await Promise.all([
-        UserModel.find({ isContestHelper: true, osuPoints: { $gte: 1 } }),
-        UserModel.find({ isContestHelper: true, taikoPoints: { $gte: 1 } }),
-        UserModel.find({ isContestHelper: true, catchPoints: { $gte: 1 } }),
-        UserModel.find({ isContestHelper: true, maniaPoints: { $gte: 1 } }),
-    ]);
-
-    res.json({ osuUsers, taikoUsers, catchUsers, maniaUsers });
 });
 
 /* POST find input users for DiscordHighlightGenerator */

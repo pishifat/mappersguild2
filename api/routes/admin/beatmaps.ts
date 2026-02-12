@@ -125,15 +125,6 @@ adminBeatmapsRouter.post('/:id/updateIsShowcase', isSuperAdmin, async (req, res)
     res.json(req.body.isShowcase);
 });
 
-/* POST update isWorldCup */
-adminBeatmapsRouter.post('/:id/updateIsWorldCup', isSuperAdmin, async (req, res) => {
-    await BeatmapModel
-        .findByIdAndUpdate(req.params.id, { isWorldCup: req.body.isWorldCup })
-        .orFail();
-
-    res.json(req.body.isWorldCup);
-});
-
 /* POST update queuedForRank */
 adminBeatmapsRouter.post('/:id/updateQueuedForRank', isSuperAdmin, async (req, res) => {
     await BeatmapModel

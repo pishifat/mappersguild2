@@ -146,13 +146,6 @@ const store: Module<AdminState, MainState> = {
                 beatmap.isShowcase = payload.isShowcase;
             }
         },
-        updateIsWorldCup (state, payload): void {
-            const beatmap = state.actionBeatmaps.find(b => b.id == payload.beatmapId);
-
-            if (beatmap) {
-                beatmap.isWorldCup = payload.isWorldCup;
-            }
-        },
         updateQueuedForRank (state, payload): void {
             const beatmap = state.actionBeatmaps.find(b => b.id == payload.beatmapId);
 

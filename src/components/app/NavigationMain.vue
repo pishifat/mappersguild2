@@ -41,21 +41,5 @@ export default defineComponent({
             'initialized',
         ]),
     },
-    methods: {
-        async toggleIsShowcaseMapper() {
-            const user = await this.$http.executePost('/toggleIsShowcaseMapper', { value: !this.loggedInUser.isShowcaseMapper });
-
-            if (user) {
-                this.$store.commit('updateLoggedInUser', user);
-            }
-        },
-        async toggleIsContestHelper() {
-            const user = await this.$http.executePost('/toggleIsContestHelper', { value: !this.loggedInUser.isContestHelper });
-
-            if (user) {
-                this.$store.commit('updateLoggedInUser', user);
-            }
-        },
-    },
 });
 </script>

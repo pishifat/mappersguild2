@@ -35,25 +35,11 @@ const store: Module<UserState, MainState> = {
                 user.discordId = payload.discordId;
             }
         },
-        updateIsShowcaseMapper (state, payload): void {
-            const user = state.users.find(u => u.id == payload.userId);
-
-            if (user) {
-                user.isShowcaseMapper = payload.isShowcaseMapper;
-            }
-        },
         updateIsMentorshipAdmin (state, payload): void {
             const user = state.users.find(u => u.id == payload.userId);
 
             if (user) {
                 user.isMentorshipAdmin = payload.isMentorshipAdmin;
-            }
-        },
-        updateIsWorldCupHelper (state, payload): void {
-            const user = state.users.find(u => u.id == payload.userId);
-
-            if (user) {
-                user.isWorldCupHelper = payload.isWorldCupHelper;
             }
         },
         updateHasMerchAccess (state, payload): void {
@@ -74,9 +60,6 @@ const store: Module<UserState, MainState> = {
     getters: {
         normalUsers: (state): Beatmap[] => {
             return state.users.filter(u => u.group == UserGroup.User);
-        },
-        showcaseUsers: (state): Beatmap[] => {
-            return state.users.filter(u => u.group == UserGroup.Secret);
         },
         adminUsers: (state): Beatmap[] => {
             return state.users.filter(u => u.group == UserGroup.Admin);

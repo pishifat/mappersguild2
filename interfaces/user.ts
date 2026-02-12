@@ -9,7 +9,6 @@ import { OsuCover } from '../api/helpers/osuApi';
 export enum UserGroup {
     User = 'user',
     Admin = 'admin',
-    Secret = 'secret',
     Locus = 'locus',
 }
 
@@ -32,10 +31,7 @@ export interface User extends Document {
     completedQuests: Quest[];
     completedMissions: Mission[];
     discordId: string; // js doesnt support 18 digit numbers...
-    isShowcaseMapper: boolean;
-    isContestHelper: boolean;
     isMentorshipAdmin: boolean;
-    isWorldCupHelper: boolean;
     mentorships: {
         cycle: MentorshipCycle;
         mode: string;

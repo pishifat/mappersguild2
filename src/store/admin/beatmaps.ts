@@ -61,13 +61,6 @@ const store: Module<BeatmapState, MainState> = {
                 beatmap.isShowcase = payload.isShowcase;
             }
         },
-        updateIsWorldCup (state, payload): void {
-            const beatmap = state.beatmaps.find(b => b.id == payload.beatmapId);
-
-            if (beatmap) {
-                beatmap.isWorldCup = payload.isWorldCup;
-            }
-        },
     },
 };
 

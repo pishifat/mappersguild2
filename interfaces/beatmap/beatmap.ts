@@ -40,7 +40,6 @@ export interface Beatmap {
     invalidForPoints: boolean;
     invalidReason: string;
     skipWebhook: boolean;
-    isWorldCup: boolean;
     isBundled: boolean;
     /* from osu! API */
     length: number;

@@ -56,16 +56,11 @@
                     Mentorship
                 </router-link>
             </li>
-            <li v-if="isWorldCupHelper || isAdmin" class="nav-item">
-                <router-link class="nav-link" to="/worldCup">
-                    World Cup
-                </router-link>
-            </li>
-            <li v-if="isSecret || isAdmin" class="nav-item">
+            <!--<li v-if="isAdmin" class="nav-item">
                 <router-link class="nav-link" to="/showcase">
                     FA Showcase
                 </router-link>
-            </li>
+            </li>-->
             <li v-if="isPishifat" class="nav-item">
                 <router-link class="nav-link" to="/artists">
                     FA Schedule
@@ -99,30 +94,8 @@ export default defineComponent({
         isMentorshipAdmin () {
             return this.loggedInUser.isMentorshipAdmin;
         },
-        isWorldCupHelper () {
-            return this.loggedInUser.isWorldCupHelper;
-        },
         isPishifat () {
             return this.loggedInUser.osuId === 3178418;
-        },
-        isSecret () {
-            return this.loggedInUser.group === 'secret';
-        },
-    },
-    methods: {
-        async toggleIsShowcaseMapper() {
-            const user = await this.$http.executePost('/toggleIsShowcaseMapper', { value: !this.loggedInUser.isShowcaseMapper });
-
-            if (user) {
-                this.$store.commit('updateLoggedInUser', user);
-            }
-        },
-        async toggleIsContestHelper() {
-            const user = await this.$http.executePost('/toggleIsContestHelper', { value: !this.loggedInUser.isContestHelper });
-
-            if (user) {
-                this.$store.commit('updateLoggedInUser', user);
-            }
         },
     },
 });

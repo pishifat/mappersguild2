@@ -32,10 +32,6 @@
                 :group="'admin'"
             />
             <admin-user-table
-                :grouped-users="showcaseUsers"
-                :group="'secret'"
-            />
-            <admin-user-table
                 :grouped-users="normalUsers"
                 :group="'user'"
             />
@@ -71,7 +67,6 @@ export default defineComponent({
         }),
         ...mapGetters([
             'normalUsers',
-            'showcaseUsers',
             'adminUsers',
             'locusUsers',
         ]),
