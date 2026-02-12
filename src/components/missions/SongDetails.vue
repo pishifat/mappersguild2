@@ -78,14 +78,10 @@ export default defineComponent({
     methods: {
         async addSongShowcaseMapper(e): Promise<void> {
             this.processing = true;
-            const artist: any = await this.$http.executePost(`/showcase/addSongShowcaseMapper/${this.artistId}/${this.song.id}`, {}, e);
+            const artist: any = await this.$http.executePost(`/missions/addSongShowcaseMapper/${this.artistId}/${this.song.id}`, {}, e);
 
             if (artist && !this.$http.isError(artist)) {
-                if (this.route == 'showcase') {
-                    this.$store.commit('showcase/updateArtist', artist);
-                } else if (this.route == 'missions') {
-                    this.$emit('updateMission');
-                }
+                this.$emit('updateMission');
 
                 this.$store.dispatch('updateToastMessages', {
                     message: `Selected!`,
@@ -97,14 +93,10 @@ export default defineComponent({
         },
         async removeSongShowcaseMapper(e): Promise<void> {
             this.processing = true;
-            const artist: any = await this.$http.executePost(`/showcase/removeSongShowcaseMapper/${this.artistId}/${this.song.id}`, {}, e);
+            const artist: any = await this.$http.executePost(`/missions/removeSongShowcaseMapper/${this.artistId}/${this.song.id}`, {}, e);
 
             if (artist && !this.$http.isError(artist)) {
-                if (this.route == 'showcase') {
-                    this.$store.commit('showcase/updateArtist', artist);
-                } else if (this.route == 'missions') {
-                    this.$emit('updateMission');
-                }
+                this.$emit('updateMission');
 
                 this.$store.dispatch('updateToastMessages', {
                     message: `Removed!`,

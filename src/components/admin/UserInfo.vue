@@ -21,9 +21,6 @@
                         <option value="admin">
                             Admin
                         </option>
-                        <option value="secret">
-                            Secret
-                        </option>
                         <option value="locus">
                             Locus admin
                         </option>

@@ -4,7 +4,6 @@ import { User } from './user';
 export enum FeaturedArtistStatus {
     Public = 'public',
     Private = 'private',
-    Showcase = 'showcase',
     Playlist = 'playlist',
 }
 

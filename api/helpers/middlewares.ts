@@ -71,14 +71,6 @@ export function isAdmin(req, res, next): void {
     }
 }
 
-export function isShowcase(req, res, next): void {
-    if (res.locals.userRequest.group == UserGroup.Admin || res.locals.userRequest.group == UserGroup.Secret) {
-        next();
-    } else {
-        unauthorize(req, res);
-    }
-}
-
 export function isMentorshipAdmin(req, res, next): void {
     if (res.locals.userRequest.isMentorshipAdmin || res.locals.userRequest.group == UserGroup.Admin) {
         next();

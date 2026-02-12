@@ -56,11 +56,6 @@
                     Mentorship
                 </router-link>
             </li>
-            <!--<li v-if="isAdmin" class="nav-item">
-                <router-link class="nav-link" to="/showcase">
-                    FA Showcase
-                </router-link>
-            </li>-->
             <li v-if="isPishifat" class="nav-item">
                 <router-link class="nav-link" to="/artists">
                     FA Schedule

@@ -18,7 +18,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { FeaturedArtist } from '@interfaces/featuredArtist';
-import SongDetails from '@components/showcase/SongDetails.vue';
+import SongDetails from '@components/missions/SongDetails.vue';
 
 export default defineComponent({
     name: 'ArtistSongs',

@@ -50,9 +50,6 @@
                         <option value="private">
                             Private
                         </option>
-                        <option value="showcase">
-                            Showcase
-                        </option>
                         <option value="playlist">
                             Playlist
                         </option>

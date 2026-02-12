@@ -30,7 +30,6 @@ const AdminMerch = () => import('../pages/admin/MerchPage.vue');
 const Artists = () => import('../pages/artists/ArtistPage.vue');
 
 // Other
-const Showcase = () => import('../pages/ShowcasePage.vue');
 const Mentorship = () => import('../pages/MentorshipPage.vue');
 const Locus = () => import('../pages/locus/LocusPage.vue');
 const Merch = () => import('../pages/MerchPage.vue');
@@ -66,7 +65,6 @@ const routes = [
     { path: '/artists', component: Artists, meta: { title: 'FA Schedule' } },
 
     // Other
-    { path: '/showcase', component: Showcase, meta: { title: 'FA Showcase Beatmaps' } },
     { path: '/mentorship', component: Mentorship, meta: { title: 'Mentorship' } },
     { path: '/locus', component: Locus, meta: { title: 'Locus' } },
     { path: '/merch', component: Merch, meta: { title: 'Merch' } },
