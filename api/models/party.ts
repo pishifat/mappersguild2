@@ -1,4 +1,4 @@
-import mongoose, { Schema, DocumentQuery, Model } from 'mongoose';
+import mongoose, { Schema, Model } from 'mongoose';
 import { Party } from '../../interfaces/party';
 import { User } from '../../interfaces/user';
 import { QuestStatus } from '../../interfaces/quest';
@@ -6,11 +6,11 @@ import { SpentPointsCategory } from '../../interfaces/spentPoints';
 import { SpentPointsModel } from '../models/spentPoints';
 import { updateUserPoints } from '../helpers/points';
 
-interface IPartyModel extends Model<Party, typeof queryHelpers> {
+interface IPartyModel {
     defaultFindByIdOrFail (id: any): Promise<Party>;
 }
 
-const partySchema = new Schema<Party, IPartyModel>({
+const partySchema = new Schema({
     leader: { type: 'ObjectId', ref: 'User' },
     pendingMembers: [{ type: 'ObjectId', ref: 'User' }],
     members: [{ type: 'ObjectId', ref: 'User' }],
@@ -21,7 +21,7 @@ const partySchema = new Schema<Party, IPartyModel>({
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const queryHelpers = {
-    defaultPopulate<Q extends DocumentQuery<any, Party>>(this: Q) {
+    defaultPopulate(this: any) {
         return this.populate([
             { path: 'members' },
             { path: 'pendingMembers' },
@@ -58,7 +58,7 @@ partySchema.methods.addUser = async function (this: Party, user: User, isNotSelf
             path: 'members pendingMembers',
             select: 'id',
         },
-    }).execPopulate();
+    });
 
     if (!isLeader && this.lock && !this.pendingMembers.some(m => m.id == user.id)) {
         throw new Error('Party is locked');
@@ -103,13 +103,13 @@ partySchema.methods.addUser = async function (this: Party, user: User, isNotSelf
     await this.save();
 };
 
-partySchema.statics.defaultFindByIdOrFail = function (this: IPartyModel, id: any) {
+partySchema.statics.defaultFindByIdOrFail = function (this: any, id: any) {
     return this
         .findById(id)
         .defaultPopulate()
         .orFail();
 };
 
-const PartyModel = mongoose.model<Party, IPartyModel>('Party', partySchema);
+const PartyModel = mongoose.model<Party, Model<Party, typeof queryHelpers> & IPartyModel>('Party', partySchema);
 
 export { PartyModel };

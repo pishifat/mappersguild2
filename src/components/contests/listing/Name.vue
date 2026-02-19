@@ -5,7 +5,7 @@
             v-model="newName"
             class="ml-1 form-control d-inline w-75"
             @change="updateName($event)"
-        >
+        />
     </div>
 </template>
 

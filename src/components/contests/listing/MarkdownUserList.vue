@@ -1,13 +1,13 @@
 <template>
     <copy-paste class="tiny">
-        Comma separation: <br>
+        Comma separation: <br />
         <span v-for="(user, i) in users" :key="user.id">
             [{{ user.username }}](https://osu.ppy.sh/users/{{ user.osuId }}){{ i === users.length - 2 ? ', and ' : i === users.length - 1 ? '' : ', ' }}
         </span>
-        <br><br>
-        Newline separation: <br>
+        <br /><br />
+        Newline separation: <br />
         <span v-for="user in users" :key="user.id">
-            [{{ user.username }}](https://osu.ppy.sh/users/{{ user.osuId }})<br>
+            [{{ user.username }}](https://osu.ppy.sh/users/{{ user.osuId }})<br />
         </span>
     </copy-paste>
 </template>

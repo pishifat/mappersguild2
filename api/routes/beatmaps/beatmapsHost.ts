@@ -303,10 +303,10 @@ beatmapsHostRouter.post('/:id/delete', isValidBeatmap, isBeatmapHost, async (req
     const b: Beatmap = res.locals.beatmap;
 
     for (let i = 0; i < b.tasks.length; i++) {
-        await TaskModel.findByIdAndRemove(b.tasks[i]);
+        await TaskModel.findByIdAndDelete(b.tasks[i]);
     }
 
-    await BeatmapModel.findByIdAndRemove(req.params.id);
+    await BeatmapModel.findByIdAndDelete(req.params.id);
     res.json(b);
 
     LogModel.generate(

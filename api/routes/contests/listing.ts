@@ -348,7 +348,7 @@ listingRouter.post('/:id/updateStatus', isContestCreator, isEditable, async (req
         for (const submission of contest.submissions) {
             for (const screening of submission.screenings) {
                 if (!screenerIds.includes(screening.screener.id)) {
-                    //await ScreeningModel.findByIdAndRemove(screening.id);
+                    //await ScreeningModel.findByIdAndDelete(screening.id);
                     evaluationStatusRequirements.push(`${screening.screener.username} has a saved screening despite not being a screener`);
                 }
             }
@@ -548,7 +548,7 @@ listingRouter.post('/:id/submissions/:submissionId/updateAnonymousSubmissionName
 /* POST delete a submission */
 listingRouter.post('/:id/submissions/:submissionId/delete', isContestCreator, isEditable, async (req, res) => {
     const submission = await SubmissionModel
-        .findByIdAndRemove(req.params.submissionId)
+        .findByIdAndDelete(req.params.submissionId)
         .orFail();
 
     res.json(submission);
@@ -803,7 +803,7 @@ listingRouter.post('/:id/deleteCriteria', isContestCreator, isEditable, async (r
         .find({ criterias: { $in: criteria._id } });
 
     if (!contestsWithCriteria.length) {
-        CriteriaModel.findByIdAndRemove(criteria.id);
+        CriteriaModel.findByIdAndDelete(criteria.id);
     }
 
     const newContest = await ContestModel
@@ -1110,7 +1110,7 @@ listingRouter.post('/:id/submissions/syncAnonymousNames', isContestCreator, isEd
         }
     }
 
-    await contest.populate(defaultContestPopulate).execPopulate();
+    await contest.populate(defaultContestPopulate);
 
     res.json({ submissions: contest.submissions, errors });
 });
@@ -1149,7 +1149,7 @@ listingRouter.post('/:id/submissions/addSubmissionsFromCsv', isContestCreator, i
     }
 
     await contest.save();
-    await contest.populate(defaultContestPopulate).execPopulate();
+    await contest.populate(defaultContestPopulate);
 
     res.json(contest.submissions);
 });
@@ -1165,7 +1165,7 @@ listingRouter.post('/:id/delete', isContestCreator, isEditable, async (req, res)
         return res.json({ error: 'Cannot delete contest at this stage. Set status to "Hidden" instead.' });
     }
 
-    await contest.remove();
+    await contest.deleteOne();
 
     res.json({ success: 'Deleted' });
 });
@@ -1309,7 +1309,7 @@ listingRouter.post('/:id/addJudgingsFromCsv', isContestCreator, isEditable, asyn
         const judgeId = '5c6e6db559d335001922e6df';
 
         const judging = new JudgingModel();
-        /** @ts-ignore */
+        // @ts-expect-error string id is valid for ObjectId ref
         judging.judge = judgeId;
         judging.submission = submission?._id;
 

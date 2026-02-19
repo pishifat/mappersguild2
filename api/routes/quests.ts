@@ -116,7 +116,7 @@ questsRouter.post('/:id/accept', async (req, res) => {
     for (const p of quest.parties) {
         // parties that selected a same mode as the current party taking the quest aren't welcome anymore
         if (p.id != party.id && party.modes.some(m => p.modes.includes(m))) {
-            await p.remove();
+            await p.deleteOne();
         }
     }
 

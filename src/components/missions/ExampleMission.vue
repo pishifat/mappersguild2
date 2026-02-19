@@ -13,15 +13,16 @@
             <ul>
                 <li
                     v-for="(url, i) in imageUrls"
-                    :key="url">
+                    :key="url"
+>
                     <img
                         class="tier-example"
                         :src="url"
                     />
-                    {{ i == 0 ? '(easiest, most common)' : i == 3 ? '(hardest, most rare)' : ''}}
+                    {{ i == 0 ? '(easiest, most common)' : i == 3 ? '(hardest, most rare)' : '' }}
             </li>
             </ul>
-            <li><b>Priority quest modes:</b> {{ cleanModes.join(', ') }} {{ mission.modes.length == 4 ? `(if unlabeled, any mode is acceptable)` : ''}}</li>
+            <li><b>Priority quest modes:</b> {{ cleanModes.join(', ') }} {{ mission.modes.length == 4 ? `(if unlabeled, any mode is acceptable)` : '' }}</li>
             <li><b>Priority quest objective:</b> What you'll need to create to participate in the quest.</li>
             <li><b>Priority quest win condition:</b> How to complete the quest.</li>
             <li><b>Deadline:</b> When beatmaps cannot be linked to the quest anymore.</li>

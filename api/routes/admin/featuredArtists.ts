@@ -141,7 +141,7 @@ adminFeaturedArtistsRouter.post('/:id/songs/:songId/update', async (req, res) =>
 /* POST remove song from artist */
 adminFeaturedArtistsRouter.post('/:id/songs/:songId/delete', async (req, res) => {
     await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { $pull: { songs: req.params.songId as any } }).orFail();
-    await FeaturedSongModel.findByIdAndRemove(req.params.songId).orFail();
+    await FeaturedSongModel.findByIdAndDelete(req.params.songId).orFail();
 
     res.json({ success: 'ok' });
 });

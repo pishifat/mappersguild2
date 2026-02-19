@@ -269,7 +269,7 @@ mentorshipRouter.post('/addCycle', async (req, res) => {
 
     await cycle.populate({
         path: 'participants',
-    }).execPopulate();
+    });
 
     res.json(cycle);
 });
@@ -357,7 +357,7 @@ mentorshipRouter.post('/addMentor', async (req, res) => {
 
     await cycle.populate({
         path: 'participants',
-    }).execPopulate();
+    });
 
     res.json(cycle);
 });
@@ -455,7 +455,7 @@ mentorshipRouter.post('/addMentee', async (req, res) => {
 
     await cycle.populate({
         path: 'participants',
-    }).execPopulate();
+    });
 
     res.json(cycle);
 });
@@ -484,7 +484,7 @@ mentorshipRouter.post('/removeParticipant', async (req, res) => {
 
     await cycle.populate({
         path: 'participants',
-    }).execPopulate();
+    });
 
     res.json(cycle);
 });
@@ -512,7 +512,7 @@ mentorshipRouter.post('/updateCycleName', async (req, res) => {
 
     await cycle.populate({
         path: 'participants',
-    }).execPopulate();
+    });
 
     res.json(cycle);
 });
@@ -540,7 +540,7 @@ mentorshipRouter.post('/updateCycleNumber', async (req, res) => {
 
     await cycle.populate({
         path: 'participants',
-    }).execPopulate();
+    });
 
     res.json(cycle);
 });
@@ -560,7 +560,7 @@ mentorshipRouter.post('/updateCycleUrl', async (req, res) => {
 
     await cycle.populate({
         path: 'participants',
-    }).execPopulate();
+    });
 
     res.json(cycle);
 });
@@ -586,7 +586,7 @@ mentorshipRouter.post('/updateCycleStartDate', async (req, res) => {
 
     await cycle.populate({
         path: 'participants',
-    }).execPopulate();
+    });
 
     res.json(cycle);
 });
@@ -612,7 +612,7 @@ mentorshipRouter.post('/updateCycleEndDate', async (req, res) => {
 
     await cycle.populate({
         path: 'participants',
-    }).execPopulate();
+    });
 
     res.json(cycle);
 });
@@ -708,7 +708,7 @@ mentorshipRouter.post('/togglePhase', async (req, res) => {
             .find({
                 'mentorships.cycle': cycle.id,
                 'mentorships.mentor': user.id,
-            })
+            } as any)
             .populate(userCyclePopulate);
 
         for (const mentee of cycleMentees) {
@@ -742,7 +742,7 @@ mentorshipRouter.post('/togglePhase', async (req, res) => {
 
     await cycle.populate({
         path: 'participants',
-    }).execPopulate();
+    });
 
     res.json(cycle);
 });

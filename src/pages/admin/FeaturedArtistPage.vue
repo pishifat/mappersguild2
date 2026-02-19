@@ -15,8 +15,8 @@
             </button>
             <data-table
                 v-if="featuredArtists.length"
-                class="mt-2"
                 v-slot="{ obj: featuredArtist }"
+                class="mt-2"
                 :data="featuredArtists"
                 :headers="['ARTIST']"
                 :custom-data-target="'#editFeaturedArtist'"

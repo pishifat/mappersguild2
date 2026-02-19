@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema, DocumentQuery, Model } from 'mongoose';
+import mongoose, { Document, Schema, Model } from 'mongoose';
 import { FeaturedArtist as IFeaturedArtist } from '../../interfaces/featuredArtist';
 
 export interface FeaturedArtist extends IFeaturedArtist, Document {
@@ -6,7 +6,7 @@ export interface FeaturedArtist extends IFeaturedArtist, Document {
     id: string;
 }
 
-const featuredArtistSchema = new Schema<FeaturedArtist>({
+const featuredArtistSchema = new Schema({
     label: { type: String, required: true },
     osuId: { type: Number },
     status: { type: String, enum: ['public', 'private', 'playlist'], default: 'private' },
@@ -48,13 +48,13 @@ const featuredArtistSchema = new Schema<FeaturedArtist>({
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const queryHelpers = {
-    defaultPopulate<Q extends DocumentQuery<any, FeaturedArtist>>(this: Q) {
+    defaultPopulate(this: any) {
         return this.populate([
             { path: 'songs', select: 'artist title oszUrl' },
             { path: 'showcaseMappers', select: 'username osuId' },
         ]);
     },
-    defaultPopulateWithSongs<Q extends DocumentQuery<any, FeaturedArtist>>(this: Q) {
+    defaultPopulateWithSongs(this: any) {
         return this.populate([
             { path: 'songs', select: 'artist title oszUrl' },
             { path: 'showcaseMappers', select: 'username osuId' },

@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema, DocumentQuery, Model } from 'mongoose';
+import mongoose, { Document, Schema, Model } from 'mongoose';
 import { TaskMode, TaskName, SortedTasks } from '../../../interfaces/beatmap/task';
 import { User } from '../../../interfaces/user';
 import { Beatmap as IBeatmap, BeatmapStatus } from '../../../interfaces/beatmap/beatmap';
@@ -16,7 +16,7 @@ export interface Beatmap extends IBeatmap, Document {
     checkTaskAvailability (user: User, taskName: TaskName, taskMode: TaskMode, isAdmin: boolean, sessionUserId: string): Promise<boolean>;
 }
 
-const BeatmapSchema = new Schema<Beatmap>({
+const BeatmapSchema = new Schema({
     song: { type: 'ObjectId', ref: 'FeaturedSong' },
     host: { type: 'ObjectId', ref: 'User', required: true },
     status: { type: String, enum: ['WIP', 'Done', 'Qualified', 'Ranked'], default: 'WIP' },
@@ -43,10 +43,10 @@ const BeatmapSchema = new Schema<Beatmap>({
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const queryHelpers = {
-    sortByLatest<Q extends DocumentQuery<any, Beatmap>>(this: Q) {
+    sortByLatest(this: any) {
         return this.sort({ createdAt: -1 });
     },
-    defaultPopulate<Q extends DocumentQuery<any, Beatmap>>(this: Q) {
+    defaultPopulate(this: any) {
         return this.populate([
             { path: 'host', select: '_id osuId username createdAt' },
             { path: 'bns', select: '_id osuId username' },
@@ -89,7 +89,7 @@ BeatmapSchema.methods.checkTaskAvailability = async function (this: Beatmap, use
                 path: 'members',
                 select: 'id',
             },
-        }).execPopulate();
+        });
 
         if (this.quest.currentParty && !this.quest.currentParty.members.some(m => m.id == user.id)) {
             throw new Error(`This mapset is part of a quest, so only members of the quest's current party can add difficulties!`);

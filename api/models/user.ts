@@ -1,8 +1,8 @@
-import mongoose, { DocumentQuery, Model, Schema } from 'mongoose';
+import mongoose, { Model, Schema } from 'mongoose';
 import { User, PointsInfo } from '../../interfaces/user';
 import { escapeUsername } from '../helpers/helpers';
 
-const UserSchema = new Schema<User>({
+const UserSchema = new Schema({
     osuId: { type: Number, required: true, unique: true },
     username: { type: String, required: true },
     group: { type: String, enum: ['user', 'admin', 'locus'], default: 'user' },
@@ -113,15 +113,15 @@ UserSchema.virtual('mentees', {
 });
 
 interface QueryHelpers {
-    byUsername<Q extends DocumentQuery<any, User>>(this: Q, username: string): Q;
-    byUsernameOrOsuId<Q extends DocumentQuery<any, User>>(this: Q, user: string): Q;
+    byUsername(this: any, username: string): any;
+    byUsernameOrOsuId(this: any, user: string): any;
 }
 
-UserSchema.query.byUsername = function (this: DocumentQuery<any, User>, username: string) {
+(UserSchema.query as any).byUsername = function (this: any, username: string) {
     return this.where({ username: new RegExp('^' + escapeUsername(username) + '$', 'i') });
 };
 
-UserSchema.query.byUsernameOrOsuId = function (this: DocumentQuery<any, User> & QueryHelpers, user: string) {
+(UserSchema.query as any).byUsernameOrOsuId = function (this: any, user: string) {
     const osuId = parseInt(user, 10);
 
     if (isNaN(osuId)) {

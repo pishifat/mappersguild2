@@ -6,7 +6,7 @@ export interface Screening extends IScreening, Document {
     id: string;
 }
 
-const screeningSchema = new Schema<Screening>({
+const screeningSchema = new Schema({
     screener: { type: 'ObjectId', ref: 'User', required: true },
     submission: { type: 'ObjectId', ref: 'Submission', required: true },
     comment: { type: String, trim: true },

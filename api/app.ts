@@ -3,15 +3,15 @@ import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import mongoose from 'mongoose';
 import session from 'express-session';
-import MongoStoreSession from 'connect-mongo';
+import MongoStore from 'connect-mongo';
 import config from '../config.json';
 import 'express-async-errors';
 
-// Return the 'new' updated object by default when doing findByIdAndUpdate
+// Return the updated object by default when doing findByIdAndUpdate
 mongoose.plugin(schema => {
     schema.pre('findOneAndUpdate', function(this: any) {
-        if (!('new' in this.options)) {
-            this.setOptions({ new: true });
+        if (!('returnDocument' in this.options)) {
+            this.setOptions({ returnDocument: 'after' });
         }
     });
 });
@@ -47,7 +47,6 @@ import merchRouter from './routes/merch';
 import interOpRouter from './routes/interOp';
 
 const app = express();
-const MongoStore = MongoStoreSession(session);
 
 // settings/middlewares
 app.use(logger('dev'));
@@ -56,12 +55,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 // db
-mongoose.connect(config.connection, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useFindAndModify: false,
-    useCreateIndex: true,
-});
+mongoose.connect(config.connection);
 const db = mongoose.connection;
 
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -75,7 +69,7 @@ db.once('open', function() {
 app.use(
     session({
         secret: config.session,
-        store: new MongoStore({ mongooseConnection: mongoose.connection }),
+        store: MongoStore.create({ mongoUrl: config.connection }),
         resave: false,
         saveUninitialized: false,
         cookie: {

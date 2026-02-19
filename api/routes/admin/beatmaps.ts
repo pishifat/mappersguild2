@@ -77,7 +77,7 @@ adminBeatmapsRouter.post('/:id/tasks/:taskId/delete', isSuperAdmin, async (req, 
             })
             .orFail(),
         TaskModel
-            .findByIdAndRemove(req.params.taskId)
+            .findByIdAndDelete(req.params.taskId)
             .orFail(),
     ]);
 
@@ -221,7 +221,7 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
 
         const users: UserSummary[] = [];
 
-        for (const user of u as UserCounts[]) {
+        for (const user of u as unknown as UserCounts[]) {
             user.hostCount = 0;
             user.taskCount = 0;
             const modes: TaskMode[] = [];

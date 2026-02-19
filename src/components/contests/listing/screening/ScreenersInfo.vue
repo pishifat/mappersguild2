@@ -7,7 +7,7 @@
                 autocomplete="off"
                 placeholder="new screener username/osuId..."
                 @keyup.enter="addScreener($event)"
-            >
+            />
             <div class="input-group-append">
                 <button
                     class="btn btn-primary"

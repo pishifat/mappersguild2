@@ -15,7 +15,7 @@ interface LogStatics extends Model<Log> {
     ) => void;
 }
 
-const logSchema = new Schema<Log, LogStatics>({
+const logSchema = new Schema<any, LogStatics>({
     user: { type: 'ObjectId', ref: 'User' },
     action: { type: String, required: true },
     category: { type: String, enum: ['beatmap', 'quest', 'party', 'user', 'artist', 'mission', 'error', 'mentorship'], required: true },

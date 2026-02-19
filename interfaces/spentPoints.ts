@@ -19,4 +19,5 @@ export interface SpentPoints extends Document {
     user: User['_id'] | User;
     quest?: Quest['_id'] | Quest;
     mission?: Mission['_id'] | Mission;
+    createdAt: Date;
 }

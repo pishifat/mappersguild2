@@ -50,10 +50,11 @@ export async function getProducts(productIds: string[]) {
         },
         body: JSON.stringify({
             query: `query getProducts($ids: [ID!]!) { nodes(ids: $ids) { ... on Product { id title variants(first: 10) { edges { node { id title availableForSale } } } } } }`,
-            variables: { ids: productIds }
+            variables: { ids: productIds },
         }),
     });
 
     const result = await response.json();
+
     return result.data.nodes.filter((node: any) => node !== null);
 }

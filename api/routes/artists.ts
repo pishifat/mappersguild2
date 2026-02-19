@@ -235,7 +235,7 @@ artistsRouter.post('/reset/:id', async (req, res) => {
 
 /* POST delete artist */
 artistsRouter.post('/deleteArtist/:id', async (req, res) => {
-    res.json(await FeaturedArtistModel.findByIdAndRemove(req.params.id));
+    res.json(await FeaturedArtistModel.findByIdAndDelete(req.params.id));
 });
 
 /* POST set all contacted but unreplied artists as rejected */

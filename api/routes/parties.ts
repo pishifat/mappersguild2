@@ -117,7 +117,7 @@ partiesRouter.post('/:id/delete', isPartyLeader, async (req, res) => {
         throw new Error(`Cannot delete a party with a WIP quest`);
     }
 
-    await party.remove();
+    await party.deleteOne();
 
     const quest = await QuestModel.defaultFindByIdOrFail(party.quest._id);
 

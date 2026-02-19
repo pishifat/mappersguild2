@@ -620,13 +620,13 @@ export default defineComponent({
             );
 
             // Sort by creation date to get chronological order (oldest first)
-            const sortedRerolls = allArtistRerolls.sort((a, b) => 
+            const sortedRerolls = allArtistRerolls.sort((a, b) =>
                 new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
             );
 
             // Find the position of the current event in chronological order
             const currentEventIndex = sortedRerolls.findIndex(sp => sp.id === currentEventId);
-            
+
             // Calculate cost: 10 * 2^(chronological position)
             // First reroll (index 0) = 10, second (index 1) = 20, etc.
             return 10 * Math.pow(2, currentEventIndex);

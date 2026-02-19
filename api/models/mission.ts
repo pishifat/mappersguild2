@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import mongoose, { Schema, Model, DocumentQuery } from 'mongoose';
+import mongoose, { Schema, Model } from 'mongoose';
 import { Mission } from '../../interfaces/mission';
 
-interface MissionStatics extends Model<Mission, typeof queryHelpers> {
+interface MissionStatics {
     findAll (limit?: number): Promise<Mission[]>;
     defaultFindByIdOrFail (id: any): Promise<Mission>;
 }
 
-const missionSchema = new Schema<Mission, MissionStatics>({
+const missionSchema = new Schema<Mission>({
     name: { type: String, required: true },
     artists: [{ type: 'ObjectId', ref: 'FeaturedArtist' }],
     status: { type: String, enum: ['open', 'closed', 'hidden'], default: 'open' },
@@ -60,10 +60,10 @@ missionSchema.virtual('associatedMaps', {
 });
 
 const queryHelpers = {
-    sortByLatest<Q extends DocumentQuery<any, Mission>>(this: Q) {
+    sortByLatest(this: any) {
         return this.sort({ createdAt: -1 });
     },
-    defaultPopulate<Q extends DocumentQuery<any, Mission>>(this: Q) {
+    defaultPopulate(this: any) {
         return this.populate([
             { path: 'artists', select: 'label osuId' },
             {
@@ -84,7 +84,7 @@ const queryHelpers = {
             },
         ]);
     },
-    extendedDefaultPopulate<Q extends DocumentQuery<any, Mission>>(this: Q) {
+    extendedDefaultPopulate(this: any) {
         return this.populate([
             { path: 'artists', select: 'label osuId' },
             {
@@ -115,7 +115,7 @@ const queryHelpers = {
 
 missionSchema.query = queryHelpers;
 
-missionSchema.statics.findAll = function (this: MissionStatics, limit?: number) {
+missionSchema.statics.findAll = function (this: any, limit?: number) {
     if (!limit) limit = 10000;
 
     return this
@@ -125,7 +125,7 @@ missionSchema.statics.findAll = function (this: MissionStatics, limit?: number) 
         .limit(limit);
 };
 
-missionSchema.statics.defaultFindByIdOrFail = function (this: MissionStatics, id: any) {
+missionSchema.statics.defaultFindByIdOrFail = function (this: any, id: any) {
     return this
         .findById(id)
         .defaultPopulate()

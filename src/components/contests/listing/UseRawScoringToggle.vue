@@ -11,7 +11,9 @@
         </label>
         <div class="small text-secondary">
             <div>Contests on Mappers' Guild use this formula standardize results:</div>
-            <div class="ms-4"><code>judge X's final score = (judge X's raw score - judge X's average raw score) / judge X's standard deviation</code></div>
+            <div class="ms-4">
+<code>judge X's final score = (judge X's raw score - judge X's average raw score) / judge X's standard deviation</code>
+</div>
             <div>Checking this box will only display <b>raw judging scores</b> on the results page (and hide standardized scores).</div>
         </div>
     </div>

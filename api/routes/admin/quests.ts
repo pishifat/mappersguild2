@@ -80,7 +80,7 @@ adminQuestsRouter.post('/:id/reject', async (req, res) => {
     updateUserPoints(quest.creator.id);
 
     const spentPoints = await SpentPointsModel.findOne({ quest: quest._id }).orFail();
-    await SpentPointsModel.findByIdAndRemove(spentPoints.id);
+    await SpentPointsModel.findByIdAndDelete(spentPoints.id);
 
     res.json(quest.status);
 });
@@ -263,7 +263,7 @@ adminQuestsRouter.post('/:id/delete', async (req, res) => {
         throw new Error(`Quest is ${quest.status}`);
     }
 
-    await quest.remove();
+    await quest.deleteOne();
     res.json({ success: 'ok' });
 
     LogModel.generate(req.session?.mongoId, `deleted quest "${quest.name}"`, LogCategory.Quest);

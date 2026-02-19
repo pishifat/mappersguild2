@@ -23,7 +23,12 @@
         </div>
         <div v-if="separateMissions && separateMissions.length" class="container card card-body my-4">
             <h4>
-                <a href="#separateMissions" data-bs-toggle="collapse" :class="!openMissions || (openMissions && !openMissions.length) ? 'show' : ''" @click.prevent>
+                <a
+href="#separateMissions"
+data-bs-toggle="collapse"
+:class="!openMissions || (openMissions && !openMissions.length) ? 'show' : ''"
+@click.prevent
+>
                     Pending priority quests
                     <i class="fas fa-angle-down" />
                 </a>

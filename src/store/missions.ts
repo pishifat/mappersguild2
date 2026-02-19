@@ -39,6 +39,7 @@ const store: Module<MissionsState, MainState> = {
         },
         addMissionIfNotExists (state, mission: Mission): void {
             const exists = state.missions.some(m => m.id === mission.id);
+
             if (!exists) {
                 state.missions.push(mission);
             }

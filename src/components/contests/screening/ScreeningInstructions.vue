@@ -11,7 +11,9 @@
             </li>
             <li>Submissions are sorted randomly every time you load the page. <span class="text-secondary">You can use the <i class="fa-solid fa-strikethrough" /> button to mark maps you've checked (only for your own reference).</span></li>
             <li>Comments are not required. <span class="text-secondary">They're nice to include though, especially for your top picks and for new mappers. Comments will be seen by the map creator, but your name will be anonymous.</span></li>
-            <li class="text-danger"><b>DO NOT discuss your choices with other screeners or outsiders until after the contest is concluded.</b></li>
+            <li class="text-danger">
+<b>DO NOT discuss your choices with other screeners or outsiders until after the contest is concluded.</b>
+</li>
         </ol>
     </div>
 </template>

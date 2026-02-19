@@ -81,7 +81,7 @@ tasksRouter.post('/removeTask/:taskId/:mapId', isValidBeatmap, isValidUser, asyn
     }
 
     await BeatmapModel.findByIdAndUpdate(req.params.mapId, { $pull: { tasks: t._id } });
-    await TaskModel.findByIdAndRemove(req.params.taskId);
+    await TaskModel.findByIdAndDelete(req.params.taskId);
     const updatedBeatmap = await BeatmapModel
         .findById(req.params.mapId)
         .defaultPopulate()

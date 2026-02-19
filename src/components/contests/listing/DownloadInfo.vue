@@ -10,7 +10,7 @@
                 autocomplete="off"
                 placeholder="link..."
                 @change="updateDownload($event)"
-            >
+            />
         </div>
         <div class="col-sm-6 small text-secondary">
             This link will appear at the top of judging/screening pages for users to download beatmaps. For contest integrity, user data should be removed as explained in the anonymization guide below.

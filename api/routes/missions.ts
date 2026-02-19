@@ -424,12 +424,17 @@ missionsRouter.post('/:missionId/findShowcaseMissionArtist', isEditable, async (
         .populate(
             {
                 path: 'showcaseMissionArtists',
-                populate: {
-                    path: 'artist user',
-                    populate: {
-                        path: 'songs',
+                populate: [
+                    {
+                        path: 'artist',
+                        populate: {
+                            path: 'songs',
+                        },
                     },
-                },
+                    {
+                        path: 'user',
+                    },
+                ],
             }
         )
         .orFail();
@@ -471,15 +476,20 @@ missionsRouter.get('/:missionId/findSelectedShowcaseMissionArtist', async (req, 
         .populate(
             {
                 path: 'showcaseMissionArtists',
-                populate: {
-                    path: 'artist user',
-                    populate: {
-                        path: 'songs',
+                populate: [
+                    {
+                        path: 'artist',
                         populate: {
-                            path: 'songShowcaseMappers',
+                            path: 'songs',
+                            populate: {
+                                path: 'songShowcaseMappers',
+                            },
                         },
                     },
-                },
+                    {
+                        path: 'user',
+                    },
+                ],
             }
         )
         .orFail();

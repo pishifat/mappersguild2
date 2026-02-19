@@ -2,7 +2,7 @@
     <div>
         <div class="container card card-body py-4 my-4">
             <h3 class="text-center">
-                <a href="https://osu.ppy.sh/home/news/2025-01-31-locus" target="_blank">Locus</a>'s Nexus is closed for the year! Check back again in 2026 :)
+                <a href="https://osu.ppy.sh/home/news/2025-01-31-locus" target="_blank">Locus</a>'s Nexus is closed for the year! Check back again in 2027 :)
             </h3>
         </div>
         <!--<div class="container card card-body py-4 my-4">

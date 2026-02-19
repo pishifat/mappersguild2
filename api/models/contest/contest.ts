@@ -6,7 +6,7 @@ export interface Contest extends IContest, Document {
     id: string;
 }
 
-const contestSchema = new Schema<Contest>({
+const contestSchema = new Schema({
     name: { type: String, required: true },
     creators: [{ type: 'ObjectId', ref: 'User' }],
     url: { type: String },

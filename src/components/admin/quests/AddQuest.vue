@@ -7,7 +7,7 @@
                 type="text"
                 autocomplete="off"
                 placeholder="name..."
-            >
+            />
         </p>
         <p>
             <input
@@ -16,7 +16,7 @@
                 type="text"
                 autocomplete="off"
                 placeholder="price..."
-            >
+            />
         </p>
         <p>
             <textarea
@@ -34,7 +34,7 @@
                 type="text"
                 autocomplete="off"
                 placeholder="timeframe (days)..."
-            >
+            />
         </p>
         <p>
             <input
@@ -43,7 +43,7 @@
                 type="text"
                 autocomplete="off"
                 placeholder="minimum party..."
-            >
+            />
         </p>
         <p>
             <input
@@ -52,7 +52,7 @@
                 type="text"
                 autocomplete="off"
                 placeholder="maximum party..."
-            >
+            />
         </p>
         <p>
             <input
@@ -61,7 +61,7 @@
                 type="text"
                 autocomplete="off"
                 placeholder="minimum rank..."
-            >
+            />
         </p>
         <p>
             <input
@@ -70,7 +70,7 @@
                 type="text"
                 autocomplete="off"
                 placeholder="artist osu ID..."
-            >
+            />
         </p>
         <p>
             <button class="btn btn-sm btn-outline-info" @click="addQuest($event)">

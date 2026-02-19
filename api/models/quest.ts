@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import mongoose, { Schema, Model, DocumentQuery } from 'mongoose';
+import mongoose, { Schema, Model } from 'mongoose';
 import { Quest, QuestStatus } from '../../interfaces/quest';
 import { BeatmapModel } from './beatmap/beatmap';
 
-interface QuestStatics extends Model<Quest, typeof queryHelpers> {
+interface QuestStatics {
     findAll (limit?: number): Promise<Quest[]>;
     defaultFindByIdOrFail (id: any): Promise<Quest>;
 }
 
-const questSchema = new Schema<Quest, QuestStatics>({
+const questSchema = new Schema({
     creator: { type: 'ObjectId', ref: 'User' },
     name: { type: String, required: true },
     price: { type: Number, default: 0 },
@@ -77,7 +77,7 @@ questSchema.methods.dissociateBeatmaps = async function (this: Quest, userId?: s
 questSchema.methods.removeParties = async function (this: Quest) {
     if (this.parties.length) {
         for (const party of this.parties) {
-            await party.remove();
+            await party.deleteOne();
         }
     }
 };
@@ -105,10 +105,10 @@ questSchema.methods.drop = async function (this: Quest) {
 };
 
 const queryHelpers = {
-    sortByLatest<Q extends DocumentQuery<any, Quest>>(this: Q) {
+    sortByLatest(this: any) {
         return this.sort({ createdAt: -1 });
     },
-    defaultPopulate<Q extends DocumentQuery<any, Quest>>(this: Q) {
+    defaultPopulate(this: any) {
         return this.populate([
             { path: 'parties', populate: { path: 'members pendingMembers leader' } },
             {
@@ -127,7 +127,7 @@ const queryHelpers = {
 
 questSchema.query = queryHelpers;
 
-questSchema.statics.findAll = function (this: QuestStatics, limit?: number) {
+questSchema.statics.findAll = function (this: any, limit?: number) {
     if (!limit) limit = 10000;
 
     return this
@@ -137,7 +137,7 @@ questSchema.statics.findAll = function (this: QuestStatics, limit?: number) {
         .limit(limit);
 };
 
-questSchema.statics.defaultFindByIdOrFail = function (this: QuestStatics, id: any) {
+questSchema.statics.defaultFindByIdOrFail = function (this: any, id: any) {
     return this
         .findById(id)
         .defaultPopulate()

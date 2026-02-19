@@ -6,7 +6,7 @@ export interface Submission extends ISubmission, Document {
     id: string;
 }
 
-const submissionSchema = new Schema<Submission>({
+const submissionSchema = new Schema({
     name: { type: String },
     creator: { type: 'ObjectId', ref: 'User', required: true },
     url: { type: String },

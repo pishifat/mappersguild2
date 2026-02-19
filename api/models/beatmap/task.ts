@@ -6,7 +6,7 @@ export interface Task extends ITask, Document {
     id: string;
 }
 
-const taskSchema = new Schema<Task>({
+const taskSchema = new Schema({
     name: { type: String, enum: SortedTasks, required: true },
     mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania', 'sb', 'hs'], default: 'osu' },
     mappers: [{ type: 'ObjectId', ref: 'User', required: true }],

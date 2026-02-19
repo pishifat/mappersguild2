@@ -2,7 +2,7 @@
 import mongoose, { Schema } from 'mongoose';
 import { LocusInfo } from '../../interfaces/locusInfo';
 
-const locusInfoSchema = new Schema<LocusInfo>({
+const locusInfoSchema = new Schema({
     user: { type: 'ObjectId', ref: 'User', required: true },
     timezone: { type: String },
     availability: { type: String },

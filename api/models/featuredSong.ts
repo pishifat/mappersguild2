@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema, DocumentQuery, Model } from 'mongoose';
+import mongoose, { Document, Schema, Model } from 'mongoose';
 import { FeaturedSong as IFeaturedSong } from '../../interfaces/featuredSong';
 
 export interface FeaturedSong extends IFeaturedSong, Document {
@@ -15,7 +15,7 @@ const featuredSongSchema = new Schema<FeaturedSong>({
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const queryHelpers = {
-    defaultPopulate<Q extends DocumentQuery<any, FeaturedSong>>(this: Q) {
+    defaultPopulate(this: any) {
         return this.populate([
             { path: 'songShowcaseMappers', select: 'username osuId' },
         ]);

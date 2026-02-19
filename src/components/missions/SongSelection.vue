@@ -54,7 +54,9 @@
 
                 <div class="text-secondary">
                     <div>Only <i>you</i> can see the song above. Treat it like confidential information. Do NOT tell anyone that it's related to Featured Artists or this quest!</div>
-                    <div class="mt-2">Talk to <a href="https://osu.ppy.sh/users/3178418" target="_blank">pishifat</a> if you have any questions.</div>
+                    <div class="mt-2">
+Talk to <a href="https://osu.ppy.sh/users/3178418" target="_blank">pishifat</a> if you have any questions.
+</div>
                 </div>
             </div>
         </div>
