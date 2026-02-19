@@ -17,6 +17,13 @@ export default defineConfig({
     build: {
         outDir: 'dist/public',
     },
+    css: {
+        preprocessorOptions: {
+            scss: {
+                silenceDeprecations: ['import', 'global-builtin', 'color-functions', 'if-function', 'abs-percent', 'function-units'],
+            },
+        },
+    },
     resolve: {
         alias: [
             { find: '@components', replacement: '/src/components' },
