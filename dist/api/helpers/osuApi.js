@@ -3,7 +3,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getBeatmapsSearch = exports.getDiscussions = exports.getBeatmapsetV2Info = exports.getUserInfoFromId = exports.getUserInfo = exports.refreshToken = exports.getClientCredentialsGrant = exports.getToken = exports.isOsuResponseError = void 0;
+exports.isOsuResponseError = isOsuResponseError;
+exports.getToken = getToken;
+exports.getClientCredentialsGrant = getClientCredentialsGrant;
+exports.refreshToken = refreshToken;
+exports.getUserInfo = getUserInfo;
+exports.getUserInfoFromId = getUserInfoFromId;
+exports.getBeatmapsetV2Info = getBeatmapsetV2Info;
+exports.getDiscussions = getDiscussions;
+exports.getBeatmapsSearch = getBeatmapsSearch;
 const axios_1 = __importDefault(require("axios"));
 const querystring_1 = __importDefault(require("querystring"));
 const helpers_1 = require("./helpers");
@@ -11,10 +19,9 @@ const config_json_1 = __importDefault(require("../../config.json"));
 function isOsuResponseError(errorResponse) {
     return errorResponse.error !== undefined;
 }
-exports.isOsuResponseError = isOsuResponseError;
 async function executeRequest(options) {
     try {
-        const res = await axios_1.default(options);
+        const res = await (0, axios_1.default)(options);
         if (res?.data) {
             return res.data;
         }
@@ -42,7 +49,6 @@ async function getToken(code, isMerch) {
     };
     return await executeRequest(options);
 }
-exports.getToken = getToken;
 async function getClientCredentialsGrant() {
     const postData = querystring_1.default.stringify({
         grant_type: 'client_credentials',
@@ -60,7 +66,6 @@ async function getClientCredentialsGrant() {
     };
     return await executeRequest(options);
 }
-exports.getClientCredentialsGrant = getClientCredentialsGrant;
 async function refreshToken(refreshToken) {
     const postData = querystring_1.default.stringify({
         grant_type: 'refresh_token',
@@ -78,7 +83,6 @@ async function refreshToken(refreshToken) {
     };
     return await executeRequest(options);
 }
-exports.refreshToken = refreshToken;
 async function getUserInfo(token) {
     const options = {
         url: 'https://osu.ppy.sh/api/v2/me',
@@ -89,7 +93,6 @@ async function getUserInfo(token) {
     };
     return await executeRequest(options);
 }
-exports.getUserInfo = getUserInfo;
 async function getUserInfoFromId(token, id) {
     const options = {
         method: 'GET',
@@ -99,7 +102,7 @@ async function getUserInfoFromId(token, id) {
         },
     };
     try {
-        const res = await axios_1.default(options);
+        const res = await (0, axios_1.default)(options);
         if (res?.data) {
             return res.data;
         }
@@ -109,7 +112,6 @@ async function getUserInfoFromId(token, id) {
         return helpers_1.defaultErrorMessage;
     }
 }
-exports.getUserInfoFromId = getUserInfoFromId;
 async function getBeatmapsetV2Info(token, setId) {
     const options = {
         method: 'GET',
@@ -119,7 +121,7 @@ async function getBeatmapsetV2Info(token, setId) {
         },
     };
     try {
-        const res = await axios_1.default(options);
+        const res = await (0, axios_1.default)(options);
         if (res?.data) {
             return res.data;
         }
@@ -129,7 +131,6 @@ async function getBeatmapsetV2Info(token, setId) {
         return helpers_1.defaultErrorMessage;
     }
 }
-exports.getBeatmapsetV2Info = getBeatmapsetV2Info;
 async function getDiscussions(token, params) {
     const url = `https://osu.ppy.sh/api/v2/beatmapsets/discussions${params}`;
     const options = {
@@ -140,7 +141,7 @@ async function getDiscussions(token, params) {
         },
     };
     try {
-        const res = await axios_1.default(options);
+        const res = await (0, axios_1.default)(options);
         if (res?.data) {
             return res.data;
         }
@@ -150,7 +151,6 @@ async function getDiscussions(token, params) {
         return helpers_1.defaultErrorMessage;
     }
 }
-exports.getDiscussions = getDiscussions;
 async function getBeatmapsSearch(token, params) {
     const url = `https://osu.ppy.sh/api/v2/beatmapsets/search/${params}`;
     const options = {
@@ -161,7 +161,7 @@ async function getBeatmapsSearch(token, params) {
         },
     };
     try {
-        const res = await axios_1.default(options);
+        const res = await (0, axios_1.default)(options);
         if (res?.data) {
             return res.data;
         }
@@ -171,4 +171,3 @@ async function getBeatmapsSearch(token, params) {
         return helpers_1.defaultErrorMessage;
     }
 }
-exports.getBeatmapsSearch = getBeatmapsSearch;

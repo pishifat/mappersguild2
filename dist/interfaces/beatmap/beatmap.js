@@ -7,7 +7,7 @@ var BeatmapStatus;
     BeatmapStatus["Done"] = "Done";
     BeatmapStatus["Qualified"] = "Qualified";
     BeatmapStatus["Ranked"] = "Ranked";
-})(BeatmapStatus = exports.BeatmapStatus || (exports.BeatmapStatus = {}));
+})(BeatmapStatus || (exports.BeatmapStatus = BeatmapStatus = {}));
 var BeatmapMode;
 (function (BeatmapMode) {
     BeatmapMode["Osu"] = "osu";
@@ -15,4 +15,4 @@ var BeatmapMode;
     BeatmapMode["Catch"] = "catch";
     BeatmapMode["Mania"] = "mania";
     BeatmapMode["Hybrid"] = "hybrid";
-})(BeatmapMode = exports.BeatmapMode || (exports.BeatmapMode = {}));
+})(BeatmapMode || (exports.BeatmapMode = BeatmapMode = {}));

@@ -59,7 +59,7 @@ adminContestsRouter.post('/:id/toggleIsApproved', async (req, res) => {
         const descriptionCombined = descriptionIntro + descriptionBody;
         const description = descriptionCombined.length > 1500 ? descriptionCombined.slice(0, 1500) + '... *(truncated)*' : descriptionCombined;
         const image = contest.bannerUrl ? { url: contest.bannerUrl } : undefined;
-        discordApi_1.webhookPost([{
+        (0, discordApi_1.webhookPost)([{
                 title,
                 author,
                 color,
@@ -67,7 +67,7 @@ adminContestsRouter.post('/:id/toggleIsApproved', async (req, res) => {
                 image,
             }]);
         // Regraz webhook
-        discordApi_1.externalWebhookPost([{
+        (0, discordApi_1.externalWebhookPost)([{
                 title,
                 author,
                 color,
@@ -75,7 +75,7 @@ adminContestsRouter.post('/:id/toggleIsApproved', async (req, res) => {
                 image,
             }], 'regraz');
         // Riana webhook
-        discordApi_1.externalWebhookPost([{
+        (0, discordApi_1.externalWebhookPost)([{
                 title,
                 author,
                 color,

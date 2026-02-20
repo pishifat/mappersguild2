@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isEditable = exports.isContestCreator = void 0;
+exports.isContestCreator = isContestCreator;
+exports.isEditable = isEditable;
 const contest_1 = require("../../../interfaces/contest/contest");
 const contest_2 = require("../../models/contest/contest");
 async function isContestCreator(req, res, next) {
@@ -17,7 +18,6 @@ async function isContestCreator(req, res, next) {
     }
     next();
 }
-exports.isContestCreator = isContestCreator;
 async function isEditable(req, res, next) {
     const id = req.params.id;
     const contest = await contest_2.ContestModel
@@ -28,4 +28,3 @@ async function isEditable(req, res, next) {
     }
     next();
 }
-exports.isEditable = isEditable;

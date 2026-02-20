@@ -42,15 +42,15 @@ adminBeatmapsRouter.post('/:id/updateStatus', middlewares_1.isSuperAdmin, async 
     }
     if (req.body.status == beatmap_2.BeatmapStatus.Ranked) {
         // fetch osu api's beatmap data
-        const osuId = helpers_1.findBeatmapsetId(b.url);
-        const response = await osuApi_1.getClientCredentialsGrant();
-        await helpers_1.sleep(500);
-        if (!osuApi_1.isOsuResponseError(response)) {
+        const osuId = (0, helpers_1.findBeatmapsetId)(b.url);
+        const response = await (0, osuApi_1.getClientCredentialsGrant)();
+        await (0, helpers_1.sleep)(500);
+        if (!(0, osuApi_1.isOsuResponseError)(response)) {
             const token = response.access_token;
-            const bmInfo = await osuApi_1.getBeatmapsetV2Info(token, osuId);
-            await helpers_1.sleep(500);
-            if (!osuApi_1.isOsuResponseError(bmInfo)) {
-                await helpers_1.setBeatmapStatusRanked(b.id, bmInfo);
+            const bmInfo = await (0, osuApi_1.getBeatmapsetV2Info)(token, osuId);
+            await (0, helpers_1.sleep)(500);
+            if (!(0, osuApi_1.isOsuResponseError)(bmInfo)) {
+                await (0, helpers_1.setBeatmapStatusRanked)(b.id, bmInfo);
             }
         }
     }
@@ -71,7 +71,7 @@ adminBeatmapsRouter.post('/:id/tasks/:taskId/delete', middlewares_1.isSuperAdmin
         })
             .orFail(),
         task_1.TaskModel
-            .findByIdAndRemove(req.params.taskId)
+            .findByIdAndDelete(req.params.taskId)
             .orFail(),
     ]);
     res.json({ success: 'ok' });
@@ -134,7 +134,7 @@ adminBeatmapsRouter.post('/:id/rejectMapset', middlewares_1.isSuperAdmin, async 
         beatmap.invalidReason = inputMessages;
         await beatmap.save();
     }
-    const announcement = await osuBot_1.sendAnnouncement([beatmap.host.osuId], channel, message);
+    const announcement = await (0, osuBot_1.sendAnnouncement)([beatmap.host.osuId], channel, message);
     if (announcement !== true) {
         return res.json({ error: announcement.error ? announcement.error : `Messages were not sent.` });
     }
@@ -146,8 +146,8 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
         return res.json({ error: 'Invalid date' });
     }
     const date = new Date(req.params.date);
-    const response = await osuApi_1.getClientCredentialsGrant();
-    if (!osuApi_1.isOsuResponseError(response)) {
+    const response = await (0, osuApi_1.getClientCredentialsGrant)();
+    if (!(0, osuApi_1.isOsuResponseError)(response)) {
         const token = response.access_token;
         const b = await beatmap_1.BeatmapModel
             .find({
@@ -191,9 +191,9 @@ adminBeatmapsRouter.get('/loadNewsInfo/:date', async (req, res) => {
                     user.hostCount++;
             }
             if (user.taskCount >= 10 || user.hostCount >= 5) {
-                const userInfo = await osuApi_1.getUserInfoFromId(token, user.osuId);
-                if (!osuApi_1.isOsuResponseError(userInfo)) {
-                    await helpers_1.sleep(250);
+                const userInfo = await (0, osuApi_1.getUserInfoFromId)(token, user.osuId);
+                if (!(0, osuApi_1.isOsuResponseError)(userInfo)) {
+                    await (0, helpers_1.sleep)(250);
                     users.push({ username: user.username, flag: `::{ flag=${userInfo.country_code} }::`, osuId: user.osuId, taskCount: user.taskCount, hostCount: user.hostCount, modes: [...new Set(modes)] });
                 }
             }
@@ -254,13 +254,13 @@ adminBeatmapsRouter.post('/searchBeatmap', async (req, res) => {
     if (isNaN(osuId)) {
         return res.json({ error: 'invalid osu id' });
     }
-    const response = await osuApi_1.getClientCredentialsGrant();
-    if (osuApi_1.isOsuResponseError(response)) {
+    const response = await (0, osuApi_1.getClientCredentialsGrant)();
+    if ((0, osuApi_1.isOsuResponseError)(response)) {
         return res.json(helpers_2.defaultErrorMessage);
     }
     const token = response.access_token;
-    const userInfo = await osuApi_1.getBeatmapsetV2Info(token, osuId);
-    if (osuApi_1.isOsuResponseError(userInfo)) {
+    const userInfo = await (0, osuApi_1.getBeatmapsetV2Info)(token, osuId);
+    if ((0, osuApi_1.isOsuResponseError)(userInfo)) {
         return res.json(helpers_2.defaultErrorMessage);
     }
     res.json(userInfo);

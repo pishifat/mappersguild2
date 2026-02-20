@@ -6,4 +6,4 @@ var FeaturedArtistStatus;
     FeaturedArtistStatus["Public"] = "public";
     FeaturedArtistStatus["Private"] = "private";
     FeaturedArtistStatus["Playlist"] = "playlist";
-})(FeaturedArtistStatus = exports.FeaturedArtistStatus || (exports.FeaturedArtistStatus = {}));
+})(FeaturedArtistStatus || (exports.FeaturedArtistStatus = FeaturedArtistStatus = {}));

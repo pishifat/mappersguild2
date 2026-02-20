@@ -91,7 +91,7 @@ partiesRouter.post('/:id/delete', isPartyLeader, async (req, res) => {
     if (party.quest.status !== quest_2.QuestStatus.Open) {
         throw new Error(`Cannot delete a party with a WIP quest`);
     }
-    await party.remove();
+    await party.deleteOne();
     const quest = await quest_1.QuestModel.defaultFindByIdOrFail(party.quest._id);
     res.json(quest);
     log_2.LogModel.generate(req.session?.mongoId, `deleted a party for ${quest.name}`, log_1.LogCategory.Party);

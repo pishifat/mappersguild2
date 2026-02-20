@@ -13,7 +13,7 @@ merchRouter.use(middlewares_1.isLoggedIn);
 merchRouter.use(middlewares_1.hasMerchAccess);
 /* GET merch listing. */
 merchRouter.get('/query', async (req, res) => {
-    const products = await shopifyGraphQL_1.getProducts(config_json_1.default.shopify.secretProductIds);
+    const products = await (0, shopifyGraphQL_1.getProducts)(config_json_1.default.shopify.secretProductIds);
     res.json({ merch: products });
 });
 /* POST checkout */
@@ -21,7 +21,7 @@ merchRouter.post('/checkout', async (req, res) => {
     const user = await user_1.UserModel.findById(req.session.mongoId).orFail();
     const cartLines = [];
     const getProduct = async (productId) => {
-        const products = await shopifyGraphQL_1.getProducts([productId]);
+        const products = await (0, shopifyGraphQL_1.getProducts)([productId]);
         return products[0];
     };
     if (user.hasSpecificMerchOrder) {
@@ -37,7 +37,7 @@ merchRouter.post('/checkout', async (req, res) => {
         cartLines.push({ merchandiseId: variantId, quantity: 1 });
     }
     const discountCodes = config_json_1.default.shopify.discountCodes;
-    const cart = await shopifyGraphQL_1.createCart(cartLines, discountCodes);
+    const cart = await (0, shopifyGraphQL_1.createCart)(cartLines, discountCodes);
     user.hasMerchAccess = false;
     user.hasSpecificMerchOrder = false;
     await user.save();

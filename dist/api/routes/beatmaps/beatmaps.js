@@ -230,7 +230,7 @@ beatmapsRouter.post('/:id/updateBn', middlewares_2.isValidBeatmap, async (req, r
     if (isAlreadyBn) {
         update = { $pull: { bns: req.session?.mongoId } };
     }
-    else if (await middlewares_1.isBn(req.session?.accessToken)) {
+    else if (await (0, middlewares_1.isBn)(req.session?.accessToken)) {
         let hasTask = false;
         b.tasks.forEach(task => {
             task.mappers.forEach(mapper => {
@@ -267,10 +267,10 @@ beatmapsRouter.get('/:id/findPoints', async (req, res) => {
             .findById(req.params.id)
             .defaultPopulate()
             .orFail(),
-        osuApi_1.getClientCredentialsGrant(),
+        (0, osuApi_1.getClientCredentialsGrant)(),
     ]);
     // check if token exists
-    if (osuApi_1.isOsuResponseError(response)) {
+    if ((0, osuApi_1.isOsuResponseError)(response)) {
         return res.json(helpers_1.defaultErrorMessage);
     }
     // set token
@@ -279,13 +279,13 @@ beatmapsRouter.get('/:id/findPoints', async (req, res) => {
     if (!beatmap.url) {
         return res.json({ error: 'Need a beatmapset link to calculate points!' });
     }
-    const beatmapsetId = helpers_1.findBeatmapsetId(beatmap.url);
+    const beatmapsetId = (0, helpers_1.findBeatmapsetId)(beatmap.url);
     if (isNaN(beatmapsetId)) {
         return res.json({ error: 'Need a beatmapset link to calculate points!' });
     }
     // get osu-web beatmap info
-    const bmInfo = await osuApi_1.getBeatmapsetV2Info(token, beatmapsetId);
-    if (osuApi_1.isOsuResponseError(bmInfo)) {
+    const bmInfo = await (0, osuApi_1.getBeatmapsetV2Info)(token, beatmapsetId);
+    if ((0, osuApi_1.isOsuResponseError)(bmInfo)) {
         return res.json(helpers_1.defaultErrorMessage);
     }
     // sort tasks to expected difficulty scaling
@@ -295,8 +295,8 @@ beatmapsRouter.get('/:id/findPoints', async (req, res) => {
     });
     // set up task points info
     const tasksPointsArray = [];
-    const length = helpers_1.getLongestBeatmapLength(bmInfo.beatmaps);
-    const lengthNerf = points_1.getLengthNerf(length);
+    const length = (0, helpers_1.getLongestBeatmapLength)(bmInfo.beatmaps);
+    const lengthNerf = (0, points_1.getLengthNerf)(length);
     const seconds = length % 60;
     const minutes = (length - seconds) / 60;
     const lengthDisplay = `${minutes}m${seconds}s`;
@@ -319,9 +319,9 @@ beatmapsRouter.get('/:id/findPoints', async (req, res) => {
     // calculate points
     beatmap.tasks.forEach(task => {
         // difficulty-specific points
-        const taskPoints = points_1.findDifficultyPoints(task.name, 1);
+        const taskPoints = (0, points_1.findDifficultyPoints)(task.name, 1);
         if (beatmap.quest) {
-            bonus = points_1.getQuestBonus(beatmap.quest.deadline, new Date(rankedDate), 1);
+            bonus = (0, points_1.getQuestBonus)(beatmap.quest.deadline, new Date(rankedDate), 1);
             validBonus = true;
         }
         else if (beatmap.mission) {
@@ -337,7 +337,7 @@ beatmapsRouter.get('/:id/findPoints', async (req, res) => {
         tasksPointsArray.push(`${task.name}: ${finalPoints.toFixed(1)}`);
         // user-specific points
         task.mappers.forEach(mapper => {
-            const userTaskPoints = points_1.findDifficultyPoints(task.name, task.mappers.length);
+            const userTaskPoints = (0, points_1.findDifficultyPoints)(task.name, task.mappers.length);
             usersPointsArrays.forEach(userArray => {
                 if (userArray[0] == mapper.username) {
                     if (task.name == task_2.TaskName.Storyboard) {
@@ -354,7 +354,7 @@ beatmapsRouter.get('/:id/findPoints', async (req, res) => {
         pointsInfo += ` + includes ${bonus == 1 ? bonus + ' quest bonus point' : bonus + ' quest bonus points'} per difficulty`;
     }
     // calculate bn points
-    let bnPoints = Math.round(points_1.getLengthNerf((length * beatmap.tasks.length) / 1.5) * 10) / 10;
+    let bnPoints = Math.round((0, points_1.getLengthNerf)((length * beatmap.tasks.length) / 1.5) * 10) / 10;
     if (bnPoints < 1) {
         bnPoints = 1;
     }

@@ -75,16 +75,16 @@ const setQualified = node_cron_1.default.schedule('0 16 * * *', async () => {
         $and: statusQuery,
     })
         .defaultPopulate();
-    const response = await osuApi_1.getClientCredentialsGrant();
-    if (!osuApi_1.isOsuResponseError(response)) {
+    const response = await (0, osuApi_1.getClientCredentialsGrant)();
+    if (!(0, osuApi_1.isOsuResponseError)(response)) {
         const token = response.access_token;
         for (const bm of allBeatmaps) {
             if (bm.url && bm.url.length && bm.url.indexOf('osu.ppy.sh/beatmapsets/') > -1) {
-                const osuId = helpers_1.findBeatmapsetId(bm.url);
-                const bmInfo = await osuApi_1.getBeatmapsetV2Info(token, osuId);
-                await helpers_1.sleep(500);
-                if (!osuApi_1.isOsuResponseError(bmInfo)) {
-                    const status = helpers_1.findBeatmapsetStatus(bmInfo.ranked);
+                const osuId = (0, helpers_1.findBeatmapsetId)(bm.url);
+                const bmInfo = await (0, osuApi_1.getBeatmapsetV2Info)(token, osuId);
+                await (0, helpers_1.sleep)(500);
+                if (!(0, osuApi_1.isOsuResponseError)(bmInfo)) {
+                    const status = (0, helpers_1.findBeatmapsetStatus)(bmInfo.ranked);
                     /*  osu:    Qualified/Ranked
                         MG:     Pending
                         save:   Qualified on MG */
@@ -100,9 +100,9 @@ const setQualified = node_cron_1.default.schedule('0 16 * * *', async () => {
                                 .findById(bm._id)
                                 .defaultPopulate()
                                 .orFail();
-                            const discussionInfo = await osuApi_1.getDiscussions(token, `?beatmapset_id=${osuId}&message_types%5B%5D=suggestion&message_types%5B%5D=problem&user=${modder.osuId}`);
-                            await helpers_1.sleep(500);
-                            if (!osuApi_1.isOsuResponseError(discussionInfo) && discussionInfo.discussions && !discussionInfo.discussions.length) {
+                            const discussionInfo = await (0, osuApi_1.getDiscussions)(token, `?beatmapset_id=${osuId}&message_types%5B%5D=suggestion&message_types%5B%5D=problem&user=${modder.osuId}`);
+                            await (0, helpers_1.sleep)(500);
+                            if (!(0, osuApi_1.isOsuResponseError)(discussionInfo) && discussionInfo.discussions && !discussionInfo.discussions.length) {
                                 const i = currentBeatmap.modders.findIndex(m => m.id == modder.id);
                                 if (i !== -1) {
                                     currentBeatmap.modders.splice(i, 1);
@@ -111,7 +111,7 @@ const setQualified = node_cron_1.default.schedule('0 16 * * *', async () => {
                             }
                         }
                         // add bns to modders (after above, in case a bn didn't post anything)
-                        await helpers_1.setNominators(bm, bmInfo);
+                        await (0, helpers_1.setNominators)(bm, bmInfo);
                     }
                     /*  osu:    Pending
                         MG:     Qualified
@@ -130,16 +130,16 @@ const setQualified = node_cron_1.default.schedule('0 16 * * *', async () => {
 });
 /* create FeaturedArtist for every artist that doesn't already exist based on the last 50 maps ranked per day */
 const processDailyArtists = node_cron_1.default.schedule('0 18 * * *', async () => {
-    const response = await osuApi_1.getClientCredentialsGrant();
+    const response = await (0, osuApi_1.getClientCredentialsGrant)();
     let token;
-    if (!osuApi_1.isOsuResponseError(response))
+    if (!(0, osuApi_1.isOsuResponseError)(response))
         token = response.access_token;
-    const searchResults = await osuApi_1.getBeatmapsSearch(token, ``);
+    const searchResults = await (0, osuApi_1.getBeatmapsSearch)(token, ``);
     if (searchResults.beatmapsets && searchResults.beatmapsets.length) {
         for (const beatmapset of searchResults.beatmapsets) {
             const fa = await featuredArtist_1.FeaturedArtistModel.findOne({ label: beatmapset.artist });
             if (!fa) {
-                const artistSearchResults = await osuApi_1.getBeatmapsSearch(token, `?q=artist%3D"${beatmapset.artist}"&s=any&sort=plays_desc`);
+                const artistSearchResults = await (0, osuApi_1.getBeatmapsSearch)(token, `?q=artist%3D"${beatmapset.artist}"&s=any&sort=plays_desc`);
                 if (artistSearchResults.beatmapsets && artistSearchResults.beatmapsets.length) {
                     let playcount = 0;
                     for (const beatmapset of artistSearchResults.beatmapsets) {
@@ -195,8 +195,8 @@ const publishQuests = node_cron_1.default.schedule('0 22 * * *', async () => {
             for (const quest of webhook.quests) {
                 description += generateQuestDetails(quest);
             }
-            await discordApi_1.webhookPost([{
-                    ...await helpers_1.generateBotAuthorWebhook(),
+            await (0, discordApi_1.webhookPost)([{
+                    ...await (0, helpers_1.generateBotAuthorWebhook)(),
                     color: discordApi_1.webhookColors.orange,
                     title,
                     description,
@@ -211,7 +211,7 @@ const publishQuests = node_cron_1.default.schedule('0 22 * * *', async () => {
             for (const quest of webhook.quests) {
                 description += generateQuestDetails(quest);
             }
-            await discordApi_1.webhookPost([{
+            await (0, discordApi_1.webhookPost)([{
                     author: {
                         name: `${webhook.creator.username}`,
                         url: `https://osu.ppy.sh/users/${webhook.creator.osuId}`,
@@ -225,7 +225,7 @@ const publishQuests = node_cron_1.default.schedule('0 22 * * *', async () => {
                     },
                 }]);
         }
-        await helpers_1.sleep(1000);
+        await (0, helpers_1.sleep)(1000);
     }
 }, {
     scheduled: false,
@@ -241,7 +241,7 @@ const sendActionNotifications = node_cron_1.default.schedule('0 23 * * *', async
         .defaultPopulate()
         .sort({ updatedAt: 1 });
     if (actionBeatmaps.length > 5) {
-        discordApi_1.devWebhookPost([{
+        (0, discordApi_1.devWebhookPost)([{
                 title: `beatmaps`,
                 color: discordApi_1.webhookColors.lightRed,
                 description: `**${actionBeatmaps.length}** pending beatmaps\n\nadmin: https://mappersguild.com/admin/summary`,
@@ -258,7 +258,7 @@ const sendActionNotifications = node_cron_1.default.schedule('0 23 * * *', async
         .defaultPopulate();
     quests = quests.concat(pendingQuests);
     if (quests.length) {
-        discordApi_1.devWebhookPost([{
+        (0, discordApi_1.devWebhookPost)([{
                 title: `quests`,
                 color: discordApi_1.webhookColors.lightRed,
                 description: `**${quests.length}** pending quests\n\nadmin: https://mappersguild.com/admin/summary`,
@@ -271,7 +271,7 @@ const sendActionNotifications = node_cron_1.default.schedule('0 23 * * *', async
     });
     const actionUsers = allUsers.filter(u => u.badge < u.rank);
     if (actionUsers.length > 5) {
-        discordApi_1.devWebhookPost([{
+        (0, discordApi_1.devWebhookPost)([{
                 title: `users`,
                 color: discordApi_1.webhookColors.lightRed,
                 description: `**${actionUsers.length}** pending user badges\n\nadmin: https://mappersguild.com/admin/summary`,
@@ -285,7 +285,7 @@ const sendActionNotifications = node_cron_1.default.schedule('0 23 * * *', async
     })
         .populate({ path: 'creators' });
     if (actionContests.length) {
-        discordApi_1.devWebhookPost([{
+        (0, discordApi_1.devWebhookPost)([{
                 title: `contests`,
                 color: discordApi_1.webhookColors.lightRed,
                 description: `**${actionContests.length}** pending contests\n\nadmin: https://mappersguild.com/admin/summary`,
@@ -307,17 +307,17 @@ const processMissions = node_cron_1.default.schedule('15 * * * *', async () => {
     })
         .extendedDefaultPopulate();
     for (const mission of missions) {
-        await helpers_1.sleep(500);
+        await (0, helpers_1.sleep)(500);
         if (mission.status == mission_2.MissionStatus.Open && !mission.openingAnnounced) {
             // logs
             log_1.LogModel.generate(null, `"${mission.name}" opened`, log_2.LogCategory.Mission);
             // webhook
-            await discordApi_1.webhookPost([{
-                    ...await helpers_1.generateBotAuthorWebhook(),
+            await (0, discordApi_1.webhookPost)([{
+                    ...await (0, helpers_1.generateBotAuthorWebhook)(),
                     color: discordApi_1.webhookColors.lightBlue,
                     title: `New priority quest`,
                     description: generateMissionDetails(mission),
-                    ...helpers_1.generateMissionThumbnailUrl(mission),
+                    ...(0, helpers_1.generateMissionThumbnailUrl)(mission),
                 }]);
             await mission_1.MissionModel.findByIdAndUpdate(mission.id, { openingAnnounced: true });
         }
@@ -331,8 +331,8 @@ const processMissions = node_cron_1.default.schedule('15 * * * *', async () => {
                     }
                 }
             }
-            await discordApi_1.webhookPost([{
-                    ...await helpers_1.generateBotAuthorWebhook(),
+            await (0, discordApi_1.webhookPost)([{
+                    ...await (0, helpers_1.generateBotAuthorWebhook)(),
                     color: discordApi_1.webhookColors.lightOrange,
                     description: generateMissionClosedDetails(mission),
                 }]);
@@ -350,7 +350,7 @@ const processMissions = node_cron_1.default.schedule('15 * * * *', async () => {
                 //logs
                 log_1.LogModel.generate(null, `"${mission.name}" closed (past deadline)`, log_2.LogCategory.Mission);
                 // dev webhook
-                discordApi_1.devWebhookPost([{
+                (0, discordApi_1.devWebhookPost)([{
                         title: `mission deadline met`,
                         color: discordApi_1.webhookColors.black,
                         description: `mission [**${mission.name}**](https://mappersguild.com/missions?id=${mission.id}) needs winners selected`,
@@ -359,7 +359,7 @@ const processMissions = node_cron_1.default.schedule('15 * * * *', async () => {
         }
     }
     for (const id of ids) {
-        await points_1.updateUserPoints(id);
+        await (0, points_1.updateUserPoints)(id);
     }
 }, {
     scheduled: false,
@@ -374,17 +374,17 @@ const setRanked = node_cron_1.default.schedule('0 1 * * *', async () => {
     });
     for (const bm of qualifiedBeatmaps) {
         if (bm.url.indexOf('osu.ppy.sh/beatmapsets/') > -1) {
-            const osuId = helpers_1.findBeatmapsetId(bm.url);
-            const response = await osuApi_1.getClientCredentialsGrant();
-            await helpers_1.sleep(500);
-            if (!osuApi_1.isOsuResponseError(response)) {
+            const osuId = (0, helpers_1.findBeatmapsetId)(bm.url);
+            const response = await (0, osuApi_1.getClientCredentialsGrant)();
+            await (0, helpers_1.sleep)(500);
+            if (!(0, osuApi_1.isOsuResponseError)(response)) {
                 const token = response.access_token;
-                const bmInfo = await osuApi_1.getBeatmapsetV2Info(token, osuId);
-                await helpers_1.sleep(500);
-                if (!osuApi_1.isOsuResponseError(bmInfo)) {
-                    const status = helpers_1.findBeatmapsetStatus(bmInfo.ranked);
+                const bmInfo = await (0, osuApi_1.getBeatmapsetV2Info)(token, osuId);
+                await (0, helpers_1.sleep)(500);
+                if (!(0, osuApi_1.isOsuResponseError)(bmInfo)) {
+                    const status = (0, helpers_1.findBeatmapsetStatus)(bmInfo.ranked);
                     if (status == beatmap_2.BeatmapStatus.Ranked) {
-                        await helpers_1.setBeatmapStatusRanked(bm.id, bmInfo);
+                        await (0, helpers_1.setBeatmapStatusRanked)(bm.id, bmInfo);
                     }
                 }
             }
@@ -407,21 +407,21 @@ const completeQuests = node_cron_1.default.schedule('0 3 * * *', async () => {
         quest.status = quest_2.QuestStatus.Done;
         await quest.save();
         for (const member of quest.currentParty.members) {
-            points_1.updateUserPoints(member.id);
+            (0, points_1.updateUserPoints)(member.id);
         }
         //webhook
-        const { modeList, memberList } = helpers_1.generateLists(quest.modes, quest.currentParty.members);
-        await discordApi_1.webhookPost([{
-                ...helpers_1.generateAuthorWebhook(quest.currentParty.leader),
+        const { modeList, memberList } = (0, helpers_1.generateLists)(quest.modes, quest.currentParty.members);
+        await (0, discordApi_1.webhookPost)([{
+                ...(0, helpers_1.generateAuthorWebhook)(quest.currentParty.leader),
                 color: discordApi_1.webhookColors.purple,
                 description: `Completed quest: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id}) [**${modeList}**]`,
-                ...helpers_1.generateThumbnailUrl(quest),
+                ...(0, helpers_1.generateThumbnailUrl)(quest),
                 fields: [{
                         name: 'Members',
                         value: memberList,
                     }],
             }]);
-        await helpers_1.sleep(1000);
+        await (0, helpers_1.sleep)(1000);
     }
 }, {
     scheduled: false,
@@ -453,7 +453,7 @@ const rankUsers = node_cron_1.default.schedule('1 3 * * *', async () => {
                 rankColor = discordApi_1.webhookColors.darkRed;
             }
             const description = `**Reached rank ${badge}** with ${user.totalPoints} total points`;
-            discordApi_1.webhookPost([{
+            (0, discordApi_1.webhookPost)([{
                     author: {
                         name: user.username,
                         icon_url: `https://a.ppy.sh/${user.osuId}`,
@@ -462,7 +462,7 @@ const rankUsers = node_cron_1.default.schedule('1 3 * * *', async () => {
                     color: rankColor,
                     description,
                 }]);
-            await helpers_1.sleep(1000);
+            await (0, helpers_1.sleep)(1000);
         }
     }
 }, {
@@ -492,7 +492,7 @@ const dropOverdueQuests = node_cron_1.default.schedule('2 3 * * *', async () => 
             const leader = quest.currentParty.leader;
             await quest.drop();
             // logs
-            const { modeList, memberList } = helpers_1.generateLists(quest.modes, members);
+            const { modeList, memberList } = (0, helpers_1.generateLists)(quest.modes, members);
             log_1.LogModel.generate(null, `party dropped quest "${quest.name}" for mode${quest.modes.length > 1 ? 's' : ''} "${modeList}"`, log_2.LogCategory.Quest);
             // webhook
             const openQuest = await quest_1.QuestModel
@@ -500,11 +500,11 @@ const dropOverdueQuests = node_cron_1.default.schedule('2 3 * * *', async () => 
                 status: quest_2.QuestStatus.Open,
                 name: quest.name,
             });
-            await discordApi_1.webhookPost([{
-                    ...helpers_1.generateAuthorWebhook(leader),
+            await (0, discordApi_1.webhookPost)([{
+                    ...(0, helpers_1.generateAuthorWebhook)(leader),
                     color: discordApi_1.webhookColors.red,
                     description: `Automatically dropped quest due to inactivity: [**${quest.name}**](https://mappersguild.com/quests?id=${openQuest ? openQuest.id : quest.id}) [**${modeList}**]`,
-                    ...helpers_1.generateThumbnailUrl(quest),
+                    ...(0, helpers_1.generateThumbnailUrl)(quest),
                     fields: [{
                             name: 'Party members',
                             value: memberList,
@@ -535,19 +535,19 @@ const validateRankedBeatmaps = node_cron_1.default.schedule('0 4 * * *', async (
             .limit(100)
             .sort({ updatedAt: 1 })
             .orFail(),
-        osuApi_1.getClientCredentialsGrant(),
+        (0, osuApi_1.getClientCredentialsGrant)(),
     ]);
-    await helpers_1.sleep(250);
-    if (!osuApi_1.isOsuResponseError(response)) {
+    await (0, helpers_1.sleep)(250);
+    if (!(0, osuApi_1.isOsuResponseError)(response)) {
         const token = response.access_token;
         for (const beatmap of beatmaps) {
-            const osuId = helpers_1.findBeatmapsetId(beatmap.url);
-            const bmInfo = await osuApi_1.getBeatmapsetV2Info(token, osuId);
-            await helpers_1.sleep(250);
-            if (!osuApi_1.isOsuResponseError(bmInfo)) {
+            const osuId = (0, helpers_1.findBeatmapsetId)(beatmap.url);
+            const bmInfo = await (0, osuApi_1.getBeatmapsetV2Info)(token, osuId);
+            await (0, helpers_1.sleep)(250);
+            if (!(0, osuApi_1.isOsuResponseError)(bmInfo)) {
                 beatmap.bns = [];
-                await helpers_1.setNominators(beatmap, bmInfo);
-                beatmap.length = helpers_1.getLongestBeatmapLength(bmInfo.beatmaps);
+                await (0, helpers_1.setNominators)(beatmap, bmInfo);
+                beatmap.length = (0, helpers_1.getLongestBeatmapLength)(bmInfo.beatmaps);
                 beatmap.rankedDate = bmInfo.ranked_date;
                 await beatmap.save();
             }
@@ -571,17 +571,17 @@ const updateFavoritesAndPlayCount = node_cron_1.default.schedule('5 4 * * *', as
             .limit(1000)
             .sort({ updatedAt: 1 })
             .orFail(),
-        osuApi_1.getClientCredentialsGrant(),
+        (0, osuApi_1.getClientCredentialsGrant)(),
     ]);
-    await helpers_1.sleep(250);
-    if (!osuApi_1.isOsuResponseError(response)) {
+    await (0, helpers_1.sleep)(250);
+    if (!(0, osuApi_1.isOsuResponseError)(response)) {
         const token = response.access_token;
         for (const beatmap of beatmaps) {
             if (beatmap.url && beatmap.url.length) {
-                const osuId = helpers_1.findBeatmapsetId(beatmap.url);
-                const bmInfo = await osuApi_1.getBeatmapsetV2Info(token, osuId);
-                await helpers_1.sleep(50);
-                if (!osuApi_1.isOsuResponseError(bmInfo)) {
+                const osuId = (0, helpers_1.findBeatmapsetId)(beatmap.url);
+                const bmInfo = await (0, osuApi_1.getBeatmapsetV2Info)(token, osuId);
+                await (0, helpers_1.sleep)(50);
+                if (!(0, osuApi_1.isOsuResponseError)(bmInfo)) {
                     beatmap.favorites = bmInfo.favourite_count;
                     beatmap.playCount = bmInfo.play_count;
                     await beatmap.save();

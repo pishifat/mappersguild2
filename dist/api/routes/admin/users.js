@@ -60,7 +60,7 @@ adminUsersRouter.post('/:id/updateDiscordId', async (req, res) => {
 });
 /* POST calculate user points */
 adminUsersRouter.post('/:id/calculateUserPoints', async (req, res) => {
-    const points = await points_1.updateUserPoints(req.params.id);
+    const points = await (0, points_1.updateUserPoints)(req.params.id);
     res.json(points);
 });
 /* POST toggle isMentorshipAdmin */
@@ -146,13 +146,13 @@ adminUsersRouter.post('/searchUser', async (req, res) => {
     if (isNaN(osuId)) {
         return res.json({ error: 'invalid osu id' });
     }
-    const response = await osuApi_1.getClientCredentialsGrant();
-    if (osuApi_1.isOsuResponseError(response)) {
+    const response = await (0, osuApi_1.getClientCredentialsGrant)();
+    if ((0, osuApi_1.isOsuResponseError)(response)) {
         return res.json(helpers_1.defaultErrorMessage);
     }
     const token = response.access_token;
-    const userInfo = await osuApi_1.getUserInfoFromId(token, osuId);
-    if (osuApi_1.isOsuResponseError(userInfo)) {
+    const userInfo = await (0, osuApi_1.getUserInfoFromId)(token, osuId);
+    if ((0, osuApi_1.isOsuResponseError)(userInfo)) {
         return res.json(helpers_1.defaultErrorMessage);
     }
     res.json(userInfo);

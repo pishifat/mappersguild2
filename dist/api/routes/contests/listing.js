@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.calculateContestScores = void 0;
+exports.calculateContestScores = calculateContestScores;
 const express_1 = __importDefault(require("express"));
 const middlewares_1 = require("../../helpers/middlewares");
 const discordApi_1 = require("../../helpers/discordApi");
@@ -306,7 +306,7 @@ listingRouter.post('/:id/updateStatus', middlewares_2.isContestCreator, middlewa
         for (const submission of contest.submissions) {
             for (const screening of submission.screenings) {
                 if (!screenerIds.includes(screening.screener.id)) {
-                    //await ScreeningModel.findByIdAndRemove(screening.id);
+                    //await ScreeningModel.findByIdAndDelete(screening.id);
                     evaluationStatusRequirements.push(`${screening.screener.username} has a saved screening despite not being a screener`);
                 }
             }
@@ -356,7 +356,7 @@ listingRouter.post('/:id/updateStatus', middlewares_2.isContestCreator, middlewa
     contest.status = req.body.status;
     await contest.save();
     if (req.body.status == contest_2.ContestStatus.Beatmapping) {
-        discordApi_1.devWebhookPost([{
+        (0, discordApi_1.devWebhookPost)([{
                 color: discordApi_1.webhookColors.lightBlue,
                 description: `**${contest.name}** pending approval\n\nlisting: https://mappersguild.com/contests/listing?contest=${contest.id}\nadmin: https://mappersguild.com/admin/summary`,
             }]);
@@ -371,7 +371,7 @@ listingRouter.post('/:id/updateStatus', middlewares_2.isContestCreator, middlewa
             description: `A beatmapping contest you participated in is completed!`,
         };
         const message = `hello! thank you for participating in **${contest.name}**!\n\nview results for this contest below:\n- [**results announcement**](${contest.resultsUrl})\n- [screening/judging details](https://mappersguild.com/contests/results?contest=${contest.id})`;
-        const announcement = await osuBot_1.sendAnnouncement(osuIds, channel, message);
+        const announcement = await (0, osuBot_1.sendAnnouncement)(osuIds, channel, message);
         if (announcement !== true) {
             return res.json({ error: announcement.error ? announcement.error : `Messages were not sent.` });
         }
@@ -465,7 +465,7 @@ listingRouter.post('/:id/submissions/:submissionId/updateAnonymousSubmissionName
 /* POST delete a submission */
 listingRouter.post('/:id/submissions/:submissionId/delete', middlewares_2.isContestCreator, middlewares_2.isEditable, async (req, res) => {
     const submission = await submission_1.SubmissionModel
-        .findByIdAndRemove(req.params.submissionId)
+        .findByIdAndDelete(req.params.submissionId)
         .orFail();
     res.json(submission);
 });
@@ -666,7 +666,7 @@ listingRouter.post('/:id/deleteCriteria', middlewares_2.isContestCreator, middle
     const contestsWithCriteria = await contest_1.ContestModel
         .find({ criterias: { $in: criteria._id } });
     if (!contestsWithCriteria.length) {
-        criteria_1.CriteriaModel.findByIdAndRemove(criteria.id);
+        criteria_1.CriteriaModel.findByIdAndDelete(criteria.id);
     }
     const newContest = await contest_1.ContestModel
         .findById(req.params.id)
@@ -815,7 +815,6 @@ function calculateContestScores(contest) {
         judgesCorrel,
     };
 }
-exports.calculateContestScores = calculateContestScores;
 /* GET contest judging results */
 listingRouter.get('/:id/judgingResults', middlewares_2.isContestCreator, async (req, res) => {
     const contest = await contest_1.ContestModel
@@ -919,7 +918,7 @@ listingRouter.post('/:id/submissions/syncAnonymousNames', middlewares_2.isContes
             errors.push(submission.creator.username);
         }
     }
-    await contest.populate(defaultContestPopulate).execPopulate();
+    await contest.populate(defaultContestPopulate);
     res.json({ submissions: contest.submissions, errors });
 });
 /* POST create submissions from CSV data */
@@ -947,7 +946,7 @@ listingRouter.post('/:id/submissions/addSubmissionsFromCsv', middlewares_2.isCon
         contest.submissions.push(submission);
     }
     await contest.save();
-    await contest.populate(defaultContestPopulate).execPopulate();
+    await contest.populate(defaultContestPopulate);
     res.json(contest.submissions);
 });
 /* POST delete a submission */
@@ -959,7 +958,7 @@ listingRouter.post('/:id/delete', middlewares_2.isContestCreator, middlewares_2.
     if (contest.status != contest_2.ContestStatus.Hidden || contest.submissions.length) {
         return res.json({ error: 'Cannot delete contest at this stage. Set status to "Hidden" instead.' });
     }
-    await contest.remove();
+    await contest.deleteOne();
     res.json({ success: 'Deleted' });
 });
 /* POST update creators */
@@ -1051,7 +1050,7 @@ listingRouter.post('/:id/sendAnnouncement', middlewares_2.isContestCreator, midd
     const participantIds = contest.submissions.map(s => s.creator.osuId);
     const creatorIds = contest.creators.map(c => c.osuId);
     const userIds = participantIds.concat(creatorIds);
-    const announcement = await osuBot_1.sendAnnouncement(userIds, channel, req.body.text);
+    const announcement = await (0, osuBot_1.sendAnnouncement)(userIds, channel, req.body.text);
     if (announcement !== true) {
         return res.json({ error: announcement.error ? announcement.error : `Messages were not sent.` });
     }
@@ -1071,7 +1070,7 @@ listingRouter.post('/:id/addJudgingsFromCsv', middlewares_2.isContestCreator, mi
         console.log(submission?.creator.username);
         const judgeId = '5c6e6db559d335001922e6df';
         const judging = new judging_1.JudgingModel();
-        /** @ts-ignore */
+        // @ts-expect-error string id is valid for ObjectId ref
         judging.judge = judgeId;
         judging.submission = submission?._id;
         for (let i = 1; i < line.length; i++) {

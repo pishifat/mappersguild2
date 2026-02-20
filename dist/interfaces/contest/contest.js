@@ -9,11 +9,11 @@ var ContestStatus;
     ContestStatus["Judging"] = "judging";
     ContestStatus["Locked"] = "locked";
     ContestStatus["Complete"] = "complete";
-})(ContestStatus = exports.ContestStatus || (exports.ContestStatus = {}));
+})(ContestStatus || (exports.ContestStatus = ContestStatus = {}));
 var ContestMode;
 (function (ContestMode) {
     ContestMode["Osu"] = "osu";
     ContestMode["Taiko"] = "taiko";
     ContestMode["Catch"] = "catch";
     ContestMode["Mania"] = "mania";
-})(ContestMode = exports.ContestMode || (exports.ContestMode = {}));
+})(ContestMode || (exports.ContestMode = ContestMode = {}));

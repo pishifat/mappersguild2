@@ -6,11 +6,11 @@ var MissionStatus;
     MissionStatus["Open"] = "open";
     MissionStatus["Closed"] = "closed";
     MissionStatus["Hidden"] = "hidden";
-})(MissionStatus = exports.MissionStatus || (exports.MissionStatus = {}));
+})(MissionStatus || (exports.MissionStatus = MissionStatus = {}));
 var MissionMode;
 (function (MissionMode) {
     MissionMode["Osu"] = "osu";
     MissionMode["Taiko"] = "taiko";
     MissionMode["Catch"] = "catch";
     MissionMode["Mania"] = "mania";
-})(MissionMode = exports.MissionMode || (exports.MissionMode = {}));
+})(MissionMode || (exports.MissionMode = MissionMode = {}));

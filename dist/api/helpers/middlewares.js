@@ -1,6 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isValidUrl = exports.isBn = exports.isSuperAdmin = exports.hasMerchAccess = exports.isLocusAdmin = exports.isMentorshipAdmin = exports.isAdmin = exports.isValidUser = exports.isLoggedIn = exports.unauthorize = void 0;
+exports.unauthorize = unauthorize;
+exports.isLoggedIn = isLoggedIn;
+exports.isValidUser = isValidUser;
+exports.isAdmin = isAdmin;
+exports.isMentorshipAdmin = isMentorshipAdmin;
+exports.isLocusAdmin = isLocusAdmin;
+exports.hasMerchAccess = hasMerchAccess;
+exports.isSuperAdmin = isSuperAdmin;
+exports.isBn = isBn;
+exports.isValidUrl = isValidUrl;
 const user_1 = require("../models/user");
 const user_2 = require("../../interfaces/user");
 const osuApi_1 = require("./osuApi");
@@ -12,7 +21,6 @@ function unauthorize(req, res) {
         res.redirect('/');
     }
 }
-exports.unauthorize = unauthorize;
 async function isLoggedIn(req, res, next) {
     if (!req.session.mongoId) {
         if (req.accepts(['html', 'json']) !== 'json') {
@@ -25,8 +33,8 @@ async function isLoggedIn(req, res, next) {
         return unauthorize(req, res);
     // Refresh if less than 10 hours left
     if (new Date() > new Date(req.session.expireDate - (10 * 3600 * 1000))) {
-        const response = await osuApi_1.refreshToken(req.session.refreshToken);
-        if (!response || osuApi_1.isOsuResponseError(response)) {
+        const response = await (0, osuApi_1.refreshToken)(req.session.refreshToken);
+        if (!response || (0, osuApi_1.isOsuResponseError)(response)) {
             req.session.destroy((error) => {
                 console.log(error);
             });
@@ -41,7 +49,6 @@ async function isLoggedIn(req, res, next) {
     res.locals.userRequest = u;
     next();
 }
-exports.isLoggedIn = isLoggedIn;
 async function isValidUser(req, res, next) {
     if (!req.body.user) {
         next();
@@ -57,7 +64,6 @@ async function isValidUser(req, res, next) {
         next();
     }
 }
-exports.isValidUser = isValidUser;
 function isAdmin(req, res, next) {
     if (res.locals.userRequest.group == user_2.UserGroup.Admin) {
         next();
@@ -66,7 +72,6 @@ function isAdmin(req, res, next) {
         unauthorize(req, res);
     }
 }
-exports.isAdmin = isAdmin;
 function isMentorshipAdmin(req, res, next) {
     if (res.locals.userRequest.isMentorshipAdmin || res.locals.userRequest.group == user_2.UserGroup.Admin) {
         next();
@@ -75,7 +80,6 @@ function isMentorshipAdmin(req, res, next) {
         unauthorize(req, res);
     }
 }
-exports.isMentorshipAdmin = isMentorshipAdmin;
 function isLocusAdmin(req, res, next) {
     const osuIds = [1893718, 18983, 7671790, 5052899]; // mangomizer, Doomsday, Komm, Matrix
     if (osuIds.includes(res.locals.userRequest.osuId) || res.locals.userRequest.group == user_2.UserGroup.Admin) {
@@ -85,7 +89,6 @@ function isLocusAdmin(req, res, next) {
         unauthorize(req, res);
     }
 }
-exports.isLocusAdmin = isLocusAdmin;
 function hasMerchAccess(req, res, next) {
     if (res.locals.userRequest.hasMerchAccess) {
         next();
@@ -94,7 +97,6 @@ function hasMerchAccess(req, res, next) {
         unauthorize(req, res);
     }
 }
-exports.hasMerchAccess = hasMerchAccess;
 function isSuperAdmin(req, res, next) {
     const osuIds = [3178418, 1052994, 2, 1893718];
     if (osuIds.includes(res.locals.userRequest.osuId)) {
@@ -104,17 +106,15 @@ function isSuperAdmin(req, res, next) {
         unauthorize(req, res);
     }
 }
-exports.isSuperAdmin = isSuperAdmin;
 async function isBn(accessToken) {
     if (accessToken) {
-        const res = await osuApi_1.getUserInfo(accessToken);
-        if (!osuApi_1.isOsuResponseError(res) && (res.groups.some(g => g.id == 7 || g.id == 28 || g.id == 32))) {
+        const res = await (0, osuApi_1.getUserInfo)(accessToken);
+        if (!(0, osuApi_1.isOsuResponseError)(res) && (res.groups.some(g => g.id == 7 || g.id == 28 || g.id == 32))) {
             return true;
         }
     }
     return false;
 }
-exports.isBn = isBn;
 function isValidUrl(req, res, next) {
     if (!req.body.url?.length) {
         req.body.url = null;
@@ -125,4 +125,3 @@ function isValidUrl(req, res, next) {
     }
     next();
 }
-exports.isValidUrl = isValidUrl;

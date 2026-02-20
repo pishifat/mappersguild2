@@ -6,4 +6,4 @@ var UserGroup;
     UserGroup["User"] = "user";
     UserGroup["Admin"] = "admin";
     UserGroup["Locus"] = "locus";
-})(UserGroup = exports.UserGroup || (exports.UserGroup = {}));
+})(UserGroup || (exports.UserGroup = UserGroup = {}));

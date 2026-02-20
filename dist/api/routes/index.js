@@ -107,20 +107,20 @@ indexRouter.get('/callback', async (req, res) => {
     }
     let response;
     try {
-        response = await osuApi_1.getToken(req.query.code.toString(), false);
+        response = await (0, osuApi_1.getToken)(req.query.code.toString(), false);
         console.log('Token Response:', response);
     }
     catch (error) {
         console.error('Get Token Failed:', error);
         return res.status(500).redirect('/error');
     }
-    if (osuApi_1.isOsuResponseError(response)) {
+    if ((0, osuApi_1.isOsuResponseError)(response)) {
         console.error('OAuth Response Error:', response);
         return res.status(500).redirect('/error');
     }
-    helpers_1.setSession(req.session, response);
-    response = await osuApi_1.getUserInfo(req.session.accessToken);
-    if (osuApi_1.isOsuResponseError(response)) {
+    (0, helpers_1.setSession)(req.session, response);
+    response = await (0, osuApi_1.getUserInfo)(req.session.accessToken);
+    if ((0, osuApi_1.isOsuResponseError)(response)) {
         return req.session.destroy(() => {
             res.status(500).redirect('/error');
         });
@@ -270,13 +270,13 @@ indexRouter.get('/merchCallback', async (req, res) => {
     if (decodedState !== savedState) {
         return res.status(403).redirect('/error');
     }
-    let response = await osuApi_1.getToken(req.query.code.toString(), true);
-    if (osuApi_1.isOsuResponseError(response)) {
+    let response = await (0, osuApi_1.getToken)(req.query.code.toString(), true);
+    if ((0, osuApi_1.isOsuResponseError)(response)) {
         return res.status(500).redirect('/error');
     }
-    helpers_1.setSession(req.session, response);
-    response = await osuApi_1.getUserInfo(req.session.accessToken);
-    if (osuApi_1.isOsuResponseError(response)) {
+    (0, helpers_1.setSession)(req.session, response);
+    response = await (0, osuApi_1.getUserInfo)(req.session.accessToken);
+    if ((0, osuApi_1.isOsuResponseError)(response)) {
         return req.session.destroy(() => {
             res.status(500).redirect('/error');
         });

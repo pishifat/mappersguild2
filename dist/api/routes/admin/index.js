@@ -82,12 +82,12 @@ adminRouter.get('/loadActionArtists/', async (req, res) => {
 });
 /* POST update lastChecked */
 adminRouter.get('/artistSearch/:input', async (req, res) => {
-    const response = await osuApi_1.getClientCredentialsGrant();
-    if (osuApi_1.isOsuResponseError(response)) {
+    const response = await (0, osuApi_1.getClientCredentialsGrant)();
+    if ((0, osuApi_1.isOsuResponseError)(response)) {
         return res.json({ error: `Couldn't get client credentials.` });
     }
     const token = response.access_token;
-    const searchResults = await osuApi_1.getBeatmapsSearch(token, `?q=artist%3D"${req.params.input}"&s=any&sort=plays_desc`);
+    const searchResults = await (0, osuApi_1.getBeatmapsSearch)(token, `?q=artist%3D"${req.params.input}"&s=any&sort=plays_desc`);
     res.json(searchResults);
 });
 exports.default = adminRouter;

@@ -219,7 +219,7 @@ missionsRouter.post('/:missionId/findShowcaseMissionSong', isEditable, async (re
             return res.json({ error: 'Not enough available points!' });
         }
         await spentPoints_1.SpentPointsModel.generate(spentPoints_2.SpentPointsCategory.RerollShowcaseMissionSong, req.session.mongoId, null, mission.id);
-        await points_1.updateUserPoints(req.session.mongoId);
+        await (0, points_1.updateUserPoints)(req.session.mongoId);
         const previousArtist = await featuredArtist_1.FeaturedArtistModel.findOne({ songs: userExists.song }).orFail();
         await featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(previousArtist.id, { $pull: { showcaseMappers: user._id } });
     }
@@ -262,7 +262,7 @@ missionsRouter.post('/:missionId/findShowcaseMissionSong', isEditable, async (re
     }
     const updatedMission = await mission_1.MissionModel.findById(req.params.missionId).defaultPopulate().orFail();
     res.json(updatedMission);
-    await discordApi_1.devWebhookPost([{
+    await (0, discordApi_1.devWebhookPost)([{
             title: `showcase mission song ${userExists ? 'rerolled' : 'selected'}`,
             color: userExists ? discordApi_1.webhookColors.lightGreen : discordApi_1.webhookColors.lightOrange,
             description: `[**${user.username}**](https://osu.ppy.sh/users/${user.osuId}) selected **${finalSong.artist} - ${finalSong.title}** for **${mission.name}** priority quest`,
@@ -298,7 +298,7 @@ missionsRouter.post('/:missionId/findShowcaseMissionArtist', isEditable, async (
             return res.json({ error: 'Not enough available points!' });
         }
         await spentPoints_1.SpentPointsModel.generate(spentPoints_2.SpentPointsCategory.RerollShowcaseMissionArtist, req.session.mongoId, null, mission.id);
-        await points_1.updateUserPoints(req.session.mongoId);
+        await (0, points_1.updateUserPoints)(req.session.mongoId);
         const previousArtist = userExists.artist;
         await featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(previousArtist.id, { $pull: { showcaseMappers: user._id } });
     }
@@ -338,16 +338,21 @@ missionsRouter.post('/:missionId/findShowcaseMissionArtist', isEditable, async (
         .findById(req.params.missionId)
         .populate({
         path: 'showcaseMissionArtists',
-        populate: {
-            path: 'artist user',
-            populate: {
-                path: 'songs',
+        populate: [
+            {
+                path: 'artist',
+                populate: {
+                    path: 'songs',
+                },
             },
-        },
+            {
+                path: 'user',
+            },
+        ],
     })
         .orFail();
     res.json(updatedMission);
-    await discordApi_1.devWebhookPost([{
+    await (0, discordApi_1.devWebhookPost)([{
             title: `showcase mission artist ${userExists ? 'rerolled' : 'selected'}`,
             color: userExists ? discordApi_1.webhookColors.lightGreen : discordApi_1.webhookColors.lightOrange,
             description: `[**${user.username}**](https://osu.ppy.sh/users/${user.osuId}) selected **${artist.label}** for **${mission.name}** priority quest`,
@@ -374,15 +379,20 @@ missionsRouter.get('/:missionId/findSelectedShowcaseMissionArtist', async (req, 
         .findById(req.params.missionId)
         .populate({
         path: 'showcaseMissionArtists',
-        populate: {
-            path: 'artist user',
-            populate: {
-                path: 'songs',
+        populate: [
+            {
+                path: 'artist',
                 populate: {
-                    path: 'songShowcaseMappers',
+                    path: 'songs',
+                    populate: {
+                        path: 'songShowcaseMappers',
+                    },
                 },
             },
-        },
+            {
+                path: 'user',
+            },
+        ],
     })
         .orFail();
     const artist = mission.showcaseMissionArtists.find(a => a.user.id == req.session.mongoId);
@@ -424,7 +434,7 @@ missionsRouter.post('/addSongShowcaseMapper/:artistId/:songId', async (req, res)
         .defaultPopulateWithSongs()
         .orFail();
     res.json(newArtist);
-    discordApi_1.devWebhookPost([{
+    (0, discordApi_1.devWebhookPost)([{
             author: {
                 name: res.locals.userRequest.username,
                 url: `https://osu.ppy.sh/users/${res.locals.userRequest.osuId}`,
@@ -452,7 +462,7 @@ missionsRouter.post('/removeSongShowcaseMapper/:artistId/:songId', async (req, r
         .defaultPopulateWithSongs()
         .orFail();
     res.json(artist);
-    discordApi_1.devWebhookPost([{
+    (0, discordApi_1.devWebhookPost)([{
             author: {
                 name: `${res.locals.userRequest.username}`,
                 url: `https://osu.ppy.sh/users/${res.locals.userRequest.osuId}`,

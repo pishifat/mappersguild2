@@ -11,4 +11,4 @@ var LogCategory;
     LogCategory["Error"] = "error";
     LogCategory["Mission"] = "mission";
     LogCategory["Mentorship"] = "mentorship";
-})(LogCategory = exports.LogCategory || (exports.LogCategory = {}));
+})(LogCategory || (exports.LogCategory = LogCategory = {}));

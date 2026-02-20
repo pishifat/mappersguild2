@@ -3,12 +3,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getProducts = exports.createCart = void 0;
+exports.createCart = createCart;
+exports.getProducts = getProducts;
 const config_json_1 = __importDefault(require("../../config.json"));
 const node_fetch_1 = __importDefault(require("node-fetch"));
 async function createCart(cartLines, discountCodes) {
     // Create cart with simple fetch
-    const cartResponse = await node_fetch_1.default(`https://${config_json_1.default.shopify.domain}/api/2025-01/graphql.json`, {
+    const cartResponse = await (0, node_fetch_1.default)(`https://${config_json_1.default.shopify.domain}/api/2025-01/graphql.json`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -26,7 +27,7 @@ async function createCart(cartLines, discountCodes) {
     const cart = cartResult.data.cartCreate.cart;
     // Apply discount if provided
     if (discountCodes && cart) {
-        await node_fetch_1.default(`https://${config_json_1.default.shopify.domain}/api/2025-01/graphql.json`, {
+        await (0, node_fetch_1.default)(`https://${config_json_1.default.shopify.domain}/api/2025-01/graphql.json`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -40,9 +41,8 @@ async function createCart(cartLines, discountCodes) {
     }
     return cart;
 }
-exports.createCart = createCart;
 async function getProducts(productIds) {
-    const response = await node_fetch_1.default(`https://${config_json_1.default.shopify.domain}/api/2025-01/graphql.json`, {
+    const response = await (0, node_fetch_1.default)(`https://${config_json_1.default.shopify.domain}/api/2025-01/graphql.json`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -50,10 +50,9 @@ async function getProducts(productIds) {
         },
         body: JSON.stringify({
             query: `query getProducts($ids: [ID!]!) { nodes(ids: $ids) { ... on Product { id title variants(first: 10) { edges { node { id title availableForSale } } } } } }`,
-            variables: { ids: productIds }
+            variables: { ids: productIds },
         }),
     });
     const result = await response.json();
     return result.data.nodes.filter((node) => node !== null);
 }
-exports.getProducts = getProducts;

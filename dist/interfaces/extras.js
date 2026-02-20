@@ -8,4 +8,4 @@ var FilterMode;
     FilterMode["taiko"] = "taiko";
     FilterMode["catch"] = "catch";
     FilterMode["mania"] = "mania";
-})(FilterMode = exports.FilterMode || (exports.FilterMode = {}));
+})(FilterMode || (exports.FilterMode = FilterMode = {}));

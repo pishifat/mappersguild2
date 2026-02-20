@@ -9,4 +9,4 @@ var ScreeningPlacement;
     ScreeningPlacement[ScreeningPlacement["Fourth"] = 2] = "Fourth";
     ScreeningPlacement[ScreeningPlacement["Fifth"] = 1] = "Fifth";
     ScreeningPlacement[ScreeningPlacement["None"] = 0] = "None";
-})(ScreeningPlacement = exports.ScreeningPlacement || (exports.ScreeningPlacement = {}));
+})(ScreeningPlacement || (exports.ScreeningPlacement = ScreeningPlacement = {}));

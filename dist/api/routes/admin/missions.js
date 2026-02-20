@@ -316,7 +316,7 @@ adminMissionsRouter.post('/:id/sendAnnouncement', async (req, res) => {
     };
     const mapperIds = mission.winningBeatmaps.map(b => b.host.osuId);
     const userIds = mapperIds.concat([3178418]);
-    const announcement = await osuBot_1.sendAnnouncement(userIds, channel, req.body.text);
+    const announcement = await (0, osuBot_1.sendAnnouncement)(userIds, channel, req.body.text);
     if (announcement !== true) {
         return res.json({ error: announcement.error ? announcement.error : `Messages were not sent.` });
     }

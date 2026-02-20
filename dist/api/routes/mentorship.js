@@ -228,7 +228,7 @@ mentorshipRouter.post('/addCycle', async (req, res) => {
     }
     await cycle.populate({
         path: 'participants',
-    }).execPopulate();
+    });
     res.json(cycle);
 });
 /* POST add mentor */
@@ -239,9 +239,9 @@ mentorshipRouter.post('/addMentor', async (req, res) => {
             .findById(cycleId)
             .populate(defaultCyclePopulate)
             .orFail(),
-        osuApi_1.getClientCredentialsGrant(),
+        (0, osuApi_1.getClientCredentialsGrant)(),
     ]);
-    if (osuApi_1.isOsuResponseError(response)) {
+    if ((0, osuApi_1.isOsuResponseError)(response)) {
         return res.json(helpers_1.defaultErrorMessage);
     }
     const token = response.access_token;
@@ -263,11 +263,11 @@ mentorshipRouter.post('/addMentor', async (req, res) => {
             .findOne({ osuId });
     }
     if (!user) {
-        const userInfo = await osuApi_1.getUserInfoFromId(token, userInput);
-        if (osuApi_1.isOsuResponseError(userInfo)) {
+        const userInfo = await (0, osuApi_1.getUserInfoFromId)(token, userInput);
+        if ((0, osuApi_1.isOsuResponseError)(userInfo)) {
             return res.json(helpers_1.defaultErrorMessage);
         }
-        if (!osuApi_1.isOsuResponseError(userInfo)) {
+        if (!(0, osuApi_1.isOsuResponseError)(userInfo)) {
             const osuId = userInfo.id;
             const username = userInfo.username;
             const group = user_2.UserGroup.User;
@@ -298,7 +298,7 @@ mentorshipRouter.post('/addMentor', async (req, res) => {
     await user.save();
     await cycle.populate({
         path: 'participants',
-    }).execPopulate();
+    });
     res.json(cycle);
 });
 /* POST add mentee */
@@ -309,9 +309,9 @@ mentorshipRouter.post('/addMentee', async (req, res) => {
             .findById(cycleId)
             .populate(defaultCyclePopulate)
             .orFail(),
-        osuApi_1.getClientCredentialsGrant(),
+        (0, osuApi_1.getClientCredentialsGrant)(),
     ]);
-    if (osuApi_1.isOsuResponseError(response)) {
+    if ((0, osuApi_1.isOsuResponseError)(response)) {
         return res.json(helpers_1.defaultErrorMessage);
     }
     const token = response.access_token;
@@ -333,8 +333,8 @@ mentorshipRouter.post('/addMentee', async (req, res) => {
             .findOne({ osuId });
     }
     if (!user) {
-        const userInfo = await osuApi_1.getUserInfoFromId(token, userInput);
-        if (!osuApi_1.isOsuResponseError(userInfo)) {
+        const userInfo = await (0, osuApi_1.getUserInfoFromId)(token, userInput);
+        if (!(0, osuApi_1.isOsuResponseError)(userInfo)) {
             const osuId = userInfo.id;
             const username = userInfo.username;
             const group = user_2.UserGroup.User;
@@ -377,7 +377,7 @@ mentorshipRouter.post('/addMentee', async (req, res) => {
     await user.save();
     await cycle.populate({
         path: 'participants',
-    }).execPopulate();
+    });
     res.json(cycle);
 });
 /* POST remove participant */
@@ -399,7 +399,7 @@ mentorshipRouter.post('/removeParticipant', async (req, res) => {
     await user.save();
     await cycle.populate({
         path: 'participants',
-    }).execPopulate();
+    });
     res.json(cycle);
 });
 /* POST update cycle name */
@@ -421,7 +421,7 @@ mentorshipRouter.post('/updateCycleName', async (req, res) => {
     await cycle.save();
     await cycle.populate({
         path: 'participants',
-    }).execPopulate();
+    });
     res.json(cycle);
 });
 /* POST update cycle number */
@@ -443,7 +443,7 @@ mentorshipRouter.post('/updateCycleNumber', async (req, res) => {
     await cycle.save();
     await cycle.populate({
         path: 'participants',
-    }).execPopulate();
+    });
     res.json(cycle);
 });
 /* POST update cycle url */
@@ -458,7 +458,7 @@ mentorshipRouter.post('/updateCycleUrl', async (req, res) => {
     await cycle.save();
     await cycle.populate({
         path: 'participants',
-    }).execPopulate();
+    });
     res.json(cycle);
 });
 /* POST update cycle start date */
@@ -477,7 +477,7 @@ mentorshipRouter.post('/updateCycleStartDate', async (req, res) => {
     await cycle.save();
     await cycle.populate({
         path: 'participants',
-    }).execPopulate();
+    });
     res.json(cycle);
 });
 /* POST update cycle end date */
@@ -496,7 +496,7 @@ mentorshipRouter.post('/updateCycleEndDate', async (req, res) => {
     await cycle.save();
     await cycle.populate({
         path: 'participants',
-    }).execPopulate();
+    });
     res.json(cycle);
 });
 /* POST add user manually */
@@ -604,7 +604,7 @@ mentorshipRouter.post('/togglePhase', async (req, res) => {
     await user.save();
     await cycle.populate({
         path: 'participants',
-    }).execPopulate();
+    });
     res.json(cycle);
 });
 /* POST edit badge value */

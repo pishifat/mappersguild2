@@ -1,6 +1,21 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.defaultErrorMessage = exports.setSession = exports.generateBotAuthorWebhook = exports.generateAuthorWebhook = exports.generateMissionThumbnailUrl = exports.generateThumbnailUrl = exports.generateLists = exports.escapeUsername = exports.sleep = exports.setBeatmapStatusRanked = exports.getLongestBeatmapLength = exports.setNominators = exports.truncateText = exports.getRankFromPoints = exports.findBeatmapsetStatus = exports.findBeatmapsetId = void 0;
+exports.defaultErrorMessage = void 0;
+exports.findBeatmapsetId = findBeatmapsetId;
+exports.findBeatmapsetStatus = findBeatmapsetStatus;
+exports.getRankFromPoints = getRankFromPoints;
+exports.truncateText = truncateText;
+exports.setNominators = setNominators;
+exports.getLongestBeatmapLength = getLongestBeatmapLength;
+exports.setBeatmapStatusRanked = setBeatmapStatusRanked;
+exports.sleep = sleep;
+exports.escapeUsername = escapeUsername;
+exports.generateLists = generateLists;
+exports.generateThumbnailUrl = generateThumbnailUrl;
+exports.generateMissionThumbnailUrl = generateMissionThumbnailUrl;
+exports.generateAuthorWebhook = generateAuthorWebhook;
+exports.generateBotAuthorWebhook = generateBotAuthorWebhook;
+exports.setSession = setSession;
 const discordApi_1 = require("./discordApi");
 const beatmap_1 = require("../../interfaces/beatmap/beatmap");
 const beatmap_2 = require("../models/beatmap/beatmap");
@@ -19,7 +34,6 @@ function findBeatmapsetId(url) {
     }
     return parseInt(bmId, 10);
 }
-exports.findBeatmapsetId = findBeatmapsetId;
 function findBeatmapsetStatus(osuStatus) {
     let status = '';
     switch (osuStatus) {
@@ -41,7 +55,6 @@ function findBeatmapsetStatus(osuStatus) {
     }
     return status;
 }
-exports.findBeatmapsetStatus = findBeatmapsetStatus;
 const ranks = [
     { rank: 0, value: 0, name: 'N/A' },
     { rank: 1, value: 100, name: '🟤 Bronze' },
@@ -64,11 +77,9 @@ function getRankFromPoints(points) {
     else
         return ranks[5];
 }
-exports.getRankFromPoints = getRankFromPoints;
 function truncateText(text, length) {
     return text.length > length ? text.slice(0, length) + '... *(truncated)*' : text;
 }
-exports.truncateText = truncateText;
 async function setNominators(beatmap, bmInfo) {
     const modderIds = beatmap.modders.map(m => m.id);
     const bnsIds = beatmap.bns.map(b => b.id);
@@ -87,7 +98,6 @@ async function setNominators(beatmap, bmInfo) {
         }
     }
 }
-exports.setNominators = setNominators;
 function getLongestBeatmapLength(beatmaps) {
     let longestBeatmap = beatmaps[0];
     for (const beatmap of beatmaps) {
@@ -97,7 +107,6 @@ function getLongestBeatmapLength(beatmaps) {
     }
     return longestBeatmap.hit_length;
 }
-exports.getLongestBeatmapLength = getLongestBeatmapLength;
 async function setBeatmapStatusRanked(id, bmInfo) {
     // update status (only helpful for automated calls)
     await beatmap_2.BeatmapModel.findByIdAndUpdate(id, { status: beatmap_1.BeatmapStatus.Ranked });
@@ -120,14 +129,14 @@ async function setBeatmapStatusRanked(id, bmInfo) {
     await beatmap.save();
     // calculate points for modders
     for (const modder of beatmap.modders) {
-        points_1.updateUserPoints(modder.id);
+        (0, points_1.updateUserPoints)(modder.id);
     }
     // get host so we can get their total points
     const host = await user_1.UserModel.findById(beatmap.host).orFail();
     // get host's old points
     const oldPoints = host.totalPoints;
     // calculate points for host
-    const newPoints = await points_1.updateUserPoints(beatmap.host.id);
+    const newPoints = await (0, points_1.updateUserPoints)(beatmap.host.id);
     // webhook
     if (!beatmap.skipWebhook) {
         // establish empty variables
@@ -176,7 +185,7 @@ async function setBeatmapStatusRanked(id, bmInfo) {
                 const guest = await user_1.UserModel.findById(user.id).orFail();
                 const oldPoints = guest.totalPoints;
                 // update points for all guest difficulty creators
-                const newPoints = await points_1.updateUserPoints(user.id);
+                const newPoints = await (0, points_1.updateUserPoints)(user.id);
                 // store gder points info for webhook use
                 if (typeof newPoints === 'number') {
                     gderInfo.push({
@@ -193,7 +202,7 @@ async function setBeatmapStatusRanked(id, bmInfo) {
         if (storyboard) {
             const storyboarder = storyboard.mappers[0];
             storyboardText = `\nStoryboard by [**${storyboarder.username}**](https://osu.ppy.sh/users/${storyboarder.osuId})`;
-            points_1.updateUserPoints(storyboarder.id);
+            (0, points_1.updateUserPoints)(storyboarder.id);
         }
         let showcaseText = '';
         if (beatmap.isShowcase) {
@@ -228,7 +237,7 @@ async function setBeatmapStatusRanked(id, bmInfo) {
         }
         const description = `💖 [**${beatmap.song.artist} - ${beatmap.song.title}**](${beatmap.url}) [**${modes.join(', ')}**] has been ranked\n\nHosted by [**${beatmap.host.username}**](https://osu.ppy.sh/users/${beatmap.host.osuId})${gdText}${storyboardText}${showcaseText}${statsText}`;
         // publish webhook
-        await discordApi_1.webhookPost([{
+        await (0, discordApi_1.webhookPost)([{
                 color: discordApi_1.webhookColors.blue,
                 description: description.length > 1500 ? truncateText(description, 1500) : description,
                 thumbnail: {
@@ -239,17 +248,14 @@ async function setBeatmapStatusRanked(id, bmInfo) {
     // pause to not exceed rate limit
     await sleep(500);
 }
-exports.setBeatmapStatusRanked = setBeatmapStatusRanked;
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
-exports.sleep = sleep;
 /** Just replaces () and [] */
 function escapeUsername(username) {
     username = username.trim();
     return username.replace(/[()[\]]/g, '\\$&');
 }
-exports.escapeUsername = escapeUsername;
 /** Used for logs and webhooks */
 function generateLists(modes, members) {
     const modeList = modes.join(', ');
@@ -259,7 +265,6 @@ function generateLists(modes, members) {
         memberList,
     };
 }
-exports.generateLists = generateLists;
 /** Get ideal webhook thumbnail */
 function generateThumbnailUrl(quest) {
     let url = `https://assets.ppy.sh/artists/${quest.art}/cover.jpg`;
@@ -271,7 +276,6 @@ function generateThumbnailUrl(quest) {
         },
     };
 }
-exports.generateThumbnailUrl = generateThumbnailUrl;
 /** Get ideal webhook thumbnail (mission) */
 function generateMissionThumbnailUrl(mission) {
     let url = '';
@@ -298,7 +302,6 @@ function generateMissionThumbnailUrl(mission) {
         },
     };
 }
-exports.generateMissionThumbnailUrl = generateMissionThumbnailUrl;
 /** Get user's osu url and avatar */
 function generateAuthorWebhook(user) {
     return {
@@ -309,7 +312,6 @@ function generateAuthorWebhook(user) {
         },
     };
 }
-exports.generateAuthorWebhook = generateAuthorWebhook;
 /** Get mg bot user's osu url and avatar */
 async function generateBotAuthorWebhook() {
     const mg = await user_1.UserModel.findOne({ osuId: 23648635 }).orFail();
@@ -321,7 +323,6 @@ async function generateBotAuthorWebhook() {
         },
     };
 }
-exports.generateBotAuthorWebhook = generateBotAuthorWebhook;
 /**
  * Set tokens and session age
  */
@@ -334,5 +335,4 @@ function setSession(session, response) {
     session.accessToken = response.access_token;
     session.refreshToken = response.refresh_token;
 }
-exports.setSession = setSession;
 exports.defaultErrorMessage = { error: 'Something went wrong!' };

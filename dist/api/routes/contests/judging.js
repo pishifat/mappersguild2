@@ -43,7 +43,7 @@ async function isJudge(req, res, next) {
         res.locals.contest = contest;
         return next();
     }
-    return middlewares_1.unauthorize(req, res);
+    return (0, middlewares_1.unauthorize)(req, res);
 }
 judgingRouter.use(middlewares_1.isLoggedIn);
 /* GET page */

@@ -172,13 +172,13 @@ beatmapsHostRouter.post('/:id/setLink', middlewares_2.isValidBeatmap, middleware
     res.json(b);
     log_1.LogModel.generate(req.session?.mongoId, `edited link on "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
     // set submissionDate (not needed on beatmaps page and it takes extra time, so it's done after return)
-    const response = await osuApi_1.getClientCredentialsGrant();
-    if (!osuApi_1.isOsuResponseError(response)) {
+    const response = await (0, osuApi_1.getClientCredentialsGrant)();
+    if (!(0, osuApi_1.isOsuResponseError)(response)) {
         const token = response.access_token;
         if (url.indexOf('osu.ppy.sh/beatmapsets/') > -1) {
-            const osuId = helpers_1.findBeatmapsetId(url);
-            const bmInfo = await osuApi_1.getBeatmapsetV2Info(token, osuId);
-            if (!osuApi_1.isOsuResponseError(bmInfo)) {
+            const osuId = (0, helpers_1.findBeatmapsetId)(url);
+            const bmInfo = await (0, osuApi_1.getBeatmapsetV2Info)(token, osuId);
+            if (!(0, osuApi_1.isOsuResponseError)(bmInfo)) {
                 b.submissionDate = new Date(bmInfo.submitted_date);
                 b.favorites = bmInfo.favourite_count;
                 b.playCount = bmInfo.play_count;
@@ -218,9 +218,9 @@ beatmapsHostRouter.post('/:id/unlockTask', middlewares_2.isValidBeatmap, middlew
 beatmapsHostRouter.post('/:id/delete', middlewares_2.isValidBeatmap, middlewares_2.isBeatmapHost, async (req, res) => {
     const b = res.locals.beatmap;
     for (let i = 0; i < b.tasks.length; i++) {
-        await task_1.TaskModel.findByIdAndRemove(b.tasks[i]);
+        await task_1.TaskModel.findByIdAndDelete(b.tasks[i]);
     }
-    await beatmap_1.BeatmapModel.findByIdAndRemove(req.params.id);
+    await beatmap_1.BeatmapModel.findByIdAndDelete(req.params.id);
     res.json(b);
     log_1.LogModel.generate(req.session?.mongoId, `deleted "${b.song.artist} - ${b.song.title}"`, log_2.LogCategory.Beatmap);
 });

@@ -99,7 +99,7 @@ questsRouter.post('/:id/accept', async (req, res) => {
     for (const p of quest.parties) {
         // parties that selected a same mode as the current party taking the quest aren't welcome anymore
         if (p.id != party.id && party.modes.some(m => p.modes.includes(m))) {
-            await p.remove();
+            await p.deleteOne();
         }
     }
     const status = quest_1.QuestStatus.WIP;
@@ -143,11 +143,11 @@ questsRouter.post('/:id/accept', async (req, res) => {
     for (const member of party.members) {
         if (member.availablePoints > quest.price) { // if user can afford it, suck their points
             await spentPoints_2.SpentPointsModel.generate(spentPoints_1.SpentPointsCategory.AcceptQuest, member._id, quest._id, null);
-            await points_2.updateUserPoints(member.id);
+            await (0, points_2.updateUserPoints)(member.id);
         }
         else { // if user can't afford it, suck party leader's points (even if that goes negative i don't care. if someone bypasses the front-end lock for this they deserve to do the quest)
             await spentPoints_2.SpentPointsModel.generate(spentPoints_1.SpentPointsCategory.AcceptQuest, party.leader._id, quest._id, null);
-            await points_2.updateUserPoints(party.leader.id);
+            await (0, points_2.updateUserPoints)(party.leader.id);
         }
     }
     quest = await quest_2.QuestModel
@@ -159,14 +159,14 @@ questsRouter.post('/:id/accept', async (req, res) => {
         availablePoints: res.locals.userRequest.availablePoints - quest.price,
     });
     //logs
-    const { modeList, memberList } = helpers_1.generateLists(party.modes, party.members);
+    const { modeList, memberList } = (0, helpers_1.generateLists)(party.modes, party.members);
     log_2.LogModel.generate(req.session?.mongoId, `party accepted quest "${quest.name}" for mode${party.modes.length > 1 ? 's' : ''} "${modeList}"`, log_1.LogCategory.Quest);
     //webhook
-    discordApi_1.webhookPost([{
-            ...helpers_1.generateAuthorWebhook(party.leader),
+    (0, discordApi_1.webhookPost)([{
+            ...(0, helpers_1.generateAuthorWebhook)(party.leader),
             description: `Accepted quest: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id}) [**${party.modes.join(', ')}**]`,
             color: discordApi_1.webhookColors.green,
-            ...helpers_1.generateThumbnailUrl(quest),
+            ...(0, helpers_1.generateThumbnailUrl)(quest),
             fields: [
                 {
                     name: 'Party members',
@@ -188,14 +188,14 @@ questsRouter.post('/:id/drop', isPartyLeader, async (req, res) => {
     const allQuests = await quest_2.QuestModel.findAll(100);
     res.json(allQuests);
     //logs
-    const { modeList, memberList } = helpers_1.generateLists(quest.modes, members);
+    const { modeList, memberList } = (0, helpers_1.generateLists)(quest.modes, members);
     log_2.LogModel.generate(req.session?.mongoId, `party dropped quest "${quest.name}" for mode${quest.modes.length > 1 ? 's' : ''} "${modeList}"`, log_1.LogCategory.Quest);
     //webhook
-    discordApi_1.webhookPost([{
-            ...helpers_1.generateAuthorWebhook(leader),
+    (0, discordApi_1.webhookPost)([{
+            ...(0, helpers_1.generateAuthorWebhook)(leader),
             color: discordApi_1.webhookColors.red,
             description: `Dropped quest: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id}) [**${modeList}**]`,
-            ...helpers_1.generateThumbnailUrl(quest),
+            ...(0, helpers_1.generateThumbnailUrl)(quest),
             fields: [{
                     name: 'Party members',
                     value: memberList,
@@ -222,15 +222,15 @@ questsRouter.post('/:id/reopen', async (req, res) => {
         .defaultPopulate()
         .orFail();
     spentPoints_2.SpentPointsModel.generate(spentPoints_1.SpentPointsCategory.ReopenQuest, req.session?.mongoId, quest._id, null);
-    points_2.updateUserPoints(req.session?.mongoId);
+    (0, points_2.updateUserPoints)(req.session?.mongoId);
     res.json({ quests: [quest], availablePoints: user.availablePoints });
     log_2.LogModel.generate(req.session?.mongoId, `re-opened quest "${quest.name}"`, log_1.LogCategory.Quest);
     // webhook
-    discordApi_1.webhookPost([{
-            ...helpers_1.generateAuthorWebhook(user),
+    (0, discordApi_1.webhookPost)([{
+            ...(0, helpers_1.generateAuthorWebhook)(user),
             color: discordApi_1.webhookColors.white,
             description: `Quest re-opened: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id})`,
-            ...helpers_1.generateThumbnailUrl(quest),
+            ...(0, helpers_1.generateThumbnailUrl)(quest),
             fields: [{
                     name: 'Objective',
                     value: `${quest.descriptionMain}`,
@@ -256,14 +256,14 @@ questsRouter.post('/submit', async (req, res) => {
     quest.status = quest_1.QuestStatus.Pending;
     quest.creator = user._id;
     // points
-    const points = points_1.findCreateQuestPointsSpent(quest.art, quest.requiredMapsets);
+    const points = (0, points_1.findCreateQuestPointsSpent)(quest.art, quest.requiredMapsets);
     if (user.availablePoints < points) {
         return res.json({ error: 'Not enough points to perform this action!' });
     }
     await quest.save();
     res.json({ success: 'Quest submitted for approval' });
     spentPoints_2.SpentPointsModel.generate(spentPoints_1.SpentPointsCategory.CreateQuest, user._id, quest._id, null);
-    points_2.updateUserPoints(user._id);
+    (0, points_2.updateUserPoints)(user._id);
     log_2.LogModel.generate(user._id, `submitted quest for approval`, log_1.LogCategory.Quest);
 });
 exports.default = questsRouter;

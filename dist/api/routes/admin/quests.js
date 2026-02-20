@@ -63,9 +63,9 @@ adminQuestsRouter.post('/:id/reject', async (req, res) => {
         .findById(req.params.id)
         .defaultPopulate()
         .orFail();
-    points_1.updateUserPoints(quest.creator.id);
+    (0, points_1.updateUserPoints)(quest.creator.id);
     const spentPoints = await spentPoints_1.SpentPointsModel.findOne({ quest: quest._id }).orFail();
-    await spentPoints_1.SpentPointsModel.findByIdAndRemove(spentPoints.id);
+    await spentPoints_1.SpentPointsModel.findByIdAndDelete(spentPoints.id);
     res.json(quest.status);
 });
 /* POST update quest objective */
@@ -120,12 +120,12 @@ adminQuestsRouter.post('/:id/drop', async (req, res) => {
     quest = await quest.drop();
     res.json(quest);
     //webhook
-    const { memberList, modeList } = helpers_1.generateLists(quest.modes, quest.currentParty.members);
-    discordApi_1.webhookPost([{
-            ...helpers_1.generateAuthorWebhook(quest.currentParty.leader),
+    const { memberList, modeList } = (0, helpers_1.generateLists)(quest.modes, quest.currentParty.members);
+    (0, discordApi_1.webhookPost)([{
+            ...(0, helpers_1.generateAuthorWebhook)(quest.currentParty.leader),
             color: discordApi_1.webhookColors.red,
             description: `Dropped quest: [**${quest.name}**](https://mappersguild.com/quests?id=${quest.id}) [**${modeList}**]`,
-            ...helpers_1.generateThumbnailUrl(quest),
+            ...(0, helpers_1.generateThumbnailUrl)(quest),
             fields: [{
                     name: 'Party members',
                     value: memberList,
@@ -201,7 +201,7 @@ adminQuestsRouter.post('/:id/delete', async (req, res) => {
     if (quest.status !== quest_2.QuestStatus.Open) {
         throw new Error(`Quest is ${quest.status}`);
     }
-    await quest.remove();
+    await quest.deleteOne();
     res.json({ success: 'ok' });
     log_1.LogModel.generate(req.session?.mongoId, `deleted quest "${quest.name}"`, log_2.LogCategory.Quest);
 });

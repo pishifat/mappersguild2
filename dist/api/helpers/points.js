@@ -1,6 +1,21 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateUserPoints = exports.calculateContestPoints = exports.calculateSpentPoints = exports.calculateModPoints = exports.calculateHostPoints = exports.calculateTasksPoints = exports.getUserRank = exports.findCreateQuestPointsSpent = exports.getReopenQuestPoints = exports.getMissionBonus = exports.getQuestBonus = exports.findMissionPoints = exports.findQuestPoints = exports.findDifficultyPoints = exports.getLengthNerf = exports.rerollShowcaseMissionSongPrice = exports.extendQuestPrice = void 0;
+exports.rerollShowcaseMissionSongPrice = exports.extendQuestPrice = void 0;
+exports.getLengthNerf = getLengthNerf;
+exports.findDifficultyPoints = findDifficultyPoints;
+exports.findQuestPoints = findQuestPoints;
+exports.findMissionPoints = findMissionPoints;
+exports.getQuestBonus = getQuestBonus;
+exports.getMissionBonus = getMissionBonus;
+exports.getReopenQuestPoints = getReopenQuestPoints;
+exports.findCreateQuestPointsSpent = findCreateQuestPointsSpent;
+exports.getUserRank = getUserRank;
+exports.calculateTasksPoints = calculateTasksPoints;
+exports.calculateHostPoints = calculateHostPoints;
+exports.calculateModPoints = calculateModPoints;
+exports.calculateSpentPoints = calculateSpentPoints;
+exports.calculateContestPoints = calculateContestPoints;
+exports.updateUserPoints = updateUserPoints;
 const beatmap_1 = require("../../interfaces/beatmap/beatmap");
 const beatmap_2 = require("../models/beatmap/beatmap");
 const task_1 = require("../../interfaces/beatmap/task");
@@ -36,7 +51,6 @@ function getLengthNerf(length) {
     }
     return newLength / lengthNerf;
 }
-exports.getLengthNerf = getLengthNerf;
 function findDifficultyPoints(taskName, totalMappers) {
     const difficultyPointsObject = {
         Easy: 5,
@@ -49,7 +63,6 @@ function findDifficultyPoints(taskName, totalMappers) {
     };
     return difficultyPointsObject[taskName] / totalMappers;
 }
-exports.findDifficultyPoints = findDifficultyPoints;
 function findQuestPoints(deadline, questCompletedDate, rankedDate) {
     const lateness = +deadline - +questCompletedDate;
     if (lateness > 0 && +rankedDate > +new Date('2019-03-01')) { // 2019-03-01 is when mappers' guild website launched
@@ -59,7 +72,6 @@ function findQuestPoints(deadline, questCompletedDate, rankedDate) {
         return 0;
     }
 }
-exports.findQuestPoints = findQuestPoints;
 function findMissionPoints(tier) {
     switch (tier) {
         case 1:
@@ -74,7 +86,6 @@ function findMissionPoints(tier) {
             return 7;
     }
 }
-exports.findMissionPoints = findMissionPoints;
 function getQuestBonus(deadline, rankedDate, totalMappers) {
     let questBonus = 0;
     const lateness = (+deadline - +rankedDate) / (24 * 3600 * 1000);
@@ -92,7 +103,6 @@ function getQuestBonus(deadline, rankedDate, totalMappers) {
     }
     return questBonus / totalMappers;
 }
-exports.getQuestBonus = getQuestBonus;
 function getMissionBonus(winningBeatmaps, beatmapId, totalMappers) {
     let missionBonus = 1;
     if (winningBeatmaps.some(b => b.id == beatmapId)) {
@@ -100,11 +110,9 @@ function getMissionBonus(winningBeatmaps, beatmapId, totalMappers) {
     }
     return missionBonus / totalMappers;
 }
-exports.getMissionBonus = getMissionBonus;
 function getReopenQuestPoints(price) {
     return price * 0.5 + 25;
 }
-exports.getReopenQuestPoints = getReopenQuestPoints;
 function findCreateQuestPointsSpent(questArtist, requiredMapsets) {
     let points = 25;
     if (!questArtist) {
@@ -121,7 +129,6 @@ function findCreateQuestPointsSpent(questArtist, requiredMapsets) {
     }
     return points;
 }
-exports.findCreateQuestPointsSpent = findCreateQuestPointsSpent;
 async function getUserRank(userId, tasksPoints, modPoints, hostPoints, contestPoints) {
     const user = await user_1.UserModel.findById(userId).orFail();
     const totalPoints = tasksPoints.Easy +
@@ -164,7 +171,6 @@ async function getUserRank(userId, tasksPoints, modPoints, hostPoints, contestPo
         totalPoints,
     };
 }
-exports.getUserRank = getUserRank;
 const taskPointsPopulate = [
     { path: 'host', select: '_id osuId username' },
     { path: 'modders', select: '_id osuId username' },
@@ -292,7 +298,6 @@ async function calculateTasksPoints(userId) {
     }
     return pointsObject;
 }
-exports.calculateTasksPoints = calculateTasksPoints;
 /** 3 points per mapset */
 async function calculateHostPoints(userId) {
     const hostedBeatmaps = await beatmap_2.BeatmapModel.countDocuments({
@@ -301,7 +306,6 @@ async function calculateHostPoints(userId) {
     });
     return hostedBeatmaps * 3;
 }
-exports.calculateHostPoints = calculateHostPoints;
 /** 1 point per mod */
 async function calculateModPoints(userId) {
     const [modderPoints, nominatorBeatmaps] = await Promise.all([
@@ -327,7 +331,6 @@ async function calculateModPoints(userId) {
     }
     return modderPoints + Math.ceil(totalNominatorPoints);
 }
-exports.calculateModPoints = calculateModPoints;
 async function calculateSpentPoints(userId) {
     const ownSpentPoints = await spentPoints_1.SpentPointsModel
         .find({ user: userId })
@@ -363,7 +366,6 @@ async function calculateSpentPoints(userId) {
     }
     return total;
 }
-exports.calculateSpentPoints = calculateSpentPoints;
 async function calculateContestPoints(userId) {
     /**
      * FA contests they created
@@ -439,13 +441,12 @@ async function calculateContestPoints(userId) {
         }
     }
     return {
-        ContestCreator: createdContests * 5,
-        ContestParticipant: relevantSubmissionCount * 3,
-        ContestScreener: screenedContests,
+        ContestCreator: createdContests * 5, // 5 points per contest hosted
+        ContestParticipant: relevantSubmissionCount * 3, // 3 points per entry
+        ContestScreener: screenedContests, // 1 point per screening
         ContestJudge: judgePoints, // 1 point per judging, scaling with # of submissions past 15
     };
 }
-exports.calculateContestPoints = calculateContestPoints;
 function decimalRound(value) {
     return Math.round(value * 1000) / 1000;
 }
@@ -493,4 +494,3 @@ async function updateUserPoints(userId) {
     });
     return Math.round(totalPoints * 10) / 10;
 }
-exports.updateUserPoints = updateUserPoints;

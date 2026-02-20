@@ -78,7 +78,7 @@ interOpRouter.get('/contestResults/:mode', async (req, res) => {
         .orFail();
     const response = [];
     for (const contest of contests) {
-        const { usersScores } = listing_1.calculateContestScores(contest);
+        const { usersScores } = (0, listing_1.calculateContestScores)(contest);
         const results = [];
         for (const submission of contest.submissions) {
             const score = usersScores.find(s => s.submissionId == submission.id);

@@ -63,7 +63,7 @@ tasksRouter.post('/removeTask/:taskId/:mapId', middlewares_2.isValidBeatmap, mid
         }
     }
     await beatmap_1.BeatmapModel.findByIdAndUpdate(req.params.mapId, { $pull: { tasks: t._id } });
-    await task_1.TaskModel.findByIdAndRemove(req.params.taskId);
+    await task_1.TaskModel.findByIdAndDelete(req.params.taskId);
     const updatedBeatmap = await beatmap_1.BeatmapModel
         .findById(req.params.mapId)
         .defaultPopulate()

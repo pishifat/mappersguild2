@@ -116,7 +116,7 @@ adminFeaturedArtistsRouter.post('/:id/songs/:songId/update', async (req, res) =>
 /* POST remove song from artist */
 adminFeaturedArtistsRouter.post('/:id/songs/:songId/delete', async (req, res) => {
     await featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { $pull: { songs: req.params.songId } }).orFail();
-    await featuredSong_1.FeaturedSongModel.findByIdAndRemove(req.params.songId).orFail();
+    await featuredSong_1.FeaturedSongModel.findByIdAndDelete(req.params.songId).orFail();
     res.json({ success: 'ok' });
 });
 /* GET find recently licensed songs */

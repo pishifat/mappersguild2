@@ -38,7 +38,7 @@ async function isScreener(req, res, next) {
     if (contest) {
         return next();
     }
-    return middlewares_1.unauthorize(req, res);
+    return (0, middlewares_1.unauthorize)(req, res);
 }
 screeningRouter.use(middlewares_1.isLoggedIn);
 /* GET page */

@@ -11,11 +11,12 @@ const express_session_1 = __importDefault(require("express-session"));
 const connect_mongo_1 = __importDefault(require("connect-mongo"));
 const config_json_1 = __importDefault(require("../config.json"));
 require("express-async-errors");
-// Return the 'new' updated object by default when doing findByIdAndUpdate
+mongoose_1.default.set('strictPopulate', false);
+// Return the updated object by default when doing findByIdAndUpdate
 mongoose_1.default.plugin(schema => {
     schema.pre('findOneAndUpdate', function () {
-        if (!('new' in this.options)) {
-            this.setOptions({ new: true });
+        if (!('returnDocument' in this.options)) {
+            this.setOptions({ returnDocument: 'after' });
         }
     });
 });
@@ -48,20 +49,14 @@ const missions_2 = __importDefault(require("./routes/missions"));
 const locus_1 = __importDefault(require("./routes/locus/locus"));
 const merch_2 = __importDefault(require("./routes/merch"));
 const interOp_1 = __importDefault(require("./routes/interOp"));
-const app = express_1.default();
-const MongoStore = connect_mongo_1.default(express_session_1.default);
+const app = (0, express_1.default)();
 // settings/middlewares
-app.use(morgan_1.default('dev'));
+app.use((0, morgan_1.default)('dev'));
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: false }));
-app.use(cookie_parser_1.default());
+app.use((0, cookie_parser_1.default)());
 // db
-mongoose_1.default.connect(config_json_1.default.connection, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useFindAndModify: false,
-    useCreateIndex: true,
-});
+mongoose_1.default.connect(config_json_1.default.connection);
 const db = mongoose_1.default.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function () {
@@ -70,9 +65,9 @@ db.once('open', function () {
     require('./models/contest/screening');
     console.log('connected');
 });
-app.use(express_session_1.default({
+app.use((0, express_session_1.default)({
     secret: config_json_1.default.session,
-    store: new MongoStore({ mongooseConnection: mongoose_1.default.connection }),
+    store: connect_mongo_1.default.create({ mongoUrl: config_json_1.default.connection }),
     resave: false,
     saveUninitialized: false,
     cookie: {

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isValidUser = void 0;
+exports.isValidUser = isValidUser;
 const locusInfo_1 = require("../../models/locusInfo");
 const user_1 = require("../../../interfaces/user");
 async function isValidUser(req, res, next) {
@@ -16,4 +16,3 @@ async function isValidUser(req, res, next) {
     res.locals.locusInfo = locusInfo;
     next();
 }
-exports.isValidUser = isValidUser;

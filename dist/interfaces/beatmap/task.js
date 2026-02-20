@@ -19,7 +19,7 @@ var TaskName;
     TaskName["Expert"] = "Expert";
     TaskName["Hitsounds"] = "Hitsounds";
     TaskName["Storyboard"] = "Storyboard";
-})(TaskName = exports.TaskName || (exports.TaskName = {}));
+})(TaskName || (exports.TaskName = TaskName = {}));
 var TaskMode;
 (function (TaskMode) {
     TaskMode["Osu"] = "osu";
@@ -28,9 +28,9 @@ var TaskMode;
     TaskMode["Mania"] = "mania";
     TaskMode["SB"] = "sb";
     TaskMode["HS"] = "hs";
-})(TaskMode = exports.TaskMode || (exports.TaskMode = {}));
+})(TaskMode || (exports.TaskMode = TaskMode = {}));
 var TaskStatus;
 (function (TaskStatus) {
     TaskStatus["WIP"] = "WIP";
     TaskStatus["Done"] = "Done";
-})(TaskStatus = exports.TaskStatus || (exports.TaskStatus = {}));
+})(TaskStatus || (exports.TaskStatus = TaskStatus = {}));

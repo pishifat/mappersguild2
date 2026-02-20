@@ -3,7 +3,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendAnnouncement = exports.getBotToken = void 0;
+exports.getBotToken = getBotToken;
+exports.sendAnnouncement = sendAnnouncement;
 const config_json_1 = __importDefault(require("../../config.json"));
 const axios_1 = __importDefault(require("axios"));
 const helpers_1 = require("./helpers");
@@ -26,7 +27,7 @@ async function getBotToken() {
             scope: 'delegate chat.write_manage',
         });
         tokenInfo = {
-            expiresAt: new Date(Date.now() + data.expires_in * 1000),
+            expiresAt: new Date(Date.now() + data.expires_in * 1000), // expires_in = 86400 seconds
             token: data.access_token,
         };
         return data.access_token;
@@ -35,13 +36,12 @@ async function getBotToken() {
         return { error };
     }
 }
-exports.getBotToken = getBotToken;
 async function sendAnnouncement(userIds, channel, message) {
     if (!config_json_1.default.enableMessages) {
         return { error: 'Messages disabled in config' };
     }
     const token = await getBotToken();
-    await helpers_1.sleep(500);
+    await (0, helpers_1.sleep)(500);
     if (typeof token !== 'string') {
         return { error: token.error };
     }
@@ -66,4 +66,3 @@ async function sendAnnouncement(userIds, channel, message) {
         return { error };
     }
 }
-exports.sendAnnouncement = sendAnnouncement;
