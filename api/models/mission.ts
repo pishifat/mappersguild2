@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-use-before-define */
 import mongoose, { Schema, Model } from 'mongoose';
 import { Mission } from '../../interfaces/mission';
 

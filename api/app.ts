@@ -7,6 +7,8 @@ import MongoStore from 'connect-mongo';
 import config from '../config.json';
 import 'express-async-errors';
 
+mongoose.set('strictPopulate', false);
+
 // Return the updated object by default when doing findByIdAndUpdate
 mongoose.plugin(schema => {
     schema.pre('findOneAndUpdate', function(this: any) {

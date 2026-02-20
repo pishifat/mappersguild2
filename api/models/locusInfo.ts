@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-use-before-define */
 import mongoose, { Schema } from 'mongoose';
 import { LocusInfo } from '../../interfaces/locusInfo';
 
