@@ -24,6 +24,10 @@ async function executeRequest (requestType, url, data, e, updateLoadingState, st
             store.dispatch('updateToastMessages', { message: res.data.error });
         }
 
+        if (res.data.success) {
+            store.dispatch('updateToastMessages', { message: res.data.success, type: 'success' });
+        }
+
         enableTooltips();
 
         return res.data;

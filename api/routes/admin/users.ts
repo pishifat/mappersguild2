@@ -3,7 +3,7 @@ import { isLoggedIn, isAdmin, isSuperAdmin } from '../../helpers/middlewares';
 import { getUserInfoFromId, getClientCredentialsGrant, isOsuResponseError } from '../../helpers/osuApi';
 import { UserModel } from '../../models/user';
 import { updateUserPoints } from '../../helpers/points';
-import { UserGroup, User } from '../../../interfaces/user';
+import { User } from '../../../interfaces/user';
 import { defaultErrorMessage } from '../../helpers/helpers';
 
 const adminUsersRouter = express.Router();

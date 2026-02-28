@@ -17,7 +17,7 @@
                 v-if="missions.length"
                 v-slot="{ obj: mission }"
                 :data="missions"
-                :headers="['name', 'tier', 'status', 'announce']"
+                :headers="['name', 'tier', 'status', 'announce', 'points']"
                 :custom-data-target="'#editMission'"
                 @update:selected-id="selectedMissionId = $event"
             >
@@ -33,6 +33,13 @@
                 <td>
                     <span :class="mission.openingAnnounced ? 'text-success' : 'text-danger'">open</span>/<span :class="mission.closingAnnounced ? 'text-success' : 'text-danger'">close</span>
                 </td>
+                <td>
+                    <a
+                        href="#"
+                        :style="calculatingId === mission.id ? 'pointer-events: none; opacity: 0.5' : ''"
+                        @click.prevent="calcPoints(mission, $event)"
+                    >calc</a>
+                </td>
             </data-table>
 
             <mission-winners
@@ -40,21 +47,7 @@
             />
         </div>
 
-        <div class="container card card-body py-3 mb-2">
-            <h5>Classified quest artists</h5>
-            <button class="btn btn-sm btn-info w-100 mb-2" @click="loadClassifiedArtists($event)">
-                Load artists eligible for Classified quest
-            </button>
-            <div>This shows unreleased artists who are marked with <code>[showcase]</code>, have <code>[timing]</code> completed, and have songs added to MG database.</div>
-            <div>
-                <ul>
-                    <li v-for="artist in classifiedArtists" :key="artist.id">
-                        {{ artist.label }}
-                        <span class="small text-secondary">{{ countValidSongs(artist.songs) }}</span>
-                    </li>
-                </ul>
-            </div>
-        </div>
+        <classified-quest-details />
 
         <submit-mission-modal />
 
@@ -75,7 +68,7 @@ import { Mission } from '../../../interfaces/mission';
 import missionsAdminModule from '@store/admin/missions';
 import MissionInfo from '../../components/admin/missions/MissionInfo.vue';
 import MissionWinners from '../../components/admin/missions/MissionWinners.vue';
-import { FeaturedSong } from '@interfaces/featuredSong';
+import ClassifiedQuestDetails from '../../components/admin/missions/ClassifiedQuestDetails.vue';
 
 export default defineComponent({
     components: {
@@ -83,17 +76,17 @@ export default defineComponent({
         SubmitMissionModal,
         MissionInfo,
         MissionWinners,
+        ClassifiedQuestDetails,
     },
     data () {
         return {
             selectedMissionId: '',
-            classifiedArtists: null,
+            calculatingId: '',
         };
     },
     computed: {
         ...mapState({
             missions: (state: any) => state.missionsAdmin.missions,
-            classifiedArtists: (state: any) => state.classifiedArtists,
         }),
         selectedMission(): undefined | Mission {
             return this.missions.find(m => m.id === this.selectedMissionId);
@@ -117,19 +110,19 @@ export default defineComponent({
                 this.$store.commit('setMissions', missions);
             }
         },
-        async loadClassifiedArtists(e): Promise<void> {
-            const classifiedArtists = await this.$http.executeGet<any[]>('/admin/missions/loadClassifiedArtists', e);
-
-            if (!this.$http.isError(classifiedArtists)) {
-                this.classifiedArtists = classifiedArtists;
-            }
-        },
         updateMission(m): void {
             const i = this.missions.findIndex(mission => mission.id == m.id);
 
             if (i !== -1) {
                 this.missions[i] = m;
             }
+        },
+        async calcPoints(mission, e): Promise<void> {
+            if (this.calculatingId === mission.id) return;
+
+            this.calculatingId = mission.id;
+            await this.$http.executePost(`/admin/missions/${mission.id}/calculateUserPoints`, {}, e);
+            this.calculatingId = '';
         },
         findTierImage(tier): string {
             switch (tier) {
@@ -144,21 +137,6 @@ export default defineComponent({
                 default:
                     return '/images/bronze.png';
             }
-        },
-        countValidSongs(songs): string {
-            let invalids: string[] = [];
-
-            for (const song of songs) {
-                if (song.isExcludedFromClassified || !song.oszUrl) {
-                    invalids.push(`${song.artist} - ${song.title}`);
-                }
-            }
-
-            if (invalids.length) {
-                return `(${songs.length - invalids.length} of ${songs.length}) ${invalids.join(', ')}`;
-            }
-
-            return '';
         },
     },
 });

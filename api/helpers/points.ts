@@ -299,7 +299,9 @@ export async function calculateTasksPoints(userId: any): Promise<TasksPoints> {
         }
 
         // mission reward points and completed missions list
-        const collabQuestIds = ['65a3376e48f36f2622ef2f44', '665bbcc1ff4c38cea1113337', '66f488cc56f3f894641d4ace']; // both mappers for True Cooperation, Multi-mode enthusiasts, and Spread coordinators win
+        // both mappers for True Cooperation, Multi-mode enthusiasts, and Spread coordinators win
+        // all mappers for Building Bridges win
+        const collabQuestIds = ['65a3376e48f36f2622ef2f44', '665bbcc1ff4c38cea1113337', '66f488cc56f3f894641d4ace', '690be404c83d944d73db432c'];
 
         if (missionParticipation &&
             beatmap.mission &&
@@ -313,7 +315,17 @@ export async function calculateTasksPoints(userId: any): Promise<TasksPoints> {
                 if (task.mappers.some(m => m.id == userId) && task.name !== TaskName.Hitsounds && task.name !== TaskName.Storyboard) {
                     isValidMissionParticipation = true;
 
-                    if (['63035eff1e8b9e4fa900836f', '62e3dedd9a268823d2e436b8', '6401d31e517b1f1d40ca78e2'].includes(userId) && beatmap.mission.id == '665bbcc1ff4c38cea1113337') { // skipping rewards for people who tried to circumvent the rules (or the spirit of the rules) for easy mission progress/points. i want to give the host pity points at least. relevant maps: https://osu.ppy.sh/beatmapsets/2202586#taiko/4719311 and https://osu.ppy.sh/beatmapsets/1670325#osu/4767848
+                    // skipping rewards for people who tried to circumvent the rules (or the spirit of the rules) for easy mission progress/points
+                    // i want to give the host pity points at least
+                    // relevant maps:
+                    // - https://osu.ppy.sh/beatmapsets/2202586#taiko/4719311
+                    // - https://osu.ppy.sh/beatmapsets/1670325#osu/4767848
+                    // - https://osu.ppy.sh/beatmapsets/2503577#taiko/5510767
+                    if (['63035eff1e8b9e4fa900836f', '62e3dedd9a268823d2e436b8', '6401d31e517b1f1d40ca78e2'].includes(userId) && beatmap.mission.id == '665bbcc1ff4c38cea1113337') {
+                        isValidMissionParticipation = false;
+                    }
+
+                    if (userId == '6706a8ccb175a7a921ca339c' && beatmap.mission.id == '690be404c83d944d73db432c') {
                         isValidMissionParticipation = false;
                     }
                 }

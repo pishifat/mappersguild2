@@ -9,7 +9,7 @@
                     :class="getToastTypeClass(toast)"
                     data-bs-autohide="true"
                 >
-                    <div class="toast-body">
+                    <div class="toast-body" :class="toast.type === 'success' ? 'text-black' : ''" style="white-space: pre-line">
                         {{ toast.message }}
                     </div>
                 </div>
