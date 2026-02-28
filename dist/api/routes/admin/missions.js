@@ -10,6 +10,7 @@ const user_1 = require("../../models/user");
 const mission_2 = require("../../../interfaces/mission");
 const featuredArtist_1 = require("../../models/featuredArtist");
 const osuBot_1 = require("../../helpers/osuBot");
+const points_1 = require("../../helpers/points");
 const adminMissionsRouter = express_1.default.Router();
 adminMissionsRouter.use(middlewares_1.isLoggedIn);
 adminMissionsRouter.use(middlewares_1.isAdmin);
@@ -21,6 +22,73 @@ adminMissionsRouter.get('/load', async (req, res) => {
         .extendedDefaultPopulate()
         .sort({ createdAt: -1, status: -1, name: 1 });
     res.json(m);
+});
+/* GET classified quests (missions with "Classified" in name) */
+adminMissionsRouter.get('/loadClassifiedQuests', async (req, res) => {
+    const missions = await mission_1.MissionModel
+        .find({ name: /Classified/ })
+        .select('name isArtistShowcase')
+        .sort({ createdAt: -1 });
+    res.json(missions);
+});
+/* GET artist labels offered in a specific classified quest */
+adminMissionsRouter.get('/:id/loadClassifiedQuestArtists', async (req, res) => {
+    const mission = await mission_1.MissionModel
+        .findById(req.params.id)
+        .populate({ path: 'showcaseMissionArtists', populate: { path: 'artist', select: 'label osuId' } })
+        .populate({ path: 'showcaseMissionSongs', populate: { path: 'song', select: '_id' } })
+        .orFail();
+    // collect FeaturedArtist IDs that appear in any newer classified quest
+    const newerMissions = await mission_1.MissionModel
+        .find({ name: /Classified/, createdAt: { $gt: mission.createdAt } })
+        .populate({ path: 'showcaseMissionArtists', populate: { path: 'artist', select: '_id' } })
+        .populate({ path: 'showcaseMissionSongs', populate: { path: 'song', select: '_id' } });
+    const newerArtistIds = new Set();
+    for (const newer of newerMissions) {
+        for (const entry of newer.showcaseMissionArtists) {
+            if (entry.artist?._id)
+                newerArtistIds.add(entry.artist._id.toString());
+        }
+        const newerSongIds = newer.showcaseMissionSongs.map(e => e.song?._id).filter(Boolean);
+        if (newerSongIds.length) {
+            const newerFeaturedArtists = await featuredArtist_1.FeaturedArtistModel.find({ songs: { $in: newerSongIds } }).select('_id');
+            for (const a of newerFeaturedArtists) {
+                newerArtistIds.add(a._id.toString());
+            }
+        }
+    }
+    let artists = [];
+    if (mission.isArtistShowcase && mission.showcaseMissionArtists?.length) {
+        const seen = new Set();
+        for (const entry of mission.showcaseMissionArtists) {
+            const label = entry.artist?.label;
+            if (label && !seen.has(label)) {
+                seen.add(label);
+                artists.push({
+                    label,
+                    osuId: entry.artist?.osuId,
+                    isLatest: !newerArtistIds.has(entry.artist._id.toString()),
+                });
+            }
+        }
+    }
+    else if (mission.showcaseMissionSongs?.length) {
+        const songIds = mission.showcaseMissionSongs.map((entry) => entry.song?._id).filter(Boolean);
+        const featuredArtists = await featuredArtist_1.FeaturedArtistModel.find({ songs: { $in: songIds } }).select('label osuId');
+        artists = featuredArtists.map(a => ({
+            label: a.label,
+            osuId: a.osuId,
+            isLatest: !newerArtistIds.has(a._id.toString()),
+        }));
+    }
+    artists.sort((a, b) => {
+        const aHasId = a.osuId > 0 ? 1 : 0;
+        const bHasId = b.osuId > 0 ? 1 : 0;
+        if (aHasId !== bHasId)
+            return aHasId - bHasId;
+        return a.label.localeCompare(b.label, undefined, { sensitivity: 'base' });
+    });
+    res.json(artists);
 });
 /* GET quests */
 adminMissionsRouter.get('/loadClassifiedArtists', async (req, res) => {
@@ -321,5 +389,44 @@ adminMissionsRouter.post('/:id/sendAnnouncement', async (req, res) => {
         return res.json({ error: announcement.error ? announcement.error : `Messages were not sent.` });
     }
     res.json(announcement);
+});
+/* POST calculate points for all users involved in a mission */
+adminMissionsRouter.post('/:id/calculateUserPoints', async (req, res) => {
+    const mission = await mission_1.MissionModel
+        .findById(req.params.id)
+        .populate({
+        path: 'winningBeatmaps',
+        populate: {
+            path: 'host tasks',
+            populate: {
+                path: 'mappers',
+            },
+        },
+    })
+        .orFail();
+    const userIds = new Set();
+    for (const beatmap of mission.winningBeatmaps) {
+        if (beatmap.host?._id) {
+            userIds.add(beatmap.host._id.toString());
+        }
+        for (const task of beatmap.tasks || []) {
+            for (const mapper of task.mappers || []) {
+                userIds.add(mapper._id.toString());
+            }
+        }
+    }
+    const changelog = [];
+    for (const id of [...userIds]) {
+        const user = await user_1.UserModel.findById(id).orFail();
+        const pointsBefore = user.totalPoints;
+        const pointsAfter = await (0, points_1.updateUserPoints)(id);
+        if (pointsBefore === pointsAfter) {
+            changelog.push(`${user.username}: ${pointsBefore} (unchanged)`);
+        }
+        else {
+            changelog.push(`${user.username}: ${pointsBefore} -> ${pointsAfter}`);
+        }
+    }
+    res.json({ success: `processed points for ${userIds.size} users\n${changelog.join('\n')}` });
 });
 exports.default = adminMissionsRouter;

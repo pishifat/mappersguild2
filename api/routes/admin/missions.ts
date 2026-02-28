@@ -529,6 +529,7 @@ adminMissionsRouter.post('/:id/calculateUserPoints', async (req, res) => {
         const user = await UserModel.findById(id).orFail();
         const pointsBefore = user.totalPoints;
         const pointsAfter = await updateUserPoints(id) as number;
+
         if (pointsBefore === pointsAfter) {
             changelog.push(`${user.username}: ${pointsBefore} (unchanged)`);
         } else {
