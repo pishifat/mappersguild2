@@ -56,6 +56,17 @@ const store: Module<FeaturedArtistState, MainState> = {
                 featuredArtist.songs.push(payload.song);
             }
         },
+        updateSongs (state, payload): void {
+            const featuredArtist = state.featuredArtists.find(f => f.id == payload.featuredArtistId);
+
+            if (featuredArtist) {
+                for (const song of payload.songs) {
+                    const i = featuredArtist.songs.findIndex(s => s.id == song.id);
+
+                    if (i !== -1) featuredArtist.songs[i] = song;
+                }
+            }
+        },
         updateSong (state, payload): void {
             const featuredArtist = state.featuredArtists.find(f => f.id == payload.featuredArtistId);
 

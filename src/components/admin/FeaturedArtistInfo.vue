@@ -166,6 +166,24 @@
                         {{ selectedSong.isExcludedFromClassified ? 'Add to Classified' : 'Exclude from Classified' }}
                     </button>
                 </div>
+                <div class="mx-2 mt-2">
+                    <b>Bulk tags:</b>
+                    <div class="row mt-1 mx-0">
+                        <input
+                            v-model="bulkTag"
+                            class="form-control form-control-sm w-50 me-2"
+                            type="text"
+                            autocomplete="off"
+                            placeholder="tag..."
+                        />
+                        <button class="btn btn-sm btn-outline-info w-auto me-2" @click="addTagToAll($event)">
+                            Add to all songs
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger w-auto" @click="removeTagFromAll($event)">
+                            Remove from all songs
+                        </button>
+                    </div>
+                </div>
                 <div v-if="selectedSong" class="mx-2 mt-2">
                     <b>Tags:</b>
                     <span class="small text-secondary ms-1">{{ selectedSong.tags && selectedSong.tags.length ? selectedSong.tags.join(', ') : 'none' }}</span>
@@ -265,6 +283,7 @@ export default defineComponent({
             classifiedStatus: '',
             classifiedUser: null as null | User,
             newTag: '',
+            bulkTag: '',
         };
     },
     computed: {
@@ -511,6 +530,48 @@ export default defineComponent({
                 this.$store.commit('updateSong', {
                     featuredArtistId: this.featuredArtist.id,
                     song,
+                });
+            }
+        },
+        async addTagToAll(e): Promise<void> {
+            if (!this.bulkTag.trim()) return;
+
+            const songs = await this.$http.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/songs/addTagToAll`, { tag: this.bulkTag.trim() }, e);
+
+            if (!this.$http.isError(songs)) {
+                if (this.selectedSong) {
+                    const updated = (songs as any[]).find(s => s.id == this.selectedSong!.id);
+                    if (updated) this.selectedSong.tags = updated.tags;
+                }
+
+                this.$store.commit('updateSongs', {
+                    featuredArtistId: this.featuredArtist.id,
+                    songs,
+                });
+                this.$store.dispatch('updateToastMessages', {
+                    message: `added tag to all songs`,
+                    type: 'info',
+                });
+            }
+        },
+        async removeTagFromAll(e): Promise<void> {
+            if (!this.bulkTag.trim()) return;
+
+            const songs = await this.$http.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/songs/removeTagFromAll`, { tag: this.bulkTag.trim() }, e);
+
+            if (!this.$http.isError(songs)) {
+                if (this.selectedSong) {
+                    const updated = (songs as any[]).find(s => s.id == this.selectedSong!.id);
+                    if (updated) this.selectedSong.tags = updated.tags;
+                }
+
+                this.$store.commit('updateSongs', {
+                    featuredArtistId: this.featuredArtist.id,
+                    songs,
+                });
+                this.$store.dispatch('updateToastMessages', {
+                    message: `removed tag from all songs`,
+                    type: 'info',
                 });
             }
         },
