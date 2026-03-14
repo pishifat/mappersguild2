@@ -50,8 +50,10 @@ const missionSchema = new mongoose_1.Schema({
     modes: [{ type: String, required: true }],
     isShowcaseMission: { type: Boolean },
     isArtistShowcase: { type: Boolean },
+    isGenreShowcase: { type: Boolean },
     isSeparate: { type: Boolean },
     remainingArtists: { type: Number },
+    genreOptions: [{ type: String }],
     showcaseMissionSongs: [{
             _id: false,
             song: { type: 'ObjectId', ref: 'FeaturedSong', required: true },
@@ -61,6 +63,12 @@ const missionSchema = new mongoose_1.Schema({
             _id: false,
             artist: { type: 'ObjectId', ref: 'FeaturedArtist', required: true },
             user: { type: 'ObjectId', ref: 'User', required: true },
+        }],
+    showcaseMissionSongsByGenre: [{
+            _id: false,
+            user: { type: 'ObjectId', ref: 'User', required: true },
+            songs: [{ type: 'ObjectId', ref: 'FeaturedSong' }],
+            previouslySelectedSongs: [{ type: 'ObjectId', ref: 'FeaturedSong' }],
         }],
     /* user requirements. optional and growing */
     userMaximumRankedBeatmapsCount: { type: Number },
@@ -77,6 +85,7 @@ const missionSchema = new mongoose_1.Schema({
     beatmapMinimumLength: { type: Number }, // only requirement label, no validation
     beatmapMaximumLength: { type: Number }, // only requirement label, no validation
     isUniqueToRanked: { type: Boolean }, // only requirement label, no validation
+    isUniqueArtistToRanked: { type: Boolean }, // only requirement label, no validation
     isOsuOriginal: { type: Boolean }, // only requirement label, no validation
     additionalRequirement: { type: String }, // only requirement label, no validation
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });

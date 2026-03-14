@@ -119,6 +119,20 @@ adminFeaturedArtistsRouter.post('/:id/songs/:songId/delete', async (req, res) =>
     await featuredSong_1.FeaturedSongModel.findByIdAndDelete(req.params.songId).orFail();
     res.json({ success: 'ok' });
 });
+/* POST add tag to song */
+adminFeaturedArtistsRouter.post('/:id/songs/:songId/addTag', async (req, res) => {
+    const song = await featuredSong_1.FeaturedSongModel
+        .findByIdAndUpdate(req.params.songId, { $addToSet: { tags: req.body.tag } }, { new: true })
+        .orFail();
+    res.json(song);
+});
+/* POST remove tag from song */
+adminFeaturedArtistsRouter.post('/:id/songs/:songId/removeTag', async (req, res) => {
+    const song = await featuredSong_1.FeaturedSongModel
+        .findByIdAndUpdate(req.params.songId, { $pull: { tags: req.body.tag } }, { new: true })
+        .orFail();
+    res.json(song);
+});
 /* GET find recently licensed songs */
 adminFeaturedArtistsRouter.get('/findRecentlyLicensedSongs', async (req, res) => {
     const startDate = new Date('2019-01-01');

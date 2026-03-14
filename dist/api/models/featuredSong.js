@@ -41,6 +41,7 @@ const featuredSongSchema = new mongoose_1.Schema({
     songShowcaseMappers: [{ type: 'ObjectId', ref: 'User' }],
     oszUrl: { type: String },
     isExcludedFromClassified: { type: Boolean },
+    tags: [{ type: String }],
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 const queryHelpers = {
     defaultPopulate() {

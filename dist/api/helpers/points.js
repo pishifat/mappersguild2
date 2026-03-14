@@ -350,7 +350,8 @@ async function calculateSpentPoints(userId) {
         select: 'price art requiredMapsets',
     });
     let total = 0;
-    const artistRerollCosts = new Map(); // Track artist reroll costs by mission
+    const artistRerollCosts = new Map(); // track artist reroll costs by mission
+    const songByTagRerollCosts = new Map(); // track song-by-tag reroll costs by mission
     for (const spentPoints of ownSpentPoints) {
         if (spentPoints.category == spentPoints_2.SpentPointsCategory.AcceptQuest) {
             total += spentPoints.quest.price; // price of quest on listing
@@ -373,6 +374,13 @@ async function calculateSpentPoints(userId) {
             const cost = 10 * Math.pow(2, currentCount);
             total += cost;
             artistRerollCosts.set(missionId, currentCount + 1);
+        }
+        else if (spentPoints.category == spentPoints_2.SpentPointsCategory.RerollShowcaseMissionSongByTag) {
+            const missionId = spentPoints.mission?.toString();
+            const currentCount = songByTagRerollCosts.get(missionId) || 0;
+            const cost = Math.pow(2, currentCount);
+            total += cost;
+            songByTagRerollCosts.set(missionId, currentCount + 1);
         }
     }
     return total;

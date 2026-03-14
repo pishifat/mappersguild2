@@ -444,6 +444,171 @@ missionsRouter.post('/addSongShowcaseMapper/:artistId/:songId', async (req, res)
             description: `Added interest in **song:** [**${song.artist} - ${song.title}**](https://mappersguild.com/artists)`,
         }]);
 });
+/* POST findShowcaseMissionSongByTag */
+missionsRouter.post('/:missionId/findShowcaseMissionSongByTag', isEditable, async (req, res) => {
+    const mission = res.locals.mission;
+    const user = await user_1.UserModel.findById(req.session.mongoId).orFail();
+    if (mission.userMinimumRank && user.rank < mission.userMinimumRank) {
+        return res.json({ error: `Songs not loaded. Your MG rank is too low for this quest.` });
+    }
+    const missionWithSongs = await mission_1.MissionModel
+        .findById(req.params.missionId)
+        .populate({
+        path: 'showcaseMissionSongsByGenre',
+        populate: {
+            path: 'songs previouslySelectedSongs',
+        },
+    })
+        .orFail();
+    const userEntry = missionWithSongs.showcaseMissionSongsByGenre.find((e) => e.user.toString() == user.id || (e.user.id && e.user.id == user.id));
+    const songIndex = req.body.songIndex;
+    const isReroll = userEntry && songIndex !== undefined;
+    if (isReroll) {
+        const rerollCount = await spentPoints_1.SpentPointsModel.countDocuments({
+            user: user.id,
+            mission: mission.id,
+            category: spentPoints_2.SpentPointsCategory.RerollShowcaseMissionSongByTag,
+        });
+        const rerollCost = Math.pow(2, rerollCount);
+        if (user.availablePoints < rerollCost) {
+            return res.json({ error: 'Not enough available points!' });
+        }
+        const previouslySelectedSongIds = userEntry.previouslySelectedSongs.map((s) => s.id || s.toString());
+        const currentSongIds = userEntry.songs.map((s) => s.id || s.toString());
+        const songToReplace = userEntry.songs[songIndex];
+        if (!songToReplace) {
+            return res.json({ error: 'Invalid song index.' });
+        }
+        const otherCurrentSongIds = currentSongIds.filter((_, i) => i !== songIndex);
+        const [otherSongs, replacedSong] = await Promise.all([
+            featuredSong_1.FeaturedSongModel.find({ _id: { $in: otherCurrentSongIds } }),
+            featuredSong_1.FeaturedSongModel.findById(songToReplace._id || songToReplace),
+        ]);
+        const avoidArtistNames = [
+            ...otherSongs.map((s) => s.artist),
+            ...(replacedSong ? [replacedSong.artist] : []),
+        ];
+        const excludedIds = [...previouslySelectedSongIds, ...currentSongIds];
+        const tag = req.body.tag;
+        const tagQuery = tag ? { tags: tag } : {};
+        const availableSongs = await featuredSong_1.FeaturedSongModel.find({
+            ...tagQuery,
+            isExcludedFromClassified: { $ne: true },
+            _id: { $nin: excludedIds },
+        });
+        if (!availableSongs.length) {
+            return res.json({ error: `You've already seen every available song in this category!` });
+        }
+        await spentPoints_1.SpentPointsModel.generate(spentPoints_2.SpentPointsCategory.RerollShowcaseMissionSongByTag, req.session.mongoId, null, mission.id);
+        await (0, points_1.updateUserPoints)(req.session.mongoId);
+        const preferred = availableSongs.filter(s => !avoidArtistNames.includes(s.artist));
+        const pool = preferred.length ? preferred : availableSongs;
+        const newSong = pool[Math.floor(Math.random() * pool.length)];
+        const missionDoc = await mission_1.MissionModel.findById(req.params.missionId).orFail();
+        const entryIndex = missionDoc.showcaseMissionSongsByGenre.findIndex((e) => e.user.toString() == user.id || (e.user.id && e.user.id == user.id));
+        if (entryIndex === -1) {
+            return res.json({ error: 'Entry not found.' });
+        }
+        missionDoc.showcaseMissionSongsByGenre[entryIndex].previouslySelectedSongs.push(songToReplace._id || songToReplace);
+        missionDoc.showcaseMissionSongsByGenre[entryIndex].songs[songIndex] = newSong._id;
+        await missionDoc.save();
+        await (0, discordApi_1.devWebhookPost)([{
+                title: `genre showcase mission song rerolled`,
+                color: discordApi_1.webhookColors.lightGreen,
+                description: `[**${user.username}**](https://osu.ppy.sh/users/${user.osuId}) rerolled to **${newSong.artist} - ${newSong.title}** for **${mission.name}** priority quest`,
+            }]);
+        log_1.LogModel.generate(req.session?.mongoId, `rerolled genre showcase mission song`, log_2.LogCategory.Mission);
+    }
+    else {
+        if (!req.body.tag) {
+            return res.json({ error: 'No genre selected.' });
+        }
+        const tag = req.body.tag;
+        const allSongsWithTag = await featuredSong_1.FeaturedSongModel.find({
+            tags: tag,
+            isExcludedFromClassified: { $ne: true },
+        });
+        if (!allSongsWithTag.length) {
+            return res.json({ error: 'No songs available for this genre.' });
+        }
+        const selectedSongs = [];
+        const artistGroups = new Map();
+        for (const song of allSongsWithTag) {
+            if (!artistGroups.has(song.artist)) {
+                artistGroups.set(song.artist, []);
+            }
+            artistGroups.get(song.artist).push(song);
+        }
+        const artists = [...artistGroups.keys()];
+        const shuffledArtists = artists.sort(() => Math.random() - 0.5);
+        for (const artistName of shuffledArtists) {
+            if (selectedSongs.length >= 3)
+                break;
+            const artistSongs = artistGroups.get(artistName);
+            const song = artistSongs[Math.floor(Math.random() * artistSongs.length)];
+            selectedSongs.push(song);
+        }
+        // fill remaining slots if fewer than 3 artists
+        if (selectedSongs.length < 3) {
+            const selectedIds = selectedSongs.map(s => s.id);
+            const remaining = allSongsWithTag.filter(s => !selectedIds.includes(s.id));
+            const shuffled = remaining.sort(() => Math.random() - 0.5);
+            for (const song of shuffled) {
+                if (selectedSongs.length >= 3)
+                    break;
+                selectedSongs.push(song);
+            }
+        }
+        const missionDoc = await mission_1.MissionModel.findById(req.params.missionId).orFail();
+        missionDoc.showcaseMissionSongsByGenre.push({
+            user: req.session.mongoId,
+            songs: selectedSongs.map(s => s._id),
+            previouslySelectedSongs: [],
+        });
+        await missionDoc.save();
+        await (0, discordApi_1.devWebhookPost)([{
+                title: `genre showcase mission songs selected`,
+                color: discordApi_1.webhookColors.lightOrange,
+                description: `[**${user.username}**](https://osu.ppy.sh/users/${user.osuId}) selected songs for genre **${tag}** in **${mission.name}** priority quest`,
+            }]);
+        log_1.LogModel.generate(req.session?.mongoId, `selected genre showcase mission songs`, log_2.LogCategory.Mission);
+    }
+    const updatedEntry = await mission_1.MissionModel
+        .findById(req.params.missionId)
+        .populate({
+        path: 'showcaseMissionSongsByGenre',
+        populate: {
+            path: 'songs previouslySelectedSongs',
+        },
+    })
+        .orFail();
+    const entry = updatedEntry.showcaseMissionSongsByGenre.find((e) => e.user.toString() == user.id || (e.user.id && e.user.id == user.id));
+    const updatedUser = await user_1.UserModel.findById(req.session.mongoId).orFail();
+    res.json({ entry, availablePoints: updatedUser.availablePoints });
+});
+/* GET findSelectedShowcaseMissionSongsByTag */
+missionsRouter.get('/:missionId/findSelectedShowcaseMissionSongsByTag', async (req, res) => {
+    const mission = await mission_1.MissionModel
+        .findById(req.params.missionId)
+        .populate({
+        path: 'showcaseMissionSongsByGenre',
+        populate: {
+            path: 'songs',
+        },
+    })
+        .orFail();
+    const entry = mission.showcaseMissionSongsByGenre.find((e) => e.user.toString() == req.session.mongoId || (e.user.id && e.user.id == req.session.mongoId));
+    res.json(entry);
+});
+/* GET genre song reroll count */
+missionsRouter.get('/:missionId/getGenreSongRerollCount', async (req, res) => {
+    const rerollCount = await spentPoints_1.SpentPointsModel.countDocuments({
+        user: req.session.mongoId,
+        mission: req.params.missionId,
+        category: spentPoints_2.SpentPointsCategory.RerollShowcaseMissionSongByTag,
+    });
+    res.json(rerollCount);
+});
 /* POST remove song showcase mapper */
 missionsRouter.post('/removeSongShowcaseMapper/:artistId/:songId', async (req, res) => {
     const song = await featuredSong_1.FeaturedSongModel

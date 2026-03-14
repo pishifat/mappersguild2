@@ -23,11 +23,11 @@ adminMissionsRouter.get('/load', async (req, res) => {
         .sort({ createdAt: -1, status: -1, name: 1 });
     res.json(m);
 });
-/* GET classified quests (missions with "Classified" in name) */
+/* GET classified quests */
 adminMissionsRouter.get('/loadClassifiedQuests', async (req, res) => {
     const missions = await mission_1.MissionModel
-        .find({ name: /Classified/ })
-        .select('name isArtistShowcase')
+        .find({ isShowcaseMission: true })
+        .select('name isArtistShowcase isGenreShowcase')
         .sort({ createdAt: -1 });
     res.json(missions);
 });
@@ -90,6 +90,43 @@ adminMissionsRouter.get('/:id/loadClassifiedQuestArtists', async (req, res) => {
     });
     res.json(artists);
 });
+/* GET genres and songs eligible for Classified quest */
+adminMissionsRouter.get('/loadClassifiedGenres', async (req, res) => {
+    const artists = await featuredArtist_1.FeaturedArtistModel
+        .find({
+        $or: [
+            { osuId: 0 },
+            { osuId: { $exists: false } },
+        ],
+        songsTimed: true,
+        hasRankedMaps: { $ne: true },
+        songs: { $exists: true, $ne: [] },
+    })
+        .defaultPopulateWithSongs();
+    const genreMap = new Map();
+    const untaggedSongs = [];
+    for (const artist of artists) {
+        for (const song of artist.songs) {
+            if (song.isExcludedFromClassified || !song.oszUrl)
+                continue;
+            if (!song.tags || !song.tags.length) {
+                untaggedSongs.push({ artist: song.artist, title: song.title, id: song.id });
+            }
+            else {
+                for (const tag of song.tags) {
+                    if (!genreMap.has(tag)) {
+                        genreMap.set(tag, []);
+                    }
+                    genreMap.get(tag).push({ artist: song.artist, title: song.title, id: song.id });
+                }
+            }
+        }
+    }
+    const genres = [...genreMap.entries()]
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([name, songs]) => ({ name, songs }));
+    res.json({ genres, untaggedSongs });
+});
 /* GET quests */
 adminMissionsRouter.get('/loadClassifiedArtists', async (req, res) => {
     const artists = await featuredArtist_1.FeaturedArtistModel
@@ -109,7 +146,7 @@ adminMissionsRouter.get('/loadClassifiedArtists', async (req, res) => {
 });
 /* POST add quest */
 adminMissionsRouter.post('/create', async (req, res) => {
-    const { deadline, name, tier, artists, objective, winCondition, isShowcaseMission, isArtistShowcase, userMaximumRankedBeatmapsCount, userMaximumGlobalRank, userMaximumPp, userMinimumPp, userMinimumRank, beatmapEarliestSubmissionDate, beatmapLatestSubmissionDate, beatmapMinimumFavorites, beatmapDifficulties, beatmapMinimumPlayCount, beatmapMinimumLength, beatmapMaximumLength, isUniqueToRanked, isOsuOriginal, modes, additionalRequirement } = req.body;
+    const { deadline, name, tier, artists, objective, winCondition, isShowcaseMission, isArtistShowcase, isGenreShowcase, userMaximumRankedBeatmapsCount, userMaximumGlobalRank, userMaximumPp, userMinimumPp, userMinimumRank, beatmapEarliestSubmissionDate, beatmapLatestSubmissionDate, beatmapMinimumFavorites, beatmapDifficulties, beatmapMinimumPlayCount, beatmapMinimumLength, beatmapMaximumLength, isUniqueToRanked, isUniqueArtistToRanked, isOsuOriginal, modes, additionalRequirement } = req.body;
     const validModes = [];
     for (const mode of modes) {
         switch (mode) {
@@ -143,6 +180,7 @@ adminMissionsRouter.post('/create', async (req, res) => {
     mission.modes = validModes;
     mission.isShowcaseMission = isShowcaseMission;
     mission.isArtistShowcase = isArtistShowcase;
+    mission.isGenreShowcase = isGenreShowcase;
     mission.isSeparate = false;
     mission.openingAnnounced = false;
     mission.closingAnnounced = false;
@@ -159,6 +197,7 @@ adminMissionsRouter.post('/create', async (req, res) => {
     mission.beatmapMinimumLength = beatmapMinimumLength;
     mission.beatmapMaximumLength = beatmapMaximumLength;
     mission.isUniqueToRanked = isUniqueToRanked;
+    mission.isUniqueArtistToRanked = isUniqueArtistToRanked;
     mission.isOsuOriginal = isOsuOriginal;
     mission.additionalRequirement = additionalRequirement;
     await mission.save();
@@ -233,6 +272,23 @@ adminMissionsRouter.post('/:id/toggleIsShowcaseMission', async (req, res) => {
 adminMissionsRouter.post('/:id/toggleIsArtistShowcase', async (req, res) => {
     await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { isArtistShowcase: req.body.isArtistShowcase }).orFail();
     res.json(req.body.isArtistShowcase);
+});
+/* POST toggle isGenreShowcase */
+adminMissionsRouter.post('/:id/toggleIsGenreShowcase', async (req, res) => {
+    await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { isGenreShowcase: req.body.isGenreShowcase }).orFail();
+    res.json(req.body.isGenreShowcase);
+});
+/* POST add genre option */
+adminMissionsRouter.post('/:id/addGenreOption', async (req, res) => {
+    await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { $addToSet: { genreOptions: req.body.genreOption } }).orFail();
+    const mission = await mission_1.MissionModel.findById(req.params.id).orFail();
+    res.json(mission.genreOptions);
+});
+/* POST remove genre option */
+adminMissionsRouter.post('/:id/removeGenreOption', async (req, res) => {
+    await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { $pull: { genreOptions: req.body.genreOption } }).orFail();
+    const mission = await mission_1.MissionModel.findById(req.params.id).orFail();
+    res.json(mission.genreOptions);
 });
 /* POST toggle isSeparate */
 adminMissionsRouter.post('/:id/toggleIsSeparate', async (req, res) => {
@@ -327,6 +383,11 @@ adminMissionsRouter.post('/:id/toggleIsUniqueToRanked', async (req, res) => {
     await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { isUniqueToRanked: req.body.isUniqueToRanked }).orFail();
     res.json(req.body.isUniqueToRanked);
 });
+/* POST update mission requirement for is unique artist to ranked */
+adminMissionsRouter.post('/:id/toggleIsUniqueArtistToRanked', async (req, res) => {
+    await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { isUniqueArtistToRanked: req.body.isUniqueArtistToRanked }).orFail();
+    res.json(req.body.isUniqueArtistToRanked);
+});
 /* POST update mission requirement for is osu original */
 adminMissionsRouter.post('/:id/toggleIsOsuOriginal', async (req, res) => {
     await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { isOsuOriginal: req.body.isOsuOriginal }).orFail();
@@ -389,6 +450,47 @@ adminMissionsRouter.post('/:id/sendAnnouncement', async (req, res) => {
         return res.json({ error: announcement.error ? announcement.error : `Messages were not sent.` });
     }
     res.json(announcement);
+});
+/* GET genres and tagged songs for a classified genre showcase quest */
+adminMissionsRouter.get('/:id/loadClassifiedQuestGenres', async (req, res) => {
+    const mission = await mission_1.MissionModel
+        .findById(req.params.id)
+        .populate({
+        path: 'showcaseMissionSongsByGenre',
+        populate: {
+            path: 'songs',
+            select: 'artist title tags',
+        },
+    })
+        .orFail();
+    const allSongMap = new Map();
+    for (const entry of mission.showcaseMissionSongsByGenre) {
+        for (const song of entry.songs || []) {
+            if (!allSongMap.has(song.id)) {
+                allSongMap.set(song.id, { artist: song.artist, title: song.title, id: song.id, tags: song.tags || [] });
+            }
+        }
+    }
+    const allSongs = [...allSongMap.values()];
+    const genreMap = new Map();
+    const untaggedSongs = [];
+    for (const song of allSongs) {
+        if (!song.tags || !song.tags.length) {
+            untaggedSongs.push({ artist: song.artist, title: song.title, id: song.id });
+        }
+        else {
+            for (const tag of song.tags) {
+                if (!genreMap.has(tag)) {
+                    genreMap.set(tag, []);
+                }
+                genreMap.get(tag).push({ artist: song.artist, title: song.title, id: song.id });
+            }
+        }
+    }
+    const genres = [...genreMap.entries()]
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([name, songs]) => ({ name, songs }));
+    res.json({ genres, untaggedSongs });
 });
 /* POST calculate points for all users involved in a mission */
 adminMissionsRouter.post('/:id/calculateUserPoints', async (req, res) => {
