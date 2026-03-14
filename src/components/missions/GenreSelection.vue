@@ -159,7 +159,7 @@ export default defineComponent({
             if (result) {
                 const body = isReroll ? { songIndex, tag: this.selectedTag } : { tag: this.selectedTag };
                 this.rerolling = true;
-                const entry = await this.$http.executePost(`/missions/${this.mission.id}/findShowcaseMissionSongByTag`, body, e);
+                const entry: any = await this.$http.executePost(`/missions/${this.mission.id}/findShowcaseMissionSongByTag`, body, e);
                 this.rerolling = false;
 
                 if (!this.$http.isError(entry)) {
