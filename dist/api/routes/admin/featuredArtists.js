@@ -119,6 +119,20 @@ adminFeaturedArtistsRouter.post('/:id/songs/:songId/delete', async (req, res) =>
     await featuredSong_1.FeaturedSongModel.findByIdAndDelete(req.params.songId).orFail();
     res.json({ success: 'ok' });
 });
+/* POST add tag to all songs for an artist */
+adminFeaturedArtistsRouter.post('/:id/songs/addTagToAll', async (req, res) => {
+    const artist = await featuredArtist_1.FeaturedArtistModel.findById(req.params.id).populate('songs').orFail();
+    await featuredSong_1.FeaturedSongModel.updateMany({ _id: { $in: artist.songs.map((s) => s._id) } }, { $addToSet: { tags: req.body.tag } });
+    const updatedSongs = await featuredSong_1.FeaturedSongModel.find({ _id: { $in: artist.songs.map((s) => s._id) } });
+    res.json(updatedSongs);
+});
+/* POST remove tag from all songs for an artist */
+adminFeaturedArtistsRouter.post('/:id/songs/removeTagFromAll', async (req, res) => {
+    const artist = await featuredArtist_1.FeaturedArtistModel.findById(req.params.id).populate('songs').orFail();
+    await featuredSong_1.FeaturedSongModel.updateMany({ _id: { $in: artist.songs.map((s) => s._id) } }, { $pull: { tags: req.body.tag } });
+    const updatedSongs = await featuredSong_1.FeaturedSongModel.find({ _id: { $in: artist.songs.map((s) => s._id) } });
+    res.json(updatedSongs);
+});
 /* POST add tag to song */
 adminFeaturedArtistsRouter.post('/:id/songs/:songId/addTag', async (req, res) => {
     const song = await featuredSong_1.FeaturedSongModel
