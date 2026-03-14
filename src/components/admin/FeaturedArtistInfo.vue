@@ -166,6 +166,31 @@
                         {{ selectedSong.isExcludedFromClassified ? 'Add to Classified' : 'Exclude from Classified' }}
                     </button>
                 </div>
+                <div v-if="selectedSong" class="mx-2 mt-2">
+                    <b>Tags:</b>
+                    <span class="small text-secondary ms-1">{{ selectedSong.tags && selectedSong.tags.length ? selectedSong.tags.join(', ') : 'none' }}</span>
+                    <div class="row mt-1 mx-0">
+                        <input
+                            v-model="newTag"
+                            class="form-control form-control-sm w-50 me-2"
+                            type="text"
+                            autocomplete="off"
+                            placeholder="new tag..."
+                            @keyup.enter="addTag($event)"
+                        />
+                        <button class="btn btn-sm btn-outline-info w-25" @click="addTag($event)">
+                            Add tag
+                        </button>
+                    </div>
+                    <div v-if="selectedSong.tags && selectedSong.tags.length" class="mt-1">
+                        <span v-for="tag in selectedSong.tags" :key="tag" class="me-2">
+                            {{ tag }}
+                            <button class="btn btn-sm btn-outline-danger ms-1" @click="removeTag(tag, $event)">
+                                Remove
+                            </button>
+                        </span>
+                    </div>
+                </div>
                 <hr />
                 <h5>Notes</h5>
                 <div class="row mb-2 mx-1">
@@ -239,6 +264,7 @@ export default defineComponent({
             notes: '',
             classifiedStatus: '',
             classifiedUser: null as null | User,
+            newTag: '',
         };
     },
     computed: {
@@ -450,6 +476,41 @@ export default defineComponent({
                 this.$store.commit('deleteSong', {
                     featuredArtistId: this.featuredArtist.id,
                     songId: this.selectedSong.id,
+                });
+            }
+        },
+        async addTag(e): Promise<void> {
+            if (!this.selectedSong || !this.newTag.trim()) return;
+
+            const song = await this.$http.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/songs/${this.selectedSong.id}/addTag`, { tag: this.newTag.trim() }, e);
+
+            if (!this.$http.isError(song)) {
+                this.newTag = '';
+                this.selectedSong.tags = (song as any).tags;
+                this.$store.dispatch('updateToastMessages', {
+                    message: `added tag`,
+                    type: 'info',
+                });
+                this.$store.commit('updateSong', {
+                    featuredArtistId: this.featuredArtist.id,
+                    song,
+                });
+            }
+        },
+        async removeTag(tag: string, e): Promise<void> {
+            if (!this.selectedSong) return;
+
+            const song = await this.$http.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/songs/${this.selectedSong.id}/removeTag`, { tag }, e);
+
+            if (!this.$http.isError(song)) {
+                this.selectedSong.tags = (song as any).tags;
+                this.$store.dispatch('updateToastMessages', {
+                    message: `removed tag`,
+                    type: 'info',
+                });
+                this.$store.commit('updateSong', {
+                    featuredArtistId: this.featuredArtist.id,
+                    song,
                 });
             }
         },

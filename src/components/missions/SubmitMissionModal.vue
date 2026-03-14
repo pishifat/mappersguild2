@@ -136,6 +136,14 @@
                 type="number"
             />
 
+            <!-- isGenreShowcase -->
+            <form-input
+                v-model.number="isGenreShowcase"
+                label="isGenreShowcase"
+                description="indicates if a showcase quest is genre-based (0 = false, 1 = true)"
+                type="number"
+            />
+
             <!-- user requirements -->
             <hr />
             <h5>User requirements</h5>
@@ -274,6 +282,14 @@
                 type="number"
             />
 
+            <!-- isUniqueArtistToRanked -->
+            <form-input
+                v-model.number="isUniqueArtistToRanked"
+                label="isUniqueArtistToRanked"
+                description="0 = false, 1 = true. only label (no validation)"
+                type="number"
+            />
+
             <!-- isOsuOriginal -->
             <form-input
                 v-model.number="isOsuOriginal"
@@ -339,6 +355,7 @@ export default defineComponent({
             winCondition: '',
             isShowcaseMission: 0,
             isArtistShowcase: 0,
+            isGenreShowcase: 0,
             userMaximumRankedBeatmapsCount: null,
             userMaximumGlobalRank: null,
             userMaximumPp: null,
@@ -351,6 +368,7 @@ export default defineComponent({
             beatmapMinimumLength: null,
             beatmapMaximumLength: null,
             isUniqueToRanked: 0,
+            isUniqueArtistToRanked: 0,
             isOsuOriginal: 0,
             additionalRequirement: '',
         };
@@ -429,6 +447,7 @@ export default defineComponent({
                 winCondition: this.winCondition,
                 isShowcaseMission: new Boolean(this.isShowcaseMission),
                 isArtistShowcase: new Boolean(this.isArtistShowcase),
+                isGenreShowcase: new Boolean(this.isGenreShowcase),
                 userMaximumRankedBeatmapsCount: this.userMaximumRankedBeatmapsCount,
                 userMaximumGlobalRank: this.userMaximumGlobalRank,
                 userMaximumPp: this.userMaximumPp,
@@ -442,6 +461,7 @@ export default defineComponent({
                 beatmapMinimumLength: this.beatmapMinimumLength,
                 beatmapMaximumLength: this.beatmapMaximumLength,
                 isUniqueToRanked: new Boolean(this.isUniqueToRanked),
+                isUniqueArtistToRanked: new Boolean(this.isUniqueArtistToRanked),
                 isOsuOriginal: new Boolean(this.isOsuOriginal),
                 additionalRequirement: this.additionalRequirement,
             }, e);

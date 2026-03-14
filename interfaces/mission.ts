@@ -33,8 +33,10 @@ export interface Mission extends Document {
     modes: MissionMode[];
     isShowcaseMission: boolean;
     isArtistShowcase: boolean;
+    isGenreShowcase: boolean;
     isSeparate: boolean;
     remainingArtists: number;
+    genreOptions: string[];
     showcaseMissionSongs: {
         song: FeaturedSong;
         user: User;
@@ -42,6 +44,11 @@ export interface Mission extends Document {
     showcaseMissionArtists: {
         artist: FeaturedArtist;
         user: User;
+    }[];
+    showcaseMissionSongsByGenre: {
+        user: User;
+        songs: FeaturedSong[];
+        previouslySelectedSongs: FeaturedSong[];
     }[];
     /* for webhooks */
     openingAnnounced: boolean;
@@ -61,6 +68,7 @@ export interface Mission extends Document {
     beatmapMinimumLength: number;
     beatmapMaximumLength: number;
     isUniqueToRanked: boolean;
+    isUniqueArtistToRanked: boolean;
     isOsuOriginal: boolean;
     additionalRequirement: string;
     /** virtual field to populate */

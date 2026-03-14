@@ -8,4 +8,5 @@ export interface FeaturedSong {
     songShowcaseMappers: User[];
     oszUrl: string | null;
     isExcludedFromClassified: boolean;
+    tags: string[];
 }

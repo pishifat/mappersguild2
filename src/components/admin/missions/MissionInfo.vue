@@ -229,6 +229,57 @@
                     </button>
                 </div>
             </div>
+            <!-- isGenreShowcase -->
+            <div class="row d-flex mt-2 align-items-center">
+                <div class="col-sm-4">
+                    isGenreShowcase
+                </div>
+                <div class="col-sm-4 small text-secondary">
+                    Current: <b :class="mission.isGenreShowcase ? 'text-success' : 'text-danger'">{{ mission.isGenreShowcase ? mission.isGenreShowcase : 'false' }}</b>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-sm btn-outline-info w-100" @click="toggleIsGenreShowcase($event)">
+                        Toggle isGenreShowcase
+                    </button>
+                </div>
+            </div>
+            <!-- genreOptions -->
+            <div class="row mt-2 d-flex align-items-center">
+                <div class="col-sm-2">
+                    Genre options
+                </div>
+                <div class="col-sm-2">
+                    <input
+                        v-model="newGenreOption"
+                        class="form-control form-control-sm"
+                        type="text"
+                        autocomplete="off"
+                        placeholder="genre name..."
+                        @keyup.enter="addGenreOption($event)"
+                    />
+                </div>
+                <div class="col-sm-4">
+                    <div class="small text-secondary mb-1">
+                        Current: <b>{{ mission.genreOptions && mission.genreOptions.length ? mission.genreOptions.length : 'none' }}</b>
+                    </div>
+                    <select v-if="mission.genreOptions && mission.genreOptions.length" v-model="selectedGenreOption" class="form-select form-select-sm">
+                        <option value="" disabled>
+                            Select to remove
+                        </option>
+                        <option v-for="option in mission.genreOptions" :key="option" :value="option">
+                            {{ option }}
+                        </option>
+                    </select>
+                </div>
+                <div class="col-sm-4 d-flex flex-column gap-1">
+                    <button class="btn btn-sm btn-outline-info w-100" @click="addGenreOption($event)">
+                        Add genre option
+                    </button>
+                    <button v-if="selectedGenreOption" class="btn btn-sm btn-outline-danger w-100" @click="removeGenreOption(selectedGenreOption, $event)">
+                        Remove "{{ selectedGenreOption }}"
+                    </button>
+                </div>
+            </div>
             <!-- isSeparate -->
             <div class="row d-flex mt-2 align-items-center">
                 <div class="col-sm-4">
@@ -603,6 +654,23 @@
                     </button>
                 </div>
             </div>
+            <!-- isUniqueArtistToRanked -->
+            <div class="row d-flex mt-2 align-items-center">
+                <div class="col-sm-4">
+                    isUniqueArtistToRanked
+                </div>
+                <div class="col-sm-4 small text-secondary">
+                    <div>Includes: <b>label</b></div>
+                    <div>
+                        Current: <b :class="mission.isUniqueArtistToRanked ? 'text-success' : 'text-danger'">{{ mission.isUniqueArtistToRanked ? mission.isUniqueArtistToRanked : 'false' }}</b>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-sm btn-outline-info w-100" @click="toggleIsUniqueArtistToRanked($event)">
+                        Toggle isUniqueArtistToRanked
+                    </button>
+                </div>
+            </div>
             <!-- isOsuOriginal -->
             <div class="row d-flex mt-2 align-items-center">
                 <div class="col-sm-4">
@@ -707,9 +775,12 @@ export default defineComponent({
             beatmapMinimumLength: this.mission.beatmapMinimumLength,
             beatmapMaximumLength: this.mission.beatmapMaximumLength,
             isUniqueToRanked: this.mission.isUniqueToRanked,
+            isUniqueArtistToRanked: this.mission.isUniqueArtistToRanked,
             isOsuOriginal: this.mission.isOsuOriginal,
             additionalRequirement: this.mission.additionalRequirement,
             difficulties: ['Easy', 'Normal', 'Hard', 'Insane', 'Expert'],
+            newGenreOption: '',
+            selectedGenreOption: '',
         };
     },
     computed: {
@@ -744,6 +815,7 @@ export default defineComponent({
             this.beatmapMinimumLength = this.mission.beatmapMinimumLength;
             this.beatmapMaximumLength = this.mission.beatmapMaximumLength;
             this.isUniqueToRanked = this.mission.isUniqueToRanked;
+            this.isUniqueArtistToRanked = this.mission.isUniqueArtistToRanked;
             this.isOsuOriginal = this.mission.isOsuOriginal;
             this.additionalRequirement = this.mission.additionalRequirement;
         },
@@ -898,6 +970,52 @@ export default defineComponent({
                 this.$store.commit('updateIsArtistShowcase', {
                     missionId: this.mission.id,
                     isArtistShowcase,
+                });
+            }
+        },
+        async toggleIsGenreShowcase(e): Promise<void> {
+            const isGenreShowcase = await this.$http.executePost(`/admin/missions/${this.mission.id}/toggleIsGenreShowcase/`, { isGenreShowcase: !this.mission.isGenreShowcase }, e);
+
+            if (!this.$http.isError(isGenreShowcase)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `toggled isGenreShowcase`,
+                    type: 'info',
+                });
+                this.$store.commit('updateIsGenreShowcase', {
+                    missionId: this.mission.id,
+                    isGenreShowcase,
+                });
+            }
+        },
+        async addGenreOption(e): Promise<void> {
+            if (!this.newGenreOption.trim()) return;
+
+            const genreOptions = await this.$http.executePost(`/admin/missions/${this.mission.id}/addGenreOption`, { genreOption: this.newGenreOption.trim() }, e);
+
+            if (!this.$http.isError(genreOptions)) {
+                this.newGenreOption = '';
+                this.$store.dispatch('updateToastMessages', {
+                    message: `added genre option`,
+                    type: 'info',
+                });
+                this.$store.commit('updateGenreOptions', {
+                    missionId: this.mission.id,
+                    genreOptions,
+                });
+            }
+        },
+        async removeGenreOption(option: string, e): Promise<void> {
+            const genreOptions = await this.$http.executePost(`/admin/missions/${this.mission.id}/removeGenreOption`, { genreOption: option }, e);
+
+            if (!this.$http.isError(genreOptions)) {
+                this.selectedGenreOption = '';
+                this.$store.dispatch('updateToastMessages', {
+                    message: `removed genre option`,
+                    type: 'info',
+                });
+                this.$store.commit('updateGenreOptions', {
+                    missionId: this.mission.id,
+                    genreOptions,
                 });
             }
         },
@@ -1136,6 +1254,20 @@ export default defineComponent({
                 this.$store.commit('updateIsUniqueToRanked', {
                     missionId: this.mission.id,
                     isUniqueToRanked,
+                });
+            }
+        },
+        async toggleIsUniqueArtistToRanked(e): Promise<void> {
+            const isUniqueArtistToRanked = await this.$http.executePost(`/admin/missions/${this.mission.id}/toggleIsUniqueArtistToRanked/`, { isUniqueArtistToRanked: !this.mission.isUniqueArtistToRanked }, e);
+
+            if (!this.$http.isError(isUniqueArtistToRanked)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `toggled isUniqueArtistToRanked`,
+                    type: 'info',
+                });
+                this.$store.commit('updateIsUniqueArtistToRanked', {
+                    missionId: this.mission.id,
+                    isUniqueArtistToRanked,
                 });
             }
         },

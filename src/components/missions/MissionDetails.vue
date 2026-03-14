@@ -4,7 +4,7 @@
             <b>Objective:</b>
             <div class="text-secondary mt-1" v-html="$md.render(mission.objective.trim())" />
         </div>
-        <div v-if="mission.isShowcaseMission && !mission.isArtistShowcase" class="col-sm-12 mb-4">
+        <div v-if="mission.isShowcaseMission && !mission.isArtistShowcase && !mission.isGenreShowcase" class="col-sm-12 mb-4">
             <song-selection
                 :mission="mission"
             />
@@ -14,12 +14,17 @@
                 :mission="mission"
             />
         </div>
+        <div v-else-if="mission.isShowcaseMission && mission.isGenreShowcase" class="col-sm-12 mb-4">
+            <genre-selection
+                :mission="mission"
+            />
+        </div>
         <div v-if="mission.winCondition && mission.winCondition.length" class="col-sm-12 mb-2">
             <b>Win condition:</b>
             <div class="text-secondary mt-1" v-html="$md.render(mission.winCondition.trim())" />
         </div>
         <div v-if="requirements.length" class="col-sm-12 mb-2">
-            <b>Requirements:</b>
+            <b>Additional requirements:</b>
             <ul class="text-danger">
                 <li v-for="requirement in requirements" :key="requirement">
                     {{ requirement.text }} <b>{{ requirement.bold }}</b>
@@ -68,6 +73,7 @@ import { Mission } from '@interfaces/mission';
 import ArtistLinkList from '@components/ArtistLinkList.vue';
 import SongSelection from './SongSelection.vue';
 import ArtistSelection from './ArtistSelection.vue';
+import GenreSelection from './GenreSelection.vue';
 import { SortedTasks } from '@interfaces/beatmap/task';
 
 export default defineComponent({
@@ -76,6 +82,7 @@ export default defineComponent({
         ArtistLinkList,
         SongSelection,
         ArtistSelection,
+        GenreSelection,
     },
     props: {
         mission: {
@@ -198,6 +205,13 @@ export default defineComponent({
             if (this.mission.isUniqueToRanked) {
                 requirements.push({
                     text: `Your beatmap's song must be `,
+                    bold: `unique to the Ranked section in your map's mode as of ${new Date(this.mission.createdAt).toLocaleDateString()}`,
+                });
+            }
+
+            if (this.mission.isUniqueArtistToRanked) {
+                requirements.push({
+                    text: `Your beatmap's artist must be `,
                     bold: `unique to the Ranked section in your map's mode as of ${new Date(this.mission.createdAt).toLocaleDateString()}`,
                 });
             }

@@ -106,8 +106,11 @@ export default defineComponent({
             this.$http.executeGet(`/missions/${this.mission.id}/getArtistRerollCount`),
         ]);
 
-        this.artistInfo = artistInfo;
-        this.artistRerollCount = rerollCount || 0;
+        if (!this.$http.isError(artistInfo)) {
+            this.artistInfo = artistInfo;
+        }
+
+        this.artistRerollCount = typeof rerollCount === 'number' ? rerollCount : 0;
         this.artistInfoLoaded = true;
     },
     methods: {

@@ -6,29 +6,63 @@
         </button>
         <div>This shows unreleased artists who are marked with <code>[showcase]</code>, have <code>[timing]</code> completed, and have songs added to MG database.</div>
         <div>
-            <ul>
+            <ol>
                 <li v-for="artist in classifiedArtists" :key="artist.id">
                     {{ artist.label }}
                     <span class="small text-secondary">{{ countValidSongs(artist.songs) }}</span>
                 </li>
-            </ul>
+            </ol>
         </div>
 
-        <h5>Previous classified quests</h5>
-        <ul>
+        <h5>Classified quest genres</h5>
+        <button class="btn btn-sm btn-info w-100 mb-2" @click="loadClassifiedGenres($event)">
+            Load genres eligible for Classified quest
+        </button>
+        <div>This shows genres (tags) assigned to songs from eligible artists, with their associated songs listed below each.</div>
+        <div v-if="classifiedGenres">
+            <div v-if="!classifiedGenres.genres.length && !classifiedGenres.untaggedSongs.length" class="text-secondary small mt-1">
+                No genres or tagged songs found.
+            </div>
+            <ol v-if="classifiedGenres.genres.length" class="mt-1">
+                <li v-for="genre in classifiedGenres.genres" :key="genre.name">
+                    {{ genre.name }}
+                    <ul>
+                        <li v-for="song in genre.songs" :key="song.id" class="text-secondary small">
+                            {{ song.artist }} - {{ song.title }}
+                        </li>
+                    </ul>
+                </li>
+            </ol>
+            <div v-if="classifiedGenres.untaggedSongs.length" class="mt-1">
+                <b>Songs without tags</b>
+                <ul>
+                    <li v-for="song in classifiedGenres.untaggedSongs" :key="song.id" class="text-secondary small">
+                        {{ song.artist }} - {{ song.title }}
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <h5 class="mt-3">
+            Classified quests
+        </h5>
+        <ol>
             <li v-for="mission in classifiedQuests" :key="mission.id" class="mb-2">
                 {{ mission.name }}
                 <button class="btn btn-sm btn-outline-info ms-1" @click="toggleQuestArtists(mission.id, $event)">
                     Load artists
                 </button>
-                <ul v-if="questArtists[mission.id]">
-                    <li v-for="artist in questArtists[mission.id]" :key="artist.label">
-                        <a v-if="artist.osuId > 0" :href="`https://osu.ppy.sh/beatmaps/artists/${artist.osuId}`" target="_blank">{{ artist.label }}</a>
-                        <span v-else :class="artist.isLatest ? 'text-success' : ''">{{ artist.label }}</span>
-                    </li>
-                </ul>
+                <template v-if="questArtists[mission.id]">
+                    <span v-if="!questArtists[mission.id].length" class="small text-secondary ms-1">No artists found</span>
+                    <ol v-else>
+                        <li v-for="artist in questArtists[mission.id]" :key="artist.label">
+                            <a v-if="artist.osuId > 0" :href="`https://osu.ppy.sh/beatmaps/artists/${artist.osuId}`" target="_blank">{{ artist.label }}</a>
+                            <span v-else :class="artist.isLatest ? 'text-success' : ''">{{ artist.label }}</span>
+                        </li>
+                    </ol>
+                </template>
             </li>
-        </ul>
+        </ol>
     </div>
 </template>
 
@@ -40,6 +74,7 @@ export default defineComponent({
     data() {
         return {
             classifiedArtists: [] as any[],
+            classifiedGenres: null as null | { genres: { name: string, songs: { artist: string, title: string, id: string }[] }[], untaggedSongs: { artist: string, title: string, id: string }[] },
             classifiedQuests: [] as any[],
             questArtists: {} as Record<string, { label: string, osuId: number, isLatest: boolean }[]>,
         };
@@ -53,6 +88,13 @@ export default defineComponent({
 
             if (!this.$http.isError(result)) {
                 this.classifiedArtists = result;
+            }
+        },
+        async loadClassifiedGenres(e): Promise<void> {
+            const result = await this.$http.executeGet<{ genres: { name: string, songs: { artist: string, title: string, id: string }[] }[], untaggedSongs: { artist: string, title: string, id: string }[] }>('/admin/missions/loadClassifiedGenres', e);
+
+            if (!this.$http.isError(result)) {
+                this.classifiedGenres = result;
             }
         },
         async loadClassifiedQuests(): Promise<void> {
@@ -93,4 +135,3 @@ export default defineComponent({
     },
 });
 </script>
-

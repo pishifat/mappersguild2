@@ -70,6 +70,20 @@ const store: Module<MissionState, MainState> = {
                 mission.isArtistShowcase = payload.isArtistShowcase;
             }
         },
+        updateIsGenreShowcase (state, payload): void {
+            const mission = state.missions.find(m => m.id == payload.missionId);
+
+            if (mission) {
+                mission.isGenreShowcase = payload.isGenreShowcase;
+            }
+        },
+        updateGenreOptions (state, payload): void {
+            const mission = state.missions.find(m => m.id == payload.missionId);
+
+            if (mission) {
+                mission.genreOptions = payload.genreOptions;
+            }
+        },
         updateIsSeparate (state, payload): void {
             const mission = state.missions.find(m => m.id == payload.missionId);
 
@@ -222,6 +236,13 @@ const store: Module<MissionState, MainState> = {
 
             if (mission) {
                 mission.isUniqueToRanked = payload.isUniqueToRanked;
+            }
+        },
+        updateIsUniqueArtistToRanked (state, payload): void {
+            const mission = state.missions.find(m => m.id == payload.missionId);
+
+            if (mission) {
+                mission.isUniqueArtistToRanked = payload.isUniqueArtistToRanked;
             }
         },
         updateIsOsuOriginal (state, payload): void {

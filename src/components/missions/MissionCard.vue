@@ -18,7 +18,7 @@
                 <hr />
 
                 <mission-details
-                    class="col-sm-6"
+                    class="col-sm-6 align-self-start"
                     :mission="mission"
                 />
 
