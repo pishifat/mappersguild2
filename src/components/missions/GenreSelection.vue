@@ -39,6 +39,11 @@
                         Load 3 songs
                     </button>
                 </div>
+                <div class="small">
+                    <div v-if="selectedTag == 'high priority'" class="small text-secondary">
+                        (this includes artists from the previous "Classified" quest who still don't have any Ranked maps!)
+                    </div>
+                </div>
                 <ol v-if="genreSongsInfo">
                     <li v-for="(song, index) in genreSongsInfo.songs" :key="song.id" class="mt-1">
                         <a
