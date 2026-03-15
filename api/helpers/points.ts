@@ -424,7 +424,7 @@ export async function calculateSpentPoints(userId: any): Promise<number> {
         } else if (spentPoints.category == SpentPointsCategory.RerollShowcaseMissionSongByTag) {
             const missionId = spentPoints.mission?.toString();
             const currentCount = songByTagRerollCosts.get(missionId) || 0;
-            const cost = Math.pow(2, currentCount);
+            const cost = (currentCount + 1) * 2;
             total += cost;
             songByTagRerollCosts.set(missionId, currentCount + 1);
         }

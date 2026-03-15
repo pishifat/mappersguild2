@@ -46,27 +46,34 @@
                 </div>
                 <ol v-if="genreSongsInfo">
                     <li v-for="(song, index) in genreSongsInfo.songs" :key="song.id" class="mt-1">
-                        <a
-                            v-if="song.oszUrl"
-                            :href="song.oszUrl"
-                            target="_blank"
-                            class="me-1"
-                        >
-                            {{ song.artist }} - {{ song.title }}
-                        </a>
-                        <span v-else class="text-secondary">
-                            <b>{{ song.artist }} - {{ song.title }}</b>
-                            <span class="small ms-1">(ask <a href="https://osu.ppy.sh/users/3178418" target="_blank">pishifat</a> for the .osz)</span>
-                        </span>
-                        <button
-                            v-bs-tooltip="canAffordReroll ? `this only affects your 'Available Points'` : `you don't have enough Available Points for this`"
-                            class="btn btn-sm ms-1"
-                            :class="canAffordReroll ? 'btn-outline-info' : 'btn-outline-danger'"
-                            :disabled="!selectedTag || !canAffordReroll || rerolling"
-                            @click="findShowcaseMissionSongByTag($event, index)"
-                        >
-                            Re-select <i v-if="selectedTag">{{ selectedTag }}</i> song for {{ rerollCost }} {{ rerollCost === 1 ? 'point' : 'points' }} <i class="fas fa-coins" />
-                        </button>
+                        <div class="d-flex align-items-center">
+                            <a
+                                v-if="song.oszUrl"
+                                :href="song.oszUrl"
+                                target="_blank"
+                                class="song-title me-1"
+                                @mouseenter="showTooltipIfTruncated($event, `${song.artist} - ${song.title}`)"
+                            >
+                                {{ song.artist }} - {{ song.title }}
+                            </a>
+                            <span
+                                v-else
+                                class="song-title text-secondary me-1"
+                                @mouseenter="showTooltipIfTruncated($event, `${song.artist} - ${song.title}`)"
+                            >
+                                <b>{{ song.artist }} - {{ song.title }}</b>
+                                <span class="small ms-1">(ask <a href="https://osu.ppy.sh/users/3178418" target="_blank">pishifat</a> for the .osz)</span>
+                            </span>
+                            <button
+                                v-bs-tooltip="'re-roll a song in the selected category'"
+                                class="btn btn-xs flex-shrink-0"
+                                :class="canAffordReroll ? 'btn-outline-info' : 'btn-outline-danger'"
+                                :disabled="!selectedTag || !canAffordReroll || rerolling"
+                                @click="findShowcaseMissionSongByTag($event, index)"
+                            >
+                                Re-select song for {{ rerollCost }} {{ rerollCost === 1 ? 'point' : 'points' }} <i class="fas fa-coins" />
+                            </button>
+                        </div>
                     </li>
                 </ol>
 
@@ -90,6 +97,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
+import Tooltip from 'bootstrap/js/dist/tooltip';
 import { Mission } from '@interfaces/mission';
 
 export default defineComponent({
@@ -117,7 +125,7 @@ export default defineComponent({
             return new Date() > new Date(this.mission.deadline);
         },
         rerollCost() {
-            return Math.pow(2, this.rerollCount);
+            return (this.rerollCount + 1) * 2;
         },
         availablePoints() {
             return this.loggedInUser ? this.loggedInUser.availablePoints : 0;
@@ -146,6 +154,20 @@ export default defineComponent({
         this.genreSongsInfoLoaded = true;
     },
     methods: {
+        showTooltipIfTruncated(e: MouseEvent, fullText: string): void {
+            const el = e.currentTarget as HTMLElement;
+
+            if (el.scrollWidth <= el.clientWidth) return;
+
+            if (!Tooltip.getInstance(el)) {
+                new Tooltip(el, {
+                    title: fullText,
+                    trigger: 'hover',
+                    animation: false,
+                    placement: 'top',
+                }).show();
+            }
+        },
         async findShowcaseMissionSongByTag(e, songIndex?: number): Promise<void> {
             const isReroll = songIndex !== undefined;
 
@@ -156,7 +178,7 @@ export default defineComponent({
             }
 
             const confirmMessage = isReroll
-                ? `You will be randomly assigned a new song for ${this.rerollCost} ${this.rerollCost === 1 ? 'point' : 'points'}.\n\nThis is confidential information, so please do not spread it.\n\nAre you sure you want to continue?`
+                ? `This will re-select a "${this.selectedTag}" song for ${this.rerollCost} ${this.rerollCost === 1 ? 'point' : 'points'}. Are you sure?`
                 : `You will be randomly assigned 3 songs from the "${this.selectedTag}" category. These are unreleased Featured Artist songs.\n\nThis is confidential information, so please do not spread it.\n\nAre you sure you want to continue?`;
 
             const result = confirm(confirmMessage);
@@ -189,3 +211,19 @@ export default defineComponent({
     },
 });
 </script>
+
+<style scoped>
+.btn-xs {
+    padding: 0.1rem 0.4rem;
+    font-size: 0.72rem;
+    line-height: 1.4;
+    border-radius: 0.2rem;
+}
+
+.song-title {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+</style>
