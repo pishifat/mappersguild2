@@ -469,7 +469,7 @@ missionsRouter.post('/:missionId/findShowcaseMissionSongByTag', isEditable, asyn
             mission: mission.id,
             category: spentPoints_2.SpentPointsCategory.RerollShowcaseMissionSongByTag,
         });
-        const rerollCost = Math.pow(2, rerollCount);
+        const rerollCost = (rerollCount + 1) * 2;
         if (user.availablePoints < rerollCost) {
             return res.json({ error: 'Not enough available points!' });
         }
