@@ -646,7 +646,7 @@ missionsRouter.post('/:missionId/findShowcaseMissionSongByTag', isEditable, asyn
         await devWebhookPost([{
             title: `genre showcase mission song rerolled`,
             color: webhookColors.lightGreen,
-            description: `[**${user.username}**](https://osu.ppy.sh/users/${user.osuId}) rerolled for **${mission.name}** priority quest (${rerollCost} points)\n- **Previous:** ${replacedSong ? `${replacedSong.artist} - ${replacedSong.title}` : 'unknown'}\n- **New:** ${newSong.artist} - ${newSong.title}`,
+            description: `[**${user.username}**](https://osu.ppy.sh/users/${user.osuId}) rerolled for genre **${tag}** in **${mission.name}** priority quest (${rerollCost} points)\n- **Previous:** ${replacedSong ? `${replacedSong.artist} - ${replacedSong.title}` : 'unknown'}\n- **New:** ${newSong.artist} - ${newSong.title}`,
         }]);
 
         LogModel.generate(req.session?.mongoId, `rerolled genre showcase mission song`, LogCategory.Mission);
