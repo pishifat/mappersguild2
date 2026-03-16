@@ -97,7 +97,7 @@ BeatmapSchema.methods.checkTaskAvailability = async function (user, taskName, ta
     if (this.status == beatmap_1.BeatmapStatus.Ranked || this.status == beatmap_1.BeatmapStatus.Qualified || this.status == beatmap_1.BeatmapStatus.Done) {
         throw new Error(`Mapset already marked as ${this.status.toLowerCase()}`);
     }
-    if (this.quest && taskName != task_1.TaskName.Storyboard && taskName != task_1.TaskName.Hitsounds) {
+    if (this.quest && taskName != task_1.TaskName.Storyboard && taskName != task_1.TaskName.Hitsounds && taskName != task_1.TaskName.Skin) {
         await this.quest.populate({
             path: 'parties',
             populate: {
@@ -122,6 +122,10 @@ BeatmapSchema.methods.checkTaskAvailability = async function (user, taskName, ta
     if (taskName == task_1.TaskName.Hitsounds &&
         this.tasks.some(t => t.name === task_1.TaskName.Hitsounds)) {
         throw new Error('There can only be one set of hitsounds on a mapset!');
+    }
+    if (taskName == task_1.TaskName.Skin &&
+        this.tasks.some(t => t.name === task_1.TaskName.Skin)) {
+        throw new Error('There can only be one skin on a mapset!');
     }
     // host can bypass this
     if (this.host.id != sessionUserId &&

@@ -36,6 +36,13 @@ tasksRouter.post('/addTask/:mapId', middlewares_2.isValidBeatmap, middlewares_1.
             return res.json({ error: 'Only one "Hitsounds" task is allowed' });
         }
     }
+    if (taskName == task_2.TaskName.Skin) {
+        taskMode = task_2.TaskMode.Skin;
+        const existingSkinTask = beatmap.tasks.find(t => t.name == task_2.TaskName.Skin);
+        if (existingSkinTask) {
+            return res.json({ error: 'Only one "Skin" task is allowed' });
+        }
+    }
     await beatmap.checkTaskAvailability(user, taskName, taskMode, res.locals.userRequest.group == user_2.UserGroup.Admin, req.session.mongoId);
     const t = new task_1.TaskModel();
     t.name = taskName;

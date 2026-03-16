@@ -9,6 +9,7 @@ exports.SortedTasks = [
     'Expert',
     'Hitsounds',
     'Storyboard',
+    'Skin',
 ];
 var TaskName;
 (function (TaskName) {
@@ -19,6 +20,7 @@ var TaskName;
     TaskName["Expert"] = "Expert";
     TaskName["Hitsounds"] = "Hitsounds";
     TaskName["Storyboard"] = "Storyboard";
+    TaskName["Skin"] = "Skin";
 })(TaskName || (exports.TaskName = TaskName = {}));
 var TaskMode;
 (function (TaskMode) {
@@ -28,6 +30,7 @@ var TaskMode;
     TaskMode["Mania"] = "mania";
     TaskMode["SB"] = "sb";
     TaskMode["HS"] = "hs";
+    TaskMode["Skin"] = "skin";
 })(TaskMode || (exports.TaskMode = TaskMode = {}));
 var TaskStatus;
 (function (TaskStatus) {
