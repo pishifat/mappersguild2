@@ -9,6 +9,7 @@ export const SortedTasks = [
     'Expert',
     'Hitsounds',
     'Storyboard',
+    'Skin',
 ];
 
 export enum TaskName {
@@ -19,6 +20,7 @@ export enum TaskName {
     Expert = 'Expert',
     Hitsounds = 'Hitsounds',
     Storyboard = 'Storyboard',
+    Skin = 'Skin',
 }
 
 export enum TaskMode {
@@ -28,6 +30,7 @@ export enum TaskMode {
     Mania = 'mania',
     SB = 'sb',
     HS = 'hs',
+    Skin = 'skin',
 }
 
 export enum TaskStatus {

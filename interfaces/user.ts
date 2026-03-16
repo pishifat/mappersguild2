@@ -47,6 +47,7 @@ export interface User extends Document {
     expertPoints: number;
     storyboardPoints: number;
     hitsoundPoints: number;
+    skinPoints: number;
     questPoints: number;
     missionPoints: number;
     modPoints: number;

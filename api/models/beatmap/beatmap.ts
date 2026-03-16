@@ -82,7 +82,7 @@ BeatmapSchema.methods.checkTaskAvailability = async function (this: Beatmap, use
         throw new Error(`Mapset already marked as ${this.status.toLowerCase()}`);
     }
 
-    if (this.quest && taskName != TaskName.Storyboard && taskName != TaskName.Hitsounds) {
+    if (this.quest && taskName != TaskName.Storyboard && taskName != TaskName.Hitsounds && taskName != TaskName.Skin) {
         await this.quest.populate({
             path: 'parties',
             populate: {
@@ -116,6 +116,13 @@ BeatmapSchema.methods.checkTaskAvailability = async function (this: Beatmap, use
         this.tasks.some(t => t.name === TaskName.Hitsounds)
     ) {
         throw new Error('There can only be one set of hitsounds on a mapset!');
+    }
+
+    if (
+        taskName == TaskName.Skin &&
+        this.tasks.some(t => t.name === TaskName.Skin)
+    ) {
+        throw new Error('There can only be one skin on a mapset!');
     }
 
     // host can bypass this

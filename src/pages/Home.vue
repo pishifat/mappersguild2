@@ -183,6 +183,14 @@
                             </tr>
                             <tr>
                                 <td scope="row">
+                                    Creating skin
+                                </td>
+                                <td scope="row">
+                                    5
+                                </td>
+                            </tr>
+                            <tr>
+                                <td scope="row">
                                     Completing a priority quest
                                 </td>
                                 <td scope="row">

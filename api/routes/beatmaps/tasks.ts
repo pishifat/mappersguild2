@@ -41,6 +41,16 @@ tasksRouter.post('/addTask/:mapId', isValidBeatmap, isValidUser, async (req, res
         }
     }
 
+    if (taskName == TaskName.Skin) {
+        taskMode = TaskMode.Skin;
+
+        const existingSkinTask = beatmap.tasks.find(t => t.name == TaskName.Skin);
+
+        if (existingSkinTask) {
+            return res.json({ error: 'Only one "Skin" task is allowed' });
+        }
+    }
+
     await beatmap.checkTaskAvailability(user, taskName, taskMode, res.locals.userRequest.group == UserGroup.Admin, req.session.mongoId);
 
     const t = new TaskModel();

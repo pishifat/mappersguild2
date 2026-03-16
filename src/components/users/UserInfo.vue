@@ -82,6 +82,12 @@
                                 :tooltip-title="'10 points per storyboard'"
                             />
                             <user-points-row
+                                v-if="selectedUser.skinPoints"
+                                :points="selectedUser.skinPoints"
+                                :display="'creating skins'"
+                                :tooltip-title="'5 points per skin'"
+                            />
+                            <user-points-row
                                 v-if="selectedUser.questPoints"
                                 :points="selectedUser.questPoints"
                                 :display="'completing quests'"

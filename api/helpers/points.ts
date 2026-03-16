@@ -45,6 +45,7 @@ export function findDifficultyPoints(taskName: string, totalMappers: number): nu
         Expert: 8,
         Hitsounds: 2,
         Storyboard: 10,
+        Skin: 5,
     };
 
     return difficultyPointsObject[taskName] / totalMappers;
@@ -132,6 +133,7 @@ interface TasksPoints {
     Expert: number;
     Hitsounds: number;
     Storyboard: number;
+    Skin: number;
 
     osu: number;
     taiko: number;
@@ -160,6 +162,7 @@ export async function getUserRank(userId: any, tasksPoints: TasksPoints, modPoin
         tasksPoints.Expert +
         tasksPoints.Storyboard +
         tasksPoints.Hitsounds +
+        tasksPoints.Skin +
         tasksPoints.QuestReward +
         tasksPoints.MissionReward +
         modPoints +
@@ -227,6 +230,7 @@ export async function calculateTasksPoints(userId: any): Promise<TasksPoints> {
         Expert: 0,
         Hitsounds: 0,
         Storyboard: 0,
+        Skin: 0,
 
         osu: 0,
         taiko: 0,
@@ -272,6 +276,11 @@ export async function calculateTasksPoints(userId: any): Promise<TasksPoints> {
                     const repeats = userBeatmaps.filter(b => b.song.toString() == beatmap.song.toString() && b.tasks.some(t => t.name == TaskName.Storyboard && t.mappers.some(m => m.id == userId)));
 
                     finalPoints = taskPoints / repeats.length; // dividing by "repeats" stops users from earning extra points when their storyboards are copied to another mapset
+                } else if (task.name === TaskName.Skin) {
+                    // check how many times a user does a skin for the same song (almost always 1)
+                    const repeats = userBeatmaps.filter(b => b.song.toString() == beatmap.song.toString() && b.tasks.some(t => t.name == TaskName.Skin && t.mappers.some(m => m.id == userId)));
+
+                    finalPoints = taskPoints / repeats.length; // dividing by "repeats" stops users from earning extra points when their skins are copied to another mapset
                 } else if (task.name === TaskName.Hitsounds) {
                     // check how many times a user does hitsounds for the same song (almost always 1)
                     const repeats = userBeatmaps.filter(b => b.song.toString() == beatmap.song.toString() && b.tasks.some(t => t.name == TaskName.Hitsounds && t.mappers.some(m => m.id == userId)));
@@ -283,7 +292,7 @@ export async function calculateTasksPoints(userId: any): Promise<TasksPoints> {
 
                 pointsObject[task.name] += finalPoints;
 
-                if (task.name !== TaskName.Storyboard && task.name !== TaskName.Hitsounds) {
+                if (task.name !== TaskName.Storyboard && task.name !== TaskName.Hitsounds && task.name !== TaskName.Skin) {
                     pointsObject[task.mode] += finalPoints;
                 }
             }
@@ -312,7 +321,7 @@ export async function calculateTasksPoints(userId: any): Promise<TasksPoints> {
             let isValidMissionParticipation;
 
             for (const task of beatmap.tasks) {
-                if (task.mappers.some(m => m.id == userId) && task.name !== TaskName.Hitsounds && task.name !== TaskName.Storyboard) {
+                if (task.mappers.some(m => m.id == userId) && task.name !== TaskName.Hitsounds && task.name !== TaskName.Storyboard && task.name !== TaskName.Skin) {
                     isValidMissionParticipation = true;
 
                     // skipping rewards for people who tried to circumvent the rules (or the spirit of the rules) for easy mission progress/points
@@ -549,6 +558,7 @@ export async function updateUserPoints(userId: any): Promise<number | ErrorRespo
         expertPoints: decimalRound(taskPoints['Expert']),
         storyboardPoints: decimalRound(taskPoints['Storyboard']),
         hitsoundPoints: decimalRound(taskPoints['Hitsounds']),
+        skinPoints: decimalRound(taskPoints['Skin']),
 
         // Total per mode
         osuPoints: decimalRound(taskPoints['osu']),

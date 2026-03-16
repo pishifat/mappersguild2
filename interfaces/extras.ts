@@ -14,6 +14,7 @@ export interface Points {
     Expert: number;
     Hitsounds: number;
     Storyboard: number;
+    Skin: number;
     Mod: number;
     Host: number;
     QuestReward: number;

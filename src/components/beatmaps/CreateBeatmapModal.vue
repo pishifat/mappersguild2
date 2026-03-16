@@ -163,13 +163,14 @@
                         >
                             Select a task
                         </option>
-                        <option
-                            v-for="task in filteredTasks"
-                            :key="task"
-                            :value="task"
-                        >
-                            {{ task }}
-                        </option>
+                        <template v-for="task in filteredTasks" :key="task">
+                            <option value="-" disabled v-if="task === 'Hitsounds'">
+                                ---
+                            </option>
+                            <option :value="task">
+                                {{ task }}
+                            </option>
+                        </template>
                     </select>
 
                     <select
@@ -247,9 +248,27 @@
                 </div>
             </div>
             <div class="mb-3 row">
-                <div class="col-sm-10">
+                <div class="col-sm-5">
                     <div
-                        v-for="task in filteredTasks"
+                        v-for="task in filteredTasks.filter(t => ['Easy','Normal','Hard','Insane','Expert'].includes(t))"
+                        :key="task"
+                        class="form-check"
+                    >
+                        <input
+                            :id="`lock-${task}`"
+                            v-model="checkedLocks"
+                            class="form-check-input"
+                            type="checkbox"
+                            :value="task"
+                        />
+                        <label class="form-check-label" :for="`lock-${task}`">
+                            {{ task }}
+                        </label>
+                    </div>
+                </div>
+                <div class="col-sm-5">
+                    <div
+                        v-for="task in filteredTasks.filter(t => !['Easy','Normal','Hard','Insane','Expert'].includes(t))"
                         :key="task"
                         class="form-check"
                     >
