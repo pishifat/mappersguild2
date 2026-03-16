@@ -515,7 +515,7 @@ missionsRouter.post('/:missionId/findShowcaseMissionSongByTag', isEditable, asyn
         await (0, discordApi_1.devWebhookPost)([{
                 title: `genre showcase mission song rerolled`,
                 color: discordApi_1.webhookColors.lightGreen,
-                description: `[**${user.username}**](https://osu.ppy.sh/users/${user.osuId}) rerolled to **${newSong.artist} - ${newSong.title}** for **${mission.name}** priority quest (${rerollCost} points)`,
+                description: `[**${user.username}**](https://osu.ppy.sh/users/${user.osuId}) rerolled for **${mission.name}** priority quest (${rerollCost} points)\n- **Previous:** ${replacedSong ? `${replacedSong.artist} - ${replacedSong.title}` : 'unknown'}\n- **New:** ${newSong.artist} - ${newSong.title}`,
             }]);
         log_1.LogModel.generate(req.session?.mongoId, `rerolled genre showcase mission song`, log_2.LogCategory.Mission);
     }
@@ -566,10 +566,11 @@ missionsRouter.post('/:missionId/findShowcaseMissionSongByTag', isEditable, asyn
             previouslySelectedSongs: [],
         });
         await missionDoc.save();
+        const songList = selectedSongs.map(s => `- ${s.artist} - ${s.title}`).join('\n');
         await (0, discordApi_1.devWebhookPost)([{
                 title: `genre showcase mission songs selected`,
                 color: discordApi_1.webhookColors.lightOrange,
-                description: `[**${user.username}**](https://osu.ppy.sh/users/${user.osuId}) selected songs for genre **${tag}** in **${mission.name}** priority quest`,
+                description: `[**${user.username}**](https://osu.ppy.sh/users/${user.osuId}) selected songs for genre **${tag}** in **${mission.name}** priority quest\n${songList}`,
             }]);
         log_1.LogModel.generate(req.session?.mongoId, `selected genre showcase mission songs`, log_2.LogCategory.Mission);
     }
