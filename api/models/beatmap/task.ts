@@ -8,7 +8,7 @@ export interface Task extends ITask, Document {
 
 const taskSchema = new Schema({
     name: { type: String, enum: SortedTasks, required: true },
-    mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania', 'sb', 'hs'], default: 'osu' },
+    mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania', 'sb', 'hs', 'skin'], default: 'osu' },
     mappers: [{ type: 'ObjectId', ref: 'User', required: true }],
     status: { type: String, enum: ['WIP', 'Done'], default: 'WIP' },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
