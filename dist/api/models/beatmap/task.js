@@ -38,7 +38,7 @@ const mongoose_1 = __importStar(require("mongoose"));
 const task_1 = require("../../../interfaces/beatmap/task");
 const taskSchema = new mongoose_1.Schema({
     name: { type: String, enum: task_1.SortedTasks, required: true },
-    mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania', 'sb', 'hs'], default: 'osu' },
+    mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania', 'sb', 'hs', 'skin'], default: 'osu' },
     mappers: [{ type: 'ObjectId', ref: 'User', required: true }],
     status: { type: String, enum: ['WIP', 'Done'], default: 'WIP' },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
