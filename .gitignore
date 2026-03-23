@@ -30,5 +30,3 @@ public/js/
 .vscode/
 MailGenerator.vue
 yarn.lock
-CLAUDE.md
-.claude
