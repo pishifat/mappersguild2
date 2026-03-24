@@ -120,7 +120,7 @@
                 v-for="(mission, i) in selectedUser.completedMissions"
                 :key="i"
                 :points="1"
-                :bg-class="bgOptions[i]"
+                :bg-class="getBgOption(i)"
                 :tooltip-text="mission.name"
                 :display-text="mission.name"
                 :badge="'mission'"
@@ -152,9 +152,7 @@ export default defineComponent({
         },
     },
     data () {
-        return {
-            bgOptions: ['bg-easy', 'bg-normal', 'bg-hard', 'bg-insane', 'bg-expert', 'bg-rank-0', 'bg-rank-1', 'bg-rank-2', 'bg-rank-3', 'bg-rank-4', 'bg-wip', 'bg-qualified', 'bg-done', 'bg-open', 'bg-ranked', 'bg-blocked'], // something will break if a user completes more priority quests than this array's length, but i don't expect that to happen -> it happened, so i added 6 more. nobody will get that many more right...
-        };
+        return {};
     },
     computed: {
         ...mapGetters('users', [
@@ -193,6 +191,13 @@ export default defineComponent({
             }
 
             return maxPoints;
+        },
+    },
+    methods: {
+        getBgOption (i: number): string {
+            const bgOptions = ['bg-easy', 'bg-normal', 'bg-hard', 'bg-insane', 'bg-expert', 'bg-rank-0', 'bg-rank-1', 'bg-rank-2', 'bg-rank-3', 'bg-rank-4', 'bg-wip', 'bg-qualified', 'bg-done', 'bg-open', 'bg-ranked', 'bg-blocked'];
+
+            return bgOptions[i % bgOptions.length];
         },
     },
 });
