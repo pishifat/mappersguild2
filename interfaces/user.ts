@@ -30,6 +30,7 @@ export interface User extends Document {
     queuedBadge: number;
     completedQuests: Quest[];
     completedMissions: Mission[];
+    completedMissionsAsGuest: Mission[];
     discordId: string; // js doesnt support 18 digit numbers...
     isMentorshipAdmin: boolean;
     mentorships: {

@@ -97,7 +97,7 @@
                                 v-if="selectedUser.missionPoints"
                                 :points="selectedUser.missionPoints"
                                 :display="'completing priority quests'"
-                                :tooltip-title="'5-24 bonus points for completing priority quests'"
+                                :tooltip-title="'7-20 bonus points for completing priority quests'"
                             />
                             <user-points-row
                                 v-if="selectedUser.modPoints"
@@ -203,7 +203,7 @@
                     </p>
 
                     <div v-if="currentMissions.length" class="small">
-                        Current missions:
+                        Current priority quests:
                     </div>
                     <ul class="p-0 mb-2 ms-4">
                         <li
@@ -238,6 +238,22 @@
                         <ul class="p-0 mb-2 ms-4">
                             <li
                                 v-for="mission in selectedUser.completedMissions"
+                                :key="mission.id"
+                                class="small text-secondary"
+                            >
+                                <a :href="'/missions?id=' + mission.id" target="_blank">
+                                    {{ mission.name.length > 40 ? mission.name.slice(0,40) + "..." : mission.name }}
+                                </a>
+                            </li>
+                        </ul>
+                    </template>
+                    <template v-if="selectedUser.completedMissionsAsGuest && selectedUser.completedMissionsAsGuest.length">
+                        <div class="small">
+                            Guest contributions to completed priority quests:
+                        </div>
+                        <ul class="p-0 mb-2 ms-4">
+                            <li
+                                v-for="mission in selectedUser.completedMissionsAsGuest"
                                 :key="mission.id"
                                 class="small text-secondary"
                             >
