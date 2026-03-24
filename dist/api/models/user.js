@@ -77,6 +77,7 @@ const UserSchema = new mongoose_1.Schema({
     spentPoints: { type: Number, default: 0 },
     completedQuests: [{ type: 'ObjectId', ref: 'Quest' }],
     completedMissions: [{ type: 'ObjectId', ref: 'Mission' }],
+    completedMissionsAsGuest: [{ type: 'ObjectId', ref: 'Mission' }],
     rankedBeatmapsCount: { type: Number },
     globalRank: { type: Number },
     pp: { type: Number },

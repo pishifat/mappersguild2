@@ -17,6 +17,7 @@ const questPopulate = { path: 'parties', populate: { path: 'members pendingMembe
 const userPopulate = [
     { path: 'completedQuests', select: 'name completed' },
     { path: 'completedMissions', select: 'name deadline' },
+    { path: 'completedMissionsAsGuest', select: 'name deadline' },
 ];
 /* GET users (with rank) */
 usersRouter.get('/queryRanked', async (req, res) => {

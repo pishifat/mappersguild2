@@ -1,0 +1,1 @@
+import{d as o,_ as e,o as t,f as n}from"./index-C3ITeZcS.js";const s=o({name:"NotFound"}),c={class:"text-center"};function a(r,_,d,f,p,u){return t(),n("h3",c," Not found :( ")}const m=e(s,[["render",a]]);export{m as default};
