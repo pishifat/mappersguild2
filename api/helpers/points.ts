@@ -330,7 +330,7 @@ export async function calculateTasksPoints(userId: any): Promise<TasksPoints> {
         if (missionParticipation &&
             beatmap.mission &&
             beatmap.mission.winningBeatmaps.some(b => b.id == beatmap.id) &&
-            !pointsObject.Missions.some(id => id.toString() === beatmap.mission._id.toString())
+            !pointsObject.Missions.some(id => id.toString() === beatmap.mission!._id.toString())
         ) {
             // rewards for host (and collab participants on specific quests)
             if (beatmap.host.id == userId || collabQuestIds.includes(beatmap.mission.id)) {
@@ -357,7 +357,7 @@ export async function calculateTasksPoints(userId: any): Promise<TasksPoints> {
                 }
 
                 if (isValidMissionParticipation) {
-                    const guestIndex = pointsObject.MissionsAsGuest.findIndex(id => id.toString() === beatmap.mission._id.toString());
+                    const guestIndex = pointsObject.MissionsAsGuest.findIndex(id => id.toString() === beatmap.mission!._id.toString());
 
                     if (guestIndex !== -1) {
                         // if user's guest diff on a winning map was processed before their own winning set, transfer to host rewards section without adding points again
@@ -370,7 +370,7 @@ export async function calculateTasksPoints(userId: any): Promise<TasksPoints> {
                 }
 
             // rewards for guest diff creators
-            } else if (beatmap.host.id != userId && !pointsObject.MissionsAsGuest.some(id => id.toString() === beatmap.mission._id.toString())) {
+            } else if (beatmap.host.id != userId && !pointsObject.MissionsAsGuest.some(id => id.toString() === beatmap.mission!._id.toString())) {
                 let isValidMissionParticipation;
 
                 for (const task of beatmap.tasks) {
