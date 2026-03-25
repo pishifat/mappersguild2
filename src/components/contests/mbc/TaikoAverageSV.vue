@@ -1,20 +1,9 @@
 <template>
     <div>
-        <h4>Monthly Beatmapping Contest: July 2025 (osu!taiko)</h4>
-        <h5>Confirm if the average SV of your map is between 0.95 and 1.05</h5>
+        <h5>Monthly Beatmapping Contest: July 2025 (osu!taiko)</h5>
+        <h6>Confirm if the average SV of your map is between 0.95 and 1.05</h6>
         <div class="row">
-            <div class="col-sm-12">
-                <div
-                    class="drop ms-4 my-4"
-                    :class="isDragOver ? 'bg-dark' : ''"
-                    @dragover.prevent="handleDragOver"
-                    @dragenter.prevent="handleDragEnter"
-                    @dragleave.prevent="handleDragLeave"
-                    @drop.prevent="handleDrop"
-                >
-                    Drop a <code>.osu</code> file here
-                </div>
-            </div>
+            <mbc-drop-zone @drop="processFiles" />
 
             <div v-if="output?.length || error?.length" class="col-sm-12 d-flex align-items-center">
                 <pre v-if="output?.length" class="text-success">{{ output }}</pre>
@@ -26,6 +15,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import MbcDropZone from '@components/contests/mbc/MbcDropZone.vue';
 
 type InheritedTimingPoint = {
     time: number;
@@ -34,28 +24,16 @@ type InheritedTimingPoint = {
 
 export default defineComponent({
     name: 'TaikoAverageSv',
+    components: {
+        MbcDropZone,
+    },
     data() {
         return {
-            isDragOver: false,
             error: '',
             output: '',
         };
     },
     methods: {
-        handleDragOver () {
-            this.isDragOver = true;
-        },
-        handleDragEnter () {
-            this.isDragOver = true;
-        },
-        handleDragLeave () {
-            this.isDragOver = false;
-        },
-        handleDrop (e) {
-            this.isDragOver = false;
-            const files = e.dataTransfer.files;
-            this.processFiles(files);
-        },
         extractMode(lines: string[]): number | null {
             for (const line of lines) {
                 const trimmed = line.trim();
@@ -121,7 +99,7 @@ export default defineComponent({
 
                     return null;
                 })
-                .filter(entry => entry !== null);
+                .filter(entry => entry !== null) as InheritedTimingPoint[];
         },
         parseHitObjectTimes(hitObjectData: string): number[] {
             return hitObjectData
@@ -214,16 +192,3 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
-.drop {
-    border: 2px dashed #0087F7;
-    border-radius: 5px;
-    height: 200px;
-    text-align: center;
-    line-height: 200px;
-}
-
-.highlight {
-  background-color: #f0f8ff5d;
-}
-</style>

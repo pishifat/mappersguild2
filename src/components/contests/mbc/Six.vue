@@ -1,24 +1,13 @@
 <template>
     <div>
-        <h4>Monthly Beatmapping Contest: February 2025 (osu!mania)</h4>
-        <h5>Confirm if your map's object counts include and are divisible by 6</h5>
+        <h5>Monthly Beatmapping Contest: February 2025 (osu!mania)</h5>
+        <h6>Confirm if your map's object counts include and are divisible by 6</h6>
         <div class="row">
-            <div class="col-sm-12">
-                <div
-                    class="drop ms-4 my-4"
-                    :class="isDragOver ? 'bg-dark' : ''"
-                    @dragover.prevent="handleDragOver"
-                    @dragenter.prevent="handleDragEnter"
-                    @dragleave.prevent="handleDragLeave"
-                    @drop.prevent="handleDrop"
-                >
-                    Drop a <code>.osu</code> file here
-                </div>
-            </div>
+            <mbc-drop-zone @drop="processFiles" />
 
-            <div v-if="output" class="col-sm-12 d-flex align-items-center">
-                <code class="me-2"><pre>{{ output }}</pre></code>
-                <code><pre class="text-danger">{{ error }}</pre></code>
+            <div v-if="output?.length || error?.length" class="col-sm-12">
+                <pre v-if="output?.length" class="text-success">{{ output }}</pre>
+                <pre v-if="error?.length" class="text-danger mt-2">{{ error }}</pre>
             </div>
         </div>
     </div>
@@ -26,31 +15,20 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import MbcDropZone from '@components/contests/mbc/MbcDropZone.vue';
 
 export default defineComponent({
-    name: 'CountNotesPerColumn',
+    name: 'Six',
+    components: {
+        MbcDropZone,
+    },
     data() {
         return {
-            isDragOver: false,
             error: '',
             output: '',
         };
     },
     methods: {
-        handleDragOver () {
-            this.isDragOver = true;
-        },
-        handleDragEnter () {
-            this.isDragOver = true;
-        },
-        handleDragLeave () {
-            this.isDragOver = false;
-        },
-        handleDrop (e) {
-            this.isDragOver = false;
-            const files = e.dataTransfer.files;
-            this.processFiles(files);
-        },
         processFiles (files): void {
             if (files.length > 0) {
                 const file = files[0];
@@ -133,16 +111,3 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
-.drop {
-    border: 2px dashed #0087F7;
-    border-radius: 5px;
-    height: 200px;
-    text-align: center;
-    line-height: 200px;
-}
-
-.highlight {
-  background-color: #f0f8ff5d;
-}
-</style>
