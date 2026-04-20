@@ -22,6 +22,9 @@
             <option value="judging">
                 Judging
             </option>
+            <option value="vote">
+                Community Vote
+            </option>
             <option value="locked">
                 Locked (prevents editing while you publish results)
             </option>

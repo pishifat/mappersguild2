@@ -41,6 +41,7 @@ import contestsListingRouter from './routes/contests/listing';
 import judgingRouter from './routes/contests/judging';
 import resultsRouter from './routes/contests/results';
 import mbcRouter from './routes/contests/mbc';
+import communityVoteRouter from './routes/contests/communityVote';
 import partiesRouter from './routes/parties';
 import mentorshipRouter from './routes/mentorship';
 import missionsRouter from './routes/missions';
@@ -65,6 +66,7 @@ db.once('open', function() {
     require('./models/featuredSong'); // mongoose isn't detecting it for some reason otherwise
     require('./models/contest/submission');
     require('./models/contest/screening');
+    require('./models/contest/communityVote');
     console.log('connected');
 });
 
@@ -100,6 +102,7 @@ app.use('/contests/results', resultsRouter);
 app.use('/contests/screening', screeningRouter);
 app.use('/contests/judging', judgingRouter);
 app.use('/contests/mbc', mbcRouter);
+app.use('/contests/vote', communityVoteRouter);
 
 app.use('/artists', artistsRouter);
 app.use('/admin', adminRouter);

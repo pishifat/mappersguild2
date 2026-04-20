@@ -7,6 +7,7 @@ export enum ContestStatus {
     Beatmapping = 'beatmapping',
     Screening = 'screening',
     Judging = 'judging',
+    Vote = 'vote',
     Locked = 'locked',
     Complete = 'complete',
 }
@@ -46,4 +47,9 @@ export interface Contest {
     useRawScoring: boolean;
     skipWebhook: boolean;
     hasPublicJudges: boolean;
+    communityVoteCount: number;
+    communityVoteStart: Date;
+    communityVoteEnd: Date;
+    communityVoteOrderedPriority: boolean;
+    communityVoteDescription: string;
 }

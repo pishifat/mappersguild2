@@ -31,8 +31,6 @@
             </div>
         </div>
         <small class="text-secondary">If you receive a late submission, you can manually add it to the list with this small form.</small>
-
-        <hr />
     </div>
 </template>
 

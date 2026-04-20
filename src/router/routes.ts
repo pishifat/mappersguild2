@@ -18,6 +18,7 @@ const Screening = () => import('../pages/contests/ScreeningPage.vue');
 const Listing = () => import('../pages/contests/ContestPage.vue');
 const Results = () => import('../pages/contests/ContestResultsPage.vue');
 const Mbc = () => import('../pages/contests/MbcPage.vue');
+const CommunityVote = () => import('../pages/contests/CommunityVotePage.vue');
 
 // Admin
 const Admin = () => import('../pages/AdminPage.vue');
@@ -52,6 +53,7 @@ const routes = [
     { path: '/contests/results', component: Results, meta: { title: 'Contest Results' } },
     { path: '/contests/judging', component: Judging, meta: { title: 'Contest Judging' } },
     { path: '/contests/screening', component: Screening, meta: { title: 'Contest Screening' } },
+    { path: '/contests/vote', component: CommunityVote, meta: { title: 'Community Vote' } },
     { path: '/contests/mbc', component: Mbc, meta: { title: 'MBC' } },
 
     // Admin

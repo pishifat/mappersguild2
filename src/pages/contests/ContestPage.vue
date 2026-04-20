@@ -321,7 +321,7 @@ export default defineComponent({
                     } else if (contest.status == 'complete') {
                         this.displayMode = 'completedContests';
                     } else {
-                        this.displayMode == 'activeContests';
+                        this.displayMode = 'activeContests';
                     }
 
                     this.$store.commit('setContests', [contest] || []);

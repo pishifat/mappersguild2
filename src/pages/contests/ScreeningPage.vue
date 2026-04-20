@@ -8,7 +8,7 @@
                 :contest="contest"
                 :route="'screening'"
             />
-            <div v-if="loadedSpecificContest" class="col-sm-4 my-2">
+            <div v-if="loadedSpecificContest && otherContestsExist" class="col-sm-4 my-2">
                 <button
                     class="btn w-100 btn-info h-100"
                     type="button"
@@ -79,6 +79,7 @@ export default defineComponent({
     data () {
         return {
             loadedSpecificContest: false,
+            otherContestsExist: false,
         };
     },
     computed: {
@@ -154,6 +155,9 @@ export default defineComponent({
                     this.$store.commit('setSelectedContestId', id);
 
                     this.loadedSpecificContest = true;
+
+                    const check: any = await this.$http.executeGet(`/contests/screening/hasOtherContests/${id}`);
+                    this.otherContestsExist = !this.$http.isError(check) && check.hasOthers;
                 }
             } else {
                 this.$router.replace(`/contests/screening`);

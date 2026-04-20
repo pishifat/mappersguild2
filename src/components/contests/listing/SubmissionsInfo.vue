@@ -20,20 +20,10 @@
                         Save
                     </button>
                 </div>
-                <!--<div class="col-sm-2">
-                    <button
-                        type="button"
-                        class="btn btn-sm btn-outline-info mt-1 mx-1"
-                        @click="addJudgingsFromCsv($event)"
-                    >
-                        Save judging
-                    </button>
-                </div>-->
             </div>
         </div>
 
         <table
-            v-if="submissions.length"
             class="table table-sm table-responsive-lg"
         >
             <thead>
@@ -45,6 +35,12 @@
                 </tr>
             </thead>
             <tbody>
+                <tr v-if="!submissions.length">
+                    <td>...</td>
+                    <td>...</td>
+                    <td>...</td>
+                    <td />
+                </tr>
                 <tr
                     v-for="submission in submissions"
                     :key="submission.id"
@@ -94,12 +90,25 @@
             v-if="submissions.length"
             :contest-id="contestId"
         />
+
+        <button
+            v-if="loggedInUser && loggedInUser.group == usergroupAdmin"
+            v-bs-tooltip="'create 10 fake submissions for testing'"
+            type="button"
+            class="btn btn-sm btn-outline-info mt-1"
+            @click="generateDummySubmissions($event)"
+        >
+            Generate dummy submissions
+        </button>
+        <hr />
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { mapState } from 'vuex';
 import { Submission } from '../../../../interfaces/contest/submission';
+import { UserGroup } from '../../../../interfaces/user';
 import ManualSubmission from './ManualSubmission.vue';
 
 export default defineComponent({
@@ -130,7 +139,13 @@ export default defineComponent({
             manualAnonEdit: null,
             newAnonymousName: '',
             csvInput: '',
+            usergroupAdmin: UserGroup.Admin,
         };
+    },
+    computed: {
+        ...mapState([
+            'loggedInUser',
+        ]),
     },
     watch: {
         manualAnonEdit() {
@@ -198,6 +213,20 @@ export default defineComponent({
                 this.$store.commit('deleteSubmission', {
                     contestId: this.contestId,
                     submissionId,
+                });
+            }
+        },
+        async generateDummySubmissions(e): Promise<void> {
+            const submissions = await this.$http.executePost(`/contests/listing/${this.contestId}/generateDummySubmissions`, {}, e);
+
+            if (!this.$http.isError(submissions)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `Generated dummy submissions`,
+                    type: 'info',
+                });
+                this.$store.commit('addSubmissionsFromCsv', {
+                    contestId: this.contestId,
+                    submissions,
                 });
             }
         },

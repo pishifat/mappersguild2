@@ -13,7 +13,7 @@ const contestSchema = new Schema({
     osuContestListingUrl: { type: String },
     resultsUrl: { type: String },
     isApproved: { type: Boolean },
-    status: { type: String, enum: ['hidden', 'beatmapping', 'screening', 'judging', 'locked', 'complete'], default: 'hidden' },
+    status: { type: String, enum: ['hidden', 'beatmapping', 'screening', 'judging', 'vote', 'locked', 'complete'], default: 'hidden' },
     contestStart: { type: Date },
     contestEnd: { type: Date },
     submissions: [{ type: 'ObjectId', ref: 'Submission' }],
@@ -32,6 +32,11 @@ const contestSchema = new Schema({
     useRawScoring: { type: Boolean },
     skipWebhook: { type: Boolean },
     hasPublicJudges: { type: Boolean },
+    communityVoteCount: { type: Number, default: 5 },
+    communityVoteStart: { type: Date },
+    communityVoteEnd: { type: Date },
+    communityVoteOrderedPriority: { type: Boolean },
+    communityVoteDescription: { type: String },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 const ContestModel = mongoose.model<Contest>('Contest', contestSchema);

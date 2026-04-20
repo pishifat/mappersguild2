@@ -24,6 +24,9 @@
                         <th v-if="contest.judgingThreshold" v-bs-tooltip="`screeners sort entries in their ordered top ${contest.screeningVoteCount}. #1 adds ${contest.screeningVoteCount} points, #2 adds ${contest.screeningVoteCount-1} points, #3 adds ${contest.screeningVoteCount-2}, etc.`" scope="col">
                             Screener votes ({{ contest.screeners.length * contest.screeningVoteCount }})
                         </th>
+                        <th v-if="hasCommunityVotes" v-bs-tooltip="contest.communityVoteOrderedPriority ? 'Weighted votes based on priority order' : 'Total votes received'" scope="col">
+                            Community votes
+                        </th>
                         <th scope="col">
                             Raw scores ({{ maxScore }})
                         </th>
@@ -49,6 +52,9 @@
                             <span v-if="voteCount(submission.screenings, true) > 0">
                                 ({{ voteCount(submission.screenings, true) }})
                             </span>
+                        </td>
+                        <td v-if="hasCommunityVotes">
+                            {{ communityVoteScore(submission.communityVotes) }}
                         </td>
                         <td>
                             <span :class="contest.useRawScoring && judgeScore (submission.judgings) > 0 ? 'text-done' : ''">
@@ -85,6 +91,9 @@ export default defineComponent({
         ...mapState({
             contest: (state: any) => state.contestResults.contest as Contest,
         }),
+        hasCommunityVotes (): boolean {
+            return this.contest.submissions.some(s => s.communityVotes && s.communityVotes.length);
+        },
         maxScore (): number {
             let count = 0;
 
@@ -147,6 +156,9 @@ export default defineComponent({
             }
 
             return count;
+        },
+        communityVoteScore (communityVotes): number {
+            return (communityVotes || []).reduce((acc, v) => acc + (v.vote || 0), 0);
         },
         getFinalScore (id: string): number {
             const score = this.usersScores.find(s => s.submissionId == id);

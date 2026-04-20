@@ -85,6 +85,11 @@ const contestPopulate = [
                 path: 'creator',
                 select: 'osuId username',
             },
+            {
+                path: 'communityVotes',
+                select: 'vote voter',
+                populate: { path: 'voter', select: '_id' },
+            },
         ],
     },
     {
@@ -159,22 +164,45 @@ resultsRouter.get('/searchSubmission/:id', async (req, res) => {
 
 /* GET contest */
 resultsRouter.get('/searchContest/:id', async (req, res) => {
-    const contest =
-        await ContestModel
-            .findById(req.params.id)
-            .populate(contestPopulate);
+    const contest = await ContestModel
+        .findById(req.params.id)
+        .populate(contestPopulate);
 
-    const creatorIds: string[] | undefined = contest?.creators.map(c => c.id);
-
-    if (creatorIds?.includes(req.session.mongoId)) {
-        return res.json(contest);
-    }
-
-    if (contest?.status !== ContestStatus.Complete || !contest.download) {
+    if (!contest) {
         return res.json(null);
     }
 
-    res.json(contest);
+    const creatorIds = contest.creators.map(c => c.id);
+    const isCreator = creatorIds.includes(req.session.mongoId);
+
+    if (contest.status !== ContestStatus.Complete || !contest.download) {
+        if (!isCreator) return res.json(null);
+    }
+
+    const voterVoteCounts = new Map<string, number>();
+
+    for (const submission of contest.submissions) {
+        for (const cv of (submission.communityVotes || [])) {
+            if (cv.voter && cv.vote > 0) {
+                const voterId = cv.voter._id?.toString() || cv.voter.toString();
+                voterVoteCounts.set(voterId, (voterVoteCounts.get(voterId) || 0) + 1);
+            }
+        }
+    }
+
+    const badActorIds = new Set([...voterVoteCounts.entries()]
+        .filter(([, count]) => count > contest.communityVoteCount)
+        .map(([id]) => id));
+
+    const contestObj = contest.toObject();
+
+    for (const submission of contestObj.submissions) {
+        submission.communityVotes = (submission.communityVotes || [])
+            .filter(cv => !badActorIds.has(cv.voter?._id?.toString()))
+            .map(cv => ({ vote: cv.vote }));
+    }
+
+    res.json(contestObj);
 });
 
 export default resultsRouter;

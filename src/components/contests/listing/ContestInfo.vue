@@ -12,6 +12,8 @@
             :banner-url="contest.bannerUrl"
         />
 
+        <hr />
+
         <h5>General</h5>
 
         <div>
@@ -277,6 +279,66 @@
 
                 <hr />
 
+                <h4 class="mb-4">
+                    Community Vote
+                </h4>
+
+                <div>Distribute this link once your contest's status is set to "Community Vote"!</div>
+                <code>https://mappersguild.com/contests/vote?contest={{ contest.id }}</code>
+
+                <hr />
+
+                <h5>Vote Settings</h5>
+
+                <div class="row mb-2">
+                    <community-vote-count
+                        class="col-sm-4"
+                        :contest-id="contest.id"
+                        :community-vote-count="contest.communityVoteCount"
+                    />
+
+                    <div class="col-sm-8 small text-secondary">
+                        The number of votes each user gets. The limit is 10.
+                    </div>
+                </div>
+
+                <community-vote-ordered-priority-toggle
+                    class="mb-2"
+                    :contest-id="contest.id"
+                    :community-vote-ordered-priority="contest.communityVoteOrderedPriority"
+                />
+
+                <community-vote-dates
+                    class="mb-2"
+                    :contest-id="contest.id"
+                    :community-vote-start="contest.communityVoteStart ? contest.communityVoteStart.slice(0,10) : null"
+                    :community-vote-end="contest.communityVoteEnd ? contest.communityVoteEnd.slice(0,10) : null"
+                />
+
+                <community-vote-description
+                    :contest-id="contest.id"
+                    :community-vote-description="contest.communityVoteDescription"
+                />
+
+                <hr />
+
+                <h5>Vote Results</h5>
+
+                <div class="ms-2 mb-2">
+                    <a href="#communityVoteResults" data-bs-toggle="collapse" @click.prevent>
+                        See community vote results
+                        <i class="fas fa-angle-down" />
+                    </a>
+                </div>
+
+                <community-vote-results
+                    id="communityVoteResults"
+                    class="collapse"
+                    :contest-id="contest.id"
+                />
+
+                <hr />
+
                 <contest-announcements
                     v-if="loggedInUser && loggedInUser.group == usergroupAdmin"
                     class="mb-2"
@@ -321,6 +383,11 @@ import UseRawScoringToggle from './UseRawScoringToggle.vue';
 import ScreeningBonusToggle from './ScreeningBonusToggle.vue';
 import PublicJudgesToggle from './judging/PublicJudgesToggle.vue';
 import ContestAnnouncements from './judging/ContestAnnouncements.vue';
+import CommunityVoteCount from './communityVote/CommunityVoteCount.vue';
+import CommunityVoteOrderedPriorityToggle from './communityVote/CommunityVoteOrderedPriorityToggle.vue';
+import CommunityVoteDescription from './communityVote/CommunityVoteDescription.vue';
+import CommunityVoteDates from './communityVote/CommunityVoteDates.vue';
+import CommunityVoteResults from './communityVote/CommunityVoteResults.vue';
 
 export default defineComponent({
     name: 'ContestInfo',
@@ -350,6 +417,11 @@ export default defineComponent({
         ScreeningBonusToggle,
         PublicJudgesToggle,
         ContestAnnouncements,
+        CommunityVoteCount,
+        CommunityVoteOrderedPriorityToggle,
+        CommunityVoteDescription,
+        CommunityVoteDates,
+        CommunityVoteResults,
     },
     props: {
         contest: {

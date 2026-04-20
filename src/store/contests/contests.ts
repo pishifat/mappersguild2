@@ -207,6 +207,41 @@ const store: Module<ContestState, MainState> = {
                 contest.description = payload.description;
             }
         },
+        updateCommunityVoteCount (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                contest.communityVoteCount = payload.communityVoteCount;
+            }
+        },
+        updateCommunityVoteOrderedPriority (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                contest.communityVoteOrderedPriority = payload.communityVoteOrderedPriority;
+            }
+        },
+        updateCommunityVoteDescription (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                contest.communityVoteDescription = payload.communityVoteDescription;
+            }
+        },
+        updateCommunityVoteStart (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                contest.communityVoteStart = payload.communityVoteStart;
+            }
+        },
+        updateCommunityVoteEnd (state, payload): void {
+            const contest = state.contests.find(c => c.id == payload.contestId);
+
+            if (contest) {
+                contest.communityVoteEnd = payload.communityVoteEnd;
+            }
+        },
         updateSubmissions (state, payload): void {
             const contest = state.contests.find(c => c.id == payload.contestId);
 

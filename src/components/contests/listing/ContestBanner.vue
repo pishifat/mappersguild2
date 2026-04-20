@@ -4,7 +4,6 @@
             class="w-100"
             :src="bannerUrl"
         />
-        <hr />
     </div>
 </template>
 
