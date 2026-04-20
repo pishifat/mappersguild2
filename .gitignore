@@ -24,6 +24,7 @@ jspm_packages/
 # dotenv environment variables file
 .env
 
+# manually added (everything above is from a template)
 config.json
 public/js/
 *.csv

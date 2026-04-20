@@ -44,7 +44,7 @@
                     :key="loggedInUser.id"
                     :user="loggedInUser"
                 />
-                <div class="radial-divisor" />
+                <div key="divisor" class="radial-divisor" />
                 <user-list-element
                     v-for="user in filteredUsers"
                     :key="user.id"

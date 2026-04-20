@@ -21,6 +21,7 @@
                 Here's a breakdown of this example priority quest:
             </div>
             <example-mission
+                v-if="exampleMission"
                 :mission="exampleMission"
             />
         </div>

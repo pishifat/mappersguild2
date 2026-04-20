@@ -1,6 +1,5 @@
 <template>
-    <modal-dialog
-        :key="quest.id"
+    <span
         v-bs-tooltip="'Party size: ' +
             (
                 quest.minParty == quest.maxParty ? `${quest.minParty} user${quest.maxParty == 1 ? '' : 's'}` :
@@ -37,7 +36,7 @@
                 <i v-for="member in quest.currentParty.members" :key="member.id" class="fas fa-user user-icon" />
             </span>
         </span>
-    </modal-dialog>
+    </span>
 </template>
 
 <script lang="ts">

@@ -341,6 +341,7 @@
                 <b>Priority quests</b> are a new addition to the Mappers' Guild. While normal quests focus on simply ranking maps, priority quests have different objectives to encourge creative mapping ventures (oh, and they feature cool custom prizes). Here's an example:
             </div>
             <example-mission
+                    v-if="exampleMission"
                     :mission="exampleMission"
                 />
             <div class="text-secondary small">
@@ -361,6 +362,7 @@
             </div>
 
             <example-quest
+                v-if="exampleQuest"
                 :quest="exampleQuest"
             />
 
@@ -447,7 +449,7 @@
                     </div>
                 </div>
 
-                <div class="text-center">
+                <div key="show-more" class="text-center">
                     <button
                         class="btn btn-sm btn-primary"
                         type="button"

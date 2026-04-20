@@ -19,6 +19,7 @@
                 Here's a breakdown of this example quest:
             </div>
             <example-quest
+                v-if="exampleQuest"
                 :quest="exampleQuest"
             />
         </div>

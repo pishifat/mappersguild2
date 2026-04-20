@@ -107,6 +107,10 @@ export function getLongestBeatmapLength(beatmaps): number {
     return longestBeatmap.hit_length;
 }
 
+export function sleep(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export async function setBeatmapStatusRanked(id, bmInfo): Promise<void> {
     // update status (only helpful for automated calls)
     await BeatmapModel.findByIdAndUpdate(id, { status: BeatmapStatus.Ranked });
@@ -276,10 +280,6 @@ export async function setBeatmapStatusRanked(id, bmInfo): Promise<void> {
 
     // pause to not exceed rate limit
     await sleep(500);
-}
-
-export function sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 /** Just replaces () and [] */
