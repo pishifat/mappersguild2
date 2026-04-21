@@ -216,7 +216,7 @@ resultsRouter.get('/searchContest/:id', async (req, res) => {
     for (const submission of contestObj.submissions) {
         submission.communityVotes = (submission.communityVotes || [])
             .filter(cv => !badActorIds.has(cv.voter?._id?.toString()))
-            .map(cv => ({ vote: cv.vote }));
+            .map(cv => ({ vote: cv.vote })) as any;
     }
 
     res.json(contestObj);

@@ -33,33 +33,12 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SubmissionModel = void 0;
+exports.CommunityVoteModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const submissionSchema = new mongoose_1.Schema({
-    name: { type: String },
-    creator: { type: 'ObjectId', ref: 'User', required: true },
-    url: { type: String },
+const communityVoteSchema = new mongoose_1.Schema({
+    voter: { type: 'ObjectId', ref: 'User', required: true },
+    submission: { type: 'ObjectId', ref: 'Submission', required: true },
+    vote: { type: Number, default: 0 },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
-submissionSchema.virtual('contest', {
-    ref: 'Contest',
-    localField: '_id',
-    foreignField: 'submissions',
-    justOne: true,
-});
-submissionSchema.virtual('judgings', {
-    ref: 'Judging',
-    localField: '_id',
-    foreignField: 'submission',
-});
-submissionSchema.virtual('screenings', {
-    ref: 'Screening',
-    localField: '_id',
-    foreignField: 'submission',
-});
-submissionSchema.virtual('communityVotes', {
-    ref: 'CommunityVote',
-    localField: '_id',
-    foreignField: 'submission',
-});
-const SubmissionModel = mongoose_1.default.model('Submission', submissionSchema);
-exports.SubmissionModel = SubmissionModel;
+const CommunityVoteModel = mongoose_1.default.model('CommunityVote', communityVoteSchema);
+exports.CommunityVoteModel = CommunityVoteModel;

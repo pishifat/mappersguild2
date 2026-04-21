@@ -42,7 +42,7 @@ const contestSchema = new mongoose_1.Schema({
     osuContestListingUrl: { type: String },
     resultsUrl: { type: String },
     isApproved: { type: Boolean },
-    status: { type: String, enum: ['hidden', 'beatmapping', 'screening', 'judging', 'locked', 'complete'], default: 'hidden' },
+    status: { type: String, enum: ['hidden', 'beatmapping', 'screening', 'judging', 'vote', 'locked', 'complete'], default: 'hidden' },
     contestStart: { type: Date },
     contestEnd: { type: Date },
     submissions: [{ type: 'ObjectId', ref: 'Submission' }],
@@ -50,7 +50,7 @@ const contestSchema = new mongoose_1.Schema({
     screeningVoteCount: { type: Number, default: 5 },
     judges: [{ type: 'ObjectId', ref: 'User' }],
     judgingThreshold: { type: Number, default: 0 },
-    screeningBonus: { type: Boolean },
+    screeningBonus: { type: Boolean, default: false },
     criterias: [{ type: 'ObjectId', ref: 'Criteria' }],
     download: { type: String },
     description: { type: String },
@@ -58,9 +58,13 @@ const contestSchema = new mongoose_1.Schema({
     bannerUrl: { type: String },
     isFeaturedArtistContest: { type: Boolean, default: false },
     isEligibleForPoints: { type: Boolean, default: true }, // for multi-part contests that use FA
-    useRawScoring: { type: Boolean },
-    skipWebhook: { type: Boolean },
-    hasPublicJudges: { type: Boolean },
+    useRawScoring: { type: Boolean, default: false },
+    skipWebhook: { type: Boolean, default: false },
+    hasPublicJudges: { type: Boolean, default: false },
+    communityVoteCount: { type: Number, default: 5 },
+    communityVoteEnd: { type: Date },
+    communityVoteOrderedPriority: { type: Boolean, default: false },
+    communityVoteDescription: { type: String },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 const ContestModel = mongoose_1.default.model('Contest', contestSchema);
 exports.ContestModel = ContestModel;

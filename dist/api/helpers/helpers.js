@@ -7,8 +7,8 @@ exports.getRankFromPoints = getRankFromPoints;
 exports.truncateText = truncateText;
 exports.setNominators = setNominators;
 exports.getLongestBeatmapLength = getLongestBeatmapLength;
-exports.setBeatmapStatusRanked = setBeatmapStatusRanked;
 exports.sleep = sleep;
+exports.setBeatmapStatusRanked = setBeatmapStatusRanked;
 exports.escapeUsername = escapeUsername;
 exports.generateLists = generateLists;
 exports.generateThumbnailUrl = generateThumbnailUrl;
@@ -107,6 +107,9 @@ function getLongestBeatmapLength(beatmaps) {
     }
     return longestBeatmap.hit_length;
 }
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 async function setBeatmapStatusRanked(id, bmInfo) {
     // update status (only helpful for automated calls)
     await beatmap_2.BeatmapModel.findByIdAndUpdate(id, { status: beatmap_1.BeatmapStatus.Ranked });
@@ -149,7 +152,7 @@ async function setBeatmapStatusRanked(id, bmInfo) {
             if (task.mode == 'sb' && task.mappers[0].id != beatmap.host.id) {
                 storyboard = task;
             }
-            else if (task.mode != 'sb' && task.mode != 'hs') {
+            else if (task.mode != 'sb' && task.mode != 'hs' && task.mode != 'skin') {
                 task.mappers.forEach(mapper => {
                     if (!gdUsernames.includes(mapper.username) && mapper.username != beatmap.host.username) {
                         gdUsernames.push(mapper.username);
@@ -247,9 +250,6 @@ async function setBeatmapStatusRanked(id, bmInfo) {
     }
     // pause to not exceed rate limit
     await sleep(500);
-}
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
 }
 /** Just replaces () and [] */
 function escapeUsername(username) {

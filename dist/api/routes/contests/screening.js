@@ -52,6 +52,15 @@ screeningRouter.get('/relevantInfo', async (req, res) => {
         .select('_id name submissions screeners download status url screeningVoteCount');
     res.json(contests);
 });
+/* GET whether other screening contests exist for this user besides the given one */
+screeningRouter.get('/hasOtherContests/:contestId', async (req, res) => {
+    const count = await contest_1.ContestModel.countDocuments({
+        status: contest_2.ContestStatus.Screening,
+        screeners: res.locals.userRequest._id,
+        _id: { $ne: req.params.contestId },
+    });
+    res.json({ hasOthers: count > 0 });
+});
 /* GET specific contest from search */
 screeningRouter.get('/searchContest/:contestId', async (req, res) => {
     const contest = await contest_1.ContestModel

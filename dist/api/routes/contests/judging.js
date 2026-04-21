@@ -65,6 +65,15 @@ judgingRouter.get('/relevantInfo', async (req, res) => {
         judgingDone,
     });
 });
+/* GET whether other judging contests exist for this user besides the given one */
+judgingRouter.get('/hasOtherContests/:contestId', async (req, res) => {
+    const count = await contest_1.ContestModel.countDocuments({
+        status: contest_2.ContestStatus.Judging,
+        judges: res.locals.userRequest._id,
+        _id: { $ne: req.params.contestId },
+    });
+    res.json({ hasOthers: count > 0 });
+});
 /* GET specific contest from search */
 judgingRouter.get('/searchContest/:contestId', async (req, res) => {
     const contest = await contest_1.ContestModel

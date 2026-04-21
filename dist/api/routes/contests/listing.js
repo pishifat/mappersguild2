@@ -18,6 +18,7 @@ const contest_2 = require("../../../interfaces/contest/contest");
 const screening_1 = require("../../models/contest/screening");
 const judging_1 = require("../../models/contest/judging");
 const judgingScore_1 = require("../../models/contest/judgingScore");
+const communityVote_1 = require("../../models/contest/communityVote");
 const listingRouter = express_1.default.Router();
 listingRouter.use(middlewares_1.isLoggedIn);
 const limitedContestSelect = '-judgingThreshold -screeningBonus -criterias -download';
@@ -56,7 +57,7 @@ const defaultContestPopulate = [
         path: 'creators',
     },
 ];
-// hides mediator info
+// hides screener info
 function getLimitedDefaultPopulate(mongoId) {
     return [
         {
@@ -122,20 +123,10 @@ listingRouter.get('/searchContest/:contestId', async (req, res) => {
     })
         .populate(defaultContestPopulate);
     if (!contest) {
-        const tempContest = await contest_1.ContestModel
+        contest = await contest_1.ContestModel
             .findById(req.params.contestId)
-            .orFail();
-        if (tempContest.status == contest_2.ContestStatus.Complete) {
-            contest = await contest_1.ContestModel
-                .findById(req.params.contestId)
-                .populate(defaultContestPopulate);
-        }
-        else {
-            contest = await contest_1.ContestModel
-                .findById(req.params.contestId)
-                .populate(getLimitedDefaultPopulate(req.session.mongoId))
-                .select(limitedContestSelect);
-        }
+            .populate(getLimitedDefaultPopulate(req.session.mongoId))
+            .select(limitedContestSelect);
     }
     res.json(contest);
 });
@@ -267,6 +258,17 @@ listingRouter.post('/:id/updateStatus', middlewares_2.isContestCreator, middlewa
         }
         if (!contest.screeners.length)
             evaluationStatusRequirements.push('screening users');
+    }
+    // community vote requirements
+    if (req.body.status == contest_2.ContestStatus.Vote) {
+        if (!contest.submissions.length)
+            evaluationStatusRequirements.push('submissions');
+        if (!contest.download)
+            evaluationStatusRequirements.push('anonymized entries download link');
+        for (const submission of contest.submissions) {
+            if (!submission.name)
+                evaluationStatusRequirements.push(`submission name (${submission.id})`);
+        }
     }
     // judging requirements
     if (req.body.status == contest_2.ContestStatus.Judging) {
@@ -698,6 +700,159 @@ listingRouter.post('/:id/toggleComments', middlewares_2.isContestCreator, async 
         .populate(defaultContestPopulate)
         .orFail();
     res.json(newContest.criterias);
+});
+/* POST generate dummy submissions for testing */
+listingRouter.post('/:id/generateDummySubmissions', middlewares_2.isContestCreator, async (req, res) => {
+    const contest = await contest_1.ContestModel
+        .findById(req.params.id)
+        .populate(defaultContestPopulate)
+        .orFail();
+    const users = await user_1.UserModel.find().limit(10);
+    for (let i = 0; i < users.length; i++) {
+        const submission = new submission_1.SubmissionModel();
+        submission.creator = users[i]._id;
+        submission.url = 'https://osu.ppy.sh/beatmapsets/0';
+        submission.name = `Entry ${i + 1}`;
+        await submission.save();
+        contest.submissions.push(submission);
+    }
+    await contest.save();
+    const newContest = await contest_1.ContestModel
+        .findById(req.params.id)
+        .populate(defaultContestPopulate)
+        .orFail();
+    res.json(newContest.submissions);
+});
+/* GET community vote results */
+listingRouter.get('/:id/communityVoteResults', middlewares_2.isContestCreator, async (req, res) => {
+    const fullContest = await contest_1.ContestModel
+        .findById(req.params.id)
+        .populate({
+        path: 'submissions',
+        select: '_id name communityVotes creator',
+        populate: [
+            {
+                path: 'communityVotes',
+                populate: {
+                    path: 'voter',
+                    select: '_id osuId username',
+                },
+            },
+            {
+                path: 'creator',
+                select: '_id osuId username',
+            },
+        ],
+    })
+        .orFail();
+    const voterData = new Map();
+    for (const submission of fullContest.submissions) {
+        for (const cv of (submission.communityVotes || [])) {
+            if (cv.voter && cv.vote > 0) {
+                const voterId = cv.voter._id.toString();
+                const existing = voterData.get(voterId);
+                if (existing) {
+                    existing.count++;
+                    existing.voteValues.push(cv.vote);
+                }
+                else {
+                    voterData.set(voterId, { osuId: cv.voter.osuId, username: cv.voter.username, count: 1, voteValues: [cv.vote] });
+                }
+            }
+        }
+    }
+    const hasDuplicateRank = (voteValues) => new Set(voteValues).size !== voteValues.length;
+    const badActors = [...voterData.entries()]
+        .filter(([, data]) => data.count > fullContest.communityVoteCount || (fullContest.communityVoteOrderedPriority && hasDuplicateRank(data.voteValues)))
+        .map(([id, data]) => ({ id, osuId: data.osuId, username: data.username, count: data.count }));
+    const badActorIds = new Set(badActors.map(a => a.id));
+    const contestObj = fullContest.toObject();
+    for (const submission of contestObj.submissions) {
+        submission.communityVotes = (submission.communityVotes || [])
+            .filter(cv => !badActorIds.has(cv.voter?._id?.toString()));
+    }
+    res.json({
+        submissions: contestObj.submissions,
+        communityVoteCount: fullContest.communityVoteCount,
+        communityVoteOrderedPriority: fullContest.communityVoteOrderedPriority,
+        badActors,
+    });
+});
+/* POST add community vote count */
+listingRouter.post('/:id/updateCommunityVoteCount', middlewares_2.isContestCreator, middlewares_2.isEditable, async (req, res) => {
+    const newCount = parseInt(req.body.communityVoteCount);
+    if (isNaN(newCount) || newCount < 1 || newCount > 10) {
+        return res.json({ error: 'Invalid number' });
+    }
+    const contest = await contest_1.ContestModel
+        .findById(req.params.id)
+        .orFail();
+    contest.communityVoteCount = newCount;
+    await contest.save();
+    res.json(contest.communityVoteCount);
+});
+/* POST toggle community vote ordered priority */
+listingRouter.post('/:id/toggleCommunityVoteOrderedPriority', middlewares_2.isContestCreator, middlewares_2.isEditable, async (req, res) => {
+    const contest = await contest_1.ContestModel
+        .findById(req.params.id)
+        .orFail();
+    contest.communityVoteOrderedPriority = !contest.communityVoteOrderedPriority;
+    await contest.save();
+    await communityVote_1.CommunityVoteModel.deleteMany({ submission: { $in: contest.submissions } });
+    res.json(contest.communityVoteOrderedPriority);
+});
+/* POST update community vote description */
+listingRouter.post('/:id/updateCommunityVoteDescription', middlewares_2.isContestCreator, middlewares_2.isEditable, async (req, res) => {
+    const contest = await contest_1.ContestModel
+        .findByIdAndUpdate(req.params.id, { communityVoteDescription: req.body.communityVoteDescription.trim() })
+        .orFail();
+    res.json(contest.communityVoteDescription);
+});
+/* POST update community vote start date */
+/* POST update community vote end date */
+listingRouter.post('/:id/updateCommunityVoteEnd', middlewares_2.isContestCreator, middlewares_2.isEditable, async (req, res) => {
+    const newDate = new Date(req.body.date);
+    if (!(newDate instanceof Date && !isNaN(newDate.getTime()))) {
+        return res.json({ error: 'Invalid date' });
+    }
+    const contest = await contest_1.ContestModel
+        .findById(req.params.id)
+        .orFail();
+    contest.communityVoteEnd = newDate;
+    await contest.save();
+    res.json(contest.communityVoteEnd);
+});
+/* POST generate dummy community votes for testing */
+listingRouter.post('/:id/generateDummyCommunityVotes', middlewares_2.isContestCreator, async (req, res) => {
+    const contest = await contest_1.ContestModel
+        .findById(req.params.id)
+        .orFail();
+    if (!contest.submissions.length) {
+        return res.json({ error: 'No submissions to vote on' });
+    }
+    const users = await user_1.UserModel.find().limit(100);
+    const submissionIds = contest.submissions.map(s => s.toString());
+    const voteCount = contest.communityVoteCount || 1;
+    for (const user of users) {
+        const shuffled = [...submissionIds].sort(() => Math.random() - 0.5).slice(0, Math.min(voteCount, submissionIds.length));
+        for (let i = 0; i < shuffled.length; i++) {
+            const vote = contest.communityVoteOrderedPriority ? i + 1 : 1;
+            const communityVote = new communityVote_1.CommunityVoteModel();
+            communityVote.voter = user._id;
+            communityVote.vote = vote;
+            communityVote.submission = shuffled[i];
+            await communityVote.save();
+        }
+    }
+    res.json({ success: 'ok' });
+});
+/* POST delete all community votes for this contest */
+listingRouter.post('/:id/deleteAllCommunityVotes', middlewares_2.isContestCreator, async (req, res) => {
+    const contest = await contest_1.ContestModel
+        .findById(req.params.id)
+        .orFail();
+    await communityVote_1.CommunityVoteModel.deleteMany({ submission: { $in: contest.submissions } });
+    res.json({ success: 'ok' });
 });
 /* helper function for calculating judging results */
 function calculateContestScores(contest) {

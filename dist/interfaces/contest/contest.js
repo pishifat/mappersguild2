@@ -7,6 +7,7 @@ var ContestStatus;
     ContestStatus["Beatmapping"] = "beatmapping";
     ContestStatus["Screening"] = "screening";
     ContestStatus["Judging"] = "judging";
+    ContestStatus["Vote"] = "vote";
     ContestStatus["Locked"] = "locked";
     ContestStatus["Complete"] = "complete";
 })(ContestStatus || (exports.ContestStatus = ContestStatus = {}));

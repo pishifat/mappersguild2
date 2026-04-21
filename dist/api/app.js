@@ -43,6 +43,7 @@ const listing_1 = __importDefault(require("./routes/contests/listing"));
 const judging_1 = __importDefault(require("./routes/contests/judging"));
 const results_1 = __importDefault(require("./routes/contests/results"));
 const mbc_1 = __importDefault(require("./routes/contests/mbc"));
+const communityVote_1 = __importDefault(require("./routes/contests/communityVote"));
 const parties_1 = __importDefault(require("./routes/parties"));
 const mentorship_1 = __importDefault(require("./routes/mentorship"));
 const missions_2 = __importDefault(require("./routes/missions"));
@@ -63,6 +64,7 @@ db.once('open', function () {
     require('./models/featuredSong'); // mongoose isn't detecting it for some reason otherwise
     require('./models/contest/submission');
     require('./models/contest/screening');
+    require('./models/contest/communityVote');
     console.log('connected');
 });
 app.use((0, express_session_1.default)({
@@ -93,6 +95,7 @@ app.use('/contests/results', results_1.default);
 app.use('/contests/screening', screening_1.default);
 app.use('/contests/judging', judging_1.default);
 app.use('/contests/mbc', mbc_1.default);
+app.use('/contests/vote', communityVote_1.default);
 app.use('/artists', artists_1.default);
 app.use('/admin', index_2.default);
 app.use('/admin/users', users_2.default);
