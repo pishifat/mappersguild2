@@ -41,6 +41,10 @@ async function isVoter(req, res, next): Promise<void> {
         });
 
     if (contest) {
+        if (contest.communityVoteEnd && new Date() > new Date(contest.communityVoteEnd)) {
+            return unauthorize(req, res);
+        }
+
         res.locals.contest = contest;
 
         return next();
@@ -58,7 +62,7 @@ communityVoteRouter.get('/relevantInfo', async (req, res) => {
             status: ContestStatus.Vote,
         })
         .populate(getContestPopulate(req.session?.mongoId))
-        .select('_id name submissions communityVoteCount communityVoteOrderedPriority communityVoteDescription bannerUrl download status');
+        .select('_id name submissions communityVoteCount communityVoteOrderedPriority communityVoteDescription bannerUrl download communityVoteEnd status');
 
     res.json(contests);
 });
@@ -81,7 +85,7 @@ communityVoteRouter.get('/searchContest/:contestId', async (req, res) => {
             _id: req.params.contestId,
         })
         .populate(getContestPopulate(req.session?.mongoId))
-        .select('_id name submissions communityVoteCount communityVoteOrderedPriority communityVoteDescription bannerUrl download status');
+        .select('_id name submissions communityVoteCount communityVoteOrderedPriority communityVoteDescription bannerUrl download communityVoteEnd status');
 
     res.json(contest);
 });

@@ -16,6 +16,7 @@
                             :saved-vote="relatedVote && relatedVote.vote || 0"
                             :vote-count="voteCount"
                             :ordered-priority="orderedPriority"
+                            :voting-closed="votingClosed"
                         />
                     </div>
                 </div>
@@ -49,6 +50,10 @@ export default defineComponent({
             type: Boolean,
             default: false,
         },
+        votingClosed: {
+            type: Boolean,
+            default: false,
+        },
     },
     computed: {
         ...mapState([
@@ -63,6 +68,6 @@ export default defineComponent({
 
 <style scoped>
 .bg-vote {
-    background-color: rgba(255, 255, 0, 0.075) !important;
+    background-color: color-mix(in srgb, var(--guild) 5%, transparent) !important;
 }
 </style>

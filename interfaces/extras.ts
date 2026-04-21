@@ -1,3 +1,5 @@
+export type ContestResultsSortKey = 'name' | 'creator' | 'screening' | 'communityRaw' | 'communityWeighted' | 'raw' | 'standardized';
+
 export enum FilterMode {
     any = 'any',
     osu = 'osu',

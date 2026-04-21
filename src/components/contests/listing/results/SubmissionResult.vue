@@ -28,115 +28,135 @@
                 </div>
             </div>
 
-            <hr />
+            <template v-if="submission.contest.screeners && submission.contest.screeners.length">
+                <hr />
 
-            <div class="mx-2">
-                <h5>
-                    Screening results
-                </h5>
-                <div v-if="submission.screenings && submission.screenings.length">
-                    <p class="ms-3">
-                        Comments are usually each screener's initial thoughts. They're not intended to be constructive feedback and many screeners use comments as notes for determining their top picks.
-                    </p>
-                    <div v-for="(screening, i) in randomizedScreening" :key="screening.id">
-                        <div>
-                            <div class="ms-3">
-                                <user-link
-                                    v-if="userScreeningId && userScreeningId == screening.id"
-                                    :user="loggedInUser"
-                                />
-                                <span v-else>User {{ i+1 }}</span>
-                                <i
-                                    v-if="screening.vote"
-                                    v-bs-tooltip="'user placed in top picks'"
-                                    class="fas fa-check text-done ms-1"
-                                />
-                            </div>
-                            <div class="ms-4 mb-2 small text-secondary" style="word-break: break-word;">
-                                {{ screening.comment ? screening.comment : '[no comment]' }}
-                            </div>
-                        </div>
-                    </div>
-                    <div v-for="i in emptyScreeningCount" :key="i">
-                        <div>
-                            <div class="ms-3">
-                                User {{ submission.screenings.length + i }}
-                            </div>
-                            <div class="ms-4 mb-2 small text-secondary" style="word-break: break-word;">
-                                [no comment]
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div v-else class="ms-3">
-                    This contest skipped screening.
-                </div>
-            </div>
-
-            <hr />
-
-            <div class="mx-2">
-                <h5>
-                    Judging results
-                </h5>
-                <div v-if="submission.judgings && submission.judgings.length">
-                    <div v-for="(judging, i) in randomizedJudging" :key="judging.id">
-                        <div>
-                            <div v-if="submission.contest.hasPublicJudges" class="ms-3">
-                                <user-link
-                                    :user="judging.judge"
-                                />
-                            </div>
-                            <div v-else class="ms-3">
-                                User {{ i+1 }}
-                            </div>
-                            <div class="row ms-3">
-                                <div class="col-sm-5">
-                                    <table class="table table-sm table-responsive-sm">
-                                        <thead>
-                                            <tr>
-                                                <th class="text-start">
-                                                    Category
-                                                </th>
-                                                <th class="text-start">
-                                                    Score
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr v-for="judgingScore in filteredAndSortedJudgingScores(judging.judgingScores)" :key="judgingScore.id">
-                                                <td class="text-start text-capitalize">
-                                                    {{ judgingScore.criteria.name }}
-                                                </td>
-                                                <td class="text-start">
-                                                    {{ judgingScore.score }}/{{ judgingScore.criteria.maxScore }}
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-start">
-                                                    TOTAL
-                                                </td>
-                                                <td class="text-start">
-                                                    {{ findTotalJudgingPoints(judging.judgingScores) }}/{{ findTotalCriteriaPoints(judging.judgingScores) }}
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                <div class="mx-2">
+                    <h5>
+                        Screening results
+                    </h5>
+                    <div v-if="submission.screenings && submission.screenings.length">
+                        <p class="ms-3">
+                            Comments are usually each screener's initial thoughts. They're not intended to be constructive feedback and many screeners use comments as notes for determining their top picks.
+                        </p>
+                        <div v-for="(screening, i) in randomizedScreening" :key="screening.id">
+                            <div>
+                                <div class="ms-3">
+                                    <user-link
+                                        v-if="userScreeningId && userScreeningId == screening.id"
+                                        :user="loggedInUser"
+                                    />
+                                    <span v-else>User {{ i+1 }}</span>
+                                    <i
+                                        v-if="screening.vote"
+                                        v-bs-tooltip="'user placed in top picks'"
+                                        class="fas fa-check text-done ms-1"
+                                    />
                                 </div>
-                                <div class="col-sm-7 small">
-                                    Comment:
-                                    <span class="text-secondary" style="white-space: pre-line;">
-                                        {{ findJudgeComment (judging.judgingScores) }}
-                                    </span>
+                                <div class="ms-4 mb-2 small text-secondary" style="word-break: break-word;">
+                                    {{ screening.comment ? screening.comment : '[no comment]' }}
+                                </div>
+                            </div>
+                        </div>
+                        <div v-for="i in emptyScreeningCount" :key="i">
+                            <div>
+                                <div class="ms-3">
+                                    User {{ submission.screenings.length + i }}
+                                </div>
+                                <div class="ms-4 mb-2 small text-secondary" style="word-break: break-word;">
+                                    [no comment]
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div v-else class="ms-3">
-                    This entry did not receive enough screening votes to reach the judging stage. :(
+            </template>
+
+            <template v-if="submission.communityVotes && submission.communityVotes.length">
+                <hr />
+
+                <div class="mx-2">
+                    <h5>
+                        Community vote results
+                    </h5>
+                    <div class="ms-3">
+                        <div><b>Total votes:</b> {{ submission.communityVotes.length }}</div>
+                        <div v-if="submission.contest.communityVoteOrderedPriority" class="mt-1">
+                            <div><b>Weighted votes:</b></div>
+                            <div v-for="rank in submission.contest.communityVoteCount" :key="rank" class="ms-3">
+                                <span class="text-secondary small">{{ rankLabel(rank) }}:</span> {{ rankCounts[rank] || 0 }}
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </template>
+
+            <template v-if="submission.contest.judges && submission.contest.judges.length">
+                <hr />
+
+                <div class="mx-2">
+                    <h5>
+                        Judging results
+                    </h5>
+                    <div v-if="submission.judgings && submission.judgings.length">
+                        <div v-for="(judging, i) in randomizedJudging" :key="judging.id">
+                            <div>
+                                <div v-if="submission.contest.hasPublicJudges" class="ms-3">
+                                    <user-link
+                                        :user="judging.judge"
+                                    />
+                                </div>
+                                <div v-else class="ms-3">
+                                    User {{ i+1 }}
+                                </div>
+                                <div class="row ms-3">
+                                    <div class="col-sm-5">
+                                        <table class="table table-sm table-responsive-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th class="text-start">
+                                                        Category
+                                                    </th>
+                                                    <th class="text-start">
+                                                        Score
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="judgingScore in filteredAndSortedJudgingScores(judging.judgingScores)" :key="judgingScore.id">
+                                                    <td class="text-start text-capitalize">
+                                                        {{ judgingScore.criteria.name }}
+                                                    </td>
+                                                    <td class="text-start">
+                                                        {{ judgingScore.score }}/{{ judgingScore.criteria.maxScore }}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-start">
+                                                        TOTAL
+                                                    </td>
+                                                    <td class="text-start">
+                                                        {{ findTotalJudgingPoints(judging.judgingScores) }}/{{ findTotalCriteriaPoints(judging.judgingScores) }}
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="col-sm-7 small">
+                                        Comment:
+                                        <span class="text-secondary" style="white-space: pre-line;">
+                                            {{ findJudgeComment (judging.judgingScores) }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-else class="ms-3">
+                        This entry did not receive enough screening votes to reach the judging stage. :(
+                    </div>
+                </div>
+            </template>
         </div>
     </div>
 </template>
@@ -188,6 +208,17 @@ export default defineComponent({
 
             return screenings;
         },
+        rankCounts (): Record<number, number> {
+            const counts: Record<number, number> = {};
+
+            for (const cv of (this.submission.communityVotes || [])) {
+                if (cv.vote > 0) {
+                    counts[cv.vote] = (counts[cv.vote] || 0) + 1;
+                }
+            }
+
+            return counts;
+        },
     },
     async created () {
         if (this.loggedInUser) {
@@ -199,6 +230,13 @@ export default defineComponent({
         }
     },
     methods: {
+        rankLabel (n: number): string {
+            if (n === 1) return '1st';
+            if (n === 2) return '2nd';
+            if (n === 3) return '3rd';
+
+            return n + 'th';
+        },
         findTotalJudgingPoints (judgingScores) {
             let total = 0;
 

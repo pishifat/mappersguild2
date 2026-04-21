@@ -34,6 +34,7 @@
                     :banner-url="selectedContest.bannerUrl"
                 />
 
+                <!-- eslint-disable-next-line vue/no-v-html -->
                 <div v-if="selectedContest.communityVoteDescription" class="small mt-2 bg-dark pt-3 pb-1 px-3 mb-2 rounded" v-html="$md.render(selectedContest.communityVoteDescription)" />
 
                 <hr />
@@ -42,29 +43,35 @@
                     <community-vote-instructions />
                 </div>
 
-                <div class="mb-3">
-                    <span class="me-2">Remaining votes:</span>
-                    <template v-if="selectedContest.communityVoteOrderedPriority">
-                        <span
-                            v-for="i in selectedContest.communityVoteCount"
-                            :key="i"
-                            class="me-2"
-                        >
+                <div class="mb-3 d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="me-2">Remaining votes:</span>
+                        <template v-if="selectedContest.communityVoteOrderedPriority">
+                            <span
+                                v-for="i in selectedContest.communityVoteCount"
+                                :key="i"
+                                class="me-2"
+                            >
+                                <i
+                                    class="fa-star fas"
+                                    :class="usedVotes.includes(i) ? 'text-secondary' : 'text-guild'"
+                                />
+                                <span class="small ms-1">{{ rankLabel(i) }}</span>
+                            </span>
+                        </template>
+                        <template v-else>
                             <i
-                                class="fa-star fas"
-                                :class="usedVotes.includes(i) ? 'text-secondary' : 'text-warning'"
+                                v-for="i in selectedContest.communityVoteCount"
+                                :key="i"
+                                class="fa-star fas me-1"
+                                :class="i > selectedContest.communityVoteCount - usedVotes.filter(v => v > 0).length ? 'text-secondary' : 'text-guild'"
                             />
-                            <span class="small ms-1">{{ rankLabel(i) }}</span>
-                        </span>
-                    </template>
-                    <template v-else>
-                        <i
-                            v-for="i in selectedContest.communityVoteCount"
-                            :key="i"
-                            class="fa-star fas me-1"
-                            :class="i > selectedContest.communityVoteCount - usedVotes.filter(v => v > 0).length ? 'text-secondary' : 'text-warning'"
-                        />
-                    </template>
+                        </template>
+                    </div>
+                    <span v-if="selectedContest.communityVoteEnd">
+                        <span v-if="votingClosed" class="text-danger">Voting has closed.</span>
+                        <span v-else>Voting closes in <span class="text-guild">{{ countdown }}</span></span>
+                    </span>
                 </div>
 
                 <transition-group
@@ -79,6 +86,7 @@
                         :submission="submission"
                         :vote-count="selectedContest.communityVoteCount"
                         :ordered-priority="selectedContest.communityVoteOrderedPriority"
+                        :voting-closed="votingClosed"
                     />
                 </transition-group>
 
@@ -89,7 +97,7 @@
         </div>
 
         <div v-else class="text-center p-3">
-            No contests available for community voting.
+            No contests are currently open for voting! Return to the <a href="/contests/listing">contests listing</a>.
         </div>
     </div>
 </template>
@@ -116,7 +124,9 @@ export default defineComponent({
         return {
             loadedSpecificContest: false,
             otherContestsExist: false,
-            shuffledSubmissions: [] as Submission[],
+            shuffledSubmissions: [] as any[],
+            countdown: '',
+            countdownInterval: null as ReturnType<typeof setInterval> | null,
         };
     },
     computed: {
@@ -130,6 +140,11 @@ export default defineComponent({
             'selectedContest',
             'usedVotes',
         ]),
+        votingClosed(): boolean {
+            if (!this.selectedContest?.communityVoteEnd) return false;
+
+            return new Date() > new Date(this.selectedContest.communityVoteEnd);
+        },
         voteSortedSubmissions(): Submission[] {
             const getVote = (s: Submission) => s.communityVotes?.find(v => v.voter?.id === this.loggedInUser?.id && v.vote > 0)?.vote ?? 0;
 
@@ -140,6 +155,7 @@ export default defineComponent({
                     if (aVote && bVote) return aVote - bVote;
                     if (aVote) return -1;
                     if (bVote) return 1;
+
                     return 0;
                 });
             }
@@ -151,6 +167,7 @@ export default defineComponent({
         selectedContest (contest) {
             if (contest) {
                 this.shuffledSubmissions = this.shuffle(contest.submissions || []);
+                this.startCountdown();
             }
         },
     },
@@ -162,6 +179,10 @@ export default defineComponent({
     unmounted () {
         if (this.$store.hasModule('communityVote')) {
             this.$store.unregisterModule('communityVote');
+        }
+
+        if (this.countdownInterval) {
+            clearInterval(this.countdownInterval);
         }
     },
     async created () {
@@ -189,7 +210,15 @@ export default defineComponent({
 
                 if (!this.$http.isError(contests)) {
                     this.$store.commit('setContests', contests || []);
-                    this.$store.commit('setSelectedContestId', null);
+
+                    if (contests.length === 1) {
+                        this.$router.replace(`/contests/vote?contest=${contests[0]._id}`);
+                        this.$store.commit('setSelectedContestId', contests[0]._id);
+                        this.shuffledSubmissions = this.shuffle(contests[0].submissions || []);
+                    } else {
+                        this.$store.commit('setSelectedContestId', null);
+                    }
+
                     this.loadedSpecificContest = false;
                 }
             }
@@ -197,7 +226,29 @@ export default defineComponent({
         async loadMore (): Promise<void> {
             await this.loadContests();
         },
-        shuffle (submissions: Submission[]): Submission[] {
+        startCountdown (): void {
+            if (this.countdownInterval) clearInterval(this.countdownInterval);
+            if (!this.selectedContest?.communityVoteEnd) return;
+
+            this.tickCountdown();
+            this.countdownInterval = setInterval(() => this.tickCountdown(), 1000);
+        },
+        tickCountdown (): void {
+            const diff = new Date(this.selectedContest.communityVoteEnd).getTime() - Date.now();
+
+            if (diff <= 0) {
+                this.countdown = '00:00:00';
+                clearInterval(this.countdownInterval!);
+
+                return;
+            }
+
+            const h = Math.floor(diff / 3600000);
+            const m = Math.floor((diff % 3600000) / 60000);
+            const s = Math.floor((diff % 60000) / 1000);
+            this.countdown = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        },
+        shuffle (submissions: any[]): any[] {
             const arr = [...submissions];
 
             for (let i = arr.length - 1; i > 0; i--) {
@@ -218,3 +269,9 @@ export default defineComponent({
     },
 });
 </script>
+
+<style scoped>
+.text-guild {
+    color: var(--guild);
+}
+</style>

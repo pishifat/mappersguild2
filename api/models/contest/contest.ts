@@ -21,7 +21,7 @@ const contestSchema = new Schema({
     screeningVoteCount: { type: Number, default: 5 },
     judges: [{ type: 'ObjectId', ref: 'User' }],
     judgingThreshold: { type: Number, default: 0 },
-    screeningBonus: { type: Boolean },
+    screeningBonus: { type: Boolean, default: false },
     criterias: [{ type: 'ObjectId', ref: 'Criteria' }],
     download: { type: String },
     description: { type: String },
@@ -29,13 +29,12 @@ const contestSchema = new Schema({
     bannerUrl: { type: String },
     isFeaturedArtistContest: { type: Boolean, default: false },
     isEligibleForPoints: { type: Boolean, default: true }, // for multi-part contests that use FA
-    useRawScoring: { type: Boolean },
-    skipWebhook: { type: Boolean },
-    hasPublicJudges: { type: Boolean },
+    useRawScoring: { type: Boolean, default: false },
+    skipWebhook: { type: Boolean, default: false },
+    hasPublicJudges: { type: Boolean, default: false },
     communityVoteCount: { type: Number, default: 5 },
-    communityVoteStart: { type: Date },
     communityVoteEnd: { type: Date },
-    communityVoteOrderedPriority: { type: Boolean },
+    communityVoteOrderedPriority: { type: Boolean, default: false },
     communityVoteDescription: { type: String },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 

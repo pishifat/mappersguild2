@@ -228,13 +228,6 @@ const store: Module<ContestState, MainState> = {
                 contest.communityVoteDescription = payload.communityVoteDescription;
             }
         },
-        updateCommunityVoteStart (state, payload): void {
-            const contest = state.contests.find(c => c.id == payload.contestId);
-
-            if (contest) {
-                contest.communityVoteStart = payload.communityVoteStart;
-            }
-        },
         updateCommunityVoteEnd (state, payload): void {
             const contest = state.contests.find(c => c.id == payload.contestId);
 

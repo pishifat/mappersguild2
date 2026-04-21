@@ -48,8 +48,6 @@ export interface Contest {
     skipWebhook: boolean;
     hasPublicJudges: boolean;
     communityVoteCount: number;
-    communityVoteStart: Date;
-    communityVoteEnd: Date;
     communityVoteOrderedPriority: boolean;
     communityVoteDescription: string;
 }

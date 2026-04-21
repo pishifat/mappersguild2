@@ -1,18 +1,21 @@
 import express from 'express';
-import { Contest, ContestStatus } from '../../../interfaces/contest/contest';
-import { Submission } from '../../../interfaces/contest/submission';
-import { User } from '../../../interfaces/user';
+import { ContestStatus } from '../../../interfaces/contest/contest';
 import { SubmissionModel } from '../../models/contest/submission';
 import { ContestModel } from '../../models/contest/contest';
 import { ScreeningModel } from '../../models/contest/screening';
 
 const resultsRouter = express.Router();
 
+const communityVotesPopulate = {
+    path: 'communityVotes',
+    select: 'vote',
+};
+
 // population
 const submissionPopulate = [
     {
         path: 'contest',
-        select: 'name screeners status download id creators hasPublicJudges',
+        select: 'name screeners judges status download id creators hasPublicJudges communityVoteCount communityVoteOrderedPriority',
     },
     {
         path: 'screenings',
@@ -32,12 +35,13 @@ const submissionPopulate = [
             },
         },
     },
+    communityVotesPopulate,
 ];
 
 const submissionPopulateWithJudges = [
     {
         path: 'contest',
-        select: 'name screeners status download id creators hasPublicJudges',
+        select: 'name screeners judges status download id creators hasPublicJudges communityVoteCount communityVoteOrderedPriority',
     },
     {
         path: 'screenings',
@@ -61,6 +65,7 @@ const submissionPopulateWithJudges = [
             },
         ],
     },
+    communityVotesPopulate,
 ];
 
 const contestPopulate = [
@@ -117,16 +122,19 @@ resultsRouter.get('/participated', async (req, res) => {
 
 /* GET user's screening id on a submission (for submission results page) */
 resultsRouter.get('/userScreening/:contestId/:submissionId/:userId', async (req, res) => {
+    if (req.params.userId !== req.session.mongoId) {
+        return res.json({});
+    }
+
     const contestId = req.params.contestId;
     const submissionId = req.params.submissionId;
-    const userId = req.params.userId;
 
     const contest = await ContestModel.findById(contestId).orFail();
 
     const screenerIds = contest.screeners.map(s => s.toString());
 
-    if (screenerIds.includes(userId)) {
-        const screening = await ScreeningModel.findOne({ submission: submissionId as any, screener: userId as any });
+    if (screenerIds.includes(req.session.mongoId)) {
+        const screening = await ScreeningModel.findOne({ submission: submissionId as any, screener: req.session.mongoId as any });
 
         if (screening) {
             return res.json(screening.id);
@@ -179,19 +187,28 @@ resultsRouter.get('/searchContest/:id', async (req, res) => {
         if (!isCreator) return res.json(null);
     }
 
-    const voterVoteCounts = new Map<string, number>();
+    const voterData = new Map<string, { count: number; voteValues: number[] }>();
 
     for (const submission of contest.submissions) {
         for (const cv of (submission.communityVotes || [])) {
             if (cv.voter && cv.vote > 0) {
                 const voterId = cv.voter._id?.toString() || cv.voter.toString();
-                voterVoteCounts.set(voterId, (voterVoteCounts.get(voterId) || 0) + 1);
+                const existing = voterData.get(voterId);
+
+                if (existing) {
+                    existing.count++;
+                    existing.voteValues.push(cv.vote);
+                } else {
+                    voterData.set(voterId, { count: 1, voteValues: [cv.vote] });
+                }
             }
         }
     }
 
-    const badActorIds = new Set([...voterVoteCounts.entries()]
-        .filter(([, count]) => count > contest.communityVoteCount)
+    const hasDuplicateRank = (voteValues: number[]) => new Set(voteValues).size !== voteValues.length;
+
+    const badActorIds = new Set([...voterData.entries()]
+        .filter(([, data]) => data.count > contest.communityVoteCount || (contest.communityVoteOrderedPriority && hasDuplicateRank(data.voteValues)))
         .map(([id]) => id));
 
     const contestObj = contest.toObject();

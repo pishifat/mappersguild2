@@ -15,23 +15,59 @@
             <table class="table table-sm">
                 <thead>
                     <tr>
-                        <th v-bs-tooltip="'anonymized name seen by screeners/judges'" scope="col">
-                            Submission
+                        <th
+                            scope="col"
+                            class="sortable"
+                            @click="setSort('name')"
+                        >
+                            <span v-bs-tooltip="'anonymized name seen by screeners/judges'">Submission</span> <i v-if="activeSort.key === 'name'" class="fas ms-1" :class="activeSort.asc ? 'fa-arrow-up' : 'fa-arrow-down'" />
                         </th>
-                        <th scope="col">
-                            Creator
+                        <th
+                            scope="col"
+                            class="sortable"
+                            @click="setSort('creator')"
+                        >
+                            Creator <i v-if="activeSort.key === 'creator'" class="fas ms-1" :class="activeSort.asc ? 'fa-arrow-up' : 'fa-arrow-down'" />
                         </th>
-                        <th v-if="contest.judgingThreshold" v-bs-tooltip="`screeners sort entries in their ordered top ${contest.screeningVoteCount}. #1 adds ${contest.screeningVoteCount} points, #2 adds ${contest.screeningVoteCount-1} points, #3 adds ${contest.screeningVoteCount-2}, etc.`" scope="col">
-                            Screener votes ({{ contest.screeners.length * contest.screeningVoteCount }})
+                        <th
+                            v-if="hasScreening"
+                            scope="col"
+                            class="sortable"
+                            @click="setSort('screening')"
+                        >
+                            <span v-bs-tooltip="`screeners sort entries in their ordered top ${contest.screeningVoteCount}. #1 adds ${contest.screeningVoteCount} points, #2 adds ${contest.screeningVoteCount-1} points, #3 adds ${contest.screeningVoteCount-2}, etc.`">Screener votes ({{ contest.screeners.length * contest.screeningVoteCount }})</span> <i v-if="activeSort.key === 'screening'" class="fas ms-1" :class="activeSort.asc ? 'fa-arrow-up' : 'fa-arrow-down'" />
                         </th>
-                        <th v-if="hasCommunityVotes" v-bs-tooltip="contest.communityVoteOrderedPriority ? 'Weighted votes based on priority order' : 'Total votes received'" scope="col">
-                            Community votes
+                        <th
+                            v-if="hasCommunityVotes"
+                            scope="col"
+                            class="sortable"
+                            @click="setSort('communityRaw')"
+                        >
+                            Raw votes <i v-if="activeSort.key === 'communityRaw'" class="fas ms-1" :class="activeSort.asc ? 'fa-arrow-up' : 'fa-arrow-down'" />
                         </th>
-                        <th scope="col">
-                            Raw scores ({{ maxScore }})
+                        <th
+                            v-if="hasCommunityVotes && contest.communityVoteOrderedPriority"
+                            scope="col"
+                            class="sortable"
+                            @click="setSort('communityWeighted')"
+                        >
+                            <span v-bs-tooltip="'Weighted votes based on priority order'">Weighted votes</span> <i v-if="activeSort.key === 'communityWeighted'" class="fas ms-1" :class="activeSort.asc ? 'fa-arrow-up' : 'fa-arrow-down'" />
                         </th>
-                        <th v-if="!contest.useRawScoring" v-bs-tooltip="`judge X's final score = (judge X's raw score - judge X's average raw score) / judge X's standard deviation`" scope="col">
-                            Standardized scores
+                        <th
+                            v-if="hasJudging"
+                            scope="col"
+                            class="sortable"
+                            @click="setSort('raw')"
+                        >
+                            Raw scores ({{ maxScore }}) <i v-if="activeSort.key === 'raw'" class="fas ms-1" :class="activeSort.asc ? 'fa-arrow-up' : 'fa-arrow-down'" />
+                        </th>
+                        <th
+                            v-if="hasJudging && !contest.useRawScoring"
+                            scope="col"
+                            class="sortable"
+                            @click="setSort('standardized')"
+                        >
+                            <span v-bs-tooltip="`judge X's final score = (judge X's raw score - judge X's average raw score) / judge X's standard deviation`">Standardized scores</span> <i v-if="activeSort.key === 'standardized'" class="fas ms-1" :class="activeSort.asc ? 'fa-arrow-up' : 'fa-arrow-down'" />
                         </th>
                     </tr>
                 </thead>
@@ -45,7 +81,7 @@
                         <td scope="row">
                             <user-link :user="submission.creator" />
                         </td>
-                        <td v-if="contest.judgingThreshold">
+                        <td v-if="hasScreening">
                             <span v-for="i in voteCount(submission.screenings)" :key="i">
                                 <i class="fas fa-check text-done me-1" />
                             </span>
@@ -54,14 +90,17 @@
                             </span>
                         </td>
                         <td v-if="hasCommunityVotes">
-                            {{ communityVoteScore(submission.communityVotes) }}
+                            {{ rawVoteCount(submission.communityVotes) }}
                         </td>
-                        <td>
+                        <td v-if="hasCommunityVotes && contest.communityVoteOrderedPriority">
+                            {{ weightedVoteScore(submission.communityVotes) }}
+                        </td>
+                        <td v-if="hasJudging">
                             <span :class="contest.useRawScoring && judgeScore (submission.judgings) > 0 ? 'text-done' : ''">
                                 {{ judgeScore (submission.judgings) || 'N/A' }}
                             </span>
                         </td>
-                        <td v-if="!contest.useRawScoring">
+                        <td v-if="hasJudging && !contest.useRawScoring">
                             <span :class="judgeScore (submission.judgings) > 0 ? 'text-done' : ''">
                                 <div v-if="!usersScores.length">calculating...</div>
                                 <div v-else>{{ getFinalScore (submission.id) || 'N/A' }}</div>
@@ -79,18 +118,27 @@ import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import { Contest } from '@interfaces/contest/contest';
 import { Submission } from '@interfaces/contest/submission';
+import { ContestResultsSortKey as SortKey } from '@interfaces/extras';
 
 export default defineComponent({
     name: 'ContestResults',
     data () {
         return {
             usersScores: [] as any,
+            sortKey: null as SortKey | null,
+            sortAsc: true,
         };
     },
     computed: {
         ...mapState({
             contest: (state: any) => state.contestResults.contest as Contest,
         }),
+        hasScreening (): boolean {
+            return this.contest.screeners && this.contest.screeners.length > 0;
+        },
+        hasJudging (): boolean {
+            return this.contest.judges && this.contest.judges.length > 0;
+        },
         hasCommunityVotes (): boolean {
             return this.contest.submissions.some(s => s.communityVotes && s.communityVotes.length);
         },
@@ -103,27 +151,50 @@ export default defineComponent({
 
             return count * this.contest.judges.length;
         },
-        sortedSubmissions (): Submission[] {
-            if (this.contest.useRawScoring) {
-                return [...this.contest.submissions].sort((a, b) => {
-                    const aValue = this.judgeScore(a.judgings);
-                    const bValue = this.judgeScore(b.judgings);
-
-                    return bValue - aValue;
-                });
-            } else {
-                const judgedSubmissions = [...this.contest.submissions.filter(s => s.judgings && s.judgings.length)].sort((a, b) => {
-                    const aValue = this.getFinalScore(a.id);
-                    const bValue = this.getFinalScore(b.id);
-
-                    return bValue - aValue;
-                });
-
-                const allSubmissions = judgedSubmissions.concat([...this.contest.submissions.filter(s => !s.judgings || (s.judgings && !s.judgings.length))]);
-
-                return allSubmissions;
+        defaultSortKey (): SortKey {
+            if (this.hasCommunityVotes && !this.hasScreening && !this.hasJudging) {
+                return this.contest.communityVoteOrderedPriority ? 'communityWeighted' : 'communityRaw';
             }
 
+            if (this.hasJudging && !this.contest.useRawScoring) return 'standardized';
+            if (this.hasJudging) return 'raw';
+            if (this.hasScreening) return 'screening';
+
+            return 'name';
+        },
+        activeSort (): { key: SortKey; asc: boolean } {
+            return { key: this.sortKey ?? this.defaultSortKey, asc: this.sortKey ? this.sortAsc : false };
+        },
+        sortedSubmissions (): Submission[] {
+            const { key, asc } = this.activeSort;
+            const dir = asc ? 1 : -1;
+
+            const getValue = (s: Submission): string | number | null => {
+                if (key === 'name') return s.name.toLowerCase();
+                if (key === 'creator') return (s.creator as any).username.toLowerCase();
+                if (key === 'screening') return this.voteCount(s.screenings, true);
+                if (key === 'communityRaw') return this.rawVoteCount(s.communityVotes);
+                if (key === 'communityWeighted') return this.weightedVoteScore(s.communityVotes);
+                if (key === 'raw') return this.judgeScore(s.judgings);
+                if (key === 'standardized') return (s.judgings && s.judgings.length) ? this.getFinalScore(s.id) : null;
+
+                return 0;
+            };
+
+            return [...this.contest.submissions].sort((a, b) => {
+                const aVal = getValue(a);
+                const bVal = getValue(b);
+
+                if (aVal === null && bVal === null) return 0;
+                if (aVal === null) return 1;
+                if (bVal === null) return -1;
+
+                if (typeof aVal === 'string' && typeof bVal === 'string') {
+                    return aVal.localeCompare(bVal) * dir;
+                }
+
+                return ((aVal as number) - (bVal as number)) * dir;
+            });
         },
     },
     async created () {
@@ -134,6 +205,14 @@ export default defineComponent({
         }
     },
     methods: {
+        setSort (key: SortKey): void {
+            if (this.sortKey === key) {
+                this.sortAsc = !this.sortAsc;
+            } else {
+                this.sortKey = key;
+                this.sortAsc = key === 'name' || key === 'creator';
+            }
+        },
         voteCount (screenings, accuracy): number {
             let count = 0;
 
@@ -157,8 +236,11 @@ export default defineComponent({
 
             return count;
         },
-        communityVoteScore (communityVotes): number {
-            return (communityVotes || []).reduce((acc, v) => acc + (v.vote || 0), 0);
+        rawVoteCount (communityVotes): number {
+            return (communityVotes || []).filter(v => v.vote > 0).length;
+        },
+        weightedVoteScore (communityVotes): number {
+            return (communityVotes || []).reduce((acc, v) => acc + (v.vote > 0 ? this.contest.communityVoteCount + 1 - v.vote : 0), 0);
         },
         getFinalScore (id: string): number {
             const score = this.usersScores.find(s => s.submissionId == id);
@@ -172,3 +254,14 @@ export default defineComponent({
     },
 });
 </script>
+
+<style scoped>
+.sortable {
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+}
+.sortable:hover {
+    color: rgba(255, 255, 255, 0.6);
+}
+</style>

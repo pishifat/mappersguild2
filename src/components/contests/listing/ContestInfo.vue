@@ -311,7 +311,6 @@
                 <community-vote-dates
                     class="mb-2"
                     :contest-id="contest.id"
-                    :community-vote-start="contest.communityVoteStart ? contest.communityVoteStart.slice(0,10) : null"
                     :community-vote-end="contest.communityVoteEnd ? contest.communityVoteEnd.slice(0,10) : null"
                 />
 
@@ -336,6 +335,25 @@
                     class="collapse"
                     :contest-id="contest.id"
                 />
+
+                <div v-if="loggedInUser && loggedInUser.group == usergroupAdmin" class="mt-2 d-flex gap-2">
+                    <button
+                        v-bs-tooltip="'generate ~100 dummy votes from real users for testing'"
+                        type="button"
+                        class="btn btn-sm btn-outline-info"
+                        @click="generateDummyCommunityVotes($event)"
+                    >
+                        Generate dummy votes
+                    </button>
+                    <button
+                        v-bs-tooltip="'delete all community votes for this contest'"
+                        type="button"
+                        class="btn btn-sm btn-outline-danger"
+                        @click="deleteAllCommunityVotes($event)"
+                    >
+                        Delete all votes
+                    </button>
+                </div>
 
                 <hr />
 
@@ -446,6 +464,30 @@ export default defineComponent({
         ]),
     },
     methods: {
+        async generateDummyCommunityVotes(e): Promise<void> {
+            const res = await this.$http.executePost(`/contests/listing/${this.contest.id}/generateDummyCommunityVotes`, {}, e);
+
+            if (!this.$http.isError(res)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: 'Generated dummy community votes',
+                    type: 'info',
+                });
+            }
+        },
+        async deleteAllCommunityVotes(e): Promise<void> {
+            const result = confirm('Delete all community votes for this contest?');
+
+            if (result) {
+                const res = await this.$http.executePost(`/contests/listing/${this.contest.id}/deleteAllCommunityVotes`, {}, e);
+
+                if (!this.$http.isError(res)) {
+                    this.$store.dispatch('updateToastMessages', {
+                        message: 'Deleted all community votes',
+                        type: 'info',
+                    });
+                }
+            }
+        },
         async deleteContest(e): Promise<void> {
             const result = confirm(`Are you sure?`);
 

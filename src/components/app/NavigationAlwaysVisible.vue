@@ -67,6 +67,11 @@
                         Judging
                     </router-link>
                 </li>
+                <li>
+                    <router-link class="dropdown-item" to="/contests/vote">
+                        Community Vote
+                    </router-link>
+                </li>
             </ul>
         </li>
         <!--<li class="nav-item">

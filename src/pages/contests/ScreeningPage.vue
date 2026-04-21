@@ -55,7 +55,7 @@
         </div>
 
         <div v-else class="text-center p-3">
-            No contests available for screening.
+            You're not a screener for any ongoing contests! Return to the <a href="/contests/listing">contests listing</a>.
         </div>
     </div>
 </template>

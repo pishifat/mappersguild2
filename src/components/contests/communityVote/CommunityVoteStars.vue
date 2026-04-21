@@ -5,26 +5,26 @@
                 v-for="i in voteCount"
                 :key="i"
                 class="mx-1"
-                :class="{ 'disabled-star': (usedVotes.includes(i) && savedVote != i) || voteLoading }"
+                :class="{ 'disabled-star': (usedVotes.includes(i) && savedVote != i) || voteLoading || votingClosed }"
                 href="#"
                 @click.prevent="updateVote(i)"
             >
                 <i
                     class="fa-star fas"
-                    :class="{ 'text-warning': savedVote == i }"
+                    :class="{ 'text-guild': savedVote == i }"
                 />
             </a>
         </template>
         <template v-else>
             <a
                 class="mx-1"
-                :class="{ 'disabled-star': usedVotes.filter(v => v > 0).length >= voteCount && savedVote == 0 || voteLoading }"
+                :class="{ 'disabled-star': (usedVotes.filter(v => v > 0).length >= voteCount && savedVote == 0) || voteLoading || votingClosed }"
                 href="#"
                 @click.prevent="updateVote(1)"
             >
                 <i
                     class="fa-star fas"
-                    :class="{ 'text-warning': savedVote > 0 }"
+                    :class="{ 'text-guild': savedVote > 0 }"
                 />
             </a>
         </template>
@@ -51,6 +51,10 @@ export default defineComponent({
             default: 5,
         },
         orderedPriority: {
+            type: Boolean,
+            default: false,
+        },
+        votingClosed: {
             type: Boolean,
             default: false,
         },
@@ -87,5 +91,8 @@ export default defineComponent({
 .disabled-star {
     pointer-events: none;
     color: gray;
+}
+.text-guild {
+    color: var(--guild);
 }
 </style>

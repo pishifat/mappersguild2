@@ -164,7 +164,7 @@
                             Select a task
                         </option>
                         <template v-for="task in filteredTasks" :key="task">
-                            <option value="-" disabled v-if="task === 'Hitsounds'">
+                            <option v-if="task === 'Hitsounds'" value="-" disabled>
                                 ---
                             </option>
                             <option :value="task">

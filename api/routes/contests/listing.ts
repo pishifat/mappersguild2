@@ -57,7 +57,7 @@ const defaultContestPopulate = [
     },
 ];
 
-// hides mediator info
+// hides screener info
 function getLimitedDefaultPopulate(mongoId) {
     return [
         {
@@ -129,20 +129,10 @@ listingRouter.get('/searchContest/:contestId', async (req, res) => {
         .populate(defaultContestPopulate);
 
     if (!contest) {
-        const tempContest = await ContestModel
+        contest = await ContestModel
             .findById(req.params.contestId)
-            .orFail();
-
-        if (tempContest.status == ContestStatus.Complete) {
-            contest = await ContestModel
-                .findById(req.params.contestId)
-                .populate(defaultContestPopulate);
-        } else {
-            contest = await ContestModel
-                .findById(req.params.contestId)
-                .populate(getLimitedDefaultPopulate(req.session.mongoId))
-                .select(limitedContestSelect);
-        }
+            .populate(getLimitedDefaultPopulate(req.session.mongoId))
+            .select(limitedContestSelect);
     }
 
     res.json(contest);
@@ -908,25 +898,28 @@ listingRouter.get('/:id/communityVoteResults', isContestCreator, async (req, res
         })
         .orFail();
 
-    const voterVoteCounts = new Map<string, { osuId: number; username: string; count: number }>();
+    const voterData = new Map<string, { osuId: number; username: string; count: number; voteValues: number[] }>();
 
     for (const submission of fullContest.submissions) {
         for (const cv of (submission.communityVotes || [])) {
             if (cv.voter && cv.vote > 0) {
                 const voterId = cv.voter._id.toString();
-                const existing = voterVoteCounts.get(voterId);
+                const existing = voterData.get(voterId);
 
                 if (existing) {
                     existing.count++;
+                    existing.voteValues.push(cv.vote);
                 } else {
-                    voterVoteCounts.set(voterId, { osuId: cv.voter.osuId, username: cv.voter.username, count: 1 });
+                    voterData.set(voterId, { osuId: cv.voter.osuId, username: cv.voter.username, count: 1, voteValues: [cv.vote] });
                 }
             }
         }
     }
 
-    const badActors = [...voterVoteCounts.entries()]
-        .filter(([, data]) => data.count > fullContest.communityVoteCount)
+    const hasDuplicateRank = (voteValues: number[]) => new Set(voteValues).size !== voteValues.length;
+
+    const badActors = [...voterData.entries()]
+        .filter(([, data]) => data.count > fullContest.communityVoteCount || (fullContest.communityVoteOrderedPriority && hasDuplicateRank(data.voteValues)))
         .map(([id, data]) => ({ id, osuId: data.osuId, username: data.username, count: data.count }));
 
     const badActorIds = new Set(badActors.map(a => a.id));
@@ -988,27 +981,6 @@ listingRouter.post('/:id/updateCommunityVoteDescription', isContestCreator, isEd
 });
 
 /* POST update community vote start date */
-listingRouter.post('/:id/updateCommunityVoteStart', isContestCreator, isEditable, async (req, res) => {
-    const newDate = new Date(req.body.date);
-
-    if (!(newDate instanceof Date && !isNaN(newDate.getTime()))) {
-        return res.json({ error: 'Invalid date' });
-    }
-
-    const contest = await ContestModel
-        .findById(req.params.id)
-        .orFail();
-
-    if (contest.communityVoteEnd && new Date(contest.communityVoteEnd) < newDate) {
-        return res.json({ error: 'Start date must be before end date!' });
-    }
-
-    contest.communityVoteStart = newDate;
-    await contest.save();
-
-    res.json(contest.communityVoteStart);
-});
-
 /* POST update community vote end date */
 listingRouter.post('/:id/updateCommunityVoteEnd', isContestCreator, isEditable, async (req, res) => {
     const newDate = new Date(req.body.date);
@@ -1021,14 +993,52 @@ listingRouter.post('/:id/updateCommunityVoteEnd', isContestCreator, isEditable, 
         .findById(req.params.id)
         .orFail();
 
-    if (contest.communityVoteStart && newDate < new Date(contest.communityVoteStart)) {
-        return res.json({ error: 'End date must be after start date!' });
-    }
-
     contest.communityVoteEnd = newDate;
     await contest.save();
 
     res.json(contest.communityVoteEnd);
+});
+
+/* POST generate dummy community votes for testing */
+listingRouter.post('/:id/generateDummyCommunityVotes', isContestCreator, async (req, res) => {
+    const contest = await ContestModel
+        .findById(req.params.id)
+        .orFail();
+
+    if (!contest.submissions.length) {
+        return res.json({ error: 'No submissions to vote on' });
+    }
+
+    const users = await UserModel.find().limit(100);
+    const submissionIds = contest.submissions.map(s => s.toString());
+    const voteCount = contest.communityVoteCount || 1;
+
+    for (const user of users) {
+        const shuffled = [...submissionIds].sort(() => Math.random() - 0.5).slice(0, Math.min(voteCount, submissionIds.length));
+
+        for (let i = 0; i < shuffled.length; i++) {
+            const vote = contest.communityVoteOrderedPriority ? i + 1 : 1;
+
+            const communityVote = new CommunityVoteModel();
+            communityVote.voter = user._id;
+            communityVote.vote = vote;
+            communityVote.submission = shuffled[i] as any;
+            await communityVote.save();
+        }
+    }
+
+    res.json({ success: 'ok' });
+});
+
+/* POST delete all community votes for this contest */
+listingRouter.post('/:id/deleteAllCommunityVotes', isContestCreator, async (req, res) => {
+    const contest = await ContestModel
+        .findById(req.params.id)
+        .orFail();
+
+    await CommunityVoteModel.deleteMany({ submission: { $in: contest.submissions } });
+
+    res.json({ success: 'ok' });
 });
 
 /* helper function for calculating judging results */
