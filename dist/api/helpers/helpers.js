@@ -147,12 +147,20 @@ async function setBeatmapStatusRanked(id, bmInfo) {
         const gdUsers = [];
         const modes = [];
         let storyboard = null;
+        let hitsounds = null;
+        let skin = null;
         // fill empty variables with data
         for (const task of beatmap.tasks) {
             if (task.mode == 'sb' && task.mappers[0].id != beatmap.host.id) {
                 storyboard = task;
             }
-            else if (task.mode != 'sb' && task.mode != 'hs' && task.mode != 'skin') {
+            else if (task.mode == 'hs') {
+                hitsounds = task;
+            }
+            else if (task.mode == 'skin') {
+                skin = task;
+            }
+            else if (task.mode != 'sb') {
                 task.mappers.forEach(mapper => {
                     if (!gdUsernames.includes(mapper.username) && mapper.username != beatmap.host.username) {
                         gdUsernames.push(mapper.username);
@@ -201,11 +209,31 @@ async function setBeatmapStatusRanked(id, bmInfo) {
             }
         }
         let storyboardText = '';
-        // add storyboarder to webhook and update points for storyboarder
+        // add storyboarder to webhook and update points for storyboard contributors
         if (storyboard) {
             const storyboarder = storyboard.mappers[0];
             storyboardText = `\nStoryboard by [**${storyboarder.username}**](https://osu.ppy.sh/users/${storyboarder.osuId})`;
-            (0, points_1.updateUserPoints)(storyboarder.id);
+            for (const mapper of storyboard.mappers) {
+                if (mapper.id != beatmap.host.id) {
+                    (0, points_1.updateUserPoints)(mapper.id);
+                }
+            }
+        }
+        // update points for hitsound contributors (if not already covered as host)
+        if (hitsounds) {
+            for (const mapper of hitsounds.mappers) {
+                if (mapper.id != beatmap.host.id) {
+                    (0, points_1.updateUserPoints)(mapper.id);
+                }
+            }
+        }
+        // update points for skin contributors (if not already covered as host)
+        if (skin) {
+            for (const mapper of skin.mappers) {
+                if (mapper.id != beatmap.host.id) {
+                    (0, points_1.updateUserPoints)(mapper.id);
+                }
+            }
         }
         let showcaseText = '';
         if (beatmap.isShowcase) {
