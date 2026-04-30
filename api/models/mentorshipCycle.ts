@@ -7,6 +7,7 @@ const mentorshipCycleSchema = new Schema<MentorshipCycle>({
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
     url: { type: String },
+    isPublic: { type: Boolean, default: false },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 mentorshipCycleSchema.virtual('participants', {

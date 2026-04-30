@@ -1,6 +1,9 @@
 <template>
     <div class="col-sm-3">
         <h5>{{ title }}</h5>
+        <div v-if="!modeMentors || !modeMentors.length" class="text-secondary">
+            No mentors...
+        </div>
         <ol>
             <li v-for="user in modeMentors" :key="user.id + mode">
                 <user-link-list
@@ -12,6 +15,7 @@
                     class="text-secondary"
                 >*</span>
                 <a
+                    v-if="loggedInUser.isMentorshipAdmin"
                     href="#"
                     class="text-success ms-1 small"
                     @click.prevent="editingMentorId = user.id"
@@ -20,7 +24,7 @@
                 </a>
                 <span v-if="!findMentees(user.id).length">
                     <a
-                        v-if="confirmDeleteMentor != user.id"
+                        v-if="confirmDeleteMentor != user.id && loggedInUser.isMentorshipAdmin"
                         href="#"
                         class="text-danger ms-1 small"
                         @click.prevent="confirmDeleteMentor = user.id"
@@ -28,7 +32,7 @@
                         <i class="fas fa-minus" />
                     </a>
                     <a
-                        v-else
+                        v-else-if="loggedInUser.isMentorshipAdmin"
                         class="text-danger"
                         href="#"
                         @click.prevent="removeParticipant($event, findExtraMentors(user.id).length ? findExtraMentors(user.id)[findExtraMentors(user.id).length - 1].id : user.id)"
@@ -76,7 +80,7 @@
                             class="text-secondary"
                         >*</span>
                         <a
-                            v-if="confirmDeleteMentee != mentee.id"
+                            v-if="confirmDeleteMentee != mentee.id && loggedInUser.isMentorshipAdmin"
                             href="#"
                             class="text-danger ms-1 small"
                             @click.prevent="confirmDeleteMentee = mentee.id"
@@ -84,7 +88,7 @@
                             <i class="fas fa-minus" />
                         </a>
                         <a
-                            v-else
+                            v-else-if="loggedInUser.isMentorshipAdmin"
                             class="text-danger"
                             href="#"
                             @click.prevent="removeParticipant($event, mentee.id)"
@@ -124,7 +128,7 @@
                 </div>
             </li>
         </ol>
-        <div class="input-group mb-3">
+        <div v-if="loggedInUser.isMentorshipAdmin" class="input-group mb-3">
             <input
                 v-model="mentorInput"
                 class="form-control form-control-sm"

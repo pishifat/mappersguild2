@@ -11,7 +11,6 @@ import { defaultErrorMessage } from '../helpers/helpers';
 const mentorshipRouter = express.Router();
 
 mentorshipRouter.use(isLoggedIn);
-mentorshipRouter.use(isMentorshipAdmin);
 
 const defaultCyclePopulate = [
     { path: 'participants', select: 'username osuId mentorships' },
@@ -43,7 +42,7 @@ mentorshipRouter.get('/query', async (req, res) => {
 });
 
 /* GET badge users */
-mentorshipRouter.get('/loadTenureBadges', async (req, res) => {
+mentorshipRouter.get('/loadTenureBadges', isMentorshipAdmin, async (req, res) => {
     const users = await UserModel
         .find({
             mentorships: {
@@ -169,7 +168,7 @@ mentorshipRouter.get('/findExtraMentees/:cycleId/:userId/:mode', async (req, res
 });
 
 /* POST toggle mentorship admin */
-mentorshipRouter.post('/toggleIsMentorshipAdmin', async (req, res) => {
+mentorshipRouter.post('/toggleIsMentorshipAdmin', isMentorshipAdmin, async (req, res) => {
     let osuId;
 
     if (req.body.userInput) {
@@ -207,7 +206,7 @@ mentorshipRouter.post('/toggleIsMentorshipAdmin', async (req, res) => {
 });
 
 /* POST add cycle */
-mentorshipRouter.post('/addCycle', async (req, res) => {
+mentorshipRouter.post('/addCycle', isMentorshipAdmin, async (req, res) => {
     const { number, name, url, startDate, endDate, duplicateCycleId } = req.body;
 
     if (!number || !name || !url || !startDate || !endDate) {
@@ -275,7 +274,7 @@ mentorshipRouter.post('/addCycle', async (req, res) => {
 });
 
 /* POST add mentor */
-mentorshipRouter.post('/addMentor', async (req, res) => {
+mentorshipRouter.post('/addMentor', isMentorshipAdmin, async (req, res) => {
     const { cycleId, userInput, mode, mainMentorId } = req.body;
 
     const [cycle, response] = await Promise.all([
@@ -363,7 +362,7 @@ mentorshipRouter.post('/addMentor', async (req, res) => {
 });
 
 /* POST add mentee */
-mentorshipRouter.post('/addMentee', async (req, res) => {
+mentorshipRouter.post('/addMentee', isMentorshipAdmin, async (req, res) => {
     const { cycleId, userInput, mode, mentorId } = req.body;
 
     const [cycle, response] = await Promise.all([
@@ -461,7 +460,7 @@ mentorshipRouter.post('/addMentee', async (req, res) => {
 });
 
 /* POST remove participant */
-mentorshipRouter.post('/removeParticipant', async (req, res) => {
+mentorshipRouter.post('/removeParticipant', isMentorshipAdmin, async (req, res) => {
     const { cycleId, userId, mode } = req.body;
 
     const [cycle, user] = await Promise.all([
@@ -490,7 +489,7 @@ mentorshipRouter.post('/removeParticipant', async (req, res) => {
 });
 
 /* POST update cycle name */
-mentorshipRouter.post('/updateCycleName', async (req, res) => {
+mentorshipRouter.post('/updateCycleName', isMentorshipAdmin, async (req, res) => {
     const { cycleId, name } = req.body;
     const finalName = name.trim();
 
@@ -518,7 +517,7 @@ mentorshipRouter.post('/updateCycleName', async (req, res) => {
 });
 
 /* POST update cycle number */
-mentorshipRouter.post('/updateCycleNumber', async (req, res) => {
+mentorshipRouter.post('/updateCycleNumber', isMentorshipAdmin, async (req, res) => {
     const { cycleId, number } = req.body;
     const finalNumber = parseInt(number, 10);
 
@@ -546,7 +545,7 @@ mentorshipRouter.post('/updateCycleNumber', async (req, res) => {
 });
 
 /* POST update cycle url */
-mentorshipRouter.post('/updateCycleUrl', async (req, res) => {
+mentorshipRouter.post('/updateCycleUrl', isMentorshipAdmin, async (req, res) => {
     const { cycleId, url } = req.body;
     const finalUrl = url.trim();
 
@@ -566,7 +565,7 @@ mentorshipRouter.post('/updateCycleUrl', async (req, res) => {
 });
 
 /* POST update cycle start date */
-mentorshipRouter.post('/updateCycleStartDate', async (req, res) => {
+mentorshipRouter.post('/updateCycleStartDate', isMentorshipAdmin, async (req, res) => {
     const { cycleId, startDate } = req.body;
     const finalStartDate = new Date(startDate);
 
@@ -592,7 +591,7 @@ mentorshipRouter.post('/updateCycleStartDate', async (req, res) => {
 });
 
 /* POST update cycle end date */
-mentorshipRouter.post('/updateCycleEndDate', async (req, res) => {
+mentorshipRouter.post('/updateCycleEndDate', isMentorshipAdmin, async (req, res) => {
     const { cycleId, endDate } = req.body;
     const finalEndDate = new Date(endDate);
 
@@ -617,8 +616,27 @@ mentorshipRouter.post('/updateCycleEndDate', async (req, res) => {
     res.json(cycle);
 });
 
+/* POST toggle cycle isPublic */
+mentorshipRouter.post('/toggleCycleIsPublic', isMentorshipAdmin, async (req, res) => {
+    const { cycleId } = req.body;
+
+    const cycle = await MentorshipCycleModel
+        .findById(cycleId)
+        .populate(defaultCyclePopulate)
+        .orFail();
+
+    cycle.isPublic = !cycle.isPublic;
+    await cycle.save();
+
+    await cycle.populate({
+        path: 'participants',
+    });
+
+    res.json(cycle);
+});
+
 /* POST add user manually */
-mentorshipRouter.post('/addUserManually', async (req, res) => {
+mentorshipRouter.post('/addUserManually', isMentorshipAdmin, async (req, res) => {
     const { usernameInput, osuIdInput } = req.body;
 
     const osuId = parseInt(osuIdInput, 10);
@@ -649,7 +667,7 @@ mentorshipRouter.post('/addUserManually', async (req, res) => {
 });
 
 /* POST toggle phase */
-mentorshipRouter.post('/togglePhase', async (req, res) => {
+mentorshipRouter.post('/togglePhase', isMentorshipAdmin, async (req, res) => {
     const { cycleId, userId, mode, phaseNum, mentorId } = req.body;
 
     const [cycle, user] = await Promise.all([
@@ -748,7 +766,7 @@ mentorshipRouter.post('/togglePhase', async (req, res) => {
 });
 
 /* POST edit badge value */
-mentorshipRouter.post('/editBadgeValue', async (req, res) => {
+mentorshipRouter.post('/editBadgeValue', isMentorshipAdmin, async (req, res) => {
     const { userId, value } = req.body;
 
     const user = await UserModel.findById(userId).orFail();

@@ -2,11 +2,13 @@
     <div>
         <participants />
         <user-details />
-        <hr />
-        <cycles />
-        <administrators />
-        <add-user-manually />
-        <tenure-badges />
+        <div v-if="loggedInUser.isMentorshipAdmin">
+            <hr />
+            <cycles />
+            <administrators />
+            <add-user-manually />
+            <tenure-badges />
+        </div>
     </div>
 </template>
 

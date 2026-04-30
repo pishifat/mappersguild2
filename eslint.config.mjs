@@ -110,6 +110,7 @@ export default tseslint.config(
                 multiline: 1,
             }],
             'vue/v-on-event-hyphenation': 'off',
+            'vue/multi-word-component-names': 'off',
         },
     }
 );

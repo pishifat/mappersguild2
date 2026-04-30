@@ -1,6 +1,9 @@
 <template>
     <div>
         <div class="container card card-body py-3 mb-2">
+            <h4>
+                Mentorship cycles and participants
+            </h4>
             <div class="row">
                 <div class="col-sm-6 mb-2">
                     <select
@@ -18,7 +21,8 @@
             </div>
             <div v-if="selectedCycle">
                 <hr />
-                <div v-if="showCycleInputs" class="mb-4">
+                <div v-if="loggedInUser.isMentorshipAdmin && showCycleInputs" class="mb-4">
+                    <!-- name -->
                     <div class="row">
                         <div class="col-sm-2">
                             Cycle name:
@@ -43,6 +47,7 @@
                             </div>
                         </div>
                     </div>
+                    <!-- number -->
                     <div class="row">
                         <div class="col-sm-2">
                             Cycle number:
@@ -68,6 +73,7 @@
                             </div>
                         </div>
                     </div>
+                    <!-- url -->
                     <div class="row">
                         <div class="col-sm-2">
                             Cycle url:
@@ -92,6 +98,7 @@
                             </div>
                         </div>
                     </div>
+                    <!-- start date -->
                     <div class="row">
                         <div class="col-sm-2">
                             Cycle start date:
@@ -116,6 +123,7 @@
                             </div>
                         </div>
                     </div>
+                    <!-- end date -->
                     <div class="row">
                         <div class="col-sm-2">
                             Cycle end date:
@@ -140,13 +148,28 @@
                             </div>
                         </div>
                     </div>
+                    <!-- end date -->
+                    <div class="row">
+                        <div class="col-sm-2">
+                            Cycle public:
+                        </div>
+                        <div class="col-sm-4 mb-2">
+                            <button
+                                class="btn btn-primary"
+                                href="#"
+                                @click.prevent="toggleCycleIsPublic($event)"
+                            >
+                                set as {{ selectedCycle.isPublic ? 'not public' : 'public' }}
+                            </button>
+                        </div>
+                    </div>
                     <a href="#" @click.prevent="showCycleInputs = !showCycleInputs">
                         stop editing (close without saving)
                     </a>
                 </div>
                 <h4 v-else>
                     {{ selectedCycle.name }}
-                    <a href="#" @click.prevent="showCycleInputs = !showCycleInputs">
+                    <a v-if="loggedInUser.isMentorshipAdmin" href="#" @click.prevent="showCycleInputs = !showCycleInputs">
                         {{ showCycleInputs ? 'close' : '' }} <i v-if="!showCycleInputs" class="fas fa-edit" />
                     </a>
                 </h4>
@@ -154,7 +177,7 @@
                     {{ selectedCycle.startDate.slice(0,10) }} - {{ selectedCycle.endDate.slice(0,10) }}
                 </h5>
 
-                <button class="btn btn-sm btn-outline-info mb-2" @click="toggleShowPhases()">
+                <button v-if="loggedInUser.isMentorshipAdmin" class="btn btn-sm btn-outline-info mb-2" @click="toggleShowPhases()">
                     {{ showPhases ? 'Hide' : 'Show' }} phases
                 </button>
 
@@ -291,6 +314,17 @@ export default defineComponent({
             if (!this.$http.isError(cycle)) {
                 this.$store.dispatch('updateToastMessages', {
                     message: `Updated cycle end date`,
+                    type: 'info',
+                });
+                this.$store.commit('mentorship/updateCycle', cycle);
+            }
+        },
+        async toggleCycleIsPublic(e): Promise<void> {
+            const cycle: any = await this.$http.executePost(`/mentorship/toggleCycleIsPublic`, { cycleId: this.selectedCycle.id }, e);
+
+            if (!this.$http.isError(cycle)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `Set cycle as ${cycle.isPublic ? 'public' : 'not public'}`,
                     type: 'info',
                 });
                 this.$store.commit('mentorship/updateCycle', cycle);

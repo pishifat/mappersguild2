@@ -8,6 +8,7 @@ export interface MentorshipCycle extends Document {
     startDate: Date;
     endDate: Date;
     url: string;
+    isPublic: boolean;
 
     /** virtual field to populate */
     participants: User[];
