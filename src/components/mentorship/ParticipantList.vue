@@ -288,6 +288,10 @@ export default defineComponent({
                 taikoModding: 'osu!taiko',
                 catchModding: 'osu!catch',
                 maniaModding: 'osu!mania',
+                osuGraduation: 'osu!',
+                taikoGraduation: 'osu!taiko',
+                catchGraduation: 'osu!catch',
+                maniaGraduation: 'osu!mania',
             };
 
             return baseMap[this.mode] ?? this.mode;
@@ -295,6 +299,7 @@ export default defineComponent({
         titleSuffix(): string | null {
             if (['osu', 'taiko', 'catch', 'mania'].includes(this.mode)) return '(mapping)';
             if (['osuModding', 'taikoModding', 'catchModding', 'maniaModding'].includes(this.mode)) return '(modding)';
+            if (['osuGraduation', 'taikoGraduation', 'catchGraduation', 'maniaGraduation'].includes(this.mode)) return '(graduation)';
 
             return null;
         },

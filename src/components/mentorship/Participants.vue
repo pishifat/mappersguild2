@@ -148,7 +148,7 @@
                             </div>
                         </div>
                     </div>
-                    <!-- end date -->
+                    <!-- public -->
                     <div class="row">
                         <div class="col-sm-2">
                             Cycle public:
@@ -174,21 +174,29 @@
                             {{ showCycleInputs ? 'close' : '' }} <i v-if="!showCycleInputs" class="fas fa-edit" />
                         </a>
                     </span>
-                    <button class="btn btn-sm btn-outline-secondary" @click="showModding = !showModding">
-                        Show {{ showModding ? 'mapping' : 'modding' }} mentorship
+                    <button v-if="loggedInUser.isMentorshipAdmin" class="btn btn-sm btn-outline-info" @click="toggleShowPhases()">
+                        {{ showPhases ? 'Hide' : 'Show' }} phases
                     </button>
                 </h4>
                 <h5 class="text-secondary small">
                     {{ selectedCycle.startDate.slice(0,10) }} - {{ selectedCycle.endDate.slice(0,10) }}
                 </h5>
 
-                <button v-if="loggedInUser.isMentorshipAdmin" class="btn btn-sm btn-outline-info mb-2" @click="toggleShowPhases()">
-                    {{ showPhases ? 'Hide' : 'Show' }} phases
-                </button>
+                <div class="row small my-3">
+                    <div class="col-auto filter-title">
+                        Filter:
+                    </div>
+                    <div class="col">
+                        <a href="#" :class="modeFilter === 'mapping' ? 'sorted' : 'unsorted'" @click.prevent="modeFilter = 'mapping'">mapping</a>
+                        <a href="#" :class="modeFilter === 'modding' ? 'sorted' : 'unsorted'" @click.prevent="modeFilter = 'modding'">modding</a>
+                        <a href="#" :class="modeFilter === 'graduation' ? 'sorted' : 'unsorted'" @click.prevent="modeFilter = 'graduation'">graduation</a>
+                        <a href="#" :class="modeFilter === 'other' ? 'sorted' : 'unsorted'" @click.prevent="modeFilter = 'other'">other</a>
+                    </div>
+                </div>
 
                 <div>
                     <div class="row">
-                        <template v-if="!showModding">
+                        <template v-if="modeFilter === 'mapping'">
                             <participant-list
                                 :mode="'osu'"
                             />
@@ -202,7 +210,7 @@
                                 :mode="'mania'"
                             />
                         </template>
-                        <template v-else>
+                        <template v-else-if="modeFilter === 'modding'">
                             <participant-list
                                 :mode="'osuModding'"
                             />
@@ -216,10 +224,21 @@
                                 :mode="'maniaModding'"
                             />
                         </template>
-                        <template v-if="!showModding">
+                        <template v-else-if="modeFilter === 'graduation'">
                             <participant-list
-                                :mode="'graduation'"
+                                :mode="'osuGraduation'"
                             />
+                            <participant-list
+                                :mode="'taikoGraduation'"
+                            />
+                            <participant-list
+                                :mode="'catchGraduation'"
+                            />
+                            <participant-list
+                                :mode="'maniaGraduation'"
+                            />
+                        </template>
+                        <template v-else-if="modeFilter === 'other'">
                             <participant-list
                                 :mode="'storyboard'"
                             />
@@ -246,7 +265,7 @@ export default defineComponent({
         return {
             cycleId: '',
             showCycleInputs: false,
-            showModding: false,
+            modeFilter: 'mapping',
             cycleNameInput: null,
             cycleNumberInput: null,
             cycleUrlInput: null,

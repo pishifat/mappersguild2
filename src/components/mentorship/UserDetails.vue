@@ -61,7 +61,19 @@
                         :group="'mentor'"
                     />
                     <cycle-list
-                        :mode="'graduation'"
+                        :mode="'osuGraduation'"
+                        :group="'mentor'"
+                    />
+                    <cycle-list
+                        :mode="'taikoGraduation'"
+                        :group="'mentor'"
+                    />
+                    <cycle-list
+                        :mode="'catchGraduation'"
+                        :group="'mentor'"
+                    />
+                    <cycle-list
+                        :mode="'maniaGraduation'"
                         :group="'mentor'"
                     />
                     <cycle-list
@@ -103,6 +115,22 @@
                     />
                     <cycle-list
                         :mode="'maniaModding'"
+                        :group="'mentee'"
+                    />
+                    <cycle-list
+                        :mode="'osuGraduation'"
+                        :group="'mentee'"
+                    />
+                    <cycle-list
+                        :mode="'taikoGraduation'"
+                        :group="'mentee'"
+                    />
+                    <cycle-list
+                        :mode="'catchGraduation'"
+                        :group="'mentee'"
+                    />
+                    <cycle-list
+                        :mode="'maniaGraduation'"
                         :group="'mentee'"
                     />
                     <cycle-list
