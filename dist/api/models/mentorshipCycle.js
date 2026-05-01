@@ -41,6 +41,7 @@ const mentorshipCycleSchema = new mongoose_1.Schema({
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
     url: { type: String },
+    isPublic: { type: Boolean, default: false },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 mentorshipCycleSchema.virtual('participants', {
     ref: 'User',
