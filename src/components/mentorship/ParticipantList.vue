@@ -1,56 +1,79 @@
 <template>
     <div class="col-sm-3">
-        <h5>{{ title }}</h5>
+        <h5>{{ titleBase }}<span v-if="titleSuffix" class="text-secondary small ms-1">{{ titleSuffix }}</span></h5>
         <div v-if="!modeMentors || !modeMentors.length" class="text-secondary">
             No mentors...
         </div>
         <ol>
             <li v-for="user in modeMentors" :key="user.id + mode">
-                <user-link-list
-                    :users="findCombinedMentors(user)"
-                />
-                <span
-                    v-if="!involvedInAllPhases(user)"
-                    v-bs-tooltip="'skips phases'"
-                    class="text-secondary"
-                >*</span>
-                <a
-                    v-if="loggedInUser.isMentorshipAdmin"
-                    href="#"
-                    class="text-success ms-1 small"
-                    @click.prevent="editingMentorId = user.id"
-                >
-                    <i class="fas fa-plus" />
-                </a>
-                <span v-if="!findMentees(user.id).length">
+                <template v-if="loggedInUser.isMentorshipAdmin">
+                    <user-link-list
+                        :users="findCombinedMentors(user)"
+                    />
+                    <span
+                        v-if="!involvedInAllPhases(user)"
+                        v-bs-tooltip="'skips phases'"
+                        class="text-secondary"
+                    >*</span>
                     <a
-                        v-if="confirmDeleteMentor != user.id && loggedInUser.isMentorshipAdmin"
                         href="#"
-                        class="text-danger ms-1 small"
-                        @click.prevent="confirmDeleteMentor = user.id"
+                        class="text-success ms-1 small"
+                        @click.prevent="editingMentorId = user.id"
                     >
-                        <i class="fas fa-minus" />
+                        <i class="fas fa-plus" />
                     </a>
-                    <a
-                        v-else-if="loggedInUser.isMentorshipAdmin"
-                        class="text-danger"
-                        href="#"
-                        @click.prevent="removeParticipant($event, findExtraMentors(user.id).length ? findExtraMentors(user.id)[findExtraMentors(user.id).length - 1].id : user.id)"
-                    >
-                        confirm
-                    </a>
-                </span>
-                <span v-if="showPhases" class="small">
-                    <a
-                        v-for="i in 3"
-                        :key="i"
-                        href="#"
-                        :class="phaseEdit ? 'fake-button-disable' : ''"
-                        @click.prevent="togglePhase(user, i, null)"
-                    >
-                        <span :class="isPhaseParticipant(user, i, user.id) ? '' : 'text-danger'" class="ms-1">P{{ i }}</span>
-                    </a>
-                </span>
+                    <span v-if="!findMentees(user.id).length">
+                        <a
+                            v-if="confirmDeleteMentor != user.id"
+                            href="#"
+                            class="text-danger ms-1 small"
+                            @click.prevent="confirmDeleteMentor = user.id"
+                        >
+                            <i class="fas fa-minus" />
+                        </a>
+                        <a
+                            v-else
+                            class="text-danger"
+                            href="#"
+                            @click.prevent="removeParticipant($event, findExtraMentors(user.id).length ? findExtraMentors(user.id)[findExtraMentors(user.id).length - 1].id : user.id)"
+                        >
+                            confirm
+                        </a>
+                    </span>
+                    <span v-if="showPhases" class="small">
+                        <a
+                            v-for="i in 3"
+                            :key="i"
+                            href="#"
+                            :class="phaseEdit ? 'fake-button-disable' : ''"
+                            @click.prevent="togglePhase(user, i, null)"
+                        >
+                            <span :class="isPhaseParticipant(user, i, user.id) ? '' : 'text-danger'" class="ms-1">P{{ i }}</span>
+                        </a>
+                    </span>
+                </template>
+                <template v-else>
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1 text-truncate" style="min-width: 0;">
+                            <user-link-list
+                                :users="findCombinedMentors(user)"
+                            />
+                            <span
+                                v-if="!involvedInAllPhases(user)"
+                                v-bs-tooltip="'skips phases'"
+                                class="text-secondary"
+                            >*</span>
+                        </div>
+                        <span v-if="!involvedInAllPhases(user)" class="phase-circles">
+                            <i
+                                v-for="i in 3"
+                                :key="i"
+                                :class="isPhaseParticipant(user, i, user.id) ? 'fas fa-circle' : 'far fa-circle'"
+                                class="ms-1"
+                            />
+                        </span>
+                    </div>
+                </template>
                 <div v-if="editingMentorId == user.id" class="input-group mt-1">
                     <input
                         v-model="extraMentorInput"
@@ -71,41 +94,65 @@
                 </div>
                 <ul>
                     <li v-for="mentee in findMentees(user.id)" :key="mentee.id + mode" class="small">
-                        <user-link
-                            :user="mentee"
-                        />
-                        <span
-                            v-if="!involvedInAllPhases(mentee)"
-                            v-bs-tooltip="'skips phases'"
-                            class="text-secondary"
-                        >*</span>
-                        <a
-                            v-if="confirmDeleteMentee != mentee.id && loggedInUser.isMentorshipAdmin"
-                            href="#"
-                            class="text-danger ms-1 small"
-                            @click.prevent="confirmDeleteMentee = mentee.id"
-                        >
-                            <i class="fas fa-minus" />
-                        </a>
-                        <a
-                            v-else-if="loggedInUser.isMentorshipAdmin"
-                            class="text-danger"
-                            href="#"
-                            @click.prevent="removeParticipant($event, mentee.id)"
-                        >
-                            confirm
-                        </a>
-                        <span v-if="showPhases" class="small">
+                        <template v-if="loggedInUser.isMentorshipAdmin">
+                            <user-link
+                                :user="mentee"
+                            />
+                            <span
+                                v-if="!involvedInAllPhases(mentee)"
+                                v-bs-tooltip="'skips phases'"
+                                class="text-secondary"
+                            >*</span>
                             <a
-                                v-for="i in 3"
-                                :key="i"
+                                v-if="confirmDeleteMentee != mentee.id"
                                 href="#"
-                                :class="phaseEdit ? 'fake-button-disable' : ''"
-                                @click.prevent="togglePhase(mentee, i, user.id)"
+                                class="text-danger ms-1 small"
+                                @click.prevent="confirmDeleteMentee = mentee.id"
                             >
-                                <span :class="isPhaseParticipant(mentee, i, user.id) ? '' : 'text-danger'" class="ms-1">P{{ i }}</span>
+                                <i class="fas fa-minus" />
                             </a>
-                        </span>
+                            <a
+                                v-else
+                                class="text-danger"
+                                href="#"
+                                @click.prevent="removeParticipant($event, mentee.id)"
+                            >
+                                confirm
+                            </a>
+                            <span v-if="showPhases" class="small">
+                                <a
+                                    v-for="i in 3"
+                                    :key="i"
+                                    href="#"
+                                    :class="phaseEdit ? 'fake-button-disable' : ''"
+                                    @click.prevent="togglePhase(mentee, i, user.id)"
+                                >
+                                    <span :class="isPhaseParticipant(mentee, i, user.id) ? '' : 'text-danger'" class="ms-1">P{{ i }}</span>
+                                </a>
+                            </span>
+                        </template>
+                        <template v-else>
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1 text-truncate" style="min-width: 0;">
+                                    <user-link
+                                        :user="mentee"
+                                    />
+                                    <span
+                                        v-if="!involvedInAllPhases(mentee)"
+                                        v-bs-tooltip="'skips phases'"
+                                        class="text-secondary"
+                                    >*</span>
+                                </div>
+                                <span v-if="!involvedInAllPhases(mentee)" class="phase-circles">
+                                    <i
+                                        v-for="i in 3"
+                                        :key="i"
+                                        :class="isPhaseParticipant(mentee, i, user.id) ? 'fas fa-circle' : 'far fa-circle'"
+                                        class="ms-1"
+                                    />
+                                </span>
+                            </div>
+                        </template>
                     </li>
                 </ul>
                 <div v-if="editingMentorId == user.id" class="input-group">
@@ -231,14 +278,25 @@ export default defineComponent({
 
             return users;
         },
-        title(): string {
-            if (this.mode == 'modding' || this.mode == 'graduation' || this.mode == 'storyboard') {
-                return this.mode;
-            } else if (this.mode == 'osu') {
-                return 'osu!';
-            } else {
-                return 'osu!' + this.mode;
-            }
+        titleBase(): string {
+            const baseMap: Record<string, string> = {
+                osu: 'osu!',
+                taiko: 'osu!taiko',
+                catch: 'osu!catch',
+                mania: 'osu!mania',
+                osuModding: 'osu!',
+                taikoModding: 'osu!taiko',
+                catchModding: 'osu!catch',
+                maniaModding: 'osu!mania',
+            };
+
+            return baseMap[this.mode] ?? this.mode;
+        },
+        titleSuffix(): string | null {
+            if (['osu', 'taiko', 'catch', 'mania'].includes(this.mode)) return '(mapping)';
+            if (['osuModding', 'taikoModding', 'catchModding', 'maniaModding'].includes(this.mode)) return '(modding)';
+
+            return null;
         },
     },
     beforeCreate () {
@@ -353,5 +411,9 @@ export default defineComponent({
 .fake-button-disable {
     pointer-events: none;
     opacity: 0.6;
+}
+.phase-circles {
+    font-size: 0.25em;
+    color: var(--bs-secondary);
 }
 </style>

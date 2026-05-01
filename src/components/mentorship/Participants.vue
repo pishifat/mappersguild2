@@ -167,11 +167,16 @@
                         stop editing (close without saving)
                     </a>
                 </div>
-                <h4 v-else>
-                    {{ selectedCycle.name }}
-                    <a v-if="loggedInUser.isMentorshipAdmin" href="#" @click.prevent="showCycleInputs = !showCycleInputs">
-                        {{ showCycleInputs ? 'close' : '' }} <i v-if="!showCycleInputs" class="fas fa-edit" />
-                    </a>
+                <h4 v-else class="d-flex justify-content-between align-items-center">
+                    <span>
+                        {{ selectedCycle.name }}
+                        <a v-if="loggedInUser.isMentorshipAdmin" href="#" @click.prevent="showCycleInputs = !showCycleInputs">
+                            {{ showCycleInputs ? 'close' : '' }} <i v-if="!showCycleInputs" class="fas fa-edit" />
+                        </a>
+                    </span>
+                    <button class="btn btn-sm btn-outline-secondary" @click="showModding = !showModding">
+                        Show {{ showModding ? 'mapping' : 'modding' }} mentorship
+                    </button>
                 </h4>
                 <h5 class="text-secondary small">
                     {{ selectedCycle.startDate.slice(0,10) }} - {{ selectedCycle.endDate.slice(0,10) }}
@@ -183,27 +188,42 @@
 
                 <div>
                     <div class="row">
-                        <participant-list
-                            :mode="'osu'"
-                        />
-                        <participant-list
-                            :mode="'taiko'"
-                        />
-                        <participant-list
-                            :mode="'catch'"
-                        />
-                        <participant-list
-                            :mode="'mania'"
-                        />
-                        <participant-list
-                            :mode="'modding'"
-                        />
-                        <participant-list
-                            :mode="'graduation'"
-                        />
-                        <participant-list
-                            :mode="'storyboard'"
-                        />
+                        <template v-if="!showModding">
+                            <participant-list
+                                :mode="'osu'"
+                            />
+                            <participant-list
+                                :mode="'taiko'"
+                            />
+                            <participant-list
+                                :mode="'catch'"
+                            />
+                            <participant-list
+                                :mode="'mania'"
+                            />
+                        </template>
+                        <template v-else>
+                            <participant-list
+                                :mode="'osuModding'"
+                            />
+                            <participant-list
+                                :mode="'taikoModding'"
+                            />
+                            <participant-list
+                                :mode="'catchModding'"
+                            />
+                            <participant-list
+                                :mode="'maniaModding'"
+                            />
+                        </template>
+                        <template v-if="!showModding">
+                            <participant-list
+                                :mode="'graduation'"
+                            />
+                            <participant-list
+                                :mode="'storyboard'"
+                            />
+                        </template>
                     </div>
                 </div>
             </div>
@@ -226,6 +246,7 @@ export default defineComponent({
         return {
             cycleId: '',
             showCycleInputs: false,
+            showModding: false,
             cycleNameInput: null,
             cycleNumberInput: null,
             cycleUrlInput: null,

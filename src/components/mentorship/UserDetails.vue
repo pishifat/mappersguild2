@@ -45,7 +45,19 @@
                         :group="'mentor'"
                     />
                     <cycle-list
-                        :mode="'modding'"
+                        :mode="'osuModding'"
+                        :group="'mentor'"
+                    />
+                    <cycle-list
+                        :mode="'taikoModding'"
+                        :group="'mentor'"
+                    />
+                    <cycle-list
+                        :mode="'catchModding'"
+                        :group="'mentor'"
+                    />
+                    <cycle-list
+                        :mode="'maniaModding'"
                         :group="'mentor'"
                     />
                     <cycle-list
@@ -78,7 +90,19 @@
                         :group="'mentee'"
                     />
                     <cycle-list
-                        :mode="'modding'"
+                        :mode="'osuModding'"
+                        :group="'mentee'"
+                    />
+                    <cycle-list
+                        :mode="'taikoModding'"
+                        :group="'mentee'"
+                    />
+                    <cycle-list
+                        :mode="'catchModding'"
+                        :group="'mentee'"
+                    />
+                    <cycle-list
+                        :mode="'maniaModding'"
                         :group="'mentee'"
                     />
                     <cycle-list

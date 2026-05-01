@@ -1,7 +1,7 @@
 <template>
     <div v-if="modeMentorships.length" class="col-sm-3">
         <div class="text-center">
-            <b :class="modeMentorships.length >= 4 && group == 'mentee' ? 'text-danger' : ''">{{ title }} {{ group }} cycles ({{ mentorshipsToPhases }})</b>
+            <b :class="modeMentorships.length >= 4 && group == 'mentee' ? 'text-danger' : ''">{{ titleBase }}<span v-if="titleSuffix" class="text-secondary small ms-1">{{ titleSuffix }}</span> {{ group }} cycles ({{ mentorshipsToPhases }})</b>
         </div>
         <ul>
             <li v-for="mentorship in modeMentorships" :key="mentorship.id + mode">
@@ -89,14 +89,25 @@ export default defineComponent({
         modeDuration(): number {
             return this.calculateDuration(this.modeMentorships);
         },
-        title(): string {
-            if (this.mode == 'modding' || this.mode == 'graduation' || this.mode == 'storyboard') {
-                return this.mode;
-            } else if (this.mode == 'osu') {
-                return 'osu!';
-            } else {
-                return 'osu!' + this.mode;
-            }
+        titleBase(): string {
+            const baseMap: Record<string, string> = {
+                osu: 'osu!',
+                taiko: 'osu!taiko',
+                catch: 'osu!catch',
+                mania: 'osu!mania',
+                osuModding: 'osu!',
+                taikoModding: 'osu!taiko',
+                catchModding: 'osu!catch',
+                maniaModding: 'osu!mania',
+            };
+
+            return baseMap[this.mode] ?? this.mode;
+        },
+        titleSuffix(): string | null {
+            if (['osu', 'taiko', 'catch', 'mania'].includes(this.mode)) return '(mapping)';
+            if (['osuModding', 'taikoModding', 'catchModding', 'maniaModding'].includes(this.mode)) return '(modding)';
+
+            return null;
         },
     },
     watch: {
