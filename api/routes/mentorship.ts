@@ -24,6 +24,8 @@ const userCyclePopulate = [
 
 /* GET users listing. */
 mentorshipRouter.get('/query', async (req, res) => {
+    const isAdmin = res.locals.userRequest.isMentorshipAdmin;
+
     const admins = await UserModel
         .find({
             isMentorshipAdmin: true,
@@ -31,7 +33,7 @@ mentorshipRouter.get('/query', async (req, res) => {
         .sort({ username: 1 });
 
     const cycles = await MentorshipCycleModel
-        .find({})
+        .find(isAdmin ? {} : { isPublic: true })
         .populate(defaultCyclePopulate)
         .sort({ number: -1 });
 
