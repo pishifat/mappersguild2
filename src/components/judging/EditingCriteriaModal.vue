@@ -130,11 +130,6 @@ export default defineComponent({
             if (this.$http.isError(res)) return;
 
             this.$store.commit('setJudgingDone', res.judgingDone);
-
-            this.$store.dispatch('updateToastMessages', {
-                message: res.success,
-                type: 'info',
-            });
         },
         closeModal(): void {
             document.getElementById('close-button')?.click();
