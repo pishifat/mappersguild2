@@ -195,10 +195,10 @@ beatmapsRouter.post('/:id/updateModder', async (req, res) => {
     });
     let update;
     if (isAlreadyModder) {
-        update = { $pull: { modders: req.session?.mongoId }, queuedForRank: false };
+        update = { $pull: { modders: req.session?.mongoId } };
     }
     else {
-        update = { $push: { modders: req.session?.mongoId }, queuedForRank: false };
+        update = { $push: { modders: req.session?.mongoId } };
     }
     let b = await beatmap_1.BeatmapModel
         .findById(req.params.id)
