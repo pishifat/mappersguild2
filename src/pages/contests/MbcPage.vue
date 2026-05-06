@@ -6,6 +6,12 @@
             </div>
         </div>
         <hr />
+        <div class="container card card-body py-1 mb-3">
+            <div class="p-3">
+                <slider-shape-analysis />
+            </div>
+        </div>
+        <hr />
         <div class="container card card-body py-1">
             <div class="p-3">
                 <h4 class="mb-3">
@@ -27,6 +33,7 @@ import CountNotesPerColumn from '@components/contests/mbc/CountNotesPerColumn.vu
 import Six from '@components/contests/mbc/Six.vue';
 import TaikoAverageSv from '@components/contests/mbc/TaikoAverageSV.vue';
 import PriorityQuestLimitation from '@components/contests/mbc/PriorityQuestLimitation.vue';
+import SliderShapeAnalysis from '@components/contests/mbc/SliderShapeAnalysis.vue';
 
 export default defineComponent({
     name: 'MbcPage',
@@ -35,6 +42,7 @@ export default defineComponent({
         Six,
         TaikoAverageSv,
         PriorityQuestLimitation,
+        SliderShapeAnalysis,
     },
 });
 </script>
