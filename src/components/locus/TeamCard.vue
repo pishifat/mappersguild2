@@ -5,7 +5,7 @@
                 {{ teamInfo.isOnTeam ? 'Mark as "not on a team"' : 'Mark as "on a team"' }}
             </button>
             <button class="btn btn-sm btn-outline-danger" @click="adminHideUser($event)">
-                {{ teamInfo.isHiddenByAdmin ? 'Unhide (admin only)' : 'Hide (admin only)' }}
+                {{ teamInfo.isHiddenByAdmin ? 'Unhide' : 'Hide' }}
             </button>
         </div>
         <div v-if="teamInfo.isOnTeam" class="on-team-text fs-1 pointer-events-none">
