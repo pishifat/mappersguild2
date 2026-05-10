@@ -47,7 +47,7 @@ const communityVote_1 = __importDefault(require("./routes/contests/communityVote
 const parties_1 = __importDefault(require("./routes/parties"));
 const mentorship_1 = __importDefault(require("./routes/mentorship"));
 const missions_2 = __importDefault(require("./routes/missions"));
-const locus_1 = __importDefault(require("./routes/locus/locus"));
+const teamContest_1 = __importDefault(require("./routes/teamContest"));
 const merch_2 = __importDefault(require("./routes/merch"));
 const interOp_1 = __importDefault(require("./routes/interOp"));
 const app = (0, express_1.default)();
@@ -88,7 +88,7 @@ app.use('/parties', parties_1.default);
 app.use('/logs', logs_1.default);
 app.use('/mentorship', mentorship_1.default);
 app.use('/missions', missions_2.default);
-app.use('/locus', locus_1.default);
+app.use('/aspire', teamContest_1.default);
 app.use('/merch', merch_2.default);
 app.use('/contests/listing', listing_1.default);
 app.use('/contests/results', results_1.default);

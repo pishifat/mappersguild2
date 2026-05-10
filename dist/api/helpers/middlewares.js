@@ -5,12 +5,14 @@ exports.isLoggedIn = isLoggedIn;
 exports.isValidUser = isValidUser;
 exports.isAdmin = isAdmin;
 exports.isMentorshipAdmin = isMentorshipAdmin;
-exports.isLocusAdmin = isLocusAdmin;
+exports.isTeamContestAdmin = isTeamContestAdmin;
 exports.hasMerchAccess = hasMerchAccess;
 exports.isSuperAdmin = isSuperAdmin;
 exports.isBn = isBn;
+exports.isTeamContestUser = isTeamContestUser;
 exports.isValidUrl = isValidUrl;
 const user_1 = require("../models/user");
+const teamInfo_1 = require("../models/teamInfo");
 const user_2 = require("../../interfaces/user");
 const osuApi_1 = require("./osuApi");
 function unauthorize(req, res) {
@@ -80,9 +82,8 @@ function isMentorshipAdmin(req, res, next) {
         unauthorize(req, res);
     }
 }
-function isLocusAdmin(req, res, next) {
-    const osuIds = [1893718, 18983, 7671790, 5052899]; // mangomizer, Doomsday, Komm, Matrix
-    if (osuIds.includes(res.locals.userRequest.osuId) || res.locals.userRequest.group == user_2.UserGroup.Admin) {
+function isTeamContestAdmin(req, res, next) {
+    if (res.locals.userRequest.isTeamContestAdmin || res.locals.userRequest.group == user_2.UserGroup.Admin) {
         next();
     }
     else {
@@ -114,6 +115,19 @@ async function isBn(accessToken) {
         }
     }
     return false;
+}
+async function isTeamContestUser(req, res, next) {
+    const id = req.params.id;
+    const teamInfo = await teamInfo_1.TeamInfoModel
+        .findById(id)
+        .populate({ path: 'user', select: 'username osuId' })
+        .orFail();
+    const isAdmin = res.locals.userRequest.group == user_2.UserGroup.Locus;
+    if (req.session.mongoId !== teamInfo.user.id && !isAdmin) {
+        return res.json({ error: 'Invalid user' });
+    }
+    res.locals.teamInfo = teamInfo;
+    next();
 }
 function isValidUrl(req, res, next) {
     if (!req.body.url?.length) {
