@@ -3,13 +3,14 @@
         <div class="col text-end pe-0">
             <img
                 class="mx-3"
-                :src="isLocus ? '/images/nexus.png' : isAspire ? '/images/aspire_temp.png' : '/images/mg-logo-text.png'"
+                :src="isLocus ? '/images/nexus.png' : '/images/mg-logo-text.png'"
                 width="100"
                 height="100"
             />
         </div>
         <div class="col ps-0 my-auto">
-            <h1>{{ title }}</h1>
+            <img v-if="isAspire" src="/images/aspire_text.png" style="height: 2rem; margin-top: 0.5rem; margin-bottom: 1rem;" />
+            <h1 v-else>{{ title }}</h1>
             <div class="linear-divisor mb-1" />
         </div>
     </div>
