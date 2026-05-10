@@ -1,5 +1,7 @@
 import { UserModel } from '../models/user';
+import { TeamInfoModel } from '../models/teamInfo';
 import { UserGroup } from '../../interfaces/user';
+import express from 'express';
 import { refreshToken, isOsuResponseError, getUserInfo } from './osuApi';
 
 export function unauthorize(req, res) {
@@ -79,10 +81,8 @@ export function isMentorshipAdmin(req, res, next): void {
     }
 }
 
-export function isLocusAdmin(req, res, next): void {
-    const osuIds = [1893718, 18983, 7671790, 5052899]; // mangomizer, Doomsday, Komm, Matrix
-
-    if (osuIds.includes(res.locals.userRequest.osuId) || res.locals.userRequest.group == UserGroup.Admin) {
+export function isTeamContestAdmin(req, res, next): void {
+    if (res.locals.userRequest.isTeamContestAdmin || res.locals.userRequest.group == UserGroup.Admin) {
         next();
     } else {
         unauthorize(req, res);
@@ -117,6 +117,24 @@ export async function isBn(accessToken): Promise<boolean> {
     }
 
     return false;
+}
+
+export async function isTeamContestUser(req: express.Request, res: express.Response, next: express.NextFunction): Promise<express.Response | void> {
+    const id = req.params.id;
+    const teamInfo = await TeamInfoModel
+        .findById(id)
+        .populate({ path: 'user', select: 'username osuId' })
+        .orFail();
+
+    const isAdmin = res.locals.userRequest.group == UserGroup.Locus;
+
+    if (req.session.mongoId !== teamInfo.user.id && !isAdmin) {
+        return res.json({ error: 'Invalid user' });
+    }
+
+    res.locals.teamInfo = teamInfo;
+
+    next();
 }
 
 export function isValidUrl(req, res, next): void {

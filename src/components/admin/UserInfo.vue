@@ -36,6 +36,13 @@
                         </button>
                     </div>
                 </div>
+                <div class="row mb-2">
+                    <div class="col-sm-4">
+                        <button class="btn btn-sm btn-outline-info w-100" @click="toggleIsTeamContestAdmin($event)">
+                            {{ user.isTeamContestAdmin ? 'Disable' : 'Enable' }} isTeamContestAdmin
+                        </button>
+                    </div>
+                </div>
                 <h6 class="mt-4">
                     Rewards
                 </h6>
@@ -272,6 +279,20 @@ export default defineComponent({
                 this.$store.commit('updateIsMentorshipAdmin', {
                     userId: this.user.id,
                     isMentorshipAdmin: res.isMentorshipAdmin,
+                });
+            }
+        },
+        async toggleIsTeamContestAdmin(e): Promise<void> {
+            const res: any = await this.$http.executePost(`/admin/users/${this.user.id}/toggleIsTeamContestAdmin`, { isTeamContestAdmin: !this.user.isTeamContestAdmin }, e);
+
+            if (res) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `set isTeamContestAdmin ${res.isTeamContestAdmin}`,
+                    type: 'info',
+                });
+                this.$store.commit('updateIsTeamContestAdmin', {
+                    userId: this.user.id,
+                    isTeamContestAdmin: res.isTeamContestAdmin,
                 });
             }
         },

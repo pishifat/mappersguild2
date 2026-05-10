@@ -33,6 +33,7 @@ export interface User extends Document {
     completedMissionsAsGuest: Mission[];
     discordId: string; // js doesnt support 18 digit numbers...
     isMentorshipAdmin: boolean;
+    isTeamContestAdmin: boolean;
     mentorships: {
         cycle: MentorshipCycle;
         mode: string;

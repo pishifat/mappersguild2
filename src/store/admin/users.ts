@@ -42,6 +42,13 @@ const store: Module<UserState, MainState> = {
                 user.isMentorshipAdmin = payload.isMentorshipAdmin;
             }
         },
+        updateIsTeamContestAdmin (state, payload): void {
+            const user = state.users.find(u => u.id == payload.userId);
+
+            if (user) {
+                user.isTeamContestAdmin = payload.isTeamContestAdmin;
+            }
+        },
         updateHasMerchAccess (state, payload): void {
             const user = state.users.find(u => u.id == payload.userId);
 

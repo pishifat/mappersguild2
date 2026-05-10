@@ -1,11 +1,12 @@
 <template>
     <div>
         <div class="container card card-body py-4 my-4">
-            <h3 class="text-center">
-                <a href="https://osu.ppy.sh/home/news/2025-01-31-locus" target="_blank">Locus</a>'s Nexus is closed for the year! Check back again in 2027 :)
-            </h3>
+            <h4>Welcome to Aspire!</h4>
+            (some kind of intro text goes here explaining what aspire is)
+            <hr />
+            <h5>What is this page?</h5>
+            (something about how this page is used to find a team member for the contest)
         </div>
-        <!--
         <team-page-filters :store-module="storeModule" :role-options="filterRoleOptions" />
         <div class="container card card-body mb-2">
             <h5 class="mt-2">
@@ -39,21 +40,20 @@
                 />
             </div>
         </div>
-        -->
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { mapState, mapGetters } from 'vuex';
-import locusModule from '@store/locus';
+import aspireModule from '@store/aspire';
 import { TeamInfo } from '@interfaces/teamInfo';
-import TeamPageFilters from './TeamPageFilters.vue';
+import TeamPageFilters from '@pages/locus/TeamPageFilters.vue';
 import SelfTeamInfo from '@components/locus/SelfTeamInfo.vue';
 import TeamCard from '@components/locus/TeamCard.vue';
 
 export default defineComponent({
-    name: 'LocusPage',
+    name: 'AspirePage',
     components: {
         TeamPageFilters,
         SelfTeamInfo,
@@ -61,35 +61,35 @@ export default defineComponent({
     },
     data () {
         return {
-            apiBase: '/locus',
-            storeModule: 'locus',
-            selfRoleOptions: ['visual designer', 'mapper', 'musician'],
-            filterRoleOptions: { any: 'Any', 'visual designer': 'Visual designer', mapper: 'Mapper', musician: 'Musician' },
+            apiBase: '/aspire',
+            storeModule: 'aspire',
+            selfRoleOptions: ['mapper', 'storyboarder'],
+            filterRoleOptions: { any: 'Any', mapper: 'Mapper', storyboarder: 'Storyboarder' },
         };
     },
     computed: {
         ...mapState([
             'loggedInUser',
         ]),
-        ...mapState('locus', [
+        ...mapState('aspire', [
             'selfTeamInfo',
         ]),
-        ...mapGetters('locus', [
+        ...mapGetters('aspire', [
             'filteredTeamInfos',
         ]),
     },
     beforeCreate () {
-        if (!this.$store.hasModule('locus')) {
-            this.$store.registerModule('locus', locusModule);
+        if (!this.$store.hasModule('aspire')) {
+            this.$store.registerModule('aspire', aspireModule);
         }
     },
     async created () {
-        /*const res = await this.$http.initialRequest<{ teamInfos: TeamInfo[], selfTeamInfo: TeamInfo }>('/locus/query');
+        const res = await this.$http.initialRequest<{ teamInfos: TeamInfo[], selfTeamInfo: TeamInfo }>('/aspire/query');
 
         if (!this.$http.isError(res)) {
-            this.$store.commit('locus/setTeamInfos', res.teamInfos);
-            this.$store.commit('locus/setSelfTeamInfo', res.selfTeamInfo);
-        }*/
+            this.$store.commit('aspire/setTeamInfos', res.teamInfos);
+            this.$store.commit('aspire/setSelfTeamInfo', res.selfTeamInfo);
+        }
     },
     methods: {
     },

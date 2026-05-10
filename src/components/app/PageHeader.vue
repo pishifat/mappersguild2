@@ -3,7 +3,7 @@
         <div class="col text-end pe-0">
             <img
                 class="mx-3"
-                :src="isLocus ? '/images/nexus.png' : '/images/mg-logo-text.png'"
+                :src="isLocus ? '/images/nexus.png' : isAspire ? '/images/aspire_temp.png' : '/images/mg-logo-text.png'"
                 width="100"
                 height="100"
             />
@@ -25,6 +25,9 @@ export default defineComponent({
         },
         isLocus () {
             return this.$route.path == '/locus';
+        },
+        isAspire () {
+            return this.$route.path == '/aspire';
         },
     },
 });

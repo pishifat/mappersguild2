@@ -6,7 +6,7 @@ interface TeamState {
     filterValue: string;
     teamInfos: TeamInfo[];
     selfTeamInfo: TeamInfo | null;
-    roleIs: 'any' | 'visual designer' | 'mapper' | 'musician';
+    roleIs: 'any' | 'mapper' | 'storyboarder';
 }
 
 function syncSelfInListing(state: TeamState): void {
@@ -32,7 +32,7 @@ const store: Module<TeamState, MainState> = {
         setSelfTeamInfo (state, selfTeamInfo: TeamInfo): void {
             state.selfTeamInfo = selfTeamInfo;
         },
-        setRoleIs (state, roleIs: 'any' | 'visual designer' | 'mapper' | 'musician'): void {
+        setRoleIs (state, roleIs: 'any' | 'mapper' | 'storyboarder'): void {
             state.roleIs = roleIs;
         },
         updateTimezone (state, timezone: string): void {

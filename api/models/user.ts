@@ -10,6 +10,7 @@ const UserSchema = new Schema({
     queuedBadge: { type: Number, default: 0 },
     discordId: { type: String },
     isMentorshipAdmin: { type: Boolean },
+    isTeamContestAdmin: { type: Boolean },
     mentorships: [{
         _id: false,
         cycle: { type: 'ObjectId', ref: 'MentorshipCycle', required: true },

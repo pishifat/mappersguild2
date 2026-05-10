@@ -33,6 +33,7 @@ const Artists = () => import('../pages/artists/ArtistPage.vue');
 // Other
 const Mentorship = () => import('../pages/MentorshipPage.vue');
 const Locus = () => import('../pages/locus/LocusPage.vue');
+const Aspire = () => import('../pages/aspire/AspirePage.vue');
 const Merch = () => import('../pages/MerchPage.vue');
 
 const routes = [
@@ -69,6 +70,7 @@ const routes = [
     // Other
     { path: '/mentorship', component: Mentorship, meta: { title: 'Mentorship' } },
     { path: '/locus', component: Locus, meta: { title: 'Locus' } },
+    { path: '/aspire', component: Aspire, meta: { title: 'Aspire' } },
     { path: '/merch', component: Merch, meta: { title: 'Merch' } },
 
     // Fallback

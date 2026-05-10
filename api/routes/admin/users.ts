@@ -89,6 +89,15 @@ adminUsersRouter.post('/:id/toggleIsMentorshipAdmin', async (req, res) => {
     res.json({ isMentorshipAdmin });
 });
 
+/* POST toggle isTeamContestAdmin */
+adminUsersRouter.post('/:id/toggleIsTeamContestAdmin', async (req, res) => {
+    const isTeamContestAdmin = req.body.isTeamContestAdmin;
+
+    await UserModel.findByIdAndUpdate(req.params.id, { isTeamContestAdmin }).orFail();
+
+    res.json({ isTeamContestAdmin });
+});
+
 /* POST toggle hasMerchAccess */
 adminUsersRouter.post('/:id/toggleHasMerchAccess', async (req, res) => {
     const hasMerchAccess = req.body.hasMerchAccess;

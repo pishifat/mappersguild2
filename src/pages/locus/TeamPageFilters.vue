@@ -13,7 +13,7 @@
                 <a
                     v-for="(roleText, role) in roleOptions"
                     :key="role"
-                    :class="roleIs === role || (roleIs == 'visual designer' && role == 'designer') ? 'sorted' : 'unsorted'"
+                    :class="roleIs === role ? 'sorted' : 'unsorted'"
                     href="#"
                     @click.prevent="updateRole(role)"
                 >
@@ -30,26 +30,32 @@ import FilterBox from '@components/FilterBox.vue';
 import { mapState, mapActions } from 'vuex';
 
 export default defineComponent({
-    name: 'LocusPageFilters',
+    name: 'TeamPageFilters',
     components: {
         FilterBox,
     },
-    data () {
-        return {
-            roleOptions: {
-                any: 'Any',
-                designer: 'Visual designer',
-                mapper: 'Mapper',
-                musician: 'Musician',
-            },
-        };
+    props: {
+        storeModule: {
+            type: String,
+            required: true,
+        },
+        roleOptions: {
+            type: Object,
+            required: true,
+        },
     },
-    computed: mapState('locus', [
-        'roleIs',
-    ]),
-    methods: mapActions('locus', [
-        'updateFilterValue',
-        'updateRole',
-    ]),
+    computed: {
+        roleIs() {
+            return this.$store.state[this.storeModule].roleIs;
+        },
+    },
+    methods: {
+        updateFilterValue(value: string): void {
+            this.$store.dispatch(`${this.storeModule}/updateFilterValue`, value);
+        },
+        updateRole(role: string): void {
+            this.$store.dispatch(`${this.storeModule}/updateRole`, role);
+        },
+    },
 });
 </script>

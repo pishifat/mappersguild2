@@ -1,6 +1,6 @@
 import { User } from './user';
 
-export interface LocusInfo extends Document {
+export interface TeamInfo extends Document {
     _id: any;
     id: string;
     user: User;
@@ -12,4 +12,6 @@ export interface LocusInfo extends Document {
     about: string,
     isPublic: boolean,
     isOnTeam: boolean,
+    isHiddenByAdmin: boolean,
+    contest: string,
 }
