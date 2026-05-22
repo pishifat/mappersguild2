@@ -51,7 +51,7 @@
             </ul>
         </div>
 
-        <div class="container card card-body py-4 my-4">
+        <div id="points" class="container card card-body py-4 my-4">
             <h4>How does the Mappers' Guild work?</h4>
             <h5>Rewards</h5>
             <div class="text-secondary small mb-2">
@@ -383,14 +383,11 @@
                 The goal of the <a href="/contests/listing">Mappers' Guild contest listing</a> is to make contests less of a hassle to run, so if you have a special need for your contest, talk to <a href="https://osu.ppy.sh/community/chat?channel_id=3178418" target="_blank">pishifat</a> about new features!
             </div>
 
-            <div v-if="!loggedInUser">
+            <div v-if="!loggedInUser" class="mt-3">
                 <div>
                     <h5>How do I join the Mappers' Guild?</h5>
                     <p class="text-secondary">
-                       Anyone can get involved in the Mappers' Guild by clicking the button below and authenticating through your osu! login.
-                    </p>
-                    <p class="text-secondary">
-                        Additionally, we recommend reading the <a href="/faq">frequently asked questions</a> page to better understand what you may be doing as a member of the Mappers' Guild.
+                       Anyone can get involved in the Mappers' Guild by clicking the button below and authenticating through osu!.
                     </p>
                 </div>
                 <div class="col-12 text-center">

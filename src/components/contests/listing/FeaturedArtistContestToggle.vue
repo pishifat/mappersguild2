@@ -11,7 +11,7 @@
             Featured Artist Contest
         </label>
         <div class="small text-secondary">
-            Contests using exclusively Featured Artist songs are eligible for <a href="/faq#rewards" target="_blank">Mappers' Guild points</a>:
+            Contests using exclusively Featured Artist songs are eligible for <a href="/#points" target="_blank">Mappers' Guild points</a>:
             <ul>
                 <li>
                     Contest organizer: 5 points
