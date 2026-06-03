@@ -154,7 +154,7 @@ indexRouter.get('/callback', async (req, res) => {
     const rankedBeatmapsCount = response.ranked_and_approved_beatmapset_count;
     const cover = response.cover;
 
-    /* "statistics_rulesets" isn't being loaded from the api call anymore. they were used for one priority quest years ago, so i'm not gonna bother fixing it
+    /* "statistics_rulesets" isn't being loaded from the api call for restricted users. they were used for one priority quest years ago, so i'm not gonna bother fixing it
     let globalRank = 0;
     let pp = 0;
     let ppOsu = 0;
