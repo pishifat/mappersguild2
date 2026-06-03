@@ -11,28 +11,10 @@ artistsRouter.use(isLoggedIn);
 artistsRouter.use(isAdmin);
 artistsRouter.use(isSuperAdmin);
 
-/* GET mostly relevant artists */
+/* GET artists */
 artistsRouter.get('/loadArtists', async (req, res) => {
     res.json(await FeaturedArtistModel
-        .find({
-            $or: [
-                { isContacted: true },
-                { osuId: { $exists: true } },
-            ],
-        })
-        .defaultPopulate()
-    );
-});
-
-/* GET the rest of them */
-artistsRouter.get('/loadOtherArtists', async (req, res) => {
-    res.json(await FeaturedArtistModel
-        .find({
-            $or: [
-                { isContacted: { $ne: true } },
-                { osuId: { $exists: false } },
-            ],
-        })
+        .find({})
         .defaultPopulate()
     );
 });

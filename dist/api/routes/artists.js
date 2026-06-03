@@ -11,26 +11,10 @@ const artistsRouter = express_1.default.Router();
 artistsRouter.use(middlewares_1.isLoggedIn);
 artistsRouter.use(middlewares_1.isAdmin);
 artistsRouter.use(middlewares_1.isSuperAdmin);
-/* GET mostly relevant artists */
+/* GET artists */
 artistsRouter.get('/loadArtists', async (req, res) => {
     res.json(await featuredArtist_1.FeaturedArtistModel
-        .find({
-        $or: [
-            { isContacted: true },
-            { osuId: { $exists: true } },
-        ],
-    })
-        .defaultPopulate());
-});
-/* GET the rest of them */
-artistsRouter.get('/loadOtherArtists', async (req, res) => {
-    res.json(await featuredArtist_1.FeaturedArtistModel
-        .find({
-        $or: [
-            { isContacted: { $ne: true } },
-            { osuId: { $exists: false } },
-        ],
-    })
+        .find({})
         .defaultPopulate());
 });
 /* POST new artist. */

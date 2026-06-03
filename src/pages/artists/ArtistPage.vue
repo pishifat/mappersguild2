@@ -6,17 +6,6 @@
 
         <artists-in-progress class="mb-2" />
 
-        <div class="text-center mt-2 mb-4">
-            <button
-                v-bs-tooltip="'this will lag'"
-                class="btn btn-sm btn-primary"
-                type="button"
-                @click="showAll($event)"
-            >
-                <i class="fas fa-angle-down me-1" /> show planned/inactive artists <i class="fas fa-angle-down ms-1" />
-            </button>
-        </div>
-
         <artists-planned class="mb-2" />
 
         <artists-inactive />
@@ -81,15 +70,6 @@ export default defineComponent({
         if (res) {
             this.$store.commit('setArtists', res);
         }
-    },
-    methods: {
-        async showAll (e) {
-            const res: any = await this.$http.executeGet('/artists/loadOtherArtists');
-
-            if (res) {
-                this.$store.commit('addArtists', res);
-            }
-        },
     },
 });
 </script>
