@@ -224,6 +224,7 @@ indexRouter.get('/callback', async (req, res) => {
             saveTrigger = true;
         }
 
+        /*
         if (user.globalRank != globalRank) {
             user.globalRank = globalRank;
             saveTrigger = true;
@@ -252,7 +253,7 @@ indexRouter.get('/callback', async (req, res) => {
         if (user.ppMania != ppMania) {
             user.ppMania = ppMania;
             saveTrigger = true;
-        }
+        }*/
 
         if (!user.cover || user.cover.url != cover.url) {
             user.cover = cover;
