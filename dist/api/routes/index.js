@@ -130,15 +130,19 @@ indexRouter.get('/callback', async (req, res) => {
     const group = user_2.UserGroup.User;
     const rankedBeatmapsCount = response.ranked_and_approved_beatmapset_count;
     const cover = response.cover;
+    /* "statistics_rulesets" isn't being loaded from the api call anymore. they were used for one priority quest years ago, so i'm not gonna bother fixing it
     let globalRank = 0;
     let pp = 0;
     let ppOsu = 0;
     let ppTaiko = 0;
     let ppCatch = 0;
     let ppMania = 0;
-    const modesStats = Object.entries(response.statistics_rulesets);
+
+    const modesStats: any = Object.entries(response.statistics_rulesets);
+
     for (let i = 0; i < modesStats.length; i++) {
         const modeInfo = modesStats[i][1];
+
         switch (i) {
             case 0:
                 ppOsu = modeInfo.pp;
@@ -153,13 +157,15 @@ indexRouter.get('/callback', async (req, res) => {
                 ppMania = modeInfo.pp;
                 break;
         }
+
         if (modeInfo.pp > pp) {
             pp = modeInfo.pp;
         }
+
         if (modeInfo.global_rank < globalRank) {
             globalRank = modeInfo.global_rank;
         }
-    }
+    }*/
     let user = await user_1.UserModel.findOne({ osuId });
     if (!user) {
         user = new user_1.UserModel();
@@ -167,12 +173,12 @@ indexRouter.get('/callback', async (req, res) => {
         user.username = username;
         user.group = group;
         user.rankedBeatmapsCount = rankedBeatmapsCount;
-        user.globalRank = globalRank;
-        user.pp = pp;
-        user.ppOsu = ppOsu;
-        user.ppTaiko = ppTaiko;
-        user.ppCatch = ppCatch;
-        user.ppMania = ppMania;
+        // user.globalRank = globalRank;
+        // user.pp = pp;
+        // user.ppOsu = ppOsu;
+        // user.ppTaiko = ppTaiko;
+        // user.ppCatch = ppCatch;
+        // user.ppMania = ppMania;
         user.cover = cover;
         await user.save();
         req.session.mongoId = user._id;
@@ -188,30 +194,36 @@ indexRouter.get('/callback', async (req, res) => {
             user.rankedBeatmapsCount = rankedBeatmapsCount;
             saveTrigger = true;
         }
+        /*
         if (user.globalRank != globalRank) {
             user.globalRank = globalRank;
             saveTrigger = true;
         }
+
         if (user.pp != pp) {
             user.pp = pp;
             saveTrigger = true;
         }
+
         if (user.ppOsu != ppOsu) {
             user.ppOsu = ppOsu;
             saveTrigger = true;
         }
+
         if (user.ppTaiko != ppTaiko) {
             user.ppTaiko = ppTaiko;
             saveTrigger = true;
         }
+
         if (user.ppCatch != ppCatch) {
             user.ppCatch = ppCatch;
             saveTrigger = true;
         }
+
         if (user.ppMania != ppMania) {
             user.ppMania = ppMania;
             saveTrigger = true;
-        }
+        }*/
         if (!user.cover || user.cover.url != cover.url) {
             user.cover = cover;
             saveTrigger = true;
