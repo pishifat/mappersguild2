@@ -154,6 +154,7 @@ indexRouter.get('/callback', async (req, res) => {
     const rankedBeatmapsCount = response.ranked_and_approved_beatmapset_count;
     const cover = response.cover;
 
+    /* "statistics_rulesets" isn't being loaded from the api call anymore. they were used for one priority quest years ago, so i'm not gonna bother fixing it
     let globalRank = 0;
     let pp = 0;
     let ppOsu = 0;
@@ -188,7 +189,7 @@ indexRouter.get('/callback', async (req, res) => {
         if (modeInfo.global_rank < globalRank) {
             globalRank = modeInfo.global_rank;
         }
-    }
+    }*/
 
     let user = await UserModel.findOne({ osuId });
 
@@ -198,12 +199,12 @@ indexRouter.get('/callback', async (req, res) => {
         user.username = username;
         user.group = group;
         user.rankedBeatmapsCount = rankedBeatmapsCount;
-        user.globalRank = globalRank;
-        user.pp = pp;
-        user.ppOsu = ppOsu;
-        user.ppTaiko = ppTaiko;
-        user.ppCatch = ppCatch;
-        user.ppMania = ppMania;
+        // user.globalRank = globalRank;
+        // user.pp = pp;
+        // user.ppOsu = ppOsu;
+        // user.ppTaiko = ppTaiko;
+        // user.ppCatch = ppCatch;
+        // user.ppMania = ppMania;
         user.cover = cover;
         await user.save();
 
