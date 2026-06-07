@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const axios_1 = __importDefault(require("axios"));
 const middlewares_1 = require("../../helpers/middlewares");
 const featuredArtist_1 = require("../../models/featuredArtist");
 const featuredSong_1 = require("../../models/featuredSong");
@@ -229,5 +230,36 @@ adminFeaturedArtistsRouter.post('/:id/songs/:songId/toggleIsExcludedFromClassifi
         .findByIdAndUpdate(req.params.songId, { isExcludedFromClassified: !req.body.isExcludedFromClassified })
         .orFail();
     res.json(song);
+});
+/* GET cross-check MG songs against osu! FA listing */
+adminFeaturedArtistsRouter.get('/:id/crossCheckOsuListing', async (req, res) => {
+    const artist = await featuredArtist_1.FeaturedArtistModel.findById(req.params.id).orFail();
+    if (!artist.osuId) {
+        return res.json({ error: 'Artist has no osu! ID' });
+    }
+    const response = await axios_1.default.get(`https://osu.ppy.sh/beatmaps/artists/${artist.osuId}`);
+    const html = response.data;
+    const collectScriptArrays = (idPrefix) => [...html.matchAll(new RegExp(`id="${idPrefix}[^"]*"[^>]*>([\\s\\S]*?)<\\/script>`, 'g'))]
+        .flatMap(m => JSON.parse(m[1]));
+    let mainArtist = artist.label;
+    const artistIdx = html.indexOf(`id="json-artist-${artist.osuId}"`);
+    if (artistIdx !== -1) {
+        const tagEnd = html.indexOf('>', artistIdx);
+        const scriptEnd = tagEnd !== -1 ? html.indexOf('</script>', tagEnd) : -1;
+        if (scriptEnd !== -1) {
+            const parsed = JSON.parse(html.slice(tagEnd + 1, scriptEnd));
+            mainArtist = parsed.name || artist.label;
+        }
+    }
+    const osuTracks = [
+        ...collectScriptArrays('album-json-'),
+        ...collectScriptArrays('singles-json-'),
+    ]
+        .filter(t => t.title)
+        .map(t => ({
+        artist: t.artist_name || mainArtist,
+        title: t.title,
+    }));
+    res.json(osuTracks);
 });
 exports.default = adminFeaturedArtistsRouter;
