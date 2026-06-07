@@ -183,6 +183,28 @@
                             Remove from all songs
                         </button>
                     </div>
+                    <div v-if="featuredArtist.osuId && featuredArtist.osuId > 0" class="mt-2">
+                        <button
+                            class="btn btn-sm btn-outline-info btn-block"
+                            :disabled="crossCheckLoading"
+                            @click="crossCheckOsuListing"
+                        >
+                            {{ crossCheckLoading ? 'Loading...' : 'Cross-check all song metadata with osu! FA listing' }}
+                        </button>
+                        <div v-if="crossCheckResults !== null" class="mt-2 small">
+                            <div v-if="crossCheckCounts" class="mb-1 text-secondary">
+                                osu!: {{ crossCheckCounts.osu }} / mg: {{ crossCheckCounts.mg }}
+                            </div>
+                            <div v-if="crossCheckResults.length === 0" class="text-success">
+                                No inconsistencies found
+                            </div>
+                            <div v-else>
+                                <div v-for="(track, i) in crossCheckResults" :key="i">
+                                    {{ track.artist }} - {{ track.title }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div v-if="selectedSong" class="mx-2 mt-2">
                     <b>Tags:</b>
@@ -284,6 +306,9 @@ export default defineComponent({
             classifiedUser: null as null | User,
             newTag: '',
             bulkTag: '',
+            crossCheckResults: null as null | Array<{ artist: string; title: string }>,
+            crossCheckCounts: null as null | { osu: number; mg: number },
+            crossCheckLoading: false,
         };
     },
     computed: {
@@ -305,6 +330,9 @@ export default defineComponent({
             this.offeredUsers = this.generateUserListText(this.featuredArtist.offeredUsers);
             this.title = '';
             this.notes = this.featuredArtist.notes;
+            this.crossCheckResults = null;
+            this.crossCheckCounts = null;
+            this.crossCheckLoading = false;
         },
         async selectedSong(): Promise<void> {
             if (this.selectedSong) {
@@ -574,6 +602,30 @@ export default defineComponent({
                     type: 'info',
                 });
             }
+        },
+        async crossCheckOsuListing(): Promise<void> {
+            this.crossCheckLoading = true;
+            this.crossCheckResults = null;
+
+            const osuTracks = await this.$http.executeGet(`/admin/featuredArtists/${this.featuredArtist.id}/crossCheckOsuListing`);
+
+            if (this.$http.isError(osuTracks)) {
+                this.crossCheckLoading = false;
+
+                return;
+            }
+
+            const rawTracks = osuTracks as Array<{ artist: string; title: string }>;
+            const tracks = rawTracks.filter((t, i) =>
+                rawTracks.findIndex(u => u.artist === t.artist && u.title === t.title) === i
+            );
+            const mgSongs = this.featuredArtist.songs;
+
+            this.crossCheckCounts = { osu: tracks.length, mg: mgSongs.length };
+            this.crossCheckResults = tracks.filter(t =>
+                !mgSongs.some(s => s.artist === t.artist && s.title === t.title)
+            );
+            this.crossCheckLoading = false;
         },
         async updateNotes(e): Promise<void> {
             const notes = await this.$http.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/updateNotes`, { notes: this.notes }, e);

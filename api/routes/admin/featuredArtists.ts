@@ -1,4 +1,5 @@
 import express from 'express';
+import axios from 'axios';
 import { isLoggedIn, isAdmin, isSuperAdmin } from '../../helpers/middlewares';
 import { FeaturedArtistModel } from '../../models/featuredArtist';
 import { FeaturedSongModel } from '../../models/featuredSong';
@@ -288,6 +289,48 @@ adminFeaturedArtistsRouter.post('/:id/songs/:songId/toggleIsExcludedFromClassifi
         .orFail();
 
     res.json(song);
+});
+
+/* GET cross-check MG songs against osu! FA listing */
+adminFeaturedArtistsRouter.get('/:id/crossCheckOsuListing', async (req, res) => {
+    const artist = await FeaturedArtistModel.findById(req.params.id).orFail();
+
+    if (!artist.osuId) {
+        return res.json({ error: 'Artist has no osu! ID' });
+    }
+
+    const response = await axios.get(`https://osu.ppy.sh/beatmaps/artists/${artist.osuId}`);
+
+    const html = response.data as string;
+
+    const collectScriptArrays = (idPrefix: string): any[] =>
+        [...html.matchAll(new RegExp(`id="${idPrefix}[^"]*"[^>]*>([\\s\\S]*?)<\\/script>`, 'g'))]
+            .flatMap(m => JSON.parse(m[1]));
+
+    let mainArtist = artist.label;
+    const artistIdx = html.indexOf(`id="json-artist-${artist.osuId}"`);
+
+    if (artistIdx !== -1) {
+        const tagEnd = html.indexOf('>', artistIdx);
+        const scriptEnd = tagEnd !== -1 ? html.indexOf('</script>', tagEnd) : -1;
+
+        if (scriptEnd !== -1) {
+            const parsed = JSON.parse(html.slice(tagEnd + 1, scriptEnd));
+            mainArtist = parsed.name || artist.label;
+        }
+    }
+
+    const osuTracks = [
+        ...collectScriptArrays('album-json-'),
+        ...collectScriptArrays('singles-json-'),
+    ]
+        .filter(t => t.title)
+        .map(t => ({
+            artist: (t.artist_name as string | null) || mainArtist,
+            title: t.title as string,
+        }));
+
+    res.json(osuTracks);
 });
 
 export default adminFeaturedArtistsRouter;

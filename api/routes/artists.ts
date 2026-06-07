@@ -3,7 +3,6 @@ import { isAdmin, isLoggedIn, isSuperAdmin } from '../helpers/middlewares';
 import { FeaturedArtistModel } from '../models/featuredArtist';
 import { UserModel } from '../models/user';
 import { User } from '../../interfaces/user';
-import fs from 'fs';
 
 const artistsRouter = express.Router();
 
