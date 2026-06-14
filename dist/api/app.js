@@ -11,6 +11,11 @@ const express_session_1 = __importDefault(require("express-session"));
 const connect_mongo_1 = __importDefault(require("connect-mongo"));
 const config_json_1 = __importDefault(require("../config.json"));
 require("express-async-errors");
+const dns_1 = __importDefault(require("dns"));
+// it wasnt working idk man. delete this when back home probably
+if (process.platform === 'win32') {
+    dns_1.default.setServers(['8.8.8.8', '1.1.1.1']);
+}
 mongoose_1.default.set('strictPopulate', false);
 // Return the updated object by default when doing findByIdAndUpdate
 mongoose_1.default.plugin(schema => {

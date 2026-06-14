@@ -122,8 +122,7 @@ async function isTeamContestUser(req, res, next) {
         .findById(id)
         .populate({ path: 'user', select: 'username osuId' })
         .orFail();
-    const isAdmin = res.locals.userRequest.group == user_2.UserGroup.Locus;
-    if (req.session.mongoId !== teamInfo.user.id && !isAdmin) {
+    if (req.session.mongoId !== teamInfo.user.id) {
         return res.json({ error: 'Invalid user' });
     }
     res.locals.teamInfo = teamInfo;

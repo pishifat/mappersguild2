@@ -5,5 +5,4 @@ var UserGroup;
 (function (UserGroup) {
     UserGroup["User"] = "user";
     UserGroup["Admin"] = "admin";
-    UserGroup["Locus"] = "locus";
 })(UserGroup || (exports.UserGroup = UserGroup = {}));
