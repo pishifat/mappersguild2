@@ -6,6 +6,12 @@ import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import config from '../config.json';
 import 'express-async-errors';
+import dns from 'dns';
+
+// it wasnt working idk man. delete this when back home probably
+if (process.platform === 'win32') {
+    dns.setServers(['8.8.8.8', '1.1.1.1']);
+}
 
 mongoose.set('strictPopulate', false);
 

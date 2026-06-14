@@ -35,10 +35,6 @@
                 :grouped-users="normalUsers"
                 :group="'user'"
             />
-            <admin-user-table
-                :grouped-users="locusUsers"
-                :group="'locus'"
-            />
         </div>
     </div>
 </template>
@@ -68,7 +64,6 @@ export default defineComponent({
         ...mapGetters([
             'normalUsers',
             'adminUsers',
-            'locusUsers',
         ]),
     },
     beforeCreate () {

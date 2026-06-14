@@ -49,8 +49,8 @@ import { mapState, mapGetters } from 'vuex';
 import locusModule from '@store/locus';
 import { TeamInfo } from '@interfaces/teamInfo';
 import TeamPageFilters from './TeamPageFilters.vue';
-import SelfTeamInfo from '@components/locus/SelfTeamInfo.vue';
-import TeamCard from '@components/locus/TeamCard.vue';
+import SelfTeamInfo from '@components/teamContest/SelfTeamInfo.vue';
+import TeamCard from '@components/teamContest/TeamCard.vue';
 
 export default defineComponent({
     name: 'LocusPage',

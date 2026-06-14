@@ -2,10 +2,14 @@
     <div>
         <div class="container card card-body py-4 my-4">
             <h4>Welcome to Aspire!</h4>
-            (some kind of intro text goes here explaining what aspire is)
+            <p><b>Aspire</b> is a beatmapping contest where the <a href="https://osu.ppy.sh/wiki/Ranking_criteria" target="_blank">Ranking Criteria</a> is thrown completely out of the window. The sky's the limit with what mappers can do with their craft.</p>
+            <p>This iteration streamlines the format to 2 primary categories: <i>Visual Spectacle</i> and <i>Innovative Gameplay</i>.</p>
+            <p>In addition, Aspire 6 allows for teams of up to 2 people to enter, opening the doors for even greater spectacles.</p>
+            <div><a href="https://osu.ppy.sh/home/news/2026-06-14-aspire-6" target="_blank">Read the full news post here!</a></div>
             <hr />
             <h5>What is this page?</h5>
-            (something about how this page is used to find a team member for the contest)
+            <p>This is a hub for people to find suitable teammates for their Aspire entry. People can submit their own information here under a "mapper" or "storyboarder" role, and others can browse the listings to find potential teammates to partner up with.</p>
+            <div>If you need a teammate, reach out to someone below!</div>
         </div>
         <team-page-filters :store-module="storeModule" :role-options="filterRoleOptions" />
         <div class="container card card-body mb-2">
@@ -49,8 +53,8 @@ import { mapState, mapGetters } from 'vuex';
 import aspireModule from '@store/aspire';
 import { TeamInfo } from '@interfaces/teamInfo';
 import TeamPageFilters from '@pages/locus/TeamPageFilters.vue';
-import SelfTeamInfo from '@components/locus/SelfTeamInfo.vue';
-import TeamCard from '@components/locus/TeamCard.vue';
+import SelfTeamInfo from '@components/teamContest/SelfTeamInfo.vue';
+import TeamCard from '@components/teamContest/TeamCard.vue';
 
 export default defineComponent({
     name: 'AspirePage',

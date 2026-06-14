@@ -79,5 +79,10 @@
                 <i>Locus</i>
             </router-link>
         </li>-->
+        <!--<li class="nav-item">
+            <router-link class="nav-link" to="/aspire">
+                <i>Aspire</i>
+            </router-link>
+        </li>-->
     </ul>
 </template>

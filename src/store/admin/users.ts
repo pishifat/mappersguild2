@@ -71,9 +71,6 @@ const store: Module<UserState, MainState> = {
         adminUsers: (state): Beatmap[] => {
             return state.users.filter(u => u.group == UserGroup.Admin);
         },
-        locusUsers: (state): Beatmap[] => {
-            return state.users.filter(u => u.group == UserGroup.Locus);
-        },
     },
 };
 

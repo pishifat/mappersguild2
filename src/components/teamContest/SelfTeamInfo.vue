@@ -228,7 +228,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
-import TeamCard from '@components/locus/TeamCard.vue';
+import TeamCard from '@components/teamContest/TeamCard.vue';
 
 export default defineComponent({
     name: 'SelfTeamInfo',

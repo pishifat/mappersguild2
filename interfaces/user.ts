@@ -9,7 +9,6 @@ import { OsuCover } from '../api/helpers/osuApi';
 export enum UserGroup {
     User = 'user',
     Admin = 'admin',
-    Locus = 'locus',
 }
 
 export interface PointsInfo {
