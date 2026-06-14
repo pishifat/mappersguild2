@@ -62,6 +62,10 @@ teamContestRouter.post('/:id/updateAvailability', isTeamContestUser, async (req,
     const newAvailability = req.body.availability;
     const teamInfo = res.locals.teamInfo;
 
+    if (newAvailability.length > 1000) {
+        return res.json({ error: 'Availability must be 1000 characters or less' });
+    }
+
     teamInfo.availability = newAvailability;
     await teamInfo.save();
 
@@ -75,6 +79,10 @@ teamContestRouter.post('/:id/updateLanguage', isTeamContestUser, async (req, res
 
     if (!newLanguage.length) {
         return res.json({ error: 'Must select a language!' });
+    }
+
+    if (newLanguage.length > 1000) {
+        return res.json({ error: 'Language must be 1000 characters or less' });
     }
 
     if (teamInfo.languages && teamInfo.languages.length) {
@@ -103,6 +111,10 @@ teamContestRouter.post('/:id/updateRole', isTeamContestUser, async (req, res) =>
         return res.json({ error: 'Must select a role!' });
     }
 
+    if (newRole.length > 1000) {
+        return res.json({ error: 'Role must be 1000 characters or less' });
+    }
+
     if (teamInfo.roles && teamInfo.roles.length) {
         const i = teamInfo.roles.findIndex(l => l == newRole);
 
@@ -125,6 +137,10 @@ teamContestRouter.post('/:id/updateDiscord', isTeamContestUser, async (req, res)
     const newDiscord = req.body.discord;
     const teamInfo = res.locals.teamInfo;
 
+    if (newDiscord.length > 1000) {
+        return res.json({ error: 'Discord must be 1000 characters or less' });
+    }
+
     teamInfo.discord = newDiscord;
     await teamInfo.save();
 
@@ -136,6 +152,10 @@ teamContestRouter.post('/:id/updateEmail', isTeamContestUser, async (req, res) =
     const newEmail = req.body.email;
     const teamInfo = res.locals.teamInfo;
 
+    if (newEmail.length > 1000) {
+        return res.json({ error: 'Email must be 1000 characters or less' });
+    }
+
     teamInfo.email = newEmail;
     await teamInfo.save();
 
@@ -146,6 +166,10 @@ teamContestRouter.post('/:id/updateEmail', isTeamContestUser, async (req, res) =
 teamContestRouter.post('/:id/updateAbout', isTeamContestUser, async (req, res) => {
     const newAbout = req.body.about;
     const teamInfo = res.locals.teamInfo;
+
+    if (newAbout.length > 3000) {
+        return res.json({ error: 'About must be 3000 characters or less' });
+    }
 
     teamInfo.about = newAbout;
     await teamInfo.save();
