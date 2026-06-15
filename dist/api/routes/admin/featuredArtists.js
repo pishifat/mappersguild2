@@ -256,10 +256,18 @@ adminFeaturedArtistsRouter.get('/:id/crossCheckOsuListing', async (req, res) => 
         ...collectScriptArrays('singles-json-'),
     ]
         .filter(t => t.title)
-        .map(t => ({
-        artist: t.artist_name || mainArtist,
-        title: t.title,
-    }));
+        .map(t => {
+        const rawTitle = t.title;
+        const rawArtist = t.artist_name || mainArtist;
+        const dashIdx = rawTitle.indexOf(' - ');
+        if (dashIdx !== -1) {
+            return {
+                artist: rawTitle.slice(0, dashIdx),
+                title: rawTitle.slice(dashIdx + 3),
+            };
+        }
+        return { artist: rawArtist, title: rawTitle };
+    });
     res.json(osuTracks);
 });
 exports.default = adminFeaturedArtistsRouter;
