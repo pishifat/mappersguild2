@@ -18,7 +18,7 @@
 
         <artist-search class="mb-2 card card-body" />
 
-        <!-- <mail-generator v-if="loggedInUser.osuId == 1893718" /> -->
+        <mail-generator v-if="loggedInUser.osuId == 1893718" />
 
         <add-artist
             :is-announced="false"
@@ -35,7 +35,7 @@ import ArtistsInProgress from './ArtistsInProgress.vue';
 import ArtistsPlanned from './ArtistsPlanned.vue';
 import ArtistsInactive from './ArtistsInactive.vue';
 import ArtistSearch from '@components/artists/ArtistSearch.vue';
-// import MailGenerator from '@components/artists/MailGenerator.vue';
+import MailGenerator from '@components/artists/MailGenerator.vue';
 import artistsModule from '@store/artists';
 
 export default defineComponent({
@@ -47,7 +47,7 @@ export default defineComponent({
         ArtistsInactive,
         AddArtist,
         ArtistSearch,
-        // MailGenerator,
+        MailGenerator,
     },
     computed: {
         ...mapState([
