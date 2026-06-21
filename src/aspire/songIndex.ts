@@ -5,8 +5,8 @@ export type AspireSearchStatus =
     | { kind: 'match', line: string }
     | { kind: 'empty', query: string };
 
-// https://gist.github.com/Walavouchey/d9e4259223699a5d74fe770b49e2fdcf
-export const ASPIRE_SONG_LIST_URL = '/aspire/featured-artists-2026-06-14.txt';
+// https://gist.github.com/Walavouchey/de2c620e2abd860b967510c230f5067c
+export const ASPIRE_SONG_LIST_URL = '/aspire/aspire-6-song-allowlist.txt';
 
 const MIN_QUERY_LENGTH = 2;
 const RESULT_LIMIT = 15;
@@ -59,7 +59,7 @@ export function normalizeAspireQuery (query: string): string {
 
 export function searchAspireSongs (
     fuse: Fuse<SongEntry>,
-    query: string,
+    query: string
 ): { lines: string[], status: AspireSearchStatus } {
     const normalized = normalize(query);
 
