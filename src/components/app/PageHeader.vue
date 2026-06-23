@@ -28,7 +28,7 @@ export default defineComponent({
             return this.$route.path == '/locus';
         },
         isAspire () {
-            return this.$route.path == '/aspire';
+            return this.$route.path.startsWith('/aspire');
         },
     },
 });

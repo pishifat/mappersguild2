@@ -1,2 +1,6 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Suppress line-by-line diffs for large static lists
+public/aspire/*.txt -diff
+public/aspire/*.txt linguist-generated=true

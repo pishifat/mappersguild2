@@ -6,6 +6,9 @@
             <p>This iteration streamlines the format to 2 primary categories: <i>Visual Spectacle</i> and <i>Innovative Gameplay</i>.</p>
             <p>In addition, Aspire 6 allows for teams of up to 2 people to enter, opening the doors for even greater spectacles.</p>
             <div><a href="https://osu.ppy.sh/home/news/2026-06-14-aspire-6" target="_blank">Read the full news post here!</a></div>
+            <div class="mt-2">
+                <router-link to="/aspire/search">Check if your song is allowed for use!</router-link>
+            </div>
             <hr />
             <h5>What is this page?</h5>
             <p>This is a hub for people to find suitable teammates for their Aspire entry. People can submit their own information here under a "mapper" or "storyboarder" role, and others can browse the listings to find potential teammates to partner up with.</p>

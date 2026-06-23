@@ -79,10 +79,27 @@
                 <i>Locus</i>
             </router-link>
         </li>-->
-        <li class="nav-item">
-            <router-link class="nav-link" to="/aspire">
+        <li class="nav-item dropdown">
+            <a
+                id="aspireDropdown"
+                class="nav-link dropdown-toggle"
+                data-bs-toggle="dropdown"
+                href="#"
+            >
                 <i>Aspire</i>
-            </router-link>
+            </a>
+            <ul class="dropdown-menu">
+                <li>
+                    <router-link class="dropdown-item" to="/aspire">
+                        Teammates Hub
+                    </router-link>
+                </li>
+                <li>
+                    <router-link class="dropdown-item" to="/aspire/search">
+                        Song Search
+                    </router-link>
+                </li>
+            </ul>
         </li>
     </ul>
 </template>
