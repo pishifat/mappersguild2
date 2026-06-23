@@ -195,12 +195,19 @@
                             <div v-if="crossCheckCounts" class="mb-1 text-secondary">
                                 osu!: {{ crossCheckCounts.osu }} / mg: {{ crossCheckCounts.mg }}
                             </div>
-                            <div v-if="crossCheckResults.length === 0" class="text-success">
+                            <div v-if="crossCheckResults.length === 0 && !crossCheckMgOnly?.length" class="text-success">
                                 No inconsistencies found
                             </div>
-                            <div v-else>
+                            <div v-if="crossCheckResults.length">
+                                <div class="text-warning mb-1">in osu! but not MG:</div>
                                 <div v-for="(track, i) in crossCheckResults" :key="i">
                                     {{ track.artist }} - {{ track.title }}
+                                </div>
+                            </div>
+                            <div v-if="crossCheckMgOnly?.length" class="mt-1">
+                                <div class="text-info mb-1">in MG but not osu!:</div>
+                                <div v-for="(song, i) in crossCheckMgOnly" :key="i">
+                                    {{ song.artist }} - {{ song.title }}
                                 </div>
                             </div>
                         </div>
@@ -307,6 +314,7 @@ export default defineComponent({
             newTag: '',
             bulkTag: '',
             crossCheckResults: null as null | Array<{ artist: string; title: string }>,
+            crossCheckMgOnly: null as null | Array<{ artist: string; title: string }>,
             crossCheckCounts: null as null | { osu: number; mg: number },
             crossCheckLoading: false,
         };
@@ -331,6 +339,7 @@ export default defineComponent({
             this.title = '';
             this.notes = this.featuredArtist.notes;
             this.crossCheckResults = null;
+            this.crossCheckMgOnly = null;
             this.crossCheckCounts = null;
             this.crossCheckLoading = false;
         },
@@ -606,6 +615,7 @@ export default defineComponent({
         async crossCheckOsuListing(): Promise<void> {
             this.crossCheckLoading = true;
             this.crossCheckResults = null;
+            this.crossCheckMgOnly = null;
 
             const osuTracks = await this.$http.executeGet(`/admin/featuredArtists/${this.featuredArtist.id}/crossCheckOsuListing`);
 
@@ -624,6 +634,9 @@ export default defineComponent({
             this.crossCheckCounts = { osu: tracks.length, mg: mgSongs.length };
             this.crossCheckResults = tracks.filter(t =>
                 !mgSongs.some(s => s.artist === t.artist && s.title === t.title)
+            );
+            this.crossCheckMgOnly = mgSongs.filter(s =>
+                !tracks.some(t => t.artist === s.artist && t.title === s.title)
             );
             this.crossCheckLoading = false;
         },
