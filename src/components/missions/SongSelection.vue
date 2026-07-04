@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div v-if="deadlineReached">
+        <div v-if="deadlineNearlyReached">
             <b>Song:</b>
             <span v-if="songInfo" class="text-secondary ms-1">
                 <b>{{ songInfo.song.artist }} - {{ songInfo.song.title }}</b>
@@ -87,8 +87,11 @@ export default defineComponent({
         ...mapState([
             'loggedInUser',
         ]),
-        deadlineReached() {
-            return new Date() > new Date(this.mission.deadline);
+        deadlineNearlyReached() {
+            const deadline = new Date(this.mission.deadline);
+            deadline.setDate(deadline.getDate() - 7);
+
+            return new Date() > deadline;
         },
         songRerollCost() {
             return 35;

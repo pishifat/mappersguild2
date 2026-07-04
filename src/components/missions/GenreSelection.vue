@@ -1,19 +1,21 @@
 <template>
     <div>
         <b>Song selection:</b>
-        <div v-if="deadlineReached">
-            <span v-if="genreSongsInfo" class="text-secondary ms-1">
-                <div v-for="song in genreSongsInfo.songs" :key="song.id">
-                    <b>{{ song.artist }} - {{ song.title }}</b>
-                </div>
-                <div class="mt-2">When your song's artist is announced, you can add your beatmap to this quest!</div>
-                <div class="mt-3">Once all artists for this quest are announced, the quest will be closed and you'll earn points :)</div>
-            </span>
-            <span v-else class="text-secondary ms-1">
-                <span>You're too late to pick songs. Sorry :(</span>
-                <div class="mt-3">Once all artists for this quest are announced, the quest will be closed!</div>
-            </span>
-            <div class="mt-3 text-success">
+        <div v-if="!deadlineNearlyReached">
+            <div v-if="genreSongsInfo" class="text-secondary ms-1">
+                <ol>
+                    <li v-for="song in genreSongsInfo.songs" :key="song.id">
+                        <b>{{ song.artist }} - {{ song.title }}</b>
+                    </li>
+                </ol>
+                <div>When your song's artist is announced, you can add your beatmap to this quest!</div>
+                <div>Once all artists for this quest are announced, the quest will be closed and you'll earn points :)</div>
+            </div>
+            <div v-else class="text-secondary ms-1">
+                <div>You're too late to pick songs. Sorry :(</div>
+                <div>Once all artists for this quest are announced, the quest will be closed!</div>
+            </div>
+            <div v-if="mission.remainingArtists" class="mt-3 text-success">
                 Pending artist announcements: <b>{{ mission.remainingArtists }}</b>
             </div>
         </div>
@@ -121,8 +123,11 @@ export default defineComponent({
         ...mapState([
             'loggedInUser',
         ]),
-        deadlineReached() {
-            return new Date() > new Date(this.mission.deadline);
+        deadlineNearlyReached() {
+            const deadline = new Date(this.mission.deadline);
+            deadline.setDate(deadline.getDate() - 7);
+
+            return new Date() > deadline;
         },
         rerollCost() {
             return (this.rerollCount + 1) * 2;

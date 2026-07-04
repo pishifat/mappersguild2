@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div v-if="deadlineReached">
+        <div v-if="deadlineNearlyReached">
             <b>Artist: </b>
             <span v-if="artistInfo" class="text-secondary ms-1">
                 <!-- artist info -->
@@ -87,8 +87,11 @@ export default defineComponent({
         ...mapState([
             'loggedInUser',
         ]),
-        deadlineReached() {
-            return new Date() > new Date(this.mission.deadline);
+        deadlineNearlyReached() {
+            const deadline = new Date(this.mission.deadline);
+            deadline.setDate(deadline.getDate() - 7);
+
+            return new Date() > deadline;
         },
         rerollCost() {
             return 10 * Math.pow(2, this.artistRerollCount);
