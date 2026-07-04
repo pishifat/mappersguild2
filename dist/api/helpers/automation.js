@@ -230,53 +230,8 @@ const publishQuests = node_cron_1.default.schedule('0 22 * * *', async () => {
 }, {
     scheduled: false,
 });
-/* dev notification for actions */
+/* dev notification for actions (previously included beatmaps/quests/users, but that got annoying) */
 const sendActionNotifications = node_cron_1.default.schedule('0 23 * * *', async () => {
-    // beatmaps
-    const actionBeatmaps = await beatmap_1.BeatmapModel
-        .find({
-        status: beatmap_2.BeatmapStatus.Qualified,
-        queuedForRank: { $ne: true },
-    })
-        .defaultPopulate()
-        .sort({ updatedAt: 1 });
-    if (actionBeatmaps.length > 5) {
-        (0, discordApi_1.devWebhookPost)([{
-                title: `beatmaps`,
-                color: discordApi_1.webhookColors.lightRed,
-                description: `**${actionBeatmaps.length}** pending beatmaps\n\nadmin: https://mappersguild.com/admin/summary`,
-            }]);
-    }
-    // quests
-    let quests = await quest_1.QuestModel
-        .find({ status: quest_2.QuestStatus.WIP, queuedForCompletion: { $ne: true } })
-        .defaultPopulate();
-    quests = quests.filter(q => q.associatedMaps.length >= q.requiredMapsets &&
-        q.associatedMaps.every(b => b.status === beatmap_2.BeatmapStatus.Ranked));
-    const pendingQuests = await quest_1.QuestModel
-        .find({ status: quest_2.QuestStatus.Pending })
-        .defaultPopulate();
-    quests = quests.concat(pendingQuests);
-    if (quests.length) {
-        (0, discordApi_1.devWebhookPost)([{
-                title: `quests`,
-                color: discordApi_1.webhookColors.lightRed,
-                description: `**${quests.length}** pending quests\n\nadmin: https://mappersguild.com/admin/summary`,
-            }]);
-    }
-    // users
-    const invalids = [5226970, 7496029]; // user IDs for people who specifically asked not to earn badges
-    const allUsers = await user_1.UserModel.find({
-        osuId: { $nin: invalids },
-    });
-    const actionUsers = allUsers.filter(u => u.badge < u.rank);
-    if (actionUsers.length > 5) {
-        (0, discordApi_1.devWebhookPost)([{
-                title: `users`,
-                color: discordApi_1.webhookColors.lightRed,
-                description: `**${actionUsers.length}** pending user badges\n\nadmin: https://mappersguild.com/admin/summary`,
-            }]);
-    }
     // contests
     const actionContests = await contest_1.ContestModel
         .find({
