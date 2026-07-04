@@ -274,65 +274,8 @@ const publishQuests = cron.schedule('0 22 * * *', async () => { /* 3:00 PM PST *
     scheduled: false,
 });
 
-/* dev notification for actions */
+/* dev notification for actions (previously included beatmaps/quests/users, but that got annoying) */
 const sendActionNotifications = cron.schedule('0 23 * * *', async () => { /* 4:00 PM PST */
-    // beatmaps
-    const actionBeatmaps = await BeatmapModel
-        .find({
-            status: BeatmapStatus.Qualified,
-            queuedForRank: { $ne: true },
-        })
-        .defaultPopulate()
-        .sort({ updatedAt: 1 });
-
-    if (actionBeatmaps.length > 5) {
-        devWebhookPost([{
-            title: `beatmaps`,
-            color: webhookColors.lightRed,
-            description: `**${actionBeatmaps.length}** pending beatmaps\n\nadmin: https://mappersguild.com/admin/summary`,
-        }]);
-    }
-
-    // quests
-    let quests = await QuestModel
-        .find({ status: QuestStatus.WIP, queuedForCompletion: { $ne: true } })
-        .defaultPopulate();
-
-    quests = quests.filter(q =>
-        q.associatedMaps.length >= q.requiredMapsets &&
-        q.associatedMaps.every(b => b.status === BeatmapStatus.Ranked)
-    );
-
-    const pendingQuests = await QuestModel
-        .find({ status: QuestStatus.Pending })
-        .defaultPopulate();
-
-    quests = quests.concat(pendingQuests);
-
-    if (quests.length) {
-        devWebhookPost([{
-            title: `quests`,
-            color: webhookColors.lightRed,
-            description: `**${quests.length}** pending quests\n\nadmin: https://mappersguild.com/admin/summary`,
-        }]);
-    }
-
-    // users
-    const invalids = [5226970, 7496029]; // user IDs for people who specifically asked not to earn badges
-
-    const allUsers = await UserModel.find({
-        osuId: { $nin: invalids },
-    });
-    const actionUsers = allUsers.filter(u => u.badge < u.rank);
-
-    if (actionUsers.length > 5) {
-        devWebhookPost([{
-            title: `users`,
-            color: webhookColors.lightRed,
-            description: `**${actionUsers.length}** pending user badges\n\nadmin: https://mappersguild.com/admin/summary`,
-        }]);
-    }
-
     // contests
     const actionContests = await ContestModel
         .find({
