@@ -29,7 +29,7 @@
     "fuse.js": "^7.4.2",
     "markdown-it": "^14.1.1",
     "mongoose": "^9.2.1",
-    "morgan": "^1.10.0",
+    "morgan": "^1.11.0",
     "node-cron": "^2.0.3",
     "node-fetch": "^2.7.0",
     "shopify-buy": "^2.21.1",
