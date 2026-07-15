@@ -1,0 +1,1 @@
+import{d as n,_ as r,o as s,f as t,b as o}from"./index-CwbRDmex.js";const a=n({name:"ContestBanner",props:{bannerUrl:{type:String,required:!0}}}),c=["src"];function p(e,i,l,_,d,f){return s(),t("div",null,[o("img",{class:"w-100",src:e.bannerUrl},null,8,c)])}const u=r(a,[["render",p]]);export{u as C};
