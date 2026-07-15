@@ -4,9 +4,10 @@
 
         <ul v-if="mission.associatedMaps && mission.associatedMaps.length" class="ps-3 mb-0 list-unstyled">
             <li
-                v-for="map in (showFullbeatmaps ? fullBeatmaps : partialBeatmaps)"
+                v-for="(map, index) in (showFullbeatmaps ? fullBeatmaps : partialBeatmaps)"
                 :key="map.id"
                 class="text-secondary"
+                :class="{ 'opacity-50': isDimmedHostMap(index) }"
             >
                 <i
                     v-bs-tooltip="map.status"
@@ -187,6 +188,16 @@ export default defineComponent({
             const invalidBeatmapIds = this.mission.invalidBeatmaps.map(b => b.id);
 
             return invalidBeatmapIds.includes(beatmapId);
+        },
+        isDimmedHostMap(index): boolean {
+            const list = this.showFullbeatmaps ? this.fullBeatmaps : this.partialBeatmaps;
+            const map = list[index];
+            const hostMaps = list.filter(m => m.host.id === map.host.id);
+            const winningMap = hostMaps.find(m => this.isWinningBeatmap(m.id));
+
+            if (!winningMap) return false;
+
+            return map.id !== winningMap.id;
         },
         async removeBeatmapFromMission(beatmapId, e): Promise<void> {
             this.processing = true;
