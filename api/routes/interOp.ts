@@ -223,7 +223,7 @@ interOpRouter.post('/mentorshipCycle', async (req, res) => {
                 cycle: cycle._id,
                 mode: p.mode,
                 group: p.group,
-                phases: p.group == 'mentee' ? (p.phases || [1, 2, 3]) : [1, 2, 3],
+                phases: p.phases || [1, 2, 3],
             };
 
             if (mentorRef) {
