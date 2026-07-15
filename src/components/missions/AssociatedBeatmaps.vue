@@ -7,7 +7,7 @@
                 v-for="(map, index) in (showFullbeatmaps ? fullBeatmaps : partialBeatmaps)"
                 :key="map.id"
                 class="text-secondary"
-                :class="{ 'opacity-50': isDimmedHostMap(index) }"
+                :class="{ 'opacity-50': isDimmedHostMap(index), 'bg-success bg-opacity-25': isAdminPage && isWinningBeatmap(map.id) }"
             >
                 <i
                     v-bs-tooltip="map.status"
