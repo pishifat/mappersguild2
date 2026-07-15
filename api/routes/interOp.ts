@@ -111,4 +111,17 @@ interOpRouter.get('/contestResults/:mode', async (req, res) => {
     return res.json(response);
 });
 
+/* GET all mentorships */
+interOpRouter.get('/allMentorships', async (req, res) => {
+    try {
+        const users = await UserModel.find({ 'mentorships.0': { $exists: true } })
+            .select('osuId username mentorships')
+            .populate('mentorships.cycle', 'name');
+
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 export default interOpRouter;
