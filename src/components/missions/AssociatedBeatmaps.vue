@@ -1,13 +1,16 @@
 <template>
     <div>
         <b>Associated maps:</b>
-
         <ul v-if="mission.associatedMaps && mission.associatedMaps.length" class="ps-3 mb-0 list-unstyled">
             <li
                 v-for="(map, index) in (showFullbeatmaps ? fullBeatmaps : partialBeatmaps)"
                 :key="map.id"
                 class="text-secondary"
-                :class="{ 'opacity-50': isDimmedHostMap(index), 'bg-success bg-opacity-25': isAdminPage && isWinningBeatmap(map.id) }"
+                :class="{
+                    'opacity-50': isDimmedHostMap(index),
+                    'bg-success bg-opacity-25': isAdminPage && isWinningBeatmap(map.id) && !isRankedBeforeCreation(map),
+                    'bg-info bg-opacity-50': isAdminPage && isRankedBeforeCreation(map),
+                }"
             >
                 <i
                     v-bs-tooltip="map.status"
@@ -198,6 +201,9 @@ export default defineComponent({
             if (!winningMap) return false;
 
             return map.id !== winningMap.id;
+        },
+        isRankedBeforeCreation(map): boolean {
+            return !!map.rankedDate && new Date(map.rankedDate) < new Date(this.mission.createdAt);
         },
         async removeBeatmapFromMission(beatmapId, e): Promise<void> {
             this.processing = true;
