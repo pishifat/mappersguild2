@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const middlewares_1 = require("../../helpers/middlewares");
 const mission_1 = require("../../models/mission");
+const beatmap_1 = require("../../models/beatmap/beatmap");
 const user_1 = require("../../models/user");
 const mission_2 = require("../../../interfaces/mission");
 const featuredArtist_1 = require("../../models/featuredArtist");
@@ -268,6 +269,11 @@ adminMissionsRouter.post('/:id/toggleIsShowcaseMission', async (req, res) => {
     await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { isShowcaseMission: req.body.isShowcaseMission }).orFail();
     res.json(req.body.isShowcaseMission);
 });
+/* POST toggle hasLameWinners */
+adminMissionsRouter.post('/:id/toggleHasLameWinners', async (req, res) => {
+    await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { hasLameWinners: req.body.hasLameWinners }).orFail();
+    res.json(req.body.hasLameWinners);
+});
 /* POST toggle isArtistShowcase */
 adminMissionsRouter.post('/:id/toggleIsArtistShowcase', async (req, res) => {
     await mission_1.MissionModel.findByIdAndUpdate(req.params.id, { isArtistShowcase: req.body.isArtistShowcase }).orFail();
@@ -425,6 +431,11 @@ adminMissionsRouter.post('/:missionId/:beatmapId/toggleInvalidBeatmap', async (r
     }
     const updatedMission = await mission_1.MissionModel.findById(req.params.missionId).extendedDefaultPopulate().orFail();
     res.json(updatedMission.invalidBeatmaps);
+});
+/* POST toggle isLame for a winning beatmap */
+adminMissionsRouter.post('/:missionId/:beatmapId/toggleIsLame', async (req, res) => {
+    const beatmap = await beatmap_1.BeatmapModel.findByIdAndUpdate(req.params.beatmapId, { isLame: !req.body.isLame }).orFail();
+    res.json(beatmap.isLame);
 });
 /* POST toggle isQuestTrailblazer for a user */
 adminMissionsRouter.post('/toggleIsQuestTrailblazer', async (req, res) => {
