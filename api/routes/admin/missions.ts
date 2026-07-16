@@ -41,13 +41,15 @@ adminMissionsRouter.get('/:id/loadClassifiedQuestArtists', async (req, res) => {
         .findById(req.params.id)
         .populate({ path: 'showcaseMissionArtists', populate: { path: 'artist', select: 'label osuId' } })
         .populate({ path: 'showcaseMissionSongs', populate: { path: 'song', select: '_id' } })
+        .populate({ path: 'showcaseMissionSongsByGenre', populate: { path: 'songs', select: '_id' } })
         .orFail();
 
     // collect FeaturedArtist IDs that appear in any newer classified quest
     const newerMissions = await MissionModel
         .find({ name: /Classified/, createdAt: { $gt: mission.createdAt } })
         .populate({ path: 'showcaseMissionArtists', populate: { path: 'artist', select: '_id' } })
-        .populate({ path: 'showcaseMissionSongs', populate: { path: 'song', select: '_id' } });
+        .populate({ path: 'showcaseMissionSongs', populate: { path: 'song', select: '_id' } })
+        .populate({ path: 'showcaseMissionSongsByGenre', populate: { path: 'songs', select: '_id' } });
 
     const newerArtistIds = new Set<string>();
 
@@ -57,6 +59,12 @@ adminMissionsRouter.get('/:id/loadClassifiedQuestArtists', async (req, res) => {
         }
 
         const newerSongIds = (newer.showcaseMissionSongs as any[]).map(e => e.song?._id).filter(Boolean);
+
+        for (const entry of newer.showcaseMissionSongsByGenre as any[]) {
+            for (const song of entry.songs || []) {
+                if (song?._id) newerSongIds.push(song._id);
+            }
+        }
 
         if (newerSongIds.length) {
             const newerFeaturedArtists = await FeaturedArtistModel.find({ songs: { $in: newerSongIds } }).select('_id');
@@ -84,6 +92,22 @@ adminMissionsRouter.get('/:id/loadClassifiedQuestArtists', async (req, res) => {
                 });
             }
         }
+    } else if (mission.isGenreShowcase && mission.showcaseMissionSongsByGenre?.length) {
+        const songIds: any[] = [];
+
+        for (const entry of mission.showcaseMissionSongsByGenre as any[]) {
+            for (const song of entry.songs || []) {
+                if (song?._id) songIds.push(song._id);
+            }
+        }
+
+        const featuredArtists = await FeaturedArtistModel.find({ songs: { $in: songIds } }).select('label osuId');
+
+        artists = featuredArtists.map(a => ({
+            label: a.label,
+            osuId: a.osuId,
+            isLatest: !newerArtistIds.has(a._id.toString()),
+        }));
     } else if (mission.showcaseMissionSongs?.length) {
         const songIds = mission.showcaseMissionSongs.map((entry: any) => entry.song?._id).filter(Boolean);
         const featuredArtists = await FeaturedArtistModel.find({ songs: { $in: songIds } }).select('label osuId');
