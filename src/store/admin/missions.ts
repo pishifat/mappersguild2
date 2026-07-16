@@ -112,6 +112,30 @@ const store: Module<MissionState, MainState> = {
                 mission.closingAnnounced = payload.closingAnnounced;
             }
         },
+        updateHasLameWinners (state, payload): void {
+            const mission = state.missions.find(m => m.id == payload.missionId);
+
+            if (mission) {
+                mission.hasLameWinners = payload.hasLameWinners;
+            }
+        },
+        updateBeatmapIsLame (state, payload): void {
+            const mission = state.missions.find(m => m.id == payload.missionId);
+
+            if (mission) {
+                const associatedMap = mission.associatedMaps?.find(m => m.id == payload.beatmapId);
+
+                if (associatedMap) {
+                    associatedMap.isLame = payload.isLame;
+                }
+
+                const winningMap = mission.winningBeatmaps?.find(m => m.id == payload.beatmapId);
+
+                if (winningMap) {
+                    winningMap.isLame = payload.isLame;
+                }
+            }
+        },
         updateWinningBeatmaps (state, payload): void {
             const mission = state.missions.find(m => m.id == payload.missionId);
 

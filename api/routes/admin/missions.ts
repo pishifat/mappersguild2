@@ -1,6 +1,7 @@
 import express from 'express';
 import { isLoggedIn, isAdmin, isSuperAdmin } from '../../helpers/middlewares';
 import { MissionModel } from '../../models/mission';
+import { BeatmapModel } from '../../models/beatmap/beatmap';
 import { UserModel } from '../../models/user';
 import { MissionMode, MissionStatus } from '../../../interfaces/mission';
 import { FeaturedArtistModel } from '../../models/featuredArtist';
@@ -320,6 +321,13 @@ adminMissionsRouter.post('/:id/toggleIsShowcaseMission', async (req, res) => {
     res.json(req.body.isShowcaseMission);
 });
 
+/* POST toggle hasLameWinners */
+adminMissionsRouter.post('/:id/toggleHasLameWinners', async (req, res) => {
+    await MissionModel.findByIdAndUpdate(req.params.id, { hasLameWinners: req.body.hasLameWinners }).orFail();
+
+    res.json(req.body.hasLameWinners);
+});
+
 /* POST toggle isArtistShowcase */
 adminMissionsRouter.post('/:id/toggleIsArtistShowcase', async (req, res) => {
     await MissionModel.findByIdAndUpdate(req.params.id, { isArtistShowcase: req.body.isArtistShowcase }).orFail();
@@ -535,6 +543,13 @@ adminMissionsRouter.post('/:missionId/:beatmapId/toggleInvalidBeatmap', async (r
     const updatedMission = await MissionModel.findById(req.params.missionId).extendedDefaultPopulate().orFail();
 
     res.json(updatedMission.invalidBeatmaps);
+});
+
+/* POST toggle isLame for a winning beatmap */
+adminMissionsRouter.post('/:missionId/:beatmapId/toggleIsLame', async (req, res) => {
+    const beatmap = await BeatmapModel.findByIdAndUpdate(req.params.beatmapId, { isLame: !req.body.isLame }).orFail();
+
+    res.json(beatmap.isLame);
 });
 
 /* POST toggle isQuestTrailblazer for a user */

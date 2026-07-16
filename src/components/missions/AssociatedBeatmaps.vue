@@ -61,6 +61,25 @@
                         confirm
                     </a>
                 </span>
+                <!-- set winning map as lame -->
+                <span v-if="loggedInUser.group == 'admin' && isAdminPage && mission.hasLameWinners && isWinningBeatmap(map.id)" class="small ms-1">
+                    <a
+                        v-if="confirmLame != map.id"
+                        href="#"
+                        class="text-success opacity-50"
+                        @click.prevent="confirmLame = map.id"
+                    >
+                        {{ map.isLame ? 'un-set winner as lame' : 'set winner as lame' }}
+                    </a>
+                    <a
+                        v-else
+                        :class="processing ? 'opacity-50 pe-none' : 'text-success'"
+                        href="#"
+                        @click.prevent="toggleIsLame(map.id, $event)"
+                    >
+                        confirm
+                    </a>
+                </span>
                 <!-- mark map as invalid -->
                 <span v-if="loggedInUser.group == 'admin' && isAdminPage" class="small ms-1">
                     <a
@@ -81,8 +100,8 @@
                     </a>
                 </span>
                 <!-- publicly display as winner -->
-                <span v-if="!isAdminPage && isWinningBeatmap(map.id)" class="text-success small">
-                    (winner)
+                <span v-if="!isAdminPage && isWinningBeatmap(map.id)" class="text-success small ms-1" :class="{ 'opacity-75': map.isLame }">
+                    {{ map.isLame ? '(winner but really lame)' : '(winner)' }}
                 </span>
                 <span v-if="!isAdminPage && isInvalidBeatmap(map.id)" class="text-danger small">
                     (invalid)
@@ -148,6 +167,7 @@ export default defineComponent({
             confirmDelete: '',
             confirmWin: '',
             confirmInvalid: '',
+            confirmLame: '',
             processing: false,
             showFullbeatmaps: this.isAdminPage,
         };
@@ -263,6 +283,25 @@ export default defineComponent({
 
             this.processing = false;
             this.confirmWin = '';
+        },
+        async toggleIsLame(beatmapId, e): Promise<void> {
+            this.processing = true;
+            const isLame = await this.$http.executePost<boolean>(`/admin/missions/${this.mission.id}/${beatmapId}/toggleIsLame`, { isLame: this.mission.associatedMaps.find(map => map.id == beatmapId)?.isLame }, e);
+
+            if (!this.$http.isError(isLame)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `toggled lame winner for beatmap`,
+                    type: 'info',
+                });
+                this.$store.commit('updateBeatmapIsLame', {
+                    missionId: this.mission.id,
+                    beatmapId,
+                    isLame,
+                });
+            }
+
+            this.processing = false;
+            this.confirmLame = '';
         },
     },
 });

@@ -41,6 +41,7 @@ export interface Beatmap {
     invalidReason: string;
     skipWebhook: boolean;
     isBundled: boolean;
+    isLame: boolean;
     /* from osu! API */
     length: number;
     rankedDate: Date;

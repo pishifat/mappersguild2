@@ -18,6 +18,7 @@ const missionSchema = new Schema<Mission>({
     closingAnnounced: { type: Boolean, default: false },
     winningBeatmaps: [{ type: 'ObjectId', ref: 'Beatmap' }],
     invalidBeatmaps: [{ type: 'ObjectId', ref: 'Beatmap' }],
+    hasLameWinners: { type: Boolean },
     modes: [{ type: String, required: true }],
     isShowcaseMission: { type: Boolean },
     isArtistShowcase: { type: Boolean },

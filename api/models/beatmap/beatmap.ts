@@ -34,6 +34,7 @@ const BeatmapSchema = new Schema({
     invalidReason: { type: String },
     skipWebhook: { type: Boolean },
     isBundled: { type: Boolean },
+    isLame: { type: Boolean },
     /* from osu! API */
     length: { type: Number },
     rankedDate: { type: Date },

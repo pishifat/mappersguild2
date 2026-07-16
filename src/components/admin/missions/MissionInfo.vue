@@ -201,6 +201,20 @@
                 </div>
             </div>
 
+            <!-- hasLameWinners -->
+            <div class="row d-flex mt-2 align-items-center">
+                <div class="col-sm-4">
+                    hasLameWinners
+                </div>
+                <div class="col-sm-4 small text-secondary">
+                    Current: <b :class="mission.hasLameWinners ? 'text-success' : 'text-danger'">{{ mission.hasLameWinners ? mission.hasLameWinners : 'false' }}</b>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-sm btn-outline-info w-100" @click="toggleHasLameWinners($event)">
+                        Toggle hasLameWinners
+                    </button>
+                </div>
+            </div>
             <!-- isShowcaseMission -->
             <div class="row d-flex mt-2 align-items-center">
                 <div class="col-sm-4">
@@ -942,6 +956,20 @@ export default defineComponent({
                 this.$store.commit('updateDeadline', {
                     missionId: this.mission.id,
                     deadline,
+                });
+            }
+        },
+        async toggleHasLameWinners(e): Promise<void> {
+            const hasLameWinners = await this.$http.executePost(`/admin/missions/${this.mission.id}/toggleHasLameWinners/`, { hasLameWinners: !this.mission.hasLameWinners }, e);
+
+            if (!this.$http.isError(hasLameWinners)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `toggled hasLameWinners`,
+                    type: 'info',
+                });
+                this.$store.commit('updateHasLameWinners', {
+                    missionId: this.mission.id,
+                    hasLameWinners,
                 });
             }
         },

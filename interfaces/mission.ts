@@ -30,6 +30,7 @@ export interface Mission extends Document {
     winCondition: string;
     winningBeatmaps: Beatmap[];
     invalidBeatmaps: Beatmap[];
+    hasLameWinners: boolean;
     modes: MissionMode[];
     isShowcaseMission: boolean;
     isArtistShowcase: boolean;
