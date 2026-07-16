@@ -38,12 +38,14 @@ adminMissionsRouter.get('/:id/loadClassifiedQuestArtists', async (req, res) => {
         .findById(req.params.id)
         .populate({ path: 'showcaseMissionArtists', populate: { path: 'artist', select: 'label osuId' } })
         .populate({ path: 'showcaseMissionSongs', populate: { path: 'song', select: '_id' } })
+        .populate({ path: 'showcaseMissionSongsByGenre', populate: { path: 'songs', select: '_id' } })
         .orFail();
     // collect FeaturedArtist IDs that appear in any newer classified quest
     const newerMissions = await mission_1.MissionModel
         .find({ name: /Classified/, createdAt: { $gt: mission.createdAt } })
         .populate({ path: 'showcaseMissionArtists', populate: { path: 'artist', select: '_id' } })
-        .populate({ path: 'showcaseMissionSongs', populate: { path: 'song', select: '_id' } });
+        .populate({ path: 'showcaseMissionSongs', populate: { path: 'song', select: '_id' } })
+        .populate({ path: 'showcaseMissionSongsByGenre', populate: { path: 'songs', select: '_id' } });
     const newerArtistIds = new Set();
     for (const newer of newerMissions) {
         for (const entry of newer.showcaseMissionArtists) {
@@ -51,6 +53,12 @@ adminMissionsRouter.get('/:id/loadClassifiedQuestArtists', async (req, res) => {
                 newerArtistIds.add(entry.artist._id.toString());
         }
         const newerSongIds = newer.showcaseMissionSongs.map(e => e.song?._id).filter(Boolean);
+        for (const entry of newer.showcaseMissionSongsByGenre) {
+            for (const song of entry.songs || []) {
+                if (song?._id)
+                    newerSongIds.push(song._id);
+            }
+        }
         if (newerSongIds.length) {
             const newerFeaturedArtists = await featuredArtist_1.FeaturedArtistModel.find({ songs: { $in: newerSongIds } }).select('_id');
             for (const a of newerFeaturedArtists) {
@@ -72,6 +80,21 @@ adminMissionsRouter.get('/:id/loadClassifiedQuestArtists', async (req, res) => {
                 });
             }
         }
+    }
+    else if (mission.isGenreShowcase && mission.showcaseMissionSongsByGenre?.length) {
+        const songIds = [];
+        for (const entry of mission.showcaseMissionSongsByGenre) {
+            for (const song of entry.songs || []) {
+                if (song?._id)
+                    songIds.push(song._id);
+            }
+        }
+        const featuredArtists = await featuredArtist_1.FeaturedArtistModel.find({ songs: { $in: songIds } }).select('label osuId');
+        artists = featuredArtists.map(a => ({
+            label: a.label,
+            osuId: a.osuId,
+            isLatest: !newerArtistIds.has(a._id.toString()),
+        }));
     }
     else if (mission.showcaseMissionSongs?.length) {
         const songIds = mission.showcaseMissionSongs.map((entry) => entry.song?._id).filter(Boolean);
