@@ -1,7 +1,7 @@
 <template>
     <div>
         <b>Song selection:</b>
-        <div v-if="!deadlineNearlyReached">
+        <div v-if="deadlineNearlyReached">
             <div v-if="genreSongsInfo" class="text-secondary ms-1">
                 <ol>
                     <li v-for="song in genreSongsInfo.songs" :key="song.id">
