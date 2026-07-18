@@ -36,6 +36,8 @@ export default defineComponent({
                         return '/images/dark-gold.png';
                     case 4:
                         return '/images/dark-platinum.png';
+                    case 5:
+                        return '/images/dark-unreal.png';
                     default:
                         return '/images/dark-bronze.png';
                 }

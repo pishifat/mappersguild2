@@ -125,6 +125,11 @@ artistsRouter.post('/toggleHasNewSongs/:id', async (req, res) => {
     res.json(await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { hasNewSongs: req.body.value }).defaultPopulate());
 });
 
+/* POST toggle isMomentum */
+artistsRouter.post('/toggleIsMomentum/:id', async (req, res) => {
+    res.json(await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { isMomentum: req.body.value }).defaultPopulate());
+});
+
 /* POST toggle isUpToDate */
 artistsRouter.post('/toggleIsUpToDate/:id', async (req, res) => {
     let a = await FeaturedArtistModel.findById(req.params.id).orFail();

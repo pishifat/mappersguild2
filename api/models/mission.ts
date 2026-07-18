@@ -60,6 +60,9 @@ const missionSchema = new Schema<Mission>({
     isUniqueArtistToRanked: { type: Boolean }, // only requirement label, no validation
     isOsuOriginal: { type: Boolean }, // only requirement label, no validation
     additionalRequirement: { type: String }, // only requirement label, no validation
+    /* momentum priority quest */
+    momentumSecretUsers: [{ type: 'ObjectId', ref: 'User' }],
+    momentumInsiderUsers: [{ type: 'ObjectId', ref: 'User' }],
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 missionSchema.virtual('associatedMaps', {
@@ -75,6 +78,7 @@ const queryHelpers = {
     defaultPopulate(this: any) {
         return this.populate([
             { path: 'artists', select: 'label osuId' },
+            { path: 'momentumSecretUsers', select: 'username osuId' },
             {
                 path: 'associatedMaps',
                 populate: {
@@ -96,6 +100,7 @@ const queryHelpers = {
     extendedDefaultPopulate(this: any) {
         return this.populate([
             { path: 'artists', select: 'label osuId' },
+            { path: 'momentumSecretUsers', select: 'username osuId' },
             {
                 path: 'associatedMaps',
                 populate: {

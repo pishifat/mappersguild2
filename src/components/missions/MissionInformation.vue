@@ -97,6 +97,13 @@
                         />
                         <b>Tier 4:</b> 20 points
                     </li>
+                    <li>
+                        <img
+                            class="tier-example me-1"
+                            :src="'/images/platinum.png'"
+                        />
+                        <b>Tier 5:</b> ?
+                    </li>
                 </ul>
             </ul>
         </div>

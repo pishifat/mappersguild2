@@ -59,5 +59,8 @@
         "id": "",
         "secret": "",
         "redirect": ""
-    }
+    },
+    "momentumSecrets": [],
+    "insiderUserOsuIds": [],
+    "momentumSecretText": ""
 }

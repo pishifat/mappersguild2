@@ -58,6 +58,7 @@ const UserSchema = new Schema({
     mentorshipBadge: { type: Number },
     cover: { type: Object },
     previouslyRolledArtists: [{ type: 'ObjectId', ref: 'FeaturedArtist', default: [] }],
+    secretsAttempted: { type: Number, default: 0 },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 UserSchema.virtual('totalPoints').get(function(this: User) {

@@ -358,6 +358,9 @@ export function generateMissionThumbnailUrl (mission: Mission) {
         case 4:
             url = 'https://mappersguild.com/images/platinum.png';
             break;
+        case 5:
+            url = 'https://mappersguild.com/images/unreal.png';
+            break;
         default:
             url = 'https://mappersguild.com/images/bronze.png';
             break;

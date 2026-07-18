@@ -51,7 +51,7 @@ export default defineComponent({
     },
     data () {
         return {
-            imageUrls: ['/images/bronze.png', '/images/silver.png', '/images/gold.png', '/images/platinum.png'],
+            imageUrls: ['/images/bronze.png', '/images/silver.png', '/images/gold.png', '/images/platinum.png', '/images/unreal.png'],
         };
     },
     computed: {

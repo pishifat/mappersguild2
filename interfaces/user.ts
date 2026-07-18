@@ -82,4 +82,5 @@ export interface User extends Document {
     mentorshipBadge: number;
     cover: OsuCover;
     previouslyRolledArtists: FeaturedArtist['_id'][];
+    secretsAttempted: number;
 }

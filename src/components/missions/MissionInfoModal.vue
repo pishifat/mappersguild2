@@ -71,6 +71,8 @@ export default defineComponent({
                     return '/images/gold.png';
                 case 4:
                     return '/images/platinum.png';
+                case 5:
+                    return '/images/unreal.png';
                 default:
                     return '/images/bronze.png';
             }

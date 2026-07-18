@@ -35,6 +35,7 @@ const featuredArtistSchema = new Schema({
     // other
     hasRankedMaps: { type: Boolean },
     hasNewSongs: { type: Boolean },
+    isMomentum: { type: Boolean },
 
     // showcase mappers
     referenceUrl: { type: String },

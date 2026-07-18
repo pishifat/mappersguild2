@@ -19,6 +19,11 @@
                 :mission="mission"
             />
         </div>
+        <div v-else-if="mission.tier == 5" class="col-sm-12 mb-4">
+            <momentum
+                :mission="mission"
+            />
+        </div>
         <div v-if="mission.winCondition && mission.winCondition.length" class="col-sm-12 mb-2">
             <b>Win condition:</b>
             <div class="text-secondary mt-1" v-html="$md.render(mission.winCondition.trim())" />
@@ -37,7 +42,8 @@
         <hr />
         <div class="col-sm-12 small">
             <b>Deadline:</b>
-            <span class="text-secondary ms-1">{{ new Date(mission.deadline).toLocaleDateString() }}</span>
+            <span v-if="mission.tier == 5" class="text-secondary ms-1">??/??/????</span>
+            <span v-else class="text-secondary ms-1">{{ new Date(mission.deadline).toLocaleDateString() }}</span>
         </div>
         <div v-if="!mission.isShowcaseMission || (mission.isShowcaseMission && mission.artists && mission.artists.length)" class="col-sm-12 small">
             <b>Applicable Featured Artists:</b>
@@ -74,6 +80,7 @@ import ArtistLinkList from '@components/ArtistLinkList.vue';
 import SongSelection from './SongSelection.vue';
 import ArtistSelection from './ArtistSelection.vue';
 import GenreSelection from './GenreSelection.vue';
+import Momentum from './Momentum.vue';
 import { SortedTasks } from '@interfaces/beatmap/task';
 
 export default defineComponent({
@@ -83,6 +90,7 @@ export default defineComponent({
         SongSelection,
         ArtistSelection,
         GenreSelection,
+        Momentum,
     },
     props: {
         mission: {
