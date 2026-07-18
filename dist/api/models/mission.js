@@ -89,6 +89,9 @@ const missionSchema = new mongoose_1.Schema({
     isUniqueArtistToRanked: { type: Boolean }, // only requirement label, no validation
     isOsuOriginal: { type: Boolean }, // only requirement label, no validation
     additionalRequirement: { type: String }, // only requirement label, no validation
+    /* momentum priority quest */
+    momentumSecretUsers: [{ type: 'ObjectId', ref: 'User' }],
+    momentumInsiderUsers: [{ type: 'ObjectId', ref: 'User' }],
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 missionSchema.virtual('associatedMaps', {
     ref: 'Beatmap',
@@ -102,6 +105,7 @@ const queryHelpers = {
     defaultPopulate() {
         return this.populate([
             { path: 'artists', select: 'label osuId' },
+            { path: 'momentumSecretUsers', select: 'username osuId' },
             {
                 path: 'associatedMaps',
                 populate: {
@@ -123,6 +127,7 @@ const queryHelpers = {
     extendedDefaultPopulate() {
         return this.populate([
             { path: 'artists', select: 'label osuId' },
+            { path: 'momentumSecretUsers', select: 'username osuId' },
             {
                 path: 'associatedMaps',
                 populate: {

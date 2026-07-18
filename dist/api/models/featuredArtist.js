@@ -60,6 +60,7 @@ const featuredArtistSchema = new mongoose_1.Schema({
     // other
     hasRankedMaps: { type: Boolean },
     hasNewSongs: { type: Boolean },
+    isMomentum: { type: Boolean },
     // showcase mappers
     referenceUrl: { type: String },
     oszTemplatesUrl: { type: String },

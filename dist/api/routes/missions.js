@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const config_json_1 = __importDefault(require("../../config.json"));
 const middlewares_1 = require("../helpers/middlewares");
 const mission_1 = require("../models/mission");
 const log_1 = require("../models/log");
@@ -637,5 +638,46 @@ missionsRouter.post('/removeSongShowcaseMapper/:artistId/:songId', async (req, r
             color: discordApi_1.webhookColors.lightRed,
             description: `Removed interest in **song:** [**${song.artist} - ${song.title}**](https://mappersguild.com/artists)`,
         }]);
+});
+/* POST submit secret for momentum priority quest */
+missionsRouter.post('/:missionId/submitSecret', async (req, res) => {
+    const userInput = (req.body.userInput || '').toLowerCase();
+    const user = await user_1.UserModel.findById(req.session.mongoId).orFail();
+    if (userInput === config_json_1.default.momentumSecrets[0].toLowerCase()) {
+        if (!config_json_1.default.insiderUserOsuIds.includes(user.osuId)) {
+            return res.json({ text: 'Invalid clearance. User is not Insider.', type: 'warning' });
+        }
+        await mission_1.MissionModel.findByIdAndUpdate(req.params.missionId, { $addToSet: { momentumInsiderUsers: user._id } });
+        return res.json({ text: 'Permission granted.', type: 'success' });
+    }
+    if (userInput === config_json_1.default.momentumSecrets[1].toLowerCase()) {
+        await mission_1.MissionModel.findByIdAndUpdate(req.params.missionId, { $addToSet: { momentumSecretUsers: user._id } });
+        const mission = await mission_1.MissionModel.findById(req.params.missionId).defaultPopulate().orFail();
+        return res.json({
+            text: 'Permission granted.',
+            secretText: config_json_1.default.momentumSecretText,
+            type: 'success',
+            mission,
+        });
+    }
+    const updatedUser = await user_1.UserModel.findByIdAndUpdate(req.session.mongoId, { $inc: { secretsAttempted: 1 } }, { new: true }).orFail();
+    await mission_1.MissionModel.findByIdAndUpdate(req.params.missionId, { $pull: { momentumInsiderUsers: user._id } });
+    if (updatedUser.secretsAttempted >= 100) {
+        return res.json({ text: 'Permission denied. Too many attempts.', type: 'danger' });
+    }
+    if (updatedUser.secretsAttempted >= 90) {
+        return res.json({ text: `Permission denied. ${100 - updatedUser.secretsAttempted} attempts remaining.`, type: 'danger' });
+    }
+    res.json({ text: 'Permission denied.', type: 'danger' });
+});
+/* GET find artists for momentum priority quest */
+missionsRouter.get('/:missionId/findMomentumArtists', async (req, res) => {
+    const mission = await mission_1.MissionModel.findById(req.params.missionId).orFail();
+    const isMomentumInsider = mission.momentumInsiderUsers.some((u) => u.toString() === req.session.mongoId);
+    if (!isMomentumInsider) {
+        return res.json({ unlocked: false });
+    }
+    const artists = await featuredArtist_1.FeaturedArtistModel.find({ isMomentum: true });
+    res.json({ unlocked: true, artists });
 });
 exports.default = missionsRouter;
