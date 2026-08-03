@@ -11,14 +11,6 @@ const UserSchema = new Schema({
     discordId: { type: String },
     isMentorshipAdmin: { type: Boolean },
     isTeamContestAdmin: { type: Boolean },
-    mentorships: [{
-        _id: false,
-        cycle: { type: 'ObjectId', ref: 'MentorshipCycle', required: true },
-        mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania', 'osuModding', 'taikoModding', 'catchModding', 'maniaModding', 'osuGraduation', 'taikoGraduation', 'catchGraduation', 'maniaGraduation', 'storyboard'], required: true }, // graduation = mentoring someone on how to mentor. stupid name
-        group: { type: String, enum: ['mentor', 'mentee', 'extraMentor'], required: true },
-        mentor: { type: 'ObjectId', ref: 'User' },
-        phases: [{ type: Number, default: [1, 2, 3] }],
-    }],
     rank: { type: Number, default: 0 },
     easyPoints: { type: Number, default: 0 },
     normalPoints: { type: Number, default: 0 },
@@ -109,10 +101,36 @@ UserSchema.virtual('mainMode').get(function(this: User) {
     return modes[0].name;
 });
 
-UserSchema.virtual('mentees', {
-    ref: 'User',
+UserSchema.virtual('mentorships', {
+    ref: 'MentorshipRecord',
     localField: '_id',
-    foreignField: 'mentorships.mentor',
+    foreignField: 'user',
+});
+
+// where user is mentor
+UserSchema.virtual('menteeRecords', {
+    ref: 'MentorshipRecord',
+    localField: '_id',
+    foreignField: 'mentor',
+});
+
+// distinct mentees
+UserSchema.virtual('mentees').get(function(this: any) {
+    if (!this.menteeRecords) return [];
+
+    const seen = new Set<string>();
+    const result: any[] = [];
+
+    for (const record of this.menteeRecords) {
+        const menteeUser = record.user;
+
+        if (menteeUser && !seen.has(menteeUser.id)) {
+            seen.add(menteeUser.id);
+            result.push(menteeUser);
+        }
+    }
+
+    return result;
 });
 
 interface QueryHelpers {

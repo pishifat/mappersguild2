@@ -14,7 +14,7 @@
                             Select a cycle
                         </option>
                         <option v-for="cycle in allCycles" :key="cycle.id" :value="cycle.id">
-                            {{ cycle.number }} - {{ cycle.name }}
+                            {{ cycle.number }} - {{ cycle.name }}{{ !cycle.isPublic ? ' (NOT PUBLIC)' : '' }}
                         </option>
                     </select>
                 </div>

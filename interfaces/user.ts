@@ -1,7 +1,7 @@
 import { BeatmapMode } from './beatmap/beatmap';
 import { Quest } from './quest';
 import { Mission } from './mission';
-import { MentorshipCycle } from './mentorshipCycle';
+import { MentorshipRecord } from './mentorshipRecord';
 import { FeaturedArtist } from './featuredArtist';
 import { Document } from 'mongoose';
 import { OsuCover } from '../api/helpers/osuApi';
@@ -33,13 +33,8 @@ export interface User extends Document {
     discordId: string; // js doesnt support 18 digit numbers...
     isMentorshipAdmin: boolean;
     isTeamContestAdmin: boolean;
-    mentorships: {
-        cycle: MentorshipCycle;
-        mode: string;
-        group: string;
-        mentor: User;
-        phases: number[];
-    }[];
+    /** virtual field to populate */
+    mentorships: MentorshipRecord[];
     rank: number;
     easyPoints: number;
     normalPoints: number;
@@ -68,7 +63,10 @@ export interface User extends Document {
     pointsInfo: Record<string, any>;
     mainMode: Omit<BeatmapMode, BeatmapMode.Hybrid>;
     createdAt: Date;
+    /** virtual field to populate (via menteeRecords) */
     mentees: User[];
+    /** virtual field to populate ("user" sub-populate required to compute "mentees") */
+    menteeRecords: MentorshipRecord[];
     rankedBeatmapsCount: number;
     globalRank: number;
     pp: number;
