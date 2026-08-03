@@ -27,11 +27,15 @@
                 <div v-if="secretText" class="mt-2">
                     <code v-html="$md.renderInline(secretText)" />
                 </div>
-                <div v-if="(momentumArtistsLoaded && momentumArtists.unlocked) && !secretText" class="mt-2">
-                    <code>Response: Below are artists exclusive to you (and other <i>Insiders</i>). Create and rank a map using any of these artists' listed songs to complete the quest.</code>
-                    <ol>
-                        <li v-for="featuredArtist in momentumArtists.artists" :key="featuredArtist.id"><a target="_blank" :href="featuredArtist.oszTemplatesUrl"><code>{{ featuredArtist.label }}</code></a></li>
-                    </ol>
+                <div v-if="momentumArtistLoaded && !secretText" class="mt-2">
+                    <code :class="'text-' + secretResponseType">Response: Below are songs exclusive to you (and other <i>INSIDERS</i>). Create and rank a map using any of these songs to fulfill your role.</code>
+                    {{ momentumArtist }}
+                    <div v-for="song in momentumArtist.songs" :key="song.id">
+                        <code :class="'text-' + secretResponseType">- <a target="_blank" :href="song.oszUrl">{{ song.artist }} - {{ song.title }}</a></code>
+                    </div>
+                    <div>
+                        <code :class="'text-' + secretResponseType"><a target="_blank" :href="momentumArtist.oszTemplatesUrl">download all .osz files</a></code>
+                    </div>
                 </div>
                 <div class="mt-2">
                     <div v-if="mission.momentumSecretUsers && mission.momentumSecretUsers.length">
@@ -66,8 +70,8 @@ export default defineComponent({
     data () {
         return {
             userInput: '',
-            momentumArtists: null as any,
-            momentumArtistsLoaded: false,
+            momentumArtist: null as any,
+            momentumArtistLoaded: false,
             secretResponseText: '',
             secretResponseType: '',
             secretText: '',
@@ -79,7 +83,7 @@ export default defineComponent({
         ]),
     },
     async mounted(): Promise<void> {
-        await this.findMomentumArtists();
+        await this.findMomentumArtist();
     },
     methods: {
         async submitSecret(e): Promise<void> {
@@ -97,19 +101,19 @@ export default defineComponent({
                     this.$store.commit('missions/updateMission', secretResponse.mission);
                 }
 
-                await this.findMomentumArtists();
+                await this.findMomentumArtist();
             }
         },
-        async findMomentumArtists(): Promise<void> {
-            this.momentumArtistsLoaded = false;
-            const momentumArtists = await this.$http.executeGet(`/missions/${this.mission.id}/findMomentumArtists`);
+        async findMomentumArtist(): Promise<void> {
+            this.momentumArtistLoaded = false;
+            const momentumArtist: any = await this.$http.executeGet(`/missions/${this.mission.id}/findMomentumArtist`);
 
-            if (!this.$http.isError(momentumArtists)) {
-                this.momentumArtists = momentumArtists;
+            if (!this.$http.isError(momentumArtist)) {
+                this.momentumArtist = momentumArtist.artist;
             }
 
-            if (this.momentumArtists.unlocked) {
-                this.momentumArtistsLoaded = true;
+            if (momentumArtist.unlocked) {
+                this.momentumArtistLoaded = true;
             }
         },
     },
