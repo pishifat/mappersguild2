@@ -25,16 +25,30 @@
                     {{ secretResponseText }}
                 </code>
                 <div v-if="secretText" class="mt-2">
-                    <code v-html="$md.renderInline(secretText)" />
+                    <code :class="'text-' + secretResponseType" v-html="$md.renderInline(secretText)" />
                 </div>
                 <div v-if="momentumArtistLoaded && !secretText" class="mt-2">
-                    <code :class="'text-' + secretResponseType">Response: Below are songs exclusive to you (and other <i>INSIDERS</i>). Create and rank a map using any of these songs to fulfill your role.</code>
-                    {{ momentumArtist }}
-                    <div v-for="song in momentumArtist.songs" :key="song.id">
-                        <code :class="'text-' + secretResponseType">- <a target="_blank" :href="song.oszUrl">{{ song.artist }} - {{ song.title }}</a></code>
+                    <div class="mb-2">
+                        <code :class="'text-' + secretResponseType">Below are songs exclusive to you (and other <i>INSIDER</i>s). Do not reveal this information to anyone else.</code>
                     </div>
-                    <div>
-                        <code :class="'text-' + secretResponseType"><a target="_blank" :href="momentumArtist.oszTemplatesUrl">download all .osz files</a></code>
+                    <div class="mb-2">
+                        <code :class="'text-' + secretResponseType">Create and rank a map using any of these songs to fulfill your role.</code>
+                    </div>
+                    <div v-for="song in momentumArtist.songs" :key="song.id">
+                        <code :class="'text-' + secretResponseType">
+                            -
+                            <a
+                                target="_blank"
+                                :href="song.oszUrl"
+                                class="code-link"
+                                :class="'text-' + secretResponseType"
+                            >
+                                {{ song.artist }} - {{ song.title }}
+                            </a>
+                        </code>
+                    </div>
+                    <div class="mt-2">
+                        <code :class="'text-' + secretResponseType"><a target="_blank" :href="momentumArtist.oszTemplatesUrl" class="code-link" :class="'text-' + secretResponseType">download all .osz files</a></code>
                     </div>
                 </div>
                 <div class="mt-2">
@@ -81,9 +95,6 @@ export default defineComponent({
         ...mapState([
             'loggedInUser',
         ]),
-    },
-    async mounted(): Promise<void> {
-        await this.findMomentumArtist();
     },
     methods: {
         async submitSecret(e): Promise<void> {
@@ -133,5 +144,9 @@ export default defineComponent({
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+}
+
+.code-link:hover {
+    color: white !important;
 }
 </style>

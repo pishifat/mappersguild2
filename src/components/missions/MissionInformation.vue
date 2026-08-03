@@ -100,7 +100,7 @@
                     <li>
                         <img
                             class="tier-example me-1"
-                            :src="'/images/platinum.png'"
+                            :src="'/images/unreal.png'"
                         />
                         <b>Tier 5:</b> ?
                     </li>

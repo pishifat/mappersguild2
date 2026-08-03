@@ -249,6 +249,14 @@ adminFeaturedArtistsRouter.post('/:id/togglePermanentlyDismiss', async (req, res
     res.json(!artist.permanentlyDismiss);
 });
 
+/* POST toggle isMomentum */
+adminFeaturedArtistsRouter.post('/:id/toggleIsMomentum', async (req, res) => {
+    const artist = await FeaturedArtistModel.findByIdAndUpdate(req.params.id).orFail();
+    await FeaturedArtistModel.findByIdAndUpdate(req.params.id, { isMomentum: !artist.isMomentum }).orFail();
+
+    res.json(!artist.isMomentum);
+});
+
 /* GET classified status of song */
 adminFeaturedArtistsRouter.get('/:id/findClassifiedStatus', async (req, res) => {
     const mission = await MissionModel

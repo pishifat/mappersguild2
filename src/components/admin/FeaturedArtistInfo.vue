@@ -199,13 +199,17 @@
                                 No inconsistencies found
                             </div>
                             <div v-if="crossCheckResults.length">
-                                <div class="text-warning mb-1">in osu! but not MG:</div>
+                                <div class="text-warning mb-1">
+                                    in osu! but not MG:
+                                </div>
                                 <div v-for="(track, i) in crossCheckResults" :key="i">
                                     {{ track.artist }} - {{ track.title }}
                                 </div>
                             </div>
                             <div v-if="crossCheckMgOnly?.length" class="mt-1">
-                                <div class="text-info mb-1">in MG but not osu!:</div>
+                                <div class="text-info mb-1">
+                                    in MG but not osu!:
+                                </div>
                                 <div v-for="(song, i) in crossCheckMgOnly" :key="i">
                                     {{ song.artist }} - {{ song.title }}
                                 </div>
@@ -268,6 +272,15 @@
                         <span class="text-danger me-2">{{ featuredArtist.permanentlyDismiss ? 'true' : 'false' }}</span>
                     </span>
                     <button class="btn btn-sm btn-outline-info ms-3 w-25" @click="updatePermanentlyDismiss($event)">
+                        Toggle
+                    </button>
+                </div>
+                <div class="row mb-2">
+                    <span class="col-sm-6">
+                        isMomentum:
+                        <span :class="featuredArtist.isMomentum ? 'text-success' : 'text-danger'" class="me-2">{{ featuredArtist.isMomentum ? 'true' : 'false' }}</span>
+                    </span>
+                    <button class="btn btn-sm btn-outline-info ms-3 w-25" @click="updateIsMomentum($event)">
                         Toggle
                     </button>
                 </div>
@@ -679,6 +692,20 @@ export default defineComponent({
                 this.$store.commit('updatePermanentlyDismiss', {
                     featuredArtistId: this.featuredArtist.id,
                     permanentlyDismiss,
+                });
+            }
+        },
+        async updateIsMomentum(e): Promise<void> {
+            const isMomentum = await this.$http.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/toggleIsMomentum`, {}, e);
+
+            if (!this.$http.isError(isMomentum)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `updated isMomentum: ${isMomentum}`,
+                    type: 'info',
+                });
+                this.$store.commit('updateIsMomentum', {
+                    featuredArtistId: this.featuredArtist.id,
+                    isMomentum,
                 });
             }
         },

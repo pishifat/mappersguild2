@@ -1,5 +1,5 @@
 import express from 'express';
-import config from '../../config.json';
+import momentum from '../../momentum.json';
 import { isLoggedIn } from '../helpers/middlewares';
 import { MissionModel } from '../models/mission';
 import { LogModel } from '../models/log';
@@ -809,32 +809,65 @@ missionsRouter.post('/:missionId/submitSecret', async (req, res) => {
     const userInput: string = (req.body.userInput || '').toLowerCase();
     const user: User = await UserModel.findById(req.session.mongoId).orFail();
 
-    if (userInput === config.momentumSecrets[0].toLowerCase()) {
-        if (!config.insiderUserOsuIds.includes(user.osuId)) {
-            return res.json({ text: 'Invalid clearance. User is not Insider.', type: 'warning' });
-        }
+    const matchedSecret = momentum.secrets.find(entry => entry.keys.some(key => key.toLowerCase() === userInput));
 
-        await MissionModel.findByIdAndUpdate(req.params.missionId, { $addToSet: { momentumInsiderUsers: user._id } });
+    if (matchedSecret?.action === 'insider') {
+        const hasInsiderRole = momentum.userRoles.some(entry => entry.osuId === user.osuId && ['INSIDER', 'DUPLICATOR'].includes(entry.role));
+
+        if (!hasInsiderRole) {
+            return res.json({
+                text: 'Invalid clearance.',
+                secretText: 'You are not INSIDER.',
+                type: 'warning',
+            });
+        }
 
         return res.json({ text: 'Permission granted.', type: 'success' });
     }
 
-    if (userInput === config.momentumSecrets[1].toLowerCase()) {
-        await MissionModel.findByIdAndUpdate(req.params.missionId, { $addToSet: { momentumSecretUsers: user._id } });
+    if (matchedSecret?.action === 'reveal') {
+        const userRole = momentum.userRoles.find(entry => entry.osuId === user.osuId)?.role;
+        const roleDescription = userRole ? momentum.roleDescriptions[userRole] : undefined;
+        const requiresUserRole = matchedSecret.text.includes('{{userRole}}');
+        const requiresMatchingRole = matchedSecret.matchUserRole === true;
 
-        const mission = await MissionModel.findById(req.params.missionId).defaultPopulate().orFail();
+        if (requiresUserRole && !userRole && !requiresMatchingRole) {
+            return res.json({
+                text: 'Invalid clearance.',
+                secretText: 'You have no role. You can gain a role by completing a different priority quest. If momentum increases before then, it will be too late.',
+                type: 'warning',
+            });
+        }
 
-        return res.json({
-            text: 'Permission granted.',
-            secretText: config.momentumSecretText,
-            type: 'success',
-            mission,
-        });
+        const roleMatches = !requiresMatchingRole || userRole?.toLowerCase() === userInput;
+
+        const secretText = roleMatches
+            ? matchedSecret.text
+                .replace('{{userRole}}', userRole ?? '')
+                .replace('{{roleDescription}}', roleDescription ?? '')
+            : '';
+
+        if (secretText) {
+            const increaseMomentum = matchedSecret.increaseMomentum === true;
+
+            if (increaseMomentum) {
+                await MissionModel.findByIdAndUpdate(req.params.missionId, { $addToSet: { momentumSecretUsers: user._id } });
+            }
+
+            const mission = increaseMomentum
+                ? await MissionModel.findById(req.params.missionId).defaultPopulate().orFail()
+                : undefined;
+
+            return res.json({
+                text: 'Permission granted.',
+                secretText,
+                type: 'success',
+                mission,
+            });
+        }
     }
 
     const updatedUser = await UserModel.findByIdAndUpdate(req.session.mongoId, { $inc: { secretsAttempted: 1 } }, { new: true }).orFail();
-
-    await MissionModel.findByIdAndUpdate(req.params.missionId, { $pull: { momentumInsiderUsers: user._id } });
 
     if (updatedUser.secretsAttempted >= 100) {
         return res.json({ text: 'Permission denied. Too many attempts.', type: 'danger' });
@@ -849,9 +882,9 @@ missionsRouter.post('/:missionId/submitSecret', async (req, res) => {
 
 /* GET find songs for momentum priority quest */
 missionsRouter.get('/:missionId/findMomentumArtist', async (req, res) => {
-    const mission: Mission = await MissionModel.findById(req.params.missionId).orFail();
+    const user: User = await UserModel.findById(req.session.mongoId).orFail();
 
-    const isMomentumInsider = mission.momentumInsiderUsers.some((u: any) => u.toString() === req.session.mongoId);
+    const isMomentumInsider = momentum.userRoles.some(entry => entry.osuId === user.osuId && ['INSIDER', 'DUPLICATOR'].includes(entry.role));
 
     if (!isMomentumInsider) {
         return res.json({ unlocked: false });
@@ -860,6 +893,6 @@ missionsRouter.get('/:missionId/findMomentumArtist', async (req, res) => {
     const artist: FeaturedArtist = await FeaturedArtistModel.findOne({ isMomentum: true }).defaultPopulateWithSongs().orFail();
 
     res.json({ unlocked: true, artist });
-}); 
+});
 
 export default missionsRouter;

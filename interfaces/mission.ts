@@ -74,7 +74,6 @@ export interface Mission extends Document {
     additionalRequirement: string;
     /* momentum priority quest */
     momentumSecretUsers: User[];
-    momentumInsiderUsers: User[];
     /** virtual field to populate */
     associatedMaps: Beatmap[];
 }

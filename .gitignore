@@ -26,6 +26,7 @@ jspm_packages/
 
 # manually added (everything above is from a template)
 config.json
+momentum.json
 public/js/
 *.csv
 .vscode/

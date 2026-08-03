@@ -108,6 +108,13 @@ const store: Module<FeaturedArtistState, MainState> = {
                 featuredArtist.permanentlyDismiss = payload.permanentlyDismiss;
             }
         },
+        updateIsMomentum (state, payload): void {
+            const featuredArtist = state.featuredArtists.find(f => f.id == payload.featuredArtistId);
+
+            if (featuredArtist) {
+                featuredArtist.isMomentum = payload.isMomentum;
+            }
+        },
     },
 };
 
