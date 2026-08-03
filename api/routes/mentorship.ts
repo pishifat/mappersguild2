@@ -728,6 +728,27 @@ mentorshipRouter.post('/togglePhase', isMentorshipAdmin, async (req, res) => {
     res.json(cycle);
 });
 
+/* POST delete cycle + all mentorship records tied to it */
+mentorshipRouter.post('/deleteCycle', isMentorshipAdmin, async (req, res) => {
+    const { cycleId } = req.body;
+
+    if (res.locals.userRequest.osuId !== 16276548) {
+        return res.json({ error: 'Only -White can delete cycles' });
+    }
+
+    const cycle = await MentorshipCycleModel
+        .findById(cycleId)
+        .orFail();
+
+    const { deletedCount } = await MentorshipRecordModel.deleteMany({ cycle: cycle._id });
+
+    await cycle.deleteOne();
+
+    res.json({ success: true });
+
+    LogModel.generate(req.session?.mongoId, `deleted mentorship cycle "${cycle.name}" (#${cycle.number}) and ${deletedCount} mentorship record(s)`, LogCategory.Mentorship);
+});
+
 /* POST edit badge value */
 mentorshipRouter.post('/editBadgeValue', isMentorshipAdmin, async (req, res) => {
     const { userId, value } = req.body;
