@@ -4,6 +4,8 @@ import { UserModel } from '../models/user';
 import { ContestModel } from '../models/contest/contest';
 import { ContestMode, ContestStatus } from '../../interfaces/contest/contest';
 import { calculateContestScores } from './contests/listing';
+import { MentorshipCycleModel } from '../models/mentorshipCycle';
+import { MentorshipRecordModel } from '../models/mentorshipRecord';
 
 const interOpRouter = express.Router();
 
@@ -22,8 +24,18 @@ interOpRouter.use((req, res, next) => {
         return res.status(401).json({ error: 'Invalid credentials' });
     }
 
+    res.locals.interOpConfig = userConfig;
+
     return next();
 });
+
+function canWriteMentorships(req, res, next): void {
+    if (res.locals.interOpConfig?.canWriteMentorships) {
+        return next();
+    }
+
+    return res.status(403).json({ error: 'This credential is not permitted to write mentorship data' });
+}
 
 /* GET user mentorships by osuId or username */
 interOpRouter.get('/userMentorships/:id', async (req, res) => {
@@ -37,13 +49,13 @@ interOpRouter.get('/userMentorships/:id', async (req, res) => {
             // Search by username
             user = await UserModel.findOne()
                 .byUsername(identifier)
-                .select('osuId username mentorships')
-                .populate('mentorships.cycle', 'name');
+                .select('osuId username')
+                .populate({ path: 'mentorships', populate: { path: 'cycle', select: 'name' } });
         } else {
             // Search by osuId
             user = await UserModel.findOne({ osuId })
-                .select('osuId username mentorships')
-                .populate('mentorships.cycle', 'name');
+                .select('osuId username')
+                .populate({ path: 'mentorships', populate: { path: 'cycle', select: 'name' } });
         }
 
         if (!user) {
@@ -51,7 +63,7 @@ interOpRouter.get('/userMentorships/:id', async (req, res) => {
         }
 
         res.json(user);
-    } catch (error) {
+    } catch {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
@@ -114,14 +126,115 @@ interOpRouter.get('/contestResults/:mode', async (req, res) => {
 /* GET all mentorships */
 interOpRouter.get('/allMentorships', async (req, res) => {
     try {
-        const users = await UserModel.find({ 'mentorships.0': { $exists: true } })
-            .select('osuId username mentorships')
-            .populate('mentorships.cycle', 'name');
+        const userIds = await MentorshipRecordModel.distinct('user');
+
+        const users = await UserModel.find({ _id: { $in: userIds } })
+            .select('osuId username')
+            .populate({ path: 'mentorships', populate: { path: 'cycle', select: 'name' } });
 
         res.json(users);
-    } catch (error) {
+    } catch {
         res.status(500).json({ error: 'Internal server error' });
     }
+});
+
+/*
+    POST new mentorship cycle + participants from osucmp.com
+    for use by -White, who has interOp write permissions.
+    this can only write mentorshipCycle + mentorshipRecords
+*/
+interOpRouter.post('/createMentorshipCycle', canWriteMentorships, async (req, res) => {
+    const { number, name, url, startDate, endDate, participants } = req.body;
+
+    if (!number || !Array.isArray(participants)) {
+        return res.status(400).json({ error: 'number and participants are required' });
+    }
+
+    const errors: string[] = [];
+
+    for (const p of participants) {
+        const needsMentorRef = p.group == 'mentee' || p.group == 'extraMentor';
+
+        if (
+            !p.osuId || !p.mode || !['mentor', 'extraMentor', 'mentee'].includes(p.group) ||
+            (needsMentorRef && !p.mentorOsuId)
+        ) {
+            errors.push(`invalid entry: ${JSON.stringify(p).slice(0, 100)}`);
+        }
+    }
+
+    if (errors.length) {
+        return res.status(400).json({ errors });
+    }
+
+    const osuIds = new Set<number>();
+
+    for (const p of participants) {
+        osuIds.add(p.osuId);
+
+        if (p.mentorOsuId) {
+            osuIds.add(p.mentorOsuId);
+        }
+    }
+
+    const users = await UserModel.find({ osuId: { $in: Array.from(osuIds) } }).select('osuId');
+    const usersByOsuId = new Map(users.map(u => [u.osuId, u]));
+    const missingOsuIds = Array.from(osuIds).filter(id => !usersByOsuId.has(id));
+
+    if (missingOsuIds.length) {
+        return res.status(400).json({
+            error: 'These osuIds are not in the Mappers\' Guild database. Add them manually on the /mentorships page, then resubmit.',
+            missingOsuIds,
+        });
+    }
+
+    let cycle = await MentorshipCycleModel.findOne({ number });
+
+    if (!cycle) {
+        cycle = new MentorshipCycleModel();
+        cycle.number = number;
+        cycle.name = name || `Cycle ${number}`;
+        if (url) cycle.url = url;
+        if (startDate) cycle.startDate = new Date(startDate);
+        if (endDate) cycle.endDate = new Date(endDate);
+        await cycle.save();
+    }
+
+    let created = 0;
+    let skipped = 0;
+
+    for (const p of participants) {
+        const user = usersByOsuId.get(p.osuId)!;
+
+        const exists = await MentorshipRecordModel.exists({
+            user: user._id,
+            cycle: cycle._id,
+            mode: p.mode,
+            group: p.group,
+        });
+
+        if (exists) {
+            skipped++;
+            continue;
+        }
+
+        const newMentorship: any = {
+            user: user._id,
+            cycle: cycle._id,
+            mode: p.mode,
+            group: p.group,
+            phases: p.phases || [1, 2, 3],
+        };
+
+        if (p.mentorOsuId) {
+            newMentorship.mentor = usersByOsuId.get(p.mentorOsuId)!._id;
+        }
+
+        await MentorshipRecordModel.create(newMentorship);
+        created++;
+    }
+
+    res.json({ created, skipped });
 });
 
 export default interOpRouter;

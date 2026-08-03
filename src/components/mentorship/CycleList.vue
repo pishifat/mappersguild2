@@ -168,7 +168,7 @@ export default defineComponent({
             if (this.extraMentees && this.extraMentees.length) {
                 for (const mentee of this.extraMentees) {
                     for (const mentorship of mentee.mentorships) {
-                        if (mentorship.cycle.toString() == argMentorship.cycle.id && mentorship.group == 'mentee' && mentorship.mode == this.mode && mentorship.mentor.toString() == argMentorship.mentor.id) {
+                        if (mentorship.cycle.toString() == argMentorship.cycle.id && mentorship.group == 'mentee' && mentorship.mode == this.mode && argMentorship.mentor && mentorship.mentor.toString() == argMentorship.mentor.id) {
                             mentees.push(mentee);
                         }
                     }
