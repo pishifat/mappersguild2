@@ -38,7 +38,8 @@
     "interOpAccess": {
         "USERNAME": {
             "mongoId": "",
-            "secret": ""
+            "secret": "",
+            "canWriteMentorships": false
         }
     },
     "shopify": {

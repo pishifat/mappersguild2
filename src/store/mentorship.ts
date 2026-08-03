@@ -46,6 +46,10 @@ const store: Module<UsersState, MainState> = {
             const i = state.cycles.findIndex(c => c.id === cycle.id);
             if (i !== -1) state.cycles[i] = cycle;
         },
+        removeCycle (state, cycleId: string): void {
+            const i = state.cycles.findIndex(c => c.id === cycleId);
+            if (i !== -1) state.cycles.splice(i, 1);
+        },
         setSelectedUser (state, user: User): void {
             state.selectedUser = user;
         },

@@ -16,11 +16,20 @@
                         class="text-secondary"
                     >*</span>
                     <a
+                        v-if="editingMentorId != user.id"
                         href="#"
                         class="text-success ms-1 small"
                         @click.prevent="editingMentorId = user.id"
                     >
                         <i class="fas fa-plus" />
+                    </a>
+                    <a
+                        v-else
+                        href="#"
+                        class="text-secondary ms-1 small"
+                        @click.prevent="cancelEditingMentor()"
+                    >
+                        <i class="fas fa-times" />
                     </a>
                     <span v-if="!findMentees(user.id).length">
                         <a
@@ -310,6 +319,11 @@ export default defineComponent({
         }
     },
     methods: {
+        cancelEditingMentor(): void {
+            this.editingMentorId = '';
+            this.extraMentorInput = null;
+            this.menteeInput = null;
+        },
         findMentees(id): User[] {
             const mentees = this.modeMentees.filter(p => {
                 for (const mentorship of p.mentorships) {
@@ -366,6 +380,7 @@ export default defineComponent({
                 this.$store.commit('mentorship/updateCycle', cycle);
                 this.mentorInput = null;
                 this.extraMentorInput = null;
+                this.editingMentorId = '';
             }
         },
         async addMentee(e, mentorId): Promise<void> {

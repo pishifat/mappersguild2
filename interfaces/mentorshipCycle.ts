@@ -1,4 +1,6 @@
+import { Document } from 'mongoose';
 import { User } from './user';
+import { MentorshipRecord } from './mentorshipRecord';
 
 export interface MentorshipCycle extends Document {
     _id: any;
@@ -11,5 +13,7 @@ export interface MentorshipCycle extends Document {
     isPublic: boolean;
 
     /** virtual field to populate */
-    participants: User[];
+    records: MentorshipRecord[];
+    /** virtual field computed from "records" */
+    participants: (Pick<User, '_id' | 'id' | 'username' | 'osuId'> & { mentorships: MentorshipRecord[] })[];
 }

@@ -14,7 +14,7 @@
                             Select a cycle
                         </option>
                         <option v-for="cycle in allCycles" :key="cycle.id" :value="cycle.id">
-                            {{ cycle.number }} - {{ cycle.name }}
+                            {{ cycle.number }} - {{ cycle.name }}{{ !cycle.isPublic ? ' (NOT PUBLIC)' : '' }}
                         </option>
                     </select>
                 </div>
@@ -163,6 +163,47 @@
                             </button>
                         </div>
                     </div>
+                    <!-- delete cycle -->
+                    <div class="row">
+                        <div class="col-sm-2">
+                            Delete cycle:
+                        </div>
+                        <div class="col-sm-4 mb-2">
+                            <button
+                                v-if="!confirmDeleteCycle"
+                                class="btn btn-outline-danger btn-sm"
+                                href="#"
+                                @click.prevent="confirmDeleteCycle = true"
+                            >
+                                delete this cycle
+                            </button>
+                            <div v-else>
+                                <div class="text-danger small mb-1">
+                                    This permanently deletes "{{ selectedCycle.name }}" and every mentorship record tied to it. Type the cycle name below to confirm.
+                                </div>
+                                <div class="input-group input-group-sm mb-1">
+                                    <input
+                                        v-model="deleteCycleConfirmInput"
+                                        class="form-control form-control-sm"
+                                        autocomplete="off"
+                                        :placeholder="selectedCycle.name"
+                                    />
+                                    <div class="input-group-append">
+                                        <button
+                                            class="btn btn-danger"
+                                            :disabled="deleteCycleConfirmInput !== selectedCycle.name"
+                                            @click.prevent="deleteCycle($event)"
+                                        >
+                                            permanently delete
+                                        </button>
+                                    </div>
+                                </div>
+                                <a href="#" class="small" @click.prevent="confirmDeleteCycle = false; deleteCycleConfirmInput = ''">
+                                    cancel
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                     <a href="#" @click.prevent="showCycleInputs = !showCycleInputs">
                         stop editing (close without saving)
                     </a>
@@ -271,6 +312,8 @@ export default defineComponent({
             cycleUrlInput: null,
             cycleStartDateInput: new Date(),
             cycleEndDateInput: new Date(),
+            confirmDeleteCycle: false,
+            deleteCycleConfirmInput: '',
         };
     },
     computed: {
@@ -288,6 +331,9 @@ export default defineComponent({
     watch: {
         cycleId(): void {
             this.$store.commit('mentorship/setSelectedCycleId', this.cycleId);
+
+            if (!this.selectedCycle) return;
+
             this.cycleNameInput = this.selectedCycle.name;
             this.cycleNumberInput = this.selectedCycle.number;
             this.cycleUrlInput = this.selectedCycle.url;
@@ -357,6 +403,21 @@ export default defineComponent({
                     type: 'info',
                 });
                 this.$store.commit('mentorship/updateCycle', cycle);
+            }
+        },
+        async deleteCycle(e): Promise<void> {
+            const result: any = await this.$http.executePost(`/mentorship/deleteCycle`, { cycleId: this.selectedCycle.id }, e);
+
+            if (!this.$http.isError(result)) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `Deleted cycle "${this.selectedCycle.name}"`,
+                    type: 'info',
+                });
+                this.$store.commit('mentorship/removeCycle', this.selectedCycle.id);
+                this.cycleId = this.allCycles.length ? this.allCycles[0].id : '';
+                this.confirmDeleteCycle = false;
+                this.deleteCycleConfirmInput = '';
+                this.showCycleInputs = false;
             }
         },
         async toggleCycleIsPublic(e): Promise<void> {
