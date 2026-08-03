@@ -45,14 +45,6 @@ const UserSchema = new mongoose_1.Schema({
     discordId: { type: String },
     isMentorshipAdmin: { type: Boolean },
     isTeamContestAdmin: { type: Boolean },
-    mentorships: [{
-            _id: false,
-            cycle: { type: 'ObjectId', ref: 'MentorshipCycle', required: true },
-            mode: { type: String, enum: ['osu', 'taiko', 'catch', 'mania', 'osuModding', 'taikoModding', 'catchModding', 'maniaModding', 'osuGraduation', 'taikoGraduation', 'catchGraduation', 'maniaGraduation', 'storyboard'], required: true }, // graduation = mentoring someone on how to mentor. stupid name
-            group: { type: String, enum: ['mentor', 'mentee', 'extraMentor'], required: true },
-            mentor: { type: 'ObjectId', ref: 'User' },
-            phases: [{ type: Number, default: [1, 2, 3] }],
-        }],
     rank: { type: Number, default: 0 },
     easyPoints: { type: Number, default: 0 },
     normalPoints: { type: Number, default: 0 },
@@ -136,10 +128,31 @@ UserSchema.virtual('mainMode').get(function () {
     modes.sort((a, b) => b.points - a.points);
     return modes[0].name;
 });
-UserSchema.virtual('mentees', {
-    ref: 'User',
+UserSchema.virtual('mentorships', {
+    ref: 'MentorshipRecord',
     localField: '_id',
-    foreignField: 'mentorships.mentor',
+    foreignField: 'user',
+});
+// where user is mentor
+UserSchema.virtual('menteeRecords', {
+    ref: 'MentorshipRecord',
+    localField: '_id',
+    foreignField: 'mentor',
+});
+// distinct mentees
+UserSchema.virtual('mentees').get(function () {
+    if (!this.menteeRecords)
+        return [];
+    const seen = new Set();
+    const result = [];
+    for (const record of this.menteeRecords) {
+        const menteeUser = record.user;
+        if (menteeUser && !seen.has(menteeUser.id)) {
+            seen.add(menteeUser.id);
+            result.push(menteeUser);
+        }
+    }
+    return result;
 });
 UserSchema.query.byUsername = function (username) {
     return this.where({ username: new RegExp('^' + (0, helpers_1.escapeUsername)(username) + '$', 'i') });

@@ -33,43 +33,25 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MentorshipCycleModel = void 0;
+exports.MentorshipRecordModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const mentorshipCycleSchema = new mongoose_1.Schema({
-    number: { type: Number, required: true },
-    name: { type: String, required: true },
-    startDate: { type: Date, required: true },
-    endDate: { type: Date, required: true },
-    url: { type: String },
-    isPublic: { type: Boolean, default: false },
+const mentorshipModes = [
+    'osu', 'taiko', 'catch', 'mania',
+    'osuModding', 'taikoModding', 'catchModding', 'maniaModding',
+    'osuGraduation', 'taikoGraduation', 'catchGraduation', 'maniaGraduation',
+    'storyboard',
+];
+const mentorshipRecordSchema = new mongoose_1.Schema({
+    user: { type: 'ObjectId', ref: 'User', required: true },
+    cycle: { type: 'ObjectId', ref: 'MentorshipCycle', required: true },
+    mode: { type: String, enum: mentorshipModes, required: true }, // graduation = mentoring someone on how to mentor. stupid name
+    group: { type: String, enum: ['mentor', 'mentee', 'extraMentor'], required: true },
+    mentor: { type: 'ObjectId', ref: 'User' },
+    phases: [{ type: Number, default: [1, 2, 3] }],
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
-mentorshipCycleSchema.virtual('records', {
-    ref: 'MentorshipRecord',
-    localField: '_id',
-    foreignField: 'cycle',
-});
-// distinct participating users for this cycle
-mentorshipCycleSchema.virtual('participants').get(function () {
-    if (!this.records)
-        return [];
-    const byUser = new Map();
-    for (const record of this.records) {
-        const user = record.user;
-        if (!user)
-            continue;
-        const key = user.id;
-        if (!byUser.has(key)) {
-            byUser.set(key, {
-                _id: user._id,
-                id: user.id,
-                username: user.username,
-                osuId: user.osuId,
-                mentorships: [],
-            });
-        }
-        byUser.get(key).mentorships.push(record);
-    }
-    return Array.from(byUser.values());
-});
-const MentorshipCycleModel = mongoose_1.default.model('MentorshipCycle', mentorshipCycleSchema);
-exports.MentorshipCycleModel = MentorshipCycleModel;
+// query performance only
+mentorshipRecordSchema.index({ user: 1, cycle: 1, mode: 1 });
+mentorshipRecordSchema.index({ cycle: 1 });
+mentorshipRecordSchema.index({ mentor: 1 });
+const MentorshipRecordModel = mongoose_1.default.model('MentorshipRecord', mentorshipRecordSchema);
+exports.MentorshipRecordModel = MentorshipRecordModel;

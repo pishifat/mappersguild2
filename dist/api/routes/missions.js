@@ -670,14 +670,14 @@ missionsRouter.post('/:missionId/submitSecret', async (req, res) => {
     }
     res.json({ text: 'Permission denied.', type: 'danger' });
 });
-/* GET find artists for momentum priority quest */
-missionsRouter.get('/:missionId/findMomentumArtists', async (req, res) => {
+/* GET find songs for momentum priority quest */
+missionsRouter.get('/:missionId/findMomentumArtist', async (req, res) => {
     const mission = await mission_1.MissionModel.findById(req.params.missionId).orFail();
     const isMomentumInsider = mission.momentumInsiderUsers.some((u) => u.toString() === req.session.mongoId);
     if (!isMomentumInsider) {
         return res.json({ unlocked: false });
     }
-    const artists = await featuredArtist_1.FeaturedArtistModel.find({ isMomentum: true });
-    res.json({ unlocked: true, artists });
+    const artist = await featuredArtist_1.FeaturedArtistModel.findOne({ isMomentum: true }).defaultPopulateWithSongs().orFail();
+    res.json({ unlocked: true, artist });
 });
 exports.default = missionsRouter;
