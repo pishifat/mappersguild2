@@ -51,13 +51,13 @@
                         <code :class="'text-' + secretResponseType"><a target="_blank" :href="momentumArtist.oszTemplatesUrl" class="code-link" :class="'text-' + secretResponseType">download all .osz files</a></code>
                     </div>
                 </div>
-                <div class="mt-2">
-                    <div v-if="mission.momentumSecretUsers && mission.momentumSecretUsers.length">
-                        <code>Status: <user-link-list :users="mission.momentumSecretUsers" use-grammar /> {{ mission.momentumSecretUsers.length > 1 ? 'know' : 'knows' }} how to increase momentum.</code>
-                    </div>
-                    <div v-else>
-                        <code>Status: <b>0 users</b> know how to increase momentum.</code>
-                    </div>
+            </div>
+            <div class="mt-2">
+                <div v-if="mission.momentumSecretUsers && mission.momentumSecretUsers.length">
+                    <code>Status: <user-link-list :users="mission.momentumSecretUsers" use-grammar /> {{ mission.momentumSecretUsers.length > 1 ? 'know' : 'knows' }} how to increase momentum.</code>
+                </div>
+                <div v-else>
+                    <code>Status: <b>0 users</b> know how to increase momentum.</code>
                 </div>
             </div>
         </div>
