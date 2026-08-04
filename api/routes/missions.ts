@@ -89,6 +89,32 @@ missionsRouter.get('/searchOnLoad/:id', async (req, res) => {
     res.json(urlMission);
 });
 
+async function getClassifiedEligibleSongIds(): Promise<Set<string>> {
+    const eligibleArtists: FeaturedArtist[] = await FeaturedArtistModel
+        .find({
+            $or: [
+                { osuId: 0 },
+                { osuId: { $exists: false } },
+            ],
+            songsTimed: true,
+            hasRankedMaps: { $ne: true },
+            songs: { $exists: true, $ne: [] },
+        })
+        .defaultPopulateWithSongs();
+
+    const eligibleSongIds = new Set<string>();
+
+    for (const artist of eligibleArtists) {
+        for (const song of artist.songs as any[]) {
+            if (song.isExcludedFromClassified || !song.oszUrl) continue;
+
+            eligibleSongIds.add(song.id);
+        }
+    }
+
+    return eligibleSongIds;
+}
+
 function meetsRequirements(mission, user, beatmap) {
     /* user requirements */
     if ((mission.userMaximumRankedBeatmapsCount || mission.userMaximumRankedBeatmapsCount == 0) && (user.rankedBeatmapsCount > mission.userMaximumRankedBeatmapsCount)) {
@@ -615,11 +641,13 @@ missionsRouter.post('/:missionId/findShowcaseMissionSongByTag', isEditable, asyn
         const tag: string | undefined = req.body.tag;
         const tagQuery = tag ? { tags: tag } : {};
 
-        const availableSongs = await FeaturedSongModel.find({
+        const eligibleSongIds = await getClassifiedEligibleSongIds();
+
+        const availableSongs = (await FeaturedSongModel.find({
             ...tagQuery,
             isExcludedFromClassified: { $ne: true },
             _id: { $nin: excludedIds },
-        });
+        })).filter(s => eligibleSongIds.has(s.id));
 
         if (!availableSongs.length) {
             return res.json({ error: `You've already seen every available song in this category!` });
@@ -658,10 +686,12 @@ missionsRouter.post('/:missionId/findShowcaseMissionSongByTag', isEditable, asyn
 
         const tag: string = req.body.tag;
 
-        const allSongsWithTag = await FeaturedSongModel.find({
+        const eligibleSongIds = await getClassifiedEligibleSongIds();
+
+        const allSongsWithTag = (await FeaturedSongModel.find({
             tags: tag,
             isExcludedFromClassified: { $ne: true },
-        });
+        })).filter(s => eligibleSongIds.has(s.id));
 
         if (!allSongsWithTag.length) {
             return res.json({ error: 'No songs available for this genre.' });
@@ -755,7 +785,15 @@ missionsRouter.get('/:missionId/findSelectedShowcaseMissionSongsByTag', async (r
 
     const entry = mission.showcaseMissionSongsByGenre.find((e: any) => e.user.toString() == req.session.mongoId || (e.user.id && e.user.id == req.session.mongoId));
 
-    res.json(entry);
+    if (!entry) {
+        return res.json(entry);
+    }
+
+    const eligibleSongIds = await getClassifiedEligibleSongIds();
+
+    const eligibleSongs = (entry as any).songs.filter((song: any) => eligibleSongIds.has(song.id));
+
+    res.json({ ...(entry as any).toObject(), songs: eligibleSongs });
 });
 
 /* GET genre song reroll count */
