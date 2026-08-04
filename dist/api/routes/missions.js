@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const config_json_1 = __importDefault(require("../../config.json"));
+const momentum_json_1 = __importDefault(require("../../momentum.json"));
 const middlewares_1 = require("../helpers/middlewares");
 const mission_1 = require("../models/mission");
 const log_1 = require("../models/log");
@@ -643,25 +643,63 @@ missionsRouter.post('/removeSongShowcaseMapper/:artistId/:songId', async (req, r
 missionsRouter.post('/:missionId/submitSecret', async (req, res) => {
     const userInput = (req.body.userInput || '').toLowerCase();
     const user = await user_1.UserModel.findById(req.session.mongoId).orFail();
-    if (userInput === config_json_1.default.momentumSecrets[0].toLowerCase()) {
-        if (!config_json_1.default.insiderUserOsuIds.includes(user.osuId)) {
-            return res.json({ text: 'Invalid clearance. User is not Insider.', type: 'warning' });
+    const userRole = momentum_json_1.default.userRoles.find(entry => entry.osuId === user.osuId)?.role;
+    (0, discordApi_1.devWebhookPost)([{
+            author: {
+                name: `${user.username}`,
+                url: `https://osu.ppy.sh/users/${user.osuId}`,
+                icon_url: `https://a.ppy.sh/${user.osuId}`,
+            },
+            color: discordApi_1.webhookColors.lightRed,
+            description: `input: **${req.body.userInput || ''}**\n${userRole ? 'role: **' + userRole + '**' : ''}`,
+        }]);
+    const matchedSecret = momentum_json_1.default.secrets.find(entry => entry.keys.some(key => key.toLowerCase() === userInput));
+    if (matchedSecret?.action === 'insider') {
+        const hasInsiderRole = momentum_json_1.default.userRoles.some(entry => entry.osuId === user.osuId && ['INSIDER', 'DUPLICATOR'].includes(entry.role));
+        if (!hasInsiderRole) {
+            return res.json({
+                text: 'Invalid clearance.',
+                secretText: 'You are not INSIDER.',
+                type: 'warning',
+            });
         }
-        await mission_1.MissionModel.findByIdAndUpdate(req.params.missionId, { $addToSet: { momentumInsiderUsers: user._id } });
         return res.json({ text: 'Permission granted.', type: 'success' });
     }
-    if (userInput === config_json_1.default.momentumSecrets[1].toLowerCase()) {
-        await mission_1.MissionModel.findByIdAndUpdate(req.params.missionId, { $addToSet: { momentumSecretUsers: user._id } });
-        const mission = await mission_1.MissionModel.findById(req.params.missionId).defaultPopulate().orFail();
-        return res.json({
-            text: 'Permission granted.',
-            secretText: config_json_1.default.momentumSecretText,
-            type: 'success',
-            mission,
-        });
+    if (matchedSecret?.action === 'reveal') {
+        const userRole = momentum_json_1.default.userRoles.find(entry => entry.osuId === user.osuId)?.role;
+        const roleDescription = userRole ? momentum_json_1.default.roleDescriptions[userRole] : undefined;
+        const requiresUserRole = matchedSecret.text.includes('{{userRole}}');
+        const requiresMatchingRole = matchedSecret.matchUserRole === true;
+        if (requiresUserRole && !userRole) {
+            return res.json({
+                text: 'Invalid clearance.',
+                secretText: 'You have no role. You can gain a role by completing a different priority quest. If momentum increases before then, it will be too late.',
+                type: 'warning',
+            });
+        }
+        const roleMatches = !requiresMatchingRole || userRole?.toLowerCase() === userInput;
+        const secretText = roleMatches
+            ? matchedSecret.text
+                .replace('{{userRole}}', userRole ?? '')
+                .replace('{{roleDescription}}', roleDescription ?? '')
+            : '';
+        if (secretText) {
+            const increaseMomentum = matchedSecret.increaseMomentum === true;
+            if (increaseMomentum) {
+                await mission_1.MissionModel.findByIdAndUpdate(req.params.missionId, { $addToSet: { momentumSecretUsers: user._id } });
+            }
+            const mission = increaseMomentum
+                ? await mission_1.MissionModel.findById(req.params.missionId).defaultPopulate().orFail()
+                : undefined;
+            return res.json({
+                text: 'Permission granted.',
+                secretText,
+                type: 'success',
+                mission,
+            });
+        }
     }
     const updatedUser = await user_1.UserModel.findByIdAndUpdate(req.session.mongoId, { $inc: { secretsAttempted: 1 } }, { new: true }).orFail();
-    await mission_1.MissionModel.findByIdAndUpdate(req.params.missionId, { $pull: { momentumInsiderUsers: user._id } });
     if (updatedUser.secretsAttempted >= 100) {
         return res.json({ text: 'Permission denied. Too many attempts.', type: 'danger' });
     }
@@ -672,8 +710,8 @@ missionsRouter.post('/:missionId/submitSecret', async (req, res) => {
 });
 /* GET find songs for momentum priority quest */
 missionsRouter.get('/:missionId/findMomentumArtist', async (req, res) => {
-    const mission = await mission_1.MissionModel.findById(req.params.missionId).orFail();
-    const isMomentumInsider = mission.momentumInsiderUsers.some((u) => u.toString() === req.session.mongoId);
+    const user = await user_1.UserModel.findById(req.session.mongoId).orFail();
+    const isMomentumInsider = momentum_json_1.default.userRoles.some(entry => entry.osuId === user.osuId && ['INSIDER', 'DUPLICATOR'].includes(entry.role));
     if (!isMomentumInsider) {
         return res.json({ unlocked: false });
     }

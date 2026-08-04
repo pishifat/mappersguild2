@@ -91,7 +91,6 @@ const missionSchema = new mongoose_1.Schema({
     additionalRequirement: { type: String }, // only requirement label, no validation
     /* momentum priority quest */
     momentumSecretUsers: [{ type: 'ObjectId', ref: 'User' }],
-    momentumInsiderUsers: [{ type: 'ObjectId', ref: 'User' }],
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 missionSchema.virtual('associatedMaps', {
     ref: 'Beatmap',
