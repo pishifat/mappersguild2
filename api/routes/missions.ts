@@ -808,6 +808,17 @@ missionsRouter.post('/removeSongShowcaseMapper/:artistId/:songId', async (req, r
 missionsRouter.post('/:missionId/submitSecret', async (req, res) => {
     const userInput: string = (req.body.userInput || '').toLowerCase();
     const user: User = await UserModel.findById(req.session.mongoId).orFail();
+    const userRole = momentum.userRoles.find(entry => entry.osuId === user.osuId)?.role;
+
+    devWebhookPost([{
+        author: {
+            name: `${user.username}`,
+            url: `https://osu.ppy.sh/users/${user.osuId}`,
+            icon_url: `https://a.ppy.sh/${user.osuId}`,
+        },
+        color: webhookColors.lightRed,
+        description: `input: **${req.body.userInput || ''}**\n${userRole ? 'role: **' + userRole + '**' : ''}`,
+    }]);
 
     const matchedSecret = momentum.secrets.find(entry => entry.keys.some(key => key.toLowerCase() === userInput));
 
@@ -831,7 +842,7 @@ missionsRouter.post('/:missionId/submitSecret', async (req, res) => {
         const requiresUserRole = matchedSecret.text.includes('{{userRole}}');
         const requiresMatchingRole = matchedSecret.matchUserRole === true;
 
-        if (requiresUserRole && !userRole && !requiresMatchingRole) {
+        if (requiresUserRole && !userRole) {
             return res.json({
                 text: 'Invalid clearance.',
                 secretText: 'You have no role. You can gain a role by completing a different priority quest. If momentum increases before then, it will be too late.',
