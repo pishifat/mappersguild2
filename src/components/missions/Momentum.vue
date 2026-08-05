@@ -112,7 +112,9 @@ export default defineComponent({
                     this.$store.commit('missions/updateMission', secretResponse.mission);
                 }
 
-                await this.findMomentumArtist();
+                if (secretResponse.action === 'insider') {
+                    await this.findMomentumArtist();
+                }
             }
         },
         async findMomentumArtist(): Promise<void> {

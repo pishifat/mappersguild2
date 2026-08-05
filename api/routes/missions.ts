@@ -871,7 +871,7 @@ missionsRouter.post('/:missionId/submitSecret', async (req, res) => {
             });
         }
 
-        return res.json({ text: 'Permission granted.', type: 'success' });
+        return res.json({ text: 'Permission granted.', type: 'success', action: 'insider' });
     }
 
     if (matchedSecret?.action === 'reveal') {
