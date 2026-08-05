@@ -80,7 +80,7 @@ missionsRouter.get('/loadInactiveMissions', async (req, res) => {
 
 /* GET mission load from URL */
 missionsRouter.get('/searchOnLoad/:id', async (req, res) => {
-    const urlMission = await MissionModel.findOne({ _id: req.params.id }).defaultPopulate();
+    const urlMission = await MissionModel.findOne({ _id: req.params.id, status: { $ne: MissionStatus.Hidden } }).defaultPopulate();
 
     if (!urlMission) {
         return res.json({ error: 'Mission ID does not exist!' });
