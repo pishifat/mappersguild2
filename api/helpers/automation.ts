@@ -645,5 +645,16 @@ const updateFavoritesAndPlayCount = cron.schedule('5 4 * * *', async () => { /* 
     scheduled: false,
 });
 
+/* lower secretsAttempted by 10 for users >10 daily. technically this means it's not a total count anymore, so the name is somewhat misleading, but who cares */
+const lowerSecretsAttempted = cron.schedule('10 4 * * *', async () => { /* 9:10 PM PST */
+    const users = await UserModel.find({ secretsAttempted: { $gt: 10 } });
 
-export default { sendActionNotifications, setQualified, setRanked, publishQuests, completeQuests, rankUsers, processDailyArtists, validateRankedBeatmaps, dropOverdueQuests, processMissions, updateFavoritesAndPlayCount };
+    for (const user of users) {
+        user.secretsAttempted -= 10;
+        await user.save();
+    }
+}, {
+    scheduled: false,
+});
+
+export default { sendActionNotifications, setQualified, setRanked, publishQuests, completeQuests, rankUsers, processDailyArtists, validateRankedBeatmaps, dropOverdueQuests, processMissions, updateFavoritesAndPlayCount, lowerSecretsAttempted };

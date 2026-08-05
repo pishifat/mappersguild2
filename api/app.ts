@@ -160,6 +160,7 @@ app.listen(port, () => {
         automation.dropOverdueQuests.start();
         automation.processMissions.start();
         automation.updateFavoritesAndPlayCount.start();
+        automation.lowerSecretsAttempted.start();
     }
 });
 

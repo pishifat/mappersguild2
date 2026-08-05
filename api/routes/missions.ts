@@ -923,7 +923,7 @@ missionsRouter.post('/:missionId/submitSecret', async (req, res) => {
     }
 
     if (updatedUser.secretsAttempted >= 90) {
-        return res.json({ text: `Permission denied. ${100 - updatedUser.secretsAttempted} attempts remaining.`, type: 'danger' });
+        return res.json({ text: `Permission denied. ${100 - updatedUser.secretsAttempted} attempts remaining today.`, type: 'danger' });
     }
 
     res.json({ text: 'Permission denied.', type: 'danger' });
