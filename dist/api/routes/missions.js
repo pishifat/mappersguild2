@@ -73,7 +73,7 @@ missionsRouter.get('/loadInactiveMissions', async (req, res) => {
 });
 /* GET mission load from URL */
 missionsRouter.get('/searchOnLoad/:id', async (req, res) => {
-    const urlMission = await mission_1.MissionModel.findOne({ _id: req.params.id }).defaultPopulate();
+    const urlMission = await mission_1.MissionModel.findOne({ _id: req.params.id, status: { $ne: mission_2.MissionStatus.Hidden } }).defaultPopulate();
     if (!urlMission) {
         return res.json({ error: 'Mission ID does not exist!' });
     }
@@ -733,7 +733,7 @@ missionsRouter.post('/:missionId/submitSecret', async (req, res) => {
         return res.json({ text: 'Permission denied. Too many attempts.', type: 'danger' });
     }
     if (updatedUser.secretsAttempted >= 90) {
-        return res.json({ text: `Permission denied. ${100 - updatedUser.secretsAttempted} attempts remaining.`, type: 'danger' });
+        return res.json({ text: `Permission denied. ${100 - updatedUser.secretsAttempted} attempts remaining today.`, type: 'danger' });
     }
     res.json({ text: 'Permission denied.', type: 'danger' });
 });

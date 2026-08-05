@@ -145,6 +145,7 @@ app.listen(port, () => {
         automation_1.default.dropOverdueQuests.start();
         automation_1.default.processMissions.start();
         automation_1.default.updateFavoritesAndPlayCount.start();
+        automation_1.default.lowerSecretsAttempted.start();
     }
 });
 exports.default = app;
