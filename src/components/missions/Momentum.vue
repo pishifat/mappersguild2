@@ -8,13 +8,14 @@
                     class="form-control form-control-sm"
                     autocomplete="off"
                     placeholder="..."
-                    @keyup.enter="submitSecret($event)"
+                    @keyup.enter="userInput.length && submitSecret($event)"
                     @click.stop
                 />
                 <button
                     class="btn"
                     :class="secretResponseType ? `btn-${secretResponseType}` : 'btn-primary'"
                     href="#"
+                    :disabled="!userInput.length"
                     @click="submitSecret($event)"
                 >
                     <i class="fa-solid fa-arrow-right" />
