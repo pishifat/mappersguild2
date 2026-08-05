@@ -692,7 +692,7 @@ missionsRouter.post('/:missionId/submitSecret', async (req, res) => {
                 type: 'warning',
             });
         }
-        return res.json({ text: 'Permission granted.', type: 'success' });
+        return res.json({ text: 'Permission granted.', type: 'success', action: 'insider' });
     }
     if (matchedSecret?.action === 'reveal') {
         const userRole = momentum_json_1.default.userRoles.find(entry => entry.osuId === user.osuId)?.role;
