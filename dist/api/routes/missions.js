@@ -702,7 +702,7 @@ missionsRouter.post('/:missionId/submitSecret', async (req, res) => {
         if (requiresUserRole && !userRole) {
             return res.json({
                 text: 'Invalid clearance.',
-                secretText: 'You have no role. You can gain a role by completing a different priority quest. If momentum increases before then, it will be too late. (If you completed a Spring 2026 priority quest, your time will come.)',
+                secretText: 'You have no role. You can gain a role by completing a different priority quest. If MOMENTUM increases before then, it will be too late. (If you completed a Spring 2026 priority quest, your time will come.)',
                 type: 'warning',
             });
         }
