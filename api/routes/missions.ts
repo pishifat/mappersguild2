@@ -871,7 +871,15 @@ missionsRouter.post('/:missionId/submitSecret', async (req, res) => {
             });
         }
 
-        return res.json({ text: 'Permission granted.', type: 'success', action: 'insider' });
+        user.isConfirmedInsider = true;
+        await user.save();
+
+        return res.json({
+            text: 'Permission granted.',
+            secretText: matchedSecret.text,
+            type: 'success',
+            action: 'insider',
+        });
     }
 
     if (matchedSecret?.action === 'reveal') {
@@ -934,8 +942,9 @@ missionsRouter.get('/:missionId/findMomentumArtist', async (req, res) => {
     const user: User = await UserModel.findById(req.session.mongoId).orFail();
 
     const isMomentumInsider = momentum.userRoles.some(entry => entry.osuId === user.osuId && ['INSIDER', 'DUPLICATOR'].includes(entry.role));
+    const isConfirmedInsider = user.isConfirmedInsider;
 
-    if (!isMomentumInsider) {
+    if (!isMomentumInsider || !isConfirmedInsider) {
         return res.json({ unlocked: false });
     }
 

@@ -81,4 +81,5 @@ export interface User extends Document {
     cover: OsuCover;
     previouslyRolledArtists: FeaturedArtist['_id'][];
     secretsAttempted: number;
+    isConfirmedInsider: boolean;
 }

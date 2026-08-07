@@ -28,7 +28,7 @@
                 <div v-if="secretText" class="mt-2">
                     <code :class="'text-' + secretResponseType" v-html="$md.renderInline(secretText)" />
                 </div>
-                <div v-if="momentumArtistLoaded && !secretText" class="mt-2">
+                <div v-if="momentumArtistLoaded" class="mt-2">
                     <div class="mb-2">
                         <code :class="'text-' + secretResponseType">Below are songs exclusive to you (and other <i>INSIDER</i>s). Do not reveal this information to anyone else.</code>
                     </div>
@@ -99,6 +99,7 @@ export default defineComponent({
     },
     methods: {
         async submitSecret(e): Promise<void> {
+            this.momentumArtistLoaded = false;
             this.secretResponseText = '';
             this.secretText = '';
             const secretResponse: any = await this.$http.executePost(`/missions/${this.mission.id}/submitSecret`, { userInput: this.userInput }, e);
