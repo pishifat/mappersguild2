@@ -692,7 +692,14 @@ missionsRouter.post('/:missionId/submitSecret', async (req, res) => {
                 type: 'warning',
             });
         }
-        return res.json({ text: 'Permission granted.', type: 'success', action: 'insider' });
+        user.isConfirmedInsider = true;
+        await user.save();
+        return res.json({
+            text: 'Permission granted.',
+            secretText: matchedSecret.text,
+            type: 'success',
+            action: 'insider',
+        });
     }
     if (matchedSecret?.action === 'reveal') {
         const userRole = momentum_json_1.default.userRoles.find(entry => entry.osuId === user.osuId)?.role;
@@ -741,7 +748,8 @@ missionsRouter.post('/:missionId/submitSecret', async (req, res) => {
 missionsRouter.get('/:missionId/findMomentumArtist', async (req, res) => {
     const user = await user_1.UserModel.findById(req.session.mongoId).orFail();
     const isMomentumInsider = momentum_json_1.default.userRoles.some(entry => entry.osuId === user.osuId && ['INSIDER', 'DUPLICATOR'].includes(entry.role));
-    if (!isMomentumInsider) {
+    const isConfirmedInsider = user.isConfirmedInsider;
+    if (!isMomentumInsider || !isConfirmedInsider) {
         return res.json({ unlocked: false });
     }
     const artist = await featuredArtist_1.FeaturedArtistModel.findOne({ isMomentum: true }).defaultPopulateWithSongs().orFail();

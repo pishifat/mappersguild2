@@ -85,6 +85,7 @@ const UserSchema = new mongoose_1.Schema({
     cover: { type: Object },
     previouslyRolledArtists: [{ type: 'ObjectId', ref: 'FeaturedArtist', default: [] }],
     secretsAttempted: { type: Number, default: 0 },
+    isConfirmedInsider: { type: Boolean, default: false },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 UserSchema.virtual('totalPoints').get(function () {
     return Math.round((this.easyPoints + this.normalPoints + this.hardPoints + this.insanePoints + this.expertPoints +
