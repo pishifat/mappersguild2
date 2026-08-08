@@ -55,10 +55,12 @@
             </div>
             <div class="mt-2">
                 <div v-if="mission.momentumSecretUsers && mission.momentumSecretUsers.length">
-                    <code>Status: <user-link-list :users="mission.momentumSecretUsers" use-grammar /> {{ mission.momentumSecretUsers.length > 1 ? 'know' : 'knows' }} how to increase momentum.</code>
+                    <code v-if="mission.momentumSecretUsers.length > 20">Status: <b>{{ mission.momentumSecretUsers.length }} users</b> know how to increase MOMENTUM.</code>
+
+                    <code v-else>Status: <user-link-list :users="mission.momentumSecretUsers" use-grammar /> {{ mission.momentumSecretUsers.length > 1 ? 'know' : 'knows' }} how to increase MOMENTUM.</code>
                 </div>
                 <div v-else>
-                    <code>Status: <b>0 users</b> know how to increase momentum.</code>
+                    <code>Status: <b>0 users</b> know how to increase MOMENTUM.</code>
                 </div>
             </div>
         </div>
