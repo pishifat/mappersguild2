@@ -846,7 +846,7 @@ missionsRouter.post('/removeSongShowcaseMapper/:artistId/:songId', async (req, r
 missionsRouter.post('/:missionId/submitSecret', async (req, res) => {
     const userInput: string = (req.body.userInput || '').toLowerCase();
     const user: User = await UserModel.findById(req.session.mongoId).orFail();
-    const userRole = momentum.userRoles.find(entry => entry.osuId === user.osuId)?.role;
+    const userRole = user.momentumStarterRole;
 
     devWebhookPost([{
         author: {
@@ -861,7 +861,7 @@ missionsRouter.post('/:missionId/submitSecret', async (req, res) => {
     const matchedSecret = momentum.secrets.find(entry => entry.keys.some(key => key.toLowerCase() === userInput));
 
     if (matchedSecret?.action === 'insider') {
-        const hasInsiderRole = momentum.userRoles.some(entry => entry.osuId === user.osuId && ['INSIDER', 'DUPLICATOR'].includes(entry.role));
+        const hasInsiderRole = ['insider', 'duplicator'].includes(userRole);
 
         if (!hasInsiderRole) {
             return res.json({
@@ -883,7 +883,6 @@ missionsRouter.post('/:missionId/submitSecret', async (req, res) => {
     }
 
     if (matchedSecret?.action === 'reveal') {
-        const userRole = momentum.userRoles.find(entry => entry.osuId === user.osuId)?.role;
         const roleDescription = userRole ? momentum.roleDescriptions[userRole] : undefined;
         const requiresUserRole = matchedSecret.text.includes('{{userRole}}');
         const requiresMatchingRole = matchedSecret.matchUserRole === true;
@@ -891,17 +890,18 @@ missionsRouter.post('/:missionId/submitSecret', async (req, res) => {
         if (requiresUserRole && !userRole) {
             return res.json({
                 text: 'Invalid clearance.',
-                secretText: 'You have no role. You can gain a role by completing a different priority quest. If MOMENTUM increases before then, it will be too late. (If you completed a Spring 2026 priority quest, your time will come.)',
+                secretText: 'You have no role. You can gain a STARTER ROLE by completing a different priority quest. WINNERS are marked in the first week of each month. If MOMENTUM increases before then, it will be too late.',
                 type: 'warning',
             });
         }
 
-        const roleMatches = !requiresMatchingRole || userRole?.toLowerCase() === userInput;
+        const roleMatches = !requiresMatchingRole || userRole === userInput;
 
         const secretText = roleMatches
             ? matchedSecret.text
-                .replace('{{userRole}}', userRole ?? '')
+                .replace('{{userRole}}', userRole?.toUpperCase() ?? '')
                 .replace('{{roleDescription}}', roleDescription ?? '')
+                .replace('{{currentDate}}', new Date().toISOString().slice(0, 10))
             : '';
 
         if (secretText) {
@@ -941,7 +941,7 @@ missionsRouter.post('/:missionId/submitSecret', async (req, res) => {
 missionsRouter.get('/:missionId/findMomentumArtist', async (req, res) => {
     const user: User = await UserModel.findById(req.session.mongoId).orFail();
 
-    const isMomentumInsider = momentum.userRoles.some(entry => entry.osuId === user.osuId && ['INSIDER', 'DUPLICATOR'].includes(entry.role));
+    const isMomentumInsider = ['insider', 'duplicator'].includes(user.momentumStarterRole);
     const isConfirmedInsider = user.isConfirmedInsider;
 
     if (!isMomentumInsider || !isConfirmedInsider) {
@@ -951,6 +951,13 @@ missionsRouter.get('/:missionId/findMomentumArtist', async (req, res) => {
     const artist: FeaturedArtist = await FeaturedArtistModel.findOne({ isMomentum: true }).defaultPopulateWithSongs().orFail();
 
     res.json({ unlocked: true, artist });
+});
+
+/* GET count of users with a momentum starter role */
+missionsRouter.get('/momentumStarterRoleCount', async (req, res) => {
+    const count = await UserModel.countDocuments({ momentumStarterRole: { $exists: true } });
+
+    res.json(count);
 });
 
 export default missionsRouter;

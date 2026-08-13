@@ -27,6 +27,7 @@ jspm_packages/
 # manually added (everything above is from a template)
 config.json
 momentum.json
+api/archives/momentum-starter-roles.json
 public/js/
 *.csv
 .vscode/

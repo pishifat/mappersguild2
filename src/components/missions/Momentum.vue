@@ -22,45 +22,57 @@
                 </button>
             </div>
             <div v-if="secretResponseText">
-                <code v-if="secretResponseText" :class="'text-' + secretResponseType">
+                <code v-if="secretResponseText" class="d-block" :class="'text-' + secretResponseType">
                     {{ secretResponseText }}
                 </code>
-                <div v-if="secretText" class="mt-2">
-                    <code :class="'text-' + secretResponseType" v-html="$md.renderInline(secretText)" />
-                </div>
+                <template v-if="secretText">
+                    <code
+                        v-for="(line, i) in secretTextLines"
+                        :key="i"
+                        class="d-block mt-2"
+                        :class="'text-' + secretResponseType"
+                        v-html="line"
+                    />
+                </template>
                 <div v-if="momentumArtistLoaded" class="mt-2">
-                    <div class="mb-2">
-                        <code :class="'text-' + secretResponseType">Below are songs exclusive to you (and other <i>INSIDER</i>s). Do not reveal this information to anyone else.</code>
-                    </div>
-                    <div class="mb-2">
-                        <code :class="'text-' + secretResponseType">Create and rank a map using any of these songs to fulfill your role.</code>
-                    </div>
-                    <div v-for="song in momentumArtist.songs" :key="song.id">
-                        <code :class="'text-' + secretResponseType">
-                            -
-                            <a
-                                target="_blank"
-                                :href="song.oszUrl"
-                                class="code-link"
-                                :class="'text-' + secretResponseType"
-                            >
-                                {{ song.artist }} - {{ song.title }}
-                            </a>
-                        </code>
-                    </div>
-                    <div class="mt-2">
-                        <code :class="'text-' + secretResponseType"><a target="_blank" :href="momentumArtist.oszTemplatesUrl" class="code-link" :class="'text-' + secretResponseType">download all .osz files</a></code>
-                    </div>
+                    <code class="d-block mb-2" :class="'text-' + secretResponseType">Below are songs exclusive to you (and other <i>INSIDER</i>s). Do not reveal this information to anyone else.</code>
+                    <code class="d-block mb-2" :class="'text-' + secretResponseType">Create and rank a map using any of these songs to fulfill your role.</code>
+                    <code
+                        v-for="song in momentumArtist.songs"
+                        :key="song.id"
+                        class="d-block"
+                        :class="'text-' + secretResponseType"
+                    >
+                        -
+                        <a
+                            target="_blank"
+                            :href="song.oszUrl"
+                            class="code-link"
+                            :class="'text-' + secretResponseType"
+                        >
+                            {{ song.artist }} - {{ song.title }}
+                        </a>
+                    </code>
+                    <code class="d-block mt-2" :class="'text-' + secretResponseType">
+                        <a
+                            target="_blank"
+                            :href="momentumArtist.oszTemplatesUrl"
+                            class="code-link"
+                            :class="'text-' + secretResponseType"
+                        >
+                            download all .osz files
+                        </a>
+                    </code>
                 </div>
             </div>
             <div class="mt-2">
                 <div v-if="mission.momentumSecretUsers && mission.momentumSecretUsers.length">
-                    <code v-if="mission.momentumSecretUsers.length > 20">Status: <b>{{ mission.momentumSecretUsers.length }} users</b> know how to increase MOMENTUM. STARTER ROLES will be distributed to all Spring 2026 quest winners within 24 hours.</code>
+                    <code v-if="mission.momentumSecretUsers.length > 20" class="d-block">Status: <b>{{ mission.momentumSecretUsers.length }} users</b> know how to increase MOMENTUM. <b>{{ starterRoleCount || '...' }} users</b> have STARTER ROLES.</code>
 
-                    <code v-else>Status: <user-link-list :users="mission.momentumSecretUsers" use-grammar /> {{ mission.momentumSecretUsers.length > 1 ? 'know' : 'knows' }} how to increase MOMENTUM.</code>
+                    <code v-else class="d-block">Status: <user-link-list :users="mission.momentumSecretUsers" use-grammar /> {{ mission.momentumSecretUsers.length > 1 ? 'know' : 'knows' }} how to increase MOMENTUM.</code>
                 </div>
                 <div v-else>
-                    <code>Status: <b>0 users</b> know how to increase MOMENTUM.</code>
+                    <code class="d-block">Status: <b>0 users</b> know how to increase MOMENTUM.</code>
                 </div>
             </div>
         </div>
@@ -92,12 +104,25 @@ export default defineComponent({
             secretResponseText: '',
             secretResponseType: '',
             secretText: '',
+            starterRoleCount: 0,
         };
     },
     computed: {
         ...mapState([
             'loggedInUser',
         ]),
+        secretTextLines(): string[] {
+            return this.secretText
+                .split('\n')
+                .map(line => this.$md.renderInline(line));
+        },
+    },
+    async mounted(): Promise<void> {
+        const starterRoleCount: any = await this.$http.executeGet('/missions/momentumStarterRoleCount');
+
+        if (!this.$http.isError(starterRoleCount)) {
+            this.starterRoleCount = starterRoleCount;
+        }
     },
     methods: {
         async submitSecret(e): Promise<void> {

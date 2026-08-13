@@ -82,4 +82,5 @@ export interface User extends Document {
     previouslyRolledArtists: FeaturedArtist['_id'][];
     secretsAttempted: number;
     isConfirmedInsider: boolean;
+    momentumStarterRole: string;
 }

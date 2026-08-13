@@ -52,6 +52,7 @@ const UserSchema = new Schema({
     previouslyRolledArtists: [{ type: 'ObjectId', ref: 'FeaturedArtist', default: [] }],
     secretsAttempted: { type: Number, default: 0 },
     isConfirmedInsider: { type: Boolean, default: false },
+    momentumStarterRole: { type: String },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 UserSchema.virtual('totalPoints').get(function(this: User) {
