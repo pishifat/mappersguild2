@@ -55,7 +55,7 @@
             </div>
             <div class="mt-2">
                 <div v-if="mission.momentumSecretUsers && mission.momentumSecretUsers.length">
-                    <code v-if="mission.momentumSecretUsers.length > 20">Status: <b>{{ mission.momentumSecretUsers.length }} users</b> know how to increase MOMENTUM.</code>
+                    <code v-if="mission.momentumSecretUsers.length > 20">Status: <b>{{ mission.momentumSecretUsers.length }} users</b> know how to increase MOMENTUM. STARTER ROLES will be distributed to all Spring 2026 quest winners within 24 hours.</code>
 
                     <code v-else>Status: <user-link-list :users="mission.momentumSecretUsers" use-grammar /> {{ mission.momentumSecretUsers.length > 1 ? 'know' : 'knows' }} how to increase MOMENTUM.</code>
                 </div>
