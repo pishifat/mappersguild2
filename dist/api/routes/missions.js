@@ -672,7 +672,7 @@ missionsRouter.post('/removeSongShowcaseMapper/:artistId/:songId', async (req, r
 missionsRouter.post('/:missionId/submitSecret', async (req, res) => {
     const userInput = (req.body.userInput || '').toLowerCase();
     const user = await user_1.UserModel.findById(req.session.mongoId).orFail();
-    const userRole = momentum_json_1.default.userRoles.find(entry => entry.osuId === user.osuId)?.role;
+    const userRole = user.momentumStarterRole;
     (0, discordApi_1.devWebhookPost)([{
             author: {
                 name: `${user.username}`,
@@ -684,7 +684,7 @@ missionsRouter.post('/:missionId/submitSecret', async (req, res) => {
         }]);
     const matchedSecret = momentum_json_1.default.secrets.find(entry => entry.keys.some(key => key.toLowerCase() === userInput));
     if (matchedSecret?.action === 'insider') {
-        const hasInsiderRole = momentum_json_1.default.userRoles.some(entry => entry.osuId === user.osuId && ['INSIDER', 'DUPLICATOR'].includes(entry.role));
+        const hasInsiderRole = ['insider', 'duplicator'].includes(userRole);
         if (!hasInsiderRole) {
             return res.json({
                 text: 'Invalid clearance.',
@@ -702,22 +702,22 @@ missionsRouter.post('/:missionId/submitSecret', async (req, res) => {
         });
     }
     if (matchedSecret?.action === 'reveal') {
-        const userRole = momentum_json_1.default.userRoles.find(entry => entry.osuId === user.osuId)?.role;
         const roleDescription = userRole ? momentum_json_1.default.roleDescriptions[userRole] : undefined;
         const requiresUserRole = matchedSecret.text.includes('{{userRole}}');
         const requiresMatchingRole = matchedSecret.matchUserRole === true;
         if (requiresUserRole && !userRole) {
             return res.json({
                 text: 'Invalid clearance.',
-                secretText: 'You have no role. You can gain a role by completing a different priority quest. If MOMENTUM increases before then, it will be too late. (If you completed a Spring 2026 priority quest, your time will come.)',
+                secretText: 'You have no role. You can gain a STARTER ROLE by completing a different priority quest. WINNERS are marked in the first week of each month. If MOMENTUM increases before then, it will be too late.',
                 type: 'warning',
             });
         }
-        const roleMatches = !requiresMatchingRole || userRole?.toLowerCase() === userInput;
+        const roleMatches = !requiresMatchingRole || userRole === userInput;
         const secretText = roleMatches
             ? matchedSecret.text
-                .replace('{{userRole}}', userRole ?? '')
+                .replace('{{userRole}}', userRole?.toUpperCase() ?? '')
                 .replace('{{roleDescription}}', roleDescription ?? '')
+                .replace('{{currentDate}}', new Date().toISOString().slice(0, 10))
             : '';
         if (secretText) {
             const increaseMomentum = matchedSecret.increaseMomentum === true;
@@ -747,12 +747,17 @@ missionsRouter.post('/:missionId/submitSecret', async (req, res) => {
 /* GET find songs for momentum priority quest */
 missionsRouter.get('/:missionId/findMomentumArtist', async (req, res) => {
     const user = await user_1.UserModel.findById(req.session.mongoId).orFail();
-    const isMomentumInsider = momentum_json_1.default.userRoles.some(entry => entry.osuId === user.osuId && ['INSIDER', 'DUPLICATOR'].includes(entry.role));
+    const isMomentumInsider = ['insider', 'duplicator'].includes(user.momentumStarterRole);
     const isConfirmedInsider = user.isConfirmedInsider;
     if (!isMomentumInsider || !isConfirmedInsider) {
         return res.json({ unlocked: false });
     }
     const artist = await featuredArtist_1.FeaturedArtistModel.findOne({ isMomentum: true }).defaultPopulateWithSongs().orFail();
     res.json({ unlocked: true, artist });
+});
+/* GET count of users with a momentum starter role */
+missionsRouter.get('/momentumStarterRoleCount', async (req, res) => {
+    const count = await user_1.UserModel.countDocuments({ momentumStarterRole: { $exists: true } });
+    res.json(count);
 });
 exports.default = missionsRouter;
