@@ -95,12 +95,16 @@ export default defineComponent({
         ...mapState('users', [
             'sortBy',
             'rankTotals',
+            'filterValue',
         ]),
         ...mapGetters('users', [
             'allUsers',
             'filteredUsers',
             'isRankLoaded',
         ]),
+        isFiltering(): boolean {
+            return this.filterValue.length > 2;
+        },
         usersListItems(): UserListItem[] {
             const items: UserListItem[] = [];
             const users = this.filteredUsers;
@@ -128,7 +132,7 @@ export default defineComponent({
                 const nextUser = users[i + 1];
                 const isEndOfGroup = !nextUser || nextUser.rank !== user.rank;
 
-                if (isEndOfGroup && this.previewRanks.includes(user.rank) && !this.isRankLoaded(user.rank)) {
+                if (isEndOfGroup && !this.isFiltering && this.previewRanks.includes(user.rank) && !this.isRankLoaded(user.rank)) {
                     items.push({ type: 'placeholder', rank: user.rank });
                     items.push({ type: 'loadMore', rank: user.rank });
                 }
