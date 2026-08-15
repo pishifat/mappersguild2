@@ -610,6 +610,8 @@ export default defineComponent({
                     return 'Rerolled priority quest song:';
                 case SpentPointsCategory.RerollShowcaseMissionArtist:
                     return 'Rerolled priority quest artist:';
+                case SpentPointsCategory.RerollShowcaseMissionSongByTag:
+                    return 'Rerolled priority quest song:';
                 default:
                     return 'undefined action';
             }
@@ -628,30 +630,43 @@ export default defineComponent({
                     return 35;
                 case SpentPointsCategory.RerollShowcaseMissionArtist:
                     return this.calculateArtistRerollCost(mission, currentEventId);
+                case SpentPointsCategory.RerollShowcaseMissionSongByTag:
+                    return this.calculateSongByTagRerollCost(mission, currentEventId);
                 default:
                     return 0;
             }
         },
         calculateArtistRerollCost(mission, currentEventId): number {
-            if (!mission) return 10; // fallback to first reroll cost
+            if (!mission) return 10;
 
-            // Get all artist rerolls for this mission
-            const allArtistRerolls = this.spentPoints.filter(sp =>
+            const allArtistRerolls = (this.spentPoints as any[]).filter((sp: any) =>
                 sp.category === SpentPointsCategory.RerollShowcaseMissionArtist &&
                 sp.mission?.id === mission.id
             );
 
-            // Sort by creation date to get chronological order (oldest first)
-            const sortedRerolls = allArtistRerolls.sort((a, b) =>
+            const sortedRerolls = allArtistRerolls.sort((a: any, b: any) =>
                 new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
             );
 
-            // Find the position of the current event in chronological order
-            const currentEventIndex = sortedRerolls.findIndex(sp => sp.id === currentEventId);
+            const currentEventIndex = sortedRerolls.findIndex((sp: any) => sp.id === currentEventId);
 
-            // Calculate cost: 10 * 2^(chronological position)
-            // First reroll (index 0) = 10, second (index 1) = 20, etc.
             return 10 * Math.pow(2, currentEventIndex);
+        },
+        calculateSongByTagRerollCost(mission, currentEventId): number {
+            if (!mission) return 2;
+
+            const allSongByTagRerolls = (this.spentPoints as any[]).filter((sp: any) =>
+                sp.category === SpentPointsCategory.RerollShowcaseMissionSongByTag &&
+                sp.mission?.id === mission.id
+            );
+
+            const sortedRerolls = allSongByTagRerolls.sort((a: any, b: any) =>
+                new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+            );
+
+            const currentEventIndex = sortedRerolls.findIndex((sp: any) => sp.id === currentEventId);
+
+            return (currentEventIndex + 1) * 2;
         },
     },
 });
