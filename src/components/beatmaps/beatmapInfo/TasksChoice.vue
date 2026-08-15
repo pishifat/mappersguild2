@@ -5,7 +5,7 @@
                 <thead>
                     <tr>
                         <th>Difficulty</th>
-                        <th>Mapper(s)</th>
+                        <th>Creator(s)</th>
                         <th v-if="!isRanked && !isQualified" />
                     </tr>
                 </thead>
@@ -14,19 +14,21 @@
                         v-for="task in sortedTasks"
                         :id="task.id + 'Row'"
                         :key="task.id"
+                        :class="isSecondaryTask(task) ? 'task-secondary' : ''"
                     >
                         <!-- Difficulty -->
                         <td
                             class="text-secondary"
                             :class="`card-status-${task.status.toLowerCase()}`"
                         >
-                            {{ task.mode == 'taiko' ? findTaikoName(task.name) : task.mode == 'catch' ? findCatchName(task.name) : task.name }}
                             <template v-if="beatmap.mode == 'hybrid'">
                                 <modes-icons
+                                    class="me-1"
                                     :modes="[task.mode]"
                                     color="secondary"
                                 />
                             </template>
+                            {{ task.mode == 'taiko' ? findTaikoName(task.name) : task.mode == 'catch' ? findCatchName(task.name) : task.name }}
                         </td>
 
                         <!-- Mappers -->
@@ -158,7 +160,7 @@ export default defineComponent({
         ]),
         sortedTasks(): Task[] {
             const difficultyOrder = SortedTasks;
-            const modeOrder = ['osu', 'taiko', 'catch', 'mania', 'hs', 'sb'];
+            const modeOrder = ['osu', 'taiko', 'catch', 'mania', 'hs', 'sb', 'skin'];
 
             const newTasks = [...this.beatmap.tasks].sort(function(a, b) {
                 return difficultyOrder.indexOf(a.name) - difficultyOrder.indexOf(b.name);
@@ -172,6 +174,9 @@ export default defineComponent({
     methods: {
         isOwner(mappers: User[]): boolean {
             return mappers.some(m => m.osuId == this.loggedInUser.osuId);
+        },
+        isSecondaryTask(task: Task): boolean {
+            return task.name == 'Hitsounds' || task.name == 'Storyboard' || task.name == 'Skin';
         },
         canEditTask(task: Task): boolean {
             return this.isOwner(task.mappers) || this.isHost;
@@ -268,5 +273,13 @@ export default defineComponent({
 .fake-button-disable {
     pointer-events: none;
     opacity: 0.6;
+}
+
+.task-secondary {
+    --bs-table-bg: rgba(66, 64, 61, 0.35);
+}
+
+.task-secondary:hover {
+    --bs-table-bg: rgba(66, 64, 61, 0.5);
 }
 </style>
