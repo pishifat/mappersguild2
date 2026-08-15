@@ -44,7 +44,26 @@ missionsRouter.get('/relevantInfo', async (req, res) => {
                 status: MissionStatus.Open,
                 openingAnnounced: true,
             })
-            .defaultPopulate()
+            .populate([
+                { path: 'artists', select: 'label osuId' },
+                { path: 'momentumSecretUsers', select: 'username osuId' },
+                {
+                    path: 'associatedMaps',
+                    select: 'song host status url createdAt rankedDate isLame',
+                    populate: {
+                        path: 'song host',
+                        select: 'artist title username osuId',
+                    },
+                },
+                {
+                    path: 'winningBeatmaps',
+                    select: '_id',
+                },
+                {
+                    path: 'invalidBeatmaps',
+                    select: '_id',
+                },
+            ])
             .sort({ tier: 1, name: 1, createdAt: -1 }),
         BeatmapModel
             .find({
