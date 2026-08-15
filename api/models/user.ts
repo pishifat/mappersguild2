@@ -55,6 +55,7 @@ const UserSchema = new Schema({
     momentumStarterRole: { type: String },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
+// if this changes, also change it in users route
 UserSchema.virtual('totalPoints').get(function(this: User) {
     return Math.round((this.easyPoints + this.normalPoints + this.hardPoints + this.insanePoints + this.expertPoints +
         this.storyboardPoints + this.hitsoundPoints + this.skinPoints + this.questPoints + this.modPoints + this.hostPoints +

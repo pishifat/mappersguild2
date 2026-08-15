@@ -31,24 +31,6 @@
                     </a>
                 </div>
             </div>
-
-            <div class="row small mt-3">
-                <div class="col-auto filter-title">
-                    Display
-                </div>
-
-                <div class="col">
-                    <a
-                        v-for="(displayText, display) in displayOptions"
-                        :key="display"
-                        :class="displayAs === display ? 'sorted' : 'unsorted'"
-                        href="#"
-                        @click.prevent="updateDisplay(display)"
-                    >
-                        {{ displayText }}
-                    </a>
-                </div>
-            </div>
         </div>
     </div>
 </template>
@@ -58,6 +40,7 @@ import { defineComponent } from 'vue';
 import { mapState, mapActions } from 'vuex';
 import FilterBox from '@components/FilterBox.vue';
 import ModeFilters from '@components/ModeFilters.vue';
+import { User } from '@interfaces/user';
 
 export default defineComponent({
     name: 'UserPageFilters',
@@ -70,28 +53,46 @@ export default defineComponent({
             sorted: false,
             sortOptions: {
                 username: 'Name',
-                rank: 'Rank',
+                rank: 'Points',
                 createdAt: 'Joined',
-            },
-            displayOptions: {
-                list: 'List',
-                cards: 'Cards',
             },
         };
     },
     computed: mapState('users', [
         'sortBy',
-        'displayAs',
         'filterMode',
         'filterValue',
     ]),
     methods: {
         ...mapActions('users', [
-            'updateDisplay',
             'updateSorting',
-            'updateFilterValue',
             'updateFilterMode',
         ]),
+        async updateFilterValue (value: string): Promise<void> {
+            const trimmedValue = value.trim();
+
+            if (trimmedValue) {
+                let match: User | undefined = this.$store.getters['users/findLocalUser'](trimmedValue);
+
+                if (!match) {
+                    const res = await this.$http.executeGet<{ user: User | null }>(`/users/searchUser/${encodeURIComponent(trimmedValue)}`);
+
+                    if (!this.$http.isError(res) && res.user) {
+                        this.$store.commit('users/addUsers', [res.user]);
+                        match = res.user;
+                    }
+                }
+
+                if (match) {
+                    this.$store.commit('users/setSelectedUserId', match.id);
+                    this.$bs.showModal('extendedInfo');
+
+                    return;
+                }
+            }
+
+            this.$store.dispatch('users/updateFilterValue', value);
+        },
     },
 });
 </script>

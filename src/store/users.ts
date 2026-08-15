@@ -9,14 +9,12 @@ interface UsersState {
     filterValue: string;
     filterMode: FilterMode;
     sortBy: 'username' | 'rank' | 'createdAt';
-    displayAs: 'list' | 'cards';
     sortDesc: boolean;
-    pagination: {
-        page: number,
-        limit: number,
-        maxPages: number,
-    };
+    loadedRanks: number[];
+    rankTotals: Record<number, number>;
 }
+
+const defaultLoadedRanks = [3, 4, 5];
 
 const store: Module<UsersState, MainState> = {
     namespaced: true,
@@ -26,20 +24,33 @@ const store: Module<UsersState, MainState> = {
         filterValue: '',
         filterMode: FilterMode.any,
         sortBy: 'rank',
-        displayAs: 'list',
         sortDesc: true,
-        pagination: {
-            page: 1,
-            limit: 16,
-            maxPages: 1,
-        },
+        loadedRanks: [...defaultLoadedRanks],
+        rankTotals: {},
     },
     mutations: {
         setUsers (state, users: User[]): void {
             state.users = users;
         },
+        addUsers (state, users: User[]): void {
+            for (const user of users) {
+                const i = state.users.findIndex(u => u.id === user.id);
+
+                if (i === -1) {
+                    state.users.push(user);
+                } else {
+                    state.users[i] = user;
+                }
+            }
+        },
         addSpecificUser (state, user: User): void {
-            state.users.push(user);
+            const i = state.users.findIndex(u => u.id === user.id);
+
+            if (i === -1) {
+                state.users.push(user);
+            } else {
+                state.users[i] = user;
+            }
         },
         setFilterValue (state, value: string): void {
             state.filterValue = value;
@@ -60,20 +71,13 @@ const store: Module<UsersState, MainState> = {
         setSortDesc (state, value: boolean): void {
             state.sortDesc = value;
         },
-        setDisplayAs (state, displayAs: 'cards' | 'list'): void {
-            state.displayAs = displayAs;
+        markRankLoaded (state, rank: number): void {
+            if (!state.loadedRanks.includes(rank)) {
+                state.loadedRanks.push(rank);
+            }
         },
-        increasePaginationPage (state): void {
-            state.pagination.page += 1;
-        },
-        decreasePaginationPage (state): void {
-            state.pagination.page -= 1;
-        },
-        resetPaginationPage (state): void {
-            state.pagination.page = 1;
-        },
-        updatePaginationMaxPages (state, value: number): void {
-            state.pagination.maxPages = value;
+        setRankTotal (state, { rank, total }: { rank: number; total: number }): void {
+            state.rankTotals[rank] = total;
         },
     },
     getters: {
@@ -131,32 +135,27 @@ const store: Module<UsersState, MainState> = {
 
             return users;
         },
-        paginatedUsers: (state, getters): User[] => {
-            return getters.filteredUsers.slice(
-                state.pagination.limit * (state.pagination.page - 1),
-                state.pagination.limit * state.pagination.page
-            );
-        },
         selectedUser: (state): User | undefined => {
             return state.users.find(u => u.id === state.selectedUserId);
         },
         allUsers: (state): User[] => {
             return state.users;
         },
+        isRankLoaded: (state) => (rank: number): boolean => {
+            return state.loadedRanks.includes(rank);
+        },
+        findLocalUser: (state) => (query: string): User | undefined => {
+            const lowerQuery = query.toLowerCase();
+
+            return state.users.find(u => u.username.toLowerCase() === lowerQuery || String(u.osuId) === query);
+        },
     },
     actions: {
         updateFilterMode ({ commit }, mode: string): void {
-            commit('resetPaginationPage');
             commit('setFilterMode', mode);
         },
         updateFilterValue ({ commit }, value: string): void {
-            commit('resetPaginationPage');
             commit('setFilterValue', value);
-        },
-        updatePaginationMaxPages ({ commit, getters, state }): void {
-            const maxPages = Math.ceil(getters.filteredUsers.length / state.pagination.limit);
-
-            commit('updatePaginationMaxPages', maxPages);
         },
         updateSorting ({ commit, state }, sortBy): void {
             if (state.sortBy !== sortBy || state.sortDesc === false) {
@@ -166,11 +165,6 @@ const store: Module<UsersState, MainState> = {
             }
 
             commit('setSortBy', sortBy);
-        },
-        updateDisplay ({ commit, state }, displayAs): void {
-            if (state.displayAs !== displayAs) {
-                commit('setDisplayAs', displayAs);
-            }
         },
     },
 };
