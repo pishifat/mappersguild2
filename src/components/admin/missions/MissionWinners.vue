@@ -92,16 +92,16 @@ export default defineComponent({
             const hosts = winningBeatmaps.map(b => b.host);
             const hostUsernames = hosts.map(h => h.username);
 
-            // exception for the "True Cooperation", "Multi-mode enthusiasts", and "Spread coordinators" missions, which give the set's second mapper credit towards badge too
+            // exception for the "True Cooperation", "Multi-mode enthusiasts", "Spread coordinators", and "Building Bridges" missions, which give the set's second mapper credit towards badge too
             let collaborationUsers: any[] = [];
             let collaborationUsernames: string[] = [];
 
-            const collabQuestIds = ['65a3376e48f36f2622ef2f44', '665bbcc1ff4c38cea1113337', '66f488cc56f3f894641d4ace'];
+            const collabQuestIds = ['65a3376e48f36f2622ef2f44', '665bbcc1ff4c38cea1113337', '66f488cc56f3f894641d4ace', '690be404c83d944d73db432c'];
 
             for (const beatmap of winningBeatmaps) {
                 if (collabQuestIds.includes(beatmap.mission.toString())) {
                     for (const task of beatmap.tasks) {
-                        if (task.name !== TaskName.Hitsounds && task.name !== TaskName.Storyboard) {
+                        if (task.name !== TaskName.Hitsounds && task.name !== TaskName.Storyboard && task.name !== TaskName.Skin) {
                             for (const mapper of task.mappers) {
                                 if (!collaborationUsernames.includes(mapper.username) && beatmap.host.id !== mapper.id) {
                                     if (!(['63035eff1e8b9e4fa900836f', '62e3dedd9a268823d2e436b8', '6401d31e517b1f1d40ca78e2'].includes(mapper.id) && beatmap.mission.toString() == '665bbcc1ff4c38cea1113337')) { // skipping rewards for people who tried to circumvent the rules (or the spirit of the rules) for easy mission progress/points. i want to give the host pity points at least. relevant maps: https://osu.ppy.sh/beatmapsets/2202586#taiko/4719311 and https://osu.ppy.sh/beatmapsets/1670325#osu/4767848
