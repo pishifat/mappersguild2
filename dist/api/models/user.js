@@ -88,6 +88,7 @@ const UserSchema = new mongoose_1.Schema({
     isConfirmedInsider: { type: Boolean, default: false },
     momentumStarterRole: { type: String },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
+// if this changes, also change it in users route
 UserSchema.virtual('totalPoints').get(function () {
     return Math.round((this.easyPoints + this.normalPoints + this.hardPoints + this.insanePoints + this.expertPoints +
         this.storyboardPoints + this.hitsoundPoints + this.skinPoints + this.questPoints + this.modPoints + this.hostPoints +

@@ -279,10 +279,9 @@ async function setBeatmapStatusRanked(id, bmInfo) {
     // pause to not exceed rate limit
     await sleep(500);
 }
-/** Just replaces () and [] */
 function escapeUsername(username) {
     username = username.trim();
-    return username.replace(/[()[\]]/g, '\\$&');
+    return username.replace(/[^a-zA-Z0-9-]/g, '\\$&');
 }
 /** Used for logs and webhooks */
 function generateLists(modes, members) {

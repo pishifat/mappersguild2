@@ -19,13 +19,14 @@ const userPopulate = [
     { path: 'completedMissions', select: 'name deadline' },
     { path: 'completedMissionsAsGuest', select: 'name deadline' },
 ];
-/* GET users (with rank) */
+/* GET rank 3+ users */
 usersRouter.get('/queryRanked', async (req, res) => {
+    const defaultMinRank = 3;
     const users = await user_1.UserModel
         .find({
         $or: [
             { _id: req.session.mongoId },
-            { rank: { $gte: 1 } },
+            { rank: { $gte: defaultMinRank } },
         ],
     })
         .populate(userPopulate);
@@ -33,29 +34,62 @@ usersRouter.get('/queryRanked', async (req, res) => {
         users,
     });
 });
-/* GET all users (with points) */
-usersRouter.get('/queryAll', async (req, res) => {
+/* GET users with a specific rank */
+usersRouter.get('/queryByRank/:rank', async (req, res) => {
+    const rank = parseInt(req.params.rank, 10);
+    const limit = req.query.limit ? parseInt(req.query.limit, 10) : undefined;
+    // if this changes in the user model, it needs to change here too
+    const totalPointsFields = [
+        '$easyPoints', '$normalPoints', '$hardPoints', '$insanePoints', '$expertPoints',
+        '$storyboardPoints', '$hitsoundPoints', '$skinPoints', '$questPoints', '$modPoints', '$hostPoints',
+        '$contestCreatorPoints', '$contestParticipantPoints', '$contestScreenerPoints', '$contestJudgePoints',
+        '$missionPoints', '$legacyPoints',
+    ];
+    if (limit) {
+        const [topUsers, total] = await Promise.all([
+            user_1.UserModel.aggregate([
+                { $match: { rank } },
+                { $addFields: { totalPoints: { $add: totalPointsFields } } }, // temporarily add to users so it can be sorted
+                { $sort: { totalPoints: -1 } },
+                { $limit: limit },
+                { $project: { _id: 1 } },
+            ]),
+            user_1.UserModel.countDocuments({ rank }),
+        ]);
+        const ids = topUsers.map(u => u._id);
+        if (req.session.mongoId && !ids.some(id => id.toString() === req.session.mongoId.toString())) {
+            ids.push(req.session.mongoId);
+        }
+        const users = await user_1.UserModel
+            .find({ _id: { $in: ids } })
+            .populate(userPopulate);
+        users.sort((a, b) => b.totalPoints - a.totalPoints);
+        res.json({
+            users,
+            total,
+        });
+        return;
+    }
     const users = await user_1.UserModel
         .find({
         $or: [
             { _id: req.session.mongoId },
-            { $or: [
-                    { osuPoints: { $gt: 0 } },
-                    { taikoPoints: { $gt: 0 } },
-                    { catchPoints: { $gt: 0 } },
-                    { maniaPoints: { $gt: 0 } },
-                    { storyboardPoints: { $gt: 0 } },
-                    { hitsoundPoints: { $gt: 0 } },
-                    { modPoints: { $gt: 0 } },
-                    { contestParticipantPoints: { $gt: 0 } },
-                    { contestJudgePoints: { $gt: 0 } },
-                    { contestScreenerPoints: { $gt: 0 } },
-                ] },
+            { rank },
         ],
     })
         .populate(userPopulate);
     res.json({
         users,
+    });
+});
+/* GET single user by username or osu id */
+usersRouter.get('/searchUser/:userInput', async (req, res) => {
+    const user = await user_1.UserModel
+        .findOne()
+        .byUsernameOrOsuId(req.params.userInput)
+        .populate(userPopulate);
+    res.json({
+        user,
     });
 });
 /* GET specific user */

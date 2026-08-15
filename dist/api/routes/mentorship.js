@@ -102,13 +102,7 @@ mentorshipRouter.get('/searchUser/:input', async (req, res) => {
     const osuId = parseInt(input, 10);
     let user;
     if (isNaN(osuId)) {
-        let regexp;
-        if (input.indexOf('[') >= 0 || input.indexOf(']') >= 0) {
-            regexp = new RegExp('^\\' + input + '$', 'i');
-        }
-        else {
-            regexp = new RegExp('^' + input + '$', 'i');
-        }
+        const regexp = new RegExp('^' + (0, helpers_1.escapeUsername)(input) + '$', 'i');
         user = await user_1.UserModel
             .findOne({ username: regexp })
             .populate(userCyclePopulate)
@@ -165,13 +159,7 @@ mentorshipRouter.post('/toggleIsMentorshipAdmin', middlewares_1.isMentorshipAdmi
             .orFail();
     }
     else if (isNaN(osuId)) {
-        let regexp;
-        if (req.body.userInput.indexOf('[') >= 0 || req.body.userInput.indexOf(']') >= 0) {
-            regexp = new RegExp('^\\' + req.body.userInput + '$', 'i');
-        }
-        else {
-            regexp = new RegExp('^' + req.body.userInput + '$', 'i');
-        }
+        const regexp = new RegExp('^' + (0, helpers_1.escapeUsername)(req.body.userInput) + '$', 'i');
         user = await user_1.UserModel
             .findOne({ username: regexp })
             .orFail();
@@ -247,13 +235,7 @@ mentorshipRouter.post('/addMentor', middlewares_1.isMentorshipAdmin, async (req,
     let user;
     const osuId = parseInt(userInput, 10);
     if (isNaN(osuId)) {
-        let regexp;
-        if (userInput.indexOf('[') >= 0 || userInput.indexOf(']') >= 0) {
-            regexp = new RegExp('^\\' + userInput + '$', 'i');
-        }
-        else {
-            regexp = new RegExp('^' + userInput + '$', 'i');
-        }
+        const regexp = new RegExp('^' + (0, helpers_1.escapeUsername)(userInput) + '$', 'i');
         user = await user_1.UserModel
             .findOne({ username: regexp });
     }
@@ -315,13 +297,7 @@ mentorshipRouter.post('/addMentee', middlewares_1.isMentorshipAdmin, async (req,
     let user;
     const osuId = parseInt(userInput, 10);
     if (isNaN(osuId)) {
-        let regexp;
-        if (userInput.indexOf('[') >= 0 || userInput.indexOf(']') >= 0) {
-            regexp = new RegExp('^\\' + userInput + '$', 'i');
-        }
-        else {
-            regexp = new RegExp('^' + userInput + '$', 'i');
-        }
+        const regexp = new RegExp('^' + (0, helpers_1.escapeUsername)(userInput) + '$', 'i');
         user = await user_1.UserModel
             .findOne({ username: regexp });
     }

@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.calculateContestScores = calculateContestScores;
 const express_1 = __importDefault(require("express"));
 const middlewares_1 = require("../../helpers/middlewares");
+const helpers_1 = require("../../helpers/helpers");
 const discordApi_1 = require("../../helpers/discordApi");
 const middlewares_2 = require("./middlewares");
 const contest_1 = require("../../models/contest/contest");
@@ -479,13 +480,7 @@ listingRouter.post('/:id/screeners/add', middlewares_2.isContestCreator, middlew
     const osuId = parseInt(req.body.screenerInput, 10);
     let user;
     if (isNaN(osuId)) {
-        let regexp;
-        if (req.body.screenerInput.indexOf('[') >= 0 || req.body.screenerInput.indexOf(']') >= 0) {
-            regexp = new RegExp('^\\' + req.body.screenerInput + '$', 'i');
-        }
-        else {
-            regexp = new RegExp('^' + req.body.screenerInput + '$', 'i');
-        }
+        const regexp = new RegExp('^' + (0, helpers_1.escapeUsername)(req.body.screenerInput) + '$', 'i');
         user = await user_1.UserModel
             .findOne({ username: regexp })
             .orFail();
@@ -537,13 +532,7 @@ listingRouter.post('/:id/judges/add', middlewares_2.isContestCreator, middleware
     const osuId = parseInt(req.body.judgeInput, 10);
     let user;
     if (isNaN(osuId)) {
-        let regexp;
-        if (req.body.judgeInput.indexOf('[') >= 0 || req.body.judgeInput.indexOf(']') >= 0) {
-            regexp = new RegExp('^\\' + req.body.judgeInput + '$', 'i');
-        }
-        else {
-            regexp = new RegExp('^' + req.body.judgeInput + '$', 'i');
-        }
+        const regexp = new RegExp('^' + (0, helpers_1.escapeUsername)(req.body.judgeInput) + '$', 'i');
         user = await user_1.UserModel
             .findOne({ username: regexp })
             .orFail();

@@ -11,6 +11,8 @@ const contest_2 = require("../../interfaces/contest/contest");
 const listing_1 = require("./contests/listing");
 const mentorshipCycle_1 = require("../models/mentorshipCycle");
 const mentorshipRecord_1 = require("../models/mentorshipRecord");
+const mission_1 = require("../models/mission");
+const helpers_1 = require("../helpers/helpers");
 const interOpRouter = express_1.default.Router();
 /* AUTHENTICATION */
 interOpRouter.use((req, res, next) => {
@@ -198,5 +200,58 @@ interOpRouter.post('/createMentorshipCycle', canWriteMentorships, async (req, re
         created++;
     }
     res.json({ created, skipped });
+});
+/* GET winning beatmaps' osuIds + missionTier for BN event missions */
+interOpRouter.get('/bnEvent', async (req, res) => {
+    // spring 2026 quests https://osu.ppy.sh/home/news/2026-03-16-mappers-guild-spring-2026-priority-quests
+    const missionIds = [
+        '69b4f0530ff92c44ae66009d',
+        '69b4f07b0ff92c44ae6600a2',
+        '69b4f0940ff92c44ae6600a6',
+        '69b4f0a80ff92c44ae6600aa',
+        '69b4f1060ff92c44ae6600b2',
+        '69b4f0bb0ff92c44ae6600ae',
+    ];
+    // https://discord.com/channels/90072389919997952/1470566659746955405/1528357168158347364
+    const rankedDateCutoff = new Date('2026-07-29T00:00:00.000Z');
+    try {
+        const missions = await mission_1.MissionModel
+            .find({ _id: { $in: missionIds } })
+            .select('tier winningBeatmaps')
+            .populate({ path: 'winningBeatmaps', select: 'url rankedDate' });
+        const response = [];
+        for (const mission of missions) {
+            let missionTier = 0;
+            // https://discord.com/channels/90072389919997952/1470566659746955405/1528356547330314390
+            switch (mission.tier) {
+                case 1:
+                    missionTier = 1.5;
+                    break;
+                case 2:
+                    missionTier = 2;
+                    break;
+                case 3:
+                    missionTier = 2.5;
+                    break;
+                case 4:
+                    missionTier = 2.5;
+                    break;
+                default:
+                    break;
+            }
+            for (const beatmap of mission.winningBeatmaps) {
+                if (beatmap.rankedDate && beatmap.rankedDate <= rankedDateCutoff) {
+                    response.push({
+                        osuId: (0, helpers_1.findBeatmapsetId)(beatmap.url),
+                        missionTier,
+                    });
+                }
+            }
+        }
+        res.json(response);
+    }
+    catch {
+        res.status(500).json({ error: 'Internal server error' });
+    }
 });
 exports.default = interOpRouter;
