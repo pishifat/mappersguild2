@@ -311,11 +311,10 @@ export async function setBeatmapStatusRanked(id, bmInfo): Promise<void> {
     await sleep(500);
 }
 
-/** Just replaces () and [] */
 export function escapeUsername(username: string) {
     username = username.trim();
 
-    return username.replace(/[()[\]]/g, '\\$&');
+    return username.replace(/[^a-zA-Z0-9-]/g, '\\$&');
 }
 
 /** Used for logs and webhooks */

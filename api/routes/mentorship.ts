@@ -7,7 +7,7 @@ import { UserGroup } from '../../interfaces/user';
 import { MentorshipCycleModel } from '../models/mentorshipCycle';
 import { MentorshipRecordModel } from '../models/mentorshipRecord';
 import { getUserInfoFromId, isOsuResponseError, getClientCredentialsGrant } from '../helpers/osuApi';
-import { defaultErrorMessage } from '../helpers/helpers';
+import { defaultErrorMessage, escapeUsername } from '../helpers/helpers';
 
 const mentorshipRouter = express.Router();
 
@@ -120,13 +120,7 @@ mentorshipRouter.get('/searchUser/:input', async (req, res) => {
     let user;
 
     if (isNaN(osuId)) {
-        let regexp;
-
-        if (input.indexOf('[') >= 0 || input.indexOf(']') >= 0) {
-            regexp = new RegExp('^\\' + input + '$', 'i');
-        } else {
-            regexp = new RegExp('^' + input + '$', 'i');
-        }
+        const regexp = new RegExp('^' + escapeUsername(input) + '$', 'i');
 
         user = await UserModel
             .findOne({ username: regexp })
@@ -194,13 +188,7 @@ mentorshipRouter.post('/toggleIsMentorshipAdmin', isMentorshipAdmin, async (req,
             .findById(req.body.userId)
             .orFail();
     } else if (isNaN(osuId)) {
-        let regexp;
-
-        if (req.body.userInput.indexOf('[') >= 0 || req.body.userInput.indexOf(']') >= 0) {
-            regexp = new RegExp('^\\' + req.body.userInput + '$', 'i');
-        } else {
-            regexp = new RegExp('^' + req.body.userInput + '$', 'i');
-        }
+        const regexp = new RegExp('^' + escapeUsername(req.body.userInput) + '$', 'i');
 
         user = await UserModel
             .findOne({ username: regexp })
@@ -296,13 +284,7 @@ mentorshipRouter.post('/addMentor', isMentorshipAdmin, async (req, res) => {
     const osuId = parseInt(userInput, 10);
 
     if (isNaN(osuId)) {
-        let regexp;
-
-        if (userInput.indexOf('[') >= 0 || userInput.indexOf(']') >= 0) {
-            regexp = new RegExp('^\\' + userInput + '$', 'i');
-        } else {
-            regexp = new RegExp('^' + userInput + '$', 'i');
-        }
+        const regexp = new RegExp('^' + escapeUsername(userInput) + '$', 'i');
 
         user = await UserModel
             .findOne({ username: regexp });
@@ -381,13 +363,7 @@ mentorshipRouter.post('/addMentee', isMentorshipAdmin, async (req, res) => {
     const osuId = parseInt(userInput, 10);
 
     if (isNaN(osuId)) {
-        let regexp;
-
-        if (userInput.indexOf('[') >= 0 || userInput.indexOf(']') >= 0) {
-            regexp = new RegExp('^\\' + userInput + '$', 'i');
-        } else {
-            regexp = new RegExp('^' + userInput + '$', 'i');
-        }
+        const regexp = new RegExp('^' + escapeUsername(userInput) + '$', 'i');
 
         user = await UserModel
             .findOne({ username: regexp });

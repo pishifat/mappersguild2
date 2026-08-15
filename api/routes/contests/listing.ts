@@ -1,5 +1,6 @@
 import express from 'express';
 import { isLoggedIn, isValidUrl } from '../../helpers/middlewares';
+import { escapeUsername } from '../../helpers/helpers';
 import { devWebhookPost, webhookColors } from '../../helpers/discordApi';
 import { isContestCreator, isEditable } from './middlewares';
 import { Contest, ContestModel } from '../../models/contest/contest';
@@ -566,13 +567,7 @@ listingRouter.post('/:id/screeners/add', isContestCreator, isEditable, async (re
     let user;
 
     if (isNaN(osuId)) {
-        let regexp;
-
-        if (req.body.screenerInput.indexOf('[') >= 0 || req.body.screenerInput.indexOf(']') >= 0) {
-            regexp = new RegExp('^\\' + req.body.screenerInput + '$', 'i');
-        } else {
-            regexp = new RegExp('^' + req.body.screenerInput + '$', 'i');
-        }
+        const regexp = new RegExp('^' + escapeUsername(req.body.screenerInput) + '$', 'i');
 
         user = await UserModel
             .findOne({ username: regexp })
@@ -638,13 +633,7 @@ listingRouter.post('/:id/judges/add', isContestCreator, isEditable, async (req, 
     let user;
 
     if (isNaN(osuId)) {
-        let regexp;
-
-        if (req.body.judgeInput.indexOf('[') >= 0 || req.body.judgeInput.indexOf(']') >= 0) {
-            regexp = new RegExp('^\\' + req.body.judgeInput + '$', 'i');
-        } else {
-            regexp = new RegExp('^' + req.body.judgeInput + '$', 'i');
-        }
+        const regexp = new RegExp('^' + escapeUsername(req.body.judgeInput) + '$', 'i');
 
         user = await UserModel
             .findOne({ username: regexp })
