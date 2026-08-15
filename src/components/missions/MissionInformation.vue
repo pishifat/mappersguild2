@@ -12,11 +12,12 @@
                     <li><b>Some priority quests have user-specific requirements.</b> These generally aim to give newer mappers an opportunity to get involved, like only allowing users without ranked maps to participate.</li>
                     <li><b>Multiple users can complete the same quest.</b> This depends on the quest's win condition.</li>
                 </ol>
-                Some rules apply to all priority quests:
+                Some rules apply to all priority quests unless otherwise specified:
                 <ol>
-                    <li><b>Unless otherwise specified, osu!mania key counts are considered separate game modes.</b></li>
-                    <li><b>You can only complete each quest once.</b> Finishing a quest 2+ times for extra rewards isn't an option.</li>
-                    <li><b>A map can only be associated with one quest at a time.</b> Finishing 2+ quests with one map for extra rewards isn't an option.</li>
+                    <li><b>osu!mania key counts are considered separate game modes.</b></li>
+                    <li>In cases where a quest requires a song unique to the Ranked section, <b>full/short/cut versions of a song are not unique from each other.</b> If two versions have any noticeable musical differences, this may be bypassed.</li>
+                    <li><b>You can only complete each quest once.</b> If multiple maps are added to a quest, only the first map will receive rewards.</li>
+                    <li><b>A map can only be associated with one quest at a time.</b> Finishing multiple quests with one map isn't possible.</li>
                 </ol>
                 Here's a breakdown of this example priority quest:
             </div>
