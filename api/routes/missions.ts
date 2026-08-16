@@ -815,6 +815,23 @@ missionsRouter.get('/:missionId/findSelectedShowcaseMissionSongsByTag', async (r
     res.json({ ...(entry as any).toObject(), songs: eligibleSongs });
 });
 
+/* GET findAllSelectedShowcaseMissionSongsByTag */
+missionsRouter.get('/:missionId/findAllSelectedShowcaseMissionSongsByTag', async (req, res) => {
+    const mission: Mission = await MissionModel
+        .findById(req.params.missionId)
+        .populate({
+            path: 'showcaseMissionSongsByGenre',
+            populate: {
+                path: 'songs',
+            },
+        })
+        .orFail();
+
+    const entry = mission.showcaseMissionSongsByGenre.find((e: any) => e.user.toString() == req.session.mongoId || (e.user.id && e.user.id == req.session.mongoId));
+
+    res.json(entry || null);
+});
+
 /* GET genre song reroll count */
 missionsRouter.get('/:missionId/getGenreSongRerollCount', async (req, res) => {
     const rerollCount = await SpentPointsModel.countDocuments({

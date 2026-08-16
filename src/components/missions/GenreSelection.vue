@@ -2,8 +2,14 @@
     <div>
         <b>Song selection:</b>
         <div v-if="deadlinePassed" class="text-secondary">
-            <div>
-                The deadline has passed. If you participated in this quest, your map is (hopefully) Ranked at this point, so add it to the quest once the artist is announced!
+            <i v-if="!genreSongsInfoLoaded" class="ms-1">Loading songs...</i>
+            <div v-else-if="genreSongsInfo && genreSongsInfo.songs && genreSongsInfo.songs.length" class="ms-1 mb-2">
+                <div>Your selected songs were:</div>
+                <ol>
+                    <li v-for="song in genreSongsInfo.songs" :key="song.id">
+                        <b>{{ song.artist }} - {{ song.title }}</b>
+                    </li>
+                </ol>
             </div>
             <div class="mt-2">
                 Once all artists are announced, the quest will be closed.
@@ -13,7 +19,7 @@
             </div>
         </div>
         <div v-else-if="deadlineNearlyReached">
-            <div v-if="genreSongsInfo" class="text-secondary ms-1">
+            <div v-if="genreSongsInfo && genreSongsInfo.songs && genreSongsInfo.songs.length" class="text-secondary ms-1">
                 <ol>
                     <li v-for="song in genreSongsInfo.songs" :key="song.id">
                         <b>{{ song.artist }} - {{ song.title }}</b>
@@ -26,7 +32,6 @@
                 <div>You're too late to pick songs. Sorry :(</div>
                 <div>Once all artists for this quest are announced, the quest will be closed!</div>
             </div>
-            
         </div>
         <div v-else>
             <i v-if="!genreSongsInfoLoaded" class="text-secondary ms-1">Loading...</i>
@@ -160,8 +165,12 @@ export default defineComponent({
         },
     },
     async mounted(): Promise<void> {
+        const songsEndpoint = this.deadlineNearlyReached
+            ? `/missions/${this.mission.id}/findAllSelectedShowcaseMissionSongsByTag`
+            : `/missions/${this.mission.id}/findSelectedShowcaseMissionSongsByTag`;
+
         const [songsInfo, rerollCount] = await Promise.all([
-            this.$http.executeGet(`/missions/${this.mission.id}/findSelectedShowcaseMissionSongsByTag`),
+            this.$http.executeGet(songsEndpoint),
             this.$http.executeGet(`/missions/${this.mission.id}/getGenreSongRerollCount`),
         ]);
 
