@@ -95,6 +95,25 @@ usersRouter.get('/queryByRank/:rank', async (req, res) => {
     });
 });
 
+/* GET users with more than 100 points in a specific mode */
+usersRouter.get('/queryByMode/:mode', async (req, res) => {
+    const mode = req.params.mode;
+    const pointsField = `${mode}Points`;
+
+    const users = await UserModel
+        .find({
+            $or: [
+                { _id: req.session.mongoId },
+                { [pointsField]: { $gt: 100 } },
+            ],
+        })
+        .populate(userPopulate);
+
+    res.json({
+        users,
+    });
+});
+
 /* GET single user by username or osu id */
 usersRouter.get('/searchUser/:userInput', async (req, res) => {
     const user = await UserModel

@@ -76,6 +76,7 @@ export default defineComponent({
     },
     data () {
         return {
+            firstLoad: true,
             previewRanks: [0, 1, 2],
             previewLimit: 10,
             rankLabels: {
@@ -96,6 +97,7 @@ export default defineComponent({
             'sortBy',
             'rankTotals',
             'filterValue',
+            'filterMode',
         ]),
         ...mapGetters('users', [
             'allUsers',
@@ -109,7 +111,7 @@ export default defineComponent({
             const items: UserListItem[] = [];
             const users = this.filteredUsers;
 
-            if (this.sortBy !== 'rank') {
+            if (this.sortBy !== 'rank' || this.filterMode !== 'any') {
                 for (const user of users) {
                     items.push({ type: 'user', user });
                 }
@@ -141,37 +143,55 @@ export default defineComponent({
             return items;
         },
     },
+    watch: {
+        filterMode (newMode: string): void {
+            if (newMode === 'any') {
+                this.loadDefaultUsers();
+            } else {
+                this.loadUsersForMode(newMode);
+            }
+        },
+    },
     beforeCreate () {
         if (!this.$store.hasModule('users')) {
             this.$store.registerModule('users', usersModule);
         }
     },
     async created () {
-        const res = await this.$http.initialRequest<{ users: User[] }>('/users/queryRanked');
+        await this.loadDefaultUsers();
 
-        if (!this.$http.isError(res)) {
-            this.$store.commit('users/setUsers', res.users);
+        const id = this.$route.query.id;
 
-            const id = this.$route.query.id;
+        if (id) {
+            let i = this.allUsers.findIndex(u => u.id == id);
 
-            if (id) {
-                let i = this.allUsers.findIndex(u => u.id == id);
+            if (i < 0) {
+                const specificUser = await this.$http.executeGet<User | null>(`/users/queryUser/${id}`);
 
-                if (i < 0) {
-                    const specificUser = await this.$http.executeGet<User | null>(`/users/queryUser/${id}`);
-
-                    if (!this.$http.isError(specificUser) && specificUser) {
-                        this.$store.commit('users/addSpecificUser', specificUser);
-                    }
-
-                    i = this.allUsers.findIndex(u => u.id == id);
+                if (!this.$http.isError(specificUser) && specificUser) {
+                    this.$store.commit('users/addSpecificUser', specificUser);
                 }
 
-                if (i >= 0) {
-                    this.$store.commit('users/setSelectedUserId', id);
-                    this.$bs.showModal('extendedInfo');
-                }
+                i = this.allUsers.findIndex(u => u.id == id);
             }
+
+            if (i >= 0) {
+                this.$store.commit('users/setSelectedUserId', id);
+                this.$bs.showModal('extendedInfo');
+            }
+        }
+    },
+    methods: {
+        async loadDefaultUsers (): Promise<void> {
+            const res = await this.$http.executeGet<{ users: User[] }>('/users/queryRanked', undefined, this.firstLoad);
+
+            if (this.$http.isError(res)) {
+                return;
+            }
+
+            this.firstLoad = false;
+            this.$store.commit('users/setUsers', res.users);
+            this.$store.commit('users/resetLoadedRanks');
 
             const previewResults = await Promise.all(
                 this.previewRanks.map(rank => this.$http.executeGet<{ users: User[]; total: number }>(`/users/queryByRank/${rank}?limit=${this.previewLimit}`))
@@ -185,9 +205,14 @@ export default defineComponent({
                     this.$store.commit('users/setRankTotal', { rank: this.previewRanks[i], total: previewRes.total });
                 }
             }
-        }
-    },
-    methods: {
+        },
+        async loadUsersForMode (mode: string): Promise<void> {
+            const res = await this.$http.executeGet<{ users: User[] }>(`/users/queryByMode/${mode}`);
+
+            if (!this.$http.isError(res)) {
+                this.$store.commit('users/setUsers', res.users);
+            }
+        },
         async loadRank (rank: number, e): Promise<void> {
             if (rank === 0 && !confirm('Are you sure? This will take a while. You can search for a user by typing their username at the top of this page.')) {
                 return;

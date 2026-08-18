@@ -76,6 +76,9 @@ const store: Module<UsersState, MainState> = {
                 state.loadedRanks.push(rank);
             }
         },
+        resetLoadedRanks (state): void {
+            state.loadedRanks = [...defaultLoadedRanks];
+        },
         setRankTotal (state, { rank, total }: { rank: number; total: number }): void {
             state.rankTotals[rank] = total;
         },
