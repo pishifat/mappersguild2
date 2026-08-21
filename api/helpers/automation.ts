@@ -4,7 +4,7 @@ import { isOsuResponseError, getClientCredentialsGrant, getBeatmapsetV2Info, get
 import { devWebhookPost, webhookPost, webhookColors } from './discordApi';
 import { BeatmapModel } from '../models/beatmap/beatmap';
 import { LogModel } from '../models/log';
-import { BeatmapStatus } from '../../interfaces/beatmap/beatmap';
+import { Beatmap, BeatmapStatus } from '../../interfaces/beatmap/beatmap';
 import { QuestModel } from '../models/quest';
 import { MissionModel } from '../models/mission';
 import { ContestModel } from '../models/contest/contest';
@@ -412,6 +412,26 @@ const setRanked = cron.schedule('0 1 * * *', async () => { /* 6:00 PM PST */
     scheduled: false,
 });
 
+// quest completion = last map's ranked date. 10 days leniency
+function finalizeQuestCompletionDates(associatedMaps: Beatmap[], deadline: Date): { completed: Date; deadline: Date } {
+    const questDeadlineLeniencyMs = 10 * 24 * 3600 * 1000;
+    const dayMs = 24 * 3600 * 1000;
+
+    const rankedTimes = associatedMaps
+        .filter(beatmap => beatmap.status === BeatmapStatus.Ranked && beatmap.rankedDate)
+        .map(beatmap => +new Date(beatmap.rankedDate));
+
+    const completed = new Date(Math.max(...rankedTimes));
+
+    let adjustedDeadline = deadline;
+
+    if (+completed > +deadline && +completed - +deadline <= questDeadlineLeniencyMs) {
+        adjustedDeadline = new Date(+completed + dayMs);
+    }
+
+    return { completed, deadline: adjustedDeadline };
+}
+
 /* publish completed quest webhooks */
 const completeQuests = cron.schedule('0 3 * * *', async () => { /* 8:00 PM PST */
     const scheduledQuests = await QuestModel
@@ -424,7 +444,10 @@ const completeQuests = cron.schedule('0 3 * * *', async () => { /* 8:00 PM PST *
     for (let i = 0; i < scheduledQuests.length; i++) {
         const quest = scheduledQuests[i];
 
-        quest.completed = new Date();
+        const { completed, deadline } = finalizeQuestCompletionDates(quest.associatedMaps, quest.deadline);
+
+        quest.completed = completed;
+        quest.deadline = deadline;
         quest.status = QuestStatus.Done;
         await quest.save();
 
