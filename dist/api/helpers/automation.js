@@ -348,6 +348,20 @@ const setRanked = node_cron_1.default.schedule('0 1 * * *', async () => {
 }, {
     scheduled: false,
 });
+// quest completion = last map's ranked date. 10 days leniency
+function finalizeQuestCompletionDates(associatedMaps, deadline) {
+    const questDeadlineLeniencyMs = 10 * 24 * 3600 * 1000;
+    const dayMs = 24 * 3600 * 1000;
+    const rankedTimes = associatedMaps
+        .filter(beatmap => beatmap.status === beatmap_2.BeatmapStatus.Ranked && beatmap.rankedDate)
+        .map(beatmap => +new Date(beatmap.rankedDate));
+    const completed = new Date(Math.max(...rankedTimes));
+    let adjustedDeadline = deadline;
+    if (+completed > +deadline && +completed - +deadline <= questDeadlineLeniencyMs) {
+        adjustedDeadline = new Date(+completed + dayMs);
+    }
+    return { completed, deadline: adjustedDeadline };
+}
 /* publish completed quest webhooks */
 const completeQuests = node_cron_1.default.schedule('0 3 * * *', async () => {
     const scheduledQuests = await quest_1.QuestModel
@@ -358,7 +372,9 @@ const completeQuests = node_cron_1.default.schedule('0 3 * * *', async () => {
         .defaultPopulate();
     for (let i = 0; i < scheduledQuests.length; i++) {
         const quest = scheduledQuests[i];
-        quest.completed = new Date();
+        const { completed, deadline } = finalizeQuestCompletionDates(quest.associatedMaps, quest.deadline);
+        quest.completed = completed;
+        quest.deadline = deadline;
         quest.status = quest_2.QuestStatus.Done;
         await quest.save();
         for (const member of quest.currentParty.members) {
