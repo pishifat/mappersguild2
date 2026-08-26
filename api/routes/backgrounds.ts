@@ -3,6 +3,8 @@ import multer from 'multer';
 import { isLoggedIn } from '../helpers/middlewares';
 import { BackgroundModel } from '../models/background';
 import { UserModel } from '../models/user';
+import { LogModel } from '../models/log';
+import { LogCategory } from '../../interfaces/log';
 import cloudinary from '../helpers/cloudinary';
 
 const backgroundsRouter = express.Router();
@@ -130,6 +132,8 @@ backgroundsRouter.post('/create', isLoggedIn, (req, res, next) => {
     background.user = req.session.mongoId;
     background.tags = parseTags(req.body.tags);
     await background.save();
+
+    LogModel.generate(req.session.mongoId, `submitted background "${name}" for approval`, LogCategory.Background);
 
     res.json(await background.populate({ path: 'user', select: 'username osuId' }));
 });

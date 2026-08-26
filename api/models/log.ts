@@ -18,7 +18,7 @@ interface LogStatics extends Model<Log> {
 const logSchema = new Schema<any, LogStatics>({
     user: { type: 'ObjectId', ref: 'User' },
     action: { type: String, required: true },
-    category: { type: String, enum: ['beatmap', 'quest', 'party', 'user', 'artist', 'mission', 'error', 'mentorship'], required: true },
+    category: { type: String, enum: ['beatmap', 'quest', 'party', 'user', 'artist', 'mission', 'error', 'mentorship', 'background'], required: true },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 class LogService
