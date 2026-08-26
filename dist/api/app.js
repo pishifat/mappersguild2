@@ -42,6 +42,8 @@ const featuredArtists_2 = __importDefault(require("./routes/admin/featuredArtist
 const quests_2 = __importDefault(require("./routes/admin/quests"));
 const missions_1 = __importDefault(require("./routes/admin/missions"));
 const merch_1 = __importDefault(require("./routes/admin/merch"));
+const backgrounds_1 = __importDefault(require("./routes/admin/backgrounds"));
+const backgrounds_2 = __importDefault(require("./routes/backgrounds"));
 const artists_1 = __importDefault(require("./routes/artists"));
 const screening_1 = __importDefault(require("./routes/contests/screening"));
 const listing_1 = __importDefault(require("./routes/contests/listing"));
@@ -95,6 +97,7 @@ app.use('/mentorship', mentorship_1.default);
 app.use('/missions', missions_2.default);
 app.use('/aspire', teamContest_1.default);
 app.use('/merch', merch_2.default);
+app.use('/backgrounds', backgrounds_2.default);
 app.use('/contests/listing', listing_1.default);
 app.use('/contests/results', results_1.default);
 app.use('/contests/screening', screening_1.default);
@@ -110,6 +113,7 @@ app.use('/admin/featuredArtists', featuredArtists_2.default);
 app.use('/admin/quests', quests_2.default);
 app.use('/admin/missions', missions_1.default);
 app.use('/admin/merch', merch_1.default);
+app.use('/admin/backgrounds', backgrounds_1.default);
 app.use('/interOp', interOp_1.default);
 // catch 404
 app.use((req, res) => {

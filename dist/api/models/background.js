@@ -33,20 +33,22 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.LogModel = void 0;
+exports.BackgroundModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const logSchema = new mongoose_1.Schema({
-    user: { type: 'ObjectId', ref: 'User' },
-    action: { type: String, required: true },
-    category: { type: String, enum: ['beatmap', 'quest', 'party', 'user', 'artist', 'mission', 'error', 'mentorship', 'background'], required: true },
+const backgroundSchema = new mongoose_1.Schema({
+    name: { type: String, required: true, unique: true },
+    link: { type: String, required: true },
+    user: { type: 'ObjectId', ref: 'User', required: true },
+    approved: { type: Boolean, default: false },
+    hidden: { type: Boolean, default: false },
+    denied: { type: Boolean, default: false },
+    tags: [{ type: String, default: [] }],
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
-class LogService {
-    static generate(userId, action, category) {
-        // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        const log = new LogModel({ user: userId, action, category });
-        log.save();
-    }
-}
-logSchema.loadClass(LogService);
-const LogModel = mongoose_1.default.model('Log', logSchema);
-exports.LogModel = LogModel;
+const queryHelpers = {
+    defaultPopulate() {
+        return this.populate({ path: 'user', select: 'username osuId' });
+    },
+};
+backgroundSchema.query = queryHelpers;
+const BackgroundModel = mongoose_1.default.model('Background', backgroundSchema);
+exports.BackgroundModel = BackgroundModel;

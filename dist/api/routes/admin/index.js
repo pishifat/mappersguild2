@@ -14,6 +14,7 @@ const contest_1 = require("../../models/contest/contest");
 const contest_2 = require("../../../interfaces/contest/contest");
 const osuApi_1 = require("../../helpers/osuApi");
 const featuredArtist_1 = require("../../models/featuredArtist");
+const background_1 = require("../../models/background");
 const adminRouter = express_1.default.Router();
 adminRouter.use(middlewares_1.isLoggedIn);
 adminRouter.use(middlewares_1.isAdmin);
@@ -79,6 +80,14 @@ adminRouter.get('/loadActionArtists/', async (req, res) => {
         .sort({ createdAt: -1 })
         .limit(50);
     res.json(actionArtists);
+});
+/* GET backgrounds in need of action */
+adminRouter.get('/loadActionBackgrounds/', async (req, res) => {
+    const actionBackgrounds = await background_1.BackgroundModel
+        .find({ approved: { $ne: true }, denied: { $ne: true } })
+        .defaultPopulate()
+        .sort({ createdAt: 1 });
+    res.json(actionBackgrounds);
 });
 /* POST update lastChecked */
 adminRouter.get('/artistSearch/:input', async (req, res) => {
