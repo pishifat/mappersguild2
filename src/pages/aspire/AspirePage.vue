@@ -1,6 +1,10 @@
 <template>
     <div>
         <div class="container card card-body py-4 my-4">
+            <h3 class="text-center">
+                <a href="https://osu.ppy.sh/home/news/2026-06-14-aspire-6" target="_blank">Aspire</a>'s teammates hub is closed for now! Check back again later :)
+            </h3>
+            <!--
             <h4>Welcome to Aspire!</h4>
             <p><b>Aspire</b> is a beatmapping contest where the <a href="https://osu.ppy.sh/wiki/Ranking_criteria" target="_blank">Ranking Criteria</a> is thrown completely out of the window. The sky's the limit with what mappers can do with their craft.</p>
             <p>This iteration streamlines the format to 2 primary categories: <i>Visual Spectacle</i> and <i>Innovative Gameplay</i>.</p>
@@ -45,7 +49,7 @@
                     :store-module="storeModule"
                     class="col-lg-6"
                 />
-            </div>
+            </div>-->
         </div>
     </div>
 </template>

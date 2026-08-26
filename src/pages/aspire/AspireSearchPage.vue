@@ -1,6 +1,10 @@
 <template>
     <div>
         <div class="container card card-body py-4 my-4">
+            <h3 class="text-center">
+                <a href="https://osu.ppy.sh/home/news/2026-06-14-aspire-6" target="_blank">Aspire</a>'s song search is closed for now! Check back again later :)
+            </h3>
+            <!--
             <h4>Allowed songs</h4>
             <p>
                 Search the Aspire 6 Featured Artist allowlist to check whether a song is permitted for your entry,
@@ -30,7 +34,7 @@
             </div>
             <div v-else-if="status.kind === 'empty'" class="aspire-search-banner aspire-search-banner--empty mt-4 mb-0">
                 No results found for <b>{{ status.query }}</b>.
-            </div>
+            </div>-->
         </div>
     </div>
 </template>
