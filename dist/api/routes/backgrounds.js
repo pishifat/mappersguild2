@@ -12,7 +12,7 @@ const log_1 = require("../models/log");
 const log_2 = require("../../interfaces/log");
 const cloudinary_1 = __importDefault(require("../helpers/cloudinary"));
 const backgroundsRouter = express_1.default.Router();
-const upload = (0, multer_1.default)({ storage: multer_1.default.memoryStorage(), limits: { fileSize: 2.5 * 1024 * 1024 } });
+const upload = (0, multer_1.default)({ storage: multer_1.default.memoryStorage(), limits: { fileSize: 1 * 1024 * 1024 } });
 const maxUploadsPerMonth = 40;
 function escapeRegex(input) {
     return input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -80,7 +80,7 @@ backgroundsRouter.post('/create', middlewares_1.isLoggedIn, (req, res, next) => 
     upload.single('file')(req, res, (err) => {
         if (err) {
             if (err.code === 'LIMIT_FILE_SIZE') {
-                return res.json({ error: 'Image must be 2.5MB or smaller!' });
+                return res.json({ error: 'Image must be 1MB or smaller!' });
             }
             return res.json({ error: 'Upload failed!' });
         }
