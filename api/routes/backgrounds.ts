@@ -8,7 +8,7 @@ import { LogCategory } from '../../interfaces/log';
 import cloudinary from '../helpers/cloudinary';
 
 const backgroundsRouter = express.Router();
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 2.5 * 1024 * 1024 } });
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 1 * 1024 * 1024 } });
 const maxUploadsPerMonth = 40;
 
 function escapeRegex(input: string): string {
@@ -86,7 +86,7 @@ backgroundsRouter.post('/create', isLoggedIn, (req, res, next) => {
     upload.single('file')(req, res, (err) => {
         if (err) {
             if (err.code === 'LIMIT_FILE_SIZE') {
-                return res.json({ error: 'Image must be 2.5MB or smaller!' });
+                return res.json({ error: 'Image must be 1MB or smaller!' });
             }
 
             return res.json({ error: 'Upload failed!' });

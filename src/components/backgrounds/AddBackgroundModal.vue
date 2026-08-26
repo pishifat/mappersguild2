@@ -21,7 +21,7 @@
             <div class="mb-2">
                 Image
                 <div class="small text-secondary mt-1">
-                    This will upload the image to a third party image host (Cloudinary). If you'd rather not do this, submit a direct URL. jpg/png only!
+                    This will upload the image to a third party image host (Cloudinary) and requires files under 1MB. If you'd rather not do this, submit a direct image URL (a link ending in .jpg or .png).
                 </div>
                 <input
                     ref="fileInput"
