@@ -48,6 +48,11 @@
                                 Merch
                             </router-link>
                         </li>
+                        <li>
+                            <router-link class="dropdown-item" to="/admin/backgrounds">
+                                Backgrounds
+                            </router-link>
+                        </li>
                     </ul>
                 </li>
             </template>

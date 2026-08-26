@@ -1,9 +1,26 @@
 <template>
     <ul class="navbar-nav me-auto">
-        <li class="nav-item">
-            <router-link class="nav-link" to="/beatmaps">
+        <li class="nav-item dropdown">
+            <a
+                id="beatmapsDropdown"
+                class="nav-link dropdown-toggle"
+                data-bs-toggle="dropdown"
+                href="#"
+            >
                 Beatmaps
-            </router-link>
+            </a>
+            <ul class="dropdown-menu">
+                <li>
+                    <router-link class="dropdown-item" to="/beatmaps">
+                        All beatmaps
+                    </router-link>
+                </li>
+                <li>
+                    <router-link class="dropdown-item" to="/backgrounds">
+                        Background resources
+                    </router-link>
+                </li>
+            </ul>
         </li>
         <li class="nav-item dropdown">
             <a
@@ -30,11 +47,6 @@
         <li class="nav-item">
             <router-link class="nav-link" to="/users">
                 Users
-            </router-link>
-        </li>
-        <li class="nav-item">
-            <router-link class="nav-link" to="/logs">
-                Logs
             </router-link>
         </li>
         <li class="nav-item dropdown">
@@ -100,6 +112,11 @@
                     </router-link>
                 </li>
             </ul>
+        </li>
+        <li class="nav-item">
+            <router-link class="nav-link" to="/logs">
+                Logs
+            </router-link>
         </li>
     </ul>
 </template>

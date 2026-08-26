@@ -60,5 +60,10 @@
         "id": "",
         "secret": "",
         "redirect": ""
+    },
+    "cloudinary": {
+        "cloudName": "",
+        "apiKey": "",
+        "apiSecret": ""
     }
 }

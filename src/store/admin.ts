@@ -5,6 +5,7 @@ import { Quest } from '@interfaces/quest';
 import { User } from '@interfaces/user';
 import { Contest } from '@interfaces/contest/contest';
 import { FeaturedArtist } from '@interfaces/featuredArtist';
+import { Background } from '@interfaces/background';
 
 interface AdminState {
     actionBeatmaps: Beatmap[];
@@ -17,11 +18,14 @@ interface AdminState {
     actionContestsLoading: boolean;
     actionArtists: FeaturedArtist[];
     actionArtistsLoading: boolean;
+    actionBackgrounds: Background[];
+    actionBackgroundsLoading: boolean;
     selectedBeatmap: null | Beatmap;
     selectedQuest: null | Quest;
     selectedUser: null | User;
     selectedContest: null | Contest;
     selectedArtist: null | FeaturedArtist;
+    selectedBackground: null | Background;
 }
 
 const store: Module<AdminState, MainState> = {
@@ -36,11 +40,14 @@ const store: Module<AdminState, MainState> = {
         actionContestsLoading: false,
         actionArtists: [],
         actionArtistsLoading: false,
+        actionBackgrounds: [],
+        actionBackgroundsLoading: false,
         selectedBeatmap: null,
         selectedQuest: null,
         selectedUser: null,
         selectedContest: null,
         selectedArtist: null,
+        selectedBackground: null,
     },
     mutations: {
         setActionBeatmaps (state, actionBeatmaps: Beatmap[]): void {
@@ -73,6 +80,12 @@ const store: Module<AdminState, MainState> = {
         setActionArtistsLoading (state, value: boolean): void {
             state.actionArtistsLoading = value;
         },
+        setActionBackgrounds (state, actionBackgrounds: Background[]): void {
+            state.actionBackgrounds = actionBackgrounds;
+        },
+        setActionBackgroundsLoading (state, value: boolean): void {
+            state.actionBackgroundsLoading = value;
+        },
         setSelectedBeatmap (state, selectedBeatmap: Beatmap): void {
             state.selectedBeatmap = selectedBeatmap;
         },
@@ -87,6 +100,9 @@ const store: Module<AdminState, MainState> = {
         },
         setSelectedArtist (state, selectedArtist: FeaturedArtist): void {
             state.selectedArtist = selectedArtist;
+        },
+        setSelectedBackground (state, selectedBackground: Background): void {
+            state.selectedBackground = selectedBackground;
         },
 
         // beatmaps
@@ -332,6 +348,32 @@ const store: Module<AdminState, MainState> = {
 
             if (i !== -1) {
                 state.actionArtists.splice(i, 1);
+            }
+        },
+
+        // backgrounds
+        updateActionBackground (state, background: Background): void {
+            const i = state.actionBackgrounds.findIndex(b => b.id == background.id);
+
+            if (background.approved || background.denied) {
+                if (i !== -1) state.actionBackgrounds.splice(i, 1);
+            } else if (i !== -1) {
+                state.actionBackgrounds[i] = background;
+            }
+
+            if (state.selectedBackground?.id == background.id) {
+                state.selectedBackground = background;
+            }
+        },
+        removeActionBackground (state, backgroundId: string): void {
+            const i = state.actionBackgrounds.findIndex(b => b.id == backgroundId);
+
+            if (i !== -1) {
+                state.actionBackgrounds.splice(i, 1);
+            }
+
+            if (state.selectedBackground?.id == backgroundId) {
+                state.selectedBackground = null;
             }
         },
     },

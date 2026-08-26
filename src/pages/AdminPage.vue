@@ -402,7 +402,7 @@
             </div>
         </div>
 
-        <div class="container card card-body py-1">
+        <div class="container card card-body py-1 mb-4">
             <div class="row mx-3 mt-2">
                 <button
                     class="btn btn-sm btn-info w-100 mb-1"
@@ -501,6 +501,84 @@
             </div>
         </div>
 
+        <div class="container card card-body py-1 mb-4">
+            <div class="row mx-3 mt-2">
+                <button
+                    class="btn btn-sm btn-info w-100 mb-1"
+                    @click="loadActionBackgrounds($event)"
+                >
+                    Load backgrounds
+                </button>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <h5 class="ms-4 mt-2">
+                        <a href="#actionBackgrounds" data-bs-toggle="collapse">
+                            Backgrounds
+                            <i class="fas fa-angle-down" />
+                        </a>
+                        <span
+                            v-if="actionBackgroundsLoading"
+                            class="ms-2 small text-secondary"
+                            >loading...</span>
+                    </h5>
+                    <div id="actionBackgrounds" class="show">
+                        <table
+                            v-if="actionBackgrounds.length"
+                            class="table table-sm"
+                        >
+                            <thead>
+                                <tr>
+                                    <th scope="col">
+                                        NAME
+                                    </th>
+                                    <th scope="col">
+                                        SUBMITTED BY
+                                    </th>
+                                    <th scope="col">
+                                        EDIT
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr
+                                    v-for="background in actionBackgrounds"
+                                    :key="background.id"
+                                    class="text-secondary"
+                                >
+                                    <td scope="row">
+                                        {{ background.name }}
+                                    </td>
+                                    <td scope="row">
+                                        <user-link :user="background.user" />
+                                    </td>
+                                    <td scope="row">
+                                        <a
+                                            href="#"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#editBackground"
+                                            @click.prevent="
+                                                $store.commit(
+                                                    'setSelectedBackground',
+                                                    background
+                                                )
+                                            "
+                                        >
+                                            edit
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <span
+                            v-else-if="!actionBackgroundsLoading"
+                            class="text-secondary ms-5"
+                            >None...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="radial-divisor" />
 
         <beatmap-info-admin v-if="selectedBeatmap" :beatmap="selectedBeatmap" />
@@ -514,6 +592,12 @@
         <contest-info v-if="selectedContest" :contest="selectedContest" />
 
         <featured-artist-info v-if="selectedArtist" :featured-artist="selectedArtist" />
+
+        <background-info-admin
+            :background="selectedBackground"
+            @update-background="$store.commit('updateActionBackground', $event)"
+            @delete-background="$store.commit('removeActionBackground', $event)"
+        />
     </div>
 </template>
 
@@ -526,9 +610,11 @@ import ReviewQuest from '../components/admin/quests/ReviewQuest.vue';
 import UserInfo from '../components/admin/UserInfo.vue';
 import ContestInfo from '../components/admin/ContestInfo.vue';
 import FeaturedArtistInfo from '../components/admin/FeaturedArtistInfo.vue';
+import BackgroundInfoAdmin from '../components/admin/BackgroundInfoAdmin.vue';
 import { Beatmap } from '@interfaces/beatmap/beatmap';
 import { Quest } from '@interfaces/quest';
 import { User } from '@interfaces/user';
+import { Background } from '@interfaces/background';
 import adminModule from '@store/admin';
 import ModesIcons from '@components/ModesIcons.vue';
 import UserLinkList from '@components/UserLinkList.vue';
@@ -546,6 +632,7 @@ export default defineComponent({
         UserLinkList,
         ArtistSearch,
         FeaturedArtistInfo,
+        BackgroundInfoAdmin,
     },
     data () {
         return {
@@ -564,11 +651,14 @@ export default defineComponent({
             actionContestsLoading: (state: any) => state.admin.actionContestsLoading,
             actionArtists: (state: any) => state.admin.actionArtists,
             actionArtistsLoading: (state: any) => state.admin.actionArtistsLoading,
+            actionBackgrounds: (state: any) => state.admin.actionBackgrounds,
+            actionBackgroundsLoading: (state: any) => state.admin.actionBackgroundsLoading,
             selectedBeatmap: (state: any) => state.admin.selectedBeatmap,
             selectedQuest: (state: any) => state.admin.selectedQuest,
             selectedUser: (state: any) => state.admin.selectedUser,
             selectedContest: (state: any) => state.admin.selectedContest,
             selectedArtist: (state: any) => state.admin.selectedArtist,
+            selectedBackground: (state: any) => state.admin.selectedBackground,
         }),
     },
     beforeCreate() {
@@ -700,6 +790,20 @@ export default defineComponent({
             }
 
             this.$store.commit('setActionArtistsLoading', false);
+        },
+        async loadActionBackgrounds(e): Promise<void> {
+            this.$store.commit('setActionBackgrounds', []);
+            this.$store.commit('setActionBackgroundsLoading', true);
+            const actionBackgrounds = await this.$http.executeGet<Background[]>(
+                '/admin/loadActionBackgrounds',
+                e
+            );
+
+            if (!this.$http.isError(actionBackgrounds)) {
+                this.$store.commit('setActionBackgrounds', actionBackgrounds);
+            }
+
+            this.$store.commit('setActionBackgroundsLoading', false);
         },
         findArtistBeatmapSearchUrl(artistName): string {
             return `https://osu.ppy.sh/beatmapsets?q=artist%3D"${artistName}"&s=any&sort=plays_desc`;

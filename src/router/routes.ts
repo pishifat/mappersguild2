@@ -3,6 +3,7 @@ import Faq from '../pages/Faq.vue';
 
 // Public
 const Beatmaps = () => import('../pages/beatmaps/BeatmapPage.vue');
+const Backgrounds = () => import('../pages/backgrounds/BackgroundPage.vue');
 const Quests = () => import('../pages/quests/QuestPage.vue');
 const Missions = () => import('../pages/missions/MissionPage.vue');
 const Users = () => import('../pages/users/UserPage.vue');
@@ -28,6 +29,7 @@ const AdminQuests = () => import('../pages/admin/QuestPage.vue');
 const AdminMissions = () => import('../pages/admin/MissionPage.vue');
 const AdminUsers = () => import('../pages/admin/UserPage.vue');
 const AdminMerch = () => import('../pages/admin/MerchPage.vue');
+const AdminBackgrounds = () => import('../pages/admin/BackgroundPage.vue');
 const Artists = () => import('../pages/artists/ArtistPage.vue');
 
 // Other
@@ -47,6 +49,7 @@ const routes = [
 
     // Mapping
     { path: '/beatmaps', component: Beatmaps, meta: { title: 'Beatmaps' } },
+    { path: '/backgrounds', component: Backgrounds, meta: { title: 'Backgrounds' } },
     { path: '/quests', component: Quests, meta: { title: 'Quests' } },
     { path: '/missions', component: Missions, meta: { title: 'Priority Quests' } },
 
@@ -66,6 +69,7 @@ const routes = [
     { path: '/admin/missions', component: AdminMissions, meta: { title: 'Admin - Missions' } },
     { path: '/admin/users', component: AdminUsers, meta: { title: 'Admin - Users' } },
     { path: '/admin/merch', component: AdminMerch, meta: { title: 'Admin - Merch' } },
+    { path: '/admin/backgrounds', component: AdminBackgrounds, meta: { title: 'Admin - Backgrounds' } },
     { path: '/artists', component: Artists, meta: { title: 'FA Schedule' } },
 
     // Other

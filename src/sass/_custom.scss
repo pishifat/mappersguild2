@@ -111,6 +111,26 @@ footer {
     padding-left: .5rem;
 }
 
+.form-control[type="file"] {
+    &::file-selector-button,
+    &::-webkit-file-upload-button {
+        color: $input-color;
+        background-color: $input-bg;
+        border: 0;
+        border-right: 1px solid $gray-600;
+        margin: -0.375rem -0.75rem;
+        margin-inline-end: 0.75rem;
+        padding: 0.375rem 0.75rem;
+    }
+
+    &:hover:not(:disabled):not([readonly]) {
+        &::file-selector-button,
+        &::-webkit-file-upload-button {
+            background-color: $gray-600;
+        }
+    }
+}
+
 .table {
     --bs-table-color: #{$white};
     border-spacing: 0 3px;

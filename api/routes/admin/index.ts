@@ -9,6 +9,7 @@ import { ContestModel } from '../../models/contest/contest';
 import { ContestStatus } from '../../../interfaces/contest/contest';
 import { getBeatmapsSearch, isOsuResponseError, getClientCredentialsGrant } from '../../helpers/osuApi';
 import { FeaturedArtistModel } from '../../models/featuredArtist';
+import { BackgroundModel } from '../../models/background';
 
 
 const adminRouter = express.Router();
@@ -94,6 +95,16 @@ adminRouter.get('/loadActionArtists/', async (req, res) => {
         .limit(50);
 
     res.json(actionArtists);
+});
+
+/* GET backgrounds in need of action */
+adminRouter.get('/loadActionBackgrounds/', async (req, res) => {
+    const actionBackgrounds = await BackgroundModel
+        .find({ approved: { $ne: true }, denied: { $ne: true } })
+        .defaultPopulate()
+        .sort({ createdAt: 1 });
+
+    res.json(actionBackgrounds);
 });
 
 /* POST update lastChecked */

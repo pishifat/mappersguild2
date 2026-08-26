@@ -41,6 +41,8 @@ import adminFeaturedArtistsRouter from './routes/admin/featuredArtists';
 import adminQuestsRouter from './routes/admin/quests';
 import adminMissionsRouter from './routes/admin/missions';
 import adminMerchRouter from './routes/admin/merch';
+import adminBackgroundsRouter from './routes/admin/backgrounds';
+import backgroundsRouter from './routes/backgrounds';
 import artistsRouter from './routes/artists';
 import screeningRouter from './routes/contests/screening';
 import contestsListingRouter from './routes/contests/listing';
@@ -102,6 +104,7 @@ app.use('/mentorship', mentorshipRouter);
 app.use('/missions', missionsRouter);
 app.use('/aspire', teamContestRouter);
 app.use('/merch', merchRouter);
+app.use('/backgrounds', backgroundsRouter);
 
 app.use('/contests/listing', contestsListingRouter);
 app.use('/contests/results', resultsRouter);
@@ -119,6 +122,7 @@ app.use('/admin/featuredArtists', adminFeaturedArtistsRouter);
 app.use('/admin/quests', adminQuestsRouter);
 app.use('/admin/missions', adminMissionsRouter);
 app.use('/admin/merch', adminMerchRouter);
+app.use('/admin/backgrounds', adminBackgroundsRouter);
 app.use('/interOp', interOpRouter);
 
 // catch 404

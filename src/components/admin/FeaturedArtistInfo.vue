@@ -185,7 +185,7 @@
                     </div>
                     <div v-if="featuredArtist.osuId && featuredArtist.osuId > 0" class="mt-2">
                         <button
-                            class="btn btn-sm btn-outline-info btn-block"
+                            class="btn btn-sm btn-outline-info"
                             :disabled="crossCheckLoading"
                             @click="crossCheckOsuListing"
                         >
