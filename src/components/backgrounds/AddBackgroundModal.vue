@@ -18,20 +18,7 @@
                 </ul>
             </div>
 
-            <div class="mb-3">
-                Name
-                <div class="small text-secondary mt-1">
-                    Choose a unique name for your image.
-                </div>
-                <input
-                    v-model="name"
-                    class="form-control form-control-sm"
-                    type="text"
-                    autocomplete="off"
-                    placeholder="..."
-                />
-            </div>
-            <div class="mb-3">
+            <div class="mb-2">
                 Image
                 <div class="small text-secondary mt-1">
                     This will upload the image to a third party image host (Cloudinary). If you'd rather not do this, submit a direct URL. jpg/png only!
@@ -45,7 +32,6 @@
                     @change="onFileChange"
                 />
             </div>
-
             <div class="mb-3">
                 <input
                     v-model="link"
@@ -54,6 +40,20 @@
                     autocomplete="off"
                     placeholder="...or a direct image URL instead"
                     :disabled="Boolean(file)"
+                />
+            </div>
+
+            <div class="mb-3">
+                Name
+                <div class="small text-secondary mt-1">
+                    Choose a unique name for your image.
+                </div>
+                <input
+                    v-model="name"
+                    class="form-control form-control-sm"
+                    type="text"
+                    autocomplete="off"
+                    placeholder="..."
                 />
             </div>
 
