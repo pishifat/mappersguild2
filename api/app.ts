@@ -1,3 +1,4 @@
+import './helpers/mongooseSetup';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
@@ -12,17 +13,6 @@ import dns from 'dns';
 if (process.platform === 'win32') {
     dns.setServers(['8.8.8.8', '1.1.1.1']);
 }
-
-mongoose.set('strictPopulate', false);
-
-// Return the updated object by default when doing findByIdAndUpdate
-mongoose.plugin(schema => {
-    schema.pre('findOneAndUpdate', function(this: any) {
-        if (!('returnDocument' in this.options)) {
-            this.setOptions({ returnDocument: 'after' });
-        }
-    });
-});
 
 import automation from './helpers/automation';
 import indexRouter from './routes/index';

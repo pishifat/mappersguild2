@@ -75,25 +75,44 @@ export default {
             });
         },
         readyArtists: (state, getters): FeaturedArtist[] => {
-            const artists = getters.filteredArtists.filter(a => !a.osuId && (a.ppySigned || a.projectedRelease));
-            let projectedReleaseArtists = artists.filter(a => a.projectedRelease);
-            let unknownReleaseArtists = artists.filter(a => !a.projectedRelease);
+            const artists = getters.filteredArtists.filter(a => !a.osuId && (a.ppySigned || a.projectedRelease) && !a.isStalled && a.hasRankedMaps);
 
-            projectedReleaseArtists = projectedReleaseArtists.sort((a,b) => {
-                if (a.projectedRelease < b.projectedRelease) return -1;
-                if (a.projectedRelease > b.projectedRelease) return 1;
+            return artists.sort((a,b) => {
+                if (a.projectedRelease && b.projectedRelease) {
+                    if (a.projectedRelease < b.projectedRelease) return -1;
+                    if (a.projectedRelease > b.projectedRelease) return 1;
 
-                return 0;
-            });
+                    return 0;
+                }
 
-            unknownReleaseArtists = unknownReleaseArtists.sort((a,b) => {
+                if (a.projectedRelease) return -1;
+                if (b.projectedRelease) return 1;
+
                 if (a.lastContacted < b.lastContacted) return 1;
                 if (a.lastContacted > b.lastContacted) return -1;
 
                 return 0;
             });
+        },
+        stalledArtists: (state, getters): FeaturedArtist[] => {
+            const artists = getters.filteredArtists.filter(a => !a.osuId && (a.ppySigned || a.projectedRelease) && a.isStalled);
 
-            return projectedReleaseArtists.concat(unknownReleaseArtists);
+            return artists.sort((a,b) => {
+                if (a.lastContacted < b.lastContacted) return 1;
+                if (a.lastContacted > b.lastContacted) return -1;
+
+                return 0;
+            });
+        },
+        pendingShowcaseArtists: (state, getters): FeaturedArtist[] => {
+            const artists = getters.filteredArtists.filter(a => !a.osuId && (a.ppySigned || a.projectedRelease) && !a.isStalled && !a.hasRankedMaps);
+
+            return artists.sort((a,b) => {
+                if (a.lastContacted < b.lastContacted) return 1;
+                if (a.lastContacted > b.lastContacted) return -1;
+
+                return 0;
+            });
         },
         discussionArtists: (state, getters): FeaturedArtist[] => {
             const artists = getters.filteredArtists.filter(a => !a.osuId && !a.isUpToDate && a.isResponded && !a.contractSent && !a.isRejected);

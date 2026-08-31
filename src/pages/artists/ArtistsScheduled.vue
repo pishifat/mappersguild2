@@ -3,20 +3,20 @@
         <div class="row">
             <div class="col">
                 <h3 class="ms-2">
-                    In-progress
+                    Scheduled
                 </h3>
 
                 <h5 class="ms-4">
-                    <a href="#contractArtists" data-bs-toggle="collapse">
-                        Contract ({{ contractArtists.length }})
+                    <a href="#ready" data-bs-toggle="collapse">
+                        Ready ({{ readyArtists.length }})
                         <i class="fas fa-angle-down" />
                     </a>
                 </h5>
 
-                <div id="contractArtists" class="collapse">
+                <div id="ready" class="show">
                     <transition-group name="list" tag="div" class="row">
                         <artist-card
-                            v-for="artist in contractArtists"
+                            v-for="artist in readyArtists"
                             :key="artist.id"
                             :artist="artist"
                         />
@@ -24,33 +24,33 @@
                 </div>
 
                 <h5 class="ms-4 mt-2">
-                    <a href="#discussionArtists" data-bs-toggle="collapse">
-                        Discussion ({{ discussionArtists.length }})
+                    <a href="#stalledArtists" data-bs-toggle="collapse">
+                        Stalled ({{ stalledArtists.length }})
                         <i class="fas fa-angle-down" />
                     </a>
                 </h5>
 
-                <div id="discussionArtists" class="collapse">
+                <div id="stalledArtists" class="collapse">
                     <transition-group name="list" tag="div" class="row">
                         <artist-card
-                            v-for="artist in discussionArtists"
+                            v-for="artist in stalledArtists"
                             :key="artist.id"
                             :artist="artist"
                         />
                     </transition-group>
                 </div>
 
-                <h5 v-if="updateAvailableArtists.length" class="ms-4 mt-2">
-                    <a href="#currentArtistUpdates" data-bs-toggle="collapse">
-                        Current artist updates ({{ updateAvailableArtists.length }})
+                <h5 class="ms-4 mt-2">
+                    <a href="#pendingShowcaseArtists" data-bs-toggle="collapse">
+                        Pending showcase ({{ pendingShowcaseArtists.length }})
                         <i class="fas fa-angle-down" />
                     </a>
                 </h5>
 
-                <div id="currentArtistUpdates" class="collapse">
+                <div id="pendingShowcaseArtists" class="collapse">
                     <transition-group name="list" tag="div" class="row">
                         <artist-card
-                            v-for="artist in updateAvailableArtists"
+                            v-for="artist in pendingShowcaseArtists"
                             :key="artist.id"
                             :artist="artist"
                         />
@@ -64,23 +64,17 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import ArtistCard from '@components/artists/ArtistCard.vue';
-import { mapState, mapGetters } from 'vuex';
+import { mapGetters } from 'vuex';
 
 export default defineComponent({
-    name: 'ArtistsInProgress',
+    name: 'ArtistsScheduled',
     components: {
         ArtistCard,
     },
-    computed: {
-        ...mapState([
-            'loggedInUser',
-        ]),
-        ...mapGetters([
-            'discussionArtists',
-            'contractArtists',
-            'updateAvailableArtists',
-            'commissionPendingArtists',
-        ]),
-    },
+    computed: mapGetters([
+        'readyArtists',
+        'stalledArtists',
+        'pendingShowcaseArtists',
+    ]),
 });
 </script>

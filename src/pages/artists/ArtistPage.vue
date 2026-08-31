@@ -4,6 +4,8 @@
 
         <artist-page-filters />
 
+        <artists-scheduled class="mb-2" />
+
         <artists-in-progress class="mb-2" />
 
         <artists-planned class="mb-2" />
@@ -31,6 +33,7 @@ import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import AddArtist from '@components/artists/AddArtist.vue';
 import ArtistPageFilters from './ArtistPageFilters.vue';
+import ArtistsScheduled from './ArtistsScheduled.vue';
 import ArtistsInProgress from './ArtistsInProgress.vue';
 import ArtistsPlanned from './ArtistsPlanned.vue';
 import ArtistsInactive from './ArtistsInactive.vue';
@@ -42,6 +45,7 @@ export default defineComponent({
     name: 'ArtistPage',
     components: {
         ArtistPageFilters,
+        ArtistsScheduled,
         ArtistsInProgress,
         ArtistsPlanned,
         ArtistsInactive,

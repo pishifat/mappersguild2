@@ -210,6 +210,13 @@
                         </div>
 
                         <div class="small ms-2">
+                            Is stalled:
+                            <a href="#" @click.stop.prevent="toggleIsStalled()">
+                                <i class="fas" :class="artist.isStalled ? 'text-done fa-check' : 'text-danger fa-times'" />
+                            </a>
+                        </div>
+
+                        <div class="small ms-2">
                             Is momentum:
                             <a href="#" @click.stop.prevent="toggleIsMomentum()">
                                 <i class="fas" :class="artist.isMomentum ? 'text-done fa-check' : 'text-danger fa-times'" />
@@ -433,6 +440,13 @@ export default defineComponent({
         },
         async toggleHasNewSongs (): Promise<void> {
             const artist = await this.$http.executePost('/artists/toggleHasNewSongs/' + this.artist.id, { value: !this.artist.hasNewSongs });
+
+            if (artist) {
+                this.$store.commit('updateArtist', artist);
+            }
+        },
+        async toggleIsStalled (): Promise<void> {
+            const artist = await this.$http.executePost('/artists/toggleIsStalled/' + this.artist.id, { value: !this.artist.isStalled });
 
             if (artist) {
                 this.$store.commit('updateArtist', artist);

@@ -38,6 +38,7 @@ export interface FeaturedArtist {
     // other
     hasRankedMaps: boolean;
     hasNewSongs: boolean;
+    isStalled: boolean;
     isMomentum: boolean;
 
     // showcase mappers
