@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+require("./helpers/mongooseSetup");
 const express_1 = __importDefault(require("express"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const morgan_1 = __importDefault(require("morgan"));
@@ -16,15 +17,6 @@ const dns_1 = __importDefault(require("dns"));
 if (process.platform === 'win32') {
     dns_1.default.setServers(['8.8.8.8', '1.1.1.1']);
 }
-mongoose_1.default.set('strictPopulate', false);
-// Return the updated object by default when doing findByIdAndUpdate
-mongoose_1.default.plugin(schema => {
-    schema.pre('findOneAndUpdate', function () {
-        if (!('returnDocument' in this.options)) {
-            this.setOptions({ returnDocument: 'after' });
-        }
-    });
-});
 const automation_1 = __importDefault(require("./helpers/automation"));
 const index_1 = __importDefault(require("./routes/index"));
 const beatmaps_1 = __importDefault(require("./routes/beatmaps/beatmaps"));
