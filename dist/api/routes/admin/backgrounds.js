@@ -36,6 +36,7 @@ adminBackgroundsRouter.post('/:id/toggleHidden', async (req, res) => {
 adminBackgroundsRouter.post('/:id/toggleDenied', async (req, res) => {
     const background = await background_1.BackgroundModel.findById(req.params.id).orFail();
     background.denied = !background.denied;
+    background.deniedReason = background.denied ? (req.body.reason || '').trim() : '';
     await background.save();
     res.json(await background.populate({ path: 'user', select: 'username osuId' }));
 });
