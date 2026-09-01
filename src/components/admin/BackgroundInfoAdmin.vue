@@ -27,26 +27,40 @@
                 >
                     {{ background.hidden ? 'Unhide' : 'Hide' }}
                 </button>
-                <button
-                    v-else-if="background.denied"
-                    class="btn btn-sm btn-outline-success w-100"
-                    @click="toggleDenied($event)"
-                >
-                    Un-deny
-                </button>
-                <div v-else class="d-flex gap-2">
+                <div v-else-if="background.denied">
+                    <div v-if="background.deniedReason" class="small text-secondary mb-2 text-start">
+                        <!-- eslint-disable-next-line vue/no-v-html -->
+                        <b>denial reason:</b> <span v-html="$md.renderInline(background.deniedReason.trim())" />
+                    </div>
                     <button
                         class="btn btn-sm btn-outline-success w-100"
-                        @click="approve($event)"
-                    >
-                        Approve
-                    </button>
-                    <button
-                        class="btn btn-sm btn-outline-danger w-100"
                         @click="toggleDenied($event)"
                     >
-                        Deny
+                        Un-deny
                     </button>
+                </div>
+                <div v-else>
+                    <input
+                        v-model="deniedReason"
+                        class="form-control form-control-sm mb-2"
+                        type="text"
+                        autocomplete="off"
+                        placeholder="denial reason (optional)..."
+                    />
+                    <div class="d-flex gap-2">
+                        <button
+                            class="btn btn-sm btn-outline-success w-100"
+                            @click="approve($event)"
+                        >
+                            Approve
+                        </button>
+                        <button
+                            class="btn btn-sm btn-outline-danger w-100"
+                            @click="toggleDenied($event)"
+                        >
+                            Deny
+                        </button>
+                    </div>
                 </div>
 
                 <button
@@ -111,12 +125,14 @@ export default defineComponent({
         return {
             newCreator: '',
             tagsInput: '',
+            deniedReason: '',
         };
     },
     watch: {
         background (): void {
             this.newCreator = '';
             this.tagsInput = this.background?.tags?.join(', ') || '';
+            this.deniedReason = this.background?.deniedReason || '';
         },
     },
     methods: {
@@ -143,7 +159,7 @@ export default defineComponent({
             }
         },
         async toggleDenied (e): Promise<void> {
-            const background = await this.$http.executePost<Background>(`/admin/backgrounds/${this.background.id}/toggleDenied`, {}, e);
+            const background = await this.$http.executePost<Background>(`/admin/backgrounds/${this.background.id}/toggleDenied`, { reason: this.deniedReason }, e);
 
             if (!this.$http.isError(background)) {
                 this.$store.dispatch('updateToastMessages', {

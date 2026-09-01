@@ -13,6 +13,7 @@ const backgroundSchema = new Schema({
     approved: { type: Boolean, default: false },
     hidden: { type: Boolean, default: false },
     denied: { type: Boolean, default: false },
+    deniedReason: { type: String },
     tags: [{ type: String, default: [] }],
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 

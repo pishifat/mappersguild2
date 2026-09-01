@@ -61,6 +61,10 @@
                     </div>
                     <div v-if="background.denied" class="small text-danger">
                         (denied)
+                        <div v-if="background.deniedReason" class="text-danger small">
+                            <!-- eslint-disable-next-line vue/no-v-html -->
+                            (<span v-html="$md.renderInline(background.deniedReason.trim())" />)
+                        </div>
                     </div>
                     <div v-else-if="!background.approved" class="small text-success">
                         (pending approval)

@@ -9,6 +9,7 @@ export interface Background {
     approved: boolean;
     hidden: boolean;
     denied: boolean;
+    deniedReason?: string;
     tags: string[];
     createdAt: Date;
     updatedAt: Date;
