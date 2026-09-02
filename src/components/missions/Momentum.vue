@@ -67,7 +67,12 @@
             </div>
             <div class="mt-2">
                 <div v-if="mission.momentumSecretUsers && mission.momentumSecretUsers.length">
-                    <code v-if="mission.momentumSecretUsers.length > 20" class="d-block">Status: <b>{{ mission.momentumSecretUsers.length }} users</b> know how to increase MOMENTUM. <b>{{ starterRoleCount || '...' }} users</b> have STARTER ROLES.</code>
+                    <code v-if="mission.momentumSecretUsers.length > 20" class="d-block">Status:
+                        <ol style="margin: 0">
+                            <li><b>{{ mission.momentumSecretUsers.length }} users</b> know how to increase MOMENTUM.</li>
+                            <li><b>{{ starterRoleCount || '...' }} users</b> have STARTER ROLES.</li>
+                            <li><b>{{ mission.winningBeatmaps.length }} users</b> are eligible for an UNAVAILABLE venture.</li>
+                        </ol></code>
 
                     <code v-else class="d-block">Status: <user-link-list :users="mission.momentumSecretUsers" use-grammar /> {{ mission.momentumSecretUsers.length > 1 ? 'know' : 'knows' }} how to increase MOMENTUM.</code>
                 </div>
