@@ -44,7 +44,7 @@
                     Rewards
                 </h6>
                 <div class="mb-2 small text-secondary">
-                    Current points: {{ user.totalPoints }}
+                    <b>Current points:</b> {{ user.totalPoints }}
                 </div>
                 <div class="mb-2">
                     <button class="btn btn-sm btn-outline-info w-100" @click="calculateUserPoints($event)">
@@ -96,6 +96,25 @@
                     <div class="col-sm-4">
                         <button class="btn btn-sm btn-outline-info w-100" @click="toggleHasSpecificMerchOrder($event)">
                             hasSpecificMerchOrder: {{ user.hasSpecificMerchOrder }}
+                        </button>
+                    </div>
+                </div>
+
+                <h6 class="mt-4">
+                    Momentum
+                </h6>
+                <div class="mb-2 small text-secondary">
+                    <b>Current STARTER ROLE:</b> {{ user.momentumStarterRole || '...' }}
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-4">
+                        <button class="btn btn-sm btn-outline-info w-100" @click="addMomentumStarterRole($event)">
+                            {{ user.momentumStarterRole ? 'Re-select' : 'Add' }} STARTER ROLE
+                        </button>
+                    </div>
+                    <div class="col-sm-4">
+                        <button class="btn btn-sm btn-outline-info w-100" @click="removeMomentumStarterRole($event)">
+                            Remove STARTER ROLE
                         </button>
                     </div>
                 </div>
@@ -318,6 +337,37 @@ export default defineComponent({
                 this.$store.commit('updateHasSpecificMerchOrder', {
                     userId: this.user.id,
                     hasSpecificMerchOrder: res.hasSpecificMerchOrder,
+                });
+            }
+        },
+        async addMomentumStarterRole(e): Promise<void> {
+            const roles = ['duplicator', 'overachiever', 'explorer', 'worshipper', 'trader', 'hunter', 'necromancer', 'provider'];
+            const momentumStarterRole = roles[Math.floor(Math.random() * roles.length)];
+
+            const res: any = await this.$http.executePost(`/admin/users/${this.user.id}/updateMomentumStarterRole`, { momentumStarterRole }, e);
+
+            if (res) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `set momentumStarterRole to ${res.momentumStarterRole}`,
+                    type: 'info',
+                });
+                this.$store.commit('updateMomentumStarterRole', {
+                    userId: this.user.id,
+                    momentumStarterRole: res.momentumStarterRole,
+                });
+            }
+        },
+        async removeMomentumStarterRole(e): Promise<void> {
+            const res: any = await this.$http.executePost(`/admin/users/${this.user.id}/updateMomentumStarterRole`, { momentumStarterRole: null }, e);
+
+            if (res) {
+                this.$store.dispatch('updateToastMessages', {
+                    message: `removed momentumStarterRole`,
+                    type: 'info',
+                });
+                this.$store.commit('updateMomentumStarterRole', {
+                    userId: this.user.id,
+                    momentumStarterRole: null,
                 });
             }
         },

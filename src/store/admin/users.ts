@@ -63,6 +63,13 @@ const store: Module<UserState, MainState> = {
                 user.hasSpecificMerchOrder = payload.hasSpecificMerchOrder;
             }
         },
+        updateMomentumStarterRole (state, payload): void {
+            const user = state.users.find(u => u.id == payload.userId);
+
+            if (user) {
+                user.momentumStarterRole = payload.momentumStarterRole;
+            }
+        },
     },
     getters: {
         normalUsers: (state): Beatmap[] => {
