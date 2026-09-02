@@ -87,6 +87,12 @@ adminUsersRouter.post('/:id/toggleHasSpecificMerchOrder', async (req, res) => {
     await user_1.UserModel.findByIdAndUpdate(req.params.id, { hasSpecificMerchOrder }).orFail();
     res.json({ hasSpecificMerchOrder });
 });
+/* POST update momentumStarterRole */
+adminUsersRouter.post('/:id/updateMomentumStarterRole', async (req, res) => {
+    const momentumStarterRole = req.body.momentumStarterRole || null;
+    await user_1.UserModel.findByIdAndUpdate(req.params.id, { momentumStarterRole }).orFail();
+    res.json({ momentumStarterRole });
+});
 /* POST reset hasMerchAccess */
 adminUsersRouter.post('/resetMerchUsers', async (req, res) => {
     const osuIdInput = req.body.osuIdInput;
