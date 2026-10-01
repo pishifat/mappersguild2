@@ -17,6 +17,7 @@ import { FeaturedArtistModel } from '../models/featuredArtist';
 import { FeaturedSongModel } from '../models/featuredSong';
 import { devWebhookPost, webhookColors } from '../helpers/discordApi';
 import { updateUserPoints } from '../helpers/points';
+import { findTemperature } from '../helpers/momentumHelpers';
 
 const missionsRouter = express.Router();
 
@@ -933,11 +934,14 @@ missionsRouter.post('/:missionId/submitSecret', async (req, res) => {
 
         const roleMatches = !requiresMatchingRole || userRole === userInput;
 
+        const temperature = await findTemperature();
+
         const secretText = roleMatches
             ? matchedSecret.text
                 .replace('{{userRole}}', userRole?.toUpperCase() ?? '')
                 .replace('{{roleDescription}}', roleDescription ?? '')
                 .replace('{{currentDate}}', new Date().toISOString().slice(0, 10))
+                .replace('{{temperature}}', temperature.toString())
             : '';
 
         if (secretText) {

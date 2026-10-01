@@ -33,3 +33,5 @@ public/js/
 .vscode/
 MailGenerator.vue
 yarn.lock
+api/helpers/momentumHelpers.ts
+dist/api/helpers/momentumHelpers.js
