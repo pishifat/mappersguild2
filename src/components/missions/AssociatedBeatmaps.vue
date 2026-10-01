@@ -9,6 +9,7 @@
                 :class="{
                     'opacity-50': isDimmedHostMap(index),
                     'bg-success bg-opacity-25': isAdminPage && isWinningBeatmap(map.id) && !isRankedBeforeCreation(map),
+                    'bg-danger bg-opacity-25': isAdminPage && isInvalidBeatmap(map.id),
                     'bg-info bg-opacity-50': isAdminPage && isRankedBeforeCreation(map),
                 }"
             >
