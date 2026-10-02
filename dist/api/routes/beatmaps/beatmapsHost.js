@@ -163,6 +163,19 @@ beatmapsHostRouter.post('/:id/linkMission', middlewares_2.isValidBeatmap, middle
 beatmapsHostRouter.post('/:id/setLink', middlewares_2.isValidBeatmap, middlewares_2.isBeatmapHost, middlewares_1.isValidUrl, async (req, res) => {
     const url = req.body.url;
     let b = res.locals.beatmap;
+    if (url && url.indexOf('osu.ppy.sh/beatmapsets/') > -1) {
+        const osuId = (0, helpers_1.findBeatmapsetId)(url);
+        const hostBeatmaps = await beatmap_1.BeatmapModel
+            .find({
+            _id: { $ne: b._id },
+            host: b.host._id,
+            url: { $exists: true },
+        })
+            .select('url');
+        if (hostBeatmaps.some(hb => hb.url && (0, helpers_1.findBeatmapsetId)(hb.url) === osuId)) {
+            return res.json({ error: 'You already have a map with this link!' });
+        }
+    }
     b.url = url;
     await b.save();
     b = await beatmap_1.BeatmapModel

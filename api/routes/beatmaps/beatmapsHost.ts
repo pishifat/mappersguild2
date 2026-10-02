@@ -217,6 +217,22 @@ beatmapsHostRouter.post('/:id/setLink', isValidBeatmap, isBeatmapHost, isValidUr
     const url = req.body.url;
     let b: Beatmap = res.locals.beatmap;
 
+    if (url && url.indexOf('osu.ppy.sh/beatmapsets/') > -1) {
+        const osuId = findBeatmapsetId(url);
+
+        const hostBeatmaps = await BeatmapModel
+            .find({
+                _id: { $ne: b._id },
+                host: b.host._id,
+                url: { $exists: true },
+            })
+            .select('url');
+
+        if (hostBeatmaps.some(hb => hb.url && findBeatmapsetId(hb.url) === osuId)) {
+            return res.json({ error: 'You already have a map with this link!' });
+        }
+    }
+
     b.url = url;
     await b.save();
 
