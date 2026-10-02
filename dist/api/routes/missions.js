@@ -20,6 +20,7 @@ const featuredArtist_1 = require("../models/featuredArtist");
 const featuredSong_1 = require("../models/featuredSong");
 const discordApi_1 = require("../helpers/discordApi");
 const points_1 = require("../helpers/points");
+const momentumHelpers_1 = require("../helpers/momentumHelpers");
 const missionsRouter = express_1.default.Router();
 missionsRouter.use(middlewares_1.isLoggedIn);
 async function isEditable(req, res, next) {
@@ -746,11 +747,13 @@ missionsRouter.post('/:missionId/submitSecret', async (req, res) => {
             });
         }
         const roleMatches = !requiresMatchingRole || userRole === userInput;
+        const temperature = roleMatches && matchedSecret.text.includes('{{temperature}}') ? await (0, momentumHelpers_1.findTemperature)() : 0;
         const secretText = roleMatches
             ? matchedSecret.text
                 .replace('{{userRole}}', userRole?.toUpperCase() ?? '')
                 .replace('{{roleDescription}}', roleDescription ?? '')
                 .replace('{{currentDate}}', new Date().toISOString().slice(0, 10))
+                .replace('{{temperature}}', temperature.toString())
             : '';
         if (secretText) {
             const increaseMomentum = matchedSecret.increaseMomentum === true;
