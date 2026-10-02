@@ -934,7 +934,7 @@ missionsRouter.post('/:missionId/submitSecret', async (req, res) => {
 
         const roleMatches = !requiresMatchingRole || userRole === userInput;
 
-        const temperature = await findTemperature();
+        const temperature = roleMatches && matchedSecret.text.includes('{{temperature}}') ? await findTemperature() : 0;
 
         const secretText = roleMatches
             ? matchedSecret.text
