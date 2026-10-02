@@ -934,7 +934,8 @@ missionsRouter.post('/:missionId/submitSecret', async (req, res) => {
 
         const roleMatches = !requiresMatchingRole || userRole === userInput;
 
-        const temperature = roleMatches && matchedSecret.text.includes('{{temperature}}') ? await findTemperature() : 0;
+        const temperature = roleMatches && matchedSecret.text.includes('{{temperature}}') ? await findTemperature('current') : 0;
+        const forecastTemperature = roleMatches && matchedSecret.text.includes('{{forecastTemperature}}') ? await findTemperature('forecast') : 0;
 
         const secretText = roleMatches
             ? matchedSecret.text
@@ -942,6 +943,7 @@ missionsRouter.post('/:missionId/submitSecret', async (req, res) => {
                 .replace('{{roleDescription}}', roleDescription ?? '')
                 .replace('{{currentDate}}', new Date().toISOString().slice(0, 10))
                 .replace('{{temperature}}', temperature.toString())
+                .replace('{{forecastTemperature}}', forecastTemperature.toString())
             : '';
 
         if (secretText) {

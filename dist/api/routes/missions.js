@@ -747,13 +747,15 @@ missionsRouter.post('/:missionId/submitSecret', async (req, res) => {
             });
         }
         const roleMatches = !requiresMatchingRole || userRole === userInput;
-        const temperature = roleMatches && matchedSecret.text.includes('{{temperature}}') ? await (0, momentumHelpers_1.findTemperature)() : 0;
+        const temperature = roleMatches && matchedSecret.text.includes('{{temperature}}') ? await (0, momentumHelpers_1.findTemperature)('current') : 0;
+        const forecastTemperature = roleMatches && matchedSecret.text.includes('{{forecastTemperature}}') ? await (0, momentumHelpers_1.findTemperature)('forecast') : 0;
         const secretText = roleMatches
             ? matchedSecret.text
                 .replace('{{userRole}}', userRole?.toUpperCase() ?? '')
                 .replace('{{roleDescription}}', roleDescription ?? '')
                 .replace('{{currentDate}}', new Date().toISOString().slice(0, 10))
                 .replace('{{temperature}}', temperature.toString())
+                .replace('{{forecastTemperature}}', forecastTemperature.toString())
             : '';
         if (secretText) {
             const increaseMomentum = matchedSecret.increaseMomentum === true;
