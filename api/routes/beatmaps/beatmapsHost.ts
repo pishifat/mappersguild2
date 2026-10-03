@@ -183,8 +183,6 @@ beatmapsHostRouter.post('/:id/linkMission', isValidBeatmap, isBeatmapHost, async
             .defaultPopulate()
             .orFail();
 
-        const user = await UserModel.findById(req.session.mongoId).orFail();
-
         if (!mission.modes.includes(beatmap.mode as unknown as MissionMode) && beatmap.mode !== BeatmapMode.Hybrid) {
             return res.json({ error: 'Mode not allowed for this quest' });
         }

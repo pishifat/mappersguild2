@@ -3,7 +3,7 @@
         <div class="row">
             <div class="col-sm-12">
                 <button
-                    v-if="!tasksPointsArray && !beatmap.invalidForPoints"
+                    v-if="!sources && !beatmap.invalidForPoints"
                     v-bs-tooltip="'calculate points for all difficulties'"
                     class="btn btn-sm btn-outline-info ms-1"
                     @click="findPoints($event)"
@@ -21,26 +21,19 @@
                     {{ pointsInfo }}
                 </div>
             </div>
-            <div v-if="tasksPointsArray" class="col-sm-6">
+            <div v-if="sources" class="col-sm-6">
                 <ul class="small text-secondary">
-                    <li v-for="(value, i) in tasksPointsArray" :key="i">
-                        {{ value }}
-                    </li>
-                    <li>BN mod/nomination: {{ bnPoints }}</li>
-                    <li>Map host: 3</li>
-                </ul>
-            </div>
-            <div class="col-sm-6">
-                <ul v-if="usersPointsArrays" class="small text-secondary">
-                    <li v-for="(value, i) in usersPointsArrays" :key="i">
-                        {{ usersPointsArrays[i][0] }}: {{ usersPointsArrays[i][0] == beatmap.host.username ? usersPointsArrays[i][1] + 3 : usersPointsArrays[i][1] }}
+                    <li v-for="(source, i) in sources" :key="i">
+                        {{ source.name }}: {{ source.points }}
                     </li>
                 </ul>
             </div>
-            <div v-if="totalPoints" class="col-sm-12">
-                <span class="small text-secondary ms-2">
-                    total: {{ Math.round(totalPoints*10)/10 + 3 }}
-                </span>
+            <div v-if="usersPoints" class="col-sm-6">
+                <ul class="small text-secondary">
+                    <li v-for="user in usersPoints" :key="user.username">
+                        <span v-bs-tooltip="user.sources.join(', ')">{{ user.username }}: {{ user.points }}</span>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
@@ -60,21 +53,17 @@ export default defineComponent({
     },
     data () {
         return {
-            tasksPointsArray: null,
-            usersPointsArrays: null,
-            pointsInfo: null,
-            totalPoints: null,
-            bnPoints: null,
+            sources: null as { name: string; points: number }[] | null,
+            usersPoints: null as { username: string; points: number; sources: string[] }[] | null,
+            pointsInfo: null as string | null,
             isLoading: false,
         };
     },
     watch: {
         beatmap (): void {
-            this.tasksPointsArray = null;
-            this.usersPointsArrays = null;
+            this.sources = null;
+            this.usersPoints = null;
             this.pointsInfo = null;
-            this.totalPoints = null;
-            this.bnPoints = null;
             this.isLoading = false;
         },
     },
@@ -84,11 +73,9 @@ export default defineComponent({
             const res: any = await this.$http.executeGet(`/beatmaps/${this.beatmap.id}/findPoints`, e);
 
             if (!this.$http.isError(res)) {
-                this.tasksPointsArray = res.tasksPointsArray;
-                this.usersPointsArrays = res.usersPointsArrays;
+                this.sources = res.sources;
+                this.usersPoints = res.usersPoints;
                 this.pointsInfo = res.pointsInfo;
-                this.totalPoints = res.totalPoints;
-                this.bnPoints = res.bnPoints;
             }
 
             this.isLoading = false;

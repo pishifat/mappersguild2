@@ -51,6 +51,24 @@ export function findDifficultyPoints(taskName: string, totalMappers: number): nu
     return difficultyPointsObject[taskName] / totalMappers;
 }
 
+/** points for one mapper's share of a task */
+export function findTaskPoints(taskName: TaskName, totalMappers: number, lengthNerf: number, bonus: number, repeats: number): number {
+    const taskPoints = findDifficultyPoints(taskName, totalMappers);
+
+    if (taskName === TaskName.Storyboard || taskName === TaskName.Skin) {
+        return taskPoints / repeats; // dividing by "repeats" (how many maps of the same song the mapper has done the same task for) stops users from earning extra points when their work is copied to another mapset (applies to hs/sb/skin)
+    } else if (taskName === TaskName.Hitsounds) {
+        return (taskPoints * lengthNerf) / repeats;
+    } else {
+        return (taskPoints + bonus) * lengthNerf;
+    }
+}
+
+/** nominator points for a single beatmap. minimum 1 */
+export function findNominatorPoints(length: number, totalTasks: number): number {
+    return Math.max(getLengthNerf((length * totalTasks) / 1.5), 1);
+}
+
 export function findQuestPoints(deadline: Date, questCompletedDate: Date, rankedDate: Beatmap['rankedDate']): number {
     const lateness = +deadline - +questCompletedDate;
 
@@ -196,7 +214,7 @@ export async function getUserRank(userId: any, tasksPoints: TasksPoints, modPoin
     };
 }
 
-const taskPointsPopulate = [
+export const taskPointsPopulate = [
     { path: 'host', select: '_id osuId username' },
     { path: 'modders', select: '_id osuId username' },
     { path: 'quest', select: '_id name status price completed deadline' },
@@ -278,33 +296,17 @@ export async function calculateTasksPoints(userId: any): Promise<TasksPoints> {
                     missionParticipation = true;
                     bonus = getMissionBonus(beatmap.mission.winningBeatmaps, beatmap.id, task.mappers.length);
                 } else if (beatmap.isShowcase) {
-                    bonus = 2; // featured artist showcase maps automatically earn full quest bonus
+                    bonus = 2 / task.mappers.length; // featured artist showcase maps automatically earn full quest bonus (and aren't relevant anymore...)
                 }
 
-                // calculate raw task points
-                const taskPoints = findDifficultyPoints(task.name, task.mappers.length);
+                // check how many times a user does storyboard/skin/hitsounds for the same song (almost always 1)
+                let repeats = 1;
 
-                // finalize task points and add to base
-                let finalPoints = 0;
-
-                if (task.name === TaskName.Storyboard) {
-                    // check how many times a user does a storyboard for the same song (almost always 1)
-                    const repeats = userBeatmaps.filter(b => b.song.toString() == beatmap.song.toString() && b.tasks.some(t => t.name == TaskName.Storyboard && t.mappers.some(m => m.id == userId)));
-
-                    finalPoints = taskPoints / repeats.length; // dividing by "repeats" stops users from earning extra points when their storyboards are copied to another mapset
-                } else if (task.name === TaskName.Skin) {
-                    // check how many times a user does a skin for the same song (almost always 1)
-                    const repeats = userBeatmaps.filter(b => b.song.toString() == beatmap.song.toString() && b.tasks.some(t => t.name == TaskName.Skin && t.mappers.some(m => m.id == userId)));
-
-                    finalPoints = taskPoints / repeats.length; // dividing by "repeats" stops users from earning extra points when their skins are copied to another mapset
-                } else if (task.name === TaskName.Hitsounds) {
-                    // check how many times a user does hitsounds for the same song (almost always 1)
-                    const repeats = userBeatmaps.filter(b => b.song.toString() == beatmap.song.toString() && b.tasks.some(t => t.name == TaskName.Hitsounds && t.mappers.some(m => m.id == userId)));
-
-                    finalPoints = (taskPoints * lengthNerf) / repeats.length; // dividing by "repeats" stops users from earning extra points when their hitsounds are copied to another mapset
-                } else {
-                    finalPoints = ((taskPoints + bonus) * lengthNerf);
+                if (task.name === TaskName.Storyboard || task.name === TaskName.Skin || task.name === TaskName.Hitsounds) {
+                    repeats = userBeatmaps.filter(b => b.song.toString() == beatmap.song.toString() && b.tasks.some(t => t.name == task.name && t.mappers.some(m => m.id == userId))).length;
                 }
+
+                const finalPoints = findTaskPoints(task.name, task.mappers.length, lengthNerf, bonus, repeats);
 
                 pointsObject[task.name] += finalPoints;
 
@@ -421,10 +423,7 @@ export async function calculateModPoints(userId: any): Promise<number> {
     let totalNominatorPoints = 0;
 
     for (const beatmap of nominatorBeatmaps) {
-        const bonus = getLengthNerf((beatmap.length*beatmap.tasks.length)/1.5);
-
-        if (bonus < 1) totalNominatorPoints++;
-        else totalNominatorPoints += bonus;
+        totalNominatorPoints += findNominatorPoints(beatmap.length, beatmap.tasks.length);
     }
 
     return modderPoints + Math.ceil(totalNominatorPoints);
