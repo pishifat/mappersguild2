@@ -262,102 +262,139 @@ beatmapsRouter.post('/:id/updateBn', middlewares_2.isValidBeatmap, async (req, r
 });
 /* GET calculate points for a given beatmap */
 beatmapsRouter.get('/:id/findPoints', async (req, res) => {
-    const [beatmap, response] = await Promise.all([
-        beatmap_1.BeatmapModel
-            .findById(req.params.id)
-            .defaultPopulate()
-            .orFail(),
-        (0, osuApi_1.getClientCredentialsGrant)(),
-    ]);
-    // check if token exists
-    if ((0, osuApi_1.isOsuResponseError)(response)) {
-        return res.json(helpers_1.defaultErrorMessage);
+    const beatmap = await beatmap_1.BeatmapModel
+        .findById(req.params.id)
+        .populate(points_1.taskPointsPopulate)
+        .populate({ path: 'bns', select: '_id osuId username' })
+        .orFail();
+    let length = beatmap.length;
+    let rankedDate = beatmap.rankedDate;
+    // length and rankedDate are only saved after rank. temporarily fetch from api if needed
+    if (beatmap.status !== beatmap_2.BeatmapStatus.Ranked || !length || !rankedDate) {
+        const beatmapsetId = beatmap.url ? (0, helpers_1.findBeatmapsetId)(beatmap.url) : NaN;
+        if (isNaN(beatmapsetId)) {
+            return res.json({ error: 'Need a beatmapset link to calculate points!' });
+        }
+        const response = await (0, osuApi_1.getClientCredentialsGrant)();
+        if ((0, osuApi_1.isOsuResponseError)(response)) {
+            return res.json(helpers_1.defaultErrorMessage);
+        }
+        const bmInfo = await (0, osuApi_1.getBeatmapsetV2Info)(response.access_token, beatmapsetId);
+        if ((0, osuApi_1.isOsuResponseError)(bmInfo)) {
+            return res.json(helpers_1.defaultErrorMessage);
+        }
+        length = (0, helpers_1.getLongestBeatmapLength)(bmInfo.beatmaps);
+        rankedDate = bmInfo.ranked_date ? new Date(bmInfo.ranked_date) : new Date(); // unranked maps are calculated as if they were ranked today
     }
-    // set token
-    const token = response.access_token;
-    // check if url is valid
-    if (!beatmap.url) {
-        return res.json({ error: 'Need a beatmapset link to calculate points!' });
-    }
-    const beatmapsetId = (0, helpers_1.findBeatmapsetId)(beatmap.url);
-    if (isNaN(beatmapsetId)) {
-        return res.json({ error: 'Need a beatmapset link to calculate points!' });
-    }
-    // get osu-web beatmap info
-    const bmInfo = await (0, osuApi_1.getBeatmapsetV2Info)(token, beatmapsetId);
-    if ((0, osuApi_1.isOsuResponseError)(bmInfo)) {
-        return res.json(helpers_1.defaultErrorMessage);
-    }
-    // sort tasks to expected difficulty scaling
-    const sortOrder = Object.values(task_2.TaskName);
-    beatmap.tasks.sort(function (a, b) {
-        return sortOrder.indexOf(a.name) - sortOrder.indexOf(b.name);
-    });
-    // set up task points info
-    const tasksPointsArray = [];
-    const length = (0, helpers_1.getLongestBeatmapLength)(bmInfo.beatmaps);
     const lengthNerf = (0, points_1.getLengthNerf)(length);
-    const seconds = length % 60;
-    const minutes = (length - seconds) / 60;
-    const lengthDisplay = `${minutes}m${seconds}s`;
-    let pointsInfo = `based on ${lengthDisplay} length and ${beatmap.tasks.length} difficulties`;
-    const rankedDate = beatmap.status != 'Ranked' ? new Date() : bmInfo.ranked_date;
-    let validBonus = true;
-    let bonus = 0;
-    let totalPoints = 0;
-    // set up user points info
-    const usersPointsArrays = [];
-    const mappers = [];
-    beatmap.tasks.forEach(task => {
-        task.mappers.forEach(mapper => {
-            if (!mappers.includes(mapper.username)) {
-                mappers.push(mapper.username);
-                usersPointsArrays.push([mapper.username, 0]);
-            }
-        });
-    });
-    // calculate points
-    beatmap.tasks.forEach(task => {
-        // difficulty-specific points
-        const taskPoints = (0, points_1.findDifficultyPoints)(task.name, 1);
+    // mission winners aren't known until the mission closes. assume map is winner if pending
+    const missionPending = beatmap.mission && !beatmap.mission.closingAnnounced;
+    const isMissionWinner = missionPending || beatmap.mission?.winningBeatmaps.some(b => b.id == beatmap.id);
+    // other ranked mapsets of the same song (for storyboard/skin/hitsound repeats)
+    const sameSongBeatmaps = await beatmap_1.BeatmapModel
+        .find({
+        _id: { $ne: beatmap._id },
+        song: beatmap.song,
+        status: beatmap_2.BeatmapStatus.Ranked,
+    })
+        .populate({ path: 'tasks', populate: { path: 'mappers', select: '_id' } });
+    // user points relative to this map
+    const users = new Map();
+    function addPoints(user, points, source) {
+        const userPoints = users.get(user.id) || { username: user.username, points: 0, sources: [] };
+        userPoints.points += points;
+        userPoints.sources.push(`${source}: ${Math.round(points * 10) / 10}`);
+        users.set(user.id, userPoints);
+    }
+    // every type of points earned on this map (left column)
+    const sources = [];
+    // host
+    addPoints(beatmap.host, 3, 'Host');
+    sources.push({ name: 'Host', points: 3 });
+    // tasks
+    const sortOrder = Object.values(task_2.TaskName);
+    const sortedTasks = [...beatmap.tasks].sort((a, b) => sortOrder.indexOf(a.name) - sortOrder.indexOf(b.name));
+    for (const task of sortedTasks) {
+        let taskTotal = 0;
+        // quest/mission/showcase bonuses
+        let bonus = 0;
         if (beatmap.quest) {
-            bonus = (0, points_1.getQuestBonus)(beatmap.quest.deadline, new Date(rankedDate), 1);
-            validBonus = true;
+            bonus = (0, points_1.getQuestBonus)(beatmap.quest.deadline, rankedDate, task.mappers.length);
         }
         else if (beatmap.mission) {
-            bonus = 2;
-            validBonus = true;
+            bonus = isMissionWinner ? 2 / task.mappers.length : 0;
         }
         else if (beatmap.isShowcase) {
-            bonus = 2;
-            validBonus = true;
+            bonus = 2 / task.mappers.length;
         }
-        const finalPoints = ((taskPoints + bonus) * lengthNerf);
-        totalPoints += finalPoints;
-        tasksPointsArray.push(`${task.name}: ${finalPoints.toFixed(1)}`);
-        // user-specific points
-        task.mappers.forEach(mapper => {
-            const userTaskPoints = (0, points_1.findDifficultyPoints)(task.name, task.mappers.length);
-            usersPointsArrays.forEach(userArray => {
-                if (userArray[0] == mapper.username) {
-                    if (task.name == task_2.TaskName.Storyboard) {
-                        userArray[1] += Math.round((userTaskPoints / task.mappers.length) * 10) / 10;
-                    }
-                    else {
-                        userArray[1] += Math.round(((userTaskPoints + (bonus / task.mappers.length)) * lengthNerf) * 10) / 10;
-                    }
-                }
-            });
-        });
+        for (const mapper of task.mappers) {
+            let repeats = 1;
+            if (task.name === task_2.TaskName.Storyboard || task.name === task_2.TaskName.Skin || task.name === task_2.TaskName.Hitsounds) {
+                repeats += sameSongBeatmaps.filter(b => b.tasks.some(t => t.name == task.name && t.mappers.some(m => m.id == mapper.id))).length;
+            }
+            const points = (0, points_1.findTaskPoints)(task.name, task.mappers.length, lengthNerf, bonus, repeats);
+            taskTotal += points;
+            addPoints(mapper, points, task.name);
+        }
+        sources.push({ name: task.name, points: Math.round(taskTotal * 10) / 10 });
+    }
+    // quest/mission rewards (only counted once per quest/mission for each user)
+    const rewardedMappers = new Set();
+    const questPoints = beatmap.quest ? (0, points_1.findQuestPoints)(beatmap.quest.deadline, beatmap.quest.completed || rankedDate, rankedDate) : 0;
+    const missionPoints = beatmap.mission && isMissionWinner ? (0, points_1.findMissionPoints)(beatmap.mission.tier) : 0;
+    for (const task of sortedTasks) {
+        for (const mapper of task.mappers) {
+            if (rewardedMappers.has(mapper.id))
+                continue;
+            if (questPoints) {
+                rewardedMappers.add(mapper.id);
+                addPoints(mapper, questPoints, 'Quest reward');
+            }
+            else if (missionPoints && task.name !== task_2.TaskName.Hitsounds && task.name !== task_2.TaskName.Storyboard && task.name !== task_2.TaskName.Skin) {
+                rewardedMappers.add(mapper.id);
+                addPoints(mapper, missionPoints, 'Mission reward');
+            }
+        }
+    }
+    if (rewardedMappers.size) {
+        sources.push({ name: questPoints ? 'Quest reward (per mapper)' : 'Mission reward (per mapper)', points: questPoints || missionPoints });
+    }
+    // modders + nominators
+    const modders = beatmap.modders.filter(modder => !beatmap.bns.some(bn => bn.id == modder.id));
+    for (const modder of modders) {
+        addPoints(modder, 1, 'Mod');
+    }
+    if (modders.length) {
+        sources.push({ name: 'Mod (per modder)', points: 1 });
+    }
+    const nominatorPoints = (0, points_1.findNominatorPoints)(length, beatmap.tasks.length);
+    for (const bn of beatmap.bns) {
+        addPoints(bn, nominatorPoints, 'Nomination');
+    }
+    if (beatmap.bns.length) {
+        sources.push({ name: 'Nomination (per BN)', points: Math.round(nominatorPoints * 10) / 10 });
+    }
+    // the text
+    const seconds = length % 60;
+    const minutes = (length - seconds) / 60;
+    let pointsInfo = `based on ${minutes}m${seconds}s length`;
+    if (beatmap.quest) {
+        pointsInfo += `, including ~${(0, points_1.getQuestBonus)(beatmap.quest.deadline, rankedDate, 1)} quest bonus points per difficulty`;
+    }
+    else if (beatmap.mission) {
+        pointsInfo += missionPending ? ', including ~2 mission bonus points per difficulty (assuming winner)' : '';
+    }
+    else if (beatmap.isShowcase) {
+        pointsInfo += ', including ~2 showcase bonus points per difficulty';
+    }
+    const usersPoints = [];
+    for (const userPoints of users.values()) {
+        usersPoints.push({ ...userPoints, points: Math.round(userPoints.points * 10) / 10 });
+    }
+    res.json({
+        sources,
+        usersPoints,
+        pointsInfo,
     });
-    if (validBonus) {
-        pointsInfo += ` + includes ${bonus == 1 ? bonus + ' quest bonus point' : bonus + ' quest bonus points'} per difficulty`;
-    }
-    // calculate bn points
-    let bnPoints = Math.round((0, points_1.getLengthNerf)((length * beatmap.tasks.length) / 1.5) * 10) / 10;
-    if (bnPoints < 1) {
-        bnPoints = 1;
-    }
-    res.json({ tasksPointsArray, usersPointsArrays, pointsInfo, totalPoints, bnPoints });
 });
 exports.default = beatmapsRouter;
