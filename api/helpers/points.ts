@@ -90,7 +90,7 @@ export function findMissionPoints(tier: number): number {
         case 4:
             return 20;
         case 5:
-            return -1000; // you won't learn how to increase momentum from the source code, sorry. you'll have better luck in reality
+            return 0; // you won't learn how to increase momentum from the source code, sorry. you'll have better luck in reality
         default:
             return 7;
     }
