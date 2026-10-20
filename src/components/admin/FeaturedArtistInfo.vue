@@ -211,7 +211,7 @@
                                     in MG but not osu!:
                                 </div>
                                 <div v-for="(song, i) in crossCheckMgOnly" :key="i">
-                                    {{ song.artist }} - {{ song.title }}
+                                    {{ song.artist }} - {{ song.title }} <code class="small text-secondary">{{ song._id }}</code>
                                 </div>
                             </div>
                         </div>
@@ -327,7 +327,7 @@ export default defineComponent({
             newTag: '',
             bulkTag: '',
             crossCheckResults: null as null | Array<{ artist: string; title: string }>,
-            crossCheckMgOnly: null as null | Array<{ artist: string; title: string }>,
+            crossCheckMgOnly: null as null | Array<{ _id: string; artist: string; title: string }>,
             crossCheckCounts: null as null | { osu: number; mg: number },
             crossCheckLoading: false,
         };
