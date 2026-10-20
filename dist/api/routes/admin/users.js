@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const middlewares_1 = require("../../helpers/middlewares");
 const osuApi_1 = require("../../helpers/osuApi");
 const user_1 = require("../../models/user");
+const mission_1 = require("../../models/mission");
 const points_1 = require("../../helpers/points");
 const helpers_1 = require("../../helpers/helpers");
 const adminUsersRouter = express_1.default.Router();
@@ -168,5 +169,62 @@ adminUsersRouter.post('/searchUser', async (req, res) => {
         return res.json(helpers_1.defaultErrorMessage);
     }
     res.json(userInfo);
+});
+/* GET classified missions for a user */
+adminUsersRouter.get('/:id/classifiedMissions', async (req, res) => {
+    const userId = req.params.id;
+    const missions = await mission_1.MissionModel
+        .find({ name: { $regex: 'Classified', $options: 'i' } })
+        .populate([
+        { path: 'showcaseMissionSongs.song', select: 'artist title' },
+        { path: 'showcaseMissionSongs.user', select: 'id' },
+        { path: 'showcaseMissionArtists.artist', select: 'label' },
+        { path: 'showcaseMissionArtists.user', select: 'id' },
+        { path: 'showcaseMissionSongsByGenre.songs', select: 'artist title' },
+        { path: 'showcaseMissionSongsByGenre.user', select: 'id' },
+    ])
+        .sort({ createdAt: 1 });
+    const result = missions.map(mission => {
+        const m = mission.toObject();
+        let userSelections = [];
+        if (m.showcaseMissionSongs?.length) {
+            const userEntries = m.showcaseMissionSongs.filter((entry) => entry.user?.id == userId || entry.user?._id?.toString() == userId);
+            if (userEntries.length) {
+                userSelections = userEntries.map((entry) => ({
+                    type: 'song',
+                    artist: entry.song?.artist,
+                    title: entry.song?.title,
+                }));
+            }
+        }
+        if (m.showcaseMissionArtists?.length) {
+            const userEntries = m.showcaseMissionArtists.filter((entry) => entry.user?.id == userId || entry.user?._id?.toString() == userId);
+            if (userEntries.length) {
+                userSelections = userSelections.concat(userEntries.map((entry) => ({
+                    type: 'artist',
+                    label: entry.artist?.label,
+                })));
+            }
+        }
+        if (m.showcaseMissionSongsByGenre?.length) {
+            const userEntries = m.showcaseMissionSongsByGenre.filter((entry) => entry.user?.id == userId || entry.user?._id?.toString() == userId);
+            if (userEntries.length) {
+                for (const entry of userEntries) {
+                    if (entry.songs?.length) {
+                        userSelections = userSelections.concat(entry.songs.map((song) => ({
+                            type: 'song',
+                            artist: song.artist,
+                            title: song.title,
+                        })));
+                    }
+                }
+            }
+        }
+        return {
+            name: m.name,
+            userSelections,
+        };
+    });
+    res.json(result);
 });
 exports.default = adminUsersRouter;
