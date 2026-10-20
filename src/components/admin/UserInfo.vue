@@ -101,24 +101,63 @@
                 </div>
 
                 <h6 class="mt-4">
-                    Momentum
+                    Missions
                 </h6>
-                <div class="mb-2 small text-secondary">
-                    <b>Current STARTER ROLE:</b> {{ user.momentumStarterRole || '...' }}
-                </div>
-                <div class="row mb-2">
-                    <div class="col-sm-4">
-                        <button class="btn btn-sm btn-outline-info w-100" @click="addMomentumStarterRole($event)">
-                            {{ user.momentumStarterRole ? 'Re-select' : 'Add' }} STARTER ROLE
-                        </button>
+                <div>
+                    <div class="mb-2 small text-secondary">
+                        <div>
+                            <b>Momentum</b>
+                        </div>
+                        Current STARTER ROLE: <i>{{ user.momentumStarterRole || '...' }}</i>
                     </div>
-                    <div class="col-sm-4">
-                        <button class="btn btn-sm btn-outline-info w-100" @click="removeMomentumStarterRole($event)">
-                            Remove STARTER ROLE
-                        </button>
+                    <div class="row mb-2">
+                        <div class="col-sm-4">
+                            <button class="btn btn-sm btn-outline-info w-100" @click="addMomentumStarterRole($event)">
+                                {{ user.momentumStarterRole ? 'Re-select' : 'Add' }} STARTER ROLE
+                            </button>
+                        </div>
+                        <div class="col-sm-4">
+                            <button class="btn btn-sm btn-outline-info w-100" @click="removeMomentumStarterRole($event)">
+                                Remove STARTER ROLE
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-2 small text-secondary">
+                        <b>Classified</b>
+                        <table v-if="classifiedMissions.length" class="table table-sm small">
+                            <thead>
+                                <tr>
+                                    <th scope="col">
+                                        Mission
+                                    </th>
+                                    <th scope="col">
+                                        Selected
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="mission in classifiedMissions" :key="mission.name">
+                                    <td>
+                                        {{ mission.name }}
+                                    </td>
+                                    <td>
+                                        <i v-if="!mission.userSelections.length">none</i>
+                                        <ul v-else class="mb-0">
+                                            <li v-for="(selection, i) in mission.userSelections" :key="i">
+                                                <template v-if="selection.type === 'song'">
+                                                    {{ selection.artist }} - {{ selection.title }}
+                                                </template>
+                                                <template v-else>
+                                                    {{ selection.label }}
+                                                </template>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-
                 <h6 class="mt-4">
                     Other
                 </h6>
@@ -183,6 +222,7 @@ export default defineComponent({
             sweater: '',
             additionalItems: '',
             legacyPoints: 0,
+            classifiedMissions: [] as any[],
         };
     },
     watch: {
@@ -192,6 +232,7 @@ export default defineComponent({
             this.discordId = this.user.discordId || '';
             this.group = this.user.group || '';
             this.legacyPoints = this.user.legacyPoints || 0;
+            this.loadClassifiedMissions();
         },
     },
     created() {
@@ -201,6 +242,7 @@ export default defineComponent({
             this.discordId = this.user.discordId || '';
             this.group = this.user.group || '';
             this.legacyPoints = this.user.legacyPoints || 0;
+            this.loadClassifiedMissions();
         }
     },
     methods: {
@@ -355,6 +397,13 @@ export default defineComponent({
                     userId: this.user.id,
                     momentumStarterRole: res.momentumStarterRole,
                 });
+            }
+        },
+        async loadClassifiedMissions(): Promise<void> {
+            const missions = await this.$http.executeGet<any[]>(`/admin/users/${this.user.id}/classifiedMissions`);
+
+            if (!this.$http.isError(missions)) {
+                this.classifiedMissions = missions;
             }
         },
         async removeMomentumStarterRole(e): Promise<void> {
