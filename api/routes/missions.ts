@@ -805,15 +805,7 @@ missionsRouter.get('/:missionId/findSelectedShowcaseMissionSongsByTag', async (r
 
     const entry = mission.showcaseMissionSongsByGenre.find((e: any) => e.user.toString() == req.session.mongoId || (e.user.id && e.user.id == req.session.mongoId));
 
-    if (!entry) {
-        return res.json(entry);
-    }
-
-    const eligibleSongIds = await getClassifiedEligibleSongIds();
-
-    const eligibleSongs = (entry as any).songs.filter((song: any) => eligibleSongIds.has(song.id));
-
-    res.json({ ...(entry as any).toObject(), songs: eligibleSongs });
+    res.json(entry);
 });
 
 /* GET findAllSelectedShowcaseMissionSongsByTag */
