@@ -132,7 +132,7 @@ export async function setBeatmapStatusRanked(id, bmInfo, token): Promise<void> {
     // update status (only helpful for automated calls)
     await BeatmapModel.findByIdAndUpdate(id, { status: BeatmapStatus.Ranked });
 
-    // remove modders who didn't mod (nominators are added later)
+    // remove modders who didn't mod (nominators are added later even if they didn't post)
     await removeNonPostingModders(id, token, bmInfo.id);
 
     // query for populated beatmap
