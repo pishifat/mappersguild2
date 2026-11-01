@@ -1,6 +1,6 @@
 import cron from 'node-cron';
-import { findBeatmapsetId, sleep, findBeatmapsetStatus, setBeatmapStatusRanked, generateAuthorWebhook, generateThumbnailUrl, generateMissionThumbnailUrl, generateBotAuthorWebhook, generateLists, setNominators, getLongestBeatmapLength } from './helpers';
-import { isOsuResponseError, getClientCredentialsGrant, getBeatmapsetV2Info, getDiscussions, getBeatmapsSearch } from './osuApi';
+import { findBeatmapsetId, sleep, findBeatmapsetStatus, setBeatmapStatusRanked, generateAuthorWebhook, generateThumbnailUrl, generateMissionThumbnailUrl, generateBotAuthorWebhook, generateLists, setNominators, getLongestBeatmapLength, removeNonPostingModders } from './helpers';
+import { isOsuResponseError, getClientCredentialsGrant, getBeatmapsetV2Info, getBeatmapsSearch } from './osuApi';
 import { devWebhookPost, webhookPost, webhookColors } from './discordApi';
 import { BeatmapModel } from '../models/beatmap/beatmap';
 import { LogModel } from '../models/log';
@@ -113,28 +113,16 @@ const setQualified = cron.schedule('0 16 * * *', async () => { /* 9:00 AM PST */
 
                         await bm.save();
 
-                        // remove modders who didn't post anything
-                        for (const modder of bm.modders) {
-                            const currentBeatmap = await BeatmapModel
-                                .findById(bm._id)
-                                .defaultPopulate()
-                                .orFail();
+                        // remove modders who didn't mod
+                        await removeNonPostingModders(bm._id, token, osuId);
 
-                            const discussionInfo = await getDiscussions(token, `?beatmapset_id=${osuId}&message_types%5B%5D=suggestion&message_types%5B%5D=problem&user=${modder.osuId}`);
-                            await sleep(500);
+                        // add bns to modders (even if they didn't post). re-query so modders list is current
+                        const currentBeatmap = await BeatmapModel
+                            .findById(bm._id)
+                            .defaultPopulate()
+                            .orFail();
 
-                            if (!isOsuResponseError(discussionInfo) && discussionInfo.discussions && !discussionInfo.discussions.length) {
-                                const i = currentBeatmap.modders.findIndex(m => m.id == modder.id);
-
-                                if (i !== -1) {
-                                    currentBeatmap.modders.splice(i, 1);
-                                    await currentBeatmap.save();
-                                }
-                            }
-                        }
-
-                        // add bns to modders (after above, in case a bn didn't post anything)
-                        await setNominators(bm, bmInfo);
+                        await setNominators(currentBeatmap, bmInfo);
                     }
 
                     /*  osu:    Pending
@@ -402,7 +390,7 @@ const setRanked = cron.schedule('0 1 * * *', async () => { /* 6:00 PM PST */
                     const status = findBeatmapsetStatus(bmInfo.ranked);
 
                     if (status == BeatmapStatus.Ranked) {
-                        await setBeatmapStatusRanked(bm.id, bmInfo);
+                        await setBeatmapStatusRanked(bm.id, bmInfo, token);
                     }
                 }
             }

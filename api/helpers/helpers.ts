@@ -2,7 +2,7 @@ import { Party } from '../../interfaces/party';
 import { Quest } from '../../interfaces/quest';
 import { Mission } from '../../interfaces/mission';
 import { User } from '../../interfaces/user';
-import { OsuAuthResponse } from './osuApi';
+import { OsuAuthResponse, getDiscussions, isOsuResponseError } from './osuApi';
 import { webhookPost, webhookColors } from './discordApi';
 import { BeatmapStatus } from '../../interfaces/beatmap/beatmap';
 import { BeatmapModel } from '../models/beatmap/beatmap';
@@ -111,9 +111,29 @@ export function sleep(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export async function setBeatmapStatusRanked(id, bmInfo): Promise<void> {
+/** remove modders who didn't mod */
+export async function removeNonPostingModders(beatmapId, token, osuId): Promise<void> {
+    const beatmap = await BeatmapModel
+        .findById(beatmapId)
+        .defaultPopulate()
+        .orFail();
+
+    for (const modder of beatmap.modders) {
+        const discussionInfo = await getDiscussions(token, `?beatmapset_id=${osuId}&message_types%5B%5D=suggestion&message_types%5B%5D=problem&user=${modder.osuId}`);
+        await sleep(500);
+
+        if (!isOsuResponseError(discussionInfo) && discussionInfo.discussions && !discussionInfo.discussions.length) {
+            await BeatmapModel.findByIdAndUpdate(beatmapId, { $pull: { modders: modder._id } });
+        }
+    }
+}
+
+export async function setBeatmapStatusRanked(id, bmInfo, token): Promise<void> {
     // update status (only helpful for automated calls)
     await BeatmapModel.findByIdAndUpdate(id, { status: BeatmapStatus.Ranked });
+
+    // remove modders who didn't mod (nominators are added later)
+    await removeNonPostingModders(id, token, bmInfo.id);
 
     // query for populated beatmap
     let beatmap = await BeatmapModel

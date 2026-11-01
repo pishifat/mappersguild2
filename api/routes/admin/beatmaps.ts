@@ -56,7 +56,7 @@ adminBeatmapsRouter.post('/:id/updateStatus', isSuperAdmin, async (req, res) => 
             await sleep(500);
 
             if (!isOsuResponseError(bmInfo)) {
-                await setBeatmapStatusRanked(b.id, bmInfo);
+                await setBeatmapStatusRanked(b.id, bmInfo, token);
             }
         }
     } else {
