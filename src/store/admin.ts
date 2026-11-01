@@ -4,7 +4,6 @@ import { Beatmap, BeatmapStatus } from '@interfaces/beatmap/beatmap';
 import { Quest } from '@interfaces/quest';
 import { User } from '@interfaces/user';
 import { Contest } from '@interfaces/contest/contest';
-import { FeaturedArtist } from '@interfaces/featuredArtist';
 import { Background } from '@interfaces/background';
 
 interface AdminState {
@@ -16,15 +15,12 @@ interface AdminState {
     actionUsersLoading: boolean;
     actionContests: Contest[];
     actionContestsLoading: boolean;
-    actionArtists: FeaturedArtist[];
-    actionArtistsLoading: boolean;
     actionBackgrounds: Background[];
     actionBackgroundsLoading: boolean;
     selectedBeatmap: null | Beatmap;
     selectedQuest: null | Quest;
     selectedUser: null | User;
     selectedContest: null | Contest;
-    selectedArtist: null | FeaturedArtist;
     selectedBackground: null | Background;
 }
 
@@ -38,15 +34,12 @@ const store: Module<AdminState, MainState> = {
         actionUsersLoading: false,
         actionContests: [],
         actionContestsLoading: false,
-        actionArtists: [],
-        actionArtistsLoading: false,
         actionBackgrounds: [],
         actionBackgroundsLoading: false,
         selectedBeatmap: null,
         selectedQuest: null,
         selectedUser: null,
         selectedContest: null,
-        selectedArtist: null,
         selectedBackground: null,
     },
     mutations: {
@@ -74,12 +67,6 @@ const store: Module<AdminState, MainState> = {
         setActionContestsLoading (state, value: boolean): void {
             state.actionContestsLoading = value;
         },
-        setActionArtists (state, actionArtists: FeaturedArtist[]): void {
-            state.actionArtists = actionArtists;
-        },
-        setActionArtistsLoading (state, value: boolean): void {
-            state.actionArtistsLoading = value;
-        },
         setActionBackgrounds (state, actionBackgrounds: Background[]): void {
             state.actionBackgrounds = actionBackgrounds;
         },
@@ -97,9 +84,6 @@ const store: Module<AdminState, MainState> = {
         },
         setSelectedContest (state, selectedContest: Contest): void {
             state.selectedContest = selectedContest;
-        },
-        setSelectedArtist (state, selectedArtist: FeaturedArtist): void {
-            state.selectedArtist = selectedArtist;
         },
         setSelectedBackground (state, selectedBackground: Background): void {
             state.selectedBackground = selectedBackground;
@@ -326,36 +310,6 @@ const store: Module<AdminState, MainState> = {
 
             if (contest) {
                 contest.skipWebhook = payload.skipWebhook;
-            }
-        },
-
-        // artists
-        updateNotes (state, payload): void {
-            const artist = state.actionArtists.find(f => f.id == payload.featuredArtistId);
-
-            if (artist) {
-                artist.notes = payload.notes;
-            }
-        },
-        updateLastReviewed (state, payload): void {
-            const artist = state.actionArtists.find(f => f.id == payload.featuredArtistId);
-
-            if (artist) {
-                artist.lastReviewed = payload.lastReviewed;
-            }
-        },
-        updatePermanentlyDismiss (state, payload): void {
-            const artist = state.actionArtists.find(f => f.id == payload.featuredArtistId);
-
-            if (artist) {
-                artist.permanentlyDismiss = payload.permanentlyDismiss;
-            }
-        },
-        removeFromActionArtists (state, payload): void {
-            const i = state.actionArtists.findIndex(a => a.id == payload.featuredArtistId);
-
-            if (i !== -1) {
-                state.actionArtists.splice(i, 1);
             }
         },
 

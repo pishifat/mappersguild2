@@ -259,24 +259,6 @@
                 </div>
                 <div class="row mb-2">
                     <span class="col-sm-6">
-                        Last reviewed:
-                        <span class="text-secondary">{{ new Date(featuredArtist.lastReviewed) || 'Never' }}</span>
-                    </span>
-                    <button class="btn btn-sm btn-outline-info ms-3 w-25" @click="updateLastReviewed($event)">
-                        Set as today
-                    </button>
-                </div>
-                <div class="row mb-2">
-                    <span class="col-sm-6">
-                        Permanently dismissed:
-                        <span class="text-danger me-2">{{ featuredArtist.permanentlyDismiss ? 'true' : 'false' }}</span>
-                    </span>
-                    <button class="btn btn-sm btn-outline-info ms-3 w-25" @click="updatePermanentlyDismiss($event)">
-                        Toggle
-                    </button>
-                </div>
-                <div class="row mb-2">
-                    <span class="col-sm-6">
                         isMomentum:
                         <span :class="featuredArtist.isMomentum ? 'text-success' : 'text-danger'" class="me-2">{{ featuredArtist.isMomentum ? 'true' : 'false' }}</span>
                     </span>
@@ -664,34 +646,6 @@ export default defineComponent({
                 this.$store.commit('updateNotes', {
                     featuredArtistId: this.featuredArtist.id,
                     notes,
-                });
-            }
-        },
-        async updateLastReviewed(e): Promise<void> {
-            const lastReviewed = await this.$http.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/updateLastReviewed`, {}, e);
-
-            if (!this.$http.isError(lastReviewed)) {
-                this.$store.dispatch('updateToastMessages', {
-                    message: `updated last reviewed`,
-                    type: 'info',
-                });
-                this.$store.commit('updateLastReviewed', {
-                    featuredArtistId: this.featuredArtist.id,
-                    lastReviewed,
-                });
-            }
-        },
-        async updatePermanentlyDismiss(e): Promise<void> {
-            const permanentlyDismiss = await this.$http.executePost(`/admin/featuredArtists/${this.featuredArtist.id}/togglePermanentlyDismiss`, {}, e);
-
-            if (!this.$http.isError(permanentlyDismiss)) {
-                this.$store.dispatch('updateToastMessages', {
-                    message: `updated permanenlty dismiss: ${permanentlyDismiss}`,
-                    type: 'info',
-                });
-                this.$store.commit('updatePermanentlyDismiss', {
-                    featuredArtistId: this.featuredArtist.id,
-                    permanentlyDismiss,
                 });
             }
         },

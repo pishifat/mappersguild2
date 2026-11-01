@@ -94,20 +94,6 @@ const store: Module<FeaturedArtistState, MainState> = {
                 featuredArtist.notes = payload.notes;
             }
         },
-        updateLastReviewed (state, payload): void {
-            const featuredArtist = state.featuredArtists.find(f => f.id == payload.featuredArtistId);
-
-            if (featuredArtist) {
-                featuredArtist.lastReviewed = payload.lastReviewed;
-            }
-        },
-        updatePermanentlyDismiss (state, payload): void {
-            const featuredArtist = state.featuredArtists.find(f => f.id == payload.featuredArtistId);
-
-            if (featuredArtist) {
-                featuredArtist.permanentlyDismiss = payload.permanentlyDismiss;
-            }
-        },
         updateIsMomentum (state, payload): void {
             const featuredArtist = state.featuredArtists.find(f => f.id == payload.featuredArtistId);
 

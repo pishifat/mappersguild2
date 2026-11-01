@@ -8,7 +8,6 @@ import { BeatmapStatus } from '../../../interfaces/beatmap/beatmap';
 import { ContestModel } from '../../models/contest/contest';
 import { ContestStatus } from '../../../interfaces/contest/contest';
 import { getBeatmapsSearch, isOsuResponseError, getClientCredentialsGrant } from '../../helpers/osuApi';
-import { FeaturedArtistModel } from '../../models/featuredArtist';
 import { BackgroundModel } from '../../models/background';
 
 
@@ -73,28 +72,6 @@ adminRouter.get('/loadActionContests/', async (req, res) => {
         .populate({ path: 'creators' });
 
     res.json(actionContests);
-});
-
-/* GET artists in need of action */
-adminRouter.get('/loadActionArtists/', async (req, res) => {
-    const oneYearAgo = new Date();
-    oneYearAgo.setDate(oneYearAgo.getDate() - 365);
-
-    const actionArtists = await FeaturedArtistModel
-        .find({
-            $or: [
-                { lastReviewed: { $lt: oneYearAgo } },
-                { lastReviewed: { $exists: false } },
-            ],
-            permanentlyDismiss: { $ne: true },
-            osuId: { $exists: false },
-            artistSigned: { $ne: true },
-        })
-        .defaultPopulateWithSongs()
-        .sort({ createdAt: -1 })
-        .limit(50);
-
-    res.json(actionArtists);
 });
 
 /* GET backgrounds in need of action */

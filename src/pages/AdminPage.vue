@@ -406,105 +406,6 @@
             <div class="row mx-3 mt-2">
                 <button
                     class="btn btn-sm btn-info w-100 mb-1"
-                    @click="loadActionArtists($event)"
-                >
-                    Load artists
-                </button>
-            </div>
-            <div class="row">
-                <div class="col-sm-6">
-                    <h5 class="ms-4 mt-2">
-                        <a href="#actionArtists" data-bs-toggle="collapse">
-                            Artists
-                            <i class="fas fa-angle-down" />
-                        </a>
-                        <span
-                            v-if="actionArtistsLoading"
-                            class="ms-2 small text-secondary"
-                            >loading...</span>
-                    </h5>
-                    <div v-if="actionArtists" id="actionArtists" class="show">
-                        <table
-                            v-if="actionArtists.length"
-                            class="table table-sm"
-                        >
-                            <thead>
-                                <tr>
-                                    <th scope="col">
-                                        ARTIST
-                                    </th>
-                                    <th scope="col">
-                                        COMMENT
-                                    </th>
-                                    <th scope="col">
-                                        EDIT
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr
-                                    v-for="artist in actionArtists"
-                                    :key="artist.id"
-                                    class="text-secondary"
-                                >
-                                    <td scope="row">
-                                        <a
-                                            :href="findArtistBeatmapSearchUrl(artist.label)"
-                                            target="_blank"
-                                        >
-                                            {{ artist.label }}
-                                        </a>
-                                        <a class="ms-2" href="#" @click.prevent="artistInput = artist.label">
-                                            <i class="fa fa-arrow-right" />
-                                        </a>
-                                        <a class="ms-2" href="#" @click.prevent="dismissArtist(artist.id, $event)">
-                                            <i class="fas fa-times" />
-                                        </a>
-                                        <a class="ms-2 text-danger" href="#" @click.prevent="permanentlyDismissArtist(artist.id, $event)">
-                                            <i class="fas fa-times" />
-                                        </a>
-                                    </td>
-                                    <td scope="row" class="small">
-                                        <div v-if="artist.notes && artist.notes.length">
-                                            {{ artist.notes }}
-                                        </div>
-                                    </td>
-                                    <td scope="row">
-                                        <a
-                                            href="#"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#editFeaturedArtist"
-                                            @click.prevent="
-                                                $store.commit(
-                                                    'setSelectedArtist',
-                                                    artist
-                                                )
-                                            "
-                                        >
-                                            edit
-                                        </a>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <span
-                            v-else-if="!actionArtistsLoading"
-                            class="text-secondary ms-5"
-                            >None...
-                        </span>
-                    </div>
-                </div>
-                <artist-search
-                    class="mb-2 col-sm-6"
-                    :input="artistInput"
-                />
-            </div>
-        </div>
-
-        <div class="container card card-body py-1 mb-4">
-            <div class="row mx-3 mt-2">
-                <button
-                    class="btn btn-sm btn-info w-100 mb-1"
                     @click="loadActionBackgrounds($event)"
                 >
                     Load backgrounds
@@ -591,8 +492,6 @@
 
         <contest-info v-if="selectedContest" :contest="selectedContest" />
 
-        <featured-artist-info v-if="selectedArtist" :featured-artist="selectedArtist" />
-
         <background-info-admin
             :background="selectedBackground"
             @update-background="$store.commit('updateActionBackground', $event)"
@@ -609,7 +508,6 @@ import QuestInfo from '../components/admin/quests/QuestInfo.vue';
 import ReviewQuest from '../components/admin/quests/ReviewQuest.vue';
 import UserInfo from '../components/admin/UserInfo.vue';
 import ContestInfo from '../components/admin/ContestInfo.vue';
-import FeaturedArtistInfo from '../components/admin/FeaturedArtistInfo.vue';
 import BackgroundInfoAdmin from '../components/admin/BackgroundInfoAdmin.vue';
 import { Beatmap } from '@interfaces/beatmap/beatmap';
 import { Quest } from '@interfaces/quest';
@@ -618,7 +516,6 @@ import { Background } from '@interfaces/background';
 import adminModule from '@store/admin';
 import ModesIcons from '@components/ModesIcons.vue';
 import UserLinkList from '@components/UserLinkList.vue';
-import ArtistSearch from '@components/artists/ArtistSearch.vue';
 
 export default defineComponent({
     name: 'AdminPage',
@@ -630,14 +527,7 @@ export default defineComponent({
         ContestInfo,
         ModesIcons,
         UserLinkList,
-        ArtistSearch,
-        FeaturedArtistInfo,
         BackgroundInfoAdmin,
-    },
-    data () {
-        return {
-            artistInput: '',
-        };
     },
     computed: {
         ...mapState({
@@ -649,15 +539,12 @@ export default defineComponent({
             actionUsersLoading: (state: any) => state.admin.actionUsersLoading,
             actionContests: (state: any) => state.admin.actionContests,
             actionContestsLoading: (state: any) => state.admin.actionContestsLoading,
-            actionArtists: (state: any) => state.admin.actionArtists,
-            actionArtistsLoading: (state: any) => state.admin.actionArtistsLoading,
             actionBackgrounds: (state: any) => state.admin.actionBackgrounds,
             actionBackgroundsLoading: (state: any) => state.admin.actionBackgroundsLoading,
             selectedBeatmap: (state: any) => state.admin.selectedBeatmap,
             selectedQuest: (state: any) => state.admin.selectedQuest,
             selectedUser: (state: any) => state.admin.selectedUser,
             selectedContest: (state: any) => state.admin.selectedContest,
-            selectedArtist: (state: any) => state.admin.selectedArtist,
             selectedBackground: (state: any) => state.admin.selectedBackground,
         }),
     },
@@ -777,20 +664,6 @@ export default defineComponent({
 
             this.$store.commit('setActionContestsLoading', false);
         },
-        async loadActionArtists(e): Promise<void> {
-            this.$store.commit('setActionArtists', []);
-            this.$store.commit('setActionArtistsLoading', true);
-            const actionArtists = await this.$http.executeGet<User[]>(
-                '/admin/loadActionArtists',
-                e
-            );
-
-            if (!this.$http.isError(actionArtists)) {
-                this.$store.commit('setActionArtists', actionArtists);
-            }
-
-            this.$store.commit('setActionArtistsLoading', false);
-        },
         async loadActionBackgrounds(e): Promise<void> {
             this.$store.commit('setActionBackgrounds', []);
             this.$store.commit('setActionBackgroundsLoading', true);
@@ -804,35 +677,6 @@ export default defineComponent({
             }
 
             this.$store.commit('setActionBackgroundsLoading', false);
-        },
-        findArtistBeatmapSearchUrl(artistName): string {
-            return `https://osu.ppy.sh/beatmapsets?q=artist%3D"${artistName}"&s=any&sort=plays_desc`;
-        },
-        async dismissArtist(artistId, e): Promise<void> {
-            const lastReviewed = await this.$http.executePost(`/admin/featuredArtists/${artistId}/updateLastReviewed`, {}, e);
-
-            if (!this.$http.isError(lastReviewed)) {
-                this.$store.dispatch('updateToastMessages', {
-                    message: `updated last reviewed`,
-                    type: 'info',
-                });
-                this.$store.commit('removeFromActionArtists', {
-                    featuredArtistId: artistId,
-                });
-            }
-        },
-        async permanentlyDismissArtist(artistId, e): Promise<void> {
-            const permanentlyDismiss = await this.$http.executePost(`/admin/featuredArtists/${artistId}/togglePermanentlyDismiss`, {}, e);
-
-            if (!this.$http.isError(permanentlyDismiss)) {
-                this.$store.dispatch('updateToastMessages', {
-                    message: `updated permanenlty dismiss: ${permanentlyDismiss}`,
-                    type: 'info',
-                });
-                this.$store.commit('removeFromActionArtists', {
-                    featuredArtistId: artistId,
-                });
-            }
         },
     },
 });
