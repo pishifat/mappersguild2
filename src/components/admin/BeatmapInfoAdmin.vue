@@ -23,6 +23,7 @@
 
         <template #default>
             <div class="container">
+                <verify-beatmap :beatmap="beatmap" />
                 <div class="row">
                     <tasks-choice
                         :beatmap="beatmap"
@@ -148,6 +149,7 @@ import { Beatmap } from '../../../interfaces/beatmap/beatmap';
 import { Task, SortedTasks } from '../../../interfaces/beatmap/task';
 import ModesIcons from '@components/ModesIcons.vue';
 import TasksChoice from '../beatmaps/beatmapInfo/TasksChoice.vue';
+import VerifyBeatmap from './VerifyBeatmap.vue';
 
 export default defineComponent({
     name: 'BeatmapInfoAdmin',
@@ -155,6 +157,7 @@ export default defineComponent({
         ModalDialog,
         ModesIcons,
         TasksChoice,
+        VerifyBeatmap,
     },
     props: {
         beatmap: {

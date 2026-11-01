@@ -155,6 +155,14 @@ const store: Module<AdminState, MainState> = {
                 beatmap.url = payload.url;
             }
         },
+        updateSongMetadata (state, payload): void {
+            const beatmap = state.actionBeatmaps.find(b => b.id == payload.beatmapId);
+
+            if (beatmap) {
+                beatmap.song.artist = payload.artist;
+                beatmap.song.title = payload.title;
+            }
+        },
         updateIsShowcase (state, payload): void {
             const beatmap = state.actionBeatmaps.find(b => b.id == payload.beatmapId);
 

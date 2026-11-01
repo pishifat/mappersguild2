@@ -8,6 +8,7 @@ import { isOsuResponseError, getClientCredentialsGrant, getBeatmapsetV2Info, get
 import { TaskName, TaskStatus, TaskMode } from '../../../interfaces/beatmap/task';
 import { User } from '../../../interfaces/user';
 import { UserModel } from '../../models/user';
+import { FeaturedSongModel } from '../../models/featuredSong';
 import { sendAnnouncement } from '../../helpers/osuBot';
 import { defaultErrorMessage } from '../../helpers/helpers';
 
@@ -302,6 +303,101 @@ adminBeatmapsRouter.get('/findBundledBeatmaps', async (req, res) => {
 /* POST toggle isBundled */
 adminBeatmapsRouter.post('/:id/toggleIsBundled', async (req, res) => {
     res.json(await BeatmapModel.findByIdAndUpdate(req.params.id, { isBundled: !req.body.isBundled }).defaultPopulate().orFail());
+});
+
+/* GET compare MG metadata/difficulties with osu! API response */
+adminBeatmapsRouter.get('/:id/verify', async (req, res) => {
+    const beatmap = await BeatmapModel
+        .findById(req.params.id)
+        .defaultPopulate()
+        .orFail();
+
+    if (!beatmap.url || !beatmap.url.includes('osu.ppy.sh/beatmapsets/')) {
+        return res.json({ error: 'Invalid osu! url' });
+    }
+
+    const response = await getClientCredentialsGrant();
+
+    if (isOsuResponseError(response)) {
+        return res.json(defaultErrorMessage);
+    }
+
+    const bmInfo: any = await getBeatmapsetV2Info(response.access_token, findBeatmapsetId(beatmap.url));
+
+    if (isOsuResponseError(bmInfo)) {
+        return res.json(defaultErrorMessage);
+    }
+
+    // metadata check
+    const metadata = {
+        osu: `${bmInfo.artist} - ${bmInfo.title}`,
+        mg: `${beatmap.song.artist} - ${beatmap.song.title}`,
+        match: bmInfo.artist === beatmap.song.artist && bmInfo.title === beatmap.song.title,
+    };
+
+    // diffs check
+    const difficulties = bmInfo.beatmaps
+        .filter(difficulty => !difficulty.deleted_at)
+        .map(difficulty => ({ ...difficulty, mode: difficulty.mode === 'fruits' ? TaskMode.Catch : difficulty.mode }));
+
+    // only difficulties (ENHIX) are returned by osu! API. hs/sb/skin need to be manually checked
+    const autoCheckNames = [TaskName.Easy, TaskName.Normal, TaskName.Hard, TaskName.Insane, TaskName.Expert];
+    const manualCheckNames = [TaskName.Hitsounds, TaskName.Storyboard, TaskName.Skin];
+    const autoCheckTasks = beatmap.tasks.filter(task => autoCheckNames.includes(task.name));
+    const manualCheckTasks = beatmap.tasks.filter(task => manualCheckNames.includes(task.name));
+
+    const mgMappers: string[] = [];
+
+    for (const task of autoCheckTasks) {
+        for (const mapper of task.mappers) {
+            mgMappers.push(mapper.osuId);
+        }
+    }
+
+    const osuMappers: string[] = [];
+
+    for (const difficulty of difficulties) {
+        for (const owner of difficulty.owners) {
+            osuMappers.push(owner.id);
+        }
+    }
+
+    // if every mapper osuId appears the same number of times in both arrays, the difficulties match. probably...
+    const difficultiesMatch = mgMappers.sort().join() === osuMappers.sort().join();
+
+    // host hitsounds are most likely legit, so no need to flag for manual check
+    const isHostHitsounds = task => task.name === TaskName.Hitsounds && task.mappers.every(mapper => mapper.id === beatmap.host.id);
+
+    const manual = manualCheckTasks.filter(task => !isHostHitsounds(task)).map(task => ({
+        name: task.name,
+        mode: task.mode,
+        mappers: task.mappers.map(mapper => ({ username: mapper.username, osuId: mapper.osuId })),
+    }));
+
+    res.json({ metadata, difficultiesMatch, manual });
+});
+
+/* POST sync MG song artist/title with osu! map's (romanized) artist/title */
+adminBeatmapsRouter.post('/:id/syncMetadata', isSuperAdmin, async (req, res) => {
+    const beatmap = await BeatmapModel.findById(req.params.id).orFail();
+
+    const response = await getClientCredentialsGrant();
+
+    if (isOsuResponseError(response)) {
+        return res.json(defaultErrorMessage);
+    }
+
+    const bmInfo: any = await getBeatmapsetV2Info(response.access_token, findBeatmapsetId(beatmap.url));
+
+    if (isOsuResponseError(bmInfo)) {
+        return res.json(defaultErrorMessage);
+    }
+
+    await FeaturedSongModel
+        .findByIdAndUpdate(beatmap.song, { artist: bmInfo.artist, title: bmInfo.title })
+        .orFail();
+
+    res.json({ artist: bmInfo.artist, title: bmInfo.title });
 });
 
 /* POST search beatmap through osu api */
