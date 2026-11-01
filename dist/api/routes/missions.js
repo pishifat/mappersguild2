@@ -644,12 +644,7 @@ missionsRouter.get('/:missionId/findSelectedShowcaseMissionSongsByTag', async (r
     })
         .orFail();
     const entry = mission.showcaseMissionSongsByGenre.find((e) => e.user.toString() == req.session.mongoId || (e.user.id && e.user.id == req.session.mongoId));
-    if (!entry) {
-        return res.json(entry);
-    }
-    const eligibleSongIds = await getClassifiedEligibleSongIds();
-    const eligibleSongs = entry.songs.filter((song) => eligibleSongIds.has(song.id));
-    res.json({ ...entry.toObject(), songs: eligibleSongs });
+    res.json(entry);
 });
 /* GET findAllSelectedShowcaseMissionSongsByTag */
 missionsRouter.get('/:missionId/findAllSelectedShowcaseMissionSongsByTag', async (req, res) => {
