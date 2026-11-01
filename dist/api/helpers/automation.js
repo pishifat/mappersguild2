@@ -94,24 +94,14 @@ const setQualified = node_cron_1.default.schedule('0 16 * * *', async () => {
                             bm.rankedDate = new Date(bmInfo.ranked_date);
                         }
                         await bm.save();
-                        // remove modders who didn't post anything
-                        for (const modder of bm.modders) {
-                            const currentBeatmap = await beatmap_1.BeatmapModel
-                                .findById(bm._id)
-                                .defaultPopulate()
-                                .orFail();
-                            const discussionInfo = await (0, osuApi_1.getDiscussions)(token, `?beatmapset_id=${osuId}&message_types%5B%5D=suggestion&message_types%5B%5D=problem&user=${modder.osuId}`);
-                            await (0, helpers_1.sleep)(500);
-                            if (!(0, osuApi_1.isOsuResponseError)(discussionInfo) && discussionInfo.discussions && !discussionInfo.discussions.length) {
-                                const i = currentBeatmap.modders.findIndex(m => m.id == modder.id);
-                                if (i !== -1) {
-                                    currentBeatmap.modders.splice(i, 1);
-                                    await currentBeatmap.save();
-                                }
-                            }
-                        }
-                        // add bns to modders (after above, in case a bn didn't post anything)
-                        await (0, helpers_1.setNominators)(bm, bmInfo);
+                        // remove modders who didn't mod
+                        await (0, helpers_1.removeNonPostingModders)(bm._id, token, osuId);
+                        // add bns to modders (even if they didn't post). re-query so modders list is current
+                        const currentBeatmap = await beatmap_1.BeatmapModel
+                            .findById(bm._id)
+                            .defaultPopulate()
+                            .orFail();
+                        await (0, helpers_1.setNominators)(currentBeatmap, bmInfo);
                     }
                     /*  osu:    Pending
                         MG:     Qualified
@@ -339,7 +329,7 @@ const setRanked = node_cron_1.default.schedule('0 1 * * *', async () => {
                 if (!(0, osuApi_1.isOsuResponseError)(bmInfo)) {
                     const status = (0, helpers_1.findBeatmapsetStatus)(bmInfo.ranked);
                     if (status == beatmap_2.BeatmapStatus.Ranked) {
-                        await (0, helpers_1.setBeatmapStatusRanked)(bm.id, bmInfo);
+                        await (0, helpers_1.setBeatmapStatusRanked)(bm.id, bmInfo, token);
                     }
                 }
             }

@@ -8,6 +8,7 @@ exports.truncateText = truncateText;
 exports.setNominators = setNominators;
 exports.getLongestBeatmapLength = getLongestBeatmapLength;
 exports.sleep = sleep;
+exports.removeNonPostingModders = removeNonPostingModders;
 exports.setBeatmapStatusRanked = setBeatmapStatusRanked;
 exports.escapeUsername = escapeUsername;
 exports.generateLists = generateLists;
@@ -16,6 +17,7 @@ exports.generateMissionThumbnailUrl = generateMissionThumbnailUrl;
 exports.generateAuthorWebhook = generateAuthorWebhook;
 exports.generateBotAuthorWebhook = generateBotAuthorWebhook;
 exports.setSession = setSession;
+const osuApi_1 = require("./osuApi");
 const discordApi_1 = require("./discordApi");
 const beatmap_1 = require("../../interfaces/beatmap/beatmap");
 const beatmap_2 = require("../models/beatmap/beatmap");
@@ -110,9 +112,25 @@ function getLongestBeatmapLength(beatmaps) {
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
-async function setBeatmapStatusRanked(id, bmInfo) {
+/** remove modders who didn't mod */
+async function removeNonPostingModders(beatmapId, token, osuId) {
+    const beatmap = await beatmap_2.BeatmapModel
+        .findById(beatmapId)
+        .defaultPopulate()
+        .orFail();
+    for (const modder of beatmap.modders) {
+        const discussionInfo = await (0, osuApi_1.getDiscussions)(token, `?beatmapset_id=${osuId}&message_types%5B%5D=suggestion&message_types%5B%5D=problem&user=${modder.osuId}`);
+        await sleep(500);
+        if (!(0, osuApi_1.isOsuResponseError)(discussionInfo) && discussionInfo.discussions && !discussionInfo.discussions.length) {
+            await beatmap_2.BeatmapModel.findByIdAndUpdate(beatmapId, { $pull: { modders: modder._id } });
+        }
+    }
+}
+async function setBeatmapStatusRanked(id, bmInfo, token) {
     // update status (only helpful for automated calls)
     await beatmap_2.BeatmapModel.findByIdAndUpdate(id, { status: beatmap_1.BeatmapStatus.Ranked });
+    // remove modders who didn't mod (nominators are added later even if they didn't post)
+    await removeNonPostingModders(id, token, bmInfo.id);
     // query for populated beatmap
     let beatmap = await beatmap_2.BeatmapModel
         .findById(id)
