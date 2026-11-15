@@ -5,7 +5,7 @@
                 Something went wrong!
             </div>
             <div class="card-body">
-                Contact pishifat if you continue having problems
+                Contact <a href="https://osu.ppy.sh/community/chat?channel_id=3178418" target="_blank">pishifat</a> if you continue having problems. If the osu! website is down, please wait!
             </div>
         </div>
     </div>
