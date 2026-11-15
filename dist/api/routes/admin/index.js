@@ -13,7 +13,6 @@ const beatmap_2 = require("../../../interfaces/beatmap/beatmap");
 const contest_1 = require("../../models/contest/contest");
 const contest_2 = require("../../../interfaces/contest/contest");
 const osuApi_1 = require("../../helpers/osuApi");
-const featuredArtist_1 = require("../../models/featuredArtist");
 const background_1 = require("../../models/background");
 const adminRouter = express_1.default.Router();
 adminRouter.use(middlewares_1.isLoggedIn);
@@ -61,25 +60,6 @@ adminRouter.get('/loadActionContests/', async (req, res) => {
     })
         .populate({ path: 'creators' });
     res.json(actionContests);
-});
-/* GET artists in need of action */
-adminRouter.get('/loadActionArtists/', async (req, res) => {
-    const oneYearAgo = new Date();
-    oneYearAgo.setDate(oneYearAgo.getDate() - 365);
-    const actionArtists = await featuredArtist_1.FeaturedArtistModel
-        .find({
-        $or: [
-            { lastReviewed: { $lt: oneYearAgo } },
-            { lastReviewed: { $exists: false } },
-        ],
-        permanentlyDismiss: { $ne: true },
-        osuId: { $exists: false },
-        artistSigned: { $ne: true },
-    })
-        .defaultPopulateWithSongs()
-        .sort({ createdAt: -1 })
-        .limit(50);
-    res.json(actionArtists);
 });
 /* GET backgrounds in need of action */
 adminRouter.get('/loadActionBackgrounds/', async (req, res) => {

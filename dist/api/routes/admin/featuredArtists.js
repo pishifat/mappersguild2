@@ -184,17 +184,6 @@ adminFeaturedArtistsRouter.post('/:id/updateNotes', async (req, res) => {
     await featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { notes: req.body.notes }).orFail();
     res.json(req.body.notes);
 });
-/* POST update last reviewed */
-adminFeaturedArtistsRouter.post('/:id/updateLastReviewed', async (req, res) => {
-    await featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { lastReviewed: new Date() }).orFail();
-    res.json(new Date());
-});
-/* POST toggle permanently dismiss */
-adminFeaturedArtistsRouter.post('/:id/togglePermanentlyDismiss', async (req, res) => {
-    const artist = await featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id).orFail();
-    await featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id, { permanentlyDismiss: !artist.permanentlyDismiss }).orFail();
-    res.json(!artist.permanentlyDismiss);
-});
 /* POST toggle isMomentum */
 adminFeaturedArtistsRouter.post('/:id/toggleIsMomentum', async (req, res) => {
     const artist = await featuredArtist_1.FeaturedArtistModel.findByIdAndUpdate(req.params.id).orFail();
